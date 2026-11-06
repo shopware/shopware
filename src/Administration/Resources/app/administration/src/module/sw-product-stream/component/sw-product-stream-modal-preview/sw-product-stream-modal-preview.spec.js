@@ -203,6 +203,11 @@ describe('src/module/sw-product-stream/component/sw-product-stream-modal-preview
         );
     });
 
+    /**
+     * The product stream preview showed prices in euros instead of the sales channel currency.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/4718
+     */
     it('should load sales channel successfully', async () => {
         const wrapper = await createWrapper();
         const salesChannelData = {
@@ -239,6 +244,11 @@ describe('src/module/sw-product-stream/component/sw-product-stream-modal-preview
         expect(wrapper.vm.salesChannelRepository.get).toHaveBeenCalledTimes(0);
     });
 
+    /**
+     * The "is not equal to any of" filter also excluded all non-variant products.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/4733
+     */
     it('should map filters for search with rule Is not equal to any of', async () => {
         const wrapper = await createWrapper();
 

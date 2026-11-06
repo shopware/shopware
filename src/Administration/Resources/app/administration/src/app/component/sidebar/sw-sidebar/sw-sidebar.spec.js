@@ -64,6 +64,11 @@ describe('src/app/component/sidebar/sw-sidebar/index.js', () => {
         await flushPromises();
     });
 
+    /**
+     * The sidebar did not open with Vue compat mode disabled.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/5466
+     */
     it('should open the sidebar', async () => {
         // Check if the content of the first sidebar item is not visible
         let firstSidebarItemContent = await wrapper.find('.first-sidebar-item-content');
@@ -80,6 +85,11 @@ describe('src/app/component/sidebar/sw-sidebar/index.js', () => {
         expect(firstSidebarItemContent.text()).toBe('The content of the first sidebar item');
     });
 
+    /**
+     * The sidebar did not open with Vue compat mode disabled.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/5466
+     */
     it('should close the sidebar', async () => {
         // Open the sidebar
         const firstSidebarNavigationItem = await wrapper.find(

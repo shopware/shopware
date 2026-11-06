@@ -305,6 +305,11 @@ describe('components/form/sw-price-field', () => {
         expect(wrapper.emitted('update:value')).toBeFalsy();
     });
 
+    /**
+     * The first price entered for a new product was cleared after typing.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/3930
+     */
     it('should have the typed gross value after input change and after debounce time', async () => {
         const wrapper = await setup({ allowEmpty: true });
         await wrapper.setProps({
@@ -318,6 +323,11 @@ describe('components/form/sw-price-field', () => {
         expect(wrapper.vm.priceForCurrency.gross).toBe(euroPrice.gross);
     });
 
+    /**
+     * The first price entered for a new product was cleared after typing.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/3930
+     */
     it('should have the typed net value after input change and after debounce time', async () => {
         const wrapper = await setup({ allowEmpty: true });
         await wrapper.setProps({
@@ -331,6 +341,11 @@ describe('components/form/sw-price-field', () => {
         expect(wrapper.vm.priceForCurrency.net).toBe(euroPrice.net);
     });
 
+    /**
+     * Decimal input in price fields was lost when typing slower than the debounce.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/3422
+     */
     it('should cancel the debounce timer when the number field emits "ends-with-decimal-separator" event', async () => {
         const wrapper = await setup();
 

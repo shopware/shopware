@@ -67,7 +67,8 @@ export default {
 
             criteria.setTotalCountMode(1);
 
-            criteria.addAssociation('visibilities.salesChannel');
+            // only the visibility of this sales channel is needed to remove the product from it
+            criteria.getAssociation('visibilities').addFilter(Criteria.equals('salesChannelId', this.salesChannel.id));
             criteria.addAssociation('options.group');
             criteria.addFilter(Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id));
 

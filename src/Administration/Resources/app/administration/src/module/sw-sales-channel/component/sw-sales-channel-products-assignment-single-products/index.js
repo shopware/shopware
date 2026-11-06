@@ -53,7 +53,7 @@ export default {
                 criteria.setTerm(this.searchTerm);
             }
 
-            criteria.addAssociation('visibilities.salesChannel');
+            criteria.getAssociation('visibilities').addFilter(Criteria.equals('salesChannelId', this.salesChannel.id));
             criteria.addFilter(
                 Criteria.not('and', [Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id)]),
             );

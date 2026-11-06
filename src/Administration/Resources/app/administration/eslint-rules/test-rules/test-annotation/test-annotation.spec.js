@@ -111,12 +111,12 @@ ruleTester.run('test-annotation', rule, {
             options,
         },
         {
-            name: 'accepts any source with a reasoned @see-exception',
+            name: 'accepts any source with a reasoned @seeException',
             code: `describe('sw-foo', () => {
     /**
      * @behavior
      * @see https://example.com/a11y#toasts
-     * @see-exception The accessibility guideline is the decision, there is no GitHub thread.
+     * @seeException The accessibility guideline is the decision, there is no GitHub thread.
      */
     it('keeps the toast open on hover', () => {});
 });`,
@@ -255,12 +255,12 @@ describe('sw-foo', () => {
             errors: [{ messageId: 'invalidSee' }],
         },
         {
-            name: 'rejects a short @see-exception reason',
+            name: 'rejects a short @seeException reason',
             code: `describe('sw-foo', () => {
     /**
      * @behavior
      * @see https://example.com
-     * @see-exception ok
+     * @seeException ok
      */
     it('should keep rows', () => {});
 });`,
@@ -287,7 +287,7 @@ ruleTester.run('test-annotation-see-exception', seeExceptionRule, {
     /**
      * @behavior
      * @see https://example.com/a11y#toasts
-     * @see-exception The accessibility guideline is the decision.
+     * @seeException The accessibility guideline is the decision.
      */
     it('keeps the toast open on hover', () => {});
 });`,

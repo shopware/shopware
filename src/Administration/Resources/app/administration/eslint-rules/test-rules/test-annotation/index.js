@@ -35,7 +35,7 @@ function tagValues(doc, name) {
  * Whether a doc comment names its own source, so it does not inherit one from a describe.
  */
 function hasEvidence(doc) {
-    return tagValues(doc, 'see').length > 0 || tagValues(doc, 'see-exception').length > 0;
+    return tagValues(doc, 'see').length > 0 || tagValues(doc, 'seeException').length > 0;
 }
 
 module.exports = {
@@ -64,8 +64,8 @@ module.exports = {
             characterizationOnDescribe: `@characterization is not inherited. Tag each test instead of the describe. ${DOCS}`,
             missingSee: `@{{ kind }} needs a @see on the test or on an enclosing describe tagged @{{ kind }}. ${DOCS}`,
             inheritedKindMismatch: `The nearest describe with a @see is tagged @{{ inherited }}, so this @{{ kind }} test needs its own @see. ${DOCS}`,
-            invalidSee: `@see for @{{ kind }} must be {{ expected }}. Add @see-exception <reason> if no such source exists. ${DOCS}`,
-            shortException: `@see-exception needs a reason of at least {{ min }} characters that says why the source counts. ${DOCS}`,
+            invalidSee: `@see for @{{ kind }} must be {{ expected }}. Add @seeException <reason> if no such source exists. ${DOCS}`,
+            shortException: `@seeException needs a reason of at least {{ min }} characters that says why the source counts. ${DOCS}`,
         },
     },
 
@@ -76,7 +76,7 @@ module.exports = {
 
         function validateEvidence(doc, kind, node) {
             const sources = tagValues(doc, 'see');
-            const [exception] = tagValues(doc, 'see-exception');
+            const [exception] = tagValues(doc, 'seeException');
 
             if (sources.length === 0) {
                 context.report({ node, messageId: 'missingSee', data: { kind } });

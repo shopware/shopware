@@ -35,7 +35,7 @@ The term characterization test comes from Michael Feathers, *Working Effectively
 
 An issue link counts as a source for a regression, because the bug report is the evidence.
 For a behavior it needs a comment anchor, because opening an issue is not a decision.
-Other sources need a `@see-exception` with a reason, and ESLint lists every exception as a warning.
+Other sources need a `@seeException` with a reason, and ESLint lists every exception as a warning.
 This keeps the escape visible instead of pushing unusual sources into `@characterization`.
 
 Every test carries its own tag, but the `@see` and the description may sit on the enclosing `describe`.

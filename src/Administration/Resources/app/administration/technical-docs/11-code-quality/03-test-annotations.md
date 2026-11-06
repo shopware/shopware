@@ -92,14 +92,14 @@ The allowlist lives in `eslint-rules/test-rules/test-annotation/sources.js`.
 
 ### Sources outside the allowlist
 
-When the decision really lives elsewhere, add `@see-exception` with a reason of at least 20 characters:
+When the decision really lives elsewhere, add `@seeException` with a reason of at least 20 characters:
 
 ```js
 /**
  * Toasts stay open on hover, so screen reader users can finish reading them.
  * @behavior
  * @see https://www.w3.org/WAI/WCAG22/Understanding/timing-adjustable
- * @see-exception WCAG is the decision, there is no Shopware thread for it.
+ * @seeException WCAG is the decision, there is no Shopware thread for it.
  */
 ```
 
@@ -142,7 +142,7 @@ The job then passes and names the skipped bug in its summary.
 
 | Rule | Severity | Checks |
 |---|---|---|
-| `sw-test-rules/test-annotation` | error | Exactly one tag per test, a valid `@see` for `@regression` and `@behavior`, a reason for `@see-exception` |
-| `sw-test-rules/test-annotation-see-exception` | warning | Lists every `@see-exception` |
+| `sw-test-rules/test-annotation` | error | Exactly one tag per test, a valid `@see` for `@regression` and `@behavior`, a reason for `@seeException` |
+| `sw-test-rules/test-annotation-see-exception` | warning | Lists every `@seeException` |
 
 Both apply to `src/**/*.spec.{js,ts}` and the specs in `.spec/` directories.

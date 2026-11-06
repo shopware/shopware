@@ -5,14 +5,14 @@
 const { collectTestCases } = require('./test-cases');
 
 /**
- * Reports every `@see-exception`, so a source outside the allowlist stays visible in each lint run.
+ * Reports every `@seeException`, so a source outside the allowlist stays visible in each lint run.
  * Runs as a warning next to `test-annotation`, which checks that the reason is long enough.
  */
 module.exports = {
     meta: {
         type: 'suggestion',
         docs: {
-            description: 'Keeps every @see-exception of a test visible as a warning.',
+            description: 'Keeps every @seeException of a test visible as a warning.',
         },
         schema: [],
         messages: {
@@ -33,7 +33,7 @@ module.exports = {
                     ...tests,
                 ].forEach(({ node, doc }) => {
                     (doc?.tags ?? [])
-                        .filter((tag) => tag.name === 'see-exception')
+                        .filter((tag) => tag.name === 'seeException')
                         .forEach((tag) => {
                             context.report({ node, messageId: 'seeException', data: { reason: tag.value } });
                         });

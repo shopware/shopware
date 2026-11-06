@@ -8,12 +8,15 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Adapter\Composer\ComposerInfoProvider;
 use Shopware\Core\Framework\Adapter\Composer\ComposerPackage;
+use Shopware\Core\Framework\App\AppDirectory;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\AppExtractor;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\LocalAppDirectory;
+use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Setup\Setup;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\ExtensionExtractor;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -27,6 +30,17 @@ class AppLoaderTest extends TestCase
         parent::tearDown();
 
         ComposerInfoProvider::reset();
+    }
+
+    public function testDeleteAppRemovesItsDirectory(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
+        $appDirectory = $this->createMock(AppDirectory::class);
+        $appDirectory->expects($this->once())->method('delete')->with('test');
+
+        $appLoader = new AppLoader($appDirectory, new NullLogger());
+
+        $appLoader->deleteApp($manifest);
     }
 
     public function testLoadAppByComposer(): void
@@ -114,7 +128,7 @@ class AppLoaderTest extends TestCase
         $logger ??= new NullLogger();
 
         return new AppLoader(
-            new LocalAppDirectory($appDir, $logger, static::createStub(ExtensionExtractor::class)),
+            new LocalAppDirectory($appDir, $logger, static::createStub(AppExtractor::class), static::createStub(EventDispatcherInterface::class)),
             $logger
         );
     }

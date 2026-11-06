@@ -15,7 +15,6 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Plugin\Util\ZipUtils;
 use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
 use Shopware\Core\Framework\Store\StoreException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -43,18 +42,16 @@ class AppExtensionService extends AbstractAppExtensionService
 
     public function upload(UploadedFile $file, Context $context): string
     {
-        $metadata = $this->readUploadMetadata($file->getPathname());
-
-        $this->appDirectory->store($file->getPathname());
+        $metadata = $this->appDirectory->store($file->getPathname());
 
         $this->eventDispatcher->dispatch(new AppUploadedEvent(
             $file->getClientOriginalName(),
             $context,
-            $metadata['name'],
-            $metadata['version']
+            $metadata->name,
+            $metadata->version
         ));
 
-        return $metadata['name'];
+        return $metadata->name;
     }
 
     public function installExtension(string $technicalName, Context $context): void
@@ -172,27 +169,6 @@ class AppExtensionService extends AbstractAppExtensionService
 
         if ($manifest !== null) {
             $this->appLoader->deleteApp($manifest);
-        }
-    }
-
-    /**
-     * @return array{name: string, version: string|null}
-     */
-    private function readUploadMetadata(string $path): array
-    {
-        $archive = ZipUtils::openZip($path);
-
-        try {
-            $entry = $archive->statIndex(0);
-            \assert($entry !== false);
-            $directory = explode('/', (string) $entry['name'])[0];
-            $manifestXml = $archive->getFromName($directory . '/manifest.xml');
-            \assert(\is_string($manifestXml));
-            $metadata = Manifest::createFromXml($manifestXml)->getMetadata();
-
-            return ['name' => $metadata->getName(), 'version' => $metadata->getVersion()];
-        } finally {
-            $archive->close();
         }
     }
 }

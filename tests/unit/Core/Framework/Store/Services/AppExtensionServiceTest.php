@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Store\Services;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppDirectory;
+use Shopware\Core\Framework\App\AppMeta;
 use Shopware\Core\Framework\App\AppStorage;
 use Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider;
 use Shopware\Core\Framework\App\Event\AppUploadedEvent;
@@ -33,7 +34,7 @@ class AppExtensionServiceTest extends TestCase
         $file = new UploadedFile(__DIR__ . '/../../Plugin/_fixtures/archives/App.zip', 'App.zip', null, null, true);
 
         $appDirectory = $this->createMock(AppDirectory::class);
-        $appDirectory->expects($this->once())->method('store')->with($file->getPathname());
+        $appDirectory->expects($this->once())->method('store')->with($file->getPathname())->willReturn(new AppMeta('SwagApp', '1.0.0'));
 
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher->expects($this->once())
@@ -120,10 +121,13 @@ class AppExtensionServiceTest extends TestCase
             ->method('uninstall')
             ->with('TestApp', ['id' => 'app-id'], $context, false);
 
+        $directory = $this->createMock(AppDirectory::class);
+        $directory->expects($this->never())->method('delete');
         $service = $this->createService(
             appLifecycle: $appLifecycle,
             appStorage: $appStorage,
-            removalValidators: [$firstValidator, $secondValidator]
+            removalValidators: [$firstValidator, $secondValidator],
+            appDirectory: $directory,
         );
 
         $service->uninstallExtension('TestApp', $context);
@@ -152,6 +156,25 @@ class AppExtensionServiceTest extends TestCase
         $this->expectExceptionObject(StoreException::extensionThemeStillInUse('app-id'));
 
         $service->uninstallExtension('TestApp', $context);
+    }
+
+    public function testRemovingAppUninstallsItAndDeletesItsFiles(): void
+    {
+        $context = Context::createDefaultContext();
+        $manifest = static::createStub(Manifest::class);
+        $appLoader = $this->createMock(AppLoader::class);
+        $appLoader->method('load')->willReturn(['TestApp' => $manifest]);
+        $appLoader->expects($this->once())->method('deleteApp')->with($manifest);
+
+        $appStorage = static::createStub(AppStorage::class);
+        $appStorage->method('findByName')->willReturn(AppFixture::createAppEntity('TestApp', 'app-id'));
+
+        $appLifecycle = $this->createMock(AbstractAppLifecycle::class);
+        $appLifecycle->expects($this->once())->method('uninstall')->with('TestApp', ['id' => 'app-id'], $context, true);
+
+        $service = $this->createService(appLifecycle: $appLifecycle, appStorage: $appStorage, appLoader: $appLoader);
+
+        $service->deleteExtension('TestApp', true, $context);
     }
 
     public function testRemovingAppWithoutLocalFilesUninstallsIt(): void

@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\App\AppDirectory;
+use Shopware\Core\Framework\App\AppMeta;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Event\PluginUploadedEvent;
@@ -199,7 +200,7 @@ class PluginManagementServiceTest extends TestCase
     public function testExtractPluginWithDetectedAppStoresApp(): void
     {
         $appDirectory = $this->createMock(AppDirectory::class);
-        $appDirectory->expects($this->once())->method('store')->with('/some/zip/file.zip');
+        $appDirectory->expects($this->once())->method('store')->with('/some/zip/file.zip')->willReturn(new AppMeta('TestApp', '1.0.0'));
 
         $pluginManagementService = new PluginManagementService(
             '',
@@ -224,7 +225,7 @@ class PluginManagementServiceTest extends TestCase
             ->method('refreshPlugins');
 
         $appDirectory = $this->createMock(AppDirectory::class);
-        $appDirectory->expects($this->once())->method('store');
+        $appDirectory->expects($this->once())->method('store')->willReturn(new AppMeta('TestApp', '1.0.0'));
 
         $pluginManagementService = new PluginManagementService(
             '',

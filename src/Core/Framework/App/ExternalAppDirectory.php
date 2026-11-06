@@ -5,25 +5,23 @@ namespace Shopware\Core\Framework\App;
 use League\Flysystem\FileAttributes;
 use League\Flysystem\FilesystemOperator;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
-use Shopware\Core\Framework\App\Event\PostAppDeletedEvent;
+use Shopware\Core\Framework\App\Event\AppUploadValidationEvent;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Source\ExternalStorage;
 use Shopware\Core\Framework\App\Source\TemporaryDirectoryFactory;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
  */
 #[Package('framework')]
-class FlysystemAppDirectory implements AppDirectory, EventSubscriberInterface
+class ExternalAppDirectory implements AppDirectory
 {
-    final public const SOURCE_TYPE = 'flysystem';
-    final public const LEGACY_SOURCE_TYPE = 'private-app';
     final public const DIRECTORY = 'private-apps';
 
     public function __construct(
@@ -31,20 +29,15 @@ class FlysystemAppDirectory implements AppDirectory, EventSubscriberInterface
         private readonly AppExtractor $appExtractor,
         private readonly TemporaryDirectoryFactory $temporaryDirectoryFactory,
         private readonly LoggerInterface $logger,
+        private readonly EventDispatcherInterface $eventDispatcher,
         private readonly Filesystem $filesystem = new Filesystem(),
     ) {
     }
 
-    public static function getSubscribedEvents(): array
+    public function store(string $zipPath): AppMeta
     {
-        return [
-            AppUpdatedEvent::class => 'onAppUpdated',
-            PostAppDeletedEvent::class => 'onAppDeleted',
-        ];
-    }
+        $this->eventDispatcher->dispatch(new AppUploadValidationEvent($zipPath));
 
-    public function store(string $zipPath): void
-    {
         $temporaryDirectory = Path::join(
             $this->temporaryDirectoryFactory->path(),
             'app-directory-' . bin2hex(random_bytes(8))
@@ -53,14 +46,16 @@ class FlysystemAppDirectory implements AppDirectory, EventSubscriberInterface
         try {
             $appPath = $this->appExtractor->extract($zipPath, $temporaryDirectory);
             $manifestPath = Path::join($appPath, 'manifest.xml');
-            $manifest = Manifest::createFromXmlFile($manifestPath);
+            $metadata = $this->appExtractor->getMetadata($appPath);
 
-            $name = $manifest->getMetadata()->getName();
+            $name = $metadata->name;
             $directory = Path::join(self::DIRECTORY, $name, Hasher::hashFile($zipPath));
 
             $this->storage->createDirectory($directory);
             $this->writeFile(Path::join($directory, 'manifest.xml'), $manifestPath);
             $this->writeFile(Path::join($directory, $name . '.zip'), $zipPath);
+
+            return $metadata;
         } finally {
             $this->filesystem->remove($temporaryDirectory);
         }
@@ -104,7 +99,7 @@ class FlysystemAppDirectory implements AppDirectory, EventSubscriberInterface
             }
 
             $manifest->setPath($app['path']);
-            $manifest->setSourceType(self::SOURCE_TYPE);
+            $manifest->setSourceType(ExternalStorage::name());
 
             $manifests[$manifest->getMetadata()->getName()] = $manifest;
         }
@@ -117,15 +112,18 @@ class FlysystemAppDirectory implements AppDirectory, EventSubscriberInterface
         $this->storage->deleteDirectory(Path::join(self::DIRECTORY, $technicalName));
     }
 
-    public function onAppUpdated(AppUpdatedEvent $event): void
+    public function removeOldVersions(Manifest $manifest): void
     {
-        $app = $event->getApp();
-        if (!\in_array($app->getSourceType(), [self::SOURCE_TYPE, self::LEGACY_SOURCE_TYPE], true)) {
+        if (!\in_array($manifest->getSourceType(), [ExternalStorage::name(), ExternalStorage::LEGACY_SOURCE_TYPE, ExternalStorage::PREVIOUS_SOURCE_TYPE], true)) {
             return;
         }
 
-        $appDirectory = Path::join(self::DIRECTORY, $app->getName());
-        $currentDirectory = $this->currentDirectory($app->getPath(), $appDirectory);
+        $appDirectory = Path::join(self::DIRECTORY, $manifest->getMetadata()->getName());
+        $currentDirectory = $this->currentDirectory($manifest->getPath(), $appDirectory);
+
+        if ($currentDirectory === '') {
+            return;
+        }
 
         foreach ($this->storage->listContents($appDirectory) as $item) {
             if (!$item->isDir() || $item->path() === $currentDirectory) {
@@ -134,15 +132,6 @@ class FlysystemAppDirectory implements AppDirectory, EventSubscriberInterface
 
             $this->storage->deleteDirectory($item->path());
         }
-    }
-
-    public function onAppDeleted(PostAppDeletedEvent $event): void
-    {
-        if (!\in_array($event->sourceType, [self::SOURCE_TYPE, self::LEGACY_SOURCE_TYPE], true)) {
-            return;
-        }
-
-        $this->delete($event->appName);
     }
 
     private function currentDirectory(string $path, string $appDirectory): string

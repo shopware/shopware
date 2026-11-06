@@ -8,7 +8,6 @@ use Shopware\Core\Framework\App\AppDownloader;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppExtractor;
-use Shopware\Core\Framework\App\FlysystemAppDirectory;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -21,8 +20,12 @@ use Symfony\Component\Filesystem\Path;
  * @internal
  */
 #[Package('framework')]
-class FlysystemSource implements Source
+class ExternalStorage implements Source
 {
+    public const LEGACY_SOURCE_TYPE = 'private-app';
+
+    public const PREVIOUS_SOURCE_TYPE = 'flysystem';
+
     public function __construct(
         private readonly FilesystemOperator $storage,
         private readonly TemporaryDirectoryFactory $temporaryDirectoryFactory,
@@ -35,12 +38,12 @@ class FlysystemSource implements Source
 
     public static function name(): string
     {
-        return FlysystemAppDirectory::SOURCE_TYPE;
+        return 'external-storage';
     }
 
     public function supports(Manifest|AppEntity $app): bool
     {
-        return \in_array($app->getSourceType(), [FlysystemAppDirectory::SOURCE_TYPE, FlysystemAppDirectory::LEGACY_SOURCE_TYPE], true);
+        return \in_array($app->getSourceType(), [self::name(), self::LEGACY_SOURCE_TYPE, self::PREVIOUS_SOURCE_TYPE], true);
     }
 
     public function filesystem(Manifest|AppEntity $app): Filesystem

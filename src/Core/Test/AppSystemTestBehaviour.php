@@ -7,6 +7,8 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\After;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
+use Shopware\Core\Framework\App\AppArchiveValidator;
+use Shopware\Core\Framework\App\AppExtractor;
 use Shopware\Core\Framework\App\AppService;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator;
@@ -16,12 +18,11 @@ use Shopware\Core\Framework\App\LocalAppDirectory;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Plugin\ExtensionExtractor;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 trait AppSystemTestBehaviour
 {
@@ -35,7 +36,7 @@ trait AppSystemTestBehaviour
     protected function getAppLoader(string $appDir): AppLoader
     {
         return new AppLoader(
-            new LocalAppDirectory($appDir, new NullLogger(), new ExtensionExtractor(['app' => $appDir], new Filesystem())),
+            new LocalAppDirectory($appDir, new NullLogger(), new AppExtractor(new AppArchiveValidator()), new EventDispatcher()),
             new NullLogger()
         );
     }

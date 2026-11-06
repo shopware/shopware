@@ -167,10 +167,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ExtensionExtractor::class)
         ->args([
-            [
-                'plugin' => param('kernel.plugin_dir'),
-                'app' => param('kernel.app_dir'),
-            ],
+            param('kernel.plugin_dir'),
             service(Filesystem::class),
         ]);
 

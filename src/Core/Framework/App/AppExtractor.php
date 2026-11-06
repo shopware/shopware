@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App;
 
 use Shopware\Core\Framework\App\Exception\AppArchiveValidationFailure;
+use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\Util\ZipUtils;
@@ -36,11 +37,24 @@ class AppExtractor
 
         $archive = ZipUtils::openZip($zipLocation);
 
-        $this->appArchiveValidator->validate($archive, $appName);
-        $appName = $this->getAppName($archive);
-        $archive->extractTo($destinationDirectory);
+        try {
+            $this->appArchiveValidator->validate($archive, $appName);
+            $appName = $this->getAppName($archive);
+            if (!$archive->extractTo($destinationDirectory)) {
+                throw AppException::invalidArgument('Could not extract app archive');
+            }
+        } finally {
+            $archive->close();
+        }
 
         return Path::join($destinationDirectory, $appName);
+    }
+
+    public function getMetadata(string $appPath): AppMeta
+    {
+        $metadata = Manifest::createFromXmlFile(Path::join($appPath, 'manifest.xml'))->getMetadata();
+
+        return new AppMeta($metadata->getName(), $metadata->getVersion());
     }
 
     private function getAppName(\ZipArchive $archive): string

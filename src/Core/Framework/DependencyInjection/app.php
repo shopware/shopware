@@ -161,7 +161,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Gateway\Context\Command\Executor\ContextGatewayCommandExecutor;
 use Shopware\Core\Framework\Gateway\Context\Command\Registry\ContextGatewayCommandRegistry;
 use Shopware\Core\Framework\Log\ExceptionLogger;
-use Shopware\Core\Framework\Plugin\ExtensionExtractor;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
 use Shopware\Core\Framework\Store\InAppPurchase;
@@ -571,6 +570,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DeletedAppsGateway::class),
             service(AppRequirementsValidator::class),
             service(ClockInterface::class),
+            service(AppDirectory::class),
         ]);
 
     $services->set(DiscardUnconfirmedAppSecretsListener::class)
@@ -633,7 +633,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             param('shopware.app_dir'),
             service('logger'),
-            service(ExtensionExtractor::class),
+            service(AppExtractor::class),
+            service('event_dispatcher'),
         ]);
 
     $services->alias(AppDirectory::class, LocalAppDirectory::class);

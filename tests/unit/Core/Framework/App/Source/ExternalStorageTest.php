@@ -9,9 +9,8 @@ use Psr\Log\NullLogger;
 use Shopware\Core\Framework\App\AppDownloader;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppExtractor;
-use Shopware\Core\Framework\App\FlysystemAppDirectory;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Source\FlysystemSource;
+use Shopware\Core\Framework\App\Source\ExternalStorage;
 use Shopware\Core\Framework\App\Source\TemporaryDirectoryFactory;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
@@ -24,28 +23,31 @@ use Symfony\Component\Filesystem\Path;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(FlysystemSource::class)]
-class FlysystemSourceTest extends TestCase
+#[CoversClass(ExternalStorage::class)]
+class ExternalStorageTest extends TestCase
 {
     public function testNameAndSupportedSourceTypes(): void
     {
         $source = $this->createSource(static::createStub(FilesystemOperator::class));
 
-        static::assertSame(FlysystemAppDirectory::SOURCE_TYPE, $source->name());
+        static::assertSame(ExternalStorage::name(), $source->name());
 
         $app = new AppEntity();
         $app->setId(Uuid::randomHex());
 
         static::assertFalse($source->supports($app));
 
-        $app->setSourceType(FlysystemAppDirectory::SOURCE_TYPE);
+        $app->setSourceType(ExternalStorage::name());
         static::assertTrue($source->supports($app));
 
-        $app->setSourceType(FlysystemAppDirectory::LEGACY_SOURCE_TYPE);
+        $app->setSourceType(ExternalStorage::LEGACY_SOURCE_TYPE);
+        static::assertTrue($source->supports($app));
+
+        $app->setSourceType(ExternalStorage::PREVIOUS_SOURCE_TYPE);
         static::assertTrue($source->supports($app));
 
         $manifest = static::createStub(Manifest::class);
-        $manifest->method('getSourceType')->willReturn(FlysystemAppDirectory::SOURCE_TYPE);
+        $manifest->method('getSourceType')->willReturn(ExternalStorage::name());
         static::assertTrue($source->supports($manifest));
     }
 
@@ -72,7 +74,7 @@ class FlysystemSourceTest extends TestCase
         $app->setName('TestApp');
         $app->setVersion('1.0.0');
         $app->setPath($path);
-        $app->setSourceType(FlysystemAppDirectory::SOURCE_TYPE);
+        $app->setSourceType(ExternalStorage::name());
 
         $filesystem = $this->createSource($storage, $downloader, $extractor)->filesystem($app);
 
@@ -84,7 +86,7 @@ class FlysystemSourceTest extends TestCase
         $io = $this->createMock(Filesystem::class);
         $io->expects($this->once())->method('remove')->with(['/app-root']);
 
-        $source = new FlysystemSource(
+        $source = new ExternalStorage(
             static::createStub(FilesystemOperator::class),
             new TemporaryDirectoryFactory(),
             $io,
@@ -100,8 +102,8 @@ class FlysystemSourceTest extends TestCase
         FilesystemOperator $storage,
         ?AppDownloader $downloader = null,
         ?AppExtractor $extractor = null,
-    ): FlysystemSource {
-        return new FlysystemSource(
+    ): ExternalStorage {
+        return new ExternalStorage(
             $storage,
             new TemporaryDirectoryFactory(),
             new Filesystem(),

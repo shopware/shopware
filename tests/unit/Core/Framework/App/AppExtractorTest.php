@@ -55,6 +55,14 @@ class AppExtractorTest extends TestCase
         static::assertFileExists($this->temporaryFilePath);
     }
 
+    public function testReadsMetadataFromExtractedManifest(): void
+    {
+        $metadata = (new AppExtractor(new AppArchiveValidator()))->getMetadata(__DIR__ . '/_fixtures/App/TestApp');
+
+        static::assertSame('minimal', $metadata->name);
+        static::assertSame('1.1.0', $metadata->version);
+    }
+
     public function testAppIsNotExtractedWhenValidationFails(): void
     {
         $this->createZip(__DIR__ . '/_fixtures/App/TestApp');

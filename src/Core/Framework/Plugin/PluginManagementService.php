@@ -6,7 +6,6 @@ use Composer\IO\NullIO;
 use GuzzleHttp\Client;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\App\AppDirectory;
-use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Event\PluginUploadedEvent;
@@ -50,7 +49,7 @@ class PluginManagementService
                     $this->filesystem->remove($file);
                 }
             } else {
-                $this->extensionExtractor->extract($file, $delete, $storeType);
+                $this->extensionExtractor->extract($file, $delete);
                 $this->cacheClearer->clearContainerCache();
             }
 
@@ -89,7 +88,7 @@ class PluginManagementService
         $tempFile = $file->move($tempDirectory, $tempFileName);
 
         $type = $this->pluginZipDetector->detect($tempFile->getPathname());
-        $metadata = $this->readUploadMetadata($tempFile->getPathname(), $type);
+        $metadata = $this->readUploadMetadata($tempFile->getPathname());
         $this->extractPluginZip($tempFile->getPathname(), storeType: $type);
 
         $this->pluginService->refreshPlugins($context, new NullIO());
@@ -139,21 +138,13 @@ class PluginManagementService
     /**
      * @return array{name: string, version: string|null}
      */
-    private function readUploadMetadata(string $path, string $type): array
+    private function readUploadMetadata(string $path): array
     {
         $archive = ZipUtils::openZip($path);
         try {
             $entry = $archive->statIndex(0);
             \assert($entry !== false);
             $directory = explode('/', (string) $entry['name'])[0];
-            if ($type === self::APP) {
-                $manifestXml = $archive->getFromName($directory . '/manifest.xml');
-                \assert(\is_string($manifestXml));
-                $metadata = Manifest::createFromXml($manifestXml)->getMetadata();
-
-                return ['name' => $metadata->getName(), 'version' => $metadata->getVersion()];
-            }
-
             $composerJson = $archive->getFromName($directory . '/composer.json');
             $composer = \is_string($composerJson) ? json_decode($composerJson, true, flags: \JSON_THROW_ON_ERROR) : null;
             $extra = \is_array($composer) ? ($composer['extra'] ?? null) : null;
@@ -180,7 +171,7 @@ class PluginManagementService
 
     private function extractPlugin(string $fileName, bool $delete): void
     {
-        $this->extensionExtractor->extract($fileName, $delete, self::PLUGIN);
+        $this->extensionExtractor->extract($fileName, $delete);
         $this->cacheClearer->clearContainerCache();
     }
 }

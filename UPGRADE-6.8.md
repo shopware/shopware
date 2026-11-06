@@ -1472,7 +1472,7 @@ The counterparts are `successResult()`, `errorResult()`, `requirePrivilegeResult
 App tools are not affected and keep their response format.
 
 The PHPStan rule `McpToolLegacyStringResultRule` (identifier `shopware.mcpToolLegacyStringResult`) moves from `core-rules.neon` to `rules.neon`.
-It reports a `#[McpTool]` method whose native return type is `string`, `?string` or a union containing `string`.
+It reports a `#[McpTool]` method whose native return type is `string`, `?string`, a union containing `string`, `mixed`, or missing.
 
 ## `MediaUploadService::validateExternalUrl()` deprecated
 

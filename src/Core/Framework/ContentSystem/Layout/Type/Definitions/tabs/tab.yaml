@@ -2,7 +2,9 @@ meta:
   label: "Tab"
   description: "A single tab of a tab panel. Its title becomes the navigation item, its content slot becomes the tab pane."
   icon: "regular-folder"
+  illustration: "tabs-tab"
   category: "layout"
+  priority: 89
   copilot:
     summary: "Single tab of a tab panel."
     hints:

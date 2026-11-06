@@ -2,7 +2,9 @@ meta:
   label: "Gallery"
   description: "Media gallery element showing multiple images with thumbnail navigation."
   icon: "image-text"
+  illustration: "media-gallery"
   category: "content"
+  priority: 89
   copilot:
     summary: "Media gallery element."
     hints:

@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\Controller;
 
+use Opis\JsonSchema\Helper;
+use Opis\JsonSchema\Validator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -34,6 +36,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\Abstract
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\AbstractContentSystemLayoutPresetRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\ContentSystemLayoutPresetSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
@@ -99,7 +102,7 @@ class InfoControllerTest extends TestCase
     {
         $this->shopIdProvider->expects($this->never())->method('getShopId');
 
-        $spec = $this->alertTypeSpecification();
+        $spec = $this->alertTypeSpecification(priority: 100, illustration: 'content-text');
 
         $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
         $registry->method('all')->willReturn(['Sw:Alert' => $spec]);
@@ -116,6 +119,50 @@ class InfoControllerTest extends TestCase
         static::assertCount(1, $data['types']);
         static::assertSame('Sw:Alert', $data['types'][0]['name']);
         static::assertSame('core', $data['types'][0]['source']);
+        static::assertSame(100, $data['types'][0]['priority']);
+        static::assertSame('content-text', $data['types'][0]['illustration']);
+
+        $schema = json_decode((string) file_get_contents(\dirname(__DIR__, 6) . '/src/Core/Framework/Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-element-types.json'), true, 512, \JSON_THROW_ON_ERROR);
+        $responseSchema = Helper::toJSON($schema['paths']['/_info/content-system-element-types.json']['get']['responses']['200']['content']['application/json']['schema']);
+        static::assertInstanceOf(\stdClass::class, $responseSchema);
+        static::assertTrue((new Validator())->validate(json_decode($content, false, 512, \JSON_THROW_ON_ERROR), $responseSchema)->isValid());
+    }
+
+    public function testContentSystemLayoutPresetsIncludesPickerMetadata(): void
+    {
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
+
+        $preset = new ContentSystemLayoutPresetSpecification(
+            id: 'Sw:TextBlock',
+            name: 'Text block',
+            description: 'A text block.',
+            icon: 'regular-align-left',
+            payload: [],
+            category: 'content',
+            priority: 100,
+            illustration: 'content-text',
+        );
+        $legacyPreset = new ContentSystemLayoutPresetSpecification('Sw:Legacy', 'Legacy', null, null, []);
+        $registry = static::createStub(AbstractContentSystemLayoutPresetRegistry::class);
+        $registry->method('all')->willReturn(['Sw:TextBlock' => $preset, 'Sw:Legacy' => $legacyPreset]);
+
+        $response = $this->createController(layoutPresetRegistry: $registry)->getContentSystemLayoutPresets();
+
+        static::assertSame(200, $response->getStatusCode());
+        $content = $response->getContent();
+        static::assertIsString($content);
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('content', $data['presets'][0]['category']);
+        static::assertSame(100, $data['presets'][0]['priority']);
+        static::assertSame('content-text', $data['presets'][0]['illustration']);
+        static::assertNull($data['presets'][1]['category']);
+        static::assertSame(0, $data['presets'][1]['priority']);
+        static::assertNull($data['presets'][1]['illustration']);
+
+        $schema = json_decode((string) file_get_contents(\dirname(__DIR__, 6) . '/src/Core/Framework/Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-layout-presets.json'), true, 512, \JSON_THROW_ON_ERROR);
+        $responseSchema = Helper::toJSON($schema['paths']['/_info/content-system-layout-presets.json']['get']['responses']['200']['content']['application/json']['schema']);
+        static::assertInstanceOf(\stdClass::class, $responseSchema);
+        static::assertTrue((new Validator())->validate(json_decode($content, false, 512, \JSON_THROW_ON_ERROR), $responseSchema)->isValid());
     }
 
     #[TestDox('returns content system entity types as JSON')]
@@ -801,7 +848,7 @@ class InfoControllerTest extends TestCase
         return new BindingSpecification('media-picker', $type, 'Media Picker', [], [], 'core');
     }
 
-    private function alertTypeSpecification(): ContentSystemElementTypeSpecification
+    private function alertTypeSpecification(int $priority = 0, ?string $illustration = null): ContentSystemElementTypeSpecification
     {
         return new ContentSystemElementTypeSpecification(
             name: 'Sw:Alert',
@@ -813,6 +860,8 @@ class InfoControllerTest extends TestCase
             properties: [],
             slots: [],
             source: 'core',
+            priority: $priority,
+            illustration: $illustration,
         );
     }
 

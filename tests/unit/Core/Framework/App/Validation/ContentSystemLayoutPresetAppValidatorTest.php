@@ -10,7 +10,11 @@ use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
 use Shopware\Core\Framework\App\Validation\ContentSystemLayoutPresetAppValidator;
 use Shopware\Core\Framework\App\Validation\Error\ContentSystemLayoutPresetSchemaError;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\ContentSystemLayoutPresetAppLoader;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\DatabaseLayoutPresetLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\YamlLayoutPresetLoader;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\Dto\LayoutPresetSpecificationDto;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Validation\ContentSystemLayoutPresetValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
@@ -28,7 +32,7 @@ class ContentSystemLayoutPresetAppValidatorTest extends TestCase
 
         $manifest = $this->buildManifest('/app/path', 'TestApp');
 
-        $validator = new ContentSystemLayoutPresetAppValidator($loader);
+        $validator = new ContentSystemLayoutPresetAppValidator(new ContentSystemLayoutPresetAppLoader($loader, static::createStub(DatabaseLayoutPresetLoader::class), new ContentSystemLayoutPresetValidator()));
         $errors = $validator->validate($manifest, Context::createDefaultContext());
 
         static::assertCount(0, $errors);
@@ -43,7 +47,7 @@ class ContentSystemLayoutPresetAppValidatorTest extends TestCase
 
         $manifest = $this->buildManifest('/app/path', 'TestApp');
 
-        $validator = new ContentSystemLayoutPresetAppValidator($loader);
+        $validator = new ContentSystemLayoutPresetAppValidator(new ContentSystemLayoutPresetAppLoader($loader, static::createStub(DatabaseLayoutPresetLoader::class), new ContentSystemLayoutPresetValidator()));
         $errors = $validator->validate($manifest, Context::createDefaultContext());
 
         static::assertCount(1, $errors);
@@ -56,6 +60,25 @@ class ContentSystemLayoutPresetAppValidatorTest extends TestCase
         );
     }
 
+    #[TestDox('returns a schema error when a preset references an unknown preset')]
+    public function testReturnsSchemaErrorForUnresolvableReference(): void
+    {
+        $loader = static::createStub(YamlLayoutPresetLoader::class);
+        $loader->method('loadDtosFromDirectory')->willReturn([
+            'TestApp:Hero' => new LayoutPresetSpecificationDto('Hero', 'A preset.', 'regular-box', [['preset' => 'Sw:ProductReviewz']]),
+        ]);
+
+        $validator = new ContentSystemLayoutPresetAppValidator(new ContentSystemLayoutPresetAppLoader($loader, static::createStub(DatabaseLayoutPresetLoader::class), new ContentSystemLayoutPresetValidator()));
+        $errors = $validator->validate($this->buildManifest('/app/path', 'TestApp'), Context::createDefaultContext());
+
+        static::assertCount(1, $errors);
+        static::assertInstanceOf(ContentSystemLayoutPresetSchemaError::class, $errors[0]);
+        static::assertSame(
+            'Invalid layout preset in "/app/path/Resources/content-system/presets": Layout preset validation failed: TestApp:Hero: Layout preset "TestApp:Hero" references unknown preset "Sw:ProductReviewz" via TestApp:Hero -> Sw:ProductReviewz',
+            $errors[0]->getMessage(),
+        );
+    }
+
     #[TestDox('propagates non-content-system exceptions without catching')]
     public function testPropagatesNonContentSystemExceptions(): void
     {
@@ -65,7 +88,7 @@ class ContentSystemLayoutPresetAppValidatorTest extends TestCase
 
         $manifest = $this->buildManifest('/app/path', 'TestApp');
 
-        $validator = new ContentSystemLayoutPresetAppValidator($loader);
+        $validator = new ContentSystemLayoutPresetAppValidator(new ContentSystemLayoutPresetAppLoader($loader, static::createStub(DatabaseLayoutPresetLoader::class), new ContentSystemLayoutPresetValidator()));
 
         $this->expectExceptionObject(new \RuntimeException('Unexpected filesystem error'));
         $validator->validate($manifest, Context::createDefaultContext());

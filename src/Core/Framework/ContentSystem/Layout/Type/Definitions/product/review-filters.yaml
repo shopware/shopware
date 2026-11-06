@@ -2,7 +2,9 @@ meta:
   label: "Product Review Filters"
   description: "Sort and language-filter controls that drive a product's review list."
   icon: "regular-filter-s"
-  category: "content"
+  illustration: "product-review-filters"
+  category: "commerce"
+  priority: 58
   copilot:
     summary: "Sort and language controls for a product's reviews."
     hints:

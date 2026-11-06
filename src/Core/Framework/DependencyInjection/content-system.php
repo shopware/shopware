@@ -69,13 +69,16 @@ use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteBoundary;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\ContentSystemLayoutProvisioner;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\LayoutPresetPayloadCompiler;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\ContentSystemLayoutPresetAppLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\DatabaseLayoutPresetLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\LayoutPresetNameResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\YamlLayoutPresetLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\CachedContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\ContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSpecificationSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Validation\ContentSystemLayoutPresetValidator;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
@@ -527,22 +530,29 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(LayoutPresetSpecificationSerializer::class);
 
+    $services->set(ContentSystemLayoutPresetValidator::class);
+
     $services->set(LayoutPresetNameResolver::class);
 
     $services->set(YamlLayoutPresetLoader::class)
         ->args([
             service(LayoutPresetSpecificationSerializer::class),
-            service(LayoutPresetPayloadCompiler::class),
             service('validator'),
             service(LayoutPresetNameResolver::class),
         ])
         ->arg('$directories', [])
         ->tag('content_system.layout_preset_loader');
 
+    $services->set(ContentSystemLayoutPresetAppLoader::class)
+        ->args([
+            service(YamlLayoutPresetLoader::class),
+            service(DatabaseLayoutPresetLoader::class),
+            service(ContentSystemLayoutPresetValidator::class),
+        ]);
+
     $services->set(DatabaseLayoutPresetLoader::class)
         ->args([
             service(LayoutPresetSpecificationSerializer::class),
-            service(LayoutPresetPayloadCompiler::class),
             service('validator'),
             service(Connection::class),
             param('kernel.environment'),
@@ -552,6 +562,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ContentSystemLayoutPresetRegistry::class)
         ->args([
             tagged_iterator('content_system.layout_preset_loader'),
+            service(LayoutPresetPayloadCompiler::class),
+            service(ContentSystemLayoutPresetValidator::class),
+            service('logger'),
         ]);
 
     $services->set(CachedContentSystemLayoutPresetRegistry::class)
@@ -934,6 +947,21 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(RootSourceRegistry::class),
             service(LayoutDiagnostics::class),
             service(DefaultMappingSeeder::class),
+        ]);
+
+    // Layout provisioning from presets (default layouts on install and update)
+    $services->set(ContentSystemLayoutProvisioner::class)
+        ->args([
+            service(ContentSystemLayoutPresetRegistry::class),
+            service(DraftLayoutDecoder::class),
+            service(MutationPipeline::class),
+            service(ContentSystemElementTypeRegistry::class),
+            service(ContentSystemBindingSpecificationRegistry::class),
+            service(BindingApplicator::class),
+            service(RootSourceRegistry::class),
+            service(StoredElementCodec::class),
+            service('content_layout.repository'),
+            service(DefinitionInstanceRegistry::class),
         ]);
 
     // Persisted Layout Mutation Actions (Admin API)

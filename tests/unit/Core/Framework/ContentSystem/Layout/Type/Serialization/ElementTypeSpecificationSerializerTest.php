@@ -12,6 +12,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\ElementT
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\PropertySpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\SlotSpecificationDto;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Validator\Validation;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -26,6 +27,112 @@ class ElementTypeSpecificationSerializerTest extends TestCase
     protected function setUp(): void
     {
         $this->serializer = new ElementTypeSpecificationSerializer();
+    }
+
+    #[DataProvider('illustrationProvider')]
+    public function testRoundTripsTheIndependentIllustrationThroughAppJson(?string $illustration): void
+    {
+        $serializer = $this->serializer;
+        $dto = $serializer->denormalize(['meta' => ['label' => 'Text', 'description' => 'Text element.', 'icon' => 'regular-star', 'illustration' => $illustration]]);
+        $persisted = json_encode($serializer->normalize($dto), \JSON_THROW_ON_ERROR);
+        $restored = $serializer->denormalize(json_decode($persisted, true, 512, \JSON_THROW_ON_ERROR));
+
+        static::assertSame('regular-star', $restored->icon);
+        static::assertSame($illustration, $restored->illustration);
+        static::assertSame($illustration, $restored->toContentSystemElementTypeSpecification('Sw:Content:Text', 'core')->toSchema()['illustration']);
+    }
+
+    /**
+     * @return iterable<string, array{string|null}>
+     */
+    public static function illustrationProvider(): iterable
+    {
+        yield 'separate SVG key' => ['media-image'];
+        yield 'new illustration without an Administration registration' => ['custom-illustration'];
+        yield 'Meteor icon only' => [null];
+    }
+
+    public function testRejectsBlankIllustration(): void
+    {
+        $illustration = '';
+        $dto = $this->serializer->denormalize(['meta' => ['label' => 'Text', 'description' => 'Text element.', 'icon' => 'regular-star', 'illustration' => $illustration]]);
+        $violations = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator()->validate($dto);
+
+        static::assertCount(1, $violations);
+        static::assertSame('illustration', $violations->get(0)->getPropertyPath());
+    }
+
+    public function testDefaultsOmittedPriorityToZero(): void
+    {
+        $dto = $this->serializer->denormalize(['meta' => $this->buildMinimalMeta()]);
+
+        static::assertSame(0, $dto->priority);
+        static::assertNull($dto->illustration);
+        static::assertSame(0, $dto->toContentSystemElementTypeSpecification('App:Text', 'app:Demo')->toSchema()['priority']);
+        static::assertArrayNotHasKey('priority', $this->serializer->normalize($dto)['meta']);
+        static::assertArrayNotHasKey('illustration', $this->serializer->normalize($dto)['meta']);
+    }
+
+    #[DataProvider('priorityProvider')]
+    public function testRoundTripsPriorityThroughAppJson(int $priority): void
+    {
+        $dto = $this->serializer->denormalize(['meta' => [...$this->buildMinimalMeta(), 'priority' => $priority]]);
+        $persisted = json_encode($this->serializer->normalize($dto), \JSON_THROW_ON_ERROR);
+        $restored = $this->serializer->denormalize(json_decode($persisted, true, 512, \JSON_THROW_ON_ERROR));
+
+        static::assertSame($priority, $restored->priority);
+        static::assertSame($priority, $restored->toContentSystemElementTypeSpecification('App:Text', 'app:Demo')->toSchema()['priority']);
+    }
+
+    /**
+     * @return iterable<string, array{int}>
+     */
+    public static function priorityProvider(): iterable
+    {
+        yield 'prominent element' => [200];
+        yield 'explicit default' => [0];
+        yield 'less prominent element' => [-100];
+    }
+
+    #[DataProvider('invalidPriorityProvider')]
+    public function testRejectsNonIntegerPriority(mixed $priority): void
+    {
+        $this->expectException(\TypeError::class);
+
+        $this->serializer->denormalize(['meta' => [...$this->buildMinimalMeta(), 'priority' => $priority]]);
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function invalidPriorityProvider(): iterable
+    {
+        yield 'numeric string' => ['100'];
+        yield 'whole number float' => [100.0];
+        yield 'fractional number' => [1.5];
+        yield 'boolean' => [true];
+        yield 'explicit null' => [null];
+        yield 'array' => [[]];
+    }
+
+    #[DataProvider('invalidIllustrationProvider')]
+    public function testRejectsNonStringIllustration(mixed $illustration): void
+    {
+        $this->expectException(\TypeError::class);
+
+        $dto = $this->serializer->denormalize(['meta' => ['illustration' => $illustration]]);
+
+        static::fail('Unexpectedly accepted invalid illustration in ' . $dto->label . '.');
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function invalidIllustrationProvider(): iterable
+    {
+        yield 'numeric key' => [100];
+        yield 'boolean key' => [true];
+        yield 'array key' => [[]];
     }
 
     #[TestDox('populates optional meta fields icon and category from input')]

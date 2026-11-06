@@ -2,7 +2,9 @@ meta:
   label: "Breadcrumb"
   description: "Renders the breadcrumb path of the current product or category page."
   icon: "double-chevron-right-s"
+  illustration: "navigation-breadcrumb"
   category: "content"
+  priority: 79
   copilot:
     summary: "Breadcrumb element for product and category pages."
     hints:

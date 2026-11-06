@@ -1,6 +1,9 @@
 name: "Product reviews"
 description: "Rating summary, review list, sort and language filters and the submission form for a product, arranged in a grid."
 icon: "regular-star"
+illustration: "preset-product-reviews"
+category: "commerce"
+priority: 100
 layout:
   - component: Sw:Grid:Container
     properties:

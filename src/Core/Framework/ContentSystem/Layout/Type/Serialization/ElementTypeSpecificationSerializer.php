@@ -59,6 +59,8 @@ class ElementTypeSpecificationSerializer
             copilot: $copilot,
             properties: $properties,
             slots: $slots,
+            priority: \array_key_exists('priority', $meta) ? $meta['priority'] : 0,
+            illustration: $meta['illustration'] ?? null,
         );
     }
 
@@ -75,8 +77,15 @@ class ElementTypeSpecificationSerializer
         if ($dto->icon !== null) {
             $meta['icon'] = $dto->icon;
         }
+        if ($dto->illustration !== null) {
+            $meta['illustration'] = $dto->illustration;
+        }
         if ($dto->category !== null) {
             $meta['category'] = $dto->category;
+        }
+
+        if ($dto->priority !== 0) {
+            $meta['priority'] = $dto->priority;
         }
 
         if ($dto->copilot->summary !== '' || $dto->copilot->hints !== []) {

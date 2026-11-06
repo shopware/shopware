@@ -2,7 +2,9 @@ meta:
   label: "Product Reviews"
   description: "Displays the product's rating summary and customer reviews with sorting, language filtering and pagination."
   icon: "regular-star"
-  category: "content"
+  illustration: "product-reviews"
+  category: "commerce"
+  priority: 60
   copilot:
     summary: "Product review list with pagination."
     hints:

@@ -31,6 +31,7 @@ meta:
   description: "Inline product preview overlay"
   icon: "regular-eye"
   category: "product"
+  priority: 100
   copilot:
     summary: "Shows a quick product preview"
     hints:
@@ -56,7 +57,28 @@ slots:
       - "AcmeStore:AddToCart"
 ```
 
-**`meta`** (required): `label`, `description` are required. `icon`, `category`, `copilot` are optional.
+**`meta`** (required): `label`, `description` are required.
+`icon`, `illustration`, `category`, `priority`, `copilot` are optional.
+
+`meta.icon` selects a Meteor icon such as `regular-image`, used in the sidebar tree and as the picker fallback.
+The optional `meta.illustration` selects an SVG filename without its extension, such as `media-image`.
+The picker loads it from `src/Administration/Resources/app/administration/static/img/experience-studio/element-icons/`.
+An omitted or null illustration shows the Meteor icon; an image that fails to load also falls back to that icon.
+The two fields are independent and require no Administration mapping entry or icon prefix.
+Preset declarations support the same fields at the top level.
+
+```yaml
+meta:
+  icon: "regular-image"
+  illustration: "media-image"
+```
+
+`meta.priority` is an integer controlling the element picker order within its category.
+Higher values appear first; an omitted priority defaults to `0`, and negative values are allowed.
+Equal priorities are ordered alphabetically by label, then by the unique type name.
+Use gaps such as `100`, `200`, and `300` to leave room for other elements.
+Priority does not change category order.
+Presets declare their own top-level `category` and `priority` fields; see [Layout presets](../../../docs/extending.md#layout-presets).
 
 **`properties`** (optional): Each property declares its type: a primitive (`string`, `boolean`, `integer`, `number`; the set is `PropertyType::PRIMITIVE_TYPES`) or any other value, read as a `class-string<Struct>` FQCN for hydrated data. Optional fields: `required`, `translatable` (`type: string` only), `enum` (primitives only, a list whose values match the declared type; enforced by `TypedEnumValidator`), `default` (primitives only, a value matching the declared type; enforced by `TypedDefaultValidator`), `title`, `description`, `adminUI`, `mappable`, `inlineMappable`, `defaultMapping`, `resolvedBy` (reference properties only; the resolvedBy shorthand, see [Custom Binding Specifications](../../../Binding/docs/custom-specifications.md)). A property shown as a `radio-panel` whose type is not `string` declares its values in `enum`; without one, a click on one of its options throws an error in the Administration and emits no value.
 

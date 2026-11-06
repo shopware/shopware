@@ -9,9 +9,9 @@ use Faker\Factory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\ContentSystemLayoutProvisioner;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\Generator\ProductContentLayoutGenerator;
 use Shopware\Core\Framework\Log\Package;
@@ -28,96 +28,57 @@ class ProductContentLayoutGeneratorTest extends TestCase
     public function testGetDefinition(): void
     {
         $generator = new ProductContentLayoutGenerator(
-            static::createStub(EntityRepository::class),
-            static::createStub(EntityRepository::class),
+            static::createStub(ContentSystemLayoutProvisioner::class),
             static::createStub(Connection::class),
         );
 
         static::assertSame(ProductContentLayoutDefinition::class, $generator->getDefinition());
     }
 
-    public function testGenerateCreatesLayoutAndAssignmentForProducts(): void
+    public function testGenerateAppliesTheProductDetailPagePresetToEachProduct(): void
     {
-        $productId = Uuid::randomHex();
+        $productIds = [Uuid::randomHex(), Uuid::randomHex()];
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())->method('fetchFirstColumn')->willReturn([$productId]);
-
-        $layoutPayload = null;
-        $contentLayoutRepository = $this->createMock(EntityRepository::class);
-        $contentLayoutRepository->expects($this->once())->method('create')->with(
-            static::callback(static function (array $payload) use (&$layoutPayload): bool {
-                $layoutPayload = $payload;
-
-                return true;
-            }),
-            static::anything(),
-        );
-
-        $assignmentPayload = null;
-        $productContentLayoutRepository = $this->createMock(EntityRepository::class);
-        $productContentLayoutRepository->expects($this->once())->method('create')->with(
-            static::callback(static function (array $payload) use (&$assignmentPayload): bool {
-                $assignmentPayload = $payload;
-
-                return true;
-            }),
-            static::anything(),
-        );
-
-        $console = $this->createMock(SymfonyStyle::class);
-        $console->expects($this->once())->method('progressStart')->with(1);
-        $console->expects($this->once())->method('progressAdvance');
-        $console->expects($this->once())->method('progressFinish');
+        $connection->expects($this->once())->method('fetchFirstColumn')->willReturn($productIds);
 
         $context = new DemodataContext(
             Context::createDefaultContext(),
             Factory::create(),
             __DIR__,
-            $console,
+            static::createStub(SymfonyStyle::class),
             static::createStub(DefinitionInstanceRegistry::class),
         );
 
-        (new ProductContentLayoutGenerator(
-            $contentLayoutRepository,
-            $productContentLayoutRepository,
-            $connection,
-        ))->generate(1, $context);
+        $applied = [];
+        $provisioner = $this->createMock(ContentSystemLayoutProvisioner::class);
+        $provisioner->expects($this->exactly(2))
+            ->method('provisionFromPreset')
+            ->willReturnCallback(static function (string $name, string $presetId, string $rootSource, Context $applyContext, ?string $layoutId, ?string $productId) use (&$applied, $context): string {
+                static::assertSame('product', $rootSource);
+                static::assertNotSame('', $name);
+                static::assertSame($context->getContext(), $applyContext);
+                $applied[] = [$presetId, $layoutId, $productId];
 
-        static::assertIsArray($layoutPayload);
-        static::assertCount(1, $layoutPayload);
-        static::assertSame('product', $layoutPayload[0]['rootSource']);
-        static::assertSame('1.0.0', $layoutPayload[0]['version']);
-        static::assertIsArray($layoutPayload[0]['layout']);
+                return Uuid::randomHex();
+            });
 
-        $textElement = $layoutPayload[0]['layout'][0]['slots']['content'][0];
-        static::assertSame('Sw:Content:Text', $textElement['component']);
-        static::assertNotSame('', $textElement['properties']['text']);
+        (new ProductContentLayoutGenerator($provisioner, $connection))->generate(2, $context);
 
-        $layoutId = $layoutPayload[0]['id'];
-
-        static::assertIsArray($assignmentPayload);
-        static::assertCount(1, $assignmentPayload);
-        static::assertSame($productId, $assignmentPayload[0]['productId']);
-        static::assertSame($layoutId, $assignmentPayload[0]['contentLayoutId']);
-        static::assertNull($assignmentPayload[0]['salesChannelId']);
+        static::assertSame([
+            ['Sw:ProductDetailPage', null, $productIds[0]],
+            ['Sw:ProductDetailPage', null, $productIds[1]],
+        ], $applied);
     }
 
     public function testGenerateDoesNothingWithoutProducts(): void
     {
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())->method('fetchFirstColumn')->willReturn([]);
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchFirstColumn')->willReturn([]);
 
-        $contentLayoutRepository = $this->createMock(EntityRepository::class);
-        $contentLayoutRepository->expects($this->never())->method('create');
+        $provisioner = $this->createMock(ContentSystemLayoutProvisioner::class);
+        $provisioner->expects($this->never())->method('provisionFromPreset');
 
-        $productContentLayoutRepository = $this->createMock(EntityRepository::class);
-        $productContentLayoutRepository->expects($this->never())->method('create');
-
-        (new ProductContentLayoutGenerator(
-            $contentLayoutRepository,
-            $productContentLayoutRepository,
-            $connection,
-        ))->generate(1, static::createStub(DemodataContext::class));
+        (new ProductContentLayoutGenerator($provisioner, $connection))->generate(1, static::createStub(DemodataContext::class));
     }
 }

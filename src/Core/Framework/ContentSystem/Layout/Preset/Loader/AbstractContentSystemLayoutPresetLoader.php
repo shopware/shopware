@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader;
 
-use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\ContentSystemLayoutPresetSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\Dto\LayoutPresetSpecificationDto;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 abstract class AbstractContentSystemLayoutPresetLoader
 {
     /**
-     * @return list<ContentSystemLayoutPresetSpecification>
+     * @return array<string, LayoutPresetSpecificationDto> validated presets keyed by resolved id
      */
     abstract public function load(): array;
 }

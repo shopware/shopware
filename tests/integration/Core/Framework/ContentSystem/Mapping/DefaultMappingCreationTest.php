@@ -31,7 +31,7 @@ class DefaultMappingCreationTest extends TestCase
     {
         $body = $this->mutate($action, ['rootSource' => 'product', ...$payload]);
         $element = $action === 'insert-preset'
-            ? $body['layout'][0]['slots']['content'][1]
+            ? $body['layout'][0]['slots']['content'][2]
             : $body['layout'][0];
 
         static::assertSame(self::COMPONENT, $element['component']);

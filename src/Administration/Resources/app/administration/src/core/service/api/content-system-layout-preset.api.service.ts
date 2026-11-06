@@ -15,6 +15,9 @@ export interface ContentSystemLayoutPreset {
     name: string;
     description: string | null;
     icon: string | null;
+    illustration: string | null;
+    category: string | null;
+    priority: number;
     payload: ContentElementNode[];
 }
 

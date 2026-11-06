@@ -2,7 +2,9 @@ meta:
   label: "Grid Container"
   description: "The main element for creating responsive layouts. It is the central element to function as a wrapping element for other elements and to achieve certain layout effects."
   icon: "regular-view-grid"
+  illustration: "grid-container"
   category: "layout"
+  priority: 100
   copilot:
     summary: "Responsive grid container."
     hints:

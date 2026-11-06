@@ -2,7 +2,9 @@ meta:
   label: "Product Listing"
   description: "Displays a category product listing with grid and pagination slots."
   icon: "regular-products"
+  illustration: "product-listing"
   category: "commerce"
+  priority: 100
   copilot:
     summary: "Category product listing component."
     hints:

@@ -4,18 +4,33 @@
 
 /// <reference path="./_base/admin-api.d.ts" />
 /// <reference path="./_excerpt/route-component-stubs.d.ts" />
+/// <reference path="./app/directive.d.ts" />
+/// <reference path="./app/filter.d.ts" />
 /// <reference path="./app/mixin/notification.d.ts" />
 /// <reference path="./app/mixin/placeholder.d.ts" />
 /// <reference path="./app/store/notification.store.d.ts" />
+/// <reference path="./core/event-bus.d.ts" />
+/// <reference path="./core/feature-flags.d.ts" />
+/// <reference path="./core/registry/cms.d.ts" />
+/// <reference path="./core/registry/custom-field-types.d.ts" />
+/// <reference path="./core/registry/flow-actions.d.ts" />
+/// <reference path="./core/registry/rule-conditions.d.ts" />
+/// <reference path="./core/registry/search-types.d.ts" />
+/// <reference path="./core/registry/settings-groups.d.ts" />
 /// <reference path="./core/service/api/config.api.service.d.ts" />
 /// <reference path="./core/shopware.d.ts" />
 /// <reference path="./core/virtual-modules.d.ts" />
+/// <reference path="./module/sw-order/acl.d.ts" />
 /// <reference path="./module/sw-order/module.d.ts" />
 /// <reference path="./module/sw-order/page/sw-order-detail.d.ts" />
+/// <reference path="./module/sw-product/acl.d.ts" />
+/// <reference path="./module/sw-sales-channel/acl.d.ts" />
 /// <reference path="./module/sw-sales-channel/module.d.ts" />
 /// <reference path="./module/sw-sales-channel/page/sw-sales-channel-create.d.ts" />
 /// <reference path="./module/sw-sales-channel/page/sw-sales-channel-detail.d.ts" />
 /// <reference path="./module/sw-sales-channel/snippet.d.ts" />
+/// <reference path="./scss/mixins.d.ts" />
+/// <reference path="./scss/variables.d.ts" />
 /// <reference path="./types/app/service/acl.service.d.ts" />
 /// <reference path="./types/app/service/feature.service.d.ts" />
 /// <reference path="./types/app/store/context.store.d.ts" />
@@ -44,4 +59,6 @@ declare namespace AdminApi {
     type _CheckRoutes = Conforms<Routes, RouteShape>;
     type _CheckSnippets = Conforms<SnippetKeys, Snippet<string, 1 | 2 | 3 | 'array'>>;
     type _CheckReferences = CheckReferences<Components, Routes>;
+    type _CheckCmsBlocks = Conforms<CmsBlocks, CmsBlock<CmsBlockCategoryName>>;
+    type _CheckRuleConditions = Conforms<RuleConditions, RuleCondition<RuleConditionGroupName, string>>;
 }

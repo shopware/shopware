@@ -44,6 +44,14 @@ declare namespace AdminApi {
             positionIdentifiers: {};
             dynamicPositionIdentifiers: {};
             dataSets: {};
+            refs: {};
+            classes: readonly [
+                'sw-example-card',
+                'sw-example-card__content',
+                'sw-example-card__header',
+                'sw-example-card__title',
+                'sw-example-card__toggle',
+            ];
         };
     }
 }

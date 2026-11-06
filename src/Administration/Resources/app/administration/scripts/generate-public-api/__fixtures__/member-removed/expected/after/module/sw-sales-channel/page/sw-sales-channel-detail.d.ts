@@ -53,6 +53,11 @@ declare namespace AdminApi {
             positionIdentifiers: {};
             dynamicPositionIdentifiers: {};
             dataSets: {};
+            refs: {};
+            classes: readonly [
+                'sw-sales-channel-detail',
+                'sw-sales-channel-detail__save-action',
+            ];
         };
     }
 }

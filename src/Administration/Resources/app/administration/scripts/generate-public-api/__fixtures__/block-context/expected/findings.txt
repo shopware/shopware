@@ -13,3 +13,9 @@ Break (3)
     The v-if chain of block sw_example_card_header_title continues in block sw_example_card_header_label_manual, so overriding sw_example_card_header_title without {% parent %} leaves the v-else-if without its v-if.
     Fix: keep the whole chain inside one block, or add an entry to public-api/accepted-breaks.json.
     At: src/app/component/base/sw-example-card/sw-example-card.html.twig:18
+
+Info (1)
+  class_missing  component:sw-example-card/class:sw-example-card__list  current, major
+    The CSS class sw-example-card__list is no longer in the template, so plugin styles and selectors that use it stop matching.
+    Fix: mention it in the upgrade notes if plugins are likely to style it.
+    At: src/app/component/base/sw-example-card/sw-example-card.html.twig:36

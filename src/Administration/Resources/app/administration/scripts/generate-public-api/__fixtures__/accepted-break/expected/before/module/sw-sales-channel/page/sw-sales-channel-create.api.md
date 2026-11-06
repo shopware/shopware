@@ -5,7 +5,6 @@
 API report of component `sw-sales-channel-create` in both flag states.
 Contract: `sw-sales-channel-create.d.ts` (both flag states).
 Line format and markers: `public-api/FORMAT.md`.
-
 ```text
 component sw-sales-channel-create  public  js
   extends sw-sales-channel-detail
@@ -21,4 +20,7 @@ blocks
     sw_sales_channel_detail_content  [inherited]
       sw_sales_channel_detail_content_view  [inherited]
     sw_sales_channel_detail_language_switch  [replaced]
+
+classes
+  sw-sales-channel-detail
 ```

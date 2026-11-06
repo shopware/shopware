@@ -5,7 +5,6 @@
 API report of component `sw-example-entity-select` in both flag states.
 Contract: `sw-example-entity-select.d.ts` (both flag states).
 Line format and markers: `public-api/FORMAT.md`.
-
 ```text
 component sw-example-entity-select  public  js
   registered src/app/component/index.ts
@@ -41,4 +40,11 @@ blocks
     sw_example_entity_select_clear
     sw_example_entity_select_input
     sw_example_entity_select_results  [after v-if]
+
+classes
+  sw-example-entity-select
+  sw-example-entity-select__clear
+  sw-example-entity-select__input
+  sw-example-entity-select__result
+  sw-example-entity-select__results
 ```

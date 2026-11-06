@@ -41,6 +41,10 @@ declare namespace AdminApi {
             positionIdentifiers: {};
             dynamicPositionIdentifiers: {};
             dataSets: {};
+            refs: {};
+            classes: readonly [
+                'sw-example-filter',
+            ];
         };
     }
 }

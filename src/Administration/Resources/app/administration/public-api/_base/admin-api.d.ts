@@ -51,6 +51,42 @@ declare namespace AdminApi {
     /** Pinia stores by id. */
     interface Stores {}
 
+    /** Registered filters (`Shopware.Filter.register`). */
+    interface Filters {}
+
+    /** Registered directives (`Shopware.Directive.register`), without the `v-` prefix. */
+    interface Directives {}
+
+    /** ACL privileges by `<key>.<role>`. */
+    interface Privileges {}
+
+    /** Settings page groups that core modules register settings items into. */
+    interface SettingsGroups {}
+
+    /** CMS blocks and elements that core registers, and the block categories. */
+    interface CmsBlocks {}
+    interface CmsElements {}
+    interface CmsBlockCategories {}
+
+    /** Rule builder conditions that core registers, and their groups. */
+    interface RuleConditions {}
+    interface RuleConditionGroups {}
+
+    /** Search types, flow actions and custom field types that core registers. */
+    interface SearchTypes {}
+    interface FlowActions {}
+    interface CustomFieldTypes {}
+
+    /** Event bus event names and the files that emit them. */
+    interface EventBusEvents {}
+
+    /** Feature flags of `feature.yaml`. */
+    interface FeatureFlags {}
+
+    /** SCSS variables and mixins that plugins import from `~scss/`. */
+    interface ScssVariables {}
+    interface ScssMixins {}
+
     /**
      * Switches for plugins. A plugin opts in by augmenting this interface:
      *
@@ -189,6 +225,59 @@ declare namespace AdminApi {
         /** Position identifiers built at runtime, keyed by the source expression. */
         dynamicPositionIdentifiers: Record<string, readonly PositionLocation[]>;
         dataSets: Record<string, readonly DataSet[]>;
+        /** Static `ref` names of the template. */
+        refs: Record<string, Ref<string>>;
+        /** Static CSS classes of the template, sorted. */
+        classes: readonly string[];
+    }
+
+    /** A template ref: the tag it sits on, and `list` when it is inside a `v-for`. */
+    interface Ref<Target extends string, Kind extends 'single' | 'list' = 'single'> {
+        target: Target;
+        kind: Kind;
+    }
+
+    interface Filter<Signature extends (...args: never[]) => unknown> {
+        signature: Signature;
+    }
+
+    interface Directive<Source extends string> {
+        source: Source;
+    }
+
+    interface Privilege<Category extends string, Parent extends string | null> {
+        category: Category;
+        parent: Parent;
+    }
+
+    interface RegistryEntry<Group extends string | null = null> {
+        group: Group;
+    }
+
+    interface CmsBlock<Category extends keyof CmsBlockCategories & string> {
+        category: Category;
+    }
+
+    interface RuleCondition<Group extends keyof RuleConditionGroups & string, Component extends string> {
+        group: Group;
+        component: Component;
+    }
+
+    interface EventBusEvent<Emitters extends string> {
+        emitters: Emitters;
+    }
+
+    /** `Major` is the major flag the flag belongs to, or `null`. */
+    interface FeatureFlag<Major extends string | null> {
+        major: Major;
+    }
+
+    interface ScssVariable<Value extends string> {
+        value: Value;
+    }
+
+    interface ScssMixin<Params extends string> {
+        params: Params;
     }
 
     /**
@@ -317,6 +406,23 @@ declare namespace AdminApi {
     type MixinName = keyof Mixins & string;
     type RouteName = keyof Routes & string;
     type SnippetKey = keyof SnippetKeys & string;
+    type FilterName = keyof Filters & string;
+    type DirectiveName = keyof Directives & string;
+    type PrivilegeKey = keyof Privileges & string;
+    type SettingsGroupName = keyof SettingsGroups & string;
+    type CmsBlockName = keyof CmsBlocks & string;
+    type CmsElementName = keyof CmsElements & string;
+    type CmsBlockCategoryName = keyof CmsBlockCategories & string;
+    type RuleConditionType = keyof RuleConditions & string;
+    type RuleConditionGroupName = keyof RuleConditionGroups & string;
+    type SearchTypeName = keyof SearchTypes & string;
+    type FlowActionName = keyof FlowActions & string;
+    type CustomFieldTypeName = keyof CustomFieldTypes & string;
+    type EventBusEventName = keyof EventBusEvents & string;
+    type FeatureFlagName = keyof FeatureFlags & string;
+    type ScssVariableName = keyof ScssVariables & string;
+    type ScssMixinName = keyof ScssMixins & string;
+    type RefName<N extends ComponentName> = Components[N] extends { refs: infer R } ? keyof R & string : never;
 
     type CheckReferences<
         C extends { [N in keyof C]: { $meta: { extends: ComponentName | null }; mixins: readonly MixinName[] } },

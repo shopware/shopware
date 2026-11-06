@@ -3,7 +3,36 @@ import html
 from examples import (ACCEPT_JSON, COMP_MD, COMP_TS, ENTRY_TS, INDEX_JSON, MIXIN_MD, MODULE_MD, MODULE_TS,
                       NATIVE_MD, NATIVE_TS, SERVICE_MD, SHOPWARE_MD, SNIPPET_MD, SNIPPET_TS, STORE_MD, TYPES_MD,
                       VM_MD)
+import os
+import re
+
 from render import code, single, src, unit
+
+GOLDEN = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "public-api")
+
+
+def golden(path, keep=None, limit=None):
+    """The outline of a golden .api.md file, optionally only the lines matching `keep`, shortened to `limit` lines."""
+    text = re.search(r"```text\n(.*?)\n```", open(os.path.join(GOLDEN, path)).read(), re.S).group(1)
+    lines = text.split("\n")
+    if keep:
+        lines = [l for l in lines if not l.startswith("  ") or re.search(keep, l)]
+    if limit and len(lines) > limit:
+        lines = lines[:limit] + ["  …"]
+    return "\n".join(lines)
+
+
+def golden_sections(path, *names):
+    """Only the named sections of a golden .api.md outline."""
+    out, keep = [], False
+    for line in golden(path).split("\n"):
+        if re.fullmatch(r"[a-z][a-z-]*", line):
+            keep = line in names
+            if keep and out:
+                out.append("")
+        if keep and line:
+            out.append(line)
+    return "\n".join(out)
 
 E = html.escape
 
@@ -15,7 +44,7 @@ QUESTIONS = {
     "plugins.html": "Is the plugin experience worth the core change and the migration?",
     "generator.html": "Is the workflow right, and is the proposed design reasonable?",
     "backtest.html": "Are the expected results for the real PRs right?",
-    "decisions.html": "Do you disagree with any decision, including the new D23 and D24?",
+    "decisions.html": "Do you disagree with any decision, including the new D23 to D30?",
     "glossary.html": "Look up a term.",
 }
 
@@ -107,8 +136,8 @@ def overview(page_list):
   <b>In short</b>
   <ul>
     <li><b>Idea:</b> a generator writes the complete public API of the Administration into committed files. CI compares base and head and fails on breaks that nobody announced.</li>
-    <li><b>Decided:</b> what counts as public, the file format, the two flag states, the CI checks, the plugin integration and the block context rules (D1–D24).</li>
-    <li><b>Done:</b> the format spec, a hand-written example snapshot that compiles, 21 test fixtures and 4 real PRs as backtest.</li>
+    <li><b>Decided:</b> what counts as public, the file format, the two flag states, the CI checks, the plugin integration, the block context rules and the plugin-facing names found in the store plugins (D1–D30).</li>
+    <li><b>Done:</b> the format spec, a hand-written example snapshot that compiles, 22 test fixtures and 4 real PRs as backtest.</li>
     <li><b>Proposed, not decided:</b> the generator design and the answers to the open questions Q1–Q13.</li>
     <li><b>Wanted from you:</b> feedback on readability of the reports, on coverage gaps, and on the open questions, by ID.</li>
   </ul>
@@ -188,7 +217,7 @@ The report shows both in one tree and marks what exists in only one of them, by 
 <tr><td>Format spec</td><td><span class="tag t-ok">written, in review</span></td><td><code>public-api/FORMAT.md</code></td></tr>
 <tr><td>Decisions and plan</td><td><span class="tag t-ok">written</span></td><td><code>PUBLIC_API_SNAPSHOT_PLAN.md</code></td></tr>
 <tr><td>Example snapshot</td><td><span class="tag t-ok">hand-written, compiles with tsc</span></td><td><code>public-api/</code>: sw-sales-channel, sw-order, two mixins, the Shopware object, a service, a store, the shopware:* modules, referenced types</td></tr>
-<tr><td>Test fixtures</td><td><span class="tag t-ok">21 written</span></td><td><code>scripts/generate-public-api/__fixtures__/</code></td></tr>
+<tr><td>Test fixtures</td><td><span class="tag t-ok">22 written</span></td><td><code>scripts/generate-public-api/__fixtures__/</code></td></tr>
 <tr><td>Historical cases</td><td><span class="tag t-ok">4 written</span></td><td>#20959, #17339, #15271, #17081</td></tr>
 <tr><td>Generator, CI checks</td><td><span class="tag">not started</span></td><td>after this review</td></tr>
 <tr><td>Core change for typed overrides (D20, D21)</td><td><span class="tag">not started</span></td><td><code>global.types.ts</code>, <code>async-component.factory.ts</code></td></tr>
@@ -369,6 +398,33 @@ blocks
 <p>A type from <code>src/</code> that another unit uses gets a copy, so a change to it shows up (D16).</p>
 {unit("types/app/store/notification.store.api.md", TYPES_MD)}
 
+<h3>Template refs and CSS classes {src(True)}</h3>
+<p>Every component lists the refs of its template and its static classes. Classes that exist in one flag state only carry the version marker.</p>
+{single("module/sw-order/page/sw-order-detail.api.md (refs and classes)", golden_sections("module/sw-order/page/sw-order-detail.api.md", "refs", "classes"))}
+
+<h3>Filters and directives {src(True)}</h3>
+<p>The names that core registers, with the filter signatures copied from source.</p>
+{unit("app/filter.api.md", golden("app/filter.api.md", keep=r"^  (asset|currency|date|truncate)\("))}
+{unit("app/directive.api.md", golden("app/directive.api.md"))}
+
+<h3>ACL privileges {src(True)}</h3>
+{unit("module/sw-product/acl.api.md", golden("module/sw-product/acl.api.md"))}
+
+<h3>Registries {src(True)}</h3>
+<p>Entries core registers into service registries. Plugins add their own entries; those are not part of the snapshot.</p>
+{unit("core/registry/cms.api.md (shortened)", golden("core/registry/cms.api.md", keep=r"commerce|^  text$|product-heading|product-listing|^  image$"))}
+{unit("core/registry/rule-conditions.api.md (shortened)", golden("core/registry/rule-conditions.api.md", keep=r"^  (cart|customer|general)$|cartCartAmount|customerOrderCount"))}
+{unit("core/registry/settings-groups.api.md", golden("core/registry/settings-groups.api.md"))}
+
+<h3>Event bus and feature flags {src(True)}</h3>
+{unit("core/event-bus.api.md (shortened)", golden("core/event-bus.api.md", keep=r"sw-product-detail|sw-language-switch"))}
+{unit("core/feature-flags.api.md (shortened)", golden("core/feature-flags.api.md", keep=r"v6\.8\.0\.0|METEOR"))}
+
+<h3>SCSS variables and mixins {src(True)}</h3>
+<p>What plugins import with <code>@import "~scss/variables"</code> and <code>~scss/mixins</code>.</p>
+{unit("scss/variables.api.md (shortened)", golden("scss/variables.api.md", keep=r"color-shopware-brand-500|color-gray-300|border-radius-default|font-size-xs"))}
+{unit("scss/mixins.api.md (shortened)", golden("scss/mixins.api.md", limit=6))}
+
 <h3>Intended breaks {src(True)}</h3>
 <p>A break made on purpose gets an entry with a mandatory justification. Code owners approve changes to this file.</p>
 {single("accepted-breaks.json", ACCEPT_JSON, "plain")}
@@ -465,7 +521,7 @@ composer admin:generate-public-api</pre>
 </ul>
 
 <h3>Testing</h3>
-<p>The generator is built against the 21 fixtures and the 4 historical cases. The done criteria are on the <a href="backtest.html#done-criteria">Backtest</a> page.</p>
+<p>The generator is built against the 22 fixtures and the 4 historical cases. The done criteria are on the <a href="backtest.html#done-criteria">Backtest</a> page.</p>
 
 <h3>Open design questions</h3>
 <p>Q8 (CI runtime), Q9 (Twig parsing) and Q10 (native SFC extraction).</p>
@@ -476,8 +532,25 @@ composer admin:generate-public-api</pre>
 
 # --------------------------------------------------------------------------- Plugins
 
+CHECK_EXTENSIONS_STEPS = [
+    "Find every core name the plugin uses as a string: override and extend targets, overridden members, <code>$super('…')</code> calls, block names in templates, route names, <code>$t</code> keys, position identifiers and data set ids.",
+    'Write each use as a typed constant, with the plugin file and line as a comment.',
+    'Type-check those constants against <code>current.d.ts</code> and against <code>major.d.ts</code>, and map each error back to the plugin line.',
+    'Warn about uses of <code>@private</code> or <code>@deprecated</code> items.',
+    'Warn when an override defines a method the target does not have, which happens after a rename in core.',
+    'Report a lazy override whose wrapped target differs from the overridden component.',
+    'Check the context of every overridden block: variables the override uses must be scope variables of the block, and an override that starts with <code>v-else-if</code> or <code>v-else</code> needs a block that follows an open <code>v-if</code> chain.',
+    'Check filter and directive names, <code>acl.can</code> keys and privilege parents, registry lookups and groups, event bus names, feature flag names, <code>$refs</code> reads, and in plugin SCSS the <code>~scss/</code> variables, mixins and <code>.sw-*</code> selectors. A missing class is a warning.',
+    'Warn about <code>$parent</code> access and about imports from <code>src/</code>, and accept both <code>{% parent %}</code> and <code>{{ parent() }}</code>.',
+]
+
+
+def steps_list(steps):
+    return "<ol>\n" + "".join(f"  <li>{step}</li>\n" for step in steps) + "</ol>"
+
+
 def plugins():
-    body = """
+    body = f"""
 <p>Plugin developers get two things: typed overrides in their editor, and a check that lists every core name their plugin uses that no longer exists in the current or the next major.</p>
 
 <h2>Loading the snapshot</h2>
@@ -490,20 +563,20 @@ def plugins():
 
 <h2>Typed Component.override (D20)</h2>
 <p>Plugins keep calling <code>Shopware.Component.override</code> as today, without a cast.</p>
-<pre class="code">Shopware.Component.override(<span class="s">'sw-sales-channel-detail'</span>, {
+<pre class="code">Shopware.Component.override(<span class="s">'sw-sales-channel-detail'</span>, {{
     inject: [<span class="s">'themeService'</span>],
-    methods: {
-        getLoadSalesChannelCriteria() {
+    methods: {{
+        getLoadSalesChannelCriteria() {{
             <span class="k">const</span> criteria = <span class="k">this</span>.$super(<span class="s">'getLoadSalesChannelCriteria'</span>);
             criteria.addAssociation(<span class="s">'themes'</span>);
             <span class="k">return</span> criteria;
-        },
-        <span class="k">async</span> onSave() {
+        }},
+        <span class="k">async</span> onSave() {{
             <span class="k">this</span>.isLoading = true;
             <span class="k">await</span> <span class="k">this</span>.$super(<span class="s">'onSave'</span>);
-        },
-    },
-});</pre>
+        }},
+    }},
+}});</pre>
 <ul>
   <li><code>this</code> knows the props, data, computed values, methods and injects of the component, its parents, its mixins and the members core overrides add.</li>
   <li><code>$super</code> accepts only method and computed names of the target and checks the number of arguments.</li>
@@ -519,15 +592,15 @@ We tested the example snapshot without it, and <code>this.$super('doesNotExist')
 <p>Many plugins keep each override in its own file and load it with <code>() =&gt; import()</code>. SwagCommercial does this for 152 of its 246 overrides.
 A new helper gives those files the same types:</p>
 <pre class="code"><span class="c">// sw-sales-channel-detail.override.ts</span>
-<span class="k">export default</span> Shopware.Component.wrapOverrideConfig(<span class="s">'sw-sales-channel-detail'</span>, {
-    methods: {
-        getLoadSalesChannelCriteria() {
+<span class="k">export default</span> Shopware.Component.wrapOverrideConfig(<span class="s">'sw-sales-channel-detail'</span>, {{
+    methods: {{
+        getLoadSalesChannelCriteria() {{
             <span class="k">const</span> criteria = <span class="k">this</span>.$super(<span class="s">'getLoadSalesChannelCriteria'</span>);
             criteria.addAssociation(<span class="s">'themes'</span>);
             <span class="k">return</span> criteria;
-        },
-    },
-});
+        }},
+    }},
+}});
 
 <span class="c">// index.ts</span>
 Shopware.Component.override(<span class="s">'sw-sales-channel-detail'</span>, () =&gt; <span class="k">import</span>(<span class="s">'./sw-sales-channel-detail.override'</span>));</pre>
@@ -542,16 +615,8 @@ Shopware.Component.override(<span class="s">'sw-sales-channel-detail'</span>, ()
 </ul>
 
 <h2>admin:check-extensions</h2>
-<p>Most plugins are JS and Twig, which TypeScript does not check. The extended command covers them in seven steps:</p>
-<ol>
-  <li>Find every core name the plugin uses as a string: override and extend targets, overridden members, <code>$super('…')</code> calls, block names in templates, route names, <code>$t</code> keys, position identifiers and data set ids.</li>
-  <li>Write each use as a typed constant, with the plugin file and line as a comment.</li>
-  <li>Type-check those constants against <code>current.d.ts</code> and against <code>major.d.ts</code>, and map each error back to the plugin line.</li>
-  <li>Warn about uses of <code>@private</code> or <code>@deprecated</code> items.</li>
-  <li>Warn when an override defines a method the target does not have, which happens after a rename in core.</li>
-  <li>Report a lazy override whose wrapped target differs from the overridden component.</li>
-  <li>Check the context of every overridden block: variables the override uses must be scope variables of the block, and an override that starts with <code>v-else-if</code> or <code>v-else</code> needs a block that follows an open <code>v-if</code> chain.</li>
-</ol>
+<p>Most plugins are JS and Twig, which TypeScript does not check. The extended command covers them in {len(CHECK_EXTENSIONS_STEPS)} steps:</p>
+{steps_list(CHECK_EXTENSIONS_STEPS)}
 <pre class="code"><span class="k">const</span> _1: AdminApi.BlockName&lt;<span class="s">'sw-sales-channel-detail'</span>&gt; = <span class="s">'sw_sales_channel_detail_content_tab_theme'</span>; <span class="c">// .../sw-sales-channel-detail.html.twig:1</span></pre>
 <div class="note"><p>The Storefront bundle overrides <code>sw_sales_channel_detail_content_tab_theme</code>.
 That block exists only in the current flag state, so the check against <code>major.d.ts</code> fails.
@@ -630,19 +695,20 @@ def backtest():
 Fixtures that are still missing are the rows with a gap on the Coverage page.</p>
 <div class="tw"><table><thead><tr><th>Fixture</th><th>Change</th><th>Expected</th><th>Finding types</th></tr></thead><tbody>
 <tr><td><code>code-inside-method</code></td><td>Code inside a method changes</td><td>{chips()}</td><td>B1</td></tr>
-<tr><td><code>attributes-inside-block</code></td><td>Attributes, text, new elements inside a block</td><td>{chips()}</td><td>B2</td></tr>
+<tr><td><code>attributes-inside-block</code></td><td>Attributes, text, new elements inside a block; one class renamed</td><td>{chips(Info=1)}</td><td>B2, B47</td></tr>
 <tr><td><code>addition</code></td><td>New prop, block, method, route and snippet key</td><td>{chips(Addition=5)}</td><td>B26</td></tr>
 <tr><td><code>member-removed</code></td><td>Method renamed, computed removed</td><td>{chips(Break=2, Addition=1)}</td><td>B6, B36</td></tr>
 <tr><td><code>route-snippet-removed</code></td><td>Route and snippet key removed</td><td>{chips(Break=2)}</td><td>B13, B16</td></tr>
 <tr><td><code>service-store-member-removed</code></td><td>Service member and store action removed</td><td>{chips(Break=2)}</td><td>B18</td></tr>
 <tr><td><code>block-moved</code></td><td>A single block and a subtree moved</td><td>{chips(Break=2)}</td><td>B8</td></tr>
 <tr><td><code>element-crosses-block</code></td><td>New element across two blocks</td><td>{chips(Break=1)}</td><td>B9</td></tr>
-<tr><td><code>block-context</code></td><td>Block loses its loop variable and its <code>v-if</code> context, new <code>v-if</code> chain across blocks</td><td>{chips(Break=3)}</td><td>B39, B40, B41</td></tr>
+<tr><td><code>block-context</code></td><td>Block loses its loop variable and its <code>v-if</code> context, new <code>v-if</code> chain across blocks</td><td>{chips(Break=3, Info=1)}</td><td>B39, B40, B41, B47</td></tr>
+<tr><td><code>refs-and-classes</code></td><td>Template ref removed, ref moved to another component, class removed</td><td>{chips(Break=2, Info=1)}</td><td>B42, B43, B47</td></tr>
 <tr><td><code>block-renamed-major-only</code></td><td>Block renamed only with the major flag</td><td>{chips(Break=1, Addition=1)}</td><td>B7, B38</td></tr>
 <tr><td><code>prop-changes</code></td><td>Props removed, renamed, now required</td><td>{chips(Break=3, Addition=1)}</td><td>B6, B10</td></tr>
 <tr><td><code>method-signature</code></td><td>Required parameter added, sync to async, optional parameter added</td><td>{chips(Break=2, Addition=1)}</td><td>B12, B27</td></tr>
-<tr><td><code>deprecated-removal</code></td><td>Announced removal in that major</td><td><span class="tag t-allowed">Allowed 4</span></td><td>B28</td></tr>
-<tr><td><code>deprecated-removal-too-early</code></td><td>The same removal one version too early</td><td>{chips(Break=4)}</td><td>B28</td></tr>
+<tr><td><code>deprecated-removal</code></td><td>Announced removal in that major</td><td><div class="chips"><span class="tag t-allowed">Allowed 4</span><span class="tag t-info">Info 1</span></div></td><td>B28, B47</td></tr>
+<tr><td><code>deprecated-removal-too-early</code></td><td>The same removal one version too early</td><td>{chips(Break=4, Info=1)}</td><td>B28, B47</td></tr>
 <tr><td><code>private-change</code></td><td>Changes inside a @private unit</td><td>{chips(Private=4)}</td><td>B30</td></tr>
 <tr><td><code>public-becomes-private</code></td><td>Public component becomes @private</td><td>{chips(Break=1)}</td><td>B25</td></tr>
 <tr><td><code>snippet-signature</code></td><td>Placeholder renamed, plural forms changed</td><td>{chips(Break=2)}</td><td>B17</td></tr>
@@ -662,7 +728,7 @@ Fixtures that are still missing are the rows with a gap on the Coverage page.</p
   <li>Fewer than 5% false alarms on about 50 merged Administration PRs, judged together with an Administration lead.</li>
 </ul>
 """
-    lead = "Four real PRs and 21 hand-written fixtures define what the check must report. They are the acceptance test for the generator."
+    lead = "Four real PRs and 22 hand-written fixtures define what the check must report. They are the acceptance test for the generator."
     return lead, body
 
 
@@ -687,6 +753,7 @@ DECISION_GROUPS = [
         ("D6", "Two flag states, current and major, both committed and compared.", "Breaks behind the major flag (#17339) are invisible in a single snapshot."),
         ("D15", "Keep <code>index.json</code> as a machine index.", "Vite, Jest and ESLint need a cheap lookup without loading TypeScript."),
         ("D22", "The report is an outline without tree characters; the check adds a grouped summary and annotations.", "Tree characters change on every move and make diffs noisy."),
+        ("D25", "Components record template refs and static CSS classes. A missing or retargeted ref is a break, a missing class is info.", "635 store plugins read core <code>$refs</code>, 1,541 style core classes; classes change too often to block on."),
         ("D23", "Flag state markers name the version: <code>[until v6.8.0]</code> and <code>[from v6.8.0]</code>.", "<code>[current only]</code> loses its meaning in an old commit, a version does not."),
     ]),
     ("CI and review", [
@@ -700,6 +767,11 @@ DECISION_GROUPS = [
         ("D10", "Replace the four generated lists directly.", "Two sources of truth would drift apart."),
         ("D20", "Core types <code>Component.override</code> as an interface; the snapshot adds a typed signature.", "Plugins keep their code; a cast or a new function would force changes everywhere."),
         ("D21", "A helper <code>wrapOverrideConfig</code> for override files loaded lazily.", "Most large plugins load overrides lazily."),
+        ("D26", "Filters, directives, ACL privileges, settings groups, CMS, rule conditions, search types, flow actions and custom field types that core registers are units.", "Hundreds of store plugins use these names; a removal breaks them silently."),
+        ("D27", "Event bus events and feature flags are units. A missing event is a break, a missing flag is info.", "Plugins listen to core events and branch on core flags."),
+        ("D28", "SCSS variables and mixins are units. A missing name is a break, a changed value is info.", "691 store plugins import <code>~scss/variables</code>; a missing variable fails the plugin build."),
+        ("D29", "<code>admin:check-extensions</code> checks the new names and warns about <code>$parent</code> and imports from <code>src/</code>.", "These uses cannot be typed, but plugin developers should know the risk."),
+        ("D30", "A store usage index annotates findings and detects name collisions (proposal).", "Counts make findings concrete and measure false alarms."),
         ("D24", "Blocks record their context: whether they follow an open <code>v-if</code> chain, and which <code>v-for</code> and slot variables they can use. <code>v-if</code> chains across blocks count as crossings.", "Plugin templates continue core <code>v-if</code> chains and use loop and slot variables; #20959 removed <code>itemIndex</code> from a slot."),
     ]),
 ]
@@ -747,8 +819,12 @@ OPEN_BLOCKING = [
      "One text template per finding id, with one sentence per element kind, kept in a table in <code>FORMAT.md</code>.", "B6, B18, B26"),
     ("Q7", "Missing finding ids", "<code>method_optional_param_added</code>, <code>service_member_missing</code>, <code>store_member_missing</code> and <code>setup_missing</code> are used but not defined. A position identifier that moves to another host has no finding.",
      "Add the four ids to the table, and add <code>position_id_moved</code> as a break.", "A18, B18, B23, B27"),
-    ("Q11", "Not covered yet", "Should CSS class names, directive and filter names, ACL privileges, Meteor components or Extension SDK locations be in the snapshot?",
-     "Add directive names, filter names and ACL privileges, because they can be listed from the source. Leave out CSS classes, Meteor components (own versioning) and SDK locations for now.", "N8–N12"),
+    ("Q11", "Still not covered", "CSS classes, directives, filters and ACL privileges are now covered (A47–A50). Should Meteor components or Extension SDK locations follow?",
+     "Leave both out for now: Meteor components have their own versioning, and only 11 store plugins use the SDK.", "N11, N12"),
+    ("Q14", "Private API that store plugins use", "<code>Shopware.Application</code> (601 store plugins, <code>getContainer</code> 520), <code>Component.getComponentRegistry</code> (94), <code>Component.build</code> (16) and <code>Shopware.Utils.EventBus</code> (59) are <code>@private</code>.",
+     "Make <code>Application.getContainer</code>, <code>addServiceProvider</code>, <code>addServiceProviderDecorator</code> and the EventBus public, because plugins have no alternative. Keep the component registry private and report its use through the store usage index.", "A33, A55, B30"),
+    ("Q15", "Store usage index in CI", "Where does the break check get the store usage counts from? The mirror is internal.",
+     "A scheduled internal job writes the counts per element id to <code>public-api/store-usage.json</code>; the break check only reads that file.", "B46"),
     ("Q12", "Core overrides of native components", "How do <code>swDefineOverride</code> and <code>&lt;sw-block extends&gt;</code> in core appear in the snapshot?",
      "As entries in <code>ComponentOverrides</code>, like Options API overrides, with their setup keys and blocks.", "A25"),
     ("Q13", "Version rule for deprecations", "How is <code>tag:v6.8.0</code> compared with the head version <code>6.8</code>, and does the rule apply per flag state?",
@@ -764,6 +840,8 @@ OPEN_LATER = [
      "Under three minutes for both runs. Cache the base model per commit.", ""),
     ("Q9", "Twig parsing", "Extend the parser of the existing block list generator or write a new tokenizer?",
      "Start from the existing parser and extend it with nesting and element tracking.", ""),
+    ("Q16", "Scope of classes", "Should <code>classes</code> list every static class or only the BEM root and element classes of the component?",
+     "Every static class: plugins also style utility and state classes such as <code>has-warning</code>, and removals are only info.", "A47"),
     ("Q10", "Native SFC extraction", "Is <code>@vue/compiler-sfc</code> enough, or do we need <code>vue-component-meta</code>?",
      "<code>@vue/compiler-sfc</code> first; add <code>vue-component-meta</code> only if prop types need it.", ""),
 ]
@@ -821,6 +899,8 @@ TERMS = [
     ("Block", "A Twig <code>{% block %}</code> or a native <code>&lt;sw-block&gt;</code>. Plugins override blocks by name."),
     ("Extend child", "A component created with <code>Component.extend</code>. It inherits the blocks and members of its parent."),
     ("Crossing", "An HTML element that opens in one block and closes in another, or a <code>v-if</code> chain that continues in another block. Overriding the first block without <code>{% parent %}</code> breaks the markup or the chain."),
+    ("Registry", "A service that collects named entries, such as CMS blocks or rule conditions. The snapshot records the entries core registers, not those of plugins."),
+    ("Store usage index", "Proposal: counts per element id of how many store plugins use it, generated from the internal store plugin mirror. Annotates findings and detects name collisions."),
     ("Block context", "Two facts about the place of a block that overrides depend on: whether it follows an open <code>v-if</code> chain (<code>[after v-if]</code>), and which <code>v-for</code> and slot variables it can use (<code>[scope: …]</code>)."),
     ("$super target", "A method or computed property that an override can call with <code>this.$super('name')</code>."),
     ("Position identifier, data set", "Extension points of the Meteor Admin SDK in core templates."),

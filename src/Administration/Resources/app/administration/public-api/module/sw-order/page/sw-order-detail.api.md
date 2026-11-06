@@ -5,7 +5,6 @@
 API report of component `sw-order-detail` in both flag states.
 Contract: `sw-order-detail.d.ts` (current) and `sw-order-detail.major.d.ts` (major).
 Line format and markers: `public-api/FORMAT.md`.
-
 ```text
 component sw-order-detail  public  js
   registered src/module/sw-order/index.js
@@ -131,6 +130,27 @@ position-ids
 
 data-sets
   sw-order-detail-base__order  path=order
+
+
+
+refs
+  baseComponent  -> router-view
+
+classes
+  has-warning
+  sw-order-detail
+  sw-order-detail__alert
+  sw-order-detail__header
+  sw-order-detail__manual-order-label
+  sw-order-detail__smart-bar-cancel-button
+  sw-order-detail__smart-bar-save-button
+  sw-order-detail__tab-warning-badge  [until v6.8.0]
+  sw-order-detail__tabs
+  sw-order-detail__tabs-tab-details  [until v6.8.0]
+  sw-order-detail__tabs-tab-documents  [until v6.8.0]
+  sw-order-detail__tabs-tab-general  [until v6.8.0]
+  sw_order_detail_base__converted_products_alert-list
+  sw_order_detail_base__missing_products_alert-list
 
 notes
   flag-removal-undeprecated block sw_order_detail_content_tabs_details

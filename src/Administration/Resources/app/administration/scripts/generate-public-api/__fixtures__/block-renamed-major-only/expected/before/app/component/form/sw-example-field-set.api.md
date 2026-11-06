@@ -5,7 +5,6 @@
 API report of component `sw-example-field-set` in both flag states.
 Contract: `sw-example-field-set.d.ts` (both flag states).
 Line format and markers: `public-api/FORMAT.md`.
-
 ```text
 component sw-example-field-set  public  js
   registered src/app/component/index.ts
@@ -41,4 +40,9 @@ blocks
 
 position-ids
   sw-example-field-set  tabs  host=sw-tabs  block=sw_example_field_set_tabs
+
+classes
+  sw-example-field-set
+  sw-example-field-set__content
+  sw-example-field-set__tabs
 ```

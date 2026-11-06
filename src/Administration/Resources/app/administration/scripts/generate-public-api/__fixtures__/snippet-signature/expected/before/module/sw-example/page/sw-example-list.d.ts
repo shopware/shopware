@@ -51,6 +51,12 @@ declare namespace AdminApi {
             positionIdentifiers: {};
             dynamicPositionIdentifiers: {};
             dataSets: {};
+            refs: {};
+            classes: readonly [
+                'sw-example-list',
+                'sw-example-list__selection-info',
+                'sw-example-list__summary',
+            ];
         };
     }
 }

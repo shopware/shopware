@@ -5,7 +5,6 @@
 API report of component `sw-example-card` in both flag states.
 Contract: `sw-example-card.d.ts` (both flag states).
 Line format and markers: `public-api/FORMAT.md`.
-
 ```text
 component sw-example-card  public  js
   registered src/app/component/index.ts
@@ -34,4 +33,11 @@ blocks
     sw_example_card_header
       sw_example_card_title
       sw_example_card_toggle  [after v-if]
+
+classes
+  sw-example-card
+  sw-example-card__content
+  sw-example-card__header
+  sw-example-card__title
+  sw-example-card__toggle
 ```

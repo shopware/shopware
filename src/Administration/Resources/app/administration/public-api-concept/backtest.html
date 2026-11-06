@@ -209,7 +209,7 @@ details.box[open] { padding-bottom: 16px; }
 <main>
 <div class="eyebrow">Page 7 of 9 · Skim · about 10 min</div>
 <h1>Backtest</h1>
-<p class="lead">Four real PRs and 21 hand-written fixtures define what the check must report. They are the acceptance test for the generator.</p>
+<p class="lead">Four real PRs and 22 hand-written fixtures define what the check must report. They are the acceptance test for the generator.</p>
 
 <p>We wrote the expected results by hand from the real commits. The generator has to reproduce them exactly.</p>
 
@@ -254,19 +254,20 @@ Private (217)
 Fixtures that are still missing are the rows with a gap on the Coverage page.</p>
 <div class="tw"><table><thead><tr><th>Fixture</th><th>Change</th><th>Expected</th><th>Finding types</th></tr></thead><tbody>
 <tr><td><code>code-inside-method</code></td><td>Code inside a method changes</td><td><span class="tag t-ok">no finding</span></td><td><a href="coverage.html#B1">B1</a></td></tr>
-<tr><td><code>attributes-inside-block</code></td><td>Attributes, text, new elements inside a block</td><td><span class="tag t-ok">no finding</span></td><td><a href="coverage.html#B2">B2</a></td></tr>
+<tr><td><code>attributes-inside-block</code></td><td>Attributes, text, new elements inside a block; one class renamed</td><td><div class="chips"><span class="tag t-info">Info 1</span></div></td><td><a href="coverage.html#B2">B2</a>, <a href="coverage.html#B47">B47</a></td></tr>
 <tr><td><code>addition</code></td><td>New prop, block, method, route and snippet key</td><td><div class="chips"><span class="tag t-add">Addition 5</span></div></td><td><a href="coverage.html#B26">B26</a></td></tr>
 <tr><td><code>member-removed</code></td><td>Method renamed, computed removed</td><td><div class="chips"><span class="tag t-break">Break 2</span><span class="tag t-add">Addition 1</span></div></td><td><a href="coverage.html#B6">B6</a>, <a href="coverage.html#B36">B36</a></td></tr>
 <tr><td><code>route-snippet-removed</code></td><td>Route and snippet key removed</td><td><div class="chips"><span class="tag t-break">Break 2</span></div></td><td><a href="coverage.html#B13">B13</a>, <a href="coverage.html#B16">B16</a></td></tr>
 <tr><td><code>service-store-member-removed</code></td><td>Service member and store action removed</td><td><div class="chips"><span class="tag t-break">Break 2</span></div></td><td><a href="coverage.html#B18">B18</a></td></tr>
 <tr><td><code>block-moved</code></td><td>A single block and a subtree moved</td><td><div class="chips"><span class="tag t-break">Break 2</span></div></td><td><a href="coverage.html#B8">B8</a></td></tr>
 <tr><td><code>element-crosses-block</code></td><td>New element across two blocks</td><td><div class="chips"><span class="tag t-break">Break 1</span></div></td><td><a href="coverage.html#B9">B9</a></td></tr>
-<tr><td><code>block-context</code></td><td>Block loses its loop variable and its <code>v-if</code> context, new <code>v-if</code> chain across blocks</td><td><div class="chips"><span class="tag t-break">Break 3</span></div></td><td><a href="coverage.html#B39">B39</a>, <a href="coverage.html#B40">B40</a>, <a href="coverage.html#B41">B41</a></td></tr>
+<tr><td><code>block-context</code></td><td>Block loses its loop variable and its <code>v-if</code> context, new <code>v-if</code> chain across blocks</td><td><div class="chips"><span class="tag t-break">Break 3</span><span class="tag t-info">Info 1</span></div></td><td><a href="coverage.html#B39">B39</a>, <a href="coverage.html#B40">B40</a>, <a href="coverage.html#B41">B41</a>, <a href="coverage.html#B47">B47</a></td></tr>
+<tr><td><code>refs-and-classes</code></td><td>Template ref removed, ref moved to another component, class removed</td><td><div class="chips"><span class="tag t-break">Break 2</span><span class="tag t-info">Info 1</span></div></td><td><a href="coverage.html#B42">B42</a>, <a href="coverage.html#B43">B43</a>, <a href="coverage.html#B47">B47</a></td></tr>
 <tr><td><code>block-renamed-major-only</code></td><td>Block renamed only with the major flag</td><td><div class="chips"><span class="tag t-break">Break 1</span><span class="tag t-add">Addition 1</span></div></td><td><a href="coverage.html#B7">B7</a>, <a href="coverage.html#B38">B38</a></td></tr>
 <tr><td><code>prop-changes</code></td><td>Props removed, renamed, now required</td><td><div class="chips"><span class="tag t-break">Break 3</span><span class="tag t-add">Addition 1</span></div></td><td><a href="coverage.html#B6">B6</a>, <a href="coverage.html#B10">B10</a></td></tr>
 <tr><td><code>method-signature</code></td><td>Required parameter added, sync to async, optional parameter added</td><td><div class="chips"><span class="tag t-break">Break 2</span><span class="tag t-add">Addition 1</span></div></td><td><a href="coverage.html#B12">B12</a>, <a href="coverage.html#B27">B27</a></td></tr>
-<tr><td><code>deprecated-removal</code></td><td>Announced removal in that major</td><td><span class="tag t-allowed">Allowed 4</span></td><td><a href="coverage.html#B28">B28</a></td></tr>
-<tr><td><code>deprecated-removal-too-early</code></td><td>The same removal one version too early</td><td><div class="chips"><span class="tag t-break">Break 4</span></div></td><td><a href="coverage.html#B28">B28</a></td></tr>
+<tr><td><code>deprecated-removal</code></td><td>Announced removal in that major</td><td><div class="chips"><span class="tag t-allowed">Allowed 4</span><span class="tag t-info">Info 1</span></div></td><td><a href="coverage.html#B28">B28</a>, <a href="coverage.html#B47">B47</a></td></tr>
+<tr><td><code>deprecated-removal-too-early</code></td><td>The same removal one version too early</td><td><div class="chips"><span class="tag t-break">Break 4</span><span class="tag t-info">Info 1</span></div></td><td><a href="coverage.html#B28">B28</a>, <a href="coverage.html#B47">B47</a></td></tr>
 <tr><td><code>private-change</code></td><td>Changes inside a @private unit</td><td><div class="chips"><span class="tag ">Private 4</span></div></td><td><a href="coverage.html#B30">B30</a></td></tr>
 <tr><td><code>public-becomes-private</code></td><td>Public component becomes @private</td><td><div class="chips"><span class="tag t-break">Break 1</span></div></td><td><a href="coverage.html#B25">B25</a></td></tr>
 <tr><td><code>snippet-signature</code></td><td>Placeholder renamed, plural forms changed</td><td><div class="chips"><span class="tag t-break">Break 2</span></div></td><td><a href="coverage.html#B17">B17</a></td></tr>

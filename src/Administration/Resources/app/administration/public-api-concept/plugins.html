@@ -275,7 +275,7 @@ Shopware.Component.override(<span class="s">'sw-sales-channel-detail'</span>, ()
 </ul>
 
 <h2 id="admin-check-extensions">admin:check-extensions</h2>
-<p>Most plugins are JS and Twig, which TypeScript does not check. The extended command covers them in seven steps:</p>
+<p>Most plugins are JS and Twig, which TypeScript does not check. The extended command covers them in 9 steps:</p>
 <ol>
   <li>Find every core name the plugin uses as a string: override and extend targets, overridden members, <code>$super('…')</code> calls, block names in templates, route names, <code>$t</code> keys, position identifiers and data set ids.</li>
   <li>Write each use as a typed constant, with the plugin file and line as a comment.</li>
@@ -284,6 +284,8 @@ Shopware.Component.override(<span class="s">'sw-sales-channel-detail'</span>, ()
   <li>Warn when an override defines a method the target does not have, which happens after a rename in core.</li>
   <li>Report a lazy override whose wrapped target differs from the overridden component.</li>
   <li>Check the context of every overridden block: variables the override uses must be scope variables of the block, and an override that starts with <code>v-else-if</code> or <code>v-else</code> needs a block that follows an open <code>v-if</code> chain.</li>
+  <li>Check filter and directive names, <code>acl.can</code> keys and privilege parents, registry lookups and groups, event bus names, feature flag names, <code>$refs</code> reads, and in plugin SCSS the <code>~scss/</code> variables, mixins and <code>.sw-*</code> selectors. A missing class is a warning.</li>
+  <li>Warn about <code>$parent</code> access and about imports from <code>src/</code>, and accept both <code>{% parent %}</code> and <code>{{ parent() }}</code>.</li>
 </ol>
 <pre class="code"><span class="k">const</span> _1: AdminApi.BlockName&lt;<span class="s">'sw-sales-channel-detail'</span>&gt; = <span class="s">'sw_sales_channel_detail_content_tab_theme'</span>; <span class="c">// .../sw-sales-channel-detail.html.twig:1</span></pre>
 <div class="note"><p>The Storefront bundle overrides <code>sw_sales_channel_detail_content_tab_theme</code>.

@@ -5,7 +5,6 @@
 API report of component `sw-sales-channel-detail` in both flag states.
 Contract: `sw-sales-channel-detail.d.ts` (current) and `sw-sales-channel-detail.major.d.ts` (major).
 Line format and markers: `public-api/FORMAT.md`.
-
 ```text
 component sw-sales-channel-detail  public  js
   registered src/module/sw-sales-channel/index.js
@@ -128,6 +127,13 @@ position-ids
 
 data-sets
   sw-sales-channel-detail__salesChannel  path=salesChannel
+
+
+classes
+  sw-sales-channel-detail
+  sw-sales-channel-detail-__tabs
+  sw-sales-channel-detail__agentic-commerce-deprecation-banner
+  sw-sales-channel-detail__save-action
 
 notes
   flag-removal-undeprecated block sw_sales_channel_detail_content_tab_agentic_commerce_integration

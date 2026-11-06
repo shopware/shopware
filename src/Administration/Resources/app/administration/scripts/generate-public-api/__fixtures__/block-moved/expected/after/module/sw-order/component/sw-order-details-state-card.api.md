@@ -5,7 +5,6 @@
 API report of component `sw-order-details-state-card` in both flag states.
 Contract: `sw-order-details-state-card.d.ts` (both flag states).
 Line format and markers: `public-api/FORMAT.md`.
-
 ```text
 component sw-order-details-state-card  public  js
   registered src/module/sw-order/index.js
@@ -47,4 +46,14 @@ blocks
     sw_order_state_change_card_content
       sw_order_detail_state_card_state_history_button
     sw_order_state_change_card_divider
+
+classes
+  sw-order-detail-state-card
+  sw-order-detail-state-card__content
+  sw-order-detail-state-card__divider
+  sw-order-detail-state-card__state
+  sw-order-detail-state-card__state-container
+  sw-order-detail-state-card__state-history-author
+  sw-order-detail-state-card__state-history-button
+  sw-order-detail-state-card__state-history-text
 ```

@@ -49,6 +49,21 @@ declare namespace AdminApi {
             positionIdentifiers: {};
             dynamicPositionIdentifiers: {};
             dataSets: {};
+            refs: {};
+            classes: readonly [
+                'is--loading',
+                'is--selected',
+                'sw-example-panel',
+                'sw-example-panel__actions',
+                'sw-example-panel__empty',
+                'sw-example-panel__empty-state',
+                'sw-example-panel__header',
+                'sw-example-panel__header-inner',
+                'sw-example-panel__headline',
+                'sw-example-panel__headline-text',
+                'sw-example-panel__item',
+                'sw-example-panel__list',
+            ];
         };
     }
 }

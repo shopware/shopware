@@ -5,7 +5,6 @@
 API report of component `sw-example-panel` in both flag states.
 Contract: `sw-example-panel.d.ts` (both flag states).
 Line format and markers: `public-api/FORMAT.md`.
-
 ```text
 component sw-example-panel  public  js
   registered src/app/component/index.ts
@@ -40,4 +39,18 @@ blocks
       sw_example_panel_title
     sw_example_panel_list
       sw_example_panel_list_item
+
+classes
+  is--loading
+  is--selected
+  sw-example-panel
+  sw-example-panel__actions
+  sw-example-panel__empty
+  sw-example-panel__empty-state
+  sw-example-panel__header
+  sw-example-panel__header-inner
+  sw-example-panel__headline
+  sw-example-panel__headline-text
+  sw-example-panel__item
+  sw-example-panel__list
 ```

@@ -5,7 +5,6 @@
 API report of component `sw-sales-channel-create` in both flag states.
 Contract: `sw-sales-channel-create.d.ts` (both flag states).
 Line format and markers: `public-api/FORMAT.md`.
-
 ```text
 component sw-sales-channel-create  public  js
   extends sw-sales-channel-detail
@@ -41,4 +40,9 @@ blocks
       sw_sales_channel_detail_header_headline  [inherited]
     sw_sales_channel_detail_language_switch  [replaced]
     sw_sales_channel_detail_sidebar  [inherited] [empty]
+
+classes
+  sw-sales-channel-detail
+  sw-sales-channel-detail__agentic-commerce-deprecation-banner
+  sw-sales-channel-detail__save-action
 ```

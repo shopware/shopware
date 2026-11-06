@@ -5,7 +5,6 @@
 API report of component `sw-sales-channel-detail-agentic-files` in both flag states.
 Contract: `sw-sales-channel-detail-agentic-files.d.ts` (both flag states).
 Line format and markers: `public-api/FORMAT.md`.
-
 ```text
 component sw-sales-channel-detail-agentic-files  public  js
   registered src/module/sw-sales-channel/index.js
@@ -31,4 +30,9 @@ methods
 blocks
   sw_sales_channel_detail_agentic_files
     sw_sales_channel_detail_agentic_files_list
+
+classes
+  is--selected
+  sw-sales-channel-detail-agentic-files
+  sw-sales-channel-detail-agentic-files__list
 ```

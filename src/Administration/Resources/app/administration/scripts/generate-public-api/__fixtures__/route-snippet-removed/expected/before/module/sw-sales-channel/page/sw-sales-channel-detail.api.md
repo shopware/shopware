@@ -5,7 +5,6 @@
 API report of component `sw-sales-channel-detail` in both flag states.
 Contract: `sw-sales-channel-detail.d.ts` (both flag states).
 Line format and markers: `public-api/FORMAT.md`.
-
 ```text
 component sw-sales-channel-detail  public  js
   registered src/module/sw-sales-channel/index.js
@@ -31,4 +30,7 @@ blocks
       sw_sales_channel_detail_content_view
     sw_sales_channel_detail_header
       sw_sales_channel_detail_header_headline
+
+classes
+  sw-sales-channel-detail
 ```

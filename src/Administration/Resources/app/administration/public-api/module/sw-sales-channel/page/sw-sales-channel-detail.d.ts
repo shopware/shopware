@@ -149,6 +149,13 @@ declare namespace AdminApi {
                     { path: 'salesChannel' },
                 ];
             };
+            refs: {};
+            classes: readonly [
+                'sw-sales-channel-detail',
+                'sw-sales-channel-detail-__tabs',
+                'sw-sales-channel-detail__agentic-commerce-deprecation-banner',
+                'sw-sales-channel-detail__save-action',
+            ];
         };
     }
 }

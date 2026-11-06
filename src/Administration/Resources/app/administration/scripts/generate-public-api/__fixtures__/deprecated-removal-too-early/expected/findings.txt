@@ -17,3 +17,9 @@ Break (4)
     The prop is gone, so plugins that pass subtitle to sw-example-card or read this.subtitle in an override lose the value. Its @deprecated tag:v6.8.0 allows the removal from 6.8 on, and the head version is 6.7.
     Fix: keep the prop until v6.8.0, or add an entry to public-api/accepted-breaks.json.
     At: src/app/component/base/sw-example-card/index.js:12
+
+Info (1)
+  class_missing  component:sw-example-card/class:sw-example-card__subtitle  current, major
+    The CSS class sw-example-card__subtitle is no longer in the template, so plugin styles and selectors that use it stop matching.
+    Fix: mention it in the upgrade notes if plugins are likely to style it.
+    At: src/app/component/base/sw-example-card/sw-example-card.html.twig:3

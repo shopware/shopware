@@ -34,6 +34,8 @@ declare namespace AdminApi {
             positionIdentifiers: {};
             dynamicPositionIdentifiers: {};
             dataSets: {};
+            refs: {};
+            classes: readonly [];
         };
         // Stub. Source: src/module/sw-order/view/sw-order-create-details/index.ts
         'sw-order-create-details': {
@@ -58,6 +60,8 @@ declare namespace AdminApi {
             positionIdentifiers: {};
             dynamicPositionIdentifiers: {};
             dataSets: {};
+            refs: {};
+            classes: readonly [];
         };
         // Stub. Source: src/module/sw-order/view/sw-order-create-general/index.ts
         'sw-order-create-general': {
@@ -82,6 +86,8 @@ declare namespace AdminApi {
             positionIdentifiers: {};
             dynamicPositionIdentifiers: {};
             dataSets: {};
+            refs: {};
+            classes: readonly [];
         };
         // Stub. Source: src/module/sw-order/view/sw-order-create-initial/index.js
         'sw-order-create-initial': {
@@ -106,6 +112,8 @@ declare namespace AdminApi {
             positionIdentifiers: {};
             dynamicPositionIdentifiers: {};
             dataSets: {};
+            refs: {};
+            classes: readonly [];
         };
         // Stub. Source: src/module/sw-order/view/sw-order-detail-details/index.js
         'sw-order-detail-details': {
@@ -130,6 +138,8 @@ declare namespace AdminApi {
             positionIdentifiers: {};
             dynamicPositionIdentifiers: {};
             dataSets: {};
+            refs: {};
+            classes: readonly [];
         };
         // Stub. Source: src/module/sw-order/view/sw-order-detail-documents/index.js
         'sw-order-detail-documents': {
@@ -154,6 +164,8 @@ declare namespace AdminApi {
             positionIdentifiers: {};
             dynamicPositionIdentifiers: {};
             dataSets: {};
+            refs: {};
+            classes: readonly [];
         };
         // Stub. Source: src/module/sw-order/view/sw-order-detail-general/index.js
         'sw-order-detail-general': {
@@ -178,6 +190,8 @@ declare namespace AdminApi {
             positionIdentifiers: {};
             dynamicPositionIdentifiers: {};
             dataSets: {};
+            refs: {};
+            classes: readonly [];
         };
         // Stub. Source: src/module/sw-order/page/sw-order-list/index.js
         'sw-order-list': {
@@ -202,6 +216,8 @@ declare namespace AdminApi {
             positionIdentifiers: {};
             dynamicPositionIdentifiers: {};
             dataSets: {};
+            refs: {};
+            classes: readonly [];
         };
         // Stub. Source: src/module/sw-sales-channel/view/sw-sales-channel-create-base/index.js
         'sw-sales-channel-create-base': {
@@ -226,6 +242,8 @@ declare namespace AdminApi {
             positionIdentifiers: {};
             dynamicPositionIdentifiers: {};
             dataSets: {};
+            refs: {};
+            classes: readonly [];
         };
         // Stub. Source: src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-commerce-integration/index.js
         'sw-sales-channel-detail-agentic-commerce-integration': {
@@ -250,6 +268,8 @@ declare namespace AdminApi {
             positionIdentifiers: {};
             dynamicPositionIdentifiers: {};
             dataSets: {};
+            refs: {};
+            classes: readonly [];
         };
         // Stub. Source: src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file/index.js
         'sw-sales-channel-detail-agentic-file': {
@@ -274,6 +294,8 @@ declare namespace AdminApi {
             positionIdentifiers: {};
             dynamicPositionIdentifiers: {};
             dataSets: {};
+            refs: {};
+            classes: readonly [];
         };
         // Stub. Source: src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files/index.js
         'sw-sales-channel-detail-agentic-files': {
@@ -298,6 +320,8 @@ declare namespace AdminApi {
             positionIdentifiers: {};
             dynamicPositionIdentifiers: {};
             dataSets: {};
+            refs: {};
+            classes: readonly [];
         };
         // Stub. Source: src/module/sw-sales-channel/view/sw-sales-channel-detail-analytics/index.js
         /** @private */
@@ -323,6 +347,8 @@ declare namespace AdminApi {
             positionIdentifiers: {};
             dynamicPositionIdentifiers: {};
             dataSets: {};
+            refs: {};
+            classes: readonly [];
         };
         // Stub. Source: src/module/sw-sales-channel/view/sw-sales-channel-detail-base/index.js
         'sw-sales-channel-detail-base': {
@@ -347,6 +373,8 @@ declare namespace AdminApi {
             positionIdentifiers: {};
             dynamicPositionIdentifiers: {};
             dataSets: {};
+            refs: {};
+            classes: readonly [];
         };
         // Stub. Source: src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison/index.js
         'sw-sales-channel-detail-product-comparison': {
@@ -371,6 +399,8 @@ declare namespace AdminApi {
             positionIdentifiers: {};
             dynamicPositionIdentifiers: {};
             dataSets: {};
+            refs: {};
+            classes: readonly [];
         };
         // Stub. Source: src/module/sw-sales-channel/view/sw-sales-channel-detail-product-export-insights/index.js
         'sw-sales-channel-detail-product-export-insights': {
@@ -395,6 +425,8 @@ declare namespace AdminApi {
             positionIdentifiers: {};
             dynamicPositionIdentifiers: {};
             dataSets: {};
+            refs: {};
+            classes: readonly [];
         };
         // Stub. Source: src/module/sw-sales-channel/view/sw-sales-channel-detail-products/index.js
         'sw-sales-channel-detail-products': {
@@ -419,6 +451,8 @@ declare namespace AdminApi {
             positionIdentifiers: {};
             dynamicPositionIdentifiers: {};
             dataSets: {};
+            refs: {};
+            classes: readonly [];
         };
         // Stub. Source: src/module/sw-sales-channel/page/sw-sales-channel-list/index.js
         'sw-sales-channel-list': {
@@ -443,6 +477,8 @@ declare namespace AdminApi {
             positionIdentifiers: {};
             dynamicPositionIdentifiers: {};
             dataSets: {};
+            refs: {};
+            classes: readonly [];
         };
     }
 }

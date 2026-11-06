@@ -5,7 +5,6 @@
 API report of component `sw-example-detail` in both flag states.
 Contract: `sw-example-detail.d.ts` (both flag states).
 Line format and markers: `public-api/FORMAT.md`.
-
 ```text
 component sw-example-detail  public  js
   registered src/module/sw-example/index.js
@@ -32,4 +31,7 @@ blocks
   sw_example_detail
     sw_example_detail_content
       sw_example_detail_sales_channels
+
+classes
+  sw-example-detail
 ```

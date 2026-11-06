@@ -26,6 +26,11 @@ MATRIX = [
     ("Block", ["B7", "B2", "B8", "B26", "B25", "B28"]),
     ("Block context (v-if, scope)", ["B39, B40", "", "", "", "", ""]),
     ("HTML element or v-if chain across blocks", ["B34", "", "", "B9, B41", "", ""]),
+    ("Template ref", ["B42", "B43", "", "", "", ""]),
+    ("CSS class", ["B47", "", "", "", "", ""]),
+    ("Filter, directive, privilege, registry entry, event", ["B44", "B45, B12", "", "B46", "", "B28"]),
+    ("SCSS variable or mixin", ["B44", "B48, B12", "", "", "", "B28"]),
+    ("Feature flag", ["B49", "", "", "", "", ""]),
     ("Route", ["B13", "B15", "B14", "B26", "B25", "B28"]),
     ("Snippet key", ["B16", "B17", "", "B26", "", "B28"]),
     ("Service or store member", ["B18", "B11", "", "B26", "B25", "B28"]),
@@ -35,7 +40,7 @@ MATRIX = [
     ("Position identifier, data set", ["B22", "nr", "nr", "B26", "", "B28"]),
     ("Native setup binding", ["B23", "B24", "", "B26", "B25", "B28"]),
 ]
-MATRIX_NOTE = "Not every cell is a break: B2 and B3 produce no finding, B27 is an addition, B32, B33 and B34 are info. A block that gains a scope variable or a v-if context produces no finding. A dot means the change does not apply."
+MATRIX_NOTE = "Not every cell is a break: B2 and B3 produce no finding, B27 is an addition, B32, B33, B34, B47, B48 and B49 are info, B46 is a proposal. A block that gains a scope variable or a v-if context produces no finding. A dot means the change does not apply."
 
 CROSSING_BEFORE = """{% block sw_order_detail_header %}
     {% block sw_order_detail_header_label_manual_order %}
@@ -189,6 +194,7 @@ def coverage():
   <div class="card"><h4>{len(NOT_COVERED)} not covered</h4><p>N1–N{len(NOT_COVERED)}: left out on purpose or not decided yet.</p></div>
   <div class="card"><h4>{n_gaps} gaps</h4><p>Rows with a red edge and a red Gap note.</p></div>
 </div>
+<div class="note"><p>Store plugin numbers on this page come from a scan of the Administration code of 2,771 plugins in the store plugin mirror.</p></div>
 <div class="note"><p>Give feedback by ID, for example "A18 should also cover the host component" or "B22 is not a break for us".
 Every ID links to its row, and IDs stay stable.</p></div>
 

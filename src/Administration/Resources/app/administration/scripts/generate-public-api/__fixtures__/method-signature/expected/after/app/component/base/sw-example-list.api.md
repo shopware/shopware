@@ -5,7 +5,6 @@
 API report of component `sw-example-list` in both flag states.
 Contract: `sw-example-list.d.ts` (both flag states).
 Line format and markers: `public-api/FORMAT.md`.
-
 ```text
 component sw-example-list  public  js
   registered src/app/component/index.ts
@@ -34,4 +33,11 @@ blocks
       sw_example_list_item_delete  [scope: index, item]
       sw_example_list_item_label  [scope: index, item]
     sw_example_list_pagination
+
+classes
+  sw-example-list
+  sw-example-list__item
+  sw-example-list__item-delete
+  sw-example-list__item-label
+  sw-example-list__items
 ```

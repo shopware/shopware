@@ -5,7 +5,6 @@
 API report of component `sw-native-example` in both flag states.
 Contract: `sw-native-example.d.ts` (both flag states).
 Line format and markers: `public-api/FORMAT.md`.
-
 ```text
 component sw-native-example  public  vue
   registered src/app/component/index.ts

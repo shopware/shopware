@@ -5,7 +5,6 @@
 API report of component `sw-example-list` in both flag states.
 Contract: `sw-example-list.d.ts` (both flag states).
 Line format and markers: `public-api/FORMAT.md`.
-
 ```text
 component sw-example-list  public  js
   registered src/module/sw-example/index.js
@@ -40,4 +39,9 @@ blocks
       sw_example_list_grid
       sw_example_list_selection_info
     sw_example_list_smart_bar_header
+
+classes
+  sw-example-list
+  sw-example-list__selection-info
+  sw-example-list__summary
 ```

@@ -5,7 +5,6 @@
 API report of component `sw-example-filter` in both flag states.
 Contract: `sw-example-filter.d.ts` (both flag states).
 Line format and markers: `public-api/FORMAT.md`.
-
 ```text
 component sw-example-filter  private  js  [private]
   registered src/app/component/index.ts  [private]
@@ -30,4 +29,7 @@ blocks
   sw_example_filter  [private]
     sw_example_filter_actions  [empty] [private]
     sw_example_filter_field  [private]
+
+classes
+  sw-example-filter  [private]
 ```

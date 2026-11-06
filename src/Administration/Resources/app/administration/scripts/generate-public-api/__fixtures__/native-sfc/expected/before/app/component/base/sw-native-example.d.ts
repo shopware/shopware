@@ -38,6 +38,8 @@ declare namespace AdminApi {
             positionIdentifiers: {};
             dynamicPositionIdentifiers: {};
             dataSets: {};
+            refs: {};
+            classes: readonly [];
             setup: {
                 public: {
                     count: SetupBinding<'ref', import('vue').Ref<number>>;

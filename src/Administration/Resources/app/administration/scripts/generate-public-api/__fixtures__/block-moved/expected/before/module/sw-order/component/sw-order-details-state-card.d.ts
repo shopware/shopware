@@ -56,6 +56,17 @@ declare namespace AdminApi {
             positionIdentifiers: {};
             dynamicPositionIdentifiers: {};
             dataSets: {};
+            refs: {};
+            classes: readonly [
+                'sw-order-detail-state-card',
+                'sw-order-detail-state-card__content',
+                'sw-order-detail-state-card__divider',
+                'sw-order-detail-state-card__state',
+                'sw-order-detail-state-card__state-container',
+                'sw-order-detail-state-card__state-history-author',
+                'sw-order-detail-state-card__state-history-button',
+                'sw-order-detail-state-card__state-history-text',
+            ];
         };
     }
 }

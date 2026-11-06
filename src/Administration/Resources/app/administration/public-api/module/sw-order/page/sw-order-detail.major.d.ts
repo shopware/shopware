@@ -147,6 +147,21 @@ declare namespace AdminApi {
                     { path: 'order' },
                 ];
             };
+            refs: {
+                baseComponent: Ref<'router-view'>;
+            };
+            classes: readonly [
+                'has-warning',
+                'sw-order-detail',
+                'sw-order-detail__alert',
+                'sw-order-detail__header',
+                'sw-order-detail__manual-order-label',
+                'sw-order-detail__smart-bar-cancel-button',
+                'sw-order-detail__smart-bar-save-button',
+                'sw-order-detail__tabs',
+                'sw_order_detail_base__converted_products_alert-list',
+                'sw_order_detail_base__missing_products_alert-list',
+            ];
         };
     }
 }

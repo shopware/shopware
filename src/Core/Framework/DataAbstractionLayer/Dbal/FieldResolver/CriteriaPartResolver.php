@@ -243,8 +243,6 @@ class CriteriaPartResolver
 
     private function resolveField(CriteriaPartInterface $criteriaPart, string $accessor, EntityDefinition $definition, QueryBuilder $query, Context $context): void
     {
-        $accessor = str_replace('extensions.', '', $accessor);
-
         $root = $definition->getEntityName();
 
         $parts = explode('.', $accessor);
@@ -260,6 +258,10 @@ class CriteriaPartResolver
         $rootDefinition = $definition;
 
         foreach ($parts as $part) {
+            if ($part === 'extensions') {
+                continue;
+            }
+
             $field = $definition->getFields()->get($part);
 
             if ($field === null) {

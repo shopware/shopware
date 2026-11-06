@@ -1,0 +1,71 @@
+{
+  "sw-settings-webhook": {
+    "general": {
+      "mainMenuItemGeneral": "Webhooks",
+      "descriptionTextModule": "View and manage the webhooks of users, integrations and apps"
+    },
+    "list": {
+      "columnName": "Name",
+      "columnEvent": "Event",
+      "columnUrl": "URL",
+      "columnOwner": "Owner",
+      "columnRoles": "Limited to",
+      "columnActive": "Active",
+      "columnErrorCount": "Errors",
+      "ownerUser": "User",
+      "ownerIntegration": "Integration",
+      "ownerApp": "App",
+      "ownerAppIntegration": "App integration",
+      "tooltipAppWebhookNotDeletable": "This webhook belongs to an app.",
+      "tooltipAppInactive": "The app of this webhook is inactive, so the webhook is not sent.",
+      "messageSaveError": "Webhook \"{name}\" could not be saved.",
+      "messageDeleteError": "The webhook could not be deleted.",
+      "emptyStateHeadline": "No webhooks yet",
+      "emptyStateDescription": "Webhooks created through the API or registered by apps are shown here.",
+      "ownerFilter": "Owner",
+      "ownerFilterUsers": "Users",
+      "ownerFilterApps": "Apps",
+      "ownerFilterServices": "Services",
+      "loadErrorHeadline": "The webhooks could not be loaded",
+      "loadErrorDescription": "Reload the page to try again.",
+      "actionShowDeliveries": "Show deliveries",
+      "messageSaveSuccess": "Webhook \"{name}\" has been saved.",
+      "placeholderSearchBar": "Search webhooks...",
+      "deletedRole": "Deleted role",
+      "tooltipWebhookNotOwned": "Only the owner of this webhook or an administrator can delete it."
+    },
+    "deliveries": {
+      "title": "Deliveries of \"{name}\"",
+      "columnSentAt": "Sent",
+      "columnStatus": "Status",
+      "columnResponse": "Response",
+      "columnDuration": "Duration",
+      "durationSeconds": "{seconds} s",
+      "emptyStateHeadline": "No deliveries yet",
+      "emptyStateDescription": "Deliveries show up here once the event happens.",
+      "loadErrorHeadline": "The deliveries could not be loaded",
+      "loadErrorDescription": "Close the deliveries and open them again to retry.",
+      "status": {
+        "success": "Delivered",
+        "failed": "Failed",
+        "pending_retry": "Retrying",
+        "queued": "Queued",
+        "running": "Sending"
+      },
+      "columnCode": "Code",
+      "columnPayload": "Payload",
+      "buttonBack": "Back to deliveries",
+      "tabPayload": "Payload",
+      "tabResponse": "Response",
+      "noResponse": "No response was received.",
+      "noBody": "The response has no body."
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "webhook": {
+        "label": "Webhooks"
+      }
+    }
+  }
+}

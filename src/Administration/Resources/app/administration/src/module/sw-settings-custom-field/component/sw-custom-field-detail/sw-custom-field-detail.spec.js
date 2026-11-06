@@ -210,6 +210,11 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
         );
     });
 
+    /**
+     * Switching a new custom field's type kept the old type's config.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/21602
+     */
     it('should drop type-specific config when switching the type of a new custom field', async () => {
         const newField = { ...customFieldFixture, config: { ...customFieldFixture.config } };
         const wrapper = await createWrapper({ currentCustomField: newField, set: {} }, ['custom_field.editor']);

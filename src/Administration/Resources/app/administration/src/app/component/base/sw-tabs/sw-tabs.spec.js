@@ -92,6 +92,11 @@ describe('src/app/component/base/sw-tabs', () => {
         warnSpy.mockRestore();
     });
 
+    /**
+     * Meteor tabs ignored slot-text labels of tab items rendered with v-for.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18863
+     */
     it.each([
         [
             'plain text',

@@ -63,6 +63,11 @@ describe('src/app/component/utils/sw-license-violation', () => {
         expect(Shopware.Store.get('licenseViolation').violations).toEqual([violation]);
     });
 
+    /**
+     * License violation warnings stayed visible for manually removed extensions.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/17219
+     */
     it('removes cached violations for extensions that are no longer installed before opening the modal', async () => {
         const context = createContext({ showViolation: true });
 
@@ -73,6 +78,11 @@ describe('src/app/component/utils/sw-license-violation', () => {
         expect(Shopware.Store.get('licenseViolation').violations).toEqual([]);
     });
 
+    /**
+     * The license warning offered removing Composer-managed extensions, which failed with a 400 error.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/22359
+     */
     it.each([
         [true, true],
         [false, false],

@@ -125,6 +125,11 @@ describe('module/sw-flow/component/sw-flow-rule-modal', () => {
         conditionRepositoryMock.search.mockReset();
     });
 
+    /**
+     * Rules with over 500 conditions showed duplicated or missing conditions.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18652
+     */
     it('loads rule conditions in API-sized pages with stable sorting', async () => {
         const firstPage = Array.from({ length: 500 }, (_, index) => ({ id: `condition-${index}` }));
         const secondPage = [{ id: 'condition-500' }];

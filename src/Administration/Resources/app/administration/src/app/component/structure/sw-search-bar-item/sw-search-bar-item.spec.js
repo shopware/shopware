@@ -271,47 +271,56 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
             expect(wrapper.find('sw-shortcut-overview-item-stub').exists()).toBe(true);
         });
 
-        it('should not render a shortcut when the resolved value is the &nbsp; placeholder', async () => {
-            // "Add new landing page" reuses the category module (name: 'category') with
-            // action: true, whose "add" shortcut is the `&nbsp;` placeholder ("G C | &nbsp;").
-            wrapper = await createWrapper(
-                {
-                    entityIconName: '',
-                    entityIconColor: '',
-                    column: 1,
-                    index: 1,
-                    type: 'module',
-                    item: {
-                        name: 'category',
-                        entity: 'landing_page',
-                        action: true,
+        /**
+         * The search bar showed a literal &nbsp; as a keyboard shortcut.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/20310
+         */
+        describe('&nbsp; shortcut placeholder', () => {
+            /** @regression */
+            it('should not render a shortcut when the resolved value is the &nbsp; placeholder', async () => {
+                // "Add new landing page" reuses the category module (name: 'category') with
+                // action: true, whose "add" shortcut is the `&nbsp;` placeholder ("G C | &nbsp;").
+                wrapper = await createWrapper(
+                    {
+                        entityIconName: '',
+                        entityIconColor: '',
+                        column: 1,
+                        index: 1,
+                        type: 'module',
+                        item: {
+                            name: 'category',
+                            entity: 'landing_page',
+                            action: true,
+                        },
                     },
-                },
-                shortcutMocks((count) => (count === 2 ? '&nbsp;' : 'G C')),
-            );
+                    shortcutMocks((count) => (count === 2 ? '&nbsp;' : 'G C')),
+                );
 
-            expect(wrapper.vm.shortcut).toBe(false);
-            expect(wrapper.find('sw-shortcut-overview-item-stub').exists()).toBe(false);
-        });
+                expect(wrapper.vm.shortcut).toBe(false);
+                expect(wrapper.find('sw-shortcut-overview-item-stub').exists()).toBe(false);
+            });
 
-        it('should treat a &nbsp; placeholder with surrounding whitespace as no shortcut', async () => {
-            // e.g. sales-channel navigation state: "&nbsp; | A S".
-            wrapper = await createWrapper(
-                {
-                    entityIconName: '',
-                    entityIconColor: '',
-                    column: 1,
-                    index: 1,
-                    type: 'module',
-                    item: {
-                        name: 'sales-channel',
+            /** @regression */
+            it('should treat a &nbsp; placeholder with surrounding whitespace as no shortcut', async () => {
+                // e.g. sales-channel navigation state: "&nbsp; | A S".
+                wrapper = await createWrapper(
+                    {
+                        entityIconName: '',
+                        entityIconColor: '',
+                        column: 1,
+                        index: 1,
+                        type: 'module',
+                        item: {
+                            name: 'sales-channel',
+                        },
                     },
-                },
-                shortcutMocks((count) => (count === 2 ? 'A S' : '&nbsp; ')),
-            );
+                    shortcutMocks((count) => (count === 2 ? 'A S' : '&nbsp; ')),
+                );
 
-            expect(wrapper.vm.shortcut).toBe(false);
-            expect(wrapper.find('sw-shortcut-overview-item-stub').exists()).toBe(false);
+                expect(wrapper.vm.shortcut).toBe(false);
+                expect(wrapper.find('sw-shortcut-overview-item-stub').exists()).toBe(false);
+            });
         });
 
         it('should not render a shortcut when the module has no shortcut snippet', async () => {

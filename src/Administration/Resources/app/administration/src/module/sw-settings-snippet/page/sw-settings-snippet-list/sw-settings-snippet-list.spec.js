@@ -168,6 +168,11 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
         return wrapper;
     }
 
+    /**
+     * Snippet deep links with a search term were missing the translation columns.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15728
+     */
     it('should display translation columns when opening a filtered view through a deep link', async () => {
         const getCustomList = jest.fn(() => Promise.resolve(getSnippets()));
         const wrapper = await createWrapper([], { term: 'account' }, getCustomList);

@@ -197,33 +197,42 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         expect(violations.missingRequiredFields).toEqual(['id', 'taxId']);
     });
 
-    it('product: should not find any missing required when parentProduct is existing', async () => {
-        const violations = importExportProfileMappingService.validate(
-            'product',
-            mappings.productDuplicateProfileOnlyRequired,
-            mappings.productDuplicateProfileOnlyRequired,
-        );
+    /**
+     * Importing an exported product profile template was rejected for missing required fields.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10580
+     */
+    describe('required fields of the product profile', () => {
+        /** @regression */
+        it('product: should not find any missing required when parentProduct is existing', async () => {
+            const violations = importExportProfileMappingService.validate(
+                'product',
+                mappings.productDuplicateProfileOnlyRequired,
+                mappings.productDuplicateProfileOnlyRequired,
+            );
 
-        expect(violations.missingRequiredFields).toHaveLength(0);
-        expect(violations.duplicateMappings).toHaveLength(0);
-    });
+            expect(violations.missingRequiredFields).toHaveLength(0);
+            expect(violations.duplicateMappings).toHaveLength(0);
+        });
 
-    it('product: should find missing required when key.id is existing', async () => {
-        const violations = importExportProfileMappingService.validate(
-            'product',
-            [
-                {
-                    id: 'fc416f509b0b46fabb8cd8728cf63531',
-                    key: 'tax.id',
-                    mappedKey: 'tax_id',
-                },
-            ],
-            mappings.productDuplicateProfileOnlyRequired,
-        );
+        /** @regression */
+        it('product: should find missing required when key.id is existing', async () => {
+            const violations = importExportProfileMappingService.validate(
+                'product',
+                [
+                    {
+                        id: 'fc416f509b0b46fabb8cd8728cf63531',
+                        key: 'tax.id',
+                        mappedKey: 'tax_id',
+                    },
+                ],
+                mappings.productDuplicateProfileOnlyRequired,
+            );
 
-        expect(violations.duplicateMappings).toHaveLength(0);
+            expect(violations.duplicateMappings).toHaveLength(0);
 
-        expect(violations.missingRequiredFields).toEqual(['id', 'productNumber']);
+            expect(violations.missingRequiredFields).toEqual(['id', 'productNumber']);
+        });
     });
 
     it('media: should not find any missing required fields', async () => {
@@ -288,6 +297,11 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
     );
 
     // @deprecated tag:v6.8.0 - The test will be removed with the optional product type mapping.
+    /**
+     * A field mapped twice was silently omitted from the export.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15680
+     */
     it.deprecated('v6.8.0.0')('should detect duplicate mapping keys', () => {
         const mapping = [
             ...mappings.productProfileOnlyRequired,

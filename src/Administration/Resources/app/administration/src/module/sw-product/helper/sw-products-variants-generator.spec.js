@@ -65,6 +65,11 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
         return productEntity;
     }
 
+    /**
+     * Negative price surcharges in the variant generator were ignored.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/8036
+     */
     it('should not filter variants with positive or negative prices', async () => {
         const expectedCreateQueue = [
             {
@@ -262,6 +267,11 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
         });
     });
 
+    /**
+     * Regenerating variants ignored newly added exclusions and kept the excluded variants.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/16589
+     */
     it('should delete existing variants matching newly added restrictions', async () => {
         const newVariations = [['d6e90b99fe4842d487b53b59e50491a4'], ['e10fed21a07149958427cb5339ee4c31']];
 
@@ -320,6 +330,11 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
             },
         ];
 
+        /**
+         * Generating variants crashed when the stored variant restrictions were not an array.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/12985
+         */
         it('should return createQueue when variantRestrictions is not an array', () => {
             variantsGenerator.product = { variantRestrictions: null };
             expect(variantsGenerator.filterRestrictions(mockCreateQueue)).toEqual(mockCreateQueue);
@@ -339,6 +354,11 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
             expect(variantsGenerator.filterRestrictions(mockCreateQueue)).toEqual(mockCreateQueue);
         });
 
+        /**
+         * Restrictions with empty options broke variant generation instead of being ignored.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/12985
+         */
         it('should return createQueue when all restrictions have empty options', () => {
             variantsGenerator.product = {
                 variantRestrictions: [
@@ -355,6 +375,11 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
             expect(variantsGenerator.filterRestrictions(mockCreateQueue)).toEqual(mockCreateQueue);
         });
 
+        /**
+         * Malformed or empty restrictions broke variant generation instead of being ignored.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/12985
+         */
         it('should filter out malformed restrictions and process valid ones', () => {
             variantsGenerator.product = {
                 variantRestrictions: [
@@ -448,6 +473,11 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
             syncSpy.mockRestore();
         });
 
+        /**
+         * New variant exclusions were not saved, so the old exclusions came back.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/16589
+         */
         it('should upsert product variant restrictions', async () => {
             const syncSpy = jest.spyOn(variantsGenerator.syncService, 'sync').mockResolvedValue({});
             const variantRestrictions = [
@@ -849,6 +879,11 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
             expect(newProduct.variantListingConfig).toEqual({ displayParent: true });
         });
 
+        /**
+         * Generating variants overwrote the saved variant listing presentation.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/21036
+         */
         it.each([
             ['a variant', { displayParent: false, mainVariantId: null, configuratorGroupConfig: null }],
             ['a main variant', { displayParent: null, mainVariantId: 'variant-id', configuratorGroupConfig: null }],
@@ -889,6 +924,11 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
             syncSpy.mockRestore();
         });
 
+        /**
+         * The default listing config applied during variant generation was never saved.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/18535
+         */
         it('should upsert the variant listing config default applied during the generation', async () => {
             const syncSpy = jest.spyOn(variantsGenerator.syncService, 'sync').mockResolvedValue({});
             const variantListingConfig = { displayParent: true };

@@ -261,72 +261,85 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
         expect(definition.properties.countryStateId.flags?.required).toBe(true);
     });
 
-    it('should not inherit the required flags of a previously edited address', async () => {
-        const definition = Shopware.EntityDefinition.get('customer_address');
+    /**
+     * Country-dependent required flags leaked from a previously edited address into the next one.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18694
+     */
+    describe('country dependent required fields', () => {
+        /** @regression */
+        it('should not inherit the required flags of a previously edited address', async () => {
+            const definition = Shopware.EntityDefinition.get('customer_address');
 
-        definition.properties.zipcode.flags.required = true;
-        definition.properties.countryStateId.flags.required = true;
+            definition.properties.zipcode.flags.required = true;
+            definition.properties.countryStateId.flags.required = true;
 
-        await createWrapper();
+            await createWrapper();
 
-        await flushPromises();
+            await flushPromises();
 
-        expect(definition.properties.zipcode.flags.required).toBe(false);
-        expect(definition.properties.countryStateId.flags.required).toBe(false);
-    });
-
-    it('should reset the country dependent required flags when the form is closed', async () => {
-        const wrapper = await createWrapper();
-
-        const definition = Shopware.EntityDefinition.get('customer_address');
-
-        await wrapper.setData({
-            country: {
-                postalCodeRequired: true,
-                forceStateInRegistration: true,
-            },
+            expect(definition.properties.zipcode.flags.required).toBe(false);
+            expect(definition.properties.countryStateId.flags.required).toBe(false);
         });
 
-        await flushPromises();
+        /** @regression */
+        it('should reset the country dependent required flags when the form is closed', async () => {
+            const wrapper = await createWrapper();
 
-        expect(definition.properties.zipcode.flags.required).toBe(true);
-        expect(definition.properties.countryStateId.flags.required).toBe(true);
+            const definition = Shopware.EntityDefinition.get('customer_address');
 
-        wrapper.unmount();
-
-        expect(definition.properties.zipcode.flags.required).toBe(false);
-        expect(definition.properties.countryStateId.flags.required).toBe(false);
-    });
-
-    it('should drop the required field errors when the country stops requiring the fields', async () => {
-        const wrapper = await createWrapper();
-        const errorStore = Shopware.Store.get('error');
-
-        await wrapper.setData({
-            country: {
-                postalCodeRequired: true,
-                forceStateInRegistration: true,
-            },
-        });
-
-        await flushPromises();
-
-        ['zipcode', 'countryStateId'].forEach((field) => {
-            errorStore.addApiError({
-                expression: `customer_address.1.${field}`,
-                error: new ShopwareError({ code: EntityValidationService.ERROR_CODE_REQUIRED }),
+            await wrapper.setData({
+                country: {
+                    postalCodeRequired: true,
+                    forceStateInRegistration: true,
+                },
             });
+
+            await flushPromises();
+
+            expect(definition.properties.zipcode.flags.required).toBe(true);
+            expect(definition.properties.countryStateId.flags.required).toBe(true);
+
+            wrapper.unmount();
+
+            expect(definition.properties.zipcode.flags.required).toBe(false);
+            expect(definition.properties.countryStateId.flags.required).toBe(false);
         });
 
-        await wrapper.setData({
-            country: {
-                postalCodeRequired: false,
-                forceStateInRegistration: false,
-            },
-        });
+        /**
+         * Required-field errors persisted after switching to a country that does not require the fields.
+         * @regression
+         */
+        it('should drop the required field errors when the country stops requiring the fields', async () => {
+            const wrapper = await createWrapper();
+            const errorStore = Shopware.Store.get('error');
 
-        expect(errorStore.getApiError(wrapper.vm.address, 'zipcode')).toBeNull();
-        expect(errorStore.getApiError(wrapper.vm.address, 'countryStateId')).toBeNull();
+            await wrapper.setData({
+                country: {
+                    postalCodeRequired: true,
+                    forceStateInRegistration: true,
+                },
+            });
+
+            await flushPromises();
+
+            ['zipcode', 'countryStateId'].forEach((field) => {
+                errorStore.addApiError({
+                    expression: `customer_address.1.${field}`,
+                    error: new ShopwareError({ code: EntityValidationService.ERROR_CODE_REQUIRED }),
+                });
+            });
+
+            await wrapper.setData({
+                country: {
+                    postalCodeRequired: false,
+                    forceStateInRegistration: false,
+                },
+            });
+
+            expect(errorStore.getApiError(wrapper.vm.address, 'zipcode')).toBeNull();
+            expect(errorStore.getApiError(wrapper.vm.address, 'countryStateId')).toBeNull();
+        });
     });
 
     it('should keep a server reported error when the form is mounted and when it is closed', async () => {
@@ -361,6 +374,11 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
         expect(wrapper.vm.customer.company).toBe('bar');
     });
 
+    /**
+     * Changing an address company overwrote the customer's company.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/11357
+     */
     it('should not change customer company for existing customer', async () => {
         const wrapper = await createWrapper();
 

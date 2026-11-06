@@ -359,6 +359,11 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         expect(cmsSidebar.attributes().disabled).toBeUndefined();
     });
 
+    /**
+     * Locked or loading CMS pages could still be saved via keyboard actions.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18793
+     */
     it.each([
         ['missing ACL rights', [], false],
         ['a locked page', ['cms.editor'], false],
@@ -922,6 +927,11 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         expect(resetSpy).toHaveBeenCalledTimes(1);
     });
 
+    /**
+     * Switching the language in the CMS designer was lost after a reload.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/16701
+     */
     it('should set api language id on language change', async () => {
         const wrapper = await createWrapper();
         const defaultLanguageSpy = jest.spyOn(wrapper.vm.cmsPageState, 'setIsSystemDefaultLanguage');

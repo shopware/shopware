@@ -134,6 +134,11 @@ describe('core/factory/locale.factory.ts', () => {
             // No error should be thrown
         });
 
+        /**
+         * Locale.extend after i18n setup did not update the view reactively.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/13848
+         */
         it('should call setLocaleMessage twice when Shopware.Snippet is instantiated', () => {
             LocaleFactory.register('en-GB', {
                 original: 'value',
@@ -222,6 +227,11 @@ describe('core/factory/locale.factory.ts', () => {
             });
         });
 
+        /**
+         * Locale.extend after i18n setup did not update the view reactively.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/13848
+         */
         it('should trigger reactivity updates on multiple extends when i18n is instantiated', () => {
             LocaleFactory.register('en-GB', {
                 base: 'value',
@@ -444,6 +454,11 @@ describe('core/factory/locale.factory.ts', () => {
             expect(LocaleFactory.getLastKnownLocale()).toBe('en-GB');
         });
 
+        /**
+         * The login page ignored the system default language and showed English.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/14373
+         */
         it('should fall back to the system locale when neither browser nor english are registered', () => {
             setBrowserLanguages('es-ES');
 

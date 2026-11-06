@@ -223,6 +223,11 @@ describe('app/service/filter.service.js', () => {
         ]);
     });
 
+    /**
+     * Order filters deselected on first click because reload raced the save.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15965
+     */
     it('saveFilters should resolve after the user config save finished', async () => {
         await filterService.getStoredFilters('test');
 

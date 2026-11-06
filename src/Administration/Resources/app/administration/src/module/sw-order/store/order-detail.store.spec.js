@@ -143,6 +143,11 @@ describe('src/module/sw-order/state/order-detail.store', () => {
             expect(Object.keys(associations.addresses.associations)).toEqual(['country']);
         });
 
+        /**
+         * Each address selection loaded its own customer, so edited addresses did not sync across them.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/20211
+         */
         it('should share one customer between concurrent callers instead of requesting it per address selection', async () => {
             const customer = { id: customerId };
             const get = jest.fn(() => Promise.resolve(customer));
@@ -170,6 +175,11 @@ describe('src/module/sw-order/state/order-detail.store', () => {
             expect(get).toHaveBeenCalledTimes(1);
         });
 
+        /**
+         * A saved order address did not show up in the other address selections until page reload.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/20211
+         */
         it('should request the customer again when reloading it after an address was saved', async () => {
             const initial = { id: customerId, addresses: [] };
             const reloaded = { id: customerId, addresses: [{ id: 'newCustomerAddressId' }] };

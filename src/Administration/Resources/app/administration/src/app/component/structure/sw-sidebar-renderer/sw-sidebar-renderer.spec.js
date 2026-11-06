@@ -209,6 +209,11 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             expect(mockLocalStorage.getItem).toHaveBeenCalledWith('sw-sidebar-width');
         });
 
+        /**
+         * Collapsing the sidebar with the button did not persist the width.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/12986
+         */
         it('should reset the width when sidebar was collapsed through the button', async () => {
             mockLocalStorage.getItem.mockReturnValue('700');
 
@@ -284,6 +289,11 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             expect(document.body.style.cursor).toBe('col-resize');
         });
 
+        /**
+         * App iframes swallowed the pointer and stopped app sidebar resizing.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/18838
+         */
         it('should keep iframes outside the sidebar from swallowing the drag while resizing', async () => {
             const wrapper = await createWrapper();
 

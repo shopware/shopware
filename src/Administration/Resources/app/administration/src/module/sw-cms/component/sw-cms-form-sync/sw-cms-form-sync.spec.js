@@ -136,6 +136,11 @@ describe('src/module/sw-cms/component/sw-cms-form-sync', () => {
         });
     });
 
+    /**
+     * Clearing an array CMS field on a category layout was not saved.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18483
+     */
     it('should sync clearing an array field to an empty override', async () => {
         const contentEntity = {
             slotConfig: {
@@ -222,6 +227,11 @@ describe('src/module/sw-cms/component/sw-cms-form-sync', () => {
         expect(contentEntity.slotConfig[defaultElementId]).toBeUndefined();
     });
 
+    /**
+     * Field changes for languages without a slot translation were discarded on save.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/19735
+     */
     it('should sync a field change for a language without its own slot translation', async () => {
         const contentEntity = {
             slotConfig: {},

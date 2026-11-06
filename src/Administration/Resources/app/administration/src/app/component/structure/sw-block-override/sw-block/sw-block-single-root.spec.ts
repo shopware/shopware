@@ -68,6 +68,11 @@ function convertedRoot(wrapper: VueWrapper): Node {
 global.allowedErrors.push({ method: 'warn', msg: 'Extraneous non-props attributes' });
 
 describe('sw-block single root', () => {
+    /**
+     * Non-prop attributes passed by callers were dropped on converted components.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/19554
+     */
     it('passes attributes the caller sets on to the block content', async () => {
         const wrapper = await mountConverted({
             callerAttributes: 'id="outer" data-caller="yes"',
@@ -99,6 +104,11 @@ describe('sw-block single root', () => {
         expect(onClick).toHaveBeenCalledTimes(1);
     });
 
+    /**
+     * The `$el` of a converted component was a text anchor instead of an element.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/19559
+     */
     it('exposes the block content element as `$el`', async () => {
         const wrapper = await mountConverted();
 

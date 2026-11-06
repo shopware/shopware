@@ -146,6 +146,11 @@ describe('src/app/component/filter/sw-date-filter - calendar quarter and year', 
             jest.setSystemTime(new Date(1337, 11, 31));
         });
 
+        /**
+         * In Q1, the last quarter ended in the current year instead of the previous one.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/16380
+         */
         it('should compute last quarter as Oct-Dec of the previous year', async () => {
             const wrapper = await createWrapper();
 

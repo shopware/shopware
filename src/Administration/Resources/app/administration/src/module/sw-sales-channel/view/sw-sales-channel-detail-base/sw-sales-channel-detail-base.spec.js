@@ -357,6 +357,11 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
+    /**
+     * Custom fields stayed editable for users with read-only permissions.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10061
+     */
     it('should disable the custom field renderer without sales channel edit permissions', async () => {
         global.activeAclRoles = ['sales_channel.viewer'];
 
@@ -1284,6 +1289,11 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
             });
         }
 
+        /**
+         * Saving failed because the storefront's language was not added to the sales channel languages.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/19322
+         */
         it('should add the storefront language to the sales channel languages', async () => {
             const languages = createLanguagesCollection([]);
             const wrapper = await createStorefrontSelectionWrapper(languages);
@@ -1321,135 +1331,153 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
     });
 
-    it('should build unserved languages alert with correct pluralization for single item', async () => {
-        const wrapper = await createWrapper();
-        const collection = [
-            {
-                name: 'English',
-            },
-        ];
+    /**
+     * Snippet variables were passed in the count position, so the method and language lists stayed unreplaced.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/7722
+     */
+    describe('pluralized alerts', () => {
+        /** @regression */
+        it('should build unserved languages alert with correct pluralization for single item', async () => {
+            const wrapper = await createWrapper();
+            const collection = [
+                {
+                    name: 'English',
+                },
+            ];
 
-        const snippet = 'sw-sales-channel.detail.warningUnservedLanguage';
-        const result = wrapper.vm.buildUnservedLanguagesAlert(snippet, collection);
+            const snippet = 'sw-sales-channel.detail.warningUnservedLanguage';
+            const result = wrapper.vm.buildUnservedLanguagesAlert(snippet, collection);
 
-        expect(wrapper.vm.$t).toHaveBeenCalledWith(
-            snippet,
-            {
-                list: 'English',
-            },
-            1,
-        );
+            expect(wrapper.vm.$t).toHaveBeenCalledWith(
+                snippet,
+                {
+                    list: 'English',
+                },
+                1,
+            );
 
-        expect(result).toBe(snippet);
+            expect(result).toBe(snippet);
+        });
+
+        /** @regression */
+        it('should build unserved languages alert with correct pluralization for multiple items', async () => {
+            const wrapper = await createWrapper();
+            const collection = [
+                {
+                    name: 'English',
+                },
+                {
+                    name: 'German',
+                },
+            ];
+
+            const snippet = 'sw-sales-channel.detail.warningUnservedLanguage';
+            const result = wrapper.vm.buildUnservedLanguagesAlert(snippet, collection);
+
+            expect(wrapper.vm.$t).toHaveBeenCalledWith(
+                snippet,
+                {
+                    list: 'English, German',
+                },
+                2,
+            );
+
+            expect(result).toBe(snippet);
+        });
+
+        /** @regression */
+        it('should build payment alert with correct pluralization for single item', async () => {
+            const wrapper = await createWrapper();
+            const collection = [{ translated: { name: 'PayPal|Invoice' } }];
+
+            const snippet = 'sw-sales-channel.detail.warningDisabledPaymentMethod';
+
+            const result = wrapper.vm.buildDisabledPaymentAlert(snippet, collection);
+
+            expect(wrapper.vm.$t).toHaveBeenCalledWith(
+                snippet,
+                {
+                    separatedList: '<span>PayPal&vert;Invoice</span>',
+                    paymentSettingsLink: '/sw/settings/payment/overview',
+                },
+                1,
+            );
+
+            expect(result).toBe(snippet);
+        });
+
+        /** @regression */
+        it('should build payment alert with correct pluralization for multiple items', async () => {
+            const wrapper = await createWrapper();
+            const collection = [{ translated: { name: 'PayPal|Invoice' } }, { translated: { name: 'Cash on delivery' } }];
+
+            const snippet = 'sw-sales-channel.detail.warningDisabledPaymentMethod';
+
+            const result = wrapper.vm.buildDisabledPaymentAlert(snippet, collection);
+
+            expect(wrapper.vm.$t).toHaveBeenCalledWith(
+                snippet,
+                {
+                    separatedList: '<span>PayPal&vert;Invoice</span>, <span>Cash on delivery</span>',
+                    paymentSettingsLink: '/sw/settings/payment/overview',
+                },
+                2,
+            );
+
+            expect(result).toBe(snippet);
+        });
+
+        /** @regression */
+        it('should build shipping alert with correct pluralization for single item', async () => {
+            const wrapper = await createWrapper();
+            const collection = [{ translated: { name: 'Standard' } }];
+            collection.first = () => collection[0];
+            collection.last = () => collection[0];
+
+            const snippet = 'sw-sales-channel.detail.warningDisabledShippingMethod';
+            const result = wrapper.vm.buildDisabledShippingAlert(snippet, collection);
+
+            expect(wrapper.vm.$t).toHaveBeenCalledWith(
+                snippet,
+                {
+                    name: 'Standard',
+                    addition: 'Standard',
+                },
+                1,
+            );
+
+            expect(result).toBe(snippet);
+        });
+
+        /** @regression */
+        it('should build shipping alert with correct pluralization for multiple items', async () => {
+            const wrapper = await createWrapper();
+            const collection = [{ translated: { name: 'Standard' } }, { translated: { name: 'Express' } }];
+            collection.first = () => collection[0];
+            collection.last = () => collection[1];
+
+            const snippet = 'sw-sales-channel.detail.warningDisabledShippingMethod';
+            const result = wrapper.vm.buildDisabledShippingAlert(snippet, collection);
+
+            expect(wrapper.vm.$t).toHaveBeenCalledWith(
+                snippet,
+                {
+                    name: 'Standard',
+                    addition: 'Express',
+                },
+                2,
+            );
+
+            expect(result).toBe(snippet);
+        });
     });
 
-    it('should build unserved languages alert with correct pluralization for multiple items', async () => {
-        const wrapper = await createWrapper();
-        const collection = [
-            {
-                name: 'English',
-            },
-            {
-                name: 'German',
-            },
-        ];
-
-        const snippet = 'sw-sales-channel.detail.warningUnservedLanguage';
-        const result = wrapper.vm.buildUnservedLanguagesAlert(snippet, collection);
-
-        expect(wrapper.vm.$t).toHaveBeenCalledWith(
-            snippet,
-            {
-                list: 'English, German',
-            },
-            2,
-        );
-
-        expect(result).toBe(snippet);
-    });
-
-    it('should build payment alert with correct pluralization for single item', async () => {
-        const wrapper = await createWrapper();
-        const collection = [{ translated: { name: 'PayPal|Invoice' } }];
-
-        const snippet = 'sw-sales-channel.detail.warningDisabledPaymentMethod';
-
-        const result = wrapper.vm.buildDisabledPaymentAlert(snippet, collection);
-
-        expect(wrapper.vm.$t).toHaveBeenCalledWith(
-            snippet,
-            {
-                separatedList: '<span>PayPal&vert;Invoice</span>',
-                paymentSettingsLink: '/sw/settings/payment/overview',
-            },
-            1,
-        );
-
-        expect(result).toBe(snippet);
-    });
-
-    it('should build payment alert with correct pluralization for multiple items', async () => {
-        const wrapper = await createWrapper();
-        const collection = [{ translated: { name: 'PayPal|Invoice' } }, { translated: { name: 'Cash on delivery' } }];
-
-        const snippet = 'sw-sales-channel.detail.warningDisabledPaymentMethod';
-
-        const result = wrapper.vm.buildDisabledPaymentAlert(snippet, collection);
-
-        expect(wrapper.vm.$t).toHaveBeenCalledWith(
-            snippet,
-            {
-                separatedList: '<span>PayPal&vert;Invoice</span>, <span>Cash on delivery</span>',
-                paymentSettingsLink: '/sw/settings/payment/overview',
-            },
-            2,
-        );
-
-        expect(result).toBe(snippet);
-    });
-
-    it('should build shipping alert with correct pluralization for single item', async () => {
-        const wrapper = await createWrapper();
-        const collection = [{ translated: { name: 'Standard' } }];
-        collection.first = () => collection[0];
-        collection.last = () => collection[0];
-
-        const snippet = 'sw-sales-channel.detail.warningDisabledShippingMethod';
-        const result = wrapper.vm.buildDisabledShippingAlert(snippet, collection);
-
-        expect(wrapper.vm.$t).toHaveBeenCalledWith(
-            snippet,
-            {
-                name: 'Standard',
-                addition: 'Standard',
-            },
-            1,
-        );
-
-        expect(result).toBe(snippet);
-    });
-
-    it('should build shipping alert with correct pluralization for multiple items', async () => {
-        const wrapper = await createWrapper();
-        const collection = [{ translated: { name: 'Standard' } }, { translated: { name: 'Express' } }];
-        collection.first = () => collection[0];
-        collection.last = () => collection[1];
-
-        const snippet = 'sw-sales-channel.detail.warningDisabledShippingMethod';
-        const result = wrapper.vm.buildDisabledShippingAlert(snippet, collection);
-
-        expect(wrapper.vm.$t).toHaveBeenCalledWith(
-            snippet,
-            {
-                name: 'Standard',
-                addition: 'Express',
-            },
-            2,
-        );
-
-        expect(result).toBe(snippet);
-    });
-
+    /**
+     * Warning banners used an unsupported variant and rendered with the wrong styling.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10244
+     */
     it('should return disabledCountryVariant "attention" if the sales channel country is in the disabled countries list', async () => {
         const wrapper = await createWrapper();
 
@@ -1479,6 +1507,11 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(wrapper.vm.disabledCountryVariant).toBe('info');
     });
 
+    /**
+     * Warning banners used an unsupported variant and rendered with the wrong styling.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10244
+     */
     it('should return disabledPaymentMethodVariant "attention" if the sales channel payment method is in the disabled payment methods list', async () => {
         const wrapper = await createWrapper();
 
@@ -1508,6 +1541,11 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(wrapper.vm.disabledPaymentMethodVariant).toBe('info');
     });
 
+    /**
+     * Warning banners used an unsupported variant and rendered with the wrong styling.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10244
+     */
     it('should return disabledShippingMethodVariant "attention" if the sales channel shipping method is in the disabled shipping methods list', async () => {
         const wrapper = await createWrapper();
 
@@ -1537,6 +1575,11 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(wrapper.vm.disabledShippingMethodVariant).toBe('info');
     });
 
+    /**
+     * Warning banners used an unsupported variant and rendered with the wrong styling.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10244
+     */
     it('should return unservedLanguageVariant "attention" if the sales channel language is NOT served by any domain', async () => {
         const wrapper = await createWrapper();
 
@@ -1816,6 +1859,11 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(wrapper.vm.salesChannel.configuration).toEqual(newConfig);
     });
 
+    /**
+     * Changing the storefront sales channel kept the old domain, so saving failed.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/11444
+     */
     it('should reset salesChannelDomainId when storefront sales channel changes', async () => {
         const wrapper = await createWrapper({
             props: {

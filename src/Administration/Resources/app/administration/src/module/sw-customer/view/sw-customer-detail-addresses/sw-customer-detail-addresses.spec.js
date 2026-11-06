@@ -207,6 +207,11 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
         expect(Shopware.Store.get('error').getApiError(entityMock, 'street')).toBeInstanceOf(ShopwareError);
     });
 
+    /**
+     * Address required-field warnings stayed on the customer page with no way to clear them.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18694
+     */
     it('should clear the error of a required field once it holds a value again', async () => {
         const entityMock = {
             getEntityName: () => 'customer_address',
@@ -234,6 +239,11 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
         expect(Shopware.Store.get('error').getApiError(entityMock, 'street')).toBeNull();
     });
 
+    /**
+     * Address required-field warnings stayed on the customer page with no way to clear them.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18694
+     */
     it('should not leave any warnings on the customer page when closing the address modal', async () => {
         const errorStore = Shopware.Store.get('error');
 
@@ -278,6 +288,11 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
         expect(errorStore.getApiError(entityMock, 'additionalAddressLine1')).toBeInstanceOf(ShopwareError);
     });
 
+    /**
+     * Address required-field warnings stayed on the customer page with no way to clear them.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18694
+     */
     it('should clear pending required field errors when the view is torn down', async () => {
         const errorStore = Shopware.Store.get('error');
         const entityMock = {
@@ -329,47 +344,67 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
         expect(lines.at(1).text()).toContain('Thu');
     });
 
-    it('should edit an address that the grid loaded on a later page', async () => {
-        await wrapper.setProps({
-            customerEditMode: true,
+    /**
+     * Addresses beyond the first 25 could not be edited.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18957
+     */
+    describe('addresses on a later grid page', () => {
+        /**
+         * Editing an address beyond the first 25 opened an empty modal.
+         * @regression
+         */
+        it('should edit an address that the grid loaded on a later page', async () => {
+            await wrapper.setProps({
+                customerEditMode: true,
+            });
+
+            expect(
+                wrapper.vm.activeCustomer.addresses.find((address) => address.id === 'address-on-later-page'),
+            ).toBeUndefined();
+
+            wrapper.vm.onEditAddress('address-on-later-page');
+
+            expect(wrapper.vm.currentAddress).toEqual(
+                expect.objectContaining({
+                    id: 'address-on-later-page',
+                    firstName: 'Max',
+                    lastName: 'Mustermann',
+                    street: 'Ebbinghoff 10',
+                }),
+            );
         });
 
-        expect(
-            wrapper.vm.activeCustomer.addresses.find((address) => address.id === 'address-on-later-page'),
-        ).toBeUndefined();
+        /**
+         * Saving an address beyond the first 25 failed because it was not found.
+         * @regression
+         */
+        it('should save an address that the grid loaded on a later page', async () => {
+            await wrapper.setProps({
+                customerEditMode: true,
+            });
 
-        wrapper.vm.onEditAddress('address-on-later-page');
+            wrapper.vm.onEditAddress('address-on-later-page');
+            wrapper.vm.currentAddress.city = 'Berlin';
 
-        expect(wrapper.vm.currentAddress).toEqual(
-            expect.objectContaining({
-                id: 'address-on-later-page',
-                firstName: 'Max',
-                lastName: 'Mustermann',
-                street: 'Ebbinghoff 10',
-            }),
-        );
-    });
+            wrapper.vm.onSaveAddress();
+            await flushPromises();
 
-    it('should save an address that the grid loaded on a later page', async () => {
-        await wrapper.setProps({
-            customerEditMode: true,
+            expect(wrapper.vm.customerAddressRepository.save).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    id: 'address-on-later-page',
+                    city: 'Berlin',
+                }),
+            );
+            expect(wrapper.vm.currentAddress).toBeNull();
         });
-
-        wrapper.vm.onEditAddress('address-on-later-page');
-        wrapper.vm.currentAddress.city = 'Berlin';
-
-        wrapper.vm.onSaveAddress();
-        await flushPromises();
-
-        expect(wrapper.vm.customerAddressRepository.save).toHaveBeenCalledWith(
-            expect.objectContaining({
-                id: 'address-on-later-page',
-                city: 'Berlin',
-            }),
-        );
-        expect(wrapper.vm.currentAddress).toBeNull();
     });
 
+    /**
+     * Address custom fields and options stayed editable outside edit mode.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10061
+     */
     it('should disable address form options when edit mode is off', async () => {
         await wrapper.setData({
             currentAddress: {

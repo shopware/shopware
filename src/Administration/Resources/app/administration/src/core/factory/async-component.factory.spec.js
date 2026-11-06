@@ -3511,6 +3511,11 @@ describe('core/factory/async-component.factory.ts', () => {
             expect(() => wrapper.vm.foo()).toThrow('Don\'t call "$super" manually! This is not supported!');
         });
 
+        /**
+         * Calling $super without a resolvable parent recursed until the call stack overflowed.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/4870
+         */
         it('should throw error calling $super without parent', async () => {
             ComponentFactory.register('jest', {
                 template: '{% block jest %}jest{% endblock %}',

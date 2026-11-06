@@ -163,6 +163,11 @@ describe('storeService', () => {
         spyRepository.mockRestore();
     });
 
+    /**
+     * Uploading many media files at once ran all uploads in parallel and overloaded browser and server.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/11571
+     */
     it('limits concurrent uploads to maxConcurrentUploads', async () => {
         const mediaApiService = getMediaApiService();
         mediaApiService.maxConcurrentUploads = 2;

@@ -87,6 +87,11 @@ describe('module/sw-cms/mixin/sw-cms-state.mixin.js', () => {
         expect(wrapper.vm.contentEntity).toBeNull();
     });
 
+    /**
+     * Child languages fell back to the CMS layout instead of the parent language override.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15906
+     */
     it('should prefer parent translation slotConfig for inherited CMS overrides', async () => {
         const wrapper = await createWrapper('sw.category.detail.cms');
         const inheritedSlotConfig = {

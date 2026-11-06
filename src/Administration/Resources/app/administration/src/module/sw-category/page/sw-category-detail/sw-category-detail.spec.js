@@ -190,6 +190,11 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
         expect(categoryTree.props('allowDelete')).toBe(true);
     });
 
+    /**
+     * Setting a new default listing layout did not apply to categories on the default.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/4589
+     */
     it('should set default layout', async () => {
         global.activeAclRoles = ['category.creator', 'category.editor', 'category.deleter'];
 

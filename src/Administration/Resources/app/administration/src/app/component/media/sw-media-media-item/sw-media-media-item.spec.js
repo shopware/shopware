@@ -78,6 +78,11 @@ describe('components/media/sw-media-media-item', () => {
         Shopware.Store.get('actionButtons').buttons = [];
     });
 
+    /**
+     * Renamed media kept its old URL, so downloading it failed.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/12148
+     */
     it('should update item with repository data after successful rename', async () => {
         global.activeAclRoles = ['media.editor'];
 

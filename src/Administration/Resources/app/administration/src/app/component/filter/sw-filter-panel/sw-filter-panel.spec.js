@@ -237,6 +237,11 @@ describe('components/sw-filter-panel', () => {
         expect(Object.keys(wrapper.vm.activeFilters)).toHaveLength(1);
     });
 
+    /**
+     * Filter changes made while stored filters were loading were lost.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/17641
+     */
     it('should keep filter changes while stored filters are still loading', async () => {
         let resolveStoredFilters;
         getStoredFiltersMock = () =>
@@ -272,6 +277,11 @@ describe('components/sw-filter-panel', () => {
         });
     });
 
+    /**
+     * The filter panel did not display the category path.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/11221
+     */
     it('should return breadcrumb path when item has breadcrumb array', async () => {
         const wrapper = await createWrapper();
 

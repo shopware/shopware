@@ -95,6 +95,11 @@ describe('src/app/component/form/select/base/sw-select-result', () => {
         wrapper.unmount();
     });
 
+    /**
+     * A resting mouse pointer stole the keyboard highlight in select result lists.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/17961
+     */
     it('should only take over the active item when the mouse moves over it', async () => {
         const setActiveItemIndex = jest.fn();
         const result = mount(await wrapTestComponent('sw-select-result', { sync: true }), {

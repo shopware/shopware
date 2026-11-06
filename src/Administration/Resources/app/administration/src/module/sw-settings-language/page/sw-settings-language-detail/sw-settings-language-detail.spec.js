@@ -260,6 +260,11 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
         expect(wrapper.find('.sw-field__hint').text()).toContain('textIsoCodeIsInUse');
     });
 
+    /**
+     * Saving changes to a just-created language failed because it was not reloaded after create.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/9426
+     */
     it('should load language data again after create new language', async () => {
         const wrapper = await createWrapper(['language.editor'], null, false);
         await flushPromises();

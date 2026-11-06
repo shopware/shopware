@@ -33,6 +33,11 @@ describe('src/core/data/error-resolver.system-config.data.ts', () => {
         expect(result).toBeInstanceOf(ShopwareError);
     });
 
+    /**
+     * Scoped errors were stored under a camelCased sales channel id, so lookups missed them.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/18741
+     */
     it('should store sales channel scoped errors under the raw sales channel id', () => {
         errorResolverSystemConfig.handleWriteErrors(mock.apiErrorsScoped);
 

@@ -277,6 +277,11 @@ describe('module/sw-property/page/sw-property-list', () => {
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
     });
 
+    /**
+     * Deleting a property group in use failed silently without an error.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/11721
+     */
     it('should not delete property group if it is in use', async () => {
         global.activeAclRoles = ['property.deleter'];
 

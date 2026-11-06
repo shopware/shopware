@@ -202,6 +202,11 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
         expect(store.product.guaranteeConfirmed).toBe(true);
     });
 
+    /**
+     * A variant inheriting the guarantee confirmation showed it as not inherited and off.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/20363
+     */
     it('should show the confirmation a variant inherits from its parent product', async () => {
         store.product.guaranteeConfirmed = null;
         store.parentProduct = { id: 'parentId', guaranteeConfirmed: true };
@@ -211,6 +216,11 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
         expect(wrapper.find('.mt-switch').classes()).not.toContain('mt-switch--disabled');
     });
 
+    /**
+     * The duration stepper offered values below 30 months that the server rejects.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/20105
+     */
     it('should only offer valid guarantee durations in the stepper', async () => {
         const monthsField = wrapper.findComponent('.mt-number-field');
 
@@ -224,6 +234,11 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
             await wrapper.find(`[data-testid="mt-number-field-${direction}-button"]`).trigger('click');
         }
 
+        /**
+         * The stepper offered durations like 6, 12 and 18 months that the server rejects.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/20105
+         */
         it.each([
             [44, 48],
             [38, 42],
@@ -238,6 +253,11 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
             expect(store.product.guaranteeMonths).toBe(expected);
         });
 
+        /**
+         * The stepper offered durations like 6, 12 and 18 months that the server rejects.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/20105
+         */
         it.each([
             [44, 42],
             [38, 36],
@@ -264,6 +284,11 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
             expect(wrapper.find('.mt-number-field__error').exists()).toBe(false);
         });
 
+        /**
+         * The stepper could leave the allowed 30 to 600 month range.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/20105
+         */
         it.each([
             ['increase', 600],
             ['decrease', 30],
@@ -276,6 +301,11 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
             expect(store.product.guaranteeMonths).toBe(guaranteeMonths);
         });
 
+        /**
+         * Invalid durations were only rejected by a failed save, with no inline error.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/20105
+         */
         it('should not correct a typed duration', async () => {
             await wrapper.find('.mt-number-field input').setValue(44);
 
@@ -377,6 +407,11 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
         expect(wrapper.find('.mt-number-field__error').text()).toBe('INVALID_GARAN_GUARANTEE_MONTHS');
     });
 
+    /**
+     * A duration error from a failed save stayed visible after the value was corrected.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/20105
+     */
     it('should drop the duration error of the last save once the value is valid again', async () => {
         store.product.guaranteeMonths = 25;
 

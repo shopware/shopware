@@ -62,26 +62,41 @@ describe('core/service/entity-mapping.service.ts', () => {
         expect(result.product.type).toBe('object');
     });
 
-    it('returns empty if entity was just selected', () => {
-        const result = EntityMappingService.getEntityMapping('product.price', {
-            product: 'product',
+    /**
+     * Autocomplete suggested the wrong fields right after completing a path.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10123
+     */
+    describe('autocomplete on completed paths', () => {
+        /**
+         * Autocomplete kept suggesting nested matches right after completing a path.
+         * @regression
+         */
+        it('returns empty if entity was just selected', () => {
+            const result = EntityMappingService.getEntityMapping('product.price', {
+                product: 'product',
+            });
+
+            expect(Object.keys(result)).toHaveLength(0);
         });
 
-        expect(Object.keys(result)).toHaveLength(0);
-    });
+        /**
+         * Autocomplete on a JSON field path suggested the parent entity's fields.
+         * @regression
+         */
+        it('returns only attributes from json object', () => {
+            const result = EntityMappingService.getEntityMapping('product.price.', {
+                product: 'product',
+            });
 
-    it('returns only attributes from json object', () => {
-        const result = EntityMappingService.getEntityMapping('product.price.', {
-            product: 'product',
+            expect(Object.keys(result)).toHaveLength(3);
+            expect(result).toHaveProperty('net');
+            expect(result.net.type).toBe('float');
+            expect(result).toHaveProperty('gross');
+            expect(result.gross.type).toBe('float');
+            expect(result).toHaveProperty('linked');
+            expect(result.linked.type).toBe('boolean');
         });
-
-        expect(Object.keys(result)).toHaveLength(3);
-        expect(result).toHaveProperty('net');
-        expect(result.net.type).toBe('float');
-        expect(result).toHaveProperty('gross');
-        expect(result.gross.type).toBe('float');
-        expect(result).toHaveProperty('linked');
-        expect(result.linked.type).toBe('boolean');
     });
 
     it('filters out readOnly and uuid fields', () => {

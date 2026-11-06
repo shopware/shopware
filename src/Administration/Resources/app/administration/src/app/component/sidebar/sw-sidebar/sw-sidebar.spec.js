@@ -64,42 +64,56 @@ describe('src/app/component/sidebar/sw-sidebar/index.js', () => {
         await flushPromises();
     });
 
-    it('should open the sidebar', async () => {
-        // Check if the content of the first sidebar item is not visible
-        let firstSidebarItemContent = await wrapper.find('.first-sidebar-item-content');
-        expect(firstSidebarItemContent.exists()).toBe(false);
+    /**
+     * The sidebar did not open with Vue compat mode disabled.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/5466
+     */
+    describe('opening and closing', () => {
+        /** @regression */
+        it('should open the sidebar', async () => {
+            // Check if the content of the first sidebar item is not visible
+            let firstSidebarItemContent = await wrapper.find('.first-sidebar-item-content');
+            expect(firstSidebarItemContent.exists()).toBe(false);
 
-        // Open the sidebar
-        const firstSidebarNavigationItem = await wrapper.find(
-            'button.sw-sidebar-navigation-item[aria-label="First sidebar item"]',
-        );
-        await firstSidebarNavigationItem.trigger('click');
+            // Open the sidebar
+            const firstSidebarNavigationItem = await wrapper.find(
+                'button.sw-sidebar-navigation-item[aria-label="First sidebar item"]',
+            );
+            await firstSidebarNavigationItem.trigger('click');
 
-        // Check if the content of the first sidebar item is visible
-        firstSidebarItemContent = await wrapper.find('.first-sidebar-item-content');
-        expect(firstSidebarItemContent.text()).toBe('The content of the first sidebar item');
+            // Check if the content of the first sidebar item is visible
+            firstSidebarItemContent = await wrapper.find('.first-sidebar-item-content');
+            expect(firstSidebarItemContent.text()).toBe('The content of the first sidebar item');
+        });
+
+        /** @regression */
+        it('should close the sidebar', async () => {
+            // Open the sidebar
+            const firstSidebarNavigationItem = await wrapper.find(
+                'button.sw-sidebar-navigation-item[aria-label="First sidebar item"]',
+            );
+            await firstSidebarNavigationItem.trigger('click');
+
+            // Check if the content of the first sidebar item is visible
+            let firstSidebarItemContent = await wrapper.find('.first-sidebar-item-content');
+            expect(firstSidebarItemContent.text()).toBe('The content of the first sidebar item');
+
+            // Close the sidebar
+            const closeButton = await wrapper.find('button[aria-label="sw-sidebar.ariaLabelButtonClose"]');
+            await closeButton.trigger('click');
+
+            // Check if the content of the first sidebar item is not visible
+            firstSidebarItemContent = await wrapper.find('.first-sidebar-item-content');
+            expect(firstSidebarItemContent.exists()).toBe(false);
+        });
     });
 
-    it('should close the sidebar', async () => {
-        // Open the sidebar
-        const firstSidebarNavigationItem = await wrapper.find(
-            'button.sw-sidebar-navigation-item[aria-label="First sidebar item"]',
-        );
-        await firstSidebarNavigationItem.trigger('click');
-
-        // Check if the content of the first sidebar item is visible
-        let firstSidebarItemContent = await wrapper.find('.first-sidebar-item-content');
-        expect(firstSidebarItemContent.text()).toBe('The content of the first sidebar item');
-
-        // Close the sidebar
-        const closeButton = await wrapper.find('button[aria-label="sw-sidebar.ariaLabelButtonClose"]');
-        await closeButton.trigger('click');
-
-        // Check if the content of the first sidebar item is not visible
-        firstSidebarItemContent = await wrapper.find('.first-sidebar-item-content');
-        expect(firstSidebarItemContent.exists()).toBe(false);
-    });
-
+    /**
+     * The sidebar lost its active tab indicator after the viewport was enlarged.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15304
+     */
     it('should keep the active navigation item after resizing', async () => {
         const firstSidebarNavigationItem = await wrapper.find(
             'button.sw-sidebar-navigation-item[aria-label="First sidebar item"]',

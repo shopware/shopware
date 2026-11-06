@@ -182,6 +182,11 @@ describe('core/application.js', () => {
             Shopware.Application.view = originalView;
         });
 
+        /**
+         * The first run wizard restarted from the welcome step after the PayPal activation reload.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/6210
+         */
         it('should wait for the router to be ready before deciding on a first run wizard redirect', async () => {
             Shopware.Context.app.environment = 'production';
             Shopware.Context.app.firstRunWizard = true;
@@ -250,6 +255,11 @@ describe('core/application.js', () => {
         });
     });
 
+    /**
+     * Plugins using the Meteor SDK in watch mode hit missing-privilege errors.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/11186
+     */
     it('should load plugins correctly in watch with all permissions', async () => {
         process.env.NODE_ENV = 'development';
 

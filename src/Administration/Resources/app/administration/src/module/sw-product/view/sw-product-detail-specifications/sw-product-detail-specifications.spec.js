@@ -607,106 +607,127 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
         expect(cardElement.exists()).toBeFalsy();
     });
 
-    it('should hide custom field inheritance controls for a root language on the specifications page', async () => {
-        const productRepositoryGet = jest.fn();
+    /**
+     * Custom field inheritance controls were wrong in root languages.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/15905
+     */
+    describe('custom field inheritance in root languages', () => {
+        /**
+         * A checkbox custom field showed an inheritance icon in the root language.
+         * @regression
+         */
+        it('should hide custom field inheritance controls for a root language on the specifications page', async () => {
+            const productRepositoryGet = jest.fn();
 
-        await withTranslatedLanguageContext(
-            {
-                languageId: 'en-GB',
-                systemLanguageId: 'en-GB',
-                parentId: null,
-            },
-            async () => {
-                setupCustomFieldSpecificationState({
-                    product: createProductEntity({
-                        customFields: {
-                            custom_test_text: 'English value',
-                            custom_test_checkbox: true,
-                        },
-                        translatedCustomFields: {
-                            custom_test_text: 'English value',
-                            custom_test_checkbox: true,
-                        },
-                    }),
-                    parentProduct: {},
-                    customFieldSets: createCustomFieldSets([createTranslatedTextField(), createTranslatedCheckboxField()]),
-                });
-
-                const wrapper = await createWrapper([], {
-                    renderRealCustomFieldRenderer: true,
-                    ...createProductRepositoryOptions(productRepositoryGet),
-                });
-
-                await flushPromises();
-
-                expect(wrapper.find('.sw-form-field-renderer-field__custom_test_text .mt-inheritance-switch').exists()).toBe(
-                    false,
-                );
-                expect(
-                    wrapper.find('.sw-form-field-renderer-field__custom_test_checkbox .mt-inheritance-switch').exists(),
-                ).toBe(false);
-                expect(productRepositoryGet).not.toHaveBeenCalled();
-            },
-        );
-    });
-
-    it('should show inherited custom field controls for a non-system root language on the specifications page', async () => {
-        const productRepositoryGet = jest.fn(() =>
-            Promise.resolve({
-                customFields: {
-                    custom_test_text: 'English value',
-                    custom_test_checkbox: true,
+            await withTranslatedLanguageContext(
+                {
+                    languageId: 'en-GB',
+                    systemLanguageId: 'en-GB',
+                    parentId: null,
                 },
-            }),
-        );
+                async () => {
+                    setupCustomFieldSpecificationState({
+                        product: createProductEntity({
+                            customFields: {
+                                custom_test_text: 'English value',
+                                custom_test_checkbox: true,
+                            },
+                            translatedCustomFields: {
+                                custom_test_text: 'English value',
+                                custom_test_checkbox: true,
+                            },
+                        }),
+                        parentProduct: {},
+                        customFieldSets: createCustomFieldSets([
+                            createTranslatedTextField(),
+                            createTranslatedCheckboxField(),
+                        ]),
+                    });
 
-        await withTranslatedLanguageContext(
-            {
-                languageId: 'de-DE',
-                systemLanguageId: 'en-GB',
-                parentId: null,
-            },
-            async () => {
-                setupCustomFieldSpecificationState({
-                    product: createProductEntity({
-                        customFields: {
-                            custom_test_text: null,
-                            custom_test_checkbox: null,
-                        },
-                        translatedCustomFields: {},
-                    }),
-                    parentProduct: {},
-                    customFieldSets: createCustomFieldSets([createTranslatedTextField(), createTranslatedCheckboxField()]),
-                });
+                    const wrapper = await createWrapper([], {
+                        renderRealCustomFieldRenderer: true,
+                        ...createProductRepositoryOptions(productRepositoryGet),
+                    });
 
-                const wrapper = await createWrapper([], {
-                    renderRealCustomFieldRenderer: true,
-                    ...createProductRepositoryOptions(productRepositoryGet),
-                });
+                    await flushPromises();
 
-                await flushPromises();
+                    expect(
+                        wrapper.find('.sw-form-field-renderer-field__custom_test_text .mt-inheritance-switch').exists(),
+                    ).toBe(false);
+                    expect(
+                        wrapper.find('.sw-form-field-renderer-field__custom_test_checkbox .mt-inheritance-switch').exists(),
+                    ).toBe(false);
+                    expect(productRepositoryGet).not.toHaveBeenCalled();
+                },
+            );
+        });
 
-                const textInheritanceSwitch = wrapper.find(
-                    '.sw-form-field-renderer-field__custom_test_text .mt-inheritance-switch',
-                );
-                const checkboxInheritanceSwitch = wrapper.find(
-                    '.sw-form-field-renderer-field__custom_test_checkbox .mt-inheritance-switch',
-                );
-                const textField = wrapper.find('.sw-form-field-renderer-field__custom_test_text input[type="text"]');
-                const checkboxField = wrapper.find(
-                    '.sw-form-field-renderer-field__custom_test_checkbox input[type="checkbox"]',
-                );
+        /**
+         * Translated custom fields showed no inheritance UI in a non-system root language.
+         * @regression
+         */
+        it('should show inherited custom field controls for a non-system root language on the specifications page', async () => {
+            const productRepositoryGet = jest.fn(() =>
+                Promise.resolve({
+                    customFields: {
+                        custom_test_text: 'English value',
+                        custom_test_checkbox: true,
+                    },
+                }),
+            );
 
-                expect(textInheritanceSwitch.exists()).toBe(true);
-                expect(checkboxInheritanceSwitch.exists()).toBe(true);
-                expect(textInheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
-                expect(checkboxInheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
-                expect(textField.element.value).toBe('English value');
-                expect(textField.attributes('disabled')).toBeDefined();
-                expect(checkboxField.element.checked).toBe(true);
-                expect(checkboxField.attributes('disabled')).toBeDefined();
-                expect(productRepositoryGet).toHaveBeenCalledTimes(1);
-            },
-        );
+            await withTranslatedLanguageContext(
+                {
+                    languageId: 'de-DE',
+                    systemLanguageId: 'en-GB',
+                    parentId: null,
+                },
+                async () => {
+                    setupCustomFieldSpecificationState({
+                        product: createProductEntity({
+                            customFields: {
+                                custom_test_text: null,
+                                custom_test_checkbox: null,
+                            },
+                            translatedCustomFields: {},
+                        }),
+                        parentProduct: {},
+                        customFieldSets: createCustomFieldSets([
+                            createTranslatedTextField(),
+                            createTranslatedCheckboxField(),
+                        ]),
+                    });
+
+                    const wrapper = await createWrapper([], {
+                        renderRealCustomFieldRenderer: true,
+                        ...createProductRepositoryOptions(productRepositoryGet),
+                    });
+
+                    await flushPromises();
+
+                    const textInheritanceSwitch = wrapper.find(
+                        '.sw-form-field-renderer-field__custom_test_text .mt-inheritance-switch',
+                    );
+                    const checkboxInheritanceSwitch = wrapper.find(
+                        '.sw-form-field-renderer-field__custom_test_checkbox .mt-inheritance-switch',
+                    );
+                    const textField = wrapper.find('.sw-form-field-renderer-field__custom_test_text input[type="text"]');
+                    const checkboxField = wrapper.find(
+                        '.sw-form-field-renderer-field__custom_test_checkbox input[type="checkbox"]',
+                    );
+
+                    expect(textInheritanceSwitch.exists()).toBe(true);
+                    expect(checkboxInheritanceSwitch.exists()).toBe(true);
+                    expect(textInheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
+                    expect(checkboxInheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
+                    expect(textField.element.value).toBe('English value');
+                    expect(textField.attributes('disabled')).toBeDefined();
+                    expect(checkboxField.element.checked).toBe(true);
+                    expect(checkboxField.attributes('disabled')).toBeDefined();
+                    expect(productRepositoryGet).toHaveBeenCalledTimes(1);
+                },
+            );
+        });
     });
 });

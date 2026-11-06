@@ -88,6 +88,10 @@ describe('mediaPresignedUploadService', () => {
         );
     });
 
+    /**
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/17827
+     */
     it('uploadToPresignedUrl appends charset=utf-8 for text-based mime types', async () => {
         const s3Client = Axios.create();
         const service = getMediaPresignedUploadApiService();

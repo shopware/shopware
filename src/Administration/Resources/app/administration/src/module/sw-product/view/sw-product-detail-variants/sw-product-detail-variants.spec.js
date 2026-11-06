@@ -391,6 +391,11 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
         ]);
     });
 
+    /**
+     * Products without configurator settings loaded every property group and froze the variants tab.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14697
+     */
     it('should return empty configSettingGroups when product has no configurator settings', async () => {
         const wrapper = await createWrapper();
         wrapper.vm.groups = [{ id: 'id-1', name: 'group-1' }];
@@ -430,6 +435,11 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
         expect(wrapper.vm.configSettingGroups).toEqual([{ id: '1', name: 'g1' }]);
     });
 
+    /**
+     * Only the first 500 property groups loaded, so the storefront presentation modal never finished.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/6807
+     */
     it('should correctly load and merge paginated results', async () => {
         const wrapper = await createWrapper();
         const loadGroupsSpy = jest.spyOn(wrapper.vm, 'loadGroups');

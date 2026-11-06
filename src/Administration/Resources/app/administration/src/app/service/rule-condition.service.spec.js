@@ -553,6 +553,11 @@ describe('src/app/service/rule-condition.service.js', () => {
         });
     });
 
+    /**
+     * Switch custom fields rendered as a broken checkbox instead of a yes/no select in rule conditions.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/11696
+     */
     it.each([
         { name: 'checkbox', config: { type: 'switch', doNotOverride: 'test' } },
         { name: 'switch', config: { type: 'switch', doNotOverride: 'test' } },
@@ -586,6 +591,11 @@ describe('src/app/service/rule-condition.service.js', () => {
         });
     });
 
+    /**
+     * Text editor custom fields rendered a broken form in the line item custom field condition.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/11784
+     */
     it('should transform custom field condition config for textEditor', async () => {
         const ruleConditionService = new RuleConditionService();
 
@@ -766,6 +776,11 @@ describe('src/app/service/rule-condition.service.js', () => {
         });
     });
 
+    /**
+     * Checkbox custom fields rendered as a broken checkbox instead of a yes/no select.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/11696
+     */
     it('should use en-GB as fallback locale for custom field condition config', async () => {
         const ruleConditionService = new RuleConditionService();
 
@@ -803,6 +818,11 @@ describe('src/app/service/rule-condition.service.js', () => {
         });
     });
 
+    /**
+     * Disabled custom fields made the rule builder value field permanently disabled.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/17416
+     */
     it('should strip the disabled flag from custom field condition config', () => {
         const ruleConditionService = new RuleConditionService();
 

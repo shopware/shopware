@@ -13,6 +13,11 @@ describe('src/module/sw-cms/elements/image', () => {
         preview: 'sw-cms-el-preview-image',
     });
 
+    /**
+     * Image elements shipped a 340px min-height even outside cover mode.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/6265
+     */
     it('should not ship a default min-height so none is sent through the API in non-cover modes', () => {
         expect(IMAGE_DEFAULT_CONFIG.displayMode.value).toBe('standard');
         expect(IMAGE_DEFAULT_CONFIG.minHeight.value).toBe('');

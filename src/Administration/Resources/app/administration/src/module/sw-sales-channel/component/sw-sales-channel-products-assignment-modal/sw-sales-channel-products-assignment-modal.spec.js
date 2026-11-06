@@ -183,6 +183,11 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         ]);
     });
 
+    /**
+     * Product group selections were sent as a capped product list instead of group ids.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/16724
+     */
     it('should emit category and product group ids next to the products when tabs report a server side selection', async () => {
         const wrapper = await createWrapper();
 

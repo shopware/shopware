@@ -28,6 +28,11 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         ]);
     });
 
+    /**
+     * Landing pages beyond the first 500 were unreachable in the category tree.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/12366
+     */
     it('should offer loading more landing pages when the list is truncated', async () => {
         const search = () => Promise.resolve(createSearchResult(createLandingPages(500), 700));
 
@@ -48,6 +53,11 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         expect(wrapper.find('.sw-landing-page-tree__load-more-button').exists()).toBe(false);
     });
 
+    /**
+     * Landing pages beyond the first 500 were unreachable in the category tree.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/12366
+     */
     it('should append the next page and keep the already loaded landing pages', async () => {
         const search = jest.fn((criteria) =>
             Promise.resolve(createSearchResult(createLandingPages(500, (criteria.page - 1) * 500), 700)),

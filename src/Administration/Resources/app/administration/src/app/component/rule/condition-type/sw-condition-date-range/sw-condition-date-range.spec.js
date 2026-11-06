@@ -97,143 +97,154 @@ describe('component/rule/sw-condition-date-range', () => {
         });
     });
 
-    it('should select a fromDate without time', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
+    /**
+     * Dates picked in the date range rule were not shown in the datepicker.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/7501
+     */
+    describe('picked dates', () => {
+        /** @regression */
+        it('should select a fromDate without time', async () => {
+            const wrapper = await createWrapper();
+            await flushPromises();
 
-        const fromDateInput = wrapper.find('.wrapper[name="sw-field--fromDate"] input');
+            const fromDateInput = wrapper.find('.wrapper[name="sw-field--fromDate"] input');
 
-        expect(fromDateInput.attributes('value')).toBe('');
-        await fromDateInput.trigger('click');
-        await flushPromises();
+            expect(fromDateInput.attributes('value')).toBe('');
+            await fromDateInput.trigger('click');
+            await flushPromises();
 
-        document.querySelector('[data-test-id="year-toggle-overlay-0"]').dispatchEvent(new Event('click'));
-        await flushPromises();
+            document.querySelector('[data-test-id="year-toggle-overlay-0"]').dispatchEvent(new Event('click'));
+            await flushPromises();
 
-        document.querySelector('[data-test-id="1900"]').dispatchEvent(new Event('click'));
-        await flushPromises();
+            document.querySelector('[data-test-id="1900"]').dispatchEvent(new Event('click'));
+            await flushPromises();
 
-        document.querySelector('[data-test-id="month-toggle-overlay-0"]').dispatchEvent(new Event('click'));
-        await flushPromises();
+            document.querySelector('[data-test-id="month-toggle-overlay-0"]').dispatchEvent(new Event('click'));
+            await flushPromises();
 
-        document.querySelector('[data-test-id="Jan"]').dispatchEvent(new Event('click'));
-        await flushPromises();
+            document.querySelector('[data-test-id="Jan"]').dispatchEvent(new Event('click'));
+            await flushPromises();
 
-        document.querySelector('[data-test-id="dp-1900-01-01"]').dispatchEvent(new Event('click'));
-        await flushPromises();
+            document.querySelector('[data-test-id="dp-1900-01-01"]').dispatchEvent(new Event('click'));
+            await flushPromises();
 
-        expect(fromDateInput.attributes('value')).toBe('1900/01/01');
-        expect(wrapper.vm.fromDate).toBe('1900-01-01T00:00:00.000Z');
-    });
+            expect(fromDateInput.attributes('value')).toBe('1900/01/01');
+            expect(wrapper.vm.fromDate).toBe('1900-01-01T00:00:00.000Z');
+        });
 
-    it('should select a fromDate with time', async () => {
-        const wrapper = await createWrapper(true);
-        await flushPromises();
+        /** @regression */
+        it('should select a fromDate with time', async () => {
+            const wrapper = await createWrapper(true);
+            await flushPromises();
 
-        const fromDateInput = wrapper.find('.wrapper[name="sw-field--fromDate"] input');
+            const fromDateInput = wrapper.find('.wrapper[name="sw-field--fromDate"] input');
 
-        expect(fromDateInput.attributes('value')).toBe('');
-        await fromDateInput.trigger('click');
-        await flushPromises();
+            expect(fromDateInput.attributes('value')).toBe('');
+            await fromDateInput.trigger('click');
+            await flushPromises();
 
-        document.querySelector('[data-test-id="year-toggle-overlay-0"]').dispatchEvent(new Event('click'));
-        await flushPromises();
+            document.querySelector('[data-test-id="year-toggle-overlay-0"]').dispatchEvent(new Event('click'));
+            await flushPromises();
 
-        document.querySelector('[data-test-id="1900"]').dispatchEvent(new Event('click'));
-        await flushPromises();
+            document.querySelector('[data-test-id="1900"]').dispatchEvent(new Event('click'));
+            await flushPromises();
 
-        document.querySelector('[data-test-id="month-toggle-overlay-0"]').dispatchEvent(new Event('click'));
-        await flushPromises();
+            document.querySelector('[data-test-id="month-toggle-overlay-0"]').dispatchEvent(new Event('click'));
+            await flushPromises();
 
-        document.querySelector('[data-test-id="Jan"]').dispatchEvent(new Event('click'));
-        await flushPromises();
+            document.querySelector('[data-test-id="Jan"]').dispatchEvent(new Event('click'));
+            await flushPromises();
 
-        document.querySelector('[data-test-id="hours-toggle-overlay-btn-0"]').dispatchEvent(new Event('click'));
-        await flushPromises();
+            document.querySelector('[data-test-id="hours-toggle-overlay-btn-0"]').dispatchEvent(new Event('click'));
+            await flushPromises();
 
-        document.querySelector('[data-test-id="12"]').dispatchEvent(new Event('click'));
-        await flushPromises();
+            document.querySelector('[data-test-id="12"]').dispatchEvent(new Event('click'));
+            await flushPromises();
 
-        document.querySelector('[data-test-id="minutes-toggle-overlay-btn-0"]').dispatchEvent(new Event('click'));
-        await flushPromises();
+            document.querySelector('[data-test-id="minutes-toggle-overlay-btn-0"]').dispatchEvent(new Event('click'));
+            await flushPromises();
 
-        document.querySelector('[data-test-id="30"]').dispatchEvent(new Event('click'));
-        await flushPromises();
+            document.querySelector('[data-test-id="30"]').dispatchEvent(new Event('click'));
+            await flushPromises();
 
-        document.querySelector('[data-test-id="dp-1900-01-01"]').dispatchEvent(new Event('click'));
-        await flushPromises();
+            document.querySelector('[data-test-id="dp-1900-01-01"]').dispatchEvent(new Event('click'));
+            await flushPromises();
 
-        expect(fromDateInput.attributes('value')).toBe('1900/01/01, 12:30');
-        expect(wrapper.vm.fromDate).toBe('1900-01-01T12:30:00.000Z');
-    });
+            expect(fromDateInput.attributes('value')).toBe('1900/01/01, 12:30');
+            expect(wrapper.vm.fromDate).toBe('1900-01-01T12:30:00.000Z');
+        });
 
-    it('should select a toDate without time', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
+        /** @regression */
+        it('should select a toDate without time', async () => {
+            const wrapper = await createWrapper();
+            await flushPromises();
 
-        const fromDateInput = wrapper.find('.wrapper[name="sw-field--toDate"] input');
+            const fromDateInput = wrapper.find('.wrapper[name="sw-field--toDate"] input');
 
-        expect(fromDateInput.attributes('value')).toBe('');
-        await fromDateInput.trigger('click');
-        await flushPromises();
+            expect(fromDateInput.attributes('value')).toBe('');
+            await fromDateInput.trigger('click');
+            await flushPromises();
 
-        document.querySelector('[data-test-id="year-toggle-overlay-0"]').dispatchEvent(new Event('click'));
-        await flushPromises();
+            document.querySelector('[data-test-id="year-toggle-overlay-0"]').dispatchEvent(new Event('click'));
+            await flushPromises();
 
-        document.querySelector('[data-test-id="1900"]').dispatchEvent(new Event('click'));
-        await flushPromises();
+            document.querySelector('[data-test-id="1900"]').dispatchEvent(new Event('click'));
+            await flushPromises();
 
-        document.querySelector('[data-test-id="month-toggle-overlay-0"]').dispatchEvent(new Event('click'));
-        await flushPromises();
+            document.querySelector('[data-test-id="month-toggle-overlay-0"]').dispatchEvent(new Event('click'));
+            await flushPromises();
 
-        document.querySelector('[data-test-id="Jan"]').dispatchEvent(new Event('click'));
-        await flushPromises();
+            document.querySelector('[data-test-id="Jan"]').dispatchEvent(new Event('click'));
+            await flushPromises();
 
-        document.querySelector('[data-test-id="dp-1900-01-01"]').dispatchEvent(new Event('click'));
-        await flushPromises();
+            document.querySelector('[data-test-id="dp-1900-01-01"]').dispatchEvent(new Event('click'));
+            await flushPromises();
 
-        expect(fromDateInput.attributes('value')).toBe('1900/01/01');
-        expect(wrapper.vm.toDate).toBe('1900-01-01T23:59:59.000Z');
-    });
+            expect(fromDateInput.attributes('value')).toBe('1900/01/01');
+            expect(wrapper.vm.toDate).toBe('1900-01-01T23:59:59.000Z');
+        });
 
-    it('should select a toDate with time', async () => {
-        const wrapper = await createWrapper(true);
-        await flushPromises();
+        /** @regression */
+        it('should select a toDate with time', async () => {
+            const wrapper = await createWrapper(true);
+            await flushPromises();
 
-        const fromDateInput = wrapper.find('.wrapper[name="sw-field--toDate"] input');
+            const fromDateInput = wrapper.find('.wrapper[name="sw-field--toDate"] input');
 
-        expect(fromDateInput.attributes('value')).toBe('');
-        await fromDateInput.trigger('click');
-        await flushPromises();
+            expect(fromDateInput.attributes('value')).toBe('');
+            await fromDateInput.trigger('click');
+            await flushPromises();
 
-        document.querySelector('[data-test-id="year-toggle-overlay-0"]').dispatchEvent(new Event('click'));
-        await flushPromises();
+            document.querySelector('[data-test-id="year-toggle-overlay-0"]').dispatchEvent(new Event('click'));
+            await flushPromises();
 
-        document.querySelector('[data-test-id="1900"]').dispatchEvent(new Event('click'));
-        await flushPromises();
+            document.querySelector('[data-test-id="1900"]').dispatchEvent(new Event('click'));
+            await flushPromises();
 
-        document.querySelector('[data-test-id="month-toggle-overlay-0"]').dispatchEvent(new Event('click'));
-        await flushPromises();
+            document.querySelector('[data-test-id="month-toggle-overlay-0"]').dispatchEvent(new Event('click'));
+            await flushPromises();
 
-        document.querySelector('[data-test-id="Jan"]').dispatchEvent(new Event('click'));
-        await flushPromises();
+            document.querySelector('[data-test-id="Jan"]').dispatchEvent(new Event('click'));
+            await flushPromises();
 
-        document.querySelector('[data-test-id="hours-toggle-overlay-btn-0"]').dispatchEvent(new Event('click'));
-        await flushPromises();
+            document.querySelector('[data-test-id="hours-toggle-overlay-btn-0"]').dispatchEvent(new Event('click'));
+            await flushPromises();
 
-        document.querySelector('[data-test-id="12"]').dispatchEvent(new Event('click'));
-        await flushPromises();
+            document.querySelector('[data-test-id="12"]').dispatchEvent(new Event('click'));
+            await flushPromises();
 
-        document.querySelector('[data-test-id="minutes-toggle-overlay-btn-0"]').dispatchEvent(new Event('click'));
-        await flushPromises();
+            document.querySelector('[data-test-id="minutes-toggle-overlay-btn-0"]').dispatchEvent(new Event('click'));
+            await flushPromises();
 
-        document.querySelector('[data-test-id="30"]').dispatchEvent(new Event('click'));
-        await flushPromises();
+            document.querySelector('[data-test-id="30"]').dispatchEvent(new Event('click'));
+            await flushPromises();
 
-        document.querySelector('[data-test-id="dp-1900-01-01"]').dispatchEvent(new Event('click'));
-        await flushPromises();
+            document.querySelector('[data-test-id="dp-1900-01-01"]').dispatchEvent(new Event('click'));
+            await flushPromises();
 
-        expect(fromDateInput.attributes('value')).toBe('1900/01/01, 12:30');
-        expect(wrapper.vm.toDate).toBe('1900-01-01T12:30:00.000Z');
+            expect(fromDateInput.attributes('value')).toBe('1900/01/01, 12:30');
+            expect(wrapper.vm.toDate).toBe('1900-01-01T12:30:00.000Z');
+        });
     });
 });

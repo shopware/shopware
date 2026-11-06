@@ -108,6 +108,11 @@ describe('src/app/init/locale.init.ts', () => {
         expect(locales).toEqual(Object.values(expectedLocales));
     });
 
+    /**
+     * The login page ignored the system default language and showed English.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14373
+     */
     it('should use the system language locale when browser and english fallbacks are unavailable', async () => {
         Object.defineProperty(window.navigator, 'language', {
             value: 'es-ES',

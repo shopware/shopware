@@ -286,6 +286,11 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
         });
     });
 
+    /**
+     * Promotions used in orders could still be deleted via bulk delete.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/12108
+     */
     it('should disable bulk delete with undeletable promotions', async () => {
         const wrapper = await createWrapper();
 

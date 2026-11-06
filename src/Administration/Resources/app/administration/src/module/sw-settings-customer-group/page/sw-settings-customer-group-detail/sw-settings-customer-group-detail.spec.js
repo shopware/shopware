@@ -436,6 +436,11 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             await flushPromises();
         });
 
+        /**
+         * Reverting a customer group change after saving was not detected, so it was never saved.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/16506
+         */
         it('should reload customer group on saved changes', async () => {
             const onLoadCustomerGroupSpy = jest.spyOn(wrapper.vm, 'loadCustomerGroup');
             const element = wrapper.find('.sw-settings-customer-group-detail__save');

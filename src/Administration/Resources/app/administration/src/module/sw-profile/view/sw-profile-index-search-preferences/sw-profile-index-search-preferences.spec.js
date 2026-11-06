@@ -181,6 +181,11 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
         );
     });
 
+    /**
+     * Clicking any search preference label toggled the first checkbox on the page.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/21633
+     */
     it('should toggle the checkbox whose label was clicked', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

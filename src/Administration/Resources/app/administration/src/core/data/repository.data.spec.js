@@ -413,20 +413,29 @@ describe('repository.data.ts', () => {
             });
         });
 
-        it('should clear old api errors when a delete succeeds', async () => {
-            responses.addResponse({ method: 'DELETE', url: `/tax/${newId}`, status: 204, response: {} });
+        /**
+         * A failed delete's error banner stayed after a later successful delete.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/21781
+         */
+        describe('api errors after a successful delete', () => {
+            /** @regression */
+            it('should clear old api errors when a delete succeeds', async () => {
+                responses.addResponse({ method: 'DELETE', url: `/tax/${newId}`, status: 204, response: {} });
 
-            await repositoryFactory.create('tax').delete(newId);
+                await repositoryFactory.create('tax').delete(newId);
 
-            expect(Shopware.Store.get('error').api).toEqual({});
-        });
+                expect(Shopware.Store.get('error').api).toEqual({});
+            });
 
-        it('should clear old api errors when a sync delete succeeds', async () => {
-            responses.addResponse({ method: 'POST', url: '_action/sync', status: 200, response: { success: true } });
+            /** @regression */
+            it('should clear old api errors when a sync delete succeeds', async () => {
+                responses.addResponse({ method: 'POST', url: '_action/sync', status: 200, response: { success: true } });
 
-            await repositoryFactory.create('tax').syncDeleted([newId]);
+                await repositoryFactory.create('tax').syncDeleted([newId]);
 
-            expect(Shopware.Store.get('error').api).toEqual({});
+                expect(Shopware.Store.get('error').api).toEqual({});
+            });
         });
 
         it('should keep old api errors on delete when keepApiErrors is set', async () => {

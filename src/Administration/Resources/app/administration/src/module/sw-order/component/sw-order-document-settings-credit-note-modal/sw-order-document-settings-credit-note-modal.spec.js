@@ -377,38 +377,47 @@ describe('sw-order-document-settings-credit-note-modal', () => {
         expect(wrapper.emitted()['document-create']).toBeTruthy();
     });
 
-    it('should reference the selected invoice when creating document', async () => {
-        await wrapper.setData({
-            documentNumberPreview: 'PREVIEW_NUM_001',
-            documentConfig: {
-                documentNumber: 'PREVIEW_NUM_002',
-                custom: {
-                    invoiceNumber: 1000,
+    /**
+     * Credit notes always referenced the latest invoice instead of the selected one.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14169
+     */
+    describe('referenced invoice', () => {
+        /** @regression */
+        it('should reference the selected invoice when creating document', async () => {
+            await wrapper.setData({
+                documentNumberPreview: 'PREVIEW_NUM_001',
+                documentConfig: {
+                    documentNumber: 'PREVIEW_NUM_002',
+                    custom: {
+                        invoiceNumber: 1000,
+                    },
                 },
-            },
+            });
+
+            await wrapper.vm.onCreateDocument();
+
+            expect(wrapper.emitted()['document-create']).toBeTruthy();
+            expect(wrapper.emitted()['document-create'][0][2]).toBe('invoice-doc-1000');
         });
 
-        await wrapper.vm.onCreateDocument();
-
-        expect(wrapper.emitted()['document-create']).toBeTruthy();
-        expect(wrapper.emitted()['document-create'][0][2]).toBe('invoice-doc-1000');
-    });
-
-    it('should reference the second invoice when it is selected', async () => {
-        await wrapper.setData({
-            documentNumberPreview: 'PREVIEW_NUM_001',
-            documentConfig: {
-                documentNumber: 'PREVIEW_NUM_002',
-                custom: {
-                    invoiceNumber: 1001,
+        /** @regression */
+        it('should reference the second invoice when it is selected', async () => {
+            await wrapper.setData({
+                documentNumberPreview: 'PREVIEW_NUM_001',
+                documentConfig: {
+                    documentNumber: 'PREVIEW_NUM_002',
+                    custom: {
+                        invoiceNumber: 1001,
+                    },
                 },
-            },
+            });
+
+            await wrapper.vm.onCreateDocument();
+
+            expect(wrapper.emitted()['document-create']).toBeTruthy();
+            expect(wrapper.emitted()['document-create'][0][2]).toBe('invoice-doc-1001');
         });
-
-        await wrapper.vm.onCreateDocument();
-
-        expect(wrapper.emitted()['document-create']).toBeTruthy();
-        expect(wrapper.emitted()['document-create'][0][2]).toBe('invoice-doc-1001');
     });
 
     it('should show only invoice numbers in invoice number select field', async () => {
@@ -422,6 +431,11 @@ describe('sw-order-document-settings-credit-note-modal', () => {
         expect(invoiceOptions.at(1).text()).toBe('1001');
     });
 
+    /**
+     * Document numbers with a prefix or suffix were forced into a number and could not be entered.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10873
+     */
     it('should allow any text input in the document number field', async () => {
         const documentNumberFieldInput = wrapper.findByLabel('sw-order.documentModal.labelDocumentNumber');
         expect(documentNumberFieldInput.exists()).toBeTruthy();

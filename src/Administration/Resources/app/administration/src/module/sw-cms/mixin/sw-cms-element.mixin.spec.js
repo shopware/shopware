@@ -189,6 +189,11 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
         expect(wrapper.vm.product).toMatchObject(mockProduct);
     });
 
+    /**
+     * Child languages fell back to the CMS layout instead of the parent language override.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15906
+     */
     it('should apply inherited slotConfig from the explicit parent language', async () => {
         Shopware.Store.get('swProductDetail').product = {
             translations: [
@@ -240,6 +245,11 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
         expect(wrapper.vm.element.config.content.value).toBe('system override');
     });
 
+    /**
+     * CMS element config shared the translated object, so overrides were discarded on save.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/19735
+     */
     it('should not mutate the base CMS config when the element has no own translation', async () => {
         const element = {
             id: defaultElement.id,

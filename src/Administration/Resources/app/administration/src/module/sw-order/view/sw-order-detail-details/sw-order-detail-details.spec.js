@@ -237,6 +237,11 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
     });
 
     // @deprecated tag:v6.8.0 - The test will be removed with shipping-cost editing in the Details view.
+    /**
+     * Shipping costs edited while the field kept focus were not recalculated and failed to save.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18696
+     */
     it.deprecated('v6.8.0.0')('should recalculate shipping cost while the field is not out of focus yet', async () => {
         jest.useFakeTimers();
         global.activeAclRoles = ['order.editor'];

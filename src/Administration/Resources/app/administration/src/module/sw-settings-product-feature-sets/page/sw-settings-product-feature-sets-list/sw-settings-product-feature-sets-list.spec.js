@@ -349,6 +349,11 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         expect(wrapper.vm).toBeTruthy();
     });
 
+    /**
+     * Confirming a feature set delete could delete a different feature set than the clicked one.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/20894
+     */
     it('should delete the feature set whose delete action was clicked', async () => {
         const wrapper = await createWrapper({}, ['product_feature_sets.deleter']);
         await wrapper.setData({

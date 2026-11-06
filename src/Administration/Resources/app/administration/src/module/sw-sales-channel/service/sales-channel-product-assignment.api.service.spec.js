@@ -60,6 +60,11 @@ describe('src/module/sw-sales-channel/service/sales-channel-product-assignment.a
         });
     });
 
+    /**
+     * Assigning a dynamic product group to a sales channel stopped at 500 products.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/16724
+     */
     it('repeats the same request until the server reports the assignment as complete', async () => {
         const { httpClient, service } = createService(
             { assigned: 5000, complete: false },

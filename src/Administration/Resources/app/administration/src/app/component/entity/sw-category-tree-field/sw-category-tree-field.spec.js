@@ -257,6 +257,11 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
         expect(wrapper.emitted('categories-load-more')).toHaveLength(1);
     });
 
+    /**
+     * Already assigned product categories showed unchecked in the category tree.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/4544
+     */
     it('should have checked categories', async () => {
         const selectedCategories = [
             {

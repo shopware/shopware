@@ -331,6 +331,11 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
         expect(wrapper.find('.sw-modal__content').exists()).toBe(false);
     });
 
+    /**
+     * Cart errors in the Administration were always shown in English.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/19736
+     */
     it('should prefer the server translated message for promotion cart errors', async () => {
         const wrapper = await createWrapper();
 

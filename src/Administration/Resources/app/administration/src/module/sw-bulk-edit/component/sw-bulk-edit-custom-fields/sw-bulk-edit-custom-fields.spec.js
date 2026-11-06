@@ -125,6 +125,11 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields', () => {
         expect(wrapper.emitted().change).toBeTruthy();
     });
 
+    /**
+     * Bulk edit custom fields lost their "Change" toggle with the 6.8 Meteor tabs.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/19236
+     */
     it.activeFeatureFlags(['v6.8.0.0'])('should render the change toggle with Meteor tabs', async () => {
         wrapper = await createWrapper();
         await flushPromises();

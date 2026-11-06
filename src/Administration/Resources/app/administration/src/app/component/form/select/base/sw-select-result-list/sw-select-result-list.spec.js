@@ -19,6 +19,11 @@ describe('components/sw-select-result-list', () => {
         await flushPromises();
     });
 
+    /**
+     * Keyboard navigation scrolled another list and let the highlight leave the visible area.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/17961
+     */
     it('scrolls the active item of its own list into view when navigating with the keyboard', async () => {
         document.body.insertAdjacentHTML(
             'beforeend',
@@ -76,6 +81,11 @@ describe('components/sw-select-result-list', () => {
         expect(swSelectResultList.emitted('paginate')).toHaveLength(1);
     });
 
+    /**
+     * Sub-pixel scroll offsets kept select lists from loading the next page at the bottom.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/13037
+     */
     it('emits the paginate event when the element is scrolled to the bottom with less than one pixel remaining', async () => {
         const scrollEvent = {
             target: {

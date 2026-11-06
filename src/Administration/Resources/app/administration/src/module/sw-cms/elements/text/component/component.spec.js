@@ -98,6 +98,11 @@ describe('src/module/sw-cms/elements/text/component', () => {
         expect(wrapper.emitted()['element-update']).toBeUndefined();
     });
 
+    /**
+     * Mapped CMS text fields showed an empty preview.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/9592
+     */
     it('sets demoValue correctly when source is mapped', async () => {
         const wrapper = await createWrapper();
 

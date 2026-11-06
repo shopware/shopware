@@ -884,6 +884,11 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         expect(customFieldEl.element.value).toBe('inherit me');
     });
 
+    /**
+     * Custom field values set in the default language were empty in other languages.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/8498
+     */
     it('should render translated custom field values without an explicit parent entity', async () => {
         const productRepositoryGet = jest.fn();
 
@@ -917,6 +922,11 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         });
     });
 
+    /**
+     * Translated custom fields had no inheritance in a non-system root language.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/15905
+     */
     it('should enable translated inheritance for a non-system root language', async () => {
         const productRepositoryGet = jest.fn();
 
@@ -1013,6 +1023,11 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         });
     });
 
+    /**
+     * Translated custom fields inherited from the system language instead of the language's parent.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/8498
+     */
     it('should load translated inheritance from the selected language parent instead of the system language', async () => {
         const productRepositoryGet = jest.fn((id, context) =>
             Promise.resolve({
@@ -1063,6 +1078,11 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         });
     });
 
+    /**
+     * Inherited translated custom fields did not receive their inherited value.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/8498
+     */
     it('should return the inherited value for the requested translated custom field', async () => {
         const productRepositoryGet = jest.fn(() =>
             Promise.resolve({

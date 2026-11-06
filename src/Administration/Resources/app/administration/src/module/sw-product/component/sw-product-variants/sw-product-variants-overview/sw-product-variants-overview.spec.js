@@ -318,6 +318,11 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         expect(deleteVariantsButton.exists()).toBeFalsy();
     });
 
+    /**
+     * Double clicking another variant row silently discarded the unsaved inline edit.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/5258
+     */
     it('should keep the current inline edit row when another variant is double clicked before saving', async () => {
         global.activeAclRoles = ['product.editor'];
 
@@ -523,37 +528,57 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         expect(criteria.queries[2].score).toBe(5000);
     });
 
-    it('buildSearchQuery ignores empty terms from leading or repeated whitespace', async () => {
-        const criteria = new Criteria();
-        const wrapper = await createWrapper();
+    /**
+     * Whitespace in the search term produced empty contains filters and a 400 error.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/16838
+     */
+    describe('whitespace in the search term', () => {
+        /**
+         * Leading or repeated whitespace produced empty contains filters and a 400 error.
+         * @regression
+         */
+        it('buildSearchQuery ignores empty terms from leading or repeated whitespace', async () => {
+            const criteria = new Criteria();
+            const wrapper = await createWrapper();
 
-        // Regression test for issue #16838: a leading space produced an empty
-        // term, which built a `contains` filter with an empty value and made the
-        // API reject the whole query with FRAMEWORK__INVALID_FILTER_QUERY.
-        wrapper.vm.term = ' red';
-        wrapper.vm.buildSearchQuery(criteria);
+            // Regression test for issue #16838: a leading space produced an empty
+            // term, which built a `contains` filter with an empty value and made the
+            // API reject the whole query with FRAMEWORK__INVALID_FILTER_QUERY.
+            wrapper.vm.term = ' red';
+            wrapper.vm.buildSearchQuery(criteria);
 
-        // Only the non-empty term "red" yields option queries (+1 productNumber query).
-        expect(criteria.queries).toHaveLength(3);
-        criteria.queries.forEach((query) => {
-            expect(query.query.value).not.toBe('');
+            // Only the non-empty term "red" yields option queries (+1 productNumber query).
+            expect(criteria.queries).toHaveLength(3);
+            criteria.queries.forEach((query) => {
+                expect(query.query.value).not.toBe('');
+            });
+            expect(criteria.queries[0].query.value).toBe('red');
+            expect(criteria.queries[1].query.value).toBe('red');
+            // The productNumber query uses the trimmed term, not the raw " red".
+            expect(criteria.queries[2].query.value).toBe('red');
         });
-        expect(criteria.queries[0].query.value).toBe('red');
-        expect(criteria.queries[1].query.value).toBe('red');
-        // The productNumber query uses the trimmed term, not the raw " red".
-        expect(criteria.queries[2].query.value).toBe('red');
+
+        /**
+         * A whitespace-only search term produced an empty contains filter and a 400 error.
+         * @regression
+         */
+        it('buildSearchQuery returns an unmodified criteria for a whitespace-only term', async () => {
+            const criteria = new Criteria();
+            const wrapper = await createWrapper();
+
+            wrapper.vm.term = '   ';
+            wrapper.vm.buildSearchQuery(criteria);
+
+            expect(criteria.queries).toHaveLength(0);
+        });
     });
 
-    it('buildSearchQuery returns an unmodified criteria for a whitespace-only term', async () => {
-        const criteria = new Criteria();
-        const wrapper = await createWrapper();
-
-        wrapper.vm.term = '   ';
-        wrapper.vm.buildSearchQuery(criteria);
-
-        expect(criteria.queries).toHaveLength(0);
-    });
-
+    /**
+     * Deleting variants left a stale variant listing config, hiding products in listings.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/4543
+     */
     it('should update variant listing config of product when deleting variant', async () => {
         global.activeAclRoles = ['product.deleter'];
 
@@ -698,6 +723,11 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         );
     });
 
+    /**
+     * Removing variant media inheritance created product media without its media.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/8790
+     */
     it('should correctly create a new product_media entity when media inheritance is removed', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

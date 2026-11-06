@@ -397,6 +397,11 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         expect(mediaModal.attributes('entity-context')).toBe('product');
     });
 
+    /**
+     * The product media modal rejected 3D model uploads.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/19305
+     */
     it('should accept images, videos and 3d models in the media modal', async () => {
         const wrapper = await createWrapper();
 

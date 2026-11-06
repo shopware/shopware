@@ -242,6 +242,11 @@ describe('components/form/sw-url-field', () => {
         expect(wrapper.vm.sslActive).toBe(false);
     });
 
+    /**
+     * Clearing the URL field restored the previous value instead of emitting empty.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/5088
+     */
     it('should update empty values', async () => {
         const wrapper = await createWrapper({
             props: {

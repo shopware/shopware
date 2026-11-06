@@ -156,6 +156,11 @@ describe('module/sw-review/page/sw-review-detail', () => {
         }
     });
 
+    /**
+     * No loading indicator was shown while saving a product review.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10073
+     */
     it('should render loading indicator on save', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -167,6 +172,11 @@ describe('module/sw-review/page/sw-review-detail', () => {
         expect(saveButton.attributes('is-loading')).toBe('true');
     });
 
+    /**
+     * The review detail page showed an empty sales channel without a translation in the content language.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/20597
+     */
     it('should fall back to the translated sales channel name', async () => {
         const wrapper = await createWrapper(
             {

@@ -308,6 +308,11 @@ describe('src/app/mixin/listing.mixin.ts', () => {
         expect(getListMock).toHaveBeenCalledWith();
     });
 
+    /**
+     * The review listing crashed when the stored filter query changed before filters existed.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/17727
+     */
     it('should reload when stored filter query changes without local filter criteria', async () => {
         await wrapper.unmount();
 
@@ -341,6 +346,11 @@ describe('src/app/mixin/listing.mixin.ts', () => {
         expect(getListMock).toHaveBeenCalledWith();
     });
 
+    /**
+     * The listing's leave guard was not called for route-loaded components, so app selections stayed.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14876
+     */
     it('should clear app selections when leaving a route-loaded listing component', async () => {
         await wrapper.unmount();
         wrapper = undefined;
@@ -393,6 +403,11 @@ describe('src/app/mixin/listing.mixin.ts', () => {
         expect(wrapper.vm.freshSearchTerm).toBe(true);
     });
 
+    /**
+     * Clearing the search term left the listing in search mode, losing the default sorting.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/11351
+     */
     it('should set freshSearchTerm to false when "term" is cleared', async () => {
         await wrapper.setData({
             term: 'test',
@@ -803,6 +818,11 @@ describe('src/app/mixin/listing.mixin.ts', () => {
             expect(wrapper.vm.page).toBe(1);
         });
 
+        /**
+         * Changing a filter on a later page showed page 1 results while pagination stayed on that page.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/8909
+         */
         it('should call updateRoute with page 1 when updateCriteria is called', async () => {
             wrapper.vm.page = 5;
             wrapper.vm.disableRouteParams = false;

@@ -927,6 +927,11 @@ describe('components/data-grid/sw-data-grid', () => {
         expect(selectAll.attributes('data-tooltip-message')).toBeDefined();
     });
 
+    /**
+     * Select-all appeared checked once the maximum selection was reached.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/9364
+     */
     it('should disable the select-all header checkbox and keep it unchecked when the maximum selection is reached', async () => {
         const wrapper = await createWrapper({
             maximumSelectItems: 1,
@@ -1253,6 +1258,11 @@ describe('components/data-grid/sw-data-grid', () => {
             expect(result).toBe('Name (DE)');
         });
 
+        /**
+         * Grid column headers showed raw snippet keys when the label existed only in the fallback locale.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/16824
+         */
         it('falls back to the fallback locale when the snippet is missing in the current locale', async () => {
             const wrapper = await createWrapperWithI18n({ locale: 'fr-FR' });
 

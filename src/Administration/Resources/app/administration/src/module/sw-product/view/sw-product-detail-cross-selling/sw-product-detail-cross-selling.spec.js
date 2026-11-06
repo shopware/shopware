@@ -175,6 +175,11 @@ describe('src/module/sw-product/view/sw-product-detail-cross-selling', () => {
         expect(emptyState.find('.mt-empty-state__link').exists()).toBe(false);
     });
 
+    /**
+     * The inherit switch could be toggled while the variant still inherited.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/20273
+     */
     it('should only allow toggling the inherit switch when the inheritance is removed', async () => {
         Shopware.Store.get('swProductDetail').product = {
             id: 'productId',

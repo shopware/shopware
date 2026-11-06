@@ -68,6 +68,11 @@ describe('module/sw-customer-default-addresses', () => {
         );
     });
 
+    /**
+     * Default addresses kept showing the previous customer after switching customers.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/4785
+     */
     it('should reload addresses on customer change', async () => {
         wrapper = await createWrapper();
         wrapper.vm.renderFormattingAddress = jest.fn();

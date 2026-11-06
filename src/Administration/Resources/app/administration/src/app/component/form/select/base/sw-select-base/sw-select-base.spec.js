@@ -64,19 +64,28 @@ describe('components/sw-select-base', () => {
         expect(clearableIcon.exists()).toBe(false);
     });
 
-    it('should remove disabled selects from the tab order', async () => {
-        const wrapper = await createWrapper({ disabled: true });
+    /**
+     * Tabbing out of a select cleared its value.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18793
+     */
+    describe('tabbing out of a select', () => {
+        /** @regression */
+        it('should remove disabled selects from the tab order', async () => {
+            const wrapper = await createWrapper({ disabled: true });
 
-        expect(wrapper.find('.sw-select__selection').attributes('tabindex')).toBe('-1');
-    });
+            expect(wrapper.find('.sw-select__selection').attributes('tabindex')).toBe('-1');
+        });
 
-    it('should not emit a collapsed event when not expanded', async () => {
-        const wrapper = await createWrapper();
-        wrapper.vm.expanded = false;
+        /** @regression */
+        it('should not emit a collapsed event when not expanded', async () => {
+            const wrapper = await createWrapper();
+            wrapper.vm.expanded = false;
 
-        wrapper.vm.collapse();
+            wrapper.vm.collapse();
 
-        expect(wrapper.emitted('select-collapsed')).toBeUndefined();
+            expect(wrapper.emitted('select-collapsed')).toBeUndefined();
+        });
     });
 
     it('should trigger clear event when user clicks on clearable icon', async () => {
@@ -94,6 +103,11 @@ describe('components/sw-select-base', () => {
         expect(wrapper.emitted('clear')).toHaveLength(1);
     });
 
+    /**
+     * Clicks near the select border were treated as outside clicks and closed the dropdown.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/16542
+     */
     it('should not collapse when the event target is outside but the click position is inside the select', async () => {
         const wrapper = await createWrapper();
         const selection = wrapper.find('.sw-select__selection').element;

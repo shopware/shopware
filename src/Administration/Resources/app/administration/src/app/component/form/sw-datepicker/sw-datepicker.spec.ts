@@ -32,6 +32,11 @@ describe('src/app/component/base/sw-datepicker', () => {
         expect(wrapper.find('.sw-datepicker-deprecated').exists()).toBe(false);
     });
 
+    /**
+     * Parents received datepicker change events twice because undeclared emits fell through $attrs.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/21721
+     */
     it.each([
         ['mt-datepicker', false, 'onUpdate:modelValue'],
         ['deprecated datepicker', true, 'onUpdate:value'],

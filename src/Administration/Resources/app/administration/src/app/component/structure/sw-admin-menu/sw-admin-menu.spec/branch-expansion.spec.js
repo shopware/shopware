@@ -63,31 +63,46 @@ describe('src/app/component/structure/sw-admin-menu: branch expansion', () => {
         return branch;
     }
 
-    it('should keep the branch open when a module route reaches its entry through the module manifest', async () => {
-        const branch = openBranchOnItsOwnRoute();
-        const menuPath = branch.children[0].path;
+    /**
+     * Expanded menu branches collapsed on routes of extension modules without a parentPath.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/19723
+     */
+    describe('routes without a parentPath', () => {
+        /**
+         * Branches of extension modules without a parentPath collapsed instead of staying open.
+         * @regression
+         */
+        it('should keep the branch open when a module route reaches its entry through the module manifest', async () => {
+            const branch = openBranchOnItsOwnRoute();
+            const menuPath = branch.children[0].path;
 
-        // A detail route next to the menu target, declaring no parentPath
-        wrapper.vm.$route.name = `${menuPath}.detail`;
-        wrapper.vm.$route.matched = [{ name: `${menuPath}.detail` }];
-        wrapper.vm.$route.meta = { $module: { navigation: [{ path: menuPath }] } };
-        wrapper.vm.expandAncestorBranchesForCurrentRoute();
+            // A detail route next to the menu target, declaring no parentPath
+            wrapper.vm.$route.name = `${menuPath}.detail`;
+            wrapper.vm.$route.matched = [{ name: `${menuPath}.detail` }];
+            wrapper.vm.$route.meta = { $module: { navigation: [{ path: menuPath }] } };
+            wrapper.vm.expandAncestorBranchesForCurrentRoute();
 
-        expect(wrapper.vm.isNavigationEntryExpanded(branch)).toBe(true);
-        expect(wrapper.vm.activeBranchKey).toBe(branch.id ?? branch.path);
-    });
+            expect(wrapper.vm.isNavigationEntryExpanded(branch)).toBe(true);
+            expect(wrapper.vm.activeBranchKey).toBe(branch.id ?? branch.path);
+        });
 
-    it('should leave the tree untouched on a route the menu does not list', async () => {
-        const branch = openBranchOnItsOwnRoute();
-        const branchKey = wrapper.vm.activeBranchKey;
+        /**
+         * Every expanded menu branch collapsed on routes no menu entry owns.
+         * @regression
+         */
+        it('should leave the tree untouched on a route the menu does not list', async () => {
+            const branch = openBranchOnItsOwnRoute();
+            const branchKey = wrapper.vm.activeBranchKey;
 
-        // Sales channels, the profile page and the privilege error page all land here
-        wrapper.vm.$route.name = 'sw.profile.index';
-        wrapper.vm.$route.matched = [{ name: 'sw.profile.index' }];
-        wrapper.vm.expandAncestorBranchesForCurrentRoute();
+            // Sales channels, the profile page and the privilege error page all land here
+            wrapper.vm.$route.name = 'sw.profile.index';
+            wrapper.vm.$route.matched = [{ name: 'sw.profile.index' }];
+            wrapper.vm.expandAncestorBranchesForCurrentRoute();
 
-        expect(wrapper.vm.isNavigationEntryExpanded(branch)).toBe(true);
-        expect(wrapper.vm.activeBranchKey).toBe(branchKey);
+            expect(wrapper.vm.isNavigationEntryExpanded(branch)).toBe(true);
+            expect(wrapper.vm.activeBranchKey).toBe(branchKey);
+        });
     });
 
     it('should still close the tree for a childless top level entry', async () => {

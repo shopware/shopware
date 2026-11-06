@@ -148,6 +148,11 @@ describe('components/sw-select-rule-create', () => {
         expect(tooltipConfig.message).toBe('ruleAwarenessRestrictionLabelText');
     });
 
+    /**
+     * A rule created from a promotion was not assigned to that promotion.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/16146
+     */
     it('should emit updated rules collection when saving a rule from the modal', async () => {
         const { Criteria, EntityCollection } = Shopware.Data;
         const rules = new EntityCollection('', 'rule', Shopware.Context.api, new Criteria(1, 25));

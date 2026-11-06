@@ -49,6 +49,11 @@ describe('src/app/service/language-auto-fetching.service.js', () => {
         );
     });
 
+    /**
+     * The language entity was not reloaded after switching the content language.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15084
+     */
     it('should reload the language when languageId changes', async () => {
         LanguageAutoFetchingService();
         await flushPromises();

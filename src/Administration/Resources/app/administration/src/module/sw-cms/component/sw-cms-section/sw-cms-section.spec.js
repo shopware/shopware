@@ -225,6 +225,11 @@ describe('module/sw-cms/component/sw-cms-section', () => {
         });
     });
 
+    /**
+     * Blocks with missing required slot configs were no longer highlighted on save.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/11730
+     */
     it('should highlight blocks with slot config errors', async () => {
         Shopware.Store.get('error').addApiError({
             expression: `cms_page.1.slotConfig`,
@@ -249,6 +254,11 @@ describe('module/sw-cms/component/sw-cms-section', () => {
         expect(wrapper.vm.hasSlotConfigErrors(fooBarBlock.props('block'))).toBeTruthy();
     });
 
+    /**
+     * CMS blocks ignored their configured component name when rendering.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/11822
+     */
     it('should use block component name to render the block', async () => {
         const wrapper = await createWrapper();
 

@@ -104,6 +104,11 @@ describe('module/sw-settings-country/component/sw-settings-country-general', () 
         currencySearch.mockClear();
     });
 
+    /**
+     * Only the first 25 currencies were loaded, silently hiding the rest.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/16628
+     */
     it('should load all currencies for the currency dependent tax free thresholds', async () => {
         await createWrapper(['country.editor'], {
             enabled: true,

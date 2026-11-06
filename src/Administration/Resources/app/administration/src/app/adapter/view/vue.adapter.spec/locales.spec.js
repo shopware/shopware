@@ -37,6 +37,11 @@ describe('ASYNC app/adapter/view/vue.adapter.js - locales', () => {
         expect(vueAdapter.setLocaleFromUser).toHaveBeenCalled();
     });
 
+    /**
+     * en-GB snippets flashed before the session locale was resolved.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/21509
+     */
     it('initLocales should use the last known locale while the session locale is not resolved yet', async () => {
         application = createApplication().addFactory('locale', () => {
             return LocaleFactory;

@@ -168,6 +168,11 @@ describe('src/app/component/media/sw-media-url-form', () => {
         expect(wrapper.find('.sw-media-url-form__url-input').attributes('error')).toBeDefined();
     });
 
+    /**
+     * The close button of the upload-from-URL modal did not close it.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/9693
+     */
     it('should emit modal-close event when modal is closed', async () => {
         const wrapper = await createWrapper({
             props: {

@@ -242,6 +242,11 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         expect(wrapper.vm.condition.value.taxDisplay).toBe('net');
     });
 
+    /**
+     * Rule multi-select config fields rendered as single selects.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15849
+     */
     it('should render a multi select field and keep multiple selected values', async () => {
         Shopware.Store.get('ruleConditionsConfig').config = {
             ...ruleConditionsConfig,
@@ -445,6 +450,11 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
             wrapper?.unmount();
         });
 
+        /**
+         * Category breadcrumbs vanished from the rule condition, making same-named categories indistinguishable.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/20736
+         */
         it('should distinguish categories by breadcrumb and preserve selection', async () => {
             const condition = { type: 'cartLineItemInCategory', value: { operator: '=', categoryIds: [] } };
             wrapper = await createWrapper(condition, component);

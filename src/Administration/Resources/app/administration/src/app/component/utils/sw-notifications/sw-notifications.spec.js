@@ -10,6 +10,11 @@ describe('src/app/component/utils/sw-notifications', () => {
         setActivePinia(createPinia());
     });
 
+    /**
+     * Notification titles showed raw snippet keys.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/14808
+     */
     it('should translate title when it is a translation key', async () => {
         const wrapper = mount(await wrapTestComponent('sw-notifications', { sync: true }), {
             global: {
@@ -49,6 +54,11 @@ describe('src/app/component/utils/sw-notifications', () => {
         expect(wrapper.findComponent('.mt-banner').props('title')).toBe('Translated: global.default.error');
     });
 
+    /**
+     * App notifications without a title crashed the growl banner rendering.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/16836
+     */
     it('should not translate missing notification titles', async () => {
         const wrapper = mount(await wrapTestComponent('sw-notifications', { sync: true }), {
             global: {

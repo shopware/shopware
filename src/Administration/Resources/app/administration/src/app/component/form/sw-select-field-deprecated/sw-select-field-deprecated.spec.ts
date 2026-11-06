@@ -37,13 +37,20 @@ const createWrapper = async (attrs: Record<string, string> = {}) => {
     return wrapper;
 };
 
+/**
+ * Selects without a visible label had no accessible name.
+ * @regression
+ * @see https://github.com/shopware/shopware/pull/17614
+ */
 describe('src/app/component/form/sw-select-field-deprecated', () => {
+    /** @regression */
     it('forwards aria-label to the native select element', async () => {
         const wrapper = await createWrapper({ 'aria-label': 'Pick a value' });
 
         expect(wrapper.get('select').attributes('aria-label')).toBe('Pick a value');
     });
 
+    /** @regression */
     it('forwards aria-labelledby to the native select element', async () => {
         const wrapper = await createWrapper({ 'aria-labelledby': 'external-label-id' });
 

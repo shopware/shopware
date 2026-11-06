@@ -300,6 +300,11 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
         expect(wrapper.vm.product.variantRestrictions).toEqual([]);
     });
 
+    /**
+     * Closing the exclusion dialog without changes stored an empty restriction.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/12985
+     */
     it('should not save restriction with empty options', async () => {
         await wrapper.setProps({
             product: {
@@ -377,6 +382,11 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
         ]);
     });
 
+    /**
+     * Empty values were stored inside a restriction and later broke variant generation.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/12985
+     */
     it('should filter out empty values when saving restriction with mixed values', async () => {
         await wrapper.setProps({
             product: {

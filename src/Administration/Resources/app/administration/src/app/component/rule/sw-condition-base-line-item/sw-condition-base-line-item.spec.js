@@ -167,6 +167,10 @@ describe('components/rule/sw-condition-base-line-item', () => {
         expect(wrapper.find(MATCHES_ALL_SELECTOR).exists()).toBe(true);
     });
 
+    /**
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/21784
+     */
     it('shows the match-all toggle for cartLineItemCustomField (bespoke component without a generic config)', async () => {
         setConfig(null);
 
@@ -196,6 +200,11 @@ describe('components/rule/sw-condition-base-line-item', () => {
         expect(wrapper.find(MATCHES_ALL_SELECTOR).exists()).toBe(false);
     });
 
+    /**
+     * The item quantity condition offered an all/any toggle it could not evaluate.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/12493
+     */
     it('hides the match-all toggle for cartLineItemWithQuantity (single product, not match-all capable)', async () => {
         setConfig(null);
 

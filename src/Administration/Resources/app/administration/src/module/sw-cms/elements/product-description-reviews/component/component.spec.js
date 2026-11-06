@@ -77,6 +77,11 @@ describe('src/module/sw-cms/elements/product-description-reviews/component', () 
         expect(wrapper.find('.sw-cms-el-product-description-reviews__placeholder').exists()).toBeTruthy();
     });
 
+    /**
+     * Opening a product layout marked it as changed and triggered the unsaved changes modal.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/8552
+     */
     it('should not change the persisted lock state on product detail pages', async () => {
         const element = {
             config: {},

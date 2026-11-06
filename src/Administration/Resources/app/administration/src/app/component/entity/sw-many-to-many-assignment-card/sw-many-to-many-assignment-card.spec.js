@@ -112,6 +112,11 @@ describe('src/app/component/entity/sw-many-to-many-assignment-card', () => {
             await flushPromises();
         }
 
+        /**
+         * The search field's clear button did nothing and the term kept filtering.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/20962
+         */
         it('should clear the search input', async () => {
             const wrapper = await createWrapperWithSelectBase();
 
@@ -125,6 +130,11 @@ describe('src/app/component/entity/sw-many-to-many-assignment-card', () => {
             expect(searchInput.element.value).toBe('');
         });
 
+        /**
+         * The search field's clear button did nothing and the term kept filtering.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/20962
+         */
         it('should reload the unfiltered results when the select is expanded', async () => {
             const search = jest.fn().mockResolvedValue([]);
             const wrapper = await createWrapperWithSelectBase({}, search);
@@ -162,6 +172,11 @@ describe('src/app/component/entity/sw-many-to-many-assignment-card', () => {
             expect(wrapper.vm.resultCollection).toEqual(unfilteredResults);
         });
 
+        /**
+         * The search field's clear button did nothing and the term kept filtering.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/20962
+         */
         it('should reload the grid without the search term when the select is collapsed', async () => {
             const search = jest.fn().mockResolvedValue([]);
             const entityCollection = Object.assign([], { context: { languageId: '1a2b3c' }, getIds: () => [] });

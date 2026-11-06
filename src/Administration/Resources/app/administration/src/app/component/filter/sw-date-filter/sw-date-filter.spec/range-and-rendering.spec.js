@@ -76,6 +76,11 @@ describe('src/app/component/filter/sw-date-filter - range inputs and rendering',
         ]);
     });
 
+    /**
+     * The date filter ignored the user's timezone and dropped orders of the To day.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/4337
+     */
     it('should emit user timezone aware criteria for date ranges', async () => {
         Shopware.Store.get('session').setCurrentUser({ timeZone: 'Europe/Berlin' });
 

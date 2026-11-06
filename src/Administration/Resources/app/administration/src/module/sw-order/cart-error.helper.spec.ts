@@ -5,6 +5,11 @@ import { getCartErrorMessage } from './cart-error.helper';
 import type { CartError } from './order.types';
 
 describe('src/module/sw-order/cart-error.helper', () => {
+    /**
+     * Cart errors in the Administration were always shown in English.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/19736
+     */
     it('uses the server translated message', () => {
         const error = {
             level: 20,

@@ -295,6 +295,11 @@ describe('src/module/sw-order/page/sw-order-create', () => {
         expect(Shopware.Store.get('context').api.languageId).toBe('2fbb5fe2e29a4d70aa5854ce7ce3e20b');
     });
 
+    /**
+     * The payment reminder dialog closed immediately as the page navigated away.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/12382
+     */
     it('should NOT set isSaveSuccessful immediately after save order, only after modal interaction', async () => {
         await wrapper.find('.sw-button-process').trigger('click');
         await flushPromises();

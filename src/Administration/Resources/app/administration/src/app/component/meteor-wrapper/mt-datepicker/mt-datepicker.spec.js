@@ -37,49 +37,59 @@ describe('src/app/component/meteor-wrapper/mt-datepicker', () => {
         expect(document.body.textContent).toContain('MoDiMiDoFrSaSo');
     });
 
-    it('should use the user locale (en)', async () => {
-        // Set the user locale to english
-        Shopware.Store.get('session').setAdminLocale('en-GB');
+    /**
+     * The datepicker ignored the user locale and its date format.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/7579
+     */
+    describe('locale of the datepicker', () => {
+        /** @regression */
+        it('should use the user locale (en)', async () => {
+            // Set the user locale to english
+            Shopware.Store.get('session').setAdminLocale('en-GB');
 
-        const wrapper = mount(await wrapTestComponent('mt-datepicker', { sync: true }));
+            const wrapper = mount(await wrapTestComponent('mt-datepicker', { sync: true }));
 
-        // Click on input to open datepicker
-        await wrapper.find('[data-test-id="dp-input"]').trigger('click');
-        await flushPromises();
+            // Click on input to open datepicker
+            await wrapper.find('[data-test-id="dp-input"]').trigger('click');
+            await flushPromises();
 
-        // Expect german locale to be used
-        expect(document.body.textContent).toContain('MoTuWeThFrSaSu');
-    });
-
-    it('should use custom format based on currentLocale (de)', async () => {
-        const wrapper = mount(await wrapTestComponent('mt-datepicker', { sync: true }), {
-            props: {
-                modelValue: '2023-10-01T00:00:00+02:00',
-            },
+            // Expect german locale to be used
+            expect(document.body.textContent).toContain('MoTuWeThFrSaSu');
         });
 
-        // Click on input to open datepicker
-        await wrapper.find('[data-test-id="dp-input"]').trigger('click');
+        /** @regression */
+        it('should use custom format based on currentLocale (de)', async () => {
+            const wrapper = mount(await wrapTestComponent('mt-datepicker', { sync: true }), {
+                props: {
+                    modelValue: '2023-10-01T00:00:00+02:00',
+                },
+            });
 
-        // Expect german locale to be used
-        expect(wrapper.find('[data-test-id="dp-input"]').element.value).toBe('01.10.2023, 00:00');
-    });
+            // Click on input to open datepicker
+            await wrapper.find('[data-test-id="dp-input"]').trigger('click');
 
-    it('should use custom format based on currentLocale (en)', async () => {
-        // Set the user locale to english
-        Shopware.Store.get('session').setAdminLocale('en-GB');
-
-        const wrapper = mount(await wrapTestComponent('mt-datepicker', { sync: true }), {
-            props: {
-                modelValue: '2023-10-01T00:00:00+02:00',
-            },
+            // Expect german locale to be used
+            expect(wrapper.find('[data-test-id="dp-input"]').element.value).toBe('01.10.2023, 00:00');
         });
 
-        // Click on input to open datepicker
-        await wrapper.find('[data-test-id="dp-input"]').trigger('click');
+        /** @regression */
+        it('should use custom format based on currentLocale (en)', async () => {
+            // Set the user locale to english
+            Shopware.Store.get('session').setAdminLocale('en-GB');
 
-        // Expect german locale to be used
-        expect(wrapper.find('[data-test-id="dp-input"]').element.value).toBe('01/10/2023, 00:00');
+            const wrapper = mount(await wrapTestComponent('mt-datepicker', { sync: true }), {
+                props: {
+                    modelValue: '2023-10-01T00:00:00+02:00',
+                },
+            });
+
+            // Click on input to open datepicker
+            await wrapper.find('[data-test-id="dp-input"]').trigger('click');
+
+            // Expect german locale to be used
+            expect(wrapper.find('[data-test-id="dp-input"]').element.value).toBe('01/10/2023, 00:00');
+        });
     });
 
     it('should escape literal text in generated date-fns format', async () => {

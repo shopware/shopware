@@ -494,6 +494,11 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
             expect(wrapper.vm.runtimeConfig.testField.value).toBe('parent override');
         });
 
+        /**
+         * Removing field inheritance seeded the layout default instead of the parent language override.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/16393
+         */
         it('should seed inherited parent entity override instead of the base CMS config', async () => {
             const contentEntity = {
                 slotConfig: null,
@@ -648,6 +653,11 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
             expect(contentEntity.slotConfig).toBeNull();
         });
 
+        /**
+         * Restoring inheritance on one CMS slot wiped the overrides of all other slots.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/16317
+         */
         it('should preserve overrides on other slots when restoring this slots last field', async () => {
             const contentEntity = {
                 slotConfig: {
@@ -689,6 +699,11 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
             expect(wrapper.emitted('inheritance:restore')).toHaveLength(1);
         });
 
+        /**
+         * Restoring inheritance fell back to the base CMS config instead of the parent language override.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/15906
+         */
         it('should restore inherited parent entity override instead of the base CMS config', async () => {
             Shopware.Store.get('swCategoryDetail').category = {
                 slotConfig: {
@@ -812,6 +827,11 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
             wrapper?.unmount();
         });
 
+        /**
+         * Restoring inheritance failed for element config fields newly added to the layout.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/21750
+         */
         it.each([true, false])('restores inheritance when the layout field exists: %s', async (hasBaseConfig) => {
             const config = reactive({
                 testField: { value: 'overridden', source: 'static' },

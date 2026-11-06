@@ -119,57 +119,72 @@ describe('components/media/sw-media-list-selection-v2', () => {
         expect(updatedFirstMediaItem.text()).toContain('newId');
     });
 
-    it('should render the same media added twice as two items after a reorder', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
+    /**
+     * Copies of the same media broke when the list was reordered.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/13909
+     */
+    describe('the same media added twice', () => {
+        /**
+         * The same media added twice showed duplicates after reordering.
+         * @regression
+         */
+        it('should render the same media added twice as two items after a reorder', async () => {
+            const wrapper = await createWrapper();
+            await flushPromises();
 
-        const [first, second, third] = entityMediaItems;
+            const [first, second, third] = entityMediaItems;
 
-        await wrapper.setProps({
-            entityMediaItems: reactive([
-                second,
-                first,
-                third,
-                first,
-            ]),
+            await wrapper.setProps({
+                entityMediaItems: reactive([
+                    second,
+                    first,
+                    third,
+                    first,
+                ]),
+            });
+            await flushPromises();
+
+            await wrapper.setProps({
+                entityMediaItems: reactive([
+                    first,
+                    third,
+                    first,
+                    second,
+                ]),
+            });
+            await flushPromises();
+
+            const items = wrapper.findAll('.sw-media-list-selection-item-v2').slice(0, 4);
+            expect(items.map((item) => item.text())).toEqual([
+                '1',
+                '3',
+                '1',
+                '2',
+            ]);
         });
-        await flushPromises();
 
-        await wrapper.setProps({
-            entityMediaItems: reactive([
-                first,
-                third,
-                first,
-                second,
-            ]),
+        /**
+         * Copies of the same media shared one drag position, so reordering moved the wrong copy.
+         * @regression
+         */
+        it('should pass the own position of each item to the drag and drop data', async () => {
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            const [first, second] = entityMediaItems;
+
+            await wrapper.setProps({
+                entityMediaItems: reactive([first, second, first]),
+            });
+            await flushPromises();
+
+            const positions = wrapper
+                .findAll('.sw-media-list-selection-item-v2')
+                .slice(0, 3)
+                .map((item) => item.element.dragConfig.data.position);
+
+            expect(positions).toEqual([0, 1, 2]);
         });
-        await flushPromises();
-
-        const items = wrapper.findAll('.sw-media-list-selection-item-v2').slice(0, 4);
-        expect(items.map((item) => item.text())).toEqual([
-            '1',
-            '3',
-            '1',
-            '2',
-        ]);
-    });
-
-    it('should pass the own position of each item to the drag and drop data', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        const [first, second] = entityMediaItems;
-
-        await wrapper.setProps({
-            entityMediaItems: reactive([first, second, first]),
-        });
-        await flushPromises();
-
-        const positions = wrapper
-            .findAll('.sw-media-list-selection-item-v2')
-            .slice(0, 3)
-            .map((item) => item.element.dragConfig.data.position);
-
-        expect(positions).toEqual([0, 1, 2]);
     });
 });

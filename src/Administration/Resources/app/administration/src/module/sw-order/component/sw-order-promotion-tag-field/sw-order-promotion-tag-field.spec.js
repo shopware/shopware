@@ -40,38 +40,47 @@ async function createWrapper(props = {}) {
 }
 
 describe('src/module/sw-order/component/sw-order-promotion-tag-field', () => {
-    it('should translate promotion descriptions with interpolation values', async () => {
-        const wrapper = await createWrapper();
+    /**
+     * The promotion tooltip showed only the static label without the discount value.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/17309
+     */
+    describe('promotion descriptions with values', () => {
+        /** @regression */
+        it('should translate promotion descriptions with interpolation values', async () => {
+            const wrapper = await createWrapper();
 
-        const description = wrapper.vm.getPromotionCodeDescription({
-            discountId: 'promotion-discount-id',
-            value: 10,
-            discountScope: 'cart',
-            discountType: 'percentage',
-            groupId: 'set-group-id',
+            const description = wrapper.vm.getPromotionCodeDescription({
+                discountId: 'promotion-discount-id',
+                value: 10,
+                discountScope: 'cart',
+                discountType: 'percentage',
+                groupId: 'set-group-id',
+            });
+
+            expect(wrapper.vm.$t).toHaveBeenCalledWith('sw-order.createBase.textPromotionDescription.cart.percentage', {
+                value: 10,
+                groupId: 'set-group-id',
+            });
+            expect(description).toBe('10 discount on shopping cart');
         });
 
-        expect(wrapper.vm.$t).toHaveBeenCalledWith('sw-order.createBase.textPromotionDescription.cart.percentage', {
-            value: 10,
-            groupId: 'set-group-id',
-        });
-        expect(description).toBe('10 discount on shopping cart');
-    });
+        /** @regression */
+        it('should translate absolute promotion descriptions with formatted currency values', async () => {
+            const wrapper = await createWrapper();
 
-    it('should translate absolute promotion descriptions with formatted currency values', async () => {
-        const wrapper = await createWrapper();
+            wrapper.vm.getPromotionCodeDescription({
+                discountId: 'promotion-discount-id',
+                value: 10,
+                discountScope: 'cart',
+                discountType: 'absolute',
+                groupId: 'set-group-id',
+            });
 
-        wrapper.vm.getPromotionCodeDescription({
-            discountId: 'promotion-discount-id',
-            value: 10,
-            discountScope: 'cart',
-            discountType: 'absolute',
-            groupId: 'set-group-id',
-        });
-
-        expect(wrapper.vm.$t).toHaveBeenCalledWith('sw-order.createBase.textPromotionDescription.cart.absolute', {
-            value: expect.stringContaining('10'),
-            groupId: 'set-group-id',
+            expect(wrapper.vm.$t).toHaveBeenCalledWith('sw-order.createBase.textPromotionDescription.cart.absolute', {
+                value: expect.stringContaining('10'),
+                groupId: 'set-group-id',
+            });
         });
     });
 

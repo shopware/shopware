@@ -127,6 +127,11 @@ describe('module/sw-order/component/sw-order-line-items-grid/variant-display', (
 
     // sw-order-detail converts line items whose product was deleted into custom items on page
     // load, so this is the state the grid actually receives for a deleted product.
+    /**
+     * Line items of deleted variant products lost their variant characteristics in the order.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/12797
+     */
     it('still shows the variant characteristics of a converted product line item', async () => {
         const wrapper = await createWrapper([
             createProductItem({

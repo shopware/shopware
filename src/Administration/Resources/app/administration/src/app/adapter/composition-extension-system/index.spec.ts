@@ -3630,6 +3630,11 @@ describe('src/app/adapter/composition-extension-system', () => {
     });
 
     describe('Effect disposal:', () => {
+        /**
+         * Watchers from overrides registered after mount kept running after unmount.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/18626
+         */
         it('disposes watchers created by late-registered overrides when the component unmounts', async () => {
             const externalSource = ref(0);
             const watcherCalls = jest.fn();

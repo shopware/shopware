@@ -345,6 +345,11 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         },
     ];
 
+    /**
+     * Flows referencing more than 25 entities silently lost the surplus.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/22243
+     */
     it('should not limit the entities a flow references', async () => {
         const criteriaByEntity = await loadFlowWithSequences(configuredSequences);
 
@@ -444,6 +449,10 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         expect(wrapper.vm.flowSequenceRepository.sync).toHaveBeenCalledTimes(1);
     });
 
+    /**
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/20326
+     */
     it('should refetch the flow with the page criteria when saving an existing flow', async () => {
         global.activeAclRoles = ['flow.editor'];
         const wrapper = await createWrapper({}, {}, ID_FLOW);
@@ -810,6 +819,10 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         expect(sequences[0].rule).toEqual({ id: '1111', name: 'test rule' });
     });
 
+    /**
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/6844
+     */
     it('should display an error when trying to save an empty flow', async () => {
         global.activeAclRoles = ['flow.editor'];
 

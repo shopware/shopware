@@ -216,6 +216,11 @@ describe('src/app/component/entity/sw-entity-listing', () => {
         expect(wrapper.emitted('bulk-edit-modal-close')).toStrictEqual([[]]);
     });
 
+    /**
+     * The entity listing showed no rows when data came only through dataSource.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/12896
+     */
     it('should work with dataSource prop instead of items', async () => {
         const dataSource = new EntityCollection(null, null, null, new Criteria(1, 25), [
             { id: 'id1', name: 'item1' },

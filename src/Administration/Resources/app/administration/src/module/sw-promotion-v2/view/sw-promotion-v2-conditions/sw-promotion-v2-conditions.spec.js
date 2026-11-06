@@ -142,6 +142,11 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-conditions', () =
         });
     });
 
+    /**
+     * Promotion exclusions beyond the first 25 were dropped from the selection.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/5493
+     */
     it('should load all selected promotion exclusions', async () => {
         const selectedPromotions = Array.from({ length: 26 }, (_, index) => {
             return {

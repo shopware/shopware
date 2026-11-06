@@ -464,6 +464,11 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(conditionRepositoryMock.search).toHaveBeenCalledTimes(0);
     });
 
+    /**
+     * Accumulated id filters made the duplicated rule load forever.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/16541
+     */
     it('should search only by the current rule id when the route id changes', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

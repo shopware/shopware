@@ -68,6 +68,11 @@ describe('directives/tooltip', () => {
         expect(tooltips).toHaveLength(0);
     });
 
+    /**
+     * Unmounted tooltips stayed in the registry and leaked memory.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/6058
+     */
     it('should remove the tooltip from the registry after unmount to prevent memory leak', async () => {
         const wrapper = await createWrapper('a tooltip');
         await flushPromises();
@@ -115,6 +120,11 @@ describe('directives/tooltip', () => {
         expect(document.body.getElementsByClassName('sw-tooltip').item(0)).not.toBeNull();
     });
 
+    /**
+     * A shortcut tooltip flipped over the save button and blocked clicks on it.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/16539
+     */
     it('should clamp bottom tooltip horizontally when it would overflow the viewport', async () => {
         const originalInnerWidth = window.innerWidth;
         const originalInnerHeight = window.innerHeight;

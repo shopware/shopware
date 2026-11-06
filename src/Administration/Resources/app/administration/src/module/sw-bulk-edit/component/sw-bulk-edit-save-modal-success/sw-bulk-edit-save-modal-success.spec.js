@@ -102,6 +102,11 @@ describe('sw-bulk-edit-save-modal-success', () => {
         expect(wrapper.vm.latestDocuments).toEqual({});
     });
 
+    /**
+     * Failed document generation in order bulk edit showed no error in the modal.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15791
+     */
     it('should show document generation warning when documents failed', async () => {
         Shopware.Store.get('swBulkEdit').setDocumentGenerationResult(5, 2);
         await flushPromises();

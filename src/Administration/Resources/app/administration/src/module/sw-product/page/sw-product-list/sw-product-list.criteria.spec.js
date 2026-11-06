@@ -18,6 +18,11 @@ function buildCriteria(overrides = {}) {
 }
 
 describe('module/sw-product/page/sw-product-list criteria', () => {
+    /**
+     * Sorting by stock paged non-deterministically, duplicating and skipping products.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10497
+     */
     it('appends a deterministic id tie-breaker when sorting by stock', () => {
         const criteria = buildCriteria({ sortBy: 'stock' });
 

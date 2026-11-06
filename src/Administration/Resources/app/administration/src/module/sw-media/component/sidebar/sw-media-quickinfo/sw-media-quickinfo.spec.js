@@ -498,6 +498,11 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         });
     });
 
+    /**
+     * Reverting a media title or alt text change sent no update until the page was reloaded.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10507
+     */
     it('should emit event bus message after save', async () => {
         const mediaSaveMock = jest.fn().mockResolvedValue();
         const mediaRepositoryFunctions = {
@@ -512,6 +517,11 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         expect(eventBusEmitSpy).toHaveBeenCalledWith('sw-media-library-item-updated', wrapper.vm.item.id);
     });
 
+    /**
+     * Downloading private media from the media manager saved admin.htm instead of the file.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/4799
+     */
     it('should download private media with media service', async () => {
         const mediaBlob = new Blob(['media-content']);
         const prepareDownloadMediaMock = jest.fn().mockResolvedValue({ type: 'blob' });

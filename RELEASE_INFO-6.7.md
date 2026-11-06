@@ -365,6 +365,7 @@ On the stateless revision there is no MCP session:
   The stream reads the list versions from the database, so changes made on the CLI, in queue workers or on another host arrive as well.
   Each host reads them at most once a second, through a `cache.app` entry.
   The Store API endpoint does not announce list changes on the stateless revision, because its lists only change per session there.
+  Clients on the session-based revisions receive the same changes as `list_changed` notifications in their session, so an allowlist edit now reaches them as well.
 * Each open `subscriptions/listen` stream holds one PHP-FPM worker for up to 25 seconds, then the server ends it and the client reconnects.
   A client that keeps listening therefore occupies one worker almost all the time.
   Account for it in `pm.max_children`, and keep `max_execution_time` and the timeouts of proxies in front of PHP above 25 seconds.

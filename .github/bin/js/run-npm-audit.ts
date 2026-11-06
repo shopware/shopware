@@ -146,7 +146,7 @@ function runNpmAuditCommand(): string {
         if (execErr.stdout) {
             return execErr.stdout.toString();
         }
-        throw new Error(`Error running npm audit: ${execErr.message ?? String(err)}`);
+        throw new Error(`Error running npm audit: ${execErr.message ?? String(err)}`, { cause: err });
     }
 }
 

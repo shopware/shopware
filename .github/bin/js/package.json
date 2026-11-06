@@ -4,7 +4,14 @@
     "@shopware-ag/gh-project-automation": "1.20.1"
   },
   "devDependencies": {
-    "@types/node": "24.10.0"
+    "@eslint/js": "10.0.1",
+    "@types/node": "24.10.0",
+    "eslint": "10.14.0",
+    "globals": "16.5.0",
+    "prettier": "3.6.2",
+    "prettier-plugin-multiline-arrays": "3.0.6",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.56.1"
   },
   "overrides": {
     "axios": "1.20.0",
@@ -14,6 +21,10 @@
     "undici": "6.29.1"
   },
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "lint": "cd ../.. && eslint --config bin/js/eslint.config.mjs --max-warnings 0 .",
+    "lint:fix": "npm run lint -- --fix",
+    "format": "prettier --config ../../../src/Administration/Resources/app/administration/.prettierrc.js --check \"../../**/*.{ts,mts,js,mjs,cjs}\"",
+    "format:fix": "prettier --config ../../../src/Administration/Resources/app/administration/.prettierrc.js --write \"../../**/*.{ts,mts,js,mjs,cjs}\""
   }
 }

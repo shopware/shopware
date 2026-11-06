@@ -59,7 +59,7 @@ async function fetchVulnerabilitiesByDescription(list: Array<Vulnerability>, bod
 
     const unique = matches.filter((value, index, array) => array.indexOf(value) === index);
 
-    for (let match of unique) {
+    for (const match of unique) {
         const json = await (await fetchGithub(`https://api.github.com/repos/shopware/shopware/security-advisories/${match}`)).json();
 
         if (json.severity === undefined) {
@@ -83,7 +83,7 @@ async function fetchCveVulnerabilitiesByDescription(list: Array<Vulnerability>, 
     const cveList = cveMatches || [];
     const cveUnique = cveList.filter((value, index, array) => array.indexOf(value) === index);
 
-    for (let match of cveUnique) {
+    for (const match of cveUnique) {
         const response = await fetchMitreCve(match);
         const json = await response.json();
 
@@ -103,6 +103,7 @@ async function fetchCveVulnerabilitiesByDescription(list: Array<Vulnerability>, 
     return list;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- untyped MITRE API response
 function parseMitreCve(cve: any) {
     const severity = cve?.containers?.cna?.metrics[0]?.cvssV3_1?.baseSeverity;
     const summary = cve?.containers?.cna?.title;

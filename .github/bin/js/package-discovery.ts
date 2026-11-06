@@ -131,7 +131,7 @@ export function findAllPackageJsonFiles(): string[] {
     return output.trim().split('\n').filter(Boolean);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to find package.json files: ${errorMessage}`);
+    throw new Error(`Failed to find package.json files: ${errorMessage}`, { cause: error });
   }
 }
 
@@ -207,7 +207,7 @@ function readChangedFilesFromFile(filePath: string): string[] {
       .filter(Boolean);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to read changed files from ${filePath}: ${errorMessage}`);
+    throw new Error(`Failed to read changed files from ${filePath}: ${errorMessage}`, { cause: error });
   }
 }
 

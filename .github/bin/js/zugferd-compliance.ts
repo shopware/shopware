@@ -243,7 +243,7 @@ function runValidator(
         const status = (error as { status?: number }).status;
 
         if (typeof status !== "number") {
-            throw new Error("could not run the validator (is Java installed?)");
+            throw new Error("could not run the validator (is Java installed?)", { cause: error });
         }
 
         return status;

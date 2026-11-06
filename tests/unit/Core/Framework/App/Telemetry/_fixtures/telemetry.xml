@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<telemetry>
+    <label-values metric="order.placed.count" label="payment_method">
+        <value>payment_swagpaypal</value>
+        <value>payment_swagpaypal_express</value>
+        <value>payment_swagpaypal</value>
+    </label-values>
+    <mapping name="entity_group">
+        <entry key="ce_blog_*">blog</entry>
+        <entry key="swag_blog_post">blog</entry>
+    </mapping>
+    <mapping name="flow_trigger_group">
+        <entry key="swag.blog.published">content</entry>
+    </mapping>
+</telemetry>

@@ -52,6 +52,10 @@ class StorybookControllerTest extends TestCase
             'key' => 'Sw:Inheriting:Component',
             'template' => 'storybook-inherited-component',
         ];
+        $componentConfig['Sw:Missing:Template'] = [
+            'key' => 'Sw:Missing:Template',
+            'template' => 'storybook-missing-template',
+        ];
         $this->componentFactory = new ComponentFactory(
             static::createStub(ComponentTemplateFinderInterface::class),
             new ServiceLocator([]),
@@ -140,6 +144,50 @@ class StorybookControllerTest extends TestCase
         static::assertSame('Unknown block name(s) for component "Sw:Button": typo.', $response->getContent());
     }
 
+    public function testStorybookReturnsBadRequestForUnknownComponent(): void
+    {
+        $request = $this->createStorybookRequest();
+        $request->initialize(content: '{"props":{},"blocks":{"content":"<strong>Example</strong>"}}');
+        $request->setMethod(Request::METHOD_POST);
+        $request->headers->set('Content-Type', 'application/json');
+        $request->headers->set('Origin', self::STORYBOOK_ORIGIN);
+
+        $response = $this->createController()->storybook('Sw:NotRegistered', $request);
+
+        static::assertSame(400, $response->getStatusCode());
+        static::assertSame('Unknown Storybook component "Sw:NotRegistered".', $response->getContent());
+        static::assertSame(self::STORYBOOK_ORIGIN, $response->headers->get('Access-Control-Allow-Origin'));
+    }
+
+    public function testStorybookReturnsBadRequestForUnknownComponentWithoutBlocks(): void
+    {
+        $response = $this->createController()->storybook('Sw:NotRegistered', $this->createStorybookRequest());
+
+        static::assertSame(400, $response->getStatusCode());
+        static::assertSame('Unknown Storybook component "Sw:NotRegistered".', $response->getContent());
+        static::assertSame(self::STORYBOOK_ORIGIN, $response->headers->get('Access-Control-Allow-Origin'));
+    }
+
+    public function testStorybookReturnsPlainTextErrorForMissingComponentTemplate(): void
+    {
+        $this->storybookService->method('createSalesChannelContext')->willReturn(Generator::generateSalesChannelContext());
+        $this->storybookService->method('getThemeId')->willReturn('theme-id-123');
+        $this->storybookService->method('resolveComponentProps')->willReturn([]);
+
+        $request = $this->createStorybookRequest();
+        $request->initialize(content: '{"props":{},"blocks":{"header":"<strong>Example</strong>"}}');
+        $request->setMethod(Request::METHOD_POST);
+        $request->headers->set('Content-Type', 'application/json');
+        $request->headers->set('Origin', self::STORYBOOK_ORIGIN);
+
+        $response = $this->createController()->storybook('Sw:Missing:Template', $request);
+
+        static::assertSame(500, $response->getStatusCode());
+        static::assertStringContainsString('Template error:', (string) $response->getContent());
+        static::assertSame('text/plain; charset=UTF-8', $response->headers->get('Content-Type'));
+        static::assertSame(self::STORYBOOK_ORIGIN, $response->headers->get('Access-Control-Allow-Origin'));
+    }
+
     public function testStorybookAcceptsBlockInheritedByComponentTemplate(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -151,6 +199,7 @@ class StorybookControllerTest extends TestCase
         $request->initialize(content: '{"props":{},"blocks":{"header":"<strong>Storybook header</strong>"}}');
         $request->setMethod(Request::METHOD_POST);
         $request->headers->set('Content-Type', 'application/json');
+        $request->headers->set('Origin', self::STORYBOOK_ORIGIN);
 
         $response = $this->createController()->storybook('Sw:Inheriting:Component', $request);
 

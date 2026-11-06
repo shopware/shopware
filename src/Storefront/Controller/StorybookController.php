@@ -15,6 +15,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\UX\TwigComponent\ComponentFactory;
 use Twig\Environment;
+use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
@@ -90,15 +91,22 @@ class StorybookController extends AbstractController
             }
 
             if (!\is_array($storybookParameters) || !\is_array($storybookBlocks) || $invalidBlock) {
-                $response = new Response(
+                return $this->createErrorResponse(
                     'The Storybook preview payload must contain string block content and property data.',
                     Response::HTTP_BAD_REQUEST,
-                    ['Content-Type' => 'text/plain; charset=UTF-8'],
+                    $storybookDomain,
                 );
-                $response->headers->set('Access-Control-Allow-Origin', $storybookDomain);
-
-                return $response;
             }
+        }
+
+        try {
+            $componentTemplate = $this->componentFactory->metadataFor($component)->getTemplate();
+        } catch (\InvalidArgumentException) {
+            return $this->createErrorResponse(
+                \sprintf('Unknown Storybook component "%s".', $component),
+                Response::HTTP_BAD_REQUEST,
+                $storybookDomain,
+            );
         }
 
         $salesChannelContext = $this->storybookService->createSalesChannelContext();
@@ -112,19 +120,15 @@ class StorybookController extends AbstractController
             $componentProps = $this->storybookService->resolveComponentProps($request, $salesChannelContext, $storybookParameters);
 
             if ($storybookBlocks !== []) {
-                $componentTemplate = $this->componentFactory->metadataFor($component)->getTemplate();
                 $declaredBlocks = $this->twig->load($componentTemplate)->getBlockNames();
                 $unknownBlocks = array_diff(array_keys($storybookBlocks), $declaredBlocks);
 
                 if ($unknownBlocks !== []) {
-                    $response = new Response(
+                    return $this->createErrorResponse(
                         \sprintf('Unknown block name(s) for component "%s": %s.', $component, implode(', ', $unknownBlocks)),
                         Response::HTTP_BAD_REQUEST,
-                        ['Content-Type' => 'text/plain; charset=UTF-8'],
+                        $storybookDomain,
                     );
-                    $response->headers->set('Access-Control-Allow-Origin', $storybookDomain);
-
-                    return $response;
                 }
             }
 
@@ -154,14 +158,26 @@ class StorybookController extends AbstractController
 
             $content = $this->twig->render($this->twig->createTemplate($template), $renderContext);
             $response = new Response($content);
-        } catch (RuntimeError|SyntaxError $e) {
-            $response = new Response(
+        } catch (LoaderError|RuntimeError|SyntaxError $e) {
+            $response = $this->createErrorResponse(
                 'Template error: ' . htmlspecialchars($e->getMessage()),
                 Response::HTTP_INTERNAL_SERVER_ERROR,
-                ['Content-Type' => 'text/plain; charset=UTF-8'],
+                $storybookDomain,
             );
         }
 
+        $response->headers->set('Access-Control-Allow-Origin', $storybookDomain);
+
+        return $response;
+    }
+
+    private function createErrorResponse(string $message, int $statusCode, string $storybookDomain): Response
+    {
+        $response = new Response(
+            $message,
+            $statusCode,
+            ['Content-Type' => 'text/plain; charset=UTF-8'],
+        );
         $response->headers->set('Access-Control-Allow-Origin', $storybookDomain);
 
         return $response;

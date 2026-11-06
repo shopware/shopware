@@ -277,6 +277,11 @@ Check import files that relied on `0` being ignored.
 
 The property is unused and will be removed in 6.8.
 
+### Deprecated `ImitateCustomerTokenGenerator::HMAC_HASH_ALGORITHM`
+
+The constant is unused and will be removed in 6.8.
+The imitation token is signed by the internal `HmacSigner`.
+
 ## API
 
 ### Plain JSON becomes the default Admin API response format in 6.8

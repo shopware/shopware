@@ -156,7 +156,7 @@ class ImitateCustomerTokenGeneratorTest extends TestCase
             throw CustomerException::invalidImitationToken($salesChannelId . ':' . $customerId . ':' . $userId);
         }
 
-        return $this->encrypt(hash_hmac(ImitateCustomerTokenGenerator::HMAC_HASH_ALGORITHM, $data, self::APP_SECRET) . '.' . $time);
+        return $this->encrypt(hash_hmac('sha256', $data, self::APP_SECRET) . '.' . $time);
     }
 
     private function encrypt(string $token): string

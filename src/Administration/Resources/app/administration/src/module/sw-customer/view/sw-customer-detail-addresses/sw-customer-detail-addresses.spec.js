@@ -212,60 +212,59 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
      * @regression
      * @see https://github.com/shopware/shopware/issues/18694
      */
-    it('should clear the error of a required field once it holds a value again', async () => {
-        const entityMock = {
-            getEntityName: () => 'customer_address',
-            id: '1',
-        };
-
-        await wrapper.setData({
-            currentAddress: {
+    describe('required field warnings of addresses', () => {
+        /** @regression */
+        it('should clear the error of a required field once it holds a value again', async () => {
+            const entityMock = {
+                getEntityName: () => 'customer_address',
                 id: '1',
-                lastName: 'Wiegand',
-                firstName: 'Daisha',
-                city: 'Lake Waldo',
-                customerId: '1',
-            },
+            };
+
+            await wrapper.setData({
+                currentAddress: {
+                    id: '1',
+                    lastName: 'Wiegand',
+                    firstName: 'Daisha',
+                    city: 'Lake Waldo',
+                    customerId: '1',
+                },
+            });
+
+            await wrapper.vm.onSaveAddress();
+
+            expect(Shopware.Store.get('error').getApiError(entityMock, 'street')).toBeInstanceOf(ShopwareError);
+
+            wrapper.vm.currentAddress.street = 'Stehr Divide';
+
+            await wrapper.vm.onSaveAddress();
+
+            expect(Shopware.Store.get('error').getApiError(entityMock, 'street')).toBeNull();
         });
 
-        await wrapper.vm.onSaveAddress();
+        /** @regression */
+        it('should not leave any warnings on the customer page when closing the address modal', async () => {
+            const errorStore = Shopware.Store.get('error');
 
-        expect(Shopware.Store.get('error').getApiError(entityMock, 'street')).toBeInstanceOf(ShopwareError);
+            await wrapper.setData({
+                currentAddress: {
+                    id: '1',
+                    lastName: 'Wiegand',
+                    firstName: 'Daisha',
+                    city: 'Lake Waldo',
+                    customerId: '1',
+                },
+            });
 
-        wrapper.vm.currentAddress.street = 'Stehr Divide';
+            await wrapper.vm.onSaveAddress();
 
-        await wrapper.vm.onSaveAddress();
+            expect(errorStore.getErrorsForEntity('customer_address', '1')).not.toBeNull();
 
-        expect(Shopware.Store.get('error').getApiError(entityMock, 'street')).toBeNull();
-    });
+            wrapper.vm.onCloseAddressModal();
+            await flushPromises();
 
-    /**
-     * Address required-field warnings stayed on the customer page with no way to clear them.
-     * @regression
-     * @see https://github.com/shopware/shopware/issues/18694
-     */
-    it('should not leave any warnings on the customer page when closing the address modal', async () => {
-        const errorStore = Shopware.Store.get('error');
-
-        await wrapper.setData({
-            currentAddress: {
-                id: '1',
-                lastName: 'Wiegand',
-                firstName: 'Daisha',
-                city: 'Lake Waldo',
-                customerId: '1',
-            },
+            expect(errorStore.getErrorsForEntity('customer_address', '1')).toBeNull();
+            expect(wrapper.vm.currentAddress).toBeNull();
         });
-
-        await wrapper.vm.onSaveAddress();
-
-        expect(errorStore.getErrorsForEntity('customer_address', '1')).not.toBeNull();
-
-        wrapper.vm.onCloseAddressModal();
-        await flushPromises();
-
-        expect(errorStore.getErrorsForEntity('customer_address', '1')).toBeNull();
-        expect(wrapper.vm.currentAddress).toBeNull();
     });
 
     it('should keep a server reported error when closing the address modal', async () => {

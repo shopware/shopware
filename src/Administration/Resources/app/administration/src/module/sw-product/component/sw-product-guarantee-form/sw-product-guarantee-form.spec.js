@@ -239,37 +239,36 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
          * @regression
          * @see https://github.com/shopware/shopware/issues/20105
          */
-        it.each([
-            [44, 48],
-            [38, 42],
-            [31, 36],
-            [36, 42],
-        ])('should step up from %s to the next valid duration %s', async (guaranteeMonths, expected) => {
-            store.product.guaranteeMonths = guaranteeMonths;
-            await flushPromises();
+        describe('stepping between valid durations', () => {
+            /** @regression */
+            it.each([
+                [44, 48],
+                [38, 42],
+                [31, 36],
+                [36, 42],
+            ])('should step up from %s to the next valid duration %s', async (guaranteeMonths, expected) => {
+                store.product.guaranteeMonths = guaranteeMonths;
+                await flushPromises();
 
-            await step('increase');
+                await step('increase');
 
-            expect(store.product.guaranteeMonths).toBe(expected);
-        });
+                expect(store.product.guaranteeMonths).toBe(expected);
+            });
 
-        /**
-         * The stepper offered durations like 6, 12 and 18 months that the server rejects.
-         * @regression
-         * @see https://github.com/shopware/shopware/issues/20105
-         */
-        it.each([
-            [44, 42],
-            [38, 36],
-            [31, 30],
-            [36, 30],
-        ])('should step down from %s to the next valid duration %s', async (guaranteeMonths, expected) => {
-            store.product.guaranteeMonths = guaranteeMonths;
-            await flushPromises();
+            /** @regression */
+            it.each([
+                [44, 42],
+                [38, 36],
+                [31, 30],
+                [36, 30],
+            ])('should step down from %s to the next valid duration %s', async (guaranteeMonths, expected) => {
+                store.product.guaranteeMonths = guaranteeMonths;
+                await flushPromises();
 
-            await step('decrease');
+                await step('decrease');
 
-            expect(store.product.guaranteeMonths).toBe(expected);
+                expect(store.product.guaranteeMonths).toBe(expected);
+            });
         });
 
         it('should clear the validation error of an invalid duration', async () => {
@@ -285,32 +284,37 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
         });
 
         /**
-         * The stepper could leave the allowed 30 to 600 month range.
+         * Guarantee durations outside the allowed range were only rejected by a failed save.
          * @regression
          * @see https://github.com/shopware/shopware/issues/20105
          */
-        it.each([
-            ['increase', 600],
-            ['decrease', 30],
-        ])('should keep the %s stepper inside the allowed range', async (direction, guaranteeMonths) => {
-            store.product.guaranteeMonths = guaranteeMonths;
-            await flushPromises();
+        describe('duration limits', () => {
+            /**
+             * The stepper could leave the allowed 30 to 600 month range.
+             * @regression
+             */
+            it.each([
+                ['increase', 600],
+                ['decrease', 30],
+            ])('should keep the %s stepper inside the allowed range', async (direction, guaranteeMonths) => {
+                store.product.guaranteeMonths = guaranteeMonths;
+                await flushPromises();
 
-            await step(direction);
+                await step(direction);
 
-            expect(store.product.guaranteeMonths).toBe(guaranteeMonths);
-        });
+                expect(store.product.guaranteeMonths).toBe(guaranteeMonths);
+            });
 
-        /**
-         * Invalid durations were only rejected by a failed save, with no inline error.
-         * @regression
-         * @see https://github.com/shopware/shopware/issues/20105
-         */
-        it('should not correct a typed duration', async () => {
-            await wrapper.find('.mt-number-field input').setValue(44);
+            /**
+             * Invalid durations were only rejected by a failed save, with no inline error.
+             * @regression
+             */
+            it('should not correct a typed duration', async () => {
+                await wrapper.find('.mt-number-field input').setValue(44);
 
-            expect(store.product.guaranteeMonths).toBe(44);
-            expect(wrapper.find('.mt-number-field__error').text()).toBe('INVALID_GARAN_GUARANTEE_MONTHS');
+                expect(store.product.guaranteeMonths).toBe(44);
+                expect(wrapper.find('.mt-number-field__error').text()).toBe('INVALID_GARAN_GUARANTEE_MONTHS');
+            });
         });
     });
 

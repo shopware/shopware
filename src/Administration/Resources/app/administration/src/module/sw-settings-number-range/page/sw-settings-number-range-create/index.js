@@ -32,7 +32,7 @@ export default {
         productNumberRangeCriteria() {
             const criteria = new Criteria(1, 1);
 
-            criteria.addAssociation('type');
+            criteria.setTotalCountMode(0);
             criteria.addFilter(
                 Criteria.multi('and', [
                     Criteria.equals('type.global', true),
@@ -107,8 +107,8 @@ export default {
         },
 
         async getProductNumberRanges() {
-            this.numberRangeRepository.search(this.productNumberRangeCriteria).then((items) => {
-                this.hasProductNumberRange = !!items.total;
+            this.numberRangeRepository.searchIds(this.productNumberRangeCriteria).then((items) => {
+                this.hasProductNumberRange = items.data.length > 0;
             });
         },
 

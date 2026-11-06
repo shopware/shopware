@@ -48,7 +48,8 @@ Price {{ lineItem.unitPrice|currency(currencyIsoCode) }},
 Total {{ lineItem.totalPrice|currency(currencyIsoCode) }},
 
 {% endfor %}
-{% set delivery = order.deliveries.first %}
+{% set shipments = order.deliveries|filter(delivery => delivery.shippingCosts.totalPrice >= 0)|sort((a, b) => [b.id == order.primaryOrderDeliveryId, b.shippingCosts.totalPrice] <=> [a.id == order.primaryOrderDeliveryId, a.shippingCosts.totalPrice]) %}
+{% set delivery = shipments|first %}
 {% set displayRounded = order.totalRounding.interval != 0.01 or order.totalRounding.decimals != order.itemRounding.decimals %}
 {% set decimals = order.totalRounding.decimals %}
 {% set total = order.price.totalPrice %}
@@ -73,7 +74,22 @@ Selected payment type: {{ order.transactions.first.paymentMethod.translated.name
 {{ order.transactions.first.paymentMethod.translated.description }}
 {% endif %}
 
-{% if delivery %}
+{% if shipments|length > 1 %}
+{% for shipment in shipments %}
+Shipment {{ loop.index }}: {{ shipment.shippingMethod.translated.name }}
+Shipping costs: {{ shipment.shippingCosts.totalPrice|currency(currencyIsoCode) }}
+Delivery period: {{ shipment.shippingDateEarliest|format_date('medium', locale='en-GB') }} - {{ shipment.shippingDateLatest|format_date('medium', locale='en-GB') }}
+Shipping address:
+{% if shipment.shippingOrderAddress.company %}
+{{ shipment.shippingOrderAddress.company }}
+{% endif %}
+{{ shipment.shippingOrderAddress.firstName }} {{ shipment.shippingOrderAddress.lastName }}
+{{ shipment.shippingOrderAddress.street }}
+{{ shipment.shippingOrderAddress.zipcode }} {{ shipment.shippingOrderAddress.city }}
+{{ shipment.shippingOrderAddress.country.translated.name }}
+
+{% endfor %}
+{% elseif delivery %}
 Selected shipping type: {{ delivery.shippingMethod.translated.name }}
 {{ delivery.shippingMethod.translated.description }}
 {% endif %}
@@ -85,7 +101,7 @@ Billing address:
 {{ billingAddress.zipcode }} {{ billingAddress.city }}
 {{ billingAddress.country.translated.name }}
 
-{% if delivery %}
+{% if shipments|length == 1 %}
 Shipping address:
 {{ delivery.shippingOrderAddress.company }}
 {{ delivery.shippingOrderAddress.firstName }} {{ delivery.shippingOrderAddress.lastName }}

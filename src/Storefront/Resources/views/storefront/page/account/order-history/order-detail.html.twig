@@ -5,6 +5,7 @@
         {% set showTaxPrice = false %}
     {% endif %}
     {% set showSubtotal = config('core.cart.showSubtotal') %}
+    {% set shipments = order.deliveries|filter(delivery => delivery.shippingCosts.totalPrice >= 0)|sort((a, b) => [b.id == order.primaryOrderDeliveryId, b.shippingCosts.totalPrice] <=> [a.id == order.primaryOrderDeliveryId, a.shippingCosts.totalPrice]) %}
 
     <div class="order-item-detail">
         <div class="collapse"
@@ -77,6 +78,24 @@
                         } %}
                     </div>
                 {% endblock %}
+
+                {% if shipments|length > 1 %}
+                    {% block page_account_order_item_detail_shipments %}
+                        <div class="order-detail-content-body">
+                            <div class="row order-detail-content-row">
+                                {% for shipment in shipments %}
+                                    <div class="col-12 col-md-6">
+                                        {% sw_include '@Storefront/storefront/component/checkout/shipment.html.twig' with {
+                                            shipment: shipment,
+                                            shipmentNumber: loop.index,
+                                            currencyIsoCode: order.currency.isoCode,
+                                        } %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endblock %}
+                {% endif %}
 
                 {% if order.customerComment %}
                     {% block page_account_order_item_detail_table_body_customer_comment %}
@@ -152,7 +171,11 @@
                                                     {% endblock %}
 
                                                     {% block page_account_order_item_detail_shipping_method_value %}
-                                                        {% if feature('v6.8.0.0') %}
+                                                        {% if shipments|length > 1 %}
+                                                            <dd class="col-6 col-md-7 order-item-detail-labels-value">
+                                                                {{ shipments|map(shipment => shipment.shippingMethod.translated.name)|join(', ') }}
+                                                            </dd>
+                                                        {% elseif feature('v6.8.0.0') %}
                                                             <dd class="col-6 col-md-7 order-item-detail-labels-value">
                                                                 {{ order.primaryOrderDelivery.shippingMethod.translated.name }}
                                                             </dd>
@@ -173,7 +196,7 @@
 
                                                     {% block page_account_order_item_detail_tracking_code_label_value %}
                                                         <dd class="col-6 col-md-7">
-                                                            {% for delivery in order.deliveries %}
+                                                            {% for delivery in shipments %}
                                                                 {% set trackingCodes = delivery.trackingCodes %}
                                                                 {% set trackingUrl = delivery.shippingMethod.translated.trackingUrl %}
 

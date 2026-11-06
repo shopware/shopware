@@ -84,7 +84,8 @@
         {% endfor %}
     </table>
 
-    {% set delivery = order.deliveries.first %}
+    {% set shipments = order.deliveries|filter(delivery => delivery.shippingCosts.totalPrice >= 0)|sort((a, b) => [b.id == order.primaryOrderDeliveryId, b.shippingCosts.totalPrice] <=> [a.id == order.primaryOrderDeliveryId, a.shippingCosts.totalPrice]) %}
+    {% set delivery = shipments|first %}
 
     {% set displayRounded = order.totalRounding.interval != 0.01 or order.totalRounding.decimals != order.itemRounding.decimals %}
     {% set decimals = order.totalRounding.decimals %}
@@ -116,7 +117,20 @@
             <br>
         {% endif %}
 
-        {% if delivery %}
+        {% if shipments|length > 1 %}
+            {% for shipment in shipments %}
+                <strong>Shipment {{ loop.index }}:</strong> {{ shipment.shippingMethod.translated.name }}<br>
+                Shipping costs: {{ shipment.shippingCosts.totalPrice|currency(currencyIsoCode) }}<br>
+                Delivery period: {{ shipment.shippingDateEarliest|format_date('medium', locale='en-GB') }} - {{ shipment.shippingDateLatest|format_date('medium', locale='en-GB') }}<br>
+                Shipping address:<br>
+                {% if shipment.shippingOrderAddress.company %}{{ shipment.shippingOrderAddress.company }}<br>{% endif %}
+                {{ shipment.shippingOrderAddress.firstName }} {{ shipment.shippingOrderAddress.lastName }}<br>
+                {{ shipment.shippingOrderAddress.street }}<br>
+                {{ shipment.shippingOrderAddress.zipcode }} {{ shipment.shippingOrderAddress.city }}<br>
+                {{ shipment.shippingOrderAddress.country.translated.name }}<br>
+                <br>
+            {% endfor %}
+        {% elseif delivery %}
             <strong>Selected shipping type:</strong> {{ delivery.shippingMethod.translated.name }}<br>
             {{ delivery.shippingMethod.translated.description }}<br>
             <br>
@@ -131,7 +145,7 @@
         {{ billingAddress.country.translated.name }}<br>
         <br>
 
-        {% if delivery %}
+        {% if shipments|length == 1 %}
             <strong>Shipping address:</strong><br>
             {{ delivery.shippingOrderAddress.company }}<br>
             {{ delivery.shippingOrderAddress.firstName }} {{ delivery.shippingOrderAddress.lastName }}<br>

@@ -27,6 +27,7 @@ class SeoException extends HttpException
     public const APP_SEO_URL_HOOK_ALREADY_REGISTERED = 'CONTENT__SEO_APP_SEO_URL_HOOK_ALREADY_REGISTERED';
     public const APP_ENTITY_SEO_URL_ENTITY_UNSUPPORTED = 'CONTENT__SEO_APP_ENTITY_SEO_URL_ENTITY_UNSUPPORTED';
     public const APP_ENTITY_SEO_URL_NOT_PERMITTED = 'CONTENT__SEO_APP_ENTITY_SEO_URL_NOT_PERMITTED';
+    public const SEO_URL_RESET_NOT_POSSIBLE = 'CONTENT__SEO_URL_RESET_NOT_POSSIBLE';
     /**
      * @internal tag:v6.8.0 - Will be removed once $context is required in event constructors
      */
@@ -92,6 +93,16 @@ class SeoException extends HttpException
             self::SALES_CHANNEL_NOT_FOUND,
             self::$couldNotFindMessage,
             ['entity' => 'sales channel', 'field' => 'id', 'value' => $salesChannelId]
+        );
+    }
+
+    public static function seoUrlResetNotPossible(string $foreignKey, string $salesChannelId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SEO_URL_RESET_NOT_POSSIBLE,
+            'The SEO URL of "{{ foreignKey }}" cannot be reset to its template, because the template generates no URL for it in sales channel "{{ salesChannelId }}" and this language.',
+            ['foreignKey' => $foreignKey, 'salesChannelId' => $salesChannelId]
         );
     }
 

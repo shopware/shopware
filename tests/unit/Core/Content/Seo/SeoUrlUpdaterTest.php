@@ -9,6 +9,7 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\SeoException;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
@@ -173,6 +174,99 @@ class SeoUrlUpdaterTest extends TestCase
         $this->seoUrlPersister->expects($this->once())->method('updateSeoUrls');
 
         $seoUrlUpdater->update(ProductPageSeoUrlRoute::ROUTE_NAME, []);
+    }
+
+    public function testResetToTemplateForceUpdatesTheGeneratedUrlWithoutWriteProtection(): void
+    {
+        $this->connection->method('fetchAllAssociative')->willReturn([
+            ['salesChannelId' => 'sales-channel-id', 'languageId' => 'language-id'],
+            ['salesChannelId' => 'sales-channel-id', 'languageId' => 'other-language-id'],
+            ['salesChannelId' => 'other-sales-channel-id', 'languageId' => 'language-id'],
+        ]);
+        $this->connection->method('fetchAllKeyValue')->willReturn(['' => '{{ product.productNumber }}']);
+
+        $generatedUrl = new SeoUrlEntity();
+        $generatedUrl->setSeoPathInfo('SW-1');
+        $generatedUrl->setIsModified(true);
+
+        $this->seoUrlGenerator->expects($this->once())->method('generate')
+            ->with(['product-id'], '{{ product.productNumber }}', static::anything(), static::anything(), static::callback(
+                static fn (SalesChannelEntity $salesChannel): bool => $salesChannel->getId() === 'sales-channel-id'
+            ))
+            ->willReturn([$generatedUrl]);
+        $this->seoUrlPersister->expects($this->never())->method('updateSeoUrls');
+        $this->seoUrlPersister->expects($this->once())->method('forceUpdateSeoUrls')
+            ->with(static::anything(), ProductPageSeoUrlRoute::ROUTE_NAME, ['product-id'], [$generatedUrl], static::anything());
+
+        $reset = $this->createSeoUrlUpdaterForReset()
+            ->resetToTemplate(ProductPageSeoUrlRoute::ROUTE_NAME, 'PRODUCT-ID', 'SALES-CHANNEL-ID', 'LANGUAGE-ID', false);
+
+        static::assertTrue($reset);
+        static::assertFalse($generatedUrl->getIsModified());
+    }
+
+    public function testResetToTemplateWritesNothingWhenTheSalesChannelHasNoDomainInTheLanguage(): void
+    {
+        $this->connection->method('fetchAllAssociative')->willReturn([
+            ['salesChannelId' => 'sales-channel-id', 'languageId' => 'other-language-id'],
+        ]);
+        $this->connection->method('fetchAllKeyValue')->willReturn(['' => '{{ product.productNumber }}']);
+
+        $this->seoUrlGenerator->expects($this->never())->method('generate');
+        $this->seoUrlPersister->expects($this->never())->method('forceUpdateSeoUrls');
+
+        static::assertFalse(
+            $this->createSeoUrlUpdater([], [], [new ProductPageSeoUrlRoute(new ProductDefinition())])
+                ->resetToTemplate(ProductPageSeoUrlRoute::ROUTE_NAME, 'product-id', 'sales-channel-id', 'language-id', false)
+        );
+    }
+
+    public function testResetToTemplateWritesNothingWhenTheTemplateGeneratesNoUsableUrl(): void
+    {
+        $this->connection->method('fetchAllAssociative')->willReturn([
+            ['salesChannelId' => 'sales-channel-id', 'languageId' => 'language-id'],
+        ]);
+        $this->connection->method('fetchAllKeyValue')->willReturn(['' => '{{ product.productNumber }}']);
+
+        $failedUrl = new SeoUrlEntity();
+        $failedUrl->setSeoPathInfo('SW-1');
+        $failedUrl->setError('Category is not available for sales channel');
+        $emptyUrl = new SeoUrlEntity();
+        $emptyUrl->setSeoPathInfo('');
+
+        $this->seoUrlGenerator->expects($this->once())->method('generate')->willReturn([$failedUrl, $emptyUrl]);
+        $this->seoUrlPersister->expects($this->never())->method('forceUpdateSeoUrls');
+
+        static::assertFalse(
+            $this->createSeoUrlUpdaterForReset()
+                ->resetToTemplate(ProductPageSeoUrlRoute::ROUTE_NAME, 'product-id', 'sales-channel-id', 'language-id', false)
+        );
+    }
+
+    public function testResetToTemplateForAHeadlessSalesChannelRequiresAStoreApiRoute(): void
+    {
+        $this->seoUrlGenerator->expects($this->never())->method('generate');
+        $this->seoUrlPersister->expects($this->never())->method('forceUpdateSeoUrls');
+
+        $this->expectExceptionObject(SeoException::seoUrlRouteNotFound(ProductPageSeoUrlRoute::ROUTE_NAME));
+
+        $this->createSeoUrlUpdaterForReset()
+            ->resetToTemplate(ProductPageSeoUrlRoute::ROUTE_NAME, 'product-id', 'sales-channel-id', 'language-id', true);
+    }
+
+    private function createSeoUrlUpdaterForReset(): SeoUrlUpdater
+    {
+        $language = new LanguageEntity();
+        $language->setId('language-id');
+
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId('sales-channel-id');
+
+        return $this->createSeoUrlUpdater(
+            [new LanguageCollection([$language])],
+            [new SalesChannelCollection([$salesChannel])],
+            [new ProductPageSeoUrlRoute(new ProductDefinition())]
+        );
     }
 
     /**

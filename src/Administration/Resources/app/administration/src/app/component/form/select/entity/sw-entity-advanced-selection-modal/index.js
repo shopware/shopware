@@ -152,6 +152,9 @@ export default {
             filterCriteria: [],
             disableRouteParams: true,
             filterWindowOpen: false,
+            hiddenColumnProperties: this.entityColumns
+                .filter((column) => column.visible === false)
+                .map((column) => column.property),
         };
     },
 
@@ -206,7 +209,12 @@ export default {
                 }
             });
 
-            return allAssociations;
+            // a hidden column does not need its data, e.g. a product's visibilities with all their sales channels
+            return new Set(
+                [...allAssociations].filter((association) => {
+                    return !this.hiddenColumnProperties.includes(association.split('.')[0]);
+                }),
+            );
         },
 
         entityCriteria() {
@@ -339,6 +347,22 @@ export default {
 
         clearFilters() {
             this.$refs.filterPanel.resetAll();
+        },
+
+        onColumnVisibilityChange(column, visible) {
+            if (!visible) {
+                this.hiddenColumnProperties = [
+                    ...this.hiddenColumnProperties,
+                    column.property,
+                ];
+
+                return;
+            }
+
+            this.hiddenColumnProperties = this.hiddenColumnProperties.filter((property) => property !== column.property);
+
+            // load the data of the column that is shown now
+            this.getList();
         },
     },
 };

@@ -103,8 +103,8 @@ class ProductReviewLoader extends AbstractProductReviewLoader
     private function createReviewCriteria(Request $request, SalesChannelContext $context): Criteria
     {
         $limit = $this->systemConfigService->getInt('core.listing.reviewsPerPage', $context->getSalesChannelId());
-        $page = (int) RequestParamHelper::get($request, self::PARAMETER_NAME_PAGE, 1);
-        $offset = max(0, $limit * ($page - 1));
+        $page = max((int) RequestParamHelper::get($request, self::PARAMETER_NAME_PAGE), 1);
+        $offset = $limit * ($page - 1);
 
         $criteria = new Criteria();
         $criteria->setLimit($limit);

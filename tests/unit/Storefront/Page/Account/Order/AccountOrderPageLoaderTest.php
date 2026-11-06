@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Shopware\Storefront\Checkout\Order\OrderProductAvailabilityResolver;
@@ -157,11 +158,75 @@ class AccountOrderPageLoaderTest extends TestCase
         $this->pageLoader->load(new Request(['p' => $pageParameter]), $context);
     }
 
+    public function testLoadsShippingAddressAndStateOfEveryDelivery(): void
+    {
+        $this->assertDeliveryAssociationsLoaded();
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove together with the `v6.8.0.0` feature flag
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testLoadsShippingAddressAndStateOfEveryDeliveryWithoutMajorFlag(): void
+    {
+        $this->assertDeliveryAssociationsLoaded();
+    }
+
     public static function pageParameterProvider(): \Generator
     {
         yield 'negative page falls back to the first page' => ['-5', 0];
         yield 'zero page falls back to the first page' => ['0', 0];
         yield 'non-numeric page falls back to the first page' => ['foo', 0];
         yield 'valid page is converted to its offset' => ['3', 20];
+    }
+
+    private function assertDeliveryAssociationsLoaded(): void
+    {
+        $criteria = null;
+
+        $this->orderRoute
+            ->expects($this->once())
+            ->method('load')
+            ->with(
+                static::isInstanceOf(Request::class),
+                static::anything(),
+                static::callback(static function (Criteria $loadedCriteria) use (&$criteria): bool {
+                    $criteria = $loadedCriteria;
+
+                    return true;
+                }),
+            )
+            ->willReturn(new OrderRouteResponse(
+                new EntitySearchResult(
+                    OrderDefinition::ENTITY_NAME,
+                    0,
+                    new OrderCollection(),
+                    null,
+                    new Criteria(),
+                    Context::createDefaultContext()
+                )
+            ));
+
+        $this->genericPageLoader
+            ->expects($this->once())
+            ->method('load')
+            ->willReturn(new Page());
+
+        $this->translator
+            ->expects($this->once())
+            ->method('trans')
+            ->willReturn('translated');
+
+        $this->pageLoader->load(new Request(), Generator::generateSalesChannelContext());
+
+        static::assertInstanceOf(Criteria::class, $criteria);
+
+        foreach (['deliveries.shippingOrderAddress.country', 'deliveries.shippingOrderAddress.countryState', 'deliveries.shippingOrderAddress.salutation', 'deliveries.stateMachineState'] as $path) {
+            $association = $criteria;
+            foreach (explode('.', $path) as $part) {
+                static::assertTrue($association->hasAssociation($part), \sprintf('The criteria does not load "%s"', $path));
+                $association = $association->getAssociations()[$part];
+            }
+        }
     }
 }

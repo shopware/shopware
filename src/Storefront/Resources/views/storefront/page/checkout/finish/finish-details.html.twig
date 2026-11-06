@@ -114,7 +114,16 @@
                             {% endblock %}
 
                             {% block page_checkout_finish_order_dispatch_method %}
-                                {% if feature('v6.8.0.0') %}
+                                {% set shipments = page.order.deliveries|filter(delivery => delivery.shippingCosts.totalPrice >= 0)|sort((a, b) => [b.id == page.order.primaryOrderDeliveryId, b.shippingCosts.totalPrice] <=> [a.id == page.order.primaryOrderDeliveryId, a.shippingCosts.totalPrice]) %}
+
+                                {% if shipments|length > 1 %}
+                                    {% block page_checkout_finish_order_dispatch_method_shipments %}
+                                        <p>
+                                            <strong>{{ 'checkout.finishInfoShipping'|trans|sw_sanitize }}</strong>
+                                            {{ shipments|map(shipment => shipment.shippingMethod.translated.name)|join(', ') }}
+                                        </p>
+                                    {% endblock %}
+                                {% elseif feature('v6.8.0.0') %}
                                     {% if page.order.primaryOrderDelivery is defined %}
                                         <p>
                                             <strong>{{ 'checkout.finishInfoShipping'|trans|sw_sanitize }}</strong>

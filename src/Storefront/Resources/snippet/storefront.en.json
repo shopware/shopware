@@ -469,6 +469,7 @@
     "addressEqualText": "Same as shipping address",
     "billingAddressHeader": "Billing address",
     "shippingAddressHeader": "Shipping address",
+    "shipmentHeader": "Shipment %number%: %shippingMethod%",
     "confirmHeader": "Complete order",
     "confirmMetaTitle": "Complete order",
     "confirmPaymentMethod": "Payment method",

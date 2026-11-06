@@ -626,6 +626,15 @@ For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-
 
 ## Storefront
 
+### Checkout and account pages list every shipment
+
+When a cart or order has more than one shipment, the confirm, finish and edit order pages and the account order history list each shipment with its shipping method, address, shipping costs and delivery period, and the account order list shows the state of every shipment.
+Deliveries with negative shipping costs are shipping discounts and are not listed as shipments.
+`AccountOrderPageLoader` and `AccountOverviewPageLoader` now load the shipping address and the state of every delivery, independent of the `v6.8.0.0` feature flag.
+Carts and orders with one shipment render as before.
+The new component `@Storefront/storefront/component/checkout/shipment.html.twig` renders a single shipment.
+The lists sit in the new blocks `page_checkout_confirm_address_shipping_shipments`, `page_checkout_finish_address_shipping_shipments`, `page_checkout_finish_order_dispatch_method_shipments` and `page_account_order_item_detail_shipments`.
+
 ### Cookie provider removal postponed to 6.9
 
 The deprecated cookie-provider API and the `snippet_name` and `snippet_description` cookie template fields remain available throughout 6.8.

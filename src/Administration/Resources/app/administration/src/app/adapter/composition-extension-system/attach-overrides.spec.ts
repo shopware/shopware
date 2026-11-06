@@ -80,72 +80,77 @@ describe('src/app/adapter/composition-extension-system attachOverrides', () => {
     }
 
     /**
-     * Every public computed was evaluated during setup, before lifecycle hooks ran.
+     * Public computeds were evaluated during setup, before lifecycle hooks initialized their state.
      * @regression
      * @see https://github.com/shopware/shopware/issues/19594
      */
-    it('lowered shape: a public computed is not evaluated during setup', () => {
-        const evaluate = jest.fn(() => 2);
+    describe('public computeds during setup', () => {
+        /**
+         * Every public computed was evaluated during setup, before lifecycle hooks ran.
+         * @regression
+         */
+        it('lowered shape: a public computed is not evaluated during setup', () => {
+            const evaluate = jest.fn(() => 2);
 
-        const base = defineComponent({
-            template: '<div />',
-            setup() {
-                const __swSetupAuthor_doubled = computed(evaluate);
+            const base = defineComponent({
+                template: '<div />',
+                setup() {
+                    const __swSetupAuthor_doubled = computed(evaluate);
 
-                attachOverrides({
-                    name: 'loweredLazyComputed',
-                    public: { doubled: __swSetupAuthor_doubled },
-                    private: {},
-                });
+                    attachOverrides({
+                        name: 'loweredLazyComputed',
+                        public: { doubled: __swSetupAuthor_doubled },
+                        private: {},
+                    });
 
-                return {};
-            },
+                    return {};
+                },
+            });
+
+            const wrapper = mount(base);
+
+            // The template never reads `doubled`, so nothing should have run it.
+            expect(evaluate).not.toHaveBeenCalled();
+
+            wrapper.unmount();
         });
 
-        const wrapper = mount(base);
+        /**
+         * Public computeds depending on hook-initialized state threw at mount.
+         * @regression
+         */
+        it('lowered shape: a public computed may depend on state a lifecycle hook initializes', () => {
+            const base = defineComponent({
+                template: '<div>{{ derived }}</div>',
+                setup() {
+                    const __swSetupAuthor_lateState = ref<Record<string, number> | null>(null);
+                    const __swSetupAuthor_derived = computed(() => Object.keys(__swSetupAuthor_lateState.value!).length);
 
-        // The template never reads `doubled`, so nothing should have run it.
-        expect(evaluate).not.toHaveBeenCalled();
+                    onBeforeMount(() => {
+                        __swSetupAuthor_lateState.value = { a: 1 };
+                    });
 
-        wrapper.unmount();
-    });
+                    const { lateState, derived } = attachOverrides({
+                        name: 'loweredLateState',
+                        public: {
+                            lateState: __swSetupAuthor_lateState,
+                            derived: __swSetupAuthor_derived,
+                        },
+                        private: {},
+                    }) as unknown as { lateState: unknown; derived: unknown };
 
-    /**
-     * Public computeds depending on hook-initialized state threw at mount.
-     * @regression
-     * @see https://github.com/shopware/shopware/issues/19594
-     */
-    it('lowered shape: a public computed may depend on state a lifecycle hook initializes', () => {
-        const base = defineComponent({
-            template: '<div>{{ derived }}</div>',
-            setup() {
-                const __swSetupAuthor_lateState = ref<Record<string, number> | null>(null);
-                const __swSetupAuthor_derived = computed(() => Object.keys(__swSetupAuthor_lateState.value!).length);
+                    return { lateState, derived };
+                },
+            });
 
-                onBeforeMount(() => {
-                    __swSetupAuthor_lateState.value = { a: 1 };
-                });
+            // Evaluating the computed while building the data scope threw here, because `lateState` was
+            // still `null` - the hook that fills it only runs after setup.
+            const wrapper = mount(base);
 
-                const { lateState, derived } = attachOverrides({
-                    name: 'loweredLateState',
-                    public: {
-                        lateState: __swSetupAuthor_lateState,
-                        derived: __swSetupAuthor_derived,
-                    },
-                    private: {},
-                }) as unknown as { lateState: unknown; derived: unknown };
+            expect(wrapper.text()).toBe('1');
 
-                return { lateState, derived };
-            },
+            wrapper.unmount();
         });
-
-        // Evaluating the computed while building the data scope threw here, because `lateState` was
-        // still `null` - the hook that fills it only runs after setup.
-        const wrapper = mount(base);
-
-        expect(wrapper.text()).toBe('1');
-
-        wrapper.unmount();
     });
 
     it('lowered shape: a computed replacement DOES reach the template', async () => {

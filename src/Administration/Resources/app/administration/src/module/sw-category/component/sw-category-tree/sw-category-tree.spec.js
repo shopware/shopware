@@ -374,44 +374,49 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     });
 
     /**
-     * Collapsed root categories expanded again whenever children loaded in another tree.
+     * Root categories expanded although the selected category was in another tree.
      * @regression
      * @see https://github.com/shopware/shopware/issues/17264
      */
-    it('should keep the first root category closed when loading children in another root category', async () => {
-        const wrapper = await createInteractiveWrapper();
-        await flushPromises();
+    describe('expansion of root categories', () => {
+        /**
+         * Collapsed root categories expanded again whenever children loaded in another tree.
+         * @regression
+         */
+        it('should keep the first root category closed when loading children in another root category', async () => {
+            const wrapper = await createInteractiveWrapper();
+            await flushPromises();
 
-        const getFirstRoot = () => wrapper.get('[data-item-id="first-root"]');
+            const getFirstRoot = () => wrapper.get('[data-item-id="first-root"]');
 
-        expect(getFirstRoot().attributes('aria-expanded')).toBe('true');
+            expect(getFirstRoot().attributes('aria-expanded')).toBe('true');
 
-        await getFirstRoot().get('.sw-tree-item__toggle').trigger('click');
-        await flushPromises();
+            await getFirstRoot().get('.sw-tree-item__toggle').trigger('click');
+            await flushPromises();
 
-        expect(getFirstRoot().attributes('aria-expanded')).toBe('false');
+            expect(getFirstRoot().attributes('aria-expanded')).toBe('false');
 
-        await wrapper.get('[data-item-id="second-child"] .sw-tree-item__toggle').trigger('click');
-        await flushPromises();
+            await wrapper.get('[data-item-id="second-child"] .sw-tree-item__toggle').trigger('click');
+            await flushPromises();
 
-        expect(wrapper.get('[data-item-id="second-grand-child"]').isVisible()).toBe(true);
-        expect(getFirstRoot().attributes('aria-expanded')).toBe('false');
-    });
-
-    /**
-     * Root categories were force-expanded even when the selected category was in another tree.
-     * @regression
-     * @see https://github.com/shopware/shopware/issues/17264
-     */
-    it('should not initially expand root categories when a category is selected', async () => {
-        Shopware.Store.get('swCategoryDetail').category = interactiveCategories.secondChild;
-
-        const wrapper = await createWrapper(interactiveCategories, {
-            categoryId: 'second-child',
+            expect(wrapper.get('[data-item-id="second-grand-child"]').isVisible()).toBe(true);
+            expect(getFirstRoot().attributes('aria-expanded')).toBe('false');
         });
-        await flushPromises();
 
-        expect(wrapper.get('.sw-tree').attributes('data-initially-expanded-root')).toBe('false');
+        /**
+         * Root categories were force-expanded even when the selected category was in another tree.
+         * @regression
+         */
+        it('should not initially expand root categories when a category is selected', async () => {
+            Shopware.Store.get('swCategoryDetail').category = interactiveCategories.secondChild;
+
+            const wrapper = await createWrapper(interactiveCategories, {
+                categoryId: 'second-child',
+            });
+            await flushPromises();
+
+            expect(wrapper.get('.sw-tree').attributes('data-initially-expanded-root')).toBe('false');
+        });
     });
 
     [

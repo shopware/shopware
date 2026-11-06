@@ -382,43 +382,42 @@ describe('sw-order-document-settings-credit-note-modal', () => {
      * @regression
      * @see https://github.com/shopware/shopware/issues/14169
      */
-    it('should reference the selected invoice when creating document', async () => {
-        await wrapper.setData({
-            documentNumberPreview: 'PREVIEW_NUM_001',
-            documentConfig: {
-                documentNumber: 'PREVIEW_NUM_002',
-                custom: {
-                    invoiceNumber: 1000,
+    describe('referenced invoice', () => {
+        /** @regression */
+        it('should reference the selected invoice when creating document', async () => {
+            await wrapper.setData({
+                documentNumberPreview: 'PREVIEW_NUM_001',
+                documentConfig: {
+                    documentNumber: 'PREVIEW_NUM_002',
+                    custom: {
+                        invoiceNumber: 1000,
+                    },
                 },
-            },
+            });
+
+            await wrapper.vm.onCreateDocument();
+
+            expect(wrapper.emitted()['document-create']).toBeTruthy();
+            expect(wrapper.emitted()['document-create'][0][2]).toBe('invoice-doc-1000');
         });
 
-        await wrapper.vm.onCreateDocument();
-
-        expect(wrapper.emitted()['document-create']).toBeTruthy();
-        expect(wrapper.emitted()['document-create'][0][2]).toBe('invoice-doc-1000');
-    });
-
-    /**
-     * Credit notes always referenced the latest invoice instead of the selected one.
-     * @regression
-     * @see https://github.com/shopware/shopware/issues/14169
-     */
-    it('should reference the second invoice when it is selected', async () => {
-        await wrapper.setData({
-            documentNumberPreview: 'PREVIEW_NUM_001',
-            documentConfig: {
-                documentNumber: 'PREVIEW_NUM_002',
-                custom: {
-                    invoiceNumber: 1001,
+        /** @regression */
+        it('should reference the second invoice when it is selected', async () => {
+            await wrapper.setData({
+                documentNumberPreview: 'PREVIEW_NUM_001',
+                documentConfig: {
+                    documentNumber: 'PREVIEW_NUM_002',
+                    custom: {
+                        invoiceNumber: 1001,
+                    },
                 },
-            },
+            });
+
+            await wrapper.vm.onCreateDocument();
+
+            expect(wrapper.emitted()['document-create']).toBeTruthy();
+            expect(wrapper.emitted()['document-create'][0][2]).toBe('invoice-doc-1001');
         });
-
-        await wrapper.vm.onCreateDocument();
-
-        expect(wrapper.emitted()['document-create']).toBeTruthy();
-        expect(wrapper.emitted()['document-create'][0][2]).toBe('invoice-doc-1001');
     });
 
     it('should show only invoice numbers in invoice number select field', async () => {

@@ -84,51 +84,50 @@ describe('src/app/component/utils/sw-inherit-wrapper', () => {
     });
 
     /**
-     * Clearing a detached field silently re-inherited the parent value.
+     * Clearing a field silently re-inherited the parent value.
      * @regression
      * @see https://github.com/shopware/shopware/issues/4535
      */
-    it('should not re-inherit after the user clears a previously detached field with a truthy parent value', async () => {
-        const wrapper = await createWrapper({
-            propsData: {
-                value: null,
-                inheritedValue: 'parent-id',
-                hasParent: true,
-            },
-            global: createWrapperGlobalValue,
+    describe('clearing a field', () => {
+        /** @regression */
+        it('should not re-inherit after the user clears a previously detached field with a truthy parent value', async () => {
+            const wrapper = await createWrapper({
+                propsData: {
+                    value: null,
+                    inheritedValue: 'parent-id',
+                    hasParent: true,
+                },
+                global: createWrapperGlobalValue,
+            });
+
+            expect(wrapper.vm.isInherited).toBe(true);
+
+            wrapper.vm.removeInheritance();
+            await wrapper.setProps({ value: 'parent-id' });
+            expect(wrapper.vm.isInherited).toBe(false);
+
+            wrapper.vm.updateCurrentValue(null);
+            await wrapper.setProps({ value: null });
+            expect(wrapper.vm.isInherited).toBe(false);
         });
 
-        expect(wrapper.vm.isInherited).toBe(true);
+        /** @regression */
+        it('should not re-inherit after the user clears a field that already held its own value', async () => {
+            const wrapper = await createWrapper({
+                propsData: {
+                    value: 'own-id',
+                    inheritedValue: 'parent-id',
+                    hasParent: true,
+                },
+                global: createWrapperGlobalValue,
+            });
 
-        wrapper.vm.removeInheritance();
-        await wrapper.setProps({ value: 'parent-id' });
-        expect(wrapper.vm.isInherited).toBe(false);
+            expect(wrapper.vm.isInherited).toBe(false);
 
-        wrapper.vm.updateCurrentValue(null);
-        await wrapper.setProps({ value: null });
-        expect(wrapper.vm.isInherited).toBe(false);
-    });
-
-    /**
-     * Clearing a field with its own value silently re-inherited the parent value.
-     * @regression
-     * @see https://github.com/shopware/shopware/issues/4535
-     */
-    it('should not re-inherit after the user clears a field that already held its own value', async () => {
-        const wrapper = await createWrapper({
-            propsData: {
-                value: 'own-id',
-                inheritedValue: 'parent-id',
-                hasParent: true,
-            },
-            global: createWrapperGlobalValue,
+            wrapper.vm.updateCurrentValue(null);
+            await wrapper.setProps({ value: null });
+            expect(wrapper.vm.isInherited).toBe(false);
         });
-
-        expect(wrapper.vm.isInherited).toBe(false);
-
-        wrapper.vm.updateCurrentValue(null);
-        await wrapper.setProps({ value: null });
-        expect(wrapper.vm.isInherited).toBe(false);
     });
 
     /**

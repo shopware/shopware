@@ -488,110 +488,109 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
     });
 
     /**
-     * Saving an edited order re-evaluated promotions and dropped discounts placed with the order.
+     * Saving or recalculating an edited order re-evaluated promotions and dropped discounts placed with the order.
      * @regression
      * @see https://github.com/shopware/shopware/issues/5854
      */
-    it('should not apply promotions on save and recalculate', async () => {
-        const lineItemWithExistingProduct = {
-            id: 'lineItemId',
-            type: 'product',
-            referencedId: 'productId',
-            quantity: 1,
-            productId: 'productId',
-            payload: {},
-        };
+    describe('promotions of an edited order', () => {
+        /** @regression */
+        it('should not apply promotions on save and recalculate', async () => {
+            const lineItemWithExistingProduct = {
+                id: 'lineItemId',
+                type: 'product',
+                referencedId: 'productId',
+                quantity: 1,
+                productId: 'productId',
+                payload: {},
+            };
 
-        const promotionLineItem = {
-            type: 'promotion',
-            referencedId: null,
-        };
+            const promotionLineItem = {
+                type: 'promotion',
+                referencedId: null,
+            };
 
-        const deliveryDiscount = {
-            id: 'deliveryId2',
-        };
+            const deliveryDiscount = {
+                id: 'deliveryId2',
+            };
 
-        const deliveries = [
-            {
-                id: 'deliveryId',
-            },
-            deliveryDiscount,
-        ];
+            const deliveries = [
+                {
+                    id: 'deliveryId',
+                },
+                deliveryDiscount,
+            ];
 
-        wrapper = await createWrapper({
-            primaryOrderDeliveryId: 'deliveryId',
-            lineItems: [lineItemWithExistingProduct, promotionLineItem],
-            deliveries,
+            wrapper = await createWrapper({
+                primaryOrderDeliveryId: 'deliveryId',
+                lineItems: [lineItemWithExistingProduct, promotionLineItem],
+                deliveries,
+            });
+
+            wrapper.vm.orderService.recalculateOrder = jest.fn(() => Promise.resolve());
+            wrapper.vm.orderService.toggleAutomaticPromotions = jest.fn(() => Promise.resolve());
+
+            await flushPromises();
+
+            expect(wrapper.vm.automaticPromotions).toHaveLength(1);
+            expect(wrapper.vm.deliveryDiscounts).toHaveLength(1);
+            expect(wrapper.vm.automaticPromotions).toContainEqual(promotionLineItem);
+            expect(wrapper.vm.deliveryDiscounts).toContainEqual(deliveryDiscount);
+
+            await wrapper.vm.onSaveAndRecalculate();
+            expect(wrapper.vm.orderService.recalculateOrder).toHaveBeenCalled();
+            expect(wrapper.vm.orderService.toggleAutomaticPromotions).not.toHaveBeenCalled();
         });
 
-        wrapper.vm.orderService.recalculateOrder = jest.fn(() => Promise.resolve());
-        wrapper.vm.orderService.toggleAutomaticPromotions = jest.fn(() => Promise.resolve());
+        /** @regression */
+        it('should not apply promotions on recalculate and reload', async () => {
+            const lineItemWithExistingProduct = {
+                id: 'lineItemId',
+                type: 'product',
+                referencedId: 'productId',
+                quantity: 1,
+                productId: 'productId',
+                payload: {},
+            };
 
-        await flushPromises();
+            const promotionLineItem = {
+                type: 'promotion',
+                referencedId: null,
+            };
 
-        expect(wrapper.vm.automaticPromotions).toHaveLength(1);
-        expect(wrapper.vm.deliveryDiscounts).toHaveLength(1);
-        expect(wrapper.vm.automaticPromotions).toContainEqual(promotionLineItem);
-        expect(wrapper.vm.deliveryDiscounts).toContainEqual(deliveryDiscount);
+            const deliveryDiscount = {
+                id: 'deliveryId2',
+            };
 
-        await wrapper.vm.onSaveAndRecalculate();
-        expect(wrapper.vm.orderService.recalculateOrder).toHaveBeenCalled();
-        expect(wrapper.vm.orderService.toggleAutomaticPromotions).not.toHaveBeenCalled();
-    });
+            const deliveries = [
+                {
+                    id: 'deliveryId',
+                },
+                deliveryDiscount,
+            ];
 
-    /**
-     * Recalculating an edited order re-evaluated promotions and dropped discounts placed with the order.
-     * @regression
-     * @see https://github.com/shopware/shopware/issues/5854
-     */
-    it('should not apply promotions on recalculate and reload', async () => {
-        const lineItemWithExistingProduct = {
-            id: 'lineItemId',
-            type: 'product',
-            referencedId: 'productId',
-            quantity: 1,
-            productId: 'productId',
-            payload: {},
-        };
+            wrapper = await createWrapper({
+                primaryOrderDeliveryId: 'deliveryId',
+                lineItems: [lineItemWithExistingProduct, promotionLineItem],
+                deliveries,
+            });
 
-        const promotionLineItem = {
-            type: 'promotion',
-            referencedId: null,
-        };
+            wrapper.vm.orderService.recalculateOrder = jest.fn(() => Promise.resolve());
+            wrapper.vm.orderService.toggleAutomaticPromotions = jest.fn(() => Promise.resolve());
 
-        const deliveryDiscount = {
-            id: 'deliveryId2',
-        };
+            await flushPromises();
 
-        const deliveries = [
-            {
-                id: 'deliveryId',
-            },
-            deliveryDiscount,
-        ];
+            expect(wrapper.vm.automaticPromotions).toHaveLength(1);
+            expect(wrapper.vm.deliveryDiscounts).toHaveLength(1);
+            expect(wrapper.vm.automaticPromotions).toContainEqual(promotionLineItem);
+            expect(wrapper.vm.deliveryDiscounts).toContainEqual(deliveryDiscount);
 
-        wrapper = await createWrapper({
-            primaryOrderDeliveryId: 'deliveryId',
-            lineItems: [lineItemWithExistingProduct, promotionLineItem],
-            deliveries,
+            await wrapper.vm.onRecalculateAndReload();
+
+            expect(wrapper.vm.promotionsToDelete).toHaveLength(0);
+            expect(wrapper.vm.deliveryDiscountsToDelete).toHaveLength(0);
+            expect(wrapper.vm.orderService.recalculateOrder).toHaveBeenCalled();
+            expect(wrapper.vm.orderService.toggleAutomaticPromotions).not.toHaveBeenCalled();
         });
-
-        wrapper.vm.orderService.recalculateOrder = jest.fn(() => Promise.resolve());
-        wrapper.vm.orderService.toggleAutomaticPromotions = jest.fn(() => Promise.resolve());
-
-        await flushPromises();
-
-        expect(wrapper.vm.automaticPromotions).toHaveLength(1);
-        expect(wrapper.vm.deliveryDiscounts).toHaveLength(1);
-        expect(wrapper.vm.automaticPromotions).toContainEqual(promotionLineItem);
-        expect(wrapper.vm.deliveryDiscounts).toContainEqual(deliveryDiscount);
-
-        await wrapper.vm.onRecalculateAndReload();
-
-        expect(wrapper.vm.promotionsToDelete).toHaveLength(0);
-        expect(wrapper.vm.deliveryDiscountsToDelete).toHaveLength(0);
-        expect(wrapper.vm.orderService.recalculateOrder).toHaveBeenCalled();
-        expect(wrapper.vm.orderService.toggleAutomaticPromotions).not.toHaveBeenCalled();
     });
 
     /**

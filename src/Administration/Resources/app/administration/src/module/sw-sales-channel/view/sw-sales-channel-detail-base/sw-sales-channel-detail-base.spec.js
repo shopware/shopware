@@ -1332,162 +1332,145 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     /**
-     * Snippet variables were passed in the count position, so the language list stayed unreplaced.
+     * Snippet variables were passed in the count position, so the method and language lists stayed unreplaced.
      * @regression
      * @see https://github.com/shopware/shopware/issues/7722
      */
-    it('should build unserved languages alert with correct pluralization for single item', async () => {
-        const wrapper = await createWrapper();
-        const collection = [
-            {
-                name: 'English',
-            },
-        ];
+    describe('pluralized alerts', () => {
+        /** @regression */
+        it('should build unserved languages alert with correct pluralization for single item', async () => {
+            const wrapper = await createWrapper();
+            const collection = [
+                {
+                    name: 'English',
+                },
+            ];
 
-        const snippet = 'sw-sales-channel.detail.warningUnservedLanguage';
-        const result = wrapper.vm.buildUnservedLanguagesAlert(snippet, collection);
+            const snippet = 'sw-sales-channel.detail.warningUnservedLanguage';
+            const result = wrapper.vm.buildUnservedLanguagesAlert(snippet, collection);
 
-        expect(wrapper.vm.$t).toHaveBeenCalledWith(
-            snippet,
-            {
-                list: 'English',
-            },
-            1,
-        );
+            expect(wrapper.vm.$t).toHaveBeenCalledWith(
+                snippet,
+                {
+                    list: 'English',
+                },
+                1,
+            );
 
-        expect(result).toBe(snippet);
-    });
+            expect(result).toBe(snippet);
+        });
 
-    /**
-     * Snippet variables were passed in the count position, so the language list stayed unreplaced.
-     * @regression
-     * @see https://github.com/shopware/shopware/issues/7722
-     */
-    it('should build unserved languages alert with correct pluralization for multiple items', async () => {
-        const wrapper = await createWrapper();
-        const collection = [
-            {
-                name: 'English',
-            },
-            {
-                name: 'German',
-            },
-        ];
+        /** @regression */
+        it('should build unserved languages alert with correct pluralization for multiple items', async () => {
+            const wrapper = await createWrapper();
+            const collection = [
+                {
+                    name: 'English',
+                },
+                {
+                    name: 'German',
+                },
+            ];
 
-        const snippet = 'sw-sales-channel.detail.warningUnservedLanguage';
-        const result = wrapper.vm.buildUnservedLanguagesAlert(snippet, collection);
+            const snippet = 'sw-sales-channel.detail.warningUnservedLanguage';
+            const result = wrapper.vm.buildUnservedLanguagesAlert(snippet, collection);
 
-        expect(wrapper.vm.$t).toHaveBeenCalledWith(
-            snippet,
-            {
-                list: 'English, German',
-            },
-            2,
-        );
+            expect(wrapper.vm.$t).toHaveBeenCalledWith(
+                snippet,
+                {
+                    list: 'English, German',
+                },
+                2,
+            );
 
-        expect(result).toBe(snippet);
-    });
+            expect(result).toBe(snippet);
+        });
 
-    /**
-     * Snippet variables were passed in the count position, so the payment method list stayed unreplaced.
-     * @regression
-     * @see https://github.com/shopware/shopware/issues/7722
-     */
-    it('should build payment alert with correct pluralization for single item', async () => {
-        const wrapper = await createWrapper();
-        const collection = [{ translated: { name: 'PayPal|Invoice' } }];
+        /** @regression */
+        it('should build payment alert with correct pluralization for single item', async () => {
+            const wrapper = await createWrapper();
+            const collection = [{ translated: { name: 'PayPal|Invoice' } }];
 
-        const snippet = 'sw-sales-channel.detail.warningDisabledPaymentMethod';
+            const snippet = 'sw-sales-channel.detail.warningDisabledPaymentMethod';
 
-        const result = wrapper.vm.buildDisabledPaymentAlert(snippet, collection);
+            const result = wrapper.vm.buildDisabledPaymentAlert(snippet, collection);
 
-        expect(wrapper.vm.$t).toHaveBeenCalledWith(
-            snippet,
-            {
-                separatedList: '<span>PayPal&vert;Invoice</span>',
-                paymentSettingsLink: '/sw/settings/payment/overview',
-            },
-            1,
-        );
+            expect(wrapper.vm.$t).toHaveBeenCalledWith(
+                snippet,
+                {
+                    separatedList: '<span>PayPal&vert;Invoice</span>',
+                    paymentSettingsLink: '/sw/settings/payment/overview',
+                },
+                1,
+            );
 
-        expect(result).toBe(snippet);
-    });
+            expect(result).toBe(snippet);
+        });
 
-    /**
-     * Snippet variables were passed in the count position, so the payment method list stayed unreplaced.
-     * @regression
-     * @see https://github.com/shopware/shopware/issues/7722
-     */
-    it('should build payment alert with correct pluralization for multiple items', async () => {
-        const wrapper = await createWrapper();
-        const collection = [{ translated: { name: 'PayPal|Invoice' } }, { translated: { name: 'Cash on delivery' } }];
+        /** @regression */
+        it('should build payment alert with correct pluralization for multiple items', async () => {
+            const wrapper = await createWrapper();
+            const collection = [{ translated: { name: 'PayPal|Invoice' } }, { translated: { name: 'Cash on delivery' } }];
 
-        const snippet = 'sw-sales-channel.detail.warningDisabledPaymentMethod';
+            const snippet = 'sw-sales-channel.detail.warningDisabledPaymentMethod';
 
-        const result = wrapper.vm.buildDisabledPaymentAlert(snippet, collection);
+            const result = wrapper.vm.buildDisabledPaymentAlert(snippet, collection);
 
-        expect(wrapper.vm.$t).toHaveBeenCalledWith(
-            snippet,
-            {
-                separatedList: '<span>PayPal&vert;Invoice</span>, <span>Cash on delivery</span>',
-                paymentSettingsLink: '/sw/settings/payment/overview',
-            },
-            2,
-        );
+            expect(wrapper.vm.$t).toHaveBeenCalledWith(
+                snippet,
+                {
+                    separatedList: '<span>PayPal&vert;Invoice</span>, <span>Cash on delivery</span>',
+                    paymentSettingsLink: '/sw/settings/payment/overview',
+                },
+                2,
+            );
 
-        expect(result).toBe(snippet);
-    });
+            expect(result).toBe(snippet);
+        });
 
-    /**
-     * Snippet variables were passed in the count position, so the shipping method list stayed unreplaced.
-     * @regression
-     * @see https://github.com/shopware/shopware/issues/7722
-     */
-    it('should build shipping alert with correct pluralization for single item', async () => {
-        const wrapper = await createWrapper();
-        const collection = [{ translated: { name: 'Standard' } }];
-        collection.first = () => collection[0];
-        collection.last = () => collection[0];
+        /** @regression */
+        it('should build shipping alert with correct pluralization for single item', async () => {
+            const wrapper = await createWrapper();
+            const collection = [{ translated: { name: 'Standard' } }];
+            collection.first = () => collection[0];
+            collection.last = () => collection[0];
 
-        const snippet = 'sw-sales-channel.detail.warningDisabledShippingMethod';
-        const result = wrapper.vm.buildDisabledShippingAlert(snippet, collection);
+            const snippet = 'sw-sales-channel.detail.warningDisabledShippingMethod';
+            const result = wrapper.vm.buildDisabledShippingAlert(snippet, collection);
 
-        expect(wrapper.vm.$t).toHaveBeenCalledWith(
-            snippet,
-            {
-                name: 'Standard',
-                addition: 'Standard',
-            },
-            1,
-        );
+            expect(wrapper.vm.$t).toHaveBeenCalledWith(
+                snippet,
+                {
+                    name: 'Standard',
+                    addition: 'Standard',
+                },
+                1,
+            );
 
-        expect(result).toBe(snippet);
-    });
+            expect(result).toBe(snippet);
+        });
 
-    /**
-     * Snippet variables were passed in the count position, so the shipping method list stayed unreplaced.
-     * @regression
-     * @see https://github.com/shopware/shopware/issues/7722
-     */
-    it('should build shipping alert with correct pluralization for multiple items', async () => {
-        const wrapper = await createWrapper();
-        const collection = [{ translated: { name: 'Standard' } }, { translated: { name: 'Express' } }];
-        collection.first = () => collection[0];
-        collection.last = () => collection[1];
+        /** @regression */
+        it('should build shipping alert with correct pluralization for multiple items', async () => {
+            const wrapper = await createWrapper();
+            const collection = [{ translated: { name: 'Standard' } }, { translated: { name: 'Express' } }];
+            collection.first = () => collection[0];
+            collection.last = () => collection[1];
 
-        const snippet = 'sw-sales-channel.detail.warningDisabledShippingMethod';
-        const result = wrapper.vm.buildDisabledShippingAlert(snippet, collection);
+            const snippet = 'sw-sales-channel.detail.warningDisabledShippingMethod';
+            const result = wrapper.vm.buildDisabledShippingAlert(snippet, collection);
 
-        expect(wrapper.vm.$t).toHaveBeenCalledWith(
-            snippet,
-            {
-                name: 'Standard',
-                addition: 'Express',
-            },
-            2,
-        );
+            expect(wrapper.vm.$t).toHaveBeenCalledWith(
+                snippet,
+                {
+                    name: 'Standard',
+                    addition: 'Express',
+                },
+                2,
+            );
 
-        expect(result).toBe(snippet);
+            expect(result).toBe(snippet);
+        });
     });
 
     /**

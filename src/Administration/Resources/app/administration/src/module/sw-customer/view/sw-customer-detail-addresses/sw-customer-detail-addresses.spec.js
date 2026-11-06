@@ -345,54 +345,59 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
     });
 
     /**
-     * Editing an address beyond the first 25 opened an empty modal.
+     * Addresses beyond the first 25 could not be edited.
      * @regression
      * @see https://github.com/shopware/shopware/issues/18957
      */
-    it('should edit an address that the grid loaded on a later page', async () => {
-        await wrapper.setProps({
-            customerEditMode: true,
+    describe('addresses on a later grid page', () => {
+        /**
+         * Editing an address beyond the first 25 opened an empty modal.
+         * @regression
+         */
+        it('should edit an address that the grid loaded on a later page', async () => {
+            await wrapper.setProps({
+                customerEditMode: true,
+            });
+
+            expect(
+                wrapper.vm.activeCustomer.addresses.find((address) => address.id === 'address-on-later-page'),
+            ).toBeUndefined();
+
+            wrapper.vm.onEditAddress('address-on-later-page');
+
+            expect(wrapper.vm.currentAddress).toEqual(
+                expect.objectContaining({
+                    id: 'address-on-later-page',
+                    firstName: 'Max',
+                    lastName: 'Mustermann',
+                    street: 'Ebbinghoff 10',
+                }),
+            );
         });
 
-        expect(
-            wrapper.vm.activeCustomer.addresses.find((address) => address.id === 'address-on-later-page'),
-        ).toBeUndefined();
+        /**
+         * Saving an address beyond the first 25 failed because it was not found.
+         * @regression
+         */
+        it('should save an address that the grid loaded on a later page', async () => {
+            await wrapper.setProps({
+                customerEditMode: true,
+            });
 
-        wrapper.vm.onEditAddress('address-on-later-page');
+            wrapper.vm.onEditAddress('address-on-later-page');
+            wrapper.vm.currentAddress.city = 'Berlin';
 
-        expect(wrapper.vm.currentAddress).toEqual(
-            expect.objectContaining({
-                id: 'address-on-later-page',
-                firstName: 'Max',
-                lastName: 'Mustermann',
-                street: 'Ebbinghoff 10',
-            }),
-        );
-    });
+            wrapper.vm.onSaveAddress();
+            await flushPromises();
 
-    /**
-     * Saving an address beyond the first 25 failed because it was not found.
-     * @regression
-     * @see https://github.com/shopware/shopware/issues/18957
-     */
-    it('should save an address that the grid loaded on a later page', async () => {
-        await wrapper.setProps({
-            customerEditMode: true,
+            expect(wrapper.vm.customerAddressRepository.save).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    id: 'address-on-later-page',
+                    city: 'Berlin',
+                }),
+            );
+            expect(wrapper.vm.currentAddress).toBeNull();
         });
-
-        wrapper.vm.onEditAddress('address-on-later-page');
-        wrapper.vm.currentAddress.city = 'Berlin';
-
-        wrapper.vm.onSaveAddress();
-        await flushPromises();
-
-        expect(wrapper.vm.customerAddressRepository.save).toHaveBeenCalledWith(
-            expect.objectContaining({
-                id: 'address-on-later-page',
-                city: 'Berlin',
-            }),
-        );
-        expect(wrapper.vm.currentAddress).toBeNull();
     });
 
     /**

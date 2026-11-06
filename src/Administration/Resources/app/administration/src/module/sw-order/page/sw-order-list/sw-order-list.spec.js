@@ -668,237 +668,220 @@ describe('src/module/sw-order/page/sw-order-list', () => {
      */
     if (!Shopware.Feature.isActive('v6.8.0.0')) {
         /**
-         * Orders written via DAL without a primary delivery showed no delivery address in the list.
+         * Orders written via DAL without a primary delivery or transaction showed no address or state in the list.
          * @regression
          * @see https://github.com/shopware/shopware/issues/16517
          */
-        it('should fall back to deliveries[0] address when primaryOrderDelivery is null (DAL writes without primaryOrderDeliveryId)', async () => {
-            global.activeAclRoles = [];
-            wrapper = await createWrapper();
+        describe('orders without a primary delivery or transaction', () => {
+            /** @regression */
+            it('should fall back to deliveries[0] address when primaryOrderDelivery is null (DAL writes without primaryOrderDeliveryId)', async () => {
+                global.activeAclRoles = [];
+                wrapper = await createWrapper();
 
-            await wrapper.setData({
-                orders: [
-                    {
-                        ...mockItem,
-                        primaryOrderDelivery: null,
-                        deliveries: [
-                            {
-                                stateMachineState: {
-                                    technicalName: 'open',
-                                    translated: { name: 'Open' },
+                await wrapper.setData({
+                    orders: [
+                        {
+                            ...mockItem,
+                            primaryOrderDelivery: null,
+                            deliveries: [
+                                {
+                                    stateMachineState: {
+                                        technicalName: 'open',
+                                        translated: { name: 'Open' },
+                                    },
+                                    shippingOrderAddress: {
+                                        street: 'Fallback Street 1',
+                                        zipcode: '54321',
+                                        city: 'Fallback City',
+                                    },
                                 },
-                                shippingOrderAddress: {
-                                    street: 'Fallback Street 1',
-                                    zipcode: '54321',
-                                    city: 'Fallback City',
-                                },
-                            },
-                        ],
-                    },
-                ],
-                total: 1,
+                            ],
+                        },
+                    ],
+                    total: 1,
+                });
+
+                const html = wrapper.html();
+                expect(html).toContain('Fallback Street 1');
+                expect(html).toContain('Fallback City');
+                expect(html).toContain('54321');
             });
 
-            const html = wrapper.html();
-            expect(html).toContain('Fallback Street 1');
-            expect(html).toContain('Fallback City');
-            expect(html).toContain('54321');
-        });
+            /** @regression */
+            it('should fall back to the first delivery when multiple deliveries exist without primaryOrderDelivery', async () => {
+                global.activeAclRoles = [];
+                wrapper = await createWrapper();
 
-        /**
-         * Orders written via DAL without a primary delivery showed no delivery address in the list.
-         * @regression
-         * @see https://github.com/shopware/shopware/issues/16517
-         */
-        it('should fall back to the first delivery when multiple deliveries exist without primaryOrderDelivery', async () => {
-            global.activeAclRoles = [];
-            wrapper = await createWrapper();
+                await wrapper.setData({
+                    orders: [
+                        {
+                            ...mockItem,
+                            primaryOrderDelivery: null,
+                            deliveries: [
+                                {
+                                    stateMachineState: {
+                                        technicalName: 'open',
+                                        translated: { name: 'Open' },
+                                    },
+                                    shippingOrderAddress: {
+                                        street: 'First Fallback Street',
+                                        zipcode: '11111',
+                                        city: 'First City',
+                                    },
+                                },
+                                {
+                                    stateMachineState: {
+                                        technicalName: 'shipped',
+                                        translated: { name: 'Shipped' },
+                                    },
+                                    shippingOrderAddress: {
+                                        street: 'Second Fallback Street',
+                                        zipcode: '22222',
+                                        city: 'Second City',
+                                    },
+                                },
+                            ],
+                        },
+                    ],
+                    total: 1,
+                });
 
-            await wrapper.setData({
-                orders: [
-                    {
-                        ...mockItem,
-                        primaryOrderDelivery: null,
-                        deliveries: [
-                            {
-                                stateMachineState: {
-                                    technicalName: 'open',
-                                    translated: { name: 'Open' },
-                                },
-                                shippingOrderAddress: {
-                                    street: 'First Fallback Street',
-                                    zipcode: '11111',
-                                    city: 'First City',
-                                },
-                            },
-                            {
-                                stateMachineState: {
-                                    technicalName: 'shipped',
-                                    translated: { name: 'Shipped' },
-                                },
-                                shippingOrderAddress: {
-                                    street: 'Second Fallback Street',
-                                    zipcode: '22222',
-                                    city: 'Second City',
-                                },
-                            },
-                        ],
-                    },
-                ],
-                total: 1,
+                const html = wrapper.html();
+                expect(html).toContain('First Fallback Street');
+                expect(html).not.toContain('Second Fallback Street');
             });
 
-            const html = wrapper.html();
-            expect(html).toContain('First Fallback Street');
-            expect(html).not.toContain('Second Fallback Street');
-        });
+            /** @regression */
+            it('should fall back to deliveries[0] state when primaryOrderDelivery is null', async () => {
+                global.activeAclRoles = [];
+                wrapper = await createWrapper();
 
-        /**
-         * Orders written via DAL without a primary delivery showed no delivery state in the list.
-         * @regression
-         * @see https://github.com/shopware/shopware/issues/16517
-         */
-        it('should fall back to deliveries[0] state when primaryOrderDelivery is null', async () => {
-            global.activeAclRoles = [];
-            wrapper = await createWrapper();
-
-            await wrapper.setData({
-                orders: [
-                    {
-                        ...mockItem,
-                        primaryOrderDelivery: null,
-                        deliveries: [
-                            {
-                                stateMachineState: {
-                                    technicalName: 'shipped',
-                                    translated: { name: 'Fallback Shipped' },
+                await wrapper.setData({
+                    orders: [
+                        {
+                            ...mockItem,
+                            primaryOrderDelivery: null,
+                            deliveries: [
+                                {
+                                    stateMachineState: {
+                                        technicalName: 'shipped',
+                                        translated: { name: 'Fallback Shipped' },
+                                    },
+                                    shippingOrderAddress: mockItem.primaryOrderDelivery.shippingOrderAddress,
                                 },
-                                shippingOrderAddress: mockItem.primaryOrderDelivery.shippingOrderAddress,
-                            },
-                        ],
-                    },
-                ],
-                total: 1,
+                            ],
+                        },
+                    ],
+                    total: 1,
+                });
+
+                const stateCells = wrapper.findAll('.sw-order-list__state');
+                const stateTexts = stateCells.map((cell) => cell.text());
+                expect(stateTexts).toContain('Fallback Shipped');
             });
 
-            const stateCells = wrapper.findAll('.sw-order-list__state');
-            const stateTexts = stateCells.map((cell) => cell.text());
-            expect(stateTexts).toContain('Fallback Shipped');
-        });
+            /** @regression */
+            it('should fall back to transactions[0] state when primaryOrderTransaction is null', async () => {
+                global.activeAclRoles = [];
+                wrapper = await createWrapper();
 
-        /**
-         * Orders written via DAL without a primary transaction showed no payment state in the list.
-         * @regression
-         * @see https://github.com/shopware/shopware/issues/16517
-         */
-        it('should fall back to transactions[0] state when primaryOrderTransaction is null', async () => {
-            global.activeAclRoles = [];
-            wrapper = await createWrapper();
-
-            await wrapper.setData({
-                orders: [
-                    {
-                        ...mockItem,
-                        primaryOrderTransaction: null,
-                        transactions: new EntityCollection(null, null, null, new Criteria(1, 25), [
-                            {
-                                stateMachineState: {
-                                    technicalName: 'paid',
-                                    translated: { name: 'Fallback Paid' },
+                await wrapper.setData({
+                    orders: [
+                        {
+                            ...mockItem,
+                            primaryOrderTransaction: null,
+                            transactions: new EntityCollection(null, null, null, new Criteria(1, 25), [
+                                {
+                                    stateMachineState: {
+                                        technicalName: 'paid',
+                                        translated: { name: 'Fallback Paid' },
+                                    },
                                 },
-                            },
-                        ]),
-                    },
-                ],
-                total: 1,
+                            ]),
+                        },
+                    ],
+                    total: 1,
+                });
+
+                const stateCells = wrapper.findAll('.sw-order-list__state');
+                const stateTexts = stateCells.map((cell) => cell.text());
+                expect(stateTexts).toContain('Fallback Paid');
             });
 
-            const stateCells = wrapper.findAll('.sw-order-list__state');
-            const stateTexts = stateCells.map((cell) => cell.text());
-            expect(stateTexts).toContain('Fallback Paid');
-        });
+            /** @regression */
+            it('should fall back to the first transaction that is not cancelled or failed', async () => {
+                global.activeAclRoles = [];
+                wrapper = await createWrapper();
 
-        /**
-         * Orders written via DAL without a primary transaction showed no payment state in the list.
-         * @regression
-         * @see https://github.com/shopware/shopware/issues/16517
-         */
-        it('should fall back to the first transaction that is not cancelled or failed', async () => {
-            global.activeAclRoles = [];
-            wrapper = await createWrapper();
+                await wrapper.setData({
+                    orders: [
+                        {
+                            ...mockItem,
+                            primaryOrderTransaction: null,
+                            transactions: createTransactionCollection([
+                                {
+                                    stateMachineState: {
+                                        technicalName: 'cancelled',
+                                        translated: { name: 'Fallback Cancelled' },
+                                    },
+                                },
+                                {
+                                    stateMachineState: {
+                                        technicalName: 'paid',
+                                        translated: { name: 'Fallback Paid' },
+                                    },
+                                },
+                                {
+                                    stateMachineState: {
+                                        technicalName: 'open',
+                                        translated: { name: 'Fallback Open' },
+                                    },
+                                },
+                            ]),
+                        },
+                    ],
+                    total: 1,
+                });
 
-            await wrapper.setData({
-                orders: [
-                    {
-                        ...mockItem,
-                        primaryOrderTransaction: null,
-                        transactions: createTransactionCollection([
-                            {
-                                stateMachineState: {
-                                    technicalName: 'cancelled',
-                                    translated: { name: 'Fallback Cancelled' },
-                                },
-                            },
-                            {
-                                stateMachineState: {
-                                    technicalName: 'paid',
-                                    translated: { name: 'Fallback Paid' },
-                                },
-                            },
-                            {
-                                stateMachineState: {
-                                    technicalName: 'open',
-                                    translated: { name: 'Fallback Open' },
-                                },
-                            },
-                        ]),
-                    },
-                ],
-                total: 1,
+                const stateCells = wrapper.findAll('.sw-order-list__state');
+                const stateTexts = stateCells.map((cell) => cell.text());
+                expect(stateTexts).toContain('Fallback Paid');
+                expect(stateTexts).not.toContain('Fallback Cancelled');
             });
 
-            const stateCells = wrapper.findAll('.sw-order-list__state');
-            const stateTexts = stateCells.map((cell) => cell.text());
-            expect(stateTexts).toContain('Fallback Paid');
-            expect(stateTexts).not.toContain('Fallback Cancelled');
-        });
+            /** @regression */
+            it('should fall back to the last transaction when all transactions are cancelled or failed', async () => {
+                global.activeAclRoles = [];
+                wrapper = await createWrapper();
 
-        /**
-         * Orders written via DAL without a primary transaction showed no payment state in the list.
-         * @regression
-         * @see https://github.com/shopware/shopware/issues/16517
-         */
-        it('should fall back to the last transaction when all transactions are cancelled or failed', async () => {
-            global.activeAclRoles = [];
-            wrapper = await createWrapper();
+                await wrapper.setData({
+                    orders: [
+                        {
+                            ...mockItem,
+                            primaryOrderTransaction: null,
+                            transactions: createTransactionCollection([
+                                {
+                                    stateMachineState: {
+                                        technicalName: 'cancelled',
+                                        translated: { name: 'Fallback Cancelled' },
+                                    },
+                                },
+                                {
+                                    stateMachineState: {
+                                        technicalName: 'failed',
+                                        translated: { name: 'Fallback Failed' },
+                                    },
+                                },
+                            ]),
+                        },
+                    ],
+                    total: 1,
+                });
 
-            await wrapper.setData({
-                orders: [
-                    {
-                        ...mockItem,
-                        primaryOrderTransaction: null,
-                        transactions: createTransactionCollection([
-                            {
-                                stateMachineState: {
-                                    technicalName: 'cancelled',
-                                    translated: { name: 'Fallback Cancelled' },
-                                },
-                            },
-                            {
-                                stateMachineState: {
-                                    technicalName: 'failed',
-                                    translated: { name: 'Fallback Failed' },
-                                },
-                            },
-                        ]),
-                    },
-                ],
-                total: 1,
+                const stateCells = wrapper.findAll('.sw-order-list__state');
+                const stateTexts = stateCells.map((cell) => cell.text());
+                expect(stateTexts).toContain('Fallback Failed');
             });
-
-            const stateCells = wrapper.findAll('.sw-order-list__state');
-            const stateTexts = stateCells.map((cell) => cell.text());
-            expect(stateTexts).toContain('Fallback Failed');
         });
 
         it('should render no transaction state when both primaryOrderTransaction and transactions are missing', async () => {

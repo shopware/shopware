@@ -246,37 +246,36 @@ describe('components/form/sw-price-field', () => {
      * @regression
      * @see https://github.com/shopware/shopware/issues/15121
      */
-    it('should recalculate the net value when the gross number field emits an "input-change" event', async () => {
-        const wrapper = await setup({ allowEmpty: false });
-        const convertGrossToNet = jest.spyOn(wrapper.vm, 'convertGrossToNet');
-        await wrapper.setProps({
-            value: [euroPrice],
-            inherited: false,
+    describe('linked price recalculation on input', () => {
+        /** @regression */
+        it('should recalculate the net value when the gross number field emits an "input-change" event', async () => {
+            const wrapper = await setup({ allowEmpty: false });
+            const convertGrossToNet = jest.spyOn(wrapper.vm, 'convertGrossToNet');
+            await wrapper.setProps({
+                value: [euroPrice],
+                inherited: false,
+            });
+
+            await wrapper.findComponent('.sw-price-field__gross').vm.$emit('input-change', euroPrice.gross);
+            jest.runAllTimers();
+
+            expect(convertGrossToNet).toHaveBeenCalled();
         });
 
-        await wrapper.findComponent('.sw-price-field__gross').vm.$emit('input-change', euroPrice.gross);
-        jest.runAllTimers();
+        /** @regression */
+        it('should recalculate the gross value when the net number field emits an "input-change" event', async () => {
+            const wrapper = await setup({ allowEmpty: false });
+            const convertNetToGross = jest.spyOn(wrapper.vm, 'convertNetToGross');
+            await wrapper.setProps({
+                value: [euroPrice],
+                inherited: false,
+            });
 
-        expect(convertGrossToNet).toHaveBeenCalled();
-    });
+            await wrapper.findComponent('.sw-price-field__net').vm.$emit('input-change', euroPrice.net);
+            jest.runAllTimers();
 
-    /**
-     * Linked net and gross prices only recalculated on blur, so a quick save stored mismatched prices.
-     * @regression
-     * @see https://github.com/shopware/shopware/issues/15121
-     */
-    it('should recalculate the gross value when the net number field emits an "input-change" event', async () => {
-        const wrapper = await setup({ allowEmpty: false });
-        const convertNetToGross = jest.spyOn(wrapper.vm, 'convertNetToGross');
-        await wrapper.setProps({
-            value: [euroPrice],
-            inherited: false,
+            expect(convertNetToGross).toHaveBeenCalled();
         });
-
-        await wrapper.findComponent('.sw-price-field__net').vm.$emit('input-change', euroPrice.net);
-        jest.runAllTimers();
-
-        expect(convertNetToGross).toHaveBeenCalled();
     });
 
     it('should not emit update:value event on price gross change', async () => {
@@ -310,35 +309,34 @@ describe('components/form/sw-price-field', () => {
      * @regression
      * @see https://github.com/shopware/shopware/issues/3930
      */
-    it('should have the typed gross value after input change and after debounce time', async () => {
-        const wrapper = await setup({ allowEmpty: true });
-        await wrapper.setProps({
-            value: [euroPrice],
-            inherited: false,
+    describe('first typed price', () => {
+        /** @regression */
+        it('should have the typed gross value after input change and after debounce time', async () => {
+            const wrapper = await setup({ allowEmpty: true });
+            await wrapper.setProps({
+                value: [euroPrice],
+                inherited: false,
+            });
+
+            wrapper.vm.onPriceGrossInputChange(euroPrice.gross);
+            jest.runAllTimers();
+
+            expect(wrapper.vm.priceForCurrency.gross).toBe(euroPrice.gross);
         });
 
-        wrapper.vm.onPriceGrossInputChange(euroPrice.gross);
-        jest.runAllTimers();
+        /** @regression */
+        it('should have the typed net value after input change and after debounce time', async () => {
+            const wrapper = await setup({ allowEmpty: true });
+            await wrapper.setProps({
+                value: [euroPrice],
+                inherited: false,
+            });
 
-        expect(wrapper.vm.priceForCurrency.gross).toBe(euroPrice.gross);
-    });
+            wrapper.vm.onPriceNetInputChange(euroPrice.net);
+            jest.runAllTimers();
 
-    /**
-     * The first price entered for a new product was cleared after typing.
-     * @regression
-     * @see https://github.com/shopware/shopware/issues/3930
-     */
-    it('should have the typed net value after input change and after debounce time', async () => {
-        const wrapper = await setup({ allowEmpty: true });
-        await wrapper.setProps({
-            value: [euroPrice],
-            inherited: false,
+            expect(wrapper.vm.priceForCurrency.net).toBe(euroPrice.net);
         });
-
-        wrapper.vm.onPriceNetInputChange(euroPrice.net);
-        jest.runAllTimers();
-
-        expect(wrapper.vm.priceForCurrency.net).toBe(euroPrice.net);
     });
 
     /**

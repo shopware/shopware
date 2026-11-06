@@ -136,40 +136,39 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
      * @regression
      * @see https://github.com/shopware/shopware/pull/7428
      */
-    it.deprecated('v6.8.0.0')('should have price and deprecated shipping filter option', async () => {
-        const wrapper = await createWrapper(
-            {},
-            { calculation: null, prices: [{ id: 'rule-price', calculationRuleId: 'rule-id', currencyPrice: null }] },
-        );
-        const shippingRuleFilterCriteria = wrapper
-            .findComponent('.sw-settings-shipping-price-matrix__column-calculation-rule-select')
-            .props('ruleFilter');
+    describe('price rule filter', () => {
+        /** @regression */
+        it.deprecated('v6.8.0.0')('should have price and deprecated shipping filter option', async () => {
+            const wrapper = await createWrapper(
+                {},
+                { calculation: null, prices: [{ id: 'rule-price', calculationRuleId: 'rule-id', currencyPrice: null }] },
+            );
+            const shippingRuleFilterCriteria = wrapper
+                .findComponent('.sw-settings-shipping-price-matrix__column-calculation-rule-select')
+                .props('ruleFilter');
 
-        expect(shippingRuleFilterCriteria.filters[0].queries).toHaveLength(3);
-        expect(shippingRuleFilterCriteria.filters[0].queries[0].value).toBe('shipping');
-        expect(shippingRuleFilterCriteria.filters[0].queries[1].value).toBe('price');
-        expect(shippingRuleFilterCriteria.filters[0].queries[2].value).toBeNull();
-    });
+            expect(shippingRuleFilterCriteria.filters[0].queries).toHaveLength(3);
+            expect(shippingRuleFilterCriteria.filters[0].queries[0].value).toBe('shipping');
+            expect(shippingRuleFilterCriteria.filters[0].queries[1].value).toBe('price');
+            expect(shippingRuleFilterCriteria.filters[0].queries[2].value).toBeNull();
+        });
 
-    /**
-     * Selecting a price rule in the shipping price matrix loaded forever because the filter excluded it.
-     * @regression
-     * @see https://github.com/shopware/shopware/pull/7428
-     */
-    it.activeFeatureFlags(['v6.8.0.0'])('should have price filter option', async () => {
-        const wrapper = await createWrapper(
-            {},
-            { calculation: null, prices: [{ id: 'rule-price', calculationRuleId: 'rule-id', currencyPrice: null }] },
-        );
+        /** @regression */
+        it.activeFeatureFlags(['v6.8.0.0'])('should have price filter option', async () => {
+            const wrapper = await createWrapper(
+                {},
+                { calculation: null, prices: [{ id: 'rule-price', calculationRuleId: 'rule-id', currencyPrice: null }] },
+            );
 
-        // shippingRuleFilterCriteria is deprecated and will be removed. Use ruleFilterCriteria instead
-        const shippingRuleFilterCriteria = wrapper
-            .findComponent('.sw-settings-shipping-price-matrix__column-calculation-rule-select')
-            .props('ruleFilter');
+            // shippingRuleFilterCriteria is deprecated and will be removed. Use ruleFilterCriteria instead
+            const shippingRuleFilterCriteria = wrapper
+                .findComponent('.sw-settings-shipping-price-matrix__column-calculation-rule-select')
+                .props('ruleFilter');
 
-        expect(shippingRuleFilterCriteria.filters[0].queries).toHaveLength(2);
-        expect(shippingRuleFilterCriteria.filters[0].queries[0].value).toBe('price');
-        expect(shippingRuleFilterCriteria.filters[0].queries[1].value).toBeNull();
+            expect(shippingRuleFilterCriteria.filters[0].queries).toHaveLength(2);
+            expect(shippingRuleFilterCriteria.filters[0].queries[0].value).toBe('price');
+            expect(shippingRuleFilterCriteria.filters[0].queries[1].value).toBeNull();
+        });
     });
 
     it('should show all prices', async () => {

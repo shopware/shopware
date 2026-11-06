@@ -409,66 +409,65 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
      * @regression
      * @see https://github.com/shopware/shopware/issues/20920
      */
-    it('should offer creating a document once the last document of the order was deleted', async () => {
-        global.activeAclRoles = [
-            'order.editor',
-            'document.viewer',
-        ];
+    describe('deleting the last document', () => {
+        /** @regression */
+        it('should offer creating a document once the last document of the order was deleted', async () => {
+            global.activeAclRoles = [
+                'order.editor',
+                'document.viewer',
+            ];
 
-        wrapper = await createWrapper({
-            ...defaultProps,
-            order: {
-                ...orderFixture,
-                documents: [documentFixture],
-            },
-        });
-        await flushPromises();
+            wrapper = await createWrapper({
+                ...defaultProps,
+                order: {
+                    ...orderFixture,
+                    documents: [documentFixture],
+                },
+            });
+            await flushPromises();
 
-        documentSearchMock.mockResolvedValue(getCollection('document', []));
-        await wrapper.vm.onDeleteDocument(documentFixture.id);
-        await flushPromises();
+            documentSearchMock.mockResolvedValue(getCollection('document', []));
+            await wrapper.vm.onDeleteDocument(documentFixture.id);
+            await flushPromises();
 
-        expect(wrapper.find('.mt-empty-state').exists()).toBe(true);
-        expect(wrapper.vm.showCreateDocumentButton).toBe(true);
-        expect(wrapper.vm.showCardFilter).toBe(false);
-        expect(wrapper.vm.emptyStateTitle).toBe('sw-order.documentCard.messageEmptyTitle');
-        expect(wrapper.find('.sw-order-document-card__empty-state .mt-button').exists()).toBe(true);
-    });
-
-    /**
-     * The documents card kept a broken state after the last document was deleted.
-     * @regression
-     * @see https://github.com/shopware/shopware/issues/20920
-     */
-    it('should show the empty state right after the listing deleted the last document', async () => {
-        global.activeAclRoles = [
-            'order.editor',
-            'document.viewer',
-        ];
-
-        wrapper = await createWrapper({
-            ...defaultProps,
-            order: {
-                ...orderFixture,
-                documents: [documentFixture],
-            },
-        });
-        await flushPromises();
-        await wrapper.setData({
-            documents: getCollection('document', [documentFixture]),
+            expect(wrapper.find('.mt-empty-state').exists()).toBe(true);
+            expect(wrapper.vm.showCreateDocumentButton).toBe(true);
+            expect(wrapper.vm.showCardFilter).toBe(false);
+            expect(wrapper.vm.emptyStateTitle).toBe('sw-order.documentCard.messageEmptyTitle');
+            expect(wrapper.find('.sw-order-document-card__empty-state .mt-button').exists()).toBe(true);
         });
 
-        const listing = wrapper.findComponent('.sw-order-document-card__grid');
-        expect(listing.exists()).toBe(true);
+        /** @regression */
+        it('should show the empty state right after the listing deleted the last document', async () => {
+            global.activeAclRoles = [
+                'order.editor',
+                'document.viewer',
+            ];
 
-        documentSearchMock.mockResolvedValue(getCollection('document', []));
-        listing.vm.$emit('delete-item-finish', documentFixture.id);
-        await flushPromises();
+            wrapper = await createWrapper({
+                ...defaultProps,
+                order: {
+                    ...orderFixture,
+                    documents: [documentFixture],
+                },
+            });
+            await flushPromises();
+            await wrapper.setData({
+                documents: getCollection('document', [documentFixture]),
+            });
 
-        expect(wrapper.find('.sw-order-document-card__grid').exists()).toBe(false);
-        expect(wrapper.find('.mt-empty-state').exists()).toBe(true);
-        expect(wrapper.vm.showCreateDocumentButton).toBe(true);
-        expect(wrapper.vm.showCardFilter).toBe(false);
+            const listing = wrapper.findComponent('.sw-order-document-card__grid');
+            expect(listing.exists()).toBe(true);
+
+            documentSearchMock.mockResolvedValue(getCollection('document', []));
+            listing.vm.$emit('delete-item-finish', documentFixture.id);
+            await flushPromises();
+
+            expect(wrapper.find('.sw-order-document-card__grid').exists()).toBe(false);
+            expect(wrapper.find('.mt-empty-state').exists()).toBe(true);
+            expect(wrapper.vm.showCreateDocumentButton).toBe(true);
+            expect(wrapper.vm.showCardFilter).toBe(false);
+        });
     });
 
     it('should keep the search when a search term matches no document', async () => {
@@ -1394,57 +1393,56 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
      * @regression
      * @see https://github.com/shopware/shopware/issues/21619
      */
-    it('should load the documents of the new order when the order changes', async () => {
-        wrapper = await createWrapper();
+    describe('switching orders', () => {
+        /** @regression */
+        it('should load the documents of the new order when the order changes', async () => {
+            wrapper = await createWrapper();
 
-        const otherOrderDocument = { ...documentFixture, id: 'other-order-document', orderId: 'other-order' };
-        documentSearchMock.mockClear();
-        documentSearchMock.mockResolvedValue(getCollection('document', [otherOrderDocument]));
+            const otherOrderDocument = { ...documentFixture, id: 'other-order-document', orderId: 'other-order' };
+            documentSearchMock.mockClear();
+            documentSearchMock.mockResolvedValue(getCollection('document', [otherOrderDocument]));
 
-        await wrapper.setProps({
-            order: { ...orderFixture, id: 'other-order' },
+            await wrapper.setProps({
+                order: { ...orderFixture, id: 'other-order' },
+            });
+            await flushPromises();
+
+            expect(documentSearchMock).toHaveBeenCalledTimes(1);
+            expect(documentSearchMock.mock.calls[0][0].filters).toEqual([
+                { type: 'equals', field: 'order.id', value: 'other-order' },
+            ]);
+            expect(wrapper.vm.documents).toHaveLength(1);
+            expect(wrapper.vm.documents.first().id).toBe('other-order-document');
         });
-        await flushPromises();
 
-        expect(documentSearchMock).toHaveBeenCalledTimes(1);
-        expect(documentSearchMock.mock.calls[0][0].filters).toEqual([
-            { type: 'equals', field: 'order.id', value: 'other-order' },
-        ]);
-        expect(wrapper.vm.documents).toHaveLength(1);
-        expect(wrapper.vm.documents.first().id).toBe('other-order-document');
-    });
+        /** @regression */
+        it('should ignore documents of the previous order that arrive after the order changed', async () => {
+            wrapper = await createWrapper();
 
-    /**
-     * The documents card kept showing the previous order's documents after switching orders.
-     * @regression
-     * @see https://github.com/shopware/shopware/issues/21619
-     */
-    it('should ignore documents of the previous order that arrive after the order changed', async () => {
-        wrapper = await createWrapper();
+            const previousOrderDocument = { ...documentFixture, id: 'previous-order-document' };
+            const otherOrderDocument = { ...documentFixture, id: 'other-order-document', orderId: 'other-order' };
+            let resolvePreviousOrderSearch;
+            documentSearchMock.mockReset();
+            documentSearchMock
+                .mockReturnValueOnce(
+                    new Promise((resolve) => {
+                        resolvePreviousOrderSearch = resolve;
+                    }),
+                )
+                .mockResolvedValueOnce(getCollection('document', [otherOrderDocument]));
 
-        const previousOrderDocument = { ...documentFixture, id: 'previous-order-document' };
-        const otherOrderDocument = { ...documentFixture, id: 'other-order-document', orderId: 'other-order' };
-        let resolvePreviousOrderSearch;
-        documentSearchMock.mockReset();
-        documentSearchMock
-            .mockReturnValueOnce(
-                new Promise((resolve) => {
-                    resolvePreviousOrderSearch = resolve;
-                }),
-            )
-            .mockResolvedValueOnce(getCollection('document', [otherOrderDocument]));
+            wrapper.vm.getList();
+            await wrapper.setProps({
+                order: { ...orderFixture, id: 'other-order' },
+            });
+            await flushPromises();
 
-        wrapper.vm.getList();
-        await wrapper.setProps({
-            order: { ...orderFixture, id: 'other-order' },
+            resolvePreviousOrderSearch(getCollection('document', [previousOrderDocument]));
+            await flushPromises();
+
+            expect(wrapper.vm.documents).toHaveLength(1);
+            expect(wrapper.vm.documents.first().id).toBe('other-order-document');
         });
-        await flushPromises();
-
-        resolvePreviousOrderSearch(getCollection('document', [previousOrderDocument]));
-        await flushPromises();
-
-        expect(wrapper.vm.documents).toHaveLength(1);
-        expect(wrapper.vm.documents.first().id).toBe('other-order-document');
     });
 
     it('should not reload the documents when the order is updated without changing its id', async () => {

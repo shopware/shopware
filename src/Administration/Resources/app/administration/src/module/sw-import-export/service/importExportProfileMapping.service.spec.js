@@ -202,38 +202,37 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
      * @regression
      * @see https://github.com/shopware/shopware/issues/10580
      */
-    it('product: should not find any missing required when parentProduct is existing', async () => {
-        const violations = importExportProfileMappingService.validate(
-            'product',
-            mappings.productDuplicateProfileOnlyRequired,
-            mappings.productDuplicateProfileOnlyRequired,
-        );
+    describe('required fields of the product profile', () => {
+        /** @regression */
+        it('product: should not find any missing required when parentProduct is existing', async () => {
+            const violations = importExportProfileMappingService.validate(
+                'product',
+                mappings.productDuplicateProfileOnlyRequired,
+                mappings.productDuplicateProfileOnlyRequired,
+            );
 
-        expect(violations.missingRequiredFields).toHaveLength(0);
-        expect(violations.duplicateMappings).toHaveLength(0);
-    });
+            expect(violations.missingRequiredFields).toHaveLength(0);
+            expect(violations.duplicateMappings).toHaveLength(0);
+        });
 
-    /**
-     * Required fields mapped through an association key such as tax.id were reported as missing.
-     * @regression
-     * @see https://github.com/shopware/shopware/issues/10580
-     */
-    it('product: should find missing required when key.id is existing', async () => {
-        const violations = importExportProfileMappingService.validate(
-            'product',
-            [
-                {
-                    id: 'fc416f509b0b46fabb8cd8728cf63531',
-                    key: 'tax.id',
-                    mappedKey: 'tax_id',
-                },
-            ],
-            mappings.productDuplicateProfileOnlyRequired,
-        );
+        /** @regression */
+        it('product: should find missing required when key.id is existing', async () => {
+            const violations = importExportProfileMappingService.validate(
+                'product',
+                [
+                    {
+                        id: 'fc416f509b0b46fabb8cd8728cf63531',
+                        key: 'tax.id',
+                        mappedKey: 'tax_id',
+                    },
+                ],
+                mappings.productDuplicateProfileOnlyRequired,
+            );
 
-        expect(violations.duplicateMappings).toHaveLength(0);
+            expect(violations.duplicateMappings).toHaveLength(0);
 
-        expect(violations.missingRequiredFields).toEqual(['id', 'productNumber']);
+            expect(violations.missingRequiredFields).toEqual(['id', 'productNumber']);
+        });
     });
 
     it('media: should not find any missing required fields', async () => {

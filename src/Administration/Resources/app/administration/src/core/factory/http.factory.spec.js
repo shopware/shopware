@@ -625,6 +625,11 @@ describe('core/factory/http.factory.js', () => {
         });
     });
 
+    /**
+     * 401 responses made the admin retry requests in an endless loop.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15474
+     */
     describe('refreshTokenInterceptor', () => {
         let loginService;
         let originalShopwareService;
@@ -647,11 +652,7 @@ describe('core/factory/http.factory.js', () => {
             Shopware.Service = originalShopwareService;
         });
 
-        /**
-         * A 401 SSO token error made the admin retry requests in an endless loop.
-         * @regression
-         * @see https://github.com/shopware/shopware/issues/15474
-         */
+        /** @regression */
         it('should not retry 401 responses with SSO_LOGIN__TOKEN_NOT_FOUND error code', async () => {
             mock.onGet('/api/sbp/shop-info').reply(401, {
                 errors: [
@@ -679,11 +680,7 @@ describe('core/factory/http.factory.js', () => {
             expect(loginService.refreshToken).not.toHaveBeenCalled();
         });
 
-        /**
-         * Persistent 401 responses were retried endlessly after a token refresh.
-         * @regression
-         * @see https://github.com/shopware/shopware/issues/15474
-         */
+        /** @regression */
         it('should not retry a 401 request more than once after token refresh', async () => {
             mock.onGet('/api/some-endpoint').reply(401, {});
 

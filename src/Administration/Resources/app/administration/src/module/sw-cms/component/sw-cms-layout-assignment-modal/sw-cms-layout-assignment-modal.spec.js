@@ -1374,58 +1374,63 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     /**
-     * Removing a category assignment beyond the paging boundary was not saved.
+     * Category assignment changes beyond the first page were lost.
      * @regression
      * @see https://github.com/shopware/shopware/issues/18388
      */
-    it('should preserve paginated category assignments when removing a loaded category', async () => {
-        const wrapper = await createWrapper();
-        const extraCategories = Array.from({ length: 50 }, (_, index) => {
-            return {
-                id: `extra-category-${index}`,
+    describe('paginated category assignments', () => {
+        /**
+         * Removing a category assignment beyond the paging boundary was not saved.
+         * @regression
+         */
+        it('should preserve paginated category assignments when removing a loaded category', async () => {
+            const wrapper = await createWrapper();
+            const extraCategories = Array.from({ length: 50 }, (_, index) => {
+                return {
+                    id: `extra-category-${index}`,
+                    cmsPageId: wrapper.vm.page.id,
+                };
+            });
+            const removedCategory = extraCategories.at(-1);
+
+            wrapper.vm.categoryRepository.search = jest
+                .fn()
+                .mockResolvedValueOnce(extraCategories.slice(0, 25))
+                .mockResolvedValueOnce(extraCategories.slice(25));
+
+            await wrapper.vm.onExtraCategories();
+            await wrapper.vm.onExtraCategories();
+
+            wrapper.vm.page.categories.remove(removedCategory.id);
+            wrapper.vm.onCategoryRemove(removedCategory);
+
+            expect(wrapper.vm.page.getOrigin().categories).toHaveLength(53);
+            expect(wrapper.vm.page.categories).toHaveLength(52);
+            expect(wrapper.vm.page.categories.has(removedCategory.id)).toBe(false);
+
+            await expect(wrapper.vm.validateCategories()).rejects.toBeUndefined();
+            expect(wrapper.vm.hasDeletedCategories).toBe(true);
+        });
+
+        /**
+         * Loading another page of categories re-added a removed category assignment.
+         * @regression
+         */
+        it('should not re-add a removed category when loading another category page', async () => {
+            const wrapper = await createWrapper();
+            const removedCategory = {
+                id: 'uuid3',
                 cmsPageId: wrapper.vm.page.id,
             };
+
+            wrapper.vm.page.categories.remove(removedCategory.id);
+            wrapper.vm.onCategoryRemove(removedCategory);
+            wrapper.vm.categoryRepository.search = jest.fn().mockResolvedValue([removedCategory]);
+
+            await wrapper.vm.onExtraCategories();
+
+            expect(wrapper.vm.page.categories.has(removedCategory.id)).toBe(false);
         });
-        const removedCategory = extraCategories.at(-1);
-
-        wrapper.vm.categoryRepository.search = jest
-            .fn()
-            .mockResolvedValueOnce(extraCategories.slice(0, 25))
-            .mockResolvedValueOnce(extraCategories.slice(25));
-
-        await wrapper.vm.onExtraCategories();
-        await wrapper.vm.onExtraCategories();
-
-        wrapper.vm.page.categories.remove(removedCategory.id);
-        wrapper.vm.onCategoryRemove(removedCategory);
-
-        expect(wrapper.vm.page.getOrigin().categories).toHaveLength(53);
-        expect(wrapper.vm.page.categories).toHaveLength(52);
-        expect(wrapper.vm.page.categories.has(removedCategory.id)).toBe(false);
-
-        await expect(wrapper.vm.validateCategories()).rejects.toBeUndefined();
-        expect(wrapper.vm.hasDeletedCategories).toBe(true);
-    });
-
-    /**
-     * Loading another page of categories re-added a removed category assignment.
-     * @regression
-     * @see https://github.com/shopware/shopware/issues/18388
-     */
-    it('should not re-add a removed category when loading another category page', async () => {
-        const wrapper = await createWrapper();
-        const removedCategory = {
-            id: 'uuid3',
-            cmsPageId: wrapper.vm.page.id,
-        };
-
-        wrapper.vm.page.categories.remove(removedCategory.id);
-        wrapper.vm.onCategoryRemove(removedCategory);
-        wrapper.vm.categoryRepository.search = jest.fn().mockResolvedValue([removedCategory]);
-
-        await wrapper.vm.onExtraCategories();
-
-        expect(wrapper.vm.page.categories.has(removedCategory.id)).toBe(false);
     });
 
     it('should restore the complete category baseline when discarding changes', async () => {

@@ -1071,87 +1071,90 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
     });
 
     /**
-     * Order transactions were missing from the export field selection, so state could not be exported.
+     * Order transactions and deliveries were missing from the export field selection, so state could not be exported.
      * @regression
      * @see https://github.com/shopware/shopware/issues/6399
      */
-    it('should show transactions of an order on search', async () => {
-        jest.useFakeTimers();
+    describe('order transactions and deliveries', () => {
+        /** @regression */
+        it('should show transactions of an order on search', async () => {
+            jest.useFakeTimers();
 
-        const wrapper = await createWrapper('order');
-        await flushPromises();
+            const wrapper = await createWrapper('order');
+            await flushPromises();
 
-        const input = wrapper.find('.sw-import-export-entity-path-select__selection-input');
-        await input.trigger('click');
-        await input.setValue('transactions');
-        jest.advanceTimersByTime(300);
-        await flushPromises();
+            const input = wrapper.find('.sw-import-export-entity-path-select__selection-input');
+            await input.trigger('click');
+            await input.setValue('transactions');
+            jest.advanceTimersByTime(300);
+            await flushPromises();
 
-        const selectResults = new DOMWrapper(document.body).findAll('.sw-select-result').map((element) => element.text());
-        expect(selectResults).toStrictEqual([
-            'sw-import-export.profile.mapping.notMapped',
-            'transactions.amount',
-            'transactions.captures',
-            'transactions.createdAt',
-            'transactions.customFields',
-            'transactions.id',
-            'transactions.order',
-            'transactions.orderId',
-            'transactions.orderVersionId',
-            'transactions.paymentMethod',
-            'transactions.paymentMethodId',
-            'transactions.primaryOrder',
-            'transactions.stateId',
-            'transactions.stateMachineState',
-            'transactions.updatedAt',
-            'transactions.validationData',
-            'transactions.versionId',
-        ]);
-    });
+            const selectResults = new DOMWrapper(document.body)
+                .findAll('.sw-select-result')
+                .map((element) => element.text());
+            expect(selectResults).toStrictEqual([
+                'sw-import-export.profile.mapping.notMapped',
+                'transactions.amount',
+                'transactions.captures',
+                'transactions.createdAt',
+                'transactions.customFields',
+                'transactions.id',
+                'transactions.order',
+                'transactions.orderId',
+                'transactions.orderVersionId',
+                'transactions.paymentMethod',
+                'transactions.paymentMethodId',
+                'transactions.primaryOrder',
+                'transactions.stateId',
+                'transactions.stateMachineState',
+                'transactions.updatedAt',
+                'transactions.validationData',
+                'transactions.versionId',
+            ]);
+        });
 
-    /**
-     * Order deliveries were missing from the export field selection, so state could not be exported.
-     * @regression
-     * @see https://github.com/shopware/shopware/issues/6399
-     */
-    it('should show deliveries of an order on search', async () => {
-        jest.useFakeTimers();
+        /** @regression */
+        it('should show deliveries of an order on search', async () => {
+            jest.useFakeTimers();
 
-        const wrapper = await createWrapper('order');
-        await flushPromises();
+            const wrapper = await createWrapper('order');
+            await flushPromises();
 
-        const input = wrapper.find('.sw-import-export-entity-path-select__selection-input');
+            const input = wrapper.find('.sw-import-export-entity-path-select__selection-input');
 
-        await input.trigger('click');
-        await input.setValue('deliveries');
-        jest.advanceTimersByTime(300);
-        await flushPromises();
+            await input.trigger('click');
+            await input.setValue('deliveries');
+            jest.advanceTimersByTime(300);
+            await flushPromises();
 
-        const selectResults = new DOMWrapper(document.body).findAll('.sw-select-result').map((element) => element.text());
-        expect(selectResults).toStrictEqual([
-            'sw-import-export.profile.mapping.notMapped',
-            'deliveries.createdAt',
-            'deliveries.customFields',
-            'deliveries.id',
-            'deliveries.order',
-            'deliveries.orderId',
-            'deliveries.orderVersionId',
-            'deliveries.positions',
-            'deliveries.primaryOrder',
-            'deliveries.shippingCosts',
-            'deliveries.shippingDateEarliest',
-            'deliveries.shippingDateLatest',
-            'deliveries.shippingMethod',
-            'deliveries.shippingMethodId',
-            'deliveries.shippingOrderAddress',
-            'deliveries.shippingOrderAddressId',
-            'deliveries.shippingOrderAddressVersionId',
-            'deliveries.stateId',
-            'deliveries.stateMachineState',
-            'deliveries.trackingCodes',
-            'deliveries.updatedAt',
-            'deliveries.versionId',
-        ]);
+            const selectResults = new DOMWrapper(document.body)
+                .findAll('.sw-select-result')
+                .map((element) => element.text());
+            expect(selectResults).toStrictEqual([
+                'sw-import-export.profile.mapping.notMapped',
+                'deliveries.createdAt',
+                'deliveries.customFields',
+                'deliveries.id',
+                'deliveries.order',
+                'deliveries.orderId',
+                'deliveries.orderVersionId',
+                'deliveries.positions',
+                'deliveries.primaryOrder',
+                'deliveries.shippingCosts',
+                'deliveries.shippingDateEarliest',
+                'deliveries.shippingDateLatest',
+                'deliveries.shippingMethod',
+                'deliveries.shippingMethodId',
+                'deliveries.shippingOrderAddress',
+                'deliveries.shippingOrderAddressId',
+                'deliveries.shippingOrderAddressVersionId',
+                'deliveries.stateId',
+                'deliveries.stateMachineState',
+                'deliveries.trackingCodes',
+                'deliveries.updatedAt',
+                'deliveries.versionId',
+            ]);
+        });
     });
 
     it('should add popover classes to the result list', async () => {

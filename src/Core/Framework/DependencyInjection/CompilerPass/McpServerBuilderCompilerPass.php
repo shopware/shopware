@@ -3,11 +3,11 @@
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
 use Mcp\Schema\ServerCapabilities;
-use Mcp\Server\Subscription\Psr16NotificationBus;
 use Mcp\Server\Subscription\PublishingEventDispatcher;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Cache\Psr16Cache;
+use Shopware\Core\Framework\Mcp\Notification\McpListVersions;
+use Shopware\Core\Framework\Mcp\Notification\McpListVersionsNotificationBus;
 use Symfony\Component\DependencyInjection\Argument\TaggedIteratorArgument;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -76,8 +76,8 @@ class McpServerBuilderCompilerPass implements CompilerPassInterface
 
     /**
      * Seconds a `subscriptions/listen` stream is held before the server closes it and the client reconnects.
-     * Each open stream occupies a PHP worker for that time, so it stays below the common
-     * `max_execution_time` of 30 seconds, which would otherwise kill the worker before the stream closes.
+     * Each open stream occupies a PHP worker for that time, so it stays below the common `max_execution_time`
+     * of 30 seconds, which would otherwise kill the worker instead of closing the stream.
      */
     private const SUBSCRIPTION_LIFETIME = 25.0;
 
@@ -159,9 +159,10 @@ class McpServerBuilderCompilerPass implements CompilerPassInterface
      * that means per feature.
      *
      * On `auto` the Admin API server also gets a notification bus, so a list change such as an app install
-     * reaches the `subscriptions/listen` streams of stateless clients. The bus is a PSR-16 view of
-     * `cache.app`, so it reaches every worker that shares that pool. The Store API lists only change per
-     * session, so that server has nothing to publish and gets no bus.
+     * reaches the `subscriptions/listen` streams of stateless clients. The bus reads the list versions in the
+     * database ({@see McpListVersionsNotificationBus}), so it reaches every worker and host, including changes
+     * made on the CLI. The Store API lists only change per session, so that server has nothing to publish and
+     * gets no bus; its `server/discover` therefore does not announce `listChanged`.
      *
      * No request state key is configured: no Shopware handler asks the client for input more than once
      * or mints its own request state.
@@ -180,13 +181,11 @@ class McpServerBuilderCompilerPass implements CompilerPassInterface
             return;
         }
 
-        $cache = (new Definition(Psr16Cache::class))->setArguments([new Reference('cache.app')]);
-
-        $container->register(self::ADMIN_NOTIFICATION_BUS, Psr16NotificationBus::class)
+        $container->register(self::ADMIN_NOTIFICATION_BUS, McpListVersionsNotificationBus::class)
             ->setArguments([
-                '$cache' => $cache,
-                '$prefix' => 'mcp-admin-notifications.',
-                '$logger' => new Reference('logger'),
+                new Reference(McpListVersions::class),
+                new Reference('cache.app'),
+                new Reference('logger'),
             ])
             ->addTag('monolog.logger', ['channel' => 'mcp']);
 

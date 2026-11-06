@@ -154,7 +154,10 @@ With shopware-cli use `shopware-cli project console administration:upgrade-exten
 - Spec files are not rewritten.
 
 The report lists every spot a codemod found but could not rewrite safely.
-Fix those by hand, then run `administration:check-extensions`.
+For a change without a safe rewrite, for example a removed component without a drop-in replacement,
+`--write` puts a `TODO Codemod:` comment with the replacement above the spot.
+A later run lists the spots that still use the old API again, without writing the comment twice.
+Fix those by hand, remove the `TODO Codemod:` comments, then run `administration:check-extensions`.
 The ESLint codemods run with their own config that enables only the codemod rules.
 Your extension's ESLint config does not change what gets rewritten.
 In `.html.twig` templates, `{{ … }}` is Twig syntax, so the `$tc` codemod only rewrites bindings like `:label="$tc(…)"` there.

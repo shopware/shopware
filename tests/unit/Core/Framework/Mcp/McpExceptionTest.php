@@ -38,4 +38,11 @@ class McpExceptionTest extends TestCase
         static::assertSame('App prompt "my-app-context" failed.', McpException::appPromptFailed('my-app-context', '')->getMessage());
         static::assertSame('App prompt "my-app-context" failed.', McpException::appPromptFailed('my-app-context', null)->getMessage());
     }
+
+    public function testAppResourceFailedPassesTheErrorOfTheAppToTheClient(): void
+    {
+        static::assertSame('ERP unreachable', McpException::appResourceFailed('my-app-stats', 'ERP unreachable')->getMessage());
+        static::assertSame('App resource "my-app-stats" failed.', McpException::appResourceFailed('my-app-stats', '')->getMessage());
+        static::assertSame('App resource "my-app-stats" failed.', McpException::appResourceFailed('my-app-stats', null)->getMessage());
+    }
 }

@@ -2,76 +2,70 @@
  * @sw-package framework
  *
  * Overview
- * This custom ESLint rule enforces that all Shopware.Component.register and Component.register calls
- * pass an anonymous arrow function as the second argument. This ensures components are registered
- * with dynamic imports for lazy loading, improving performance.
+ * This custom ESLint rule enforces that Component.register, Component.extend and Component.override
+ * receive the component config as an anonymous arrow function. This ensures components are loaded
+ * with dynamic imports when they are first used instead of at boot.
  *
  * Example
  *
  * // Invalid
  * Shopware.Component.register('sw-example', { template: '<div>Example</div>' });
  * Component.register('sw-example', import('./sw-example'));
+ * Component.extend('sw-example-child', 'sw-example', import('./sw-example-child'));
  *
  * // Valid
  * Shopware.Component.register('sw-example', () => import('./sw-example'));
- * Component.register('sw-example', () => import('./sw-example'));
+ * Component.extend('sw-example-child', 'sw-example', () => import('./sw-example-child'));
+ * Component.override('sw-example', () => import('./sw-example-override'));
  *
  */
+const configArgumentIndex = new Map([
+    ['register', 1],
+    ['extend', 2],
+    ['override', 1],
+]);
+
+function isComponentFacade(node) {
+    if (node.type === 'Identifier') {
+        return node.name === 'Component';
+    }
+
+    return node.type === 'MemberExpression' && node.object.name === 'Shopware' && node.property.name === 'Component';
+}
+
 module.exports = {
     meta: {
         type: 'problem',
         docs: {
-            description: 'enforce that Shopware.Component.register calls use an anonymous arrow function as the second argument',
+            description:
+                'enforce that Shopware.Component.register, extend and override calls use an anonymous arrow function as the component config',
             category: 'Possible Errors',
             recommended: true,
         },
-        schema: [], // No options needed
+        schema: [],
     },
     create(context) {
         return {
             CallExpression(node) {
-                // Check if the callee is Shopware.Component.register or Component.register
-                const isShopwareRegister =
-                    node.callee.type === 'MemberExpression' &&
-                    node.callee.object.type === 'MemberExpression' &&
-                    node.callee.object.object.name === 'Shopware' &&
-                    node.callee.object.property.name === 'Component' &&
-                    node.callee.property.name === 'register';
-
-                const isComponentRegister =
-                    node.callee.type === 'MemberExpression' &&
-                    node.callee.object.name === 'Component' &&
-                    node.callee.property.name === 'register';
-
-                if (!isShopwareRegister && !isComponentRegister) {
+                const { callee } = node;
+                if (callee.type !== 'MemberExpression' || !isComponentFacade(callee.object)) {
                     return;
                 }
 
-                // Ensure there are at least 2 arguments
-                if (node.arguments.length < 2) {
-                    context.report({
-                        node,
-                        message: '{{ registerCall }} requires at least two arguments',
-                        data: {
-                            registerCall: isShopwareRegister ? 'Shopware.Component.register' : 'Component.register',
-                        },
-                    });
+                const index = configArgumentIndex.get(callee.property.name);
+                if (index === undefined) {
                     return;
                 }
 
-                const secondArg = node.arguments[1];
-
-                // Check if the second argument is an arrow function
-                if (secondArg.type === 'ArrowFunctionExpression') {
+                const config = node.arguments[index];
+                if (!config || config.type === 'ArrowFunctionExpression') {
                     return;
                 }
 
                 context.report({
-                    node: secondArg,
-                    message: 'Second argument to {{ registerCall }} must be a dynamic import: {{ registerCall }}(\'sw-example\', () => import(\'./sw-example\'))',
-                    data: {
-                        registerCall: isShopwareRegister ? 'Shopware.Component.register' : 'Component.register',
-                    },
+                    node: config,
+                    message: "The component config of {{ call }} must be a dynamic import: () => import('./sw-example')",
+                    data: { call: context.sourceCode.getText(callee) },
                 });
             },
         };

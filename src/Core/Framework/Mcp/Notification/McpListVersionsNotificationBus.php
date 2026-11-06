@@ -25,6 +25,8 @@ use Symfony\Contracts\Cache\ItemInterface;
  *   changes and allowlist edits all end up in the same table. Notifications that name no list are dropped.
  * - cursor() packs the three versions into one integer, since() emits `list_changed` for each list whose
  *   version differs from the one packed into the cursor.
+ * - A failing read never ends a stream: cursor() then returns an unknown cursor, for which the next successful
+ *   since() emits `list_changed` for all three lists, and since() keeps the cursor it was given.
  * - Streams poll since() about four times a second. The versions are read through a `cache.app` item that
  *   lives one second, so each host reads the table at most once a second, however many streams are open.
  *
@@ -48,6 +50,11 @@ final class McpListVersionsNotificationBus implements NotificationBusInterface
     private const BITS = 21;
 
     private const MASK = (1 << self::BITS) - 1;
+
+    /**
+     * Packed cursors are never negative, so this cannot collide with a real one.
+     */
+    private const UNKNOWN_CURSOR = -1;
 
     /**
      * @internal
@@ -81,7 +88,15 @@ final class McpListVersionsNotificationBus implements NotificationBusInterface
 
     public function cursor(): int
     {
-        return self::pack($this->versions());
+        try {
+            return self::pack($this->versions());
+        } catch (\Throwable $exception) {
+            $this->logger->warning('Could not read the MCP list versions to open a subscriptions/listen stream.', [
+                'exception' => $exception,
+            ]);
+
+            return self::UNKNOWN_CURSOR;
+        }
     }
 
     /**
@@ -103,6 +118,10 @@ final class McpListVersionsNotificationBus implements NotificationBusInterface
         $next = self::pack($versions);
         if ($next === $cursor) {
             return [[], $cursor];
+        }
+
+        if ($cursor === self::UNKNOWN_CURSOR) {
+            return [[new ToolListChangedNotification(), new ResourceListChangedNotification(), new PromptListChangedNotification()], $next];
         }
 
         $notifications = [];

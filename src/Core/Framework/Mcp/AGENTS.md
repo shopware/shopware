@@ -103,6 +103,7 @@ Clients learn about changed tool, prompt and resource lists through `notificatio
 - **Only the Admin API server compares versions.** App capabilities are only registered there, so the Store API notifier has no `McpListVersions` and only handles toolset enables.
 - **The stateless era has no session to queue into.** With `shopware.mcp.protocol_era.admin: auto`, the Admin API server gets `McpListVersionsNotificationBus` as its SDK notification bus, which `subscriptions/listen` streams read.
   The bus has no backlog of its own: its cursor packs the three list versions, and `since()` announces each list whose version moved.
+  A failing read never ends a stream: the next successful read announces every list when the stream opened without versions, otherwise the stream stays at its cursor.
   The stream polls every 250 ms, and the bus reads the versions through a `cache.app` entry that lives one second, so a change reaches an open stream within about a second, from any process and any host, with one table read per host and second.
   `publish()` bumps the version, so the SDK's registry events end up in the same table as `notify()`; `notify()` only bumps and does not publish a second time.
   The Store API server has no bus and does not announce `listChanged` on `server/discover`: its lists only change per session.

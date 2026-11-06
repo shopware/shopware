@@ -74,20 +74,36 @@ class McpAllowlistChangeSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * Compares the decoded entries, so a value written again with other whitespace or key order is no change.
+     * Compares the decoded entries, so a value written again with other whitespace, key order or order of
+     * the names in a list is no change.
      */
     private static function changedLists(mixed $before, mixed $after): McpListChangedNotificationSet
     {
         $before = self::decode($before);
         $after = self::decode($after);
 
-        $moved = static fn (string $list): bool => ($before[$list] ?? null) !== ($after[$list] ?? null);
+        $moved = static fn (string $list): bool => self::names($before[$list] ?? null) !== self::names($after[$list] ?? null);
 
         return new McpListChangedNotificationSet(
             tools: $moved(McpAllowlist::TOOLS),
             resources: $moved(McpAllowlist::RESOURCES),
             prompts: $moved(McpAllowlist::PROMPTS),
         );
+    }
+
+    /**
+     * @return list<mixed>|null
+     */
+    private static function names(mixed $entry): ?array
+    {
+        if (!\is_array($entry)) {
+            return null;
+        }
+
+        $names = array_values($entry);
+        sort($names);
+
+        return $names;
     }
 
     /**

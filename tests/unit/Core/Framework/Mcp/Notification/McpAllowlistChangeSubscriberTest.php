@@ -102,6 +102,17 @@ class McpAllowlistChangeSubscriberTest extends TestCase
         $event->success();
     }
 
+    public function testTheSameNamesInAnotherOrderAreNoChange(): void
+    {
+        $before = '{"tools":["shopware-order-search","shopware-entity-read"],"resources":null,"prompts":null}';
+        $command = $this->update(IntegrationDefinition::class, $before, '{"tools":["shopware-entity-read","shopware-order-search"],"resources":null,"prompts":null}');
+        $notifier = $this->expectNotification(tools: false, resources: false, prompts: false);
+
+        $event = $this->write($command);
+        (new McpAllowlistChangeSubscriber($notifier))->onWrite($event);
+        $event->success();
+    }
+
     /**
      * The change set drops a column whose value did not change, so its `after` is null just like
      * for a removed allowlist. An identical write must not read as a removal.

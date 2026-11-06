@@ -10,7 +10,7 @@ import {
     getEditChanges,
     type DocumentChanges,
 } from './document-translation.utils';
-import { loadDocumentVariants, getMatchingVariantDocuments } from './document-variant.service';
+import { loadDocumentVariants, getDocumentVariantCandidates } from './document-variant.service';
 import template from './sw-product-document-form.html.twig';
 import './sw-product-document-form.scss';
 
@@ -468,13 +468,12 @@ export default Shopware.Component.wrapComponentConfig({
         ): string[] {
             const children =
                 this.product.children || new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api);
-            const candidates = new Map(variants.map((variant) => [variant.id, variant]));
-            children.forEach((variant) => candidates.set(variant.id, variant));
+            const candidates = getDocumentVariantCandidates(variants, children, originalMediaId);
             const updatedVariantIds: string[] = [];
             const context = Shopware.Context.api;
-            candidates.forEach((variant) => {
+            candidates.forEach(({ variant, matching }) => {
                 let changed = false;
-                getMatchingVariantDocuments(variant, originalMediaId)?.forEach((copy) => {
+                matching.forEach((copy) => {
                     const update = getDocumentTranslationChanges(copy, changes, context, this.isDefaultLanguage);
                     this.applyDocumentChanges(copy, update);
                     const origin = copy.getOrigin();
@@ -499,11 +498,9 @@ export default Shopware.Component.wrapComponentConfig({
             const origin = this.product.getOrigin();
             const originChildren =
                 origin.children || new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api);
-            const candidates = new Map(variants.map((variant) => [variant.id, variant]));
-            children.forEach((variant) => candidates.set(variant.id, variant));
-            candidates.forEach((variant) => {
+            const candidates = getDocumentVariantCandidates(variants, children, mediaId);
+            candidates.forEach(({ variant, matching }) => {
                 const documents = variant.documents;
-                const matching = getMatchingVariantDocuments(variant, mediaId);
                 if (!documents || !matching?.length) {
                     return;
                 }

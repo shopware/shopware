@@ -35,3 +35,17 @@ export function getMatchingVariantDocuments(variant: Entity<'product'>, mediaId:
         (document) => document.productId === variant.id && (document.mediaId || document.translated?.mediaId) === mediaId,
     );
 }
+
+/** @private */
+export function getDocumentVariantCandidates(
+    variants: Entity<'product'>[],
+    children: EntityCollection<'product'>,
+    mediaId: string,
+) {
+    const candidates = new Map(variants.map((variant) => [variant.id, variant]));
+    children.forEach((variant) => candidates.set(variant.id, variant));
+    return Array.from(candidates.values(), (variant) => ({
+        variant,
+        matching: getMatchingVariantDocuments(variant, mediaId) || [],
+    }));
+}

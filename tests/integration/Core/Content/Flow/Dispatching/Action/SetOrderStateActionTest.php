@@ -223,6 +223,50 @@ class SetOrderStateActionTest extends TestCase
         static::assertSame('shipped', $oderDeliveryForShippingCosts->getStateMachineState()?->getTechnicalName());
     }
 
+    public function testSetStateOnPrimaryOrderDeliveryWithLowerShippingCosts(): void
+    {
+        $this->createCustomerAndLogin();
+
+        $orderId = $this->ids->get('order');
+        $primaryOrderDeliveryId = $this->ids->get('primary-delivery');
+        $otherOrderDeliveryId = $this->ids->get('other-delivery');
+
+        $this->createOrder($this->ids->get('customer'), [
+            'id' => $orderId,
+            'primaryOrderDeliveryId' => $primaryOrderDeliveryId,
+            'deliveries' => [
+                $this->generateOrderDeliveryPayload([
+                    'id' => $primaryOrderDeliveryId,
+                    'shippingCosts' => new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                ]),
+                $this->generateOrderDeliveryPayload([
+                    'id' => $otherOrderDeliveryId,
+                    'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                ]),
+            ],
+        ]);
+
+        $context = Generator::generateSalesChannelContext();
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $context->getContext())->getEntities()->first();
+        static::assertInstanceOf(OrderEntity::class, $order);
+
+        $flow = static::getContainer()->get(FlowFactory::class)->create(new CheckoutOrderPlacedEvent($context, $order));
+        $flow->setConfig(['order_delivery' => 'shipped']);
+
+        $action = new SetOrderStateAction(
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(OrderService::class),
+        );
+        $action->handleFlow($flow);
+
+        $criteria = new Criteria([$primaryOrderDeliveryId, $otherOrderDeliveryId]);
+        $criteria->addAssociation('stateMachineState');
+        $orderDeliveries = $this->orderDeliveryRepository->search($criteria, $context->getContext())->getEntities();
+
+        static::assertSame('shipped', $orderDeliveries->get($primaryOrderDeliveryId)?->getStateMachineState()?->getTechnicalName());
+        static::assertSame('open', $orderDeliveries->get($otherOrderDeliveryId)?->getStateMachineState()?->getTechnicalName());
+    }
+
     /**
      * @param array<int|string, mixed> $payload
      *

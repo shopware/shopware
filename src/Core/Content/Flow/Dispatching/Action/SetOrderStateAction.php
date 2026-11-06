@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
@@ -33,6 +34,8 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
 
     private const ORDER_TRANSACTION = 'order_transaction';
 
+    private const FLOW_ORDER_DELIVERY = 'orderDelivery';
+
     /**
      * @internal
      */
@@ -61,13 +64,13 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
             return;
         }
 
-        $this->update($flow->getContext(), $flow->getConfig(), $flow->getData(OrderAware::ORDER_ID));
+        $this->update($flow, $flow->getContext(), $flow->getConfig(), $flow->getData(OrderAware::ORDER_ID));
     }
 
     /**
      * @param array<string, mixed> $config
      */
-    private function update(Context $context, array $config, string $orderId): void
+    private function update(StorableFlow $flow, Context $context, array $config, string $orderId): void
     {
         if ($config === []) {
             return;
@@ -85,7 +88,7 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
 
         try {
             foreach ($transitions as $machine => $toPlace) {
-                $this->transitState((string) $machine, $orderId, (string) $toPlace, $context);
+                $this->transitState($flow, (string) $machine, $orderId, (string) $toPlace, $context);
             }
         } catch (FlowException $e) {
             throw TransactionFailedException::because($e);
@@ -98,7 +101,7 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
      * @throws IllegalTransitionException
      * @throws FlowException
      */
-    private function transitState(string $machine, string $orderId, string $toPlace, Context $context): void
+    private function transitState(StorableFlow $flow, string $machine, string $orderId, string $toPlace, Context $context): void
     {
         if (!$toPlace) {
             return;
@@ -110,14 +113,14 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
             if ($machine === self::ORDER) {
                 $machineId = $orderId;
             } elseif ($machine === self::ORDER_DELIVERY) {
-                $machineId = $this->getMachineIdFromOrderDelivery($orderId, $context);
+                $machineId = $this->getMachineIdFromOrderDelivery($flow, $orderId, $context);
             } else {
                 $machineId = $this->getMachineId($machine, $orderId);
             }
         } else {
             $machineId = match ($machine) {
                 self::ORDER => $orderId,
-                self::ORDER_DELIVERY => $this->getMachineIdFromOrderDelivery($orderId, $context),
+                self::ORDER_DELIVERY => $this->getMachineIdFromOrderDelivery($flow, $orderId, $context),
                 self::ORDER_TRANSACTION => $this->getMachineIdFromOrderTransaction($orderId, $context),
                 default => $this->getMachineId($machine, $orderId),
             };
@@ -161,14 +164,32 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
         ) ?: null;
     }
 
-    private function getMachineIdFromOrderDelivery(string $orderId, Context $context): ?string
+    private function getMachineIdFromOrderDelivery(StorableFlow $flow, string $orderId, Context $context): ?string
     {
+        $flowOrderDelivery = $flow->getData(self::FLOW_ORDER_DELIVERY);
+        if ($flowOrderDelivery instanceof OrderDeliveryEntity && $flowOrderDelivery->getOrderId() === $orderId) {
+            return $flowOrderDelivery->getId();
+        }
+
+        $params = [
+            'id' => Uuid::fromHexToBytes($orderId),
+            'version' => Uuid::fromHexToBytes($context->getVersionId()),
+        ];
+
+        $primaryOrderDeliveryId = $this->connection->fetchOne(
+            'SELECT LOWER(HEX(order_delivery.id)) FROM `order`
+            INNER JOIN order_delivery ON order_delivery.id = `order`.primary_order_delivery_id AND order_delivery.version_id = `order`.version_id
+            WHERE `order`.id = :id AND `order`.version_id = :version',
+            $params,
+        );
+
+        if ($primaryOrderDeliveryId) {
+            return $primaryOrderDeliveryId;
+        }
+
         return $this->connection->fetchOne(
             'SELECT LOWER(HEX(id)) FROM ' . self::ORDER_DELIVERY . ' WHERE order_id = :id AND version_id = :version ORDER BY JSON_EXTRACT(shipping_costs, \'$.totalPrice\') DESC',
-            [
-                'id' => Uuid::fromHexToBytes($orderId),
-                'version' => Uuid::fromHexToBytes($context->getVersionId()),
-            ],
+            $params,
         ) ?: null;
     }
 

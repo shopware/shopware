@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
@@ -114,6 +115,64 @@ class SetOrderStateActionTest extends TestCase
             $orderService->expects($this->never())
                 ->method('orderTransactionStateTransition');
         }
+
+        $this->createAction($connection, $orderService)->handleFlow($flow);
+    }
+
+    #[DataProvider('orderDeliveryProvider')]
+    public function testOrderDeliveryTransitionTarget(?string $flowOrderDeliveryOrder, ?string $primaryOrderDelivery, string $expectedOrderDelivery): void
+    {
+        $ids = new IdsCollection();
+
+        $flow = new StorableFlow('foo', Context::createDefaultContext(), [], [
+            OrderAware::ORDER_ID => $ids->get('order'),
+        ]);
+        $flow->setConfig(['order_delivery' => 'shipped']);
+
+        if ($flowOrderDeliveryOrder !== null) {
+            $flowOrderDelivery = new OrderDeliveryEntity();
+            $flowOrderDelivery->setId($ids->get('flowOrderDelivery'));
+            $flowOrderDelivery->setOrderId($ids->get($flowOrderDeliveryOrder));
+            $flow->setData('orderDelivery', $flowOrderDelivery);
+        }
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchOne')->willReturnCallback(
+            static function (string $sql) use ($ids, $primaryOrderDelivery): string|false {
+                if (str_contains($sql, 'primary_order_delivery_id')) {
+                    return $primaryOrderDelivery !== null ? $ids->get($primaryOrderDelivery) : false;
+                }
+
+                if (str_contains($sql, 'shipping_costs')) {
+                    return $ids->get('highestShippingCostsOrderDelivery');
+                }
+
+                return 'ship';
+            }
+        );
+
+        $orderService = $this->createMock(OrderService::class);
+        $orderService->expects($this->once())
+            ->method('orderDeliveryStateTransition')
+            ->with($ids->get($expectedOrderDelivery), 'ship', new ParameterBag());
+
+        $this->createAction($connection, $orderService)->handleFlow($flow);
+    }
+
+    public function testOrderDeliveryOfTheFlowIsOnlyLoadedForADeliveryTransition(): void
+    {
+        $flow = new StorableFlow('foo', Context::createDefaultContext(), [], [
+            OrderAware::ORDER_ID => Uuid::randomHex(),
+        ]);
+        $flow->setConfig(['order' => 'cancelled']);
+        $flow->lazy('orderDelivery', static fn () => static::fail('The order delivery of the flow was loaded'));
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchOne')->willReturn('cancel');
+
+        $orderService = $this->createMock(OrderService::class);
+        $orderService->expects($this->once())
+            ->method('orderStateTransition');
 
         $this->createAction($connection, $orderService)->handleFlow($flow);
     }
@@ -259,6 +318,33 @@ class SetOrderStateActionTest extends TestCase
                 'orderDelivery' => null,
                 'orderTransaction' => null,
             ],
+        ];
+    }
+
+    public static function orderDeliveryProvider(): \Generator
+    {
+        yield 'order delivery of the flow' => [
+            'order',
+            'primaryOrderDelivery',
+            'flowOrderDelivery',
+        ];
+
+        yield 'order delivery of the flow from another order' => [
+            'otherOrder',
+            'primaryOrderDelivery',
+            'primaryOrderDelivery',
+        ];
+
+        yield 'primary order delivery' => [
+            null,
+            'primaryOrderDelivery',
+            'primaryOrderDelivery',
+        ];
+
+        yield 'order delivery with the highest shipping costs without primary order delivery' => [
+            null,
+            null,
+            'highestShippingCostsOrderDelivery',
         ];
     }
 

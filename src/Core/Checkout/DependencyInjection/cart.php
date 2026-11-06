@@ -508,6 +508,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DeliveryBuilder::class),
             service(DeliveryCalculator::class),
             service('shipping_method.repository'),
+            service(ExtensionDispatcher::class),
         ])
         ->tag('shopware.cart.processor', ['priority' => -5000])
         ->tag('shopware.cart.collector', ['priority' => -5000]);

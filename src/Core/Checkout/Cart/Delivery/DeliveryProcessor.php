@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
+use Shopware\Core\Checkout\Cart\Extension\CollectDeliveryShippingMethodsExtension;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
@@ -15,6 +16,7 @@ use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Profiler;
@@ -43,7 +45,8 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
     public function __construct(
         protected DeliveryBuilder $builder,
         protected DeliveryCalculator $deliveryCalculator,
-        protected EntityRepository $shippingMethodRepository
+        protected EntityRepository $shippingMethodRepository,
+        protected ExtensionDispatcher $extensions
     ) {
     }
 
@@ -54,7 +57,7 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
 
     public function collect(CartDataCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void
     {
-        Profiler::trace('cart::delivery::collect', function () use ($data, $original, $context): void {
+        Profiler::trace('cart::delivery::collect', function () use ($data, $original, $context, $behavior): void {
             $default = $context->getShippingMethod()->getId();
             $ids = [];
 
@@ -70,28 +73,14 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
                 }
             }
 
-            if ($ids === []) {
-                return;
-            }
+            $shippingMethods = $this->extensions->publish(
+                name: CollectDeliveryShippingMethodsExtension::NAME,
+                extension: new CollectDeliveryShippingMethodsExtension($ids, $original, $context, $behavior),
+                function: fn (array $shippingMethodIds, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): ShippingMethodCollection => $this->loadShippingMethods($data, $shippingMethodIds, $context),
+            );
 
-            $criteria = (new Criteria($ids))
-                ->addAssociations([
-                    'prices',
-                    'deliveryTime',
-                    'tax',
-                ])
-                ->setTitle('cart::shipping-methods');
-
-            $shippingMethods = $this->shippingMethodRepository->search($criteria, $context->getContext())->getEntities();
-
-            foreach ($ids as $id) {
-                $key = self::buildKey($id);
-
-                if (!$shippingMethods->has($id)) {
-                    continue;
-                }
-
-                $data->set($key, $shippingMethods->get($id));
+            foreach ($shippingMethods as $shippingMethod) {
+                $data->set(self::buildKey($shippingMethod->getId()), $shippingMethod);
             }
         }, 'cart');
     }
@@ -143,5 +132,27 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
 
             $toCalculate->setDeliveries($deliveries);
         }, 'cart');
+    }
+
+    /**
+     * @param array<string> $ids
+     */
+    private function loadShippingMethods(CartDataCollection $data, array $ids, SalesChannelContext $context): ShippingMethodCollection
+    {
+        $ids = array_values(array_unique(array_filter($ids, static fn (string $id): bool => !$data->has(self::buildKey($id)))));
+
+        if ($ids === []) {
+            return new ShippingMethodCollection();
+        }
+
+        $criteria = (new Criteria($ids))
+            ->addAssociations([
+                'prices',
+                'deliveryTime',
+                'tax',
+            ])
+            ->setTitle('cart::shipping-methods');
+
+        return $this->shippingMethodRepository->search($criteria, $context->getContext())->getEntities();
     }
 }

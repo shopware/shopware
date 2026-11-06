@@ -277,6 +277,22 @@ Check import files that relied on `0` being ignored.
 
 The property is unused and will be removed in 6.8.
 
+### Load extra shipping methods for cart deliveries
+
+The cart only loads the shipping method of the context and the methods of the deliveries it already has.
+A delivery that gets another method during the calculation failed with `CHECKOUT__SHIPPING_METHOD_NOT_FOUND`, unless an extension decorated the delivery processor or loaded every shipping method up front.
+
+`CollectDeliveryShippingMethodsExtension` (`delivery-processor.collect-shipping-methods`) now lets you add the ids of the methods your deliveries need in `onPre()`:
+
+```php
+public function onCollect(CollectDeliveryShippingMethodsExtension $extension): void
+{
+    $extension->shippingMethodIds[] = $selectedShippingMethodId;
+}
+```
+
+Ids that are already loaded for the cart are skipped.
+
 ## API
 
 ### Plain JSON becomes the default Admin API response format in 6.8

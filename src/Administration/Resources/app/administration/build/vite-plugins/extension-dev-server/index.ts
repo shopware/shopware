@@ -2,9 +2,9 @@
  * @sw-package framework
  */
 import colors from 'picocolors';
-import type { IncomingMessage } from 'http';
+import type { IncomingMessage, ServerResponse } from 'http';
 import type { Duplex } from 'stream';
-import type { Plugin, ViteDevServer } from 'vite';
+import type { Connect, Plugin, ViteDevServer } from 'vite';
 import { getExtensionDevConfig } from '../extension-config';
 import { getExtensionBasePath, writePluginDevJson } from '../utils';
 import type { ExtensionDefinition } from '../utils';
@@ -12,6 +12,11 @@ import type { ViteToolchain } from '../vite-toolchain';
 
 // Typed with Vite 6, which does not know the `closeServer` hook of Vite 8
 type Vite8Plugin = Plugin & { closeServer: () => Promise<void> };
+
+type ExtensionServer = {
+    server: ViteDevServer;
+    handle: Connect.NextHandleFunction;
+};
 
 /**
  * @private
@@ -23,7 +28,7 @@ export default function ExtensionDevServerPlugin(
     extensions: ExtensionDefinition[],
     useBundledDev: boolean,
 ): Vite8Plugin {
-    const servers = new Map<string, ViteDevServer>();
+    const servers = new Map<string, ExtensionServer>();
     const basePaths = extensions.map(getExtensionBasePath);
     const findBasePath = (url = '') => basePaths.find((basePath) => url.startsWith(basePath));
     let httpServer: ViteDevServer['httpServer'] = null;
@@ -80,16 +85,13 @@ export default function ExtensionDevServerPlugin(
                     return;
                 }
 
-                server.middlewares(request, response, () => {
-                    response.writeHead(404, { 'Content-Type': 'text/plain' });
-                    response.end();
-                });
+                server.handle(request, response, next);
             });
         },
 
         async closeServer() {
             httpServer?.off('upgrade', rejectUpgradeOfFailedServer);
-            await Promise.allSettled([...servers.values()].map((server) => server.close()));
+            await Promise.allSettled([...servers.values()].map(({ server }) => server.close()));
             servers.clear();
         },
     };
@@ -110,12 +112,14 @@ async function createExtensionServer(
     extension: ExtensionDefinition,
     useBundledDev: boolean,
     parent: ViteDevServer,
-): Promise<ViteDevServer> {
+): Promise<ExtensionServer> {
     const config = getExtensionDevConfig(toolchain, extension, useBundledDev);
+    const failedRequests = new WeakSet<IncomingMessage>();
     let startingServer: ViteDevServer | undefined;
+    let server: ViteDevServer;
 
     try {
-        return await toolchain.vite.createServer({
+        server = await toolchain.vite.createServer({
             ...config,
             plugins: [
                 ...(config.plugins ?? []),
@@ -128,8 +132,8 @@ async function createExtensionServer(
                         order: 'post',
                         handler(extensionConfig) {
                             // A returned config would only be merged, so the socket options of the extension would stay
-                            const server = (extensionConfig.server ??= {});
-                            Object.assign(server, {
+                            const serverConfig = (extensionConfig.server ??= {});
+                            Object.assign(serverConfig, {
                                 middlewareMode: true,
                                 host: parent.config.server.host,
                                 port: parent.config.server.port,
@@ -137,7 +141,7 @@ async function createExtensionServer(
                                 // Typed with Vite 6, which only knows `ws: false`
                                 ws: { server: parent.httpServer },
                             });
-                            const hmr = server.hmr;
+                            const hmr = serverConfig.hmr;
                             if (typeof hmr === 'object') {
                                 hmrSocketOptions.forEach((key) => delete hmr[key]);
                             }
@@ -145,8 +149,23 @@ async function createExtensionServer(
                     },
                     configureServer: {
                         order: 'pre',
-                        handler(server) {
-                            startingServer = server;
+                        handler(devServer) {
+                            startingServer = devServer;
+
+                            // The error middleware of Vite logs an error, but does not pass it on in middleware mode
+                            return () => {
+                                devServer.middlewares.use(
+                                    (
+                                        error: unknown,
+                                        request: IncomingMessage,
+                                        _response: ServerResponse,
+                                        next: Connect.NextFunction,
+                                    ) => {
+                                        failedRequests.add(request);
+                                        next(error);
+                                    },
+                                );
+                            };
                         },
                     },
                 },
@@ -157,4 +176,21 @@ async function createExtensionServer(
         await startingServer?.close();
         throw error;
     }
+
+    return {
+        server,
+        handle(request, response, next) {
+            server.middlewares(request, response, (error?: unknown) => {
+                // Only reached by Vite versions whose error middleware passes the error on in middleware mode
+                if (error) {
+                    next(error);
+                    return;
+                }
+
+                // The extension server already logged the error of a failed request
+                response.writeHead(failedRequests.has(request) ? 500 : 404, { 'Content-Type': 'text/plain' });
+                response.end();
+            });
+        },
+    };
 }

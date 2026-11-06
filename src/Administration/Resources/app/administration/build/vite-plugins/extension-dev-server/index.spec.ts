@@ -35,10 +35,13 @@ describe('build/vite-plugins/extension-dev-server', () => {
                     server: { hmr: { port: 24679 }, ws: { host: 'hmr.invalid', protocol: 'wss' } },
                     plugins: [{
                         name: 'fail-on-marker',
-                        configureServer() {
+                        configureServer(server) {
                             if (existsSync(${JSON.stringify(path.join(projectRoot, `${technicalName}.fail`))})) {
                                 throw new Error('failed');
                             }
+                            server.middlewares.use((request, response, next) => {
+                                next(request.url.endsWith('/broken.js') ? new Error('broken') : undefined);
+                            });
                         },
                     }],
                 };
@@ -140,6 +143,7 @@ describe('build/vite-plugins/extension-dev-server', () => {
                 }
                 result.meteorApp = await text('/_internal_app/alpha/');
                 result.missingFile = await status('/_internal_ext/alpha/missing.js');
+                result.brokenFile = await status('/_internal_ext/alpha/broken.js');
                 result.failing = await status(${JSON.stringify(entry('failing'))});
 
                 result.hmrFallbackOnAdministrationPort = (await text(${JSON.stringify(hmrClient)})).includes(
@@ -191,6 +195,7 @@ describe('build/vite-plugins/extension-dev-server', () => {
             expect(meteorApp).toContain('/_internal_app/alpha/@vite/client');
             expect(result).toEqual({
                 missingFile: 404,
+                brokenFile: 500,
                 failing: 503,
                 hmrFallbackOnAdministrationPort: true,
                 hmr: 'connected',

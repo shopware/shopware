@@ -5,13 +5,13 @@
  */
 import { computed, inject, unref, watch, type ComputedRef } from 'vue';
 
-/** @private */
+/** @public */
 export interface RuleConditionNode {
     id?: string;
     [key: string]: unknown;
 }
 
-/** @private */
+/** @public */
 export interface ContainerRowClass {
     'is--disabled': boolean;
     'container-condition-level__is--odd'?: boolean;
@@ -23,7 +23,7 @@ export interface ContainerRowClass {
  * call the host's `onAddPlaceholder()`. The props arrive as getters and the watcher callback as an
  * option, because a composable can declare neither.
  *
- * @private
+ * @public
  */
 export interface UseRuleContainerOptions {
     condition: () => RuleConditionNode;
@@ -32,7 +32,7 @@ export interface UseRuleContainerOptions {
     onAddPlaceholder: () => void;
 }
 
-/** @private */
+/** @public */
 export interface UseRuleContainerReturn {
     conditionDataProviderService: ComputedRef<unknown>;
     childAssociationField: ComputedRef<string>;
@@ -53,7 +53,7 @@ export interface UseRuleContainerReturn {
  *
  * Keep this and `src/app/mixin/rule-container.mixin.ts` in sync — change both together.
  *
- * @private
+ * @public
  */
 export default function useRuleContainer(options: UseRuleContainerOptions): UseRuleContainerReturn {
     const injectedDataProviderService = inject<unknown>('conditionDataProviderService');

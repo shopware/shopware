@@ -9,7 +9,7 @@ import { nextTick, ref, type Ref } from 'vue';
  * The mixin emitted its three events off the instance. A composable has no `$emit`, so the events
  * arrive as callbacks named after what happened.
  *
- * @private
+ * @public
  */
 export interface UseMediaSidebarModalOptions {
     onItemsDelete: (ids: string[]) => void;
@@ -29,7 +29,7 @@ export interface UseMediaSidebarModalOptions {
  * Keep this and `src/module/sw-media/mixin/media-sidebar-modal.mixin.js` in sync — change both
  * together.
  *
- * @private
+ * @public
  */
 export default function useMediaSidebarModal(options: UseMediaSidebarModalOptions): {
     showModalReplace: Ref<boolean>;

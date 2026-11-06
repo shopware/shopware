@@ -13,7 +13,7 @@ import Criteria from 'src/core/data/criteria.data';
  *
  * Keep this and `src/app/mixin/position.mixin.ts` in sync — change both together.
  *
- * @private
+ * @public
  */
 export default function usePosition(): {
     getNewPosition: <EntityName extends keyof EntitySchema.EntityKeys>(

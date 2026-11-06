@@ -76,7 +76,7 @@
                             v-model:value="searchPreference._searchable"
                             :label="getModuleTitle(searchPreference.entityName)"
                             @update:value="onChangeSearchPreference(searchPreference)"
-                            name="sw-field--searchPreference-_searchable"
+                            :name="`sw-field--searchPreference-${searchPreference.entityName}-_searchable`"
                         />
                         <ul class="sw-profile-index-search-preferences-searchable-elements__entity">
                             <li
@@ -86,7 +86,7 @@
                             >
                                 <sw-checkbox-field
                                     v-model:value="field._searchable"
-                                    name="sw-field--field-_searchable"
+                                    :name="`sw-field--field-${searchPreference.entityName}-${field.fieldName}-_searchable`"
                                     :label="$tc(`sw-profile.tabSearchPreferences.modules.${searchPreference.entityName}.${field.fieldName}`)"
                                     :disabled="adminEsEnable || !searchPreference._searchable"
                                 />

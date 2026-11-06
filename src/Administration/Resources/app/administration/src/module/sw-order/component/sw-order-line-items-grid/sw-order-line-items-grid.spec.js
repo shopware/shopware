@@ -942,6 +942,11 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         expect(labelLink.exists()).toBeFalsy();
     });
 
+    /**
+     * Changing an order line item quantity left child quantities unchanged and caused a mismatch error.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/6211
+     */
     it('should recursively update nested line item quantities', async () => {
         const wrapper = await createWrapper();
 

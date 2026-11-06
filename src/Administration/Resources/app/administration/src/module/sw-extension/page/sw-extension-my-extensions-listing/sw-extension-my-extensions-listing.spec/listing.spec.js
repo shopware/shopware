@@ -143,6 +143,11 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
         });
     });
 
+    /**
+     * The extension listing sorting was not kept in the URL and reset on reload.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18625
+     */
     it('should persist the selected sorting option in the route', async () => {
         const wrapper = await createWrapper();
 
@@ -155,6 +160,11 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
         expect(wrapper.vm.$route.query.sorting).toBe('name-asc');
     });
 
+    /**
+     * The extension listing sorting was not kept in the URL and reset on reload.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18625
+     */
     it('should apply the sorting option from the route after loading', async () => {
         const wrapper = await createWrapper({ query: { sorting: 'name-asc' } });
         const extensions = ['Zeta', 'Alpha'].map((name) => ({

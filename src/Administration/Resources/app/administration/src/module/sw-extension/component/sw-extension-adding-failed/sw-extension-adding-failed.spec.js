@@ -78,6 +78,11 @@ describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
         );
     });
 
+    /**
+     * Cancelled rental subscriptions still showed the active-rental notice.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/17526
+     */
     it('does not render additional information if the rent license is cancelled', async () => {
         Shopware.Store.get('shopwareExtensions').setMyExtensions([
             {

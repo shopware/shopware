@@ -133,6 +133,11 @@ describe('module/sw-cms/elements/cross-selling/component', () => {
         expect(wrapper.vm.sliderBoxLimit).toBe(1);
     });
 
+    /**
+     * Product boxes did not adjust when the cross-selling element was resized.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/10379
+     */
     it('ResizeObserver triggers setSliderRowLimit when resized', async () => {
         const wrapper = await createWrapper();
 

@@ -314,6 +314,11 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files
         });
     });
 
+    /**
+     * Viewer-role users could edit staged agentic file configuration.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/19901
+     */
     it('disables state changes for sales channel viewers', async () => {
         global.activeAclRoles = ['sales_channel.viewer'];
         const { wrapper } = await createWrapper();

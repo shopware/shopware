@@ -373,6 +373,11 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         expect(itemUrl).not.toBe('#/detail/1a2b');
     });
 
+    /**
+     * Collapsed root categories expanded again whenever children loaded in another tree.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/17264
+     */
     it('should keep the first root category closed when loading children in another root category', async () => {
         const wrapper = await createInteractiveWrapper();
         await flushPromises();
@@ -393,6 +398,11 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         expect(getFirstRoot().attributes('aria-expanded')).toBe('false');
     });
 
+    /**
+     * Root categories were force-expanded even when the selected category was in another tree.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/17264
+     */
     it('should not initially expand root categories when a category is selected', async () => {
         Shopware.Store.get('swCategoryDetail').category = interactiveCategories.secondChild;
 
@@ -518,6 +528,11 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         expect(wrapper.vm.$refs.categoryTree.checkedElementsCount).toBe(1);
     });
 
+    /**
+     * A negative checked count after deleting a category hid the delete button afterwards.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15837
+     */
     it('should not allow checked elements count to become negative when deleting the last checked category', async () => {
         const wrapper = await createWrapper();
 
@@ -627,6 +642,11 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         expect(wrapper.vm.loadedCategories[6].afterCategoryId).toBe('3');
     });
 
+    /**
+     * Selecting a category not loaded in the tree left no category selected.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/12023
+     */
     it('should open the tree for active category on category change', async () => {
         const loadedCategories = {
             1: {

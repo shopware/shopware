@@ -47,6 +47,11 @@ describe('src/app/mixin/notification.mixin.ts', () => {
         });
     });
 
+    /**
+     * Notification titles were stored pre-translated, so they kept the old language after a UI language change.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/13487
+     */
     it('should dispatch a notification on createNotificationSuccess with translation key', () => {
         wrapper.vm.createNotificationSuccess({
             message: 'The unique message',
@@ -59,6 +64,11 @@ describe('src/app/mixin/notification.mixin.ts', () => {
         });
     });
 
+    /**
+     * Notification titles were stored pre-translated, so they kept the old language after a UI language change.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/13487
+     */
     it('should dispatch a notification on createNotificationSuccess without translating title', () => {
         wrapper.vm.createNotificationSuccess({
             message: 'The unique message',
@@ -84,6 +94,11 @@ describe('src/app/mixin/notification.mixin.ts', () => {
         });
     });
 
+    /**
+     * Notification titles were stored pre-translated, so they kept the old language after a UI language change.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/13487
+     */
     it('should dispatch a notification on createNotificationInfo with translation key', () => {
         wrapper.vm.createNotificationInfo({
             message: 'The unique message',
@@ -96,6 +111,11 @@ describe('src/app/mixin/notification.mixin.ts', () => {
         });
     });
 
+    /**
+     * Notification titles were stored pre-translated, so they kept the old language after a UI language change.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/13487
+     */
     it('should dispatch a notification on createNotificationInfo without translating title', () => {
         wrapper.vm.createNotificationInfo({
             message: 'The unique message',
@@ -121,6 +141,11 @@ describe('src/app/mixin/notification.mixin.ts', () => {
         });
     });
 
+    /**
+     * Notification titles were stored pre-translated, so they kept the old language after a UI language change.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/13487
+     */
     it('should dispatch a notification on createNotificationWarning with translation key', () => {
         wrapper.vm.createNotificationWarning({
             message: 'The unique message',
@@ -133,6 +158,11 @@ describe('src/app/mixin/notification.mixin.ts', () => {
         });
     });
 
+    /**
+     * Notification titles were stored pre-translated, so they kept the old language after a UI language change.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/13487
+     */
     it('should dispatch a notification on createNotificationWarning without translating title', () => {
         wrapper.vm.createNotificationWarning({
             message: 'The unique message',
@@ -158,6 +188,11 @@ describe('src/app/mixin/notification.mixin.ts', () => {
         });
     });
 
+    /**
+     * Notification titles were stored pre-translated, so they kept the old language after a UI language change.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/13487
+     */
     it('should dispatch a notification on createNotificationError with translation key', () => {
         wrapper.vm.createNotificationError({
             message: 'The unique message',
@@ -170,6 +205,11 @@ describe('src/app/mixin/notification.mixin.ts', () => {
         });
     });
 
+    /**
+     * Notification titles were stored pre-translated, so they kept the old language after a UI language change.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/13487
+     */
     it('should dispatch a notification on createNotificationError without translating title', () => {
         wrapper.vm.createNotificationError({
             message: 'The unique message',

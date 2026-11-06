@@ -170,6 +170,11 @@ describe('module/sw-users-permissions/component/sw-users-permissions-role-mcp-re
         expect(labels).toContain('shopware-entity-read');
     });
 
+    /**
+     * Integrations with a null tool list were shown as allowing all tools in the MCP reference.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/21654
+     */
     it.each([
         ['null', { tools: null, resources: [], prompts: null }],
         ['missing', { resources: [], prompts: null }],
@@ -184,6 +189,11 @@ describe('module/sw-users-permissions/component/sw-users-permissions-role-mcp-re
         expect(wrapper.findAll('.sw-users-permissions-role-mcp-reference-modal__row')).toHaveLength(0);
     });
 
+    /**
+     * Integrations without a tool list were shown with privileges of every MCP tool.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/21654
+     */
     it('shows only the listed tools when an integration without a tool list sits next to a restricted one', async () => {
         const wrapper = await createWrapper({
             mcpIntegrations: [

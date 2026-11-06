@@ -1600,6 +1600,11 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             spyRepository.mockRestore();
         });
 
+        /**
+         * Bulk-added media were always saved with position 1.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/5393
+         */
         it('appends bulk-added media at each product own next position', async () => {
             // Scenario: product_1 & product_2 have 2 images (positions 1, 2), product_3 has 3 images
             // (positions 1, 2, 3). Adding one image via bulk edit must append it at position 3 for product_1 and

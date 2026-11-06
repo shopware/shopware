@@ -64,6 +64,11 @@ describe('src/app/component/utils/sw-inherit-wrapper', () => {
         });
     });
 
+    /**
+     * An explicit empty array was shown as inherited, displaying the parent value instead.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/20216
+     */
     it('should not inherit on empty array', async () => {
         const wrapper = await createWrapper({
             propsData: {
@@ -78,6 +83,11 @@ describe('src/app/component/utils/sw-inherit-wrapper', () => {
         expect(wrapper.vm.isInherited).toBe(false);
     });
 
+    /**
+     * Clearing a detached field silently re-inherited the parent value.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/4535
+     */
     it('should not re-inherit after the user clears a previously detached field with a truthy parent value', async () => {
         const wrapper = await createWrapper({
             propsData: {
@@ -99,6 +109,11 @@ describe('src/app/component/utils/sw-inherit-wrapper', () => {
         expect(wrapper.vm.isInherited).toBe(false);
     });
 
+    /**
+     * Clearing a field with its own value silently re-inherited the parent value.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/4535
+     */
     it('should not re-inherit after the user clears a field that already held its own value', async () => {
         const wrapper = await createWrapper({
             propsData: {
@@ -116,6 +131,11 @@ describe('src/app/component/utils/sw-inherit-wrapper', () => {
         expect(wrapper.vm.isInherited).toBe(false);
     });
 
+    /**
+     * Removing the last value of a detached multi-select restored the inherited value.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/17643
+     */
     it('should not re-inherit a multi-select after removing the last value once it was detached', async () => {
         const wrapper = await createWrapper({
             propsData: {

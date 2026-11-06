@@ -242,6 +242,11 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
         );
     });
 
+    /**
+     * The delete confirmation showed another role's name than the clicked one.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/19006
+     */
     it('should show the name of the clicked role in the delete confirmation', async () => {
         wrapper = await createWrapper(['users_and_permissions.deleter', 'users_and_permissions.editor']);
 

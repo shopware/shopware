@@ -70,6 +70,11 @@ describe('core/factory/async-component.factory.ts - override configs shared betw
         ComponentFactory.override('test-component', outerOverride, 1);
     });
 
+    /**
+     * Members of inner overrides vanished from components built earlier once later builds ran.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/21768
+     */
     it('keeps the methods and props of an inner override in a component built before other builds', async () => {
         const firstBuild = await ComponentFactory.build('test-component');
         await ComponentFactory.build('test-component');
@@ -81,6 +86,11 @@ describe('core/factory/async-component.factory.ts - override configs shared betw
         expect(findInExtendsChain(firstBuild, 'computed', 'middleValue')).toEqual(expect.any(Function));
     });
 
+    /**
+     * Methods of earlier built components failed with `is not a function` after later builds.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/21768
+     */
     it('keeps the super call chain of a component built before other builds working', async () => {
         const firstBuild = await ComponentFactory.build('test-component');
         await ComponentFactory.build('test-component');
@@ -95,6 +105,11 @@ describe('core/factory/async-component.factory.ts - override configs shared betw
         expect(firstBuild.methods.load.call(instance)).toBe('outer inner base');
     });
 
+    /**
+     * Building a component mutated the shared override configs.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/21768
+     */
     it('does not change the configs that were registered as overrides', async () => {
         await ComponentFactory.build('test-component');
         await ComponentFactory.build('test-component');
@@ -111,6 +126,11 @@ describe('core/factory/async-component.factory.ts - override configs shared betw
         expect(outerOverride).not.toHaveProperty('props');
     });
 
+    /**
+     * An extension built before its base lost members of inner overrides when mounted.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/21768
+     */
     it('mounts an extension built before other builds of its base with the members of every override', async () => {
         ComponentFactory.extend('test-extension', 'test-component', {
             template: '{% block content %}<div class="result">{{ load() }} {{ innerFlag }}</div>{% endblock %}',

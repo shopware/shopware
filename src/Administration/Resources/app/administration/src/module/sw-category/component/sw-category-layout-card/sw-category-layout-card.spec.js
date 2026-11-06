@@ -186,6 +186,11 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
         });
     });
 
+    /**
+     * Changing the layout kept stale slot config overrides in other languages.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15984
+     */
     it('should reset translated slotConfig overrides when changing the layout', async () => {
         const translatedSlotConfig = {
             staleSlotId: {

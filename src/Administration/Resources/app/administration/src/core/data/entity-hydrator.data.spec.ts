@@ -59,6 +59,11 @@ describe('entity-hydrator.data', () => {
         expect(entity?.variation).toEqual([]);
     });
 
+    /**
+     * An explicit empty JSON list was treated like an unset, inherited value.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/20216
+     */
     it('preserves an explicit empty inherited JSON list', () => {
         const entity = hydrate({
             customSearchKeywords: [],

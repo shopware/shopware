@@ -322,6 +322,10 @@ describe('src/component/list/sw-sortable-list', () => {
         expect(merged.onDragEnter).toBe(wrapper.vm.onDragEnter);
     });
 
+    /**
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/17802
+     */
     it('should not trigger an infinite update loop when multiple lists are mounted', async () => {
         const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
         const wrapperA = await createWrapper();

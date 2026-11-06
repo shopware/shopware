@@ -414,6 +414,11 @@ describe('src/core/data/changeset-generator.data.js', () => {
             });
         });
 
+        /**
+         * Saving crashed when a to-many association was not loaded by the API.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/21011
+         */
         it('generates the changeset of the loaded fields', () => {
             const parent = new Entity(parentId, 'missing_association_parent', {
                 id: parentId,
@@ -428,6 +433,11 @@ describe('src/core/data/changeset-generator.data.js', () => {
             expect(deletionQueue).toEqual([]);
         });
 
+        /**
+         * Saving crashed when a to-many association was not loaded by the API.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/21011
+         */
         it('treats every entity of a collection added to an unloaded association as new', () => {
             const parent = new Entity(parentId, 'missing_association_parent', {
                 id: parentId,
@@ -474,6 +484,11 @@ describe('src/core/data/changeset-generator.data.js', () => {
             expect(deletionQueue).toEqual([]);
         });
 
+        /**
+         * Saving crashed when a to-many association was not loaded by the API.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/21011
+         */
         it('generates the changeset of a nested entity whose own association was not loaded', () => {
             const child = createChild('child-1');
             const parent = new Entity(parentId, 'missing_association_parent', {

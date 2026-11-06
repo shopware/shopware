@@ -103,6 +103,11 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
         expect(wrapper.emitted('filter-reset')).toBeFalsy();
     });
 
+    /**
+     * Multi select filters showed entities without a translation in the current language incorrectly.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/6982
+     */
     it('should emit `filter-update` event when user chooses translated entity', async () => {
         const wrapper = await createWrapper();
 

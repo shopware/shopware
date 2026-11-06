@@ -93,6 +93,11 @@ describe('components/form/sw-form-field-renderer', () => {
         expect(wrapper.props().error).toBeInstanceOf(ShopwareError);
     });
 
+    /**
+     * Empty price custom fields were initialised and emitted, so saving required every price.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/5742
+     */
     it('should init the current value when type is price without emit the update event', async () => {
         const wrapper = await createWrapper({
             props: {
@@ -118,6 +123,11 @@ describe('components/form/sw-form-field-renderer', () => {
         expect(wrapper.emitted('update:value')).toBeUndefined();
     });
 
+    /**
+     * Rule multi-select config fields rendered as single selects.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15849
+     */
     it('should enable multi selection for meteor multi-select fields', async () => {
         const wrapper = await createWrapper({
             props: {

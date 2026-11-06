@@ -58,6 +58,11 @@ describe('src/app/component/base/sw-highlight-text', () => {
         expect(wrapper.findAll('.sw-highlight-text__highlight')[0].text()).toBe('special characters');
     });
 
+    /**
+     * Searching for special characters with Elasticsearch froze the page in an infinite loop.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/17358
+     */
     it('renders plain text when search term only contains elasticsearch special characters', async () => {
         Shopware.Context.app.adminEsEnable = true;
 
@@ -94,6 +99,11 @@ describe('src/app/component/base/sw-highlight-text', () => {
         expect(wrapper.findAll('.sw-highlight-text__highlight')[0].text()).toBe('test');
     });
 
+    /**
+     * Search highlighting broke for terms with a plus or minus inside a word.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/14775
+     */
     it('highlights text with plus or minus in search term correctly when adminEsEnable is true', async () => {
         Shopware.Context.app.adminEsEnable = true;
 

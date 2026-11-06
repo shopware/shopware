@@ -102,6 +102,11 @@ describe('components/sw-entity-multi-id-select', () => {
         expect(wrapper.vm.updateIds).toHaveBeenCalled();
     });
 
+    /**
+     * sw-entity-multi-id-select threw on a null value in plugin config inheritance.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15483
+     */
     it('should properly initialize with null value', async () => {
         const wrapper = await createWrapper({ value: null });
         await flushPromises();
@@ -110,6 +115,11 @@ describe('components/sw-entity-multi-id-select', () => {
         expect(wrapper.vm.collection).toHaveLength(0);
     });
 
+    /**
+     * sw-entity-multi-id-select threw on a null value in plugin config inheritance.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15483
+     */
     it('should properly handle value changes from array to null', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

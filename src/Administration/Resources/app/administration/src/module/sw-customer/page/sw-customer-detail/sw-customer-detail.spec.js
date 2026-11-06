@@ -298,6 +298,11 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
         notificationSpy.mockRestore();
     });
 
+    /**
+     * Customer addresses ignored the items-per-page limit on initial load.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15722
+     */
     it('should set the initial limit on the addresses association criteria', async () => {
         await flushPromises();
 
@@ -391,6 +396,11 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
         expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual(['customerId']);
     });
 
+    /**
+     * App action buttons kept the previously opened customer's ID after navigating.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/19396
+     */
     it('should select the new customer for app action buttons when navigating to another customer', async () => {
         await flushPromises();
 

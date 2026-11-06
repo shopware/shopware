@@ -675,6 +675,11 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         expect(wrapper.emitted('on-save-item')[0][0].priceDefinition.price).toBe(-100);
     });
 
+    /**
+     * The bulk action bar stayed after a selected new line item was cancelled or saved.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/20861
+     */
     it('removes a newly added item from the selection when its inline editing is cancelled', async () => {
         const wrapper = await createWrapper();
         const orderStore = Shopware.Store.get('swOrder');
@@ -694,6 +699,11 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         expect(wrapper.find('.sw-data-grid__bulk').exists()).toBe(false);
     });
 
+    /**
+     * The bulk action bar stayed after a selected new line item was cancelled or saved.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/20861
+     */
     it('keeps only the items that are still in the reloaded cart selected after a new item is saved', async () => {
         const wrapper = await createWrapper();
         const orderStore = Shopware.Store.get('swOrder');

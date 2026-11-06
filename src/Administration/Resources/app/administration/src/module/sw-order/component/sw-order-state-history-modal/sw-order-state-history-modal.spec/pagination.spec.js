@@ -63,6 +63,11 @@ describe('src/module/sw-order/component/sw-order-state-history-modal: pagination
             transition('order_transaction', 't2', 'tx2-open', 'tx2-paid', '2022-10-11T11:00:00.000+00:00'),
         ];
 
+        /**
+         * State history pages beyond the first showed today's state on historical rows.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/19908
+         */
         it('should carry the running state across the page boundary', async () => {
             const wrapper = await createWrapper({ limit: 3 }, order, history);
             await flushPromises();
@@ -87,6 +92,11 @@ describe('src/module/sw-order/component/sw-order-state-history-modal: pagination
             });
         });
 
+        /**
+         * A transaction first appearing after a page boundary lost its synthesized initial state.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/19908
+         */
         it('should build the initial state of a transaction that first appears after the page boundary', async () => {
             const wrapper = await createWrapper({ limit: 3 }, order, history);
             await flushPromises();

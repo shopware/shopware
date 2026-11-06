@@ -420,6 +420,11 @@ describe('repository.data.ts', () => {
             });
         });
 
+        /**
+         * A failed delete's error banner stayed after a later successful delete.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/21781
+         */
         it('should clear old api errors when a delete succeeds', async () => {
             responses.addResponse({ method: 'DELETE', url: `/tax/${newId}`, status: 204, response: {} });
 
@@ -428,6 +433,11 @@ describe('repository.data.ts', () => {
             expect(Shopware.Store.get('error').api).toEqual({});
         });
 
+        /**
+         * A failed delete's error banner stayed after a later successful sync delete.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/21781
+         */
         it('should clear old api errors when a sync delete succeeds', async () => {
             responses.addResponse({ method: 'POST', url: '_action/sync', status: 200, response: { success: true } });
 

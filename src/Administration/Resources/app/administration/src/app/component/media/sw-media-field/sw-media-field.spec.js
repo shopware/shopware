@@ -140,6 +140,11 @@ describe('src/app/component/media/sw-media-field', () => {
         expect(wrapper.vm.popoverConfig).toEqual({});
     });
 
+    /**
+     * The media picker popover in a modal was blocked by the focus trap, so search was unusable.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/8869
+     */
     it('returns modal targetSelector when picker open inside modal', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({ showPicker: true });
@@ -153,6 +158,11 @@ describe('src/app/component/media/sw-media-field', () => {
         });
     });
 
+    /**
+     * Uploads in media custom fields stayed stuck at 0% because they were never run.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14640
+     */
     it('should render sw-upload-listener with correct upload tag and auto-upload', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({ showPicker: true });

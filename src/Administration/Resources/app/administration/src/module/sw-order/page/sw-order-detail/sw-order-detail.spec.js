@@ -196,6 +196,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([]);
     });
 
+    /**
+     * Reloading or leaving the order detail page left unused order versions behind.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/20003
+     */
     it('should remove version id with a keepalive request when pagehide is triggered', async () => {
         wrapper = await createWrapper();
         wrapper.vm.orderRepository.deleteVersion = jest.fn(() => Promise.resolve());
@@ -226,6 +231,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.vm.hasNewVersionId).toBe(true);
     });
 
+    /**
+     * A version discard during merge could delete the live order.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/20142
+     */
     it('should not discard the version while it is being merged', async () => {
         const lineItem = {
             id: 'lineItemId',
@@ -373,6 +383,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.vm.hasNewVersionId).toBeTruthy();
     });
 
+    /**
+     * Address selections of a previous order leaked into the next order and saved wrong addresses.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14750
+     */
     it('should reset pending address selections when creating a new version', async () => {
         wrapper = await createWrapper();
 
@@ -398,6 +413,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalledWith(wrapper.vm.orderId, oldVersionId);
     });
 
+    /**
+     * Address selections of a previous order leaked into the next order and saved wrong addresses.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14750
+     */
     it('should reset pending address selections when component gets destroyed', async () => {
         wrapper = await createWrapper();
 
@@ -513,6 +533,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(convertedProductLineItems).toContainEqual(previouslyConvertedLineItem);
     });
 
+    /**
+     * Saving an edited order re-evaluated promotions and dropped discounts placed with the order.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/5854
+     */
     it('should not apply promotions on save and recalculate', async () => {
         const lineItemWithExistingProduct = {
             id: 'lineItemId',
@@ -562,6 +587,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.vm.orderService.toggleAutomaticPromotions).not.toHaveBeenCalled();
     });
 
+    /**
+     * Recalculating an edited order re-evaluated promotions and dropped discounts placed with the order.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/5854
+     */
     it('should not apply promotions on recalculate and reload', async () => {
         const lineItemWithExistingProduct = {
             id: 'lineItemId',
@@ -805,6 +835,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(Shopware.Store.get('swOrderDetail').isLoading).toBe(false);
     });
 
+    /**
+     * Cart errors in the Administration were always shown in English.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/19736
+     */
     it('should prefer the server translated message when handling cart errors', async () => {
         wrapper = await createWrapper();
 
@@ -923,6 +958,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         });
     });
 
+    /**
+     * Order save, cancel and recalculate errors showed a generic message without the API detail.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/20350
+     */
     it.each([
         ['onSaveEdits', (vm) => (vm.orderRepository.save = jest.fn(() => Promise.reject(apiError('save failed'))))],
         [

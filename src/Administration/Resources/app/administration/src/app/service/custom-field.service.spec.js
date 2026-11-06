@@ -57,6 +57,11 @@ describe('src/app/service/custom-field.service.js', () => {
         expect(customFieldService.getTypeByName('newType')).toEqual(newTypeConfig);
     });
 
+    /**
+     * upsertType stored new custom field types in the wrong structure.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/2738
+     */
     it('upsertType: upsert config', async () => {
         expect(customFieldService.getTypeByName('number')).toEqual(expectedTypeConfigs.number);
 

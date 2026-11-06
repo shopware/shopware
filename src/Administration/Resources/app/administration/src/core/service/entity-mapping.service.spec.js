@@ -62,6 +62,11 @@ describe('core/service/entity-mapping.service.ts', () => {
         expect(result.product.type).toBe('object');
     });
 
+    /**
+     * Autocomplete kept suggesting nested matches right after completing a path.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10123
+     */
     it('returns empty if entity was just selected', () => {
         const result = EntityMappingService.getEntityMapping('product.price', {
             product: 'product',
@@ -70,6 +75,11 @@ describe('core/service/entity-mapping.service.ts', () => {
         expect(Object.keys(result)).toHaveLength(0);
     });
 
+    /**
+     * Autocomplete on a JSON field path suggested the parent entity's fields.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10123
+     */
     it('returns only attributes from json object', () => {
         const result = EntityMappingService.getEntityMapping('product.price.', {
             product: 'product',

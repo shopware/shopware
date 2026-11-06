@@ -374,6 +374,11 @@ describe('src/module/sw-product-stream/component/sw-product-stream-modal-preview
         expect(mappedFilters).toEqual(expected);
     });
 
+    /**
+     * Random sorting made the product preview return no products.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/5980
+     */
     it('should compute previewCriteria with random sorting applied', async () => {
         const wrapper = await createWrapper();
 

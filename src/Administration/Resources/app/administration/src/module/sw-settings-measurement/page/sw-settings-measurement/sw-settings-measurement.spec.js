@@ -270,6 +270,11 @@ describe('src/module/sw-settings-measurement/page/sw-settings-measurement', () =
         });
     });
 
+    /**
+     * Measurement units were not refreshed after the content language changed.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/11162
+     */
     it('should refresh measurement units when language changes', async () => {
         const setApiLanguageIdSpy = jest.fn();
 

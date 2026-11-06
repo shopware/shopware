@@ -271,6 +271,10 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
             expect(wrapper.find('sw-shortcut-overview-item-stub').exists()).toBe(true);
         });
 
+        /**
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/20310
+         */
         it('should not render a shortcut when the resolved value is the &nbsp; placeholder', async () => {
             // "Add new landing page" reuses the category module (name: 'category') with
             // action: true, whose "add" shortcut is the `&nbsp;` placeholder ("G C | &nbsp;").
@@ -294,6 +298,11 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
             expect(wrapper.find('sw-shortcut-overview-item-stub').exists()).toBe(false);
         });
 
+        /**
+         * The search bar showed a literal &nbsp; as a keyboard shortcut.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/20310
+         */
         it('should treat a &nbsp; placeholder with surrounding whitespace as no shortcut', async () => {
             // e.g. sales-channel navigation state: "&nbsp; | A S".
             wrapper = await createWrapper(

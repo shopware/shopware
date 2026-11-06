@@ -136,6 +136,11 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-mo
         expect(wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__preview').props('modelValue')).toBe(mockCode);
     });
 
+    /**
+     * A custom code pattern without variables left the generate-codes modal loading forever.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/17884
+     */
     it('should not request a preview for a pattern without variables and show an inline error', async () => {
         const generatePreview = jest.fn(() => Promise.resolve(mockCode));
         const wrapper = await createWrapper(
@@ -159,6 +164,11 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-mo
         expect(wrapper.get('.sw-promotion-v2-generate-codes-modal__button-generate').attributes('disabled')).toBe('true');
     });
 
+    /**
+     * A failed preview request left the generate-codes modal loading forever.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/17884
+     */
     it('should reset the loading state when the preview request fails', async () => {
         const generatePreview = jest.fn(() => Promise.reject(new Error('invalid pattern')));
         const wrapper = await createWrapper(

@@ -261,6 +261,11 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
         expect(definition.properties.countryStateId.flags?.required).toBe(true);
     });
 
+    /**
+     * Country-dependent required flags leaked from a previously edited address into the next one.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18694
+     */
     it('should not inherit the required flags of a previously edited address', async () => {
         const definition = Shopware.EntityDefinition.get('customer_address');
 
@@ -275,6 +280,11 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
         expect(definition.properties.countryStateId.flags.required).toBe(false);
     });
 
+    /**
+     * Country-dependent required flags leaked from a previously edited address into the next one.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18694
+     */
     it('should reset the country dependent required flags when the form is closed', async () => {
         const wrapper = await createWrapper();
 
@@ -298,6 +308,11 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
         expect(definition.properties.countryStateId.flags.required).toBe(false);
     });
 
+    /**
+     * Required-field errors persisted after switching to a country that does not require the fields.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18694
+     */
     it('should drop the required field errors when the country stops requiring the fields', async () => {
         const wrapper = await createWrapper();
         const errorStore = Shopware.Store.get('error');
@@ -361,6 +376,11 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
         expect(wrapper.vm.customer.company).toBe('bar');
     });
 
+    /**
+     * Changing an address company overwrote the customer's company.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/11357
+     */
     it('should not change customer company for existing customer', async () => {
         const wrapper = await createWrapper();
 

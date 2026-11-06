@@ -40,6 +40,11 @@ async function createWrapper(props = {}) {
 }
 
 describe('src/module/sw-order/component/sw-order-promotion-tag-field', () => {
+    /**
+     * The promotion tooltip showed only the static label without the discount value.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/17309
+     */
     it('should translate promotion descriptions with interpolation values', async () => {
         const wrapper = await createWrapper();
 
@@ -58,6 +63,11 @@ describe('src/module/sw-order/component/sw-order-promotion-tag-field', () => {
         expect(description).toBe('10 discount on shopping cart');
     });
 
+    /**
+     * The promotion tooltip showed only the static label without the discount value.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/17309
+     */
     it('should translate absolute promotion descriptions with formatted currency values', async () => {
         const wrapper = await createWrapper();
 

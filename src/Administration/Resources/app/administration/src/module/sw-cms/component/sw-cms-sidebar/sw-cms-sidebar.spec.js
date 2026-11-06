@@ -477,6 +477,10 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         expect(blockDrag.block.sectionId).toBe('2222');
     });
 
+    /**
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/12001
+     */
     it('should not duplicate a block when dragging across multiple sections', async () => {
         const wrapper = await createWrapper();
 
@@ -843,6 +847,11 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         expect(JSON.parse(JSON.stringify(wrapper.vm.page.sections[0].blocks[0]))).toStrictEqual(expectedData);
     });
 
+    /**
+     * Clicking a section's Settings opened layout settings and threw an error.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/3797
+     */
     it('should open section settings when clicking settings in section context menu', async () => {
         const wrapper = await createWrapper();
 
@@ -855,6 +864,11 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         expect(wrapper.vm.selectedSection.id).toBe('2222');
     });
 
+    /**
+     * Blocks moved between sections were not saved, causing errors when deleting a section.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/12423
+     */
     it('should emit page-save when aborting block drop', async () => {
         const wrapper = await createWrapper();
 

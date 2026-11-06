@@ -62,6 +62,11 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-defaults-select
         expect(singleSelect.props('disabled')).toBe(true);
     });
 
+    /**
+     * Adding a default entity lost the collection metadata and crashed follow-up selects.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/12964
+     */
     it('should keep the entity collection metadata when adding a default entity', async () => {
         const countries = new Shopware.Data.EntityCollection('/country', 'country', Shopware.Context.api);
         const salesChannel = {

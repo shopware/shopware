@@ -214,6 +214,11 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
         expect(secondInput.attributes('disabled')).toBe(state);
     });
 
+    /**
+     * Every snippet translation label pointed at the first input due to duplicate ids.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/21737
+     */
     it('should link each translation label to its own input', async () => {
         const wrapper = await createWrapper(['snippet.viewer', 'snippet.editor']);
         await flushPromises();
@@ -280,6 +285,11 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
         );
     });
 
+    /**
+     * Saving a snippet with a missing translation broke the form.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14912
+     */
     it('should skip non-saveable snippets', async () => {
         const wrapper = await createWrapper('snippet.viewer');
         wrapper.vm.snippets = [

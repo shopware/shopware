@@ -351,6 +351,11 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         expect(items.at(4).text()).toBe('deletedId');
     });
 
+    /**
+     * An image slider containing deleted media crashed while rendering.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/3597
+     */
     it('should remove deleted media from imageSlider', async () => {
         const sliderItems = [
             { filename: 'a.jpg', mediaId: 'a' },
@@ -368,6 +373,11 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         expect(validItems).toHaveLength(4);
     });
 
+    /**
+     * Images uploaded in the image slider config were never added to the slider.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/13903
+     */
     it('should resolve media upload payloads via repository', async () => {
         const wrapper = await createWrapper('content');
         await flushPromises();
@@ -411,6 +421,11 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         expect(wrapper.vm.element.config.sliderItems.value[0].mediaUrl).toBe('http://shopware.com/image1-updated.jpg');
     });
 
+    /**
+     * The image slider link preview used a stale stored media URL.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/6739
+     */
     it('should prefer the resolved media item url in the settings link preview', async () => {
         const wrapper = await createWrapper('settings', [
             {

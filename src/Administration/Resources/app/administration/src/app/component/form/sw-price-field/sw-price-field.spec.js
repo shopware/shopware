@@ -241,6 +241,11 @@ describe('components/form/sw-price-field', () => {
         expect(convertGrossToNet).toHaveBeenCalled();
     });
 
+    /**
+     * Linked net and gross prices only recalculated on blur, so a quick save stored mismatched prices.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15121
+     */
     it('should recalculate the net value when the gross number field emits an "input-change" event', async () => {
         const wrapper = await setup({ allowEmpty: false });
         const convertGrossToNet = jest.spyOn(wrapper.vm, 'convertGrossToNet');
@@ -255,6 +260,11 @@ describe('components/form/sw-price-field', () => {
         expect(convertGrossToNet).toHaveBeenCalled();
     });
 
+    /**
+     * Linked net and gross prices only recalculated on blur, so a quick save stored mismatched prices.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15121
+     */
     it('should recalculate the gross value when the net number field emits an "input-change" event', async () => {
         const wrapper = await setup({ allowEmpty: false });
         const convertNetToGross = jest.spyOn(wrapper.vm, 'convertNetToGross');
@@ -368,6 +378,11 @@ describe('components/form/sw-price-field', () => {
             await flushPromises();
         };
 
+        /**
+         * Setting a linked price to 0 left the old counterpart value in place.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/20259
+         */
         it.each([
             { changed: 'gross', converted: 'net' },
             { changed: 'net', converted: 'gross' },

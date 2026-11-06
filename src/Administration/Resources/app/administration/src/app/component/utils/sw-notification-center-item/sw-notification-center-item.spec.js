@@ -51,6 +51,11 @@ describe('src/app/component/utils/sw-notification-center-item', () => {
     });
 
     describe('title translation', () => {
+        /**
+         * Notifications kept their old language after the interface language was changed.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/13487
+         */
         it('should translate title when it is a translation key', async () => {
             const wrapper = await createWrapper({
                 title: 'global.notification.successTitle',
@@ -80,6 +85,11 @@ describe('src/app/component/utils/sw-notification-center-item', () => {
     });
 
     describe('message translation', () => {
+        /**
+         * Notifications kept their old language after the interface language was changed.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/13487
+         */
         it('should translate message when it is a translation key', async () => {
             const wrapper = await createWrapper({
                 message: 'global.notification.successMessage',
@@ -212,6 +222,11 @@ describe('src/app/component/utils/sw-notification-center-item', () => {
     });
 
     describe('translation with $te returning true', () => {
+        /**
+         * Notifications kept their old language after the interface language was changed.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/13487
+         */
         it('should translate when $te returns true for title', async () => {
             const wrapper = await createWrapper(
                 {
@@ -227,6 +242,11 @@ describe('src/app/component/utils/sw-notification-center-item', () => {
             expect(titleElement.text()).toBe('Translated: Some title');
         });
 
+        /**
+         * Notifications kept their old language after the interface language was changed.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/13487
+         */
         it('should translate when $te returns true for message', async () => {
             const sanitizeMock = jest.fn((value) => value);
             const wrapper = await createWrapper(
@@ -259,6 +279,11 @@ describe('src/app/component/utils/sw-notification-center-item', () => {
     });
 
     describe('combined title and message translation', () => {
+        /**
+         * Notifications kept their old language after the interface language was changed.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/13487
+         */
         it('should translate both title and message when both are translation keys', async () => {
             const wrapper = await createWrapper({
                 title: 'global.notification.title',

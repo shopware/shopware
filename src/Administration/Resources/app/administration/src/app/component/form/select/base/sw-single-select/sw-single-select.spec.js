@@ -224,6 +224,11 @@ describe('components/sw-single-select', () => {
         expect(selectionText.text()).toBe('');
     });
 
+    /**
+     * Opening a second state select left the first one open, causing illegal transitions.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/13111
+     */
     it('should close first dropdown when clicking to open second dropdown', async () => {
         const container = document.createElement('div');
         document.body.appendChild(container);

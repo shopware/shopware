@@ -37,6 +37,11 @@ describe('src/module/sw-category/component/sw-category-seo-form', () => {
         });
     });
 
+    /**
+     * SEO fields accepted over 255 characters, and saving then failed silently.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/20497
+     */
     it('should limit all seo fields to the 255 characters the database can store', async () => {
         const wrapper = await createWrapper({ metaTitle: null, metaDescription: null, keywords: null });
 

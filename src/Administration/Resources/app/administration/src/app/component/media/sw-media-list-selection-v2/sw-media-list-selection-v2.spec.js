@@ -119,6 +119,11 @@ describe('components/media/sw-media-list-selection-v2', () => {
         expect(updatedFirstMediaItem.text()).toContain('newId');
     });
 
+    /**
+     * The same media added twice showed duplicates after reordering.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/13909
+     */
     it('should render the same media added twice as two items after a reorder', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -154,6 +159,11 @@ describe('components/media/sw-media-list-selection-v2', () => {
         ]);
     });
 
+    /**
+     * Copies of the same media shared one drag position, so reordering moved the wrong copy.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/13909
+     */
     it('should pass the own position of each item to the drag and drop data', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

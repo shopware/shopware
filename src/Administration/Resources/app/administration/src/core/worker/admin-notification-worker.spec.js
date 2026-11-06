@@ -38,6 +38,11 @@ describe('src/core/worker/admin-notification-worker', () => {
         consoleErrorSpy.mockRestore();
     });
 
+    /**
+     * New users saw every historical admin notification.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/13813
+     */
     it('should fallback to user creation date when no timestamp in config', async () => {
         jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({ data: {} });
         userService.getUser.mockResolvedValue({
@@ -56,6 +61,11 @@ describe('src/core/worker/admin-notification-worker', () => {
         expect(adminNotificationWorker._timestamp).toBe('2025-01-01T10:00:00+00:00');
     });
 
+    /**
+     * Backend-created notifications showed no translated headline.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15838
+     */
     it.each([
         ['info', 'global.default.info'],
         ['warning', 'global.default.warning'],

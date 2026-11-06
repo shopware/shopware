@@ -895,6 +895,11 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         expect(selectionText.text()).toBe('Headless');
     });
 
+    /**
+     * Inheritance of disabled switch fields could not be removed.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15998
+     */
     it('should allow removing inheritance from disabled Meteor switch fields', async () => {
         const fieldName = 'ConfigRenderer.config.boolField';
 
@@ -930,6 +935,11 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         expect(wrapper.vm.actualConfigData[uuid.get('headless')][fieldName]).toBe(true);
     });
 
+    /**
+     * Checkbox fields showed an inheritance switch in the All Sales Channels scope.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14054
+     */
     it('should only show the inheritance switch of Meteor checkbox fields when a sales channel is selected', async () => {
         const fieldName = 'ConfigRenderer.config.checkboxField';
 
@@ -966,6 +976,11 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         expect(error).toBeInstanceOf(ShopwareError);
     });
 
+    /**
+     * Validation errors of a sales channel scope never showed on the config form.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/18741
+     */
     it('should show the error of the selected sales channel scope', async () => {
         const fieldName = 'ConfigRenderer.config.textField';
 
@@ -1278,6 +1293,11 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
             expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeNull();
         });
 
+        /**
+         * Inherited system config fields rendered with Meteor components were not disabled.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/14146
+         */
         it(`should render field with type "${type || name}" as disabled when inherited`, async () => {
             const domValue = _test.defaultValueDom || config.defaultValue;
             const inheritanceSwitchSelector = config.legacy ? '.sw-inheritance-switch' : '.mt-inheritance-switch';
@@ -1356,6 +1376,11 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         await flushPromises();
     }
 
+    /**
+     * Clearing a detached sales-channel config field silently re-inherited the parent value.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/4535
+     */
     it('should keep an sw-entity-single-select empty after clearing a field whose inheritance was removed', async () => {
         const name = 'ConfigRenderer.config.entitySelectField';
         const fieldSelector = `.sw-system-config--field-${kebabCase(name)}`;
@@ -1399,6 +1424,11 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         expect(field.find('.sw-entity-single-select__selection-text').text()).not.toBe('Pullover');
     });
 
+    /**
+     * Clearing a detached sales-channel config field silently re-inherited the parent value.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/4535
+     */
     it('should keep an sw-media-field empty after clearing a field whose inheritance was removed', async () => {
         const name = 'ConfigRenderer.config.mediaField';
         const fieldSelector = `.sw-system-config--field-${kebabCase(name)}`;
@@ -1452,6 +1482,10 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         expect(wrapper.find('.sw-system-config__card--1 sw-ai-copilot-badge-stub').exists()).toBe(true);
     });
 
+    /**
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15398
+     */
     it('should set hideClearableButton for required single-select fields', async () => {
         wrapper = await createWrapper();
         await flushPromises();
@@ -1468,6 +1502,10 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         expect(bind.config.hideClearableButton).toBe(true);
     });
 
+    /**
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15398
+     */
     it('should set hideClearableButton for required multi-select fields', async () => {
         wrapper = await createWrapper();
         await flushPromises();
@@ -1519,6 +1557,10 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         expect(element.config.hideClearableButton).toBeUndefined();
     });
 
+    /**
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15398
+     */
     it('should set hideClearableButton for required select fields in legacy bind path', async () => {
         wrapper = await createWrapper();
         await flushPromises();

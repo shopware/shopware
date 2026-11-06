@@ -93,6 +93,11 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
         });
     });
 
+    /**
+     * Default privileges showed checked and disabled even when the role lacked them.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/20845
+     */
     it('should render default user privileges as selectable detailed privileges', async () => {
         const wrapper = await createWrapper({
             detailedPrivileges: ['locale:read'],

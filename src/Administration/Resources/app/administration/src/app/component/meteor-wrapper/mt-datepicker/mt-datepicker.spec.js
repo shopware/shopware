@@ -37,6 +37,11 @@ describe('src/app/component/meteor-wrapper/mt-datepicker', () => {
         expect(document.body.textContent).toContain('MoDiMiDoFrSaSo');
     });
 
+    /**
+     * The datepicker showed German even when the user locale was English.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/7579
+     */
     it('should use the user locale (en)', async () => {
         // Set the user locale to english
         Shopware.Store.get('session').setAdminLocale('en-GB');
@@ -51,6 +56,11 @@ describe('src/app/component/meteor-wrapper/mt-datepicker', () => {
         expect(document.body.textContent).toContain('MoTuWeThFrSaSu');
     });
 
+    /**
+     * The datepicker ignored the locale's date format and used YYYY/MM/DD.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/7579
+     */
     it('should use custom format based on currentLocale (de)', async () => {
         const wrapper = mount(await wrapTestComponent('mt-datepicker', { sync: true }), {
             props: {
@@ -65,6 +75,11 @@ describe('src/app/component/meteor-wrapper/mt-datepicker', () => {
         expect(wrapper.find('[data-test-id="dp-input"]').element.value).toBe('01.10.2023, 00:00');
     });
 
+    /**
+     * The datepicker ignored the locale's date format and used YYYY/MM/DD.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/7579
+     */
     it('should use custom format based on currentLocale (en)', async () => {
         // Set the user locale to english
         Shopware.Store.get('session').setAdminLocale('en-GB');

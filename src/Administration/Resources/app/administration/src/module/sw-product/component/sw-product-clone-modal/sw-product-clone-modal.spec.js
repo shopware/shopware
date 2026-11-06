@@ -74,6 +74,11 @@ describe('src/module/sw-product/component/sw-product-clone-modal', () => {
         );
     });
 
+    /**
+     * Duplicated variants kept pointing to the original product as canonical.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/21292
+     */
     it('should clone variants without their canonical product', async () => {
         wrapper = await createWrapper();
         await flushPromises();
@@ -99,6 +104,11 @@ describe('src/module/sw-product/component/sw-product-clone-modal', () => {
         expect(callback).toHaveBeenCalled();
     });
 
+    /**
+     * Cloning a product wiped the variant listing config of the original product.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10944
+     */
     it('should not change the original product', async () => {
         wrapper = await createWrapper();
         await flushPromises();
@@ -118,6 +128,11 @@ describe('src/module/sw-product/component/sw-product-clone-modal', () => {
         expect(product.variantListingConfig.mainVariantId).toBe('1a2b3c');
     });
 
+    /**
+     * Save and duplicate on an unsaved product reused the original's product number.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/20620
+     */
     it('should save a new product before reserving the duplicate product number', async () => {
         const product = {
             id: 'product-id',

@@ -34,6 +34,11 @@ describe('src/app/component/base/sw-label', () => {
         expect(wrapper.find('.sw-label__dismiss').exists()).toBe(false);
     });
 
+    /**
+     * Safari could not remove entries in dynamic product group conditions.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15675
+     */
     it('should prevent mousedown and emit dismiss only on click', async () => {
         const wrapper = await createWrapper({
             dismissable: true,

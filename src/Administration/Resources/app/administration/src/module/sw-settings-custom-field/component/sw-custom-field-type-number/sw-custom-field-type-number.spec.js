@@ -104,6 +104,10 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-num
         ]);
     });
 
+    /**
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18118
+     */
     it('should not allow changing numberType for an existing custom field', async () => {
         const wrapper = await createWrapper({}, false);
 
@@ -125,6 +129,11 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-num
         expect(wrapper.vm.isIntField).toBe(expected);
     });
 
+    /**
+     * Integer custom fields kept float step, min and max values, breaking the step arrows.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14690
+     */
     it('should round step, min, and max when switching numberType to int', async () => {
         const wrapper = await createWrapper({
             numberType: 'float',
@@ -141,6 +150,11 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-num
         expect(wrapper.vm.currentCustomField.config.max).toBe(10);
     });
 
+    /**
+     * Integer custom fields kept a fractional step width, breaking the step arrows.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14690
+     */
     it('should clamp rounded step to a minimum of 1 when switching numberType to int', async () => {
         const wrapper = await createWrapper({
             numberType: 'float',
@@ -189,6 +203,11 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-num
         });
     });
 
+    /**
+     * The step width input of integer custom fields accepted float values.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14690
+     */
     it('should update mt-number-field props when switching numberType from float to int', async () => {
         const wrapper = await createWrapper({ numberType: 'float' });
         await flushPromises();

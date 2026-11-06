@@ -76,6 +76,11 @@ describe('src/module/sw-order/view/sw-order-create-initial', () => {
         expect(customer).toBeNull();
     });
 
+    /**
+     * The preselected customer was lost when creating an order from the customer view.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/4982
+     */
     it('should update the state if a customer is found', async () => {
         wrapper = await createWrapper('1234');
         await flushPromises();

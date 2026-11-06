@@ -57,6 +57,11 @@ describe('components/data-grid/sw-data-grid-settings', () => {
         expect(rows).toHaveLength(5);
     });
 
+    /**
+     * Moving a data grid column twice put it in the wrong position.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/4435
+     */
     it('should order columns correctly', async () => {
         const expectOrder = (expectedColumns) => {
             const columns = wrapper.findAll('.sw-data-grid__settings-column-list .mt-field__label');
@@ -190,6 +195,11 @@ describe('components/data-grid/sw-data-grid-settings', () => {
             expect(settings.vm.getColumnLabel({ label: 'sw-grid.column.name' })).toBe('Name (DE)');
         });
 
+        /**
+         * The column settings showed raw snippet keys when the label existed only in the fallback locale.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/16824
+         */
         it('falls back to the fallback locale when the snippet is missing in the current locale', async () => {
             const settings = await createSettingsWrapper({ locale: 'fr-FR' });
 

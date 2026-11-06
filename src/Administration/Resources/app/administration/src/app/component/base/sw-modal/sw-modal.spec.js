@@ -163,6 +163,10 @@ describe('src/app/component/base/sw-modal/index.js', () => {
         expect(wrapper.emitted('modal-close')).toBeUndefined();
     });
 
+    /**
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/17238
+     */
     it('should not close the modal when using ESC key if closable option is false', async () => {
         await wrapper.setProps({
             closable: false,

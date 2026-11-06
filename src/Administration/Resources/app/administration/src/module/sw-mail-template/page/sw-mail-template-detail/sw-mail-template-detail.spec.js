@@ -311,6 +311,11 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         expect(wrapper.vm.mailTemplate.media.some((media) => media.mediaId === mailTemplateMediaMock.id)).toBeTruthy();
     });
 
+    /**
+     * The same media could not be attached again in another language of a mail template.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18411
+     */
     it('should be able to add an item to the attachment exist this item with different language', async () => {
         const originalLanguageId = Shopware.Context.api.languageId;
 
@@ -1170,6 +1175,11 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         Shopware.Context.api.languageId = originalLanguageId;
     });
 
+    /**
+     * Mail template collection variables had a copy button producing broken templates.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10121
+     */
     it('should not render copy icon if variable has children', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({

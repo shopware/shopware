@@ -105,6 +105,11 @@ describe('src/module/sw-cms/elements/image/config', () => {
         await setupCmsEnvironment();
     });
 
+    /**
+     * A min-height stayed set after leaving cover display mode.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/6265
+     */
     it('should clear the minHeight value when changing display mode away from cover', async () => {
         const wrapper = await createWrapper();
 
@@ -127,6 +132,11 @@ describe('src/module/sw-cms/elements/image/config', () => {
         expect(wrapper.vm.element.config.minHeight.value).toBe('');
     });
 
+    /**
+     * Unitless min-height values produced invalid CSS and collapsed the image.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/17588
+     */
     it('should append px to a unitless min height value', async () => {
         const wrapper = await createWrapper();
 
@@ -179,6 +189,11 @@ describe('src/module/sw-cms/elements/image/config', () => {
         expect(wrapper.vm.previewSource).toBe('media-id');
     });
 
+    /**
+     * The default image preview in CMS image settings showed a broken-file icon.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10105
+     */
     it('should build an asset url as preview source for a default media source', async () => {
         const wrapper = await createWrapper();
 

@@ -447,6 +447,11 @@ describe('src/app/component/structure/sw-search-bar', () => {
         expect(wrapper.vm.searchTerm).toBe('Foo product');
     });
 
+    /**
+     * Switching module filters cleared the typed admin search term.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/11909
+     */
     it('should keep the current search term in $route watcher when the new route has no term', async () => {
         wrapper = await createWrapper({
             initialSearchType: 'product',
@@ -519,6 +524,11 @@ describe('src/app/component/structure/sw-search-bar', () => {
         expect(setFocusSpy).toHaveBeenCalledTimes(1);
     });
 
+    /**
+     * The module filter dropdown stayed open on the first search bar focus.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/21336
+     */
     it('should close the module filter dropdown when the input is focused before search trends are loaded', async () => {
         wrapper = await createWrapper();
 
@@ -678,6 +688,11 @@ describe('src/app/component/structure/sw-search-bar', () => {
         expect(moduleFilterSelect.text()).toBe('global.entities.product');
     });
 
+    /**
+     * Module filter suggestions could not be activated with the keyboard.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/11909
+     */
     it('should change search bar type when activating module filters with keyboard', async () => {
         wrapper = await createWrapper(
             {
@@ -704,6 +719,11 @@ describe('src/app/component/structure/sw-search-bar', () => {
         expect(moduleFilterSelect.text()).toBe('global.entities.product');
     });
 
+    /**
+     * Switching module filters cleared the typed admin search term.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/11909
+     */
     it('should keep the search term when switching module filters', async () => {
         wrapper = await createWrapper(
             {
@@ -1448,6 +1468,11 @@ describe('src/app/component/structure/sw-search-bar', () => {
         });
     });
 
+    /**
+     * Clicking a search result left the result list open over the newly loaded page.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/21220
+     */
     it('should emit click-search-result and close the search panels when a search result is clicked', async () => {
         const customRecentlySearchMock = {
             get: jest.fn(() => [
@@ -1560,6 +1585,11 @@ describe('src/app/component/structure/sw-search-bar', () => {
         expect(wrapper.vm.currentSearchType).toBeNull();
     });
 
+    /**
+     * With Advanced Search active, searching in the flow and rule listings returned nothing.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/19378
+     */
     it('should search in the listing when the initial search type is not a registered global search type', async () => {
         // mirrors an admin ES / Advanced Search instance, where the prop defaults to true
         wrapper = await createWrapper({
@@ -1699,6 +1729,11 @@ describe('src/app/component/structure/sw-search-bar', () => {
         );
     });
 
+    /**
+     * An aborted ES search with an empty response threw a JavaScript error.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/21220
+     */
     it('should not fail when the ES type search returns no data', async () => {
         Shopware.Context.app.adminEsEnable = true;
         wrapper = await createWrapper(
@@ -1903,6 +1938,11 @@ describe('src/app/component/structure/sw-search-bar', () => {
         );
     });
 
+    /**
+     * Frequently used modules of uninstalled plugins stayed in the search bar as empty rows.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/9826
+     */
     it('should delete non-existent keys, re-fetch, and process if delete succeeds', async () => {
         const mockInitialResponse = {
             'moduleValid@route1': { count: 5 },

@@ -271,6 +271,11 @@ describe('components/rule/condition-type/sw-condition-customer-custom-field', ()
         expect(wrapper.find('.sw-form-field-renderer').exists()).toBe(true);
     });
 
+    /**
+     * Long custom field set names squeezed the field name out of the rule builder dropdown.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/7106
+     */
     it('should truncate custom field description', async () => {
         mockCustomFields.at(0).customFieldSet.config.label = 'Customer migration custom fields (attributes)';
 

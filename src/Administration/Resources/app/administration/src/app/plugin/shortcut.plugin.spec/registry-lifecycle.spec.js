@@ -8,6 +8,11 @@ import { defineComponent } from 'vue';
 import useShortcut from 'src/app/composables/use-shortcut';
 
 describe('app/plugins/shortcut.plugin - registry lifecycle', () => {
+    /**
+     * Unmounting one component removed the global listener, disabling shortcuts like clear cache.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10788
+     */
     it('should still trigger shortcuts after a component was unmounted', async () => {
         const onSaveMock = jest.fn();
         const onOtherSaveMock = jest.fn();

@@ -255,6 +255,11 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         expect(upwardsButton.attributes('disabled')).toBeDefined();
     });
 
+    /**
+     * Position buttons were not disabled at the ends when mapping positions were shifted.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/14859
+     */
     it.each([
         ['.sw-data-grid__row--0 .sw-button-group .mt-button:first-of-type'],
         ['.sw-data-grid__row--2 .sw-button-group .mt-button:last-of-type'],
@@ -402,6 +407,11 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         expect(actualEventData).toEqual(expectedEventData);
     });
 
+    /**
+     * The import/export profile mapping search did not filter the mappings.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/12771
+     */
     it('should filter mappings when searching', async () => {
         wrapper = await createWrapper(getProfileMock());
         await flushPromises();

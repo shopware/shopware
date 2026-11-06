@@ -117,6 +117,11 @@ describe('module/sw-customer-imitate-customer-modal', () => {
         expect(wrapper.emitted('modal-close')).toBeDefined();
     });
 
+    /**
+     * Login as customer did nothing in Mobile Safari because the token was fetched after the click.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/13729
+     */
     it('should generate the imitation token upfront, before any item is clicked', async () => {
         wrapper = await createWrapper();
 
@@ -146,6 +151,11 @@ describe('module/sw-customer-imitate-customer-modal', () => {
         expect(generateTokenSpy).toHaveBeenCalledWith('customer-id', 'other-sales-channel-id');
     });
 
+    /**
+     * Login as customer did nothing in Mobile Safari because the redirect left the user gesture.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/13729
+     */
     it('should redirect synchronously within the click handler, so the popup blocker allows the new tab', async () => {
         wrapper = await createWrapper();
 

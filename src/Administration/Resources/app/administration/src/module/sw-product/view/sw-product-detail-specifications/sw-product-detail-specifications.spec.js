@@ -607,6 +607,11 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
         expect(cardElement.exists()).toBeFalsy();
     });
 
+    /**
+     * A checkbox custom field showed an inheritance icon in the root language.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/15905
+     */
     it('should hide custom field inheritance controls for a root language on the specifications page', async () => {
         const productRepositoryGet = jest.fn();
 
@@ -650,6 +655,11 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
         );
     });
 
+    /**
+     * Translated custom fields showed no inheritance UI in a non-system root language.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/15905
+     */
     it('should show inherited custom field controls for a non-system root language on the specifications page', async () => {
         const productRepositoryGet = jest.fn(() =>
             Promise.resolve({

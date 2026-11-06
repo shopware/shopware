@@ -198,6 +198,11 @@ describe('src/module/sw-order/component/sw-order-address-modal', () => {
         wrapper.vm.getCustomerInfo.mockRestore();
     });
 
+    /**
+     * Custom fields stayed editable for users with read-only permissions.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10061
+     */
     it('should disable address form fields without order edit permissions', async () => {
         expect(wrapper.getComponent('.sw-customer-address-form').props('disabled')).toBe(true);
         expect(wrapper.getComponent('.sw-custom-field-set-renderer').props('disabled')).toBe(true);

@@ -110,6 +110,11 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         },
     );
 
+    /**
+     * Opening the product listings tab changed the storefront listing configuration.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/21036
+     */
     it('should not change the saved configuration when the tab is opened', async () => {
         const { product } = await createWrapper({
             displayParent: null,
@@ -124,6 +129,11 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         });
     });
 
+    /**
+     * Switching the listing mode overwrote the saved variant choice.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/21036
+     */
     it('should keep the variant choice when the listing mode is switched', async () => {
         const { wrapper, product } = await createWrapper({
             displayParent: false,

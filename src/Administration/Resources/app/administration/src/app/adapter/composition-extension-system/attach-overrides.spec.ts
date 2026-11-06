@@ -79,6 +79,11 @@ describe('src/app/adapter/composition-extension-system attachOverrides', () => {
         });
     }
 
+    /**
+     * Every public computed was evaluated during setup, before lifecycle hooks ran.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/19594
+     */
     it('lowered shape: a public computed is not evaluated during setup', () => {
         const evaluate = jest.fn(() => 2);
 
@@ -105,6 +110,11 @@ describe('src/app/adapter/composition-extension-system attachOverrides', () => {
         wrapper.unmount();
     });
 
+    /**
+     * Public computeds depending on hook-initialized state threw at mount.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/19594
+     */
     it('lowered shape: a public computed may depend on state a lifecycle hook initializes', () => {
         const base = defineComponent({
             template: '<div>{{ derived }}</div>',

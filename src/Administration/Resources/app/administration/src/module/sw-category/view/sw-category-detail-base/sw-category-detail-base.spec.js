@@ -75,6 +75,11 @@ describe('module/sw-category/view/sw-category-detail-base.spec', () => {
         });
     });
 
+    /**
+     * Custom fields stayed editable for users with read-only permissions.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10061
+     */
     it('should disable the custom field renderer without category edit permissions', async () => {
         global.activeAclRoles = ['category.viewer'];
 

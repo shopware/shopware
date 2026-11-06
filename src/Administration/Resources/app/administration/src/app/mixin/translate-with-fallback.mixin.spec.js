@@ -37,6 +37,11 @@ describe('src/app/mixin/translate-with-fallback.mixin.ts', () => {
         expect(wrapper.vm.tWithFallback('sw-grid.column.name')).toBe('Name (DE)');
     });
 
+    /**
+     * Users on other locales saw raw snippet keys instead of fallback-locale text.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/16824
+     */
     it('falls back to the fallback locale when the snippet is missing in the current locale', async () => {
         const wrapper = await createWrapper({ locale: 'fr-FR' });
 

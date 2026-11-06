@@ -137,6 +137,11 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
         expect(wrapper.vm.smtpPortError).toBeNull();
     });
 
+    /**
+     * Hidden SMTP settings persisted after switching the email agent to local.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/5228
+     */
     it('should reset mailer settings when submitting as emailAgent local', async () => {
         const wrapper = await createSettingsMailer();
 
@@ -172,6 +177,11 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
         });
     });
 
+    /**
+     * Delivery could not be disabled when the local mail agent was selected.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/6983
+     */
     it('should be possible to set disableDelivery to true', async () => {
         const wrapper = await createSettingsMailer();
 

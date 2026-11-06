@@ -86,6 +86,11 @@ describe('src/app/adapter/composition-extension-system/data-scope-helper', () =>
         expect(registeredDataScope[OVERRIDE_LOCAL_STATE_KEY].pluginOverrideFile.pluginMessage).toBe('Plugin message');
     });
 
+    /**
+     * Building the data scope evaluated every public computed during setup.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/19594
+     */
     it('keeps computeds lazy while building the data scope', () => {
         const evaluate = jest.fn(() => 'Derived headline');
         const reactiveSetupState = reactive({

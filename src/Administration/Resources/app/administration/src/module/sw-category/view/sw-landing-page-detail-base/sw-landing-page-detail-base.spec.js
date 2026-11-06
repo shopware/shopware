@@ -91,6 +91,11 @@ describe('module/sw-category/view/sw-landing-page-detail-base.spec', () => {
         expect(wrapper.vm.isLayoutSet).toBe(false);
     });
 
+    /**
+     * Custom fields stayed editable for users with read-only permissions.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10061
+     */
     it('should disable the custom field renderer without landing page edit permissions', async () => {
         global.activeAclRoles = ['landing_page.viewer'];
 

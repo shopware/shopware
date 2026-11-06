@@ -307,6 +307,11 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         expect(wrapper.vm.profile.config.updateEntities).toBeTruthy();
     });
 
+    /**
+     * A database field mapped twice was silently dropped from the export.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15680
+     */
     it('should open violations modal if duplicate is found and clear if modal is closed', async () => {
         const modalSelector = { name: 'sw-modal__wrapped' };
 

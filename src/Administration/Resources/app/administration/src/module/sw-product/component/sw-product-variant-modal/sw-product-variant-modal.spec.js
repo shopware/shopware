@@ -433,6 +433,11 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
         await flushPromises();
     }
 
+    /**
+     * Variants loading before the currency left prices blank and threw on currency.id.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/22257
+     */
     it('should wait for the currency before loading variants', async () => {
         let resolveCurrency;
         const currencyRepository = {

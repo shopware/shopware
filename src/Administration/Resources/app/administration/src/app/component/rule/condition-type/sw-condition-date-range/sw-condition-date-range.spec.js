@@ -97,6 +97,11 @@ describe('component/rule/sw-condition-date-range', () => {
         });
     });
 
+    /**
+     * Dates picked in the date range rule were not shown in the datepicker.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/7501
+     */
     it('should select a fromDate without time', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -126,6 +131,11 @@ describe('component/rule/sw-condition-date-range', () => {
         expect(wrapper.vm.fromDate).toBe('1900-01-01T00:00:00.000Z');
     });
 
+    /**
+     * Dates picked in the date range rule were not shown in the datepicker.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/7501
+     */
     it('should select a fromDate with time', async () => {
         const wrapper = await createWrapper(true);
         await flushPromises();
@@ -167,6 +177,11 @@ describe('component/rule/sw-condition-date-range', () => {
         expect(wrapper.vm.fromDate).toBe('1900-01-01T12:30:00.000Z');
     });
 
+    /**
+     * Dates picked in the date range rule were not shown in the datepicker.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/7501
+     */
     it('should select a toDate without time', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -196,6 +211,11 @@ describe('component/rule/sw-condition-date-range', () => {
         expect(wrapper.vm.toDate).toBe('1900-01-01T23:59:59.000Z');
     });
 
+    /**
+     * Dates picked in the date range rule were not shown in the datepicker.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/7501
+     */
     it('should select a toDate with time', async () => {
         const wrapper = await createWrapper(true);
         await flushPromises();

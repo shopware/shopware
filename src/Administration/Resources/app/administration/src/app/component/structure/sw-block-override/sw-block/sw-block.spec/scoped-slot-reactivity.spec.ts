@@ -8,6 +8,10 @@ import '../../../../../store/block-override.store';
 import createDataScopeFixture from '../../sw-block-override.spec/test-utils/create-data-scope-fixture';
 
 describe('src/app/component/structure/sw-block-override/sw-block: scoped slot reactivity', () => {
+    /**
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/19546
+     */
     it('re-renders block content when only the surrounding slot scope changes', async () => {
         // A scoped slot's scope reaches the slot function as an argument, not as a
         // reactive read, so sw-block's computed template must be invalidated when

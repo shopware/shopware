@@ -20,7 +20,6 @@ use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\Url\VerificationState;
 use Shopware\Core\Framework\App\Url\VerificationStatus;
 use Shopware\Core\Framework\App\Validation\Error\Error;
-use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -96,16 +95,6 @@ class AppException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::CANNOT_DELETE_COMPOSER_MANAGED,
             'App {{ name }} is managed by Composer and cannot be deleted',
-            ['name' => $pluginName]
-        );
-    }
-
-    public static function notCompatible(string $pluginName): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::NOT_COMPATIBLE,
-            'App {{ name }} is not compatible with this Shopware version',
             ['name' => $pluginName]
         );
     }
@@ -723,26 +712,6 @@ class AppException extends HttpException
             'Failed to re-register {{ count }} app(s): {{ apps }}. After resolving the issue, '
             . 'run the shop ID change strategy "reinstall-apps" again.',
             ['count' => (string) \count($failedAppNames), 'apps' => implode(', ', $failedAppNames)]
-        );
-    }
-
-    public static function requirementsNotMet(UnmetRequirement ...$violations): self
-    {
-        $violationDetails = array_map(
-            fn (UnmetRequirement $v) => \sprintf(
-                'App "%s" - Requirement "%s": %s',
-                $v->appName,
-                $v->requirementName,
-                $v->actionableResolution
-            ),
-            $violations
-        );
-
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::APP_REQUIREMENTS_NOT_MET,
-            'The app requirements are not met: {{ violations }}',
-            ['violations' => implode('; ', $violationDetails)]
         );
     }
 }

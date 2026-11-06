@@ -2,13 +2,19 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Loader;
 
+use Mcp\Capability\Formatter\PromptResultFormatter;
 use Mcp\Capability\Registry\PromptReference;
 use Mcp\Capability\RegistryInterface;
+use Mcp\Exception\PromptGetException;
+use Mcp\Schema\Content\PromptMessage;
+use Mcp\Schema\Content\TextContent;
+use Mcp\Schema\Enum\Role;
 use Mcp\Schema\JsonRpc\Request;
 use Mcp\Schema\Prompt;
 use Mcp\Server\RequestContext;
 use Mcp\Server\Session\SessionInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
@@ -19,6 +25,7 @@ use Shopware\Core\Framework\App\Mcp\Feature\McpPromptConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpCapabilityExecutor;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpPromptLoader;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 
 /**
@@ -71,15 +78,65 @@ class AppMcpPromptLoaderTest extends TestCase
         $executor->expects($this->once())
             ->method('execute')
             ->with('my-app-order-context', 'my-app', 'https://app.example.com/mcp/prompt/order-context', [])
-            ->willReturn('{"messages":[]}');
+            ->willReturn('[]');
 
         $this->storage->method('forActiveApps')->willReturn([$this->feature($this->promptConfig())]);
         $loader = new AppMcpPromptLoader($this->storage, $executor, $this->localeProvider, new NullLogger());
-        $request = static::createStub(Request::class);
 
-        $result = $this->registeredHandler($loader)(new RequestContext(static::createStub(SessionInterface::class), $request));
+        static::assertSame([], $this->getPrompt($loader));
+    }
 
-        static::assertSame('{"messages":[]}', $result);
+    public function testTheMessagesOfTheAppAreAcceptedByTheMcpSdk(): void
+    {
+        $this->executor->method('execute')->willReturn(Json::encode([
+            ['role' => 'user', 'content' => 'You are working with ERP-synced data.'],
+            ['role' => 'assistant', 'content' => ['type' => 'text', 'text' => 'Understood.']],
+        ]));
+        $this->storage->method('forActiveApps')->willReturn([$this->feature($this->promptConfig())]);
+
+        $messages = (new PromptResultFormatter())->format($this->getPrompt($this->loader));
+
+        static::assertEquals([
+            new PromptMessage(Role::User, new TextContent('You are working with ERP-synced data.')),
+            new PromptMessage(Role::Assistant, new TextContent('Understood.')),
+        ], $messages);
+    }
+
+    #[DataProvider('invalidResponseProvider')]
+    public function testAnUnusableResponseFailsWithAMessageForTheClient(string $body, string $expectedMessage): void
+    {
+        $this->executor->method('execute')->willReturn($body);
+        $this->storage->method('forActiveApps')->willReturn([$this->feature($this->promptConfig())]);
+
+        $this->expectExceptionObject(new PromptGetException($expectedMessage));
+
+        $this->getPrompt($this->loader);
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function invalidResponseProvider(): iterable
+    {
+        yield 'failed app call' => [
+            '{"success":false,"error":"App capability \\"my-app-order-context\\" execution failed: timeout"}',
+            'App capability "my-app-order-context" execution failed: timeout',
+        ];
+        yield 'failure without error text' => ['{"success":false}', 'App prompt "my-app-order-context" failed.'];
+        yield 'not JSON' => ['You are working with ERP data.', 'App prompt "my-app-order-context" returned a response that is not valid JSON.'];
+        yield 'object instead of array' => ['{"role":"user","content":"Hi"}', 'App prompt "my-app-order-context" must respond with a JSON array of messages.'];
+        yield 'scalar' => ['"Hi"', 'App prompt "my-app-order-context" must respond with a JSON array of messages.'];
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private function getPrompt(AppMcpPromptLoader $loader): array
+    {
+        $result = $this->registeredHandler($loader)(new RequestContext(static::createStub(SessionInterface::class), static::createStub(Request::class)));
+        static::assertIsArray($result);
+
+        return $result;
     }
 
     /**

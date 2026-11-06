@@ -8,11 +8,15 @@ use Mcp\Server\RequestContext;
 use Shopware\Core\Framework\App\Feature\AppFeature;
 use Shopware\Core\Framework\App\Mcp\Feature\McpPromptConfig;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\McpException;
 
 /**
  * @experimental stableVersion:v6.8.0
  *
  * Registers app-provided MCP prompts with the MCP server registry at build time.
+ *
+ * The app responds with a JSON array of messages (`[{"role": "user", "content": "..."}]`).
+ * The handler decodes it, because the MCP SDK only accepts an array of messages, never the raw body.
  *
  * @extends AbstractAppMcpLoader<McpPromptConfig>
  */
@@ -48,8 +52,32 @@ class AppMcpPromptLoader extends AbstractAppMcpLoader
 
         $url = $config->url;
 
-        $registry->registerPrompt($prompt, function (RequestContext $context) use ($promptName, $appName, $url): string {
-            return $this->executor->execute($promptName, $appName, $url, []);
+        $registry->registerPrompt($prompt, function (RequestContext $context) use ($promptName, $appName, $url): array {
+            return $this->decodeMessages($promptName, $this->executor->execute($promptName, $appName, $url, []));
         }, []);
+    }
+
+    /**
+     * @return list<mixed>
+     */
+    private function decodeMessages(string $promptName, string $body): array
+    {
+        try {
+            $decoded = json_decode($body, true, flags: \JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            throw McpException::appPromptResponseNotJson($promptName);
+        }
+
+        if (\is_array($decoded) && ($decoded['success'] ?? null) === false) {
+            $error = $decoded['error'] ?? null;
+
+            throw McpException::appPromptFailed($promptName, \is_string($error) ? $error : null);
+        }
+
+        if (!\is_array($decoded) || !array_is_list($decoded)) {
+            throw McpException::appPromptResponseNotAMessageList($promptName);
+        }
+
+        return $decoded;
     }
 }

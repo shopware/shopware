@@ -31,4 +31,11 @@ class McpExceptionTest extends TestCase
 
         static::assertSame('Tool result "abc" not found. It may have expired or been stored by another caller.', $e->uri);
     }
+
+    public function testAppPromptFailedPassesTheErrorOfTheAppToTheClient(): void
+    {
+        static::assertSame('ERP unreachable', McpException::appPromptFailed('my-app-context', 'ERP unreachable')->getMessage());
+        static::assertSame('App prompt "my-app-context" failed.', McpException::appPromptFailed('my-app-context', '')->getMessage());
+        static::assertSame('App prompt "my-app-context" failed.', McpException::appPromptFailed('my-app-context', null)->getMessage());
+    }
 }

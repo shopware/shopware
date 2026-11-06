@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Mcp;
 
+use Mcp\Exception\PromptGetException;
 use Mcp\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -56,5 +57,20 @@ class McpException extends HttpException
     public static function toolResultNotFound(string $id): ResourceNotFoundException
     {
         return new ResourceNotFoundException(\sprintf('Tool result "%s" not found. It may have expired or been stored by another caller.', $id));
+    }
+
+    public static function appPromptResponseNotJson(string $promptName): PromptGetException
+    {
+        return new PromptGetException(\sprintf('App prompt "%s" returned a response that is not valid JSON.', $promptName));
+    }
+
+    public static function appPromptResponseNotAMessageList(string $promptName): PromptGetException
+    {
+        return new PromptGetException(\sprintf('App prompt "%s" must respond with a JSON array of messages.', $promptName));
+    }
+
+    public static function appPromptFailed(string $promptName, ?string $error): PromptGetException
+    {
+        return new PromptGetException($error ?: \sprintf('App prompt "%s" failed.', $promptName));
     }
 }

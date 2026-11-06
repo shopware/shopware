@@ -139,7 +139,7 @@ The hints are fields of the JSON-RPC result, not HTTP headers, and both MCP endp
 
 - **Policy**: `servers.<name>.cache` in `Resources/config/packages/mcp.php`, the same for both servers.
   Default `private` with `ttlMs: 0`; `server/discover`, `tools/list`, `prompts/list`, `resources/list` and `resources/templates/list` are `private` for 60 seconds.
-  The list TTL is the fallback for clients that do not follow `subscriptions/listen`; it also bounds how long an allowlist change takes to reach a client, since allowlist changes publish no `list_changed`.
+  The list TTL is the fallback for clients that do not follow `subscriptions/listen`, so an allowlist change also reaches a client that does not listen within a minute.
 - **Reference resources**: `resources/read` stays at 0, because it also reads stored tool results and app resources.
   The reference resources return a `ReadResourceResult` with their own TTL through `McpResourceCacheHint`: one hour for data that only changes with a deployment or an extension lifecycle change (`shopware://entities`, `shopware://state-machines`, `shopware://business-events`, `shopware://flow-actions`), five minutes for shop configuration (`shopware://currencies`, `shopware://languages`, `shopware://sales-channels`).
   `shopware://extensions` stays at 0: an agent that installs an extension reads it right after.

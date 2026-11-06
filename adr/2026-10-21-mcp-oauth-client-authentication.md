@@ -263,16 +263,19 @@ C needs storage and UI per token family and is not planned.
 Options:
 
 - **A. Token id** (today); a refresh, or a new `client_credentials` token every ten minutes, starts a new bucket.
-- **B. Principal:** `user-<userId>` for user-bound tokens, `integration-<accessKey>` for integration tokens and access-key headers, `integration-<accessKey>-user-<userId>` for `sw-app-user-id` requests.
+- **B. Principal:** `user-<userId>` for user-bound tokens, `integration-<accessKey>` for integration tokens and access-key headers.
 - **C. Principal plus client id.**
 
 Decision: **B**, for every authentication mode.
 C lets a user multiply the limit by using several clients, and with CIMD the client id is chosen by the caller.
 The client IP stays the fallback when no principal is known.
+An integration keeps one bucket whichever user it acts for with `sw-app-user-id`.
+The caller chooses that header, and an integration without an app may send any valid UUID, so a key that contains it would open a new bucket per request.
+Session binding in 6 does include the acting user.
 
 ### 6. Session binding
 
-Decision: **bind handshake-era MCP sessions to the principal** that sent `initialize`, using the same principal value as in 5, never the token id, so a session survives a refresh.
+Decision: **bind handshake-era MCP sessions to the principal** that sent `initialize`, using the principal value of 5 plus the user an integration acts for (`integration-<accessKey>-user-<userId>`), never the token id, so a session survives a refresh.
 A request whose principal differs from the stored one is answered with the same `404` as an unknown session, so the answer does not reveal that the session exists.
 Sessions created before the change carry no principal and are answered with `404`; clients re-initialize.
 The stateless era has no sessions and is not affected.
@@ -329,7 +332,7 @@ What is reused once [#21832](https://github.com/shopware/shopware/issues/21832) 
   Its https rule fails for plain-http development hosts other than loopback, so those serve no metadata.
 - The transport sets the `AccessToken` request attribute from the validated Shopware token (scopes, `sub`, client id), so SDK-level handlers see the same principal through `RequestContext::getAccessToken()`.
 
-If discovery ships before #21832, a small internal builder serves the same fields and is replaced by the SDK class during the upgrade.
+`mcp/sdk` 0.8.1 already ships `ProtectedResourceMetadata`, so discovery uses it directly and needs no internal builder.
 `ScopePolicy` is reconsidered when the read-only consent from 4 is built.
 
 ### Error answers
@@ -362,7 +365,7 @@ These replace the proposed sub-issues of [#20866](https://github.com/shopware/sh
 3. **Discovery:** protected resource metadata, authorization server metadata at the path-suffixed URI, `WWW-Authenticate` on `401`, `iss` in the authorization response (RFC 9207), `RequestTransformer` exemption, documentation for subdirectory installs (7, error answers).
 4. **Audience-bound tokens:** `resource` on authorize and token requests, `aud` entry, rejection outside `/api/_mcp` for main requests, refresh keeps the resource (2).
 5. **Consent text** for MCP clients, including the administrator notice and the MCP-only notice (4).
-6. **Client ID Metadata Documents** behind a flag, with SSRF review (3).
+6. **Client ID Metadata Documents** behind a flag, with SSRF review (3), tracked in [#22047](https://github.com/shopware/shopware/issues/22047).
 7. **`shopware-mcp-evals`:** an OAuth login path next to integration keys.
 8. **Read-only consent** on the consent page, enforced centrally by the privileges a tool declares (4).
 

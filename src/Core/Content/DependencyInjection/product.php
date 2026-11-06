@@ -96,6 +96,8 @@ use Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingR
 use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
+use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentArchiver;
+use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentArchiveRoute;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\Garan\AbstractGaranLabelRoute;
 use Shopware\Core\Content\Product\SalesChannel\Garan\GaranLabelRoute;
@@ -141,11 +143,13 @@ use Shopware\Core\Content\Product\Stock\OrderStockSubscriber;
 use Shopware\Core\Content\Product\Stock\StockStorage;
 use Shopware\Core\Content\Product\Subscriber\CustomFieldSearchableSubscriber;
 use Shopware\Core\Content\Product\Subscriber\ProductDescriptionTeaserSubscriber;
+use Shopware\Core\Content\Product\Subscriber\ProductDocumentArchiveSubscriber;
 use Shopware\Core\Content\Product\Subscriber\ProductSubscriber;
 use Shopware\Core\Content\Product\Subscriber\RepairDigitalProductStatesSubscriber;
 use Shopware\Core\Content\Product\Util\VariantCombinationLoader;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\ProductProvider;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -158,12 +162,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symfony\Component\Filesystem\Filesystem;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
@@ -774,6 +780,36 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CacheTagCollector::class),
             service(ExtensionDispatcher::class),
         ]);
+
+    $services->set(ProductDocumentArchiveRoute::class)
+        ->public()
+        ->args([
+            service('sales_channel.product.repository'),
+            service(ProductDocumentArchiver::class),
+            service(RateLimiter::class),
+            service(SystemConfigService::class),
+            service(ProductCloseoutFilterFactory::class),
+            service(ExtensionDispatcher::class),
+            service('logger'),
+        ]);
+
+    $services->set(ProductDocumentArchiver::class)
+        ->args([
+            service('product_document.repository'),
+            service('media.repository'),
+            service('shopware.filesystem.public'),
+            service('shopware.filesystem.private'),
+            service(Filesystem::class),
+        ]);
+
+    $services->set(ProductDocumentArchiveSubscriber::class)
+        ->args([
+            service(Connection::class),
+            service(CacheInvalidator::class),
+            service('shopware.filesystem.private'),
+            service('logger'),
+        ])
+        ->tag('kernel.event_subscriber');
 
     $services->set(ProductPurchaseLimitRoute::class)
         ->public()

@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
+use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentArchiveRoute;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\AbstractFindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\Garan\AbstractGaranLabelRoute;
 use Shopware\Core\Content\Product\SalesChannel\PurchaseLimit\AbstractProductPurchaseLimitRoute;
@@ -52,6 +53,7 @@ class ProductController extends StorefrontController
         private readonly AbstractProductReviewLoader $productReviewLoader,
         private readonly AbstractProductPurchaseLimitRoute $productPurchaseLimitRoute,
         private readonly AbstractGaranLabelRoute $garanLabelRoute,
+        private readonly ProductDocumentArchiveRoute $productDocumentArchiveRoute,
     ) {
     }
 
@@ -272,5 +274,15 @@ class ProductController extends StorefrontController
         }
 
         return $this->renderStorefront('@Storefront/storefront/component/product/garan-label-modal.html.twig', ['garanLabel' => $garanLabel]);
+    }
+
+    #[Route(
+        path: '/product/{productId}/documents/archive',
+        name: 'frontend.product.documents.archive',
+        methods: [Request::METHOD_GET]
+    )]
+    public function documentArchive(string $productId, Request $request, SalesChannelContext $context): Response
+    {
+        return $this->productDocumentArchiveRoute->load($productId, $request, $context);
     }
 }

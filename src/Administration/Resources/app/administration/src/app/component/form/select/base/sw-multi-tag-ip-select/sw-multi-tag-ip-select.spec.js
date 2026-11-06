@@ -18,6 +18,8 @@ const createMultiDataIpSelect = async () => {
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
                 'sw-label': true,
+                'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                'sw-select-result': await wrapTestComponent('sw-select-result'),
             },
         },
         props: {

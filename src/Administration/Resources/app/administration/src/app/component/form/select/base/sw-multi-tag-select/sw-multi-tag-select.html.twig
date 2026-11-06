@@ -48,47 +48,42 @@
 
     {% block sw_multi_tag_select_validation %}
     <template #results-list>
-        <div
+        <sw-select-result-list
             v-if="hasFocus"
-            class="sw-multi-tag-select-validation sw-select-result-list"
+            class="sw-multi-tag-select-validation"
+            :options="validationOptions"
+            :popover-classes="['sw-multi-tag-select-validation-popover']"
+            :focus-el="$refs.selectionList?.getFocusEl()"
+            @item-select="onValidationItemSelect"
         >
-            <sw-popover
-                class="sw-select-result-list-popover"
-                popover-class="sw-multi-tag-select-validation-popover"
-                :z-index="1100"
-                :match-reference-width="true"
-            >
-                <div class="sw-select-result-list__content">
+            <template #result-item="{ item, index }">
+                <sw-select-result
+                    :item="item"
+                    :index="index"
+                    :class="item.type === 'add' ? 'sw-multi-tag-select-valid' : 'sw-multi-tag-select-invalid'"
+                >
                     {% block sw_multi_tag_select_validation_valid %}
-                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
-                    <div
-                        v-if="inputIsValid"
-                        class="sw-multi-tag-select-valid"
-                        @click="addItem"
-                    >
+                    <template v-if="item.type === 'add'">
                         {% block sw_multi_tag_select_validation_valid_message %}
                         <slot name="message-add-data">
                             <span>{{ $t('global.sw-multi-tag-select.addData') }}</span>
                         </slot>
                         {% endblock %}
-                    </div>
+                    </template>
                     {% endblock %}
 
                     {% block sw_multi_tag_select_validation_invalid %}
-                    <div
-                        v-else
-                        class="sw-multi-tag-select-invalid"
-                    >
+                    <template v-else>
                         {% block sw_multi_tag_select_validation_invalid_message %}
                         <slot name="message-enter-valid-data">
                             <span>{{ $t('global.sw-multi-tag-select.enterValidData') }}</span>
                         </slot>
                         {% endblock %}
-                    </div>
+                    </template>
                     {% endblock %}
-                </div>
-            </sw-popover>
-        </div>
+                </sw-select-result>
+            </template>
+        </sw-select-result-list>
     </template>
     {% endblock %}
 

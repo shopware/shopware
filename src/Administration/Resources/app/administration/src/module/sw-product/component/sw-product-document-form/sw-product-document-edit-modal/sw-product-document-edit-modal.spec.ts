@@ -3,7 +3,7 @@
  */
 import { shallowMount } from '@vue/test-utils';
 import type { ComponentPublicInstance } from 'vue';
-import { createMedia } from '../sw-product-document-form/sw-product-document-form.spec/helpers';
+import { createMedia } from '../sw-product-document-form.spec/helpers';
 
 async function createWrapper(props = {}) {
     return shallowMount(await wrapTestComponent('sw-product-document-edit-modal', { sync: true }), {

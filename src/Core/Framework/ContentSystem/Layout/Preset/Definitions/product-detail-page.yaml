@@ -9,6 +9,17 @@ layout:
     slots:
       content:
         - component: Sw:Media:Gallery
+          acceptsContext:
+            mediaItems:
+              type: collection
+              required: false
+              scope: root
+              source:
+                type: root
+                id: product
+                path: media
+        - component: Sw:Content:Text
+          properties:
+            text: "<p>{{map:product.description}}</p>"
         - component: Sw:Product:PriceDisplay
   - preset: Sw:ProductReviews
-  - component: Sw:Product:Slider

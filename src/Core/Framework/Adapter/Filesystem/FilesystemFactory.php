@@ -81,8 +81,10 @@ class FilesystemFactory
             $fsOptions['public_url'] = $this->baseUrlResolver->resolve() . '/';
         }
 
-        if ($factory instanceof LocalFactory) {
-            return $factory->createFilesystemWithPublicUrlGenerator($config['config'], $fsOptions, $publicUrlGenerator);
+        if ($factory instanceof LocalFactory && $publicUrlGenerator !== null) {
+            // Keep the fallback for overrides that build their own operator, and distinguish it from a URL pinned by an override
+            $fsOptions['public_url_generator'] = $publicUrlGenerator;
+            $fsOptions['public_url_generator_fallback'] = $fsOptions['public_url'];
         }
 
         if ($factory instanceof FilesystemOperatorFactoryInterface) {

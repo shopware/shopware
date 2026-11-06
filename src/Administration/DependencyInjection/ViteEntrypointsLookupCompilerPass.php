@@ -2,7 +2,6 @@
 
 namespace Shopware\Administration\DependencyInjection;
 
-use Pentatrion\ViteBundle\Service\EntrypointsLookup;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -19,10 +18,15 @@ class ViteEntrypointsLookupCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
-        foreach ($container->getDefinitions() as $definition) {
-            if ($definition->getClass() === EntrypointsLookup::class) {
-                $definition->setShared(false);
-            }
+        if (!$container->hasParameter('pentatrion_vite.configs')) {
+            return;
+        }
+
+        $configs = $container->getParameter('pentatrion_vite.configs');
+        \assert(\is_array($configs));
+
+        foreach (array_keys($configs) as $configName) {
+            $container->getDefinition('pentatrion_vite.entrypoints_lookup[' . $configName . ']')->setShared(false);
         }
     }
 }

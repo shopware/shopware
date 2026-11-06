@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Filesystem;
 
 use League\Flysystem\Filesystem as LeagueFilesystem;
 use League\Flysystem\FilesystemAdapter;
+use League\Flysystem\FilesystemOperator;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use League\Flysystem\UnableToGeneratePublicUrl;
 use League\Flysystem\Visibility;
@@ -134,6 +135,69 @@ class FilesystemFactoryTest extends TestCase
         $requestStack->push(Request::create('https://second.example'));
 
         static::assertSame('https://second.example/media/a.jpg', $filesystem->publicUrl('media/a.jpg'));
+    }
+
+    public function testLocalFactoryOverrideCanReturnACustomFilesystem(): void
+    {
+        $filesystem = new LeagueFilesystem(new InMemoryFilesystemAdapter());
+        $localFactory = new class($filesystem) extends LocalFactory {
+            public function __construct(private readonly FilesystemOperator $filesystem)
+            {
+            }
+
+            public function createFilesystem(array $config, array $filesystemOptions): FilesystemOperator
+            {
+                return $this->filesystem;
+            }
+        };
+
+        $actual = (new FilesystemFactory([$localFactory]))->factory([
+            'type' => 'local',
+            'config' => ['root' => __DIR__],
+        ]);
+
+        static::assertSame($filesystem, $actual);
+    }
+
+    public function testLocalFactoryOverrideCanUseTheFallbackUrlForItsOwnOperator(): void
+    {
+        $localFactory = new class extends LocalFactory {
+            public function createFilesystem(array $config, array $filesystemOptions): FilesystemOperator
+            {
+                return new LeagueFilesystem(new InMemoryFilesystemAdapter(), $filesystemOptions);
+            }
+        };
+        $requestStack = new RequestStack();
+        $requestStack->push(Request::create('https://first.example'));
+        $filesystem = (new FilesystemFactory([$localFactory], $requestStack))->factory([
+            'type' => 'local',
+            'config' => ['root' => __DIR__],
+        ]);
+
+        static::assertSame('https://first.example/media/a.jpg', $filesystem->publicUrl('media/a.jpg'));
+    }
+
+    public function testLocalFactoryOverrideCanConfigureAPublicUrl(): void
+    {
+        $localFactory = new class extends LocalFactory {
+            public function createFilesystem(array $config, array $filesystemOptions): FilesystemOperator
+            {
+                $filesystemOptions['public_url'] = 'https://plugin.example';
+
+                return parent::createFilesystem($config, $filesystemOptions);
+            }
+        };
+        $requestStack = new RequestStack();
+        $requestStack->push(Request::create('https://first.example'));
+        $filesystem = (new FilesystemFactory([$localFactory], $requestStack))->factory([
+            'type' => 'local',
+            'config' => ['root' => __DIR__],
+        ]);
+
+        $requestStack->pop();
+        $requestStack->push(Request::create('https://second.example'));
+
+        static::assertSame('https://plugin.example/media/a.jpg', $filesystem->publicUrl('media/a.jpg'));
     }
 
     public function testPublicUrlKeepsTheConfiguredUrl(): void

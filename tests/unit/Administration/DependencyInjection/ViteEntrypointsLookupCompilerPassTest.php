@@ -19,12 +19,25 @@ class ViteEntrypointsLookupCompilerPassTest extends TestCase
     public function testEntrypointsLookupsAreNotShared(): void
     {
         $container = new ContainerBuilder();
+        $container->setParameter('pentatrion_vite.configs', ['_default' => [], 'Plugin' => []]);
         $container->register('pentatrion_vite.entrypoints_lookup[_default]', EntrypointsLookup::class);
+        $container->register('pentatrion_vite.entrypoints_lookup[Plugin]', EntrypointsLookup::class);
         $container->register('other_service', \stdClass::class);
 
         (new ViteEntrypointsLookupCompilerPass())->process($container);
 
         static::assertFalse($container->getDefinition('pentatrion_vite.entrypoints_lookup[_default]')->isShared());
+        static::assertFalse($container->getDefinition('pentatrion_vite.entrypoints_lookup[Plugin]')->isShared());
+        static::assertTrue($container->getDefinition('other_service')->isShared());
+    }
+
+    public function testContainerWithoutViteConfigurationIsUnchanged(): void
+    {
+        $container = new ContainerBuilder();
+        $container->register('other_service', \stdClass::class);
+
+        (new ViteEntrypointsLookupCompilerPass())->process($container);
+
         static::assertTrue($container->getDefinition('other_service')->isShared());
     }
 }

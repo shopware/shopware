@@ -9439,9 +9439,6 @@
   "src/module/sw-product-stream/page/sw-product-stream-detail/index.js": {
     "filename-rules/not-match": {
       "count": 1
-    },
-    "max-nested-callbacks": {
-      "count": 1
     }
   },
   "src/module/sw-product-stream/page/sw-product-stream-detail/sw-product-stream-detail.spec.js": {

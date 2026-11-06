@@ -66,6 +66,7 @@ class EntityDeleteTool extends McpToolResponse { ... }
 | `shopware-entity-aggregate` | `shopware-entity-schema` |
 | `shopware-entity-upsert` | `shopware-entity-schema` |
 | `shopware-entity-delete` | `shopware-entity-search` (→ `shopware-entity-schema`) |
+| `shopware-entity-sync` | `shopware-entity-schema` |
 | `shopware-system-config-write` | `shopware-system-config-read` |
 | `merchant-cart-checkout` | `merchant-cart-manage` |
 
@@ -112,6 +113,7 @@ class EntityReadTool extends McpToolResponse { ... }
 | `shopware-entity-aggregate` | `<entity>:read` (dynamic) |
 | `shopware-entity-upsert` | `<entity>:create`, `<entity>:update` (dynamic) |
 | `shopware-entity-delete` | `<entity>:delete` (dynamic) |
+| `shopware-entity-sync` | `<entity>:create`, `<entity>:update`, `<entity>:delete` (dynamic, per operation) |
 | `shopware-theme-config` (Storefront) | `theme:read`, `theme:update` |
 
 ## Response format convention
@@ -269,9 +271,39 @@ All entity read tools use `JsonEntityEncoder` for serialization (not the Store A
 ## Write tools
 - `EntityUpsertTool` (`shopware-entity-upsert`) -- create/update entities (dryRun wraps in transaction + rollback)
 - `EntityDeleteTool` (`shopware-entity-delete`) -- delete entities (dryRun shows cascade impact). Mapping entities with a composite primary key (`product_category`, `product_property`, ...) take objects naming every key field; this is how a many-to-many link is removed, because `shopware-entity-upsert` can only add links
+- `EntitySyncTool` (`shopware-entity-sync`) -- bulk writes through `SyncService`: many upsert and delete operations, also on several entities, in one call (see below)
 - `SystemConfigWriteTool` (`shopware-system-config-write`) -- update configuration values
 - `OrderStateTool` (`shopware-order-state`) -- change the state of an order, its transactions, and/or deliveries in one call
 - `MediaUploadTool` (`shopware-media-upload`) -- upload media from URL, optionally assign to product as cover image
+
+### Bulk writes with `shopware-entity-sync`
+
+`shopware-entity-sync` is the Admin API sync endpoint (`POST /api/_action/sync`) as a tool.
+`operations` takes the same body as the endpoint: a list of `{"entity", "action", "payload"}` objects, or an object keyed by operation name, and a delete may use `criteria` instead of `payload`.
+`SyncService` runs the operations in one call, in the `CRUD_API_SCOPE` the endpoint uses, so a failing operation writes nothing.
+Its description tells the model to use it instead of `shopware-entity-upsert` and `shopware-entity-delete` for imports and bulk changes, and when writes on several entities belong to one change.
+
+- **Dry run.** `dryRun` defaults to `true` and runs through `executeWithDryRun()` like every other write tool: everything is written in a transaction that is rolled back, so the result names what would be written, deleted or not found, and validation and DAL privilege errors show up inline.
+- **Privileges.** Before anything is written, every operation is checked: a record with `id` needs `<entity>:update`, one without needs `<entity>:create`, a delete needs `<entity>:delete`.
+  All missing privileges are reported in one `Missing privilege:` error.
+  The DAL's ACL check still runs on every write command, so a nested association write (e.g. new categories inside a product) is denied by the DAL and reported the same way.
+- **Mapping entities.** Delete rows on an entity with a composite primary key must name every key field as a UUID, as in `shopware-entity-delete`.
+  Version fields are optional in a live context; in a versioned context the tool asks for them instead of guessing (see below).
+- **Headers as parameters.** `indexingBehavior` and `skipTriggerFlow` are the `indexing-behavior` and `sw-skip-trigger-flow` headers of the endpoint, and `dryRun` does not change them.
+  `indexingBehavior` accepts an empty string (index right away) and `use-queue-indexing`.
+  `disable-indexing` and every other value are rejected: the written data would stay unindexed until a full reindex, which a model can neither run nor know it needs.
+  A dry run never triggers flows, whatever `skipTriggerFlow` says.
+  With `use-queue-indexing`, a dry run may still dispatch indexing messages for the rolled back records; the indexers find nothing to do for them.
+- **Result.** `data` holds `written`, `deleted` and `notFound`, each grouped by entity, as the endpoint returns them; the summary has the counts, so it still tells the model what happened when the renderer stores a large result behind a link.
+  `_meta` echoes `dryRun`, the number of `operations`, `indexingBehavior` and `skipTriggerFlow`.
+- **No limits (decision Q8 of #20866).** The tool sets no limit on the number of operations or the payload size; add one under `shopware.mcp` only if real use shows the need.
+  Measured locally (host PHP, products with a price), time and memory grow linearly: 1,000 products are 254 KB of arguments, about 2 s and 17 MB, and a 129 KB result that the renderer stores behind a link.
+  5,000 products take about 10 s and 85 MB, 20,000 products (5 MB of arguments) about 75 s and 330 to 380 MB.
+  The model's output limit caps a call long before that, and `max_execution_time` and `memory_limit` of the PHP process are the server's limits.
+- **Not exposed.** The `indexing-skip` and `indexing-only` headers are left out until a use case needs them.
+
+The tool builds its `McpToolResult` directly, because the base class has no `*Result()` helpers yet.
+Once #21306 adds them, they replace the private helpers of `EntitySyncTool`.
 
 ### Removing many-to-many links
 
@@ -279,7 +311,7 @@ A many-to-many link (a product's categories, properties, tags, ...) is a row of 
 
 Version fields of the composite key (`productVersionId`, `categoryVersionId`) are optional in the key objects and default to the live version. In a versioned context (a non-live `sw-version-id`) the tool refuses to guess and asks for them: the Admin API unlinks with the context version for the parent and the live version for the referenced side, a mapping row does not say which side is which, and a wrong guess matches no row and removes nothing without an error.
 
-We deliberately don't add a dedicated "unlink" tool for now. The planned Sync tool (#20520) removes links the same way, so one model covers delete, sync and the Admin API. A new tool would also stay invisible to existing integrations until operators add it to their allowlist. Revisit this if evaluations show that models don't find the delete path, and build such a tool on the same key handling.
+We deliberately don't add a dedicated "unlink" tool for now. `shopware-entity-sync` removes links the same way, so one model covers delete, sync and the Admin API. A new tool would also stay invisible to existing integrations until operators add it to their allowlist. Revisit this if evaluations show that models don't find the delete path, and build such a tool on the same key handling.
 
 Don't add a "remove" flag to upsert payloads: the DAL writes every field sent on an associated record to that record.
 

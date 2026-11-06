@@ -8,9 +8,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
 use Shopware\Core\Test\Stub\Doctrine\TestExceptionFactory;
+use Shopware\Core\Test\TestEnvironment;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
@@ -21,11 +21,9 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 #[CoversClass(BlueGreenDeploymentService::class)]
 class BlueGreenDeploymentServiceTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     public function testSetsEnvironmentVariableToTrueIfTriggersCanBeCreated(): void
     {
-        $this->setEnvVars([BlueGreenDeploymentService::ENV_NAME => '0']);
+        TestEnvironment::set([BlueGreenDeploymentService::ENV_NAME => '0']);
 
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->exactly(2))->method('executeQuery');
@@ -43,7 +41,7 @@ class BlueGreenDeploymentServiceTest extends TestCase
 
     public function testSetsEnvironmentVariableToFalseIfTriggersCanNotBeCreated(): void
     {
-        $this->setEnvVars([BlueGreenDeploymentService::ENV_NAME => '1']);
+        TestEnvironment::set([BlueGreenDeploymentService::ENV_NAME => '1']);
 
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->exactly(2))

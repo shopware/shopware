@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Adapter\Twig\Extension\FeatureFlagExtension;
 use Shopware\Core\Framework\Adapter\Twig\NodeVisitor\FeatureCallOptimizerNodeVisitor;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Test\TestEnvironment;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
@@ -21,8 +21,6 @@ use Twig\Loader\FilesystemLoader;
 #[CoversClass(FeatureFlagExtension::class)]
 class FeatureFlagExtensionTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     private const OPTIMIZATION_FLAG = 'TWIG_COMPILE_TIME_OPTIMIZATION';
 
     /**
@@ -41,7 +39,7 @@ class FeatureFlagExtensionTest extends TestCase
     {
         $this->registeredFeaturesBackup = Feature::getRegisteredFeatures();
 
-        $this->setEnvVars([
+        TestEnvironment::set([
             'APP_ENV' => 'test',
             'FEATURE_ALL' => 'false',
             self::OPTIMIZATION_FLAG => 'false',
@@ -71,7 +69,7 @@ class FeatureFlagExtensionTest extends TestCase
     public function testRegistersVisitorWhenOptimizationIsActive(): void
     {
         $this->registerTwigOptimizationFlag();
-        $this->setEnvVars([self::OPTIMIZATION_FLAG => '1']);
+        TestEnvironment::set([self::OPTIMIZATION_FLAG => '1']);
 
         $nodeVisitors = (new FeatureFlagExtension())->getNodeVisitors();
 
@@ -89,16 +87,16 @@ class FeatureFlagExtensionTest extends TestCase
         ]);
         $twig->addExtension(new FeatureFlagExtension());
         $template = $twig->loadTemplate($twig->getTemplateClass('featuretest.html.twig'), 'featuretest.html.twig');
-        $this->setEnvVars(['FEATURE_NEXT_101' => '1']);
+        TestEnvironment::set(['FEATURE_NEXT_101' => '1']);
         static::assertSame('FeatureIsActive', $template->render([]));
-        $this->setEnvVars(['FEATURE_NEXT_101' => '0']);
+        TestEnvironment::set(['FEATURE_NEXT_101' => '0']);
         static::assertSame('FeatureIsInactive', $template->render([]));
     }
 
     public function testTwigFeatureFlagNotRegistered(): void
     {
         $this->registerTwigOptimizationFlag();
-        $this->setEnvVars(['APP_ENV' => 'test']);
+        TestEnvironment::set(['APP_ENV' => 'test']);
 
         $loader = new FilesystemLoader(__DIR__ . '/fixture/');
         $twig = new Environment($loader, [
@@ -113,7 +111,7 @@ class FeatureFlagExtensionTest extends TestCase
     public function testTwigFeatureFlagNotRegisteredInProd(): void
     {
         $this->registerTwigOptimizationFlag();
-        $this->setEnvVars(['APP_ENV' => 'prod']);
+        TestEnvironment::set(['APP_ENV' => 'prod']);
 
         $loader = new FilesystemLoader(__DIR__ . '/fixture/');
         $twig = new Environment($loader, [

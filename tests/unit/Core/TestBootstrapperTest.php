@@ -11,9 +11,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Kernel;
+use Shopware\Core\Test\TestEnvironment;
 use Shopware\Core\TestBootstrapper;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -24,30 +24,28 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 #[CoversClass(TestBootstrapper::class)]
 class TestBootstrapperTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     public function testGetDatabaseUrlWithoutSuffix(): void
     {
-        $this->setEnvVars([
+        TestEnvironment::set([
             'DATABASE_URL' => 'mysql://root:root@localhost:3306/test',
         ]);
 
         $testBootstrapper = new TestBootstrapper();
         static::assertSame('mysql://root:root@localhost:3306/test_test', $testBootstrapper->getDatabaseUrl());
 
-        $this->resetEnvVars();
+        TestEnvironment::reset();
     }
 
     public function testGetDatabaseUrlWithSuffix(): void
     {
-        $this->setEnvVars([
+        TestEnvironment::set([
             'DATABASE_URL' => 'mysql://root:root@localhost:3306/test_test',
         ]);
 
         $testBootstrapper = new TestBootstrapper();
         static::assertSame('mysql://root:root@localhost:3306/test_test', $testBootstrapper->getDatabaseUrl());
 
-        $this->resetEnvVars();
+        TestEnvironment::reset();
     }
 
     public function testGetDatabaseUrlAlreadySet(): void

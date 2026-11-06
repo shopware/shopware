@@ -18,10 +18,10 @@ use Shopware\Core\Framework\Feature\Triggerer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
+use Shopware\Core\Test\TestEnvironment;
 use Shopware\Storefront\Framework\Cookie\AppCookieProvider;
 use Shopware\Storefront\Framework\Cookie\CookieProvider as LegacyCookieProvider;
 use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
@@ -37,8 +37,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 #[DisabledFeatures(['v6.9.0.0'])]
 class CookieProviderTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     private ?Triggerer $triggererBackup;
 
     protected function setUp(): void
@@ -95,7 +93,7 @@ class CookieProviderTest extends TestCase
     public function testLegacyProviderIsNotCalledWithThe69FlagActive(): void
     {
         Feature::registerFeature('v6.9.0.0', ['default' => false]);
-        $this->setEnvVars(['V6_9_0_0' => '1']);
+        TestEnvironment::set(['V6_9_0_0' => '1']);
         $legacy = $this->createMock(CookieProviderInterface::class);
         $legacy->expects($this->never())->method('getCookieGroups');
         $translator = static::createStub(TranslatorInterface::class);
@@ -302,7 +300,7 @@ class CookieProviderTest extends TestCase
         $legacyCookieProvider->setTestCookieGroups([$invalidGroup]);
 
         $this->expectExceptionObject(Feature::silent('v6.9.0.0', static fn () => CookieException::invalidLegacyCookieGroupProvided($invalidGroup)));
-        $this->setEnvVars(['TESTS_RUNNING' => false]);
+        TestEnvironment::set(['TESTS_RUNNING' => false]);
         $triggerer = $this->createMock(Triggerer::class);
         $triggerer->expects($this->never())->method('deprecation');
         Feature::$triggerer = $triggerer;
@@ -355,7 +353,7 @@ class CookieProviderTest extends TestCase
         ]);
 
         $this->expectExceptionObject(Feature::silent('v6.9.0.0', static fn () => CookieException::invalidLegacyCookieEntryProvided($invalidEntry)));
-        $this->setEnvVars(['TESTS_RUNNING' => false]);
+        TestEnvironment::set(['TESTS_RUNNING' => false]);
         $triggerer = $this->createMock(Triggerer::class);
         $triggerer->expects($this->never())->method('deprecation');
         Feature::$triggerer = $triggerer;

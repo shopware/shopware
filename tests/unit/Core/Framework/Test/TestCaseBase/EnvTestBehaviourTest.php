@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Tests\Unit\Core\Framework\Test\TestCaseBase\Stub\EnvTestBehaviourStub;
 
 /**
  * @internal
@@ -14,11 +15,16 @@ use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 #[CoversTrait(EnvTestBehaviour::class)]
 class EnvTestBehaviourTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     private const PREVIOUSLY_UNSET = 'ENV_TEST_BEHAVIOUR_TEST_PREVIOUSLY_UNSET';
 
     private const PREVIOUSLY_SET = 'ENV_TEST_BEHAVIOUR_TEST_PREVIOUSLY_SET';
+
+    private EnvTestBehaviourStub $behaviour;
+
+    protected function setUp(): void
+    {
+        $this->behaviour = new EnvTestBehaviourStub();
+    }
 
     protected function tearDown(): void
     {
@@ -32,13 +38,13 @@ class EnvTestBehaviourTest extends TestCase
     {
         static::assertFalse(getenv(self::PREVIOUSLY_UNSET));
 
-        $this->setEnvVars([self::PREVIOUSLY_UNSET => 'redirected']);
+        $this->behaviour->setEnvVars([self::PREVIOUSLY_UNSET => 'redirected']);
 
         static::assertSame('redirected', getenv(self::PREVIOUSLY_UNSET));
         static::assertSame('redirected', $_SERVER[self::PREVIOUSLY_UNSET]);
         static::assertSame('redirected', $_ENV[self::PREVIOUSLY_UNSET]);
 
-        $this->resetEnvVars();
+        $this->behaviour->resetEnvVars();
 
         // getenv() reads the real process environment, which spawned processes inherit;
         // "" instead of false here means the variable would leak into them
@@ -54,11 +60,11 @@ class EnvTestBehaviourTest extends TestCase
         $_ENV[self::PREVIOUSLY_SET] = $original;
         putenv(self::PREVIOUSLY_SET . '=' . $original);
 
-        $this->setEnvVars([self::PREVIOUSLY_SET => 'redirected']);
+        $this->behaviour->setEnvVars([self::PREVIOUSLY_SET => 'redirected']);
 
         static::assertSame('redirected', getenv(self::PREVIOUSLY_SET));
 
-        $this->resetEnvVars();
+        $this->behaviour->resetEnvVars();
 
         static::assertSame($original, getenv(self::PREVIOUSLY_SET));
         static::assertSame($original, $_SERVER[self::PREVIOUSLY_SET]);
@@ -72,13 +78,13 @@ class EnvTestBehaviourTest extends TestCase
         $_ENV[self::PREVIOUSLY_SET] = $original;
         putenv(self::PREVIOUSLY_SET . '=' . $original);
 
-        $this->setEnvVars([self::PREVIOUSLY_SET => null]);
+        $this->behaviour->setEnvVars([self::PREVIOUSLY_SET => null]);
 
         static::assertFalse(getenv(self::PREVIOUSLY_SET));
         static::assertArrayNotHasKey(self::PREVIOUSLY_SET, $_SERVER);
         static::assertArrayNotHasKey(self::PREVIOUSLY_SET, $_ENV);
 
-        $this->resetEnvVars();
+        $this->behaviour->resetEnvVars();
 
         static::assertSame($original, getenv(self::PREVIOUSLY_SET));
         static::assertSame($original, $_SERVER[self::PREVIOUSLY_SET]);
@@ -90,10 +96,10 @@ class EnvTestBehaviourTest extends TestCase
         $_ENV[self::PREVIOUSLY_SET] = 'original';
         putenv(self::PREVIOUSLY_SET . '=original');
 
-        $this->setEnvVars([self::PREVIOUSLY_SET => 'first']);
-        $this->setEnvVars([self::PREVIOUSLY_SET => 'second']);
+        $this->behaviour->setEnvVars([self::PREVIOUSLY_SET => 'first']);
+        $this->behaviour->setEnvVars([self::PREVIOUSLY_SET => 'second']);
 
-        $this->resetEnvVars();
+        $this->behaviour->resetEnvVars();
 
         static::assertSame('original', getenv(self::PREVIOUSLY_SET));
     }

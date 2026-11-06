@@ -8,8 +8,8 @@ use Shopware\Core\Content\Cookie\CookieException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Core\Test\TestEnvironment;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -20,8 +20,6 @@ use Symfony\Component\HttpFoundation\Response;
 #[DisabledFeatures(['v6.9.0.0'])]
 class CookieExceptionTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     public function testInvalidLegacyCookieGroupProvided(): void
     {
         $exception = Feature::silent('v6.9.0.0', static fn () => CookieException::invalidLegacyCookieGroupProvided(['isRequired' => true]));
@@ -63,7 +61,7 @@ class CookieExceptionTest extends TestCase
     {
         Feature::registerFeature('v6.8.0.0', ['default' => true]);
         Feature::registerFeature('v6.9.0.0', ['default' => false]);
-        $this->setEnvVars(['V6_9_0_0' => '1']);
+        TestEnvironment::set(['V6_9_0_0' => '1']);
         $this->expectExceptionObject(FeatureException::error('Tried to access deprecated functionality: ' . Feature::deprecatedMethodMessage(CookieException::class, CookieException::class . '::invalidLegacyCookieGroupProvided', 'v6.9.0.0')));
 
         CookieException::invalidLegacyCookieGroupProvided([]);
@@ -76,7 +74,7 @@ class CookieExceptionTest extends TestCase
     {
         Feature::registerFeature('v6.8.0.0', ['default' => true]);
         Feature::registerFeature('v6.9.0.0', ['default' => false]);
-        $this->setEnvVars(['V6_9_0_0' => '1']);
+        TestEnvironment::set(['V6_9_0_0' => '1']);
         $this->expectExceptionObject(FeatureException::error('Tried to access deprecated functionality: ' . Feature::deprecatedMethodMessage(CookieException::class, CookieException::class . '::invalidLegacyCookieEntryProvided', 'v6.9.0.0')));
 
         CookieException::invalidLegacyCookieEntryProvided([]);

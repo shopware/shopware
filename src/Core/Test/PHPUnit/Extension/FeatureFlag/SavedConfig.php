@@ -24,4 +24,9 @@ class SavedConfig
      * @var array<string, mixed>
      */
     public array $savedServerVars = [];
+
+    /**
+     * @var array{env: array<string, mixed>, environment: array<string, string>}|null
+     */
+    public ?array $savedEnvironment = null;
 }

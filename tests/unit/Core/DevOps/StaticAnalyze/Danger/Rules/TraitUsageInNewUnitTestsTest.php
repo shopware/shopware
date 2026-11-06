@@ -64,7 +64,7 @@ class TraitUsageInNewUnitTestsTest extends TestCase
         yield 'new unit test listing two traits reports the one that is not allowed' => [
             'tests/unit/Core/Checkout/CartTest.php',
             File::STATUS_ADDED,
-            self::testClass("use Shopware\\Core\\Framework\\Test\\TestCaseBase\\EnvTestBehaviour;\nuse Shopware\\Tests\\Unit\\Core\\Checkout\\Helper\\CartHelperTrait;\n", "    use EnvTestBehaviour, CartHelperTrait;\n"),
+            self::testClass("use Symfony\\Component\\Clock\\Test\\ClockSensitiveTrait;\nuse Shopware\\Tests\\Unit\\Core\\Checkout\\Helper\\CartHelperTrait;\n", "    use ClockSensitiveTrait, CartHelperTrait;\n"),
             'Shopware\Tests\Unit\Core\Checkout\Helper\CartHelperTrait',
         ];
 
@@ -75,11 +75,18 @@ class TraitUsageInNewUnitTestsTest extends TestCase
             'Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour',
         ];
 
-        yield 'new unit test with a lifecycle behaviour passes' => [
+        yield 'new unit test with the clock behaviour passes' => [
+            'tests/unit/Core/Checkout/CartTest.php',
+            File::STATUS_ADDED,
+            self::testClass("use Symfony\\Component\\Clock\\Test\\ClockSensitiveTrait;\n", "    use ClockSensitiveTrait;\n"),
+            null,
+        ];
+
+        yield 'new unit test with the environment behaviour fails, TestEnvironment replaces it' => [
             'tests/unit/Core/Checkout/CartTest.php',
             File::STATUS_ADDED,
             self::testClass("use Shopware\\Core\\Framework\\Test\\TestCaseBase\\EnvTestBehaviour;\n", "    use EnvTestBehaviour;\n"),
-            null,
+            'Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour',
         ];
 
         yield 'new unit test without traits passes' => [

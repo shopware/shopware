@@ -16,7 +16,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
 use Shopware\Core\Framework\App\Validation\Requirements\PublicAccess;
 use Shopware\Core\Framework\App\Validation\Requirements\SecureUrlValidator;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Test\TestEnvironment;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 /**
@@ -26,8 +26,6 @@ use Symfony\Component\HttpFoundation\Response as HttpResponse;
 #[CoversClass(PublicAccess::class)]
 class PublicAccessTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     private PublicAccess $requirement;
 
     private MockHandler $mockHandler;
@@ -46,7 +44,7 @@ class PublicAccessTest extends TestCase
 
     public function testValidateReturnsUnmetRequirementWhenAppUrlNotSet(): void
     {
-        $this->setEnvVars(['APP_URL' => null]);
+        TestEnvironment::set(['APP_URL' => null]);
         $manifest = $this->createManifestMock();
 
         $result = $this->requirement->validate($manifest);
@@ -62,7 +60,7 @@ class PublicAccessTest extends TestCase
 
     public function testValidateReturnsUnmetRequirementWhenUrlNotValid(): void
     {
-        $this->setEnvVars(['APP_URL' => 'https://localhost']);
+        TestEnvironment::set(['APP_URL' => 'https://localhost']);
         $manifest = $this->createManifestMock();
 
         $result = $this->requirement->validate($manifest);
@@ -76,7 +74,7 @@ class PublicAccessTest extends TestCase
 
     public function testValidateReturnsNullWhenHealthCheckReturns200(): void
     {
-        $this->setEnvVars(['APP_URL' => 'https://shopware.com']);
+        TestEnvironment::set(['APP_URL' => 'https://shopware.com']);
         $manifest = $this->createManifestMock();
 
         $this->mockHandler->append(new Response(HttpResponse::HTTP_OK));
@@ -88,7 +86,7 @@ class PublicAccessTest extends TestCase
 
     public function testValidateReturnsUnmetRequirementWhenHealthCheckReturnsNon200(): void
     {
-        $this->setEnvVars(['APP_URL' => 'https://shopware.com']);
+        TestEnvironment::set(['APP_URL' => 'https://shopware.com']);
         $manifest = $this->createManifestMock();
 
         $this->mockHandler->append(new Response(HttpResponse::HTTP_INTERNAL_SERVER_ERROR));
@@ -104,7 +102,7 @@ class PublicAccessTest extends TestCase
 
     public function testValidateReturnsHttpStatusWhenRequestExceptionHasResponse(): void
     {
-        $this->setEnvVars(['APP_URL' => 'https://shopware.com']);
+        TestEnvironment::set(['APP_URL' => 'https://shopware.com']);
         $manifest = $this->createManifestMock();
 
         $request = new Request('GET', 'https://shopware.com/api/_info/health-check');
@@ -122,7 +120,7 @@ class PublicAccessTest extends TestCase
 
     public function testValidateReturnsUnreachableWhenRequestExceptionHasNoResponse(): void
     {
-        $this->setEnvVars(['APP_URL' => 'https://shopware.com']);
+        TestEnvironment::set(['APP_URL' => 'https://shopware.com']);
         $manifest = $this->createManifestMock();
 
         $this->mockHandler->append(new RequestException('Request failed', new Request('GET', 'test')));
@@ -138,7 +136,7 @@ class PublicAccessTest extends TestCase
 
     public function testValidateReturnsUnreachableWhenConnectionFails(): void
     {
-        $this->setEnvVars(['APP_URL' => 'https://shopware.com']);
+        TestEnvironment::set(['APP_URL' => 'https://shopware.com']);
         $manifest = $this->createManifestMock();
 
         $this->mockHandler->append(new ConnectException('Connection refused', new Request('GET', 'test')));
@@ -154,7 +152,7 @@ class PublicAccessTest extends TestCase
 
     public function testResultIsCached(): void
     {
-        $this->setEnvVars(['APP_URL' => 'https://shopware.com']);
+        TestEnvironment::set(['APP_URL' => 'https://shopware.com']);
         $manifest = $this->createManifestMock();
 
         // Only one response should be consumed due to caching
@@ -173,7 +171,7 @@ class PublicAccessTest extends TestCase
 
     public function testResetClearsCachedResult(): void
     {
-        $this->setEnvVars(['APP_URL' => 'https://shopware.com']);
+        TestEnvironment::set(['APP_URL' => 'https://shopware.com']);
         $manifest = $this->createManifestMock();
 
         // First response: success

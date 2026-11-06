@@ -13,8 +13,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Core\Test\TestEnvironment;
 
 /**
  * @internal
@@ -23,8 +23,6 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 #[CoversClass(MySQLFactory::class)]
 class MySQLFactoryTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     public function testMultiStatementsAreDisabledForApplicationConnections(): void
     {
         $params = MySQLFactory::create()->getParams();
@@ -50,7 +48,7 @@ class MySQLFactoryTest extends TestCase
     #[DisabledFeatures(['DISABLE_SQL_MULTI_STATEMENTS'])]
     public function testExplicitMultiStatementRestrictionIsPreservedWhenTheFeatureIsDisabled(): void
     {
-        $this->setEnvVars([
+        TestEnvironment::set([
             'DATABASE_URL' => 'mysql://user:pass@localhost:3306/shopware?driverOptions[' . Mysql::ATTR_MULTI_STATEMENTS . ']=false',
         ]);
 
@@ -63,7 +61,7 @@ class MySQLFactoryTest extends TestCase
     public function testMajorFlagDisablesMultiStatementsBeforeTheFeatureRegistryIsInitialized(): void
     {
         Feature::resetRegisteredFeatures();
-        $this->setEnvVars([
+        TestEnvironment::set([
             'V6_8_0_0' => '1',
             'DISABLE_SQL_MULTI_STATEMENTS' => null,
         ]);
@@ -74,7 +72,7 @@ class MySQLFactoryTest extends TestCase
     public function testRestrictionCanBeDisabledDuringEarlyBootDespiteTheMajorFlag(): void
     {
         Feature::resetRegisteredFeatures();
-        $this->setEnvVars([
+        TestEnvironment::set([
             'V6_8_0_0' => '1',
             'DISABLE_SQL_MULTI_STATEMENTS' => '0',
         ]);
@@ -88,7 +86,7 @@ class MySQLFactoryTest extends TestCase
     public function testRestrictionCanBeEnabledWithoutTheMajorFlag(): void
     {
         Feature::resetRegisteredFeatures();
-        $this->setEnvVars([
+        TestEnvironment::set([
             'V6_8_0_0' => '0',
             'DISABLE_SQL_MULTI_STATEMENTS' => '1',
         ]);
@@ -99,7 +97,7 @@ class MySQLFactoryTest extends TestCase
     public function testFeatureAllEnablesTheRestrictionDuringEarlyBootDespiteADisabledMajorFlag(): void
     {
         Feature::resetRegisteredFeatures();
-        $this->setEnvVars([
+        TestEnvironment::set([
             'FEATURE_ALL' => '1',
             'V6_8_0_0' => '0',
             'DISABLE_SQL_MULTI_STATEMENTS' => null,
@@ -110,7 +108,7 @@ class MySQLFactoryTest extends TestCase
 
     public function testMigrationConnectionAllowsMultiStatementsWithoutChangingApplicationConnection(): void
     {
-        $this->setEnvVars([
+        TestEnvironment::set([
             'DATABASE_URL' => 'mysql://user:pass@localhost:3306/shopware?persistent=1',
             'DATABASE_PERSISTENT_CONNECTION' => '1',
         ]);
@@ -130,7 +128,7 @@ class MySQLFactoryTest extends TestCase
 
     public function testMigrationConnectionUsesThePrimaryDatabase(): void
     {
-        $this->setEnvVars([
+        TestEnvironment::set([
             'DATABASE_URL' => 'mysql://user:pass@primary:3306/shopware',
             'DATABASE_REPLICA_0_URL' => 'mysql://replica:pass@replica:3306/shopware',
         ]);
@@ -149,7 +147,7 @@ class MySQLFactoryTest extends TestCase
 
     public function testFactoriesUseTheSameBaseParameters(): void
     {
-        $this->setEnvVars([
+        TestEnvironment::set([
             'DATABASE_URL' => 'mysql://user:pass@primary:3306/shopware?charset=latin1',
             'DATABASE_REPLICA_0_URL' => null,
             'DATABASE_SSL_CA' => '/ca.pem',
@@ -177,7 +175,7 @@ class MySQLFactoryTest extends TestCase
 
     public function testReplicaConfigurationParsesDsnParameters(): void
     {
-        $this->setEnvVars([
+        TestEnvironment::set([
             'DATABASE_URL' => 'mysql://user:pass@localhost:3306/shopware',
             'DATABASE_REPLICA_0_URL' => 'mysql://replica_user:replica_pass@replica_host:3307/replica_db',
             'DATABASE_REPLICA_1_URL' => 'mysql://replica_user2:replica_pass2@replica_host2:3308/replica_db2',
@@ -238,7 +236,7 @@ class MySQLFactoryTest extends TestCase
 
     public function testReplicaConfigurationKeepsReplicaConnectionByDefault(): void
     {
-        $this->setEnvVars([
+        TestEnvironment::set([
             'DATABASE_URL' => 'mysql://user:pass@localhost:3306/shopware',
             'DATABASE_REPLICA_0_URL' => 'mysql://replica_user:replica_pass@replica_host:3307/replica_db',
         ]);
@@ -251,7 +249,7 @@ class MySQLFactoryTest extends TestCase
 
     public function testKeepReplicaCanBeDisabledViaDsn(): void
     {
-        $this->setEnvVars([
+        TestEnvironment::set([
             'DATABASE_URL' => 'mysql://user:pass@localhost:3306/shopware?keepReplica=0',
             'DATABASE_REPLICA_0_URL' => 'mysql://replica_user:replica_pass@replica_host:3307/replica_db',
         ]);
@@ -268,7 +266,7 @@ class MySQLFactoryTest extends TestCase
         $customOption = 1001;
         $customValue = 1;
 
-        $this->setEnvVars([
+        TestEnvironment::set([
             'DATABASE_URL' => \sprintf(
                 'mysql://user:pass@localhost:3306/shopware?driverOptions[%d]=%d',
                 $customOption,
@@ -299,7 +297,7 @@ class MySQLFactoryTest extends TestCase
         $replicaCustomOption = 1004;
         $replicaCustomValue = 1;
 
-        $this->setEnvVars([
+        TestEnvironment::set([
             'DATABASE_URL' => \sprintf(
                 'mysql://user:pass@localhost:3306/shopware?driverOptions[%d]=%d',
                 $customOption,
@@ -332,7 +330,7 @@ class MySQLFactoryTest extends TestCase
 
     public function testWrapperClassWithDriverOptions(): void
     {
-        $this->setEnvVars([
+        TestEnvironment::set([
             'DATABASE_URL' => 'mysql://user:pass@localhost:3306/shopware?wrapperClass=Shopware\Tests\Unit\Core\Framework\Adapter\Database\MyWrapper&driverOptions[x_foo_bar]=3&driverOptions[foo][bar]=true',
         ]);
 

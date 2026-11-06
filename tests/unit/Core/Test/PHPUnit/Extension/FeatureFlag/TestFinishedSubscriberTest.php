@@ -67,6 +67,23 @@ class TestFinishedSubscriberTest extends TestCase
         static::assertArrayNotHasKey('RESTORED_MARKER', $_SERVER);
     }
 
+    public function testNotifyRestoresTheSavedEnvironment(): void
+    {
+        $savedConfig = new SavedConfig();
+        $savedConfig->savedFeatureConfig = [];
+        $savedConfig->savedServerVars = $_SERVER;
+        $savedConfig->savedEnvironment = ['env' => $_ENV, 'environment' => getenv()];
+
+        $_ENV['ENVIRONMENT_MARKER'] = 'leaked';
+        putenv('ENVIRONMENT_MARKER=leaked');
+
+        (new TestFinishedSubscriber($savedConfig))->notify($this->buildEvent());
+
+        static::assertArrayNotHasKey('ENVIRONMENT_MARKER', $_ENV);
+        static::assertFalse(getenv('ENVIRONMENT_MARKER'));
+        static::assertNull($savedConfig->savedEnvironment);
+    }
+
     private function buildEvent(): Finished
     {
         return new Finished(TelemetryInfoFactory::create(), new Phpt('fakeFile'), 0);

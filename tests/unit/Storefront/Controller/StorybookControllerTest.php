@@ -6,8 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\TestEnvironment;
 use Shopware\Storefront\Controller\StorybookController;
 use Shopware\Storefront\Storybook\StorybookService;
 use Shopware\Tests\Unit\Storefront\Controller\Stub\StorybookTwigEnvironmentStub;
@@ -23,8 +23,6 @@ use Twig\Error\SyntaxError;
 #[CoversClass(StorybookController::class)]
 class StorybookControllerTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     private const STORYBOOK_ORIGIN = 'http://localhost:6006';
 
     private StorybookTwigEnvironmentStub $twig;
@@ -193,7 +191,7 @@ class StorybookControllerTest extends TestCase
     public function testStorybookUsesCustomDomainFromEnvVariable(): void
     {
         $customDomain = 'http://my-dev-store.example.com:6006';
-        $this->setEnvVars(['STORYBOOK_DOMAIN' => $customDomain]);
+        TestEnvironment::set(['STORYBOOK_DOMAIN' => $customDomain]);
 
         $salesChannelContext = Generator::generateSalesChannelContext();
 
@@ -214,7 +212,7 @@ class StorybookControllerTest extends TestCase
 
     public function testStorybookRejectsRequestWhenOriginDoesNotMatchCustomDomain(): void
     {
-        $this->setEnvVars(['STORYBOOK_DOMAIN' => 'http://my-dev-store.example.com:6006']);
+        TestEnvironment::set(['STORYBOOK_DOMAIN' => 'http://my-dev-store.example.com:6006']);
 
         $controller = $this->createController();
 

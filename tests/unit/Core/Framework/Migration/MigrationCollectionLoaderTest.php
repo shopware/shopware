@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationException;
 use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Shopware\Core\Framework\Migration\MigrationSource;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Test\TestEnvironment;
 
 /**
  * @internal
@@ -23,8 +23,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 #[CoversClass(MigrationCollectionLoader::class)]
 class MigrationCollectionLoaderTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     /**
      * @param MigrationCollectionLoader::VERSION_SELECTION_* $mode
      */
@@ -37,7 +35,7 @@ class MigrationCollectionLoaderTest extends TestCase
 
     public function testFeatureAllDoesNotChangeMigrationVersionSelection(): void
     {
-        $this->setEnvVars(['FEATURE_ALL' => '1']);
+        TestEnvironment::set(['FEATURE_ALL' => '1']);
 
         static::assertSame(5, $this->createLoader()->getLastSafeMajorVersion('6.5.2', MigrationCollectionLoader::VERSION_SELECTION_ALL));
         static::assertSame(4, $this->createLoader()->getLastSafeMajorVersion('6.5.2', MigrationCollectionLoader::VERSION_SELECTION_BLUE_GREEN));
@@ -46,7 +44,7 @@ class MigrationCollectionLoaderTest extends TestCase
     public function testMajorFlagDoesNotChangeMigrationVersionSelection(): void
     {
         Feature::registerFeature('v6.8.0.0', ['default' => false]);
-        $this->setEnvVars(['V6_8_0_0' => '1']);
+        TestEnvironment::set(['V6_8_0_0' => '1']);
 
         static::assertSame(7, $this->createLoader()->getLastSafeMajorVersion('6.7.2'));
     }

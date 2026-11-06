@@ -65,7 +65,7 @@ Tests should read like executable examples.
 - Do not add `#[CoversClass]`, `#[CoversFunction]`, or `#[CoversNothing]` to integration tests. Shopware's PHPStan rule allows those attributes only on unit and migration tests.
 - Declare exactly one `#[CoversClass]` per test file: the covered class decides which domain owns the test. When a second class needs tests, create a second test file. A Danger rule fails every added or modified test file covering more than one class.
 - Do not run unit or devops tests in a separate process (`#[RunInSeparateProcess]`, `#[RunTestsInSeparateProcesses]`, `#[RunClassInSeparateProcess]`); restore the global state the test changes instead. A Danger rule fails every added or modified unit or devops test file using them.
-- Do not compose helpers into a unit test class through a trait; use a static fixture class or a stub under `Stub/`. Lifecycle behaviours (`EnvTestBehaviour`, `ClockSensitiveTrait`) are the only allowed traits; register listeners directly on the dispatcher the test owns instead of composing `EventDispatcherBehaviour`, a Danger rule fails new unit test files with any other.
+- Do not compose helpers into a unit test class through a trait; use a static fixture class or a stub under `Stub/`. `ClockSensitiveTrait` is the only allowed trait; set environment variables with `TestEnvironment::set()` (restored automatically after each unit test) instead of composing `EnvTestBehaviour`, and register listeners directly on the dispatcher the test owns instead of composing `EventDispatcherBehaviour`, a Danger rule fails new unit test files with any other.
 
 ## Meta-information of test classes
 

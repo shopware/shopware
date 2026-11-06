@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\FeatureFlagCallTokenParser;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Test\TestEnvironment;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 
@@ -21,13 +21,11 @@ use Twig\Loader\ArrayLoader;
 #[CoversClass(FeatureFlagCallTokenParser::class)]
 class FeatureFlagCallTokenParserTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     #[TestDox('sw_silent_feature_call wrapping an inactive flag suppresses Feature::triggerDeprecationOrThrow inside the rendered closure')]
     public function testSilentFeatureCallSuppressesDeprecation(): void
     {
         // Deprecation warnings are suppressed in test mode by default
-        $this->setEnvVars(['TESTS_RUNNING' => false, 'TEST_TWIG' => false]);
+        TestEnvironment::set(['TESTS_RUNNING' => false, 'TEST_TWIG' => false]);
 
         $this->expectNotToPerformAssertions();
 
@@ -45,7 +43,7 @@ class FeatureFlagCallTokenParserTest extends TestCase
     public function testCodeRun(string $twigCode): void
     {
         // Deprecation warnings are suppressed in test mode by default
-        $this->setEnvVars(['TESTS_RUNNING' => false, 'TEST_TWIG' => false]);
+        TestEnvironment::set(['TESTS_RUNNING' => false, 'TEST_TWIG' => false]);
 
         $this->expectUserDeprecationMessage('Foooo');
 

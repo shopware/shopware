@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Util\UtilException;
 use Shopware\Core\System\System;
 use Shopware\Core\System\SystemConfig\DTO\SystemConfigCard;
@@ -24,6 +23,7 @@ use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Shopware\Core\Test\TestEnvironment;
 use Shopware\Tests\Unit\Core\System\SystemConfig\Service\_fixtures\BrokenConfigPlugin\BrokenConfigPlugin;
 use Shopware\Tests\Unit\Core\System\SystemConfig\Service\_fixtures\SwagExample\SwagExample;
 use Shopware\Tests\Unit\Core\System\SystemConfig\Service\_fixtures\ValidConfigPlugin\ValidConfigPlugin;
@@ -37,8 +37,6 @@ use Shopware\Tests\Unit\Core\System\SystemConfig\Service\_fixtures\ValidConfigPl
 #[CoversClass(ConfigurationService::class)]
 class ConfigurationServiceTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testInvalidDomainDeprecated(): void
     {
@@ -136,7 +134,7 @@ class ConfigurationServiceTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testConfigurationFeatureFlagDeprecated(): void
     {
-        $this->setEnvVars([
+        TestEnvironment::set([
             'FEATURE_NEXT_101' => '1',
             'FEATURE_NEXT_102' => '1',
         ]);
@@ -155,7 +153,7 @@ class ConfigurationServiceTest extends TestCase
 
     public function testConfigurationFeatureFlag(): void
     {
-        $this->setEnvVars([
+        TestEnvironment::set([
             'FEATURE_NEXT_101' => '1',
             'FEATURE_NEXT_102' => '1',
         ]);
@@ -173,7 +171,7 @@ class ConfigurationServiceTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testConfigurationIsSequentiallyIndexedWhenFeatureFlagNotEnabledDeprecated(): void
     {
-        $this->setEnvVars([
+        TestEnvironment::set([
             'FEATURE_NEXT_101' => '0',
             'FEATURE_NEXT_102' => '0',
         ]);
@@ -207,7 +205,7 @@ class ConfigurationServiceTest extends TestCase
 
     public function testConfigurationIsSequentiallyIndexedWhenFeatureFlagNotEnabled(): void
     {
-        $this->setEnvVars([
+        TestEnvironment::set([
             'FEATURE_NEXT_101' => '0',
             'FEATURE_NEXT_102' => '0',
         ]);

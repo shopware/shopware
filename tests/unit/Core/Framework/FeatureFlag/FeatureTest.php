@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Test\TestEnvironment;
 
 /**
  * @internal
@@ -18,8 +18,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 #[CoversClass(Feature::class)]
 class FeatureTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     public static string $customCacheId = 'beef3f0ee9c61829627676afd6294bb029';
 
     /**
@@ -39,7 +37,7 @@ class FeatureTest extends TestCase
     {
         $this->registeredFeaturesBackup = Feature::getRegisteredFeatures();
 
-        $this->setEnvVars([
+        TestEnvironment::set([
             'APP_ENV' => 'test',
             'FEATURE_ALL' => 'false',
             'TWIG_COMPILE_TIME_OPTIMIZATION' => 'false',
@@ -63,7 +61,7 @@ class FeatureTest extends TestCase
     {
         $this->setUpFixtures();
         static::assertFalse(Feature::isActive('FEATURE_NEXT_102'));
-        $this->setEnvVars(['FEATURE_NEXT_102' => '1']);
+        TestEnvironment::set(['FEATURE_NEXT_102' => '1']);
         static::assertTrue(Feature::isActive('FEATURE_NEXT_102'));
     }
 
@@ -99,14 +97,14 @@ class FeatureTest extends TestCase
     public function testTheCallableGetsExecutes(): void
     {
         $this->setUpFixtures();
-        $this->setEnvVars(['FEATURE_NEXT_101' => '0']);
+        TestEnvironment::set(['FEATURE_NEXT_101' => '0']);
         $indicator = false;
         Feature::ifActive('FEATURE_NEXT_101', static function () use (&$indicator): void {
             $indicator = true;
         });
         static::assertFalse($indicator);
 
-        $this->setEnvVars(['FEATURE_NEXT_101' => '1']);
+        TestEnvironment::set(['FEATURE_NEXT_101' => '1']);
 
         Feature::ifActive('FEATURE_NEXT_101', static function () use (&$indicator): void {
             $indicator = true;
@@ -168,7 +166,7 @@ class FeatureTest extends TestCase
     #[DataProvider('featureAllDataProvider')]
     public function testFeatureAll(string $appEnv, bool $active): void
     {
-        $this->setEnvVars([
+        TestEnvironment::set([
             'APP_ENV' => $appEnv,
             'FEATURE_ALL' => $active,
             'FEATURE_NEXT_102' => 'true',
@@ -554,7 +552,7 @@ class FeatureTest extends TestCase
     #[DataProvider('isActiveDataProvider')]
     public function testIsActive(array $featureConfig, array $env, string $feature, bool $expected): void
     {
-        $this->setEnvVars(['APP_ENV' => 'prod', ...$env]);
+        TestEnvironment::set(['APP_ENV' => 'prod', ...$env]);
 
         Feature::resetRegisteredFeatures();
         Feature::registerFeatures($featureConfig);

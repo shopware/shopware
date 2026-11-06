@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Sso\Config\LoginConfig;
 use Shopware\Core\Framework\Sso\Config\LoginConfigService;
 use Shopware\Core\Framework\Sso\SsoException;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Test\TestEnvironment;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Loader\ClosureLoader;
 use Symfony\Component\Routing\RequestContext;
@@ -25,8 +25,6 @@ use Symfony\Component\Routing\RouterInterface;
 #[CoversClass(LoginConfigService::class)]
 class LoginConfigServiceTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     protected function setUp(): void
     {
         Request::setTrustedHosts(['shop.example.com']);
@@ -401,7 +399,7 @@ class LoginConfigServiceTest extends TestCase
     public function testUrlsAreBuiltFromAppUrlWhenNoTrustedHostsAreConfigured(): void
     {
         Request::setTrustedHosts([]);
-        $this->setEnvVars(['APP_URL' => 'https://shop.example.com/shop/']);
+        TestEnvironment::set(['APP_URL' => 'https://shop.example.com/shop/']);
 
         $router = $this->createRouter(new RequestContext('', 'GET', 'other.example'));
         $configService = new LoginConfigService(self::createConfig([]), $router); // @phpstan-ignore argument.type
@@ -419,7 +417,7 @@ class LoginConfigServiceTest extends TestCase
         $router = $this->createRouter(new RequestContext('', 'GET', 'shop.example.com', 'https'));
         $configService = new LoginConfigService(self::createConfig([]), $router); // @phpstan-ignore argument.type
 
-        $this->setEnvVars(['APP_URL' => 'not-a-url']);
+        TestEnvironment::set(['APP_URL' => 'not-a-url']);
 
         static::assertSame('https://shop.example.com/api/oauth/sso/auth?rdm=randomString', $configService->createTemplateData('randomString')->url);
     }

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Adapter\Twig\Extension\FeatureFlagExtension;
 use Shopware\Core\Framework\Adapter\Twig\NodeVisitor\FeatureCallOptimizerNodeVisitor;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Test\TestEnvironment;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 
@@ -21,8 +21,6 @@ use Twig\Loader\ArrayLoader;
 #[CoversClass(FeatureCallOptimizerNodeVisitor::class)]
 class FeatureCallOptimizerNodeVisitorTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     private const OPTIMIZATION_FLAG = 'TWIG_COMPILE_TIME_OPTIMIZATION';
     private const ACTIVE_FEATURE = 'FEATURE_ACTIVE';
     private const INACTIVE_FEATURE = 'FEATURE_INACTIVE';
@@ -45,7 +43,7 @@ class FeatureCallOptimizerNodeVisitorTest extends TestCase
             self::INACTIVE_FEATURE => ['default' => false],
         ]);
 
-        $this->setEnvVars([
+        TestEnvironment::set([
             self::OPTIMIZATION_FLAG => false,
             self::ACTIVE_FEATURE => false,
             self::INACTIVE_FEATURE => false,
@@ -158,7 +156,7 @@ class FeatureCallOptimizerNodeVisitorTest extends TestCase
     public function testUnregisteredFeatureCallIsNotOptimized(): void
     {
         $this->setFeature(self::OPTIMIZATION_FLAG, true);
-        $this->setEnvVars(['APP_ENV' => 'test']);
+        TestEnvironment::set(['APP_ENV' => 'test']);
 
         $compileErrors = 0;
         set_error_handler(static function () use (&$compileErrors): bool {
@@ -219,7 +217,7 @@ class FeatureCallOptimizerNodeVisitorTest extends TestCase
 
     private function setFeature(string $feature, bool $active): void
     {
-        $this->setEnvVars([
+        TestEnvironment::set([
             $feature => $active ? '1' : 'false',
         ]);
     }

@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Routing\TrustedOriginUrlGenerator;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Test\TestEnvironment;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\Loader\ClosureLoader;
@@ -25,12 +25,10 @@ use Symfony\Component\Routing\RouterInterface;
 #[CoversClass(TrustedOriginUrlGenerator::class)]
 class TrustedOriginUrlGeneratorTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     protected function setUp(): void
     {
         Request::setTrustedHosts([]);
-        $this->setEnvVars([
+        TestEnvironment::set([
             'APP_URL' => 'https://shop.example.com',
             'SHOPWARE_ADMINISTRATION_PATH_NAME' => null,
         ]);
@@ -44,7 +42,7 @@ class TrustedOriginUrlGeneratorTest extends TestCase
     public function testGenerateUsesRequestHostWhenTrustedHostsAreConfigured(): void
     {
         Request::setTrustedHosts(['trusted.example.com']);
-        $this->setEnvVars(['APP_URL' => 'not-a-url']);
+        TestEnvironment::set(['APP_URL' => 'not-a-url']);
 
         $router = $this->createRouter(new RequestContext('', 'GET', 'trusted.example.com', 'https'));
 
@@ -56,7 +54,7 @@ class TrustedOriginUrlGeneratorTest extends TestCase
 
     public function testGenerateUsesAppUrlWhenNoTrustedHostsAreConfigured(): void
     {
-        $this->setEnvVars(['APP_URL' => 'http://shop.example.com:8000/shop/']);
+        TestEnvironment::set(['APP_URL' => 'http://shop.example.com:8000/shop/']);
 
         $router = $this->createRouter(new RequestContext('', 'GET', 'other.example'));
 
@@ -83,7 +81,7 @@ class TrustedOriginUrlGeneratorTest extends TestCase
     #[DataProvider('invalidAppUrlProvider')]
     public function testGenerateThrowsWhenAppUrlIsInvalid(string $appUrl): void
     {
-        $this->setEnvVars(['APP_URL' => $appUrl]);
+        TestEnvironment::set(['APP_URL' => $appUrl]);
 
         $router = $this->createMock(RouterInterface::class);
         $router->expects($this->never())->method('generate');
@@ -103,7 +101,7 @@ class TrustedOriginUrlGeneratorTest extends TestCase
 
     public function testAdministrationUrlUsesConfiguredPathName(): void
     {
-        $this->setEnvVars([
+        TestEnvironment::set([
             'APP_URL' => 'https://shop.example.com/',
             'SHOPWARE_ADMINISTRATION_PATH_NAME' => '/backoffice/',
         ]);
@@ -117,7 +115,7 @@ class TrustedOriginUrlGeneratorTest extends TestCase
     public function testAdministrationUrlUsesRouterWhenTrustedHostsAreConfigured(): void
     {
         Request::setTrustedHosts(['trusted.example.com']);
-        $this->setEnvVars(['APP_URL' => 'not-a-url']);
+        TestEnvironment::set(['APP_URL' => 'not-a-url']);
 
         $router = $this->createRouter(new RequestContext('', 'GET', 'trusted.example.com', 'https'));
 
@@ -137,7 +135,7 @@ class TrustedOriginUrlGeneratorTest extends TestCase
     #[DataProvider('invalidAppUrlProvider')]
     public function testAdministrationUrlThrowsWhenAppUrlIsInvalid(string $appUrl): void
     {
-        $this->setEnvVars(['APP_URL' => $appUrl]);
+        TestEnvironment::set(['APP_URL' => $appUrl]);
 
         $this->expectExceptionObject(RoutingException::invalidAppUrl(rtrim($appUrl, '/')));
 

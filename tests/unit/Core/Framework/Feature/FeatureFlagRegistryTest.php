@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Feature\Event\FeatureFlagToggledEvent;
 use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Feature\FeatureFlagRegistry;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
+use Shopware\Core\Test\TestEnvironment;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -26,11 +26,9 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 #[CoversClass(FeatureFlagRegistry::class)]
 class FeatureFlagRegistryTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     public function testStoredSubFeatureOverrideSurvivesMajorAssociation(): void
     {
-        $this->setEnvVars(['JSON_LD_DATA' => null, 'ACCESSIBILITY_TWEAKS' => null, 'FEATURE_ALL' => null]);
+        TestEnvironment::set(['JSON_LD_DATA' => null, 'ACCESSIBILITY_TWEAKS' => null, 'FEATURE_ALL' => null]);
         Feature::resetRegisteredFeatures();
 
         $storage = new ArrayKeyValueStorage();

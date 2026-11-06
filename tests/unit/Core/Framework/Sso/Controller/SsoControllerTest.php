@@ -15,8 +15,8 @@ use Shopware\Core\Framework\Sso\SsoService;
 use Shopware\Core\Framework\Sso\SsoUser\SsoUserInvitationMailService;
 use Shopware\Core\Framework\Sso\SsoUser\SsoUserService;
 use Shopware\Core\Framework\Sso\StateValidator;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\Test\TestEnvironment;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,8 +33,6 @@ use Symfony\Component\Routing\RouterInterface;
 #[CoversClass(SsoController::class)]
 class SsoControllerTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     protected function setUp(): void
     {
         Request::setTrustedHosts(['example.com']);
@@ -97,7 +95,7 @@ class SsoControllerTest extends TestCase
         $request->headers->set('referer', 'https://attacker.example/poc');
         $request->setSession(new Session(new MockArraySessionStorage()));
 
-        $this->setEnvVars(['APP_URL' => 'https://example.com']);
+        TestEnvironment::set(['APP_URL' => 'https://example.com']);
 
         $response = $this->createController(static::createStub(LoginConfigService::class), $router)->ssoAuth($request);
 
@@ -107,7 +105,7 @@ class SsoControllerTest extends TestCase
     public function testSsoAuthRedirectsToAppUrlWhenNoTrustedHostsAreConfigured(): void
     {
         Request::setTrustedHosts([]);
-        $this->setEnvVars(['APP_URL' => 'https://example.com', 'SHOPWARE_ADMINISTRATION_PATH_NAME' => null]);
+        TestEnvironment::set(['APP_URL' => 'https://example.com', 'SHOPWARE_ADMINISTRATION_PATH_NAME' => null]);
 
         $router = $this->createMock(RouterInterface::class);
         $router->expects($this->never())->method('generate');

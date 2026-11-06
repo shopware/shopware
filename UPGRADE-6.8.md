@@ -1632,6 +1632,8 @@ The deprecated computed properties that loaded the media default folder were rem
 
 | Component | Removed computed properties |
 |---|---|
+| `sw-cms-detail` | `defaultFolderRepository` |
+| `sw-cms-list` | `defaultFolderRepository` |
 | `sw-product-detail-base` | `mediaDefaultFolderRepository`, `mediaDefaultFolderCriteria` |
 | `sw-bulk-edit-product-media` | `mediaDefaultFolderRepository`, `mediaDefaultFolderCriteria` |
 

@@ -30,8 +30,7 @@ class AppRequirementsValidator extends AbstractManifestValidator
      * Requirements are only enforced in the 'prod' environment.
      * In dev/test, validation is skipped so local development and CI are not blocked
      * by infrastructure checks (HTTPS, public reachability, etc.).
-     */
-    /**
+     *
      * @return list<Error>
      */
     public function validate(Manifest $manifest, ?Context $context): array

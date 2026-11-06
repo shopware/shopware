@@ -2,7 +2,7 @@
  * @sw-package inventory
  */
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
-import { createWrapper, createMedia, addMedia, getDocuments } from './helpers';
+import { cleanupWrappers, createWrapper, createMedia, addMedia, getDocuments } from './helpers';
 
 describe('sw-product-document-form downloads', () => {
     const originalLanguage = Shopware.Context.api.languageId;
@@ -51,6 +51,7 @@ describe('sw-product-document-form downloads', () => {
         } else {
             Reflect.deleteProperty(URL, 'revokeObjectURL');
         }
+        cleanupWrappers();
     });
 
     it('downloads a file response with the original file name and releases the object URL', async () => {

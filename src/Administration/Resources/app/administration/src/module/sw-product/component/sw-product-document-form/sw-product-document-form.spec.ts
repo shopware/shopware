@@ -6,7 +6,14 @@ import type { ComponentPublicInstance } from 'vue';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
 import fileValidationService from 'src/app/service/file-validation.service';
 
-import { createWrapper, createMedia, addMedia, clickButton, getDocuments } from './sw-product-document-form.spec/helpers';
+import {
+    cleanupWrappers,
+    createWrapper,
+    createMedia,
+    addMedia,
+    clickButton,
+    getDocuments,
+} from './sw-product-document-form.spec/helpers';
 
 describe('sw-product-document-form', () => {
     const originalLanguage = Shopware.Context.api.languageId;
@@ -22,6 +29,7 @@ describe('sw-product-document-form', () => {
 
     afterEach(() => {
         Shopware.Context.api.languageId = originalLanguage;
+        cleanupWrappers();
     });
 
     it('adds an assignment to the product save payload without copying the media file', async () => {
@@ -47,7 +55,7 @@ describe('sw-product-document-form', () => {
     ])('accepts %s through the media modal upload validation', async (name, type) => {
         const wrapper = await createWrapper();
         await clickButton(wrapper, 'sw-product.documentForm.buttonAdd');
-        wrapper.getComponent<ComponentPublicInstance>('sw-media-upload-v2-stub').vm.$emit('media-upload-sidebar-open');
+        wrapper.getComponent<ComponentPublicInstance>('.sw-media-upload-v2').vm.$emit('media-upload-sidebar-open');
         await flushPromises();
 
         const accept = wrapper.getComponent('sw-media-modal-v2-stub').attributes('file-accept')!;
@@ -160,7 +168,7 @@ describe('sw-product-document-form', () => {
         expect(wrapper.findAll('.document-row')).toHaveLength(10);
         expect(wrapper.text()).toContain('uploaded manual');
         expect(getDocuments()?.[9].mediaId).toBe(media.id);
-        expect(wrapper.get('sw-media-upload-v2-stub').attributes('disabled')).toBe('true');
+        expect(wrapper.get<HTMLButtonElement>('.sw-media-upload-v2__button.upload').element.disabled).toBe(true);
     });
 
     it('does not attach a late upload to the next product after navigation', async () => {

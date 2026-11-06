@@ -3,7 +3,7 @@
  */
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
-import { createWrapper, createMedia, getDocuments } from './helpers';
+import { cleanupWrappers, createWrapper, createMedia, getDocuments } from './helpers';
 
 describe('sw-product-detail-base document save and reload', () => {
     const originalLanguage = Shopware.Context.api.languageId;
@@ -16,6 +16,7 @@ describe('sw-product-detail-base document save and reload', () => {
 
     afterEach(() => {
         Shopware.Context.api.languageId = originalLanguage;
+        cleanupWrappers();
     });
 
     it('saves independent translated assignments and deletes them when restoring inheritance after reload', async () => {

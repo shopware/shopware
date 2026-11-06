@@ -4,7 +4,7 @@
 import type { VueWrapper } from '@vue/test-utils';
 import EntityFactory from 'src/core/data/entity-factory.data';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
-import { createWrapper, createMedia, clickButton } from './helpers';
+import { cleanupWrappers, createWrapper, createMedia, clickButton } from './helpers';
 
 describe('sw-product-document-form delayed language metadata', () => {
     const originalLanguageId = Shopware.Context.api.languageId;
@@ -15,6 +15,7 @@ describe('sw-product-document-form delayed language metadata', () => {
         wrapper?.unmount();
         Shopware.Context.api.languageId = originalLanguageId;
         Shopware.Store.get('context').api.language = originalLanguage;
+        cleanupWrappers();
     });
 
     it.each(['remove version', 'clear name', 'clear file'])(
@@ -85,7 +86,7 @@ describe('sw-product-document-form delayed language metadata', () => {
             if (operation === 'clear name') {
                 await wrapper.get('.sw-product-document-form__name-input input').setValue('');
             } else if (operation === 'clear file') {
-                await wrapper.get('.sw-product-document-form__remove-file').trigger('click');
+                await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
             }
             await clickButton(wrapper, operation === 'remove version' ? 'global.default.remove' : 'global.default.apply');
             const expectedTitle = operation === 'clear file' ? 'Localized title' : 'Parent-language title';

@@ -3,7 +3,7 @@
  */
 import type { VueWrapper } from '@vue/test-utils';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
-import { createWrapper, createMedia, addMedia, clickButton, selectMedia, getDocuments } from './helpers';
+import { cleanupWrappers, createWrapper, createMedia, addMedia, clickButton, selectMedia, getDocuments } from './helpers';
 
 describe('sw-product-document-form variant badges', () => {
     let wrapper: VueWrapper;
@@ -22,6 +22,7 @@ describe('sw-product-document-form variant badges', () => {
     afterEach(() => {
         wrapper?.unmount();
         Shopware.Context.api.languageId = originalLanguage;
+        cleanupWrappers();
     });
 
     async function unlinkDocuments() {
@@ -67,7 +68,7 @@ describe('sw-product-document-form variant badges', () => {
         await unlinkDocuments();
         await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
         await flushPromises();
-        await wrapper.get('.sw-product-document-form__remove-file').trigger('click');
+        await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
         const replacement = createMedia('replacement');
         await selectMedia(wrapper, [replacement]);
         await clickButton(wrapper, 'global.default.apply');

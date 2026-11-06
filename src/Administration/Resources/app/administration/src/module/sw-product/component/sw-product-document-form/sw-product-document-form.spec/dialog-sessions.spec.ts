@@ -3,7 +3,7 @@
  */
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import type { ComponentPublicInstance } from 'vue';
-import { createWrapper, createMedia, addMedia, clickButton, getDocuments } from './helpers';
+import { cleanupWrappers, createWrapper, createMedia, addMedia, clickButton, getDocuments } from './helpers';
 
 describe('sw-product-document-form dialog sessions', () => {
     const originalLanguage = Shopware.Context.api.languageId;
@@ -20,6 +20,7 @@ describe('sw-product-document-form dialog sessions', () => {
 
     afterEach(() => {
         Shopware.Context.api.languageId = originalLanguage;
+        cleanupWrappers();
     });
 
     it.each([false, true])('ignores a media lookup after leaving the tab (reject: %s)', async (reject) => {

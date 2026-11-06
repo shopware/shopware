@@ -92,13 +92,8 @@ export default Shopware.Component.wrapComponentConfig({
     ],
 
     computed: {
-        editingFileName(): string {
-            return this.editingMedia
-                ? [this.editingMedia.fileName, this.editingMedia.fileExtension].filter(Boolean).join('.')
-                : '';
-        },
-        fileSizeFilter() {
-            return Shopware.Filter.getByName('fileSize');
+        isDisabled(): boolean {
+            return !this.canEdit || this.isSavingDocument;
         },
     },
 });

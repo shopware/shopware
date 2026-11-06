@@ -1,6 +1,5 @@
 {% block sw_product_document_edit_modal %}
 <mt-modal-root
-
     :is-open="true"
     @change="!$event && $emit('close')"
 >
@@ -17,7 +16,7 @@
                 :hint="allowFallback ? undefined : $t('sw-product.documentForm.nameHint')"
                 :placeholder="documentTitlePlaceholder"
                 :error="documentNameError"
-                :disabled="!canEdit || isSavingDocument"
+                :disabled="isDisabled"
                 :required="!allowFallback"
                 :maxlength="255"
                 @update:model-value="$emit('update:documentTitle', $event)"
@@ -30,69 +29,21 @@
                 @media-upload-finish="$emit('upload', $event)"
             />
             <div>
-                <div
-                    v-if="editingMedia"
-                    role="group"
-                    :aria-labelledby="`document-file-label-${documentId}`"
-                >
-                    <mt-text
-                        :id="`document-file-label-${documentId}`"
-                        size="xs"
-                        class="sw-product-document-form__file-label"
-                    >
-                        {{ $t('sw-product.documentForm.columnFileName') }}
-                        <span
-                            v-if="!allowFallback"
-                            class="sw-product-document-form__required"
-                        >*</span>
-                    </mt-text>
-                    <div class="sw-product-document-form__selected-file">
-                        <div class="sw-product-document-form__file-preview">
-                            <mt-icon
-                                name="regular-file-text"
-                                size="var(--scale-size-16)"
-                            />
-                        </div>
-                        <span
-                            class="sw-product-document-form__file-name"
-                            :title="editingFileName"
-                        >
-                            {{ editingFileName }}
-                        </span>
-                        <mt-text
-                            size="xs"
-                            color="color-text-secondary-default"
-                        >
-                            {{ fileSizeFilter(editingMedia.fileSize) }}
-                        </mt-text>
-                        <mt-button
-                            class="sw-product-document-form__remove-file"
-                            square
-                            size="small"
-                            variant="tertiary"
-                            :aria-label="$t('global.default.remove')"
-                            :disabled="!canEdit || isSavingDocument"
-                            @click="$emit('remove-file')"
-                        >
-                            <mt-icon
-                                name="regular-times-xs"
-                                size="var(--scale-size-12)"
-                            />
-                        </mt-button>
-                    </div>
-                </div>
                 <sw-media-upload-v2
-                    v-else
+                    :source="editingMedia"
                     :upload-tag="uploadTag"
                     variant="regular"
+                    role="group"
+                    :aria-label="$t('sw-product.documentForm.columnFileName')"
                     :label="$t('sw-product.documentForm.columnFileName')"
                     :required="!allowFallback"
                     default-folder="product_document"
                     :allow-multi-select="false"
                     :extension-accept="allowedExtensions.join(',')"
                     :max-file-size="maxFileSize"
-                    :disabled="!canEdit || isSavingDocument"
+                    :disabled="isDisabled"
                     @media-upload-sidebar-open="$emit('select-media')"
+                    @media-upload-remove-image="$emit('remove-file')"
                 />
                 {% block sw_product_document_form_file_error %}
                 <sw-field-error
@@ -124,7 +75,7 @@
                 class="sw-product-document-form__apply-to-variants"
                 :label="$t('sw-product.documentForm.applyToVariants')"
                 :help-text="$t('sw-product.documentForm.applyToVariantsHelp')"
-                :disabled="!canEdit || isSavingDocument"
+                :disabled="isDisabled"
                 @update:checked="$emit('update:applyToVariants', $event)"
             />
         {% endblock %}
@@ -147,7 +98,7 @@
                     class="sw-product-document-form__save-document"
                     variant="primary"
                     size="small"
-                    :disabled="!canEdit || isSavingDocument"
+                    :disabled="isDisabled"
                     @click="$emit('save')"
                 >
                     {{ $t('global.default.apply') }}

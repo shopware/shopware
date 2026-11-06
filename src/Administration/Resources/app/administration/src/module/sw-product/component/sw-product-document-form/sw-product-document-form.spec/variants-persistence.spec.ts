@@ -4,7 +4,7 @@
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
 import type { ComponentPublicInstance } from 'vue';
-import { createWrapper, clickButton, selectMedia, createMedia } from './helpers';
+import { cleanupWrappers, createWrapper, clickButton, selectMedia, createMedia } from './helpers';
 
 describe('sw-product-document-form variant persistence', () => {
     const originalLanguage = Shopware.Context.api.languageId;
@@ -28,6 +28,7 @@ describe('sw-product-document-form variant persistence', () => {
     afterEach(() => {
         Shopware.Context.api.languageId = originalLanguage;
         Shopware.Store.get('context').api.language = originalLanguageMetadata;
+        cleanupWrappers();
     });
 
     function getResponses() {

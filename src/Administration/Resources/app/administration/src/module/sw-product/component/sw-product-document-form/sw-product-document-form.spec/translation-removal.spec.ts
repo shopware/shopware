@@ -4,7 +4,7 @@
 import type { VueWrapper } from '@vue/test-utils';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
-import { createWrapper, createMedia, clickButton, selectMedia } from './helpers';
+import { cleanupWrappers, createWrapper, createMedia, clickButton, selectMedia } from './helpers';
 
 describe('sw-product-document-form language-version removal', () => {
     const originalLanguageId = Shopware.Context.api.languageId;
@@ -106,6 +106,7 @@ describe('sw-product-document-form language-version removal', () => {
         Shopware.Context.api.languageId = originalLanguageId;
         Shopware.Store.get('context').api.language = originalLanguage;
         jest.restoreAllMocks();
+        cleanupWrappers();
     });
 
     it.each([

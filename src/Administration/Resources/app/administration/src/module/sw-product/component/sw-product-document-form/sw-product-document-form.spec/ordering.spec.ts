@@ -4,7 +4,7 @@
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
 
-import { createWrapper, createMedia, addMedia, getDocuments } from './helpers';
+import { cleanupWrappers, createWrapper, createMedia, addMedia, getDocuments } from './helpers';
 
 describe('sw-product-document-form ordering', () => {
     const originalLanguage = Shopware.Context.api.languageId;
@@ -20,6 +20,7 @@ describe('sw-product-document-form ordering', () => {
 
     afterEach(() => {
         Shopware.Context.api.languageId = originalLanguage;
+        cleanupWrappers();
     });
 
     it('moves documents up and down and disables movement beyond the list boundaries', async () => {

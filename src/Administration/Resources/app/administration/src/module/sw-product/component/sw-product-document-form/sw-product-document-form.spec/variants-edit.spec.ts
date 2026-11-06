@@ -5,7 +5,7 @@ import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.moc
 import type { ComponentPublicInstance } from 'vue';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
 
-import { createWrapper, createMedia, clickButton, selectMedia, addMedia, getDocuments } from './helpers';
+import { cleanupWrappers, createWrapper, createMedia, clickButton, selectMedia, addMedia, getDocuments } from './helpers';
 
 describe('sw-product-document-form variant editing', () => {
     const originalLanguage = Shopware.Context.api.languageId;
@@ -21,6 +21,7 @@ describe('sw-product-document-form variant editing', () => {
 
     afterEach(() => {
         Shopware.Context.api.languageId = originalLanguage;
+        cleanupWrappers();
     });
 
     describe('applying document edits to variants', () => {
@@ -63,7 +64,7 @@ describe('sw-product-document-form variant editing', () => {
             const wrapper = await createWrapper(undefined, undefined, productRepository);
             await addMedia(wrapper, [original]);
             await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
-            await wrapper.get('.sw-product-document-form__remove-file').trigger('click');
+            await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
             await selectMedia(wrapper, [replacement]);
             wrapper
                 .getComponent<ComponentPublicInstance>('.mt-text-field')
@@ -152,7 +153,7 @@ describe('sw-product-document-form variant editing', () => {
             const wrapper = await createWrapper(undefined, undefined, productRepository);
             await addMedia(wrapper, [original]);
             await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
-            await wrapper.get('.sw-product-document-form__remove-file').trigger('click');
+            await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
             await selectMedia(wrapper, [createMedia('replacement')]);
             wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', 'Variant title');
             wrapper
@@ -164,7 +165,7 @@ describe('sw-product-document-form variant editing', () => {
             const previousMediaId = variant.documents![0].mediaId;
 
             await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
-            await wrapper.get('.sw-product-document-form__remove-file').trigger('click');
+            await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
             await selectMedia(wrapper, [original]);
             wrapper
                 .getComponent<ComponentPublicInstance>('.sw-product-document-form__apply-to-variants')

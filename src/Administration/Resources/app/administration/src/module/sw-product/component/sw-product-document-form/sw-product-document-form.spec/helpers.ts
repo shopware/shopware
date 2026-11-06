@@ -7,6 +7,16 @@ import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.moc
 import EntityFactory from 'src/core/data/entity-factory.data';
 import fileValidationService from 'src/app/service/file-validation.service';
 
+const wrappers: VueWrapper[] = [];
+/** @private */
+export function cleanupWrappers(): void {
+    wrappers.splice(0).forEach((wrapper) => {
+        if (wrapper.exists()) {
+            wrapper.unmount();
+        }
+    });
+}
+
 /** @private */
 export async function createWrapper(
     mediaRepository = repositoryFactory.create('media'),
@@ -21,14 +31,22 @@ export async function createWrapper(
 
     const documentForm = await wrapTestComponent('sw-product-document-form', { sync: true });
     const component = options.baseView ? await wrapTestComponent('sw-product-detail-base', { sync: true }) : documentForm;
-    return shallowMount(component, {
+    const wrapper = shallowMount(component, {
         global: {
             renderStubDefaultSlot: true,
             mocks: {
                 $route: { name: 'sw.product.detail.base', params: { id: Shopware.Store.get('swProductDetail').product.id } },
             },
+            directives: { droppable: {} },
             provide: {
-                mediaService,
+                mediaService: {
+                    addListener: jest.fn(),
+                    removeListener: jest.fn(),
+                    removeByTag: jest.fn(),
+                    getDefaultFolderId: jest.fn().mockResolvedValue(null),
+                    ...mediaService,
+                },
+                mediaPresignedUploadService: {},
                 fileValidationService: fileValidationService(),
                 entityFactory: new EntityFactory(),
                 repositoryFactory: {
@@ -92,7 +110,8 @@ export async function createWrapper(
                 'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch', { sync: true }),
                 'i18n-t': { template: '<span><slot name="language"/></span>' },
                 'sw-upload-listener': true,
-                'sw-media-upload-v2': true,
+                'sw-media-upload-v2': await wrapTestComponent('sw-media-upload-v2', { sync: true }),
+                'sw-media-preview-v2': true,
                 'sw-field-error': await wrapTestComponent('sw-field-error', { sync: true }),
                 'sw-media-modal-v2': true,
                 'sw-context-menu-item': true,
@@ -100,6 +119,8 @@ export async function createWrapper(
             },
         },
     });
+    wrappers.push(wrapper);
+    return wrapper;
 }
 
 /** @private */
@@ -121,7 +142,7 @@ export async function clickButton(wrapper: VueWrapper, text: string) {
 
 /** @private */
 export async function selectMedia(wrapper: VueWrapper, media: Entity<'media'>[]) {
-    wrapper.getComponent<ComponentPublicInstance>('sw-media-upload-v2-stub').vm.$emit('media-upload-sidebar-open');
+    wrapper.getComponent<ComponentPublicInstance>('.sw-media-upload-v2').vm.$emit('media-upload-sidebar-open');
     await flushPromises();
     wrapper.getComponent<ComponentPublicInstance>('sw-media-modal-v2-stub').vm.$emit('media-modal-selection-change', media);
     await flushPromises();

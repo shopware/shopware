@@ -4,7 +4,7 @@
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import type { ComponentPublicInstance } from 'vue';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
-import { createWrapper, createMedia, clickButton, selectMedia, getDocuments } from './helpers';
+import { cleanupWrappers, createWrapper, createMedia, clickButton, selectMedia, getDocuments } from './helpers';
 
 describe('sw-product-document-form translated editing', () => {
     const originalLanguage = Shopware.Context.api.languageId;
@@ -20,6 +20,7 @@ describe('sw-product-document-form translated editing', () => {
     afterEach(() => {
         Shopware.Context.api.languageId = originalLanguage;
         Shopware.Store.get('context').api.language = originalLanguageMetadata;
+        cleanupWrappers();
     });
 
     it.each(['title', 'file'])('preserves fallback of untouched fields when changing the %s in German', async (field) => {
@@ -172,7 +173,7 @@ describe('sw-product-document-form translated editing', () => {
         await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
         wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', 'Discard this name');
         if (field === 'file') {
-            await wrapper.get('.sw-product-document-form__remove-file').trigger('click');
+            await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
         }
         await selectMedia(wrapper, [createMedia('discard-this-file')]);
         await clickButton(wrapper, 'global.default.cancel');

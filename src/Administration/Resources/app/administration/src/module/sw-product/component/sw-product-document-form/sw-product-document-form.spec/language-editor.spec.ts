@@ -2,9 +2,10 @@
  * @sw-package inventory
  */
 import type { VueWrapper } from '@vue/test-utils';
+import type { ComponentPublicInstance } from 'vue';
 import EntityFactory from 'src/core/data/entity-factory.data';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
-import { createWrapper, createMedia, clickButton, selectMedia } from './helpers';
+import { cleanupWrappers, createWrapper, createMedia, clickButton, selectMedia } from './helpers';
 
 describe('sw-product-document-form language editor', () => {
     const originalLanguageId = Shopware.Context.api.languageId;
@@ -51,6 +52,7 @@ describe('sw-product-document-form language editor', () => {
         jest.restoreAllMocks();
         Shopware.Context.api.languageId = originalLanguageId;
         Shopware.Store.get('context').api.language = originalLanguage;
+        cleanupWrappers();
     });
 
     it('offers Add language version and opens an optional name/file editor showing the fallback explanation', async () => {
@@ -63,8 +65,8 @@ describe('sw-product-document-form language editor', () => {
         expect(input.element.value).toBe('');
         expect(input.attributes('placeholder')).toBe('Manual');
         expect(input.element.required).toBe(false);
-        expect(wrapper.find('.sw-product-document-form__selected-file').exists()).toBe(false);
-        expect(wrapper.find('sw-media-upload-v2-stub').exists()).toBe(true);
+        expect(wrapper.getComponent<ComponentPublicInstance>('.sw-media-upload-v2').props()).toMatchObject({ source: null });
+        expect(wrapper.find('.sw-media-upload-v2').exists()).toBe(true);
         expect(wrapper.text()).toContain('sw-product.documentForm.fileFallbackHint');
         await clickButton(wrapper, 'global.default.apply');
         expect(document).toMatchObject({ title: null, mediaId: null, position: 4 });
@@ -94,7 +96,7 @@ describe('sw-product-document-form language editor', () => {
         expect(wrapper.find('.document-row').text()).toContain('german-manual.pdf');
         expect(wrapper.findAll('.mt-badge')).toHaveLength(1);
         await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
-        await wrapper.get('.sw-product-document-form__remove-file').trigger('click');
+        await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
         await clickButton(wrapper, 'global.default.apply');
         expect(document).toMatchObject({ title: null, mediaId: null, position: 4 });
         expect(wrapper.find('.document-row').text()).toContain('english-manual.pdf');
@@ -209,7 +211,7 @@ describe('sw-product-document-form language editor', () => {
                 await wrapper.get('.sw-product-document-form__name-input input').setValue('');
             }
             if (field !== 'name') {
-                await wrapper.get('.sw-product-document-form__remove-file').trigger('click');
+                await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
             }
             await clickButton(wrapper, 'global.default.apply');
             const copy = store.product.documents![0];

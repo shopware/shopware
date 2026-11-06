@@ -3,7 +3,7 @@
  */
 import type { VueWrapper } from '@vue/test-utils';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
-import { createWrapper, createMedia, getDocuments } from './helpers';
+import { cleanupWrappers, createWrapper, createMedia, getDocuments } from './helpers';
 
 describe('sw-product-document-form language markers', () => {
     let wrapper: VueWrapper;
@@ -26,6 +26,7 @@ describe('sw-product-document-form language markers', () => {
         wrapper?.unmount();
         Shopware.Context.api.languageId = originalLanguage;
         Shopware.Store.get('context').api.language = originalLanguageEntity;
+        cleanupWrappers();
     });
 
     it.each([

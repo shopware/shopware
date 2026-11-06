@@ -4,7 +4,7 @@
 import type { ComponentPublicInstance } from 'vue';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
-import { createWrapper, createMedia, clickButton, getDocuments } from './helpers';
+import { cleanupWrappers, createWrapper, createMedia, clickButton, getDocuments } from './helpers';
 
 function addPersistedDocument(product: Entity<'product'>, media: Entity<'media'>, position = 0) {
     const document = repositoryFactory.create('product_document').create();
@@ -42,6 +42,7 @@ describe('sw-product-document-form removal', () => {
 
     afterEach(() => {
         Shopware.Context.api.languageId = originalLanguage;
+        cleanupWrappers();
     });
 
     it('stages only document deletions for the parent and matching variant copies', async () => {

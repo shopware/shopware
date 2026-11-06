@@ -4,7 +4,7 @@
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import type { ComponentPublicInstance } from 'vue';
 
-import { createWrapper, createMedia, clickButton, selectMedia, addMedia, getDocuments } from './helpers';
+import { cleanupWrappers, createWrapper, createMedia, clickButton, selectMedia, addMedia, getDocuments } from './helpers';
 
 describe('sw-product-document-form editing', () => {
     const originalLanguage = Shopware.Context.api.languageId;
@@ -20,6 +20,7 @@ describe('sw-product-document-form editing', () => {
 
     afterEach(() => {
         Shopware.Context.api.languageId = originalLanguage;
+        cleanupWrappers();
     });
 
     it('applies a replacement while preserving the title and position, and supports cancelling', async () => {
@@ -27,13 +28,13 @@ describe('sw-product-document-form editing', () => {
         const original = createMedia();
         await addMedia(wrapper, [original]);
         await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
-        await wrapper.get('.sw-product-document-form__remove-file').trigger('click');
+        await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
         await selectMedia(wrapper, [createMedia('cancelled')]);
         await clickButton(wrapper, 'global.default.cancel');
         expect(getDocuments()?.[0].mediaId).toBe(original.id);
 
         await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
-        await wrapper.get('.sw-product-document-form__remove-file').trigger('click');
+        await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
         const replacement = createMedia('replacement');
         await selectMedia(wrapper, [replacement]);
         await clickButton(wrapper, 'global.default.apply');
@@ -47,7 +48,7 @@ describe('sw-product-document-form editing', () => {
         await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
         expect(wrapper.find('.sw-product-document-form__file-error').exists()).toBe(false);
         wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', '   ');
-        await wrapper.get('.sw-product-document-form__remove-file').trigger('click');
+        await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
         expect(wrapper.get('.sw-product-document-form__save-document').attributes('disabled')).toBeUndefined();
         await clickButton(wrapper, 'global.default.apply');
         expect(wrapper.get('.sw-product-document-form__name-input').classes()).toContain('has--error');
@@ -71,7 +72,7 @@ describe('sw-product-document-form editing', () => {
         const media = createMedia();
         await addMedia(wrapper, [media]);
         await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
-        await wrapper.get('.sw-product-document-form__remove-file').trigger('click');
+        await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
         await clickButton(wrapper, 'global.default.apply');
         expect(wrapper.find('.sw-product-document-form__file-error').exists()).toBe(true);
         await clickButton(wrapper, 'global.default.cancel');
@@ -88,13 +89,13 @@ describe('sw-product-document-form editing', () => {
         const wrapper = await createWrapper(repository);
         await addMedia(wrapper, [createMedia('original')]);
         await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
-        await wrapper.get('.sw-product-document-form__remove-file').trigger('click');
+        await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
         wrapper
             .findAllComponents<ComponentPublicInstance>('sw-upload-listener-stub')[1]
             .vm.$emit('media-upload-finish', { targetId: replacement.id });
         await flushPromises();
 
-        expect(wrapper.get('.sw-product-document-form__file-name').text()).toBe('uploaded-replacement.pdf');
+        expect(wrapper.get('.sw-media-upload-v2__file-headline').text()).toBe('uploaded-replacement.pdf');
         await clickButton(wrapper, 'global.default.apply');
         expect(getDocuments()?.[0].mediaId).toBe(replacement.id);
     });
@@ -112,7 +113,7 @@ describe('sw-product-document-form editing', () => {
         const wrapper = await createWrapper(repository);
         await addMedia(wrapper, [original]);
         await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
-        await wrapper.get('.sw-product-document-form__remove-file').trigger('click');
+        await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
         const uploadListener = wrapper.findAllComponents<ComponentPublicInstance>('sw-upload-listener-stub')[1];
         const cancelledUploadTag = uploadListener.attributes('upload-tag');
         uploadListener.vm.$emit('media-upload-finish', { targetId: cancelled.id });
@@ -125,7 +126,7 @@ describe('sw-product-document-form editing', () => {
         resolveMedia(cancelled);
         await flushPromises();
 
-        expect(wrapper.get('.sw-product-document-form__file-name').text()).toBe('original.pdf');
+        expect(wrapper.get('.sw-media-upload-v2__file-headline').text()).toBe('original.pdf');
         await clickButton(wrapper, 'global.default.apply');
         expect(getDocuments()?.[0].mediaId).toBe(original.id);
     });

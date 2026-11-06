@@ -6,7 +6,7 @@ import type { ComponentPublicInstance } from 'vue';
 import Entity from 'src/core/data/entity.data';
 import EntityFactory from 'src/core/data/entity-factory.data';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
-import { createWrapper, createMedia, clickButton, getDocuments } from './helpers';
+import { cleanupWrappers, createWrapper, createMedia, clickButton, getDocuments } from './helpers';
 
 describe('sw-product-document-form inheritance', () => {
     const originalLanguage = Shopware.Context.api.languageId;
@@ -22,6 +22,7 @@ describe('sw-product-document-form inheritance', () => {
     afterEach(() => {
         Shopware.Context.api.languageId = originalLanguage;
         Shopware.Store.get('context').api.language = originalLanguageMetadata;
+        cleanupWrappers();
     });
 
     it('copies assignments before editing a variant and restores inheritance', async () => {

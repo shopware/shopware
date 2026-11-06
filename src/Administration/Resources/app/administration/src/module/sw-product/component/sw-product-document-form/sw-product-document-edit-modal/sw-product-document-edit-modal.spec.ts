@@ -1,12 +1,14 @@
 /**
  * @sw-package inventory
  */
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount, type VueWrapper } from '@vue/test-utils';
 import type { ComponentPublicInstance } from 'vue';
 import { createMedia } from '../sw-product-document-form.spec/helpers';
 
+let mountedWrapper: VueWrapper;
+
 async function createWrapper(props = {}) {
-    return shallowMount(await wrapTestComponent('sw-product-document-edit-modal', { sync: true }), {
+    mountedWrapper = shallowMount(await wrapTestComponent('sw-product-document-edit-modal', { sync: true }), {
         props: {
             documentId: 'document',
             documentTitle: 'Manual',
@@ -18,6 +20,17 @@ async function createWrapper(props = {}) {
             ...props,
         },
         global: {
+            directives: { droppable: {} },
+            provide: {
+                mediaService: {
+                    addListener: jest.fn(),
+                    removeListener: jest.fn(),
+                    removeByTag: jest.fn(),
+                    getDefaultFolderId: jest.fn().mockResolvedValue(null),
+                },
+                mediaPresignedUploadService: {},
+                fileValidationService: {},
+            },
             stubs: {
                 'mt-modal-root': { template: '<div><slot /></div>' },
                 'mt-modal': { template: '<div><slot /><slot name="footer" /></div>' },
@@ -27,14 +40,17 @@ async function createWrapper(props = {}) {
                     template: '<input :value="modelValue" :disabled="disabled" />',
                 },
                 'sw-upload-listener': true,
-                'sw-media-upload-v2': true,
+                'sw-media-upload-v2': await wrapTestComponent('sw-media-upload-v2', { sync: true }),
+                'sw-media-preview-v2': { props: ['source'], template: '<div class="document-preview" />' },
                 'sw-field-error': { props: ['error'], template: '<div />' },
             },
         },
     });
+    return mountedWrapper;
 }
 
 describe('sw-product-document-edit-modal', () => {
+    afterEach(() => mountedWrapper?.unmount());
     it('emits edited names, Save and Cancel without mutating the supplied media', async () => {
         const media = createMedia();
         const wrapper = await createWrapper({ editingMedia: media });
@@ -57,7 +73,7 @@ describe('sw-product-document-edit-modal', () => {
         const wrapper = await createWrapper();
         const upload = { targetId: createMedia().id };
         wrapper.getComponent<ComponentPublicInstance>('sw-upload-listener-stub').vm.$emit('media-upload-finish', upload);
-        wrapper.getComponent<ComponentPublicInstance>('sw-media-upload-v2-stub').vm.$emit('media-upload-sidebar-open');
+        wrapper.getComponent<ComponentPublicInstance>('.sw-media-upload-v2').vm.$emit('media-upload-sidebar-open');
 
         expect(wrapper.emitted('upload')).toEqual([[upload]]);
         expect(wrapper.emitted('select-media')).toHaveLength(1);
@@ -66,9 +82,12 @@ describe('sw-product-document-edit-modal', () => {
     it('shows the selected file and emits removal without deleting media', async () => {
         const media = createMedia('manual');
         const wrapper = await createWrapper({ editingMedia: media });
-        expect(wrapper.get('.sw-product-document-form__file-name').text()).toBe('manual.pdf');
+        expect(wrapper.get('.sw-media-upload-v2__file-headline').text()).toBe('manual.pdf');
+        expect(wrapper.getComponent<ComponentPublicInstance>('.document-preview').props()).toMatchObject({
+            source: { fileName: 'manual' },
+        });
 
-        await wrapper.get('.sw-product-document-form__remove-file').trigger('click');
+        await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
 
         expect(wrapper.emitted('remove-file')).toHaveLength(1);
         expect(media.fileName).toBe('manual');
@@ -77,7 +96,7 @@ describe('sw-product-document-edit-modal', () => {
     it.each([{ canEdit: false }, { isSavingDocument: true }])('disables editing when %o', async (props) => {
         const wrapper = await createWrapper({ ...props, editingMedia: createMedia() });
         expect(wrapper.get('.sw-product-document-form__name-input').attributes('disabled')).toBeDefined();
-        expect(wrapper.get('.sw-product-document-form__remove-file').attributes('disabled')).toBeDefined();
+        expect(wrapper.find('.sw-media-upload-v2__remove-icon').exists()).toBe(false);
         expect(wrapper.get('.sw-product-document-form__save-document').attributes('disabled')).toBeDefined();
 
         await wrapper.get('.sw-product-document-form__save-document').trigger('click');

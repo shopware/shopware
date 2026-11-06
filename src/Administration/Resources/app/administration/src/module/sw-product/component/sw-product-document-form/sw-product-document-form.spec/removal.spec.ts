@@ -3,7 +3,7 @@
  */
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
-import { createWrapper, createMedia, addMedia, clickButton, getDocuments } from './helpers';
+import { cleanupWrappers, createWrapper, createMedia, addMedia, clickButton, getDocuments } from './helpers';
 
 describe('sw-product-document-form removal', () => {
     const originalLanguage = Shopware.Context.api.languageId;
@@ -19,6 +19,7 @@ describe('sw-product-document-form removal', () => {
 
     afterEach(() => {
         Shopware.Context.api.languageId = originalLanguage;
+        cleanupWrappers();
     });
 
     it('cancels removal without changing the product draft', async () => {

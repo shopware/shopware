@@ -159,6 +159,14 @@ class StaticEntityRepository extends EntityRepository
             $result = $callable($criteria, $context);
         }
 
+        if (\is_array($result) && ($result[0] ?? null) instanceof Entity) {
+            $result = new EntityCollection($result);
+        }
+
+        if ($result instanceof EntityCollection) {
+            $result = array_values($result->getIds());
+        }
+
         if ($result instanceof IdSearchResult) {
             return $result;
         }

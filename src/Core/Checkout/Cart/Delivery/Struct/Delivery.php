@@ -10,6 +10,17 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class Delivery extends Struct
 {
+    /**
+     * Payload value that identifies a delivery across cart calculations.
+     * Whoever groups the positions into deliveries sets it, so choices stored for a delivery find it again.
+     */
+    final public const DELIVERY_KEY = 'deliveryKey';
+
+    /**
+     * @var array<string, scalar|array<array-key, mixed>|null>
+     */
+    protected array $payload = [];
+
     public function __construct(
         protected DeliveryPositionCollection $positions,
         protected DeliveryDate $deliveryDate,
@@ -52,6 +63,45 @@ class Delivery extends Struct
     public function setShippingCosts(CalculatedPrice $shippingCosts): void
     {
         $this->shippingCosts = $shippingCosts;
+    }
+
+    /**
+     * @return array<string, scalar|array<array-key, mixed>|null>
+     */
+    public function getPayload(): array
+    {
+        return $this->payload;
+    }
+
+    /**
+     * @param array<string, scalar|array<array-key, mixed>|null> $payload
+     */
+    public function setPayload(array $payload): void
+    {
+        $this->payload = $payload;
+    }
+
+    public function getPayloadValue(string $key): mixed
+    {
+        return $this->payload[$key] ?? null;
+    }
+
+    public function hasPayloadValue(string $key): bool
+    {
+        return isset($this->payload[$key]);
+    }
+
+    /**
+     * @param scalar|array<array-key, mixed>|null $value
+     */
+    public function setPayloadValue(string $key, string|int|float|bool|array|null $value): void
+    {
+        $this->payload[$key] = $value;
+    }
+
+    public function removePayloadValue(string $key): void
+    {
+        unset($this->payload[$key]);
     }
 
     public function getApiAlias(): string

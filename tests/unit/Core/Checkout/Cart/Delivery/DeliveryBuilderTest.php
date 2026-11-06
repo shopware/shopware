@@ -9,8 +9,11 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryTime;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
@@ -344,6 +347,110 @@ class DeliveryBuilderTest extends TestCase
         ];
     }
 
+    public function testResolveDeliveryDateChecksTheStockAgainstTheGivenQuantity(): void
+    {
+        $lineItem = (new LineItem('line-item-id', LineItem::CUSTOM_LINE_ITEM_TYPE, null, 5))
+            ->assign(['deliveryInformation' => new DeliveryInformation(3, 0.0, false, 2, self::createDeliveryTime(4, 5))]);
+
+        $builder = new DeliveryBuilder();
+
+        static::assertEquals(
+            DeliveryDate::createFromDeliveryTime(self::createDeliveryTime(4, 5)),
+            $builder->resolveDeliveryDate($lineItem, 3, null),
+        );
+        static::assertEquals(
+            DeliveryDate::createFromDeliveryTime(self::createDeliveryTime(6, 7)),
+            $builder->resolveDeliveryDate($lineItem, 4, null),
+        );
+    }
+
+    public function testResolveDeliveryDateReturnsNullWithoutDeliveryInformation(): void
+    {
+        $lineItem = new LineItem('line-item-id', LineItem::CUSTOM_LINE_ITEM_TYPE);
+
+        static::assertNull((new DeliveryBuilder())->resolveDeliveryDate($lineItem, 1, self::createDeliveryTime(1, 2)));
+    }
+
+    public function testChangeShippingMethodTakesTheDeliveryTimeOfTheNewShippingMethod(): void
+    {
+        $standardDate = DeliveryDate::createFromDeliveryTime(self::createDeliveryTime(3, 5));
+        $ownDate = DeliveryDate::createFromDeliveryTime(self::createDeliveryTime(2, 3));
+        $price = new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection());
+
+        $delivery = new Delivery(
+            new DeliveryPositionCollection([
+                new DeliveryPosition(
+                    'without-own-delivery-time',
+                    (new LineItem('without-own-delivery-time', LineItem::CUSTOM_LINE_ITEM_TYPE))
+                        ->assign(['deliveryInformation' => self::createDeliveryInformation(null, 10)]),
+                    1,
+                    $price,
+                    $standardDate,
+                ),
+                new DeliveryPosition(
+                    'without-delivery-information',
+                    new LineItem('without-delivery-information', LineItem::PROMOTION_LINE_ITEM_TYPE),
+                    1,
+                    $price,
+                    $standardDate,
+                ),
+                new DeliveryPosition(
+                    'with-own-delivery-time',
+                    (new LineItem('with-own-delivery-time', LineItem::CUSTOM_LINE_ITEM_TYPE))
+                        ->assign(['deliveryInformation' => self::createDeliveryInformation(self::createDeliveryTime(2, 3), 0)]),
+                    1,
+                    $price,
+                    $ownDate,
+                ),
+            ]),
+            $standardDate,
+            self::createShippingMethod(3, 5),
+            new ShippingLocation(new CountryEntity(), null, null),
+            $price,
+        );
+
+        $express = self::createShippingMethod(1, 2);
+
+        (new DeliveryBuilder())->changeShippingMethod($delivery, $express);
+
+        $expressDate = DeliveryDate::createFromDeliveryTime(self::createDeliveryTime(1, 2));
+        static::assertSame($express, $delivery->getShippingMethod());
+        static::assertEquals($expressDate, $delivery->getPositions()->get('without-own-delivery-time')?->getDeliveryDate());
+        static::assertEquals($expressDate, $delivery->getPositions()->get('without-delivery-information')?->getDeliveryDate());
+        static::assertEquals($ownDate, $delivery->getPositions()->get('with-own-delivery-time')?->getDeliveryDate());
+        static::assertEquals($ownDate, $delivery->getDeliveryDate());
+    }
+
+    public function testChangeShippingMethodKeepsTheRestockDateOfASplitOffBackorder(): void
+    {
+        $builder = new DeliveryBuilder();
+
+        // 5 ordered with a stock of 3, the remainder of 2 is split off and waits for the restock
+        $remainder = (new LineItem('backorder', LineItem::CUSTOM_LINE_ITEM_TYPE, null, 2))
+            ->assign(['deliveryInformation' => new DeliveryInformation(3, 0.0, false, 10, null)]);
+        $standard = self::createShippingMethod(3, 5);
+
+        $restockDate = $builder->resolveDeliveryDate($remainder, 5, self::createDeliveryTime(3, 5));
+        static::assertNotNull($restockDate);
+
+        $delivery = new Delivery(
+            new DeliveryPositionCollection([
+                new DeliveryPosition('backorder', $remainder, 2, new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()), $restockDate),
+            ]),
+            $restockDate,
+            $standard,
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+        );
+
+        $builder->changeShippingMethod($delivery, self::createShippingMethod(1, 2));
+
+        static::assertEquals(
+            $builder->resolveDeliveryDate($remainder, 5, self::createDeliveryTime(1, 2)),
+            $delivery->getPositions()->get('backorder')?->getDeliveryDate(),
+        );
+    }
+
     private static function createDeliveryTimeEntity(string $unit, int $min, int $max): DeliveryTimeEntity
     {
         return (new DeliveryTimeEntity())->assign([
@@ -354,6 +461,14 @@ class DeliveryBuilderTest extends TestCase
                 'name' => 'deliveryTime',
             ],
         ]);
+    }
+
+    private static function createShippingMethod(int $minDays, int $maxDays): ShippingMethodEntity
+    {
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setDeliveryTime(self::createDeliveryTimeEntity(DeliveryTimeEntity::DELIVERY_TIME_DAY, $minDays, $maxDays));
+
+        return $shippingMethod;
     }
 
     private static function createDeliveryTime(int $min, int $max): DeliveryTime

@@ -127,6 +127,12 @@
                         },
                         "type": "object"
                     },
+                    "payload": {
+                        "description": "Data extensions attached to the delivery in the cart. Core defines no keys. An empty payload is an empty array.",
+                        "type": ["object", "array"],
+                        "maxItems": 0,
+                        "additionalProperties": true
+                    },
                     "customFields": {
                         "type": "object"
                     },

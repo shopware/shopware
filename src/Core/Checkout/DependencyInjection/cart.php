@@ -24,8 +24,10 @@ use Shopware\Core\Checkout\Cart\CreditCartProcessor;
 use Shopware\Core\Checkout\Cart\CustomCartProcessor;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator;
+use Shopware\Core\Checkout\Cart\Delivery\DeliveryPositionSplitter;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryValidator;
+use Shopware\Core\Checkout\Cart\Delivery\SelectedDeliveryShippingMethodsSubscriber;
 use Shopware\Core\Checkout\Cart\Facade\CartFacadeHelper;
 use Shopware\Core\Checkout\Cart\Facade\CartFacadeHookFactory;
 use Shopware\Core\Checkout\Cart\Facade\PriceFactoryFactory;
@@ -71,6 +73,7 @@ use Shopware\Core\Checkout\Cart\Processor\DiscountCartProcessor;
 use Shopware\Core\Checkout\Cart\RedisCartPersister;
 use Shopware\Core\Checkout\Cart\RuleLoader;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartDeleteRoute;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartDeliveryUpdateRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartItemAddRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartItemRemoveRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartItemUpdateRoute;
@@ -242,6 +245,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(LineItemFactoryRegistry::class),
             service('event_dispatcher'),
             service(CartLocker::class),
+            service(ExtensionDispatcher::class),
+        ]);
+
+    $services->set(CartDeliveryUpdateRoute::class)
+        ->public()
+        ->args([
+            service(CartPersister::class),
+            service(CartCalculator::class),
+            service('event_dispatcher'),
+            service(CartLocker::class),
+            service(DataValidator::class),
             service(ExtensionDispatcher::class),
         ]);
 
@@ -475,6 +489,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(DeliveryBuilder::class);
 
+    $services->set(DeliveryPositionSplitter::class)
+        ->public()
+        ->args([
+            service(LineItemQuantitySplitter::class),
+            service(DeliveryBuilder::class),
+        ]);
+
     $services->set(DeliveryCalculator::class)
         ->args([
             service(QuantityPriceCalculator::class),
@@ -514,6 +535,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(DeliveryValidator::class)
         ->tag('shopware.cart.validator');
+
+    $services->set(SelectedDeliveryShippingMethodsSubscriber::class)
+        ->tag('kernel.event_subscriber');
 
     $services->set(LineItemValidator::class)
         ->tag('shopware.cart.validator');

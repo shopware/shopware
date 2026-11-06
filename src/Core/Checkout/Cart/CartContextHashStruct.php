@@ -22,6 +22,11 @@ class CartContextHashStruct extends Struct
      */
     protected array $lineItems;
 
+    /**
+     * @var list<array{shippingMethod: string, addressId: ?string, positions: array<string, int>}>
+     */
+    protected array $deliveries;
+
     public function getPrice(): ?float
     {
         return $this->price;
@@ -74,5 +79,29 @@ class CartContextHashStruct extends Struct
     public function addLineItem(string $id, array $lineItem): void
     {
         $this->lineItems[$id] = $lineItem;
+    }
+
+    /**
+     * @return list<array{shippingMethod: string, addressId: ?string, positions: array<string, int>}>
+     */
+    public function getDeliveries(): array
+    {
+        return $this->deliveries;
+    }
+
+    /**
+     * @param list<array{shippingMethod: string, addressId: ?string, positions: array<string, int>}> $deliveries
+     */
+    public function setDeliveries(array $deliveries): void
+    {
+        $this->deliveries = $deliveries;
+    }
+
+    /**
+     * @param array{shippingMethod: string, addressId: ?string, positions: array<string, int>} $delivery
+     */
+    public function addDelivery(array $delivery): void
+    {
+        $this->deliveries[] = $delivery;
     }
 }

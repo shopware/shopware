@@ -47,6 +47,13 @@ class ProductListingLoader
     final public const STATE_SKIP_ADD_GROUPING = 'skipAddGrouping';
 
     /**
+     * Criteria state that keeps inactive and sold-out closeout products in the listing, as long as they match
+     * the given criteria. The displayed variant of a group is still chosen like in the storefront.
+     * Used by the product stream preview in the Administration.
+     */
+    final public const STATE_INCLUDE_INACTIVE = 'includeInactive';
+
+    /**
      * @deprecated tag:v6.8.0 - Will be removed. Reduced listing loading now uses Criteria::excludeFields()
      *             to drop heavy columns instead of allow-listing fields.
      *
@@ -384,7 +391,7 @@ class ProductListingLoader
             ]));
         }
 
-        if ($this->systemConfigService->getBool(
+        if (!$criteria->hasState(self::STATE_INCLUDE_INACTIVE) && $this->systemConfigService->getBool(
             'core.listing.hideCloseoutProductsWhenOutOfStock',
             $context->getSalesChannelId()
         )) {
@@ -440,6 +447,15 @@ class ProductListingLoader
     {
         $read = $criteria->cloneForRead(array_values($mapping));
         $read->addAssociation('options.group');
+
+        if ($criteria->hasState(self::STATE_INCLUDE_INACTIVE)) {
+            // keeps the sales channel from adding its default available filter, which also requires active products
+            foreach ($criteria->getFilters() as $filter) {
+                if ($filter instanceof ProductAvailableFilter) {
+                    $read->addFilter($filter);
+                }
+            }
+        }
 
         return $this->productRepository->search($read, $context);
     }

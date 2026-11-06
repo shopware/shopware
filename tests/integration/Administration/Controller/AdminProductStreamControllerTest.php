@@ -8,6 +8,7 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
@@ -175,12 +176,39 @@ class AdminProductStreamControllerTest extends TestCase
         static::assertSame(['p.1'], $this->fetchGroupedPreviewNames($data));
     }
 
+    public function testGroupedPreviewKeepsInactiveAndSoldOutCloseoutProducts(): void
+    {
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true);
+
+        static::getContainer()->get('product.repository')->update([
+            ['id' => $this->ids->get('v.1.1'), 'isCloseout' => true, 'stock' => 0],
+            ['id' => $this->ids->get('v.1.2'), 'isCloseout' => true, 'stock' => 0],
+            ['id' => $this->ids->get('v.2.1'), 'active' => false],
+            ['id' => $this->ids->get('v.2.2'), 'active' => false],
+        ], Context::createDefaultContext());
+
+        $names = $this->fetchGroupedPreviewNames([
+            'page' => 1,
+            'limit' => 25,
+            'filter' => [
+                [
+                    'type' => 'equalsAny',
+                    'field' => 'id',
+                    'value' => implode('|', $this->ids->getList(['v.1.1', 'v.1.2', 'v.2.1', 'v.2.2'])),
+                ],
+            ],
+        ], 2);
+
+        static::assertCount(2, $names);
+    }
+
     /**
      * @param array<string, mixed> $data
      *
      * @return list<string>
      */
-    private function fetchGroupedPreviewNames(array $data): array
+    private function fetchGroupedPreviewNames(array $data, int $expectedTotal = 1): array
     {
         $this->getBrowser()->jsonRequest(
             'POST',
@@ -193,7 +221,7 @@ class AdminProductStreamControllerTest extends TestCase
 
         $content = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame(1, $content['total']);
+        static::assertSame($expectedTotal, $content['total']);
 
         return array_column($content['elements'], 'name');
     }

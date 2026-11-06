@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Listing;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -13,6 +14,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
+use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -203,6 +205,77 @@ class ProductListingLoaderTest extends TestCase
         static::assertFalse($previewLoaded);
         static::assertTrue($resolvePreviewEventSeen);
         static::assertSame(['variant-a', 'variant-b'], array_values($result->getEntities()->getIds()));
+    }
+
+    #[DataProvider('includeInactiveProvider')]
+    public function testIncludeInactiveStateKeepsUnavailableProducts(bool $includeInactive): void
+    {
+        $closeoutFilter = new MultiFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('isCloseout', true)]);
+        $this->productCloseoutFilterFactory->method('create')->willReturn($closeoutFilter);
+
+        $this->systemConfigService
+            ->expects($this->exactly($includeInactive ? 1 : 2))
+            ->method('getBool')
+            ->willReturnCallback(static fn (string $key): bool => match ($key) {
+                'core.listing.partialDataLoading' => false,
+                'core.listing.hideCloseoutProductsWhenOutOfStock' => true,
+                default => throw new \RuntimeException('Unexpected config key ' . $key),
+            });
+
+        $this->productRepository
+            ->expects($this->once())
+            ->method('searchIds')
+            ->willReturnCallback(function (Criteria $criteria) use ($closeoutFilter, $includeInactive): IdSearchResult {
+                if ($includeInactive) {
+                    static::assertNotContainsEquals($closeoutFilter, $criteria->getFilters());
+                } else {
+                    static::assertContainsEquals($closeoutFilter, $criteria->getFilters());
+                }
+
+                return $this->createIdSearchResult($criteria, ['inactive' => ['score' => 1.0]]);
+            });
+
+        $this->productRepository
+            ->expects($this->once())
+            ->method('aggregate')
+            ->willReturn(new AggregationResultCollection());
+
+        $this->eventDispatcher->addListener(
+            ExtensionDispatcher::pre(LoadPreviewExtension::NAME),
+            static function (LoadPreviewExtension $extension): void {
+                $extension->result = array_combine($extension->ids, $extension->ids);
+                $extension->stopPropagation();
+            }
+        );
+
+        $availableFilter = new ProductAvailableFilter('sales-channel-id');
+
+        $this->productRepository
+            ->expects($this->once())
+            ->method('search')
+            ->willReturnCallback(function (Criteria $criteria) use ($availableFilter, $includeInactive): EntitySearchResult {
+                static::assertSame(['inactive'], $criteria->getIds());
+                // without a ProductAvailableFilter the sales channel repository adds its default one, which requires active products
+                static::assertEquals($includeInactive ? [$availableFilter] : [], $criteria->getFilters());
+
+                return $this->createProductSearchResult($criteria, ['inactive']);
+            });
+
+        $criteria = new Criteria();
+        $criteria->addFilter($availableFilter);
+        if ($includeInactive) {
+            $criteria->addState(ProductListingLoader::STATE_INCLUDE_INACTIVE);
+        }
+
+        $result = $this->createLoader()->load($criteria, $this->salesChannelContext);
+
+        static::assertSame(['inactive'], array_values($result->getEntities()->getIds()));
+    }
+
+    public static function includeInactiveProvider(): \Generator
+    {
+        yield 'storefront listing' => [false];
+        yield 'include inactive' => [true];
     }
 
     public function testLoadResolvesPreviewOnSearchRouteWithOptionPostFilterWhenFindBestVariantIsDisabled(): void

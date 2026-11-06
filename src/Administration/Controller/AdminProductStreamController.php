@@ -4,16 +4,12 @@ namespace Shopware\Administration\Controller;
 
 use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\Cms\ProductSlider\ProductStreamProcessor;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
@@ -21,7 +17,6 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -40,7 +35,8 @@ class AdminProductStreamController extends AbstractController
         private readonly ProductDefinition $productDefinition,
         private readonly SalesChannelRepository $salesChannelProductRepository,
         private readonly SalesChannelContextServiceInterface $salesChannelContextService,
-        private readonly RequestCriteriaBuilder $criteriaBuilder
+        private readonly RequestCriteriaBuilder $criteriaBuilder,
+        private readonly ProductListingLoader $productListingLoader
     ) {
     }
 
@@ -80,68 +76,15 @@ class AdminProductStreamController extends AbstractController
 
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
-        // Mirror the storefront listing's variant grouping so the preview reflects the product stream's
-        // "display as group" setting. It is read from the query string to keep the Criteria request body
-        // (and therefore its schema) untouched.
-        $displayAsGroup = $request->query->getBoolean('displayAsGroup');
-        if ($displayAsGroup) {
-            $criteria->addGroupField(new FieldGrouping('displayGroup'));
-            $criteria->addFilter(new NotEqualsFilter('displayGroup', null));
+        // The "display as group" setting is read from the query string to keep the Criteria request body
+        // (and therefore its schema) untouched. Grouped previews go through the listing loader, so each
+        // group shows the same variant as the storefront.
+        if ($request->query->getBoolean('displayAsGroup')) {
+            $criteria->addState(ProductListingLoader::STATE_INCLUDE_INACTIVE);
+
+            return new JsonResponse($this->productListingLoader->load($criteria, $salesChannelContext));
         }
 
-        $previewResult = $this->salesChannelProductRepository->search($criteria, $salesChannelContext);
-
-        if (!$displayAsGroup) {
-            return new JsonResponse($previewResult);
-        }
-
-        return new JsonResponse(new EntitySearchResult(
-            $previewResult->getEntity(),
-            $previewResult->getTotal(),
-            $this->resolvePresentationProducts($previewResult->getEntities(), $criteria, $salesChannelContext),
-            $previewResult->getAggregations(),
-            $previewResult->getCriteria(),
-            $previewResult->getContext()
-        ));
-    }
-
-    /**
-     * The grouping returns an arbitrary variant per display group
-     *
-     * @see ProductStreamProcessor::collectFinalProductIds()
-     * @see ProductListingLoader::loadPreviews()
-     */
-    private function resolvePresentationProducts(
-        ProductCollection $groupedProducts,
-        Criteria $criteria,
-        SalesChannelContext $salesChannelContext
-    ): ProductCollection {
-        $mapping = [];
-        foreach ($groupedProducts as $product) {
-            $variantListingConfig = $product->getVariantListingConfig();
-
-            $presentationId = $variantListingConfig?->getDisplayParent()
-                ? $product->getParentId()
-                : $variantListingConfig?->getMainVariantId();
-
-            if ($presentationId !== null && $presentationId !== $product->getId()) {
-                $mapping[$product->getId()] = $presentationId;
-            }
-        }
-
-        if ($mapping === []) {
-            return $groupedProducts;
-        }
-
-        $presentationProducts = $this->salesChannelProductRepository
-            ->search($criteria->cloneForRead(array_values(array_unique($mapping))), $salesChannelContext)
-            ->getEntities();
-
-        $products = new ProductCollection();
-        foreach ($groupedProducts as $product) {
-            $products->add($presentationProducts->get($mapping[$product->getId()] ?? '') ?? $product);
-        }
-
-        return $products;
+        return new JsonResponse($this->salesChannelProductRepository->search($criteria, $salesChannelContext));
     }
 }

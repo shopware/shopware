@@ -1,17 +1,126 @@
-const fs = require('fs');
-const path = require('path');
-
-/* eslint-disable max-len */
-
 /**
  * @sw-package framework
+ */
+
+const { loadRegistry } = require('./registry/load-registry');
+const { filterMigrations } = require('./registry/filter-migrations');
+const { appendRegistryContext } = require('./registry/format-migration-message');
+const { canAutoFix } = require('./registry/fix-policy');
+const { commentBefore, convertedFromText, templateCodemodComment } = require('./registry/codemod-comment');
+const { defineTemplateBodyVisitor, findObjectVBindAttribute, findObjectVOnAttribute } = require('./registry/template-ast');
+const { createComponentUsageRuleApi } = require('./registry/component-usage-api');
+const {
+    RANGE_FIXER,
+    classifyReport,
+    collectFixes,
+    getRunLevel,
+    haveOverlappingRanges,
+    withRunLevel,
+} = require('./registry/run-level');
+
+/**
+ * Plans the follow-up steps of a migration on the element before it is converted: runs every step as
+ * if the element was already converted and returns each report with what its fix is. The fixes are
+ * built against the current source, so they can go into the conversion's own fix.
  *
- * This rule checks if deprecated components are used and can convert them to the new components.
- * It also adds a comment to the converted component to make it easier to track the changes.
+ * @example
+ * planConversion(context, swAlertNode, migration);
+ * // [{ kind: 'manual', headline: '[sw-alert] The "actions" slot is removed.\n…', fixes: [] }]
+ */
+function planConversion(context, node, migration) {
+    const parts = [];
+    const planningContext = {
+        sourceCode: context.sourceCode,
+        options: [],
+        report(descriptor) {
+            const kind = classifyReport(descriptor);
+
+            parts.push({
+                kind,
+                headline: descriptor.message.split(`\n${migration.description}`)[0],
+                fixes: kind === 'manual' ? [] : collectFixes(descriptor.fix),
+                note: descriptor.conversionNote,
+            });
+        },
+    };
+
+    migration.usage
+        .filter((usage) => usage.eslint?.report)
+        .forEach((usage) => {
+            usage.eslint.report(
+                createComponentUsageRuleApi(planningContext, node, migration, usage, { assumeConverted: true }),
+            );
+        });
+
+    return parts;
+}
+
+/**
+ * Lists why the run level does not let the element be converted: at `safe` every part has to keep the
+ * behaviour, at `review` no part may need a manual migration. `partial` and `manual` convert, or
+ * comment, every element. A manual rename never converts, so its parts are never the reason.
+ */
+function findBlockingParts(level, node, renameUsage, parts) {
+    if (renameUsage.fix === 'manual') {
+        return [];
+    }
+
+    if (level === 'review') {
+        return parts.filter((part) => part.kind === 'manual').map((part) => part.headline);
+    }
+
+    if (level !== 'safe') {
+        return [];
+    }
+
+    const blockers = parts.filter((part) => part.kind !== 'auto').map((part) => part.headline);
+
+    if (renameUsage.fix !== 'auto') {
+        blockers.unshift(renameUsage.message ?? 'The conversion itself needs a review.');
+    }
+
+    if (findObjectVBindAttribute(node) || findObjectVOnAttribute(node)) {
+        blockers.unshift('An object v-bind or v-on can pass deprecated props or listeners.');
+    }
+
+    return blockers;
+}
+
+/**
+ * Builds the comment above a converted element. Object `v-bind` / `v-on` can still pass deprecated
+ * props or listeners, so they get an extra review sentence. `notes` are reviews of the conversion
+ * itself, which steps can only judge on the old element.
+ *
+ * @example
+ * getConversionComment('sw-icon', node, []); // the review comment carrying convertedFromText('sw-icon')
+ */
+function getConversionComment(componentName, node, notes) {
+    const warnings = [
+        findObjectVBindAttribute(node) &&
+            'Dynamic v-bind props may still contain deprecated API usage and need manual review',
+        findObjectVOnAttribute(node) &&
+            'Dynamic v-on listeners may still contain deprecated event usage and need manual review',
+    ].filter(Boolean);
+    const sentences = [
+        ...warnings,
+        ...notes.map((note) => note.replace(/\.$/, '')),
+    ];
+    const closingPeriod = notes.length === 0 && warnings.length > 0 ? '.' : '';
+
+    return templateCodemodComment(
+        `${convertedFromText(componentName)}${sentences.map((sentence) => `. ${sentence}`).join('')}${closingPeriod}`,
+    );
+}
+
+/**
+ * This rule reports deprecated components and renames them to their replacement. The run level decides
+ * which elements it converts. At `safe` an element is converted together with all of its follow-up
+ * fixes. At the other levels it gets a review comment, which `no-deprecated-component-usage` uses to find
+ * the conversions its follow-up steps apply to.
  *
  * @type {import('eslint').Rule.RuleModule}
  */
-module.exports = {
+module.exports = withRunLevel({
     meta: {
         type: 'problem',
         fixable: 'code',
@@ -29,217 +138,120 @@ module.exports = {
                     activatedComponents: {
                         type: 'array',
                         items: {
-                            type: 'string'
-                        }
-                    }
-                }
-            }
-        ]
+                            type: 'string',
+                        },
+                    },
+                },
+            },
+        ],
     },
-    /** @param {RuleContext} context */
+
     create(context) {
-        return context.sourceCode.parserServices.defineTemplateBodyVisitor(
-            // Event handlers for <template> tags
-            {
-                VElement(node) {
-                    const enableFix = context.options?.[0]?.fix ?? true;
-                    const activatedComponents = context.options?.[0]?.activatedComponents ?? [
-                        'sw-button',
-                        'sw-icon',
-                        'sw-colorpicker',
-                        'sw-card',
-                        'sw-text-field',
-                        'sw-number-field',
-                        'sw-url-field',
-                        'sw-loader',
-                        'sw-tabs',
-                        'sw-datepicker',
-                        'sw-skeleton-bar',
-                        'sw-email-field',
-                        'sw-tabs',
-                        'sw-password-field',
-                        'sw-progress-bar',
-                        'sw-switch-field',
-                        'sw-checkbox-field',
-                        'sw-textarea-field',
-                        'sw-select-field',
-                        'sw-alert',
-                        'sw-popover',
-                        'sw-data-grid'
-                    ];
+        const migrations = filterMigrations(loadRegistry().componentApiMigrations);
+        const activatedComponents =
+            context.options[0]?.activatedComponents ?? migrations.map((migration) => migration.component);
+        const level = getRunLevel(context);
+        const renameMigrations = migrations
+            .filter((migration) => activatedComponents.includes(migration.component))
+            .map((migration) => ({
+                migration,
+                renameUsage: migration.usage.find((usage) => usage.kind === 'rename-component'),
+            }))
+            .filter(({ renameUsage }) => renameUsage);
 
-                    const conversionMap = [
-                        {
-                            before: 'sw-switch-field',
-                            after: 'mt-switch'
-                        },
-                        {
-                            before: 'sw-checkbox-field',
-                            after: 'mt-checkbox'
-                        },
-                        {
-                            before: 'sw-textarea-field',
-                            after: 'mt-textarea'
-                        },
-                        {
-                            before: 'sw-select-field',
-                            after: 'mt-select'
-                        },
-                        {
-                            before: 'sw-alert',
-                            after: 'mt-banner'
-                        },
-                        {
-                            before: 'sw-popover',
-                            after: 'mt-floating-ui'
-                        },
-                    ].filter(conversion => activatedComponents.includes(conversion.before));
+        return defineTemplateBodyVisitor(context, {
+            VElement(node) {
+                const match = renameMigrations.find(({ migration }) => migration.component === node.name);
 
-                    // Handle deprecated components
-                    conversionMap.forEach(conversion => {
-                        if (node.name === conversion.before) {
-                            const componentName = conversion.before;
-                            const newComponentName = conversion.after;
+                if (!match) {
+                    return;
+                }
 
-                            // Convert old component to new component
-                            context.report({
-                                loc: node.loc,
-                                message: `"${componentName}" is deprecated. Please use "${newComponentName}" instead.`,
-                                *fix(fixer) {
-                                    if (!enableFix) return;
+                const { migration, renameUsage } = match;
+                const oldName = migration.component;
+                const newName = migration.replacement;
+                const headline = `"${oldName}" is deprecated. Please use "${newName}" instead.`;
+                const parts = renameUsage.fix === 'manual' ? [] : planConversion(context, node, migration);
+                const blockingParts = findBlockingParts(level, node, renameUsage, parts);
+                const nameRange = [
+                    node.startTag.range[0],
+                    node.startTag.range[0] + 1 + oldName.length,
+                ];
+                const renameFixes = (fixer) => [
+                    fixer.replaceTextRange(nameRange, `<${newName}`),
+                    ...(node.endTag ? [fixer.replaceTextRange(node.endTag.range, `</${newName}>`)] : []),
+                ];
 
-                                    const isSelfClosing = node.startTag.selfClosing;
-
-                                    // Handle self-closing tags
-                                    if (isSelfClosing) {
-                                        // Replace the component name
-                                        const startTagRange = [node.startTag.range[0], componentName.length + node.startTag.range[0] + 1];
-                                        yield fixer.replaceTextRange(startTagRange, `<${newComponentName}`);
-
-                                        // Save indentation of the old component
-                                        const indentation = node.loc.start.column;
-
-                                        // Add comment to the converted component
-                                        yield fixer.insertTextBeforeRange(startTagRange, `<!-- TODO Codemod: Converted from ${componentName} - please check if everything works correctly -->\n${' '.repeat(indentation)}`);
-
-                                        return;
-                                    }
-
-                                    // Handle non-self-closing tags
-                                    const startTagRange = [node.startTag.range[0], componentName.length + node.startTag.range[0] + 1];
-                                    const endTagRange = node.endTag.range;
-
-                                    // Replace the component name
-                                    yield fixer.replaceTextRange(startTagRange, `<${newComponentName}`);
-                                    yield fixer.replaceTextRange(endTagRange, `</${newComponentName}>`);
-
-                                    // Save indentation of the old component
-                                    const indentation = node.loc.start.column;
-
-                                    // Add comment to the converted component
-                                    yield fixer.insertTextBeforeRange(startTagRange, `<!-- TODO Codemod: Converted from ${componentName} - please check if everything works correctly -->\n${' '.repeat(indentation)}`);
-                                }
-                            });
-                        }
+                if (blockingParts.length > 0) {
+                    context.report({
+                        node,
+                        message: appendRegistryContext(
+                            [
+                                headline,
+                                level === 'safe'
+                                    ? 'It is not converted, because these parts need a review or a manual migration:'
+                                    : 'It is not converted, because these parts need a manual migration first:',
+                                ...blockingParts.map((part) => `- ${part}`),
+                            ],
+                            migration,
+                        ),
+                        fixLevel: 'manual',
                     });
 
-                    const deprecatedComponents = [
-                        'sw-button',
-                        'sw-icon',
-                        'sw-colorpicker',
-                        'sw-card',
-                        'sw-text-field',
-                        'sw-number-field',
-                        'sw-url-field',
-                        'sw-loader',
-                        'sw-tabs',
-                        'sw-datepicker',
-                        'sw-skeleton-bar',
-                        'sw-email-field',
-                        'sw-tabs',
-                        'sw-password-field',
-                        'sw-progress-bar'
-                    ].filter(component => activatedComponents.includes(component));
+                    return;
+                }
 
-                    // Handle other deprecated components
-                    if (deprecatedComponents.includes(node.name)) {
-                        const componentName = node.name;
-                        const newComponentName = componentName.replace('sw-', 'mt-');
-
-                        // Convert old component to new component
-                        context.report({
-                            loc: node.loc,
-                            message: `"${componentName}" is deprecated. Please use "${newComponentName}" instead.`,
-                            *fix(fixer) {
-                                if (!enableFix) return;
-
-                                const isSelfClosing = node.startTag.selfClosing;
-
-                                // Handle self-closing tags
-                                if (isSelfClosing) {
-                                    // Replace the component name
-                                    const startTagRange = [node.startTag.range[0], componentName.length + node.startTag.range[0] + 1];
-                                    yield fixer.replaceTextRange(startTagRange, `<${newComponentName}`);
-
-                                    // Save indentation of the old component
-                                    const indentation = node.loc.start.column;
-
-                                    // Add comment to the converted component
-                                    yield fixer.insertTextBeforeRange(startTagRange, `<!-- TODO Codemod: Converted from ${componentName} - please check if everything works correctly -->\n${' '.repeat(indentation)}`);
-
-                                    return;
-                                }
-
-                                // Handle non-self-closing tags
-                                const startTagRange = [node.startTag.range[0], componentName.length + node.startTag.range[0] + 1];
-                                const endTagRange = node.endTag.range;
-
-                                // Replace the component name
-                                yield fixer.replaceTextRange(startTagRange, `<${newComponentName}`);
-                                yield fixer.replaceTextRange(endTagRange, `</${newComponentName}>`);
-
-                                // Save indentation of the old component
-                                const indentation = node.loc.start.column;
-
-                                // Add comment to the converted component
-                                yield fixer.insertTextBeforeRange(startTagRange, `<!-- TODO Codemod: Converted from ${componentName} - please check if everything works correctly -->\n${' '.repeat(indentation)}`);
-                            }
+                if (level === 'safe') {
+                    const partFixes = parts.flatMap((part) => part.fixes);
+                    // A part that turns the element self-closing replaces the end tag itself
+                    const replacesEndTag =
+                        node.endTag &&
+                        partFixes.some((fix) => {
+                            return fix.range[0] <= node.endTag.range[0] && node.endTag.range[1] <= fix.range[1];
                         });
-                    }
+                    const fixes = [
+                        ...renameFixes(RANGE_FIXER).slice(0, replacesEndTag ? 1 : undefined),
+                        ...partFixes,
+                    ];
+                    const overlapping = haveOverlappingRanges(fixes);
 
-                    // Handle special sw-data-grid component
-                    const swDatagridName = 'sw-data-grid';
-                    if (node.name === swDatagridName && activatedComponents.includes(swDatagridName)) {
-                        // Check if comment a line before the sw-data-grid component exists
-                        const commentBeforeNode = context.getSourceCode().getText().split('\n')[node.loc.start.line - 2];
+                    context.report({
+                        node,
+                        message: appendRegistryContext(
+                            [
+                                headline,
+                                overlapping ? 'It is not converted, because two of its fixes change the same code.' : '',
+                            ],
+                            migration,
+                        ),
+                        fix: overlapping || !canAutoFix(context, renameUsage) ? null : () => fixes,
+                        fixLevel: overlapping ? 'manual' : 'auto',
+                    });
 
-                        // Do not add comment if it already exists
-                        if (commentBeforeNode.includes('<!-- TODO Codemod: This component need to be manually replaced with mt-data-table -->')) {
+                    return;
+                }
+
+                context.report({
+                    node,
+                    message: appendRegistryContext([headline, renameUsage.message ?? ''], migration),
+                    fixLevel: renameUsage.fix,
+                    *fix(fixer) {
+                        if (!canAutoFix(context, renameUsage)) {
                             return;
                         }
 
-                        // Add comment a line before the sw-data-grid component
-                        context.report({
-                            loc: node.loc,
-                            message: `"${swDatagridName}" is deprecated. Please use "mt-data-table" instead.`,
-                            *fix(fixer) {
-                                if (!enableFix) return;
-
-                                const isSelfClosing = node.startTag.selfClosing;
-
-                                // Get the range of the start tag
-                                const startTagRange = [node.startTag.range[0], swDatagridName.length + node.startTag.range[0] + 1];
-
-                                // Save indentation of the old component
-                                const indentation = node.loc.start.column;
-
-                                // Add comment to the converted component
-                                yield fixer.insertTextBeforeRange(startTagRange, `<!-- TODO Codemod: This component need to be manually replaced with mt-data-table -->\n${' '.repeat(indentation)}`);
-                            }
-                        });
-                    }
-                },
-            }
-        )
-    }
-};
+                        yield fixer.insertTextBeforeRange(
+                            nameRange,
+                            commentBefore(
+                                context.sourceCode,
+                                node,
+                                getConversionComment(oldName, node, parts.map((part) => part.note).filter(Boolean)),
+                            ),
+                        );
+                        yield* renameFixes(fixer);
+                    },
+                });
+            },
+        });
+    },
+});

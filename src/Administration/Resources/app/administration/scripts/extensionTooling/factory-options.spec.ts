@@ -94,7 +94,7 @@ describe('extension-tooling eslint factory host options', () => {
             ruleSeverity(
                 blocks,
                 'shopware/admin-extension/template-deprecations',
-                'sw-deprecation-rules/no-sw-empty-state-usage',
+                'sw-deprecation-rules/no-deprecated-component-option-usage',
             ),
         ).toBe('error');
         expect(ruleSeverity(blocks, 'shopware/admin-extension/i18n-deprecations', 'sw-core-rules/no-tc-translation')).toBe(
@@ -237,6 +237,13 @@ describe('extension-tooling eslint factory host options', () => {
                 blocks,
                 'shopware/admin-extension/template-deprecations',
                 'sw-deprecation-rules/no-deprecated-component-usage',
+            ),
+        ).toBe('error');
+        expect(
+            ruleSeverity(
+                blocks,
+                'shopware/admin-extension/template-deprecations',
+                'sw-deprecation-rules/no-deprecated-component-option-usage',
             ),
         ).toBe('error');
     });

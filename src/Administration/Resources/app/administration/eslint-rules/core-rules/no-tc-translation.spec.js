@@ -1,10 +1,18 @@
 const RuleTester = require('eslint').RuleTester;
 const rule = require('./no-tc-translation');
+const { describeWithSelectedDeprecationIds } = require('../deprecation-rules/test-utils/selected-deprecation-ids');
+
+const HINT =
+    '/* TODO Codemod: After the fixer replaces the call, verify pluralization and count interpolation manually. */ ';
 
 const tester = new RuleTester({
     languageOptions: {
         ecmaVersion: 2020,
         sourceType: 'module',
+    },
+    settings: {
+        // The fixtures show the fixes that leave a review comment too; the default level is safe
+        'sw-deprecation-rules': { level: 'review' },
     },
 });
 
@@ -13,6 +21,10 @@ const templateTester = new RuleTester({
         parser: require('vue-eslint-parser'),
         ecmaVersion: 2020,
         sourceType: 'module',
+    },
+    settings: {
+        // The fixtures show the fixes that leave a review comment too; the default level is safe
+        'sw-deprecation-rules': { level: 'review' },
     },
 });
 
@@ -81,7 +93,7 @@ tester.run('no-tc-translation', rule, {
         {
             name: 'this.$tc() with count parameter',
             code: `this.$tc('some.translation.key', count);`,
-            output: `this.$t('some.translation.key', count);`,
+            output: `${HINT}this.$t('some.translation.key', count);`,
             errors: [{ messageId: 'noTc' }],
         },
         {
@@ -93,7 +105,13 @@ tester.run('no-tc-translation', rule, {
         {
             name: '$tc() with count in template context',
             code: `$tc('some.translation.key', 3);`,
-            output: `$t('some.translation.key', 3);`,
+            output: `${HINT}$t('some.translation.key', 3);`,
+            errors: [{ messageId: 'noTc' }],
+        },
+        {
+            name: 'adds a TODO Codemod review hint in front of the whole member call when renaming $tc to $t',
+            code: `const label = this.$tc('a.b', count);`,
+            output: `const label = ${HINT}this.$t('a.b', count);`,
             errors: [{ messageId: 'noTc' }],
         },
         {
@@ -153,7 +171,7 @@ tester.run('no-tc-translation', rule, {
         {
             name: '$tc() with the legacy argument order is renamed and swapped',
             code: `this.$tc('some.key', items.length, {\n    name: item.name,\n});`,
-            output: `this.$t('some.key', {\n    name: item.name,\n}, items.length);`,
+            output: `${HINT}this.$t('some.key', {\n    name: item.name,\n}, items.length);`,
             errors: [{ messageId: 'legacyArgumentOrder' }, { messageId: 'noTc' }],
         },
         {
@@ -183,25 +201,25 @@ tester.run('no-tc-translation', rule, {
         {
             name: 'locale of $tc() becomes a translate option',
             code: `this.$tc('some.key', 2, 'de-DE');`,
-            output: `this.$t('some.key', 2, { locale: 'de-DE' });`,
+            output: `${HINT}this.$t('some.key', 2, { locale: 'de-DE' });`,
             errors: [{ messageId: 'legacyTcLocale' }, { messageId: 'noTc' }],
         },
         {
             name: 'template literal locale of Shopware.Snippet.tc() becomes a translate option',
             code: 'Shopware.Snippet.tc(\'some.key\', count, `${language}-${region}`);',
-            output: 'Shopware.Snippet.t(\'some.key\', count, { locale: `${language}-${region}` });',
+            output: HINT + 'Shopware.Snippet.t(\'some.key\', count, { locale: `${language}-${region}` });',
             errors: [{ messageId: 'legacyTcLocale' }, { messageId: 'noTc' }],
         },
         {
             name: 'locale and named parameters of $tc() become named parameters and translate options',
             code: `this.$tc('some.key', count, 'de-DE', { name });`,
-            output: `this.$t('some.key', { name }, { plural: count, locale: 'de-DE' });`,
+            output: `${HINT}this.$t('some.key', { name }, { plural: count, locale: 'de-DE' });`,
             errors: [{ messageId: 'legacyTcLocaleNamed' }, { messageId: 'noTc' }],
         },
         {
             name: 'locale of $tc() from a variable is reported without autofix',
             code: `this.$tc('some.key', 2, locale);`,
-            output: `this.$t('some.key', 2, locale);`,
+            output: `${HINT}this.$t('some.key', 2, locale);`,
             errors: [{ messageId: 'legacyArgumentOrderManual' }, { messageId: 'noTc' }],
         },
     ],
@@ -212,6 +230,11 @@ templateTester.run('no-tc-translation (template)', rule, {
         {
             name: '$t() in a template is allowed',
             code: `<template><div>{{ $t('some.key') }}</div></template>`,
+        },
+        {
+            name: '$t() in a bound attribute of a twig template is allowed',
+            filename: 'sw-foo.html.twig',
+            code: `<template><mt-button :label="$t('some.key')" /></template>`,
         },
     ],
     invalid: [
@@ -224,7 +247,7 @@ templateTester.run('no-tc-translation (template)', rule, {
         {
             name: '$tc() in a bound attribute should be $t()',
             code: `<template><mt-button :label="$tc('some.key', 2)" /></template>`,
-            output: `<template><mt-button :label="$t('some.key', 2)" /></template>`,
+            output: `<template><mt-button :label="${HINT}$t('some.key', 2)" /></template>`,
             errors: [{ messageId: 'noTc' }],
         },
         {
@@ -243,8 +266,87 @@ templateTester.run('no-tc-translation (twig template)', rule, {
             name: '$tc() in a bound attribute of a twig template should be $t()',
             filename: 'sw-foo.html.twig',
             code: `<template>{% block sw_foo %}<mt-button :label="$tc('some.key', count, { name })" />{% endblock %}</template>`,
-            output: `<template>{% block sw_foo %}<mt-button :label="$t('some.key', { name }, count)" />{% endblock %}</template>`,
+            output: `<template>{% block sw_foo %}<mt-button :label="${HINT}$t('some.key', { name }, count)" />{% endblock %}</template>`,
             errors: [{ messageId: 'noTc' }, { messageId: 'legacyArgumentOrder' }],
         },
+        {
+            name: '$tc() in a v-if condition of a twig template should be $t()',
+            filename: 'sw-foo.html.twig',
+            code: `<template><div v-if="$tc('x')" /></template>`,
+            output: `<template><div v-if="$t('x')" /></template>`,
+            errors: [{ messageId: 'noTc' }],
+        },
     ],
+});
+
+tester.run('no-tc-translation message', rule, {
+    valid: [],
+    invalid: [
+        {
+            name: 'carries the registry description and the pluralization review hint',
+            code: `this.$tc('a.b');`,
+            output: `this.$t('a.b');`,
+            errors: [
+                {
+                    message: /verify pluralization and count interpolation manually\.\nThe \$tc translation helper is deprecated\.[\s\S]*Removed in Shopware 6\.9\.0\./,
+                },
+            ],
+        },
+    ],
+});
+
+tester.run('no-tc-translation in a file that defines its own $tc', rule, {
+    valid: [],
+    invalid: [
+        {
+            name: 'reports a call on a class with its own $tc method without renaming it',
+            code: `class Service { $tc(key) { return root.$tc(key); } caption() { return this.$tc('a.b'); } }`,
+            output: null,
+            errors: [{ messageId: 'noTcOwnDefinition' }, { messageId: 'noTcOwnDefinition' }],
+        },
+        {
+            name: 'reports a call on a helper that stores a passed $tc without renaming it',
+            code: `class Helper { constructor({ $tc }) { this.$tc = $tc; } label() { return this.$tc('a.b'); } }`,
+            output: null,
+            errors: [{ messageId: 'noTcOwnDefinition' }],
+        },
+    ],
+});
+
+templateTester.run('no-tc-translation in twig mustaches', rule, {
+    valid: [
+        {
+            name: 'leaves Twig expressions and $t() in mustaches alone',
+            filename: 'sw-foo.html.twig',
+            code: `<template><div>{{ parent() }} {{ 'a'|trans }} {{ $t('a.b') }}</div></template>`,
+        },
+    ],
+    invalid: [
+        {
+            name: 'renames $tc() in a mustache of a twig template',
+            filename: 'sw-foo.html.twig',
+            code: `<template><div>{{ $tc('a.b') }}</div></template>`,
+            output: `<template><div>{{ $t('a.b') }}</div></template>`,
+            errors: [{ messageId: 'noTc' }],
+        },
+        {
+            name: 'renames every $tc() of a mustache and adds the review hint to a call with a count',
+            filename: 'sw-foo.html.twig',
+            code: `<template><div>{{ $tc('a.b', count) + $tc('c.d') }}</div></template>`,
+            output: `<template><div>{{ ${HINT}$t('a.b', count) + $t('c.d') }}</div></template>`,
+            errors: [{ messageId: 'noTc' }, { messageId: 'noTc' }],
+        },
+    ],
+});
+
+describeWithSelectedDeprecationIds('component.sw-alert', () => {
+    tester.run('no-tc-translation with an unrelated deprecation id selected', rule, {
+        valid: [
+            {
+                name: 'this.$tc() is not reported when only another migration is selected',
+                code: `this.$tc('some.translation.key');`,
+            },
+        ],
+        invalid: [],
+    });
 });

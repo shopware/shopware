@@ -1,75 +1,71 @@
-const RuleTester = require('eslint').RuleTester
+const fs = require('fs');
+const path = require('path');
+const RuleTester = require('eslint').RuleTester;
+const { withRegistryMessageContext } = require('./test-utils/with-registry-message-context');
+const { describeWithSelectedDeprecationIds } = require('./test-utils/selected-deprecation-ids');
 const rule = require('./no-deprecated-component-usage');
-const { mtIconValidTests, mtIconInvalidTests } = require('./no-deprecated-component-usage-checks/mt-icon.check');
-const { mtButtonValidChecks, mtButtonInvalidChecks } = require('./no-deprecated-component-usage-checks/mt-button.check');
-const { mtCardValidTests, mtCardInvalidTests } = require('./no-deprecated-component-usage-checks/mt-card.check');
-const { mtTextFieldValidTests, mtTextFieldInvalidTests } = require('./no-deprecated-component-usage-checks/mt-text-field.check');
-const { mtSwitchValidChecks, mtSwitchInvalidChecks } = require('./no-deprecated-component-usage-checks/mt-switch.check');
-const { mtNumberFieldValidTests, mtNumberFieldInvalidTests } = require('./no-deprecated-component-usage-checks/mt-number-field.check');
-const { mtCheckboxValidTests, mtCheckboxInvalidTests } = require('./no-deprecated-component-usage-checks/mt-checkbox.check');
-const { mtTabsValidTests, mtTabsInvalidTests } = require('./no-deprecated-component-usage-checks/mt-tabs.check');
-const { mtSelectValidTests, mtSelectInvalidTests } = require('./no-deprecated-component-usage-checks/mt-select.check');
-const { mtTextareaValidTests, mtTextareaInvalidTests } = require('./no-deprecated-component-usage-checks/mt-textarea.check');
-const { mtBannerValidTests, mtBannerInvalidTests } = require('./no-deprecated-component-usage-checks/mt-banner.check');
-const { mtDatepickerInvalidTests, mtDatepickerValidTests } = require('./no-deprecated-component-usage-checks/mt-datepicker.check');
-const { mtColorpickerValidTests, mtColorpickerInvalidTests } = require('./no-deprecated-component-usage-checks/mt-colorpicker.check');
-const { mtEmailFieldValidTests, mtEmailFieldInvalidTests } = require('./no-deprecated-component-usage-checks/mt-email-field.check');
-const { mtPasswordFieldValidTests, mtPasswordFieldInvalidTests } = require('./no-deprecated-component-usage-checks/mt-password-field.check');
-const { mtProgressBarValidTests, mtProgressBarInvalidTests } = require('./no-deprecated-component-usage-checks/mt-progress-bar.check');
-const { mtFloatingUiValidTests, mtFloatingUiInvalidTests } = require("./no-deprecated-component-usage-checks/mt-floating-ui.check");
-const { swEntityListingValidChecks, swEntityListingInvalidChecks } = require("./no-deprecated-component-usage-checks/sw-entity-listing.check");
+const { loadRegistry } = require('./registry/load-registry');
+
+// One file per replacement component or rule concern, each exporting `{ valid, invalid }` RuleTester cases.
+const FIXTURE_DIRECTORY = path.join(__dirname, 'fixtures/no-deprecated-component-usage');
 
 const tester = new RuleTester({
     languageOptions: {
         parser: require('vue-eslint-parser'),
         ecmaVersion: 2015,
     },
-})
+    settings: {
+        // The fixtures show the fixes that leave a review comment too; the default level is safe
+        'sw-deprecation-rules': { level: 'review' },
+    },
+});
+
+describe('registry helper ownership', () => {
+    it('keeps component usage ESLint behavior owned by registry helpers', () => {
+        const registry = loadRegistry();
+        const componentLevelKinds = new Set(['rename-component']);
+        const usagesWithoutHelperEslint = registry.componentApiMigrations.flatMap((migration) => {
+            return migration.usage
+                .filter((usage) => !componentLevelKinds.has(usage.kind) && !usage.eslint?.report)
+                .map((usage) => `${migration.id}:${usage.kind}`);
+        });
+
+        expect(usagesWithoutHelperEslint).toEqual([]);
+    });
+});
 
 tester.run('no-deprecated-component-usage', rule, {
     valid: [
         {
             name: 'Empty file',
             filename: 'test.html.twig',
-            code: ''
+            code: '',
         },
-        ...mtButtonValidChecks,
-        ...mtIconValidTests,
-        ...mtCardValidTests,
-        ...mtTextFieldValidTests,
-        ...mtSwitchValidChecks,
-        ...mtNumberFieldValidTests,
-        ...mtCheckboxValidTests,
-        ...mtTabsValidTests,
-        ...mtSelectValidTests,
-        ...mtTextareaValidTests,
-        ...mtBannerValidTests,
-        ...mtDatepickerValidTests,
-        ...mtColorpickerValidTests,
-        ...mtEmailFieldValidTests,
-        ...mtPasswordFieldValidTests,
-        ...mtProgressBarValidTests,
-        ...mtFloatingUiValidTests,
-        ...swEntityListingValidChecks,
     ],
-    invalid: [
-        ...mtButtonInvalidChecks,
-        ...mtIconInvalidTests,
-        ...mtCardInvalidTests,
-        ...mtTextFieldInvalidTests,
-        ...mtSwitchInvalidChecks,
-        ...mtNumberFieldInvalidTests,
-        ...mtCheckboxInvalidTests,
-        ...mtTabsInvalidTests,
-        ...mtSelectInvalidTests,
-        ...mtTextareaInvalidTests,
-        ...mtDatepickerInvalidTests,
-        ...mtBannerInvalidTests,
-        ...mtColorpickerInvalidTests,
-        ...mtEmailFieldInvalidTests,
-        ...mtPasswordFieldInvalidTests,
-        ...mtProgressBarInvalidTests,
-        ...mtFloatingUiInvalidTests,
-        ...swEntityListingInvalidChecks,
-    ]
-})
+    invalid: [],
+});
+
+fs.readdirSync(FIXTURE_DIRECTORY)
+    .filter((file) => file.endsWith('.js'))
+    .sort()
+    .forEach((file) => {
+        const { valid, invalid } = require(path.join(FIXTURE_DIRECTORY, file));
+
+        tester.run(`no-deprecated-component-usage: ${path.basename(file, '.js')}`, rule, {
+            valid,
+            invalid: withRegistryMessageContext(invalid),
+        });
+    });
+
+describeWithSelectedDeprecationIds('component.sw-alert', () => {
+    tester.run('no-deprecated-component-usage with an unrelated deprecation id selected', rule, {
+        valid: [
+            {
+                name: '"mt-text-field" value prop is not reported when only another migration is selected',
+                filename: 'test.html.twig',
+                code: '<template><mt-text-field value="old" /></template>',
+            },
+        ],
+        invalid: [],
+    });
+});

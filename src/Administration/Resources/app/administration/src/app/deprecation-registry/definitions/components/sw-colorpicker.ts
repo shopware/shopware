@@ -1,0 +1,41 @@
+/**
+ * @sw-package framework
+ */
+
+import {
+    componentMigration,
+    renameComponent,
+    renameEvent,
+    renameProp,
+    renameVModelArgument,
+    slotTextToProp,
+    upgradeGuide,
+} from '../helpers';
+
+export default componentMigration({
+    id: 'component.sw-colorpicker',
+    component: 'sw-colorpicker',
+    replacement: 'mt-colorpicker',
+    deprecatedIn: '6.7.0',
+    removedIn: '6.8.0',
+    description:
+        'The legacy sw-colorpicker component is replaced by mt-colorpicker. Value binding uses model-value/update:model-value and the label slot should become the label prop when possible.',
+    references: [
+        upgradeGuide('UPGRADE-6.7.md#removal-of-sw-colorpicker'),
+    ],
+    onConvert: [
+        renameComponent({ from: 'sw-colorpicker', to: 'mt-colorpicker', fix: 'unsafe-auto' }),
+    ],
+    onEveryUsage: [
+        renameProp({
+            from: 'value',
+            to: 'model-value',
+        }),
+        renameEvent({ from: 'update:value', to: 'update:model-value' }),
+        renameVModelArgument({ from: 'value', to: null }),
+        slotTextToProp({
+            fromSlot: 'label',
+            toProp: 'label',
+        }),
+    ],
+});

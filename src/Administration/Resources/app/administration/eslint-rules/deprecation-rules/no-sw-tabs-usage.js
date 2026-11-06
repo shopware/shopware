@@ -2,6 +2,9 @@
  * @sw-package framework
  */
 
+const { defineTemplateBodyVisitor } = require('./registry/template-ast');
+const { withRunLevel } = require('./registry/run-level');
+
 const FEATURE_FLAG = 'v6.8.0.0';
 
 function getDirective(node, name) {
@@ -116,7 +119,7 @@ function isInsideAllowedFallbackBranch(node) {
     return false;
 }
 
-module.exports = {
+module.exports = withRunLevel({
     meta: {
         type: 'problem',
         docs: {
@@ -147,6 +150,6 @@ module.exports = {
             },
         };
 
-        return context.sourceCode.parserServices.defineTemplateBodyVisitor(templateVisitor);
+        return defineTemplateBodyVisitor(context, templateVisitor);
     },
-};
+});

@@ -6,6 +6,8 @@ import template from './sw-popover.html.twig';
  * @private
  * @status ready
  * @description Wrapper component for sw-popover and mt-floating-ui. Autoswitches between the two components.
+ *
+ * @deprecated tag:v6.8.0 - Will be removed, use "mt-floating-ui" instead.
  */
 export default Shopware.Component.wrapComponentConfig({
     template,

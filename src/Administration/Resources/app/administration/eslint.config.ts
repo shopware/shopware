@@ -283,6 +283,10 @@ export default [
             '!scripts/extensionTooling/**/*',
             '!scripts/generate-shopware-modules/',
             '!scripts/generate-shopware-modules/**/*',
+            '!scripts/deprecation-migrate/',
+            '!scripts/deprecation-migrate/**/*',
+            '!scripts/lint-deprecations/',
+            '!scripts/lint-deprecations/**/*',
             '!scripts/codemods/',
             '!scripts/codemods/sfc-migration/',
             '!scripts/codemods/sfc-migration/**/*',
@@ -659,12 +663,9 @@ export default [
                     ],
                 },
             ],
-            'sw-deprecation-rules/no-deprecated-component-usage': [
-                'error',
-                'enableFix',
-            ],
+            'sw-deprecation-rules/no-deprecated-component-usage': 'error',
+            'sw-deprecation-rules/no-deprecated-component-option-usage': 'error',
             'sw-deprecation-rules/no-sw-tabs-usage': 'error',
-            'sw-deprecation-rules/no-sw-empty-state-usage': 'error',
             'vue/no-useless-template-attributes': 'error',
             'vue/no-lone-template': 'error',
             'vue/max-template-depth': [
@@ -952,6 +953,27 @@ export default [
         },
     },
     {
+        files: [
+            'src/**/*.js',
+            'src/**/*.ts',
+            'src/**/*.vue',
+        ],
+        ignores: [
+            '**/*.spec.js',
+            '**/*.spec.ts',
+            '**/*.spec/**',
+        ],
+        rules: {
+            'sw-deprecation-rules/require-deprecation-codemod': 'error',
+        },
+    },
+    {
+        files: ['src/app/deprecation-registry/**/*.ts'],
+        rules: {
+            'sw-deprecation-rules/private-feature-declarations': 'off',
+        },
+    },
+    {
         ...prettier,
         files: [
             '**/*.js',
@@ -965,6 +987,8 @@ export default [
             'extension-tooling/**/*.mjs',
             'scripts/extensionTooling/**/*.ts',
             'scripts/codemods/sfc-migration/**/*.ts',
+            'scripts/deprecation-migrate/**/*',
+            'scripts/lint-deprecations/**/*',
         ],
         rules: {
             'filename-rules/match': 'off',

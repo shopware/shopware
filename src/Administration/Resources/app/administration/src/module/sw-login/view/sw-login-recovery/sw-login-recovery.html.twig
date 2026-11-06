@@ -19,7 +19,6 @@
         v-if="isRateLimited"
         class="sw-login__alert-banner"
         variant="attention"
-        :show-icon="true"
         :closable="false"
     >
         {{ rateLimitMessage }}
@@ -31,7 +30,6 @@
         v-if="showLinkExpiredError"
         class="sw-login__alert-banner"
         variant="critical"
-        :show-icon="true"
         :closable="false"
     >
         {{ $t('sw-login.recovery.messageLinkExpired') }}

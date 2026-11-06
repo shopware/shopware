@@ -49,6 +49,82 @@ Pass a registered major flag and a version like `v6.8.0.0`. Anything else could 
 
 `@private` symbols and identifiers starting with `_` are no public contract and need no guard. See the [ADR](../../adr/2026-08-10-administration-javascript-deprecation-guards.md).
 
+### Adding a deprecation codemod
+
+Every deprecated component or prop needs a codemod, so extensions can migrate with `eslint --fix` instead of reading the upgrade notes.
+Add a migration to the deprecation registry in `src/Administration/Resources/app/administration/src/app/deprecation-registry/definitions`, and add it to the list of its category, for example `definitions/components/index.ts`.
+Build it with the helpers from `definitions/helpers`, for example `componentMigration()`, `renameComponent()` and `removeProp()`.
+
+A component replacement splits its steps into two lists:
+
+- `onConvert`: the `renameComponent()` step, then the steps that carry the old component's behavior over.
+  They run only on elements the codemod converted.
+- `onEveryUsage`: steps that run on every element of the replacement, also on hand-written ones.
+
+```ts
+onConvert: [
+    renameComponent({ from: 'sw-button', to: 'mt-button' }),
+    addPropWhenMissing({ prop: 'variant', value: 'secondary' }),
+],
+onEveryUsage: [
+    replacePropValue({ prop: 'variant', fromValue: 'danger', toValue: 'critical' }),
+],
+```
+
+Every step helper documents its scenarios: what it fixes, what gets a review comment, and what it leaves for a manual migration.
+Steps that read a value from the old usage take a source: `fromSlot()`, `fromProp()` and `firstFoundOf()` for a prop, `fromText()` and `fromAttribute()` for the fields of an array item.
+
+Give every usage step the most automatic fix level that is still correct:
+
+- `auto`: the fix keeps the behavior, for example renaming a component or prop.
+- `unsafe-auto`: the fix is usually right but needs a human check, so the codemod marks it with a `TODO Codemod` comment.
+- `manual`: no safe rewrite exists, so the usage is only reported with the step's `message` as the hint.
+
+A migration is only as automatic as its least automatic step.
+
+The `sw-deprecation-rules/require-deprecation-codemod` rule reports a `deprecated` option on a component or prop without a matching migration.
+If no codemod is possible, disable the rule for that line and give the reason:
+
+```js
+// eslint-disable-next-line sw-deprecation-rules/require-deprecation-codemod -- removed without replacement
+deprecated: 'v6.8.0.0',
+```
+
+To try a codemod on the Administration, run these commands in `src/Administration/Resources/app/administration`:
+
+```bash
+# List every migration id with its fix level
+npm run deprecation:migrate -- --list
+# Report the usages of one migration without changing files
+npm run deprecation:migrate -- --id component.sw-card
+# Apply only the fixes that keep the behaviour
+npm run deprecation:migrate -- --id component.sw-card --fix
+# Also apply the fixes that leave a review comment
+npm run deprecation:migrate -- --id component.sw-card --fix --level review
+```
+
+`--level` sets how much `--fix` may change.
+Run the levels in this order and commit after each one, so each commit has one kind of change:
+
+1. `safe` (the default) applies only fixes that keep the behaviour.
+   A component is converted together with all of its follow-up fixes, or not at all.
+   The commit needs no review.
+2. `review` also applies fixes that leave a `TODO Codemod` comment, but converts no component that needs manual work.
+   Review the comments before you commit.
+3. `partial` converts every component and puts a `TODO Codemod` comment above each part that needs manual work.
+   Do that work before you commit.
+4. `manual` changes no code and only puts a `TODO Codemod` comment above every deprecated usage.
+
+ESLint configs choose the level with the `sw-deprecation-rules` setting; without it, the rules run at `safe`:
+
+```js
+settings: { 'sw-deprecation-rules': { level: 'review' } },
+```
+
+A step that is safe only for some usages says so per usage.
+For example, `childElementsToArrayProp` turns static `<option>` elements into the `options` prop of `mt-select` at `safe`;
+options from a `v-for` list need a review, because the list has to be an array.
+
 ### Deprecation baseline
 
 Jest lets known usages of deprecated APIs pass when they are listed in the deprecation baseline.

@@ -1,0 +1,59 @@
+/**
+ * @sw-package framework
+ */
+
+import {
+    componentMigration,
+    removeProp,
+    renameComponent,
+    renameEvent,
+    renameProp,
+    renameVModelArgument,
+    slotTextToProp,
+    upgradeGuide,
+} from '../helpers';
+
+export default componentMigration({
+    id: 'component.sw-checkbox-field',
+    component: 'sw-checkbox-field',
+    replacement: 'mt-checkbox',
+    deprecatedIn: '6.7.0',
+    removedIn: '6.8.0',
+    description:
+        'The legacy sw-checkbox-field component is replaced by mt-checkbox. Checkbox model and several legacy props/slots changed.',
+    references: [
+        upgradeGuide('UPGRADE-6.7.md#removal-of-sw-checkbox-field'),
+    ],
+    onConvert: [
+        renameComponent({ from: 'sw-checkbox-field', to: 'mt-checkbox' }),
+        removeProp({
+            prop: 'id',
+            fix: 'unsafe-auto',
+            message:
+                'mt-checkbox has no "id" prop. sw-checkbox-field gave its input the id and name "sw-field--<id>", mt-checkbox generates them: ' +
+                'check selectors, label "for" attributes and tests that use them.',
+        }),
+    ],
+    onEveryUsage: [
+        renameVModelArgument({ from: 'value', to: null }),
+        renameProp({
+            from: 'value',
+            to: 'model-value',
+        }),
+        slotTextToProp({
+            fromSlot: 'hint',
+            toProp: 'label',
+        }),
+        removeProp({
+            prop: 'ghost-value',
+        }),
+        renameProp({
+            from: 'partly-checked',
+            to: 'partial',
+        }),
+        removeProp({
+            prop: 'padded',
+        }),
+        renameEvent({ from: 'update:value', to: 'update:modelValue' }),
+    ],
+});

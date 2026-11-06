@@ -6,6 +6,8 @@ import template from './sw-loader.html.twig';
  * @private
  * @status ready
  * @description Wrapper component for sw-loader and mt-loader. Autoswitches between the two components.
+ *
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-loader instead.
  */
 export default {
     template,

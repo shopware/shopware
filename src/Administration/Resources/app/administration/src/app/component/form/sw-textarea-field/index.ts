@@ -6,6 +6,8 @@ import template from './sw-textarea-field.html.twig';
  * @private
  * @status ready
  * @description Wrapper component for sw-textarea-field and mt-textarea. Autoswitches between the two components.
+ *
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-textarea instead.
  */
 export default Shopware.Component.wrapComponentConfig({
     template,

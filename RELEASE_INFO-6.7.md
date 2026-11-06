@@ -384,6 +384,36 @@ If an app ships both, the file takes precedence, the inline definition is ignore
 
 ## Administration
 
+### Codemods for Administration deprecations
+
+A registry of codemods now covers deprecated Administration components, props, slots, events, template blocks, snippet keys, assets and JavaScript APIs.
+The `sw-deprecation-rules` ESLint rules read it for components, props, slots, events, template blocks, snippet keys and JavaScript APIs:
+they report each deprecated usage with its description, removal version and upgrade reference, and fix it where an automatic fix is safe.
+Usages that need a human decision are reported with a migration hint.
+Deprecated asset files are not reported by the ESLint rules or by `deprecation:migrate`;
+the Administration build warns when one is used.
+
+Extensions whose ESLint config composes the extension tooling get the reports and automatic fixes for deprecated components, props, slots and component events in their templates;
+`eslint --fix` applies the automatic fixes.
+The other registry categories, such as template blocks, snippet keys and JavaScript APIs, are applied in the Administration through `npm run deprecation:migrate`.
+Steps that need a decision, such as keeping the former `sw-icon` default size of 24px after the switch to `mt-icon`, are applied with a `TODO Codemod` comment that asks to confirm them.
+In the Administration itself, `npm run deprecation:migrate -- --list` lists every migration with its fix level, and `npm run deprecation:migrate -- --id <id> --fix` applies one.
+`--level` sets how much `--fix` may change: `safe` (the default) applies only fixes that keep the behaviour, `review` also applies fixes that leave a `TODO Codemod` comment, `partial` converts everything and comments the parts that need manual work, and `manual` only adds comments.
+Extension ESLint configs choose the level with `settings: { 'sw-deprecation-rules': { level } }`; without it, the rules run at `safe`.
+`sw-empty-state` is migrated by these rules too.
+`sw-deprecation-rules/no-sw-empty-state-usage` is deprecated and reports nothing; remove it from ESLint configs that name it.
+
+The new `sw-deprecation-rules/require-deprecation-codemod` rule reports a `deprecated` option on an Administration component or prop that has no codemod in the registry.
+Add a migration in `src/app/deprecation-registry/definitions/components`, or disable the rule for that line with the reason why no codemod is possible:
+
+```js
+// eslint-disable-next-line sw-deprecation-rules/require-deprecation-codemod -- removed without replacement
+deprecated: 'v6.8.0.0',
+```
+
+The new `sw-deprecation-rules/no-deprecated-component-option-usage` rule reports every template usage of an Administration component or prop that carries the `deprecated` option, before the runtime warning fires.
+It also runs through the extension tooling.
+Without a codemod, the report shows the option's removal version and comment.
 ### Deprecated the custom field set lookup of `sw-settings-listing-option-criteria-grid`
 
 The `customFieldSetIDs` data property, the `customFieldSetRelationsRepository` and `customFieldsRelationsCriteria` computed properties and the `fetchCustomFieldSetIds()` method of `sw-settings-listing-option-criteria-grid` are deprecated and will be removed without replacement.

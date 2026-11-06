@@ -274,35 +274,37 @@ async function lintFiles(filePaths, fix, shopwareVersion) {
                 ...(() => {
                     if (isVersionNewerOrSame(shopwareVersion, '6.7')) {
                         return {
-                            'sw-deprecation-rules/no-deprecated-components': ['error', {
-                                fix: true,
-                                activatedComponents: [
-                                    'sw-button',
-                                    'sw-alert',
-                                    'sw-colorpicker',
-                                    'sw-text-field',
-                                    'sw-card',
-                                    'sw-email-field',
-                                    'sw-switch-field',
-                                    'sw-textarea-field',
-                                    'sw-datepicker',
-                                    'sw-icon',
-                                    'sw-url-field',
-                                    'sw-select-field',
-                                    'sw-checkbox-field',
-                                    'sw-number-field',
-                                    'sw-password-field',
-                                ],
-                            }],
+                            'sw-deprecation-rules/no-deprecated-components': [
+                                'error',
+                                {
+                                    fix: true,
+                                    activatedComponents: [
+                                        'sw-button',
+                                        'sw-alert',
+                                        'sw-colorpicker',
+                                        'sw-text-field',
+                                        'sw-card',
+                                        'sw-email-field',
+                                        'sw-switch-field',
+                                        'sw-textarea-field',
+                                        'sw-datepicker',
+                                        'sw-icon',
+                                        'sw-url-field',
+                                        'sw-select-field',
+                                        'sw-checkbox-field',
+                                        'sw-number-field',
+                                        'sw-password-field',
+                                        'sw-empty-state',
+                                    ],
+                                },
+                            ],
                             'sw-deprecation-rules/no-deprecated-component-usage': ['error'],
-                            'sw-deprecation-rules/no-sw-empty-state-usage': ['error'],
                         };
                     }
 
                     return {
                         'sw-deprecation-rules/no-deprecated-components': 'off',
                         'sw-deprecation-rules/no-deprecated-component-usage': 'off',
-                        'sw-deprecation-rules/no-sw-empty-state-usage': 'off',
                     };
                 })(),
                 // Disabled rules
@@ -335,7 +337,7 @@ async function lintFiles(filePaths, fix, shopwareVersion) {
                 'import/extensions': 'off',
                 'max-len': 'off',
                 'quote-props': 'off',
-                'semi': 'off',
+                semi: 'off',
                 'consistent-return': 'off',
             },
         },
@@ -374,10 +376,10 @@ async function lintFiles(filePaths, fix, shopwareVersion) {
                 'max-len': 'off',
                 'prefer-object-spread': 'off',
                 'array-callback-return': 'off',
-                'semi': 'off',
-                'eqeqeq': 'off',
-                'camelcase': 'off',
-                'indent': 'off',
+                semi: 'off',
+                eqeqeq: 'off',
+                camelcase: 'off',
+                indent: 'off',
                 'comma-dangle': 'off',
                 'no-multi-spaces': 'off',
                 'consistent-return': 'off',
@@ -388,14 +390,14 @@ async function lintFiles(filePaths, fix, shopwareVersion) {
                 'no-return-assign': 'off',
                 '@typescript-eslint/unbound-method': 'off',
                 'import/order': 'off',
-                'radix': 'off',
+                radix: 'off',
                 'no-restricted-syntax': 'off',
                 'import/no-unresolved': 'off',
                 'no-return-await': 'off',
                 '@typescript-eslint/no-unsafe-enum-comparison': 'off',
                 '@typescript-eslint/no-empty-object-type': 'off',
                 '@typescript-eslint/await-thenable': 'off',
-                'quotes': 'off',
+                quotes: 'off',
                 'padded-blocks': 'off',
                 '@typescript-eslint/no-duplicate-type-constituents': 'off',
                 'no-unsafe-optional-chaining': 'off',
@@ -439,7 +441,7 @@ async function lintFiles(filePaths, fix, shopwareVersion) {
                 'key-spacing': 'off',
                 '@typescript-eslint/no-unused-expressions': 'off',
                 'prefer-template': 'off',
-                'curly': 'off',
+                curly: 'off',
                 'default-case': 'off',
                 'no-async-promise-executor': 'off',
                 'no-nested-ternary': 'off',
@@ -492,7 +494,11 @@ function removePluginsTsConfigFile() {
 
 function isVersionNewerOrSame(version, compareVersion) {
     if (!version) {
-        console.error(colors.redBright('Invalid version number. Please specify a version number using "-v". See help for more details.'));
+        console.error(
+            colors.redBright(
+                'Invalid version number. Please specify a version number using "-v". See help for more details.',
+            ),
+        );
         process.exit();
     }
 

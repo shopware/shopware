@@ -4,8 +4,6 @@ test(
     'As a merchant, I want to duplicate a product from the product listing.',
     { tag: '@Product' },
     async ({ ShopAdmin, TestDataService, AdminProductListing, AdminProductDetail, DuplicateProduct }) => {
-        test.slow();
-
         const product = await TestDataService.createBasicProduct();
 
         await ShopAdmin.goesTo(AdminProductListing.url([product.productNumber]));
@@ -21,8 +19,6 @@ test(
     'As a merchant, I want to save and duplicate a product from the product detail page.',
     { tag: '@Product' },
     async ({ ShopAdmin, TestDataService, AdminProductDetail, SaveAndDuplicateProduct }) => {
-        test.slow();
-
         const product = await TestDataService.createBasicProduct();
 
         await ShopAdmin.goesTo(AdminProductDetail.url(product.id));

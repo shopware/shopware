@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Public API report</title>
+<style>
+:root {
+    color-scheme: light dark;
+    --bg: #ffffff;
+    --fg: #1b1f24;
+    --muted: #57606a;
+    --border: #d0d7de;
+    --panel: #f6f8fa;
+    --mark: #fff1a8;
+    --break: #cf222e;
+    --addition: #1a7f37;
+    --allowed: #0969da;
+    --accepted: #8250df;
+    --private: #6e7781;
+    --info: #9a6700;
+}
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #0d1117;
+        --fg: #e6edf3;
+        --muted: #8d96a0;
+        --border: #30363d;
+        --panel: #161b22;
+        --mark: #5a4a00;
+        --break: #ff7b72;
+        --addition: #3fb950;
+        --allowed: #58a6ff;
+        --accepted: #bc8cff;
+        --private: #8d96a0;
+        --info: #d29922;
+    }
+}
+* { box-sizing: border-box; }
+body { margin: 0; padding: 24px 16px; background: var(--bg); color: var(--fg); font: 15px/1.5 system-ui, sans-serif; }
+main { max-width: 1200px; margin: 0 auto; }
+h1 { font-size: 1.5rem; margin: 0 0 8px; }
+h2 { font-size: 1.2rem; margin: 32px 0 12px; }
+h3 { font-size: 1rem; margin: 0 0 8px; }
+code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+.verdict { font-weight: 600; }
+.verdict--failed { color: var(--break); }
+.meta { color: var(--muted); margin: 0; overflow-wrap: anywhere; }
+.finding { border: 1px solid var(--border); border-left: 4px solid var(--muted); border-radius: 6px; padding: 12px 16px; margin: 0 0 12px; background: var(--panel); }
+.finding--break { border-left-color: var(--break); }
+.finding--addition { border-left-color: var(--addition); }
+.finding--allowed { border-left-color: var(--allowed); }
+.finding--accepted { border-left-color: var(--accepted); }
+.finding--private { border-left-color: var(--private); }
+.finding--info { border-left-color: var(--info); }
+dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 0; }
+dt { color: var(--muted); }
+dd { margin: 0; overflow-wrap: anywhere; }
+.tree { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0 0 24px; }
+.tree h4 { margin: 0 0 4px; font-size: 0.9rem; color: var(--muted); }
+.tree > div { min-width: 0; }
+pre { margin: 0; padding: 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--panel); overflow-x: auto; }
+mark { background: var(--mark); color: inherit; }
+@media (max-width: 760px) {
+    .tree { grid-template-columns: 1fr; }
+    dl { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<main>
+<header>
+<h1>Public API report</h1>
+<p class="verdict verdict--failed">Public API check failed: 4 unannounced breaks.</p>
+<p class="meta">Base <code>bae081853fc7a103f3216f260008e828137b9aa7</code></p>
+<p class="meta">Head <code>8fc8b8ee69a28e7fd36ca87486822940787c1d92</code></p>
+</header>
+<h2>Break (4)</h2>
+<section class="finding finding--break" id="block_missing--component:sw-bulk-edit-custom-fields/block:sw_custom_field_set_renderer_card_form_renderer_change_field">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-bulk-edit-custom-fields/block:sw_custom_field_set_renderer_card_form_renderer_change_field</code></dd>
+<dt>States</dt><dd>major</dd>
+<dt>Explanation</dt><dd>The block is gone, because the parent sw-custom-field-set-renderer no longer declares sw_custom_field_set_renderer_card_form_renderer, which this component overrides, so plugin templates that override {% block sw_custom_field_set_renderer_card_form_renderer_change_field %} render nothing.</dd>
+<dt>Fix</dt><dd>Keep sw_custom_field_set_renderer_card_form_renderer in the major branch of sw-custom-field-set-renderer, or also override sw_custom_field_set_renderer_card_mt_tabs_form_renderer in this component, or add an entry to public-api/accepted-breaks.json.</dd>
+<dt>Base</dt><dd><code>src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/sw-bulk-edit-custom-fields.html.twig:11</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/sw-bulk-edit-custom-fields.html.twig:1</code></dd>
+</dl>
+</section>
+<section class="finding finding--break" id="block_missing--component:sw-bulk-edit-custom-fields/block:sw_custom_field_set_renderer_card_form_renderer_custom_field">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-bulk-edit-custom-fields/block:sw_custom_field_set_renderer_card_form_renderer_custom_field</code></dd>
+<dt>States</dt><dd>major</dd>
+<dt>Explanation</dt><dd>The block is gone, because the parent sw-custom-field-set-renderer no longer declares sw_custom_field_set_renderer_card_form_renderer, which this component overrides, so plugin templates that override {% block sw_custom_field_set_renderer_card_form_renderer_custom_field %} render nothing.</dd>
+<dt>Fix</dt><dd>Keep sw_custom_field_set_renderer_card_form_renderer in the major branch of sw-custom-field-set-renderer, or also override sw_custom_field_set_renderer_card_mt_tabs_form_renderer in this component, or add an entry to public-api/accepted-breaks.json.</dd>
+<dt>Base</dt><dd><code>src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/sw-bulk-edit-custom-fields.html.twig:19</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/sw-bulk-edit-custom-fields.html.twig:1</code></dd>
+</dl>
+</section>
+<section class="finding finding--break" id="block_missing--component:sw-mail-template-index/block:sw_mail_template_list_tabs_header_footer">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-mail-template-index/block:sw_mail_template_list_tabs_header_footer</code></dd>
+<dt>States</dt><dd>major</dd>
+<dt>Explanation</dt><dd>The block is gone, so plugin templates that override {% block sw_mail_template_list_tabs_header_footer %} render nothing.</dd>
+<dt>Fix</dt><dd>Keep the block in the major branch, even empty, and mark it {# @deprecated tag:v6.8.0 #}, or add an entry to public-api/accepted-breaks.json.</dd>
+<dt>Possible rename</dt><dd>sw_mail_template_list_mt_tabs.</dd>
+<dt>Base</dt><dd><code>src/module/sw-mail-template/page/sw-mail-template-index/sw-mail-template-index.html.twig:105</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-mail-template/page/sw-mail-template-index/sw-mail-template-index.html.twig:91</code></dd>
+</dl>
+</section>
+<section class="finding finding--break" id="block_missing--component:sw-mail-template-index/block:sw_mail_template_list_tabs_templates">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-mail-template-index/block:sw_mail_template_list_tabs_templates</code></dd>
+<dt>States</dt><dd>major</dd>
+<dt>Explanation</dt><dd>The block is gone, so plugin templates that override {% block sw_mail_template_list_tabs_templates %} render nothing.</dd>
+<dt>Fix</dt><dd>Keep the block in the major branch, even empty, and mark it {# @deprecated tag:v6.8.0 #}, or add an entry to public-api/accepted-breaks.json.</dd>
+<dt>Possible rename</dt><dd>sw_mail_template_list_mt_tabs.</dd>
+<dt>Base</dt><dd><code>src/module/sw-mail-template/page/sw-mail-template-index/sw-mail-template-index.html.twig:96</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-mail-template/page/sw-mail-template-index/sw-mail-template-index.html.twig:91</code></dd>
+</dl>
+</section>
+<h2>Addition (3)</h2>
+<section class="finding finding--addition" id="block_added--component:sw-mail-template-index/block:sw_mail_template_list_mt_tabs">
+<h3><code>block_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-mail-template-index/block:sw_mail_template_list_mt_tabs</code></dd>
+<dt>States</dt><dd>major</dd>
+<dt>Explanation</dt><dd>A new public block that plugins can rely on from now on.</dd>
+<dt>Fix</dt><dd>Mark it @private if it is not meant for plugins.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-mail-template/page/sw-mail-template-index/sw-mail-template-index.html.twig:92</code></dd>
+</dl>
+</section>
+<section class="finding finding--addition" id="computed_added--component:sw-mail-template-index/computed:mailTemplateTabs">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-mail-template-index/computed:mailTemplateTabs</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new public computed property that plugins can rely on from now on.</dd>
+<dt>Fix</dt><dd>Mark it @private if it is not meant for plugins.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-mail-template/page/sw-mail-template-index/index.js:46</code></dd>
+</dl>
+</section>
+<section class="finding finding--addition" id="inject_added--component:sw-mail-template-index/inject:feature">
+<h3><code>inject_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-mail-template-index/inject:feature</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new public inject that plugins can rely on from now on.</dd>
+<dt>Fix</dt><dd>Mark it @private if it is not meant for plugins.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-mail-template/page/sw-mail-template-index/index.js:15</code></dd>
+</dl>
+</section>
+<h2>Private (10)</h2>
+<section class="finding finding--private" id="block_added--component:sw-custom-field-set-renderer/block:sw_custom_field_set_renderer_card_mt_tabs">
+<h3><code>block_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-custom-field-set-renderer/block:sw_custom_field_set_renderer_card_mt_tabs</code></dd>
+<dt>States</dt><dd>major</dd>
+<dt>Explanation</dt><dd>A new block of a private component. Plugins must not rely on it.</dd>
+<dt>Also affects</dt><dd>sw-bulk-edit-custom-fields (extends sw-custom-field-set-renderer).</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/form/sw-custom-field-set-renderer/sw-custom-field-set-renderer.html.twig:7</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_added--component:sw-custom-field-set-renderer/block:sw_custom_field_set_renderer_card_mt_tabs_content">
+<h3><code>block_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-custom-field-set-renderer/block:sw_custom_field_set_renderer_card_mt_tabs_content</code></dd>
+<dt>States</dt><dd>major</dd>
+<dt>Explanation</dt><dd>A new block of a private component. Plugins must not rely on it.</dd>
+<dt>Also affects</dt><dd>sw-bulk-edit-custom-fields (extends sw-custom-field-set-renderer).</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/form/sw-custom-field-set-renderer/sw-custom-field-set-renderer.html.twig:18</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_added--component:sw-custom-field-set-renderer/block:sw_custom_field_set_renderer_card_mt_tabs_form_renderer">
+<h3><code>block_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-custom-field-set-renderer/block:sw_custom_field_set_renderer_card_mt_tabs_form_renderer</code></dd>
+<dt>States</dt><dd>major</dd>
+<dt>Explanation</dt><dd>A new block of a private component. Plugins must not rely on it.</dd>
+<dt>Also affects</dt><dd>sw-bulk-edit-custom-fields (extends sw-custom-field-set-renderer).</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/form/sw-custom-field-set-renderer/sw-custom-field-set-renderer.html.twig:27</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_missing--component:sw-custom-field-set-renderer/block:sw_custom_field_set_renderer_card_form_renderer">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-custom-field-set-renderer/block:sw_custom_field_set_renderer_card_form_renderer</code></dd>
+<dt>States</dt><dd>major</dd>
+<dt>Explanation</dt><dd>The block is gone, so plugin templates that override {% block sw_custom_field_set_renderer_card_form_renderer %} render nothing.</dd>
+<dt>Possible rename</dt><dd>sw_custom_field_set_renderer_card_mt_tabs_form_renderer.</dd>
+<dt>Also affects</dt><dd>sw-bulk-edit-custom-fields (extends sw-custom-field-set-renderer).</dd>
+<dt>Base</dt><dd><code>src/app/component/form/sw-custom-field-set-renderer/sw-custom-field-set-renderer.html.twig:44</code></dd>
+<dt>Head</dt><dd><code>src/app/component/form/sw-custom-field-set-renderer/sw-custom-field-set-renderer.html.twig:4</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_missing--component:sw-custom-field-set-renderer/block:sw_custom_field_set_renderer_card_tabs">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-custom-field-set-renderer/block:sw_custom_field_set_renderer_card_tabs</code></dd>
+<dt>States</dt><dd>major</dd>
+<dt>Explanation</dt><dd>The block is gone, so plugin templates that override {% block sw_custom_field_set_renderer_card_tabs %} render nothing.</dd>
+<dt>Possible rename</dt><dd>sw_custom_field_set_renderer_card_mt_tabs, sw_custom_field_set_renderer_card_mt_tabs_content.</dd>
+<dt>Also affects</dt><dd>sw-bulk-edit-custom-fields (extends sw-custom-field-set-renderer).</dd>
+<dt>Base</dt><dd><code>src/app/component/form/sw-custom-field-set-renderer/sw-custom-field-set-renderer.html.twig:14</code></dd>
+<dt>Head</dt><dd><code>src/app/component/form/sw-custom-field-set-renderer/sw-custom-field-set-renderer.html.twig:4</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="block_missing--component:sw-custom-field-set-renderer/block:sw_custom_field_set_renderer_card_tabs_content">
+<h3><code>block_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-custom-field-set-renderer/block:sw_custom_field_set_renderer_card_tabs_content</code></dd>
+<dt>States</dt><dd>major</dd>
+<dt>Explanation</dt><dd>The block is gone, so plugin templates that override {% block sw_custom_field_set_renderer_card_tabs_content %} render nothing.</dd>
+<dt>Possible rename</dt><dd>sw_custom_field_set_renderer_card_mt_tabs, sw_custom_field_set_renderer_card_mt_tabs_content.</dd>
+<dt>Also affects</dt><dd>sw-bulk-edit-custom-fields (extends sw-custom-field-set-renderer).</dd>
+<dt>Base</dt><dd><code>src/app/component/form/sw-custom-field-set-renderer/sw-custom-field-set-renderer.html.twig:32</code></dd>
+<dt>Head</dt><dd><code>src/app/component/form/sw-custom-field-set-renderer/sw-custom-field-set-renderer.html.twig:4</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-custom-field-set-renderer/computed:activeCustomFieldSetTabName">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-custom-field-set-renderer/computed:activeCustomFieldSetTabName</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component. Plugins must not rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/form/sw-custom-field-set-renderer/index.js:148</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="computed_added--component:sw-custom-field-set-renderer/computed:customFieldSetTabs">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-custom-field-set-renderer/computed:customFieldSetTabs</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new computed property of a private component. Plugins must not rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/form/sw-custom-field-set-renderer/index.js:139</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="data_added--component:sw-custom-field-set-renderer/data:activeCustomFieldSetTab">
+<h3><code>data_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-custom-field-set-renderer/data:activeCustomFieldSetTab</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new data property of a private component. Plugins must not rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/form/sw-custom-field-set-renderer/index.js:113</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="method_added--component:sw-custom-field-set-renderer/method:setActiveCustomFieldSetTab">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-custom-field-set-renderer/method:setActiveCustomFieldSetTab</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new method of a private component. Plugins must not rely on it.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/form/sw-custom-field-set-renderer/index.js:624</code></dd>
+</dl>
+</section>
+<h2>Code tree</h2>
+<h3><code>app/component/form/sw-custom-field-set-renderer.api.md</code></h3>
+<div class="tree">
+<div><h4>Base</h4><pre>component sw-custom-field-set-renderer  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/form/sw-custom-field-set-renderer/index.js  [private]
+  template src/app/component/form/sw-custom-field-set-renderer/sw-custom-field-set-renderer.html.twig  [private]
+  visibility-source export  [private]
+
+mixins
+  sw-inline-snippet, placeholder  [private]
+
+inject
+  feature  [private]
+  repositoryFactory  [private]
+
+provide
+  getCustomFieldSet: any  [private]
+  getCustomFieldSetVariant: any  [private]
+  getEntity: any  [private]
+  getParentEntity: any  [private]
+
+props
+  disabled?: boolean  default=literal  [private]
+  entity: object  [private]
+  isLoading?: boolean  default=literal  [private]
+  isSaveSuccessful?: boolean  default=literal  [private]
+  parentEntity?: object  default=literal  [private]
+  sets: AdminApi.JsArray  [private]
+  showCustomFieldSetSelection?: boolean  default=literal  [private]
+  variant?: string  default=literal  [private]
+
+emits
+  change-active-selection(...args: any[])  [private]
+  process-finish(...args: any[])  [private]
+  save(...args: any[])  [private]
+
+data
+  customFields: any  [private]
+  indirectInheritedCustomFields: any  [private]
+  loadingFields: any  [private]
+  refreshVisibleSets: any  [private]
+  tabWaitMaxAttempts: any  [private]
+  tabWaitsAttempts: any  [private]
+  translatedInheritanceLoadKey: any  [private]
+
+computed
+  componentsWithMapInheritanceSupport: any  [private]
+  customFieldSetCriteria: any  [private]
+  customFieldSetRepository: any  [private]
+  globalCustomFieldSets: any  [private]
+  hasExplicitParentEntity: any  [private]
+  hasParent: any  [private]
+  translatedInheritanceSourceLanguageId: any  [private]
+  usesTranslatedInheritance: any  [private]
+  visibleCustomFieldSets: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  customFieldSetCriteriaById(): any  [private]
+  getBind(customField: any, props: any): any  [private]
+  getCustomFieldInformation(customFieldName: any): any  [private]
+  getDefaultInheritedCustomFieldValue(customFieldName: any): any  [private]
+  getElementEventListeners(customField: any, props: any): any  [private]
+  getInheritValue(field: any): any  [private]
+  getInheritWrapperBind(customField: any): any  [private]
+  getInheritedCustomField(customFieldName: any): any  [private]
+  getInheritedCustomFields(customFieldName: any): any  [private]
+  getParentCustomFieldSetSelectionSwitchState(): any  [private]
+  getTabLabel(set: any): any  [private]
+  getTranslatedInheritanceContext(): any  [private]
+  getTranslatedInheritanceLoadKey(): any  [private]
+  hasInheritedTranslatedCustomFields(): any  [private]
+  hasInheritedTranslatedCustomFieldsWithoutFallback(): any  [private]
+  hasOverriddenTranslatedCustomFields(): any  [private]
+  initializeCustomFields(): any  [private]
+  isInheritedTranslatedCustomField(customFieldName: any): any  [private]
+  isMeteorComponent(customField: any): any  [private]
+  loadCustomFieldSet(setId: any): any  [private]
+  loadInheritedCustomFields(): Promise&lt;any&gt;  [private]
+  onChangeCustomFieldSetSelectionActive(newVal: any): any  [private]
+  onChangeCustomFieldSets(value: any, updateFn: any): any  [private]
+  onUpdateActiveSelection(value: any): any  [private]
+  resetTabs(): any  [private]
+  resetTranslatedInheritanceState(): any  [private]
+  sortSets(sets: any): any  [private]
+  supportsMapInheritance(customField: any): any  [private]
+  waitForTabComponent(): any  [private]
+
+blocks
+  sw_custom_field_set_renderer  [private]
+    sw_custom_field_set_renderer_card  [private]
+<mark>      sw_custom_field_set_renderer_card_tabs  [private]</mark>
+<mark>      sw_custom_field_set_renderer_card_tabs_content  [private]</mark>
+<mark>        sw_custom_field_set_renderer_card_form_renderer  [scope: active, set] [private]</mark>
+    sw_custom_field_set_renderer_media  [after v-if] [private]
+      sw_custom_field_set_renderer_media_button_save  [scope: set] [private]
+      sw_custom_field_set_renderer_media_form_renderer  [scope: customField, set] [private]
+
+position-ids
+<mark>  sw-custom-field-set-renderer  tabs  host=sw-tabs  block=sw_custom_field_set_renderer_card  [private]</mark></pre></div>
+<div><h4>Head</h4><pre>component sw-custom-field-set-renderer  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/form/sw-custom-field-set-renderer/index.js  [private]
+  template src/app/component/form/sw-custom-field-set-renderer/sw-custom-field-set-renderer.html.twig  [private]
+  visibility-source export  [private]
+
+mixins
+  sw-inline-snippet, placeholder  [private]
+
+inject
+  feature  [private]
+  repositoryFactory  [private]
+
+provide
+  getCustomFieldSet: any  [private]
+  getCustomFieldSetVariant: any  [private]
+  getEntity: any  [private]
+  getParentEntity: any  [private]
+
+props
+  disabled?: boolean  default=literal  [private]
+  entity: object  [private]
+  isLoading?: boolean  default=literal  [private]
+  isSaveSuccessful?: boolean  default=literal  [private]
+  parentEntity?: object  default=literal  [private]
+  sets: AdminApi.JsArray  [private]
+  showCustomFieldSetSelection?: boolean  default=literal  [private]
+  variant?: string  default=literal  [private]
+
+emits
+  change-active-selection(...args: any[])  [private]
+  process-finish(...args: any[])  [private]
+  save(...args: any[])  [private]
+
+data
+<mark>  activeCustomFieldSetTab: any  [private]</mark>
+  customFields: any  [private]
+  indirectInheritedCustomFields: any  [private]
+  loadingFields: any  [private]
+  refreshVisibleSets: any  [private]
+  tabWaitMaxAttempts: any  [private]
+  tabWaitsAttempts: any  [private]
+  translatedInheritanceLoadKey: any  [private]
+
+computed
+<mark>  activeCustomFieldSetTabName: any  [private]</mark>
+  componentsWithMapInheritanceSupport: any  [private]
+  customFieldSetCriteria: any  [private]
+  customFieldSetRepository: any  [private]
+<mark>  customFieldSetTabs: any  [private]</mark>
+  globalCustomFieldSets: any  [private]
+  hasExplicitParentEntity: any  [private]
+  hasParent: any  [private]
+  translatedInheritanceSourceLanguageId: any  [private]
+  usesTranslatedInheritance: any  [private]
+  visibleCustomFieldSets: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  customFieldSetCriteriaById(): any  [private]
+  getBind(customField: any, props: any): any  [private]
+  getCustomFieldInformation(customFieldName: any): any  [private]
+  getDefaultInheritedCustomFieldValue(customFieldName: any): any  [private]
+  getElementEventListeners(customField: any, props: any): any  [private]
+  getInheritValue(field: any): any  [private]
+  getInheritWrapperBind(customField: any): any  [private]
+  getInheritedCustomField(customFieldName: any): any  [private]
+  getInheritedCustomFields(customFieldName: any): any  [private]
+  getParentCustomFieldSetSelectionSwitchState(): any  [private]
+  getTabLabel(set: any): any  [private]
+  getTranslatedInheritanceContext(): any  [private]
+  getTranslatedInheritanceLoadKey(): any  [private]
+  hasInheritedTranslatedCustomFields(): any  [private]
+  hasInheritedTranslatedCustomFieldsWithoutFallback(): any  [private]
+  hasOverriddenTranslatedCustomFields(): any  [private]
+  initializeCustomFields(): any  [private]
+  isInheritedTranslatedCustomField(customFieldName: any): any  [private]
+  isMeteorComponent(customField: any): any  [private]
+  loadCustomFieldSet(setId: any): any  [private]
+  loadInheritedCustomFields(): Promise&lt;any&gt;  [private]
+  onChangeCustomFieldSetSelectionActive(newVal: any): any  [private]
+  onChangeCustomFieldSets(value: any, updateFn: any): any  [private]
+  onUpdateActiveSelection(value: any): any  [private]
+  resetTabs(): any  [private]
+  resetTranslatedInheritanceState(): any  [private]
+<mark>  setActiveCustomFieldSetTab(setId: any): any  [private]</mark>
+  sortSets(sets: any): any  [private]
+  supportsMapInheritance(customField: any): any  [private]
+  waitForTabComponent(): any  [private]
+
+blocks
+  sw_custom_field_set_renderer  [private]
+    sw_custom_field_set_renderer_card  [private]
+<mark>      sw_custom_field_set_renderer_card_mt_tabs  [from v6.8.0] [private]</mark>
+<mark>      sw_custom_field_set_renderer_card_mt_tabs_content  [from v6.8.0] [private]</mark>
+<mark>        sw_custom_field_set_renderer_card_mt_tabs_form_renderer  [scope: set] [from v6.8.0] [private]</mark>
+<mark>      sw_custom_field_set_renderer_card_tabs  [until v6.8.0] [private]</mark>
+<mark>      sw_custom_field_set_renderer_card_tabs_content  [until v6.8.0] [private]</mark>
+<mark>        sw_custom_field_set_renderer_card_form_renderer  [scope: active, set] [until v6.8.0] [private]</mark>
+    sw_custom_field_set_renderer_media  [after v-if] [private]
+      sw_custom_field_set_renderer_media_button_save  [scope: set] [private]
+      sw_custom_field_set_renderer_media_form_renderer  [scope: customField, set] [private]
+
+position-ids
+<mark>  sw-custom-field-set-renderer  tabs  host=sw-tabs  block=sw_custom_field_set_renderer_card  [until v6.8.0] [private]</mark>
+<mark>  sw-custom-field-set-renderer  tabs  host=mt-tabs  block=sw_custom_field_set_renderer_card_mt_tabs  [from v6.8.0] [private]</mark>
+
+<mark>notes</mark>
+<mark>  flag-removal-undeprecated block sw_custom_field_set_renderer_card_form_renderer  [private]</mark>
+<mark>  flag-removal-undeprecated block sw_custom_field_set_renderer_card_tabs  [private]</mark>
+<mark>  flag-removal-undeprecated block sw_custom_field_set_renderer_card_tabs_content  [private]</mark></pre></div>
+</div>
+<h3><code>module/sw-bulk-edit/component/sw-bulk-edit-custom-fields.api.md</code></h3>
+<div class="tree">
+<div><h4>Base</h4><pre>component sw-bulk-edit-custom-fields  public  js
+  extends sw-custom-field-set-renderer
+  registered src/module/sw-bulk-edit/index.js
+  source src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/index.js
+  template src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/sw-bulk-edit-custom-fields.html.twig
+
+props
+  entity?: object  default=factory
+
+emits
+  change(...args: any[])
+
+data
+  selectedCustomFields: any
+
+methods
+  initializeCustomFields(): any
+  toggleItemCheck($event: any, item: any): any
+  updateCustomField(item: any): any
+
+blocks
+  sw_custom_field_set_renderer  [inherited]
+    sw_custom_field_set_renderer_card  [inherited]
+<mark>      sw_custom_field_set_renderer_card_tabs  [inherited]</mark>
+<mark>      sw_custom_field_set_renderer_card_tabs_content  [inherited]</mark>
+<mark>        sw_custom_field_set_renderer_card_form_renderer  [replaced] [scope: active, set]</mark>
+<mark>          sw_custom_field_set_renderer_card_form_renderer_change_field  [scope: active, customField, set]</mark>
+<mark>          sw_custom_field_set_renderer_card_form_renderer_custom_field  [scope: active, customField, set]</mark>
+    sw_custom_field_set_renderer_media  [inherited] [after v-if]
+      sw_custom_field_set_renderer_media_button_save  [inherited] [scope: set]
+      sw_custom_field_set_renderer_media_form_renderer  [inherited] [scope: customField, set]
+
+position-ids
+<mark>  sw-custom-field-set-renderer  tabs  host=sw-tabs  block=sw_custom_field_set_renderer_card</mark></pre></div>
+<div><h4>Head</h4><pre>component sw-bulk-edit-custom-fields  public  js
+  extends sw-custom-field-set-renderer
+  registered src/module/sw-bulk-edit/index.js
+  source src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/index.js
+  template src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/sw-bulk-edit-custom-fields.html.twig
+
+props
+  entity?: object  default=factory
+
+emits
+  change(...args: any[])
+
+data
+  selectedCustomFields: any
+
+methods
+  initializeCustomFields(): any
+  toggleItemCheck($event: any, item: any): any
+  updateCustomField(item: any): any
+
+blocks
+  sw_custom_field_set_renderer  [inherited]
+    sw_custom_field_set_renderer_card  [inherited]
+<mark>      sw_custom_field_set_renderer_card_mt_tabs  [inherited] [from v6.8.0]</mark>
+<mark>      sw_custom_field_set_renderer_card_mt_tabs_content  [inherited] [from v6.8.0]</mark>
+<mark>        sw_custom_field_set_renderer_card_mt_tabs_form_renderer  [inherited] [scope: set] [from v6.8.0]</mark>
+<mark>      sw_custom_field_set_renderer_card_tabs  [inherited] [until v6.8.0]</mark>
+<mark>      sw_custom_field_set_renderer_card_tabs_content  [inherited] [until v6.8.0]</mark>
+<mark>        sw_custom_field_set_renderer_card_form_renderer  [replaced] [scope: active, set] [until v6.8.0]</mark>
+<mark>          sw_custom_field_set_renderer_card_form_renderer_change_field  [scope: active, customField, set] [until v6.8.0]</mark>
+<mark>          sw_custom_field_set_renderer_card_form_renderer_custom_field  [scope: active, customField, set] [until v6.8.0]</mark>
+    sw_custom_field_set_renderer_media  [inherited] [after v-if]
+      sw_custom_field_set_renderer_media_button_save  [inherited] [scope: set]
+      sw_custom_field_set_renderer_media_form_renderer  [inherited] [scope: customField, set]
+
+position-ids
+<mark>  sw-custom-field-set-renderer  tabs  host=sw-tabs  block=sw_custom_field_set_renderer_card  [until v6.8.0]</mark>
+<mark>  sw-custom-field-set-renderer  tabs  host=mt-tabs  block=sw_custom_field_set_renderer_card_mt_tabs  [from v6.8.0]</mark>
+
+<mark>notes</mark>
+<mark>  flag-removal-undeprecated block sw_custom_field_set_renderer_card_form_renderer</mark>
+<mark>  flag-removal-undeprecated block sw_custom_field_set_renderer_card_form_renderer_change_field</mark>
+<mark>  flag-removal-undeprecated block sw_custom_field_set_renderer_card_form_renderer_custom_field</mark>
+<mark>  flag-removal-undeprecated block sw_custom_field_set_renderer_card_tabs</mark>
+<mark>  flag-removal-undeprecated block sw_custom_field_set_renderer_card_tabs_content</mark></pre></div>
+</div>
+<h3><code>module/sw-mail-template/page/sw-mail-template-index.api.md</code></h3>
+<div class="tree">
+<div><h4>Base</h4><pre>component sw-mail-template-index  public  js
+  registered src/module/sw-mail-template/index.js
+  source src/module/sw-mail-template/page/sw-mail-template-index/index.js
+  template src/module/sw-mail-template/page/sw-mail-template-index/sw-mail-template-index.html.twig
+
+mixins
+  listing
+
+inject
+  acl
+
+data
+  term: any  [deprecated tag:v6.8.0]
+
+computed
+  searchType: any
+
+methods
+  getList(): any  [deprecated tag:v6.8.0]
+  onChangeLanguage(languageId: any): any
+  onCreateMailTemplate(): any
+
+blocks
+  sw_mail_template_list
+    sw_mail_template_list_content
+      sw_mail_template_list_content_card  [after v-if] [deprecated tag:v6.8.0]
+      sw_mail_template_list_router_view  [from v6.8.0]
+      sw_mail_template_list_tabs  [from v6.8.0]
+<mark>        sw_mail_template_list_tabs_header_footer  [from v6.8.0]</mark>
+<mark>        sw_mail_template_list_tabs_templates  [from v6.8.0]</mark>
+    sw_mail_template_list_language_switch
+    sw_mail_template_list_smart_bar_actions
+      sw_mail_header_footer_list_smart_bar_actions_add
+      sw_mail_template_list_smart_bar_actions_add
+    sw_mail_template_list_smart_bar_header
+      sw_mail_template_list_smart_bar_header_title
+        sw_mail_template_list_smart_bar_header_title_text
+    sw_mail_templates_list_search_bar
+
+position-ids
+<mark>  sw-mail-template-index  tabs  host=sw-tabs  block=sw_mail_template_list_tabs  [from v6.8.0]</mark></pre></div>
+<div><h4>Head</h4><pre>component sw-mail-template-index  public  js
+  registered src/module/sw-mail-template/index.js
+  source src/module/sw-mail-template/page/sw-mail-template-index/index.js
+  template src/module/sw-mail-template/page/sw-mail-template-index/sw-mail-template-index.html.twig
+
+mixins
+  listing
+
+inject
+  acl
+<mark>  feature</mark>
+
+data
+  term: any  [deprecated tag:v6.8.0]
+
+computed
+<mark>  mailTemplateTabs: any</mark>
+  searchType: any
+
+methods
+  getList(): any  [deprecated tag:v6.8.0]
+  onChangeLanguage(languageId: any): any
+  onCreateMailTemplate(): any
+
+blocks
+  sw_mail_template_list
+    sw_mail_template_list_content
+      sw_mail_template_list_content_card  [after v-if] [deprecated tag:v6.8.0]
+      sw_mail_template_list_router_view  [from v6.8.0]
+      sw_mail_template_list_tabs  [from v6.8.0]
+<mark>        sw_mail_template_list_mt_tabs  [from v6.8.0]</mark>
+    sw_mail_template_list_language_switch
+    sw_mail_template_list_smart_bar_actions
+      sw_mail_header_footer_list_smart_bar_actions_add
+      sw_mail_template_list_smart_bar_actions_add
+    sw_mail_template_list_smart_bar_header
+      sw_mail_template_list_smart_bar_header_title
+        sw_mail_template_list_smart_bar_header_title_text
+    sw_mail_templates_list_search_bar
+
+position-ids
+<mark>  sw-mail-template-index  tabs  host=mt-tabs  block=sw_mail_template_list_mt_tabs  [from v6.8.0]</mark></pre></div>
+</div>
+</main>
+</body>
+</html>

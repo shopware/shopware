@@ -1,0 +1,13 @@
+{
+    "sw-sales-channel": {
+        "general": {
+            "titleMenuItems": "Sales Channels"
+        },
+        "list": {
+            "productsCount": "product | products"
+        },
+        "detail": {
+            "messageSaveSuccess": "Sales Channel \"{name}\" saved."
+        }
+    }
+}

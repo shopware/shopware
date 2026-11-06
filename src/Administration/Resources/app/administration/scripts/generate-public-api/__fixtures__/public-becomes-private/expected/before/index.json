@@ -1,0 +1,20 @@
+{
+    "components": {
+        "sw-example-filter": {
+            "file": "app/component/base/sw-example-filter",
+            "visibility": "public",
+            "extends": null,
+            "blocks": [
+                "sw_example_filter",
+                "sw_example_filter_actions",
+                "sw_example_filter_field"
+            ]
+        }
+    },
+    "mixins": {},
+    "modules": {},
+    "positionIdentifiers": {},
+    "dynamicPositionIdentifiers": {},
+    "dataSets": {},
+    "virtualModules": {}
+}

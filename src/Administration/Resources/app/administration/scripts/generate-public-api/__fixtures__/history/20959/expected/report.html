@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Public API report</title>
+<style>
+:root {
+    color-scheme: light dark;
+    --bg: #ffffff;
+    --fg: #1b1f24;
+    --muted: #57606a;
+    --border: #d0d7de;
+    --panel: #f6f8fa;
+    --mark: #fff1a8;
+    --break: #cf222e;
+    --addition: #1a7f37;
+    --allowed: #0969da;
+    --accepted: #8250df;
+    --private: #6e7781;
+    --info: #9a6700;
+}
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #0d1117;
+        --fg: #e6edf3;
+        --muted: #8d96a0;
+        --border: #30363d;
+        --panel: #161b22;
+        --mark: #5a4a00;
+        --break: #ff7b72;
+        --addition: #3fb950;
+        --allowed: #58a6ff;
+        --accepted: #bc8cff;
+        --private: #8d96a0;
+        --info: #d29922;
+    }
+}
+* { box-sizing: border-box; }
+body { margin: 0; padding: 24px 16px; background: var(--bg); color: var(--fg); font: 15px/1.5 system-ui, sans-serif; }
+main { max-width: 1200px; margin: 0 auto; }
+h1 { font-size: 1.5rem; margin: 0 0 8px; }
+h2 { font-size: 1.2rem; margin: 32px 0 12px; }
+h3 { font-size: 1rem; margin: 0 0 8px; }
+code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+.verdict { font-weight: 600; }
+.verdict--failed { color: var(--break); }
+.meta { color: var(--muted); margin: 0; overflow-wrap: anywhere; }
+.finding { border: 1px solid var(--border); border-left: 4px solid var(--muted); border-radius: 6px; padding: 12px 16px; margin: 0 0 12px; background: var(--panel); }
+.finding--break { border-left-color: var(--break); }
+.finding--addition { border-left-color: var(--addition); }
+.finding--allowed { border-left-color: var(--allowed); }
+.finding--accepted { border-left-color: var(--accepted); }
+.finding--private { border-left-color: var(--private); }
+.finding--info { border-left-color: var(--info); }
+dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 0; }
+dt { color: var(--muted); }
+dd { margin: 0; overflow-wrap: anywhere; }
+.tree { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0 0 24px; }
+.tree h4 { margin: 0 0 4px; font-size: 0.9rem; color: var(--muted); }
+.tree > div { min-width: 0; }
+pre { margin: 0; padding: 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--panel); overflow-x: auto; }
+mark { background: var(--mark); color: inherit; }
+@media (max-width: 760px) {
+    .tree { grid-template-columns: 1fr; }
+    dl { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<main>
+<header>
+<h1>Public API report</h1>
+<p class="verdict verdict--failed">Public API check failed: 8 unannounced breaks.</p>
+<p class="meta">Base <code>00e31c8eb107fec454570fda2bf27b55a1b01fef</code></p>
+<p class="meta">Head <code>9a0fd3338437629f3c4507be6f630328c554c432</code></p>
+</header>
+<h2>Break (8)</h2>
+<section class="finding finding--break" id="block_moved_parent--component:sw-order-details-state-card/block:sw_order_detail_state_card_state_history_text">
+<h3><code>block_moved_parent</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-details-state-card/block:sw_order_detail_state_card_state_history_text</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The block moved from sw_order_detail_state_card_state to sw_order_detail_state_card_state_select, so plugin overrides of sw_order_detail_state_card_state_select without {% parent %} now drop it.</dd>
+<dt>Fix</dt><dd>Keep the block under sw_order_detail_state_card_state, or add an entry to public-api/accepted-breaks.json.</dd>
+<dt>Base</dt><dd><code>src/module/sw-order/component/sw-order-details-state-card/sw-order-details-state-card.html.twig:36</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-details-state-card/sw-order-details-state-card.html.twig:28</code></dd>
+</dl>
+</section>
+<section class="finding finding--break" id="block_scope_missing--component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_delete/scope:itemIndex">
+<h3><code>block_scope_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_delete/scope:itemIndex</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The template variable itemIndex from the actions slot is no longer available in block sw_order_line_items_grid_grid_actions_delete, so plugin overrides that use itemIndex fail at render time.</dd>
+<dt>Fix</dt><dd>Keep itemIndex in the slot props, or add an entry to public-api/accepted-breaks.json.</dd>
+<dt>Base</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:340</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:316</code></dd>
+</dl>
+</section>
+<section class="finding finding--break" id="block_scope_missing--component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_delete_label/scope:itemIndex">
+<h3><code>block_scope_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_delete_label/scope:itemIndex</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The template variable itemIndex from the actions slot is no longer available in block sw_order_line_items_grid_grid_actions_delete_label, so plugin overrides that use itemIndex fail at render time.</dd>
+<dt>Fix</dt><dd>Keep itemIndex in the slot props, or add an entry to public-api/accepted-breaks.json.</dd>
+<dt>Base</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:353</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:329</code></dd>
+</dl>
+</section>
+<section class="finding finding--break" id="block_scope_missing--component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_extension/scope:itemIndex">
+<h3><code>block_scope_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_extension/scope:itemIndex</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The template variable itemIndex from the actions slot is no longer available in block sw_order_line_items_grid_grid_actions_extension, so plugin overrides that use itemIndex fail at render time.</dd>
+<dt>Fix</dt><dd>Keep itemIndex in the slot props, or add an entry to public-api/accepted-breaks.json.</dd>
+<dt>Base</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:338</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:314</code></dd>
+</dl>
+</section>
+<section class="finding finding--break" id="block_scope_missing--component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_show/scope:itemIndex">
+<h3><code>block_scope_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_show/scope:itemIndex</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The template variable itemIndex from the actions slot is no longer available in block sw_order_line_items_grid_grid_actions_show, so plugin overrides that use itemIndex fail at render time.</dd>
+<dt>Fix</dt><dd>Keep itemIndex in the slot props, or add an entry to public-api/accepted-breaks.json.</dd>
+<dt>Base</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:325</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:303</code></dd>
+</dl>
+</section>
+<section class="finding finding--break" id="block_scope_missing--component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_show_label/scope:itemIndex">
+<h3><code>block_scope_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_show_label/scope:itemIndex</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The template variable itemIndex from the actions slot is no longer available in block sw_order_line_items_grid_grid_actions_show_label, so plugin overrides that use itemIndex fail at render time.</dd>
+<dt>Fix</dt><dd>Keep itemIndex in the slot props, or add an entry to public-api/accepted-breaks.json.</dd>
+<dt>Base</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:331</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:308</code></dd>
+</dl>
+</section>
+<section class="finding finding--break" id="element_crosses_block--component:sw-order-detail/crossing:div@sw_order_detail_header&gt;sw_order_detail_header_label_manual_order">
+<h3><code>element_crosses_block</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-detail/crossing:div@sw_order_detail_header&gt;sw_order_detail_header_label_manual_order</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The &lt;div&gt; element opens in block sw_order_detail_header and closes in block sw_order_detail_header_label_manual_order, so plugin overrides of either block without {% parent %} break the markup.</dd>
+<dt>Fix</dt><dd>Open and close the element inside the same block, or add an entry to public-api/accepted-breaks.json.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-order/page/sw-order-detail/sw-order-detail.html.twig:8</code></dd>
+</dl>
+</section>
+<section class="finding finding--break" id="method_signature_changed--component:sw-order-line-items-grid/method:onDeleteItem">
+<h3><code>method_signature_changed</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-line-items-grid/method:onDeleteItem</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method lost its parameter itemIndex, so plugin overrides that read the second argument get undefined, because the template now calls onDeleteItem(item).</dd>
+<dt>Fix</dt><dd>Keep the parameter and keep passing it, or add an entry to public-api/accepted-breaks.json.</dd>
+<dt>Base</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/index.js:321</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/index.js:330</code></dd>
+</dl>
+</section>
+<h2>Addition (12)</h2>
+<section class="finding finding--addition" id="block_added--component:sw-order-line-items-grid/block:sw_order_line_items_grid_pagination">
+<h3><code>block_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-line-items-grid/block:sw_order_line_items_grid_pagination</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new public block that plugins can rely on from now on.</dd>
+<dt>Fix</dt><dd>Mark it @private if it is not meant for plugins.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:399</code></dd>
+</dl>
+</section>
+<section class="finding finding--addition" id="computed_added--component:sw-order-line-items-grid/computed:paginatedLineItems">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-line-items-grid/computed:paginatedLineItems</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new public computed property that plugins can rely on from now on.</dd>
+<dt>Fix</dt><dd>Mark it @private if it is not meant for plugins.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/index.js:83</code></dd>
+</dl>
+</section>
+<section class="finding finding--addition" id="computed_added--component:sw-order-state-select-v2/computed:currentStateOptionId">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-state-select-v2/computed:currentStateOptionId</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new public computed property that plugins can rely on from now on.</dd>
+<dt>Fix</dt><dd>Mark it @private if it is not meant for plugins.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-state-select-v2/index.js:89</code></dd>
+</dl>
+</section>
+<section class="finding finding--addition" id="computed_added--component:sw-order-state-select-v2/computed:selectValue">
+<h3><code>computed_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-state-select-v2/computed:selectValue</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new public computed property that plugins can rely on from now on.</dd>
+<dt>Fix</dt><dd>Mark it @private if it is not meant for plugins.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-state-select-v2/index.js:93</code></dd>
+</dl>
+</section>
+<section class="finding finding--addition" id="data_added--component:sw-order-line-items-grid/data:limit">
+<h3><code>data_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-line-items-grid/data:limit</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new public data property that plugins can rely on from now on.</dd>
+<dt>Fix</dt><dd>Mark it @private if it is not meant for plugins.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/index.js:47</code></dd>
+</dl>
+</section>
+<section class="finding finding--addition" id="data_added--component:sw-order-line-items-grid/data:page">
+<h3><code>data_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-line-items-grid/data:page</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new public data property that plugins can rely on from now on.</dd>
+<dt>Fix</dt><dd>Mark it @private if it is not meant for plugins.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/index.js:46</code></dd>
+</dl>
+</section>
+<section class="finding finding--addition" id="inject_added--component:sw-order-state-select-v2/inject:stateStyleDataProviderService">
+<h3><code>inject_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-state-select-v2/inject:stateStyleDataProviderService</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new public inject that plugins can rely on from now on.</dd>
+<dt>Fix</dt><dd>Mark it @private if it is not meant for plugins.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-state-select-v2/index.js:12</code></dd>
+</dl>
+</section>
+<section class="finding finding--addition" id="method_added--component:sw-order-line-items-grid/method:onPageChange">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-line-items-grid/method:onPageChange</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new public method that plugins can rely on from now on.</dd>
+<dt>Fix</dt><dd>Mark it @private if it is not meant for plugins.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/index.js:365</code></dd>
+</dl>
+</section>
+<section class="finding finding--addition" id="method_added--component:sw-order-state-select-v2/method:getStateVariant">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-state-select-v2/method:getStateVariant</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new public method that plugins can rely on from now on.</dd>
+<dt>Fix</dt><dd>Mark it @private if it is not meant for plugins.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-state-select-v2/index.js:122</code></dd>
+</dl>
+</section>
+<section class="finding finding--addition" id="method_added--component:sw-order-state-select-v2/method:onSelectValueChange">
+<h3><code>method_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-state-select-v2/method:onSelectValueChange</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new public method that plugins can rely on from now on.</dd>
+<dt>Fix</dt><dd>Mark it @private if it is not meant for plugins.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-state-select-v2/index.js:114</code></dd>
+</dl>
+</section>
+<section class="finding finding--addition" id="prop_added--component:sw-order-state-select-v2/prop:stateName">
+<h3><code>prop_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-state-select-v2/prop:stateName</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new public prop that plugins can rely on from now on.</dd>
+<dt>Fix</dt><dd>Mark it @private if it is not meant for plugins.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-state-select-v2/index.js:28</code></dd>
+</dl>
+</section>
+<section class="finding finding--addition" id="slot_added--component:sw-order-state-select-v2/slot:hint">
+<h3><code>slot_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-state-select-v2/slot:hint</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new public slot that plugins can rely on from now on.</dd>
+<dt>Fix</dt><dd>Mark it @private if it is not meant for plugins.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-state-select-v2/sw-order-state-select-v2.html.twig:44</code></dd>
+</dl>
+</section>
+<h2>Info (6)</h2>
+<section class="finding finding--info" id="crossing_resolved--component:sw-order-detail/crossing:v-if@sw_order_detail_header_title&gt;sw_order_detail_header_title_new">
+<h3><code>crossing_resolved</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-detail/crossing:v-if@sw_order_detail_header_title&gt;sw_order_detail_header_title_new</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The v-if chain of block sw_order_detail_header_title no longer continues in block sw_order_detail_header_title_new.</dd>
+<dt>Base</dt><dd><code>src/module/sw-order/page/sw-order-detail/sw-order-detail.html.twig:27</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-order/page/sw-order-detail/sw-order-detail.html.twig:29</code></dd>
+</dl>
+</section>
+<section class="finding finding--info" id="deprecation_added--component:sw-order-details-state-card/computed:stateSelectBackgroundStyle">
+<h3><code>deprecation_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-details-state-card/computed:stateSelectBackgroundStyle</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The computed property now carries @deprecated tag:v6.8.0, so its removal in v6.8.0 is announced.</dd>
+<dt>Fix</dt><dd>Add an upgrade note for it to UPGRADE-6.8.md.</dd>
+<dt>Base</dt><dd><code>src/module/sw-order/component/sw-order-details-state-card/index.js:114</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-details-state-card/index.js:117</code></dd>
+</dl>
+</section>
+<section class="finding finding--info" id="deprecation_added--component:sw-order-general-info/method:backgroundStyle">
+<h3><code>deprecation_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-general-info/method:backgroundStyle</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The method now carries @deprecated tag:v6.8.0, so its removal in v6.8.0 is announced.</dd>
+<dt>Fix</dt><dd>Add an upgrade note for it to UPGRADE-6.8.md.</dd>
+<dt>Base</dt><dd><code>src/module/sw-order/component/sw-order-general-info/index.js:272</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-general-info/index.js:275</code></dd>
+</dl>
+</section>
+<section class="finding finding--info" id="deprecation_added--component:sw-order-state-select-v2/computed:selectStyle">
+<h3><code>deprecation_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-state-select-v2/computed:selectStyle</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The computed property now carries @deprecated tag:v6.8.0, so its removal in v6.8.0 is announced.</dd>
+<dt>Fix</dt><dd>Add an upgrade note for it to UPGRADE-6.8.md.</dd>
+<dt>Base</dt><dd><code>src/module/sw-order/component/sw-order-state-select-v2/index.js:58</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-state-select-v2/index.js:74</code></dd>
+</dl>
+</section>
+<section class="finding finding--info" id="deprecation_added--component:sw-order-state-select-v2/prop:backgroundStyle">
+<h3><code>deprecation_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-state-select-v2/prop:backgroundStyle</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The prop now carries @deprecated tag:v6.8.0, so its removal in v6.8.0 is announced.</dd>
+<dt>Fix</dt><dd>Add an upgrade note for it to UPGRADE-6.8.md.</dd>
+<dt>Base</dt><dd><code>src/module/sw-order/component/sw-order-state-select-v2/index.js:41</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-state-select-v2/index.js:54</code></dd>
+</dl>
+</section>
+<section class="finding finding--info" id="deprecation_added--component:sw-order-state-select-v2/prop:roundedStyle">
+<h3><code>deprecation_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-state-select-v2/prop:roundedStyle</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The prop now carries @deprecated tag:v6.8.0, so its removal in v6.8.0 is announced.</dd>
+<dt>Fix</dt><dd>Add an upgrade note for it to UPGRADE-6.8.md.</dd>
+<dt>Base</dt><dd><code>src/module/sw-order/component/sw-order-state-select-v2/index.js:26</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-state-select-v2/index.js:36</code></dd>
+</dl>
+</section>
+<h2>Code tree</h2>
+<h3><code>module/sw-order/component/sw-order-details-state-card.api.md</code></h3>
+<div class="tree">
+<div><h4>Base</h4><pre>component sw-order-details-state-card  public  js
+  registered src/module/sw-order/index.js
+  source src/module/sw-order/component/sw-order-details-state-card/index.js
+  template src/module/sw-order/component/sw-order-details-state-card/sw-order-details-state-card.html.twig
+
+mixins
+  notification
+
+inject
+  acl
+  orderStateMachineService
+  repositoryFactory
+  stateMachineService
+  stateStyleDataProviderService
+  swOrderDetailAskAndSaveEdits
+
+props
+  disabled?: boolean  default=literal
+  entity: object
+  isLoading?: boolean  default=literal
+  order: object
+  position?: string  default=literal
+  stateLabel?: string  default=literal
+  title?: string  default=literal
+
+emits
+  save-edits(...args: any[])
+  show-status-history(...args: any[])
+
+slots
+  default  {}  block=sw_order_state_change_card_content
+
+data
+  currentActionName: any
+  lastStateChange: any
+  showStateChangeModal: any
+  stateChangeModalConfirmed: any
+  stateOptions: any
+  statesLoading: any
+
+computed
+  cardPosition: any
+  entityName: any
+  lastChangeAuthorLabel: any
+  stateMachineHistoryCriteria: any
+  stateMachineHistoryRepository: any
+  stateMachineStateCriteria: any
+  stateMachineStateRepository: any
+  stateName: any
+<mark>  stateSelectBackgroundStyle: any</mark>
+  stateTransitionMethod: any
+
+methods
+  buildTransitionOptions(allTransitions: any, possibleTransitions: any): any
+  createStateChangeErrorNotification(errorMessage: any): any
+  createdComponent(): any
+  getLastChange(): any
+  getTransitionOptions(): any
+  onLeaveModalClose(): any
+  onLeaveModalConfirm(docIds: any, sendMail?: any, internalComment?: any): any
+  onShowStatusHistory(): any
+  onStateSelected(stateType: any, actionName: any): Promise&lt;any&gt;
+
+blocks
+  sw_order_detail_state_card
+    sw_order_detail_state_card_state
+      sw_order_detail_state_card_state_history_button
+<mark>      sw_order_detail_state_card_state_history_text</mark>
+<mark>        sw_order_detail_state_card_state_history_text_internal_comment</mark>
+<mark>        sw_order_detail_state_card_state_history_text_label</mark>
+      sw_order_detail_state_card_state_select
+      sw_order_state_change_card_state_modal
+    sw_order_state_change_card_content
+    sw_order_state_change_card_divider</pre></div>
+<div><h4>Head</h4><pre>component sw-order-details-state-card  public  js
+  registered src/module/sw-order/index.js
+  source src/module/sw-order/component/sw-order-details-state-card/index.js
+  template src/module/sw-order/component/sw-order-details-state-card/sw-order-details-state-card.html.twig
+
+mixins
+  notification
+
+inject
+  acl
+  orderStateMachineService
+  repositoryFactory
+  stateMachineService
+  stateStyleDataProviderService
+  swOrderDetailAskAndSaveEdits
+
+props
+  disabled?: boolean  default=literal
+  entity: object
+  isLoading?: boolean  default=literal
+  order: object
+  position?: string  default=literal
+  stateLabel?: string  default=literal
+  title?: string  default=literal
+
+emits
+  save-edits(...args: any[])
+  show-status-history(...args: any[])
+
+slots
+  default  {}  block=sw_order_state_change_card_content
+
+data
+  currentActionName: any
+  lastStateChange: any
+  showStateChangeModal: any
+  stateChangeModalConfirmed: any
+  stateOptions: any
+  statesLoading: any
+
+computed
+  cardPosition: any
+  entityName: any
+  lastChangeAuthorLabel: any
+  stateMachineHistoryCriteria: any
+  stateMachineHistoryRepository: any
+  stateMachineStateCriteria: any
+  stateMachineStateRepository: any
+  stateName: any
+<mark>  stateSelectBackgroundStyle: any  [deprecated tag:v6.8.0]</mark>
+  stateTransitionMethod: any
+
+methods
+  buildTransitionOptions(allTransitions: any, possibleTransitions: any): any
+  createStateChangeErrorNotification(errorMessage: any): any
+  createdComponent(): any
+  getLastChange(): any
+  getTransitionOptions(): any
+  onLeaveModalClose(): any
+  onLeaveModalConfirm(docIds: any, sendMail?: any, internalComment?: any): any
+  onShowStatusHistory(): any
+  onStateSelected(stateType: any, actionName: any): Promise&lt;any&gt;
+
+blocks
+  sw_order_detail_state_card
+    sw_order_detail_state_card_state
+      sw_order_detail_state_card_state_history_button
+      sw_order_detail_state_card_state_select
+<mark>        sw_order_detail_state_card_state_history_text</mark>
+<mark>          sw_order_detail_state_card_state_history_text_internal_comment</mark>
+<mark>          sw_order_detail_state_card_state_history_text_label</mark>
+      sw_order_state_change_card_state_modal
+    sw_order_state_change_card_content
+    sw_order_state_change_card_divider</pre></div>
+</div>
+<h3><code>module/sw-order/component/sw-order-general-info.api.md</code></h3>
+<div class="tree">
+<div><h4>Base</h4><pre>component sw-order-general-info  public  js
+  registered src/module/sw-order/index.js
+  source src/module/sw-order/component/sw-order-general-info/index.js
+  template src/module/sw-order/component/sw-order-general-info/sw-order-general-info.html.twig
+
+mixins
+  notification
+
+inject
+  acl
+  orderStateMachineService
+  repositoryFactory
+  stateMachineService
+  stateStyleDataProviderService
+  swOrderDetailAskAndSaveEdits
+  swOrderDetailOnSaveEdits
+
+props
+  order: object
+
+emits
+  save-edits(...args: any[])
+
+data
+  currentActionName: any
+  currentStateType: any
+  deliveryStateOptions: any
+  liveOrder: any
+  modalConfirmed: any
+  orderStateOptions: any
+  paymentStateOptions: any
+  showModal: any
+  tagCollection: any
+
+computed
+  currencyFilter: any
+  dateFilter: any  [deprecated tag:v6.8.0]
+  delivery: any
+  emailIdnFilter: any
+  isLoading: any
+  lastChangedByCriteria: any
+  lastChangedDateTime: any
+  lastChangedUser: any
+  orderRepository: any
+  orderTagRepository: any
+  savedSuccessful: any
+  stateMachineStateCriteria: any
+  stateMachineStateRepository: any
+  transaction: any
+
+methods
+<mark>  backgroundStyle(stateType: any): any</mark>
+  buildTransitionOptions(stateMachineName: any, allTransitions: any, possibleTransitions: any): any
+  createStateChangeErrorNotification(errorMessage: any): any
+  createdComponent(): any
+  getAllStates(): any
+  getLiveOrder(): any
+  getTransitionOptions(): any
+  loadHistory(): any
+  onLeaveModalClose(): any
+  onLeaveModalConfirm(docIds: any, sendMail?: any, internalComment?: any): any
+  onStateSelected(stateType: any, actionName: any): Promise&lt;any&gt;
+  onTagAdd(item: any): any
+  onTagRemove(item: any): any
+  syncTagCollection(): any
+
+blocks
+  sw_order_detail_base_general_info
+    sw_order_detail_base_general_info_order_states  [after v-if]
+      sw_order_detail_base_general_info_order_states_order  [after v-if]
+      sw_order_detail_base_general_info_order_states_payment
+      sw_order_detail_base_general_info_order_states_shipping  [after v-if]
+    sw_order_detail_base_general_info_order_tags
+    sw_order_detail_base_general_info_summary
+      sw_order_detail_base_general_info_summary_main
+        sw_order_detail_base_general_info_summary_main_header
+        sw_order_detail_base_general_info_summary_main_total
+      sw_order_detail_base_general_info_summary_sub
+        sw_order_detail_base_general_info_summary_sub_description
+        sw_order_detail_base_general_info_summary_sub_last_changed
+          sw_order_detail_base_general_info_summary_sub_last_changed_time
+          sw_order_detail_base_general_info_summary_sub_last_changed_user  [after v-if]
+    sw_order_state_change_card_modal</pre></div>
+<div><h4>Head</h4><pre>component sw-order-general-info  public  js
+  registered src/module/sw-order/index.js
+  source src/module/sw-order/component/sw-order-general-info/index.js
+  template src/module/sw-order/component/sw-order-general-info/sw-order-general-info.html.twig
+
+mixins
+  notification
+
+inject
+  acl
+  orderStateMachineService
+  repositoryFactory
+  stateMachineService
+  stateStyleDataProviderService
+  swOrderDetailAskAndSaveEdits
+  swOrderDetailOnSaveEdits
+
+props
+  order: object
+
+emits
+  save-edits(...args: any[])
+
+data
+  currentActionName: any
+  currentStateType: any
+  deliveryStateOptions: any
+  liveOrder: any
+  modalConfirmed: any
+  orderStateOptions: any
+  paymentStateOptions: any
+  showModal: any
+  tagCollection: any
+
+computed
+  currencyFilter: any
+  dateFilter: any  [deprecated tag:v6.8.0]
+  delivery: any
+  emailIdnFilter: any
+  isLoading: any
+  lastChangedByCriteria: any
+  lastChangedDateTime: any
+  lastChangedUser: any
+  orderRepository: any
+  orderTagRepository: any
+  savedSuccessful: any
+  stateMachineStateCriteria: any
+  stateMachineStateRepository: any
+  transaction: any
+
+methods
+<mark>  backgroundStyle(stateType: any): any  [deprecated tag:v6.8.0]</mark>
+  buildTransitionOptions(stateMachineName: any, allTransitions: any, possibleTransitions: any): any
+  createStateChangeErrorNotification(errorMessage: any): any
+  createdComponent(): any
+  getAllStates(): any
+  getLiveOrder(): any
+  getTransitionOptions(): any
+  loadHistory(): any
+  onLeaveModalClose(): any
+  onLeaveModalConfirm(docIds: any, sendMail?: any, internalComment?: any): any
+  onStateSelected(stateType: any, actionName: any): Promise&lt;any&gt;
+  onTagAdd(item: any): any
+  onTagRemove(item: any): any
+  syncTagCollection(): any
+
+blocks
+  sw_order_detail_base_general_info
+    sw_order_detail_base_general_info_order_states  [after v-if]
+      sw_order_detail_base_general_info_order_states_order  [after v-if]
+      sw_order_detail_base_general_info_order_states_payment
+      sw_order_detail_base_general_info_order_states_shipping  [after v-if]
+    sw_order_detail_base_general_info_order_tags
+    sw_order_detail_base_general_info_summary
+      sw_order_detail_base_general_info_summary_main
+        sw_order_detail_base_general_info_summary_main_header
+        sw_order_detail_base_general_info_summary_main_total
+      sw_order_detail_base_general_info_summary_sub
+        sw_order_detail_base_general_info_summary_sub_description
+        sw_order_detail_base_general_info_summary_sub_last_changed
+          sw_order_detail_base_general_info_summary_sub_last_changed_time
+          sw_order_detail_base_general_info_summary_sub_last_changed_user  [after v-if]
+    sw_order_state_change_card_modal</pre></div>
+</div>
+<h3><code>module/sw-order/component/sw-order-line-items-grid.api.md</code></h3>
+<div class="tree">
+<div><h4>Base</h4><pre>component sw-order-line-items-grid  public  js
+  registered src/module/sw-order/index.js
+  source src/module/sw-order/component/sw-order-line-items-grid/index.js
+  template src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig
+
+inject
+  acl
+  orderService
+  repositoryFactory
+
+props
+  context: object
+  editable?: boolean  default=literal
+  order: object
+
+emits
+  existing-item-edit(...args: any[])
+  item-cancel(...args: any[])
+  item-delete(...args: any[])
+  item-edit(...args: any[])
+
+data
+  isLoading: any
+  nestedLineItemsModal: any
+  searchTerm: any
+  selectedItems: any
+  showDeleteModal: any
+
+computed
+  canCreateDiscounts: any
+  currencyFilter: any
+  getLineItemColumns: any
+  isProductNumberColumnVisible: any
+  lineItemTypes: any
+  orderLineItemRepository: any
+  orderLineItems: any
+  salesChannelId: any
+  taxStatus: any
+  unitPriceLabel: any
+
+methods
+  canOpenProduct(item: any): any
+  checkItemPrice(price: any, item: any): any
+  closeNestedLineItemsModal(): any
+  createNewOrderLineItem(): any
+  getMinItemPrice(id: any): any
+  getProductRoute(item: any): any
+  hasChildren(item: any): any
+  hasMultipleTaxes(item: any): any
+  insertLineItem(item: any): any
+  isContainerItem(item: any): any
+  isCreditItem(id: any): any
+  isProductItem(item: any): any
+  isPromotionItem(item: any): any
+  itemCreatedFromProduct(id: any): any
+  onCloseDeleteModal(): any
+  onConfirmDelete(): any
+<mark>  onDeleteItem(item: any, itemIndex: any): any</mark>
+  onDeleteSelectedItems(): any
+  onInlineEditCancel(item: any): any
+  onInlineEditSave(item: any): any
+  onInsertBlankItem(): any
+  onInsertCreditItem(): any
+  onInsertExistingItem(): any
+  onSearchTermChange(searchTerm: any): any
+  onSelectionChanged(selection: any): any
+  openNestedLineItemsModal(item: any): any
+  refreshChildrenQuantity(children: any, oldParentQuantity: any, newParentQuantity: any): any
+  showTaxRulesInlineEdit(item: any): any
+  showTaxValue(item: any): any
+  tooltipTaxDetail(item: any): any
+  updateItemQuantity(item: any, newQuantity?: any): any
+
+blocks
+  sw_order_line_items_grid
+    sw_order_line_items_grid_actions
+      sw_order_line_items_grid_create_actions
+        sw_order_line_items_grid_create_actions_button_group
+          sw_order_line_items_grid_add_existing_product
+          sw_order_line_items_grid_create_actions_dropdown
+            sw_order_line_items_grid_create_actions_dropdown_menu_item
+      sw_order_line_items_grid_line_item_filter
+    sw_order_line_items_grid_grid
+      sw_order_line_items_grid_grid_columns
+        sw_order_line_items_grid_bulk_actions
+          sw_order_line_items_grid_bulk_actions_delete
+          sw_order_line_items_grid_bulk_actions_extension  [empty]
+        sw_order_line_items_grid_grid_actions
+<mark>          sw_order_line_items_grid_grid_actions_delete  [scope: item, itemIndex]</mark>
+<mark>            sw_order_line_items_grid_grid_actions_delete_label  [scope: item, itemIndex]</mark>
+<mark>          sw_order_line_items_grid_grid_actions_extension  [empty] [scope: item, itemIndex]</mark>
+<mark>          sw_order_line_items_grid_grid_actions_show  [scope: item, itemIndex]</mark>
+<mark>            sw_order_line_items_grid_grid_actions_show_label  [scope: item, itemIndex]</mark>
+        sw_order_line_items_grid_grid_actions_modals
+          sw_order_line_items_grid_grid_actions_modals_items  [empty] [scope: item]
+        sw_order_line_items_grid_grid_columns_label
+          sw_order_line_items_grid_grid_columns_label_content  [after v-if] [scope: isInlineEdit, item]
+          sw_order_line_items_grid_grid_columns_label_inline_edit  [scope: isInlineEdit, item]
+          sw_order_line_items_grid_grid_columns_label_link  [after v-if] [scope: isInlineEdit, item]
+            sw_order_line_items_grid_column_payload_options  [after v-if] [scope: isInlineEdit, item]
+              sw_order_line_items_grid_column_payload_options_link  [after v-if] [scope: isInlineEdit, item]
+              sw_order_line_items_grid_column_payload_options_linkless  [after v-if] [scope: isInlineEdit, item]
+            sw_order_line_items_grid_grid_columns_label_nested_modal_button  [scope: isInlineEdit, item]
+              sw_order_line_items_grid_grid_columns_label_nested_modal_button_icon  [scope: isInlineEdit, item]
+        sw_order_line_items_grid_grid_columns_quantity
+          sw_order_line_items_grid_grid_columns_quantity_content  [after v-if] [scope: isInlineEdit, item]
+          sw_order_line_items_grid_grid_columns_quantity_inline_edit  [scope: isInlineEdit, item]
+        sw_order_line_items_grid_grid_columns_tax
+          sw_order_line_items_grid_grid_columns_tax_content  [after v-if] [scope: isInlineEdit, item]
+          sw_order_line_items_grid_grid_columns_tax_content_tooltip  [after v-if] [scope: isInlineEdit, item]
+          sw_order_line_items_grid_grid_columns_tax_inline_edit  [scope: isInlineEdit, item]
+        sw_order_line_items_grid_grid_columns_total_price
+          sw_order_line_items_grid_grid_columns_total_price_content  [scope: item]
+        sw_order_line_items_grid_grid_columns_type
+          sw_order_line_items_grid_grid_columns_type_content  [scope: item]
+        sw_order_line_items_grid_grid_columns_unit_price
+          sw_order_line_items_grid_grid_columns_unit_price_content  [after v-if] [scope: isInlineEdit, item]
+          sw_order_line_items_grid_grid_columns_unit_price_inline_edit  [scope: isInlineEdit, item]
+    sw_order_line_items_nested_line_item_modal
+
+crossings
+  v-if  sw_order_line_items_grid_column_payload_options_link -&gt; sw_order_line_items_grid_column_payload_options_linkless
+  v-if  sw_order_line_items_grid_grid_columns_label_inline_edit -&gt; sw_order_line_items_grid_grid_columns_label_link
+  v-if  sw_order_line_items_grid_grid_columns_label_link -&gt; sw_order_line_items_grid_grid_columns_label_content
+  v-if  sw_order_line_items_grid_grid_columns_quantity_inline_edit -&gt; sw_order_line_items_grid_grid_columns_quantity_content
+  v-if  sw_order_line_items_grid_grid_columns_tax_content_tooltip -&gt; sw_order_line_items_grid_grid_columns_tax_content
+  v-if  sw_order_line_items_grid_grid_columns_tax_inline_edit -&gt; sw_order_line_items_grid_grid_columns_tax_content_tooltip
+  v-if  sw_order_line_items_grid_grid_columns_unit_price_inline_edit -&gt; sw_order_line_items_grid_grid_columns_unit_price_content</pre></div>
+<div><h4>Head</h4><pre>component sw-order-line-items-grid  public  js
+  registered src/module/sw-order/index.js
+  source src/module/sw-order/component/sw-order-line-items-grid/index.js
+  template src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig
+
+inject
+  acl
+  orderService
+  repositoryFactory
+
+props
+  context: object
+  editable?: boolean  default=literal
+  order: object
+
+emits
+  existing-item-edit(...args: any[])
+  item-cancel(...args: any[])
+  item-delete(...args: any[])
+  item-edit(...args: any[])
+
+data
+  isLoading: any
+<mark>  limit: any</mark>
+  nestedLineItemsModal: any
+<mark>  page: any</mark>
+  searchTerm: any
+  selectedItems: any
+  showDeleteModal: any
+
+computed
+  canCreateDiscounts: any
+  currencyFilter: any
+  getLineItemColumns: any
+  isProductNumberColumnVisible: any
+  lineItemTypes: any
+  orderLineItemRepository: any
+  orderLineItems: any
+<mark>  paginatedLineItems: any</mark>
+  salesChannelId: any
+  taxStatus: any
+  unitPriceLabel: any
+
+methods
+  canOpenProduct(item: any): any
+  checkItemPrice(price: any, item: any): any
+  closeNestedLineItemsModal(): any
+  createNewOrderLineItem(): any
+  getMinItemPrice(id: any): any
+  getProductRoute(item: any): any
+  hasChildren(item: any): any
+  hasMultipleTaxes(item: any): any
+  insertLineItem(item: any): any
+  isContainerItem(item: any): any
+  isCreditItem(id: any): any
+  isProductItem(item: any): any
+  isPromotionItem(item: any): any
+  itemCreatedFromProduct(id: any): any
+  onCloseDeleteModal(): any
+  onConfirmDelete(): any
+<mark>  onDeleteItem(item: any): any</mark>
+  onDeleteSelectedItems(): any
+  onInlineEditCancel(item: any): any
+  onInlineEditSave(item: any): any
+  onInsertBlankItem(): any
+  onInsertCreditItem(): any
+  onInsertExistingItem(): any
+<mark>  onPageChange(arg1: any): any</mark>
+  onSearchTermChange(searchTerm: any): any
+  onSelectionChanged(selection: any): any
+  openNestedLineItemsModal(item: any): any
+  refreshChildrenQuantity(children: any, oldParentQuantity: any, newParentQuantity: any): any
+  showTaxRulesInlineEdit(item: any): any
+  showTaxValue(item: any): any
+  tooltipTaxDetail(item: any): any
+  updateItemQuantity(item: any, newQuantity?: any): any
+
+blocks
+  sw_order_line_items_grid
+    sw_order_line_items_grid_actions
+      sw_order_line_items_grid_create_actions
+        sw_order_line_items_grid_create_actions_button_group
+          sw_order_line_items_grid_add_existing_product
+          sw_order_line_items_grid_create_actions_dropdown
+            sw_order_line_items_grid_create_actions_dropdown_menu_item
+      sw_order_line_items_grid_line_item_filter
+    sw_order_line_items_grid_grid
+      sw_order_line_items_grid_grid_columns
+        sw_order_line_items_grid_bulk_actions
+          sw_order_line_items_grid_bulk_actions_delete
+          sw_order_line_items_grid_bulk_actions_extension  [empty]
+        sw_order_line_items_grid_grid_actions
+<mark>          sw_order_line_items_grid_grid_actions_delete  [scope: item]</mark>
+<mark>            sw_order_line_items_grid_grid_actions_delete_label  [scope: item]</mark>
+<mark>          sw_order_line_items_grid_grid_actions_extension  [empty] [scope: item]</mark>
+<mark>          sw_order_line_items_grid_grid_actions_show  [scope: item]</mark>
+<mark>            sw_order_line_items_grid_grid_actions_show_label  [scope: item]</mark>
+        sw_order_line_items_grid_grid_actions_modals
+          sw_order_line_items_grid_grid_actions_modals_items  [empty] [scope: item]
+        sw_order_line_items_grid_grid_columns_label
+          sw_order_line_items_grid_grid_columns_label_content  [after v-if] [scope: isInlineEdit, item]
+          sw_order_line_items_grid_grid_columns_label_inline_edit  [scope: isInlineEdit, item]
+          sw_order_line_items_grid_grid_columns_label_link  [after v-if] [scope: isInlineEdit, item]
+            sw_order_line_items_grid_column_payload_options  [after v-if] [scope: isInlineEdit, item]
+              sw_order_line_items_grid_column_payload_options_link  [after v-if] [scope: isInlineEdit, item]
+              sw_order_line_items_grid_column_payload_options_linkless  [after v-if] [scope: isInlineEdit, item]
+            sw_order_line_items_grid_grid_columns_label_nested_modal_button  [scope: isInlineEdit, item]
+              sw_order_line_items_grid_grid_columns_label_nested_modal_button_icon  [scope: isInlineEdit, item]
+        sw_order_line_items_grid_grid_columns_quantity
+          sw_order_line_items_grid_grid_columns_quantity_content  [after v-if] [scope: isInlineEdit, item]
+          sw_order_line_items_grid_grid_columns_quantity_inline_edit  [scope: isInlineEdit, item]
+        sw_order_line_items_grid_grid_columns_tax
+          sw_order_line_items_grid_grid_columns_tax_content  [after v-if] [scope: isInlineEdit, item]
+          sw_order_line_items_grid_grid_columns_tax_content_tooltip  [after v-if] [scope: isInlineEdit, item]
+          sw_order_line_items_grid_grid_columns_tax_inline_edit  [scope: isInlineEdit, item]
+        sw_order_line_items_grid_grid_columns_total_price
+          sw_order_line_items_grid_grid_columns_total_price_content  [scope: item]
+        sw_order_line_items_grid_grid_columns_type
+          sw_order_line_items_grid_grid_columns_type_content  [scope: item]
+        sw_order_line_items_grid_grid_columns_unit_price
+          sw_order_line_items_grid_grid_columns_unit_price_content  [after v-if] [scope: isInlineEdit, item]
+          sw_order_line_items_grid_grid_columns_unit_price_inline_edit  [scope: isInlineEdit, item]
+<mark>    sw_order_line_items_grid_pagination</mark>
+    sw_order_line_items_nested_line_item_modal
+
+crossings
+  v-if  sw_order_line_items_grid_column_payload_options_link -&gt; sw_order_line_items_grid_column_payload_options_linkless
+  v-if  sw_order_line_items_grid_grid_columns_label_inline_edit -&gt; sw_order_line_items_grid_grid_columns_label_link
+  v-if  sw_order_line_items_grid_grid_columns_label_link -&gt; sw_order_line_items_grid_grid_columns_label_content
+  v-if  sw_order_line_items_grid_grid_columns_quantity_inline_edit -&gt; sw_order_line_items_grid_grid_columns_quantity_content
+  v-if  sw_order_line_items_grid_grid_columns_tax_content_tooltip -&gt; sw_order_line_items_grid_grid_columns_tax_content
+  v-if  sw_order_line_items_grid_grid_columns_tax_inline_edit -&gt; sw_order_line_items_grid_grid_columns_tax_content_tooltip
+  v-if  sw_order_line_items_grid_grid_columns_unit_price_inline_edit -&gt; sw_order_line_items_grid_grid_columns_unit_price_content</pre></div>
+</div>
+<h3><code>module/sw-order/component/sw-order-state-select-v2.api.md</code></h3>
+<div class="tree">
+<div><h4>Base</h4><pre>component sw-order-state-select-v2  public  js
+  registered src/module/sw-order/index.js
+  source src/module/sw-order/component/sw-order-state-select-v2/index.js
+  template src/module/sw-order/component/sw-order-state-select-v2/sw-order-state-select-v2.html.twig
+
+props
+<mark>  backgroundStyle?: string  default=literal</mark>
+  disabled?: boolean  default=literal
+  label?: string  default=literal
+  placeholder?: string  default=literal
+<mark>  roundedStyle?: boolean  default=literal</mark>
+  stateType: string
+  transitionOptions?: AdminApi.JsArray  default=factory
+
+emits
+  state-select(...args: any[])
+
+data
+  selectedActionName: any
+
+computed
+  selectPlaceholder: any
+<mark>  selectStyle: any</mark>
+  selectable: any
+
+methods
+  onStateChangeClicked(): any
+
+blocks
+  sw_order_state_select_v2
+    sw_order_state_select_v2_field</pre></div>
+<div><h4>Head</h4><pre>component sw-order-state-select-v2  public  js
+  registered src/module/sw-order/index.js
+  source src/module/sw-order/component/sw-order-state-select-v2/index.js
+  template src/module/sw-order/component/sw-order-state-select-v2/sw-order-state-select-v2.html.twig
+
+inject
+<mark>  stateStyleDataProviderService</mark>
+
+props
+<mark>  backgroundStyle?: string  default=literal  [deprecated tag:v6.8.0]</mark>
+  disabled?: boolean  default=literal
+  label?: string  default=literal
+  placeholder?: string  default=literal
+<mark>  roundedStyle?: boolean  default=literal  [deprecated tag:v6.8.0]</mark>
+<mark>  stateName?: string  default=literal</mark>
+  stateType: string
+  transitionOptions?: AdminApi.JsArray  default=factory
+
+emits
+  state-select(...args: any[])
+
+slots
+<mark>  hint  {}  block=sw_order_state_select_v2_field</mark>
+
+data
+  selectedActionName: any
+
+computed
+<mark>  currentStateOptionId: any</mark>
+  selectPlaceholder: any
+<mark>  selectStyle: any  [deprecated tag:v6.8.0]</mark>
+<mark>  selectValue: any</mark>
+  selectable: any
+
+methods
+<mark>  getStateVariant(stateName: any): any</mark>
+<mark>  onSelectValueChange(value: any): any</mark>
+  onStateChangeClicked(): any
+
+blocks
+  sw_order_state_select_v2
+    sw_order_state_select_v2_field</pre></div>
+</div>
+<h3><code>module/sw-order/page/sw-order-detail.api.md</code></h3>
+<div class="tree">
+<div><h4>Base</h4><pre>component sw-order-detail  public  js
+  registered src/module/sw-order/index.js
+  source src/module/sw-order/page/sw-order-detail/index.js
+  template src/module/sw-order/page/sw-order-detail/sw-order-detail.html.twig
+
+mixins
+  notification
+
+inject
+  acl
+  feature
+  orderService
+  repositoryFactory
+
+provide
+  swOrderDetailAskAndSaveEdits: any
+  swOrderDetailHandleCartErrors: any
+  swOrderDetailOnCreatedByIdChange: any  [deprecated tag:v6.8.0]
+  swOrderDetailOnEditingChange: any  [deprecated tag:v6.8.0]
+  swOrderDetailOnError: any
+  swOrderDetailOnLoadingChange: any  [deprecated tag:v6.8.0]
+  swOrderDetailOnRecalculateAndReload: any
+  swOrderDetailOnReloadEntityData: any
+  swOrderDetailOnSaveAndRecalculate: any
+  swOrderDetailOnSaveAndReload: any
+  swOrderDetailOnSaveEdits: any
+
+props
+  orderId?: string  default=literal
+
+data
+  askForSaveBeforehand: any
+  createdById: any  [deprecated tag:v6.8.0]
+  deliveryDiscountsToDelete: any
+  hasNewVersionId: any
+  hasOrderDeepEdit: any
+  isDisplayingLeavePageWarning: any
+  isEditing: any  [deprecated tag:v6.8.0]
+  missingProductLineItems: any
+  nextRoute: any
+  promotionsToDelete: any
+
+computed
+  automaticPromotions: any
+  convertedProductLineItems: any
+  deliveryDiscounts: any
+  editing: any
+  isLoading: any  [deprecated tag:v6.8.0]
+  isOrderEditing: any
+  isSaveSuccessful: any
+  loading: any
+  order: any
+  orderAddressIds: any
+  orderChanges: any
+  orderCriteria: any
+  orderDetailTabs: any
+  orderIdentifier: any
+  orderRepository: any
+  showTabs: any
+  showWarningTabStyle: any
+  versionContext: any
+
+methods
+  askAndSaveEdits(reason?: any): any
+  beforeDestroyComponent(useKeepalive?: any): any
+  convertMissingProductLineItems(): any
+  createNewVersionId(): any
+  createdComponent(): any
+  handleCartErrors(response: any): any
+  handleOrderAddressUpdate(addressMappings: any): Promise&lt;any&gt;
+  onAskAndSaveEditsCancel(): any
+  onAskAndSaveEditsConfirm(): Promise&lt;any&gt;
+  onCancelEditing(): any
+  onChangeLanguage(): any  [deprecated tag:v6.8.0]
+  onError(error: any): any
+  onLeaveModalClose(): any
+  onLeaveModalConfirm(): any
+  onPageHide(event: any): any
+  onRecalculateAndReload(): Promise&lt;any&gt;
+  onSaveAndRecalculate(): Promise&lt;any&gt;
+  onSaveAndReload(): any  [deprecated tag:v6.8.0]
+  onSaveEdits(): Promise&lt;any&gt;
+  onStartEditing(): any  [deprecated tag:v6.8.0]
+  onUpdateEditing(editingValue: any): any  [deprecated tag:v6.8.0]
+  onUpdateLoading(loadingValue: any): any  [deprecated tag:v6.8.0]
+  reloadEntityData(isSaved?: any): any
+  saveAndReload(afterSaveFn?: any): Promise&lt;any&gt;
+  saveEditsFinish(): any
+  updateCreatedById(createdById: any): any  [deprecated tag:v6.8.0]
+  updateEditing(value: any): any
+  updateOrderAddresses(mappings: any): any
+
+blocks
+  sw_order_detail
+    sw_order_detail_actions
+      sw_order_detail_actions_slot_smart_bar_actions
+        sw_order_detail_actions_abort
+        sw_order_detail_actions_save
+    sw_order_detail_content
+      sw_order_detail_content_leave_page_modal
+      sw_order_detail_content_save_changes_beforehand_modal  [after v-if]
+      sw_order_detail_content_tabs  [after v-if]
+        sw_order_detail_content_mt_tabs  [from v6.8.0]
+        sw_order_detail_content_tabs_details  [until v6.8.0]
+        sw_order_detail_content_tabs_documents  [until v6.8.0]
+        sw_order_detail_content_tabs_extension  [empty] [until v6.8.0]
+        sw_order_detail_content_tabs_general  [until v6.8.0]
+      sw_order_detail_content_view
+    sw_order_detail_header
+      sw_order_detail_header_title
+        sw_order_detail_header_label_manual_order
+      sw_order_detail_header_title_new  [after v-if]
+    sw_order_detail_language_switch
+
+crossings
+<mark>  v-if  sw_order_detail_header_title -&gt; sw_order_detail_header_title_new</mark>
+
+position-ids
+  sw-order-detail  tabs  host=sw-tabs  block=sw_order_detail_content_tabs  [until v6.8.0]
+  sw-order-detail  tabs  host=mt-tabs  block=sw_order_detail_content_mt_tabs  [from v6.8.0]
+  sw-order-detail__before-content  componentSection  host=sw-extension-component-section  block=sw_order_detail_content
+
+data-sets
+  sw-order-detail-base__order  path=order
+
+notes
+  flag-removal-undeprecated block sw_order_detail_content_tabs_details
+  flag-removal-undeprecated block sw_order_detail_content_tabs_documents
+  flag-removal-undeprecated block sw_order_detail_content_tabs_extension
+  flag-removal-undeprecated block sw_order_detail_content_tabs_general</pre></div>
+<div><h4>Head</h4><pre>component sw-order-detail  public  js
+  registered src/module/sw-order/index.js
+  source src/module/sw-order/page/sw-order-detail/index.js
+  template src/module/sw-order/page/sw-order-detail/sw-order-detail.html.twig
+
+mixins
+  notification
+
+inject
+  acl
+  feature
+  orderService
+  repositoryFactory
+
+provide
+  swOrderDetailAskAndSaveEdits: any
+  swOrderDetailHandleCartErrors: any
+  swOrderDetailOnCreatedByIdChange: any  [deprecated tag:v6.8.0]
+  swOrderDetailOnEditingChange: any  [deprecated tag:v6.8.0]
+  swOrderDetailOnError: any
+  swOrderDetailOnLoadingChange: any  [deprecated tag:v6.8.0]
+  swOrderDetailOnRecalculateAndReload: any
+  swOrderDetailOnReloadEntityData: any
+  swOrderDetailOnSaveAndRecalculate: any
+  swOrderDetailOnSaveAndReload: any
+  swOrderDetailOnSaveEdits: any
+
+props
+  orderId?: string  default=literal
+
+data
+  askForSaveBeforehand: any
+  createdById: any  [deprecated tag:v6.8.0]
+  deliveryDiscountsToDelete: any
+  hasNewVersionId: any
+  hasOrderDeepEdit: any
+  isDisplayingLeavePageWarning: any
+  isEditing: any  [deprecated tag:v6.8.0]
+  missingProductLineItems: any
+  nextRoute: any
+  promotionsToDelete: any
+
+computed
+  automaticPromotions: any
+  convertedProductLineItems: any
+  deliveryDiscounts: any
+  editing: any
+  isLoading: any  [deprecated tag:v6.8.0]
+  isOrderEditing: any
+  isSaveSuccessful: any
+  loading: any
+  order: any
+  orderAddressIds: any
+  orderChanges: any
+  orderCriteria: any
+  orderDetailTabs: any
+  orderIdentifier: any
+  orderRepository: any
+  showTabs: any
+  showWarningTabStyle: any
+  versionContext: any
+
+methods
+  askAndSaveEdits(reason?: any): any
+  beforeDestroyComponent(useKeepalive?: any): any
+  convertMissingProductLineItems(): any
+  createNewVersionId(): any
+  createdComponent(): any
+  handleCartErrors(response: any): any
+  handleOrderAddressUpdate(addressMappings: any): Promise&lt;any&gt;
+  onAskAndSaveEditsCancel(): any
+  onAskAndSaveEditsConfirm(): Promise&lt;any&gt;
+  onCancelEditing(): any
+  onChangeLanguage(): any  [deprecated tag:v6.8.0]
+  onError(error: any): any
+  onLeaveModalClose(): any
+  onLeaveModalConfirm(): any
+  onPageHide(event: any): any
+  onRecalculateAndReload(): Promise&lt;any&gt;
+  onSaveAndRecalculate(): Promise&lt;any&gt;
+  onSaveAndReload(): any  [deprecated tag:v6.8.0]
+  onSaveEdits(): Promise&lt;any&gt;
+  onStartEditing(): any  [deprecated tag:v6.8.0]
+  onUpdateEditing(editingValue: any): any  [deprecated tag:v6.8.0]
+  onUpdateLoading(loadingValue: any): any  [deprecated tag:v6.8.0]
+  reloadEntityData(isSaved?: any): any
+  saveAndReload(afterSaveFn?: any): Promise&lt;any&gt;
+  saveEditsFinish(): any
+  updateCreatedById(createdById: any): any  [deprecated tag:v6.8.0]
+  updateEditing(value: any): any
+  updateOrderAddresses(mappings: any): any
+
+blocks
+  sw_order_detail
+    sw_order_detail_actions
+      sw_order_detail_actions_slot_smart_bar_actions
+        sw_order_detail_actions_abort
+        sw_order_detail_actions_save
+    sw_order_detail_content
+      sw_order_detail_content_leave_page_modal
+      sw_order_detail_content_save_changes_beforehand_modal  [after v-if]
+      sw_order_detail_content_tabs  [after v-if]
+        sw_order_detail_content_mt_tabs  [from v6.8.0]
+        sw_order_detail_content_tabs_details  [until v6.8.0]
+        sw_order_detail_content_tabs_documents  [until v6.8.0]
+        sw_order_detail_content_tabs_extension  [empty] [until v6.8.0]
+        sw_order_detail_content_tabs_general  [until v6.8.0]
+      sw_order_detail_content_view
+    sw_order_detail_header
+      sw_order_detail_header_title
+        sw_order_detail_header_label_manual_order
+      sw_order_detail_header_title_new  [after v-if]
+    sw_order_detail_language_switch
+
+<mark>crossings</mark>
+<mark>  &lt;div&gt;  sw_order_detail_header -&gt; sw_order_detail_header_label_manual_order</mark>
+
+position-ids
+  sw-order-detail  tabs  host=sw-tabs  block=sw_order_detail_content_tabs  [until v6.8.0]
+  sw-order-detail  tabs  host=mt-tabs  block=sw_order_detail_content_mt_tabs  [from v6.8.0]
+  sw-order-detail__before-content  componentSection  host=sw-extension-component-section  block=sw_order_detail_content
+
+data-sets
+  sw-order-detail-base__order  path=order
+
+notes
+  flag-removal-undeprecated block sw_order_detail_content_tabs_details
+  flag-removal-undeprecated block sw_order_detail_content_tabs_documents
+  flag-removal-undeprecated block sw_order_detail_content_tabs_extension
+  flag-removal-undeprecated block sw_order_detail_content_tabs_general</pre></div>
+</div>
+</main>
+</body>
+</html>

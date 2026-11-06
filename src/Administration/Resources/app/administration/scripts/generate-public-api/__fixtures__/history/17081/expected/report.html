@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Public API report #17081</title>
+<style>
+:root { color-scheme: light dark; --bg: #ffffff; --fg: #1d1f21; --muted: #5c6370; --border: #d0d7de; --pass: #1a7f37; --code-bg: #f6f8fa; }
+@media (prefers-color-scheme: dark) { :root { --bg: #0d1117; --fg: #e6edf3; --muted: #8b949e; --border: #30363d; --pass: #3fb950; --code-bg: #161b22; } }
+body { margin: 0; padding: 16px; background: var(--bg); color: var(--fg); font: 14px/1.5 system-ui, sans-serif; }
+main { max-width: 1200px; margin: 0 auto; }
+h1 { font-size: 20px; margin: 0 0 8px; }
+h2 { font-size: 16px; margin: 24px 0 8px; }
+h3 { font-size: 14px; margin: 16px 0 8px; }
+.verdict { font-weight: 600; }
+.verdict--pass { color: var(--pass); }
+dl { display: grid; grid-template-columns: max-content 1fr; gap: 2px 12px; margin: 8px 0; color: var(--muted); }
+dd { margin: 0; overflow-wrap: anywhere; }
+code, pre { font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+.tree { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; }
+.tree pre { margin: 0; padding: 8px; overflow-x: auto; background: var(--code-bg); border: 1px solid var(--border); border-radius: 6px; }
+figure { margin: 0; }
+figcaption { margin: 0 0 4px; color: var(--muted); }
+.empty { color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+<header>
+<h1>Public API report for PR #17081</h1>
+<p class="verdict verdict--pass">Public API check passed: no breaks.</p>
+<dl>
+<dt>PR</dt><dd>fix(administration): raise sales channel limit in number-range detail</dd>
+<dt>Base</dt><dd><code>713777c3621e7a7d15170fc6845b8dc26e1cc91c</code></dd>
+<dt>Head</dt><dd><code>26053a8e33a6ef25c51d350d90356b0339261e40</code></dd>
+<dt>Head version</dt><dd>6.7</dd>
+</dl>
+</header>
+<section class="findings">
+<h2>Findings</h2>
+<p class="empty">No findings in the current or the major state.</p>
+</section>
+<section class="code-tree">
+<h2>Code tree</h2>
+<section class="unit" id="unit-sw-settings-number-range-create">
+<h3>Component sw-settings-number-range-create</h3>
+<div class="tree">
+<figure class="tree__base">
+<figcaption>Base <code>713777c3621e</code></figcaption>
+<pre>component sw-settings-number-range-create  public  js
+  extends sw-settings-number-range-detail
+  registered src/module/sw-settings-number-range/index.js
+  source src/module/sw-settings-number-range/page/sw-settings-number-range-create/index.js
+  template src/module/sw-settings-number-range/page/sw-settings-number-range-create/sw-settings-number-range-create.html.twig
+
+data
+  hasProductNumberRange: any
+  isShowProductWarning: any
+
+computed
+  disableNumberRangeTypeSelect: any
+  numberRangeTypeCriteria: any
+  productNumberRangeCriteria: any
+  showNumberRangeStateFields: any
+
+methods
+  createdComponent(): Promise&lt;any&gt;
+  getProductNumberRanges(): Promise&lt;any&gt;
+  onChangeType(id: any, numberRange: any): any
+  onSave(): any
+  saveFinish(): any
+
+blocks
+  sw_settings_number_range_detail  [inherited]
+    sw_settings_number_range_detail_actions  [inherited]
+      sw_settings_number_range_detail_actions_abort  [inherited]
+      sw_settings_number_range_detail_actions_save  [inherited]
+    sw_settings_number_range_detail_content  [inherited]
+      sw_settings_number_range_detail_assignment_card  [inherited]
+        sw_sales_channel_detail_base_general_input_sales_channel  [inherited]
+        sw_sales_channel_detail_base_general_input_type  [inherited]
+        sw_settings_number_range_detail_assignment_card_global_warning  [replaced] [empty]
+        sw_settings_number_range_detail_content_global_product_warning  [replaced]
+      sw_settings_number_range_detail_content_card  [inherited]
+        sw_settings_number_range_detail_content_field_current_number  [inherited]
+        sw_settings_number_range_detail_content_field_default  [inherited]
+        sw_settings_number_range_detail_content_field_description  [inherited]
+        sw_settings_number_range_detail_content_field_name  [inherited]
+        sw_settings_number_range_detail_content_field_pattern  [inherited]
+        sw_settings_number_range_detail_content_field_prefix  [inherited]
+        sw_settings_number_range_detail_content_field_preview  [inherited]
+        sw_settings_number_range_detail_content_field_start  [inherited]
+        sw_settings_number_range_detail_content_field_suffix  [inherited]
+        sw_settings_number_range_detail_content_global_warning  [inherited]
+      sw_settings_number_range_detail_custom_field_sets  [inherited]
+      sw_settings_number_range_detail_language_info  [inherited]
+    sw_settings_number_range_detail_header  [inherited]
+    sw_settings_number_range_detail_language_switch  [replaced]
+
+position-ids
+  sw-settings-number-range-detail-assignment  card  host=mt-card  block=sw_settings_number_range_detail_assignment_card
+  sw-settings-number-range-detail-content  card  host=mt-card  block=sw_settings_number_range_detail_content_card
+  sw-settings-number-range-detail-custom-field-sets  card  host=mt-card  block=sw_settings_number_range_detail_custom_field_sets</pre>
+</figure>
+<figure class="tree__head">
+<figcaption>Head <code>26053a8e33a6</code></figcaption>
+<pre>component sw-settings-number-range-create  public  js
+  extends sw-settings-number-range-detail
+  registered src/module/sw-settings-number-range/index.js
+  source src/module/sw-settings-number-range/page/sw-settings-number-range-create/index.js
+  template src/module/sw-settings-number-range/page/sw-settings-number-range-create/sw-settings-number-range-create.html.twig
+
+data
+  hasProductNumberRange: any
+  isShowProductWarning: any
+
+computed
+  disableNumberRangeTypeSelect: any
+  numberRangeTypeCriteria: any
+  productNumberRangeCriteria: any
+  showNumberRangeStateFields: any
+
+methods
+  createdComponent(): Promise&lt;any&gt;
+  getProductNumberRanges(): Promise&lt;any&gt;
+  onChangeType(id: any, numberRange: any): any
+  onSave(): any
+  saveFinish(): any
+
+blocks
+  sw_settings_number_range_detail  [inherited]
+    sw_settings_number_range_detail_actions  [inherited]
+      sw_settings_number_range_detail_actions_abort  [inherited]
+      sw_settings_number_range_detail_actions_save  [inherited]
+    sw_settings_number_range_detail_content  [inherited]
+      sw_settings_number_range_detail_assignment_card  [inherited]
+        sw_sales_channel_detail_base_general_input_sales_channel  [inherited]
+        sw_sales_channel_detail_base_general_input_type  [inherited]
+        sw_settings_number_range_detail_assignment_card_global_warning  [replaced] [empty]
+        sw_settings_number_range_detail_content_global_product_warning  [replaced]
+      sw_settings_number_range_detail_content_card  [inherited]
+        sw_settings_number_range_detail_content_field_current_number  [inherited]
+        sw_settings_number_range_detail_content_field_default  [inherited]
+        sw_settings_number_range_detail_content_field_description  [inherited]
+        sw_settings_number_range_detail_content_field_name  [inherited]
+        sw_settings_number_range_detail_content_field_pattern  [inherited]
+        sw_settings_number_range_detail_content_field_prefix  [inherited]
+        sw_settings_number_range_detail_content_field_preview  [inherited]
+        sw_settings_number_range_detail_content_field_start  [inherited]
+        sw_settings_number_range_detail_content_field_suffix  [inherited]
+        sw_settings_number_range_detail_content_global_warning  [inherited]
+      sw_settings_number_range_detail_custom_field_sets  [inherited]
+      sw_settings_number_range_detail_language_info  [inherited]
+    sw_settings_number_range_detail_header  [inherited]
+    sw_settings_number_range_detail_language_switch  [replaced]
+
+position-ids
+  sw-settings-number-range-detail-assignment  card  host=mt-card  block=sw_settings_number_range_detail_assignment_card
+  sw-settings-number-range-detail-content  card  host=mt-card  block=sw_settings_number_range_detail_content_card
+  sw-settings-number-range-detail-custom-field-sets  card  host=mt-card  block=sw_settings_number_range_detail_custom_field_sets</pre>
+</figure>
+</div>
+</section>
+<section class="unit" id="unit-sw-settings-number-range-detail">
+<h3>Component sw-settings-number-range-detail</h3>
+<div class="tree">
+<figure class="tree__base">
+<figcaption>Base <code>713777c3621e</code></figcaption>
+<pre>component sw-settings-number-range-detail  public  js
+  registered src/module/sw-settings-number-range/index.js
+  source src/module/sw-settings-number-range/page/sw-settings-number-range-detail/index.js
+  template src/module/sw-settings-number-range/page/sw-settings-number-range-detail/sw-settings-number-range-detail.html.twig
+
+mixins
+  notification, placeholder
+
+inject
+  acl
+  customFieldDataProviderService
+  numberRangeService
+  repositoryFactory
+
+data
+  advanced: any
+  customFieldSets: any
+  isLoading: any
+  isSaveSuccessful: any
+  numberRange: any
+  numberRangeId: any
+  prefix: any
+  preview: any
+  selectedSalesChannelsCollection: any
+  simplePossible: any
+  state: any
+  suffix: any
+
+computed
+  disableNumberRangeTypeSelect: any
+  identifier: any
+  numberRangeCriteria: any
+  numberRangeNameError: any
+  numberRangeRepository: any
+  numberRangeSalesChannelsRepository: any
+  numberRangeTypeCriteria: any
+  numberRangeTypeCriteriaGlobal: any
+  numberRangeTypeIdError: any
+  numberRangeTypeRepository: any
+  previewInput: any
+  salesChannelCriteria: any
+  salesChannelRepository: any
+  selectedNumberRangeSalesChannels: any  [deprecated tag:v6.8.0]
+  showCustomFields: any
+  showNumberRangeStateFields: any
+  stateInput: any
+  tooltipCancel: any
+  tooltipSave: any
+
+methods
+  abortOnLanguageChange(): any
+  addSalesChannel(salesChannel: any): any
+  buildSelectedSalesChannelsCollection(): any
+  createdComponent(): Promise&lt;any&gt;
+  getPreview(): any
+  getState(): any
+  loadCustomFieldSets(): any
+  loadEntityData(): Promise&lt;any&gt;
+  loadSalesChannels(): any  [deprecated tag:v6.8.0]
+  noSalesChannelSelected(): any
+  onCancel(): any
+  onChangeLanguage(): any
+  onChangePattern(): any
+  onChangeType(): any
+  onSave(): any
+  removeSalesChannel(salesChannel: any): any
+  saveFinish(): any
+  saveOnLanguageChange(): any
+  splitPattern(): any
+
+blocks
+  sw_settings_number_range_detail
+    sw_settings_number_range_detail_actions
+      sw_settings_number_range_detail_actions_abort
+      sw_settings_number_range_detail_actions_save
+    sw_settings_number_range_detail_content
+      sw_settings_number_range_detail_assignment_card
+        sw_sales_channel_detail_base_general_input_sales_channel
+        sw_sales_channel_detail_base_general_input_type
+        sw_settings_number_range_detail_assignment_card_global_warning
+        sw_settings_number_range_detail_content_global_product_warning  [empty]
+      sw_settings_number_range_detail_content_card
+        sw_settings_number_range_detail_content_field_current_number
+        sw_settings_number_range_detail_content_field_default
+        sw_settings_number_range_detail_content_field_description
+        sw_settings_number_range_detail_content_field_name
+        sw_settings_number_range_detail_content_field_pattern
+        sw_settings_number_range_detail_content_field_prefix
+        sw_settings_number_range_detail_content_field_preview
+        sw_settings_number_range_detail_content_field_start
+        sw_settings_number_range_detail_content_field_suffix
+        sw_settings_number_range_detail_content_global_warning
+      sw_settings_number_range_detail_custom_field_sets
+      sw_settings_number_range_detail_language_info
+    sw_settings_number_range_detail_header
+    sw_settings_number_range_detail_language_switch
+
+position-ids
+  sw-settings-number-range-detail-assignment  card  host=mt-card  block=sw_settings_number_range_detail_assignment_card
+  sw-settings-number-range-detail-content  card  host=mt-card  block=sw_settings_number_range_detail_content_card
+  sw-settings-number-range-detail-custom-field-sets  card  host=mt-card  block=sw_settings_number_range_detail_custom_field_sets</pre>
+</figure>
+<figure class="tree__head">
+<figcaption>Head <code>26053a8e33a6</code></figcaption>
+<pre>component sw-settings-number-range-detail  public  js
+  registered src/module/sw-settings-number-range/index.js
+  source src/module/sw-settings-number-range/page/sw-settings-number-range-detail/index.js
+  template src/module/sw-settings-number-range/page/sw-settings-number-range-detail/sw-settings-number-range-detail.html.twig
+
+mixins
+  notification, placeholder
+
+inject
+  acl
+  customFieldDataProviderService
+  numberRangeService
+  repositoryFactory
+
+data
+  advanced: any
+  customFieldSets: any
+  isLoading: any
+  isSaveSuccessful: any
+  numberRange: any
+  numberRangeId: any
+  prefix: any
+  preview: any
+  selectedSalesChannelsCollection: any
+  simplePossible: any
+  state: any
+  suffix: any
+
+computed
+  disableNumberRangeTypeSelect: any
+  identifier: any
+  numberRangeCriteria: any
+  numberRangeNameError: any
+  numberRangeRepository: any
+  numberRangeSalesChannelsRepository: any
+  numberRangeTypeCriteria: any
+  numberRangeTypeCriteriaGlobal: any
+  numberRangeTypeIdError: any
+  numberRangeTypeRepository: any
+  previewInput: any
+  salesChannelCriteria: any
+  salesChannelRepository: any
+  selectedNumberRangeSalesChannels: any  [deprecated tag:v6.8.0]
+  showCustomFields: any
+  showNumberRangeStateFields: any
+  stateInput: any
+  tooltipCancel: any
+  tooltipSave: any
+
+methods
+  abortOnLanguageChange(): any
+  addSalesChannel(salesChannel: any): any
+  buildSelectedSalesChannelsCollection(): any
+  createdComponent(): Promise&lt;any&gt;
+  getPreview(): any
+  getState(): any
+  loadCustomFieldSets(): any
+  loadEntityData(): Promise&lt;any&gt;
+  loadSalesChannels(): any  [deprecated tag:v6.8.0]
+  noSalesChannelSelected(): any
+  onCancel(): any
+  onChangeLanguage(): any
+  onChangePattern(): any
+  onChangeType(): any
+  onSave(): any
+  removeSalesChannel(salesChannel: any): any
+  saveFinish(): any
+  saveOnLanguageChange(): any
+  splitPattern(): any
+
+blocks
+  sw_settings_number_range_detail
+    sw_settings_number_range_detail_actions
+      sw_settings_number_range_detail_actions_abort
+      sw_settings_number_range_detail_actions_save
+    sw_settings_number_range_detail_content
+      sw_settings_number_range_detail_assignment_card
+        sw_sales_channel_detail_base_general_input_sales_channel
+        sw_sales_channel_detail_base_general_input_type
+        sw_settings_number_range_detail_assignment_card_global_warning
+        sw_settings_number_range_detail_content_global_product_warning  [empty]
+      sw_settings_number_range_detail_content_card
+        sw_settings_number_range_detail_content_field_current_number
+        sw_settings_number_range_detail_content_field_default
+        sw_settings_number_range_detail_content_field_description
+        sw_settings_number_range_detail_content_field_name
+        sw_settings_number_range_detail_content_field_pattern
+        sw_settings_number_range_detail_content_field_prefix
+        sw_settings_number_range_detail_content_field_preview
+        sw_settings_number_range_detail_content_field_start
+        sw_settings_number_range_detail_content_field_suffix
+        sw_settings_number_range_detail_content_global_warning
+      sw_settings_number_range_detail_custom_field_sets
+      sw_settings_number_range_detail_language_info
+    sw_settings_number_range_detail_header
+    sw_settings_number_range_detail_language_switch
+
+position-ids
+  sw-settings-number-range-detail-assignment  card  host=mt-card  block=sw_settings_number_range_detail_assignment_card
+  sw-settings-number-range-detail-content  card  host=mt-card  block=sw_settings_number_range_detail_content_card
+  sw-settings-number-range-detail-custom-field-sets  card  host=mt-card  block=sw_settings_number_range_detail_custom_field_sets</pre>
+</figure>
+</div>
+</section>
+</section>
+</main>
+</body>
+</html>

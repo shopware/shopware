@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decisions · Admin API Snapshot</title>
+<style>
+:root {
+  --bg: #f7f7f5; --surface: #ffffff; --text: #1b1b1f; --muted: #5d5d66; --border: #e3e3e8; --soft: #f1f1f4;
+  --accent: #3b5bdb; --accent-soft: #e8edff;
+  --ok: #157347; --ok-bg: #e3f4ea; --bad: #b42318; --bad-bg: #fde8e7; --warn: #8a5a00; --warn-bg: #fdf0d5;
+  --info: #0b6e99; --info-bg: #e2f2fa; --mute-bg: #ececf0;
+  --code-bg: #f3f3f6; --dark: #14151d; --dark-text: #d8dae6; --dark-border: #262838;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111216; --surface: #181a20; --text: #e9e9ee; --muted: #a0a0ac; --border: #2b2d36; --soft: #1e2028;
+    --accent: #8ea2ff; --accent-soft: #1d2442;
+    --ok: #6fd39b; --ok-bg: #14301f; --bad: #ff9a92; --bad-bg: #3a1a18; --warn: #f0c066; --warn-bg: #362a10;
+    --info: #7cc8ec; --info-bg: #10293a; --mute-bg: #262833;
+    --code-bg: #1f2129; --dark: #0d0e13; --dark-text: #d8dae6; --dark-border: #262838;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111216; --surface: #181a20; --text: #e9e9ee; --muted: #a0a0ac; --border: #2b2d36; --soft: #1e2028;
+  --accent: #8ea2ff; --accent-soft: #1d2442;
+  --ok: #6fd39b; --ok-bg: #14301f; --bad: #ff9a92; --bad-bg: #3a1a18; --warn: #f0c066; --warn-bg: #362a10;
+  --info: #7cc8ec; --info-bg: #10293a; --mute-bg: #262833;
+  --code-bg: #1f2129; --dark: #0d0e13; --dark-text: #d8dae6; --dark-border: #262838;
+}
+* { box-sizing: border-box; }
+html { scroll-padding-top: 72px; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 15.5px/1.6 system-ui, -apple-system, "Segoe UI", Inter, sans-serif; -webkit-font-smoothing: antialiased; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+h1, h2, h3, h4, p, ul, ol, table, pre { margin: 0; }
+code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+code { font-size: .86em; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+
+/* Top bar */
+.top { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); }
+.top .in { max-width: 1320px; margin: 0 auto; padding: 0 16px; display: flex; align-items: center; gap: 20px; height: 56px; }
+.brand { font-weight: 750; letter-spacing: -.01em; white-space: nowrap; color: var(--text); }
+.brand span { color: var(--muted); font-weight: 500; }
+.pages { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; flex: 1; }
+.pages::-webkit-scrollbar { display: none; }
+.pages a { color: var(--muted); font-size: 14px; font-weight: 550; padding: 6px 10px; border-radius: 7px; white-space: nowrap; }
+.pages a:hover { background: var(--soft); text-decoration: none; color: var(--text); }
+.pages a.on { background: var(--accent-soft); color: var(--accent); }
+
+/* Layout */
+.layout { max-width: 1320px; margin: 0 auto; padding: 0 16px; display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 48px; }
+@media (max-width: 960px) { .layout { grid-template-columns: minmax(0, 1fr); gap: 0; } .toc { display: none; } }
+.toc { position: sticky; top: 80px; align-self: start; max-height: calc(100vh - 100px); overflow: auto; padding: 32px 0; font-size: 13.5px; }
+.toc .lbl { font-size: 11.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.toc a { display: block; color: var(--muted); padding: 4px 0 4px 12px; border-left: 2px solid var(--border); }
+.toc a.l3 { padding-left: 24px; font-size: 13px; }
+.toc a:hover { color: var(--text); text-decoration: none; border-left-color: var(--accent); }
+main { padding: 40px 0 96px; min-width: 0; }
+
+/* Typography */
+.eyebrow { font-size: 12.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--accent); }
+h1 { font-size: clamp(28px, 3.4vw, 38px); line-height: 1.15; letter-spacing: -.02em; margin-top: 6px; }
+.lead { font-size: 17.5px; color: var(--muted); margin-top: 12px; max-width: 820px; }
+h2 { font-size: 24px; line-height: 1.25; letter-spacing: -.015em; margin-top: 56px; padding-top: 24px; border-top: 1px solid var(--border); }
+h3 { font-size: 18px; line-height: 1.3; margin-top: 32px; }
+h4 { font-size: 15px; margin-top: 20px; }
+main p { margin-top: 12px; max-width: 860px; }
+main ul, main ol { margin-top: 12px; padding-left: 22px; max-width: 860px; }
+main li { margin: 5px 0; }
+main li > ul { margin-top: 4px; }
+.muted { color: var(--muted); }
+.small { font-size: 13.5px; }
+
+/* Boxes */
+.note { margin-top: 18px; padding: 14px 16px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--accent); max-width: 900px; }
+.note.warn { border-left-color: var(--warn); }
+.note.bad { border-left-color: var(--bad); }
+.note.ok { border-left-color: var(--ok); }
+.note p:first-child, .note ul:first-child { margin-top: 0; }
+.proposal { margin-top: 18px; padding: 16px 18px; border-radius: 12px; border: 2px dashed var(--warn); background: var(--warn-bg); }
+.proposal > .tag { margin-bottom: 6px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 18px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; min-width: 0; }
+.card h4 { margin-top: 0; }
+.card p { margin-top: 6px; font-size: 14.5px; color: var(--muted); }
+a.card { color: inherit; display: block; }
+a.card:hover { border-color: var(--accent); text-decoration: none; }
+
+/* Tables */
+.tw { margin-top: 16px; overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+th { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); background: var(--soft); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.id { font-family: ui-monospace, Menlo, monospace; font-weight: 700; white-space: nowrap; color: var(--accent); }
+td pre { margin-top: 0; font-size: 12px; background: var(--code-bg); border-radius: 6px; padding: 6px 8px; white-space: pre-wrap; overflow-wrap: anywhere; }
+td .gap { margin-top: 6px; font-size: 13px; color: var(--bad); }
+td .gap::before { content: "Gap: "; font-weight: 700; }
+
+/* Tags */
+.tag { display: inline-block; font-size: 11.5px; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; margin: 1px 2px 1px 0; background: var(--mute-bg); color: var(--muted); }
+.t-break { background: var(--bad-bg); color: var(--bad); }
+.t-add, .t-allowed, .t-ok { background: var(--ok-bg); color: var(--ok); }
+.t-accepted, .t-warn { background: var(--warn-bg); color: var(--warn); }
+.t-info { background: var(--info-bg); color: var(--info); }
+.t-spec { background: var(--accent-soft); color: var(--accent); }
+.t-snap { background: var(--ok-bg); color: var(--ok); }
+.t-fix { background: var(--info-bg); color: var(--info); }
+.t-hist { background: var(--warn-bg); color: var(--warn); }
+.t-gap { background: var(--bad-bg); color: var(--bad); }
+
+/* Code */
+pre.code { margin-top: 14px; background: var(--dark); color: var(--dark-text); border: 1px solid var(--dark-border); border-radius: 10px; padding: 14px 16px; font-size: 12.5px; line-height: 1.6; overflow-x: auto; }
+.code .c { color: #6f7596; } .code .k { color: #c792ea; } .code .s { color: #a5e3a0; } .code .t { color: #82aaff; }
+.code .sec { color: #a9b7ff; font-weight: 700; } .code .m { color: #f0c066; } .code .a { color: #6fd39b; } .code .d { color: #ff9a92; }
+.code .add { display: block; background: rgba(111,211,155,.10); color: #8fe3b4; }
+.code .del { display: block; background: rgba(255,154,146,.10); color: #ffb3ac; }
+.pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; margin-top: 14px; }
+.pair > div { min-width: 0; }
+.pair.stack { grid-template-columns: minmax(0, 1fr); }
+.pair.stack pre.code { height: auto; }
+.pair pre.code { margin-top: 6px; height: calc(100% - 26px); }
+@media (max-width: 1100px) { .pair { grid-template-columns: minmax(0, 1fr); } .pair pre.code { height: auto; } }
+.fname { font-family: ui-monospace, Menlo, monospace; font-size: 12.5px; color: var(--muted); overflow-wrap: anywhere; }
+.fname b { color: var(--text); font-weight: 600; }
+
+/* Legend + flow */
+.legend { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 14px; font-size: 13.5px; color: var(--muted); align-items: center; }
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; margin-top: 18px; }
+.flow .st { flex: 1 1 150px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+.flow .st b { display: block; font-size: 14.5px; }
+.flow .st span { color: var(--muted); font-size: 13px; }
+.flow .ar { display: flex; align-items: center; color: var(--muted); }
+.flow .st.hl { border-color: var(--accent); background: var(--accent-soft); }
+@media (max-width: 760px) { .flow .ar { display: none; } }
+.pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+.pager a { font-weight: 600; }
+
+/* v2 additions */
+.code .ln { display: block; min-height: 1.6em; white-space: pre; }
+pre.code.wrap { white-space: pre-wrap; overflow-wrap: anywhere; }
+td.ck { text-align: center; color: var(--ok); font-weight: 800; width: 1%; white-space: nowrap; padding-left: 6px; padding-right: 6px; }
+th.ck { padding-left: 6px; padding-right: 6px; font-size: 11px; }
+th.ck { text-align: center; }
+tr.has-gap td:first-child { box-shadow: inset 3px 0 0 var(--bad); }
+td.id a { color: var(--accent); }
+tr:target td { background: var(--accent-soft); }
+details.dts { margin-top: 8px; }
+details.dts > summary { cursor: pointer; font-size: 13.5px; font-weight: 600; color: var(--accent); }
+details.dts > summary:hover { text-decoration: underline; }
+details.box { margin-top: 18px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 0 16px; }
+details.box > summary { cursor: pointer; font-weight: 650; padding: 14px 0; }
+details.box[open] { padding-bottom: 16px; }
+.tldr { margin-top: 22px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; max-width: 900px; }
+.tldr ul { margin-top: 6px; }
+.howto { margin-top: 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font-size: 14px; color: var(--muted); }
+.meta b { color: var(--text); }
+.steps { counter-reset: s; display: grid; gap: 14px; margin-top: 18px; }
+.step { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px 16px 58px; min-width: 0; }
+.step::before { counter-increment: s; content: counter(s); position: absolute; left: 16px; top: 15px; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 800; font-size: 14px; display: grid; place-items: center; }
+.step h4 { margin-top: 0; }
+.step p { margin-top: 6px; }
+.step pre.code { margin-top: 10px; }
+.src-tag { font-size: 11.5px; font-weight: 700; padding: 2px 8px; border-radius: 999px; margin-left: 6px; vertical-align: 2px; }
+.src-real { background: var(--ok-bg); color: var(--ok); }
+.src-illu { background: var(--warn-bg); color: var(--warn); }
+.cmp th:first-child { width: 22%; }
+.tree { margin-top: 18px; display: grid; gap: 10px; max-width: 760px; }
+.tree .q { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 12px; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; }
+.tree .q .n { width: 26px; height: 26px; border-radius: 50%; background: var(--soft); display: grid; place-items: center; font-weight: 800; font-size: 13px; color: var(--muted); }
+.tree .q .yes { font-size: 13px; color: var(--muted); white-space: nowrap; }
+.tree .no { font-size: 12.5px; color: var(--muted); padding-left: 52px; }
+.matrix td, .matrix th { text-align: center; }
+.matrix td:first-child, .matrix th:first-child { text-align: left; white-space: nowrap; }
+.matrix td.nr { background: var(--bad-bg); color: var(--bad); font-weight: 700; font-size: 12px; }
+.matrix td.na { color: var(--muted); opacity: .45; }
+.matrix th { white-space: normal; min-width: 72px; }
+.matrix a { font-family: ui-monospace, Menlo, monospace; font-weight: 700; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.pair3 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; margin-top: 14px; }
+@media (max-width: 900px) { .pair3 { grid-template-columns: minmax(0, 1fr); } }
+.pair3 > div { min-width: 0; }
+.pair3 .lbl { font-size: 13px; font-weight: 700; color: var(--muted); }
+.gloss dt { font-weight: 700; margin-top: 16px; }
+.gloss dd { margin: 4px 0 0; color: var(--muted); max-width: 820px; }
+.flowgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+@media (max-width: 760px) { .flowgrid { grid-template-columns: minmax(0, 1fr); } }
+.flowgrid .st { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+.flowgrid .st b { display: block; }
+.flowgrid .st span { color: var(--muted); font-size: 13px; }
+.flowgrid .st.hl { border-color: var(--accent); background: var(--accent-soft); }
+.stamp { margin-top: 12px; font-size: 13px; color: var(--muted); }
+
+</style>
+</head>
+<body>
+<header class="top"><div class="in"><a class="brand" href="index.html">Admin API Snapshot <span>review</span></a><nav class="pages"><a href="index.html">Overview</a><a href="snapshot.html">Generated files</a><a href="coverage.html">Coverage</a><a href="open.html">Open questions</a><a href="plugins.html">Plugins</a><a href="generator.html">Generator</a><a href="backtest.html">Backtest</a><a href="decisions.html" class="on">Decisions</a><a href="glossary.html">Glossary</a></nav></div></header>
+<div class="layout">
+<aside class="toc"><div class="lbl">On this page</div>
+<a class="" href="#what-is-public">What is public</a>
+<a class="" href="#scope">Scope</a>
+<a class="" href="#format">Format</a>
+<a class="" href="#ci-and-review">CI and review</a>
+<a class="" href="#plugins-and-existing-tools">Plugins and existing tools</a>
+<a class="" href="#assumptions">Assumptions</a>
+<a class="" href="#prior-art">Prior art</a>
+</aside>
+<main>
+<div class="eyebrow">Page 8 of 9 · Skim · about 5 min</div>
+<h1>Decisions</h1>
+<p class="lead">What we decided so far and why. Refer to D and S numbers in your feedback.</p>
+<p>Decision 12 was a working agreement for the branch, not a design decision, and is left out.</p>
+<h2 id="what-is-public">What is public</h2>
+<div class="tw"><table><thead><tr><th>ID</th><th>Decision</th><th>Why</th></tr></thead><tbody>
+<tr id="D1"><td class="id"><a href="#D1">D1</a></td><td>Everything without <code>@private</code> is public.</td><td class="muted">The rule is already documented. Requiring <code>@public</code> instead would make almost everything private, because only about 50 items carry it.</td></tr>
+<tr id="D2"><td class="id"><a href="#D2">D2</a></td><td>Private parts are in the same files, marked, and never a break.</td><td class="muted">Reviewers still see private changes, without a second set of files.</td></tr>
+<tr id="D13"><td class="id"><a href="#D13">D13</a></td><td><code>@private</code> on a component or mixin export makes the whole unit private, including its name and blocks.</td><td class="muted">This is how authors use the export tag today.</td></tr>
+</tbody></table></div>
+<h2 id="scope">Scope</h2>
+<div class="tw"><table><thead><tr><th>ID</th><th>Decision</th><th>Why</th></tr></thead><tbody>
+<tr id="D3"><td class="id"><a href="#D3">D3</a></td><td>Reviewers and plugins are equally important.</td><td class="muted">The snapshot has to produce readable diffs and a usable type contract from the start.</td></tr>
+<tr id="D4"><td class="id"><a href="#D4">D4</a></td><td>The Shopware object, components, blocks, routes, snippets, position identifiers and data sets.</td><td class="muted">Plugins use all of them as strings.</td></tr>
+<tr id="D9"><td class="id"><a href="#D9">D9</a></td><td>The whole Administration.</td><td class="muted">A partial snapshot gives false safety.</td></tr>
+<tr id="D16"><td class="id"><a href="#D16">D16</a></td><td>Referenced source types get their own copy.</td><td class="muted">Otherwise a change to a shared type would be invisible.</td></tr>
+<tr id="D17"><td class="id"><a href="#D17">D17</a></td><td>Native setup SFCs from the start.</td><td class="muted">They are coming, and adding them later costs more.</td></tr>
+<tr id="D19"><td class="id"><a href="#D19">D19</a></td><td>Snippet keys with placeholders and plural forms, never texts.</td><td class="muted">A renamed placeholder breaks plugin <code>$t</code> calls; texts change too often to track.</td></tr>
+</tbody></table></div>
+<h2 id="format">Format</h2>
+<div class="tw"><table><thead><tr><th>ID</th><th>Decision</th><th>Why</th></tr></thead><tbody>
+<tr id="D5"><td class="id"><a href="#D5">D5</a></td><td><code>.d.ts</code> files plus an <code>.api.md</code> report.</td><td class="muted">TypeScript can check the <code>.d.ts</code> files; the report gives readable diffs. JSON alone could do neither well.</td></tr>
+<tr id="D6"><td class="id"><a href="#D6">D6</a></td><td>Two flag states, current and major, both committed and compared.</td><td class="muted">Breaks behind the major flag (<a href="https://github.com/shopware/shopware/issues/17339">#17339</a>) are invisible in a single snapshot.</td></tr>
+<tr id="D15"><td class="id"><a href="#D15">D15</a></td><td>Keep <code>index.json</code> as a machine index.</td><td class="muted">Vite, Jest and ESLint need a cheap lookup without loading TypeScript.</td></tr>
+<tr id="D22"><td class="id"><a href="#D22">D22</a></td><td>The report is an outline without tree characters; the check adds a grouped summary and annotations.</td><td class="muted">Tree characters change on every move and make diffs noisy.</td></tr>
+<tr id="D25"><td class="id"><a href="#D25">D25</a></td><td>Components record template refs and static CSS classes. A missing or retargeted ref is a break, a missing class is info.</td><td class="muted">635 store plugins read core <code>$refs</code>, 1,541 style core classes; classes change too often to block on.</td></tr>
+<tr id="D23"><td class="id"><a href="#D23">D23</a></td><td>Flag state markers name the version: <code>[until v6.8.0]</code> and <code>[from v6.8.0]</code>.</td><td class="muted"><code>[current only]</code> loses its meaning in an old commit, a version does not.</td></tr>
+</tbody></table></div>
+<h2 id="ci-and-review">CI and review</h2>
+<div class="tw"><table><thead><tr><th>ID</th><th>Decision</th><th>Why</th></tr></thead><tbody>
+<tr id="D7"><td class="id"><a href="#D7">D7</a></td><td>A drift check and a break check that runs the target branch's generator on base and head.</td><td class="muted">Regenerating the snapshot or changing the generator cannot hide a break.</td></tr>
+<tr id="D11"><td class="id"><a href="#D11">D11</a></td><td>A simple HTML page per check run, without simulating plugin overrides.</td><td class="muted">A simulation would be costly and still incomplete.</td></tr>
+<tr id="D14"><td class="id"><a href="#D14">D14</a></td><td>Intended breaks go into <code>accepted-breaks.json</code> with a justification, approved by code owners.</td><td class="muted">A PR label leaves no reason and no review trail.</td></tr>
+<tr id="D18"><td class="id"><a href="#D18">D18</a></td><td>Elements that already cross blocks on trunk are the baseline.</td><td class="muted">Otherwise every PR would fail on old crossings.</td></tr>
+</tbody></table></div>
+<h2 id="plugins-and-existing-tools">Plugins and existing tools</h2>
+<div class="tw"><table><thead><tr><th>ID</th><th>Decision</th><th>Why</th></tr></thead><tbody>
+<tr id="D8"><td class="id"><a href="#D8">D8</a></td><td>The snapshot ships in the Administration package and is used by <code>admin-types.d.ts</code> and <code>admin:check-extensions</code>.</td><td class="muted">Plugins already use both.</td></tr>
+<tr id="D10"><td class="id"><a href="#D10">D10</a></td><td>Replace the four generated lists directly.</td><td class="muted">Two sources of truth would drift apart.</td></tr>
+<tr id="D20"><td class="id"><a href="#D20">D20</a></td><td>Core types <code>Component.override</code> as an interface; the snapshot adds a typed signature.</td><td class="muted">Plugins keep their code; a cast or a new function would force changes everywhere.</td></tr>
+<tr id="D21"><td class="id"><a href="#D21">D21</a></td><td>A helper <code>wrapOverrideConfig</code> for override files loaded lazily.</td><td class="muted">Most large plugins load overrides lazily.</td></tr>
+<tr id="D26"><td class="id"><a href="#D26">D26</a></td><td>Filters, directives, ACL privileges, settings groups, CMS, rule conditions, search types, flow actions and custom field types that core registers are units.</td><td class="muted">Hundreds of store plugins use these names; a removal breaks them silently.</td></tr>
+<tr id="D27"><td class="id"><a href="#D27">D27</a></td><td>Event bus events and feature flags are units. A missing event is a break, a missing flag is info.</td><td class="muted">Plugins listen to core events and branch on core flags.</td></tr>
+<tr id="D28"><td class="id"><a href="#D28">D28</a></td><td>SCSS variables and mixins are units. A missing name is a break, a changed value is info.</td><td class="muted">691 store plugins import <code>~scss/variables</code>; a missing variable fails the plugin build.</td></tr>
+<tr id="D29"><td class="id"><a href="#D29">D29</a></td><td><code>admin:check-extensions</code> checks the new names and warns about <code>$parent</code> and imports from <code>src/</code>.</td><td class="muted">These uses cannot be typed, but plugin developers should know the risk.</td></tr>
+<tr id="D30"><td class="id"><a href="#D30">D30</a></td><td>A store usage index annotates findings and detects name collisions (proposal).</td><td class="muted">Counts make findings concrete and measure false alarms.</td></tr>
+<tr id="D24"><td class="id"><a href="#D24">D24</a></td><td>Blocks record their context: whether they follow an open <code>v-if</code> chain, and which <code>v-for</code> and slot variables they can use. <code>v-if</code> chains across blocks count as crossings.</td><td class="muted">Plugin templates continue core <code>v-if</code> chains and use loop and slot variables; <a href="https://github.com/shopware/shopware/issues/20959">#20959</a> removed <code>itemIndex</code> from a slot.</td></tr>
+</tbody></table></div>
+
+<h2 id="assumptions">Assumptions</h2>
+<p>We assumed these without asking. Correct them if they are wrong.</p>
+<div class="tw"><table><thead><tr><th>ID</th><th>Assumption</th></tr></thead><tbody>
+<tr id="S1"><td class="id"><a href="#S1">S1</a></td><td>Only the core Administration is generated. The Storefront bundle's Administration extension and installed plugins serve as real consumers when we verify the generator.</td></tr>
+<tr id="S2"><td class="id"><a href="#S2">S2</a></td><td>A removal in the major that a <code>@deprecated tag:vX</code> announced is not a break. Only tags in the source count, not entries in <code>UPGRADE-*.md</code>.</td></tr>
+<tr id="S3"><td class="id"><a href="#S3">S3</a></td><td>The folder layout and the split into one unit per component or module are proposed together with the golden files.</td></tr>
+</tbody></table></div>
+
+<h2 id="prior-art">Prior art</h2>
+<div class="tw"><table><thead><tr><th>Tool</th><th>What we took from it</th></tr></thead><tbody>
+<tr><td>Microsoft API Extractor</td><td>A committed, readable <code>.api.md</code> report per package that changes in the PR diff.</td></tr>
+<tr><td>GraphQL Inspector</td><td>Grouping changes into breaking, dangerous and safe, which became our finding groups.</td></tr>
+<tr><td>Go <code>api/*.txt</code></td><td>One line per API element, so diffs stay line-based.</td></tr>
+<tr><td>roave/backward-compatibility-check</td><td>The PHP side already compares base and head this way.</td></tr>
+</tbody></table></div>
+
+<div class="pager"><a href="backtest.html">← Backtest</a><a href="glossary.html">Glossary →</a></div>
+<p class="stamp">Pages as of 2026-11-06 · branch 22591-admin-make-public-api-breaks-statically-analyzable · base commit e944b563785 plus the uncommitted golden files</p>
+</main>
+</div>
+</body>
+</html>

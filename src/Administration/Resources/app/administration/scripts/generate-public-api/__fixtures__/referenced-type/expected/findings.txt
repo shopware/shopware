@@ -1,0 +1,7 @@
+Public API check failed: 1 unannounced break.
+
+Break (1)
+  type_member_missing  type:src/app/mixin/example-toast.types.ts/ExampleToast.autoClose  current, major
+    The type member is gone, so plugin code that passes autoClose in an ExampleToast, for example to this.createToast(), no longer compiles.
+    Fix: keep the member and mark it @deprecated tag:v6.8.0, or add an entry to public-api/accepted-breaks.json.
+    At: src/app/mixin/example-toast.types.ts:13

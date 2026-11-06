@@ -1,0 +1,70 @@
+{% block sw_order_detail_state_card %}
+<mt-card
+    class="sw-order-detail-state-card"
+    :title="title"
+    :is-loading="isLoading"
+>
+    {% block sw_order_detail_state_card_state %}
+    <div class="sw-order-detail-state-card__state">
+        <div class="sw-order-detail-state-card__state-container">
+            {% block sw_order_detail_state_card_state_select %}
+            <sw-order-state-select-v2
+                :transition-options="stateOptions"
+                :state-type="entityName"
+                :label="stateLabel"
+                :disabled="!acl.can('order.editor')"
+                :is-loading="statesLoading"
+                @state-select="onStateSelected"
+            />
+            {% endblock %}
+
+            {% block sw_order_detail_state_card_state_history_text %}
+            <div
+                v-if="lastStateChange"
+                class="sw-order-detail-state-card__state-history-text"
+            >
+                {% block sw_order_detail_state_card_state_history_text_label %}
+                <span class="sw-order-detail-state-card__state-history-author">
+                    {{ lastChangeAuthorLabel }}
+                </span>
+                {% endblock %}
+
+                {% block sw_order_detail_state_card_state_history_text_internal_comment %}
+                <mt-icon
+                    v-if="lastStateChange.internalComment"
+                    v-tooltip="lastStateChange.internalComment"
+                    name="regular-comment"
+                    size="var(--scale-size-14)"
+                />
+                {% endblock %}
+            </div>
+
+            <div v-else></div>
+            {% endblock %}
+        </div>
+
+        {% block sw_order_detail_state_card_state_history_button %}
+        <mt-link
+            as="button"
+            class="sw-order-detail-state-card__state-history-button"
+            icon="regular-long-arrow-right"
+            @click="onShowStatusHistory"
+        >
+            {{ $t('sw-order.stateCard.labelShowHistoryModal') }}
+        </mt-link>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_order_state_change_card_divider %}
+    <hr class="sw-order-detail-state-card__divider">
+    {% endblock %}
+
+    {% block sw_order_state_change_card_content %}
+    <sw-container
+        class="sw-order-detail-state-card__content"
+        columns="1fr 1fr"
+    />
+    {% endblock %}
+</mt-card>
+{% endblock %}

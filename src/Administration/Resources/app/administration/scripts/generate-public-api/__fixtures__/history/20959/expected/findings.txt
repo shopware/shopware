@@ -1,0 +1,110 @@
+Public API check failed: 8 unannounced breaks.
+
+Break (8)
+  block_moved_parent  component:sw-order-details-state-card/block:sw_order_detail_state_card_state_history_text  current, major
+    The block moved from sw_order_detail_state_card_state to sw_order_detail_state_card_state_select, so plugin overrides of sw_order_detail_state_card_state_select without {% parent %} now drop it.
+    Fix: keep the block under sw_order_detail_state_card_state, or add an entry to public-api/accepted-breaks.json.
+    At: src/module/sw-order/component/sw-order-details-state-card/sw-order-details-state-card.html.twig:28
+  block_scope_missing  component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_delete/scope:itemIndex  current, major
+    The template variable itemIndex from the actions slot is no longer available in block sw_order_line_items_grid_grid_actions_delete, so plugin overrides that use itemIndex fail at render time.
+    Fix: keep itemIndex in the slot props, or add an entry to public-api/accepted-breaks.json.
+    At: src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:316
+  block_scope_missing  component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_delete_label/scope:itemIndex  current, major
+    The template variable itemIndex from the actions slot is no longer available in block sw_order_line_items_grid_grid_actions_delete_label, so plugin overrides that use itemIndex fail at render time.
+    Fix: keep itemIndex in the slot props, or add an entry to public-api/accepted-breaks.json.
+    At: src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:329
+  block_scope_missing  component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_extension/scope:itemIndex  current, major
+    The template variable itemIndex from the actions slot is no longer available in block sw_order_line_items_grid_grid_actions_extension, so plugin overrides that use itemIndex fail at render time.
+    Fix: keep itemIndex in the slot props, or add an entry to public-api/accepted-breaks.json.
+    At: src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:314
+  block_scope_missing  component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_show/scope:itemIndex  current, major
+    The template variable itemIndex from the actions slot is no longer available in block sw_order_line_items_grid_grid_actions_show, so plugin overrides that use itemIndex fail at render time.
+    Fix: keep itemIndex in the slot props, or add an entry to public-api/accepted-breaks.json.
+    At: src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:303
+  block_scope_missing  component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_show_label/scope:itemIndex  current, major
+    The template variable itemIndex from the actions slot is no longer available in block sw_order_line_items_grid_grid_actions_show_label, so plugin overrides that use itemIndex fail at render time.
+    Fix: keep itemIndex in the slot props, or add an entry to public-api/accepted-breaks.json.
+    At: src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:308
+  element_crosses_block  component:sw-order-detail/crossing:div@sw_order_detail_header>sw_order_detail_header_label_manual_order  current, major
+    The <div> element opens in block sw_order_detail_header and closes in block sw_order_detail_header_label_manual_order, so plugin overrides of either block without {% parent %} break the markup.
+    Fix: open and close the element inside the same block, or add an entry to public-api/accepted-breaks.json.
+    At: src/module/sw-order/page/sw-order-detail/sw-order-detail.html.twig:8
+  method_signature_changed  component:sw-order-line-items-grid/method:onDeleteItem  current, major
+    The method lost its parameter itemIndex, so plugin overrides that read the second argument get undefined, because the template now calls onDeleteItem(item).
+    Fix: keep the parameter and keep passing it, or add an entry to public-api/accepted-breaks.json.
+    At: src/module/sw-order/component/sw-order-line-items-grid/index.js:330
+
+Addition (12)
+  block_added  component:sw-order-line-items-grid/block:sw_order_line_items_grid_pagination  current, major
+    A new public block that plugins can rely on from now on.
+    Fix: mark it @private if it is not meant for plugins.
+    At: src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:399
+  computed_added  component:sw-order-line-items-grid/computed:paginatedLineItems  current, major
+    A new public computed property that plugins can rely on from now on.
+    Fix: mark it @private if it is not meant for plugins.
+    At: src/module/sw-order/component/sw-order-line-items-grid/index.js:83
+  computed_added  component:sw-order-state-select-v2/computed:currentStateOptionId  current, major
+    A new public computed property that plugins can rely on from now on.
+    Fix: mark it @private if it is not meant for plugins.
+    At: src/module/sw-order/component/sw-order-state-select-v2/index.js:89
+  computed_added  component:sw-order-state-select-v2/computed:selectValue  current, major
+    A new public computed property that plugins can rely on from now on.
+    Fix: mark it @private if it is not meant for plugins.
+    At: src/module/sw-order/component/sw-order-state-select-v2/index.js:93
+  data_added  component:sw-order-line-items-grid/data:limit  current, major
+    A new public data property that plugins can rely on from now on.
+    Fix: mark it @private if it is not meant for plugins.
+    At: src/module/sw-order/component/sw-order-line-items-grid/index.js:47
+  data_added  component:sw-order-line-items-grid/data:page  current, major
+    A new public data property that plugins can rely on from now on.
+    Fix: mark it @private if it is not meant for plugins.
+    At: src/module/sw-order/component/sw-order-line-items-grid/index.js:46
+  inject_added  component:sw-order-state-select-v2/inject:stateStyleDataProviderService  current, major
+    A new public inject that plugins can rely on from now on.
+    Fix: mark it @private if it is not meant for plugins.
+    At: src/module/sw-order/component/sw-order-state-select-v2/index.js:12
+  method_added  component:sw-order-line-items-grid/method:onPageChange  current, major
+    A new public method that plugins can rely on from now on.
+    Fix: mark it @private if it is not meant for plugins.
+    At: src/module/sw-order/component/sw-order-line-items-grid/index.js:365
+  method_added  component:sw-order-state-select-v2/method:getStateVariant  current, major
+    A new public method that plugins can rely on from now on.
+    Fix: mark it @private if it is not meant for plugins.
+    At: src/module/sw-order/component/sw-order-state-select-v2/index.js:122
+  method_added  component:sw-order-state-select-v2/method:onSelectValueChange  current, major
+    A new public method that plugins can rely on from now on.
+    Fix: mark it @private if it is not meant for plugins.
+    At: src/module/sw-order/component/sw-order-state-select-v2/index.js:114
+  prop_added  component:sw-order-state-select-v2/prop:stateName  current, major
+    A new public prop that plugins can rely on from now on.
+    Fix: mark it @private if it is not meant for plugins.
+    At: src/module/sw-order/component/sw-order-state-select-v2/index.js:28
+  slot_added  component:sw-order-state-select-v2/slot:hint  current, major
+    A new public slot that plugins can rely on from now on.
+    Fix: mark it @private if it is not meant for plugins.
+    At: src/module/sw-order/component/sw-order-state-select-v2/sw-order-state-select-v2.html.twig:44
+
+Info (6)
+  crossing_resolved  component:sw-order-detail/crossing:v-if@sw_order_detail_header_title>sw_order_detail_header_title_new  current, major
+    The v-if chain of block sw_order_detail_header_title no longer continues in block sw_order_detail_header_title_new.
+    At: src/module/sw-order/page/sw-order-detail/sw-order-detail.html.twig:29
+  deprecation_added  component:sw-order-details-state-card/computed:stateSelectBackgroundStyle  current, major
+    The computed property now carries @deprecated tag:v6.8.0, so its removal in v6.8.0 is announced.
+    Fix: add an upgrade note for it to UPGRADE-6.8.md.
+    At: src/module/sw-order/component/sw-order-details-state-card/index.js:117
+  deprecation_added  component:sw-order-general-info/method:backgroundStyle  current, major
+    The method now carries @deprecated tag:v6.8.0, so its removal in v6.8.0 is announced.
+    Fix: add an upgrade note for it to UPGRADE-6.8.md.
+    At: src/module/sw-order/component/sw-order-general-info/index.js:275
+  deprecation_added  component:sw-order-state-select-v2/computed:selectStyle  current, major
+    The computed property now carries @deprecated tag:v6.8.0, so its removal in v6.8.0 is announced.
+    Fix: add an upgrade note for it to UPGRADE-6.8.md.
+    At: src/module/sw-order/component/sw-order-state-select-v2/index.js:74
+  deprecation_added  component:sw-order-state-select-v2/prop:backgroundStyle  current, major
+    The prop now carries @deprecated tag:v6.8.0, so its removal in v6.8.0 is announced.
+    Fix: add an upgrade note for it to UPGRADE-6.8.md.
+    At: src/module/sw-order/component/sw-order-state-select-v2/index.js:54
+  deprecation_added  component:sw-order-state-select-v2/prop:roundedStyle  current, major
+    The prop now carries @deprecated tag:v6.8.0, so its removal in v6.8.0 is announced.
+    Fix: add an upgrade note for it to UPGRADE-6.8.md.
+    At: src/module/sw-order/component/sw-order-state-select-v2/index.js:36

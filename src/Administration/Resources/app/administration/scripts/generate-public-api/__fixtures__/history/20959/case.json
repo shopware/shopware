@@ -1,0 +1,32 @@
+{
+    "pr": 20959,
+    "title": "feat: polish order detail page",
+    "base": "00e31c8eb107fec454570fda2bf27b55a1b01fef",
+    "head": "9a0fd3338437629f3c4507be6f630328c554c432",
+    "headVersion": "6.7",
+    "files": [
+        "src/Administration/Resources/app/administration/src/app/component/base/sw-simple-search-field/sw-simple-search-field.html.twig",
+        "src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-create-general-info/sw-order-create-general-info.html.twig",
+        "src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-details-state-card/index.js",
+        "src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-details-state-card/sw-order-details-state-card.html.twig",
+        "src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-general-info/index.js",
+        "src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-general-info/sw-order-general-info.html.twig",
+        "src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-leave-page-modal/sw-order-leave-page-modal.html.twig",
+        "src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-line-items-grid/index.js",
+        "src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig",
+        "src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-nested-line-items-modal/sw-order-nested-line-items-modal.html.twig",
+        "src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-nested-line-items-row/sw-order-nested-line-items-row.html.twig",
+        "src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-product-select/sw-order-product-select.html.twig",
+        "src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-save-changes-beforehand-modal/sw-order-save-changes-beforehand-modal.html.twig",
+        "src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-state-change-modal/index.js",
+        "src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-state-change-modal/sw-order-state-change-modal-attach-documents/sw-order-state-change-modal-attach-documents.html.twig",
+        "src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-state-change-modal/sw-order-state-change-modal.html.twig",
+        "src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-state-select-v2/index.js",
+        "src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-state-select-v2/sw-order-state-select-v2.html.twig",
+        "src/Administration/Resources/app/administration/src/module/sw-order/page/sw-order-detail/sw-order-detail.html.twig",
+        "src/Administration/Resources/app/administration/src/module/sw-order/snippet/en.json",
+        "src/Administration/Resources/app/administration/src/module/sw-order/view/sw-order-detail-details/sw-order-detail-details.html.twig",
+        "src/Administration/Resources/app/administration/src/module/sw-order/view/sw-order-detail-general/index.js",
+        "src/Administration/Resources/app/administration/src/module/sw-order/view/sw-order-detail-general/sw-order-detail-general.html.twig"
+    ]
+}

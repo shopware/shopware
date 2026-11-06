@@ -1,0 +1,15 @@
+{% block sw_sales_channel_detail_agentic_files %}
+<div class="sw-sales-channel-detail-agentic-files">
+    {% block sw_sales_channel_detail_agentic_files_list %}
+    <ul class="sw-sales-channel-detail-agentic-files__list">
+        <li
+            v-for="file in files"
+            :key="file.fileName"
+            :class="{ 'is--selected': file.fileName === selectedFileName }"
+        >
+            {{ file.fileName }}
+        </li>
+    </ul>
+    {% endblock %}
+</div>
+{% endblock %}

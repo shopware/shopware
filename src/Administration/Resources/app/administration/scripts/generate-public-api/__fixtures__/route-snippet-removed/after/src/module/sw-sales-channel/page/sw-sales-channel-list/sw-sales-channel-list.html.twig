@@ -1,0 +1,28 @@
+{% block sw_sales_channel_list %}
+<sw-page class="sw-sales-channel-list">
+    {% block sw_sales_channel_list_smart_bar_header %}
+    <template #smart-bar-header>
+        {% block sw_sales_channel_list_smart_bar_header_title %}
+        <h2>
+            {{ $t('sw-sales-channel.general.titleMenuItems') }}
+        </h2>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_sales_channel_list_content %}
+    <template #content>
+        <ul class="sw-sales-channel-list__items">
+            <li
+                v-for="salesChannel in salesChannels"
+                :key="salesChannel.id"
+            >
+                <router-link :to="{ name: 'sw.sales.channel.detail', params: { id: salesChannel.id } }">
+                    {{ salesChannel.translated.name }}
+                </router-link>
+            </li>
+        </ul>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

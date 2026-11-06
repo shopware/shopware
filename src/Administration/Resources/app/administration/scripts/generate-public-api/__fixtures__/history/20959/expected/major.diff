@@ -1,0 +1,153 @@
+--- a/module/sw-order/component/sw-order-details-state-card.api.md
++++ b/module/sw-order/component/sw-order-details-state-card.api.md
+@@ -56,7 +56,7 @@
+   stateMachineStateCriteria: any
+   stateMachineStateRepository: any
+   stateName: any
+-  stateSelectBackgroundStyle: any
++  stateSelectBackgroundStyle: any  [deprecated tag:v6.8.0]
+   stateTransitionMethod: any
+ 
+ methods
+@@ -74,10 +74,10 @@
+   sw_order_detail_state_card
+     sw_order_detail_state_card_state
+       sw_order_detail_state_card_state_history_button
+-      sw_order_detail_state_card_state_history_text
+-        sw_order_detail_state_card_state_history_text_internal_comment
+-        sw_order_detail_state_card_state_history_text_label
+       sw_order_detail_state_card_state_select
++        sw_order_detail_state_card_state_history_text
++          sw_order_detail_state_card_state_history_text_internal_comment
++          sw_order_detail_state_card_state_history_text_label
+       sw_order_state_change_card_state_modal
+     sw_order_state_change_card_content
+     sw_order_state_change_card_divider
+--- a/module/sw-order/component/sw-order-general-info.api.md
++++ b/module/sw-order/component/sw-order-general-info.api.md
+@@ -58,7 +58,7 @@
+   transaction: any
+ 
+ methods
+-  backgroundStyle(stateType: any): any
++  backgroundStyle(stateType: any): any  [deprecated tag:v6.8.0]
+   buildTransitionOptions(stateMachineName: any, allTransitions: any, possibleTransitions: any): any
+   createStateChangeErrorNotification(errorMessage: any): any
+   createdComponent(): any
+--- a/module/sw-order/component/sw-order-line-items-grid.api.md
++++ b/module/sw-order/component/sw-order-line-items-grid.api.md
+@@ -30,7 +30,9 @@
+ 
+ data
+   isLoading: any
++  limit: any
+   nestedLineItemsModal: any
++  page: any
+   searchTerm: any
+   selectedItems: any
+   showDeleteModal: any
+@@ -43,6 +45,7 @@
+   lineItemTypes: any
+   orderLineItemRepository: any
+   orderLineItems: any
++  paginatedLineItems: any
+   salesChannelId: any
+   taxStatus: any
+   unitPriceLabel: any
+@@ -64,13 +67,14 @@
+   itemCreatedFromProduct(id: any): any
+   onCloseDeleteModal(): any
+   onConfirmDelete(): any
+-  onDeleteItem(item: any, itemIndex: any): any
++  onDeleteItem(item: any): any
+   onDeleteSelectedItems(): any
+   onInlineEditCancel(item: any): any
+   onInlineEditSave(item: any): any
+   onInsertBlankItem(): any
+   onInsertCreditItem(): any
+   onInsertExistingItem(): any
++  onPageChange(arg1: any): any
+   onSearchTermChange(searchTerm: any): any
+   onSelectionChanged(selection: any): any
+   openNestedLineItemsModal(item: any): any
+@@ -95,11 +99,11 @@
+           sw_order_line_items_grid_bulk_actions_delete
+           sw_order_line_items_grid_bulk_actions_extension  [empty]
+         sw_order_line_items_grid_grid_actions
+-          sw_order_line_items_grid_grid_actions_delete  [scope: item, itemIndex]
+-            sw_order_line_items_grid_grid_actions_delete_label  [scope: item, itemIndex]
+-          sw_order_line_items_grid_grid_actions_extension  [empty] [scope: item, itemIndex]
+-          sw_order_line_items_grid_grid_actions_show  [scope: item, itemIndex]
+-            sw_order_line_items_grid_grid_actions_show_label  [scope: item, itemIndex]
++          sw_order_line_items_grid_grid_actions_delete  [scope: item]
++            sw_order_line_items_grid_grid_actions_delete_label  [scope: item]
++          sw_order_line_items_grid_grid_actions_extension  [empty] [scope: item]
++          sw_order_line_items_grid_grid_actions_show  [scope: item]
++            sw_order_line_items_grid_grid_actions_show_label  [scope: item]
+         sw_order_line_items_grid_grid_actions_modals
+           sw_order_line_items_grid_grid_actions_modals_items  [empty] [scope: item]
+         sw_order_line_items_grid_grid_columns_label
+@@ -125,5 +129,6 @@
+         sw_order_line_items_grid_grid_columns_unit_price
+           sw_order_line_items_grid_grid_columns_unit_price_content  [after v-if] [scope: isInlineEdit, item]
+           sw_order_line_items_grid_grid_columns_unit_price_inline_edit  [scope: isInlineEdit, item]
++    sw_order_line_items_grid_pagination
+     sw_order_line_items_nested_line_item_modal
+ 
+--- a/module/sw-order/component/sw-order-state-select-v2.api.md
++++ b/module/sw-order/component/sw-order-state-select-v2.api.md
+@@ -12,27 +12,38 @@
+   source src/module/sw-order/component/sw-order-state-select-v2/index.js
+   template src/module/sw-order/component/sw-order-state-select-v2/sw-order-state-select-v2.html.twig
+ 
++inject
++  stateStyleDataProviderService
++
+ props
+-  backgroundStyle?: string  default=literal
++  backgroundStyle?: string  default=literal  [deprecated tag:v6.8.0]
+   disabled?: boolean  default=literal
+   label?: string  default=literal
+   placeholder?: string  default=literal
+-  roundedStyle?: boolean  default=literal
++  roundedStyle?: boolean  default=literal  [deprecated tag:v6.8.0]
++  stateName?: string  default=literal
+   stateType: string
+   transitionOptions?: AdminApi.JsArray  default=factory
+ 
+ emits
+   state-select(...args: any[])
+ 
++slots
++  hint  {}  block=sw_order_state_select_v2_field
++
+ data
+   selectedActionName: any
+ 
+ computed
++  currentStateOptionId: any
+   selectPlaceholder: any
+-  selectStyle: any
++  selectStyle: any  [deprecated tag:v6.8.0]
++  selectValue: any
+   selectable: any
+ 
+ methods
++  getStateVariant(stateName: any): any
++  onSelectValueChange(value: any): any
+   onStateChangeClicked(): any
+ 
+ blocks
+--- a/module/sw-order/page/sw-order-detail.api.md
++++ b/module/sw-order/page/sw-order-detail.api.md
+@@ -121,9 +121,9 @@
+       sw_order_detail_header_title_new  [after v-if]
+     sw_order_detail_language_switch
+ 
+ crossings
+-  v-if  sw_order_detail_header_title -> sw_order_detail_header_title_new
++  <div>  sw_order_detail_header -> sw_order_detail_header_label_manual_order
+ 
+ position-ids
+   sw-order-detail  tabs  host=sw-tabs  block=sw_order_detail_content_tabs  [until v6.8.0]
+   sw-order-detail  tabs  host=mt-tabs  block=sw_order_detail_content_mt_tabs  [from v6.8.0]

@@ -1,0 +1,13 @@
+{
+    "pr": 17081,
+    "title": "fix(administration): raise sales channel limit in number-range detail",
+    "base": "713777c3621e7a7d15170fc6845b8dc26e1cc91c",
+    "head": "26053a8e33a6ef25c51d350d90356b0339261e40",
+    "headVersion": "6.7",
+    "files": [
+        "src/Administration/Resources/app/administration/src/module/sw-settings-number-range/page/sw-settings-number-range-create/index.js",
+        "src/Administration/Resources/app/administration/src/module/sw-settings-number-range/page/sw-settings-number-range-create/sw-settings-number-range-create.html.twig",
+        "src/Administration/Resources/app/administration/src/module/sw-settings-number-range/page/sw-settings-number-range-detail/index.js",
+        "src/Administration/Resources/app/administration/src/module/sw-settings-number-range/page/sw-settings-number-range-detail/sw-settings-number-range-detail.html.twig"
+    ]
+}

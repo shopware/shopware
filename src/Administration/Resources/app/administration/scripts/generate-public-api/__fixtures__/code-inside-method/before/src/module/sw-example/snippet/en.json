@@ -1,0 +1,11 @@
+{
+    "sw-example": {
+        "general": {
+            "mainMenuItemGeneral": "Example",
+            "descriptionTextModule": "Manage the sales channels of the example here"
+        },
+        "detail": {
+            "labelSalesChannels": "Sales channels"
+        }
+    }
+}

@@ -1,0 +1,23 @@
+Public API check passed: no breaks.
+
+Addition (5)
+  block_added  component:sw-example-detail/block:sw_example_detail_content_notices  current, major
+    A new public block that plugins can rely on from now on.
+    Fix: mark it @private if it is not meant for plugins.
+    At: src/module/sw-example/page/sw-example-detail/sw-example-detail.html.twig:26
+  method_added  component:sw-example-detail/method:getNoticeText  current, major
+    A new public method that plugins can rely on from now on.
+    Fix: mark it @private if it is not meant for plugins.
+    At: src/module/sw-example/page/sw-example-detail/index.js:87
+  prop_added  component:sw-example-detail/prop:showNotice  current, major
+    A new public prop that plugins can rely on from now on.
+    Fix: mark it @private if it is not meant for plugins.
+    At: src/module/sw-example/page/sw-example-detail/index.js:25
+  route_added  route:sw.example.create  current, major
+    A new public route that plugins can rely on from now on.
+    Fix: mark it @private if it is not meant for plugins.
+    At: src/module/sw-example/index.js:32
+  snippet_added  snippet:sw-example.detail.textNotice  current, major
+    A new public snippet key that plugins can rely on from now on.
+    Fix: mark it @private if it is not meant for plugins.
+    At: src/module/sw-example/snippet/en.json:10

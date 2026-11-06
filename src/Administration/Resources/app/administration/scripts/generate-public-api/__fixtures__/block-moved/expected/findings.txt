@@ -1,0 +1,11 @@
+Public API check failed: 2 unannounced breaks.
+
+Break (2)
+  block_moved_parent  component:sw-order-details-state-card/block:sw_order_detail_state_card_state_history_button  current, major
+    The block moved from sw_order_detail_state_card_state to sw_order_state_change_card_content, so plugin overrides of sw_order_detail_state_card_state without {% parent %} now drop it, and overrides of sw_order_state_change_card_content drop it too.
+    Fix: keep the block under sw_order_detail_state_card_state, or add an entry to public-api/accepted-breaks.json.
+    At: src/module/sw-order/component/sw-order-details-state-card/sw-order-details-state-card.html.twig:59
+  block_moved_parent  component:sw-order-details-state-card/block:sw_order_detail_state_card_state_history_text  current, major
+    The block moved from sw_order_detail_state_card_state to sw_order_detail_state_card_state_select, so plugin overrides of sw_order_detail_state_card_state without {% parent %} now drop it, and overrides of sw_order_detail_state_card_state_select drop it too.
+    Fix: keep the block under sw_order_detail_state_card_state, or add an entry to public-api/accepted-breaks.json.
+    At: src/module/sw-order/component/sw-order-details-state-card/sw-order-details-state-card.html.twig:20

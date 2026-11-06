@@ -1,8 +1,7 @@
 {
-  "$comment": "A real change fixed a sync-service symptom at the DAL layer (reviewer: fix where the problem is caused). A plain core bug fix with tests: only the always-on BC guide and release-docs apply; no scope, cache or queue guide may fire. Test files changed, so the tests guide loads too. platform-scope is always on for PHP changes.",
+  "$comment": "A real change fixed a sync-service symptom at the DAL layer (reviewer: fix where the problem is caused). A plain core bug fix with tests: only the always-on BC guide and release-docs apply; no scope, cache or queue guide may fire. Test files changed, so the tests guide loads too. platform-scope is always on for PHP changes. Both new classes are @internal, so public_surface stays off once they exist in the checkout.",
   "signals": [
     "php_src",
-    "public_surface",
     "tests_changed"
   ],
   "not_signals": [
@@ -10,7 +9,8 @@
     "cache",
     "scheduled_task",
     "sync_path_change",
-    "fix_without_test"
+    "fix_without_test",
+    "public_surface"
   ],
   "guides": [
     "bc-php",

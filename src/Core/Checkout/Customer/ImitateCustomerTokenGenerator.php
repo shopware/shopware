@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\Struct\ImitateCustomerToken;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\JWT\SalesChannel\JWTGenerator;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\HmacSigner;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -24,6 +25,8 @@ class ImitateCustomerTokenGenerator extends JWTGenerator
     public const OPENSSL_CIPHER_ALGORITHM = 'aes-256-cbc';
     public const TOKEN_LIFETIME = 3600;
 
+    private readonly HmacSigner $signer;
+
     /**
      * @internal
      */
@@ -34,6 +37,8 @@ class ImitateCustomerTokenGenerator extends JWTGenerator
         private readonly ClockInterface $clock,
     ) {
         parent::__construct($this->configuration, $this->validator);
+
+        $this->signer = new HmacSigner($this->appSecret, $this->clock);
     }
 
     /**
@@ -55,7 +60,7 @@ class ImitateCustomerTokenGenerator extends JWTGenerator
             throw CustomerException::invalidImitationToken($salesChannelId . ':' . $customerId . ':' . $userId);
         }
 
-        return $this->encrypt(hash_hmac(self::HMAC_HASH_ALGORITHM, $data, $this->appSecret) . '.' . $this->clock->now()->getTimestamp());
+        return $this->encrypt($this->signer->signHex($data) . '.' . $this->clock->now()->getTimestamp());
     }
 
     /**
@@ -92,9 +97,7 @@ class ImitateCustomerTokenGenerator extends JWTGenerator
             throw CustomerException::invalidImitationToken($givenToken);
         }
 
-        $expectedHash = hash_hmac(self::HMAC_HASH_ALGORITHM, $data, $this->appSecret);
-
-        if (!hash_equals($hash, $expectedHash)) {
+        if (!$this->signer->verifyHex($data, $hash)) {
             throw CustomerException::invalidImitationToken($givenToken);
         }
     }

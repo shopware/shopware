@@ -9,6 +9,10 @@ Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED` while ano
 
 ## Core
 
+### Rule Builder: new "Item with longest side and girth" condition
+
+A new line item rule condition `LineItemDimensionLongestAndGirthRule` (`cartLineItemDimensionLongestAndGirth`) was added. It matches the cart against the longest side plus girth of each individual line item. It is calculated as `longest side + 2 * (shortest side + second shortest side)`. This condition allows for more precise shipping rules based on the dimensions of the items in the cart.
+
 ### Services can be reset between requests in long running runtimes
 
 With the new `LONGRUNNING_ENVIRONMENT` feature flag, services tagged with `kernel.reset` are reset between two requests handled by the same kernel instance, as in a plain Symfony application.
@@ -143,6 +147,13 @@ The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physica
 Values that are already set are kept.
 Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
 
+### ZUGFeRD documents include `discount` line items
+
+ZUGFeRD and XRechnung documents now contain line items of type `discount` (`LineItem::DISCOUNT_LINE_ITEM`), as added by app scripts via `services.cart.discount()` / `services.cart.surcharge()` or by extensions.
+Negative amounts are written as document level allowances, positive amounts as document level charges, split per tax rate.
+Before, these line items were missing from the document, so its totals did not add up and the e-invoice failed validation.
+Extensions that add these allowances or charges themselves, for example in a `zugferd-item-added.discount` event listener, must remove that workaround, otherwise the amount is contained twice.
+
 ### Deleting a tree reports every level as deleted
 
 Deleting an entity whose cascade reaches the same entity on several levels, for example a category with nested child categories, now reports every removed row as deleted.
@@ -262,6 +273,10 @@ A `0` is no longer replaced by the mapping's default value and satisfies a requi
 Empty cells behave as before.
 Check import files that relied on `0` being ignored.
 
+### Deprecated `PluginZipImportCommand::$cacheClearer`
+
+The property is unused and will be removed in 6.8.
+
 ## API
 
 ### Plain JSON becomes the default Admin API response format in 6.8
@@ -328,6 +343,12 @@ Saving is not blocked.
 
 Sync API writes that reference a missing entity or version now return a field-specific write error with HTTP 400 instead of exposing a database error as HTTP 500.
 
+### Refused removal of a Composer-managed app keeps it installed
+
+`POST /api/_action/extension/remove/app/{technicalName}` now refuses an app that Composer manages before it changes anything.
+The refusal now answers `FRAMEWORK__STORE_CANNOT_DELETE_COMPOSER_MANAGED` instead of `FRAMEWORK__APP_CANNOT_DELETE_COMPOSER_MANAGED`, still with HTTP 400.
+To remove such an app, uninstall it and remove its package with Composer.
+
 ### Cookie groups response contains a hash per cookie
 
 The experimental `/store-api/cookie-groups` route now also returns `cookieHashes`, which maps each cookie name to a hash of its configuration, including the data of every group that lists it.
@@ -363,8 +384,48 @@ Amounts that carry a single value instead of a net and gross pair, such as absol
 
 The customer group detail page offers both settings separately. Plugins customize the selection through the new extension point `Shopware\Core\Checkout\Cart\Extension\PriceSelectorExtension` (`price-selector.select.pre` and `.post`), for example to apply charm-price rounding to derived gross prices. `GrossPriceCalculator` now grosses up uncalculated prices over several tax rules so that its own tax split returns the given net value; prices with a single tax rule are unchanged. Background and trade-offs are documented in the ADR `adr/2026-08-11-decouple-price-calculation-basis-from-tax-display.md`.
 
+## App System
+
+### Inline `<custom-fields>` in `manifest.xml` stay supported
+
+The deprecation of the inline `<custom-fields>` element in `manifest.xml` was withdrawn, and it keeps working in 6.8.
+Apps no longer trigger a deprecation when they install or update with inline custom fields.
+`Resources/config/custom-fields.xml` stays the preferred format for new apps.
+If an app ships both, the file takes precedence, the inline definition is ignored, and Shopware logs a warning.
+
 ## Administration
 
+### Deprecated the media default folder lookups of `sw-product-detail-base` and `sw-bulk-edit-product-media`
+
+The `mediaDefaultFolderRepository` and `mediaDefaultFolderCriteria` computed properties of `sw-product-detail-base` and `sw-bulk-edit-product-media` are deprecated and will be removed.
+Use `mediaDefaultFolderService.getDefaultFolderId(entityName)` instead.
+
+### Deprecated the custom field set lookup of `sw-settings-listing-option-criteria-grid`
+
+The `customFieldSetIDs` data property, the `customFieldSetRelationsRepository` and `customFieldsRelationsCriteria` computed properties and the `fetchCustomFieldSetIds()` method of `sw-settings-listing-option-criteria-grid` are deprecated and will be removed without replacement.
+
+### Codemods for extensions in the extension tooling
+
+The new `administration:upgrade-extensions` command runs the codemods that prepare the Administration code of an extension for a Shopware major.
+Use it instead of `composer run admin:code-mods`: it also works in a Composer installation and through `shopware-cli project console`.
+
+```bash
+bin/console administration:upgrade-extensions -- --only=MyPlugin --target=6.8          # preview
+bin/console administration:upgrade-extensions -- --only=MyPlugin --target=6.8 --write  # apply
+```
+
+`--target` defaults to the newest major the installed Administration ships codemods for, and `--list` shows them.
+`--write` refuses extensions that are not committed to git, and outside an interactive terminal it needs `--only` or `--all`.
+`--only` also finds plugins in `custom/plugins` that are not installed or activated.
+`--with=sfc-migration` additionally converts Options API components into native setup SFCs.
+
+`composer run admin:code-mods` is deprecated and will be removed with Shopware 6.8.
+It now prints a deprecation warning.
+
+### Native setup stays experimental until 6.9
+
+The experimental phase of native setup and the Composition API extension system now ends with 6.9 instead of 6.8, like the composables in `shopware:composables`.
+Until then, they can change in any release without a deprecation.
 ### Apps can add tabs to the media modal they open
 
 `ui.mediaModal.open()` of the Meteor Admin SDK takes optional `tabs` (`{ label, locationId }`).
@@ -541,13 +602,19 @@ Changes to plugin files reload the page instead of using HMR.
 
 Vite 8 does not match extglob patterns like `!(*.spec)` in `import.meta.glob`.
 Replace them with negated patterns like `['./**/*.{j,t}s', '!./**/*.spec.{j,t}s']`.
-`composer admin:check-extensions` warns about them, and `composer run admin:code-mods -- --fix -v 6.8 -p YourPlugin` rewrites them.
+`administration:check-extensions` warns about them, and `administration:upgrade-extensions` rewrites them.
 Until 6.8, Shopware rewrites them when the flag is active and logs a warning for each one.
 If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0.6 or newer, because older versions ignore negated patterns.
 
 For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
 
 ## Storefront
+
+### Cookie provider removal postponed to 6.9
+
+The deprecated cookie-provider API and the `snippet_name` and `snippet_description` cookie template fields remain available throughout 6.8.
+Their removal was postponed to 6.9.
+Extension and theme developers should migrate to `CookieGroupCollectEvent` and the `name` and `description` fields before 6.9; see [the migration guidance](UPGRADE-6.9.md#refactor-of-providing-cookies).
 
 ### `app.request` is the current request
 
@@ -736,6 +803,39 @@ See `UPGRADE-6.8.md` for what themes have to adjust.
 `core.cart.showLegalGuaranteeNotice` now declares `false` as its default.
 This matches how shops behaved so far: the declared `true` never took effect, so the notice only appeared where it was enabled in the cart settings.
 Shops that sell goods to consumers in the EU should enable "Show legal guarantee notice on checkout page" to show the notice at checkout, on the registration form, in the order confirmation mail and in `/store-api/legal-guarantee-notice`.
+
+### Link categories no longer get new SEO URLs
+
+Link categories no longer get new SEO URLs during category indexing, so a link category named like its target does not take over the target's SEO URL anymore.
+Their existing SEO URLs are kept and still redirect to the link target.
+
+When several canonical SEO URLs match a request, the storefront now resolves the one stored exactly as requested.
+This ends the endless redirect between a link category and its target when their URLs differ only in case or a trailing slash.
+
+If category indexing ran on 6.7.13.0 or later, a target category can still show under a write-protected fallback URL, while a link category of the same name holds the target's URL.
+Indexing does not repair this, because the fallback is marked as modified.
+List the affected categories with:
+
+```bash
+bin/console seo:repair:link-category-takeover
+```
+
+A category whose SEO URL was set manually can appear in the list as well.
+The "Likely cause" column guesses whether the indexing locked the URL (`indexing`) or it was set manually (`manual`).
+With `--apply`, the command asks for each listed category whether it should get its URL back:
+
+```bash
+bin/console seo:repair:link-category-takeover --apply
+```
+
+To repair without being asked, for example in a script, pass the ids of the categories to repair:
+
+```bash
+bin/console seo:repair:link-category-takeover --apply --no-interaction <category-id>...
+```
+
+The categories get their SEO URLs back, and their fallback URLs redirect to them.
+The command is deprecated and will be removed in 6.9.0.0.
 
 ## Hosting & Configuration
 
@@ -3342,7 +3442,8 @@ Apps can now register custom fields on the `media_folder` and `media_folder_conf
 
 Relating a custom field set to `media_folder_configuration` is particularly useful because it inherits Shopware's existing folder configuration inheritance: folders that inherit their parent's configuration (`useParentConfiguration`) automatically share these custom field values.
 
-Define the fields in `Resources/config/custom-fields.xml` (the inline `<custom-fields>` element in `manifest.xml` is deprecated since 6.7.13.0):
+Define the fields in `Resources/config/custom-fields.xml`, the preferred format.
+The inline `<custom-fields>` element in `manifest.xml` works as well, its deprecation was withdrawn in 6.7.17.0:
 
 ```xml
 <custom-fields xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -3630,7 +3731,8 @@ Plugins and apps can now define custom fields declaratively in a `Resources/conf
 Shopware automatically handles creation, updates, and removal during the extension lifecycle (install, update, uninstall).
 
 This eliminates the boilerplate `CustomFieldsInstaller` service and plugin lifecycle hooks that were previously required for plugins.
-For apps, the same file-based approach replaces the inline `<custom-fields>` section in `manifest.xml` (now deprecated).
+For apps, the same file-based approach is the preferred alternative to the inline `<custom-fields>` section in `manifest.xml`.
+The deprecation of the inline section announced here was withdrawn in 6.7.17.0.
 
 The XML format is the same one already used by apps in the manifest:
 
@@ -3952,6 +4054,9 @@ The route is guarded by the existing `media:read` ACL privilege and returns a sm
 Defining custom fields inline in `manifest.xml` via the `<custom-fields>` element is deprecated. Use a separate `Resources/config/custom-fields.xml` file instead. The inline definition will be removed in v6.8.0.
 
 When an app has a `Resources/config/custom-fields.xml` file, it takes priority over the inline manifest definition. If only the inline definition exists, a deprecation warning is triggered.
+
+This deprecation was withdrawn in 6.7.17.0.
+Inline custom fields stay supported in 6.8, see "Inline `<custom-fields>` in `manifest.xml` stay supported" in the 6.7.17.0 section.
 
 ### Tax provider priority is preserved across app updates
 

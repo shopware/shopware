@@ -562,11 +562,4 @@ Application.addServiceProvider('cmsService', () => new CmsService());
  * @private
  * @sw-package discovery
  */
-export {
-    CmsService,
-    type CmsElementConfig,
-    type CmsBlockConfig,
-    type CmsSlotConfig,
-    type RuntimeSlot,
-    type EnrichedSlotData,
-};
+export { CmsService, type CmsElementConfig, type CmsBlockConfig, type CmsSlotConfig, type RuntimeSlot };

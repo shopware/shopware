@@ -3,14 +3,15 @@
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask\Telemetry;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelMappingRegistry;
 
 /**
- * Passes a core scheduled-task name through as a metric label value; anything outside the allowlist
- * (plugin/app tasks) collapses to `other`, bounding the label cardinality.
+ * Resolves a scheduled-task technical name to the `task_name` label value
+ * (see `metrics.mappings.task_name` in `telemetry.yaml`, extension and merge rules in
+ * `src/Core/Framework/Telemetry/README.md`).
  *
- * Owns its bounded output set (closed allowlist, `other` as default), so the consuming metric label may
- * use `policy: open`. The hardcoded list is intentional — see the rationale on
- * {@see \Shopware\Core\Framework\DataAbstractionLayer\Telemetry\EntityGroupResolver}.
+ * Core task names ({@see self::CORE_TASKS}) pass through; plugins opt in with configuration entries,
+ * and a configuration entry beats the pass-through, so operators can map even core tasks.
  *
  * @internal
  *
@@ -21,6 +22,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class TaskNameResolver
 {
+    final public const MAPPING = 'task_name';
+
     /**
      * All core task names ({@see \Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask::getTaskName()}
      * of every core task class), as a hash set for O(1) lookup.
@@ -56,8 +59,16 @@ class TaskNameResolver
         'webhook_event_log.cleanup' => true,
     ];
 
+    public function __construct(private readonly LabelMappingRegistry $mappings)
+    {
+    }
+
     public function resolve(string $taskName): string
     {
-        return isset(self::CORE_TASKS[$taskName]) ? $taskName : 'other';
+        return $this->mappings->resolve(
+            self::MAPPING,
+            $taskName,
+            static fn (string $name): ?string => isset(self::CORE_TASKS[$name]) ? $name : null,
+        );
     }
 }

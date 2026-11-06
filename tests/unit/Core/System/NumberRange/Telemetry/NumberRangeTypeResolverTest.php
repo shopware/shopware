@@ -6,9 +6,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelMappingRegistry;
 use Shopware\Core\System\NumberRange\Telemetry\NumberRangeTypeResolver;
 
 /**
+ * Resolver mechanics against a synthetic table; the shipped `number_range_type` table is covered by
+ * {@see \Shopware\Tests\Integration\Core\Framework\Telemetry\ShippedLabelMappingsTest}.
+ *
  * @internal
  */
 #[Package('framework')]
@@ -18,7 +22,14 @@ class NumberRangeTypeResolverTest extends TestCase
     #[DataProvider('technicalNameProvider')]
     public function testResolve(?string $technicalName, string $expected): void
     {
-        static::assertSame($expected, (new NumberRangeTypeResolver())->resolve($technicalName));
+        $resolver = new NumberRangeTypeResolver(new LabelMappingRegistry([
+            NumberRangeTypeResolver::MAPPING => [
+                'order' => 'order',
+                'document_invoice' => 'document',
+            ],
+        ], 'other'));
+
+        static::assertSame($expected, $resolver->resolve($technicalName));
     }
 
     /**
@@ -26,19 +37,10 @@ class NumberRangeTypeResolverTest extends TestCase
      */
     public static function technicalNameProvider(): \Generator
     {
-        // core type technical names map to their bounded group
-        yield 'order maps to order' => ['order', 'order'];
-        yield 'customer maps to customer' => ['customer', 'customer'];
-        yield 'product maps to product' => ['product', 'product'];
-        // all document types share the document group (own state rows, but never compared individually)
-        yield 'document_invoice maps to document' => ['document_invoice', 'document'];
-        yield 'document_delivery_note maps to document' => ['document_delivery_note', 'document'];
-        yield 'document_credit_note maps to document' => ['document_credit_note', 'document'];
-        yield 'document_storno maps to document' => ['document_storno', 'document'];
-
-        // unmapped inputs fall through to other
+        yield 'configured entry' => ['order', 'order'];
+        yield 'configured entry folding to a group' => ['document_invoice', 'document'];
         yield 'null maps to other' => [null, 'other'];
         yield 'empty string maps to other' => ['', 'other'];
-        yield 'plugin custom range maps to other' => ['my_plugin_range', 'other'];
+        yield 'unlisted type maps to other' => ['my_plugin_range', 'other'];
     }
 }

@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelPolicy;
 class LabelConfigTest extends TestCase
 {
     /**
-     * @param array{allowed_values?: list<string>, policy?: string} $definition
+     * @param array{allowed_values?: list<string>, add_allowed_values?: list<string>, policy?: string} $definition
      * @param list<string>|null $expectedValues
      */
     #[TestDox('fromDefinition: $_dataName')]
@@ -32,7 +32,7 @@ class LabelConfigTest extends TestCase
     }
 
     /**
-     * @return \Generator<string, array{0: array{allowed_values?: list<string>, policy?: string}, 1: list<string>|null, 2: LabelPolicy|null}>
+     * @return \Generator<string, array{0: array{allowed_values?: list<string>, add_allowed_values?: list<string>, policy?: string}, 1: list<string>|null, 2: LabelPolicy|null}>
      */
     public static function definitionProvider(): \Generator
     {
@@ -48,6 +48,24 @@ class LabelConfigTest extends TestCase
             ['allowed_values' => ['x'], 'policy' => 'discard'],
             ['x'],
             LabelPolicy::DISCARD,
+        ];
+
+        yield 'contributions become the effective list' => [
+            ['add_allowed_values' => ['a', 'b']],
+            ['a', 'b'],
+            null,
+        ];
+
+        yield 'allowed values win over contributions' => [
+            ['allowed_values' => ['locked'], 'add_allowed_values' => ['contributed']],
+            ['locked'],
+            null,
+        ];
+
+        yield 'empty lists yield null' => [
+            ['allowed_values' => [], 'add_allowed_values' => []],
+            null,
+            null,
         ];
     }
 }

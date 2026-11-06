@@ -160,6 +160,22 @@ class MetricLabelProcessorTest extends TestCase
         static::assertSame([], $result);
     }
 
+    public function testReplacementIsSilentInDev(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->never())->method('notice');
+        $logger->expects($this->never())->method('log');
+
+        $processor = new MetricLabelProcessor('other', $logger, 'dev');
+        $config = new MetricConfig('test', 'desc', Type::COUNTER, true, [], [
+            'method' => new LabelConfig(allowedValues: ['GET']),
+        ]);
+
+        $result = $processor->process($config, ['method' => 'PATCH']);
+
+        static::assertSame(['method' => 'other'], $result);
+    }
+
     public function testCustomReplacementValue(): void
     {
         $processor = new MetricLabelProcessor('_unknown_', static::createStub(LoggerInterface::class), 'prod');

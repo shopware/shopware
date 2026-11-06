@@ -89,6 +89,7 @@ use Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelMappingRegistry;
 use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -166,7 +167,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(FlowMetricsInstrumentor::class),
         ]);
 
-    $services->set(TriggerGroupResolver::class);
+    $services->set(TriggerGroupResolver::class)
+        ->args([
+            service(LabelMappingRegistry::class),
+        ]);
 
     $services->set(FlowMetricsInstrumentor::class)
         ->args([

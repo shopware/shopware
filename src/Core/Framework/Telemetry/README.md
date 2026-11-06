@@ -68,7 +68,44 @@ Each definition supports:
 - `enabled` (optional, defaults to `true`) - allows disabling a metric without removing its emitters.
 - `unit` (optional) - unit of measurement (e.g. `byte`).
 - `parameters` (optional) - type-specific parameters (e.g. `buckets` for histograms).
-- `labels` (optional) - map of label names to `allowed_values`. Labels supplied at emit time that are not in this allowlist are silently stripped.
+- `labels` (optional) - map of label names to their value configuration. Every label must declare values
+  (`allowed_values` and/or `add_allowed_values`) or `policy: open`.
+
+### Label allow lists
+
+A label bounds its values through two sibling keys with different merge semantics:
+
+- `add_allowed_values` contributes values. Contributions from all config sources (framework, plugins, project)
+  are merged, duplicates removed. This is the key plugins use to widen a core label.
+- `allowed_values` declares the complete, final list. The last config source to set it wins, and its
+  presence locks the label: every `add_allowed_values` contribution is discarded. Reading rule: a non-empty
+  `allowed_values` in the processed config (`bin/console debug:config shopware telemetry`) means additions were
+  discarded.
+
+A value outside the effective list is replaced with `replace_unknown_label_values_with` (default `other`)
+silently, in every environment. To collapse a label entirely, lock it to exactly the replacement value:
+`allowed_values: [other]`.
+
+Locking is an operator-level act: set `allowed_values` on a label you do not own only from project config or
+from a base plugin/bundle that acts as the installation's policy layer, never from a redistributed plugin.
+
+### Label mappings
+
+A mapping is a named table `key → label value` under `shopware.telemetry.metrics.mappings`, used by the
+label resolvers to bucket open identifier sets (entity names, route names, event names, ...) into bounded set of
+label values. A label served by a mapping is declared `policy: open`: the serving resolver owns the binding
+(a `MAPPING` class constant) and guarantees the bound.
+There is deliberately no label-level `mapping:` key - the binding lives in the resolver's key extraction and
+cannot be changed through config; an integration test pins that the resolver constants and the shipped tables match.
+
+- A key is exact, or a prefix when it ends with `*`. Exact beats prefix; the longest prefix wins.
+- Resolution order per key: configured entry → the resolver's code-level rule → `other`. Configured entries win,
+  so an extension or operator can always correct a heuristic — including folding core values
+  (`'swag_paypal_*': other`).
+- Entries merge per key: a later config source overrides the same key, so project config overrides core and
+  plugin entries. Extension-defined mapping names carry a vendor prefix (`swag_paypal_refund_kind`); bare
+  names are reserved for core.
+- Keys containing backslashes (message class FQCNs) must be single-quoted: `'Swag\Blog\Message\*': blog`.
 
 ### Transports
 

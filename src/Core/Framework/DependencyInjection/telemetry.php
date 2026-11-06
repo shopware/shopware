@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DependencyInjection;
 
+use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelMappingRegistry;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfigProvider;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\TransportConfigProvider;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
@@ -45,6 +46,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('shopware.telemetry.metrics.replace_unknown_label_values_with'),
             service('logger'),
             env('APP_ENV'),
+        ]);
+
+    $services->set(LabelMappingRegistry::class)
+        ->args([
+            param('shopware.telemetry.metrics.mappings'),
+            param('shopware.telemetry.metrics.replace_unknown_label_values_with'),
         ]);
 
     $services->set(MetricConfigProvider::class)

@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  *
- * @phpstan-type LabelDefinition array{allowed_values?: list<string>, policy?: string}
+ * @phpstan-type LabelDefinition array{allowed_values?: list<string>, add_allowed_values?: list<string>, policy?: string}
  */
 #[Package('framework')]
 readonly class LabelConfig
@@ -26,8 +26,15 @@ readonly class LabelConfig
      */
     public static function fromDefinition(array $definition): self
     {
+        // the config tree folds the two keys at container build: a non-empty `allowed_values`
+        // is the complete final list (locked label), otherwise the merged `add_allowed_values` are
+        $allowedValues = $definition['allowed_values'] ?? [];
+        if ($allowedValues === []) {
+            $allowedValues = $definition['add_allowed_values'] ?? [];
+        }
+
         return new self(
-            allowedValues: $definition['allowed_values'] ?? null,
+            allowedValues: $allowedValues === [] ? null : $allowedValues,
             policy: isset($definition['policy']) ? LabelPolicy::tryFrom($definition['policy']) : null,
         );
     }

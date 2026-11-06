@@ -354,7 +354,7 @@ test('the merge group gate passes a correctly labelled queued PR', () => {
 });
 
 test('the merge group gate checks every PR in a batch, not just the one the ref names', () => {
-    const { toolkit, failed, statuses } = mergeGroupToolkit(
+    const { toolkit, statuses } = mergeGroupToolkit(
         {
             18791: { base: 'trunk', labels: [`${MILESTONE_LABEL_PREFIX}6.7.14.0`] },
             18780: { base: 'trunk', labels: [`${MILESTONE_LABEL_PREFIX}6.7.13.0`] },
@@ -370,7 +370,7 @@ test('the merge group gate checks every PR in a batch, not just the one the ref 
 });
 
 test('the merge group gate still checks the ref-named PR when the commit lookup fails', () => {
-    const { toolkit, failed, warnings, statuses } = mergeGroupToolkit(
+    const { toolkit, warnings, statuses } = mergeGroupToolkit(
         { 18791: { base: 'trunk', labels: [`${MILESTONE_LABEL_PREFIX}6.7.13.0`] } },
         [],
     );

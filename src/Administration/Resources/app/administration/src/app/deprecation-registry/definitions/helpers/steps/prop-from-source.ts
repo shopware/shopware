@@ -27,6 +27,8 @@ type FoundSource = {
     attribute?: TemplateNode;
     /** The slot nodes of a slot source. */
     slotNodes?: TemplateNode[];
+    /** Attributes of the slot element besides the one read, which the prop cannot carry. */
+    droppedAttributes?: string[];
 };
 
 // The parser drops Twig tags from text nodes, so they are only visible in the source
@@ -45,8 +47,9 @@ const STRING_FUNCTIONS = ['$t', '$tc'];
  * - a bound source that can be null or undefined → review comment, because the old component showed
  *   `oldComponentFallback` then and the new one shows nothing
  * - `oldComponentToggle.prop` false → `valueWhenOff`; bound to an expression → a conditional value
- * - `plainText` with static HTML → review comment, because the new prop shows the tags as text
- * - a conditional slot, Twig, or markup a prop cannot hold → manual
+ * - `plainText` with static HTML or a bound prop → review comment, because the new prop shows tags as text
+ * - a slot element with more attributes than the one read, such as an icon's size → review comment
+ * - a conditional slot, a slot with a dynamic name, Twig, or markup a prop cannot hold → manual
  *
  * @example
  * propFromSource({
@@ -125,6 +128,11 @@ function findSources(
     const listsTarget = stepSources.some((source) => source.from === 'prop' && source.prop === step.toProp);
     // An element that already passes the new prop keeps it, the old sources come after it
     const orderedSources: PropSource[] = listsTarget ? stepSources : [{ from: 'prop', prop: step.toProp }, ...stepSources];
+    const readsSlot = stepSources.some((source) => source.from === 'slot');
+
+    if (readsSlot && hasDynamicSlot(api)) {
+        return { manualReason: 'A slot with a dynamic name can fill one of its slots.' };
+    }
 
     for (const source of orderedSources) {
         if (source.from === 'prop') {
@@ -204,7 +212,9 @@ function readSlot(
         return { manualReason: `The "${source.slot}" slot renders content that the prop cannot hold.` };
     }
 
-    return { source, slotNodes, value };
+    const droppedAttributes = source.childElement ? findOtherAttributes(api, content[0], source.attribute) : [];
+
+    return { source, slotNodes, value, ...(droppedAttributes.length > 0 ? { droppedAttributes } : {}) };
 }
 
 /**
@@ -246,6 +256,37 @@ function readSlotElement(
         isListedElement && source.attribute ? api.ast.findMatchingPropAttribute(element, source.attribute) : undefined;
 
     return attribute ? readAttribute(api, attribute) : null;
+}
+
+/**
+ * Names the attributes of a slot element besides the one the prop takes, such as the size of an icon.
+ *
+ * @example
+ * findOtherAttributes(api, iconOf('<mt-icon name="x" size="40px" />'), 'name'); // ['size']
+ */
+function findOtherAttributes(api: ComponentUsageRuleApi, element: TemplateNode, attributeName?: string): string[] {
+    const read = attributeName ? api.ast.findMatchingPropAttribute(element, attributeName) : undefined;
+
+    return (element.startTag.attributes as TemplateNode[])
+        .filter((attribute) => attribute !== read)
+        .map((attribute) => api.sourceCode.getText(attribute.key));
+}
+
+/**
+ * Tells whether the element fills a slot whose name is only known at runtime, like `<template #[name]>`.
+ */
+function hasDynamicSlot(api: ComponentUsageRuleApi): boolean {
+    return (api.node.children as TemplateNode[]).some((child) => {
+        return (
+            child.type === 'VElement' &&
+            child.name === 'template' &&
+            (child.startTag.attributes as TemplateNode[]).some((attribute) => {
+                return (
+                    api.ast.getDirectiveName(attribute) === 'slot' && attribute.key.argument?.type === 'VExpressionContainer'
+                );
+            })
+        );
+    });
 }
 
 /** The changes that turn the found sources into the new prop. */
@@ -370,8 +411,10 @@ function collectReviews(
     plan: { chosen: FoundSource | undefined; value: Value | null; toggle: boolean | string },
 ): string[] {
     const reviews: string[] = [];
+    // The element's own target prop is codemod output from an earlier pass, not a source of the old component
+    const chosen = plan.chosen && listSources(step).includes(plan.chosen.source) ? plan.chosen : undefined;
 
-    if (plan.toggle !== false && losesFallback(api, step, plan.chosen)) {
+    if (plan.toggle !== false && losesFallback(api, step, chosen)) {
         reviews.push(
             `"${step.toProp}" no longer falls back to "${step.oldComponentFallback}" when it is null or undefined.`,
         );
@@ -379,6 +422,16 @@ function collectReviews(
 
     if (step.plainText && plan.value?.kind === 'static' && /<[a-z]/i.test(plan.value.text)) {
         reviews.push(`"${step.toProp}" is rendered as plain text, so HTML in it shows as text.`);
+    }
+
+    if (plan.toggle !== false && step.plainText && isBoundProp(api, step, chosen)) {
+        reviews.push(`"${step.toProp}" is rendered as plain text: check that the bound value holds no HTML.`);
+    }
+
+    if (chosen?.droppedAttributes) {
+        const names = chosen.droppedAttributes.map((name) => `"${name}"`).join(', ');
+
+        reviews.push(`The slot element's ${names} cannot move into "${step.toProp}" and is dropped.`);
     }
 
     return reviews;
@@ -431,6 +484,19 @@ function readToggle(api: ComponentUsageRuleApi, attribute: TemplateNode): boolea
     }
 
     return code === 'false' ? false : code;
+}
+
+/** Tells whether the chosen source is a bound prop other than the old component's fallback itself. */
+function isBoundProp(api: ComponentUsageRuleApi, step: PropFromSourceStep, chosen: FoundSource | undefined): boolean {
+    const attribute = chosen?.attribute;
+
+    if (!attribute || api.ast.getDirectiveName(attribute) !== 'bind') {
+        return false;
+    }
+
+    const code = api.ast.getAttributeValueSource(attribute) ?? '';
+
+    return code.replace(/\s/g, '') !== (step.oldComponentFallback ?? '').replace(/\s/g, '');
 }
 
 /**

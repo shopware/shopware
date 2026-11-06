@@ -16,6 +16,7 @@ module.exports = [
         partial: `
 <template>
     <!-- TODO Codemod: Converted from sw-empty-state - please check if everything works correctly. sw-empty-state covered its container, mt-empty-state takes part in the layout: check the spacing -->
+    <!-- TODO Codemod: [mt-empty-state] The "description" prop replaces the "default" slot and the "subline" prop. "description" is rendered as plain text: check that the bound value holds no HTML. -->
     <mt-empty-state :headline="$t('foo.title')" :description="$t('foo.subline')" :icon="$route.meta.$module.icon" centered />
 </template>`,
         safe: null,
@@ -139,6 +140,7 @@ module.exports = [
         partial: `
 <template>
     <!-- TODO Codemod: Converted from sw-empty-state - please check if everything works correctly. sw-empty-state covered its container, mt-empty-state takes part in the layout: check the spacing -->
+    <!-- TODO Codemod: [mt-empty-state] The "icon" prop replaces the <mt-icon> in the "icon" slot and the "icon" prop. The slot element's "size" cannot move into "icon" and is dropped. -->
     <mt-empty-state :headline="title" icon="regular-rocket" centered :description="$t('foo.description')">
     </mt-empty-state>
 </template>`,
@@ -228,7 +230,7 @@ module.exports = [
 <template>
     <!-- TODO Codemod: Converted from sw-empty-state - please check if everything works correctly. sw-empty-state covered its container, mt-empty-state takes part in the layout: check the spacing -->
     <!-- TODO Codemod: [mt-empty-state] The "icon" prop replaces the <mt-icon> in the "icon" slot and the "icon" prop. "icon" no longer falls back to "$route.meta.$module.icon" when it is null or undefined. -->
-    <!-- TODO Codemod: [mt-empty-state] The "description" prop replaces the "default" slot and the "subline" prop. "description" no longer falls back to "$t($route.meta.$module.description)" when it is null or undefined. -->
+    <!-- TODO Codemod: [mt-empty-state] The "description" prop replaces the "default" slot and the "subline" prop. "description" no longer falls back to "$t($route.meta.$module.description)" when it is null or undefined. "description" is rendered as plain text: check that the bound value holds no HTML. -->
     <mt-empty-state :headline="title" :description="emptyHint" :icon="orderIcon" centered />
 </template>`,
         safe: null,
@@ -243,6 +245,7 @@ module.exports = [
         partial: `
 <template>
     <!-- TODO Codemod: Converted from sw-empty-state - please check if everything works correctly. sw-empty-state covered its container, mt-empty-state takes part in the layout: check the spacing -->
+    <!-- TODO Codemod: [mt-empty-state] The "description" prop replaces the "default" slot and the "subline" prop. "description" is rendered as plain text: check that the bound value holds no HTML. -->
     <mt-empty-state headline="Title" :description="filtered ? $tc('foo.filtered') : $t('foo.empty')" :icon="'regular-' + type" centered />
 </template>`,
         safe: null,
@@ -479,7 +482,9 @@ module.exports = [
         partial: `
 <template>
     <!-- TODO Codemod: Converted from sw-empty-state - please check if everything works correctly. sw-empty-state covered its container, mt-empty-state takes part in the layout: check the spacing -->
-    <mt-empty-state headline="Title" :description="$t($route.meta.$module.description)" :icon="$route.meta.$module.icon" centered>
+    <!-- TODO Codemod: [mt-empty-state] The "description" prop replaces the "default" slot and the "subline" prop. A slot with a dynamic name can fill one of its slots. Pass it as the "description" prop manually. -->
+    <!-- TODO Codemod: [mt-empty-state] The "icon" prop replaces the <mt-icon> in the "icon" slot and the "icon" prop. A slot with a dynamic name can fill one of its slots. Pass it as the "icon" prop manually. -->
+    <mt-empty-state headline="Title" centered>
         <template #[slotName]>Content</template>
     </mt-empty-state>
 </template>`,
@@ -556,5 +561,38 @@ module.exports = [
     <mt-empty-state headline="T" description="S" icon="a" centered />
     <sw-empty-state title="T" subline="S" icon="a" :absolute="isOverlay" />
 </template>`,
+    },
+    {
+        name: 'keeps an icon with its own size from a safe conversion',
+        filename: 'test.html.twig',
+        code: `
+<template>
+    <sw-empty-state title="Title" :absolute="false" subline="Sub">
+        <template #icon><mt-icon name="regular-rocket" size="40px" /></template>
+    </sw-empty-state>
+</template>`,
+        partial: `
+<template>
+    <!-- TODO Codemod: Converted from sw-empty-state - please check if everything works correctly -->
+    <!-- TODO Codemod: [mt-empty-state] The "icon" prop replaces the <mt-icon> in the "icon" slot and the "icon" prop. The slot element's "size" cannot move into "icon" and is dropped. -->
+    <mt-empty-state headline="Title" description="Sub" icon="regular-rocket" centered>
+    </mt-empty-state>
+</template>`,
+        safe: null,
+    },
+    {
+        name: 'keeps a bound subline, which sw-empty-state rendered as HTML, from a safe conversion',
+        filename: 'test.html.twig',
+        code: `
+<template>
+    <sw-empty-state title="Title" icon="regular-products" :absolute="false" :subline="$t('my.hint')" />
+</template>`,
+        partial: `
+<template>
+    <!-- TODO Codemod: Converted from sw-empty-state - please check if everything works correctly -->
+    <!-- TODO Codemod: [mt-empty-state] The "description" prop replaces the "default" slot and the "subline" prop. "description" is rendered as plain text: check that the bound value holds no HTML. -->
+    <mt-empty-state headline="Title" icon="regular-products" :description="$t('my.hint')" centered />
+</template>`,
+        safe: null,
     },
 ];

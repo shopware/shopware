@@ -3,12 +3,17 @@
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
 use Mcp\Capability\Registry;
+use Mcp\Schema\Enum\ProtocolVersion;
 use Mcp\Schema\Tool;
+use Mcp\Server\Stateless\RequestMeta;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\Tool\Search\ToolSearch;
 use Shopware\Core\Framework\Mcp\Tool\ToolSearchTool;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
@@ -41,6 +46,66 @@ class ToolSearchToolTest extends TestCase
         static::assertStringContainsString('shopware-toolset-enable', $data->meta['usage']);
     }
 
+    public function testHandshakeResultNamesNoToolset(): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push(Request::create('/api/_mcp', 'POST'));
+
+        $tool = new ToolSearchTool($this->registry(), new ToolSearch(), null, $this->toolsetRegistry(), $requestStack);
+
+        $data = $tool('read entity');
+
+        static::assertArrayNotHasKey('toolset', $data->data[0]);
+        static::assertStringContainsString('shopware-toolset-enable', $data->meta['usage']);
+    }
+
+    public function testStatelessResultNamesTheToolsetAndPointsToToolsetsInTheUrl(): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push(self::statelessRequest('tools/call'));
+
+        $tool = new ToolSearchTool($this->registry(), new ToolSearch(), null, $this->toolsetRegistry(), $requestStack);
+
+        $data = $tool('read entity', 20);
+
+        static::assertIsArray($data->data);
+        $match = $data->data[0]['tool'];
+        static::assertInstanceOf(Tool::class, $match);
+        static::assertSame('shopware-entity-read', $match->name);
+        static::assertSame('entity', $data->data[0]['toolset']);
+        static::assertSame(2, $data->meta['totalCandidates']);
+        static::assertStringContainsString('?toolsets=', $data->meta['usage']);
+        static::assertStringNotContainsString('shopware-toolset-enable', $data->meta['usage']);
+        static::assertStringNotContainsString('shopware-toolsets-list', $data->meta['usage']);
+    }
+
+    public function testStatelessSearchDoesNotFindTheToolsetSessionTools(): void
+    {
+        $registry = $this->registry();
+        $registry->registerTool(self::tool(McpToolsetRegistry::ENABLE_TOOLSET_TOOL, 'Enable one MCP toolset'), 'Acme\\EnableTool');
+        $registry->registerTool(self::tool(McpToolsetRegistry::LIST_TOOLSETS_TOOL, 'List the MCP toolsets'), 'Acme\\ListTool');
+
+        $requestStack = new RequestStack();
+        $requestStack->push(self::statelessRequest('tools/call'));
+
+        $tool = new ToolSearchTool($registry, new ToolSearch(), null, $this->toolsetRegistry(), $requestStack);
+
+        $data = $tool('toolset', 20);
+
+        static::assertSame([], $data->data);
+        static::assertSame(2, $data->meta['totalCandidates']);
+    }
+
+    private function toolsetRegistry(): McpToolsetRegistry
+    {
+        $registry = static::createStub(McpToolsetRegistry::class);
+        $registry->method('toolsets')->willReturn([
+            ['name' => 'entity', 'title' => 'Entity tools', 'description' => 'Entity', 'tools' => ['shopware-entity-read', 'shopware-entity-search']],
+        ]);
+
+        return $registry;
+    }
+
     private function registry(): Registry
     {
         $registry = new Registry();
@@ -59,5 +124,15 @@ class ToolSearchToolTest extends TestCase
             description: $description,
             annotations: null,
         );
+    }
+
+    private static function statelessRequest(string $method): Request
+    {
+        return Request::create('/api/_mcp', 'POST', content: json_encode([
+            'jsonrpc' => '2.0',
+            'id' => 1,
+            'method' => $method,
+            'params' => ['_meta' => [RequestMeta::PROTOCOL_VERSION => ProtocolVersion::V2026_07_28->value]],
+        ], \JSON_THROW_ON_ERROR));
     }
 }

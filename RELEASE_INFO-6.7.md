@@ -263,6 +263,67 @@ public function __invoke(string $id): McpToolResult
 ```
 
 App tools keep the `{"success": …}` envelope as their response format.
+### MCP servers run on `mcp/sdk` 0.9 and `symfony/mcp-bundle` 0.15
+
+Shopware now requires `mcp/sdk` 0.9 and `symfony/mcp-bundle` 0.15.
+Plugins and bundles that register MCP tools are affected in these points:
+
+* A tool that declares an `outputSchema` has its `structuredContent` validated against it.
+  A result that does not match is sent as an error result with `isError: true`.
+  Return `new \stdClass()` for an empty object, since `[]` is sent as an array.
+* A tool whose `inputSchema` has a `properties` member that is not an object, or a `required` member that is not a list, is rejected when it is registered.
+* `#[CompletionProvider]` no longer takes `providerClass`; pass the class to `provider` instead.
+
+The SDK classes for an OAuth proxy, client registration and OIDC discovery were removed, see the [mcp/sdk 0.9.0 changelog](https://github.com/modelcontextprotocol/php-sdk/blob/v0.9.0/CHANGELOG.md).
+The MCP endpoints match the `Origin` header of browser clients exactly, including scheme and port.
+They accept the origins of `APP_URL` and of every sales channel domain.
+A loopback origin, for example the MCP Inspector on `http://localhost:6274`, is accepted only for a shop on a loopback host such as `localhost` or `*.localhost`.
+Clients without an `Origin` header, such as CLI clients and desktop apps, are not affected.
+Allow further origins with `shopware.mcp.allowed_origins`.
+An entry is an exact origin, an origin with `:*` for any port, or `*` for any origin:
+
+```yaml
+shopware:
+    mcp:
+        allowed_origins:
+            - 'https://chat.example.com'
+            - 'http://localhost:*'
+```
+
+The list can also come from an environment variable, for example `allowed_origins: '%env(csv:MCP_ALLOWED_ORIGINS)%'`.
+A rejected origin is logged as a warning in the `mcp` channel.
+### MCP tools can stream progress and elicitation again
+
+MCP tools that call `progress()`, `notify()`, `elicit()` or `elicitUrl()` on the SDK's `ClientGateway` now reach the client as a `text/event-stream` with its headers and frames.
+### MCP tool results follow the negotiated protocol revision
+
+Tool results of `/api/_mcp` and `/store-api/_mcp` now take their format from the protocol revision the client negotiated, not from the `v6.8.0.0` feature flag.
+
+* **Clients on 2025-06-18 and later** get the MCP format: the first text block is the result data as plain JSON (or the error message), followed by the summary and the metadata (`{"_meta": …}`) as blocks of their own.
+  The text is no longer the `{"success": …}` envelope.
+  The data is also in `structuredContent`, a failure sets `isError: true` with a stable code in `structuredContent.error.code`, and the metadata is also in the result's `_meta` with the prefix `shopware/`.
+  Integrations that parse `success` out of `content[0].text` have to read `isError` and `structuredContent` instead, or negotiate an older revision.
+  When a result has metadata for the model, such as `dryRun`, `total` or a summary, `structuredContent` carries it under the reserved key `_meta`: next to the keys of an object, or as `{"result": …, "_meta": …}` for a list or scalar, on 2026-07-28 too.
+  Tools that declare an `outputSchema` get exactly their data in `structuredContent`.
+* **Clients on 2024-11-05 and 2025-03-26** keep the `{"success": …}` envelope as the only text block, unchanged.
+  This legacy envelope is deprecated as a wire format.
+  It is kept for these clients and is not removed in 6.8.0.
+  `McpToolResponse::success()` and `::error()` stay; tools don't need to change.
+
+### Large MCP results in the result envelope are stored and linked for every tool
+
+The MCP result renderer now decides whether a tool result is too large to return inline, on `/api/_mcp` and `/store-api/_mcp`.
+It renders every result in the `{"success": …}` envelope, meaning a JSON string with a boolean `success`, no matter whether it comes from `McpToolResponse::success()`, an app tool, or a plugin tool that builds the string by hand.
+Such results, which were always returned inline unless they came from `McpToolResponse::success()`, are now stored when they are too large and sent as a `resource_link` (2025-06-18 and later) or with `_meta.resourceUri` in the envelope (before 2025-06-18).
+A tool result that is not in this envelope, such as plain text, is passed through unchanged and is never stored.
+On 2025-06-18 and later, results of a tool that declares an `outputSchema` are never stored, because a link carries no `structuredContent` that could match the schema; such a tool has to keep its results small itself.
+The model reads stored results with `resources/read`.
+`McpToolResponse::success()` itself no longer stores anything and always returns the full data, so a tool called outside of an MCP request gets its complete result.
+The limit applies to the rendered result, the text plus `structuredContent`, and is set so that the offload point stays at about 100 KB of data.
+The linked response keeps the tool's summary, its own links, and its metadata up to 10 KB; larger metadata values are named in `_meta.omittedMeta`.
+For clients on protocol revision 2025-06-18 or later, `resources/read` of a stored result returns the plain data instead of the `{"success": true, "data": …}` envelope.
+Its metadata, such as `total`, comes with the link in the tool result.
+Clients on 2024-11-05 and 2025-03-26 keep reading the envelope.
 ### ZUGFeRD e-invoices send the real unit code
 
 Product line items now store the `uneceCode` and the `purchaseUnit` of the product in their payload (`payload.uneceCode`, `payload.purchaseUnit`) when they are added to the cart, so orders keep the values the product had when the order was placed. Variants without their own unit store the parent's values.
@@ -329,6 +390,33 @@ A `0` is no longer replaced by the mapping's default value and satisfies a requi
 Empty cells behave as before.
 Check import files that relied on `0` being ignored.
 
+### MCP endpoints can serve the stateless 2026-07-28 protocol revision
+
+Both MCP endpoints can now serve the stateless 2026-07-28 revision next to the handshake revisions, from the same URL.
+It is off by default.
+Switch it on per endpoint:
+
+```yaml
+shopware:
+    mcp:
+        protocol_era:
+            admin: auto
+            store_api: auto
+```
+
+`legacy`, the default, serves the handshake revisions up to 2025-11-25 only.
+With `auto`, the client picks the revision, and clients on the handshake revisions are not affected.
+`bin/console debug:mcp` shows the era of each endpoint.
+
+On the stateless revision there is no MCP session:
+
+* Choose toolsets in the endpoint URL, for example `/api/_mcp?toolsets=order,media`.
+  `shopware-toolset-enable` and `shopware-toolsets-list` are not listed in `tools/list`; called directly, they answer with an error that points to `?toolsets=`.
+  The server instructions and `shopware-tool-search` point to `?toolsets=` as well, and each search match names its toolset.
+* List changes on the Admin API endpoint, for example after an app install, reach clients through `subscriptions/listen`.
+  The notifications go through `cache.app`, so setups with several hosts need a shared `cache.app`, for example Redis.
+* Each open `subscriptions/listen` stream occupies a PHP worker for up to 30 seconds before the client reconnects.
+  Account for it in `pm.max_children`.
 ### Deprecated `PluginZipImportCommand::$cacheClearer`
 
 The property is unused and will be removed in 6.8.

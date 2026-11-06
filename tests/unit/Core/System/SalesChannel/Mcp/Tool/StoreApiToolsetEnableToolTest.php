@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\System\SalesChannel\Mcp\Tool;
 
+use Mcp\Schema\Enum\ProtocolVersion;
+use Mcp\Server\Stateless\RequestMeta;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
@@ -50,5 +52,30 @@ class StoreApiToolsetEnableToolTest extends TestCase
         static::assertTrue($result->meta['listChanged']);
         // Like the admin tool, the store-api variant records intent; the controller emits it.
         static::assertTrue($request->attributes->getBoolean(McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE));
+    }
+
+    public function testIsUnavailableOnTheStatelessEra(): void
+    {
+        $storage = $this->createMock(McpToolsetSessionStorage::class);
+        $storage->expects($this->never())->method('enable');
+
+        $requestStack = new RequestStack();
+        $requestStack->push(self::statelessRequest());
+
+        $tool = new StoreApiToolsetEnableTool(static::createStub(McpToolsetRegistry::class), $storage, $requestStack);
+        $result = $tool('store-api');
+
+        static::assertTrue($result->isError());
+        static::assertStringContainsString('"?toolsets=store-api"', $result->error->message);
+    }
+
+    private static function statelessRequest(): Request
+    {
+        return Request::create('/store-api/_mcp', 'POST', content: json_encode([
+            'jsonrpc' => '2.0',
+            'id' => 1,
+            'method' => 'tools/call',
+            'params' => ['_meta' => [RequestMeta::PROTOCOL_VERSION => ProtocolVersion::V2026_07_28->value]],
+        ], \JSON_THROW_ON_ERROR));
     }
 }

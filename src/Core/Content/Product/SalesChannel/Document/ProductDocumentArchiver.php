@@ -12,6 +12,7 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
@@ -116,14 +117,16 @@ class ProductDocumentArchiver
             return new MediaCollection();
         }
 
+        // each file once and in the order of the documents, which a search without sorting keeps
         $criteria = new Criteria(array_values(array_unique($mediaIds)));
         $criteria->setTitle('product-document-archiver::media');
-        $criteria->addFilter(new EqualsFilter('private', false));
-        $files = $this->mediaRepository->search($criteria, $context->getContext())->getEntities();
-        // in the order of the documents, with a file that several documents use once
-        $files->sortByIdArray($mediaIds);
+        $criteria->addFilter(
+            new EqualsFilter('private', false),
+            // media without a file have no path
+            new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('path', null)]),
+        );
 
-        return $files->filter(static fn (MediaEntity $file): bool => $file->hasFile());
+        return $this->mediaRepository->search($criteria, $context->getContext())->getEntities();
     }
 
     /**

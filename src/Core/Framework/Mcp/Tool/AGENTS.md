@@ -152,6 +152,8 @@ They are `@deprecated tag:v6.8.0` and trigger a deprecation, which throws once t
 App tools are registered as closures and are not reported, because the envelope stays their response format.
 This deprecates the PHP return value only; the legacy text format that old protocol revisions receive is not affected.
 All core tools return `McpToolResult`.
+`McpToolLegacyStringResultRule` (identifier `shopware.mcpToolLegacyStringResult`) reports a tool method with a native `string` return type, including `?string` and unions.
+It is registered in `core-rules.neon` only, so it guards core without failing extension builds; it moves to `rules.neon` with 6.8.0.
 App tools keep the envelope as their response format.
 
 ### What the client receives

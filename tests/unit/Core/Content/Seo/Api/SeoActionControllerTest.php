@@ -98,7 +98,7 @@ class SeoActionControllerTest extends TestCase
         $persister->expects($this->never())->method('forceUpdateSeoUrls');
         $updater = $this->createMock(SeoUrlUpdater::class);
         $updater->expects($this->once())->method('resetToTemplate')
-            ->with(ProductPageSeoUrlRoute::ROUTE_NAME, 'product-id', 'sales-channel-id', Defaults::LANGUAGE_SYSTEM)
+            ->with(ProductPageSeoUrlRoute::ROUTE_NAME, 'product-id', 'sales-channel-id', Defaults::LANGUAGE_SYSTEM, false)
             ->willReturn(true);
         $validator = $this->createMock(DataValidator::class);
         $validator->expects($this->once())->method('validate')->with(

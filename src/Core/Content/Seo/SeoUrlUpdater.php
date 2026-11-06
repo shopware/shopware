@@ -69,7 +69,7 @@ class SeoUrlUpdater
      *
      * @internal
      */
-    public function resetToTemplate(string $routeName, string $id, string $salesChannelId, string $languageId): bool
+    public function resetToTemplate(string $routeName, string $id, string $salesChannelId, string $languageId, bool $isHeadless): bool
     {
         if ($routeName === '') {
             return false;
@@ -79,16 +79,15 @@ class SeoUrlUpdater
         $salesChannelId = strtolower($salesChannelId);
         $languageId = strtolower($languageId);
 
-        $route = $this->seoUrlRouteRegistry->findByRouteName($routeName);
-        $isHeadless = $route === null;
+        if ($isHeadless) {
+            $entityRoute = $this->findEntitySeoUrlRoute($routeName);
+            $route = $entityRoute === null ? null : new ConfiguredEntitySeoUrlRoute($entityRoute);
+        } else {
+            $route = $this->seoUrlRouteRegistry->findByRouteName($routeName);
+        }
 
         if ($route === null) {
-            $entityRoute = $this->findEntitySeoUrlRoute($routeName);
-            if ($entityRoute === null) {
-                throw SeoException::seoUrlRouteNotFound($routeName);
-            }
-
-            $route = new ConfiguredEntitySeoUrlRoute($entityRoute);
+            throw SeoException::seoUrlRouteNotFound($routeName);
         }
 
         $template = null;

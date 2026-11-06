@@ -206,7 +206,15 @@ class SeoActionController extends AbstractController
         ];
 
         if ($resetToTemplate) {
-            if (!$this->seoUrlUpdater->resetToTemplate($seoUrlData['routeName'], $seoUrlData['foreignKey'], $salesChannelId, $context->getLanguageId())) {
+            $reset = $this->seoUrlUpdater->resetToTemplate(
+                $seoUrlData['routeName'],
+                $seoUrlData['foreignKey'],
+                $salesChannelId,
+                $context->getLanguageId(),
+                $salesChannel->getTypeId() === Defaults::SALES_CHANNEL_TYPE_API,
+            );
+
+            if (!$reset) {
                 throw SeoException::seoUrlResetNotPossible($seoUrlData['foreignKey'], $salesChannelId);
             }
 

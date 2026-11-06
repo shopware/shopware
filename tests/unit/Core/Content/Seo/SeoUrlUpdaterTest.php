@@ -199,7 +199,7 @@ class SeoUrlUpdaterTest extends TestCase
             ->with(static::anything(), ProductPageSeoUrlRoute::ROUTE_NAME, ['product-id'], [$generatedUrl], static::anything());
 
         $reset = $this->createSeoUrlUpdaterForReset()
-            ->resetToTemplate(ProductPageSeoUrlRoute::ROUTE_NAME, 'PRODUCT-ID', 'SALES-CHANNEL-ID', 'LANGUAGE-ID');
+            ->resetToTemplate(ProductPageSeoUrlRoute::ROUTE_NAME, 'PRODUCT-ID', 'SALES-CHANNEL-ID', 'LANGUAGE-ID', false);
 
         static::assertTrue($reset);
         static::assertFalse($generatedUrl->getIsModified());
@@ -217,7 +217,7 @@ class SeoUrlUpdaterTest extends TestCase
 
         static::assertFalse(
             $this->createSeoUrlUpdater([], [], [new ProductPageSeoUrlRoute(new ProductDefinition())])
-                ->resetToTemplate(ProductPageSeoUrlRoute::ROUTE_NAME, 'product-id', 'sales-channel-id', 'language-id')
+                ->resetToTemplate(ProductPageSeoUrlRoute::ROUTE_NAME, 'product-id', 'sales-channel-id', 'language-id', false)
         );
     }
 
@@ -239,8 +239,19 @@ class SeoUrlUpdaterTest extends TestCase
 
         static::assertFalse(
             $this->createSeoUrlUpdaterForReset()
-                ->resetToTemplate(ProductPageSeoUrlRoute::ROUTE_NAME, 'product-id', 'sales-channel-id', 'language-id')
+                ->resetToTemplate(ProductPageSeoUrlRoute::ROUTE_NAME, 'product-id', 'sales-channel-id', 'language-id', false)
         );
+    }
+
+    public function testResetToTemplateForAHeadlessSalesChannelRequiresAStoreApiRoute(): void
+    {
+        $this->seoUrlGenerator->expects($this->never())->method('generate');
+        $this->seoUrlPersister->expects($this->never())->method('forceUpdateSeoUrls');
+
+        $this->expectExceptionObject(SeoException::seoUrlRouteNotFound(ProductPageSeoUrlRoute::ROUTE_NAME));
+
+        $this->createSeoUrlUpdaterForReset()
+            ->resetToTemplate(ProductPageSeoUrlRoute::ROUTE_NAME, 'product-id', 'sales-channel-id', 'language-id', true);
     }
 
     private function createSeoUrlUpdaterForReset(): SeoUrlUpdater

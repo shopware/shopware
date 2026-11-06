@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Content\Cms\SalesChannel\Struct;
 
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentCollection;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Log\Package;
@@ -21,6 +23,10 @@ class ProductDescriptionReviewsStruct extends Struct
 
     protected ?SalesChannelProductEntity $product = null;
 
+    protected ?ProductDocumentCollection $documents = null;
+
+    protected ?MediaCollection $documentMedia = null;
+
     public function getProduct(): ?SalesChannelProductEntity
     {
         return $this->product;
@@ -29,6 +35,26 @@ class ProductDescriptionReviewsStruct extends Struct
     public function setProduct(SalesChannelProductEntity $product): void
     {
         $this->product = $product;
+    }
+
+    public function getDocuments(): ?ProductDocumentCollection
+    {
+        return $this->documents;
+    }
+
+    public function setDocuments(ProductDocumentCollection $documents): void
+    {
+        $this->documents = $documents;
+    }
+
+    public function getDocumentMedia(): ?MediaCollection
+    {
+        return $this->documentMedia;
+    }
+
+    public function setDocumentMedia(MediaCollection $documentMedia): void
+    {
+        $this->documentMedia = $documentMedia;
     }
 
     public function getProductId(): ?string

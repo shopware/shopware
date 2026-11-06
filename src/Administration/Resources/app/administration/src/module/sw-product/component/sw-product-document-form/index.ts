@@ -80,7 +80,9 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         canEdit(): boolean {
-            return !this.disabled && this.acl.can('product.editor');
+            const language = Shopware.Context.api.language as Entity<'language'> | null;
+            const languageLoaded = this.isDefaultLanguage || language?.id === Shopware.Context.api.languageId;
+            return !this.disabled && this.acl.can('product.editor') && languageLoaded;
         },
 
         canAddDocuments(): boolean {
@@ -176,11 +178,9 @@ export default Shopware.Component.wrapComponentConfig({
         getMedia(document: ProductDocument | null): Entity<'media'> | undefined {
             const mediaId = document?.mediaId || document?.translated?.mediaId;
 
-            if (!mediaId) {
-                return undefined;
-            }
-
-            return this.uploadedMedia[mediaId] || document?.translations?.find((item) => item.mediaId === mediaId)?.media;
+            return mediaId
+                ? this.uploadedMedia[mediaId] || document?.translations?.find((item) => item.mediaId === mediaId)?.media
+                : undefined;
         },
 
         getTitle(document: ProductDocument): string {
@@ -338,6 +338,9 @@ export default Shopware.Component.wrapComponentConfig({
             this.isSavingDocument = true;
 
             try {
+                if (replacementMedia) {
+                    this.uploadedMedia[replacementMedia.id] = replacementMedia;
+                }
                 let updatedVariantIds: string[] = [];
                 if (matchingMediaId) {
                     const variants = await this.loadDocumentVariants(product.id, matchingMediaId, context);
@@ -347,9 +350,6 @@ export default Shopware.Component.wrapComponentConfig({
                     updatedVariantIds = this.stageVariantDocumentChanges(variants, matchingMediaId, variantChanges);
                 }
                 this.applyDocumentChanges(document, changes);
-                if (replacementMedia) {
-                    this.uploadedMedia[replacementMedia.id] = replacementMedia;
-                }
                 const store = Shopware.Store.get('swProductDetail');
                 store.queueDocumentSaveNotification(document.id, this.getTitle(document), updatedVariantIds);
                 this.closeDocumentEditor();
@@ -443,16 +443,14 @@ export default Shopware.Component.wrapComponentConfig({
                 Object.assign(translation, { title: changes.title });
             }
             if (changes.mediaId !== undefined) {
-                Object.assign(translation, { mediaId: changes.mediaId });
+                const media = changes.mediaId ? this.getMedia(document) : null;
+                Object.assign(translation, { mediaId: changes.mediaId, media });
             }
         },
 
         resetDocumentLanguageVersion(document: ProductDocument): void {
-            const language = Shopware.Store.get('context').api.language;
-            this.applyDocumentChanges(
-                document,
-                resetDocumentTranslation(document, language, Shopware.Context.api.systemLanguageId),
-            );
+            const { language, systemLanguageId } = Shopware.Context.api;
+            this.applyDocumentChanges(document, resetDocumentTranslation(document, language, systemLanguageId));
         },
 
         async loadDocumentVariants(

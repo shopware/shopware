@@ -8,6 +8,7 @@ import { createWrapper, createMedia, clickButton, selectMedia, getDocuments } fr
 
 describe('sw-product-document-form translated editing', () => {
     const originalLanguage = Shopware.Context.api.languageId;
+    const originalLanguageMetadata = Shopware.Store.get('context').api.language;
 
     beforeEach(() => {
         Object.assign(global, { activeAclRoles: ['product.editor'] });
@@ -18,6 +19,7 @@ describe('sw-product-document-form translated editing', () => {
 
     afterEach(() => {
         Shopware.Context.api.languageId = originalLanguage;
+        Shopware.Store.get('context').api.language = originalLanguageMetadata;
     });
 
     it.each(['title', 'file'])('preserves fallback of untouched fields when changing the %s in German', async (field) => {
@@ -30,6 +32,9 @@ describe('sw-product-document-form translated editing', () => {
         const germanMedia = createMedia('german-manual');
         const updatedEnglishMedia = createMedia('updated-english-manual');
         Shopware.Context.api.languageId = germanLanguageId;
+        Shopware.Store.get('context').api.language = repositoryFactory
+            .create('language')
+            .create(Shopware.Context.api, Shopware.Context.api.languageId);
         const { repositoryFactoryMock } = global as typeof globalThis & {
             repositoryFactoryMock: {
                 responses: {

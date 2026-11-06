@@ -62,15 +62,30 @@ describe('sw-product-document-form variant badges', () => {
         expect(wrapper.find('.sw-product-document-variant-badge').exists()).toBe(false);
     });
 
-    it('does not mark an existing copy when its file is replaced', async () => {
+    it('keeps a replacement file and download after remounting an unlinked variant', async () => {
+        Object.assign(global, { activeAclRoles: ['product.editor', 'media.viewer'] });
         await unlinkDocuments();
         await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
         await flushPromises();
         await wrapper.get('.sw-product-document-form__remove-file').trigger('click');
-        await selectMedia(wrapper, [createMedia('replacement')]);
+        const replacement = createMedia('replacement');
+        await selectMedia(wrapper, [replacement]);
         await clickButton(wrapper, 'global.default.apply');
 
         expect(wrapper.text()).toContain('replacement.pdf');
+        wrapper.unmount();
+        const mediaService = {
+            prepareDownloadMedia: jest
+                .fn()
+                .mockResolvedValue({ type: 'external', url: 'https://example.com/replacement.pdf' }),
+            downloadMedia: jest.fn(),
+        };
+        wrapper = await createWrapper(undefined, mediaService);
+        expect(wrapper.text()).toContain('replacement.pdf');
+        expect(wrapper.text()).not.toContain('parent-manual.pdf');
+        await wrapper.get('.sw-product-document-form__download').trigger('click');
+        await flushPromises();
+        expect(mediaService.prepareDownloadMedia).toHaveBeenCalledWith(replacement.id);
         expect(wrapper.find('.sw-product-document-variant-badge').exists()).toBe(false);
     });
 

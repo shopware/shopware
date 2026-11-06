@@ -8,6 +8,7 @@ import { createWrapper, clickButton, selectMedia, createMedia } from './helpers'
 
 describe('sw-product-document-form variant persistence', () => {
     const originalLanguage = Shopware.Context.api.languageId;
+    const originalLanguageMetadata = Shopware.Store.get('context').api.language;
     const versionId = '0fa91ce3e96a4bc2be4bd9ce752c3425';
     const englishMediaId = repositoryFactory.create('media').create().id;
     const germanMediaId = repositoryFactory.create('media').create().id;
@@ -15,6 +16,9 @@ describe('sw-product-document-form variant persistence', () => {
 
     beforeEach(() => {
         Shopware.Context.api.languageId = germanLanguageId;
+        Shopware.Store.get('context').api.language = repositoryFactory
+            .create('language')
+            .create(Shopware.Context.api, Shopware.Context.api.languageId);
         Object.assign(global, { activeAclRoles: ['product.editor'] });
         const store = Shopware.Store.get('swProductDetail');
         store.$reset();
@@ -23,6 +27,7 @@ describe('sw-product-document-form variant persistence', () => {
 
     afterEach(() => {
         Shopware.Context.api.languageId = originalLanguage;
+        Shopware.Store.get('context').api.language = originalLanguageMetadata;
     });
 
     function getResponses() {

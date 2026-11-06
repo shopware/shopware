@@ -10,6 +10,7 @@ import { createWrapper, createMedia, clickButton, getDocuments } from './helpers
 
 describe('sw-product-document-form inheritance', () => {
     const originalLanguage = Shopware.Context.api.languageId;
+    const originalLanguageMetadata = Shopware.Store.get('context').api.language;
     beforeEach(() => {
         Object.assign(global, { activeAclRoles: ['product.editor'] });
         Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
@@ -20,6 +21,7 @@ describe('sw-product-document-form inheritance', () => {
     });
     afterEach(() => {
         Shopware.Context.api.languageId = originalLanguage;
+        Shopware.Store.get('context').api.language = originalLanguageMetadata;
     });
 
     it('copies assignments before editing a variant and restores inheritance', async () => {
@@ -97,6 +99,9 @@ describe('sw-product-document-form inheritance', () => {
     it('preserves fallback display values when removing inheritance in another language', async () => {
         const store = Shopware.Store.get('swProductDetail');
         Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
+        Shopware.Store.get('context').api.language = repositoryFactory
+            .create('language')
+            .create(Shopware.Context.api, Shopware.Context.api.languageId);
         store.product.parentId = store.parentProduct.id;
         const document = repositoryFactory.create('product_document').create();
         const media = createMedia('default-language-file');

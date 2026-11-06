@@ -689,74 +689,69 @@ describe('src/app/component/structure/sw-search-bar', () => {
     });
 
     /**
-     * Module filters could not be used with the keyboard and cleared the typed search term.
+     * Module filter suggestions could not be activated with the keyboard.
      * @regression
      * @see https://github.com/shopware/shopware/issues/11909
      */
-    describe('module filters', () => {
-        /**
-         * Module filter suggestions could not be activated with the keyboard.
-         * @regression
-         */
-        it('should change search bar type when activating module filters with keyboard', async () => {
-            wrapper = await createWrapper(
-                {
-                    initialSearchType: '',
+    it('should change search bar type when activating module filters with keyboard', async () => {
+        wrapper = await createWrapper(
+            {
+                initialSearchType: '',
+            },
+            {
+                all: {
+                    entityName: '',
+                    placeholderSnippet: '',
+                    listingRoute: '',
                 },
-                {
-                    all: {
-                        entityName: '',
-                        placeholderSnippet: '',
-                        listingRoute: '',
-                    },
-                    ...searchTypeServiceTypes,
+                ...searchTypeServiceTypes,
+            },
+        );
+
+        const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
+        await moduleFilterSelect.trigger('click');
+
+        const moduleFilterItems = wrapper.findAll(
+            '.sw-search-bar__types_module-filters-container .sw-search-bar__type-item',
+        );
+        await moduleFilterItems.at(1).trigger('keydown.enter');
+
+        expect(moduleFilterSelect.text()).toBe('global.entities.product');
+    });
+
+    /**
+     * Switching module filters cleared the typed admin search term.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/11909
+     */
+    it('should keep the search term when switching module filters', async () => {
+        wrapper = await createWrapper(
+            {
+                initialSearchType: '',
+            },
+            {
+                all: {
+                    entityName: '',
+                    placeholderSnippet: '',
+                    listingRoute: '',
                 },
-            );
+                ...searchTypeServiceTypes,
+            },
+        );
 
-            const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
-            await moduleFilterSelect.trigger('click');
+        const searchInput = wrapper.find('.sw-search-bar__input');
+        await searchInput.setValue('shirt');
 
-            const moduleFilterItems = wrapper.findAll(
-                '.sw-search-bar__types_module-filters-container .sw-search-bar__type-item',
-            );
-            await moduleFilterItems.at(1).trigger('keydown.enter');
+        const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
+        await moduleFilterSelect.trigger('click');
 
-            expect(moduleFilterSelect.text()).toBe('global.entities.product');
-        });
+        const moduleFilterItems = wrapper.findAll(
+            '.sw-search-bar__types_module-filters-container .sw-search-bar__type-item',
+        );
+        await moduleFilterItems.at(2).trigger('click');
 
-        /**
-         * Switching module filters cleared the typed admin search term.
-         * @regression
-         */
-        it('should keep the search term when switching module filters', async () => {
-            wrapper = await createWrapper(
-                {
-                    initialSearchType: '',
-                },
-                {
-                    all: {
-                        entityName: '',
-                        placeholderSnippet: '',
-                        listingRoute: '',
-                    },
-                    ...searchTypeServiceTypes,
-                },
-            );
-
-            const searchInput = wrapper.find('.sw-search-bar__input');
-            await searchInput.setValue('shirt');
-
-            const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
-            await moduleFilterSelect.trigger('click');
-
-            const moduleFilterItems = wrapper.findAll(
-                '.sw-search-bar__types_module-filters-container .sw-search-bar__type-item',
-            );
-            await moduleFilterItems.at(2).trigger('click');
-
-            expect(wrapper.vm.searchTerm).toBe('shirt');
-            expect(searchInput.element.value).toBe('shirt');
-        });
+        expect(wrapper.vm.searchTerm).toBe('shirt');
+        expect(searchInput.element.value).toBe('shirt');
     });
 
     it('should search with repository after selecting module filter', async () => {

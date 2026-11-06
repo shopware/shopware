@@ -1481,44 +1481,43 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
     });
 
     /**
-     * Required select fields in plugin configs showed a clear button.
      * @regression
      * @see https://github.com/shopware/shopware/issues/15398
      */
-    describe('clear button of required selects', () => {
-        /** @regression */
-        it('should set hideClearableButton for required single-select fields', async () => {
-            wrapper = await createWrapper();
-            await flushPromises();
+    it('should set hideClearableButton for required single-select fields', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
 
-            const element = {
-                type: 'single-select',
-                config: {
-                    required: true,
-                    options: [],
-                },
-            };
+        const element = {
+            type: 'single-select',
+            config: {
+                required: true,
+                options: [],
+            },
+        };
 
-            const bind = wrapper.vm.getMeteorElementBind(element, {});
-            expect(bind.config.hideClearableButton).toBe(true);
-        });
+        const bind = wrapper.vm.getMeteorElementBind(element, {});
+        expect(bind.config.hideClearableButton).toBe(true);
+    });
 
-        /** @regression */
-        it('should set hideClearableButton for required multi-select fields', async () => {
-            wrapper = await createWrapper();
-            await flushPromises();
+    /**
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15398
+     */
+    it('should set hideClearableButton for required multi-select fields', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
 
-            const element = {
-                type: 'multi-select',
-                config: {
-                    required: true,
-                    options: [],
-                },
-            };
+        const element = {
+            type: 'multi-select',
+            config: {
+                required: true,
+                options: [],
+            },
+        };
 
-            const bind = wrapper.vm.getMeteorElementBind(element, {});
-            expect(bind.config.hideClearableButton).toBe(true);
-        });
+        const bind = wrapper.vm.getMeteorElementBind(element, {});
+        expect(bind.config.hideClearableButton).toBe(true);
     });
 
     it('should not set hideClearableButton for non-required select fields', async () => {

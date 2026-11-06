@@ -134,39 +134,37 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-num
      * @regression
      * @see https://github.com/shopware/shopware/issues/14690
      */
-    describe('switching to integer', () => {
-        /** @regression */
-        it('should round step, min, and max when switching numberType to int', async () => {
-            const wrapper = await createWrapper({
-                numberType: 'float',
-                step: 1.5,
-                min: 2.7,
-                max: 10.3,
-            });
-
-            wrapper.vm.currentCustomField.config.numberType = 'int';
-            await flushPromises();
-
-            expect(wrapper.vm.currentCustomField.config.step).toBe(2);
-            expect(wrapper.vm.currentCustomField.config.min).toBe(3);
-            expect(wrapper.vm.currentCustomField.config.max).toBe(10);
+    it('should round step, min, and max when switching numberType to int', async () => {
+        const wrapper = await createWrapper({
+            numberType: 'float',
+            step: 1.5,
+            min: 2.7,
+            max: 10.3,
         });
 
-        /**
-         * Integer custom fields kept a fractional step width, breaking the step arrows.
-         * @regression
-         */
-        it('should clamp rounded step to a minimum of 1 when switching numberType to int', async () => {
-            const wrapper = await createWrapper({
-                numberType: 'float',
-                step: 0.1,
-            });
+        wrapper.vm.currentCustomField.config.numberType = 'int';
+        await flushPromises();
 
-            wrapper.vm.currentCustomField.config.numberType = 'int';
-            await flushPromises();
+        expect(wrapper.vm.currentCustomField.config.step).toBe(2);
+        expect(wrapper.vm.currentCustomField.config.min).toBe(3);
+        expect(wrapper.vm.currentCustomField.config.max).toBe(10);
+    });
 
-            expect(wrapper.vm.currentCustomField.config.step).toBe(1);
+    /**
+     * Integer custom fields kept a fractional step width, breaking the step arrows.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14690
+     */
+    it('should clamp rounded step to a minimum of 1 when switching numberType to int', async () => {
+        const wrapper = await createWrapper({
+            numberType: 'float',
+            step: 0.1,
         });
+
+        wrapper.vm.currentCustomField.config.numberType = 'int';
+        await flushPromises();
+
+        expect(wrapper.vm.currentCustomField.config.step).toBe(1);
     });
 
     it('should set type when switching numberType for a new custom field', async () => {

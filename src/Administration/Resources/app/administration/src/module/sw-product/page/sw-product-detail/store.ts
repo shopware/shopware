@@ -38,6 +38,10 @@ const swProductDetail = Shopware.Store.register({
             product: {} as ProductDetailProduct,
             parentProduct: {} as Entity<'product'>,
             isDownloadExternallyManaged: false,
+            // Retain session badges across tabs while reloaded entities remain unmarked.
+            newDocuments: new WeakSet<Entity<'product_document'>>(),
+            documentMedia: new WeakMap<Entity<'product'>, Record<string, Entity<'media'>>>(),
+            documentSaveNotifications: [] as { documentId: string; name: string; variantIds: string[] }[],
             currencies: [] as Entity<'currency'>[],
             apiContext: {} as ContextStore['api'],
             taxes: [] as Entity<'tax'>[],
@@ -201,6 +205,26 @@ const swProductDetail = Shopware.Store.register({
     },
 
     actions: {
+        cacheDocumentMedia(media: Entity<'media'>): void {
+            const files = this.documentMedia.get(this.product) || {};
+            files[media.id] = media;
+            this.documentMedia.set(this.product, files);
+        },
+
+        addDocument(document: Entity<'product_document'>): void {
+            this.newDocuments.add(document);
+            this.product.documents?.add(document);
+        },
+
+        queueDocumentSaveNotification(documentId: string, name: string, variantIds: string[]): void {
+            this.documentSaveNotifications = this.documentSaveNotifications.filter(
+                (entry) => entry.documentId !== documentId,
+            );
+            if (variantIds.length) {
+                this.documentSaveNotifications.push({ documentId, name, variantIds: [...new Set(variantIds)] });
+            }
+        },
+
         showProductCard(key: string) {
             if (this.product?.parentId) {
                 return true;

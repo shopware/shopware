@@ -272,6 +272,8 @@ export default {
 
             criteria.getAssociation('media').addSorting(Criteria.sort('position', 'ASC'));
             criteria.addAssociation('media.media');
+            criteria.getAssociation('documents').addSorting(Criteria.sort('position', 'ASC'));
+            criteria.addAssociation('documents.translations.media');
 
             criteria.getAssociation('prices').addSorting(Criteria.sort('quantityStart', 'ASC', true));
 
@@ -511,6 +513,7 @@ export default {
     methods: {
         async createdComponent() {
             this.isProductNotFound = false;
+            Shopware.Store.get('swProductDetail').documentSaveNotifications = [];
 
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-product-detail__product',
@@ -1063,6 +1066,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
+            Shopware.Store.get('swProductDetail').documentSaveNotifications = [];
             Shopware.Store.get('context').setApiLanguageId(languageId);
             this.loadLanguage(languageId);
 
@@ -1202,6 +1206,14 @@ export default {
             }
 
             Shopware.Store.get('error').resetApiErrors();
+
+            const documentNotifications = Shopware.Store.get('swProductDetail').documentSaveNotifications;
+            documentNotifications.forEach(({ name, variantIds }) => {
+                this.createNotificationSuccess({
+                    message: this.$t('sw-product.documentForm.saveSuccess', { name, count: variantIds.length }),
+                });
+            });
+            Shopware.Store.get('swProductDetail').documentSaveNotifications = [];
 
             Shopware.Utils.EventBus.emit('sw-product-detail-save-success');
 
@@ -1460,10 +1472,19 @@ export default {
         },
 
         async loadLanguage(newLanguageId) {
-            Shopware.Store.get('context').api.language = await this.languageRepository.get(newLanguageId, {
-                ...Shopware.Context.api,
-                inheritance: true,
-            });
+            const criteria = new Criteria();
+            criteria.addAssociation('locale');
+            const language = await this.languageRepository.get(
+                newLanguageId,
+                { ...Shopware.Context.api, inheritance: true },
+                criteria,
+            );
+
+            if (newLanguageId !== Shopware.Context.api.languageId) {
+                return;
+            }
+
+            Shopware.Store.get('context').api.language = language;
         },
 
         async initProductMeasurementUnits() {

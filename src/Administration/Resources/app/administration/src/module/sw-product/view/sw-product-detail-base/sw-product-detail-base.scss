@@ -1,6 +1,7 @@
 @import "~scss/variables";
 
-.sw-product-detail-base__media {
+.sw-product-detail-base__media,
+.sw-product-detail-base__documents {
     .mt-card__title {
         margin: 0;
         font-family: var(--font-family-body);

@@ -4,6 +4,7 @@
  * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 async function createWrapper(
     privileges = [
@@ -160,6 +161,7 @@ async function createWrapper(
 
 describe('module/sw-settings/page/sw-settings-index', () => {
     beforeEach(async () => {
+        allowDeprecation('sw-settings-index.onCloseSettingRenameBanner() is deprecated');
         Shopware.Store.get('settingsItems').settingsGroups = {};
         jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({ data: {} });
         jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();

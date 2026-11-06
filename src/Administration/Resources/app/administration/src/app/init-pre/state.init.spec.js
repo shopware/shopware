@@ -2,8 +2,13 @@
  * @sw-package framework
  */
 import initState from 'src/app/init-pre/state.init';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 describe('src/app/init-pre/state.init.ts', () => {
+    beforeEach(() => {
+        allowDeprecation('Shopware.State is deprecated');
+    });
+
     initState();
 
     it('should contain all state methods', () => {

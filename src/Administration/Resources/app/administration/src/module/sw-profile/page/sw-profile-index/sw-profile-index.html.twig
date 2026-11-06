@@ -42,7 +42,10 @@
                 {% endblock %}
             </template>
 
-            <template v-else>
+            <sw-silence-deprecations
+                v-else
+                flag="V6_9_0_0"
+            >
                 <sw-tabs
                     position-identifier="sw-profile-index"
                 >
@@ -71,7 +74,7 @@
                         {{ $t('sw-profile.tabPrivacyPreferences.title') }}
                     </sw-tabs-item>
                 </sw-tabs>
-            </template>
+            </sw-silence-deprecations>
             {% endblock %}
 
             {% block sw_profile_index_router_view %}

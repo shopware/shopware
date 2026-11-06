@@ -60,6 +60,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed.
          */
         async loadstorefrontSettings() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-storefront-index.loadstorefrontSettings() is deprecated and will be removed.',
+            );
+
             this.isLoading = true;
 
             try {
@@ -100,6 +105,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed.
          */
         async savestorefrontSettings() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-storefront-index.savestorefrontSettings() is deprecated and will be removed.',
+            );
+
             this.isLoading = true;
             this.isSaveSuccessful = false;
 

@@ -167,7 +167,10 @@
                 {% endblock %}
             </template>
 
-            <template v-else>
+            <sw-silence-deprecations
+                v-else
+                flag="V6_9_0_0"
+            >
                 <sw-tabs
                     v-if="showTabs"
                     class="sw-order-detail__tabs"
@@ -215,7 +218,7 @@
 
                     {% block sw_order_detail_content_tabs_extension %}{% endblock %}
                 </sw-tabs>
-            </template>
+            </sw-silence-deprecations>
             {% endblock %}
 
             <sw-extension-component-section

@@ -9,6 +9,11 @@ import template from './sw-agentic-commerce-tracking-config.html.twig';
 export default {
     template,
 
+    deprecated: {
+        version: 'v6.8.0.0',
+        comment: 'Will be removed.',
+    },
+
     emits: ['change'],
 
     props: {

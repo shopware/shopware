@@ -4,6 +4,7 @@
 import { mount } from '@vue/test-utils';
 
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 const responses = global.repositoryFactoryMock.responses;
 
@@ -107,6 +108,10 @@ async function createWrapper() {
 }
 
 describe('components/sw-advanced-selection-rule', () => {
+    beforeEach(() => {
+        allowDeprecation('sw-advanced-selection-rule.dateFilter is deprecated');
+    });
+
     it('should be a Vue.JS component that wraps the selection modal component', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

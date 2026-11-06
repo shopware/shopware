@@ -6,6 +6,7 @@ import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';
 import MockAdapter from 'axios-mock-adapter';
 import IntegrationApiService from './integration.api.service';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 function getIntegrationApiService() {
     const client = createHTTPClient();
@@ -17,6 +18,10 @@ function getIntegrationApiService() {
 }
 
 describe('integrationApiService', () => {
+    beforeEach(() => {
+        allowDeprecation('integrationApiService.updateAdmin() is deprecated');
+    });
+
     it('is registered correctly', () => {
         const { integrationApiService } = getIntegrationApiService();
         expect(integrationApiService).toBeInstanceOf(IntegrationApiService);

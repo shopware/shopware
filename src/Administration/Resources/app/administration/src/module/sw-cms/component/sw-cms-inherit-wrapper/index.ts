@@ -116,6 +116,11 @@ export default Shopware.Component.wrapComponentConfig({
          * @deprecated tag:v6.8.0 - Will be removed.
          */
         isSystemDefaultLanguage() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-cms-inherit-wrapper.isSystemDefaultLanguage is deprecated and will be removed.',
+            );
+
             return Shopware.Store.get('context').isSystemDefaultLanguage;
         },
 

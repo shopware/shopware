@@ -25,7 +25,10 @@
                 />
             </template>
 
-            <template v-else>
+            <sw-silence-deprecations
+                v-else
+                flag="V6_9_0_0"
+            >
                 <sw-tabs
                     position-identifier=""
                     @new-item-active="setActiveTab($event.name)"
@@ -39,7 +42,7 @@
                         {{ $t(tab.label ?? '') }}
                     </sw-tabs-item>
                 </sw-tabs>
-            </template>
+            </sw-silence-deprecations>
         </template>
 
         <sw-iframe-renderer

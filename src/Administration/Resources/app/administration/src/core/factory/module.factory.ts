@@ -482,6 +482,11 @@ function getModuleByEntityName(entityName: string): ModuleDefinition | undefined
  * @deprecated tag:v6.8.0 - Will be removed together with the module manifest `snippets` property.
  */
 function getModuleSnippets(): { [lang: string]: Snippets | undefined } {
+    Shopware.Feature.triggerDeprecationOrThrow(
+        'V6_8_0_0',
+        'ModuleFactory.getModuleSnippets() is deprecated and will be removed together with the module manifest "snippets" property.',
+    );
+
     return Array.from(modules.values()).reduce<{
         [lang: string]: Snippets | undefined;
     }>((accumulator, module) => {

@@ -341,7 +341,10 @@
         {% endblock %}
     </template>
 
-    <template v-else>
+    <sw-silence-deprecations
+        v-else
+        flag="V6_9_0_0"
+    >
         <sw-tabs
             position-identifier="sw-cms-element-config-image-slider"
             class="sw-cms-el-config-image-slider__tabs"
@@ -711,7 +714,7 @@
             {% endblock %}
             </template>
         </sw-tabs>
-    </template>
+    </sw-silence-deprecations>
     {% endblock %}
 </div>
 {% endblock %}

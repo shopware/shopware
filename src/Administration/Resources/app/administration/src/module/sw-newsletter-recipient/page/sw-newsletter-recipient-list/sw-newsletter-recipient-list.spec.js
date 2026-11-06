@@ -5,6 +5,7 @@ import { mount } from '@vue/test-utils';
 
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 const deviceMock = {
     onResize: jest.fn(),
@@ -195,6 +196,7 @@ async function createWrapper(options = {}) {
 
 describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list', () => {
     beforeEach(() => {
+        allowDeprecation('sw-newsletter-recipient-list.dateFilter is deprecated');
         global.activeAclRoles = [];
     });
 

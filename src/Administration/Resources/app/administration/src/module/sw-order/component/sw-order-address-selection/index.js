@@ -101,6 +101,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed, the customer is loaded by the `swOrderDetail` store
          */
         customerCriteria() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-address-selection.customerCriteria is deprecated. Will be removed, the customer is loaded by the `swOrderDetail` store.',
+            );
+
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('addresses.country');
 

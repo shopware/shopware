@@ -33,6 +33,11 @@ class IntegrationApiService extends ApiService {
      * @deprecated tag:v6.8.0 - Will be removed. Use `Shopware.Service('repositoryFactory').create('integration').save(integration)` instead.
      */
     updateAdmin(integrationId, admin, additionalHeaders = {}) {
+        Shopware.Feature.triggerDeprecationOrThrow(
+            'V6_8_0_0',
+            "integrationApiService.updateAdmin() is deprecated. Use `Shopware.Service('repositoryFactory').create('integration').save(integration)` instead.",
+        );
+
         const headers = this.getBasicHeaders(additionalHeaders);
 
         return this.httpClient.patch(this.getApiBasePath(integrationId), { admin }, { headers }).then((response) => {

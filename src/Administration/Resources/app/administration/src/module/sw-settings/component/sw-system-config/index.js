@@ -253,6 +253,11 @@ export default {
          * legacy config into the schema result to keep the compatibility layer intact.
          */
         async getSchemaForDomain() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-system-config.getSchemaForDomain() is deprecated. Will be removed together with config data prop.',
+            );
+
             const getConfig = this.systemConfigApiService.getConfig;
             const defaultGetConfig = Object.getPrototypeOf(this.systemConfigApiService)?.getConfig;
 
@@ -280,6 +285,11 @@ export default {
          * `configToSchema`, regardless of mutation style or reordering.
          */
         assignConfigIds(schema) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-system-config.assignConfigIds() is deprecated. Will be removed together with config data prop.',
+            );
+
             (schema ?? []).forEach((tab) => {
                 (tab.cards ?? []).forEach((card) => {
                     card.__configId = utils.createId();
@@ -620,6 +630,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
          */
         schemaToConfig(schema) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-system-config.schemaToConfig() is deprecated. Will be removed together with config data prop.',
+            );
+
             return (schema ?? []).flatMap((tab) => tab?.cards ?? []);
         },
 
@@ -634,6 +649,11 @@ export default {
          * it. Returns null if no element matches, e.g. for cards without elements.
          */
         getTabIndexByElementOverlap(card, elementNameToTabIndex) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-system-config.getTabIndexByElementOverlap() is deprecated. Will be removed together with config data prop.',
+            );
+
             const voteCountByTabIndex = new Map();
 
             (card.elements ?? []).forEach((element) => {
@@ -670,6 +690,11 @@ export default {
          * tab is tracked correctly from then on.
          */
         configToSchema(config, previousSchema) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-system-config.configToSchema() is deprecated. Will be removed together with config data prop.',
+            );
+
             const cards = config ?? [];
             const previousTabs =
                 previousSchema && previousSchema.length > 0

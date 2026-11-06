@@ -83,7 +83,10 @@
                 {% endblock %}
             </template>
 
-            <template v-else>
+            <sw-silence-deprecations
+                v-else
+                flag="V6_9_0_0"
+            >
                 <sw-tabs
                     class="sw-sales-channel-detail-__tabs"
                     position-identifier="sw-sales-channel-detail"
@@ -160,7 +163,7 @@
                         {{ $t('sw-sales-channel.detail.tabAgenticFiles') }}
                     </sw-tabs-item>
                 </sw-tabs>
-            </template>
+            </sw-silence-deprecations>
             {% endblock %}
 
             {% block sw_sales_channel_detail_content_view %}

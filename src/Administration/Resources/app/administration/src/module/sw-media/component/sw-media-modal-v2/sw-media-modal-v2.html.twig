@@ -142,7 +142,10 @@
                 </div>
             </template>
 
-            <template v-else>
+            <sw-silence-deprecations
+                v-else
+                flag="V6_9_0_0"
+            >
                 <sw-tabs
                     position-identifier="sw-media-modal"
                     variant="minimal"
@@ -275,7 +278,7 @@
                         {% endblock %}
                     </template>
                 </sw-tabs>
-            </template>
+            </sw-silence-deprecations>
             {% endblock %}
 
             {% block sw_media_modal_v2_media_sidebar %}

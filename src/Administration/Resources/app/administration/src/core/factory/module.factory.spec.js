@@ -4,7 +4,7 @@
  * @sw-package framework
  */
 
-import { deprecations } from 'test/_helper_/deprecations';
+import { allowDeprecation, deprecations } from 'test/_helper_/deprecations';
 
 const { Module, Application } = Shopware;
 const ModuleFactory = Module;
@@ -13,6 +13,7 @@ const register = ModuleFactory.register;
 describe('core/factory/module.factory.js', () => {
     // We're clearing the modules registry to register the same module multiple times throughout the test suite
     beforeEach(async () => {
+        allowDeprecation('ModuleFactory.getModuleSnippets() is deprecated');
         const modules = ModuleFactory.getModuleRegistry();
         modules.clear();
     });

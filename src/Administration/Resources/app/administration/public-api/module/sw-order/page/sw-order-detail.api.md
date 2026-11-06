@@ -107,23 +107,26 @@ blocks
         sw_order_detail_actions_save
     sw_order_detail_content
       sw_order_detail_content_leave_page_modal
-      sw_order_detail_content_save_changes_beforehand_modal
-      sw_order_detail_content_tabs
-        sw_order_detail_content_mt_tabs  [major only]
-        sw_order_detail_content_tabs_details  [current only]
-        sw_order_detail_content_tabs_documents  [current only]
-        sw_order_detail_content_tabs_extension  [empty] [current only]
-        sw_order_detail_content_tabs_general  [current only]
+      sw_order_detail_content_save_changes_beforehand_modal  [after v-if]
+      sw_order_detail_content_tabs  [after v-if]
+        sw_order_detail_content_mt_tabs  [from v6.8.0]
+        sw_order_detail_content_tabs_details  [until v6.8.0]
+        sw_order_detail_content_tabs_documents  [until v6.8.0]
+        sw_order_detail_content_tabs_extension  [empty] [until v6.8.0]
+        sw_order_detail_content_tabs_general  [until v6.8.0]
       sw_order_detail_content_view
     sw_order_detail_header
       sw_order_detail_header_title
         sw_order_detail_header_label_manual_order
-      sw_order_detail_header_title_new
+      sw_order_detail_header_title_new  [after v-if]
     sw_order_detail_language_switch
 
+crossings
+  v-if  sw_order_detail_header_title -> sw_order_detail_header_title_new
+
 position-ids
-  sw-order-detail  tabs  host=sw-tabs  block=sw_order_detail_content_tabs  [current only]
-  sw-order-detail  tabs  host=mt-tabs  block=sw_order_detail_content_mt_tabs  [major only]
+  sw-order-detail  tabs  host=sw-tabs  block=sw_order_detail_content_tabs  [until v6.8.0]
+  sw-order-detail  tabs  host=mt-tabs  block=sw_order_detail_content_mt_tabs  [from v6.8.0]
   sw-order-detail__before-content  componentSection  host=sw-extension-component-section  block=sw_order_detail_content
 
 data-sets

@@ -37,12 +37,12 @@ methods
 blocks
   sw_example_field_set
     sw_example_field_set_content
-    sw_example_field_set_mt_tabs  [major only]
-    sw_example_field_set_tabs  [current only]
+    sw_example_field_set_mt_tabs  [from v6.8.0]
+    sw_example_field_set_tabs  [until v6.8.0]
 
 position-ids
-  sw-example-field-set  tabs  host=sw-tabs  block=sw_example_field_set_tabs  [current only]
-  sw-example-field-set  tabs  host=mt-tabs  block=sw_example_field_set_mt_tabs  [major only]
+  sw-example-field-set  tabs  host=sw-tabs  block=sw_example_field_set_tabs  [until v6.8.0]
+  sw-example-field-set  tabs  host=mt-tabs  block=sw_example_field_set_mt_tabs  [from v6.8.0]
 
 notes
   flag-removal-undeprecated block sw_example_field_set_tabs

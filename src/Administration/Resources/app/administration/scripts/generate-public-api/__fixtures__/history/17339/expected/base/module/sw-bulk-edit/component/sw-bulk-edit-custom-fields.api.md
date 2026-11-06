@@ -32,12 +32,12 @@ blocks
     sw_custom_field_set_renderer_card  [inherited]
       sw_custom_field_set_renderer_card_tabs  [inherited]
       sw_custom_field_set_renderer_card_tabs_content  [inherited]
-        sw_custom_field_set_renderer_card_form_renderer  [replaced]
-          sw_custom_field_set_renderer_card_form_renderer_change_field
-          sw_custom_field_set_renderer_card_form_renderer_custom_field
-    sw_custom_field_set_renderer_media  [inherited]
-      sw_custom_field_set_renderer_media_button_save  [inherited]
-      sw_custom_field_set_renderer_media_form_renderer  [inherited]
+        sw_custom_field_set_renderer_card_form_renderer  [replaced] [scope: active, set]
+          sw_custom_field_set_renderer_card_form_renderer_change_field  [scope: active, customField, set]
+          sw_custom_field_set_renderer_card_form_renderer_custom_field  [scope: active, customField, set]
+    sw_custom_field_set_renderer_media  [inherited] [after v-if]
+      sw_custom_field_set_renderer_media_button_save  [inherited] [scope: set]
+      sw_custom_field_set_renderer_media_form_renderer  [inherited] [scope: customField, set]
 
 position-ids
   sw-custom-field-set-renderer  tabs  host=sw-tabs  block=sw_custom_field_set_renderer_card

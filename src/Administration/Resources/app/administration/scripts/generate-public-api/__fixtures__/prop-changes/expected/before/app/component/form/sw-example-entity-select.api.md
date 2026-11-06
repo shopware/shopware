@@ -40,5 +40,5 @@ blocks
   sw_example_entity_select
     sw_example_entity_select_clear
     sw_example_entity_select_input
-    sw_example_entity_select_results
+    sw_example_entity_select_results  [after v-if]
 ```

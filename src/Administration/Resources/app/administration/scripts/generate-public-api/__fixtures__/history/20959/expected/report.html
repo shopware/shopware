@@ -71,11 +71,11 @@ mark { background: var(--mark); color: inherit; }
 <main>
 <header>
 <h1>Public API report</h1>
-<p class="verdict verdict--failed">Public API check failed: 3 unannounced breaks.</p>
+<p class="verdict verdict--failed">Public API check failed: 8 unannounced breaks.</p>
 <p class="meta">Base <code>00e31c8eb107fec454570fda2bf27b55a1b01fef</code></p>
 <p class="meta">Head <code>9a0fd3338437629f3c4507be6f630328c554c432</code></p>
 </header>
-<h2>Break (3)</h2>
+<h2>Break (8)</h2>
 <section class="finding finding--break" id="block_moved_parent--component:sw-order-details-state-card/block:sw_order_detail_state_card_state_history_text">
 <h3><code>block_moved_parent</code></h3>
 <dl>
@@ -85,6 +85,61 @@ mark { background: var(--mark); color: inherit; }
 <dt>Fix</dt><dd>Keep the block under sw_order_detail_state_card_state, or add an entry to public-api/accepted-breaks.json.</dd>
 <dt>Base</dt><dd><code>src/module/sw-order/component/sw-order-details-state-card/sw-order-details-state-card.html.twig:36</code></dd>
 <dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-details-state-card/sw-order-details-state-card.html.twig:28</code></dd>
+</dl>
+</section>
+<section class="finding finding--break" id="block_scope_missing--component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_delete/scope:itemIndex">
+<h3><code>block_scope_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_delete/scope:itemIndex</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The template variable itemIndex from the actions slot is no longer available in block sw_order_line_items_grid_grid_actions_delete, so plugin overrides that use itemIndex fail at render time.</dd>
+<dt>Fix</dt><dd>Keep itemIndex in the slot props, or add an entry to public-api/accepted-breaks.json.</dd>
+<dt>Base</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:340</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:316</code></dd>
+</dl>
+</section>
+<section class="finding finding--break" id="block_scope_missing--component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_delete_label/scope:itemIndex">
+<h3><code>block_scope_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_delete_label/scope:itemIndex</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The template variable itemIndex from the actions slot is no longer available in block sw_order_line_items_grid_grid_actions_delete_label, so plugin overrides that use itemIndex fail at render time.</dd>
+<dt>Fix</dt><dd>Keep itemIndex in the slot props, or add an entry to public-api/accepted-breaks.json.</dd>
+<dt>Base</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:353</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:329</code></dd>
+</dl>
+</section>
+<section class="finding finding--break" id="block_scope_missing--component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_extension/scope:itemIndex">
+<h3><code>block_scope_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_extension/scope:itemIndex</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The template variable itemIndex from the actions slot is no longer available in block sw_order_line_items_grid_grid_actions_extension, so plugin overrides that use itemIndex fail at render time.</dd>
+<dt>Fix</dt><dd>Keep itemIndex in the slot props, or add an entry to public-api/accepted-breaks.json.</dd>
+<dt>Base</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:338</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:314</code></dd>
+</dl>
+</section>
+<section class="finding finding--break" id="block_scope_missing--component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_show/scope:itemIndex">
+<h3><code>block_scope_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_show/scope:itemIndex</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The template variable itemIndex from the actions slot is no longer available in block sw_order_line_items_grid_grid_actions_show, so plugin overrides that use itemIndex fail at render time.</dd>
+<dt>Fix</dt><dd>Keep itemIndex in the slot props, or add an entry to public-api/accepted-breaks.json.</dd>
+<dt>Base</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:325</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:303</code></dd>
+</dl>
+</section>
+<section class="finding finding--break" id="block_scope_missing--component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_show_label/scope:itemIndex">
+<h3><code>block_scope_missing</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_show_label/scope:itemIndex</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The template variable itemIndex from the actions slot is no longer available in block sw_order_line_items_grid_grid_actions_show_label, so plugin overrides that use itemIndex fail at render time.</dd>
+<dt>Fix</dt><dd>Keep itemIndex in the slot props, or add an entry to public-api/accepted-breaks.json.</dd>
+<dt>Base</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:331</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:308</code></dd>
 </dl>
 </section>
 <section class="finding finding--break" id="element_crosses_block--component:sw-order-detail/crossing:div@sw_order_detail_header&gt;sw_order_detail_header_label_manual_order">
@@ -242,7 +297,17 @@ mark { background: var(--mark); color: inherit; }
 <dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-state-select-v2/sw-order-state-select-v2.html.twig:44</code></dd>
 </dl>
 </section>
-<h2>Info (5)</h2>
+<h2>Info (6)</h2>
+<section class="finding finding--info" id="crossing_resolved--component:sw-order-detail/crossing:v-if@sw_order_detail_header_title&gt;sw_order_detail_header_title_new">
+<h3><code>crossing_resolved</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-order-detail/crossing:v-if@sw_order_detail_header_title&gt;sw_order_detail_header_title_new</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The v-if chain of block sw_order_detail_header_title no longer continues in block sw_order_detail_header_title_new.</dd>
+<dt>Base</dt><dd><code>src/module/sw-order/page/sw-order-detail/sw-order-detail.html.twig:27</code></dd>
+<dt>Head</dt><dd><code>src/module/sw-order/page/sw-order-detail/sw-order-detail.html.twig:29</code></dd>
+</dl>
+</section>
 <section class="finding finding--info" id="deprecation_added--component:sw-order-details-state-card/computed:stateSelectBackgroundStyle">
 <h3><code>deprecation_added</code></h3>
 <dl>
@@ -520,10 +585,10 @@ methods
 
 blocks
   sw_order_detail_base_general_info
-    sw_order_detail_base_general_info_order_states
-      sw_order_detail_base_general_info_order_states_order
+    sw_order_detail_base_general_info_order_states  [after v-if]
+      sw_order_detail_base_general_info_order_states_order  [after v-if]
       sw_order_detail_base_general_info_order_states_payment
-      sw_order_detail_base_general_info_order_states_shipping
+      sw_order_detail_base_general_info_order_states_shipping  [after v-if]
     sw_order_detail_base_general_info_order_tags
     sw_order_detail_base_general_info_summary
       sw_order_detail_base_general_info_summary_main
@@ -533,7 +598,7 @@ blocks
         sw_order_detail_base_general_info_summary_sub_description
         sw_order_detail_base_general_info_summary_sub_last_changed
           sw_order_detail_base_general_info_summary_sub_last_changed_time
-          sw_order_detail_base_general_info_summary_sub_last_changed_user
+          sw_order_detail_base_general_info_summary_sub_last_changed_user  [after v-if]
     sw_order_state_change_card_modal</pre></div>
 <div><h4>Head</h4><pre>component sw-order-general-info  public  js
   registered src/module/sw-order/index.js
@@ -603,10 +668,10 @@ methods
 
 blocks
   sw_order_detail_base_general_info
-    sw_order_detail_base_general_info_order_states
-      sw_order_detail_base_general_info_order_states_order
+    sw_order_detail_base_general_info_order_states  [after v-if]
+      sw_order_detail_base_general_info_order_states_order  [after v-if]
       sw_order_detail_base_general_info_order_states_payment
-      sw_order_detail_base_general_info_order_states_shipping
+      sw_order_detail_base_general_info_order_states_shipping  [after v-if]
     sw_order_detail_base_general_info_order_tags
     sw_order_detail_base_general_info_summary
       sw_order_detail_base_general_info_summary_main
@@ -616,7 +681,7 @@ blocks
         sw_order_detail_base_general_info_summary_sub_description
         sw_order_detail_base_general_info_summary_sub_last_changed
           sw_order_detail_base_general_info_summary_sub_last_changed_time
-          sw_order_detail_base_general_info_summary_sub_last_changed_user
+          sw_order_detail_base_general_info_summary_sub_last_changed_user  [after v-if]
     sw_order_state_change_card_modal</pre></div>
 </div>
 <h3><code>module/sw-order/component/sw-order-line-items-grid.api.md</code></h3>
@@ -709,37 +774,46 @@ blocks
           sw_order_line_items_grid_bulk_actions_delete
           sw_order_line_items_grid_bulk_actions_extension  [empty]
         sw_order_line_items_grid_grid_actions
-          sw_order_line_items_grid_grid_actions_delete
-            sw_order_line_items_grid_grid_actions_delete_label
-          sw_order_line_items_grid_grid_actions_extension  [empty]
-          sw_order_line_items_grid_grid_actions_show
-            sw_order_line_items_grid_grid_actions_show_label
+<mark>          sw_order_line_items_grid_grid_actions_delete  [scope: item, itemIndex]</mark>
+<mark>            sw_order_line_items_grid_grid_actions_delete_label  [scope: item, itemIndex]</mark>
+<mark>          sw_order_line_items_grid_grid_actions_extension  [empty] [scope: item, itemIndex]</mark>
+<mark>          sw_order_line_items_grid_grid_actions_show  [scope: item, itemIndex]</mark>
+<mark>            sw_order_line_items_grid_grid_actions_show_label  [scope: item, itemIndex]</mark>
         sw_order_line_items_grid_grid_actions_modals
-          sw_order_line_items_grid_grid_actions_modals_items  [empty]
+          sw_order_line_items_grid_grid_actions_modals_items  [empty] [scope: item]
         sw_order_line_items_grid_grid_columns_label
-          sw_order_line_items_grid_grid_columns_label_content
-          sw_order_line_items_grid_grid_columns_label_inline_edit
-          sw_order_line_items_grid_grid_columns_label_link
-            sw_order_line_items_grid_column_payload_options
-              sw_order_line_items_grid_column_payload_options_link
-              sw_order_line_items_grid_column_payload_options_linkless
-            sw_order_line_items_grid_grid_columns_label_nested_modal_button
-              sw_order_line_items_grid_grid_columns_label_nested_modal_button_icon
+          sw_order_line_items_grid_grid_columns_label_content  [after v-if] [scope: isInlineEdit, item]
+          sw_order_line_items_grid_grid_columns_label_inline_edit  [scope: isInlineEdit, item]
+          sw_order_line_items_grid_grid_columns_label_link  [after v-if] [scope: isInlineEdit, item]
+            sw_order_line_items_grid_column_payload_options  [after v-if] [scope: isInlineEdit, item]
+              sw_order_line_items_grid_column_payload_options_link  [after v-if] [scope: isInlineEdit, item]
+              sw_order_line_items_grid_column_payload_options_linkless  [after v-if] [scope: isInlineEdit, item]
+            sw_order_line_items_grid_grid_columns_label_nested_modal_button  [scope: isInlineEdit, item]
+              sw_order_line_items_grid_grid_columns_label_nested_modal_button_icon  [scope: isInlineEdit, item]
         sw_order_line_items_grid_grid_columns_quantity
-          sw_order_line_items_grid_grid_columns_quantity_content
-          sw_order_line_items_grid_grid_columns_quantity_inline_edit
+          sw_order_line_items_grid_grid_columns_quantity_content  [after v-if] [scope: isInlineEdit, item]
+          sw_order_line_items_grid_grid_columns_quantity_inline_edit  [scope: isInlineEdit, item]
         sw_order_line_items_grid_grid_columns_tax
-          sw_order_line_items_grid_grid_columns_tax_content
-          sw_order_line_items_grid_grid_columns_tax_content_tooltip
-          sw_order_line_items_grid_grid_columns_tax_inline_edit
+          sw_order_line_items_grid_grid_columns_tax_content  [after v-if] [scope: isInlineEdit, item]
+          sw_order_line_items_grid_grid_columns_tax_content_tooltip  [after v-if] [scope: isInlineEdit, item]
+          sw_order_line_items_grid_grid_columns_tax_inline_edit  [scope: isInlineEdit, item]
         sw_order_line_items_grid_grid_columns_total_price
-          sw_order_line_items_grid_grid_columns_total_price_content
+          sw_order_line_items_grid_grid_columns_total_price_content  [scope: item]
         sw_order_line_items_grid_grid_columns_type
-          sw_order_line_items_grid_grid_columns_type_content
+          sw_order_line_items_grid_grid_columns_type_content  [scope: item]
         sw_order_line_items_grid_grid_columns_unit_price
-          sw_order_line_items_grid_grid_columns_unit_price_content
-          sw_order_line_items_grid_grid_columns_unit_price_inline_edit
-    sw_order_line_items_nested_line_item_modal</pre></div>
+          sw_order_line_items_grid_grid_columns_unit_price_content  [after v-if] [scope: isInlineEdit, item]
+          sw_order_line_items_grid_grid_columns_unit_price_inline_edit  [scope: isInlineEdit, item]
+    sw_order_line_items_nested_line_item_modal
+
+crossings
+  v-if  sw_order_line_items_grid_column_payload_options_link -&gt; sw_order_line_items_grid_column_payload_options_linkless
+  v-if  sw_order_line_items_grid_grid_columns_label_inline_edit -&gt; sw_order_line_items_grid_grid_columns_label_link
+  v-if  sw_order_line_items_grid_grid_columns_label_link -&gt; sw_order_line_items_grid_grid_columns_label_content
+  v-if  sw_order_line_items_grid_grid_columns_quantity_inline_edit -&gt; sw_order_line_items_grid_grid_columns_quantity_content
+  v-if  sw_order_line_items_grid_grid_columns_tax_content_tooltip -&gt; sw_order_line_items_grid_grid_columns_tax_content
+  v-if  sw_order_line_items_grid_grid_columns_tax_inline_edit -&gt; sw_order_line_items_grid_grid_columns_tax_content_tooltip
+  v-if  sw_order_line_items_grid_grid_columns_unit_price_inline_edit -&gt; sw_order_line_items_grid_grid_columns_unit_price_content</pre></div>
 <div><h4>Head</h4><pre>component sw-order-line-items-grid  public  js
   registered src/module/sw-order/index.js
   source src/module/sw-order/component/sw-order-line-items-grid/index.js
@@ -832,38 +906,47 @@ blocks
           sw_order_line_items_grid_bulk_actions_delete
           sw_order_line_items_grid_bulk_actions_extension  [empty]
         sw_order_line_items_grid_grid_actions
-          sw_order_line_items_grid_grid_actions_delete
-            sw_order_line_items_grid_grid_actions_delete_label
-          sw_order_line_items_grid_grid_actions_extension  [empty]
-          sw_order_line_items_grid_grid_actions_show
-            sw_order_line_items_grid_grid_actions_show_label
+<mark>          sw_order_line_items_grid_grid_actions_delete  [scope: item]</mark>
+<mark>            sw_order_line_items_grid_grid_actions_delete_label  [scope: item]</mark>
+<mark>          sw_order_line_items_grid_grid_actions_extension  [empty] [scope: item]</mark>
+<mark>          sw_order_line_items_grid_grid_actions_show  [scope: item]</mark>
+<mark>            sw_order_line_items_grid_grid_actions_show_label  [scope: item]</mark>
         sw_order_line_items_grid_grid_actions_modals
-          sw_order_line_items_grid_grid_actions_modals_items  [empty]
+          sw_order_line_items_grid_grid_actions_modals_items  [empty] [scope: item]
         sw_order_line_items_grid_grid_columns_label
-          sw_order_line_items_grid_grid_columns_label_content
-          sw_order_line_items_grid_grid_columns_label_inline_edit
-          sw_order_line_items_grid_grid_columns_label_link
-            sw_order_line_items_grid_column_payload_options
-              sw_order_line_items_grid_column_payload_options_link
-              sw_order_line_items_grid_column_payload_options_linkless
-            sw_order_line_items_grid_grid_columns_label_nested_modal_button
-              sw_order_line_items_grid_grid_columns_label_nested_modal_button_icon
+          sw_order_line_items_grid_grid_columns_label_content  [after v-if] [scope: isInlineEdit, item]
+          sw_order_line_items_grid_grid_columns_label_inline_edit  [scope: isInlineEdit, item]
+          sw_order_line_items_grid_grid_columns_label_link  [after v-if] [scope: isInlineEdit, item]
+            sw_order_line_items_grid_column_payload_options  [after v-if] [scope: isInlineEdit, item]
+              sw_order_line_items_grid_column_payload_options_link  [after v-if] [scope: isInlineEdit, item]
+              sw_order_line_items_grid_column_payload_options_linkless  [after v-if] [scope: isInlineEdit, item]
+            sw_order_line_items_grid_grid_columns_label_nested_modal_button  [scope: isInlineEdit, item]
+              sw_order_line_items_grid_grid_columns_label_nested_modal_button_icon  [scope: isInlineEdit, item]
         sw_order_line_items_grid_grid_columns_quantity
-          sw_order_line_items_grid_grid_columns_quantity_content
-          sw_order_line_items_grid_grid_columns_quantity_inline_edit
+          sw_order_line_items_grid_grid_columns_quantity_content  [after v-if] [scope: isInlineEdit, item]
+          sw_order_line_items_grid_grid_columns_quantity_inline_edit  [scope: isInlineEdit, item]
         sw_order_line_items_grid_grid_columns_tax
-          sw_order_line_items_grid_grid_columns_tax_content
-          sw_order_line_items_grid_grid_columns_tax_content_tooltip
-          sw_order_line_items_grid_grid_columns_tax_inline_edit
+          sw_order_line_items_grid_grid_columns_tax_content  [after v-if] [scope: isInlineEdit, item]
+          sw_order_line_items_grid_grid_columns_tax_content_tooltip  [after v-if] [scope: isInlineEdit, item]
+          sw_order_line_items_grid_grid_columns_tax_inline_edit  [scope: isInlineEdit, item]
         sw_order_line_items_grid_grid_columns_total_price
-          sw_order_line_items_grid_grid_columns_total_price_content
+          sw_order_line_items_grid_grid_columns_total_price_content  [scope: item]
         sw_order_line_items_grid_grid_columns_type
-          sw_order_line_items_grid_grid_columns_type_content
+          sw_order_line_items_grid_grid_columns_type_content  [scope: item]
         sw_order_line_items_grid_grid_columns_unit_price
-          sw_order_line_items_grid_grid_columns_unit_price_content
-          sw_order_line_items_grid_grid_columns_unit_price_inline_edit
+          sw_order_line_items_grid_grid_columns_unit_price_content  [after v-if] [scope: isInlineEdit, item]
+          sw_order_line_items_grid_grid_columns_unit_price_inline_edit  [scope: isInlineEdit, item]
 <mark>    sw_order_line_items_grid_pagination</mark>
-    sw_order_line_items_nested_line_item_modal</pre></div>
+    sw_order_line_items_nested_line_item_modal
+
+crossings
+  v-if  sw_order_line_items_grid_column_payload_options_link -&gt; sw_order_line_items_grid_column_payload_options_linkless
+  v-if  sw_order_line_items_grid_grid_columns_label_inline_edit -&gt; sw_order_line_items_grid_grid_columns_label_link
+  v-if  sw_order_line_items_grid_grid_columns_label_link -&gt; sw_order_line_items_grid_grid_columns_label_content
+  v-if  sw_order_line_items_grid_grid_columns_quantity_inline_edit -&gt; sw_order_line_items_grid_grid_columns_quantity_content
+  v-if  sw_order_line_items_grid_grid_columns_tax_content_tooltip -&gt; sw_order_line_items_grid_grid_columns_tax_content
+  v-if  sw_order_line_items_grid_grid_columns_tax_inline_edit -&gt; sw_order_line_items_grid_grid_columns_tax_content_tooltip
+  v-if  sw_order_line_items_grid_grid_columns_unit_price_inline_edit -&gt; sw_order_line_items_grid_grid_columns_unit_price_content</pre></div>
 </div>
 <h3><code>module/sw-order/component/sw-order-state-select-v2.api.md</code></h3>
 <div class="tree">
@@ -1043,23 +1126,26 @@ blocks
         sw_order_detail_actions_save
     sw_order_detail_content
       sw_order_detail_content_leave_page_modal
-      sw_order_detail_content_save_changes_beforehand_modal
-      sw_order_detail_content_tabs
-        sw_order_detail_content_mt_tabs  [major only]
-        sw_order_detail_content_tabs_details  [current only]
-        sw_order_detail_content_tabs_documents  [current only]
-        sw_order_detail_content_tabs_extension  [empty] [current only]
-        sw_order_detail_content_tabs_general  [current only]
+      sw_order_detail_content_save_changes_beforehand_modal  [after v-if]
+      sw_order_detail_content_tabs  [after v-if]
+        sw_order_detail_content_mt_tabs  [from v6.8.0]
+        sw_order_detail_content_tabs_details  [until v6.8.0]
+        sw_order_detail_content_tabs_documents  [until v6.8.0]
+        sw_order_detail_content_tabs_extension  [empty] [until v6.8.0]
+        sw_order_detail_content_tabs_general  [until v6.8.0]
       sw_order_detail_content_view
     sw_order_detail_header
       sw_order_detail_header_title
         sw_order_detail_header_label_manual_order
-      sw_order_detail_header_title_new
+      sw_order_detail_header_title_new  [after v-if]
     sw_order_detail_language_switch
 
+crossings
+<mark>  v-if  sw_order_detail_header_title -&gt; sw_order_detail_header_title_new</mark>
+
 position-ids
-  sw-order-detail  tabs  host=sw-tabs  block=sw_order_detail_content_tabs  [current only]
-  sw-order-detail  tabs  host=mt-tabs  block=sw_order_detail_content_mt_tabs  [major only]
+  sw-order-detail  tabs  host=sw-tabs  block=sw_order_detail_content_tabs  [until v6.8.0]
+  sw-order-detail  tabs  host=mt-tabs  block=sw_order_detail_content_mt_tabs  [from v6.8.0]
   sw-order-detail__before-content  componentSection  host=sw-extension-component-section  block=sw_order_detail_content
 
 data-sets
@@ -1170,26 +1256,26 @@ blocks
         sw_order_detail_actions_save
     sw_order_detail_content
       sw_order_detail_content_leave_page_modal
-      sw_order_detail_content_save_changes_beforehand_modal
-      sw_order_detail_content_tabs
-        sw_order_detail_content_mt_tabs  [major only]
-        sw_order_detail_content_tabs_details  [current only]
-        sw_order_detail_content_tabs_documents  [current only]
-        sw_order_detail_content_tabs_extension  [empty] [current only]
-        sw_order_detail_content_tabs_general  [current only]
+      sw_order_detail_content_save_changes_beforehand_modal  [after v-if]
+      sw_order_detail_content_tabs  [after v-if]
+        sw_order_detail_content_mt_tabs  [from v6.8.0]
+        sw_order_detail_content_tabs_details  [until v6.8.0]
+        sw_order_detail_content_tabs_documents  [until v6.8.0]
+        sw_order_detail_content_tabs_extension  [empty] [until v6.8.0]
+        sw_order_detail_content_tabs_general  [until v6.8.0]
       sw_order_detail_content_view
     sw_order_detail_header
       sw_order_detail_header_title
         sw_order_detail_header_label_manual_order
-      sw_order_detail_header_title_new
+      sw_order_detail_header_title_new  [after v-if]
     sw_order_detail_language_switch
 
 <mark>crossings</mark>
 <mark>  &lt;div&gt;  sw_order_detail_header -&gt; sw_order_detail_header_label_manual_order</mark>
 
 position-ids
-  sw-order-detail  tabs  host=sw-tabs  block=sw_order_detail_content_tabs  [current only]
-  sw-order-detail  tabs  host=mt-tabs  block=sw_order_detail_content_mt_tabs  [major only]
+  sw-order-detail  tabs  host=sw-tabs  block=sw_order_detail_content_tabs  [until v6.8.0]
+  sw-order-detail  tabs  host=mt-tabs  block=sw_order_detail_content_mt_tabs  [from v6.8.0]
   sw-order-detail__before-content  componentSection  host=sw-extension-component-section  block=sw_order_detail_content
 
 data-sets

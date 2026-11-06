@@ -209,23 +209,29 @@ details.box[open] { padding-bottom: 16px; }
 <main>
 <div class="eyebrow">Page 7 of 9 · Skim · about 10 min</div>
 <h1>Backtest</h1>
-<p class="lead">Four real PRs and twenty hand-written fixtures define what the check must report. They are the acceptance test for the generator.</p>
+<p class="lead">Four real PRs and 21 hand-written fixtures define what the check must report. They are the acceptance test for the generator.</p>
 
 <p>We wrote the expected results by hand from the real commits. The generator has to reproduce them exactly.</p>
 
 <h2 id="historical-cases">Historical cases</h2>
 <div class="tw"><table><thead><tr><th>PR</th><th>What happened</th><th>Expected result</th></tr></thead><tbody>
-<tr><td><b><a href="https://github.com/shopware/shopware/issues/20959">#20959</a></b></td><td>Order detail polish. Plugins broke after the merge, fixed in <a href="https://github.com/shopware/shopware/issues/21189">#21189</a>.</td><td><div class="chips"><span class="tag t-break">Break 3</span><span class="tag t-add">Addition 12</span><span class="tag t-info">Info 5</span></div></td></tr>
+<tr><td><b><a href="https://github.com/shopware/shopware/issues/20959">#20959</a></b></td><td>Order detail polish. Plugins broke after the merge, fixed in <a href="https://github.com/shopware/shopware/issues/21189">#21189</a>.</td><td><div class="chips"><span class="tag t-break">Break 8</span><span class="tag t-add">Addition 12</span><span class="tag t-info">Info 6</span></div><span class="small muted">five of the breaks come from the block context rules: the actions slot lost <code>itemIndex</code></span></td></tr>
 <tr><td><b><a href="https://github.com/shopware/shopware/issues/17339">#17339</a></b></td><td>sw-tabs replaced by mt-tabs behind the major flag. The bulk edit lost its custom field checkboxes, and nobody noticed for four weeks.</td><td><div class="chips"><span class="tag t-break">Break 4</span><span class="tag t-add">Addition 3</span><span class="tag ">Private 10</span></div><span class="small muted">all breaks in the major state only</span></td></tr>
-<tr><td><b><a href="https://github.com/shopware/shopware/issues/15271">#15271</a></b></td><td>UI shell rework, blocks of the admin menu deleted.</td><td><div class="chips"><span class="tag ">Private 217</span></div><span class="small muted">the shell components are @private</span></td></tr>
+<tr><td><b><a href="https://github.com/shopware/shopware/issues/15271">#15271</a></b></td><td>UI shell rework, blocks of the admin menu deleted.</td><td><div class="chips"><span class="tag ">Private 219</span></div><span class="small muted">the shell components are @private</span></td></tr>
 <tr><td><b><a href="https://github.com/shopware/shopware/issues/17081">#17081</a></b></td><td>Small bug fix in the number range detail. Negative control.</td><td><span class="tag t-ok">no finding</span><span class="small muted">identical snapshot</span></td></tr>
 </tbody></table></div>
 <p>Each case folder below <code>scripts/generate-public-api/__fixtures__/history/</code> has the commits in <code>case.json</code>, the expected report diffs, <code>findings.txt</code> and the HTML page.</p>
 
 <h3 id="20959-expected-breaks"><a href="https://github.com/shopware/shopware/issues/20959">#20959</a> expected breaks</h3>
-<pre class="code wrap">Break (3)
+<pre class="code wrap">Break (8)
   block_moved_parent  component:sw-order-details-state-card/block:sw_order_detail_state_card_state_history_text  current, major
   element_crosses_block  component:sw-order-detail/crossing:div@sw_order_detail_header&gt;sw_order_detail_header_label_manual_order  current, major
+  block_scope_missing  component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_delete/scope:itemIndex  current, major
+    The template variable itemIndex from the actions slot is no longer available in block sw_order_line_items_grid_grid_actions_delete, so plugin overrides that use itemIndex fail at render time.
+  block_scope_missing  …/block:sw_order_line_items_grid_grid_actions_delete_label/scope:itemIndex  current, major
+  block_scope_missing  …/block:sw_order_line_items_grid_grid_actions_extension/scope:itemIndex  current, major
+  block_scope_missing  …/block:sw_order_line_items_grid_grid_actions_show/scope:itemIndex  current, major
+  block_scope_missing  …/block:sw_order_line_items_grid_grid_actions_show_label/scope:itemIndex  current, major
   method_signature_changed  component:sw-order-line-items-grid/method:onDeleteItem  current, major</pre>
 <h3 id="17339-expected-breaks"><a href="https://github.com/shopware/shopware/issues/17339">#17339</a> expected breaks</h3>
 <pre class="code wrap">Break (4)
@@ -255,6 +261,7 @@ Fixtures that are still missing are the rows with a gap on the Coverage page.</p
 <tr><td><code>service-store-member-removed</code></td><td>Service member and store action removed</td><td><div class="chips"><span class="tag t-break">Break 2</span></div></td><td><a href="coverage.html#B18">B18</a></td></tr>
 <tr><td><code>block-moved</code></td><td>A single block and a subtree moved</td><td><div class="chips"><span class="tag t-break">Break 2</span></div></td><td><a href="coverage.html#B8">B8</a></td></tr>
 <tr><td><code>element-crosses-block</code></td><td>New element across two blocks</td><td><div class="chips"><span class="tag t-break">Break 1</span></div></td><td><a href="coverage.html#B9">B9</a></td></tr>
+<tr><td><code>block-context</code></td><td>Block loses its loop variable and its <code>v-if</code> context, new <code>v-if</code> chain across blocks</td><td><div class="chips"><span class="tag t-break">Break 3</span></div></td><td><a href="coverage.html#B39">B39</a>, <a href="coverage.html#B40">B40</a>, <a href="coverage.html#B41">B41</a></td></tr>
 <tr><td><code>block-renamed-major-only</code></td><td>Block renamed only with the major flag</td><td><div class="chips"><span class="tag t-break">Break 1</span><span class="tag t-add">Addition 1</span></div></td><td><a href="coverage.html#B7">B7</a>, <a href="coverage.html#B38">B38</a></td></tr>
 <tr><td><code>prop-changes</code></td><td>Props removed, renamed, now required</td><td><div class="chips"><span class="tag t-break">Break 3</span><span class="tag t-add">Addition 1</span></div></td><td><a href="coverage.html#B6">B6</a>, <a href="coverage.html#B10">B10</a></td></tr>
 <tr><td><code>method-signature</code></td><td>Required parameter added, sync to async, optional parameter added</td><td><div class="chips"><span class="tag t-break">Break 2</span><span class="tag t-add">Addition 1</span></div></td><td><a href="coverage.html#B12">B12</a>, <a href="coverage.html#B27">B27</a></td></tr>

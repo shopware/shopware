@@ -1,0 +1,15 @@
+Public API check failed: 3 unannounced breaks.
+
+Break (3)
+  block_if_context_lost  component:sw-example-card/block:sw_example_card_header_label_default  current, major
+    The block no longer follows an open v-if chain, so plugin overrides that start with v-else-if or v-else no longer compile.
+    Fix: keep the v-if element directly before the block, or add an entry to public-api/accepted-breaks.json.
+    At: src/app/component/base/sw-example-card/sw-example-card.html.twig:28
+  block_scope_missing  component:sw-example-card/block:sw_example_card_list_item/scope:item  current, major
+    The template variable item from a v-for is no longer available in block sw_example_card_list_item, so plugin overrides that use item fail at render time.
+    Fix: keep the block inside the loop, or keep the variable name, or add an entry to public-api/accepted-breaks.json.
+    At: src/app/component/base/sw-example-card/sw-example-card.html.twig:38
+  if_chain_crosses_block  component:sw-example-card/crossing:v-if@sw_example_card_header_title>sw_example_card_header_label_manual  current, major
+    The v-if chain of block sw_example_card_header_title continues in block sw_example_card_header_label_manual, so overriding sw_example_card_header_title without {% parent %} leaves the v-else-if without its v-if.
+    Fix: keep the whole chain inside one block, or add an entry to public-api/accepted-breaks.json.
+    At: src/app/component/base/sw-example-card/sw-example-card.html.twig:18

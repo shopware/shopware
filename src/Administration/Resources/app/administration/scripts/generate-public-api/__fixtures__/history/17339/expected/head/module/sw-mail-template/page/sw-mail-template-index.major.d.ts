@@ -41,7 +41,7 @@ declare namespace AdminApi {
                 sw_mail_template_list: Block<null>;
                 sw_mail_template_list_content: Block<'sw_mail_template_list'>;
                 /** @deprecated tag:v6.8.0 - This block will be removed. */
-                sw_mail_template_list_content_card: Block<'sw_mail_template_list_content'>;
+                sw_mail_template_list_content_card: Block<'sw_mail_template_list_content', 'afterIf'>;
                 sw_mail_template_list_language_switch: Block<'sw_mail_template_list'>;
                 sw_mail_template_list_mt_tabs: Block<'sw_mail_template_list_tabs'>;
                 sw_mail_template_list_router_view: Block<'sw_mail_template_list_content'>;

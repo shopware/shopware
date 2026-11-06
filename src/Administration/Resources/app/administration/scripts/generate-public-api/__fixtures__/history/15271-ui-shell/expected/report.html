@@ -76,7 +76,7 @@ mark { background: var(--mark); color: inherit; }
 <p class="meta">Base <code>f6d0fd1ed493e23e44e282f3d615a01f97590f68</code></p>
 <p class="meta">Head <code>d3216241c1b6b0d35850f73bdc31157f2065b82c</code></p>
 </header>
-<h2>Private (217)</h2>
+<h2>Private (219)</h2>
 <section class="finding finding--private" id="block_added--component:sw-admin-menu-item/block:sw_admin_menu_item_expand_indicator_fold">
 <h3><code>block_added</code></h3>
 <dl>
@@ -955,6 +955,26 @@ mark { background: var(--mark); color: inherit; }
 <dt>Explanation</dt><dd>The computed property is gone, so plugin overrides that call $super(&#x27;topBarActionStyles&#x27;) throw at runtime.</dd>
 <dt>Base</dt><dd><code>src/app/component/structure/sw-page/index.js:164</code></dd>
 <dt>Head</dt><dd><code>src/app/component/structure/sw-page/index.js:92</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="crossing_resolved--component:sw-admin-menu-item/crossing:v-if@sw_admin_menu_item_external_link&gt;sw_admin_menu_item_navigation_link">
+<h3><code>crossing_resolved</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/crossing:v-if@sw_admin_menu_item_external_link&gt;sw_admin_menu_item_navigation_link</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The v-if chain of block sw_admin_menu_item_external_link no longer continues in block sw_admin_menu_item_navigation_link. The component is private, so this is not public API.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:99</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:201</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="crossing_resolved--component:sw-admin-menu-item/crossing:v-if@sw_admin_menu_item_router_link&gt;sw_admin_menu_item_external_link">
+<h3><code>crossing_resolved</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/crossing:v-if@sw_admin_menu_item_router_link&gt;sw_admin_menu_item_external_link</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>The v-if chain of block sw_admin_menu_item_router_link no longer continues in block sw_admin_menu_item_external_link. The component is private, so this is not public API.</dd>
+<dt>Base</dt><dd><code>src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:57</code></dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:172</code></dd>
 </dl>
 </section>
 <section class="finding finding--private" id="data_added--component:sw-admin-menu-item/data:manualNestedOpen">
@@ -2338,19 +2358,23 @@ methods
 
 blocks
   sw_admin_menu_item  [private]
-    sw_admin_menu_item_external_link  [private]
+    sw_admin_menu_item_external_link  [after v-if] [private]
 <mark>      sw_admin_menu_item_external_arrow_indicato  [private]</mark>
 <mark>      sw_admin_menu_item_external_icon  [private]</mark>
-<mark>      sw_admin_menu_item_external_text  [private]</mark>
-    sw_admin_menu_item_navigation_link  [private]
+      sw_admin_menu_item_external_text  [after v-if] [private]
+    sw_admin_menu_item_navigation_link  [after v-if] [private]
 <mark>      sw_admin_menu_item_arrow_indicator  [private]</mark>
 <mark>      sw_admin_menu_item_navigation_icon  [private]</mark>
-<mark>      sw_admin_menu_item_navigation_text  [private]</mark>
+      sw_admin_menu_item_navigation_text  [after v-if] [private]
     sw_admin_menu_item_router_link  [private]
 <mark>      sw_admin_menu_item_arrow_indicato  [private]</mark>
 <mark>      sw_admin_menu_item_icon  [private]</mark>
-<mark>      sw_admin_menu_item_text  [private]</mark>
-    sw_sidebar_sub_items_list  [private]</pre></div>
+      sw_admin_menu_item_text  [after v-if] [private]
+    sw_sidebar_sub_items_list  [private]
+
+crossings
+<mark>  v-if  sw_admin_menu_item_external_link -&gt; sw_admin_menu_item_navigation_link  [private]</mark>
+<mark>  v-if  sw_admin_menu_item_router_link -&gt; sw_admin_menu_item_external_link  [private]</mark></pre></div>
 <div><h4>Head</h4><pre>component sw-admin-menu-item  private  js  [private]
   registered src/app/component/index.ts  [private]
   source src/app/component/structure/sw-admin-menu-item/index.js  [private]
@@ -2435,13 +2459,13 @@ blocks
   sw_admin_menu_item  [private]
 <mark>    sw_admin_menu_item_expand_indicator_fold  [private]</mark>
 <mark>    sw_admin_menu_item_expand_indicator_linked  [private]</mark>
-    sw_admin_menu_item_external_link  [private]
+    sw_admin_menu_item_external_link  [after v-if] [scope: tooltipProps] [private]
 <mark>    sw_admin_menu_item_icon  [private]</mark>
 <mark>    sw_admin_menu_item_navigation_icon  [private]</mark>
-    sw_admin_menu_item_navigation_link  [private]
-<mark>    sw_admin_menu_item_navigation_text  [private]</mark>
-    sw_admin_menu_item_router_link  [private]
-<mark>    sw_admin_menu_item_text  [private]</mark>
+    sw_admin_menu_item_navigation_link  [after v-if] [scope: tooltipProps] [private]
+    sw_admin_menu_item_navigation_text  [after v-if] [private]
+    sw_admin_menu_item_router_link  [scope: tooltipProps] [private]
+    sw_admin_menu_item_text  [after v-if] [private]
     sw_sidebar_sub_items_list  [private]</pre></div>
 </div>
 <h3><code>app/component/structure/sw-admin-menu.api.md</code></h3>
@@ -2559,11 +2583,11 @@ blocks
 <mark>        sw_admin_menu_toggle_sidebar_text  [private]</mark>
 <mark>      sw_admin_menu_user_actions  [private]</mark>
 <mark>        sw_admin_menu_user_actions_label  [private]</mark>
-<mark>        sw_admin_menu_user_actions_list  [private]</mark>
+<mark>        sw_admin_menu_user_actions_list  [after v-if] [private]</mark>
 <mark>          sw_admin_menu_user_actions_items  [private]</mark>
 <mark>            sw_admin_menu_user_actions_items_logout_user  [private]</mark>
       sw_admin_menu_user_actions_toggle  [private]
-        sw_admin_menu_user_actions_avatar  [private]
+        sw_admin_menu_user_actions_avatar  [after v-if] [private]
         sw_admin_menu_user_actions_custom_fields  [private]
 <mark>          sw_admin_menu_user_actions_toggle_icon  [private]</mark>
     sw_admin_menu_header  [private]
@@ -2688,7 +2712,7 @@ blocks
     sw_admin_menu_flyout_transition  [private]
     sw_admin_menu_footer  [private]
       sw_admin_menu_user_actions_toggle  [private]
-        sw_admin_menu_user_actions_avatar  [private]
+        sw_admin_menu_user_actions_avatar  [after v-if] [private]
         sw_admin_menu_user_actions_custom_fields  [private]
 <mark>        sw_admin_menu_user_actions_items  [private]</mark>
 <mark>          sw_admin_menu_user_actions_items_logout_user  [private]</mark>
@@ -2767,7 +2791,7 @@ methods
 
 blocks
   sw_page  [private]
-    sw_page_content  [private]
+    sw_page_content  [after v-if] [private]
       sw_page_content_sidebar  [private]
         sw_page_sidebar_slot  [empty] [private]
       sw_page_slot_content  [empty] [private]
@@ -2775,10 +2799,10 @@ blocks
     sw_page_head_area  [private]
 <mark>      sw_page_search_bar  [private]</mark>
 <mark>        sw_page_slot_search_bar  [private]</mark>
-<mark>        sw_page_top_bar_actions  [private]</mark>
+<mark>        sw_page_top_bar_actions  [after v-if] [private]</mark>
 <mark>          sw_page_notification_center  [private]</mark>
       sw_page_smart_bar  [private]
-        sw_page_smart_bar_back_btn  [private]
+        sw_page_smart_bar_back_btn  [after v-if] [private]
           sw_page_slot_smart_bar_back  [private]
         sw_page_smart_bar_content  [private]
           sw_page_smart_bar_content_actions  [private]
@@ -2849,14 +2873,14 @@ methods
 
 blocks
   sw_page  [private]
-    sw_page_content  [private]
+    sw_page_content  [after v-if] [private]
       sw_page_content_sidebar  [private]
         sw_page_sidebar_slot  [empty] [private]
       sw_page_slot_content  [empty] [private]
       sw_page_slot_side_content  [empty] [private]
     sw_page_head_area  [private]
       sw_page_smart_bar  [private]
-        sw_page_smart_bar_back_btn  [private]
+        sw_page_smart_bar_back_btn  [after v-if] [private]
           sw_page_slot_smart_bar_back  [private]
         sw_page_smart_bar_content  [private]
           sw_page_smart_bar_content_actions  [private]
@@ -2870,7 +2894,7 @@ blocks
 <mark>      sw_page_top_bar  [private]</mark>
 <mark>        sw_page_search_bar  [private]</mark>
 <mark>          sw_page_slot_search_bar  [private]</mark>
-<mark>        sw_page_top_bar_actions  [private]</mark>
+<mark>        sw_page_top_bar_actions  [after v-if] [private]</mark>
 <mark>          sw_page_notification_center  [private]</mark>
 <mark>          sw_page_top_bar_app_button  [private]</mark></pre></div>
 </div>
@@ -3012,7 +3036,7 @@ methods
 blocks
   sw_search_bar  [private]
     sw_search_bar_container  [private]
-      sw_search_bar_field  [private]
+      sw_search_bar_field  [after v-if] [private]
         sw_search_bar_icon  [private]
         sw_search_bar_input  [private]
           sw_search_bar_slot_input  [private]
@@ -3021,38 +3045,38 @@ blocks
 <mark>        sw_search_bar_button_off_canvas_toggle  [private]</mark>
         sw_search_bar_button_search  [private]
 <mark>        sw_search_bar_version_display  [private]</mark>
-      sw_search_bar_results  [private]
+      sw_search_bar_results  [after v-if] [private]
         sw_search_bar_results_content  [private]
-          sw_search_bar_results_empty  [private]
+          sw_search_bar_results_empty  [after v-if] [private]
             sw_search_bar_results_empty_content  [private]
               sw_search_bar_results_empty_detail  [private]
               sw_search_bar_results_empty_text  [private]
           sw_search_bar_results_empty_state  [private]
-          sw_search_bar_results_list  [private]
-            sw_search_bar_results_list_column  [private]
-              sw_search_bar_results_list_bar_item  [private]
-                sw_search_bar_results_list_bar_item_icon  [private]
-                sw_search_bar_results_list_bar_item_more_results  [private]
-              sw_search_bar_results_list_column_header  [private]
-                sw_search_bar_results_list_column_header_title  [private]
+          sw_search_bar_results_list  [scope: column, entity] [private]
+            sw_search_bar_results_list_column  [scope: column, entity] [private]
+              sw_search_bar_results_list_bar_item  [scope: column, entity] [private]
+                sw_search_bar_results_list_bar_item_icon  [scope: column, entity] [private]
+                sw_search_bar_results_list_bar_item_more_results  [scope: column, entity] [private]
+              sw_search_bar_results_list_column_header  [scope: column, entity] [private]
+                sw_search_bar_results_list_column_header_title  [scope: column, entity] [private]
         sw_search_bar_results_footer  [private]
-      sw_search_bar_trends_results  [private]
+      sw_search_bar_trends_results  [after v-if] [private]
         sw_search_bar_trends_results_content  [private]
-          sw_search_bar_trends_results_list  [private]
-            sw_search_bar_trends_results_list_column  [private]
-              sw_search_bar_trends_results_list_column_header  [private]
-                sw_search_bar_trends_results_list_column_header_title  [private]
+          sw_search_bar_trends_results_list  [scope: column, entity] [private]
+            sw_search_bar_trends_results_list_column  [scope: column, entity] [private]
+              sw_search_bar_trends_results_list_column_header  [scope: column, entity] [private]
+                sw_search_bar_trends_results_list_column_header_title  [scope: column, entity] [private]
         sw_search_bar_trends_results_empty_content  [empty] [private]
         sw_search_bar_trends_results_footer  [private]
-      sw_search_bar_types_container  [private]
+      sw_search_bar_types_container  [after v-if] [private]
         sw_search_bar_types_container_empty  [private]
           sw_search_bar_types_container_empty_text  [private]
-        sw_search_bar_types_container_footer  [private]
+        sw_search_bar_types_container_footer  [after v-if] [private]
         sw_search_bar_types_container_header  [private]
-      sw_search_bar_types_module_filters_container  [private]
+      sw_search_bar_types_module_filters_container  [after v-if] [private]
         sw_search_bar_types_module_filters_container_empty  [private]
           sw_search_bar_types_module_filters_container_empty_text  [private]
-        sw_search_bar_types_module_filters_container_footer  [private]
+        sw_search_bar_types_module_filters_container_footer  [after v-if] [private]
     sw_search_bar_search_preferences_modal  [private]</pre></div>
 <div><h4>Head</h4><pre>component sw-search-bar  private  js  [private]
   registered src/app/component/index.ts  [private]
@@ -3196,7 +3220,7 @@ blocks
   sw_search_bar  [private]
 <mark>    sw_search_bar_button_off_canvas_toggle  [private]</mark>
     sw_search_bar_container  [private]
-      sw_search_bar_field  [private]
+      sw_search_bar_field  [after v-if] [private]
 <mark>        sw_search_bar_field_close  [private]</mark>
         sw_search_bar_icon  [private]
         sw_search_bar_input  [private]
@@ -3204,38 +3228,38 @@ blocks
         sw_search_bar_type  [private]
       sw_search_bar_mobile_controls  [private]
         sw_search_bar_button_search  [private]
-      sw_search_bar_results  [private]
+      sw_search_bar_results  [after v-if] [private]
         sw_search_bar_results_content  [private]
-          sw_search_bar_results_empty  [private]
+          sw_search_bar_results_empty  [after v-if] [private]
             sw_search_bar_results_empty_content  [private]
               sw_search_bar_results_empty_detail  [private]
               sw_search_bar_results_empty_text  [private]
           sw_search_bar_results_empty_state  [private]
-          sw_search_bar_results_list  [private]
-            sw_search_bar_results_list_column  [private]
-              sw_search_bar_results_list_bar_item  [private]
-                sw_search_bar_results_list_bar_item_icon  [private]
-                sw_search_bar_results_list_bar_item_more_results  [private]
-              sw_search_bar_results_list_column_header  [private]
-                sw_search_bar_results_list_column_header_title  [private]
+          sw_search_bar_results_list  [scope: column, entity] [private]
+            sw_search_bar_results_list_column  [scope: column, entity] [private]
+              sw_search_bar_results_list_bar_item  [scope: column, entity] [private]
+                sw_search_bar_results_list_bar_item_icon  [scope: column, entity] [private]
+                sw_search_bar_results_list_bar_item_more_results  [scope: column, entity] [private]
+              sw_search_bar_results_list_column_header  [scope: column, entity] [private]
+                sw_search_bar_results_list_column_header_title  [scope: column, entity] [private]
         sw_search_bar_results_footer  [private]
-      sw_search_bar_trends_results  [private]
+      sw_search_bar_trends_results  [after v-if] [private]
         sw_search_bar_trends_results_content  [private]
-          sw_search_bar_trends_results_list  [private]
-            sw_search_bar_trends_results_list_column  [private]
-              sw_search_bar_trends_results_list_column_header  [private]
-                sw_search_bar_trends_results_list_column_header_title  [private]
+          sw_search_bar_trends_results_list  [scope: column, entity] [private]
+            sw_search_bar_trends_results_list_column  [scope: column, entity] [private]
+              sw_search_bar_trends_results_list_column_header  [scope: column, entity] [private]
+                sw_search_bar_trends_results_list_column_header_title  [scope: column, entity] [private]
         sw_search_bar_trends_results_empty_content  [empty] [private]
         sw_search_bar_trends_results_footer  [private]
-      sw_search_bar_types_container  [private]
+      sw_search_bar_types_container  [after v-if] [private]
         sw_search_bar_types_container_empty  [private]
           sw_search_bar_types_container_empty_text  [private]
-        sw_search_bar_types_container_footer  [private]
+        sw_search_bar_types_container_footer  [after v-if] [private]
         sw_search_bar_types_container_header  [private]
-      sw_search_bar_types_module_filters_container  [private]
+      sw_search_bar_types_module_filters_container  [after v-if] [private]
         sw_search_bar_types_module_filters_container_empty  [private]
           sw_search_bar_types_module_filters_container_empty_text  [private]
-        sw_search_bar_types_module_filters_container_footer  [private]
+        sw_search_bar_types_module_filters_container_footer  [after v-if] [private]
     sw_search_bar_search_preferences_modal  [private]</pre></div>
 </div>
 <h3><code>module/sw-login/page/sw-login.api.md</code></h3>
@@ -3309,7 +3333,7 @@ blocks
   sw_login  [private]
     sw_login_container  [private]
 <mark>      sw_login_back_link  [private]</mark>
-<mark>      sw_login_forgot_password_link  [private]</mark>
+<mark>      sw_login_forgot_password_link  [after v-if] [private]</mark>
       sw_login_form  [private]
         sw_login_loader  [private]
         sw_login_view  [private]
@@ -3417,10 +3441,10 @@ blocks
 <mark>    sw_login_login_error  [private]</mark>
     sw_login_login_form_headline  [private]
     sw_login_login_password_field  [private]
-<mark>    sw_login_login_sso  [private]</mark>
+    sw_login_login_sso  [after v-if] [private]
 <mark>      sw_login_login_sso_button  [private]</mark>
 <mark>      sw_login_login_sso_divider  [private]</mark>
-    sw_login_login_submit  [private]
+    sw_login_login_submit  [after v-if] [private]
       sw_login_login_submit_button  [private]
     sw_login_login_user_field  [private]</pre></div>
 </div>
@@ -3463,7 +3487,7 @@ methods
 
 blocks
   sw_sales_channel_menu  [private]
-    sw_sales_channel_menu_headline  [private]
+    sw_sales_channel_menu_headline  [after v-if] [private]
 <mark>      sw_sales_channel_menu_headline_action  [private]</mark>
       sw_sales_channel_menu_headline_context_button  [private]
         sw_sales_channel_menu_headline_context_button_item  [private]
@@ -3473,7 +3497,7 @@ blocks
 <mark>      sw_sales_channel_menu_context_button_collapsed  [private]</mark>
       sw_sales_channel_menu_navigation_main_list  [private]
         sw_sales_channel_menu_navigation_main_items  [private]
-          sw_sales_channel_menu_navigation_item_additional_text  [private]
+          sw_sales_channel_menu_navigation_item_additional_text  [scope: entry, index] [private]
         sw_sales_channel_menu_navigation_more_items  [private]</pre></div>
 <div><h4>Head</h4><pre>component sw-sales-channel-menu  private  js  [private]
   registered src/module/sw-sales-channel/index.js  [private]
@@ -3519,7 +3543,7 @@ methods
 
 blocks
   sw_sales_channel_menu  [private]
-    sw_sales_channel_menu_headline  [private]
+    sw_sales_channel_menu_headline  [after v-if] [private]
       sw_sales_channel_menu_headline_context_button  [private]
 <mark>        sw_sales_channel_menu_headline_action  [private]</mark>
         sw_sales_channel_menu_headline_context_button_item  [private]
@@ -3527,9 +3551,9 @@ blocks
     sw_sales_channel_menu_modal  [private]
     sw_sales_channel_menu_navigation  [private]
       sw_sales_channel_menu_navigation_main_list  [private]
-<mark>        sw_sales_channel_menu_navigation_add_channel  [private]</mark>
+<mark>        sw_sales_channel_menu_navigation_add_channel  [after v-if] [private]</mark>
         sw_sales_channel_menu_navigation_main_items  [private]
-          sw_sales_channel_menu_navigation_item_additional_text  [private]
+          sw_sales_channel_menu_navigation_item_additional_text  [scope: entry, index] [private]
         sw_sales_channel_menu_navigation_more_items  [private]</pre></div>
 </div>
 </main>

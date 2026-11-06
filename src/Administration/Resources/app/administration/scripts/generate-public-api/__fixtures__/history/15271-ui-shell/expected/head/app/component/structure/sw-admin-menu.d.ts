@@ -136,7 +136,7 @@ declare namespace AdminApi {
                 sw_admin_menu_navigation_main_items: Block<'sw_admin_menu_navigation_main_list'>;
                 sw_admin_menu_navigation_main_list: Block<'sw_admin_menu_navigation_main'>;
                 sw_admin_menu_off_canvas_backdrop: Block<'sw_admin_menu'>;
-                sw_admin_menu_user_actions_avatar: Block<'sw_admin_menu_user_actions_toggle'>;
+                sw_admin_menu_user_actions_avatar: Block<'sw_admin_menu_user_actions_toggle', 'afterIf'>;
                 sw_admin_menu_user_actions_custom_fields: Block<'sw_admin_menu_user_actions_toggle'>;
                 sw_admin_menu_user_actions_items: Block<'sw_admin_menu_user_actions_toggle'>;
                 sw_admin_menu_user_actions_items_logout_user: Block<'sw_admin_menu_user_actions_items'>;

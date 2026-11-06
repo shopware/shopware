@@ -126,7 +126,7 @@ blocks
     sw_admin_menu_flyout_transition  [private]
     sw_admin_menu_footer  [private]
       sw_admin_menu_user_actions_toggle  [private]
-        sw_admin_menu_user_actions_avatar  [private]
+        sw_admin_menu_user_actions_avatar  [after v-if] [private]
         sw_admin_menu_user_actions_custom_fields  [private]
         sw_admin_menu_user_actions_items  [private]
           sw_admin_menu_user_actions_items_logout_user  [private]

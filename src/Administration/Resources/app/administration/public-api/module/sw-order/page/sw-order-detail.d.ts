@@ -120,8 +120,8 @@ declare namespace AdminApi {
                 sw_order_detail_actions_slot_smart_bar_actions: Block<'sw_order_detail_actions'>;
                 sw_order_detail_content: Block<'sw_order_detail'>;
                 sw_order_detail_content_leave_page_modal: Block<'sw_order_detail_content'>;
-                sw_order_detail_content_save_changes_beforehand_modal: Block<'sw_order_detail_content'>;
-                sw_order_detail_content_tabs: Block<'sw_order_detail_content'>;
+                sw_order_detail_content_save_changes_beforehand_modal: Block<'sw_order_detail_content', 'afterIf'>;
+                sw_order_detail_content_tabs: Block<'sw_order_detail_content', 'afterIf'>;
                 sw_order_detail_content_tabs_details: Block<'sw_order_detail_content_tabs'>;
                 sw_order_detail_content_tabs_documents: Block<'sw_order_detail_content_tabs'>;
                 sw_order_detail_content_tabs_extension: Block<'sw_order_detail_content_tabs', 'empty'>;
@@ -130,10 +130,12 @@ declare namespace AdminApi {
                 sw_order_detail_header: Block<'sw_order_detail'>;
                 sw_order_detail_header_label_manual_order: Block<'sw_order_detail_header_title'>;
                 sw_order_detail_header_title: Block<'sw_order_detail_header'>;
-                sw_order_detail_header_title_new: Block<'sw_order_detail_header'>;
+                sw_order_detail_header_title_new: Block<'sw_order_detail_header', 'afterIf'>;
                 sw_order_detail_language_switch: Block<'sw_order_detail'>;
             };
-            crossings: readonly [];
+            crossings: readonly [
+                readonly ['v-if', 'sw_order_detail_header_title', 'sw_order_detail_header_title_new'],
+            ];
             positionIdentifiers: {
                 'sw-order-detail': readonly [
                     { kind: 'tabs'; host: 'sw-tabs'; block: 'sw_order_detail_content_tabs' },

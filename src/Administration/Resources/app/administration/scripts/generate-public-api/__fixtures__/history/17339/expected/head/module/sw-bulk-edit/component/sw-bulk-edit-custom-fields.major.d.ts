@@ -37,10 +37,10 @@ declare namespace AdminApi {
                 sw_custom_field_set_renderer_card: Block<'sw_custom_field_set_renderer', 'inherited'>;
                 sw_custom_field_set_renderer_card_mt_tabs: Block<'sw_custom_field_set_renderer_card', 'inherited'>;
                 sw_custom_field_set_renderer_card_mt_tabs_content: Block<'sw_custom_field_set_renderer_card', 'inherited'>;
-                sw_custom_field_set_renderer_card_mt_tabs_form_renderer: Block<'sw_custom_field_set_renderer_card_mt_tabs_content', 'inherited'>;
-                sw_custom_field_set_renderer_media: Block<'sw_custom_field_set_renderer', 'inherited'>;
-                sw_custom_field_set_renderer_media_button_save: Block<'sw_custom_field_set_renderer_media', 'inherited'>;
-                sw_custom_field_set_renderer_media_form_renderer: Block<'sw_custom_field_set_renderer_media', 'inherited'>;
+                sw_custom_field_set_renderer_card_mt_tabs_form_renderer: Block<'sw_custom_field_set_renderer_card_mt_tabs_content', 'inherited' | 'scope:set'>;
+                sw_custom_field_set_renderer_media: Block<'sw_custom_field_set_renderer', 'inherited' | 'afterIf'>;
+                sw_custom_field_set_renderer_media_button_save: Block<'sw_custom_field_set_renderer_media', 'inherited' | 'scope:set'>;
+                sw_custom_field_set_renderer_media_form_renderer: Block<'sw_custom_field_set_renderer_media', 'inherited' | 'scope:customField' | 'scope:set'>;
             };
             crossings: readonly [];
             positionIdentifiers: {

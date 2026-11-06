@@ -60,10 +60,10 @@ declare namespace AdminApi {
                 sw_login_login_error: Block<'sw_login_login'>;
                 sw_login_login_form_headline: Block<'sw_login_login'>;
                 sw_login_login_password_field: Block<'sw_login_login'>;
-                sw_login_login_sso: Block<'sw_login_login'>;
+                sw_login_login_sso: Block<'sw_login_login', 'afterIf'>;
                 sw_login_login_sso_button: Block<'sw_login_login_sso'>;
                 sw_login_login_sso_divider: Block<'sw_login_login_sso'>;
-                sw_login_login_submit: Block<'sw_login_login'>;
+                sw_login_login_submit: Block<'sw_login_login', 'afterIf'>;
                 sw_login_login_submit_button: Block<'sw_login_login_submit'>;
                 sw_login_login_user_field: Block<'sw_login_login'>;
             };

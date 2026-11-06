@@ -91,13 +91,13 @@ declare namespace AdminApi {
                 sw_admin_menu_item: Block<null>;
                 sw_admin_menu_item_expand_indicator_fold: Block<'sw_admin_menu_item'>;
                 sw_admin_menu_item_expand_indicator_linked: Block<'sw_admin_menu_item'>;
-                sw_admin_menu_item_external_link: Block<'sw_admin_menu_item'>;
+                sw_admin_menu_item_external_link: Block<'sw_admin_menu_item', 'afterIf' | 'scope:tooltipProps'>;
                 sw_admin_menu_item_icon: Block<'sw_admin_menu_item'>;
                 sw_admin_menu_item_navigation_icon: Block<'sw_admin_menu_item'>;
-                sw_admin_menu_item_navigation_link: Block<'sw_admin_menu_item'>;
-                sw_admin_menu_item_navigation_text: Block<'sw_admin_menu_item'>;
-                sw_admin_menu_item_router_link: Block<'sw_admin_menu_item'>;
-                sw_admin_menu_item_text: Block<'sw_admin_menu_item'>;
+                sw_admin_menu_item_navigation_link: Block<'sw_admin_menu_item', 'afterIf' | 'scope:tooltipProps'>;
+                sw_admin_menu_item_navigation_text: Block<'sw_admin_menu_item', 'afterIf'>;
+                sw_admin_menu_item_router_link: Block<'sw_admin_menu_item', 'scope:tooltipProps'>;
+                sw_admin_menu_item_text: Block<'sw_admin_menu_item', 'afterIf'>;
                 sw_sidebar_sub_items_list: Block<'sw_admin_menu_item'>;
             };
             crossings: readonly [];

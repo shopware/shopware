@@ -31,7 +31,7 @@ methods
 blocks
   sw_example_list
     sw_example_list_items
-      sw_example_list_item_delete
-      sw_example_list_item_label
+      sw_example_list_item_delete  [scope: item]
+      sw_example_list_item_label  [scope: item]
     sw_example_list_pagination
 ```

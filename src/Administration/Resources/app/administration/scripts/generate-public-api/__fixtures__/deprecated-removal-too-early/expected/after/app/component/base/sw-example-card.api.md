@@ -33,5 +33,5 @@ blocks
     sw_example_card_content
     sw_example_card_header
       sw_example_card_title
-      sw_example_card_toggle
+      sw_example_card_toggle  [after v-if]
 ```

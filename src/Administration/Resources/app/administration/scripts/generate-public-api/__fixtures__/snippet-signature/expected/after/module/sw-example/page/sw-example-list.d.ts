@@ -41,8 +41,8 @@ declare namespace AdminApi {
             blocks: {
                 sw_example_list: Block<null>;
                 sw_example_list_content: Block<'sw_example_list'>;
-                sw_example_list_delete_modal: Block<'sw_example_list_content'>;
-                sw_example_list_empty_state: Block<'sw_example_list_content'>;
+                sw_example_list_delete_modal: Block<'sw_example_list_content', 'afterIf'>;
+                sw_example_list_empty_state: Block<'sw_example_list_content', 'afterIf'>;
                 sw_example_list_grid: Block<'sw_example_list_content'>;
                 sw_example_list_selection_info: Block<'sw_example_list_content'>;
                 sw_example_list_smart_bar_header: Block<'sw_example_list'>;

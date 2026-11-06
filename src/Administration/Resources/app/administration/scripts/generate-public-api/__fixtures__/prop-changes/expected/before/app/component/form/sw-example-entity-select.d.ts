@@ -44,7 +44,7 @@ declare namespace AdminApi {
                 sw_example_entity_select: Block<null>;
                 sw_example_entity_select_clear: Block<'sw_example_entity_select'>;
                 sw_example_entity_select_input: Block<'sw_example_entity_select'>;
-                sw_example_entity_select_results: Block<'sw_example_entity_select'>;
+                sw_example_entity_select_results: Block<'sw_example_entity_select', 'afterIf'>;
             };
             crossings: readonly [];
             positionIdentifiers: {};

@@ -38,17 +38,17 @@ blocks
     sw_sales_channel_detail_actions
       sw_sales_channel_detail_actions_save
     sw_sales_channel_detail_content
-      sw_sales_channel_detail_content_tabs
-        sw_sales_channel_detail_content_mt_tabs  [major only]
-        sw_sales_channel_detail_content_tab_general  [current only]
-        sw_sales_channel_detail_content_tab_theme  [empty] [current only]
+      sw_sales_channel_detail_content_tabs  [after v-if]
+        sw_sales_channel_detail_content_mt_tabs  [from v6.8.0]
+        sw_sales_channel_detail_content_tab_general  [until v6.8.0]
+        sw_sales_channel_detail_content_tab_theme  [empty] [after v-if] [until v6.8.0]
         ...
       sw_sales_channel_detail_content_view
     sw_sales_channel_detail_sidebar  [empty]
 
 position-ids
-  sw-sales-channel-detail  tabs  host=sw-tabs  block=sw_sales_channel_detail_content_tabs  [current only]
-  sw-sales-channel-detail  tabs  host=mt-tabs  block=sw_sales_channel_detail_content_mt_tabs  [major only]
+  sw-sales-channel-detail  tabs  host=sw-tabs  block=sw_sales_channel_detail_content_tabs  [until v6.8.0]
+  sw-sales-channel-detail  tabs  host=mt-tabs  block=sw_sales_channel_detail_content_mt_tabs  [from v6.8.0]
 
 data-sets
   sw-sales-channel-detail__salesChannel  path=salesChannel
@@ -103,8 +103,8 @@ declare namespace AdminApi {
             };
             blocks: {
                 sw_sales_channel_detail: Block<null>;
-                sw_sales_channel_detail_content_tabs: Block<'sw_sales_channel_detail_content'>;
-                sw_sales_channel_detail_content_tab_theme: Block<'sw_sales_channel_detail_content_tabs', 'empty'>;
+                sw_sales_channel_detail_content_tabs: Block<'sw_sales_channel_detail_content', 'afterIf'>;
+                sw_sales_channel_detail_content_tab_theme: Block<'sw_sales_channel_detail_content_tabs', 'empty' | 'afterIf'>;
                 // ...
             };
             crossings: readonly [];

@@ -46,7 +46,7 @@ declare namespace AdminApi {
                 sw_login: Block<null>;
                 sw_login_back_link: Block<'sw_login_container'>;
                 sw_login_container: Block<'sw_login'>;
-                sw_login_forgot_password_link: Block<'sw_login_container'>;
+                sw_login_forgot_password_link: Block<'sw_login_container', 'afterIf'>;
                 sw_login_form: Block<'sw_login_container'>;
                 sw_login_loader: Block<'sw_login_form'>;
                 sw_login_logo: Block<'sw_login_container'>;

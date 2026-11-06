@@ -39,7 +39,7 @@ blocks
     sw_example_detail_actions
       sw_example_detail_actions_save
     sw_example_detail_content
-      sw_example_detail_content_card
+      sw_example_detail_content_card  [after v-if]
       sw_example_detail_content_notices
     sw_example_detail_header
 

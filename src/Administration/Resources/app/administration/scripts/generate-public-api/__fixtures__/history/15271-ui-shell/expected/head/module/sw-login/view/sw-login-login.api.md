@@ -55,10 +55,10 @@ blocks
     sw_login_login_error  [private]
     sw_login_login_form_headline  [private]
     sw_login_login_password_field  [private]
-    sw_login_login_sso  [private]
+    sw_login_login_sso  [after v-if] [private]
       sw_login_login_sso_button  [private]
       sw_login_login_sso_divider  [private]
-    sw_login_login_submit  [private]
+    sw_login_login_submit  [after v-if] [private]
       sw_login_login_submit_button  [private]
     sw_login_login_user_field  [private]
 ```

@@ -124,12 +124,12 @@ declare namespace AdminApi {
                 sw_admin_menu_toggle_sidebar_icon: Block<'sw_admin_menu_toggle_sidebar'>;
                 sw_admin_menu_toggle_sidebar_text: Block<'sw_admin_menu_toggle_sidebar'>;
                 sw_admin_menu_user_actions: Block<'sw_admin_menu_footer'>;
-                sw_admin_menu_user_actions_avatar: Block<'sw_admin_menu_user_actions_toggle'>;
+                sw_admin_menu_user_actions_avatar: Block<'sw_admin_menu_user_actions_toggle', 'afterIf'>;
                 sw_admin_menu_user_actions_custom_fields: Block<'sw_admin_menu_user_actions_toggle'>;
                 sw_admin_menu_user_actions_items: Block<'sw_admin_menu_user_actions_list'>;
                 sw_admin_menu_user_actions_items_logout_user: Block<'sw_admin_menu_user_actions_items'>;
                 sw_admin_menu_user_actions_label: Block<'sw_admin_menu_user_actions'>;
-                sw_admin_menu_user_actions_list: Block<'sw_admin_menu_user_actions'>;
+                sw_admin_menu_user_actions_list: Block<'sw_admin_menu_user_actions', 'afterIf'>;
                 sw_admin_menu_user_actions_toggle: Block<'sw_admin_menu_footer'>;
                 sw_admin_menu_user_actions_toggle_icon: Block<'sw_admin_menu_user_actions_custom_fields'>;
             };

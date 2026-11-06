@@ -55,17 +55,21 @@ methods
 
 blocks
   sw_admin_menu_item  [private]
-    sw_admin_menu_item_external_link  [private]
+    sw_admin_menu_item_external_link  [after v-if] [private]
       sw_admin_menu_item_external_arrow_indicato  [private]
       sw_admin_menu_item_external_icon  [private]
-      sw_admin_menu_item_external_text  [private]
-    sw_admin_menu_item_navigation_link  [private]
+      sw_admin_menu_item_external_text  [after v-if] [private]
+    sw_admin_menu_item_navigation_link  [after v-if] [private]
       sw_admin_menu_item_arrow_indicator  [private]
       sw_admin_menu_item_navigation_icon  [private]
-      sw_admin_menu_item_navigation_text  [private]
+      sw_admin_menu_item_navigation_text  [after v-if] [private]
     sw_admin_menu_item_router_link  [private]
       sw_admin_menu_item_arrow_indicato  [private]
       sw_admin_menu_item_icon  [private]
-      sw_admin_menu_item_text  [private]
+      sw_admin_menu_item_text  [after v-if] [private]
     sw_sidebar_sub_items_list  [private]
+
+crossings
+  v-if  sw_admin_menu_item_external_link -> sw_admin_menu_item_navigation_link  [private]
+  v-if  sw_admin_menu_item_router_link -> sw_admin_menu_item_external_link  [private]
 ```

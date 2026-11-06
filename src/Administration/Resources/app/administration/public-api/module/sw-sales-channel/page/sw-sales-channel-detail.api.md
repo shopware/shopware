@@ -106,16 +106,16 @@ blocks
     sw_sales_channel_detail_content
       sw_sales_channel_detail_agentic_commerce_deprecation_banner  [deprecated tag:v6.8.0]
       sw_sales_channel_detail_content_language_info
-      sw_sales_channel_detail_content_tabs
-        sw_sales_channel_detail_content_mt_tabs  [major only]
-        sw_sales_channel_detail_content_tab_agentic_commerce_integration  [current only]
-        sw_sales_channel_detail_content_tab_analytics  [current only]
-        sw_sales_channel_detail_content_tab_export_template  [current only]
-          sw_sales_channel_detail_content_tab_product_comparison  [current only] [deprecated tag:v6.8.0]
-        sw_sales_channel_detail_content_tab_general  [current only]
-        sw_sales_channel_detail_content_tab_product_export_insights  [current only]
-        sw_sales_channel_detail_content_tab_products  [current only]
-        sw_sales_channel_detail_content_tab_theme  [empty] [current only]
+      sw_sales_channel_detail_content_tabs  [after v-if]
+        sw_sales_channel_detail_content_mt_tabs  [from v6.8.0]
+        sw_sales_channel_detail_content_tab_agentic_commerce_integration  [after v-if] [until v6.8.0]
+        sw_sales_channel_detail_content_tab_analytics  [after v-if] [until v6.8.0]
+        sw_sales_channel_detail_content_tab_export_template  [after v-if] [until v6.8.0]
+          sw_sales_channel_detail_content_tab_product_comparison  [after v-if] [until v6.8.0] [deprecated tag:v6.8.0]
+        sw_sales_channel_detail_content_tab_general  [until v6.8.0]
+        sw_sales_channel_detail_content_tab_product_export_insights  [until v6.8.0]
+        sw_sales_channel_detail_content_tab_products  [after v-if] [until v6.8.0]
+        sw_sales_channel_detail_content_tab_theme  [empty] [after v-if] [until v6.8.0]
       sw_sales_channel_detail_content_view
     sw_sales_channel_detail_header
       sw_sales_channel_detail_header_headline
@@ -123,8 +123,8 @@ blocks
     sw_sales_channel_detail_sidebar  [empty]
 
 position-ids
-  sw-sales-channel-detail  tabs  host=sw-tabs  block=sw_sales_channel_detail_content_tabs  [current only]
-  sw-sales-channel-detail  tabs  host=mt-tabs  block=sw_sales_channel_detail_content_mt_tabs  [major only]
+  sw-sales-channel-detail  tabs  host=sw-tabs  block=sw_sales_channel_detail_content_tabs  [until v6.8.0]
+  sw-sales-channel-detail  tabs  host=mt-tabs  block=sw_sales_channel_detail_content_mt_tabs  [from v6.8.0]
 
 data-sets
   sw-sales-channel-detail__salesChannel  path=salesChannel

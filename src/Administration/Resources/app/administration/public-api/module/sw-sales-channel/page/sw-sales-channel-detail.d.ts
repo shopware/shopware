@@ -121,16 +121,16 @@ declare namespace AdminApi {
                 sw_sales_channel_detail_agentic_commerce_deprecation_banner: Block<'sw_sales_channel_detail_content'>;
                 sw_sales_channel_detail_content: Block<'sw_sales_channel_detail'>;
                 sw_sales_channel_detail_content_language_info: Block<'sw_sales_channel_detail_content'>;
-                sw_sales_channel_detail_content_tab_agentic_commerce_integration: Block<'sw_sales_channel_detail_content_tabs'>;
-                sw_sales_channel_detail_content_tab_analytics: Block<'sw_sales_channel_detail_content_tabs'>;
-                sw_sales_channel_detail_content_tab_export_template: Block<'sw_sales_channel_detail_content_tabs'>;
+                sw_sales_channel_detail_content_tab_agentic_commerce_integration: Block<'sw_sales_channel_detail_content_tabs', 'afterIf'>;
+                sw_sales_channel_detail_content_tab_analytics: Block<'sw_sales_channel_detail_content_tabs', 'afterIf'>;
+                sw_sales_channel_detail_content_tab_export_template: Block<'sw_sales_channel_detail_content_tabs', 'afterIf'>;
                 sw_sales_channel_detail_content_tab_general: Block<'sw_sales_channel_detail_content_tabs'>;
                 /** @deprecated tag:v6.8.0 - Block will be removed. Use `sw_sales_channel_detail_content_tab_export_template` instead. */
-                sw_sales_channel_detail_content_tab_product_comparison: Block<'sw_sales_channel_detail_content_tab_export_template'>;
+                sw_sales_channel_detail_content_tab_product_comparison: Block<'sw_sales_channel_detail_content_tab_export_template', 'afterIf'>;
                 sw_sales_channel_detail_content_tab_product_export_insights: Block<'sw_sales_channel_detail_content_tabs'>;
-                sw_sales_channel_detail_content_tab_products: Block<'sw_sales_channel_detail_content_tabs'>;
-                sw_sales_channel_detail_content_tab_theme: Block<'sw_sales_channel_detail_content_tabs', 'empty'>;
-                sw_sales_channel_detail_content_tabs: Block<'sw_sales_channel_detail_content'>;
+                sw_sales_channel_detail_content_tab_products: Block<'sw_sales_channel_detail_content_tabs', 'afterIf'>;
+                sw_sales_channel_detail_content_tab_theme: Block<'sw_sales_channel_detail_content_tabs', 'empty' | 'afterIf'>;
+                sw_sales_channel_detail_content_tabs: Block<'sw_sales_channel_detail_content', 'afterIf'>;
                 sw_sales_channel_detail_content_view: Block<'sw_sales_channel_detail_content'>;
                 sw_sales_channel_detail_header: Block<'sw_sales_channel_detail'>;
                 sw_sales_channel_detail_header_headline: Block<'sw_sales_channel_detail_header'>;

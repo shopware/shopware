@@ -44,7 +44,7 @@ methods
 
 blocks
   sw_sales_channel_menu  [private]
-    sw_sales_channel_menu_headline  [private]
+    sw_sales_channel_menu_headline  [after v-if] [private]
       sw_sales_channel_menu_headline_action  [private]
       sw_sales_channel_menu_headline_context_button  [private]
         sw_sales_channel_menu_headline_context_button_item  [private]
@@ -54,6 +54,6 @@ blocks
       sw_sales_channel_menu_context_button_collapsed  [private]
       sw_sales_channel_menu_navigation_main_list  [private]
         sw_sales_channel_menu_navigation_main_items  [private]
-          sw_sales_channel_menu_navigation_item_additional_text  [private]
+          sw_sales_channel_menu_navigation_item_additional_text  [scope: entry, index] [private]
         sw_sales_channel_menu_navigation_more_items  [private]
 ```

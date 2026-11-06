@@ -11,7 +11,7 @@
  ```
 --- a/app/component/structure/sw-admin-menu-item.api.md
 +++ b/app/component/structure/sw-admin-menu-item.api.md
-@@ -18,54 +18,85 @@
+@@ -18,58 +18,85 @@
    feature  [private]
  
  props
@@ -97,25 +97,32 @@
  
  blocks
    sw_admin_menu_item  [private]
-+    sw_admin_menu_item_expand_indicator_fold  [private]
-+    sw_admin_menu_item_expand_indicator_linked  [private]
-     sw_admin_menu_item_external_link  [private]
+-    sw_admin_menu_item_external_link  [after v-if] [private]
 -      sw_admin_menu_item_external_arrow_indicato  [private]
 -      sw_admin_menu_item_external_icon  [private]
--      sw_admin_menu_item_external_text  [private]
-+    sw_admin_menu_item_icon  [private]
-+    sw_admin_menu_item_navigation_icon  [private]
-     sw_admin_menu_item_navigation_link  [private]
+-      sw_admin_menu_item_external_text  [after v-if] [private]
+-    sw_admin_menu_item_navigation_link  [after v-if] [private]
 -      sw_admin_menu_item_arrow_indicator  [private]
 -      sw_admin_menu_item_navigation_icon  [private]
--      sw_admin_menu_item_navigation_text  [private]
-+    sw_admin_menu_item_navigation_text  [private]
-     sw_admin_menu_item_router_link  [private]
+-      sw_admin_menu_item_navigation_text  [after v-if] [private]
+-    sw_admin_menu_item_router_link  [private]
 -      sw_admin_menu_item_arrow_indicato  [private]
 -      sw_admin_menu_item_icon  [private]
--      sw_admin_menu_item_text  [private]
-+    sw_admin_menu_item_text  [private]
+-      sw_admin_menu_item_text  [after v-if] [private]
++    sw_admin_menu_item_expand_indicator_fold  [private]
++    sw_admin_menu_item_expand_indicator_linked  [private]
++    sw_admin_menu_item_external_link  [after v-if] [scope: tooltipProps] [private]
++    sw_admin_menu_item_icon  [private]
++    sw_admin_menu_item_navigation_icon  [private]
++    sw_admin_menu_item_navigation_link  [after v-if] [scope: tooltipProps] [private]
++    sw_admin_menu_item_navigation_text  [after v-if] [private]
++    sw_admin_menu_item_router_link  [scope: tooltipProps] [private]
++    sw_admin_menu_item_text  [after v-if] [private]
      sw_sidebar_sub_items_list  [private]
+-
+-crossings
+-  v-if  sw_admin_menu_item_external_link -> sw_admin_menu_item_navigation_link  [private]
+-  v-if  sw_admin_menu_item_router_link -> sw_admin_menu_item_external_link  [private]
  ```
 --- a/app/component/structure/sw-admin-menu.api.md
 +++ b/app/component/structure/sw-admin-menu.api.md
@@ -269,11 +276,11 @@
 -        sw_admin_menu_toggle_sidebar_text  [private]
 -      sw_admin_menu_user_actions  [private]
 -        sw_admin_menu_user_actions_label  [private]
--        sw_admin_menu_user_actions_list  [private]
+-        sw_admin_menu_user_actions_list  [after v-if] [private]
 -          sw_admin_menu_user_actions_items  [private]
 -            sw_admin_menu_user_actions_items_logout_user  [private]
        sw_admin_menu_user_actions_toggle  [private]
-         sw_admin_menu_user_actions_avatar  [private]
+         sw_admin_menu_user_actions_avatar  [after v-if] [private]
          sw_admin_menu_user_actions_custom_fields  [private]
 -          sw_admin_menu_user_actions_toggle_icon  [private]
 +        sw_admin_menu_user_actions_items  [private]
@@ -306,10 +313,10 @@
      sw_page_head_area  [private]
 -      sw_page_search_bar  [private]
 -        sw_page_slot_search_bar  [private]
--        sw_page_top_bar_actions  [private]
+-        sw_page_top_bar_actions  [after v-if] [private]
 -          sw_page_notification_center  [private]
        sw_page_smart_bar  [private]
-         sw_page_smart_bar_back_btn  [private]
+         sw_page_smart_bar_back_btn  [after v-if] [private]
            sw_page_slot_smart_bar_back  [private]
 @@ -91,4 +85,10 @@
            sw_page_smart_bar_content_language_switch  [private]
@@ -318,7 +325,7 @@
 +      sw_page_top_bar  [private]
 +        sw_page_search_bar  [private]
 +          sw_page_slot_search_bar  [private]
-+        sw_page_top_bar_actions  [private]
++        sw_page_top_bar_actions  [after v-if] [private]
 +          sw_page_notification_center  [private]
 +          sw_page_top_bar_app_button  [private]
  ```
@@ -376,7 +383,7 @@
    sw_search_bar  [private]
 +    sw_search_bar_button_off_canvas_toggle  [private]
      sw_search_bar_container  [private]
-       sw_search_bar_field  [private]
+       sw_search_bar_field  [after v-if] [private]
 +        sw_search_bar_field_close  [private]
          sw_search_bar_icon  [private]
          sw_search_bar_input  [private]
@@ -386,9 +393,9 @@
 -        sw_search_bar_button_off_canvas_toggle  [private]
          sw_search_bar_button_search  [private]
 -        sw_search_bar_version_display  [private]
-       sw_search_bar_results  [private]
+       sw_search_bar_results  [after v-if] [private]
          sw_search_bar_results_content  [private]
-           sw_search_bar_results_empty  [private]
+           sw_search_bar_results_empty  [after v-if] [private]
 --- a/module/sw-login/page/sw-login.api.md
 +++ b/module/sw-login/page/sw-login.api.md
 @@ -17,12 +17,16 @@
@@ -422,7 +429,7 @@
    sw_login  [private]
      sw_login_container  [private]
 +      sw_login_back_link  [private]
-+      sw_login_forgot_password_link  [private]
++      sw_login_forgot_password_link  [after v-if] [private]
        sw_login_form  [private]
 -        sw_login_badge  [private]
 -          sw_login_badge_image  [private]
@@ -480,11 +487,12 @@
 +    sw_login_login_error  [private]
      sw_login_login_form_headline  [private]
      sw_login_login_password_field  [private]
-+    sw_login_login_sso  [private]
+-    sw_login_login_submit  [private]
+-      sw_login_login_forgot_password  [private]
++    sw_login_login_sso  [after v-if] [private]
 +      sw_login_login_sso_button  [private]
 +      sw_login_login_sso_divider  [private]
-     sw_login_login_submit  [private]
--      sw_login_login_forgot_password  [private]
++    sw_login_login_submit  [after v-if] [private]
        sw_login_login_submit_button  [private]
      sw_login_login_user_field  [private]
  ```
@@ -524,7 +532,7 @@
  
  blocks
    sw_sales_channel_menu  [private]
-     sw_sales_channel_menu_headline  [private]
+     sw_sales_channel_menu_headline  [after v-if] [private]
 -      sw_sales_channel_menu_headline_action  [private]
        sw_sales_channel_menu_headline_context_button  [private]
 +        sw_sales_channel_menu_headline_action  [private]
@@ -534,7 +542,7 @@
      sw_sales_channel_menu_navigation  [private]
 -      sw_sales_channel_menu_context_button_collapsed  [private]
        sw_sales_channel_menu_navigation_main_list  [private]
-+        sw_sales_channel_menu_navigation_add_channel  [private]
++        sw_sales_channel_menu_navigation_add_channel  [after v-if] [private]
          sw_sales_channel_menu_navigation_main_items  [private]
-           sw_sales_channel_menu_navigation_item_additional_text  [private]
+           sw_sales_channel_menu_navigation_item_additional_text  [scope: entry, index] [private]
          sw_sales_channel_menu_navigation_more_items  [private]

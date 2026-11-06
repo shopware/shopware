@@ -35,8 +35,8 @@ methods
 blocks
   sw_example_list
     sw_example_list_content
-      sw_example_list_delete_modal
-      sw_example_list_empty_state
+      sw_example_list_delete_modal  [after v-if]
+      sw_example_list_empty_state  [after v-if]
       sw_example_list_grid
       sw_example_list_selection_info
     sw_example_list_smart_bar_header

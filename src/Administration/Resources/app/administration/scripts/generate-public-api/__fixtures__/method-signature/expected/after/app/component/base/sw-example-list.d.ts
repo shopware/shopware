@@ -36,8 +36,8 @@ declare namespace AdminApi {
             };
             blocks: {
                 sw_example_list: Block<null>;
-                sw_example_list_item_delete: Block<'sw_example_list_items'>;
-                sw_example_list_item_label: Block<'sw_example_list_items'>;
+                sw_example_list_item_delete: Block<'sw_example_list_items', 'scope:index' | 'scope:item'>;
+                sw_example_list_item_label: Block<'sw_example_list_items', 'scope:index' | 'scope:item'>;
                 sw_example_list_items: Block<'sw_example_list'>;
                 sw_example_list_pagination: Block<'sw_example_list'>;
             };

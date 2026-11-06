@@ -30,21 +30,21 @@ methods
 blocks
   sw_custom_field_set_renderer  [inherited]
     sw_custom_field_set_renderer_card  [inherited]
-      sw_custom_field_set_renderer_card_mt_tabs  [inherited] [major only]
-      sw_custom_field_set_renderer_card_mt_tabs_content  [inherited] [major only]
-        sw_custom_field_set_renderer_card_mt_tabs_form_renderer  [inherited] [major only]
-      sw_custom_field_set_renderer_card_tabs  [inherited] [current only]
-      sw_custom_field_set_renderer_card_tabs_content  [inherited] [current only]
-        sw_custom_field_set_renderer_card_form_renderer  [replaced] [current only]
-          sw_custom_field_set_renderer_card_form_renderer_change_field  [current only]
-          sw_custom_field_set_renderer_card_form_renderer_custom_field  [current only]
-    sw_custom_field_set_renderer_media  [inherited]
-      sw_custom_field_set_renderer_media_button_save  [inherited]
-      sw_custom_field_set_renderer_media_form_renderer  [inherited]
+      sw_custom_field_set_renderer_card_mt_tabs  [inherited] [from v6.8.0]
+      sw_custom_field_set_renderer_card_mt_tabs_content  [inherited] [from v6.8.0]
+        sw_custom_field_set_renderer_card_mt_tabs_form_renderer  [inherited] [scope: set] [from v6.8.0]
+      sw_custom_field_set_renderer_card_tabs  [inherited] [until v6.8.0]
+      sw_custom_field_set_renderer_card_tabs_content  [inherited] [until v6.8.0]
+        sw_custom_field_set_renderer_card_form_renderer  [replaced] [scope: active, set] [until v6.8.0]
+          sw_custom_field_set_renderer_card_form_renderer_change_field  [scope: active, customField, set] [until v6.8.0]
+          sw_custom_field_set_renderer_card_form_renderer_custom_field  [scope: active, customField, set] [until v6.8.0]
+    sw_custom_field_set_renderer_media  [inherited] [after v-if]
+      sw_custom_field_set_renderer_media_button_save  [inherited] [scope: set]
+      sw_custom_field_set_renderer_media_form_renderer  [inherited] [scope: customField, set]
 
 position-ids
-  sw-custom-field-set-renderer  tabs  host=sw-tabs  block=sw_custom_field_set_renderer_card  [current only]
-  sw-custom-field-set-renderer  tabs  host=mt-tabs  block=sw_custom_field_set_renderer_card_mt_tabs  [major only]
+  sw-custom-field-set-renderer  tabs  host=sw-tabs  block=sw_custom_field_set_renderer_card  [until v6.8.0]
+  sw-custom-field-set-renderer  tabs  host=mt-tabs  block=sw_custom_field_set_renderer_card_mt_tabs  [from v6.8.0]
 
 notes
   flag-removal-undeprecated block sw_custom_field_set_renderer_card_form_renderer

@@ -72,7 +72,7 @@ declare namespace AdminApi {
             };
             blocks: {
                 sw_page: Block<null>;
-                sw_page_content: Block<'sw_page'>;
+                sw_page_content: Block<'sw_page', 'afterIf'>;
                 sw_page_content_sidebar: Block<'sw_page_content'>;
                 sw_page_head_area: Block<'sw_page'>;
                 sw_page_notification_center: Block<'sw_page_top_bar_actions'>;
@@ -86,7 +86,7 @@ declare namespace AdminApi {
                 sw_page_slot_smart_bar_back: Block<'sw_page_smart_bar_back_btn'>;
                 sw_page_slot_smart_bar_header: Block<'sw_page_smart_bar_content_header'>;
                 sw_page_smart_bar: Block<'sw_page_head_area'>;
-                sw_page_smart_bar_back_btn: Block<'sw_page_smart_bar'>;
+                sw_page_smart_bar_back_btn: Block<'sw_page_smart_bar', 'afterIf'>;
                 sw_page_smart_bar_content: Block<'sw_page_smart_bar'>;
                 sw_page_smart_bar_content_actions: Block<'sw_page_smart_bar_content'>;
                 sw_page_smart_bar_content_app_actions: Block<'sw_page_smart_bar_content'>;
@@ -94,7 +94,7 @@ declare namespace AdminApi {
                 sw_page_smart_bar_content_language_switch: Block<'sw_page_smart_bar_content'>;
                 sw_page_smart_bar_divider: Block<'sw_page_smart_bar'>;
                 sw_page_top_bar: Block<'sw_page_head_area'>;
-                sw_page_top_bar_actions: Block<'sw_page_top_bar'>;
+                sw_page_top_bar_actions: Block<'sw_page_top_bar', 'afterIf'>;
                 sw_page_top_bar_app_button: Block<'sw_page_top_bar_actions'>;
             };
             crossings: readonly [];

@@ -102,12 +102,14 @@ declare namespace AdminApi {
                 sw_custom_field_set_renderer_card: Block<'sw_custom_field_set_renderer'>;
                 sw_custom_field_set_renderer_card_mt_tabs: Block<'sw_custom_field_set_renderer_card'>;
                 sw_custom_field_set_renderer_card_mt_tabs_content: Block<'sw_custom_field_set_renderer_card'>;
-                sw_custom_field_set_renderer_card_mt_tabs_form_renderer: Block<'sw_custom_field_set_renderer_card_mt_tabs_content'>;
-                sw_custom_field_set_renderer_media: Block<'sw_custom_field_set_renderer'>;
-                sw_custom_field_set_renderer_media_button_save: Block<'sw_custom_field_set_renderer_media'>;
-                sw_custom_field_set_renderer_media_form_renderer: Block<'sw_custom_field_set_renderer_media'>;
+                sw_custom_field_set_renderer_card_mt_tabs_form_renderer: Block<'sw_custom_field_set_renderer_card_mt_tabs_content', 'scope:set'>;
+                sw_custom_field_set_renderer_media: Block<'sw_custom_field_set_renderer', 'afterIf'>;
+                sw_custom_field_set_renderer_media_button_save: Block<'sw_custom_field_set_renderer_media', 'scope:set'>;
+                sw_custom_field_set_renderer_media_form_renderer: Block<'sw_custom_field_set_renderer_media', 'scope:customField' | 'scope:set'>;
             };
-            crossings: readonly [];
+            crossings: readonly [
+                readonly ['v-if', 'sw_custom_field_set_renderer_card', 'sw_custom_field_set_renderer_media'],
+            ];
             positionIdentifiers: {
                 'sw-custom-field-set-renderer': readonly [
                     { kind: 'tabs'; host: 'mt-tabs'; block: 'sw_custom_field_set_renderer_card_mt_tabs' },

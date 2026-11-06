@@ -98,10 +98,13 @@ blocks
     sw_custom_field_set_renderer_card  [private]
       sw_custom_field_set_renderer_card_tabs  [private]
       sw_custom_field_set_renderer_card_tabs_content  [private]
-        sw_custom_field_set_renderer_card_form_renderer  [private]
-    sw_custom_field_set_renderer_media  [private]
-      sw_custom_field_set_renderer_media_button_save  [private]
-      sw_custom_field_set_renderer_media_form_renderer  [private]
+        sw_custom_field_set_renderer_card_form_renderer  [scope: active, set] [private]
+    sw_custom_field_set_renderer_media  [after v-if] [private]
+      sw_custom_field_set_renderer_media_button_save  [scope: set] [private]
+      sw_custom_field_set_renderer_media_form_renderer  [scope: customField, set] [private]
+
+crossings
+  v-if  sw_custom_field_set_renderer_card -> sw_custom_field_set_renderer_media  [private]
 
 position-ids
   sw-custom-field-set-renderer  tabs  host=sw-tabs  block=sw_custom_field_set_renderer_card  [private]

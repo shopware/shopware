@@ -360,10 +360,10 @@ blocks
     sw_custom_field_set_renderer_card  [private]
 <mark>      sw_custom_field_set_renderer_card_tabs  [private]</mark>
 <mark>      sw_custom_field_set_renderer_card_tabs_content  [private]</mark>
-<mark>        sw_custom_field_set_renderer_card_form_renderer  [private]</mark>
-    sw_custom_field_set_renderer_media  [private]
-      sw_custom_field_set_renderer_media_button_save  [private]
-      sw_custom_field_set_renderer_media_form_renderer  [private]
+<mark>        sw_custom_field_set_renderer_card_form_renderer  [scope: active, set] [private]</mark>
+    sw_custom_field_set_renderer_media  [after v-if] [private]
+      sw_custom_field_set_renderer_media_button_save  [scope: set] [private]
+      sw_custom_field_set_renderer_media_form_renderer  [scope: customField, set] [private]
 
 position-ids
 <mark>  sw-custom-field-set-renderer  tabs  host=sw-tabs  block=sw_custom_field_set_renderer_card  [private]</mark></pre></div>
@@ -460,19 +460,19 @@ methods
 blocks
   sw_custom_field_set_renderer  [private]
     sw_custom_field_set_renderer_card  [private]
-<mark>      sw_custom_field_set_renderer_card_mt_tabs  [major only] [private]</mark>
-<mark>      sw_custom_field_set_renderer_card_mt_tabs_content  [major only] [private]</mark>
-<mark>        sw_custom_field_set_renderer_card_mt_tabs_form_renderer  [major only] [private]</mark>
-<mark>      sw_custom_field_set_renderer_card_tabs  [current only] [private]</mark>
-<mark>      sw_custom_field_set_renderer_card_tabs_content  [current only] [private]</mark>
-<mark>        sw_custom_field_set_renderer_card_form_renderer  [current only] [private]</mark>
-    sw_custom_field_set_renderer_media  [private]
-      sw_custom_field_set_renderer_media_button_save  [private]
-      sw_custom_field_set_renderer_media_form_renderer  [private]
+<mark>      sw_custom_field_set_renderer_card_mt_tabs  [from v6.8.0] [private]</mark>
+<mark>      sw_custom_field_set_renderer_card_mt_tabs_content  [from v6.8.0] [private]</mark>
+<mark>        sw_custom_field_set_renderer_card_mt_tabs_form_renderer  [scope: set] [from v6.8.0] [private]</mark>
+<mark>      sw_custom_field_set_renderer_card_tabs  [until v6.8.0] [private]</mark>
+<mark>      sw_custom_field_set_renderer_card_tabs_content  [until v6.8.0] [private]</mark>
+<mark>        sw_custom_field_set_renderer_card_form_renderer  [scope: active, set] [until v6.8.0] [private]</mark>
+    sw_custom_field_set_renderer_media  [after v-if] [private]
+      sw_custom_field_set_renderer_media_button_save  [scope: set] [private]
+      sw_custom_field_set_renderer_media_form_renderer  [scope: customField, set] [private]
 
 position-ids
-<mark>  sw-custom-field-set-renderer  tabs  host=sw-tabs  block=sw_custom_field_set_renderer_card  [current only] [private]</mark>
-<mark>  sw-custom-field-set-renderer  tabs  host=mt-tabs  block=sw_custom_field_set_renderer_card_mt_tabs  [major only] [private]</mark>
+<mark>  sw-custom-field-set-renderer  tabs  host=sw-tabs  block=sw_custom_field_set_renderer_card  [until v6.8.0] [private]</mark>
+<mark>  sw-custom-field-set-renderer  tabs  host=mt-tabs  block=sw_custom_field_set_renderer_card_mt_tabs  [from v6.8.0] [private]</mark>
 
 <mark>notes</mark>
 <mark>  flag-removal-undeprecated block sw_custom_field_set_renderer_card_form_renderer  [private]</mark>
@@ -506,12 +506,12 @@ blocks
     sw_custom_field_set_renderer_card  [inherited]
 <mark>      sw_custom_field_set_renderer_card_tabs  [inherited]</mark>
 <mark>      sw_custom_field_set_renderer_card_tabs_content  [inherited]</mark>
-<mark>        sw_custom_field_set_renderer_card_form_renderer  [replaced]</mark>
-<mark>          sw_custom_field_set_renderer_card_form_renderer_change_field</mark>
-<mark>          sw_custom_field_set_renderer_card_form_renderer_custom_field</mark>
-    sw_custom_field_set_renderer_media  [inherited]
-      sw_custom_field_set_renderer_media_button_save  [inherited]
-      sw_custom_field_set_renderer_media_form_renderer  [inherited]
+<mark>        sw_custom_field_set_renderer_card_form_renderer  [replaced] [scope: active, set]</mark>
+<mark>          sw_custom_field_set_renderer_card_form_renderer_change_field  [scope: active, customField, set]</mark>
+<mark>          sw_custom_field_set_renderer_card_form_renderer_custom_field  [scope: active, customField, set]</mark>
+    sw_custom_field_set_renderer_media  [inherited] [after v-if]
+      sw_custom_field_set_renderer_media_button_save  [inherited] [scope: set]
+      sw_custom_field_set_renderer_media_form_renderer  [inherited] [scope: customField, set]
 
 position-ids
 <mark>  sw-custom-field-set-renderer  tabs  host=sw-tabs  block=sw_custom_field_set_renderer_card</mark></pre></div>
@@ -538,21 +538,21 @@ methods
 blocks
   sw_custom_field_set_renderer  [inherited]
     sw_custom_field_set_renderer_card  [inherited]
-<mark>      sw_custom_field_set_renderer_card_mt_tabs  [inherited] [major only]</mark>
-<mark>      sw_custom_field_set_renderer_card_mt_tabs_content  [inherited] [major only]</mark>
-<mark>        sw_custom_field_set_renderer_card_mt_tabs_form_renderer  [inherited] [major only]</mark>
-<mark>      sw_custom_field_set_renderer_card_tabs  [inherited] [current only]</mark>
-<mark>      sw_custom_field_set_renderer_card_tabs_content  [inherited] [current only]</mark>
-<mark>        sw_custom_field_set_renderer_card_form_renderer  [replaced] [current only]</mark>
-<mark>          sw_custom_field_set_renderer_card_form_renderer_change_field  [current only]</mark>
-<mark>          sw_custom_field_set_renderer_card_form_renderer_custom_field  [current only]</mark>
-    sw_custom_field_set_renderer_media  [inherited]
-      sw_custom_field_set_renderer_media_button_save  [inherited]
-      sw_custom_field_set_renderer_media_form_renderer  [inherited]
+<mark>      sw_custom_field_set_renderer_card_mt_tabs  [inherited] [from v6.8.0]</mark>
+<mark>      sw_custom_field_set_renderer_card_mt_tabs_content  [inherited] [from v6.8.0]</mark>
+<mark>        sw_custom_field_set_renderer_card_mt_tabs_form_renderer  [inherited] [scope: set] [from v6.8.0]</mark>
+<mark>      sw_custom_field_set_renderer_card_tabs  [inherited] [until v6.8.0]</mark>
+<mark>      sw_custom_field_set_renderer_card_tabs_content  [inherited] [until v6.8.0]</mark>
+<mark>        sw_custom_field_set_renderer_card_form_renderer  [replaced] [scope: active, set] [until v6.8.0]</mark>
+<mark>          sw_custom_field_set_renderer_card_form_renderer_change_field  [scope: active, customField, set] [until v6.8.0]</mark>
+<mark>          sw_custom_field_set_renderer_card_form_renderer_custom_field  [scope: active, customField, set] [until v6.8.0]</mark>
+    sw_custom_field_set_renderer_media  [inherited] [after v-if]
+      sw_custom_field_set_renderer_media_button_save  [inherited] [scope: set]
+      sw_custom_field_set_renderer_media_form_renderer  [inherited] [scope: customField, set]
 
 position-ids
-<mark>  sw-custom-field-set-renderer  tabs  host=sw-tabs  block=sw_custom_field_set_renderer_card  [current only]</mark>
-<mark>  sw-custom-field-set-renderer  tabs  host=mt-tabs  block=sw_custom_field_set_renderer_card_mt_tabs  [major only]</mark>
+<mark>  sw-custom-field-set-renderer  tabs  host=sw-tabs  block=sw_custom_field_set_renderer_card  [until v6.8.0]</mark>
+<mark>  sw-custom-field-set-renderer  tabs  host=mt-tabs  block=sw_custom_field_set_renderer_card_mt_tabs  [from v6.8.0]</mark>
 
 <mark>notes</mark>
 <mark>  flag-removal-undeprecated block sw_custom_field_set_renderer_card_form_renderer</mark>
@@ -588,11 +588,11 @@ methods
 blocks
   sw_mail_template_list
     sw_mail_template_list_content
-      sw_mail_template_list_content_card  [deprecated tag:v6.8.0]
-      sw_mail_template_list_router_view  [major only]
-      sw_mail_template_list_tabs  [major only]
-<mark>        sw_mail_template_list_tabs_header_footer  [major only]</mark>
-<mark>        sw_mail_template_list_tabs_templates  [major only]</mark>
+      sw_mail_template_list_content_card  [after v-if] [deprecated tag:v6.8.0]
+      sw_mail_template_list_router_view  [from v6.8.0]
+      sw_mail_template_list_tabs  [from v6.8.0]
+<mark>        sw_mail_template_list_tabs_header_footer  [from v6.8.0]</mark>
+<mark>        sw_mail_template_list_tabs_templates  [from v6.8.0]</mark>
     sw_mail_template_list_language_switch
     sw_mail_template_list_smart_bar_actions
       sw_mail_header_footer_list_smart_bar_actions_add
@@ -603,7 +603,7 @@ blocks
     sw_mail_templates_list_search_bar
 
 position-ids
-<mark>  sw-mail-template-index  tabs  host=sw-tabs  block=sw_mail_template_list_tabs  [major only]</mark></pre></div>
+<mark>  sw-mail-template-index  tabs  host=sw-tabs  block=sw_mail_template_list_tabs  [from v6.8.0]</mark></pre></div>
 <div><h4>Head</h4><pre>component sw-mail-template-index  public  js
   registered src/module/sw-mail-template/index.js
   source src/module/sw-mail-template/page/sw-mail-template-index/index.js
@@ -631,10 +631,10 @@ methods
 blocks
   sw_mail_template_list
     sw_mail_template_list_content
-      sw_mail_template_list_content_card  [deprecated tag:v6.8.0]
-      sw_mail_template_list_router_view  [major only]
-      sw_mail_template_list_tabs  [major only]
-<mark>        sw_mail_template_list_mt_tabs  [major only]</mark>
+      sw_mail_template_list_content_card  [after v-if] [deprecated tag:v6.8.0]
+      sw_mail_template_list_router_view  [from v6.8.0]
+      sw_mail_template_list_tabs  [from v6.8.0]
+<mark>        sw_mail_template_list_mt_tabs  [from v6.8.0]</mark>
     sw_mail_template_list_language_switch
     sw_mail_template_list_smart_bar_actions
       sw_mail_header_footer_list_smart_bar_actions_add
@@ -645,7 +645,7 @@ blocks
     sw_mail_templates_list_search_bar
 
 position-ids
-<mark>  sw-mail-template-index  tabs  host=mt-tabs  block=sw_mail_template_list_mt_tabs  [major only]</mark></pre></div>
+<mark>  sw-mail-template-index  tabs  host=mt-tabs  block=sw_mail_template_list_mt_tabs  [from v6.8.0]</mark></pre></div>
 </div>
 </main>
 </body>

@@ -61,17 +61,20 @@ declare namespace AdminApi {
                 sw_admin_menu_item_arrow_indicator: Block<'sw_admin_menu_item_navigation_link'>;
                 sw_admin_menu_item_external_arrow_indicato: Block<'sw_admin_menu_item_external_link'>;
                 sw_admin_menu_item_external_icon: Block<'sw_admin_menu_item_external_link'>;
-                sw_admin_menu_item_external_link: Block<'sw_admin_menu_item'>;
-                sw_admin_menu_item_external_text: Block<'sw_admin_menu_item_external_link'>;
+                sw_admin_menu_item_external_link: Block<'sw_admin_menu_item', 'afterIf'>;
+                sw_admin_menu_item_external_text: Block<'sw_admin_menu_item_external_link', 'afterIf'>;
                 sw_admin_menu_item_icon: Block<'sw_admin_menu_item_router_link'>;
                 sw_admin_menu_item_navigation_icon: Block<'sw_admin_menu_item_navigation_link'>;
-                sw_admin_menu_item_navigation_link: Block<'sw_admin_menu_item'>;
-                sw_admin_menu_item_navigation_text: Block<'sw_admin_menu_item_navigation_link'>;
+                sw_admin_menu_item_navigation_link: Block<'sw_admin_menu_item', 'afterIf'>;
+                sw_admin_menu_item_navigation_text: Block<'sw_admin_menu_item_navigation_link', 'afterIf'>;
                 sw_admin_menu_item_router_link: Block<'sw_admin_menu_item'>;
-                sw_admin_menu_item_text: Block<'sw_admin_menu_item_router_link'>;
+                sw_admin_menu_item_text: Block<'sw_admin_menu_item_router_link', 'afterIf'>;
                 sw_sidebar_sub_items_list: Block<'sw_admin_menu_item'>;
             };
-            crossings: readonly [];
+            crossings: readonly [
+                readonly ['v-if', 'sw_admin_menu_item_external_link', 'sw_admin_menu_item_navigation_link'],
+                readonly ['v-if', 'sw_admin_menu_item_router_link', 'sw_admin_menu_item_external_link'],
+            ];
             positionIdentifiers: {};
             dynamicPositionIdentifiers: {};
             dataSets: {};

@@ -57,15 +57,15 @@ declare namespace AdminApi {
             };
             blocks: {
                 sw_sales_channel_menu: Block<null>;
-                sw_sales_channel_menu_headline: Block<'sw_sales_channel_menu'>;
+                sw_sales_channel_menu_headline: Block<'sw_sales_channel_menu', 'afterIf'>;
                 sw_sales_channel_menu_headline_action: Block<'sw_sales_channel_menu_headline_context_button'>;
                 sw_sales_channel_menu_headline_context_button: Block<'sw_sales_channel_menu_headline'>;
                 sw_sales_channel_menu_headline_context_button_item: Block<'sw_sales_channel_menu_headline_context_button'>;
                 sw_sales_channel_menu_headline_text: Block<'sw_sales_channel_menu_headline'>;
                 sw_sales_channel_menu_modal: Block<'sw_sales_channel_menu'>;
                 sw_sales_channel_menu_navigation: Block<'sw_sales_channel_menu'>;
-                sw_sales_channel_menu_navigation_add_channel: Block<'sw_sales_channel_menu_navigation_main_list'>;
-                sw_sales_channel_menu_navigation_item_additional_text: Block<'sw_sales_channel_menu_navigation_main_items'>;
+                sw_sales_channel_menu_navigation_add_channel: Block<'sw_sales_channel_menu_navigation_main_list', 'afterIf'>;
+                sw_sales_channel_menu_navigation_item_additional_text: Block<'sw_sales_channel_menu_navigation_main_items', 'scope:entry' | 'scope:index'>;
                 sw_sales_channel_menu_navigation_main_items: Block<'sw_sales_channel_menu_navigation_main_list'>;
                 sw_sales_channel_menu_navigation_main_list: Block<'sw_sales_channel_menu_navigation'>;
                 sw_sales_channel_menu_navigation_more_items: Block<'sw_sales_channel_menu_navigation_main_list'>;

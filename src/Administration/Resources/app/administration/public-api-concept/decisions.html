@@ -233,6 +233,7 @@ details.box[open] { padding-bottom: 16px; }
 <tr id="D6"><td class="id"><a href="#D6">D6</a></td><td>Two flag states, current and major, both committed and compared.</td><td class="muted">Breaks behind the major flag (<a href="https://github.com/shopware/shopware/issues/17339">#17339</a>) are invisible in a single snapshot.</td></tr>
 <tr id="D15"><td class="id"><a href="#D15">D15</a></td><td>Keep <code>index.json</code> as a machine index.</td><td class="muted">Vite, Jest and ESLint need a cheap lookup without loading TypeScript.</td></tr>
 <tr id="D22"><td class="id"><a href="#D22">D22</a></td><td>The report is an outline without tree characters; the check adds a grouped summary and annotations.</td><td class="muted">Tree characters change on every move and make diffs noisy.</td></tr>
+<tr id="D23"><td class="id"><a href="#D23">D23</a></td><td>Flag state markers name the version: <code>[until v6.8.0]</code> and <code>[from v6.8.0]</code>.</td><td class="muted"><code>[current only]</code> loses its meaning in an old commit, a version does not.</td></tr>
 </tbody></table></div>
 <h2 id="ci-and-review">CI and review</h2>
 <div class="tw"><table><thead><tr><th>ID</th><th>Decision</th><th>Why</th></tr></thead><tbody>
@@ -247,6 +248,7 @@ details.box[open] { padding-bottom: 16px; }
 <tr id="D10"><td class="id"><a href="#D10">D10</a></td><td>Replace the four generated lists directly.</td><td class="muted">Two sources of truth would drift apart.</td></tr>
 <tr id="D20"><td class="id"><a href="#D20">D20</a></td><td>Core types <code>Component.override</code> as an interface; the snapshot adds a typed signature.</td><td class="muted">Plugins keep their code; a cast or a new function would force changes everywhere.</td></tr>
 <tr id="D21"><td class="id"><a href="#D21">D21</a></td><td>A helper <code>wrapOverrideConfig</code> for override files loaded lazily.</td><td class="muted">Most large plugins load overrides lazily.</td></tr>
+<tr id="D24"><td class="id"><a href="#D24">D24</a></td><td>Blocks record their context: whether they follow an open <code>v-if</code> chain, and which <code>v-for</code> and slot variables they can use. <code>v-if</code> chains across blocks count as crossings.</td><td class="muted">Plugin templates continue core <code>v-if</code> chains and use loop and slot variables; <a href="https://github.com/shopware/shopware/issues/20959">#20959</a> removed <code>itemIndex</code> from a slot.</td></tr>
 </tbody></table></div>
 
 <h2 id="assumptions">Assumptions</h2>

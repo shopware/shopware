@@ -124,8 +124,10 @@ declare namespace AdminApi {
      * `replaced` - an extend child redeclares the block without `{% parent %}`.
      * `keepsParent` - an extend child redeclares the block and renders `{% parent %}`.
      * `repeated` - the template declares the block more than once under this parent.
+     * `afterIf` - the block follows an open `v-if` chain, so an override may start with `v-else-if` or `v-else`.
+     * `scope:<name>` - a template variable from an enclosing `v-for` or slot that an override can use.
      */
-    type BlockFacet = 'empty' | 'inherited' | 'replaced' | 'keepsParent' | 'repeated';
+    type BlockFacet = 'empty' | 'inherited' | 'replaced' | 'keepsParent' | 'repeated' | 'afterIf' | `scope:${string}`;
 
     /**
      * One Twig `{% block %}` or native `<sw-block name>`.
@@ -138,7 +140,8 @@ declare namespace AdminApi {
     }
 
     /**
-     * An HTML element opened in one block and closed in another. `(root)` stands for "outside any block".
+     * An HTML element opened in one block and closed in another, or a `v-if` chain (element `v-if`) that continues in another block.
+     * `(root)` stands for "outside any block".
      * Crossings that exist on trunk are part of the baseline; only new ones are findings (D18).
      */
     type Crossing = readonly [element: string, openedIn: string, closedIn: string];
@@ -503,6 +506,18 @@ declare namespace AdminApi {
     type BlockName<N extends ComponentName> =
         | (keyof Components[N]['blocks'] & string)
         | (keyof OverrideSection<N, 'blocks'> & string);
+
+    /** Template variables that an override of block `B` of component `N` can use. */
+    type BlockScope<N extends ComponentName, B extends keyof Components[N]['blocks']> =
+        Components[N]['blocks'][B] extends Block<string | null, infer F>
+            ? F extends `scope:${infer V}` ? V : never
+            : never;
+
+    /** `true` when an override of block `B` may start with `v-else-if` or `v-else`. */
+    type BlockAfterIf<N extends ComponentName, B extends keyof Components[N]['blocks']> =
+        Components[N]['blocks'][B] extends Block<string | null, infer F>
+            ? 'afterIf' extends F ? true : false
+            : false;
 
     type CardIds<K extends string, Locations> = Locations extends readonly (infer L)[]
         ? [Extract<L, { kind: 'card' }>] extends [never]

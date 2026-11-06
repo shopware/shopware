@@ -44,7 +44,7 @@ declare namespace AdminApi {
                 sw_example_detail_actions: Block<'sw_example_detail'>;
                 sw_example_detail_actions_save: Block<'sw_example_detail_actions'>;
                 sw_example_detail_content: Block<'sw_example_detail'>;
-                sw_example_detail_content_card: Block<'sw_example_detail_content'>;
+                sw_example_detail_content_card: Block<'sw_example_detail_content', 'afterIf'>;
                 sw_example_detail_content_notices: Block<'sw_example_detail_content'>;
                 sw_example_detail_header: Block<'sw_example_detail'>;
             };

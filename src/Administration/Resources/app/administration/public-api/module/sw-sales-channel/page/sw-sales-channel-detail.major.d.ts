@@ -122,7 +122,7 @@ declare namespace AdminApi {
                 sw_sales_channel_detail_content: Block<'sw_sales_channel_detail'>;
                 sw_sales_channel_detail_content_language_info: Block<'sw_sales_channel_detail_content'>;
                 sw_sales_channel_detail_content_mt_tabs: Block<'sw_sales_channel_detail_content_tabs'>;
-                sw_sales_channel_detail_content_tabs: Block<'sw_sales_channel_detail_content'>;
+                sw_sales_channel_detail_content_tabs: Block<'sw_sales_channel_detail_content', 'afterIf'>;
                 sw_sales_channel_detail_content_view: Block<'sw_sales_channel_detail_content'>;
                 sw_sales_channel_detail_header: Block<'sw_sales_channel_detail'>;
                 sw_sales_channel_detail_header_headline: Block<'sw_sales_channel_detail_header'>;

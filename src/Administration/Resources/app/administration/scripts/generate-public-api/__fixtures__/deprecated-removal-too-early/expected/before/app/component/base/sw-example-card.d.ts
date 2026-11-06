@@ -44,9 +44,9 @@ declare namespace AdminApi {
                 sw_example_card_content: Block<'sw_example_card'>;
                 sw_example_card_header: Block<'sw_example_card'>;
                 /** @deprecated tag:v6.8.0 - Will be removed, override `sw_example_card_title` instead */
-                sw_example_card_subtitle: Block<'sw_example_card_header'>;
+                sw_example_card_subtitle: Block<'sw_example_card_header', 'afterIf'>;
                 sw_example_card_title: Block<'sw_example_card_header'>;
-                sw_example_card_toggle: Block<'sw_example_card_header'>;
+                sw_example_card_toggle: Block<'sw_example_card_header', 'afterIf'>;
             };
             crossings: readonly [];
             positionIdentifiers: {};

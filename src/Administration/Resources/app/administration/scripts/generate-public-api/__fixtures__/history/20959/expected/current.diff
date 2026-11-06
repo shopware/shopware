@@ -70,13 +70,30 @@
    onSearchTermChange(searchTerm: any): any
    onSelectionChanged(selection: any): any
    openNestedLineItemsModal(item: any): any
+@@ -95,11 +99,11 @@
+           sw_order_line_items_grid_bulk_actions_delete
+           sw_order_line_items_grid_bulk_actions_extension  [empty]
+         sw_order_line_items_grid_grid_actions
+-          sw_order_line_items_grid_grid_actions_delete  [scope: item, itemIndex]
+-            sw_order_line_items_grid_grid_actions_delete_label  [scope: item, itemIndex]
+-          sw_order_line_items_grid_grid_actions_extension  [empty] [scope: item, itemIndex]
+-          sw_order_line_items_grid_grid_actions_show  [scope: item, itemIndex]
+-            sw_order_line_items_grid_grid_actions_show_label  [scope: item, itemIndex]
++          sw_order_line_items_grid_grid_actions_delete  [scope: item]
++            sw_order_line_items_grid_grid_actions_delete_label  [scope: item]
++          sw_order_line_items_grid_grid_actions_extension  [empty] [scope: item]
++          sw_order_line_items_grid_grid_actions_show  [scope: item]
++            sw_order_line_items_grid_grid_actions_show_label  [scope: item]
+         sw_order_line_items_grid_grid_actions_modals
+           sw_order_line_items_grid_grid_actions_modals_items  [empty] [scope: item]
+         sw_order_line_items_grid_grid_columns_label
 @@ -125,5 +129,6 @@
          sw_order_line_items_grid_grid_columns_unit_price
-           sw_order_line_items_grid_grid_columns_unit_price_content
-           sw_order_line_items_grid_grid_columns_unit_price_inline_edit
+           sw_order_line_items_grid_grid_columns_unit_price_content  [after v-if] [scope: isInlineEdit, item]
+           sw_order_line_items_grid_grid_columns_unit_price_inline_edit  [scope: isInlineEdit, item]
 +    sw_order_line_items_grid_pagination
      sw_order_line_items_nested_line_item_modal
- ```
+ 
 --- a/module/sw-order/component/sw-order-state-select-v2.api.md
 +++ b/module/sw-order/component/sw-order-state-select-v2.api.md
 @@ -12,27 +12,38 @@
@@ -123,13 +140,14 @@
  blocks
 --- a/module/sw-order/page/sw-order-detail.api.md
 +++ b/module/sw-order/page/sw-order-detail.api.md
-@@ -121,6 +121,9 @@
-       sw_order_detail_header_title_new
+@@ -121,9 +121,9 @@
+       sw_order_detail_header_title_new  [after v-if]
      sw_order_detail_language_switch
  
-+crossings
+ crossings
+-  v-if  sw_order_detail_header_title -> sw_order_detail_header_title_new
 +  <div>  sw_order_detail_header -> sw_order_detail_header_label_manual_order
-+
+ 
  position-ids
-   sw-order-detail  tabs  host=sw-tabs  block=sw_order_detail_content_tabs  [current only]
-   sw-order-detail  tabs  host=mt-tabs  block=sw_order_detail_content_mt_tabs  [major only]
+   sw-order-detail  tabs  host=sw-tabs  block=sw_order_detail_content_tabs  [until v6.8.0]
+   sw-order-detail  tabs  host=mt-tabs  block=sw_order_detail_content_mt_tabs  [from v6.8.0]

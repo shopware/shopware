@@ -32,11 +32,11 @@ methods
 blocks
   sw_mail_template_list
     sw_mail_template_list_content
-      sw_mail_template_list_content_card  [deprecated tag:v6.8.0]
-      sw_mail_template_list_router_view  [major only]
-      sw_mail_template_list_tabs  [major only]
-        sw_mail_template_list_tabs_header_footer  [major only]
-        sw_mail_template_list_tabs_templates  [major only]
+      sw_mail_template_list_content_card  [after v-if] [deprecated tag:v6.8.0]
+      sw_mail_template_list_router_view  [from v6.8.0]
+      sw_mail_template_list_tabs  [from v6.8.0]
+        sw_mail_template_list_tabs_header_footer  [from v6.8.0]
+        sw_mail_template_list_tabs_templates  [from v6.8.0]
     sw_mail_template_list_language_switch
     sw_mail_template_list_smart_bar_actions
       sw_mail_header_footer_list_smart_bar_actions_add
@@ -47,5 +47,5 @@ blocks
     sw_mail_templates_list_search_bar
 
 position-ids
-  sw-mail-template-index  tabs  host=sw-tabs  block=sw_mail_template_list_tabs  [major only]
+  sw-mail-template-index  tabs  host=sw-tabs  block=sw_mail_template_list_tabs  [from v6.8.0]
 ```

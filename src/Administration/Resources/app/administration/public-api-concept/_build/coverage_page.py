@@ -24,7 +24,8 @@ MATRIX = [
     ("Computed", ["B6", "B11", "", "B26", "B25", "B28"]),
     ("Method", ["B6", "B12, B27, B33", "", "B26", "B25", "B28"]),
     ("Block", ["B7", "B2", "B8", "B26", "B25", "B28"]),
-    ("HTML element across blocks", ["B34", "", "", "B9", "", ""]),
+    ("Block context (v-if, scope)", ["B39, B40", "", "", "", "", ""]),
+    ("HTML element or v-if chain across blocks", ["B34", "", "", "B9, B41", "", ""]),
     ("Route", ["B13", "B15", "B14", "B26", "B25", "B28"]),
     ("Snippet key", ["B16", "B17", "", "B26", "", "B28"]),
     ("Service or store member", ["B18", "B11", "", "B26", "B25", "B28"]),
@@ -34,7 +35,7 @@ MATRIX = [
     ("Position identifier, data set", ["B22", "nr", "nr", "B26", "", "B28"]),
     ("Native setup binding", ["B23", "B24", "", "B26", "B25", "B28"]),
 ]
-MATRIX_NOTE = "Not every cell is a break: B2 and B3 produce no finding, B27 is an addition, B32, B33 and B34 are info. A dot means the change does not apply."
+MATRIX_NOTE = "Not every cell is a break: B2 and B3 produce no finding, B27 is an addition, B32, B33 and B34 are info. A block that gains a scope variable or a v-if context produces no finding. A dot means the change does not apply."
 
 CROSSING_BEFORE = """{% block sw_order_detail_header %}
     {% block sw_order_detail_header_label_manual_order %}
@@ -96,7 +97,7 @@ def decision_tree():
         ("Is the element, or the unit it belongs to, @private?", '<span class="tag">private</span>', "never blocks"),
         ("Was it removed, and did it carry @deprecated tag:vX that the head version has reached?", '<span class="tag t-allowed">allowed</span>', ""),
         ("Does the PR add a matching entry to accepted-breaks.json?", '<span class="tag t-accepted">accepted</span>', "never blocks"),
-        ("Was it removed, renamed, moved or changed incompatibly?", '<span class="tag t-break">break</span>', "fails CI"),
+        ("Was it removed, renamed, moved or changed incompatibly, or did a block lose its v-if context or a scope variable?", '<span class="tag t-break">break</span>', "fails CI"),
         ("Is it new?", '<span class="tag t-add">addition</span>', ""),
         ("Is it a new deprecation, a wider type, a renamed parameter or a resolved crossing?", '<span class="tag t-info">info</span>', ""),
     ]
@@ -124,6 +125,57 @@ def matrix():
                 tds.append(f"<td>{E(c)}</td>")
         rows.append(f"<tr><td><b>{E(kind)}</b></td>{''.join(tds)}</tr>")
     return f'<div class="tw"><table class="matrix"><thead><tr><th>Element</th>{head}</tr></thead><tbody>{"".join(rows)}</tbody></table></div><p class="small muted">{MATRIX_NOTE}</p>'
+
+
+def example_cell(ex):
+    content = f"<pre>{E(ex)}</pre>" if ex else '<span class="muted small">–</span>'
+    return f'<td style="min-width:200px">{content}</td>'
+
+
+def row_open(iid, gap):
+    cls = ' class="has-gap"' if gap else ""
+    return f'<tr id="{iid}"{cls}>{anchor_id(iid)}'
+
+
+def table(title, heads, rows):
+    head = "".join(f"<th>{h}</th>" for h in heads)
+    return f'<h3>{E(title)}</h3><div class="tw"><table><thead><tr>{head}{check_heads()}</tr></thead><tbody>{"".join(rows)}</tbody></table></div>'
+
+
+def area_tables():
+    out = []
+    for title, _, items in AREAS:
+        rows = [
+            f"{row_open(iid, gap)}<td><b>{E(name)}</b></td><td>{E(desc)}{gap_note(gap)}</td>{example_cell(ex)}{check_cells(st)}</tr>"
+            for iid, name, desc, ex, st, gap in items
+        ]
+        out.append(table(title, ["ID", "Part", "What is recorded", "Example line"], rows))
+    return "\n".join(out)
+
+
+def finding_tables():
+    out = ["""
+<h2>Finding types</h2>
+<p>The finding id is what CI prints and what <code>accepted-breaks.json</code> refers to. Example lines are real lines from the golden files.</p>
+"""]
+    for title, _, items in BREAKS:
+        rows = []
+        for iid, fid, grp, when, ex, st, gap in items:
+            label, gcls = GROUP[grp]
+            rows.append(f'{row_open(iid, gap)}<td><code>{E(fid)}</code></td><td><span class="tag {gcls}">{label}</span></td><td>{E(when)}{gap_note(gap)}</td>{example_cell(ex)}{check_cells(st)}</tr>')
+        out.append(table(title, ["ID", "Finding", "Group", "When", "Example line"], rows))
+    return "\n".join(out)
+
+
+def not_covered_table():
+    rows = []
+    for iid, name, why, state in NOT_COVERED:
+        cls, lbl = ("t-ok", "decided") if state == "decided" else ("t-warn", "open")
+        rows.append(f'<tr id="{iid}">{anchor_id(iid)}<td><b>{E(name)}</b></td><td>{E(why)}</td><td><span class="tag {cls}">{lbl}</span></td></tr>')
+    return f"""
+<h2>Not covered</h2>
+<p><span class="tag t-ok">decided</span> means left out on purpose. <span class="tag t-warn">open</span> means not mentioned in <code>FORMAT.md</code> yet; Q11 asks whether to add them.</p>
+<div class="tw"><table><thead><tr><th>ID</th><th>What plugins can use</th><th>Why it is not covered</th><th>State</th></tr></thead><tbody>{"".join(rows)}</tbody></table></div>"""
 
 
 def coverage():
@@ -169,36 +221,8 @@ A plugin that overrides <code>…_state_select</code> without <code>{{% parent %
 <h2>API parts</h2>
 <p>What the snapshot records. Status columns: <b>Spec</b> = rule in <code>FORMAT.md</code>, <b>Example</b> = shown in the example snapshot, <b>Fixture</b> = covered by a test fixture, <b>Backtest</b> = appears in a historical PR.</p>
 """]
-    for title, _, items in AREAS:
-        out.append(f"<h3>{E(title)}</h3>")
-        out.append(f'<div class="tw"><table><thead><tr><th>ID</th><th>Part</th><th>What is recorded</th><th>Example line</th>{check_heads()}</tr></thead><tbody>')
-        for iid, name, desc, ex, st, gap in items:
-            ex_html = f"<pre>{E(ex)}</pre>" if ex else '<span class="muted small">–</span>'
-            cls = ' class="has-gap"' if gap else ""
-            out.append(f'<tr id="{iid}"{cls}>{anchor_id(iid)}<td><b>{E(name)}</b></td><td>{E(desc)}{gap_note(gap)}</td><td style="min-width:200px">{ex_html}</td>{check_cells(st)}</tr>')
-        out.append("</tbody></table></div>")
-
-    out.append("""
-<h2>Finding types</h2>
-<p>The finding id is what CI prints and what <code>accepted-breaks.json</code> refers to. Example lines are real lines from the golden files.</p>
-""")
-    for title, _, items in BREAKS:
-        out.append(f"<h3>{E(title)}</h3>")
-        out.append(f'<div class="tw"><table><thead><tr><th>ID</th><th>Finding</th><th>Group</th><th>When</th><th>Example line</th>{check_heads()}</tr></thead><tbody>')
-        for iid, fid, grp, when, ex, st, gap in items:
-            label, gcls = GROUP[grp]
-            ex_html = f"<pre>{E(ex)}</pre>" if ex else '<span class="muted small">–</span>'
-            cls = ' class="has-gap"' if gap else ""
-            out.append(f'<tr id="{iid}"{cls}>{anchor_id(iid)}<td><code>{E(fid)}</code></td><td><span class="tag {gcls}">{label}</span></td><td>{E(when)}{gap_note(gap)}</td><td style="min-width:200px">{ex_html}</td>{check_cells(st)}</tr>')
-        out.append("</tbody></table></div>")
-
-    out.append("""
-<h2>Not covered</h2>
-<p><span class="tag t-ok">decided</span> means left out on purpose. <span class="tag t-warn">open</span> means not mentioned in <code>FORMAT.md</code> yet; Q11 asks whether to add them.</p>
-<div class="tw"><table><thead><tr><th>ID</th><th>What plugins can use</th><th>Why it is not covered</th><th>State</th></tr></thead><tbody>""")
-    for iid, name, why, state in NOT_COVERED:
-        cls, lbl = ("t-ok", "decided") if state == "decided" else ("t-warn", "open")
-        out.append(f'<tr id="{iid}">{anchor_id(iid)}<td><b>{E(name)}</b></td><td>{E(why)}</td><td><span class="tag {cls}">{lbl}</span></td></tr>')
-    out.append("</tbody></table></div>")
+    out.append(area_tables())
+    out.append(finding_tables())
+    out.append(not_covered_table())
     lead = "Every part of the API that the snapshot records, how the break check classifies each change, and what is not covered. Each row has an ID for feedback."
     return lead, "\n".join(out)

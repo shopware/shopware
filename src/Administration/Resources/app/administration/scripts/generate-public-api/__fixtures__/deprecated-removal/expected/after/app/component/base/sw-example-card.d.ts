@@ -38,7 +38,7 @@ declare namespace AdminApi {
                 sw_example_card_content: Block<'sw_example_card'>;
                 sw_example_card_header: Block<'sw_example_card'>;
                 sw_example_card_title: Block<'sw_example_card_header'>;
-                sw_example_card_toggle: Block<'sw_example_card_header'>;
+                sw_example_card_toggle: Block<'sw_example_card_header', 'afterIf'>;
             };
             crossings: readonly [];
             positionIdentifiers: {};

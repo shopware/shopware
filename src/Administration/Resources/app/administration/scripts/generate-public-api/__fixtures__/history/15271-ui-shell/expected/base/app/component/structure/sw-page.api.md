@@ -69,7 +69,7 @@ methods
 
 blocks
   sw_page  [private]
-    sw_page_content  [private]
+    sw_page_content  [after v-if] [private]
       sw_page_content_sidebar  [private]
         sw_page_sidebar_slot  [empty] [private]
       sw_page_slot_content  [empty] [private]
@@ -77,10 +77,10 @@ blocks
     sw_page_head_area  [private]
       sw_page_search_bar  [private]
         sw_page_slot_search_bar  [private]
-        sw_page_top_bar_actions  [private]
+        sw_page_top_bar_actions  [after v-if] [private]
           sw_page_notification_center  [private]
       sw_page_smart_bar  [private]
-        sw_page_smart_bar_back_btn  [private]
+        sw_page_smart_bar_back_btn  [after v-if] [private]
           sw_page_slot_smart_bar_back  [private]
         sw_page_smart_bar_content  [private]
           sw_page_smart_bar_content_actions  [private]

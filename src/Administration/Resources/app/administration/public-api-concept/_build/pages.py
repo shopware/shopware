@@ -15,7 +15,7 @@ QUESTIONS = {
     "plugins.html": "Is the plugin experience worth the core change and the migration?",
     "generator.html": "Is the workflow right, and is the proposed design reasonable?",
     "backtest.html": "Are the expected results for the real PRs right?",
-    "decisions.html": "Do you disagree with any decision?",
+    "decisions.html": "Do you disagree with any decision, including the new D23 and D24?",
     "glossary.html": "Look up a term.",
 }
 
@@ -91,10 +91,10 @@ FLAG_MAJOR = """sw_sales_channel_detail_content_tabs
   sw_sales_channel_detail_content_mt_tabs"""
 
 FLAG_REPORT = """sw_sales_channel_detail_content_tabs
-  sw_sales_channel_detail_content_mt_tabs  [major only]
-  sw_sales_channel_detail_content_tab_general  [current only]
-  sw_sales_channel_detail_content_tab_products  [current only]
-  sw_sales_channel_detail_content_tab_theme  [empty] [current only]"""
+  sw_sales_channel_detail_content_mt_tabs  [from v6.8.0]
+  sw_sales_channel_detail_content_tab_general  [until v6.8.0]
+  sw_sales_channel_detail_content_tab_products  [after v-if] [until v6.8.0]
+  sw_sales_channel_detail_content_tab_theme  [empty] [after v-if] [until v6.8.0]"""
 
 
 def overview(page_list):
@@ -107,8 +107,8 @@ def overview(page_list):
   <b>In short</b>
   <ul>
     <li><b>Idea:</b> a generator writes the complete public API of the Administration into committed files. CI compares base and head and fails on breaks that nobody announced.</li>
-    <li><b>Decided:</b> what counts as public, the file format, the two flag states, the CI checks and the plugin integration (D1–D22).</li>
-    <li><b>Done:</b> the format spec, a hand-written example snapshot that compiles, 20 test fixtures and 4 real PRs as backtest.</li>
+    <li><b>Decided:</b> what counts as public, the file format, the two flag states, the CI checks, the plugin integration and the block context rules (D1–D24).</li>
+    <li><b>Done:</b> the format spec, a hand-written example snapshot that compiles, 21 test fixtures and 4 real PRs as backtest.</li>
     <li><b>Proposed, not decided:</b> the generator design and the answers to the open questions Q1–Q13.</li>
     <li><b>Wanted from you:</b> feedback on readability of the reports, on coverage gaps, and on the open questions, by ID.</li>
   </ul>
@@ -161,7 +161,7 @@ Today the only way to see what is public is to read the code and know the conven
 <p>Every file is generated for two flag states.
 <b>Current</b> means the major feature flag <code>v6.8.0.0</code> is off, as in today's releases.
 <b>Major</b> means it is on, as in the next major release.
-The report shows both in one tree and marks what exists in only one of them:</p>
+The report shows both in one tree and marks what exists in only one of them, by version, so the marker still makes sense when someone reads an old commit: <code>[until v6.8.0]</code> exists in every release before 6.8.0, <code>[from v6.8.0]</code> from 6.8.0 on.</p>
 <div class="pair3">
   <div><div class="lbl">Current state</div>{code(FLAG_CURRENT, "plain")}</div>
   <div><div class="lbl">Major state</div>{code(FLAG_MAJOR, "plain")}</div>
@@ -188,7 +188,7 @@ The report shows both in one tree and marks what exists in only one of them:</p>
 <tr><td>Format spec</td><td><span class="tag t-ok">written, in review</span></td><td><code>public-api/FORMAT.md</code></td></tr>
 <tr><td>Decisions and plan</td><td><span class="tag t-ok">written</span></td><td><code>PUBLIC_API_SNAPSHOT_PLAN.md</code></td></tr>
 <tr><td>Example snapshot</td><td><span class="tag t-ok">hand-written, compiles with tsc</span></td><td><code>public-api/</code>: sw-sales-channel, sw-order, two mixins, the Shopware object, a service, a store, the shopware:* modules, referenced types</td></tr>
-<tr><td>Test fixtures</td><td><span class="tag t-ok">20 written</span></td><td><code>scripts/generate-public-api/__fixtures__/</code></td></tr>
+<tr><td>Test fixtures</td><td><span class="tag t-ok">21 written</span></td><td><code>scripts/generate-public-api/__fixtures__/</code></td></tr>
 <tr><td>Historical cases</td><td><span class="tag t-ok">4 written</span></td><td>#20959, #17339, #15271, #17081</td></tr>
 <tr><td>Generator, CI checks</td><td><span class="tag">not started</span></td><td>after this review</td></tr>
 <tr><td>Core change for typed overrides (D20, D21)</td><td><span class="tag">not started</span></td><td><code>global.types.ts</code>, <code>async-component.factory.ts</code></td></tr>
@@ -220,19 +220,38 @@ DIFF_20959 = """--- a/module/sw-order/component/sw-order-details-state-card.api.
 +          sw_order_detail_state_card_state_history_text_internal_comment
 +          sw_order_detail_state_card_state_history_text_label
 
+--- a/module/sw-order/component/sw-order-line-items-grid.api.md
++++ b/module/sw-order/component/sw-order-line-items-grid.api.md
+   …
+         sw_order_line_items_grid_grid_actions
+-          sw_order_line_items_grid_grid_actions_delete  [scope: item, itemIndex]
+-            sw_order_line_items_grid_grid_actions_delete_label  [scope: item, itemIndex]
++          sw_order_line_items_grid_grid_actions_delete  [scope: item]
++            sw_order_line_items_grid_grid_actions_delete_label  [scope: item]
+   …
+
 --- a/module/sw-order/page/sw-order-detail.api.md
 +++ b/module/sw-order/page/sw-order-detail.api.md
    …
-+crossings
+       sw_order_detail_header_title_new  [after v-if]
+     sw_order_detail_language_switch
+
+ crossings
+-  v-if  sw_order_detail_header_title -> sw_order_detail_header_title_new
 +  <div>  sw_order_detail_header -> sw_order_detail_header_label_manual_order"""
 
-SUMMARY_20959 = """Public API check failed: 3 unannounced breaks.
+SUMMARY_20959 = """Public API check failed: 8 unannounced breaks.
 
-Break (3)
+Break (8)
   block_moved_parent  component:sw-order-details-state-card/block:sw_order_detail_state_card_state_history_text  current, major
     The block moved from sw_order_detail_state_card_state to sw_order_detail_state_card_state_select, so plugin overrides of sw_order_detail_state_card_state_select without {% parent %} now drop it.
     Fix: keep the block under sw_order_detail_state_card_state, or add an entry to public-api/accepted-breaks.json.
     At: src/module/sw-order/component/sw-order-details-state-card/sw-order-details-state-card.html.twig:28
+  block_scope_missing  component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_delete/scope:itemIndex  current, major
+    The template variable itemIndex from the actions slot is no longer available in block sw_order_line_items_grid_grid_actions_delete, so plugin overrides that use itemIndex fail at render time.
+    Fix: keep itemIndex in the slot props, or add an entry to public-api/accepted-breaks.json.
+    At: src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:316
+  … 4 more block_scope_missing for the other action blocks
   element_crosses_block  component:sw-order-detail/crossing:div@sw_order_detail_header>sw_order_detail_header_label_manual_order  current, major
     The <div> element opens in block sw_order_detail_header and closes in block sw_order_detail_header_label_manual_order, so plugin overrides of either block without {% parent %} break the markup.
     Fix: open and close the element inside the same block, or add an entry to public-api/accepted-breaks.json.
@@ -244,7 +263,9 @@ Break (3)
 
 Addition (12)
   …
-Info (5)
+Info (6)
+  crossing_resolved  component:sw-order-detail/crossing:v-if@sw_order_detail_header_title>sw_order_detail_header_title_new  current, major
+    The v-if chain of block sw_order_detail_header_title no longer continues in block sw_order_detail_header_title_new.
   …"""
 
 ANNOT_20959 = """::error file=src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-line-items-grid/index.js,line=330,title=method_signature_changed::The method onDeleteItem lost its parameter itemIndex, so plugin overrides that read the second argument get undefined. Fix: keep the parameter and keep passing it, or accept the break."""
@@ -258,7 +279,7 @@ The <code>.d.ts</code> files are collapsed; open them when you want to check the
 
 <h2>What a PR shows</h2>
 <h3>The snapshot diff {src(True)}</h3>
-<p>The expected diff of PR #20959: a new deprecation, a moved block subtree and a new crossing.
+<p>The expected diff of PR #20959: a new deprecation, a moved block subtree, action blocks that lost the slot variable <code>itemIndex</code>, and a <code>v-if</code> chain crossing replaced by an element crossing.
 GitHub collapses these files by default; reviewers open them when the check summary points there.</p>
 {code(DIFF_20959)}
 <h3>The check summary {src(True)}</h3>
@@ -273,7 +294,9 @@ An expected page exists for each historical case, for example <code>__fixtures__
 
 <h2>How to read a report</h2>
 <div class="tw"><table><thead><tr><th>Marker</th><th>Meaning</th></tr></thead><tbody>
-<tr><td><code>[current only]</code> <code>[major only]</code></td><td>Exists in one flag state only</td></tr>
+<tr><td><code>[until v6.8.0]</code> <code>[from v6.8.0]</code></td><td>Exists in one flag state only: in every release before 6.8.0, or from 6.8.0 on</td></tr>
+<tr><td><code>[after v-if]</code></td><td>The block follows an open <code>v-if</code> chain, so an override may start with <code>v-else-if</code> or <code>v-else</code></td></tr>
+<tr><td><code>[scope: index, item]</code></td><td>Template variables from an enclosing <code>v-for</code> or slot that an override can use</td></tr>
 <tr><td><code>[deprecated tag:vX]</code> <code>[experimental]</code></td><td>Tags from the source; the full message is in the <code>.d.ts</code> file</td></tr>
 <tr><td><code>[private]</code></td><td>Not public API; on every line of a private unit</td></tr>
 <tr><td><code>[inherited]</code> <code>[replaced]</code> <code>[keepsParent]</code></td><td>Where a block of an extend child comes from: unchanged from the parent, redeclared without <code>{{% parent %}}</code>, or redeclared with it</td></tr>
@@ -442,7 +465,7 @@ composer admin:generate-public-api</pre>
 </ul>
 
 <h3>Testing</h3>
-<p>The generator is built against the 20 fixtures and the 4 historical cases. The done criteria are on the <a href="backtest.html#done-criteria">Backtest</a> page.</p>
+<p>The generator is built against the 21 fixtures and the 4 historical cases. The done criteria are on the <a href="backtest.html#done-criteria">Backtest</a> page.</p>
 
 <h3>Open design questions</h3>
 <p>Q8 (CI runtime), Q9 (Twig parsing) and Q10 (native SFC extraction).</p>
@@ -519,7 +542,7 @@ Shopware.Component.override(<span class="s">'sw-sales-channel-detail'</span>, ()
 </ul>
 
 <h2>admin:check-extensions</h2>
-<p>Most plugins are JS and Twig, which TypeScript does not check. The extended command covers them in six steps:</p>
+<p>Most plugins are JS and Twig, which TypeScript does not check. The extended command covers them in seven steps:</p>
 <ol>
   <li>Find every core name the plugin uses as a string: override and extend targets, overridden members, <code>$super('…')</code> calls, block names in templates, route names, <code>$t</code> keys, position identifiers and data set ids.</li>
   <li>Write each use as a typed constant, with the plugin file and line as a comment.</li>
@@ -527,6 +550,7 @@ Shopware.Component.override(<span class="s">'sw-sales-channel-detail'</span>, ()
   <li>Warn about uses of <code>@private</code> or <code>@deprecated</code> items.</li>
   <li>Warn when an override defines a method the target does not have, which happens after a rename in core.</li>
   <li>Report a lazy override whose wrapped target differs from the overridden component.</li>
+  <li>Check the context of every overridden block: variables the override uses must be scope variables of the block, and an override that starts with <code>v-else-if</code> or <code>v-else</code> needs a block that follows an open <code>v-if</code> chain.</li>
 </ol>
 <pre class="code"><span class="k">const</span> _1: AdminApi.BlockName&lt;<span class="s">'sw-sales-channel-detail'</span>&gt; = <span class="s">'sw_sales_channel_detail_content_tab_theme'</span>; <span class="c">// .../sw-sales-channel-detail.html.twig:1</span></pre>
 <div class="note"><p>The Storefront bundle overrides <code>sw_sales_channel_detail_content_tab_theme</code>.
@@ -547,9 +571,15 @@ This is a real result from the example snapshot.</p></div>
 
 # --------------------------------------------------------------------------- Backtest
 
-F20959 = """Break (3)
+F20959 = """Break (8)
   block_moved_parent  component:sw-order-details-state-card/block:sw_order_detail_state_card_state_history_text  current, major
   element_crosses_block  component:sw-order-detail/crossing:div@sw_order_detail_header>sw_order_detail_header_label_manual_order  current, major
+  block_scope_missing  component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_delete/scope:itemIndex  current, major
+    The template variable itemIndex from the actions slot is no longer available in block sw_order_line_items_grid_grid_actions_delete, so plugin overrides that use itemIndex fail at render time.
+  block_scope_missing  …/block:sw_order_line_items_grid_grid_actions_delete_label/scope:itemIndex  current, major
+  block_scope_missing  …/block:sw_order_line_items_grid_grid_actions_extension/scope:itemIndex  current, major
+  block_scope_missing  …/block:sw_order_line_items_grid_grid_actions_show/scope:itemIndex  current, major
+  block_scope_missing  …/block:sw_order_line_items_grid_grid_actions_show_label/scope:itemIndex  current, major
   method_signature_changed  component:sw-order-line-items-grid/method:onDeleteItem  current, major"""
 
 F17339 = """Break (4)
@@ -581,9 +611,9 @@ def backtest():
 
 <h2>Historical cases</h2>
 <div class="tw"><table><thead><tr><th>PR</th><th>What happened</th><th>Expected result</th></tr></thead><tbody>
-<tr><td><b>#20959</b></td><td>Order detail polish. Plugins broke after the merge, fixed in #21189.</td><td>{chips(Break=3, Addition=12, Info=5)}</td></tr>
+<tr><td><b>#20959</b></td><td>Order detail polish. Plugins broke after the merge, fixed in #21189.</td><td>{chips(Break=8, Addition=12, Info=6)}<span class="small muted">five of the breaks come from the block context rules: the actions slot lost <code>itemIndex</code></span></td></tr>
 <tr><td><b>#17339</b></td><td>sw-tabs replaced by mt-tabs behind the major flag. The bulk edit lost its custom field checkboxes, and nobody noticed for four weeks.</td><td>{chips(Break=4, Addition=3, Private=10)}<span class="small muted">all breaks in the major state only</span></td></tr>
-<tr><td><b>#15271</b></td><td>UI shell rework, blocks of the admin menu deleted.</td><td>{chips(Private=217)}<span class="small muted">the shell components are @private</span></td></tr>
+<tr><td><b>#15271</b></td><td>UI shell rework, blocks of the admin menu deleted.</td><td>{chips(Private=219)}<span class="small muted">the shell components are @private</span></td></tr>
 <tr><td><b>#17081</b></td><td>Small bug fix in the number range detail. Negative control.</td><td>{chips()}<span class="small muted">identical snapshot</span></td></tr>
 </tbody></table></div>
 <p>Each case folder below <code>scripts/generate-public-api/__fixtures__/history/</code> has the commits in <code>case.json</code>, the expected report diffs, <code>findings.txt</code> and the HTML page.</p>
@@ -607,6 +637,7 @@ Fixtures that are still missing are the rows with a gap on the Coverage page.</p
 <tr><td><code>service-store-member-removed</code></td><td>Service member and store action removed</td><td>{chips(Break=2)}</td><td>B18</td></tr>
 <tr><td><code>block-moved</code></td><td>A single block and a subtree moved</td><td>{chips(Break=2)}</td><td>B8</td></tr>
 <tr><td><code>element-crosses-block</code></td><td>New element across two blocks</td><td>{chips(Break=1)}</td><td>B9</td></tr>
+<tr><td><code>block-context</code></td><td>Block loses its loop variable and its <code>v-if</code> context, new <code>v-if</code> chain across blocks</td><td>{chips(Break=3)}</td><td>B39, B40, B41</td></tr>
 <tr><td><code>block-renamed-major-only</code></td><td>Block renamed only with the major flag</td><td>{chips(Break=1, Addition=1)}</td><td>B7, B38</td></tr>
 <tr><td><code>prop-changes</code></td><td>Props removed, renamed, now required</td><td>{chips(Break=3, Addition=1)}</td><td>B6, B10</td></tr>
 <tr><td><code>method-signature</code></td><td>Required parameter added, sync to async, optional parameter added</td><td>{chips(Break=2, Addition=1)}</td><td>B12, B27</td></tr>
@@ -631,7 +662,7 @@ Fixtures that are still missing are the rows with a gap on the Coverage page.</p
   <li>Fewer than 5% false alarms on about 50 merged Administration PRs, judged together with an Administration lead.</li>
 </ul>
 """
-    lead = "Four real PRs and twenty hand-written fixtures define what the check must report. They are the acceptance test for the generator."
+    lead = "Four real PRs and 21 hand-written fixtures define what the check must report. They are the acceptance test for the generator."
     return lead, body
 
 
@@ -656,6 +687,7 @@ DECISION_GROUPS = [
         ("D6", "Two flag states, current and major, both committed and compared.", "Breaks behind the major flag (#17339) are invisible in a single snapshot."),
         ("D15", "Keep <code>index.json</code> as a machine index.", "Vite, Jest and ESLint need a cheap lookup without loading TypeScript."),
         ("D22", "The report is an outline without tree characters; the check adds a grouped summary and annotations.", "Tree characters change on every move and make diffs noisy."),
+        ("D23", "Flag state markers name the version: <code>[until v6.8.0]</code> and <code>[from v6.8.0]</code>.", "<code>[current only]</code> loses its meaning in an old commit, a version does not."),
     ]),
     ("CI and review", [
         ("D7", "A drift check and a break check that runs the target branch's generator on base and head.", "Regenerating the snapshot or changing the generator cannot hide a break."),
@@ -668,6 +700,7 @@ DECISION_GROUPS = [
         ("D10", "Replace the four generated lists directly.", "Two sources of truth would drift apart."),
         ("D20", "Core types <code>Component.override</code> as an interface; the snapshot adds a typed signature.", "Plugins keep their code; a cast or a new function would force changes everywhere."),
         ("D21", "A helper <code>wrapOverrideConfig</code> for override files loaded lazily.", "Most large plugins load overrides lazily."),
+        ("D24", "Blocks record their context: whether they follow an open <code>v-if</code> chain, and which <code>v-for</code> and slot variables they can use. <code>v-if</code> chains across blocks count as crossings.", "Plugin templates continue core <code>v-if</code> chains and use loop and slot variables; #20959 removed <code>itemIndex</code> from a slot."),
     ]),
 ]
 
@@ -774,7 +807,7 @@ TERMS = [
     ("Unit", "One source item with its own snapshot files: a component, a module with its routes, a mixin, a snippet file, a service or a store."),
     ("Report (.api.md)", "The readable outline of a unit for reviewers. Shows both flag states in one file."),
     (".d.ts file", "The TypeScript version of a unit. Plugins compile against it; there is one per flag state."),
-    ("Flag state: current and major", "Current: the major feature flag <code>v6.8.0.0</code> is off, as in today's releases. Major: the flag is on, as in the next major release. The snapshot is generated for both."),
+    ("Flag state: current and major", "Current: the major feature flag <code>v6.8.0.0</code> is off, as in today's releases. Major: the flag is on, as in the next major release. The snapshot is generated for both. Reports mark items of one state with <code>[until v6.8.0]</code> or <code>[from v6.8.0]</code>."),
     ("Golden files", "Hand-written expected output that the generator must reproduce: the example snapshot, the test fixtures and the historical cases."),
     ("Example snapshot", "The hand-written part of the snapshot on the branch: sw-sales-channel, sw-order, two mixins, the Shopware object, a service, a store, the shopware:* modules and referenced types."),
     ("Test fixture", "A minimal source tree before and after one kind of change, with the expected snapshot and findings."),
@@ -787,7 +820,8 @@ TERMS = [
     ("Accepted break", "A break the PR makes on purpose, listed with a justification in <code>accepted-breaks.json</code>."),
     ("Block", "A Twig <code>{% block %}</code> or a native <code>&lt;sw-block&gt;</code>. Plugins override blocks by name."),
     ("Extend child", "A component created with <code>Component.extend</code>. It inherits the blocks and members of its parent."),
-    ("Crossing", "An HTML element that opens in one block and closes in another. Overriding either block without <code>{% parent %}</code> breaks the markup."),
+    ("Crossing", "An HTML element that opens in one block and closes in another, or a <code>v-if</code> chain that continues in another block. Overriding the first block without <code>{% parent %}</code> breaks the markup or the chain."),
+    ("Block context", "Two facts about the place of a block that overrides depend on: whether it follows an open <code>v-if</code> chain (<code>[after v-if]</code>), and which <code>v-for</code> and slot variables it can use (<code>[scope: …]</code>)."),
     ("$super target", "A method or computed property that an override can call with <code>this.$super('name')</code>."),
     ("Position identifier, data set", "Extension points of the Meteor Admin SDK in core templates."),
     ("Native SFC", "A component written as <code>.vue</code> file with <code>&lt;script setup&gt;</code> instead of the Options API."),

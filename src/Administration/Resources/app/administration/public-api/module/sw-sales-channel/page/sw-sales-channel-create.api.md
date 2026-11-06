@@ -35,7 +35,7 @@ blocks
     sw_sales_channel_detail_content  [inherited]
       sw_sales_channel_detail_agentic_commerce_deprecation_banner  [inherited] [deprecated tag:v6.8.0]
       sw_sales_channel_detail_content_language_info  [replaced]
-      sw_sales_channel_detail_content_tabs  [replaced] [empty]
+      sw_sales_channel_detail_content_tabs  [replaced] [empty] [after v-if]
       sw_sales_channel_detail_content_view  [inherited]
     sw_sales_channel_detail_header  [inherited]
       sw_sales_channel_detail_header_headline  [inherited]

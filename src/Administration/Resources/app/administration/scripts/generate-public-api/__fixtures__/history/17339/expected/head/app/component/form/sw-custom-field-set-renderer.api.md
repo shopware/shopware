@@ -100,19 +100,22 @@ methods
 blocks
   sw_custom_field_set_renderer  [private]
     sw_custom_field_set_renderer_card  [private]
-      sw_custom_field_set_renderer_card_mt_tabs  [major only] [private]
-      sw_custom_field_set_renderer_card_mt_tabs_content  [major only] [private]
-        sw_custom_field_set_renderer_card_mt_tabs_form_renderer  [major only] [private]
-      sw_custom_field_set_renderer_card_tabs  [current only] [private]
-      sw_custom_field_set_renderer_card_tabs_content  [current only] [private]
-        sw_custom_field_set_renderer_card_form_renderer  [current only] [private]
-    sw_custom_field_set_renderer_media  [private]
-      sw_custom_field_set_renderer_media_button_save  [private]
-      sw_custom_field_set_renderer_media_form_renderer  [private]
+      sw_custom_field_set_renderer_card_mt_tabs  [from v6.8.0] [private]
+      sw_custom_field_set_renderer_card_mt_tabs_content  [from v6.8.0] [private]
+        sw_custom_field_set_renderer_card_mt_tabs_form_renderer  [scope: set] [from v6.8.0] [private]
+      sw_custom_field_set_renderer_card_tabs  [until v6.8.0] [private]
+      sw_custom_field_set_renderer_card_tabs_content  [until v6.8.0] [private]
+        sw_custom_field_set_renderer_card_form_renderer  [scope: active, set] [until v6.8.0] [private]
+    sw_custom_field_set_renderer_media  [after v-if] [private]
+      sw_custom_field_set_renderer_media_button_save  [scope: set] [private]
+      sw_custom_field_set_renderer_media_form_renderer  [scope: customField, set] [private]
+
+crossings
+  v-if  sw_custom_field_set_renderer_card -> sw_custom_field_set_renderer_media  [private]
 
 position-ids
-  sw-custom-field-set-renderer  tabs  host=sw-tabs  block=sw_custom_field_set_renderer_card  [current only] [private]
-  sw-custom-field-set-renderer  tabs  host=mt-tabs  block=sw_custom_field_set_renderer_card_mt_tabs  [major only] [private]
+  sw-custom-field-set-renderer  tabs  host=sw-tabs  block=sw_custom_field_set_renderer_card  [until v6.8.0] [private]
+  sw-custom-field-set-renderer  tabs  host=mt-tabs  block=sw_custom_field_set_renderer_card_mt_tabs  [from v6.8.0] [private]
 
 notes
   flag-removal-undeprecated block sw_custom_field_set_renderer_card_form_renderer  [private]

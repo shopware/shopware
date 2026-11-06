@@ -98,6 +98,8 @@ About 460 of roughly 880 component, view and page index files contain `@private`
 | D20 | Typed `Component.override` | Core types `Component.override` as an interface with today's signature, and the snapshot adds a generic signature through interface merging. Plugins keep calling `Shopware.Component.override(...)` without a cast. |
 | D21 | Outsourced overrides | Override configs in separate files use a new helper `Component.wrapOverrideConfig('<target>', {...})`, so they get the same types. |
 | D22 | Report view | The `.api.md` reads like a declaration outline without tree glyphs: blocks as a tree with two spaces per level, siblings sorted, no column alignment, markers after two spaces, `[private]` on every line of a private entry, both flag states merged in one report. The break check adds a plain-language summary grouped by break, addition, allowed, accepted, private and info, and GitHub annotations on the head source line. Snapshot files stay collapsed in PR diffs. |
+| D23 | Version markers | The report names the flag states by version: `[until v6.8.0]` and `[from v6.8.0]` instead of `[current only]` and `[major only]`, so the marker stays readable in old commits. |
+| D24 | Block context | Blocks record whether they follow an open `v-if` chain and which `v-for` and slot variables they can use, and `v-if` chains across blocks count as crossings. Losing either, or a new chain crossing, is a break. |
 
 ## Assumptions
 
@@ -128,6 +130,9 @@ Each row becomes a fixture with a before state, an after state and the expected 
 | Block moved under a different parent block | Break |
 | HTML element opened in one block and closed in another (#20959) | Break |
 | Block renamed only with the major flag on (#17339) | Break in the major snapshot |
+| Block loses a template variable from a `v-for` or slot, for example `item` or `itemIndex` (#20959) | Break |
+| Block no longer follows an open `v-if` chain that overrides may continue with `v-else-if` or `v-else` | Break |
+| `v-if` chain continues in another block, so overriding the first block breaks the chain | Break |
 | Prop removed, renamed, or changed from optional to required | Break |
 | Method parameters changed in an incompatible way | Break |
 | Removal announced with `@deprecated tag:vX`, done in that major | Allowed |
@@ -212,7 +217,7 @@ Result of 1b:
 - `current.d.ts` and `major.d.ts` reference every snapshot file and compile with `skipLibCheck: false` without a diagnostic below `public-api/`.
   Route components that have no snapshot file yet are stubbed in `_excerpt/route-component-stubs.d.ts`.
 - `index.json` covers the excerpt, and its `virtualModules` equal the old `shopware-modules.json`.
-- 20 taxonomy fixtures and 4 historical cases (#20959, #17339, #15271, #17081), each with expected findings, the historical ones also with snapshot diffs and the HTML page.
+- 21 taxonomy fixtures and 4 historical cases (#20959, #17339, #15271, #17081), each with expected findings, the historical ones also with snapshot diffs and the HTML page.
 - The cases not written yet and the spec gaps the review found are listed at the end of `FORMAT.md` ("Test fixtures" and "Open points").
 
 ## How to continue

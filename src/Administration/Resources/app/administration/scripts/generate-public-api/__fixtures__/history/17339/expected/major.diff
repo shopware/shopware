@@ -34,13 +34,13 @@
      sw_custom_field_set_renderer_card  [private]
 -      sw_custom_field_set_renderer_card_tabs  [private]
 -      sw_custom_field_set_renderer_card_tabs_content  [private]
--        sw_custom_field_set_renderer_card_form_renderer  [private]
+-        sw_custom_field_set_renderer_card_form_renderer  [scope: active, set] [private]
 +      sw_custom_field_set_renderer_card_mt_tabs  [private]
 +      sw_custom_field_set_renderer_card_mt_tabs_content  [private]
-+        sw_custom_field_set_renderer_card_mt_tabs_form_renderer  [private]
-     sw_custom_field_set_renderer_media  [private]
-       sw_custom_field_set_renderer_media_button_save  [private]
-       sw_custom_field_set_renderer_media_form_renderer  [private]
++        sw_custom_field_set_renderer_card_mt_tabs_form_renderer  [scope: set] [private]
+     sw_custom_field_set_renderer_media  [after v-if] [private]
+       sw_custom_field_set_renderer_media_button_save  [scope: set] [private]
+       sw_custom_field_set_renderer_media_form_renderer  [scope: customField, set] [private]
  
  position-ids
 -  sw-custom-field-set-renderer  tabs  host=sw-tabs  block=sw_custom_field_set_renderer_card  [private]
@@ -53,15 +53,15 @@
      sw_custom_field_set_renderer_card  [inherited]
 -      sw_custom_field_set_renderer_card_tabs  [inherited]
 -      sw_custom_field_set_renderer_card_tabs_content  [inherited]
--        sw_custom_field_set_renderer_card_form_renderer  [replaced]
--          sw_custom_field_set_renderer_card_form_renderer_change_field
--          sw_custom_field_set_renderer_card_form_renderer_custom_field
+-        sw_custom_field_set_renderer_card_form_renderer  [replaced] [scope: active, set]
+-          sw_custom_field_set_renderer_card_form_renderer_change_field  [scope: active, customField, set]
+-          sw_custom_field_set_renderer_card_form_renderer_custom_field  [scope: active, customField, set]
 +      sw_custom_field_set_renderer_card_mt_tabs  [inherited]
 +      sw_custom_field_set_renderer_card_mt_tabs_content  [inherited]
-+        sw_custom_field_set_renderer_card_mt_tabs_form_renderer  [inherited]
-     sw_custom_field_set_renderer_media  [inherited]
-       sw_custom_field_set_renderer_media_button_save  [inherited]
-       sw_custom_field_set_renderer_media_form_renderer  [inherited]
++        sw_custom_field_set_renderer_card_mt_tabs_form_renderer  [inherited] [scope: set]
+     sw_custom_field_set_renderer_media  [inherited] [after v-if]
+       sw_custom_field_set_renderer_media_button_save  [inherited] [scope: set]
+       sw_custom_field_set_renderer_media_form_renderer  [inherited] [scope: customField, set]
  
  position-ids
 -  sw-custom-field-set-renderer  tabs  host=sw-tabs  block=sw_custom_field_set_renderer_card
@@ -83,7 +83,7 @@
  
  methods
 @@ -26,8 +28,7 @@
-       sw_mail_template_list_content_card  [deprecated tag:v6.8.0]
+       sw_mail_template_list_content_card  [after v-if] [deprecated tag:v6.8.0]
        sw_mail_template_list_router_view
        sw_mail_template_list_tabs
 -        sw_mail_template_list_tabs_header_footer

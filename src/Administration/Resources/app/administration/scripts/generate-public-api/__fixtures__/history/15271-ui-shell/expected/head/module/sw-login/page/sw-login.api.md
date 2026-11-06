@@ -40,7 +40,7 @@ blocks
   sw_login  [private]
     sw_login_container  [private]
       sw_login_back_link  [private]
-      sw_login_forgot_password_link  [private]
+      sw_login_forgot_password_link  [after v-if] [private]
       sw_login_form  [private]
         sw_login_loader  [private]
         sw_login_view  [private]

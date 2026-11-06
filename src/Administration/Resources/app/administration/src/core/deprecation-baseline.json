@@ -65,6 +65,18 @@
             "major"
         ]
     },
+    "The prop \"isSaveSuccessful\" of the component \"sw-order-detail-details\" is deprecated and will be removed in Shopware v6.8.0.0.\nWill be removed without replacement.": {
+        "sw-order-detail-details": [
+            "default",
+            "major"
+        ]
+    },
+    "The prop \"isSaveSuccessful\" of the component \"sw-order-detail-general\" is deprecated and will be removed in Shopware v6.8.0.0.\nWill be removed without replacement.": {
+        "sw-order-detail-general": [
+            "default",
+            "major"
+        ]
+    },
     "The prop \"items\" of the component \"sw-entity-advanced-selection-modal-grid\" is deprecated and will be removed in Shopware v6.8.0.0.\nUse \"dataSource\" instead. Migration: Change :items=\"data\" to :data-source=\"data\"": {
         "sw-entity-advanced-selection-modal > sw-entity-advanced-selection-modal-grid": [
             "default",
@@ -73,6 +85,18 @@
     },
     "The prop \"productStates\" of the component \"sw-product-variants-overview\" is deprecated and will be removed in Shopware v6.8.0.0.\nUse `productType` prop instead.": {
         "sw-product-variants-overview": [
+            "default",
+            "major"
+        ]
+    },
+    "documentService.setListener() is deprecated. Removed with document generation v1; use documentV2ApiService instead.": {
+        "sw-order-document-card": [
+            "default",
+            "major"
+        ]
+    },
+    "orderApiService.toggleAutomaticPromotions() is deprecated. Use `applyAutomaticPromotions` instead.": {
+        "src/module/sw-order/component/sw-order-promotion-field/index.js": [
             "default",
             "major"
         ]
@@ -328,6 +352,18 @@
             "major"
         ]
     },
+    "sw-promotion-v2-settings-rule-selection.ruleCriteria is deprecated. Will be removed, does not offer additional filtering compared to default ruleFilter.": {
+        "sw-promotion-v2-settings-rule-selection": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-promotion-v2-settings-trigger.ruleCriteria is deprecated. Will be removed, does not offer additional filtering compared to default ruleFilter.": {
+        "sw-promotion-v2-settings-trigger": [
+            "default",
+            "major"
+        ]
+    },
     "sw-sales-channel-create-base.prefillAgenticCommerceDefaults() is deprecated. Will be removed.": {
         "sw-sales-channel-create-base": [
             "default",
@@ -490,7 +526,16 @@
     },
     "sw-settings-number-range-detail.loadSalesChannels() is deprecated and will be removed, use buildSelectedSalesChannelsCollection instead.": {
         "src/module/sw-settings-number-range/page/sw-settings-number-range-create/index.js": [
-            "default"
+            "default",
+            "major"
+        ],
+        "src/module/sw-settings-number-range/page/sw-settings-number-range-create/sw-settings-number-range-create.spec.js": [
+            "default",
+            "major"
+        ],
+        "src/module/sw-settings-number-range/page/sw-settings-number-range-detail/sw-settings-number-range-detail.spec.js": [
+            "default",
+            "major"
         ]
     },
     "sw-settings-shipping-price-matrix.shippingRuleFilterCriteria is deprecated and will be removed, use ruleFilterCriteria instead.": {
@@ -507,6 +552,90 @@
     },
     "sw-settings-storefront-index.savestorefrontSettings() is deprecated and will be removed.": {
         "../../../../Storefront/Resources/app/administration/src/modules/sw-settings-storefront/page/sw-settings-storefront-index/sw-settings-storefront-index.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-system-config.assignConfigIds() is deprecated. Will be removed together with config data prop.": {
+        "src/module/sw-extension/page/sw-extension-config/sw-extension-config.spec.js": [
+            "default",
+            "major"
+        ],
+        "src/module/sw-settings-login-registration/page/sw-settings-login-registration/sw-settings-login-registration.spec.js": [
+            "default",
+            "major"
+        ],
+        "src/module/sw-settings-media/page/sw-settings-media/sw-settings-media.spec.js": [
+            "default",
+            "major"
+        ],
+        "src/module/sw-settings-newsletter/page/sw-settings-newsletter/sw-settings-newsletter.spec.js": [
+            "default",
+            "major"
+        ],
+        "src/module/sw-settings-seo/page/sw-settings-seo/sw-settings-seo.spec.js": [
+            "default",
+            "major"
+        ],
+        "src/module/sw-settings/component/sw-system-config/sw-system-config.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-system-config.configToSchema() is deprecated. Will be removed together with config data prop.": {
+        "src/module/sw-settings/component/sw-system-config/sw-system-config.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-system-config.getSchemaForDomain() is deprecated. Will be removed together with config data prop.": {
+        "src/module/sw-settings/component/sw-system-config/sw-system-config.spec.js": [
+            "default",
+            "major"
+        ],
+        "sw-system-config": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-system-config.getTabIndexByElementOverlap() is deprecated. Will be removed together with config data prop.": {
+        "src/module/sw-settings/component/sw-system-config/sw-system-config.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-system-config.schemaToConfig() is deprecated. Will be removed together with config data prop.": {
+        "src/module/sw-extension/page/sw-extension-config/sw-extension-config.spec.js": [
+            "default",
+            "major"
+        ],
+        "src/module/sw-settings-login-registration/page/sw-settings-login-registration/sw-settings-login-registration.spec.js": [
+            "default",
+            "major"
+        ],
+        "src/module/sw-settings-media/page/sw-settings-media/sw-settings-media.spec.js": [
+            "default",
+            "major"
+        ],
+        "src/module/sw-settings-newsletter/page/sw-settings-newsletter/sw-settings-newsletter.spec.js": [
+            "default",
+            "major"
+        ],
+        "src/module/sw-settings-seo/page/sw-settings-seo/sw-settings-seo.spec.js": [
+            "default",
+            "major"
+        ],
+        "src/module/sw-settings/component/sw-system-config/sw-system-config.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "systemConfigApiService.getConfig() is deprecated. Use `getSchema` instead.": {
+        "src/module/sw-sales-channel/page/sw-sales-channel-detail/index.js": [
+            "default",
+            "major"
+        ],
+        "sw-media-quickinfo": [
             "default",
             "major"
         ]

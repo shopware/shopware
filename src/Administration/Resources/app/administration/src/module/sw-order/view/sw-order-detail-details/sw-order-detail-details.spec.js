@@ -4,7 +4,7 @@
 
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
-import { allowDeprecation } from 'test/_helper_/deprecations';
+import { allowDeprecation, deprecations } from 'test/_helper_/deprecations';
 
 const orderMock = {
     orderCustomer: {
@@ -73,7 +73,7 @@ const orderMock = {
 
 orderMock.primaryOrderDelivery = orderMock.deliveries[0];
 
-async function createWrapper() {
+async function createWrapper(props = {}) {
     orderMock.transactions.last = () => ({
         stateMachineState: {
             translated: {
@@ -124,6 +124,7 @@ async function createWrapper() {
         },
         props: {
             orderId: '1a2b3c',
+            ...props,
         },
     });
 }
@@ -139,6 +140,14 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
     beforeEach(() => {
         allowDeprecation('sw-order-detail-details.onShippingChargeEdited() is deprecated');
         allowDeprecation('sw-order-detail-details.shippingCosts is deprecated');
+    });
+
+    it('should report the deprecated isSaveSuccessful prop the order detail page still passes', async () => {
+        wrapper = await createWrapper({ isSaveSuccessful: true });
+
+        expect(deprecations).toHaveTriggered(
+            'The prop "isSaveSuccessful" of the component "sw-order-detail-details" is deprecated',
+        );
     });
 
     it('should have a disabled on transaction card', async () => {

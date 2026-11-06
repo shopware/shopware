@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
-import { allowDeprecation } from 'test/_helper_/deprecations';
 
 async function createWrapper(
     numberRangeService = {
@@ -34,9 +33,10 @@ async function createWrapper(
         create: (context, id) => createNumberRange(id),
         get: (id) => Promise.resolve(createNumberRange(id)),
         save: () => Promise.resolve(),
-        search: () =>
+        searchIds: () =>
             Promise.resolve({
                 total: 1,
+                data: ['product-number-range-id'],
             }),
     };
 
@@ -135,10 +135,6 @@ async function createWrapper(
 }
 
 describe('src/module/sw-settings-number-range/page/sw-settings-number-range-create', () => {
-    beforeEach(() => {
-        allowDeprecation('sw-settings-number-range-detail.loadSalesChannels() is deprecated');
-    });
-
     it('should be has number range', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -229,7 +225,7 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-crea
             create: jest.fn((context, id) => createNumberRange(id)),
             get: jest.fn((id) => Promise.resolve(createNumberRange(id))),
             save: jest.fn(() => Promise.resolve()),
-            search: jest.fn(() => Promise.resolve({ total: 1 })),
+            searchIds: jest.fn(() => Promise.resolve({ total: 1, data: ['product-number-range-id'] })),
         };
 
         const getNumberRangePatternCollisions = jest.fn(() =>

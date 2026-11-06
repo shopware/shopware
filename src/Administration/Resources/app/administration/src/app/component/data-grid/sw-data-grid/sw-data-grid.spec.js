@@ -264,6 +264,26 @@ describe('components/data-grid/sw-data-grid', () => {
         expect(wrapper.vm.currentColumns[0].visible).toBe(valueChecked);
     });
 
+    it('emits the column and its visibility when a column is shown or hidden in the settings', async () => {
+        const wrapper = await createWrapper({
+            showSettings: true,
+        });
+        await flushPromises();
+
+        await wrapper.find('.sw-data-grid-settings__trigger').trigger('click');
+        await flushPromises();
+
+        const checkbox = wrapper.find('.sw-data-grid__settings-item--0 input');
+        await checkbox.setChecked(!checkbox.element.checked);
+
+        const [
+            column,
+            visible,
+        ] = wrapper.emitted('column-visibility-change')[0];
+        expect(column.property).toBe('name');
+        expect(visible).toBe(checkbox.element.checked);
+    });
+
     it('should save user configuration through the admin user config store', async () => {
         const wrapper = await createWrapper({
             showSettings: true,

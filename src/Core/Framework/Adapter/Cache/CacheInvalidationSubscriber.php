@@ -107,8 +107,13 @@ class CacheInvalidationSubscriber
 
     public function invalidateConfigKey(SystemConfigChangedHook $event): void
     {
-        // invalidates the complete cached config immediately
-        $this->cacheInvalidator->invalidate([CachedSystemConfigLoader::CACHE_TAG], true);
+        // invalidates the cached config immediately: a global change is inherited by all sales channels,
+        // a sales channel specific change only affects the config of that sales channel
+        $loaderTag = $event->salesChannelId === null || $event->salesChannelId === ''
+            ? CachedSystemConfigLoader::CACHE_TAG
+            : CachedSystemConfigLoader::buildSalesChannelTag($event->salesChannelId);
+
+        $this->cacheInvalidator->invalidate([$loaderTag], true);
 
         // SystemConfig is often uses to store internal values. In such cases clients can set silent flag to true,
         // so no http cache invalidations will happen.

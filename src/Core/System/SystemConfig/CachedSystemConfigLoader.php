@@ -21,6 +21,15 @@ class CachedSystemConfigLoader extends AbstractSystemConfigLoader
     ) {
     }
 
+    /**
+     * Tag of the cached config of one sales channel.
+     * The config of the global scope is inherited by all sales channels, invalidate `CACHE_TAG` for a change there.
+     */
+    public static function buildSalesChannelTag(string $salesChannelId): string
+    {
+        return self::CACHE_TAG . '-sales-channel-' . $salesChannelId;
+    }
+
     public function getDecorated(): AbstractSystemConfigLoader
     {
         return $this->decorated;
@@ -35,7 +44,12 @@ class CachedSystemConfigLoader extends AbstractSystemConfigLoader
         $value = $this->cache->get($key, function (ItemInterface $item) use ($salesChannelId, &$fresh) {
             $fresh = $this->getDecorated()->load($salesChannelId);
 
-            $item->tag([self::CACHE_TAG]);
+            $tags = [self::CACHE_TAG];
+            if ($salesChannelId !== null && $salesChannelId !== '') {
+                $tags[] = self::buildSalesChannelTag($salesChannelId);
+            }
+
+            $item->tag($tags);
 
             return CacheValueCompressor::compress($fresh);
         });

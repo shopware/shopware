@@ -15,6 +15,7 @@ import { computed, customRef, getCurrentInstance, isReadonly, isRef, unref } fro
 import type { ComponentInternalInstance, SetupContext } from '@vue/runtime-core';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import { _overridesMap } from './index';
+import { invalidateFailedSetupHmr, trackSetupHmrComponent } from './script-hmr';
 import {
     createOverrideLocalState,
     exposeOverrideLocalState,
@@ -54,6 +55,7 @@ export function attachSetupOverrideShim(componentName: string, config: Component
     // so previousState would be empty. An existing setup() keeps its own return value as the starting
     // content instead of being replaced.
     config.setup = function shimSetup(props: Record<string, unknown>, context: SetupContext) {
+        if (process.env.NODE_ENV !== 'production') trackSetupHmrComponent(componentName);
         const originalResult = (originalSetup ? originalSetup.call(this, props, context) : undefined) as SetupResult;
 
         if (!_overridesMap[componentName]?.length) {
@@ -227,7 +229,13 @@ export function attachSetupOverrideShim(componentName: string, config: Component
                 // everything earlier overrides installed, so override N sees N-1 - but not its own
                 // result, which is only written after the call. That keeps the read from looping.
                 const previousState = createPreviousState({ ...bag });
-                const result = override(previousState as never, instance.props as never, context) as AnyRecord;
+                let result: AnyRecord;
+                try {
+                    result = override(previousState as never, instance.props as never, context) as AnyRecord;
+                } catch (error) {
+                    if (process.env.NODE_ENV !== 'production') invalidateFailedSetupHmr(componentName);
+                    throw error;
+                }
 
                 if (result === undefined) {
                     return;

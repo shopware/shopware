@@ -31,6 +31,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\Stub\Rule\FalseRule;
@@ -385,6 +386,49 @@ class PromotionDeliveryCalculatorTest extends TestCase
 
         // Check for promotion not eligible error
         static::assertTrue($cart->getErrors()->has('promotion-not-eligible'), 'Delivery promotion should be marked as not eligible due to exclusion');
+    }
+
+    /**
+     * Before 6.8 the exclusions a later promotion carries in its payload, as the cart calculator writes them for
+     * promotions preventing combinations, exclude earlier promotions of higher priority.
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testLaterPromotionExcludesEarlierHigherPriorityPromotionBeforeMajor(): void
+    {
+        $this->quantityPriceCalculator
+            ->method('calculate')
+            ->willReturnCallback(static function (QuantityPriceDefinition $definition): CalculatedPrice {
+                return new CalculatedPrice($definition->getPrice(), $definition->getPrice(), new CalculatedTaxCollection(), new TaxRuleCollection());
+            });
+
+        $firstDiscountItem = $this->getDiscountItem('first-promotion')
+            ->setPayloadValue('code', 'code-1')
+            ->setPayloadValue('priority', 2);
+        $secondDiscountItem = $this->getDiscountItem('second-promotion')
+            ->setPayloadValue('code', 'code-2')
+            ->setPayloadValue('exclusions', ['first-promotion'])
+            ->setPayloadValue('priority', 1);
+
+        $delivery = new Delivery(
+            new DeliveryPositionCollection(),
+            new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
+            new ShippingMethodEntity(),
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
+
+        $cart = new Cart('promotion-test');
+        $cart->setDeliveries(new DeliveryCollection([$delivery]));
+
+        $this->promotionDeliveryCalculator->calculate(
+            new LineItemCollection([$firstDiscountItem, $secondDiscountItem]),
+            $cart,
+            $cart,
+            static::createStub(SalesChannelContext::class)
+        );
+
+        static::assertSame(90.0, $cart->getShippingCosts()->getTotalPrice());
+        static::assertTrue($cart->getErrors()->has('promotion-not-eligible'));
     }
 
     /**

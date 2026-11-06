@@ -39,6 +39,7 @@ use Shopware\Core\Checkout\Promotion\Rule\PromotionLineItemRule;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\Stub\Rule\FalseRule;
 use Shopware\Core\Test\Stub\Rule\TrueRule;
@@ -283,6 +284,35 @@ class PromotionCalculatorTest extends TestCase
         static::assertFalse($cart->getErrors()->has('promotion-excluded'));
         static::assertNull($cart->getLineItems()->get($dependentDiscountItem->getId()));
         static::assertSame($appliedDiscountItem, $cart->getLineItems()->get($appliedDiscountItem->getId()));
+    }
+
+    /**
+     * Before 6.8 a promotion that prevents combinations wins over every other promotion, whatever their priorities and loading order.
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testPreventCombinationWinsOverEarlierHigherPriorityPromotionBeforeMajor(): void
+    {
+        $this->promotionCalculator = $this->getCalculatorWithProductPackage();
+        $automaticDiscountItem = $this->getDiscountItem('automatic-promotion')
+            ->setPayloadValue('priority', 2);
+        $preventCombinationDiscountItem = $this->getDiscountItem('prevent-combination-promotion')
+            ->setPayloadValue('code', 'code-1')
+            ->setPayloadValue('preventCombination', true)
+            ->setPayloadValue('priority', 1);
+
+        $cart = $this->getCartWithProduct();
+
+        $this->promotionCalculator->calculate(
+            new LineItemCollection([$automaticDiscountItem, $preventCombinationDiscountItem]),
+            $cart,
+            $cart,
+            static::createStub(SalesChannelContext::class),
+            new CartBehavior()
+        );
+
+        static::assertFalse($cart->getErrors()->has('promotion-excluded'));
+        static::assertNull($cart->getLineItems()->get($automaticDiscountItem->getId()));
+        static::assertSame($preventCombinationDiscountItem, $cart->getLineItems()->get($preventCombinationDiscountItem->getId()));
     }
 
     /**

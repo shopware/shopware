@@ -15,6 +15,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -110,6 +111,8 @@ class DeliveryPromotionCalculationTest extends TestCase
     #[Group('promotions')]
     public function testDeliveryPromotionDependingOnAppliedPromotionExcludesLowerPriorityPromotion(): void
     {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
         $this->setNewShippingPrices($this->connection, 100);
 
         $productId = Uuid::randomHex();

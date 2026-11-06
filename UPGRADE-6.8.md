@@ -777,6 +777,15 @@ Since tokens are no longer deleted after use, a new scheduled task runs daily to
 Automatic promotions without a code are no longer removable as it adds more confusion as to how one gets it back than it helps.
 The blocked-promotion handling in `\Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension` has been removed.
 
+## Promotion exclusions respect priorities and the current cart
+
+Promotion exclusions are resolved per discount while the cart is calculated, against the cart as it is at that point, instead of from a list built before any discount was applied.
+"Prevent combination with other promotions" no longer overrules priorities: among promotions that must not be combined, the one with the higher priority wins, and on equal priority the one loaded first.
+Before, the promotion preventing combinations always won.
+Promotions whose rules depend on other promotions in the cart enforce their exclusions once those rules pass.
+Discount line items of promotions that prevent combinations keep an empty `exclusions` payload; before, the cart calculator wrote the ids of all other promotions into it.
+Review promotions that rely on a prevent-combination promotion winning over higher-priority promotions and adjust their priorities.
+
 ## Removal of `PromotionCartInformationTrait` helper methods
 
 The helper methods `\Shopware\Core\Checkout\Promotion\Cart\PromotionCartInformationTrait::{addPromotionNotFoundError,addPromotionNotEligibleError}` and `addPromotionNotEligibleError()` are removed, replace any calls in classes that use this trait with `$cart->addErrors()`:

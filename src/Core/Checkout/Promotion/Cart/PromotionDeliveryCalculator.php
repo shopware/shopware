@@ -23,6 +23,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Checkout\Promotion\PromotionException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -70,8 +71,11 @@ class PromotionDeliveryCalculator
         $notDiscountedDeliveriesValue = $toCalculate->getDeliveries()->getShippingCosts()->getTotalPriceAmount();
 
         // build exclusions list before reducing line items
-        $exclusions = $this->buildExclusions($discountLineItems);
+        $isPerItemExclusion = Feature::isActive('v6.8.0.0');
+        $exclusions = $isPerItemExclusion ? $this->buildExclusions($discountLineItems) : [];
         $eligibility = [];
+        // @deprecated tag:v6.8.0 - remove the legacy exclusion stack and the branches reading it
+        $legacyExclusions = $isPerItemExclusion ? [] : $this->buildLegacyExclusions($discountLineItems, $toCalculate, $context);
 
         // reduce discount lineItems if fixed price discounts are in collection
         $this->restorePriceDefinitions($discountLineItems);
@@ -115,7 +119,10 @@ class PromotionDeliveryCalculator
                 continue;
             }
 
-            if ($this->isExcluded($discountItem, $discountLineItems, $exclusions, $eligibility, $toCalculate, $context)) {
+            $isExcluded = $isPerItemExclusion
+                ? $this->isExcluded($discountItem, $discountLineItems, $exclusions, $eligibility, $toCalculate, $context)
+                : \array_key_exists($discountItem->getPayloadValue('promotionId'), $legacyExclusions);
+            if ($isExcluded) {
                 $toCalculate->addErrors(new PromotionNotEligibleError($discountItem->getDescription() ?? $discountItem->getId()));
 
                 continue;
@@ -131,6 +138,50 @@ class PromotionDeliveryCalculator
                 $this->addPromotionDeletedNotice($original, $toCalculate, $discountItem);
             }
         }
+    }
+
+    // @deprecated tag:v6.8.0 - remove, exclusions are then only resolved per discount item by PromotionExclusionTrait::isExcluded()
+    /**
+     * This function builds a complete list of promotions
+     * that are excluded somehow.
+     * The validation which one to take will be done later.
+     *
+     * @return array<mixed, bool>
+     */
+    private function buildLegacyExclusions(LineItemCollection $discountLineItems, Cart $toCalculate, SalesChannelContext $context): array
+    {
+        // array that holds all excluded promotion ids.
+        // if a promotion has exclusions they are added on the stack
+        $exclusions = [];
+
+        foreach ($discountLineItems as $discountItem) {
+            // if we dont have a scope
+            // then skip it, it might not belong to us
+            if (!$discountItem->hasPayloadValue('discountScope')) {
+                continue;
+            }
+
+            // if promotion is on exclusions stack it is ignored
+            if ($discountItem->hasPayloadValue('promotionId')) {
+                $promotionId = $discountItem->getPayloadValue('promotionId');
+
+                // if promotion is on exclusions stack it is ignored
+                // this avoids cycles that both promotions exclude each other
+                if (isset($exclusions[$promotionId])) {
+                    continue;
+                }
+            }
+
+            // add all exclusions to the stack
+            foreach ($discountItem->getPayloadValue('exclusions') as $id) {
+                // check if the promotion is active by its conditions
+                if ($this->isRequirementValid($discountItem, $toCalculate, $context)) {
+                    $exclusions[$id] = true;
+                }
+            }
+        }
+
+        return $exclusions;
     }
 
     /**

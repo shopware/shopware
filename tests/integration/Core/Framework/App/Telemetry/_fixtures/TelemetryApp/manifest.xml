@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="../../../../../../../../src/Core/Framework/App/Manifest/Schema/manifest-3.0.xsd">
+    <meta>
+        <name>swagIntegrationTestTelemetryApp</name>
+        <label>Swag integration test telemetry app</label>
+        <label lang="de-DE">Swag Integrationstest Telemetrie-App</label>
+        <description>Fixture app claiming telemetry mapping identifiers for integration tests</description>
+        <description lang="de-DE">Fixture-App, die Telemetrie-Mapping-Bezeichner für Integrationstests beansprucht</description>
+        <author>shopware AG</author>
+        <copyright>(c) by shopware AG</copyright>
+        <version>1.0.0</version>
+        <license>MIT</license>
+    </meta>
+</manifest>

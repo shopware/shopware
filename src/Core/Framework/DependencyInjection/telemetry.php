@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\DependencyInjection;
 
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
+use Shopware\Core\Framework\App\Telemetry\AppTelemetryConfigLoader;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelMappingRegistry;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfigProvider;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\TransportConfigProvider;
@@ -18,6 +20,7 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\service_closure;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
@@ -52,6 +55,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             param('shopware.telemetry.metrics.mappings'),
             param('shopware.telemetry.metrics.replace_unknown_label_values_with'),
+            service_closure(AppTelemetryConfigLoader::class),
+            service('logger'),
+            param('shopware.telemetry.metrics.accept_app_contributions'),
+        ]);
+
+    $services->set(AppTelemetryConfigLoader::class)
+        ->args([
+            service_closure(AppFeatureStorage::class),
+            service('logger'),
         ]);
 
     $services->set(MetricConfigProvider::class)

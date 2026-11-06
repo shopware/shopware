@@ -92,6 +92,7 @@ class SchemaBuilderTest extends TestCase
                 TestEntityWithForeignKeysDefinition::class,
                 ProductDefinition::class,
                 TestAssociationWithMissingReferenceVersionDefinition::class,
+                TestEntityWithUnmappedFieldSubclassDefinition::class,
             ],
             static::createStub(ValidatorInterface::class),
             static::createStub(EntityWriteGatewayInterface::class)
@@ -325,6 +326,16 @@ class SchemaBuilderTest extends TestCase
         static::assertSame('RESTRICT', $associationFk3->getOnDeleteAction()->value);
     }
 
+    public function testUnregisteredFieldSubclassUsesClosestMappedType(): void
+    {
+        $definition = $this->registry->get(TestEntityWithUnmappedFieldSubclassDefinition::class);
+
+        $table = (new SchemaBuilder())->buildSchemaOfDefinition($definition);
+
+        static::assertSame(Type::getType(Types::JSON), $table->getColumn('plugin_price')->getType());
+        static::assertSame(Type::getType(Types::TEXT), $table->getColumn('plugin_text')->getType());
+    }
+
     public function testDefinitionMissingReferenceVersionField(): void
     {
         $definition = $this->registry->get(TestAssociationWithMissingReferenceVersionDefinition::class);
@@ -334,6 +345,40 @@ class SchemaBuilderTest extends TestCase
         $this->expectExceptionObject(DataAbstractionLayerException::versionFieldNotFound('product'));
         $schemaBuilder->buildSchemaOfDefinition($definition);
     }
+}
+
+/**
+ * @internal
+ */
+class TestEntityWithUnmappedFieldSubclassDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'test_entity_with_unmapped_field_subclass';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            new PluginPriceField('plugin_price', 'pluginPrice'),
+            new PluginTextField('plugin_text', 'pluginText'),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class PluginPriceField extends JsonField
+{
+}
+
+/**
+ * @internal
+ */
+class PluginTextField extends LongTextField
+{
 }
 
 /**

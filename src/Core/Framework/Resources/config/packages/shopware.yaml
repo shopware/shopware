@@ -396,7 +396,7 @@ shopware:
                     -   domain: 'core.cart.lineItemAddLimit'
                         interval: '60 seconds'
             mcp_admin_api:
-                # Trusted automation (integrations / admin users), keyed per OAuth token, so a
+                # Trusted automation (integrations / admin users), keyed per user or integration, so a
                 # generous limit is acceptable. Kept higher than the Store API on purpose.
                 # A sliding window, not time_backoff: time_backoff is a lockout for repeated attempts,
                 # which allows a single request per interval once the first limit is used up.

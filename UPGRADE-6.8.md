@@ -1581,7 +1581,16 @@ $redemptions = $this->orderRepository->searchIds($criteria, $context)->getTotal(
 
 The `$operator` parameter of `\Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter::__construct()` is widened from `string` to `string|Filter`, so `new NotFilter($filter)` negates a single filter like `NotFilter::negate($filter)`. Existing calls keep working unchanged.
 
+## Removed `PluginZipImportCommand::$cacheClearer`
+
+The unused property was removed.
+
 # Administration
+
+## Custom field set lookup removed from `sw-settings-listing-option-criteria-grid`
+
+The `sw-settings-listing-option-criteria-grid` component filters custom fields by `customFieldSet.relations.entityName` directly.
+The `customFieldSetIDs` data property, the `customFieldSetRelationsRepository` and `customFieldsRelationsCriteria` computed properties and the `fetchCustomFieldSetIds()` method were removed without replacement.
 
 ## `sw-sales-channel-detail-products.saveProductVisibilities()` removed
 
@@ -1628,6 +1637,16 @@ Error: Tried to access deprecated functionality: sw-select-base.computePath() is
 
 This covers deprecated `Shopware.*` globals including `Shopware.State`, services, exported functions, component `methods` and `computed` members, also through `this.$super()`, as well as deprecated components and props.
 Run your extension's tests with `V6_8_0_0=1` and move every reported use to the named replacement before upgrading.
+## Media default folder lookup computed properties removed
+
+The deprecated computed properties that loaded the media default folder were removed from these Administration components:
+
+| Component | Removed computed properties |
+|---|---|
+| `sw-product-detail-base` | `mediaDefaultFolderRepository`, `mediaDefaultFolderCriteria` |
+| `sw-bulk-edit-product-media` | `mediaDefaultFolderRepository`, `mediaDefaultFolderCriteria` |
+
+Use `mediaDefaultFolderService.getDefaultFolderId(entityName)` to get the id of an entity's default media folder.
 
 ## Deprecated password verification members in `sw-users-permissions-user-listing`
 

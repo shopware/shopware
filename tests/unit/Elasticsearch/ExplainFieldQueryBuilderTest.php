@@ -70,6 +70,57 @@ class ExplainFieldQueryBuilderTest extends TestCase
         static::assertSame('name', $payload['field']);
         static::assertSame('foo', $payload['term']);
         static::assertSame(500, $payload['ranking']);
+        static::assertTrue($payload['weighted']);
+        // The field-level name cannot know HOW the clauses inside matched — it must not
+        // claim a match type, or a fuzzy/prefix/partial nested match shows an "exact" badge.
+        static::assertArrayNotHasKey('type', $payload);
+    }
+
+    public function testKeepsAnExistingClauseName(): void
+    {
+        // The leaf term query names itself 'exact' in FieldQueryBuilder — a true statement
+        // for a term match — and the decorator must not overwrite it with a type-less guess.
+        $named = new TermQuery('productNumber', 'SW-1000');
+        $named->addParameter('_name', '{"field":"productNumber","term":"SW-1000","ranking":800,"type":"exact","weighted":true}');
+
+        $inner = static::createStub(AbstractFieldQueryBuilder::class);
+        $inner->method('build')->willReturn($named);
+
+        $builder = new ExplainFieldQueryBuilder($inner);
+        $field = new ResolvedField(new StringField('productNumber', 'productNumber'));
+        $config = new SearchFieldConfig('productNumber', 800, false);
+
+        $context = Context::createDefaultContext();
+        $context->addState(Context::ELASTICSEARCH_EXPLAIN_MODE);
+
+        $query = $builder->build($field, 'SW-1000', $config, $context);
+
+        static::assertNotNull($query);
+        $payload = json_decode($query->toArray()['term']['productNumber']['_name'], true);
+        static::assertSame('exact', $payload['type']);
+    }
+
+    public function testPhraseConfigKeepsThePhraseType(): void
+    {
+        $innerQuery = new TermQuery('tags.name', 'foo bar');
+        $nestedQuery = new NestedQuery('tags', $innerQuery);
+
+        $inner = static::createStub(AbstractFieldQueryBuilder::class);
+        $inner->method('build')->willReturn($nestedQuery);
+
+        $builder = new ExplainFieldQueryBuilder($inner);
+        $field = new ResolvedField(new StringField('name', 'name'), 'tags');
+        $config = (new SearchFieldConfig('tags.name', 500, false))->withPhrase();
+
+        $context = Context::createDefaultContext();
+        $context->addState(Context::ELASTICSEARCH_EXPLAIN_MODE);
+
+        $query = $builder->build($field, 'foo bar', $config, $context);
+
+        static::assertNotNull($query);
+        $payload = json_decode($query->toArray()['nested']['_name'], true);
+        static::assertSame('phrase', $payload['type']);
+        static::assertTrue($payload['weighted']);
     }
 
     public function testAddsInnerHitsForNestedQuery(): void
@@ -96,6 +147,7 @@ class ExplainFieldQueryBuilderTest extends TestCase
         static::assertArrayHasKey('_name', $array['nested']);
         static::assertFalse($array['nested']['inner_hits']['_source']);
         static::assertTrue($array['nested']['inner_hits']['explain']);
+        static::assertArrayNotHasKey('type', json_decode($array['nested']['_name'], true));
     }
 
     public function testDisMaxQueryIsReturnedUnchangedInExplainMode(): void

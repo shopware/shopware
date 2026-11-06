@@ -43,9 +43,22 @@ async function createWrapper(contextStoreServiceOverrides = {}) {
         {
             global: {
                 stubs: {
-                    'sw-modal': await wrapTestComponent('sw-modal', {
-                        sync: true,
-                    }),
+                    'mt-modal-root': {
+                        props: ['isOpen'],
+                        emits: ['change'],
+                        template: '<div class="mt-modal-root-stub"><slot></slot></div>',
+                    },
+                    'mt-modal': {
+                        props: ['title'],
+                        template:
+                            '<div class="mt-modal-stub"><h2>{{ title }}</h2><slot></slot><slot name="footer"></slot></div>',
+                    },
+                    'mt-modal-close': {
+                        template: '<button class="mt-modal-close-stub"><slot></slot></button>',
+                    },
+                    'mt-loader': {
+                        template: '<div class="mt-loader-stub"></div>',
+                    },
                     'sw-container': await wrapTestComponent('sw-container'),
                     'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
                     'i18n-t': {
@@ -97,10 +110,7 @@ describe('module/sw-customer-imitate-customer-modal', () => {
     it('should forward modal close', async () => {
         wrapper = await createWrapper();
 
-        const closeButton = await wrapper.find('.sw-modal__close');
-        expect(closeButton.exists()).toBe(true);
-
-        await closeButton.trigger('click');
+        wrapper.findComponent('.mt-modal-root-stub').vm.$emit('change', false);
 
         await flushPromises();
 
@@ -177,11 +187,13 @@ describe('module/sw-customer-imitate-customer-modal', () => {
         wrapper = await createWrapper();
 
         expect(wrapper.vm.isLoading).toBe(true);
+        expect(wrapper.find('.mt-loader-stub').exists()).toBe(true);
         expect(wrapper.find('.imitate-customer-modal-item').exists()).toBe(false);
 
         await flushPromises();
 
         expect(wrapper.vm.isLoading).toBe(false);
+        expect(wrapper.find('.mt-loader-stub').exists()).toBe(false);
         expect(wrapper.find('.imitate-customer-modal-item').exists()).toBe(true);
     });
 });

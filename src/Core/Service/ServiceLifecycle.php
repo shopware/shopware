@@ -193,7 +193,7 @@ class ServiceLifecycle
         $criteria->addFilter(new EqualsFilter('selfManaged', false));
         $criteria->setLimit(1);
 
-        return $this->appRepository->search($criteria, $context)->getEntities()->first()?->getId();
+        return $this->appRepository->searchIds($criteria, $context)->firstId();
     }
 
     private function reevaluate(ServiceDto $service, Context $context): void

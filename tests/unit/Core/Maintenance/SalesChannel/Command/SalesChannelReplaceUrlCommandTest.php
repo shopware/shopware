@@ -5,16 +5,12 @@ namespace Shopware\Tests\Unit\Core\Maintenance\SalesChannel\Command;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelReplaceUrlCommand;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
-use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -31,43 +27,9 @@ class SalesChannelReplaceUrlCommandTest extends TestCase
         $previousUrl = 'https://old-domain.com';
         $newUrl = 'https://new-domain.com';
 
-        $domainEntity = new SalesChannelDomainEntity();
-        $domainEntity->setId($domainId);
-        $domainEntity->setUrl($previousUrl);
+        $repository = StaticEntityRepository::of(SalesChannelDomainCollection::class, [[$domainId]]);
 
-        $searchResultMock = static::createStub(EntitySearchResult::class);
-        $searchResultMock->method('getEntities')
-            ->willReturn(new SalesChannelDomainCollection([$domainEntity]));
-
-        $repositoryMock = $this->createMock(EntityRepository::class);
-        $repositoryMock->expects($this->once())
-            ->method('search')
-            ->with(
-                static::callback(static function (Criteria $criteria) use ($previousUrl) {
-                    $filters = $criteria->getFilters();
-                    static::assertCount(1, $filters);
-                    static::assertInstanceOf(EqualsFilter::class, $filters[0]);
-                    static::assertSame('url', $filters[0]->getField());
-                    static::assertSame($previousUrl, $filters[0]->getValue());
-                    static::assertSame(1, $criteria->getLimit());
-
-                    return true;
-                }),
-                static::isInstanceOf(Context::class)
-            )
-            ->willReturn($searchResultMock);
-
-        $repositoryMock->expects($this->once())
-            ->method('update')
-            ->with(
-                [[
-                    'id' => $domainId,
-                    'url' => $newUrl,
-                ]],
-                static::isInstanceOf(Context::class)
-            );
-
-        $command = new SalesChannelReplaceUrlCommand($repositoryMock);
+        $command = new SalesChannelReplaceUrlCommand($repository);
 
         $commandTester = new CommandTester($command);
         $commandTester->execute([
@@ -76,34 +38,27 @@ class SalesChannelReplaceUrlCommandTest extends TestCase
         ]);
 
         static::assertSame(Command::SUCCESS, $commandTester->getStatusCode());
+        static::assertCount(1, $repository->searchedCriteria);
+        static::assertEquals([new EqualsFilter('url', $previousUrl)], $repository->searchedCriteria[0]->getFilters());
+        static::assertSame(1, $repository->searchedCriteria[0]->getLimit());
+        static::assertSame([[['id' => $domainId, 'url' => $newUrl]]], $repository->updates);
     }
 
     public function testExecuteFailsWhenDomainNotFound(): void
     {
-        $previousUrl = 'https://non-existent-domain.com';
-        $newUrl = 'https://new-domain.com';
+        $repository = StaticEntityRepository::of(SalesChannelDomainCollection::class, [[]]);
 
-        $searchResultMock = static::createStub(EntitySearchResult::class);
-        $searchResultMock->method('first')
-            ->willReturn(null);
-
-        $repositoryMock = $this->createMock(EntityRepository::class);
-        $repositoryMock->expects($this->once())
-            ->method('search')
-            ->willReturn($searchResultMock);
-
-        $repositoryMock->expects($this->never())
-            ->method('update');
-
-        $command = new SalesChannelReplaceUrlCommand($repositoryMock);
+        $command = new SalesChannelReplaceUrlCommand($repository);
 
         $commandTester = new CommandTester($command);
         $commandTester->execute([
-            'previous-url' => $previousUrl,
-            'new-url' => $newUrl,
+            'previous-url' => 'https://non-existent-domain.com',
+            'new-url' => 'https://new-domain.com',
         ]);
 
         static::assertSame(Command::FAILURE, $commandTester->getStatusCode());
+        static::assertCount(1, $repository->searchedCriteria);
+        static::assertSame([], $repository->updates);
     }
 
     /**
@@ -112,18 +67,16 @@ class SalesChannelReplaceUrlCommandTest extends TestCase
     #[DataProvider('invalidUrlDataProvider')]
     public function testExecuteFailsWithInvalidUrls(array $arguments): void
     {
-        $repositoryMock = $this->createMock(EntityRepository::class);
-        $repositoryMock->expects($this->never())
-            ->method('search');
-        $repositoryMock->expects($this->never())
-            ->method('update');
+        $repository = StaticEntityRepository::of(SalesChannelDomainCollection::class);
 
-        $command = new SalesChannelReplaceUrlCommand($repositoryMock);
+        $command = new SalesChannelReplaceUrlCommand($repository);
 
         $commandTester = new CommandTester($command);
         $commandTester->execute($arguments);
 
         static::assertSame(Command::FAILURE, $commandTester->getStatusCode());
+        static::assertSame([], $repository->searchedCriteria);
+        static::assertSame([], $repository->updates);
     }
 
     public function testExecuteTrimsInputUrls(): void
@@ -132,42 +85,9 @@ class SalesChannelReplaceUrlCommandTest extends TestCase
         $previousUrl = 'https://old-domain.com';
         $newUrl = 'https://new-domain.com';
 
-        $domainEntity = new SalesChannelDomainEntity();
-        $domainEntity->setId($domainId);
-        $domainEntity->setUrl($previousUrl);
+        $repository = StaticEntityRepository::of(SalesChannelDomainCollection::class, [[$domainId]]);
 
-        $searchResultMock = static::createStub(EntitySearchResult::class);
-        $searchResultMock->method('getEntities')
-            ->willReturn(new SalesChannelDomainCollection([$domainEntity]));
-
-        $repositoryMock = $this->createMock(EntityRepository::class);
-        $repositoryMock->expects($this->once())
-            ->method('search')
-            ->with(
-                static::callback(static function (Criteria $criteria) use ($previousUrl) {
-                    $filters = $criteria->getFilters();
-                    static::assertCount(1, $filters);
-                    $filter = $filters[0];
-                    static::assertInstanceOf(EqualsFilter::class, $filter);
-                    static::assertSame($previousUrl, $filter->getValue());
-
-                    return true;
-                }),
-                static::isInstanceOf(Context::class)
-            )
-            ->willReturn($searchResultMock);
-
-        $repositoryMock->expects($this->once())
-            ->method('update')
-            ->with(
-                [[
-                    'id' => $domainId,
-                    'url' => $newUrl,
-                ]],
-                static::isInstanceOf(Context::class)
-            );
-
-        $command = new SalesChannelReplaceUrlCommand($repositoryMock);
+        $command = new SalesChannelReplaceUrlCommand($repository);
 
         $commandTester = new CommandTester($command);
         $commandTester->execute([
@@ -176,6 +96,8 @@ class SalesChannelReplaceUrlCommandTest extends TestCase
         ]);
 
         static::assertSame(Command::SUCCESS, $commandTester->getStatusCode());
+        static::assertEquals([new EqualsFilter('url', $previousUrl)], $repository->searchedCriteria[0]->getFilters());
+        static::assertSame([[['id' => $domainId, 'url' => $newUrl]]], $repository->updates);
     }
 
     /**

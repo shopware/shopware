@@ -47,7 +47,7 @@ Check the Administration code of your plugin or app for these changes:
 
   If your Jest setup transforms `import.meta.glob` with `babel-plugin-shopware-vite-meta-glob`, update it to 0.0.6 or newer first. Older versions ignore negated patterns in arrays and exclude nothing. A `^0.0.x` range does not pick up 0.0.6 automatically.
 
-  `composer run admin:code-mods -- --fix -v 6.8 -p YourPlugin` rewrites them for you.
+  `bin/console administration:upgrade-extensions -- --only=YourPlugin --target=6.8 --write` rewrites them for you.
 
   With the `ADMIN_VITE_8` flag in 6.7, Shopware still rewrites negated extglobs in plugins and apps and logs a warning for each one. 6.8 no longer rewrites them.
 
@@ -1581,7 +1581,16 @@ $redemptions = $this->orderRepository->searchIds($criteria, $context)->getTotal(
 
 The `$operator` parameter of `\Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter::__construct()` is widened from `string` to `string|Filter`, so `new NotFilter($filter)` negates a single filter like `NotFilter::negate($filter)`. Existing calls keep working unchanged.
 
+## Removed `PluginZipImportCommand::$cacheClearer`
+
+The unused property was removed.
+
 # Administration
+
+## Custom field set lookup removed from `sw-settings-listing-option-criteria-grid`
+
+The `sw-settings-listing-option-criteria-grid` component filters custom fields by `customFieldSet.relations.entityName` directly.
+The `customFieldSetIDs` data property, the `customFieldSetRelationsRepository` and `customFieldsRelationsCriteria` computed properties and the `fetchCustomFieldSetIds()` method were removed without replacement.
 
 ## `sw-sales-channel-detail-products.saveProductVisibilities()` removed
 
@@ -2669,6 +2678,19 @@ After:
 ```javascript
 const isInside = event.target instanceof Node && this.$el.contains(event.target);
 ```
+
+## Removed `composer run admin:code-mods`
+
+The `admin:code-mods` Composer script, the `code-mods` npm script and `code-mods.js` of the Administration have been removed.
+Use `administration:upgrade-extensions` instead:
+
+```bash
+bin/console administration:upgrade-extensions -- --only=YourPlugin --target=6.8          # preview
+bin/console administration:upgrade-extensions -- --only=YourPlugin --target=6.8 --write  # apply
+```
+
+The old options map to the new ones like this: `-p`/`--plugin-name` becomes `--only`, `-v`/`--shopware-version` becomes `--target`, `-r`/`--shopware-root` becomes `--project-root`, `--fix` becomes `--write`, and `-G`/`--ignore-git` becomes `--skip-git-check`.
+`-s`/`--src` has no replacement, because the command finds the Administration source folders of an extension itself.
 
 ## Removed `sw-cms-layout-modal` grid selection methods
 

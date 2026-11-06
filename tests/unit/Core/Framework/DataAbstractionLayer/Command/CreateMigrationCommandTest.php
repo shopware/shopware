@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\CreateMigrationCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
@@ -25,7 +26,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\MigrationFileRenderer;
 use Shopware\Core\Framework\DataAbstractionLayer\MigrationQueryGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Migration\MigrationException;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Clock\MockClock;
@@ -390,7 +390,7 @@ class CreateMigrationCommandTest extends TestCase
         );
 
         $this->expectExceptionObject(
-            MigrationException::moreThanOnePluginFound('SwagMigration', ['SwagMigrationTest', 'SwagMigrationTestExtension'])
+            DataAbstractionLayerException::migrationMoreThanOnePluginFound('SwagMigration', ['SwagMigrationTest', 'SwagMigrationTestExtension'])
         );
 
         (new CommandTester($command))->execute(['entities' => 'test_entity', '--plugin' => 'SwagMigration']);
@@ -412,7 +412,7 @@ class CreateMigrationCommandTest extends TestCase
             new MockClock()
         );
 
-        $this->expectExceptionObject(MigrationException::pluginNotFound('Unknown'));
+        $this->expectExceptionObject(DataAbstractionLayerException::migrationPluginNotFound('Unknown'));
 
         (new CommandTester($command))->execute(['entities' => 'test_entity', '--plugin' => 'Unknown']);
     }

@@ -286,6 +286,7 @@ The additional migrations get later timestamps, so they run after the tables the
 ```bash
 bin/console dal:migration:create --plugin=SwagExample --auto-translation --auto-mapping swag_example
 ```
+
 ### Deprecated `PluginZipImportCommand::$cacheClearer`
 
 The property is unused and will be removed in 6.8.

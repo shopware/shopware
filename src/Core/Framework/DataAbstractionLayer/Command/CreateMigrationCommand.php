@@ -4,13 +4,13 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Command;
 
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\MigrationFileRenderer;
 use Shopware\Core\Framework\DataAbstractionLayer\MigrationQueryGenerator;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Migration\MigrationException;
 use Shopware\Core\Framework\Plugin;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -154,14 +154,14 @@ class CreateMigrationCommand extends Command
         );
 
         if ($plugins === []) {
-            throw MigrationException::pluginNotFound($pluginName);
+            throw DataAbstractionLayerException::migrationPluginNotFound($pluginName);
         }
 
         if (\count($plugins) > 1) {
             $exactMatches = array_filter($plugins, static fn (Plugin $plugin) => $plugin->getName() === $pluginName);
 
             if (\count($exactMatches) !== 1) {
-                throw MigrationException::moreThanOnePluginFound($pluginName, array_map(static fn (Plugin $plugin) => $plugin->getName(), array_values($plugins)));
+                throw DataAbstractionLayerException::migrationMoreThanOnePluginFound($pluginName, array_map(static fn (Plugin $plugin) => $plugin->getName(), array_values($plugins)));
             }
 
             $plugins = $exactMatches;

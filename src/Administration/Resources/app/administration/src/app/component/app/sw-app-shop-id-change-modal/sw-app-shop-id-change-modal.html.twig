@@ -109,6 +109,17 @@
                     </div>
                 </mt-button>
             </template>
+
+            <sw-confirm-modal
+                v-if="showMoveShopPermanentlyConfirm"
+                type="delete"
+                :title="$t('sw-app.component.sw-app-shop-id-change-modal.moveShopPermanently.title')"
+                :text="$t('sw-app.component.sw-app-shop-id-change-modal.moveShopPermanently.text')"
+                :text-confirm="$t('sw-app.component.sw-app-shop-id-change-modal.moveShopPermanently.confirm')"
+                @confirm="onMoveShopPermanentlyConfirmed"
+                @cancel="showMoveShopPermanentlyConfirm = false"
+                @close="showMoveShopPermanentlyConfirm = false"
+            />
         </section>
     </template>
 
@@ -122,7 +133,7 @@
 
         <mt-button
             variant="primary"
-            @click="confirm"
+            @click="onConfirm"
         >
             {{ $t('global.default.confirm') }}
         </mt-button>

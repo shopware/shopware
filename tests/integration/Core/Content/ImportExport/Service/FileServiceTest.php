@@ -100,7 +100,7 @@ class FileServiceTest extends TestCase
                 'expectedType' => 'text/plain',
             ],
         ];
-        yield '' => [
+        yield 'JSON file with json type' => [
             [
                 'file' => 'testfile.json',
                 'content' => '{}\r\n',

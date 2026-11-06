@@ -24,9 +24,6 @@ import {
 } from './data-scope-helper';
 import type { ExtendableSetupState, OverrideLocalState } from './data-scope-helper';
 
-/** @private */
-export { getScriptSetupDataScope } from './data-scope-helper';
-
 /**
  * @private
  * @sw-package framework
@@ -90,8 +87,8 @@ type ComponentInstanceWithSetupContext = ComponentInternalInstance & {
 /**
  * Typed wrapper around Vue's getCurrentInstance that includes the setupContext property.
  * Use this instead of Vue's getCurrentInstance when you need access to setupContext.
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function getCurrentInstance(): ComponentInstanceWithSetupContext | null {
     return vueGetCurrentInstance() as ComponentInstanceWithSetupContext | null;
 }

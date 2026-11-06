@@ -320,6 +320,35 @@
         "@deprecated tag:",
         "triggerDeprecationOrThrow"
       ]
+    },
+    {
+      "guide": "content-system-principles",
+      "personas": [
+        "architecture",
+        "maintainer",
+        "ux"
+      ],
+      "signals_any": [],
+      "paths_any": [
+        "src/*ContentSystem*",
+        "src/*content-system*",
+        "src/*experience-studio*",
+        "src/Storefront/Resources/views/components/Slot.html.twig",
+        "tests/*ContentSystem*",
+        "tests/*content-system*",
+        "tests/*experience-studio*"
+      ],
+      "anchors_any": [
+        "ContentSystemException",
+        "LayoutWriteBoundary",
+        "StoredTreeConstraints",
+        "RenderedElement\\b",
+        "StoredElement\\b",
+        "ContentPipeline",
+        "ContentTreePreparationEvent",
+        "RenderedTreeFinalizationEvent",
+        "CONTENT_SYSTEM_PUBLIC_SURFACE"
+      ]
     }
   ]
 }

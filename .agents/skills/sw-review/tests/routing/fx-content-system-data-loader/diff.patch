@@ -1,0 +1,13 @@
+diff --git a/src/Core/Content/Breadcrumb/ContentSystem/DataLoader/BreadcrumbDataLoader.php b/src/Core/Content/Breadcrumb/ContentSystem/DataLoader/BreadcrumbDataLoader.php
+index 7595ea5e36a..169222c5c11 100644
+--- a/src/Core/Content/Breadcrumb/ContentSystem/DataLoader/BreadcrumbDataLoader.php
++++ b/src/Core/Content/Breadcrumb/ContentSystem/DataLoader/BreadcrumbDataLoader.php
+@@ -99,7 +99,7 @@ class BreadcrumbDataLoader extends AbstractContentDataLoader
+         // (a ProductNotFoundException the route catches only on the product branch).
+         try {
+             $response = $this->breadcrumbRoute->load($clonedRequest, $context);
+-        } catch (ShopwareHttpException) {
++        } catch (\Throwable) {
+             return ContentDataLoaderResult::notFound();
+         }
+ 

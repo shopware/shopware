@@ -1634,6 +1634,8 @@ The deprecated computed properties that loaded the media default folder were rem
 |---|---|
 | `sw-cms-detail` | `defaultFolderRepository` |
 | `sw-cms-list` | `defaultFolderRepository` |
+| `sw-product-detail-base` | `mediaDefaultFolderRepository`, `mediaDefaultFolderCriteria` |
+| `sw-bulk-edit-product-media` | `mediaDefaultFolderRepository`, `mediaDefaultFolderCriteria` |
 
 Use `mediaDefaultFolderService.getDefaultFolderId(entityName)` to get the id of an entity's default media folder.
 

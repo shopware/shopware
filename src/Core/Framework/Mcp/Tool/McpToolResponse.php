@@ -3,19 +3,13 @@
 namespace Shopware\Core\Framework\Mcp\Tool;
 
 use Doctrine\DBAL\Connection;
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Mcp\Controller\McpServerController;
 use Shopware\Core\Framework\Mcp\Result\McpToolError;
-use Shopware\Core\Framework\Mcp\Result\McpToolResultPrincipal;
-use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Util\Json;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @experimental stableVersion:v6.8.0
@@ -24,6 +18,11 @@ use Symfony\Component\HttpFoundation\RequestStack;
  *
  * All tools must extend this class and use success() and error() to build
  * return values so AI clients receive a predictable JSON structure.
+ *
+ * The `{"success": …}` string these helpers build is the tool's input to McpToolResultRenderer. Clients
+ * on protocol revision 2025-06-18 and later receive the MCP format instead (`structuredContent`,
+ * `isError`, the plain data as text). Only clients before 2025-06-18 still receive the string itself;
+ * the envelope is deprecated as a wire format and kept for them. The helpers stay.
  *
  * Error handling for extension developers:
  * - Unhandled exceptions propagate to the MCP SDK's generic handler and produce
@@ -35,29 +34,12 @@ use Symfony\Component\HttpFoundation\RequestStack;
 #[Package('framework')]
 abstract class McpToolResponse
 {
-    private const MAX_RESPONSE_SIZE = 100_000;
-
     /**
-     * Threshold below MAX_RESPONSE_SIZE at which _meta.responseSize is included so the LLM
-     * can see the cost of the current query and learn to use tighter includes/limit next time.
+     * Size of the JSON at which _meta.responseSize is included so the LLM can see the cost of the
+     * current query and learn to use tighter includes/limit next time. Whether a result is too large to
+     * send inline is decided by the renderer, see McpToolResultRenderer.
      */
     private const RESPONSE_SIZE_HINT_THRESHOLD = 20_000;
-
-    private ?ToolResultCacheStorage $toolResultCache = null;
-
-    private ?RequestStack $requestStack = null;
-
-    private ?LoggerInterface $mcpLogger = null;
-
-    /**
-     * @internal wired by McpToolResultCacheCompilerPass
-     */
-    public function setToolResultCache(ToolResultCacheStorage $cache, RequestStack $requestStack, LoggerInterface $logger): void
-    {
-        $this->toolResultCache = $cache;
-        $this->requestStack = $requestStack;
-        $this->mcpLogger = $logger;
-    }
 
     /**
      * @param array<string, mixed>|list<mixed> $data
@@ -74,54 +56,11 @@ abstract class McpToolResponse
         $json = Json::encode($response);
         $size = \strlen($json);
 
-        if ($size <= self::MAX_RESPONSE_SIZE) {
-            if ($size >= self::RESPONSE_SIZE_HINT_THRESHOLD) {
-                $response['_meta'] = array_merge($meta, ['responseSize' => $size]);
-                $json = Json::encode($response);
-            }
-
-            return $json;
+        if ($size >= self::RESPONSE_SIZE_HINT_THRESHOLD) {
+            $response['_meta'] = array_merge($meta, ['responseSize' => $size]);
+            $json = Json::encode($response);
         }
 
-        if ($this->toolResultCache !== null && $this->requestStack !== null) {
-            $request = $this->requestStack->getCurrentRequest();
-            $principal = $request !== null ? McpToolResultPrincipal::fromRequest($request) : null;
-
-            if ($principal !== null && $request !== null) {
-                // The pointer is signed for the principal, so it works without an MCP session. The
-                // session id is only recorded for the cleanup when a handshake session ends.
-                $pointer = $this->toolResultCache->storeFor($principal, $json, $request->headers->get('Mcp-Session-Id') ?? '');
-                $resourceUri = $pointer->uri();
-
-                $this->mcpLogger?->debug('MCP tool response stored as resource (oversized)', [
-                    'tool' => static::class,
-                    'size' => $size,
-                    'resourceUri' => $resourceUri,
-                ]);
-
-                $oversizedMeta = array_merge($meta, [
-                    'resourceUri' => $resourceUri,
-                    'expiresAt' => $pointer->expiresAt->format(\DateTimeInterface::ATOM),
-                    'responseSize' => $size,
-                    'note' => 'Response too large for inline delivery. '
-                        . 'Prefer re-running the tool with tighter "includes" or a lower "limit" to get a smaller inline result. '
-                        . 'If you need the full data as-is, fetch it via resources/read using the URI in _meta.resourceUri.',
-                ]);
-
-                $query = $this->extractQuery($request);
-                if ($query !== null) {
-                    $oversizedMeta['query'] = $query;
-                }
-
-                return Json::encode([
-                    'success' => true,
-                    'data' => null,
-                    '_meta' => $oversizedMeta,
-                ]);
-            }
-        }
-
-        // Fallback without an authenticated principal (e.g. CLI or test context): return inline as-is.
         return $json;
     }
 
@@ -263,26 +202,5 @@ abstract class McpToolResponse
         }
 
         return $result;
-    }
-
-    /**
-     * @return array{tool: string, arguments: array<string, mixed>}|null
-     */
-    private function extractQuery(Request $request): ?array
-    {
-        $body = $request->attributes->get(McpServerController::ATTRIBUTE_JSONRPC_BODY);
-        if (!\is_array($body) || ($body['method'] ?? null) !== 'tools/call') {
-            return null;
-        }
-
-        $params = \is_array($body['params'] ?? null) ? $body['params'] : [];
-        $tool = \is_string($params['name'] ?? null) ? $params['name'] : '';
-        $arguments = \is_array($params['arguments'] ?? null) ? $params['arguments'] : [];
-
-        if ($tool === '') {
-            return null;
-        }
-
-        return ['tool' => $tool, 'arguments' => $arguments];
     }
 }

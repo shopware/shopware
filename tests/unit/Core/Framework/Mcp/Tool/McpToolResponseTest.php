@@ -7,7 +7,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\NullLogger;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -18,15 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\RuntimeFieldInCriteri
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Mcp\Controller\McpServerController;
-use Shopware\Core\Framework\Mcp\Result\McpToolResultPointer;
 use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
-use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\Framework\ShopwareHttpException;
-use Shopware\Core\PlatformRequest;
-use Shopware\Core\Test\Generator;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
@@ -66,101 +58,15 @@ class McpToolResponseTest extends TestCase
         static::assertArrayNotHasKey('resourceUri', $data['_meta']);
     }
 
-    public function testOversizedPayloadWithSessionIsCachedAndReturnsResourceUri(): void
+    public function testALargePayloadIsReturnedInlineBecauseTheRendererDecidesAboutOffloading(): void
     {
-        $cache = $this->createMock(ToolResultCacheStorage::class);
-        $cache->expects($this->once())
-            ->method('storeFor')
-            ->with('admin:integration-id:', static::isString(), 'session-abc')
-            ->willReturn($this->pointer('cached-token-123'));
-
-        $request = $this->authenticatedRequest();
-        $request->headers->set('Mcp-Session-Id', 'session-abc');
-
-        $requestStack = new RequestStack();
-        $requestStack->push($request);
-
-        $tool = new TestTool();
-        $tool->setToolResultCache($cache, $requestStack, new NullLogger());
-
-        $payload = ['items' => array_fill(0, 5_000, str_repeat('x', 30))];
-        $json = $tool->callSuccess($payload);
+        $json = (new TestTool())->callSuccess(['items' => array_fill(0, 5_000, str_repeat('x', 30))]);
         $data = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertTrue($data['success']);
-        static::assertNull($data['data']);
-        static::assertSame('shopware://tool-result/cached-token-123', $data['_meta']['resourceUri']);
-        static::assertSame('2026-09-28T11:00:00+00:00', $data['_meta']['expiresAt']);
+        static::assertGreaterThan(100_000, \strlen($json));
+        static::assertCount(5_000, $data['data']['items']);
         static::assertGreaterThan(100_000, $data['_meta']['responseSize']);
-        static::assertArrayHasKey('note', $data['_meta']);
-    }
-
-    public function testOversizedPayloadIncludesQueryWhenJsonRpcBodyIsPresent(): void
-    {
-        $cache = static::createStub(ToolResultCacheStorage::class);
-        $cache->method('storeFor')->willReturn($this->pointer('cached-token'));
-
-        $request = $this->authenticatedRequest();
-        $request->headers->set('Mcp-Session-Id', 'session-abc');
-        $request->attributes->set(McpServerController::ATTRIBUTE_JSONRPC_BODY, [
-            'method' => 'tools/call',
-            'params' => [
-                'name' => 'shopware-entity-search',
-                'arguments' => ['entity' => 'product'],
-            ],
-        ]);
-
-        $requestStack = new RequestStack();
-        $requestStack->push($request);
-
-        $tool = new TestTool();
-        $tool->setToolResultCache($cache, $requestStack, new NullLogger());
-
-        $json = $tool->callSuccess(['items' => array_fill(0, 5_000, str_repeat('x', 30))]);
-        $data = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertSame('shopware-entity-search', $data['_meta']['query']['tool']);
-        static::assertSame(['entity' => 'product'], $data['_meta']['query']['arguments']);
-    }
-
-    public function testOversizedPayloadWithoutARequestFallsBackToInline(): void
-    {
-        $cache = $this->createMock(ToolResultCacheStorage::class);
-        $cache->expects($this->never())->method('storeFor');
-
-        $requestStack = new RequestStack();
-
-        $tool = new TestTool();
-        $tool->setToolResultCache($cache, $requestStack, new NullLogger());
-
-        $json = $tool->callSuccess(['items' => array_fill(0, 5_000, str_repeat('x', 30))]);
-        $data = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertTrue($data['success']);
-        static::assertIsArray($data['data']['items']);
-        static::assertArrayNotHasKey('resourceUri', $data['_meta'] ?? []);
-    }
-
-    public function testOversizedPayloadOfAnAnonymousStoreCallStaysInline(): void
-    {
-        // Without `sw-context-token` the stored result could never be read back, so it is not stored.
-        $cache = $this->createMock(ToolResultCacheStorage::class);
-        $cache->expects($this->never())->method('storeFor');
-
-        $request = new Request();
-        $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, 'minted-for-this-request');
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, Generator::generateSalesChannelContext(token: 'minted-for-this-request'));
-
-        $requestStack = new RequestStack();
-        $requestStack->push($request);
-
-        $tool = new TestTool();
-        $tool->setToolResultCache($cache, $requestStack, new NullLogger());
-
-        $data = json_decode($tool->callSuccess(['items' => array_fill(0, 5_000, str_repeat('x', 30))]), true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertIsArray($data['data']['items']);
-        static::assertArrayNotHasKey('resourceUri', $data['_meta'] ?? []);
+        static::assertArrayNotHasKey('resourceUri', $data['_meta']);
     }
 
     public function testSuccessWithMetaIncludesMetaKey(): void
@@ -181,84 +87,6 @@ class McpToolResponseTest extends TestCase
         static::assertFalse($data['success']);
         static::assertSame('Something broke', $data['error']);
         static::assertArrayNotHasKey('data', $data);
-    }
-
-    public function testOversizedPayloadIsCachedWithoutAnMcpSession(): void
-    {
-        $cache = $this->createMock(ToolResultCacheStorage::class);
-        $cache->expects($this->once())
-            ->method('storeFor')
-            ->with('admin:integration-id:', static::isString(), '')
-            ->willReturn($this->pointer('cached-token'));
-
-        $requestStack = new RequestStack();
-        $requestStack->push($this->authenticatedRequest());
-
-        $tool = new TestTool();
-        $tool->setToolResultCache($cache, $requestStack, new NullLogger());
-
-        $data = json_decode($tool->callSuccess(['items' => array_fill(0, 5_000, str_repeat('x', 30))]), true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertNull($data['data']);
-        static::assertSame('shopware://tool-result/cached-token', $data['_meta']['resourceUri']);
-    }
-
-    public function testOversizedPayloadFallsBackToInlineWithoutAnAuthenticatedPrincipal(): void
-    {
-        $cache = $this->createMock(ToolResultCacheStorage::class);
-        $cache->expects($this->never())->method('storeFor');
-
-        $requestStack = new RequestStack();
-        $requestStack->push(new Request());
-
-        $tool = new TestTool();
-        $tool->setToolResultCache($cache, $requestStack, new NullLogger());
-
-        $json = $tool->callSuccess(['items' => array_fill(0, 5_000, str_repeat('x', 30))]);
-        $data = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertTrue($data['success']);
-        static::assertIsArray($data['data']['items']);
-        static::assertArrayNotHasKey('_meta', $data);
-    }
-
-    /**
-     * @return iterable<string, array{array<string, mixed>|null}>
-     */
-    public static function bodyWithoutAToolCallProvider(): iterable
-    {
-        yield 'no JSON-RPC body on the request at all' => [null];
-        yield 'a method other than tools/call' => [['method' => 'resources/read', 'params' => ['uri' => 'shopware://something']]];
-        yield 'a tools/call without a tool name' => [['method' => 'tools/call', 'params' => ['arguments' => ['entity' => 'product']]]];
-    }
-
-    /**
-     * @param array<string, mixed>|null $body
-     */
-    #[DataProvider('bodyWithoutAToolCallProvider')]
-    #[TestDox('_meta.query is omitted for $_dataName, because there is no call to echo back')]
-    public function testOversizedPayloadOmitsQueryWhenTheBodyIsNotAToolCall(?array $body): void
-    {
-        $cache = static::createStub(ToolResultCacheStorage::class);
-        $cache->method('storeFor')->willReturn($this->pointer('cached-token'));
-
-        $request = $this->authenticatedRequest();
-        $request->headers->set('Mcp-Session-Id', 'session-abc');
-        if ($body !== null) {
-            $request->attributes->set(McpServerController::ATTRIBUTE_JSONRPC_BODY, $body);
-        }
-
-        $requestStack = new RequestStack();
-        $requestStack->push($request);
-
-        $tool = new TestTool();
-        $tool->setToolResultCache($cache, $requestStack, new NullLogger());
-
-        $json = $tool->callSuccess(['items' => array_fill(0, 5_000, str_repeat('x', 30))]);
-        $data = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertArrayHasKey('resourceUri', $data['_meta']);
-        static::assertArrayNotHasKey('query', $data['_meta']);
     }
 
     public function testDecodeJsonOrErrorReturnsArrayOnValidInput(): void
@@ -413,19 +241,6 @@ class McpToolResponseTest extends TestCase
     private function createContext(): Context
     {
         return new Context(new AdminApiSource(null, null), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
-    }
-
-    private function authenticatedRequest(): Request
-    {
-        $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, new Context(new AdminApiSource(null, 'integration-id')));
-
-        return $request;
-    }
-
-    private function pointer(string $token): McpToolResultPointer
-    {
-        return new McpToolResultPointer($token, new \DateTimeImmutable('2026-09-28T11:00:00+00:00'));
     }
 }
 

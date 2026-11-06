@@ -34,12 +34,14 @@ The tag also states what may change the test: removing the bug's code path, revi
 The term characterization test comes from Michael Feathers, *Working Effectively with Legacy Code*.
 
 For regressions `@see` needs to point to an issue or if none exists, a pr.
-For behaviors it needs to point to an ADR, issue comment, discussion comment or pr comment. It needs to point to a comment because an issue itself probably is not a decision.
-If your source deviates from that rule you can use `@seeException <reason for deviation>`
+For behaviors it needs to point to an ADR, a discussion, or a comment in an issue or pr.
+An issue or pr itself needs a comment link, because opening it probably is not a decision.
+If your source deviates from that rule, you can use `@seeException <reason for deviation>`.
 
 Tests can inherit the `@see` from a `describe` above them so they don't need to reference their source over and over again.
 
-An ESLint rule enforces that new rule. Existing tests are baselined.
+An ESLint rule enforces the tags on new tests.
+Existing tests are baselined.
 
 A pull request that closes an issue of type Bug and changes Administration source code must add at least one `@regression` test that links the bug.
 The `no-regression-test` label skips the check for bugs Jest can't cover, and the job summary names the skipped bug.
@@ -55,5 +57,6 @@ Only Administration Jest tests in Platform are affected by the rule.
 - A reader sees why a test exists and whether it may change, without searching the history.
 - Most agent-written tests are tagged `@characterization`, which is accurate and lets later changes update them freely.
 - `@regression` and `@behavior` cost a link, so reviewers can check the claim in seconds.
-- ESLint can't tell whether a linked source is legit. Reviewers or their agents need to validate themselves.
+- ESLint barely checks whether a linked source is legit.
+  Reviewers or their agents need to validate it themselves.
 - Renaming a test or a `describe` drops it from the baseline, so it needs a tag.

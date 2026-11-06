@@ -3,6 +3,13 @@ const { cloneDeep, merge } = Shopware.Utils.object;
 const Criteria = Shopware.Data.Criteria;
 const { warn } = Shopware.Utils.debug;
 
+const CLEARABLE_BLOCK_CONFIG_KEYS = [
+    'marginTop',
+    'marginBottom',
+    'marginLeft',
+    'marginRight',
+];
+
 Application.addServiceProvider('cmsDataResolverService', () => {
     return {
         resolve,
@@ -165,6 +172,10 @@ function initBlockConfig(block) {
             key,
             value,
         ]) => {
+            if (CLEARABLE_BLOCK_CONFIG_KEYS.includes(key)) {
+                return;
+            }
+
             if (!block[key]) {
                 block[key] = cloneDeep(value);
             }

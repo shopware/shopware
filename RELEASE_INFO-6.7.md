@@ -262,6 +262,10 @@ A `0` is no longer replaced by the mapping's default value and satisfies a requi
 Empty cells behave as before.
 Check import files that relied on `0` being ignored.
 
+### Deprecated `PluginZipImportCommand::$cacheClearer`
+
+The property is unused and will be removed in 6.8.
+
 ## API
 
 ### Plain JSON becomes the default Admin API response format in 6.8
@@ -379,6 +383,10 @@ Apps no longer trigger a deprecation when they install or update with inline cus
 If an app ships both, the file takes precedence, the inline definition is ignored, and Shopware logs a warning.
 
 ## Administration
+
+### Deprecated the custom field set lookup of `sw-settings-listing-option-criteria-grid`
+
+The `customFieldSetIDs` data property, the `customFieldSetRelationsRepository` and `customFieldsRelationsCriteria` computed properties and the `fetchCustomFieldSetIds()` method of `sw-settings-listing-option-criteria-grid` are deprecated and will be removed without replacement.
 
 ### Codemods for extensions in the extension tooling
 

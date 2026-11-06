@@ -8,6 +8,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import { createPinia, setActivePinia } from 'pinia';
 import { DOCUMENT_TYPES } from '../../service/documentV2.service';
 import { allowDeprecation } from 'test/_helper_/deprecations';
+import DocumentApiService from 'src/core/service/api/document.api.service';
 
 function getCollection(entity, collection) {
     return new EntityCollection(
@@ -165,7 +166,19 @@ let getDocumentV2Mock;
 let getDocumentLegacyMock;
 let getDocumentArchiveV2Mock;
 let getDocumentPreviewV2Mock;
-let documentServiceListener;
+let documentService;
+
+/**
+ * The real legacy document service, so the card's own `setListener()` call runs its deprecation guard, with the
+ * requests it would send replaced by mocks.
+ */
+function createDocumentService() {
+    documentService = new DocumentApiService({}, { getToken: () => 'token' });
+    documentService.getDocument = (...args) => getDocumentLegacyMock(...args);
+    documentService.createDocument = (...args) => createDocumentMock(...args);
+
+    return documentService;
+}
 
 async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.details', additionalStubs = {}) {
     documentSearchMock = jest.fn().mockResolvedValue(getCollection('document_type', documentTypeFixture));
@@ -233,13 +246,7 @@ async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.
                 ...additionalStubs,
             },
             provide: {
-                documentService: {
-                    setListener: (listener) => {
-                        documentServiceListener = listener;
-                    },
-                    getDocument: (...args) => getDocumentLegacyMock(...args),
-                    createDocument: (...args) => createDocumentMock(...args),
-                },
+                documentService: createDocumentService(),
                 documentV2ApiService: {
                     setListener: () => ({}),
                     getDocument: (...args) => getDocumentV2Mock(...args),
@@ -383,7 +390,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         wrapper = await createWrapper();
 
-        documentServiceListener({
+        documentService.$listener({
             action: 'create-document-fail',
             payload: {
                 code: 'DOCUMENT__NUMBER_ALREADY_EXISTS',

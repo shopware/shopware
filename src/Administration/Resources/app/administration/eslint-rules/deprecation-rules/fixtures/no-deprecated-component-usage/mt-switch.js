@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 const mtSwitchValidChecks = [
     {
         name: '"mt-switch" written with an id keeps it when the codemod did not convert it',
@@ -164,10 +168,11 @@ const mtSwitchInvalidChecks = [
         output: `
             <template>
                 <!-- TODO Codemod: Converted from sw-switch-field - please check if everything works correctly -->
+                <!-- TODO Codemod: [mt-switch] mt-switch has no "id" prop. sw-switch-field gave its input the id and name "sw-field--<id>", mt-switch generates them: check selectors, label "for" attributes and tests that use them. -->
                 <mt-switch />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "id" API is deprecated.',
+            message: '[mt-switch] mt-switch has no "id" prop. sw-switch-field gave its input the id and name "sw-field--<id>", mt-switch generates them: check selectors, label "for" attributes and tests that use them.',
         }],
     },
     {
@@ -180,7 +185,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch id="example-identifier" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "id" API is deprecated.',
+            message: '[mt-switch] mt-switch has no "id" prop. sw-switch-field gave its input the id and name "sw-field--<id>", mt-switch generates them: check selectors, label "for" attributes and tests that use them.',
         }],
     },
     {
@@ -194,10 +199,11 @@ const mtSwitchInvalidChecks = [
         output: `
             <template>
                 <!-- TODO Codemod: Converted from sw-switch-field - please check if everything works correctly -->
+                <!-- TODO Codemod: [mt-switch] mt-switch has no "id" prop. sw-switch-field gave its input the id and name "sw-field--<id>", mt-switch generates them: check selectors, label "for" attributes and tests that use them. -->
                 <mt-switch />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "id" API is deprecated.',
+            message: '[mt-switch] mt-switch has no "id" prop. sw-switch-field gave its input the id and name "sw-field--<id>", mt-switch generates them: check selectors, label "for" attributes and tests that use them.',
         }],
     },
     {
@@ -210,7 +216,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch id />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "id" API is deprecated.',
+            message: '[mt-switch] mt-switch has no "id" prop. sw-switch-field gave its input the id and name "sw-field--<id>", mt-switch generates them: check selectors, label "for" attributes and tests that use them.',
         }],
     },
     {
@@ -224,10 +230,11 @@ const mtSwitchInvalidChecks = [
         output: `
             <template>
                 <!-- TODO Codemod: Converted from sw-switch-field - please check if everything works correctly -->
+                <!-- TODO Codemod: [mt-switch] mt-switch has no "id" prop. sw-switch-field gave its input the id and name "sw-field--<id>", mt-switch generates them: check selectors, label "for" attributes and tests that use them. -->
                 <mt-switch />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "id" API is deprecated.',
+            message: '[mt-switch] mt-switch has no "id" prop. sw-switch-field gave its input the id and name "sw-field--<id>", mt-switch generates them: check selectors, label "for" attributes and tests that use them.',
         }],
     },
     {
@@ -240,7 +247,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch :id="myId" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "id" API is deprecated.',
+            message: '[mt-switch] mt-switch has no "id" prop. sw-switch-field gave its input the id and name "sw-field--<id>", mt-switch generates them: check selectors, label "for" attributes and tests that use them.',
         }],
     },
     {

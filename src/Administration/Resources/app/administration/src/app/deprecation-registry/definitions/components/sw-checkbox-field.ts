@@ -28,6 +28,10 @@ export default componentMigration({
         renameComponent({ from: 'sw-checkbox-field', to: 'mt-checkbox' }),
         removeProp({
             prop: 'id',
+            fix: 'unsafe-auto',
+            message:
+                'mt-checkbox has no "id" prop. sw-checkbox-field gave its input the id and name "sw-field--<id>", mt-checkbox generates them: ' +
+                'check selectors, label "for" attributes and tests that use them.',
         }),
     ],
     onEveryUsage: [

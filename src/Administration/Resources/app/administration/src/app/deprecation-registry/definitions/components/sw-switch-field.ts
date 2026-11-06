@@ -29,6 +29,10 @@ export default componentMigration({
         renameComponent({ from: 'sw-switch-field', to: 'mt-switch' }),
         removeProp({
             prop: 'id',
+            fix: 'unsafe-auto',
+            message:
+                'mt-switch has no "id" prop. sw-switch-field gave its input the id and name "sw-field--<id>", mt-switch generates them: ' +
+                'check selectors, label "for" attributes and tests that use them.',
         }),
     ],
     onEveryUsage: [

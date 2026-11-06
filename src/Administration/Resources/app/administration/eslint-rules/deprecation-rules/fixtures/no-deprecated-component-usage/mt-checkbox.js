@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 const mtCheckboxValidTests = [
     {
         name: '"sw-checkbox-field" usage is allowed',
@@ -139,10 +143,11 @@ const mtCheckboxInvalidTests = [
         output: `
             <template>
                 <!-- TODO Codemod: Converted from sw-checkbox-field - please check if everything works correctly -->
+                <!-- TODO Codemod: [mt-checkbox] mt-checkbox has no "id" prop. sw-checkbox-field gave its input the id and name "sw-field--<id>", mt-checkbox generates them: check selectors, label "for" attributes and tests that use them. -->
                 <mt-checkbox />
             </template>`,
         errors: [{
-            message: '[mt-checkbox] The "id" API is deprecated.',
+            message: '[mt-checkbox] mt-checkbox has no "id" prop. sw-checkbox-field gave its input the id and name "sw-field--<id>", mt-checkbox generates them: check selectors, label "for" attributes and tests that use them.',
         }]
     },
     {
@@ -155,7 +160,7 @@ const mtCheckboxInvalidTests = [
                 <mt-checkbox id="checkbox-id" />
             </template>`,
         errors: [{
-            message: '[mt-checkbox] The "id" API is deprecated.',
+            message: '[mt-checkbox] mt-checkbox has no "id" prop. sw-checkbox-field gave its input the id and name "sw-field--<id>", mt-checkbox generates them: check selectors, label "for" attributes and tests that use them.',
         }]
     },
     {
@@ -169,10 +174,11 @@ const mtCheckboxInvalidTests = [
         output: `
             <template>
                 <!-- TODO Codemod: Converted from sw-checkbox-field - please check if everything works correctly -->
+                <!-- TODO Codemod: [mt-checkbox] mt-checkbox has no "id" prop. sw-checkbox-field gave its input the id and name "sw-field--<id>", mt-checkbox generates them: check selectors, label "for" attributes and tests that use them. -->
                 <mt-checkbox />
             </template>`,
         errors: [{
-            message: '[mt-checkbox] The "id" API is deprecated.',
+            message: '[mt-checkbox] mt-checkbox has no "id" prop. sw-checkbox-field gave its input the id and name "sw-field--<id>", mt-checkbox generates them: check selectors, label "for" attributes and tests that use them.',
         }]
     },
     {
@@ -185,7 +191,7 @@ const mtCheckboxInvalidTests = [
                 <mt-checkbox :id="checkboxId" />
             </template>`,
         errors: [{
-            message: '[mt-checkbox] The "id" API is deprecated.',
+            message: '[mt-checkbox] mt-checkbox has no "id" prop. sw-checkbox-field gave its input the id and name "sw-field--<id>", mt-checkbox generates them: check selectors, label "for" attributes and tests that use them.',
         }]
     },
     {

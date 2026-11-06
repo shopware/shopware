@@ -8,9 +8,14 @@ const deviceMock = {
     removeResizeListener: jest.fn(),
 };
 
+let languageSearchCriteria = [];
+
 async function createWrapper(privileges = [], customStubs = {}) {
+    languageSearchCriteria = [];
     const languageRepositoryMock = {
-        search: () => {
+        search: (criteria) => {
+            languageSearchCriteria.push(criteria.parse());
+
             return Promise.resolve([
                 {
                     name: 'English',
@@ -274,6 +279,15 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
                 ]),
             }),
         );
+    });
+
+    it('loads only the ids of the sales channels of each language', async () => {
+        await createWrapper();
+        await flushPromises();
+
+        const listingCriteria = languageSearchCriteria.find((criteria) => criteria.associations?.salesChannels);
+        expect(listingCriteria).toBeDefined();
+        expect(listingCriteria.includes).toEqual({ sales_channel: ['id'] });
     });
 
     it('should render the sales channels and snippet status columns', async () => {

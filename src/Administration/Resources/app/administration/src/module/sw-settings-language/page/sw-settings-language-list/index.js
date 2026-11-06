@@ -96,7 +96,8 @@ export default {
             const criteria = new Criteria(this.page, this.limit);
             criteria.addAssociation('locale');
             criteria.addAssociation('translationCode');
-            criteria.addAssociation('salesChannels');
+            // the sales channels column only shows how many sales channels use the language
+            criteria.addAssociation('salesChannels').addIncludes({ sales_channel: ['id'] });
 
             if (this.sortBy) {
                 criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));

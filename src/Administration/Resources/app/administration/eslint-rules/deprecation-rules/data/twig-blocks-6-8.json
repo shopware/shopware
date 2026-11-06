@@ -1,0 +1,872 @@
+{
+  "_comment": "Twig blocks of the Administration that Shopware 6.8 renames or removes, keyed by component. Used by twig-blocks-6-8.js. \"shared\" lists names that also exist elsewhere, so they are only changed in a template that belongs to the component.",
+  "extendedBy": {
+    "sw-cms-detail": [
+      "sw-cms-create"
+    ],
+    "sw-cms-el-config-text": [
+      "sw-cms-el-config-product-name",
+      "sw-cms-el-config-category-name"
+    ],
+    "sw-custom-field-set-renderer": [
+      "sw-bulk-edit-custom-fields"
+    ],
+    "sw-mail-template-detail": [
+      "sw-mail-template-create"
+    ],
+    "sw-property-search": [
+      "sw-product-variants-configurator-selection"
+    ],
+    "sw-sales-channel-detail": [
+      "sw-sales-channel-create"
+    ],
+    "sw-settings-country-detail": [
+      "sw-settings-country-create"
+    ],
+    "sw-settings-customer-group-detail": [
+      "sw-settings-customer-group-create"
+    ],
+    "sw-settings-listing-option-base": [
+      "sw-settings-listing-option-create"
+    ],
+    "sw-settings-logging-entry-info": [
+      "sw-settings-logging-mail-sent-info"
+    ]
+  },
+  "shared": [
+    "sw_cms_element_image_gallery_config_settings_display_mode",
+    "sw_cms_element_image_gallery_config_settings_display_mode_select",
+    "sw_cms_element_image_gallery_config_settings_min_height",
+    "sw_cms_element_image_gallery_config_settings_vertical_align",
+    "sw_custom_field_set_renderer_card_form_renderer",
+    "sw_entity_many_to_many_assignment_card_select",
+    "sw_entity_multi_select_base_results_list_result_label",
+    "sw_entity_single_select_base_results_list_result_label",
+    "sw_entity_single_select_variant_result_item",
+    "sw_entity_single_select_variant_selected_item",
+    "sw_flow_tabs_header_extension",
+    "sw_mail_template_detail_preview_modal_footer",
+    "sw_mail_template_detail_preview_modal_footer_cancel",
+    "sw_product_settings_mode",
+    "sw_sales_channel_detail_content_tab_theme",
+    "sw_settings_logging_entry_info_content",
+    "sw_settings_logging_entry_info_tab_items",
+    "sw_settings_storefront",
+    "sw_settings_storefront_settings_icon_cache",
+    "sw_settings_storefront_settings_speculation_rules",
+    "sw_settings_storefront_settings_theme_async"
+  ],
+  "activeSlot": [
+    "sw_cms_el_form_config_content",
+    "sw_cms_el_form_config_options",
+    "sw_cms_el_product_description_rating_config_options",
+    "sw_cms_el_text_config_content",
+    "sw_cms_el_text_config_settings",
+    "sw_cms_element_cross_selling_config_content",
+    "sw_cms_element_cross_selling_config_options",
+    "sw_cms_element_image_gallery_config_content",
+    "sw_cms_element_image_gallery_config_settings",
+    "sw_cms_element_image_slider_config_content",
+    "sw_cms_element_image_slider_config_settings",
+    "sw_cms_element_product_description_reviews_config_content",
+    "sw_cms_element_product_slider_config_content",
+    "sw_cms_element_product_slider_config_settings",
+    "sw_cms_layout_assignment_modal_category_select",
+    "sw_cms_layout_assignment_modal_landing_page_select",
+    "sw_cms_layout_assignment_modal_shop_pages_select",
+    "sw_flow_rule_modal_tab_detail_content",
+    "sw_flow_rule_modal_tab_rule_content",
+    "sw_media_modal_folder_settings_tab_content_settings",
+    "sw_media_modal_folder_settings_tab_content_thumbnails",
+    "sw_media_modal_v2_tab_content_library",
+    "sw_media_modal_v2_tab_content_upload",
+    "sw_order_create_modal_tabs_content",
+    "sw_order_create_modal_tabs_content_customer",
+    "sw_order_create_modal_tabs_content_options",
+    "sw_order_create_modal_tabs_content_products",
+    "sw_order_new_customer_modal_content_shipping",
+    "sw_sales_channel_products_assignment_modal_tab_content_categories",
+    "sw_sales_channel_products_assignment_modal_tab_content_dynamic_product_groups",
+    "sw_sales_channel_products_assignment_modal_tab_content_single_products"
+  ],
+  "renamed": {
+    "sw-cms-detail": {
+      "sw_cms_detail_stage_empty_stade_content": "sw_cms_detail_stage_empty_stage_content"
+    },
+    "sw-cms-el-config-buy-box": {
+      "sw_cms_element_buy_box_config_content_warning": "sw_cms_element_buy_box_config_mt_content_warning",
+      "sw_cms_element_buy_box_config_options": "sw_cms_element_buy_box_config_mt_options",
+      "sw_cms_element_buy_box_config_product_select": "sw_cms_element_buy_box_config_mt_product_select",
+      "sw_cms_element_buy_box_config_product_select_result_item": "sw_cms_element_buy_box_config_mt_product_select_result_item",
+      "sw_cms_element_buy_box_config_product_select_result_item_inner": "sw_cms_element_buy_box_config_mt_product_select_result_label",
+      "sw_cms_element_buy_box_config_product_selection_label": "sw_cms_element_buy_box_config_mt_product_variant_label",
+      "sw_cms_element_buy_box_config_product_variant_label": "sw_cms_element_buy_box_config_mt_product_variant_label",
+      "sw_entity_single_select_base_results_list_result_label": "sw_cms_element_buy_box_config_mt_product_select_result_label"
+    },
+    "sw-cms-el-config-cross-selling": {
+      "sw_cms_element_cross_selling_config_content": "sw_cms_element_cross_selling_config_mt_content",
+      "sw_cms_element_cross_selling_config_content_products": "sw_cms_element_cross_selling_config_mt_content_products",
+      "sw_cms_element_cross_selling_config_content_products_select_result_item": "sw_cms_element_cross_selling_config_mt_product_select_result_item",
+      "sw_cms_element_cross_selling_config_content_products_select_result_item_inner": "sw_cms_element_cross_selling_config_mt_product_select_result_label",
+      "sw_cms_element_cross_selling_config_content_products_selection_label": "sw_cms_element_cross_selling_config_mt_product_variant_label",
+      "sw_cms_element_cross_selling_config_content_warning_text": "sw_cms_element_cross_selling_config_mt_content_warning_text",
+      "sw_cms_element_cross_selling_config_options": "sw_cms_element_cross_selling_config_mt_options",
+      "sw_cms_element_cross_selling_config_options_box_layout": "sw_cms_element_cross_selling_config_mt_options_box_layout",
+      "sw_cms_element_cross_selling_config_options_display_mode": "sw_cms_element_cross_selling_config_mt_options_display_mode",
+      "sw_cms_element_cross_selling_config_options_min_width": "sw_cms_element_cross_selling_config_mt_options_min_width",
+      "sw_cms_element_cross_selling_config_options_speed": "sw_cms_element_cross_selling_config_mt_options_speed",
+      "sw_entity_single_select_base_results_list_result_label": "sw_cms_element_cross_selling_config_mt_product_select_result_label",
+      "sw_entity_single_select_variant_result_item": "sw_cms_element_cross_selling_config_mt_product_select_result_item",
+      "sw_entity_single_select_variant_selected_item": "sw_cms_element_cross_selling_config_mt_product_variant_label"
+    },
+    "sw-cms-el-config-form": {
+      "sw_cms_el_form_config_content": "sw_cms_el_form_config_mt_content",
+      "sw_cms_el_form_config_content_form_confirmation_text": "sw_cms_el_form_config_mt_content_form_confirmation_text",
+      "sw_cms_el_form_config_content_form_title": "sw_cms_el_form_config_mt_content_form_title",
+      "sw_cms_el_form_config_content_form_type": "sw_cms_el_form_config_mt_content_form_type",
+      "sw_cms_el_form_config_options": "sw_cms_el_form_config_mt_options"
+    },
+    "sw-cms-el-config-image-gallery": {
+      "sw_cms_element_image_gallery_config_content": "sw_cms_element_image_gallery_config_mt_content",
+      "sw_cms_element_image_gallery_config_media_list_selection": "sw_cms_element_image_gallery_config_mt_media_list_selection",
+      "sw_cms_element_image_gallery_config_media_mapping_preview": "sw_cms_element_image_gallery_config_mt_media_mapping_preview",
+      "sw_cms_element_image_gallery_config_media_modal": "sw_cms_element_image_gallery_config_mt_media_modal",
+      "sw_cms_element_image_gallery_config_media_preview_info": "sw_cms_element_image_gallery_config_mt_media_preview_info",
+      "sw_cms_element_image_gallery_config_media_preview_item": "sw_cms_element_image_gallery_config_mt_media_preview_item",
+      "sw_cms_element_image_gallery_config_media_preview_list": "sw_cms_element_image_gallery_config_mt_media_preview_list",
+      "sw_cms_element_image_gallery_config_media_selection": "sw_cms_element_image_gallery_config_mt_media_selection",
+      "sw_cms_element_image_gallery_config_media_upload_listener": "sw_cms_element_image_gallery_config_mt_media_upload_listener",
+      "sw_cms_element_image_gallery_config_settings": "sw_cms_element_image_gallery_config_mt_settings",
+      "sw_cms_element_image_gallery_config_settings_aspect_ratio_magnifier_over_gallery_toggles": "sw_cms_element_image_gallery_config_mt_settings_aspect_ratio_magnifier_over_gallery_toggles",
+      "sw_cms_element_image_gallery_config_settings_display_mode": "sw_cms_element_image_gallery_config_mt_settings_display_mode",
+      "sw_cms_element_image_gallery_config_settings_display_mode_select": "sw_cms_element_image_gallery_config_mt_settings_display_mode_select",
+      "sw_cms_element_image_gallery_config_settings_min_height": "sw_cms_element_image_gallery_config_mt_settings_min_height",
+      "sw_cms_element_image_gallery_config_settings_navigation": "sw_cms_element_image_gallery_config_mt_settings_navigation",
+      "sw_cms_element_image_gallery_config_settings_navigation_arrow_position": "sw_cms_element_image_gallery_config_mt_settings_navigation_arrow_position",
+      "sw_cms_element_image_gallery_config_settings_navigation_dots_position": "sw_cms_element_image_gallery_config_mt_settings_navigation_dots_position",
+      "sw_cms_element_image_gallery_config_settings_navigation_preview_position": "sw_cms_element_image_gallery_config_mt_settings_navigation_preview_position",
+      "sw_cms_element_image_gallery_config_settings_toggle_fullscreen": "sw_cms_element_image_gallery_config_mt_settings_toggle_fullscreen",
+      "sw_cms_element_image_gallery_config_settings_toggle_keep_aspect_ratio_on_zoom": "sw_cms_element_image_gallery_config_mt_settings_toggle_keep_aspect_ratio_on_zoom",
+      "sw_cms_element_image_gallery_config_settings_toggle_magnifier_over_gallery": "sw_cms_element_image_gallery_config_mt_settings_toggle_magnifier_over_gallery",
+      "sw_cms_element_image_gallery_config_settings_toggle_zoom": "sw_cms_element_image_gallery_config_mt_settings_toggle_zoom",
+      "sw_cms_element_image_gallery_config_settings_use_fetch_priority_on_first_item": "sw_cms_element_image_gallery_config_mt_settings_use_fetch_priority_on_first_item",
+      "sw_cms_element_image_gallery_config_settings_vertical_align": "sw_cms_element_image_gallery_config_mt_settings_vertical_align",
+      "sw_cms_element_image_gallery_config_settings_zoom_toggles": "sw_cms_element_image_gallery_config_mt_settings_zoom_toggles"
+    },
+    "sw-cms-el-config-image-slider": {
+      "sw_cms_element_image_gallery_config_settings_display_mode": "sw_cms_element_image_slider_config_mt_settings_display_mode",
+      "sw_cms_element_image_gallery_config_settings_display_mode_select": "sw_cms_element_image_slider_config_mt_settings_display_mode_select",
+      "sw_cms_element_image_gallery_config_settings_min_height": "sw_cms_element_image_slider_config_mt_settings_min_height",
+      "sw_cms_element_image_gallery_config_settings_vertical_align": "sw_cms_element_image_slider_config_mt_settings_vertical_align",
+      "sw_cms_element_image_slider_config_content": "sw_cms_element_image_slider_config_mt_content",
+      "sw_cms_element_image_slider_config_media_modal": "sw_cms_element_image_slider_config_mt_media_modal",
+      "sw_cms_element_image_slider_config_media_selection": "sw_cms_element_image_slider_config_mt_media_selection",
+      "sw_cms_element_image_slider_config_media_upload_listener": "sw_cms_element_image_slider_config_mt_media_upload_listener",
+      "sw_cms_element_image_slider_config_settings": "sw_cms_element_image_slider_config_mt_settings",
+      "sw_cms_element_image_slider_config_settings_auto_slide": "sw_cms_element_image_slider_config_mt_settings_auto_slide",
+      "sw_cms_element_image_slider_config_settings_autoplay_timeout": "sw_cms_element_image_slider_config_mt_settings_autoplay_timeout",
+      "sw_cms_element_image_slider_config_settings_display_mode": "sw_cms_element_image_slider_config_mt_settings_display_mode",
+      "sw_cms_element_image_slider_config_settings_display_mode_select": "sw_cms_element_image_slider_config_mt_settings_display_mode_select",
+      "sw_cms_element_image_slider_config_settings_link_aria_label": "sw_cms_element_image_slider_config_mt_settings_link_aria_label",
+      "sw_cms_element_image_slider_config_settings_link_target": "sw_cms_element_image_slider_config_mt_settings_link_target",
+      "sw_cms_element_image_slider_config_settings_link_url": "sw_cms_element_image_slider_config_mt_settings_link_url",
+      "sw_cms_element_image_slider_config_settings_links": "sw_cms_element_image_slider_config_mt_settings_links",
+      "sw_cms_element_image_slider_config_settings_min_height": "sw_cms_element_image_slider_config_mt_settings_min_height",
+      "sw_cms_element_image_slider_config_settings_navigation": "sw_cms_element_image_slider_config_mt_settings_navigation",
+      "sw_cms_element_image_slider_config_settings_navigation_arrow_position": "sw_cms_element_image_slider_config_mt_settings_navigation_arrow_position",
+      "sw_cms_element_image_slider_config_settings_navigation_dots_position": "sw_cms_element_image_slider_config_mt_settings_navigation_dots_position",
+      "sw_cms_element_image_slider_config_settings_speed": "sw_cms_element_image_slider_config_mt_settings_speed",
+      "sw_cms_element_image_slider_config_settings_use_fetch_priority_on_first_item": "sw_cms_element_image_slider_config_mt_settings_use_fetch_priority_on_first_item",
+      "sw_cms_element_image_slider_config_settings_vertical_align": "sw_cms_element_image_slider_config_mt_settings_vertical_align"
+    },
+    "sw-cms-el-config-product-box": {
+      "sw_entity_single_select_base_results_list_result_label": "sw_cms_element_product_box_config_product_select_result_item_inner"
+    },
+    "sw-cms-el-config-product-description-reviews": {
+      "sw_cms_el_product_description_rating_config_options": "sw_cms_el_product_description_rating_config_mt_options",
+      "sw_cms_el_product_description_rating_config_options_alignment": "sw_cms_el_product_description_rating_config_mt_options_alignment",
+      "sw_cms_element_product_description_reviews_config_content": "sw_cms_element_product_description_reviews_config_mt_content",
+      "sw_cms_element_product_description_reviews_config_product_select": "sw_cms_element_product_description_reviews_config_mt_product_select",
+      "sw_cms_element_product_description_reviews_config_product_select_result_item": "sw_cms_element_product_description_reviews_config_mt_product_select_result_item",
+      "sw_cms_element_product_description_reviews_config_product_select_result_item_inner": "sw_cms_element_product_description_reviews_config_mt_product_select_result_label",
+      "sw_cms_element_product_description_reviews_config_product_selection_label": "sw_cms_element_product_description_reviews_config_mt_product_variant_label",
+      "sw_cms_element_product_description_reviews_warning": "sw_cms_element_product_description_reviews_mt_warning",
+      "sw_entity_single_select_base_results_list_result_label": "sw_cms_element_product_description_reviews_config_mt_product_select_result_label",
+      "sw_entity_single_select_variant_result_item": "sw_cms_element_product_description_reviews_config_mt_product_select_result_item",
+      "sw_entity_single_select_variant_selected_item": "sw_cms_element_product_description_reviews_config_mt_product_variant_label"
+    },
+    "sw-cms-el-config-product-listing": {
+      "sw_cms_element_product_listing_config_available_sortings": "sw_cms_element_product_listing_config_mt_available_sortings",
+      "sw_cms_element_product_listing_config_default_sorting": "sw_cms_element_product_listing_config_mt_default_sorting",
+      "sw_cms_element_product_listing_config_filter_by_manufacturer": "sw_cms_element_product_listing_config_mt_filter_by_manufacturer",
+      "sw_cms_element_product_listing_config_filter_by_price": "sw_cms_element_product_listing_config_mt_filter_by_price",
+      "sw_cms_element_product_listing_config_filter_by_rating": "sw_cms_element_product_listing_config_mt_filter_by_rating",
+      "sw_cms_element_product_listing_config_filter_by_wrapper": "sw_cms_element_product_listing_config_mt_filter_by_wrapper",
+      "sw_cms_element_product_listing_config_filter_empty_state": "sw_cms_element_product_listing_config_mt_filter_empty_state",
+      "sw_cms_element_product_listing_config_filter_for_free_shipping": "sw_cms_element_product_listing_config_mt_filter_for_free_shipping",
+      "sw_cms_element_product_listing_config_filter_info": "sw_cms_element_product_listing_config_mt_filter_info",
+      "sw_cms_element_product_listing_config_filter_properties_as_filter": "sw_cms_element_product_listing_config_mt_filter_properties_as_filter",
+      "sw_cms_element_product_listing_config_filter_properties_as_filter_info_text": "sw_cms_element_product_listing_config_mt_filter_properties_as_filter_info_text",
+      "sw_cms_element_product_listing_config_filter_properties_as_filter_switch": "sw_cms_element_product_listing_config_mt_filter_properties_as_filter_switch",
+      "sw_cms_element_product_listing_config_filter_properties_wrapper": "sw_cms_element_product_listing_config_mt_filter_properties_wrapper",
+      "sw_cms_element_product_listing_config_filter_property_grid": "sw_cms_element_product_listing_config_mt_filter_property_grid",
+      "sw_cms_element_product_listing_config_filter_property_grid_column_status": "sw_cms_element_product_listing_config_mt_filter_property_grid_column_status",
+      "sw_cms_element_product_listing_config_filter_property_grid_columns": "sw_cms_element_product_listing_config_mt_filter_property_grid_columns",
+      "sw_cms_element_product_listing_config_filter_property_grid_pagination": "sw_cms_element_product_listing_config_mt_filter_property_grid_pagination",
+      "sw_cms_element_product_listing_config_filter_property_search": "sw_cms_element_product_listing_config_mt_filter_property_search",
+      "sw_cms_element_product_listing_config_filter_spacer": "sw_cms_element_product_listing_config_mt_filter_spacer",
+      "sw_cms_element_product_listing_config_info": "sw_cms_element_product_listing_config_mt_info",
+      "sw_cms_element_product_listing_config_layout_select": "sw_cms_element_product_listing_config_mt_layout_select",
+      "sw_cms_element_product_listing_config_show_sorting": "sw_cms_element_product_listing_config_mt_show_sorting",
+      "sw_cms_element_product_listing_config_sorting_grid": "sw_cms_element_product_listing_config_mt_sorting_grid",
+      "sw_cms_element_product_listing_config_use_default_sorting": "sw_cms_element_product_listing_config_mt_use_default_sorting",
+      "sw_entity_multi_select_base_results_list_result_label": "sw_cms_element_product_listing_config_mt_available_sortings_result_label"
+    },
+    "sw-cms-el-config-product-slider": {
+      "sw_cms_element_product_slider_config_content": "sw_cms_element_product_slider_config_mt_content",
+      "sw_cms_element_product_slider_config_content_product_assignment_type": "sw_cms_element_product_slider_config_mt_content_product_assignment_type",
+      "sw_cms_element_product_slider_config_content_product_stream_limit": "sw_cms_element_product_slider_config_mt_content_product_stream_limit",
+      "sw_cms_element_product_slider_config_content_product_stream_performance_hint": "sw_cms_element_product_slider_config_mt_content_product_stream_performance_hint",
+      "sw_cms_element_product_slider_config_content_product_stream_preview_link": "sw_cms_element_product_slider_config_mt_content_product_stream_preview_link",
+      "sw_cms_element_product_slider_config_content_product_stream_select": "sw_cms_element_product_slider_config_mt_content_product_stream_select",
+      "sw_cms_element_product_slider_config_content_product_stream_sorting": "sw_cms_element_product_slider_config_mt_content_product_stream_sorting",
+      "sw_cms_element_product_slider_config_content_products": "sw_cms_element_product_slider_config_mt_content_products",
+      "sw_cms_element_product_slider_config_content_products_select_result_item_inner": "sw_cms_element_product_slider_config_mt_entity_single_select_base_results_list_result_label",
+      "sw_cms_element_product_slider_config_content_title": "sw_cms_element_product_slider_config_mt_content_title",
+      "sw_cms_element_product_slider_config_settings": "sw_cms_element_product_slider_config_mt_settings",
+      "sw_cms_element_product_slider_config_settings_autoplay_timeout": "sw_cms_element_product_slider_config_mt_settings_autoplay_timeout",
+      "sw_cms_element_product_slider_config_settings_border": "sw_cms_element_product_slider_config_mt_settings_border",
+      "sw_cms_element_product_slider_config_settings_box_layout": "sw_cms_element_product_slider_config_mt_settings_box_layout",
+      "sw_cms_element_product_slider_config_settings_display_mode": "sw_cms_element_product_slider_config_mt_settings_display_mode",
+      "sw_cms_element_product_slider_config_settings_min_width": "sw_cms_element_product_slider_config_mt_settings_min_width",
+      "sw_cms_element_product_slider_config_settings_navigation_arrows": "sw_cms_element_product_slider_config_mt_settings_navigation_arrows",
+      "sw_cms_element_product_slider_config_settings_rotate": "sw_cms_element_product_slider_config_mt_settings_rotate",
+      "sw_cms_element_product_slider_config_settings_speed": "sw_cms_element_product_slider_config_mt_settings_speed",
+      "sw_cms_element_product_slider_config_settings_vertical_align": "sw_cms_element_product_slider_config_mt_settings_vertical_align",
+      "sw_entity_single_select_base_results_list_result_label": "sw_cms_element_product_slider_config_mt_entity_single_select_base_results_list_result_label"
+    },
+    "sw-cms-el-config-text": {
+      "sw_cms_el_text_config_content": "sw_cms_el_text_config_mt_content",
+      "sw_cms_el_text_config_settings": "sw_cms_el_text_config_mt_settings",
+      "sw_cms_el_text_config_settings_vertical_align": "sw_cms_el_text_config_mt_settings_vertical_align"
+    },
+    "sw-cms-layout-assignment-modal": {
+      "sw_cms_layout_assignment_modal_category_select": "sw_cms_layout_assignment_modal_mt_category_select",
+      "sw_cms_layout_assignment_modal_category_select_field": "sw_cms_layout_assignment_modal_mt_category_select_field",
+      "sw_cms_layout_assignment_modal_landing_page_select": "sw_cms_layout_assignment_modal_mt_landing_page_select",
+      "sw_cms_layout_assignment_modal_landing_page_select_field": "sw_cms_layout_assignment_modal_mt_landing_page_select_field",
+      "sw_cms_layout_assignment_modal_product_detail_pages_column_manufacturer": "sw_cms_layout_assignment_modal_mt_product_detail_pages_column_manufacturer",
+      "sw_cms_layout_assignment_modal_product_detail_pages_column_name": "sw_cms_layout_assignment_modal_mt_product_detail_pages_column_name",
+      "sw_cms_layout_assignment_modal_product_detail_pages_empty_state": "sw_cms_layout_assignment_modal_mt_product_detail_pages_empty_state",
+      "sw_cms_layout_assignment_modal_product_detail_pages_select": "sw_cms_layout_assignment_modal_mt_product_detail_pages_select",
+      "sw_cms_layout_assignment_modal_shop_pages_select": "sw_cms_layout_assignment_modal_mt_shop_pages_select",
+      "sw_cms_layout_assignment_modal_shop_pages_select_field": "sw_cms_layout_assignment_modal_mt_shop_pages_select_field",
+      "sw_cms_layout_assignment_modal_shop_pages_select_sales_channel_field": "sw_cms_layout_assignment_modal_mt_shop_pages_select_sales_channel_field",
+      "sw_entity_many_to_many_assignment_card_select": "sw_cms_layout_assignment_modal_mt_product_assignment_card_select"
+    },
+    "sw-condition-date-range": {
+      "sw_condiiton_date_range_field_to_date": "sw_condition_date_range_field_to_date"
+    },
+    "sw-custom-field-set-renderer": {
+      "sw_custom_field_set_renderer_card_form_renderer": "sw_custom_field_set_renderer_card_mt_tabs_form_renderer"
+    },
+    "sw-custom-field-translated-labels": {
+      "sw_custom_field_translated_labels_translated_content_field": "sw_custom_field_translated_labels_translated_mt_content_field"
+    },
+    "sw-flow-rule-modal": {
+      "sw_flow_rule_modal_conditions_card": "sw_flow_rule_modal_mt_conditions_card",
+      "sw_flow_rule_modal_detail_description": "sw_flow_rule_modal_mt_detail_description",
+      "sw_flow_rule_modal_detail_name": "sw_flow_rule_modal_mt_detail_name",
+      "sw_flow_rule_modal_detail_priority": "sw_flow_rule_modal_mt_detail_priority",
+      "sw_flow_rule_modal_detail_type": "sw_flow_rule_modal_mt_detail_type",
+      "sw_flow_rule_modal_tab_detail_content": "sw_flow_rule_modal_mt_tab_detail_content",
+      "sw_flow_rule_modal_tab_rule_content": "sw_flow_rule_modal_mt_tab_rule_content"
+    },
+    "sw-import-export-edit-profile-modal": {
+      "sw_import_export_edit_profile_modal_tabs_advanced": "sw_import_export_edit_profile_modal_mt_tabs_advanced",
+      "sw_import_export_edit_profile_modal_tabs_advanced_identifiers": "sw_import_export_edit_profile_modal_mt_tabs_advanced_identifiers",
+      "sw_import_export_edit_profile_modal_tabs_advanced_text": "sw_import_export_edit_profile_modal_mt_tabs_advanced_text",
+      "sw_import_export_edit_profile_modal_tabs_general_import_settings": "sw_import_export_edit_profile_modal_mt_tabs_general_import_settings",
+      "sw_import_export_edit_profile_modal_tabs_mappings": "sw_import_export_edit_profile_modal_mt_tabs_mappings",
+      "sw_import_export_edit_profile_modal_tabs_mappings_mapping": "sw_import_export_edit_profile_modal_mt_tabs_mappings_mapping",
+      "sw_import_export_edit_profile_modal_tabs_mappings_text": "sw_import_export_edit_profile_modal_mt_tabs_mappings_text"
+    },
+    "sw-media-modal-folder-settings": {
+      "sw_media_modal_folder_settings_default_folder": "sw_media_modal_folder_settings_mt_default_folder",
+      "sw_media_modal_folder_settings_generate_thumbnails_field": "sw_media_modal_folder_settings_mt_generate_thumbnails_field",
+      "sw_media_modal_folder_settings_inherit_settings_field": "sw_media_modal_folder_settings_mt_inherit_settings_field",
+      "sw_media_modal_folder_settings_keep_proportions_field": "sw_media_modal_folder_settings_mt_keep_proportions_field",
+      "sw_media_modal_folder_settings_name_field": "sw_media_modal_folder_settings_mt_name_field",
+      "sw_media_modal_folder_settings_tab_content_settings": "sw_media_modal_folder_settings_mt_tab_content_settings",
+      "sw_media_modal_folder_settings_tab_content_thumbnails": "sw_media_modal_folder_settings_mt_tab_content_thumbnails",
+      "sw_media_modal_folder_settings_tab_content_thumbnails_left_container": "sw_media_modal_folder_settings_mt_tab_content_thumbnails_left_container",
+      "sw_media_modal_folder_settings_tab_content_thumbnails_right_container": "sw_media_modal_folder_settings_mt_tab_content_thumbnails_right_container",
+      "sw_media_modal_folder_settings_thumbnail_list": "sw_media_modal_folder_settings_mt_thumbnail_list",
+      "sw_media_modal_folder_settings_thumbnail_list_caption": "sw_media_modal_folder_settings_mt_thumbnail_list_caption",
+      "sw_media_modal_folder_settings_thumbnail_list_container": "sw_media_modal_folder_settings_mt_thumbnail_list_container",
+      "sw_media_modal_folder_settings_thumbnail_size": "sw_media_modal_folder_settings_mt_thumbnail_size",
+      "sw_media_modal_folder_settings_thumbnail_size_delete_button": "sw_media_modal_folder_settings_mt_thumbnail_size_delete_button",
+      "sw_media_modal_folder_settings_thumbnail_size_switch": "sw_media_modal_folder_settings_mt_thumbnail_size_switch",
+      "sw_media_modal_folder_settings_thumbnails_quality_field": "sw_media_modal_folder_settings_mt_thumbnails_quality_field"
+    },
+    "sw-media-modal-v2": {
+      "sw_media_modal_v2_folder_breadcrumbs": "sw_media_modal_v2_mt_folder_breadcrumbs",
+      "sw_media_modal_v2_media_library": "sw_media_modal_v2_mt_media_library",
+      "sw_media_modal_v2_navigation_and_search": "sw_media_modal_v2_mt_navigation_and_search",
+      "sw_media_modal_v2_search_field": "sw_media_modal_v2_mt_search_field",
+      "sw_media_modal_v2_tab_content_library": "sw_media_modal_v2_mt_tab_content_library",
+      "sw_media_modal_v2_tab_content_upload": "sw_media_modal_v2_mt_tab_content_upload",
+      "sw_media_modal_v2_upload_component": "sw_media_modal_v2_mt_upload_component",
+      "sw_media_modal_v2_uploaded_items": "sw_media_modal_v2_mt_uploaded_items"
+    },
+    "sw-order-address-modal": {
+      "sw_order_address_modal_tabs_content_edit_address": "sw_order_address_modal_mt_tabs_content_edit_address",
+      "sw_order_address_modal_tabs_content_select_address": "sw_order_address_modal_mt_tabs_content_select_address"
+    },
+    "sw-order-create-initial-modal": {
+      "sw_order_create_modal_tabs_content": "sw_order_create_modal_mt_tabs_content",
+      "sw_order_create_modal_tabs_content_customer": "sw_order_create_modal_mt_tabs_content_customer",
+      "sw_order_create_modal_tabs_content_options": "sw_order_create_modal_mt_tabs_content_options",
+      "sw_order_create_modal_tabs_content_products": "sw_order_create_modal_mt_tabs_content_products"
+    },
+    "sw-order-new-customer-modal": {
+      "sw_order_new_customer_modal_content_billing_form": "sw_order_new_customer_modal_mt_tabs_content_billing_form",
+      "sw_order_new_customer_modal_content_details_form": "sw_order_new_customer_modal_mt_tabs_content_details_form",
+      "sw_order_new_customer_modal_content_details_guest": "sw_order_new_customer_modal_mt_tabs_content_details_guest",
+      "sw_order_new_customer_modal_content_shipping": "sw_order_new_customer_modal_mt_tabs_content_shipping",
+      "sw_order_new_customer_modal_content_shipping_form": "sw_order_new_customer_modal_mt_tabs_content_shipping_form",
+      "sw_order_new_customer_modal_content_shipping_same_billing": "sw_order_new_customer_modal_mt_tabs_content_shipping_same_billing"
+    },
+    "sw-product-cross-selling-assignment": {
+      "sw_entity_single_select_base_results_list_result_label": "sw_product_cross_selling_assignment_select_result_item_inner"
+    },
+    "sw-sales-channel-products-assignment-modal": {
+      "sw_sales_channel_products_assignment_modal_tab_content_categories": "sw_sales_channel_products_assignment_modal_mt_tab_content_categories",
+      "sw_sales_channel_products_assignment_modal_tab_content_dynamic_product_groups": "sw_sales_channel_products_assignment_modal_mt_tab_content_dynamic_product_groups",
+      "sw_sales_channel_products_assignment_modal_tab_content_single_products": "sw_sales_channel_products_assignment_modal_mt_tab_content_single_products"
+    },
+    "sw-settings-listing-option-base": {
+      "sw_settings_listing_option_base_smart_bar_actions_grid": "sw_settings_listing_option_base_content_criteria_grid",
+      "sw_settings_listing_option_base_smart_bar_actions_grid_delete_modal": "sw_settings_listing_option_base_content_delete_modal",
+      "sw_settings_listing_option_base_smart_content": "sw_settings_listing_option_base_content",
+      "sw_settings_listing_option_base_smart_content_general_info": "sw_settings_listing_option_base_content_general_info"
+    },
+    "sw-settings-logging-entry-info": {
+      "sw_settings_logging_entry_info_content": "sw_settings_logging_entry_info_mt_content",
+      "sw_settings_logging_entry_info_raw_content": "sw_settings_logging_entry_info_mt_raw_content"
+    },
+    "sw-settings-logging-mail-sent-info": {
+      "sw_settings_logging_mail_sent_content_mailbody": "sw_settings_logging_mail_sent_mt_content_mailbody",
+      "sw_settings_logging_mail_sent_content_mailbody_html": "sw_settings_logging_mail_sent_mt_content_mailbody_html",
+      "sw_settings_logging_mail_sent_content_mailbody_plain": "sw_settings_logging_mail_sent_mt_content_mailbody_plain",
+      "sw_settings_logging_mail_sent_content_mailbody_title": "sw_settings_logging_mail_sent_mt_content_mailbody_title",
+      "sw_settings_logging_mail_sent_content_recipients": "sw_settings_logging_mail_sent_mt_content_recipients",
+      "sw_settings_logging_mail_sent_content_recipients_title": "sw_settings_logging_mail_sent_mt_content_recipients_title"
+    },
+    "sw-settings-tag-detail-modal": {
+      "sw_settings_tag_detail_modal_tabs_assignments_tab": "sw_settings_tag_detail_modal_mt_tabs_assignments_tab",
+      "sw_settings_tag_detail_modal_tabs_general_tab": "sw_settings_tag_detail_modal_mt_tabs_general_tab"
+    }
+  },
+  "removed": {
+    "sw-bulk-edit-custom-fields": {
+      "sw_custom_field_set_renderer_card_form_renderer_change_field": "sw_custom_field_set_renderer_card_mt_tabs_form_renderer",
+      "sw_custom_field_set_renderer_card_form_renderer_custom_field": "sw_custom_field_set_renderer_card_mt_tabs_form_renderer"
+    },
+    "sw-bulk-edit-product": {
+      "sw_bulk_edit_product_content_meansures_packaging_card": "sw_bulk_edit_product_content_measurement_card"
+    },
+    "sw-category-view": {
+      "sw_category_view_tabs_cms": "sw_category_view_mt_tabs and add your tab to its categoryViewTabs computed",
+      "sw_category_view_tabs_general": "sw_category_view_mt_tabs and add your tab to its categoryViewTabs computed",
+      "sw_category_view_tabs_products": "sw_category_view_mt_tabs and add your tab to its categoryViewTabs computed",
+      "sw_category_view_tabs_seo": "sw_category_view_mt_tabs and add your tab to its categoryViewTabs computed"
+    },
+    "sw-cms-el-config-buy-box": {
+      "sw_cms_element_buy_box_config_tab_content": "sw_cms_element_buy_box_config_mt_tabs and add your tab to its tabs computed",
+      "sw_cms_element_buy_box_config_tab_option": "sw_cms_element_buy_box_config_mt_tabs and add your tab to its tabs computed"
+    },
+    "sw-cms-el-config-cross-selling": {
+      "sw_cms_element_cross_selling_config_tab_content": "sw_cms_element_cross_selling_config_mt_tabs and add your tab to its tabs computed",
+      "sw_cms_element_cross_selling_config_tab_options": "sw_cms_element_cross_selling_config_mt_tabs and add your tab to its tabs computed"
+    },
+    "sw-cms-el-config-form": {
+      "sw_cms_el_config_form_tab_content": "sw_cms_el_config_form_mt_tabs and add your tab to its tabs computed",
+      "sw_cms_el_form_config_tab_options": "sw_cms_el_config_form_mt_tabs and add your tab to its tabs computed"
+    },
+    "sw-cms-el-config-image-gallery": {
+      "sw_cms_element_image_gallery_config_tab_content": "sw_cms_element_image_gallery_config_mt_tabs and add your tab to its tabs computed",
+      "sw_cms_element_image_gallery_config_tab_options": "sw_cms_element_image_gallery_config_mt_tabs and add your tab to its tabs computed"
+    },
+    "sw-cms-el-config-image-slider": {
+      "sw_cms_element_image_slider_config_tab_content": "sw_cms_element_image_slider_config_mt_tabs and add your tab to its tabs computed",
+      "sw_cms_element_image_slider_config_tab_options": "sw_cms_element_image_slider_config_mt_tabs and add your tab to its tabs computed"
+    },
+    "sw-cms-el-config-product-description-reviews": {
+      "sw_cms_element_product_description_reviews_config_tab_content": "sw_cms_element_product_description_reviews_config_mt_tabs and add your tab to its tabs computed",
+      "sw_cms_element_product_description_reviews_config_tab_options": "sw_cms_element_product_description_reviews_config_mt_tabs and add your tab to its tabs computed"
+    },
+    "sw-cms-el-config-product-slider": {
+      "sw_cms_element_product_slider_config_content_products_select_result_item": "sw_cms_element_product_slider_config_mt_content_products",
+      "sw_cms_element_product_slider_config_content_products_selection_label": "sw_cms_element_product_slider_config_mt_content_products",
+      "sw_cms_element_product_slider_config_tab_content": "sw_cms_element_product_slider_config_mt_tabs and add your tab to its tabs computed",
+      "sw_cms_element_product_slider_config_tab_options": "sw_cms_element_product_slider_config_mt_tabs and add your tab to its tabs computed"
+    },
+    "sw-cms-el-config-text": {
+      "sw_cms_el_config_text_tab_content": "sw_cms_el_config_text_mt_tabs and add your tab to its tabs computed",
+      "sw_cms_el_text_config_tab_options": "sw_cms_el_config_text_mt_tabs and add your tab to its tabs computed"
+    },
+    "sw-cms-layout-assignment-modal": {
+      "sw_cms_layout_assignment_modal_tab_categories": "sw_cms_layout_assignment_modal_mt_tabs and add your tab to its layoutAssignmentTabs computed",
+      "sw_cms_layout_assignment_modal_tab_landing_pages": "sw_cms_layout_assignment_modal_mt_tabs and add your tab to its layoutAssignmentTabs computed",
+      "sw_cms_layout_assignment_modal_tab_shop_pages": "sw_cms_layout_assignment_modal_mt_tabs and add your tab to its layoutAssignmentTabs computed"
+    },
+    "sw-custom-field-set-renderer": {
+      "sw_custom_field_set_renderer_card_tabs": "sw_custom_field_set_renderer_card_mt_tabs and add your tab to its customFieldSetTabs computed",
+      "sw_custom_field_set_renderer_card_tabs_content": "sw_custom_field_set_renderer_card_mt_tabs_content (the markup changed)"
+    },
+    "sw-custom-field-translated-labels": {
+      "sw_custom_field_translated_labels_translated_content": "sw_custom_field_translated_labels_translated_mt_content (the markup changed)",
+      "sw_custom_field_translated_labels_translated_tabs": "sw_custom_field_translated_labels_translated_mt_tabs and add your tab to its translatedLabelTabs computed"
+    },
+    "sw-customer-detail": {
+      "sw_customer_detail_content_tab_addresses": "sw_customer_detail_content_mt_tabs and add your tab to its customerDetailTabs computed",
+      "sw_customer_detail_content_tab_after": "sw_customer_detail_content_mt_tabs and add your tab to its customerDetailTabs computed",
+      "sw_customer_detail_content_tab_general": "sw_customer_detail_content_mt_tabs and add your tab to its customerDetailTabs computed",
+      "sw_customer_detail_content_tab_order": "sw_customer_detail_content_mt_tabs and add your tab to its customerDetailTabs computed"
+    },
+    "sw-flow-detail": {
+      "sw_flow_tabs_header_builder": "sw_flow_tabs_header_mt_tabs and add your tab to its flowDetailTabs computed",
+      "sw_flow_tabs_header_extension": "sw_flow_tabs_header_mt_tabs and add your tab to its flowDetailTabs computed",
+      "sw_flow_tabs_header_general": "sw_flow_tabs_header_mt_tabs and add your tab to its flowDetailTabs computed"
+    },
+    "sw-flow-index": {
+      "sw_flow_tabs_header_extension": "the flowTabs computed of sw-flow-index"
+    },
+    "sw-flow-list": {
+      "sw_flow_list_empty_state_icon": "sw_flow_list_empty_state (pass the icon and texts as props of mt-empty-state)"
+    },
+    "sw-flow-rule-modal": {
+      "sw_flow_rule_headers": "sw_flow_rule_modal_mt_tabs and add your tab to its tabs computed",
+      "sw_flow_rule_modal_content": "sw_flow_rule_modal_mt_content (the markup changed)",
+      "sw_flow_rule_modal_tab_detail": "sw_flow_rule_modal_mt_tabs and add your tab to its tabs computed",
+      "sw_flow_rule_modal_tab_rule": "sw_flow_rule_modal_mt_tabs and add your tab to its tabs computed"
+    },
+    "sw-import-export": {
+      "sw_import_export_language_switch": null,
+      "sw_import_export_tabs_export": "sw_import_export_mt_tabs and add your tab to its importExportTabs computed",
+      "sw_import_export_tabs_import": "sw_import_export_mt_tabs and add your tab to its importExportTabs computed",
+      "sw_import_export_tabs_profiles": "sw_import_export_mt_tabs and add your tab to its importExportTabs computed"
+    },
+    "sw-import-export-edit-profile-general": {
+      "sw_import_export_edit_profile_general_container_name": "sw_import_export_edit_profile_general_container_technical_name"
+    },
+    "sw-import-export-edit-profile-modal": {
+      "sw_import_export_edit_profile_modal_tabs_field_advanced": "sw_import_export_edit_profile_modal_mt_tabs and add your tab to its profileTabs computed",
+      "sw_import_export_edit_profile_modal_tabs_field_mappings": "sw_import_export_edit_profile_modal_mt_tabs and add your tab to its profileTabs computed",
+      "sw_import_export_edit_profile_modal_tabs_general": "sw_import_export_edit_profile_modal_mt_tabs and add your tab to its profileTabs computed"
+    },
+    "sw-import-export-new-profile-wizard-csv-page": {
+      "sw_import_export_new_profile_wizard_csv_page_text": "sw_import_export_new_profile_wizard_csv_page_csv_upload"
+    },
+    "sw-import-export-view-export": {
+      "sw_import_export_view_export_activity_title": "sw_import_export_view_export_activity (the title is a prop of mt-card)"
+    },
+    "sw-import-export-view-import": {
+      "sw_import_export_view_import_activity_title": "sw_import_export_view_import_activity (the title is a prop of mt-card)"
+    },
+    "sw-import-export-view-profiles": {
+      "sw_import_export_view_profile_profiles_listing_column_label": "sw_import_export_view_profile_profiles_listing"
+    },
+    "sw-integration-list": {
+      "sw_integration_list_introduction": null
+    },
+    "sw-landing-page-view": {
+      "sw_landing_page_view_tabs_cms": "sw_landing_page_view_mt_tabs and add your tab to its landingPageViewTabs computed",
+      "sw_landing_page_view_tabs_general": "sw_landing_page_view_mt_tabs and add your tab to its landingPageViewTabs computed"
+    },
+    "sw-mail-header-footer-list": {
+      "sw_mail_header_footer_list_grid_empty_state_icon": "sw_mail_header_footer_list_grid_empty_state (pass the icon and texts as props of mt-empty-state)"
+    },
+    "sw-mail-template-detail": {
+      "sw_mail_template_detail_preview_modal_footer": "the block of the same name in sw-mail-template-preview-modal",
+      "sw_mail_template_detail_preview_modal_footer_cancel": "the block of the same name in sw-mail-template-preview-modal"
+    },
+    "sw-mail-template-index": {
+      "sw_mail_template_list_content_card": "sw_mail_template_list_router_view (or override sw-mail-template-list and sw-mail-header-footer-list)"
+    },
+    "sw-mail-template-list": {
+      "sw_mail_template_list_grid_empty_state_icon": "sw_mail_template_list_grid_empty_state (pass the icon and texts as props of mt-empty-state)"
+    },
+    "sw-manufacturer-detail": {
+      "sw_manufacturer_detail_sidebar": null
+    },
+    "sw-media-modal-folder-settings": {
+      "sw_media_modal_folder_settings_tab_item_settings": "sw_media_modal_folder_settings_mt_tabs and add your tab to its tabs computed",
+      "sw_media_modal_folder_settings_tab_item_thumbnails": "sw_media_modal_folder_settings_mt_tabs and add your tab to its tabs computed"
+    },
+    "sw-media-modal-v2": {
+      "sw_media_modal_v2_tab_content": "sw_media_modal_v2_mt_tab_content (the markup changed)",
+      "sw_media_modal_v2_tab_item_library": "sw_media_modal_v2_mt_tabs and add your tab to its mediaModalTabs computed",
+      "sw_media_modal_v2_tab_item_upload": "sw_media_modal_v2_mt_tabs and add your tab to its mediaModalTabs computed",
+      "sw_media_modal_v2_tab_items": "sw_media_modal_v2_mt_tabs and add your tab to its mediaModalTabs computed"
+    },
+    "sw-newsletter-recipient-filter-switch": {
+      "sw_newsletter_recipient_filter_switch": null,
+      "sw_newsletter_recipient_filter_switch_field": null
+    },
+    "sw-newsletter-recipient-list": {
+      "sw_newsletter_recipient_list_sidebar_filter_status_direct": "sw_newsletter_recipient_list_sidebar_filter_status",
+      "sw_newsletter_recipient_list_sidebar_filter_status_not_set": "sw_newsletter_recipient_list_sidebar_filter_status",
+      "sw_newsletter_recipient_list_sidebar_filter_status_opt_in": "sw_newsletter_recipient_list_sidebar_filter_status",
+      "sw_newsletter_recipient_list_sidebar_filter_status_opt_out": "sw_newsletter_recipient_list_sidebar_filter_status"
+    },
+    "sw-order-address-modal": {
+      "sw_order_address_modal_tab_edit_address": "sw_order_address_modal_mt_tabs and add your tab to its addressModalTabs computed",
+      "sw_order_address_modal_tab_select_address": "sw_order_address_modal_mt_tabs and add your tab to its addressModalTabs computed",
+      "sw_order_address_modal_tabs": "sw_order_address_modal_mt_tabs and add your tab to its addressModalTabs computed",
+      "sw_order_address_modal_tabs_content": "sw_order_address_modal_mt_tabs_content (the markup changed)"
+    },
+    "sw-order-create": {
+      "sw_order_create_content_tabs_details": "sw_order_create_content_mt_tabs and add your tab to its orderCreateTabs computed",
+      "sw_order_create_content_tabs_general": "sw_order_create_content_mt_tabs and add your tab to its orderCreateTabs computed"
+    },
+    "sw-order-create-address-modal": {
+      "sw_order_create_address_modal_empty_state_content": "sw_order_create_address_modal_empty_state (pass the icon and texts as props of mt-empty-state)"
+    },
+    "sw-order-create-initial-modal": {
+      "sw_order_create_modal_tabs_customer": "sw_order_create_modal_mt_tabs and add your tab to its orderCreateInitialModalTabs computed",
+      "sw_order_create_modal_tabs_extension": "sw_order_create_modal_mt_tabs and add your tab to its orderCreateInitialModalTabs computed",
+      "sw_order_create_modal_tabs_options": "sw_order_create_modal_mt_tabs and add your tab to its orderCreateInitialModalTabs computed",
+      "sw_order_create_modal_tabs_products": "sw_order_create_modal_mt_tabs and add your tab to its orderCreateInitialModalTabs computed"
+    },
+    "sw-order-customer-grid": {
+      "sw_order_customer_grid_empty_state_icon": "sw_order_customer_grid_empty_state (pass the icon and texts as props of mt-empty-state)"
+    },
+    "sw-order-detail": {
+      "sw_order_detail_content_tabs_details": "sw_order_detail_content_mt_tabs and add your tab to its orderDetailTabs computed",
+      "sw_order_detail_content_tabs_documents": "sw_order_detail_content_mt_tabs and add your tab to its orderDetailTabs computed",
+      "sw_order_detail_content_tabs_extension": "sw_order_detail_content_mt_tabs and add your tab to its orderDetailTabs computed",
+      "sw_order_detail_content_tabs_general": "sw_order_detail_content_mt_tabs and add your tab to its orderDetailTabs computed"
+    },
+    "sw-order-detail-details": {
+      "sw_order_detail_details_order_promotion": null,
+      "sw_order_detail_details_shipping_costs": "sw_order_detail_general_line_items_summary_shipping_cost of sw-order-detail-general"
+    },
+    "sw-order-line-items-grid-sales-channel": {
+      "sw_order_line_items_grid_sales_channel_line_item_filter": "sw_order_line_items_grid_sales_channel_header"
+    },
+    "sw-order-new-customer-modal": {
+      "sw_order_new_customer_modal_content_billing": "sw_order_new_customer_modal_mt_tabs_content_billing (the markup changed)",
+      "sw_order_new_customer_modal_content_details": "sw_order_new_customer_modal_mt_tabs_content_details (the markup changed)",
+      "sw_order_new_customer_modal_tabs_billing": "sw_order_new_customer_modal_mt_tabs and add your tab to its newCustomerModalTabs computed",
+      "sw_order_new_customer_modal_tabs_details": "sw_order_new_customer_modal_mt_tabs and add your tab to its newCustomerModalTabs computed",
+      "sw_order_new_customer_modal_tabs_shipping": "sw_order_new_customer_modal_mt_tabs and add your tab to its newCustomerModalTabs computed"
+    },
+    "sw-order-user-card": {
+      "sw_order_detail_base_address_modal": null,
+      "sw_order_detail_base_info_summary": null,
+      "sw_order_detail_base_info_summary_entries": null,
+      "sw_order_detail_base_order_overview": null,
+      "sw_order_detail_base_order_overview_billing_address": null,
+      "sw_order_detail_base_order_overview_columns": null,
+      "sw_order_detail_base_order_overview_email": null,
+      "sw_order_detail_base_order_overview_left_column": null,
+      "sw_order_detail_base_order_overview_left_column_slot": null,
+      "sw_order_detail_base_order_overview_phone_number": null,
+      "sw_order_detail_base_order_overview_right_column": null,
+      "sw_order_detail_base_order_overview_right_column_slot": null,
+      "sw_order_detail_base_order_overview_shipping_address": null,
+      "sw_order_detail_base_secondary_info_affiliate": null,
+      "sw_order_detail_base_secondary_info_campaign": null,
+      "sw_order_detail_base_secondary_info_delivery": null,
+      "sw_order_detail_base_secondary_info_last_change": null,
+      "sw_order_detail_base_secondary_info_order_language": null,
+      "sw_order_detail_base_secondary_info_order_overview": null,
+      "sw_order_detail_base_secondary_info_order_overview_contents": null,
+      "sw_order_detail_base_secondary_info_order_overview_left_column": null,
+      "sw_order_detail_base_secondary_info_order_overview_left_column_slot": null,
+      "sw_order_detail_base_secondary_info_order_overview_right_column": null,
+      "sw_order_detail_base_secondary_info_order_overview_right_column_slot": null,
+      "sw_order_detail_base_secondary_info_payment": null,
+      "sw_order_detail_base_secondary_info_sales_channel": null,
+      "sw_order_detail_base_secondary_info_tracking_codes": null,
+      "sw_order_detail_base_secondary_info_tracking_codes_display": null,
+      "sw_order_detail_base_secondary_info_tracking_codes_display_content": null,
+      "sw_order_detail_base_secondary_info_tracking_codes_display_label": null,
+      "sw_order_detail_base_secondary_info_tracking_codes_empty": null,
+      "sw_order_detail_base_secondary_info_tracking_codes_empty_content": null,
+      "sw_order_detail_base_secondary_info_tracking_codes_empty_label": null,
+      "sw_order_detail_base_secondary_info_tracking_codes_input": null,
+      "sw_order_detail_base_secondary_info_tracking_codes_input_content": null,
+      "sw_order_detail_base_secondary_info_tracking_codes_input_label": null,
+      "sw_order_user_card_avatar": null,
+      "sw_order_user_card_metadata": null,
+      "sw_order_user_card_metadata_container": null,
+      "sw_order_user_card_metadata_tags": null,
+      "sw_order_user_card_metadata_user_name": null,
+      "sw_order_user_card_row_primary": null,
+      "sw_order_user_card_row_secondary": null,
+      "sw_order_user_card_slot_additional_actions": null
+    },
+    "sw-product-detail": {
+      "sw_product_detail_content_tabs_additional": "sw_product_detail_content_mt_tabs and add your tab to its productDetailTabs computed",
+      "sw_product_detail_content_tabs_advanced_prices": "sw_product_detail_content_mt_tabs and add your tab to its productDetailTabs computed",
+      "sw_product_detail_content_tabs_advanced_variants": "sw_product_detail_content_mt_tabs and add your tab to its productDetailTabs computed",
+      "sw_product_detail_content_tabs_cross_selling": "sw_product_detail_content_mt_tabs and add your tab to its productDetailTabs computed",
+      "sw_product_detail_content_tabs_general": "sw_product_detail_content_mt_tabs and add your tab to its productDetailTabs computed",
+      "sw_product_detail_content_tabs_layout": "sw_product_detail_content_mt_tabs and add your tab to its productDetailTabs computed",
+      "sw_product_detail_content_tabs_reviews": "sw_product_detail_content_mt_tabs and add your tab to its productDetailTabs computed",
+      "sw_product_detail_content_tabs_seo": "sw_product_detail_content_mt_tabs and add your tab to its productDetailTabs computed",
+      "sw_product_detail_content_tabs_specifications": "sw_product_detail_content_mt_tabs and add your tab to its productDetailTabs computed",
+      "sw_product_settings_mode": null
+    },
+    "sw-product-detail-context-prices": {
+      "sw_product_detail_prices_empty_state_image": "sw_product_detail_prices_price_empty_state (pass the icon and texts as props of mt-empty-state)",
+      "sw_product_detail_prices_price_empty_state_text": "sw_product_detail_prices_price_empty_state (pass the icon and texts as props of mt-empty-state)",
+      "sw_product_detail_prices_price_empty_state_text_child": "sw_product_detail_prices_price_empty_state (pass the icon and texts as props of mt-empty-state)",
+      "sw_product_detail_prices_price_empty_state_text_empty": "sw_product_detail_prices_price_empty_state (pass the icon and texts as props of mt-empty-state)",
+      "sw_product_detail_prices_price_empty_state_text_inherited": "sw_product_detail_prices_price_empty_state (pass the icon and texts as props of mt-empty-state)",
+      "sw_product_detail_prices_price_empty_state_text_link": "sw_product_detail_prices_price_empty_state (pass the icon and texts as props of mt-empty-state)",
+      "sw_product_detail_prices_price_empty_state_text_not_inherited": "sw_product_detail_prices_price_empty_state (pass the icon and texts as props of mt-empty-state)"
+    },
+    "sw-product-detail-cross-selling": {
+      "sw_product_detail_cross_selling_empty_state_actions": "sw_product_detail_cross_selling_empty_state (pass the icon and texts as props of mt-empty-state)",
+      "sw_product_detail_cross_selling_empty_state_content": "sw_product_detail_cross_selling_empty_state (pass the icon and texts as props of mt-empty-state)",
+      "sw_product_detail_cross_selling_empty_state_content_child": "sw_product_detail_cross_selling_empty_state (pass the icon and texts as props of mt-empty-state)",
+      "sw_product_detail_cross_selling_empty_state_content_child_inherited": "sw_product_detail_cross_selling_empty_state (pass the icon and texts as props of mt-empty-state)",
+      "sw_product_detail_cross_selling_empty_state_content_child_inherited_link": "sw_product_detail_cross_selling_empty_state (pass the icon and texts as props of mt-empty-state)",
+      "sw_product_detail_cross_selling_empty_state_content_child_not_inherited": "sw_product_detail_cross_selling_empty_state (pass the icon and texts as props of mt-empty-state)",
+      "sw_product_detail_cross_selling_empty_state_content_empty": "sw_product_detail_cross_selling_empty_state (pass the icon and texts as props of mt-empty-state)",
+      "sw_product_detail_cross_selling_empty_state_icon": "sw_product_detail_cross_selling_empty_state (pass the icon and texts as props of mt-empty-state)"
+    },
+    "sw-product-modal-delivery": {
+      "sw_product_modal_delivery_sidebar_tabs_items": "sw_product_modal_delivery_sidebar_mt_tabs and add your tab to its deliveryTabs computed"
+    },
+    "sw-product-modal-variant-generation": {
+      "sw_product_modal_variant_generation_sidebar_tabs_item_options": "sw_product_modal_variant_generation_sidebar_mt_tabs and add your tab to its variantGenerationTabs computed",
+      "sw_product_modal_variant_generation_sidebar_tabs_item_prices": "sw_product_modal_variant_generation_sidebar_mt_tabs and add your tab to its variantGenerationTabs computed",
+      "sw_product_modal_variant_generation_sidebar_tabs_item_restrictions": "sw_product_modal_variant_generation_sidebar_mt_tabs and add your tab to its variantGenerationTabs computed",
+      "sw_product_modal_variant_generation_sidebar_tabs_items": "sw_product_modal_variant_generation_sidebar_mt_tabs and add your tab to its variantGenerationTabs computed"
+    },
+    "sw-product-packaging-form": {
+      "sw_product_packaging_form_height_field": "sw_product_measurement_form_height_field of sw-product-measurement-form",
+      "sw_product_packaging_form_width_field": "sw_product_measurement_form_width_field of sw-product-measurement-form",
+      "sw_product_settings_form_length_field": "sw_product_measurement_form_length_field of sw-product-measurement-form",
+      "sw_product_settings_form_weight_field": "sw_product_measurement_form_weight_field of sw-product-measurement-form"
+    },
+    "sw-product-properties": {
+      "sw_product_properties_empty_state_image": "sw_product_properties_empty_state",
+      "sw_product_properties_filled_state_body_empty_state_image": "sw_product_properties_filled_state_body_empty_state"
+    },
+    "sw-product-stream-filter": {
+      "sw_product_stream_filter": "sw_condition_base",
+      "sw_product_stream_filter_container": "sw_condition_base_content"
+    },
+    "sw-profile-index": {
+      "sw_profile_index_tabs_item_general": "sw_profile_index_mt_tabs and add your tab to its profileTabs computed",
+      "sw_profile_index_tabs_item_search_preferences": "sw_profile_index_mt_tabs and add your tab to its profileTabs computed"
+    },
+    "sw-promotion-v2-detail": {
+      "sw_promotion_v2_detail_content_tabs_conditions": "sw_promotion_v2_detail_content_mt_tabs and add your tab to its promotionDetailTabs computed",
+      "sw_promotion_v2_detail_content_tabs_discounts": "sw_promotion_v2_detail_content_mt_tabs and add your tab to its promotionDetailTabs computed",
+      "sw_promotion_v2_detail_content_tabs_general": "sw_promotion_v2_detail_content_mt_tabs and add your tab to its promotionDetailTabs computed"
+    },
+    "sw-promotion-v2-empty-state-hero": {
+      "sw_promotion_v2_empty_state_hero": null,
+      "sw_promotion_v2_empty_state_hero_content": null,
+      "sw_promotion_v2_empty_state_hero_content_actions": null,
+      "sw_promotion_v2_empty_state_hero_content_description": null,
+      "sw_promotion_v2_empty_state_hero_content_title": null,
+      "sw_promotion_v2_empty_state_hero_image": null,
+      "sw_promotion_v2_empty_state_hero_image_asset": null,
+      "sw_promotion_v2_empty_state_hero_slot_actions": null
+    },
+    "sw-promotion-v2-individual-codes-behavior": {
+      "sw_promotion_v2_individual_codes_behavior_empty_state_icon": "sw_promotion_v2_individual_codes_behavior_empty_state (pass the icon and texts as props of mt-empty-state)"
+    },
+    "sw-promotion-v2-list": {
+      "sw_promotion_v2_list_empty_state_actions": "sw_promotion_v2_list_empty_state"
+    },
+    "sw-property-search": {
+      "sw_property_search_empty_image": "sw_property_search_empty"
+    },
+    "sw-sales-channel-detail": {
+      "sw_sales_channel_detail_content_tab_agentic_commerce_integration": "sw_sales_channel_detail_content_mt_tabs and add your tab to its salesChannelDetailTabs computed",
+      "sw_sales_channel_detail_content_tab_analytics": "sw_sales_channel_detail_content_mt_tabs and add your tab to its salesChannelDetailTabs computed",
+      "sw_sales_channel_detail_content_tab_export_template": "sw_sales_channel_detail_content_mt_tabs and add your tab to its salesChannelDetailTabs computed",
+      "sw_sales_channel_detail_content_tab_general": "sw_sales_channel_detail_content_mt_tabs and add your tab to its salesChannelDetailTabs computed",
+      "sw_sales_channel_detail_content_tab_product_comparison": "sw_sales_channel_detail_content_mt_tabs and add your tab to its salesChannelDetailTabs computed",
+      "sw_sales_channel_detail_content_tab_product_export_insights": "sw_sales_channel_detail_content_mt_tabs and add your tab to its salesChannelDetailTabs computed",
+      "sw_sales_channel_detail_content_tab_products": "sw_sales_channel_detail_content_mt_tabs and add your tab to its salesChannelDetailTabs computed",
+      "sw_sales_channel_detail_content_tab_theme": "sw_sales_channel_detail_content_mt_tabs and add your tab to its salesChannelDetailTabs computed"
+    },
+    "sw-sales-channel-detail-products": {
+      "sw_sales_channel_detail_products_card_section_primary_image": "sw_sales_channel_detail_products_card_section_primary_empty_state",
+      "sw_sales_channel_detail_products_empty_state_image": "sw_sales_channel_detail_products_empty_state"
+    },
+    "sw-sales-channel-products-assignment-dynamic-product-groups": {
+      "sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty_icon": "sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty (pass the icon and texts as props of mt-empty-state)"
+    },
+    "sw-sales-channel-products-assignment-modal": {
+      "sw_sales_channel_products_assignment_modal_tab_dynamic_product_groups": "sw_sales_channel_products_assignment_modal_mt_tabs and add your tab to its productAssignmentTabs computed",
+      "sw_sales_channel_products_assignment_modal_tabs_categories": "sw_sales_channel_products_assignment_modal_mt_tabs and add your tab to its productAssignmentTabs computed",
+      "sw_sales_channel_products_assignment_modal_tabs_single_products": "sw_sales_channel_products_assignment_modal_mt_tabs and add your tab to its productAssignmentTabs computed"
+    },
+    "sw-settings-country-detail": {
+      "sw_setting_country_tabs_address_handling": "sw_settings_country_mt_tabs_header and add your tab to its countryTabs computed",
+      "sw_setting_country_tabs_extension": "sw_settings_country_mt_tabs_header and add your tab to its countryTabs computed",
+      "sw_setting_country_tabs_setting": "sw_settings_country_mt_tabs_header and add your tab to its countryTabs computed",
+      "sw_setting_country_tabs_state": "sw_settings_country_mt_tabs_header and add your tab to its countryTabs computed"
+    },
+    "sw-settings-customer-group-detail": {
+      "sw_settings_customer_group_detail_content_card_display_gross": "sw_settings_customer_group_detail_content_card_tax_display"
+    },
+    "sw-settings-language-detail": {
+      "sw_settings_language_detail_content_language_info": null
+    },
+    "sw-settings-language-list": {
+      "sw_settings_language_list_content_list_column_id": "sw_settings_language_list_content_list_columns",
+      "sw_settings_language_list_content_list_delete_confirm_action": "sw_settings_language_list_delete_modal",
+      "sw_settings_language_list_grid_sidebar_filter": null,
+      "sw_settings_language_list_grid_sidebar_filter_content": null,
+      "sw_settings_language_list_grid_sidebar_filter_content_inherited_languages": null,
+      "sw_settings_language_list_grid_sidebar_filter_content_root_languages": null,
+      "sw_settings_language_list_grid_sidebar_filter_header": null,
+      "sw_settings_language_list_grid_sidebar_filter_header_icon": null,
+      "sw_settings_language_list_grid_sidebar_filter_header_icon_expanded": null,
+      "sw_settings_language_list_grid_sidebar_filter_header_icon_not_expanded": null,
+      "sw_settings_language_list_grid_sidebar_filter_header_title": null,
+      "sw_settings_language_list_smart_bar_header_amount": "sw_settings_language_list_smart_bar_header_title"
+    },
+    "sw-settings-listing": {
+      "sw_settings_listing_content_card_view_options_card_empty_state_icon": "sw_settings_listing_content_card_view_options_card_empty_state (pass the icon and texts as props of mt-empty-state)"
+    },
+    "sw-settings-listing-option-criteria-grid": {
+      "sw_settings_listing_option_criteria_card_empty_state_icon": "sw_settings_listing_option_criteria_card_empty_state (pass the icon and texts as props of mt-empty-state)"
+    },
+    "sw-settings-logging-entry-info": {
+      "sw_settings_logging_entry_info_tab_items": "sw_settings_logging_entry_info_mt_tabs and add your tab to its entryInfoTabs computed"
+    },
+    "sw-settings-logging-mail-sent-info": {
+      "sw_settings_logging_entry_info_tab_items": "sw_settings_logging_entry_info_mt_tabs and add your tab to its entryInfoTabs computed"
+    },
+    "sw-settings-mailer": {
+      "sw_settings_mailer_headline_agent": "sw_settings_mailer_agent_options"
+    },
+    "sw-settings-product-feature-sets-values-card": {
+      "sw_product_feature_set_card_empty_state_image": "sw_product_feature_set_card_empty_state (pass the icon and texts as props of mt-empty-state)",
+      "sw_product_feature_set_card_empty_state_label": "sw_product_feature_set_card_empty_state (pass the icon and texts as props of mt-empty-state)"
+    },
+    "sw-settings-rule-detail": {
+      "sw_settings_rule_detail_tab_items": "sw_settings_rule_detail_mt_tabs and add your tab to its ruleDetailTabs computed"
+    },
+    "sw-settings-search": {
+      "sw_setting_search_tabs_after": "sw_settings_search_mt_tabs_header and add your tab to its settingsSearchTabs computed",
+      "sw_setting_search_tabs_general": "sw_settings_search_mt_tabs_header and add your tab to its settingsSearchTabs computed",
+      "sw_setting_search_tabs_live_search": "sw_settings_search_mt_tabs_header and add your tab to its settingsSearchTabs computed"
+    },
+    "sw-settings-search-excluded-search-terms": {
+      "sw_settings_search_excluded_search_terms_empty_state_image": "sw_settings_search_excluded_search_terms_empty_state"
+    },
+    "sw-settings-search-live-search": {
+      "sw_settings_search_view_live_search_search_icon": "sw_settings_search_view_live_search_input",
+      "sw_settings_search_view_live_search_search_icon_wrapper": "sw_settings_search_view_live_search_input"
+    },
+    "sw-settings-search-search-index": {
+      "sw_settings_search_search_index_rebuild_progress_text": "sw_settings_search_search_index_rebuild_progress_bar",
+      "sw_settings_search_search_index_warning_top": "sw_settings_search_search_index_warning_bottom"
+    },
+    "sw-settings-search-searchable-content": {
+      "sw_settings_search_searchable_content_general_tab_item": "sw_settings_search_searchable_content_mt_general_tab_item (the markup changed)",
+      "sw_settings_search_searchable_content_general_tab_title": "sw_settings_search_searchable_content_mt_tabs and add your tab to its searchableContentTabs computed",
+      "sw_settings_search_searchable_show_example": "sw_settings_search_searchable_show_example_link",
+      "sw_settings_search_searchable_show_example_link_element": "sw_settings_search_searchable_show_example_link"
+    },
+    "sw-settings-search-searchable-content-customfields": {
+      "sw_settings_search_searchable_content_customfields_state_image": "sw_settings_search_searchable_content_customfields_empty_state"
+    },
+    "sw-settings-search-searchable-content-general": {
+      "sw_settings_search_searchable_content_general_state_image": "sw_settings_search_searchable_content_general_empty_state"
+    },
+    "sw-settings-snippet-set-list": {
+      "sw_settings_snippet_set_list_card_btn_copy": "sw_settings_snippet_set_list_card_list (the header actions are in the smart-bar-actions slot, which has no block)",
+      "sw_settings_snippet_set_list_card_btn_copy_icon": "sw_settings_snippet_set_list_card_list (the header actions are in the smart-bar-actions slot, which has no block)",
+      "sw_settings_snippet_set_list_card_copy_context_divider": "sw_settings_snippet_set_list_card_list (the header actions are in the smart-bar-actions slot, which has no block)",
+      "sw_settings_snippet_set_list_card_copy_context_menu": "sw_settings_snippet_set_list_card_list (the header actions are in the smart-bar-actions slot, which has no block)",
+      "sw_settings_snippet_set_list_card_copy_context_menu_items": "sw_settings_snippet_set_list_card_list (the header actions are in the smart-bar-actions slot, which has no block)",
+      "sw_settings_snippet_set_list_card_list_btn_copy_split": "sw_settings_snippet_set_list_card_list (the header actions are in the smart-bar-actions slot, which has no block)",
+      "sw_settings_snippet_set_list_card_list_container": "sw_settings_snippet_set_list_card_list (the header actions are in the smart-bar-actions slot, which has no block)",
+      "sw_settings_snippet_set_list_card_list_container_header": "sw_settings_snippet_set_list_card_list (the header actions are in the smart-bar-actions slot, which has no block)",
+      "sw_settings_snippet_set_list_card_list_container_header_btn_add_set": "sw_settings_snippet_set_list_card_list (the header actions are in the smart-bar-actions slot, which has no block)",
+      "sw_settings_snippet_set_list_card_list_container_header_btn_edit_set": "sw_settings_snippet_set_list_card_list (the header actions are in the smart-bar-actions slot, which has no block)",
+      "sw_settings_snippet_set_list_card_list_container_header_btn_export": "sw_settings_snippet_set_list_card_list (the header actions are in the smart-bar-actions slot, which has no block)",
+      "sw_settings_snippet_set_list_card_list_container_header_btn_split": "sw_settings_snippet_set_list_card_list (the header actions are in the smart-bar-actions slot, which has no block)",
+      "sw_settings_snippet_set_list_card_list_grid_column_base_action": "sw_settings_snippet_set_list_card_list_grid",
+      "sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_clone": "sw_settings_snippet_set_list_card_list_grid",
+      "sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_delete": "sw_settings_snippet_set_list_card_list_grid",
+      "sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_edit": "sw_settings_snippet_set_list_card_list_grid",
+      "sw_settings_snippet_set_list_card_list_grid_column_base_action_buttons": "sw_settings_snippet_set_list_card_list_grid",
+      "sw_settings_snippet_set_list_card_list_grid_column_base_file": "sw_settings_snippet_set_list_card_list_grid",
+      "sw_settings_snippet_set_list_card_list_grid_column_base_file_editor": "sw_settings_snippet_set_list_card_list_grid",
+      "sw_settings_snippet_set_list_card_list_grid_column_changed": "sw_settings_snippet_set_list_card_list_grid",
+      "sw_settings_snippet_set_list_card_list_grid_column_changed_date": "sw_settings_snippet_set_list_card_list_grid",
+      "sw_settings_snippet_set_list_card_list_grid_column_name": "sw_settings_snippet_set_list_card_list_grid",
+      "sw_settings_snippet_set_list_card_list_grid_column_name_editor": "sw_settings_snippet_set_list_card_list_grid",
+      "sw_settings_snippet_set_list_card_list_grid_column_name_link": "sw_settings_snippet_set_list_card_list_grid",
+      "sw_settings_snippet_set_list_card_list_grid_pagination": "sw_settings_snippet_set_list_card_list_grid",
+      "sw_settings_snippet_set_list_card_list_grid_pagination_bar": "sw_settings_snippet_set_list_card_list_grid",
+      "sw_settings_snippet_set_list_card_list_grid_template": "sw_settings_snippet_set_list_card_list_grid",
+      "sw_settings_snippet_set_list_card_title": "sw_settings_snippet_set_list_card_list",
+      "sw_settings_snippet_set_list_clone_modal_cancel": "sw_settings_snippet_set_list_card_list_grid",
+      "sw_settings_snippet_set_list_clone_modal_confirm": "sw_settings_snippet_set_list_card_list_grid",
+      "sw_settings_snippet_set_list_clone_modal_confirm_delete_text": "sw_settings_snippet_set_list_card_list_grid",
+      "sw_settings_snippet_set_list_clone_modal_footer": "sw_settings_snippet_set_list_card_list_grid",
+      "sw_settings_snippet_set_list_columns_clone_modal": "sw_settings_snippet_set_list_card_list_grid",
+      "sw_settings_snippet_set_list_columns_delete_modal": "sw_settings_snippet_set_list_card_list_grid",
+      "sw_settings_snippet_set_list_delete_modal_cancel": "sw_settings_snippet_set_list_card_list_grid",
+      "sw_settings_snippet_set_list_delete_modal_confirm": "sw_settings_snippet_set_list_card_list_grid",
+      "sw_settings_snippet_set_list_delete_modal_confirm_delete_text": "sw_settings_snippet_set_list_card_list_grid",
+      "sw_settings_snippet_set_list_delete_modal_footer": "sw_settings_snippet_set_list_card_list_grid"
+    },
+    "sw-settings-storefront-configuration": {
+      "sw_settings_storefront": "the block of the same name in sw-settings-storefront-index",
+      "sw_settings_storefront_settings_icon_cache": "the block of the same name in sw-settings-storefront-index",
+      "sw_settings_storefront_settings_speculation_rules": "the block of the same name in sw-settings-storefront-index",
+      "sw_settings_storefront_settings_theme_async": "the block of the same name in sw-settings-storefront-index"
+    },
+    "sw-settings-storefront-index": {
+      "sw_settings_storefront_smtp_settings": "sw_settings_storefront_settings_icon_cache + sw_settings_storefront_settings_speculation_rules"
+    },
+    "sw-settings-tag-detail-modal": {
+      "sw_settings_tag_detail_modal_tabs_assignments": "sw_settings_tag_detail_modal_mt_tabs and add your tab to its tagDetailModalTabs computed",
+      "sw_settings_tag_detail_modal_tabs_general": "sw_settings_tag_detail_modal_mt_tabs and add your tab to its tagDetailModalTabs computed"
+    },
+    "sw-tax-rule-card": {
+      "sw_tax_rule_card_empty_state_image": "sw_tax_rule_card_empty_state (pass the icon and texts as props of mt-empty-state)",
+      "sw_tax_rule_card_empty_state_label": "sw_tax_rule_card_empty_state (pass the icon and texts as props of mt-empty-state)"
+    },
+    "sw-theme-manager-detail": {
+      "sw_theme_manager_detail_content_areas": "sw_theme_manager_detail_content (no blocks in the mt-tabs branch)",
+      "sw_theme_manager_detail_content_fields": "sw_theme_manager_detail_content (no blocks in the mt-tabs branch)",
+      "sw_theme_manager_detail_content_info": "sw_theme_manager_detail_content (no blocks in the mt-tabs branch)",
+      "sw_theme_manager_detail_content_info_content": "sw_theme_manager_detail_content (no blocks in the mt-tabs branch)",
+      "sw_theme_manager_detail_content_info_context_button": "sw_theme_manager_detail_content (no blocks in the mt-tabs branch)",
+      "sw_theme_manager_detail_content_info_image": "sw_theme_manager_detail_content (no blocks in the mt-tabs branch)",
+      "sw_theme_manager_detail_content_inheritance": "sw_theme_manager_detail_content (no blocks in the mt-tabs branch)",
+      "sw_theme_manager_detail_content_inheritance_icon": "sw_theme_manager_detail_content (no blocks in the mt-tabs branch)",
+      "sw_theme_manager_detail_content_inheritance_text": "sw_theme_manager_detail_content (no blocks in the mt-tabs branch)",
+      "sw_theme_manager_detail_content_sections": "sw_theme_manager_detail_content (no blocks in the mt-tabs branch)",
+      "sw_theme_manager_detail_context_button_option_create": "sw_theme_manager_detail_content (no blocks in the mt-tabs branch)",
+      "sw_theme_manager_detail_context_button_option_delete": "sw_theme_manager_detail_content (no blocks in the mt-tabs branch)",
+      "sw_theme_manager_detail_context_button_option_rename": "sw_theme_manager_detail_content (no blocks in the mt-tabs branch)",
+      "sw_theme_manager_detail_context_button_option_reset": "sw_theme_manager_detail_content (no blocks in the mt-tabs branch)",
+      "sw_theme_manager_detail_sidebar": "sw_theme_manager_detail_media_modal",
+      "sw_theme_manager_detail_sidebar_media": "sw_theme_manager_detail_media_modal",
+      "sw_theme_manager_detail_sidebar_media_items": "sw_theme_manager_detail_media_modal"
+    },
+    "sw-users-permissions-user-listing": {
+      "sw_settings_user_list_delete_modal_input__confirm_password": null
+    }
+  }
+}

@@ -94,6 +94,8 @@ export interface UpgradeExtensionsResult {
 
 interface EslintMessage {
     ruleId: string | null;
+    /** Set to the message id below when a codemod can only annotate the spot with a comment for a human. */
+    messageId?: string;
     fatal?: boolean;
     line?: number;
     column?: number;
@@ -194,6 +196,8 @@ function runEslint(options: {
     }
 }
 
+const TODO_MESSAGE_ID = 'todo';
+
 interface CodemodTally {
     changes: number;
     /** Relative to the extension root (posix). */
@@ -280,7 +284,8 @@ function runEslintCodemods(context: CodemodRunContext, codemods: EslintCodemod[]
             for (const message of file.messages) {
                 const tally = tallyOf(message);
 
-                if (tally && !message.fix) {
+                // An annotated spot still needs a human, also in a dry run that has not written the comment yet.
+                if (tally && (!message.fix || message.messageId === TODO_MESSAGE_ID)) {
                     tally.manual.push({
                         file: relativeFile(file.filePath),
                         line: message.line,

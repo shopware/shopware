@@ -14,6 +14,7 @@ use Shopware\Core\Framework\App\Mcp\Feature\McpResourceFeatureDefinition;
 use Shopware\Core\Framework\App\Mcp\Feature\McpToolFeatureDefinition;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpServerBuilderCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolDiscoveryCompilerPass;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
@@ -112,6 +113,7 @@ return static function (ContainerConfigurator $container): void {
             service('mcp.server.admin.session.store')->nullOnInvalid(),
             service(McpListVersions::class),
             service('logger'),
+            service(McpServerBuilderCompilerPass::ADMIN_NOTIFICATION_BUS)->nullOnInvalid(),
         ])
         ->tag('monolog.logger', ['channel' => 'mcp']);
 
@@ -123,7 +125,8 @@ return static function (ContainerConfigurator $container): void {
             service(AppMcpCapabilityDetector::class),
             service(McpListChangedNotifier::class),
         ])
-        ->tag('kernel.event_subscriber');
+        ->tag('kernel.event_subscriber')
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(McpHandshakeListChangedSubscriber::class)
         ->args([service('request_stack')])
@@ -302,6 +305,7 @@ return static function (ContainerConfigurator $container): void {
             service('mcp.store_api.capability_catalog')->nullOnInvalid(),
             param('mcp.servers.unassigned'),
             param(McpToolDiscoveryCompilerPass::DEMOTED_DISCOVERY_TOOLS_PARAMETER),
+            param(McpServerBuilderCompilerPass::PROTOCOL_ERA_PARAMETER),
         ])
         ->tag('console.command');
 
@@ -370,6 +374,8 @@ return static function (ContainerConfigurator $container): void {
             service('mcp.server.admin.registry')->nullOnInvalid(),
             service(ToolSearch::class),
             service(McpAllowlistProvider::class),
+            service(McpToolsetRegistry::class)->nullOnInvalid(),
+            service('request_stack'),
         ])
         ->tag('mcp.tool');
 
@@ -462,6 +468,8 @@ return static function (ContainerConfigurator $container): void {
             service('mcp.server.store_api.registry')->nullOnInvalid(),
             service(ToolSearch::class),
             null,
+            service('mcp.store_api.toolset_registry'),
+            service('request_stack'),
         ])
         ->tag('shopware.store_api_mcp.tool');
 
@@ -504,6 +512,7 @@ return static function (ContainerConfigurator $container): void {
 
     // Prompt
     $services->set(ShopwareContextPrompt::class)
+        ->args([service('request_stack')])
         ->tag('mcp.prompt');
 
     // Resources

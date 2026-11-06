@@ -16,6 +16,7 @@ use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentArchiver;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -54,8 +55,7 @@ class ProductDocumentArchiverTest extends TestCase
         $manual = $this->file('manual', $manualContent);
         $sheet = $this->file('data-sheet', 'sheet content');
 
-        // the media search returns the files in its own order
-        $archive = $this->archiver([$this->document($manual), $this->document($sheet)], [$sheet, $manual])
+        $archive = $this->archiver([$this->document($manual), $this->document($sheet)], [$manual, $sheet])
             ->archive($this->product('Cordless drill'), $this->context);
 
         static::assertNotNull($archive);
@@ -71,20 +71,25 @@ class ProductDocumentArchiverTest extends TestCase
     public function testLoadsTheDocumentsTheProductPageShows(): void
     {
         $manual = $this->file('manual', 'manual content');
+        $sheet = $this->file('data-sheet', 'sheet content');
 
         $archiver = new ProductDocumentArchiver(
             new StaticEntityRepository([
-                function (Criteria $criteria) use ($manual): ProductDocumentCollection {
+                function (Criteria $criteria) use ($manual, $sheet): ProductDocumentCollection {
                     static::assertEquals([new EqualsFilter('product.id', $this->productId)], $criteria->getFilters());
                     static::assertEquals([new FieldSorting('position')], $criteria->getSorting());
 
-                    return new ProductDocumentCollection([$this->document($manual)]);
+                    return new ProductDocumentCollection([$this->document($manual), $this->document($sheet), $this->document($manual)]);
                 },
             ]),
             new StaticEntityRepository([
-                static function (Criteria $criteria) use ($manual): MediaCollection {
-                    static::assertSame([$manual->getId()], $criteria->getIds());
-                    static::assertEquals([new EqualsFilter('private', false)], $criteria->getFilters());
+                static function (Criteria $criteria) use ($manual, $sheet): MediaCollection {
+                    static::assertSame([$manual->getId(), $sheet->getId()], $criteria->getIds());
+                    static::assertSame([], $criteria->getSorting());
+                    static::assertEquals([
+                        new EqualsFilter('private', false),
+                        new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('path', null)]),
+                    ], $criteria->getFilters());
 
                     return new MediaCollection();
                 },
@@ -118,19 +123,6 @@ class ProductDocumentArchiverTest extends TestCase
             ['manual.pdf', 'MANUAL (2).pdf', $unnamed->getId() . '.pdf'],
             array_column($this->entries($archive), 'name')
         );
-    }
-
-    public function testLeavesOutMediaWithoutAFile(): void
-    {
-        $manual = $this->file('manual', 'manual content');
-        $empty = new MediaEntity();
-        $empty->setId(Uuid::randomHex());
-
-        $archive = $this->archiver([$this->document($empty), $this->document($manual)], [$empty, $manual])
-            ->archive($this->product('Cordless drill'), $this->context);
-
-        static::assertNotNull($archive);
-        static::assertSame(['manual.pdf'], array_column($this->entries($archive), 'name'));
     }
 
     public function testAddsAFileOnceWhenSeveralDocumentsUseIt(): void

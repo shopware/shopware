@@ -92,6 +92,7 @@ class HookableValidatorTest extends TestCase
             $validations[0]->getMessage()
         );
         static::assertSame(AppException::VALIDATION_FAILED, $validations[0]->getErrorCode());
+        static::assertTrue($validations[0]->isBlocking());
     }
 
     public function testCommercialLicenseWebhookIsHookableForServices(): void

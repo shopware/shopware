@@ -40,4 +40,9 @@ class MissingPermissionError implements Error
     {
         return [];
     }
+
+    public function isBlocking(): bool
+    {
+        return true;
+    }
 }

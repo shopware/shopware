@@ -152,6 +152,7 @@ Extensions and integrations that read the product type of older order line items
 An Admin API MCP tool that reads no shop data can now declare `#[McpToolRequiresNoPrivilege(reason: '...')]` instead of `#[McpToolRequires]`.
 The new PHPStan rule `shopware.mcpAdminToolMissingRequires` reports an Admin API tool that declares neither attribute,
 and `shopware.mcpStoreApiToolAdminAcl` reports a Store API tool that uses Admin ACL privileges.
+
 ### ZUGFeRD documents include `discount` line items
 
 ZUGFeRD and XRechnung documents now contain line items of type `discount` (`LineItem::DISCOUNT_LINE_ITEM`), as added by app scripts via `services.cart.discount()` / `services.cart.surcharge()` or by extensions.

@@ -349,7 +349,6 @@ class DocumentTemplateRendererTest extends TestCase
         $twig->addExtension(new IntlExtension());
 
         $coreExtension = $twig->getExtension(CoreExtension::class);
-        static::assertInstanceOf(CoreExtension::class, $coreExtension);
         $coreExtension->setTimezone('UTC');
 
         return $twig;

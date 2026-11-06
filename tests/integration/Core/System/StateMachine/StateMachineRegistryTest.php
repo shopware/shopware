@@ -23,7 +23,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
 use Shopware\Core\System\StateMachine\StateMachineCollection;
 use Shopware\Core\System\StateMachine\StateMachineException;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
@@ -125,7 +124,6 @@ EOF;
         $retourActionExisted = false;
 
         foreach ($availableTransitions as $transition) {
-            static::assertInstanceOf(StateMachineTransitionEntity::class, $transition);
             if ($transition->getActionName() === 'reopen') {
                 $reopenActionExisted = true;
                 static::assertSame(OrderDeliveryStates::STATE_OPEN, $transition->getToStateMachineState()?->getTechnicalName());

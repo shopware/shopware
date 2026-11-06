@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\DeliveryNoteOrdersEvent;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
@@ -228,6 +229,71 @@ class DeliveryNoteRendererTest extends TestCase
         );
 
         static::assertNotSame($operationDelivery->getOrderVersionId(), Defaults::LIVE_VERSION);
+    }
+
+    public function testRenderListsOnlyTheLineItemsOfTheRequestedDelivery(): void
+    {
+        $cart = $this->generateDemoCart(3);
+        $firstLineItem = $cart->getLineItems()->first();
+        static::assertNotNull($firstLineItem);
+        $cart = $this->cartService->changeQuantity($cart, $firstLineItem->getId(), 3, $this->salesChannelContext);
+        $orderId = $this->persistCart($cart);
+        $orderDeliveryId = $this->addOrderDelivery($orderId, 'Second Street 2', ['p0' => 1, 'p2' => 1]);
+
+        $html = $this->renderHtml($orderId, ['custom' => ['orderDeliveryId' => $orderDeliveryId]]);
+
+        static::assertSame(['p0' => '1', 'p2' => '1'], $this->renderedQuantities($html));
+        static::assertStringContainsString('Second Street 2', $html);
+        static::assertStringContainsString('test shipping method', $html);
+    }
+
+    public function testRenderListsEveryLineItemWithoutRequestedDelivery(): void
+    {
+        $cart = $this->generateDemoCart(3);
+        $firstLineItem = $cart->getLineItems()->first();
+        static::assertNotNull($firstLineItem);
+        $cart = $this->cartService->changeQuantity($cart, $firstLineItem->getId(), 3, $this->salesChannelContext);
+        $orderId = $this->persistCart($cart);
+        $this->addOrderDelivery($orderId, 'Second Street 2', ['p0' => 1, 'p2' => 1]);
+
+        $html = $this->renderHtml($orderId, []);
+
+        static::assertSame(['p0' => '3', 'p1' => '1', 'p2' => '1'], $this->renderedQuantities($html));
+        static::assertStringNotContainsString('Second Street 2', $html);
+        static::assertStringNotContainsString('test shipping method', $html);
+    }
+
+    public function testRenderFailsForADeliveryOfAnotherOrder(): void
+    {
+        $cart = $this->generateDemoCart(1);
+        $orderId = $this->persistCart($cart);
+        $foreignDeliveryId = $this->addOrderDelivery($this->persistCart($cart), 'Second Street 2', ['p0' => 1]);
+
+        $operation = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION, [
+            'custom' => ['orderDeliveryId' => $foreignDeliveryId],
+        ]);
+
+        $result = $this->deliveryNoteRenderer->render([$orderId => $operation], $this->context, new DocumentRendererConfig());
+
+        static::assertSame([], $result->getSuccess());
+        static::assertEquals(
+            DocumentException::orderDeliveryNotFound($foreignDeliveryId, $orderId),
+            $result->getErrors()[$orderId] ?? null,
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    private function renderHtml(string $orderId, array $config): string
+    {
+        $operation = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION, $config);
+
+        $result = $this->deliveryNoteRenderer->render([$orderId => $operation], $this->context, new DocumentRendererConfig());
+
+        static::assertArrayHasKey($orderId, $result->getSuccess(), (string) ($result->getErrors()[$orderId] ?? null)?->getMessage());
+
+        return $result->getSuccess()[$orderId]->getContent();
     }
 
     private function generateDemoCart(int $productsCount): Cart

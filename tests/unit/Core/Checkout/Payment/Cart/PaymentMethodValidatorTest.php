@@ -3,9 +3,16 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Payment\Cart;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
+use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
+use Shopware\Core\Checkout\Payment\Cart\Error\PaymentMethodBlockedError;
 use Shopware\Core\Checkout\Payment\Cart\PaymentMethodValidator;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
@@ -101,6 +108,37 @@ class PaymentMethodValidatorTest extends TestCase
         static::assertCount(1, $errors);
         $error = $errors->get('payment-method-blocked-1');
         static::assertNotNull($error);
+    }
+
+    /**
+     * @param list<string> $transactionPaymentMethodIds
+     */
+    #[DataProvider('transactionIndexProvider')]
+    public function testBlockedErrorReferencesTheTransactionOfThePaymentMethod(array $transactionPaymentMethodIds, ?int $expectedTransactionIndex): void
+    {
+        $amount = new CalculatedPrice(10.0, 10.0, new CalculatedTaxCollection(), new TaxRuleCollection());
+        $this->cart->setTransactions(new TransactionCollection(array_map(
+            static fn (string $paymentMethodId) => new Transaction($amount, $paymentMethodId),
+            $transactionPaymentMethodIds,
+        )));
+
+        $context = $this->getSalesChannelContext();
+        $context->getPaymentMethod()->setActive(false);
+
+        $errors = new ErrorCollection();
+
+        $this->validator->validate($this->cart, $errors, $context);
+
+        $error = $errors->get('payment-method-blocked-1');
+        static::assertInstanceOf(PaymentMethodBlockedError::class, $error);
+        static::assertSame($expectedTransactionIndex, $error->getTransactionIndex());
+    }
+
+    public static function transactionIndexProvider(): \Generator
+    {
+        yield 'cart without transactions, as during the cart calculation, references none' => [[], null];
+        yield 'first transaction paid with the blocked method is referenced' => [['other', '1', '1'], 1];
+        yield 'transactions paid with other methods are not referenced' => [['other'], null];
     }
 
     private function getSalesChannelContext(): SalesChannelContext

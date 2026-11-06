@@ -14,7 +14,7 @@ class DeliveryValidator implements CartValidatorInterface
 {
     public function validate(Cart $cart, ErrorCollection $errors, SalesChannelContext $context): void
     {
-        foreach ($cart->getDeliveries() as $delivery) {
+        foreach (array_values($cart->getDeliveries()->getElements()) as $deliveryIndex => $delivery) {
             $shippingMethod = $delivery->getShippingMethod();
             $ruleId = $shippingMethod->getAvailabilityRuleId();
 
@@ -29,6 +29,7 @@ class DeliveryValidator implements CartValidatorInterface
                     id: $shippingMethod->getId(),
                     name: (string) $shippingMethod->getTranslation('name'),
                     reason: 'rule not matching or inactive',
+                    deliveryIndex: $deliveryIndex,
                 )
             );
         }

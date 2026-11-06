@@ -88,11 +88,12 @@ class CheckoutGatewayRoute extends AbstractCheckoutGatewayRoute
                     id: $paymentMethod->getId(),
                     name: (string) $paymentMethod->getTranslation('name'),
                     reason: 'not allowed',
+                    transactionIndex: $this->findTransactionIndex($cart, $paymentMethod->getId()),
                 )
             );
         }
 
-        foreach ($cart->getDeliveries() as $delivery) {
+        foreach (array_values($cart->getDeliveries()->getElements()) as $deliveryIndex => $delivery) {
             $shippingMethod = $delivery->getShippingMethod();
 
             if (!\in_array($shippingMethod->getId(), $response->getAvailableShippingMethods()->getIds(), true)) {
@@ -101,9 +102,21 @@ class CheckoutGatewayRoute extends AbstractCheckoutGatewayRoute
                         id: $shippingMethod->getId(),
                         name: (string) $shippingMethod->getTranslation('name'),
                         reason: 'not allowed',
+                        deliveryIndex: $deliveryIndex,
                     )
                 );
             }
         }
+    }
+
+    private function findTransactionIndex(Cart $cart, string $paymentMethodId): ?int
+    {
+        foreach (array_values($cart->getTransactions()->getElements()) as $transactionIndex => $transaction) {
+            if ($transaction->getPaymentMethodId() === $paymentMethodId) {
+                return $transactionIndex;
+            }
+        }
+
+        return null;
     }
 }

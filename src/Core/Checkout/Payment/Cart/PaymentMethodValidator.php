@@ -15,12 +15,15 @@ class PaymentMethodValidator implements CartValidatorInterface
     public function validate(Cart $cart, ErrorCollection $errors, SalesChannelContext $context): void
     {
         $paymentMethod = $context->getPaymentMethod();
+        $transactionIndex = $this->findTransactionIndex($cart, $paymentMethod->getId());
+
         if (!$paymentMethod->getActive()) {
             $errors->add(
                 new PaymentMethodBlockedError(
                     id: $paymentMethod->getId(),
                     name: (string) $paymentMethod->getTranslation('name'),
                     reason: 'inactive',
+                    transactionIndex: $transactionIndex,
                 )
             );
         }
@@ -33,6 +36,7 @@ class PaymentMethodValidator implements CartValidatorInterface
                     id: $paymentMethod->getId(),
                     name: (string) $paymentMethod->getTranslation('name'),
                     reason: 'rule not matching',
+                    transactionIndex: $transactionIndex,
                 )
             );
         }
@@ -43,8 +47,20 @@ class PaymentMethodValidator implements CartValidatorInterface
                     id: $paymentMethod->getId(),
                     name: (string) $paymentMethod->getTranslation('name'),
                     reason: 'not allowed',
+                    transactionIndex: $transactionIndex,
                 )
             );
         }
+    }
+
+    private function findTransactionIndex(Cart $cart, string $paymentMethodId): ?int
+    {
+        foreach (array_values($cart->getTransactions()->getElements()) as $transactionIndex => $transaction) {
+            if ($transaction->getPaymentMethodId() === $paymentMethodId) {
+                return $transactionIndex;
+            }
+        }
+
+        return null;
     }
 }

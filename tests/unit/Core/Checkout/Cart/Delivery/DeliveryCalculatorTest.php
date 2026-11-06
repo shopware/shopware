@@ -248,7 +248,35 @@ class DeliveryCalculatorTest extends TestCase
             'id' => $shippingMethodId,
             'name' => 'Test shipping',
             'reason' => 'no shipping costs found',
+            'deliveryIndex' => 0,
         ], $error->getParameters());
+    }
+
+    public function testBlockedShippingMethodErrorsReferenceTheirDelivery(): void
+    {
+        $data = new CartDataCollection();
+        $deliveries = new DeliveryCollection();
+
+        foreach (['First shipping', 'Second shipping'] as $name) {
+            $shippingMethod = new ShippingMethodEntity();
+            $shippingMethod->setId(Uuid::randomHex());
+            $shippingMethod->setTranslated(['name' => $name]);
+            $shippingMethod->setPrices(new ShippingMethodPriceCollection());
+
+            $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
+            $deliveries->add($this->createDeliveryWithCartTotal($shippingMethod, 10.0));
+        }
+
+        $cart = new Cart('test');
+        $this->createRealDeliveryCalculator()->calculate($data, $cart, $deliveries, static::createStub(SalesChannelContext::class));
+
+        $deliveryIndexes = [];
+        foreach ($cart->getErrors() as $error) {
+            static::assertInstanceOf(ShippingMethodBlockedError::class, $error);
+            $deliveryIndexes[$error->getName()] = $error->getDeliveryIndex();
+        }
+
+        static::assertSame(['First shipping' => 0, 'Second shipping' => 1], $deliveryIndexes);
     }
 
     public function testCalculateManualShippingCost(): void

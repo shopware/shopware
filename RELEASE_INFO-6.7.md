@@ -859,6 +859,12 @@ The command is deprecated and will be removed in 6.9.0.0.
 
 ## Hosting & Configuration
 
+### Sitemaps skip inactive sales channels and `sitemap:generate` continues after a failure
+
+The scheduled sitemap task and `bin/console sitemap:generate` no longer generate sitemaps for inactive sales channels.
+`sitemap:generate` now continues with the other sales channels and languages when the generation of one fails, prints the error and exits with a failure code at the end.
+A sitemap generation that is locked by another process is still reported without failing the command.
+
 ### Readiness checks isolate their virtual requests
 
 Pre-rollout system checks now reset services between virtual Administration and Storefront requests, including redirects and failed requests.

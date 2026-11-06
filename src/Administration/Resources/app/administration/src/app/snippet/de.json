@@ -879,6 +879,7 @@
         "lineItemDimensionWidthRule": "Position mit Breite",
         "lineItemDimensionHeightRule": "Position mit Höhe",
         "lineItemDimensionLengthRule": "Position mit Länge",
+        "lineItemDimensionLongestAndGirthRule": "Position mit längster Seite und Gurtmaß",
         "lineItemDimensionWeightRule": "Position mit Gewicht",
         "lineItemDimensionVolumeRule": "Position mit Volumen",
         "lineItemListPriceRule": "Position mit Streichpreis",

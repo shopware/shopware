@@ -6,7 +6,7 @@
 import { warn } from 'src/core/service/utils/debug.utils';
 import types from 'src/core/service/utils/types.utils';
 import TemplateFactory from 'src/core/factory/template.factory';
-import { indexTwigBlocksFromTemplate } from 'src/core/factory/twig-block-index';
+import { indexTwigBlocksFromTemplate, resetBlockIndex } from 'src/core/factory/twig-block-index';
 import type {
     AllowedComponentProps,
     ComponentCustomProps,
@@ -52,6 +52,8 @@ export default {
     registerComponentHelper,
     resolveComponentTemplates,
     markComponentTemplatesAsNotResolved,
+    updateTemplateOverrideFromHmr,
+    getTemplateDependents,
     isSyncComponent,
     markComponentAsSync,
 };
@@ -66,6 +68,8 @@ export interface ComponentConfig extends ComponentOptions {
     loading?: ComponentConfig;
     delay?: number;
     name?: string;
+    /** @private - Added to static Twig overrides by the Vite 8 development transform. */
+    __shopwareTwigHmrId?: string;
 }
 
 /**
@@ -82,6 +86,7 @@ const componentRegistry = new Map<string, AwaitedComponentConfig>();
 type IndexedAwaitedComponentConfig = {
     index: number;
     config: AwaitedComponentConfig;
+    hmrId?: string;
 };
 const overrideRegistry = new Map<string, IndexedAwaitedComponentConfig[]>();
 
@@ -612,6 +617,13 @@ function override(
     overrideIndex: number | null = null,
 ): () => Promise<ComponentConfig> {
     let config: ComponentConfig;
+    let hmrId: string | undefined =
+        typeof componentConfiguration === 'function' ? undefined : componentConfiguration.__shopwareTwigHmrId;
+    const overrideEntry: IndexedAwaitedComponentConfig = {
+        index: overrideIndex !== null ? overrideIndex : 0,
+        config: configResolveMethod,
+        hmrId,
+    };
 
     /**
      * For sync object configs the block index is populated here, before any
@@ -629,7 +641,7 @@ function override(
         indexTwigBlocksFromTemplate(componentName, componentConfiguration.template as string);
     }
 
-    const configResolveMethod = async (): Promise<ComponentConfig> => {
+    async function configResolveMethod(): Promise<ComponentConfig> {
         if (config) {
             return config;
         }
@@ -641,6 +653,9 @@ function override(
 
         config = await awaitedConfig();
 
+        hmrId ??= config.__shopwareTwigHmrId;
+        delete config.__shopwareTwigHmrId;
+
         /**
          * Check if the resulted config is a ES module. Then we need to use the default
          * value of it.
@@ -649,6 +664,10 @@ function override(
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             config = config.default;
         }
+
+        hmrId ??= config.__shopwareTwigHmrId;
+        delete config.__shopwareTwigHmrId;
+        overrideEntry.hmrId = hmrId;
 
         config.name = componentName;
 
@@ -659,7 +678,12 @@ function override(
                 indexTwigBlocksFromTemplate(componentName, config.template as string);
             }
 
-            TemplateFactory.registerTemplateOverride(componentName, config.template as string, overrideIndex);
+            TemplateFactory.registerTemplateOverride(
+                componentName,
+                config.template as string,
+                overrideIndex,
+                hmrId ?? configResolveMethod,
+            );
 
             // The merged template (default + all overrides) is compiled later by
             // TemplateFactory, so the raw string on the config object is no longer needed.
@@ -667,17 +691,54 @@ function override(
         }
 
         return config;
-    };
+    }
 
     const overrides = overrideRegistry.get(componentName) || [];
-    overrides.push({
-        index: overrideIndex !== null ? overrideIndex : 0,
-        config: configResolveMethod,
-    });
+    overrides.push(overrideEntry);
     overrides.sort((a, b) => a.index - b.index);
     overrideRegistry.set(componentName, overrides);
 
     return configResolveMethod;
+}
+
+/**
+ * Replaces one already-registered Twig override during Vite development.
+ *
+ * @private
+ */
+function updateTemplateOverrideFromHmr(componentName: string, hmrId: string, template: string): boolean {
+    const registeredOverride = overrideRegistry.get(componentName)?.some((entry) => entry.hmrId === hmrId);
+
+    if (!registeredOverride || !TemplateFactory.replaceTemplateOverride(componentName, hmrId, template)) {
+        return false;
+    }
+
+    // Other components may have eager block entries whose lazy configs have not reached TemplateFactory yet.
+    resetBlockIndex(componentName);
+    TemplateFactory.getTemplateOverrides(componentName).forEach(({ raw }) => {
+        if (typeof raw === 'string') {
+            indexTwigBlocksFromTemplate(componentName, raw);
+        }
+    });
+
+    return true;
+}
+
+/**
+ * Returns the component and its transitive template descendants for development-only invalidation.
+ *
+ * @private
+ */
+function getTemplateDependents(componentName: string): string[] {
+    const templates = TemplateFactory.getTemplateRegistry() as Map<string, { extend?: string }>;
+    const affected = new Set([componentName]);
+    // Iterating the growing set also visits descendants registered before their parent.
+    for (const parent of affected) {
+        templates.forEach((entry, name) => {
+            if (entry.extend === parent) affected.add(name);
+        });
+    }
+    return Array.from(affected);
 }
 
 /**

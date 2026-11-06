@@ -25,6 +25,7 @@ export default {
     getTemplateRegistry,
     getNormalizedTemplateRegistry,
     getTemplateOverrides,
+    replaceTemplateOverride,
 };
 
 /**
@@ -182,8 +183,9 @@ function extendComponentTemplate(componentName, extendComponentName, templateExt
  * @param {String} componentName
  * @param {String|null} [templateOverride=null]
  * @param {Number|null} [overrideIndex=0]
+ * @param {unknown} [overrideId=null]
  */
-function registerTemplateOverride(componentName, templateOverride = null, overrideIndex = 0) {
+function registerTemplateOverride(componentName, templateOverride = null, overrideIndex = 0, overrideId = null) {
     const component = templateRegistry.get(componentName) || {
         name: componentName,
         raw: null,
@@ -193,9 +195,34 @@ function registerTemplateOverride(componentName, templateOverride = null, overri
     component.overrides.push({
         index: overrideIndex,
         raw: templateOverride,
+        id: overrideId,
     });
     component.overrides.sort((a, b) => a.index - b.index);
     templateRegistry.set(componentName, component);
+    return true;
+}
+
+/**
+ * Replaces an existing override during development without changing its order.
+ *
+ * @private
+ * @param {String} componentName
+ * @param {unknown} overrideId
+ * @param {String} templateOverride
+ */
+function replaceTemplateOverride(componentName, overrideId, templateOverride) {
+    const component = templateRegistry.get(componentName);
+    const overrides = component?.overrides.filter((item) => item.id === overrideId) || [];
+
+    if (overrides.length === 0) {
+        return false;
+    }
+
+    overrides.forEach((override) => {
+        override.raw = templateOverride;
+    });
+    normalizedTemplateRegistry.clear();
+
     return true;
 }
 

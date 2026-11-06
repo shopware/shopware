@@ -31,6 +31,39 @@ describe('core/factory/template.factory.js - native block extension points', () 
         );
     });
 
+    it('replaces a keyed template override and invalidates normalized templates', () => {
+        const overrideId = {};
+
+        TemplateFactory.registerComponentTemplate('tf-hmr', '<div>{% block tf_hmr_block %}<p>base</p>{% endblock %}</div>');
+        TemplateFactory.registerTemplateOverride(
+            'tf-hmr',
+            '{% block tf_hmr_block %}<p>before</p>{% endblock %}',
+            0,
+            overrideId,
+        );
+        TemplateFactory.resolveTemplates();
+
+        expect(TemplateFactory.getRenderedTemplate('tf-hmr')).toContain('<p>before</p>');
+
+        expect(
+            TemplateFactory.replaceTemplateOverride(
+                'tf-hmr',
+                overrideId,
+                '{% block tf_hmr_block %}<p>after</p>{% endblock %}',
+            ),
+        ).toBe(true);
+
+        expect(TemplateFactory.getNormalizedTemplateRegistry().has('tf-hmr')).toBe(false);
+        expect(TemplateFactory.getRenderedTemplate('tf-hmr')).toContain('<p>after</p>');
+        expect(TemplateFactory.getRenderedTemplate('tf-hmr')).not.toContain('<p>before</p>');
+    });
+
+    it('does not replace an override with an unknown key', () => {
+        TemplateFactory.registerComponentTemplate('tf-hmr-unknown', '<p>base</p>');
+
+        expect(TemplateFactory.replaceTemplateOverride('tf-hmr-unknown', {}, '<p>changed</p>')).toBe(false);
+    });
+
     it('wraps a block once when an extending component overrides it', () => {
         registerNativeExtensionTargets({ component: 'tf-parent', blocks: ['tf_parent_block'] });
 

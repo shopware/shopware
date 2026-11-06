@@ -92,10 +92,12 @@ export default {
         },
 
         criteria() {
+            // the tree only checks whether a category is an entry point, so the ids of its sales channels are enough
             return new Criteria()
                 .addAssociation('navigationSalesChannels')
                 .addAssociation('footerSalesChannels')
-                .addAssociation('serviceSalesChannels');
+                .addAssociation('serviceSalesChannels')
+                .addIncludes({ sales_channel: ['id'] });
         },
 
         criteriaWithChildren() {

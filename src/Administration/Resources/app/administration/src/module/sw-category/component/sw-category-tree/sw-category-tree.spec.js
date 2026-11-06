@@ -125,7 +125,7 @@ async function createWrapper(categories = null, props = {}) {
     });
 }
 
-async function createInteractiveWrapper({ props = {} } = {}) {
+async function createInteractiveWrapper({ props = {}, onSearch = () => {} } = {}) {
     const routes = [
         {
             name: 'sw.category.detail',
@@ -161,6 +161,7 @@ async function createInteractiveWrapper({ props = {} } = {}) {
                 repositoryFactory: {
                     create: () => ({
                         search: (criteria) => {
+                            onSearch(criteria);
                             const parentId = criteria.filters.find((filter) => filter.field === 'parentId')?.value ?? null;
 
                             return Promise.resolve(
@@ -391,6 +392,25 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
 
         expect(wrapper.get('[data-item-id="second-grand-child"]').isVisible()).toBe(true);
         expect(getFirstRoot().attributes('aria-expanded')).toBe('false');
+    });
+
+    it('loads only the ids of the sales channels using a category as entry point', async () => {
+        const searchedCriteria = [];
+        const wrapper = await createInteractiveWrapper({
+            onSearch: (criteria) => searchedCriteria.push(criteria.parse()),
+        });
+        await flushPromises();
+
+        expect(wrapper.get('[data-item-id="first-root"]').exists()).toBe(true);
+        expect(searchedCriteria.length).toBeGreaterThan(0);
+        searchedCriteria.forEach((criteria) => {
+            expect(Object.keys(criteria.associations)).toEqual([
+                'navigationSalesChannels',
+                'footerSalesChannels',
+                'serviceSalesChannels',
+            ]);
+            expect(criteria.includes).toEqual({ sales_channel: ['id'] });
+        });
     });
 
     it('should not initially expand root categories when a category is selected', async () => {

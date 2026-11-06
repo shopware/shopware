@@ -5,35 +5,24 @@
 /**
  * Jest configuration shared by Administration unit tests and Storefront administration tests.
  *
- * It includes build-time TypeScript helpers such as `vue-setup-transform` so transform tests run in
- * the same project-level module aliases and coverage collection as application code.
+ * The test harness itself (environment, setup files, transforms, host module mapping) comes from the
+ * extension-tooling factory, which extensions compose as well. This file adds what only the platform
+ * runs: the Storefront roots, the specs and coverage of the build-time helpers such as
+ * `vue-setup-transform`, CI reporting and coverage.
  */
 
 // For a detailed explanation regarding each configuration property, visit:
 // https://jestjs.io/docs/en/configuration.html
 import type { Config } from 'jest';
 import { existsSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { shopwareAdminJest } from './extension-tooling/jest.mjs';
 import { isMajorRun, loadFeatureConfig } from './test/_helper_/majorFeatureFlags';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 process.env.PROJECT_ROOT = process.env.PROJECT_ROOT || process.env.INIT_CWD || '.';
-process.env.ADMIN_PATH = process.env.ADMIN_PATH || __dirname;
-process.env.TZ = process.env.TZ || 'UTC';
-
-// Tests run in Node/jsdom, so browser data freshness is irrelevant here. Without this, browserslist's
-// stale caniuse-lite warning (triggered via vue-jest -> babel preset-env target resolution) is escalated
-// to a test failure by the console.warn guard in prepare_environment.js once the lockfile data ages 6 months.
-process.env.BROWSERSLIST_IGNORE_OLD_DATA = process.env.BROWSERSLIST_IGNORE_OLD_DATA || 'true';
-
-// Check if ADMIN_PATH/test/_helper_/component-imports.js exists
-if (!existsSync(join(process.env.ADMIN_PATH, '/test/_helper_/componentWrapper/component-imports.js'))) {
-    throw new Error(
-        'Missing required /test/_helper_/componentWrapper/component-imports.js file to run tests. Run `npm run unit-setup` before executing tests, or use `composer run admin:unit`.',
-    );
-}
 
 process.env.JEST_CACHE_DIR = process.env.JEST_CACHE_DIR || '<rootDir>.jestcache';
 
@@ -64,23 +53,18 @@ const deprecationBaselineReporter: [string, Record<string, unknown>] = [
     },
 ];
 
-const config: Config = {
+const config: Config = shopwareAdminJest({
+    rootDir: __dirname,
     roots: [
         '<rootDir>',
         '<rootDir>/../../../../Storefront/Resources/app/administration',
     ],
     cacheDirectory: process.env.JEST_CACHE_DIR,
     globals: {
-        adminPath: process.env.ADMIN_PATH,
         projectRoot: process.env.PROJECT_ROOT,
     },
 
     globalTeardown: '<rootDir>test/globalTeardown.js',
-
-    resolver: '<rootDir>/test/_helper_/jest-resolver.js',
-
-    // Use default jest-circus runner (Jest 30+), removed deprecated jest-jasmine2
-    testEnvironment: '<rootDir>/test/_setup/feature-flag-test-environment.js',
 
     // Worker configuration - prevent OOM kills while maximizing parallelism
     // Memory limit per worker to prevent SIGSEGV crashes from memory pressure
@@ -91,12 +75,6 @@ const config: Config = {
     collectCoverage: isCi,
     clearMocks: true,
     restoreMocks: true,
-    moduleFileExtensions: [
-        'js',
-        'ts',
-        'vue',
-        'json',
-    ],
 
     // Performance optimizations
     // Skip node_modules transformation where possible (already handled by transformIgnorePatterns)
@@ -142,72 +120,10 @@ const config: Config = {
         'html-spa',
     ],
 
-    setupFiles: [
-        // Ahead of every other setup file: `setup-shopware.js` loads the mixin registry, which imports
-        // `shopware:utils`, and a virtual module has to be registered before anything requires it.
-        resolve(join(__dirname, '/test/_helper_/virtual-shopware-modules/register-mocks.js')),
-        resolve(join(__dirname, '/test/_setup/jsdom-polyfills.js')),
-    ],
-
-    setupFilesAfterEnv: [
-        resolve(join(__dirname, '/test/_setup/setup-feature-flags.js')),
-        resolve(join(__dirname, '/test/_setup/setup-shopware.js')),
-        'jest-expect-message',
-        resolve(join(__dirname, '/test/_setup/prepare_environment.js')),
-        resolve(join(__dirname, '/test/_setup/jest-extensions.ts')),
-    ],
-
-    transform: {
-        // Files using import.meta.glob need the Babel plugin for transformation
-        '(module/index|core/service/api/index|app/mixin/index|app/decorator/index|app/plugin/index|app/directive/index|app/filter/index)\\.[jt]sx?$':
-            [
-                'babel-jest',
-                {
-                    presets: [
-                        '@babel/preset-typescript',
-                        [
-                            '@babel/preset-env',
-                            { targets: { node: 'current' } },
-                        ],
-                    ],
-                    plugins: [
-                        'shopware-vite-meta-glob',
-                    ],
-                },
-            ],
-        '^.+\\.[jt]sx?$': [
-            '@swc/jest',
-            {
-                jsc: {
-                    parser: { syntax: 'typescript', decorators: true },
-                    target: 'es2021',
-                },
-            },
-        ],
-        '^.+(\\.twig|\\.html)$': '<rootDir>/test/transformer/twigToVueTransformer.js',
-        '.*\\.(svg)$': '<rootDir>/test/transformer/svgStringifyTransformer.js',
-        '^.+\\.vue$': '<rootDir>/test/transformer/shopwareSetupVueTransformer.js',
-    },
-
-    transformIgnorePatterns: [
-        '/node_modules/(?!(@shopware-ag/meteor-component-library|@shopware-ag/meteor-icon-kit|uuidv7|three|other)/)',
-    ],
-
+    // Platform-only mappings, matched before the harness mappings of the factory.
     moduleNameMapper: {
-        '\\.(css|less|scss)$': '<rootDir>/test/_mocks_/styleMock.js',
-        '^src(.*)$': '<rootDir>/src$1',
         '^lodash-es/debounce$': '<rootDir>/test/_mocks_/lodash-es-debounce.js',
         '^test(.*)$': '<rootDir>/test$1',
-        '^@shopware-ag/admin-extension-sdk/es/(.*)': '<rootDir>/node_modules/@shopware-ag/admin-extension-sdk/umd/$1',
-        '^@shopware-ag/meteor-admin-sdk/es/(.*)': '<rootDir>/node_modules/@shopware-ag/meteor-admin-sdk/umd/$1',
-        '^@shopware-ag/meteor-component-library$':
-            '<rootDir>/node_modules/@shopware-ag/meteor-component-library/dist/common/index.js',
-        '^@shopware-ag/meteor-component-library/dist/esm/(.*)$':
-            '<rootDir>/node_modules/@shopware-ag/meteor-component-library/dist/common/$1',
-        '^@vue/test-utils$': '<rootDir>/node_modules/@vue/test-utils',
-        '^lodash-es$': 'lodash',
-        '^lodash-es/(.*)$': 'lodash/$1',
-        '^vue$': 'vue/dist/vue.cjs.js',
     },
 
     reporters: isCi
@@ -259,13 +175,6 @@ const config: Config = {
         '/node_modules/',
         ...(runExtensionToolingE2e ? [] : ['<rootDir>/scripts/extensionTooling/e2e\\.spec/']),
     ],
-
-    testEnvironmentOptions: {
-        customExportConditions: [
-            'node',
-            'node-addons',
-        ],
-    },
-};
+});
 
 export default config;

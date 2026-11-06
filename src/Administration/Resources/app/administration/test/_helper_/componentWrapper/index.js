@@ -22,7 +22,7 @@ const ANSI_SGR_PATTERN = /\x1b\[[0-9;]*m/g;
  * Whether `error` is Jest failing to resolve exactly `specifier`.
  *
  * It cannot be recognised by an error code: every generated `src/…` path matches the
- * `^src(.*)$` mapper, so a missing file there arrives as a bare `Error` with no `code` and an empty
+ * `^src/(.*)$` mapper, so a missing file there arrives as a bare `Error` with no `code` and an empty
  * `name`. Hence the match on the specifier itself, which also keeps everything the module body
  * throws - a compile error, a stale import *inside* the component - out of the relabel.
  */

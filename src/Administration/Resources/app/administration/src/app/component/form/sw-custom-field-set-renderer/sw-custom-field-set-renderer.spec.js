@@ -1024,95 +1024,100 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
     });
 
     /**
-     * Translated custom fields inherited from the system language instead of the language's parent.
+     * Translated custom fields did not inherit from the language's parent.
      * @regression
      * @see https://github.com/shopware/shopware/issues/8498
      */
-    it('should load translated inheritance from the selected language parent instead of the system language', async () => {
-        const productRepositoryGet = jest.fn((id, context) =>
-            Promise.resolve({
-                customFields: {
-                    translatedTextField:
-                        context.languageId === 'fr-FR'
-                            ? 'inherit me from parent language'
-                            : 'inherit me from system language',
-                },
-            }),
-        );
-
-        await withTranslatedLanguageContext({ parentId: 'fr-FR' }, async () => {
-            wrapper = await createWrapper(
-                {
-                    sets: createTranslatedFieldSet([createTranslatedTextField()]),
-                    entity: createTranslatedEntity({
-                        customFields: {
-                            translatedTextField: 'translated own value',
-                        },
-                        translatedCustomFields: {
-                            translatedTextField: 'translated own value',
-                        },
-                    }),
-                    parentEntity: null,
-                },
-                createProductRepositoryOptions(productRepositoryGet),
-            );
-            await flushPromises();
-
-            const textInheritanceSwitch = wrapper.find(
-                '.sw-form-field-renderer-field__translatedTextField .mt-inheritance-switch',
-            );
-
-            expect(productRepositoryGet).toHaveBeenCalledWith(
-                'product-id',
-                expect.objectContaining({
-                    languageId: 'fr-FR',
+    describe('inherited translated values', () => {
+        /**
+         * Translated custom fields inherited from the system language instead of the language's parent.
+         * @regression
+         */
+        it('should load translated inheritance from the selected language parent instead of the system language', async () => {
+            const productRepositoryGet = jest.fn((id, context) =>
+                Promise.resolve({
+                    customFields: {
+                        translatedTextField:
+                            context.languageId === 'fr-FR'
+                                ? 'inherit me from parent language'
+                                : 'inherit me from system language',
+                    },
                 }),
             );
 
-            await textInheritanceSwitch.trigger('click');
-            await flushPromises();
+            await withTranslatedLanguageContext({ parentId: 'fr-FR' }, async () => {
+                wrapper = await createWrapper(
+                    {
+                        sets: createTranslatedFieldSet([createTranslatedTextField()]),
+                        entity: createTranslatedEntity({
+                            customFields: {
+                                translatedTextField: 'translated own value',
+                            },
+                            translatedCustomFields: {
+                                translatedTextField: 'translated own value',
+                            },
+                        }),
+                        parentEntity: null,
+                    },
+                    createProductRepositoryOptions(productRepositoryGet),
+                );
+                await flushPromises();
 
-            const textField = wrapper.find('.sw-form-field-renderer-field__translatedTextField input[type="text"]');
+                const textInheritanceSwitch = wrapper.find(
+                    '.sw-form-field-renderer-field__translatedTextField .mt-inheritance-switch',
+                );
 
-            expect(textField.element.value).toBe('inherit me from parent language');
-        });
-    });
-
-    /**
-     * Inherited translated custom fields did not receive their inherited value.
-     * @regression
-     * @see https://github.com/shopware/shopware/issues/8498
-     */
-    it('should return the inherited value for the requested translated custom field', async () => {
-        const productRepositoryGet = jest.fn(() =>
-            Promise.resolve({
-                customFields: {
-                    translatedTextField: 'inherit me from default language',
-                    translatedCheckboxField: true,
-                },
-            }),
-        );
-
-        await withTranslatedLanguageContext({}, async () => {
-            wrapper = await createWrapper(
-                {
-                    sets: createTranslatedFieldSet([createTranslatedTextField(), createTranslatedCheckboxField()]),
-                    entity: createTranslatedEntity({
-                        customFields: {
-                            translatedTextField: 'translated own value',
-                        },
-                        translatedCustomFields: {
-                            translatedTextField: 'translated own value',
-                            translatedCheckboxField: true,
-                        },
+                expect(productRepositoryGet).toHaveBeenCalledWith(
+                    'product-id',
+                    expect.objectContaining({
+                        languageId: 'fr-FR',
                     }),
-                    parentEntity: null,
-                },
-                createProductRepositoryOptions(productRepositoryGet),
-            );
-            await flushPromises();
+                );
 
-            expect(wrapper.vm.getInheritedCustomFields('translatedCheckboxField')).toBe(true);
+                await textInheritanceSwitch.trigger('click');
+                await flushPromises();
+
+                const textField = wrapper.find('.sw-form-field-renderer-field__translatedTextField input[type="text"]');
+
+                expect(textField.element.value).toBe('inherit me from parent language');
+            });
+        });
+
+        /**
+         * Inherited translated custom fields did not receive their inherited value.
+         * @regression
+         */
+        it('should return the inherited value for the requested translated custom field', async () => {
+            const productRepositoryGet = jest.fn(() =>
+                Promise.resolve({
+                    customFields: {
+                        translatedTextField: 'inherit me from default language',
+                        translatedCheckboxField: true,
+                    },
+                }),
+            );
+
+            await withTranslatedLanguageContext({}, async () => {
+                wrapper = await createWrapper(
+                    {
+                        sets: createTranslatedFieldSet([createTranslatedTextField(), createTranslatedCheckboxField()]),
+                        entity: createTranslatedEntity({
+                            customFields: {
+                                translatedTextField: 'translated own value',
+                            },
+                            translatedCustomFields: {
+                                translatedTextField: 'translated own value',
+                                translatedCheckboxField: true,
+                            },
+                        }),
+                        parentEntity: null,
+                    },
+                    createProductRepositoryOptions(productRepositoryGet),
+                );
+                await flushPromises();
+
+                expect(wrapper.vm.getInheritedCustomFields('translatedCheckboxField')).toBe(true);
+            });
         });
     });
 

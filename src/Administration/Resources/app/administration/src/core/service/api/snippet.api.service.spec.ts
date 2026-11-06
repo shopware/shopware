@@ -164,100 +164,105 @@ describe('core/service/api/snippet.api.service.ts', () => {
         });
 
         /**
-         * Loaded snippets were not pushed to i18n, so the view did not update.
+         * Loaded snippets did not update the view, leaving placeholders shown.
          * @regression
          * @see https://github.com/shopware/shopware/issues/13848
          */
-        it('should call setLocaleMessage when Shopware.Snippet is instantiated', async () => {
-            const { snippetApiService, clientMock } = createSnippetApiService();
+        describe('pushing snippets to i18n', () => {
+            /**
+             * Loaded snippets were not pushed to i18n, so the view did not update.
+             * @regression
+             */
+            it('should call setLocaleMessage when Shopware.Snippet is instantiated', async () => {
+                const { snippetApiService, clientMock } = createSnippetApiService();
 
-            LocaleFactory.register('en-GB', {
-                existing: 'value',
-            });
+                LocaleFactory.register('en-GB', {
+                    existing: 'value',
+                });
 
-            const setLocaleMessageMock = jest.fn();
-            Object.defineProperty(Shopware, 'Snippet', {
-                value: {
-                    setLocaleMessage: setLocaleMessageMock,
-                },
-                writable: true,
-                configurable: true,
-            });
+                const setLocaleMessageMock = jest.fn();
+                Object.defineProperty(Shopware, 'Snippet', {
+                    value: {
+                        setLocaleMessage: setLocaleMessageMock,
+                    },
+                    writable: true,
+                    configurable: true,
+                });
 
-            // Verify mock hasn't been called yet
-            expect(setLocaleMessageMock).toHaveBeenCalledTimes(0);
+                // Verify mock hasn't been called yet
+                expect(setLocaleMessageMock).toHaveBeenCalledTimes(0);
 
-            clientMock.onGet('/_admin/snippets?locale=en-GB').reply(200, {
-                'en-GB': {
+                clientMock.onGet('/_admin/snippets?locale=en-GB').reply(200, {
+                    'en-GB': {
+                        loaded: {
+                            snippet: 'Loaded snippet',
+                        },
+                    },
+                });
+
+                await snippetApiService.getSnippets(LocaleFactory, 'en-GB');
+
+                // Should be called 2 times: extend() calls it twice
+                expect(setLocaleMessageMock).toHaveBeenCalledTimes(2);
+
+                // Verify empty message is called before full messages (reactivity pattern)
+                expect(setLocaleMessageMock).toHaveBeenNthCalledWith(1, 'en-GB', {});
+                expect(setLocaleMessageMock).toHaveBeenNthCalledWith(2, 'en-GB', {
+                    existing: 'value',
                     loaded: {
                         snippet: 'Loaded snippet',
                     },
-                },
+                });
             });
 
-            await snippetApiService.getSnippets(LocaleFactory, 'en-GB');
+            /**
+             * Snippet updates did not trigger a view refresh, leaving placeholders shown.
+             * @regression
+             */
+            it('should set empty messages first to trigger reactivity update', async () => {
+                const { snippetApiService, clientMock } = createSnippetApiService();
 
-            // Should be called 2 times: extend() calls it twice
-            expect(setLocaleMessageMock).toHaveBeenCalledTimes(2);
+                LocaleFactory.register('en-GB', {
+                    base: 'value',
+                });
 
-            // Verify empty message is called before full messages (reactivity pattern)
-            expect(setLocaleMessageMock).toHaveBeenNthCalledWith(1, 'en-GB', {});
-            expect(setLocaleMessageMock).toHaveBeenNthCalledWith(2, 'en-GB', {
-                existing: 'value',
-                loaded: {
-                    snippet: 'Loaded snippet',
-                },
-            });
-        });
+                const callOrder: Array<{ locale: string; messages: object }> = [];
+                const setLocaleMessageMock = jest.fn((locale: string, messages: object) => {
+                    callOrder.push({ locale, messages });
+                });
 
-        /**
-         * Snippet updates did not trigger a view refresh, leaving placeholders shown.
-         * @regression
-         * @see https://github.com/shopware/shopware/issues/13848
-         */
-        it('should set empty messages first to trigger reactivity update', async () => {
-            const { snippetApiService, clientMock } = createSnippetApiService();
+                Object.defineProperty(Shopware, 'Snippet', {
+                    value: {
+                        setLocaleMessage: setLocaleMessageMock,
+                    },
+                    writable: true,
+                    configurable: true,
+                });
 
-            LocaleFactory.register('en-GB', {
-                base: 'value',
-            });
+                // Verify callOrder is empty before action
+                expect(callOrder).toHaveLength(0);
 
-            const callOrder: Array<{ locale: string; messages: object }> = [];
-            const setLocaleMessageMock = jest.fn((locale: string, messages: object) => {
-                callOrder.push({ locale, messages });
-            });
+                clientMock.onGet('/_admin/snippets?locale=en-GB').reply(200, {
+                    'en-GB': {
+                        api: {
+                            snippet: 'API snippet',
+                        },
+                    },
+                });
 
-            Object.defineProperty(Shopware, 'Snippet', {
-                value: {
-                    setLocaleMessage: setLocaleMessageMock,
-                },
-                writable: true,
-                configurable: true,
-            });
+                await snippetApiService.getSnippets(LocaleFactory, 'en-GB');
 
-            // Verify callOrder is empty before action
-            expect(callOrder).toHaveLength(0);
+                // Verify the order of calls - should have 2 calls
+                expect(callOrder).toHaveLength(2);
 
-            clientMock.onGet('/_admin/snippets?locale=en-GB').reply(200, {
-                'en-GB': {
+                // Verify that empty messages are set before full messages (reactivity pattern)
+                expect(callOrder[0].messages).toEqual({});
+                expect(callOrder[1].messages).toEqual({
+                    base: 'value',
                     api: {
                         snippet: 'API snippet',
                     },
-                },
-            });
-
-            await snippetApiService.getSnippets(LocaleFactory, 'en-GB');
-
-            // Verify the order of calls - should have 2 calls
-            expect(callOrder).toHaveLength(2);
-
-            // Verify that empty messages are set before full messages (reactivity pattern)
-            expect(callOrder[0].messages).toEqual({});
-            expect(callOrder[1].messages).toEqual({
-                base: 'value',
-                api: {
-                    snippet: 'API snippet',
-                },
+                });
             });
         });
 

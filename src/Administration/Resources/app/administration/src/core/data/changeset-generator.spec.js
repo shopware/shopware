@@ -419,45 +419,44 @@ describe('src/core/data/changeset-generator.data.js', () => {
          * @regression
          * @see https://github.com/shopware/shopware/issues/21011
          */
-        it('generates the changeset of the loaded fields', () => {
-            const parent = new Entity(parentId, 'missing_association_parent', {
-                id: parentId,
-                name: 'Ada',
-                extensions: {},
+        describe('unloaded to-many associations', () => {
+            /** @regression */
+            it('generates the changeset of the loaded fields', () => {
+                const parent = new Entity(parentId, 'missing_association_parent', {
+                    id: parentId,
+                    name: 'Ada',
+                    extensions: {},
+                });
+                parent.name = 'Grace';
+
+                const { changes, deletionQueue } = changesetGenerator.generate(parent);
+
+                expect(changes).toEqual({ id: parentId, name: 'Grace' });
+                expect(deletionQueue).toEqual([]);
             });
-            parent.name = 'Grace';
 
-            const { changes, deletionQueue } = changesetGenerator.generate(parent);
+            /** @regression */
+            it('treats every entity of a collection added to an unloaded association as new', () => {
+                const parent = new Entity(parentId, 'missing_association_parent', {
+                    id: parentId,
+                    extensions: {},
+                });
+                parent.oneToMany = createCollection([createChild('child-1')]);
+                parent.manyToMany = createCollection([createChild('child-2')]);
+                parent.extensions.oneToManyExtension = createCollection([createChild('child-3')]);
+                parent.extensions.manyToManyExtension = createCollection([createChild('child-4')]);
 
-            expect(changes).toEqual({ id: parentId, name: 'Grace' });
-            expect(deletionQueue).toEqual([]);
-        });
+                const { changes, deletionQueue } = changesetGenerator.generate(parent);
 
-        /**
-         * Saving crashed when a to-many association was not loaded by the API.
-         * @regression
-         * @see https://github.com/shopware/shopware/issues/21011
-         */
-        it('treats every entity of a collection added to an unloaded association as new', () => {
-            const parent = new Entity(parentId, 'missing_association_parent', {
-                id: parentId,
-                extensions: {},
+                expect(changes).toEqual({
+                    id: parentId,
+                    oneToMany: [{ id: 'child-1' }],
+                    manyToMany: [{ id: 'child-2' }],
+                    oneToManyExtension: [{ id: 'child-3' }],
+                    manyToManyExtension: [{ id: 'child-4' }],
+                });
+                expect(deletionQueue).toEqual([]);
             });
-            parent.oneToMany = createCollection([createChild('child-1')]);
-            parent.manyToMany = createCollection([createChild('child-2')]);
-            parent.extensions.oneToManyExtension = createCollection([createChild('child-3')]);
-            parent.extensions.manyToManyExtension = createCollection([createChild('child-4')]);
-
-            const { changes, deletionQueue } = changesetGenerator.generate(parent);
-
-            expect(changes).toEqual({
-                id: parentId,
-                oneToMany: [{ id: 'child-1' }],
-                manyToMany: [{ id: 'child-2' }],
-                oneToManyExtension: [{ id: 'child-3' }],
-                manyToManyExtension: [{ id: 'child-4' }],
-            });
-            expect(deletionQueue).toEqual([]);
         });
 
         it('does not delete loaded associated entities when the draft collection is missing', () => {

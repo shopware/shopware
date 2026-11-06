@@ -21,6 +21,8 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\App\Feature\AppFeature;
 use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
@@ -441,6 +443,38 @@ class DocumentConfigLoaderTest extends TestCase
 
         static::assertSame($expectedPrefix, $bundle->config->filenamePrefix);
         static::assertSame($expectedSuffix, $bundle->config->filenameSuffix);
+    }
+
+    public function testLoadSearchesOnlyTheGlobalAndTheSalesChannelRows(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+
+        $documentRepo = new StaticEntityRepository(
+            [new DocumentBaseConfigCollection([$this->createBaseConfig(global: true, pageSize: 'A4', companyName: 'Global GmbH')])],
+            new DocumentBaseConfigDefinition(),
+        );
+
+        $loader = new DocumentConfigLoader(
+            $documentRepo,
+            new StaticEntityRepository([new CountryCollection([$this->createCountry()])], new CountryDefinition()),
+            $this->createMediaRepository(),
+            $this->createSystemConfigService(),
+            $this->documentTypeRegistry,
+        );
+
+        $loader->load(DocumentType::INVOICE->value, $salesChannelId, Context::createDefaultContext());
+
+        static::assertCount(1, $documentRepo->searchedCriteria);
+        static::assertEquals(
+            [
+                new EqualsFilter('typeName', DocumentType::INVOICE->value),
+                new OrFilter([
+                    new EqualsFilter('global', true),
+                    new EqualsFilter('salesChannels.salesChannelId', $salesChannelId),
+                ]),
+            ],
+            $documentRepo->searchedCriteria[0]->getFilters(),
+        );
     }
 
     public function testLoadFallsBackToGlobalWhenNoSalesChannelRowMatches(): void

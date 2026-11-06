@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -62,7 +63,13 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
         }
 
         $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('documentType.technicalName', $documentType))
+            ->addFilter(
+                new EqualsFilter('documentType.technicalName', $documentType),
+                new OrFilter([
+                    new EqualsFilter('global', true),
+                    new EqualsFilter('salesChannels.salesChannelId', $salesChannelId),
+                ]),
+            )
             ->addAssociation('logo');
 
         $criteria->getAssociation('salesChannels')

@@ -1070,6 +1070,11 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         expect(actual).toEqual(expected);
     });
 
+    /**
+     * Order transactions were missing from the export field selection, so state could not be exported.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/6399
+     */
     it('should show transactions of an order on search', async () => {
         jest.useFakeTimers();
 
@@ -1104,6 +1109,11 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         ]);
     });
 
+    /**
+     * Order deliveries were missing from the export field selection, so state could not be exported.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/6399
+     */
     it('should show deliveries of an order on search', async () => {
         jest.useFakeTimers();
 

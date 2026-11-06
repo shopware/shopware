@@ -65,6 +65,11 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
         return productEntity;
     }
 
+    /**
+     * Negative price surcharges in the variant generator were ignored.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/8036
+     */
     it('should not filter variants with positive or negative prices', async () => {
         const expectedCreateQueue = [
             {

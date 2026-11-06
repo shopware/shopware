@@ -362,6 +362,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(Shopware.Store.get('swOrderDetail').orderAddressIds).toEqual([]);
     });
 
+    /**
+     * Opening an order left an unsaved order version behind in the database.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/4738
+     */
     it('should clean up unsaved version when component gets destroyed', async () => {
         wrapper = await createWrapper();
         await wrapper.vm.createNewVersionId();
@@ -589,6 +594,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.vm.orderService.toggleAutomaticPromotions).not.toHaveBeenCalled();
     });
 
+    /**
+     * Editing an order kept stale promotions and lost the granted shipping discount on recalculation.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/4638
+     */
     it('should delete promotions on save edits', async () => {
         const lineItemWithExistingProduct = {
             id: 'lineItemId',
@@ -703,6 +713,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.vm.orderService.updateOrderAddress).not.toHaveBeenCalled();
     });
 
+    /**
+     * The last line item of an order could be deleted without recalculating the total.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/5148
+     */
     it('should notification error when order line items are empty', async () => {
         const createNotificationErrorMock = jest.fn();
         const createNewVersionIdMock = jest.fn().mockResolvedValue();

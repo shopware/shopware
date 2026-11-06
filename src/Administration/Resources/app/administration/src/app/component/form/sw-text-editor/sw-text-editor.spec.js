@@ -1038,6 +1038,11 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(document.body.querySelector('.sw-text-editor-toolbar')).toBeNull();
     });
 
+    /**
+     * Right-clicking in the text editor cleared the text selection.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/5593
+     */
     it('should allow to right click and copy selected text', async () => {
         wrapper = await createWrapper();
 

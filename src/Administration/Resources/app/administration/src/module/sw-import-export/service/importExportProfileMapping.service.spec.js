@@ -197,6 +197,11 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         expect(violations.missingRequiredFields).toEqual(['id', 'taxId']);
     });
 
+    /**
+     * Importing an exported product profile template was rejected for missing required fields.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10580
+     */
     it('product: should not find any missing required when parentProduct is existing', async () => {
         const violations = importExportProfileMappingService.validate(
             'product',
@@ -208,6 +213,11 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         expect(violations.duplicateMappings).toHaveLength(0);
     });
 
+    /**
+     * Required fields mapped through an association key such as tax.id were reported as missing.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10580
+     */
     it('product: should find missing required when key.id is existing', async () => {
         const violations = importExportProfileMappingService.validate(
             'product',

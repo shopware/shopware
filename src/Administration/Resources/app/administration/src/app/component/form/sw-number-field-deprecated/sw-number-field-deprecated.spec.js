@@ -328,6 +328,11 @@ describe('app/component/form/sw-number-field-deprecated', () => {
         expect(input.element.value).toBe('0');
     });
 
+    /**
+     * Arrow keys ignored a freshly typed value and stepped from the old one.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/2955
+     */
     it('should increase the value after typing some value', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -340,6 +345,11 @@ describe('app/component/form/sw-number-field-deprecated', () => {
         expect(input.element.value).toBe('5.01');
     });
 
+    /**
+     * Arrow keys ignored a freshly typed value and stepped from the old one.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/2955
+     */
     it('should decrease the value after typing some value', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

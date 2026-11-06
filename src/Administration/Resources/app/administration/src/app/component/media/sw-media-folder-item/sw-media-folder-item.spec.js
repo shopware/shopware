@@ -320,6 +320,11 @@ describe('components/media/sw-media-folder-item', () => {
         expect(wrapper.vm.rejectRenaming).toHaveBeenCalledWith(item, 'invalid-name', expect.any(Function));
     });
 
+    /**
+     * Opening media requested a default folder without an id and got an HTTP 400.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/4483
+     */
     it('should not call the api get default folder if default folder id does not exist', async () => {
         const wrapper = await createWrapper(null);
         await flushPromises();

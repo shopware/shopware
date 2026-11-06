@@ -216,6 +216,11 @@ describe('components/base/sw-button-deprecated', () => {
         expect(wrapper.vm.$router.currentRoute.value.name).toBe('sw.dashboard.index');
     });
 
+    /**
+     * A button with a router link swallowed its own click handler.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/4567
+     */
     it('should trigger a click event when is a router link', async () => {
         const click = jest.fn();
 

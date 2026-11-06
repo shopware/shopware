@@ -15,6 +15,11 @@ describe('filter/decode-idn-email.filter', () => {
         expect(emailIdnFilter('test@test.com')).toBe('test@test.com');
     });
 
+    /**
+     * Email addresses with umlauts were shown in punycode notation.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/5604
+     */
     it('should handle umlaut email', async () => {
         expect(emailIdnFilter('test@xn--tst-qla.com')).toBe('test@täst.com');
     });

@@ -569,6 +569,11 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         expect(criteria.queries).toHaveLength(0);
     });
 
+    /**
+     * Deleting variants left a stale variant listing config, hiding products in listings.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/4543
+     */
     it('should update variant listing config of product when deleting variant', async () => {
         global.activeAclRoles = ['product.deleter'];
 

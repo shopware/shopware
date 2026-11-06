@@ -356,7 +356,6 @@
         "components/base/sw-button-deprecated > should render a plain button": 1,
         "components/base/sw-button-deprecated > should render a plain button visible to screen readers": 1,
         "components/base/sw-button-deprecated > should render router-link button": 1,
-        "components/base/sw-button-deprecated > should trigger a click event when is a router link": 1,
         "components/base/sw-button-deprecated > should trigger an click event when the button is clicked": 1
     },
     "src/app/component/base/sw-button/sw-button.spec.js": {
@@ -1105,7 +1104,6 @@
     "src/app/component/form/sw-datepicker-deprecated/sw-datepicker-deprecated.spec.js": {
         "src/app/component/form/sw-datepicker > should convert the date when a timezone is set and dateType is dateTime": 1,
         "src/app/component/form/sw-datepicker > should emit a converted date when a timezone is set and dateType is dateTime": 1,
-        "src/app/component/form/sw-datepicker > should emit a date when is typed": 1,
         "src/app/component/form/sw-datepicker > should have enabled links": 1,
         "src/app/component/form/sw-datepicker > should not convert the date when a timezone is set and dateType is date": 1,
         "src/app/component/form/sw-datepicker > should not convert the date when a timezone is set and dateType is time": 1,
@@ -1168,12 +1166,10 @@
     "src/app/component/form/sw-number-field-deprecated/sw-number-field-deprecated.spec.js": {
         "app/component/form/sw-number-field-deprecated > injects ariaLabel prop from global injection": 1,
         "app/component/form/sw-number-field-deprecated > should clear input field when user deletes everything and emits null": 1,
-        "app/component/form/sw-number-field-deprecated > should decrease the value after typing some value": 1,
         "app/component/form/sw-number-field-deprecated > should emit \"ends-with-decimal-separator\" event when input ends with decimal separator": 1,
         "app/component/form/sw-number-field-deprecated > should emit \"ends-with-decimal-separator\" event with false value when input does not end with decimal separator": 1,
         "app/component/form/sw-number-field-deprecated > should emit input change event with NaN when allowEmpty is true and user deletes everything": 1,
         "app/component/form/sw-number-field-deprecated > should fill digits when appropriate": 1,
-        "app/component/form/sw-number-field-deprecated > should increase the value after typing some value": 1,
         "app/component/form/sw-number-field-deprecated > should not fill digits when disabled (default)": 1,
         "app/component/form/sw-number-field-deprecated > should not fill digits when not appropriate": 1,
         "app/component/form/sw-number-field-deprecated > should remove scientific notation and convert to human readable": 1,
@@ -1209,10 +1205,7 @@
         "components/form/sw-price-field > should be an disabled field": 1,
         "components/form/sw-price-field > should calculate price based on default price": 1,
         "components/form/sw-price-field > should calculate values if inherited and price is not set": 1,
-        "components/form/sw-price-field > should cancel the debounce timer when the number field emits \"ends-with-decimal-separator\" event": 1,
         "components/form/sw-price-field > should contain the dollar price": 1,
-        "components/form/sw-price-field > should have the typed gross value after input change and after debounce time": 1,
-        "components/form/sw-price-field > should have the typed net value after input change and after debounce time": 1,
         "components/form/sw-price-field > should not be an disabled field": 1,
         "components/form/sw-price-field > should not emit update:value event on price gross change": 1,
         "components/form/sw-price-field > should not emit update:value event on price net change": 1,
@@ -1297,7 +1290,6 @@
     },
     "src/app/component/form/sw-text-editor/sw-text-editor.spec.js": {
         "src/app/component/form/sw-text-editor > `should always render correct links as correct button types (buttonVariant: ${buttonVariant})`": 1,
-        "src/app/component/form/sw-text-editor > should allow to right click and copy selected text": 1,
         "src/app/component/form/sw-text-editor > should be able to switch from active link to non link text": 1,
         "src/app/component/form/sw-text-editor > should be able to switch from one link to another link": 1,
         "src/app/component/form/sw-text-editor > should copy html from the wysiwyg mode and ignore p elements": 1,
@@ -1367,7 +1359,6 @@
         "components/form/sw-url-field > should set the urlPrefix correctly": 1,
         "components/form/sw-url-field > should show the label from the property": 1,
         "components/form/sw-url-field > should show the value from the label slot": 1,
-        "components/form/sw-url-field > should update empty values": 1,
         "components/form/sw-url-field > should validate the url correctly": 1
     },
     "src/app/component/form/sw-url-field/sw-url-field.spec.js": {
@@ -1468,7 +1459,6 @@
         "components/media/sw-media-folder-item > should keep the folder neutral for a module without a color when module colors are enabled": 1,
         "components/media/sw-media-folder-item > should not be able to delete": 1,
         "components/media/sw-media-folder-item > should not be able to edit": 1,
-        "components/media/sw-media-folder-item > should not call the api get default folder if default folder id does not exist": 1,
         "components/media/sw-media-folder-item > should not show the icon on back folder": 1,
         "components/media/sw-media-folder-item > should paint the default folder and its icon in the module color when module colors are enabled": 1,
         "components/media/sw-media-folder-item > should return filters from filter registry": 1,
@@ -2062,8 +2052,6 @@
         "src/app/component/sidebar/sw-sidebar-collapse > no props > has a chevron pointing right": 1
     },
     "src/app/component/sidebar/sw-sidebar/sw-sidebar.spec.js": {
-        "src/app/component/sidebar/sw-sidebar/index.js > should close the sidebar": 1,
-        "src/app/component/sidebar/sw-sidebar/index.js > should open the sidebar": 1,
         "src/app/component/sidebar/sw-sidebar/index.js > should render shortcut keys in the tooltip content": 1,
         "src/app/component/sidebar/sw-sidebar/index.js > should render the navigation item with a tooltip": 1
     },
@@ -3121,7 +3109,6 @@
         "filter/decode-idn-email.filter > should handle ascii email": 1,
         "filter/decode-idn-email.filter > should handle email with two @": 1,
         "filter/decode-idn-email.filter > should handle not utf email": 1,
-        "filter/decode-idn-email.filter > should handle umlaut email": 1,
         "filter/decode-idn-email.filter > should handle without @": 1
     },
     "src/app/filter/file-size.filter.spec.js": {
@@ -3638,7 +3625,6 @@
         "src/app/service/app-cms.service > should be able to override the default block configuration": 1,
         "src/app/service/app-cms.service > should collect & inject styles for custom cms blocks": 1,
         "src/app/service/app-cms.service > should create vue.js components for the block component in the given order, with no position set": 1,
-        "src/app/service/app-cms.service > should create vue.js components incl. preview for the block component in the right order": 1,
         "src/app/service/app-cms.service > should iterate the received blocks": 1,
         "src/app/service/app-cms.service > should register a block to the application": 1,
         "src/app/service/app-cms.service > should register the block label to the global locale factory": 1,
@@ -4379,7 +4365,6 @@
         "core/factory/async-component.factory.ts > should extend an extended component and all three components get build before with usage of parent > `${testCase}`": 1,
         "core/factory/async-component.factory.ts > should extend an extended component in a mixed order > `${testCase}`": 1,
         "core/factory/async-component.factory.ts > should fix the Social Shopping chain bug > `${testCase}`": 1,
-        "core/factory/async-component.factory.ts > should handle errors accordingly > should throw error calling $super without parent": 1,
         "core/factory/async-component.factory.ts > should handle errors accordingly > should throw error calling $super(\"$super\")": 1,
         "core/factory/async-component.factory.ts > should ignore a parent call when the block was not defined in the upper template > `${testCase}`": 1,
         "core/factory/async-component.factory.ts > should ignore overrides if block does not exist > `${testCase}`": 1,
@@ -5694,8 +5679,7 @@
         "src/module/sw-category/page/sw-category-detail > should allow to edit": 1,
         "src/module/sw-category/page/sw-category-detail > should load landing page translations for CMS inheritance handling": 1,
         "src/module/sw-category/page/sw-category-detail > should not allow to modify": 1,
-        "src/module/sw-category/page/sw-category-detail > should save changed slot config fields only": 1,
-        "src/module/sw-category/page/sw-category-detail > should set default layout": 1
+        "src/module/sw-category/page/sw-category-detail > should save changed slot config fields only": 1
     },
     "src/module/sw-category/view/sw-category-detail-base/sw-category-detail-base.spec.js": {
         "module/sw-category/view/sw-category-detail-base.spec > should disable all interactive elements": 1,
@@ -6607,7 +6591,6 @@
         "module/sw-customer-convert-guest-modal > cannot set password with empty input": 1
     },
     "src/module/sw-customer/component/sw-customer-default-addresses/sw-customer-default-addresses.spec.js": {
-        "module/sw-customer-default-addresses > should reload addresses on customer change": 1,
         "module/sw-customer-default-addresses > should render formatting address for billing address and shipping address": 1
     },
     "src/module/sw-customer/component/sw-customer-imitate-customer-modal/sw-customer-imitate-customer-modal.spec.js": {
@@ -7513,8 +7496,6 @@
         "module/sw-import-export/components/sw-import-export-entity-path-select > should return valid translation properties on `getTranslationProperties": 1,
         "module/sw-import-export/components/sw-import-export-entity-path-select > should return valid visibility properties on `getVisibilityProperties` with given visibilities": 1,
         "module/sw-import-export/components/sw-import-export-entity-path-select > should show custom field options if selected value is custom field": 1,
-        "module/sw-import-export/components/sw-import-export-entity-path-select > should show deliveries of an order on search": 1,
-        "module/sw-import-export/components/sw-import-export-entity-path-select > should show transactions of an order on search": 1,
         "module/sw-import-export/components/sw-import-export-entity-path-select > should sort options": 1
     },
     "src/module/sw-import-export/component/sw-import-export-exporter/sw-import-export-exporter.spec.js": {
@@ -7566,12 +7547,10 @@
         "module/sw-import-export/service/importExportProfileMapping.service.spec.js > newsletter_recipient: should list all required fields with depth 3": 1,
         "module/sw-import-export/service/importExportProfileMapping.service.spec.js > product: should find missing required field createdAt": 1,
         "module/sw-import-export/service/importExportProfileMapping.service.spec.js > product: should find missing required field name": 1,
-        "module/sw-import-export/service/importExportProfileMapping.service.spec.js > product: should find missing required when key.id is existing": 1,
         "module/sw-import-export/service/importExportProfileMapping.service.spec.js > product: should find missing required when parentProduct is existing": 1,
         "module/sw-import-export/service/importExportProfileMapping.service.spec.js > product: should list all required fields with depth 1": 1,
         "module/sw-import-export/service/importExportProfileMapping.service.spec.js > product: should list all required fields with depth 3": 1,
         "module/sw-import-export/service/importExportProfileMapping.service.spec.js > product: should not find any missing required fields": 1,
-        "module/sw-import-export/service/importExportProfileMapping.service.spec.js > product: should not find any missing required when parentProduct is existing": 1,
         "module/sw-import-export/service/importExportProfileMapping.service.spec.js > product: should return all missing required fields": 1,
         "module/sw-import-export/service/importExportProfileMapping.service.spec.js > product_configurator_setting: should list all required fields with depth 1": 1,
         "module/sw-import-export/service/importExportProfileMapping.service.spec.js > product_configurator_setting: should list all required fields with depth 3": 1,
@@ -8454,17 +8433,14 @@
         "src/module/sw-order/page/sw-order-detail > should add associations no longer autoload in the orderCriteria": 1,
         "src/module/sw-order/page/sw-order-detail > should ask for saving confirmation before continuing": 1,
         "src/module/sw-order/page/sw-order-detail > should call afterSaveFn of saveAndReload": 1,
-        "src/module/sw-order/page/sw-order-detail > should clean up unsaved version when component gets destroyed": 1,
         "src/module/sw-order/page/sw-order-detail > should contain manual label": 1,
         "src/module/sw-order/page/sw-order-detail > should convert product line items that are missing": 1,
         "src/module/sw-order/page/sw-order-detail > should created a new version when component was created": 1,
-        "src/module/sw-order/page/sw-order-detail > should delete promotions on save edits": 1,
         "src/module/sw-order/page/sw-order-detail > should deselect the order for app action buttons when leaving the detail page while editing": 1,
         "src/module/sw-order/page/sw-order-detail > should handle order address update": 1,
         "src/module/sw-order/page/sw-order-detail > should keep the version when the page is stored in the back-forward cache": 1,
         "src/module/sw-order/page/sw-order-detail > should navigate when a meteor route tab is clicked": 1,
         "src/module/sw-order/page/sw-order-detail > should not contain manual label": 1,
-        "src/module/sw-order/page/sw-order-detail > should notification error when order line items are empty": 1,
         "src/module/sw-order/page/sw-order-detail > should pass the document warning state to meteor tabs": 1,
         "src/module/sw-order/page/sw-order-detail > should reload entity data with orderCriteria": 1,
         "src/module/sw-order/page/sw-order-detail > should remove version context immediately when cancelling": 1,
@@ -8642,9 +8618,7 @@
     "src/module/sw-product-stream/component/sw-product-stream-modal-preview/sw-product-stream-modal-preview.spec.js": {
         "src/module/sw-product-stream/component/sw-product-stream-modal-preview > should add two random sortings when sorting is \"random\"": 1,
         "src/module/sw-product-stream/component/sw-product-stream-modal-preview > should forward displayAsGroup to the preview service": 1,
-        "src/module/sw-product-stream/component/sw-product-stream-modal-preview > should load sales channel successfully": 1,
         "src/module/sw-product-stream/component/sw-product-stream-modal-preview > should map filters for search": 1,
-        "src/module/sw-product-stream/component/sw-product-stream-modal-preview > should map filters for search with rule Is not equal to any of": 1,
         "src/module/sw-product-stream/component/sw-product-stream-modal-preview > should not load sales channel": 1,
         "src/module/sw-product-stream/component/sw-product-stream-modal-preview > should return filters from filter registry": 1
     },
@@ -8970,7 +8944,6 @@
         "src/module/sw-product/component/sw-product-variants/sw-product-variants-overview > should push to a new route when editing items": 1,
         "src/module/sw-product/component/sw-product-variants/sw-product-variants-overview > should remove file from digital variant item": 1,
         "src/module/sw-product/component/sw-product-variants/sw-product-variants-overview > should save successful uploaded files": 1,
-        "src/module/sw-product/component/sw-product-variants/sw-product-variants-overview > should update variant listing config of product when deleting variant": 1,
         "src/module/sw-product/component/sw-product-variants/sw-product-variants-overview > storefront presentation when deleting variants > should %s when the chosen main variant is deleted": 1,
         "src/module/sw-product/component/sw-product-variants/sw-product-variants-overview > storefront presentation when deleting variants > should keep the chosen main variant when another variant is deleted": 1,
         "src/module/sw-product/component/sw-product-variants/sw-product-variants-overview > storefront presentation when deleting variants > should reset the storefront presentation when all variants are deleted": 1
@@ -9002,8 +8975,7 @@
         "/src/module/sw-product/helper/sw-products-variants-generator.spec.js > saveVariantRestrictions > should resolve immediately when product variant restrictions did not change": 1,
         "/src/module/sw-product/helper/sw-products-variants-generator.spec.js > saveVariantRestrictions > should resolve immediately when variant restrictions are undefined": 1,
         "/src/module/sw-product/helper/sw-products-variants-generator.spec.js > should emit `queues` event when calling generateVariants": 1,
-        "/src/module/sw-product/helper/sw-products-variants-generator.spec.js > should filter variants correctly": 1,
-        "/src/module/sw-product/helper/sw-products-variants-generator.spec.js > should not filter variants with positive or negative prices": 1
+        "/src/module/sw-product/helper/sw-products-variants-generator.spec.js > should filter variants correctly": 1
     },
     "src/module/sw-product/page/sw-product-detail/sw-product-detail.analytics.spec.ts": {
         "module/sw-product/page/sw-product-detail analytics > does not repeat view events when the same product reloads": 1,

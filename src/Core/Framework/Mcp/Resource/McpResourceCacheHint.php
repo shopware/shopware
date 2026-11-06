@@ -29,9 +29,10 @@ final class McpResourceCacheHint
     public const DEPLOYMENT_TTL_MS = 3_600_000;
 
     /**
-     * For shop configuration an admin edits rarely, such as currencies, languages and sales channels.
+     * For shop configuration an admin can edit at any time, such as currencies, languages and sales channels.
+     * Matches the 60 seconds of the list methods, so an edit reaches a client within a minute.
      */
-    public const SHOP_CONFIGURATION_TTL_MS = 300_000;
+    public const SHOP_CONFIGURATION_TTL_MS = 60_000;
 
     private function __construct()
     {

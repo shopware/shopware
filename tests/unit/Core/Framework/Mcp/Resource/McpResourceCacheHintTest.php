@@ -31,7 +31,7 @@ class McpResourceCacheHintTest extends TestCase
 
         static::assertSame(McpResourceCacheHint::SHOP_CONFIGURATION_TTL_MS, $result->ttlMs);
         static::assertSame(CacheScope::Private, $result->cacheScope);
-        static::assertSame(300_000, $result->jsonSerialize()['ttlMs'] ?? null);
+        static::assertSame(60_000, $result->jsonSerialize()['ttlMs'] ?? null);
         static::assertSame('private', $result->jsonSerialize()['cacheScope'] ?? null);
     }
 

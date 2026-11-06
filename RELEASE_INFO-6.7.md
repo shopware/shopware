@@ -266,6 +266,15 @@ Check import files that relied on `0` being ignored.
 
 The property is unused and will be removed in 6.8.
 
+### Orders with several deliveries keep their shipping costs and addresses
+
+When the Administration recalculated an order with several deliveries, every delivery got the shipping costs of the primary delivery.
+Each delivery now keeps its own shipping costs and only their taxes are recalculated.
+`DeliveryProcessor::MANUAL_SHIPPING_COSTS` only replaces the shipping costs of the primary delivery on such a recalculation.
+Carts restored from an order behave the same, for example when a customer changes the payment method of an order.
+Changing the shipping address of one delivery no longer changes the address of the other deliveries that shared it.
+Orders with a single delivery, with or without promotion shipping discounts, behave as before.
+
 ## API
 
 ### Plain JSON becomes the default Admin API response format in 6.8

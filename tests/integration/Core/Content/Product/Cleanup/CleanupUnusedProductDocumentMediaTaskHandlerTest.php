@@ -4,7 +4,7 @@ namespace Shopware\Tests\Integration\Core\Content\Product\Cleanup;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
-use Shopware\Core\Content\Product\Cleanup\CleanupUnusedDocumentMediaTaskHandler;
+use Shopware\Core\Content\Product\Cleanup\CleanupUnusedProductDocumentMediaTaskHandler;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
@@ -21,7 +21,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
  * @internal
  */
 #[Package('inventory')]
-class CleanupUnusedDocumentMediaTaskHandlerTest extends TestCase
+class CleanupUnusedProductDocumentMediaTaskHandlerTest extends TestCase
 {
     use BasicTestDataBehaviour;
     use DatabaseTransactionBehaviour;
@@ -53,7 +53,7 @@ class CleanupUnusedDocumentMediaTaskHandlerTest extends TestCase
         ]];
         static::getContainer()->get('product.repository')->create([$product], $context);
 
-        static::getContainer()->get(CleanupUnusedDocumentMediaTaskHandler::class)->run();
+        static::getContainer()->get(CleanupUnusedProductDocumentMediaTaskHandler::class)->run();
 
         $remaining = $mediaRepository->searchIds(new Criteria(array_column($files, 'id')), $context)->getIds();
         static::assertEqualsCanonicalizing(['manual', 'handbuch', 'just-uploaded', 'product-image'], array_keys(array_intersect($ids->all(), $remaining)));

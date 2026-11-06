@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
 #[Package('inventory')]
-class CleanupUnusedDocumentMediaTask extends ScheduledTask
+class CleanupUnusedProductDocumentMediaTask extends ScheduledTask
 {
     public static function getTaskName(): string
     {

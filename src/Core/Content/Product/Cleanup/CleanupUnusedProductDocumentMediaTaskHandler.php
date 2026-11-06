@@ -17,8 +17,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * @internal
  */
 #[Package('inventory')]
-#[AsMessageHandler(handles: CleanupUnusedDocumentMediaTask::class)]
-final class CleanupUnusedDocumentMediaTaskHandler extends ScheduledTaskHandler
+#[AsMessageHandler(handles: CleanupUnusedProductDocumentMediaTask::class)]
+final class CleanupUnusedProductDocumentMediaTaskHandler extends ScheduledTaskHandler
 {
     /**
      * @param EntityRepository<ScheduledTaskCollection> $repository

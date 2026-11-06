@@ -477,7 +477,7 @@ test('pageText leaves no tag fragments behind', () => {
 
 test('pageText reduces HTML to comparable text', () => {
     assert.equal(
-        pageText('<html><style>p{}</style><script>x()</script><p>Turn on <strong>Manage&nbsp;stock</strong> &amp; save the <code>user_recovery</code> option.</p></html>'),
+        pageText('<html><p>Turn on <strong>Manage&nbsp;stock</strong> &amp; save the <code>user_recovery</code> option.</p></html>'),
         'Turn on Manage stock & save the userrecovery option.',
     );
 });

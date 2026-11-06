@@ -322,7 +322,6 @@ const BLOCK_TAG = /<\/?(?:p|div|li|ul|ol|h[1-6]|br|tr|td|th|table|section|articl
 export function pageText(html: string): string {
     return normaliseText(
         html
-            .replace(/<(script|style)\b[\s\S]*?<\/\1>/gi, ' ')
             .replace(BLOCK_TAG, ' ')
             .replace(/<[^>]+>/g, '')
             .replace(/[<>]/g, ' '),

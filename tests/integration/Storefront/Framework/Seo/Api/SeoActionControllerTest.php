@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Storefront\Framework\Seo\Api;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -13,6 +12,7 @@ use Shopware\Core\Content\Seo\SeoException;
 use Shopware\Core\Content\Seo\SeoUrlRoute\ProductStoreApiUrlRoute;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
@@ -26,7 +26,7 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 /**
  * @internal
  *
- * @phpstan-type Product array{id: string, attributes: array{isModified: boolean, seoPathInfo: string } }
+ * @phpstan-type Product array{id: string, attributes: array{isModified: boolean, isDeleted: boolean, seoPathInfo: string } }
  */
 #[Package('inventory')]
 class SeoActionControllerTest extends TestCase
@@ -539,32 +539,16 @@ class SeoActionControllerTest extends TestCase
         );
     }
 
-    /**
-     * @param array<string, mixed> $clearedFields
-     */
-    #[DataProvider('clearedSeoPathInfoProvider')]
-    public function testClearingWriteProtectedCanonicalRegeneratesItFromTemplate(array $clearedFields): void
+    public function testClearingWriteProtectedCanonicalRegeneratesItFromTemplate(): void
     {
         $salesChannelId = Uuid::randomHex();
         $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
-
         $id = $this->createTestProduct($salesChannelId);
+        $templatePath = $this->getSeoUrls($id, true, $salesChannelId)[0]['attributes']['seoPathInfo'];
 
-        $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
-        static::assertCount(1, $seoUrls);
-        $templatePath = $seoUrls[0]['attributes']['seoPathInfo'];
+        $payload = $this->writeProtectCanonical($id, $salesChannelId, 'manual-path');
 
-        $payload = $seoUrls[0]['attributes'];
-        $payload['seoPathInfo'] = 'manual-path';
-        $payload['isModified'] = true;
-        $this->getBrowser()->jsonRequest('PATCH', '/api/_action/seo-url/canonical', $payload);
-        static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
-
-        $payload = $this->getSeoUrls($id, true, $salesChannelId)[0]['attributes'];
-        static::assertTrue($payload['isModified']);
-        unset($payload['seoPathInfo']);
-
-        $this->getBrowser()->jsonRequest('PATCH', '/api/_action/seo-url/canonical', [...$payload, ...$clearedFields]);
+        $this->getBrowser()->jsonRequest('PATCH', '/api/_action/seo-url/canonical', [...$payload, 'seoPathInfo' => '', 'isModified' => false]);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(204, $response->getStatusCode(), (string) $response->getContent());
 
@@ -572,16 +556,89 @@ class SeoActionControllerTest extends TestCase
         static::assertCount(1, $seoUrls);
         static::assertSame($templatePath, $seoUrls[0]['attributes']['seoPathInfo']);
         static::assertFalse($seoUrls[0]['attributes']['isModified']);
+        static::assertFalse($seoUrls[0]['attributes']['isDeleted']);
     }
 
-    /**
-     * @return iterable<string, array{array<string, mixed>}>
-     */
-    public static function clearedSeoPathInfoProvider(): iterable
+    public function testResetKeepsWriteProtectedUrlsOfOtherSalesChannels(): void
     {
-        yield 'empty seoPathInfo' => [['seoPathInfo' => '', 'isModified' => false]];
-        yield 'missing seoPathInfo' => [['isModified' => false]];
-        yield 'blank seoPathInfo' => [['seoPathInfo' => '  ']];
+        $salesChannelId = Uuid::randomHex();
+        $otherSalesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'first');
+        $this->createStorefrontSalesChannelContext($otherSalesChannelId, 'second');
+        $id = $this->createTestProduct($salesChannelId, ['visibilities' => [
+            ['salesChannelId' => $salesChannelId, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+            ['salesChannelId' => $otherSalesChannelId, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+        ]]);
+
+        $payload = $this->writeProtectCanonical($id, $salesChannelId, 'first-manual-path');
+        $this->writeProtectCanonical($id, $otherSalesChannelId, 'second-manual-path');
+
+        $this->getBrowser()->jsonRequest('PATCH', '/api/_action/seo-url/canonical', [...$payload, 'seoPathInfo' => '', 'isModified' => false]);
+        static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
+
+        static::assertFalse($this->getSeoUrls($id, true, $salesChannelId)[0]['attributes']['isModified']);
+        $otherCanonical = $this->getSeoUrls($id, true, $otherSalesChannelId)[0]['attributes'];
+        static::assertSame('second-manual-path', $otherCanonical['seoPathInfo']);
+        static::assertTrue($otherCanonical['isModified']);
+    }
+
+    public function testResetWithUpperCaseForeignKeyKeepsTheUrlsResolvable(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+        $id = $this->createTestProduct($salesChannelId);
+        $templatePath = $this->getSeoUrls($id, true, $salesChannelId)[0]['attributes']['seoPathInfo'];
+
+        $payload = $this->writeProtectCanonical($id, $salesChannelId, 'manual-path');
+
+        $this->getBrowser()->jsonRequest('PATCH', '/api/_action/seo-url/canonical', [
+            ...$payload,
+            'foreignKey' => strtoupper($id),
+            'seoPathInfo' => '',
+            'isModified' => false,
+        ]);
+        static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $canonical = $this->getSeoUrls($id, true, $salesChannelId)[0]['attributes'];
+        static::assertSame($templatePath, $canonical['seoPathInfo']);
+        static::assertFalse($canonical['isDeleted']);
+    }
+
+    public function testResetIsRejectedWhenTheSalesChannelIsInactive(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+        $id = $this->createTestProduct($salesChannelId);
+        $payload = $this->writeProtectCanonical($id, $salesChannelId, 'manual-path');
+
+        static::getContainer()->get('sales_channel.repository')->update(
+            [['id' => $salesChannelId, 'active' => false]],
+            Context::createDefaultContext()
+        );
+
+        $this->getBrowser()->jsonRequest('PATCH', '/api/_action/seo-url/canonical', [...$payload, 'seoPathInfo' => '', 'isModified' => false]);
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(400, $response->getStatusCode());
+        static::assertStringContainsString(SeoException::SEO_URL_RESET_NOT_POSSIBLE, (string) $response->getContent());
+
+        $canonical = $this->getSeoUrls($id, true, $salesChannelId)[0]['attributes'];
+        static::assertSame('manual-path', $canonical['seoPathInfo']);
+        static::assertTrue($canonical['isModified']);
+    }
+
+    public function testEmptySeoPathInfoThatAsksForWriteProtectionIsRejected(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+        $id = $this->createTestProduct($salesChannelId);
+        $payload = $this->writeProtectCanonical($id, $salesChannelId, 'manual-path');
+
+        $this->getBrowser()->jsonRequest('PATCH', '/api/_action/seo-url/canonical', [...$payload, 'seoPathInfo' => '', 'isModified' => true]);
+        static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $canonical = $this->getSeoUrls($id, true, $salesChannelId)[0]['attributes'];
+        static::assertSame('manual-path', $canonical['seoPathInfo']);
+        static::assertTrue($canonical['isModified']);
     }
 
     public function testUpdateCanonicalWithCustomSalesChannel(): void
@@ -725,6 +782,22 @@ class SeoActionControllerTest extends TestCase
         foreach ($inactiveProductIds as $inactiveProductId) {
             static::assertNotContains($inactiveProductId, $foreignKeys, "Inactive product $inactiveProductId should be filtered out by prepareCriteria");
         }
+    }
+
+    /**
+     * @return array<string, mixed> the canonical SEO URL payload after the write-protected path was saved
+     */
+    private function writeProtectCanonical(string $productId, string $salesChannelId, string $path): array
+    {
+        $payload = $this->getSeoUrls($productId, true, $salesChannelId)[0]['attributes'];
+        $this->getBrowser()->jsonRequest('PATCH', '/api/_action/seo-url/canonical', [...$payload, 'seoPathInfo' => $path, 'isModified' => true]);
+        static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $payload = $this->getSeoUrls($productId, true, $salesChannelId)[0]['attributes'];
+        static::assertSame($path, $payload['seoPathInfo']);
+        static::assertTrue($payload['isModified']);
+
+        return $payload;
     }
 
     /**

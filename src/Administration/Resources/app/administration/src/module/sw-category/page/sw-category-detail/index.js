@@ -632,8 +632,6 @@ export default {
             this.isLoading = true;
 
             try {
-                await this.updateSeoUrls();
-
                 const response = await this.systemConfigApiService.getValues('core.cms');
 
                 this.defaultCategoryId = response['core.cms.default_category_cms_page'];
@@ -643,6 +641,8 @@ export default {
                 }
 
                 await this.categoryRepository.save(this.category, { ...Shopware.Context.api });
+
+                await this.updateSeoUrls();
 
                 this.isSaveSuccessful = true;
                 this.entryPointOverwriteConfirmed = false;
@@ -862,11 +862,13 @@ export default {
                 return Promise.resolve();
             }
 
-            const seoUrls = Shopware.Store.get('swSeoUrl').newOrModifiedUrls;
+            const seoUrls = Shopware.Store.get('swSeoUrl').newOrModifiedUrls.filter((seoUrl) => {
+                return seoUrl.foreignKey === this.category.id;
+            });
 
             return Promise.all(
                 seoUrls.map((seoUrl) => {
-                    seoUrl.isModified = !!seoUrl.seoPathInfo;
+                    seoUrl.isModified = !!seoUrl.seoPathInfo?.trim();
 
                     return this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId).catch((error) => {
                         if (error.response?.data?.errors) {

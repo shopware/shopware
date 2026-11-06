@@ -279,11 +279,12 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
     });
 
     describe('saving SEO URLs', () => {
-        async function saveWithSeoUrl(seoPathInfo, originalIsModified) {
+        async function saveWithSeoUrl({ foreignKey = 'category-id', seoPathInfo, isModified }) {
             global.activeAclRoles = ['category.editor'];
             const wrapper = await createWrapper();
 
             Shopware.Store.get('swCategoryDetail').category = {
+                id: 'category-id',
                 slotConfig: '',
                 navigationSalesChannels: [],
                 footerSalesChannels: [],
@@ -293,10 +294,11 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
 
             const original = {
                 id: 'sc',
+                foreignKey,
                 salesChannelId: 'sc',
                 languageId: 'lang',
                 seoPathInfo: 'Custom/Path',
-                isModified: originalIsModified,
+                isModified,
             };
             const seoStore = Shopware.Store.get('swSeoUrl');
             seoStore.originalSeoUrls = [original];
@@ -308,26 +310,42 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
 
         beforeEach(() => {
             updateCanonicalUrlMock.mockClear();
+            saveMock.mockClear();
         });
 
-        it('should send a cleared SEO URL as unmodified so it is regenerated from the template', async () => {
-            await saveWithSeoUrl('', true);
-
-            expect(updateCanonicalUrlMock).toHaveBeenCalledTimes(1);
-            expect(updateCanonicalUrlMock).toHaveBeenCalledWith(
-                expect.objectContaining({ id: 'sc', seoPathInfo: '', isModified: false }),
-                'lang',
-            );
+        afterEach(() => {
+            const seoStore = Shopware.Store.get('swSeoUrl');
+            seoStore.originalSeoUrls = [];
+            seoStore.seoUrlCollection = null;
         });
 
-        it('should save an edited SEO URL as modified', async () => {
-            await saveWithSeoUrl('New/Path', false);
+        it.each([
+            { state: 'cleared', seoPathInfo: '', originalIsModified: true, isModified: false },
+            { state: 'whitespace-only', seoPathInfo: '  ', originalIsModified: true, isModified: false },
+            { state: 'edited', seoPathInfo: 'New/Path', originalIsModified: false, isModified: true },
+        ])(
+            'should send a $state SEO URL with isModified=$isModified',
+            async ({ seoPathInfo, originalIsModified, isModified }) => {
+                await saveWithSeoUrl({ seoPathInfo, isModified: originalIsModified });
 
-            expect(updateCanonicalUrlMock).toHaveBeenCalledTimes(1);
-            expect(updateCanonicalUrlMock).toHaveBeenCalledWith(
-                expect.objectContaining({ id: 'sc', seoPathInfo: 'New/Path', isModified: true }),
-                'lang',
-            );
+                expect(updateCanonicalUrlMock).toHaveBeenCalledTimes(1);
+                expect(updateCanonicalUrlMock).toHaveBeenCalledWith(
+                    expect.objectContaining({ id: 'sc', seoPathInfo, isModified }),
+                    'lang',
+                );
+            },
+        );
+
+        it('should send SEO URLs after the category is saved', async () => {
+            await saveWithSeoUrl({ seoPathInfo: '', isModified: true });
+
+            expect(saveMock.mock.invocationCallOrder[0]).toBeLessThan(updateCanonicalUrlMock.mock.invocationCallOrder[0]);
+        });
+
+        it('should not send SEO URLs left over from another category', async () => {
+            await saveWithSeoUrl({ foreignKey: 'other-category-id', seoPathInfo: '', isModified: true });
+
+            expect(updateCanonicalUrlMock).not.toHaveBeenCalled();
         });
     });
 });

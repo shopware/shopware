@@ -8,8 +8,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\Api\SeoActionController;
-use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
-use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
+use Shopware\Core\Content\Seo\SeoException;
 use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
@@ -92,24 +91,24 @@ class SeoActionControllerTest extends TestCase
      * @param array<string, mixed> $clearedFields
      */
     #[DataProvider('clearedSeoPathInfoProvider')]
-    public function testClearedSeoPathInfoResetsCanonicalToTemplate(array $clearedFields): void
+    public function testClearedSeoPathInfoResetsTheUrlToItsTemplate(array $clearedFields): void
     {
-        $seoUrlRepository = new StaticEntityRepository([['protected-canonical-id']], new SeoUrlDefinition());
         $persister = $this->createMock(SeoUrlPersister::class);
         $persister->expects($this->never())->method('forceUpdateSeoUrls');
         $updater = $this->createMock(SeoUrlUpdater::class);
-        $updater->expects($this->once())->method('update')->with(ProductPageSeoUrlRoute::ROUTE_NAME, ['product-id']);
+        $updater->expects($this->once())->method('resetToTemplate')
+            ->with(ProductPageSeoUrlRoute::ROUTE_NAME, 'product-id', 'sales-channel-id', Defaults::LANGUAGE_SYSTEM)
+            ->willReturn(true);
         $validator = $this->createMock(DataValidator::class);
         $validator->expects($this->once())->method('validate')->with(
             static::anything(),
             static::callback(static fn (DataValidationDefinition $definition): bool => $definition->getProperty('seoPathInfo') === []),
         );
 
-        $response = $this->createController($seoUrlRepository, $persister, $updater, $validator)
+        $response = $this->createController($persister, $updater, $validator)
             ->updateCanonicalUrl(new RequestDataBag([...$this->seoUrlPayload(), ...$clearedFields]), Context::createDefaultContext());
 
         static::assertSame(204, $response->getStatusCode());
-        static::assertSame([[['id' => 'protected-canonical-id', 'isModified' => false]]], $seoUrlRepository->updates);
     }
 
     /**
@@ -117,26 +116,56 @@ class SeoActionControllerTest extends TestCase
      */
     public static function clearedSeoPathInfoProvider(): \Generator
     {
-        yield 'empty' => [['seoPathInfo' => '']];
-        yield 'missing' => [[]];
-        yield 'blank' => [['seoPathInfo' => '  ']];
+        yield 'an empty seo path resets the url to its template' => [['seoPathInfo' => '', 'isModified' => false]];
+        yield 'a missing seo path resets the url to its template' => [[]];
+        yield 'a whitespace-only seo path resets the url to its template' => [['seoPathInfo' => '  ']];
     }
 
-    public function testClearedSeoPathInfoRegeneratesWithoutWriteProtectedCanonical(): void
+    public function testResetIsRejectedWhenTheTemplateGeneratesNoUrl(): void
     {
-        $seoUrlRepository = new StaticEntityRepository([[]], new SeoUrlDefinition());
         $updater = $this->createMock(SeoUrlUpdater::class);
-        $updater->expects($this->once())->method('update')->with(ProductPageSeoUrlRoute::ROUTE_NAME, ['product-id']);
+        $updater->expects($this->once())->method('resetToTemplate')->willReturn(false);
 
-        $this->createController($seoUrlRepository, static::createStub(SeoUrlPersister::class), $updater, static::createStub(DataValidator::class))
+        $this->expectExceptionObject(SeoException::seoUrlResetNotPossible('product-id', 'sales-channel-id'));
+
+        $this->createController(static::createStub(SeoUrlPersister::class), $updater, static::createStub(DataValidator::class))
             ->updateCanonicalUrl(new RequestDataBag([...$this->seoUrlPayload(), 'seoPathInfo' => '']), Context::createDefaultContext());
+    }
 
-        static::assertSame([], $seoUrlRepository->updates);
+    /**
+     * @param array<string, mixed> $fields
+     */
+    #[DataProvider('notAResetProvider')]
+    public function testSeoPathInfoIsValidatedWhenTheRequestIsNotAReset(array $fields): void
+    {
+        $updater = $this->createMock(SeoUrlUpdater::class);
+        $updater->expects($this->never())->method('resetToTemplate');
+        $validator = $this->createMock(DataValidator::class);
+        $validator->expects($this->once())->method('validate')
+            ->with(
+                static::anything(),
+                static::callback(static fn (DataValidationDefinition $definition): bool => $definition->getProperty('seoPathInfo') !== []),
+            )
+            ->willThrowException(new \RuntimeException('seoPathInfo is invalid'));
+
+        $this->expectExceptionObject(new \RuntimeException('seoPathInfo is invalid'));
+
+        $this->createController(static::createStub(SeoUrlPersister::class), $updater, $validator)
+            ->updateCanonicalUrl(new RequestDataBag([...$this->seoUrlPayload(), ...$fields]), Context::createDefaultContext());
+    }
+
+    /**
+     * @return \Generator<string, array{array<string, mixed>}>
+     */
+    public static function notAResetProvider(): \Generator
+    {
+        yield 'an empty seo path that asks for write protection is validated' => [['seoPathInfo' => '', 'isModified' => true]];
+        yield 'a boolean seo path is validated' => [['seoPathInfo' => false]];
+        yield 'a list as seo path is validated' => [['seoPathInfo' => ['custom-path']]];
     }
 
     public function testSeoPathInfoIsPersistedAsModifiedUrl(): void
     {
-        $seoUrlRepository = new StaticEntityRepository([], new SeoUrlDefinition());
         $persister = $this->createMock(SeoUrlPersister::class);
         $persister->expects($this->once())->method('forceUpdateSeoUrls')->with(
             static::anything(),
@@ -145,17 +174,12 @@ class SeoActionControllerTest extends TestCase
             [[...$this->seoUrlPayload(), 'seoPathInfo' => 'custom-path', 'isModified' => true]],
         );
         $updater = $this->createMock(SeoUrlUpdater::class);
-        $updater->expects($this->never())->method('update');
-        $validator = $this->createMock(DataValidator::class);
-        $validator->expects($this->once())->method('validate')->with(
-            static::anything(),
-            static::callback(static fn (DataValidationDefinition $definition): bool => $definition->getProperty('seoPathInfo') !== []),
-        );
+        $updater->expects($this->never())->method('resetToTemplate');
 
-        $this->createController($seoUrlRepository, $persister, $updater, $validator)
+        $response = $this->createController($persister, $updater, static::createStub(DataValidator::class))
             ->updateCanonicalUrl(new RequestDataBag([...$this->seoUrlPayload(), 'seoPathInfo' => 'custom-path']), Context::createDefaultContext());
 
-        static::assertSame([], $seoUrlRepository->updates);
+        static::assertSame(204, $response->getStatusCode());
     }
 
     /**
@@ -171,27 +195,18 @@ class SeoActionControllerTest extends TestCase
         ];
     }
 
-    /**
-     * @param StaticEntityRepository<SeoUrlCollection> $seoUrlRepository
-     */
-    private function createController(
-        StaticEntityRepository $seoUrlRepository,
-        SeoUrlPersister $persister,
-        SeoUrlUpdater $updater,
-        DataValidator $validator,
-    ): SeoActionController {
+    private function createController(SeoUrlPersister $persister, SeoUrlUpdater $updater, DataValidator $validator): SeoActionController
+    {
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId('sales-channel-id');
         $salesChannel->setTypeId(Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
-
-        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
-        $definitionRegistry->method('getRepository')->willReturn($seoUrlRepository);
 
         $validation = (new DataValidationDefinition())->add('seoPathInfo', new NotBlank());
         $validationFactory = static::createStub(SeoUrlDataValidationFactoryInterface::class);
         $validationFactory->method('buildValidation')->willReturn($validation);
 
         $routeRegistry = new SeoUrlRouteRegistry([new ProductPageSeoUrlRoute(new ProductDefinition())]);
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
 
         return new SeoActionController(
             static::createStub(SeoUrlGenerator::class),

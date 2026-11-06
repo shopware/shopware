@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Seo\Api;
 use Shopware\Core\Content\Seo\ConfiguredEntitySeoUrlRoute;
 use Shopware\Core\Content\Seo\Exception\NoEntitiesForPreviewException;
 use Shopware\Core\Content\Seo\SeoException;
-use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Seo\SeoUrlPersister;
@@ -170,7 +169,9 @@ class SeoActionController extends AbstractController
         $validation = $this->seoUrlValidator->buildValidation($context, $seoUrlRoute->getConfig());
 
         $seoUrlData = $seoUrl->all();
-        $resetToTemplate = trim((string) ($seoUrlData['seoPathInfo'] ?? '')) === '';
+        $seoPathInfo = $seoUrlData['seoPathInfo'] ?? null;
+        $resetToTemplate = ($seoUrlData['isModified'] ?? null) !== true
+            && ($seoPathInfo === null || (\is_string($seoPathInfo) && trim($seoPathInfo) === ''));
         if ($resetToTemplate) {
             $validation->set('seoPathInfo');
         }
@@ -203,7 +204,9 @@ class SeoActionController extends AbstractController
         ];
 
         if ($resetToTemplate) {
-            $this->resetSeoUrlToTemplate($seoUrlData['routeName'], $seoUrlData['foreignKey'], $salesChannelId, $context);
+            if (!$this->seoUrlUpdater->resetToTemplate($seoUrlData['routeName'], $seoUrlData['foreignKey'], $salesChannelId, $context->getLanguageId())) {
+                throw SeoException::seoUrlResetNotPossible($seoUrlData['foreignKey'], $salesChannelId);
+            }
 
             return new Response('', Response::HTTP_NO_CONTENT);
         }
@@ -292,31 +295,6 @@ class SeoActionController extends AbstractController
         }
 
         return new JsonResponse(['defaultTemplate' => $seoUrlRoute->getConfig()->getTemplate()]);
-    }
-
-    private function resetSeoUrlToTemplate(string $routeName, string $foreignKey, string $salesChannelId, Context $context): void
-    {
-        $repository = $this->definitionInstanceRegistry->getRepository(SeoUrlDefinition::ENTITY_NAME);
-
-        $criteria = new Criteria();
-        $criteria->addFilter(
-            new EqualsFilter('foreignKey', $foreignKey),
-            new EqualsFilter('routeName', $routeName),
-            new EqualsFilter('salesChannelId', $salesChannelId),
-            new EqualsFilter('languageId', $context->getLanguageId()),
-            new EqualsFilter('isCanonical', true),
-            new EqualsFilter('isModified', true),
-        );
-
-        $ids = $repository->searchIds($criteria, $context)->getIds();
-        if ($ids !== []) {
-            $repository->update(
-                array_map(static fn (string $id): array => ['id' => $id, 'isModified' => false], array_values($ids)),
-                $context,
-            );
-        }
-
-        $this->seoUrlUpdater->update($routeName, [$foreignKey]);
     }
 
     private function getEntitySeoUrlRoute(string $routeName): ?EntitySeoUrlRouteInterface

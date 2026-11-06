@@ -6,7 +6,6 @@
     product = null,
     extraFormData = {},
     jsOptions = {},
-    preview = false,
 %}
 
 {% set buyButtonCVA = cva({
@@ -23,7 +22,7 @@
 {% if not buyable %}
     <div {{ attributes.defaults({ class: buyButtonCVA.apply({ buyable: false }) }) }}>
         {% block fallback %}
-            {% if preview %}
+            {% if product is not null %}
                 {{ 'detail.soldOut'|trans|sw_sanitize }}
             {% endif %}
         {% endblock %}

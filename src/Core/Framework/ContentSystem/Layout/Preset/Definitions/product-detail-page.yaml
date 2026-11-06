@@ -57,14 +57,14 @@ layout:
       content:
         - component: Sw:Media:Gallery
           acceptsContext:
-          mediaItems:
-            type: collection
-            required: false
-            scope: root
-            source:
-              type: root
-              id: product
-              path: media
+            mediaItems:
+              type: collection
+              required: false
+              scope: root
+              source:
+                type: root
+                id: product
+                path: media
         - component: Sw:Grid:Container
           properties:
             gap: 10

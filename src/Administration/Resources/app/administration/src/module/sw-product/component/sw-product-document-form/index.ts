@@ -55,7 +55,6 @@ export default Shopware.Component.wrapComponentConfig({
             applyToVariants: false,
             isSavingDocument: false,
             documentValidationSubmitted: false,
-            uploadedMedia: {} as Record<string, Entity<'media'>>,
             allowedExtensions: [...allowedExtensions],
             maxFileSize,
             maxDocuments,
@@ -165,8 +164,12 @@ export default Shopware.Component.wrapComponentConfig({
             this.showUploadModal = false;
             this.closeDocumentEditor();
             this.closeRemoveDocumentModal();
-            this.uploadedMedia = {};
         },
+    },
+
+    beforeUnmount() {
+        this.closeDocumentEditor();
+        this.closeRemoveDocumentModal();
     },
 
     methods: {
@@ -178,8 +181,9 @@ export default Shopware.Component.wrapComponentConfig({
         getMedia(document: ProductDocument | null): Entity<'media'> | undefined {
             const mediaId = document?.mediaId || document?.translated?.mediaId;
 
+            const files = Shopware.Store.get('swProductDetail').documentMedia.get(this.product);
             return mediaId
-                ? this.uploadedMedia[mediaId] || document?.translations?.find((item) => item.mediaId === mediaId)?.media
+                ? files?.[mediaId] || document?.translations?.find((item) => item.mediaId === mediaId)?.media
                 : undefined;
         },
 
@@ -205,22 +209,23 @@ export default Shopware.Component.wrapComponentConfig({
             const languageId = Shopware.Context.api.languageId;
             const editSession = this.documentEditSession;
 
+            const isCurrentUpload = () =>
+                product === this.product &&
+                languageId === Shopware.Context.api.languageId &&
+                editSession === this.documentEditSession &&
+                (!editingDocument || editingDocument === this.editingDocument);
+
             try {
                 const media = await this.repositoryFactory.create('media').get(targetId, Shopware.Context.api);
-                if (product !== this.product || languageId !== Shopware.Context.api.languageId || !media) {
-                    return;
+                if (isCurrentUpload() && media) {
+                    this.addDocuments([media], editingDocument);
                 }
-
-                if (
-                    editingDocument &&
-                    (editingDocument !== this.editingDocument || editSession !== this.documentEditSession)
-                ) {
-                    return;
-                }
-
-                this.addDocuments([media], editingDocument);
             } catch {
-                useNotification().createNotificationError({ message: this.$t('sw-product.documentForm.errorLoadMedia') });
+                if (isCurrentUpload()) {
+                    useNotification().createNotificationError({
+                        message: this.$t('sw-product.documentForm.errorLoadMedia'),
+                    });
+                }
             }
         },
 
@@ -276,7 +281,7 @@ export default Shopware.Component.wrapComponentConfig({
                 document.mediaId = media.id;
                 document.title = media.fileName;
                 document.position = this.documents.length;
-                this.uploadedMedia[media.id] = media;
+                Shopware.Store.get('swProductDetail').cacheDocumentMedia(media);
                 Shopware.Store.get('swProductDetail').addDocument(document);
             }
             this.showMediaModal = false;
@@ -339,7 +344,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             try {
                 if (replacementMedia) {
-                    this.uploadedMedia[replacementMedia.id] = replacementMedia;
+                    Shopware.Store.get('swProductDetail').cacheDocumentMedia(replacementMedia);
                 }
                 let updatedVariantIds: string[] = [];
                 if (matchingMediaId) {
@@ -499,11 +504,7 @@ export default Shopware.Component.wrapComponentConfig({
             const originChildren =
                 origin.children || new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api);
             const candidates = getDocumentVariantCandidates(variants, children, mediaId);
-            candidates.forEach(({ variant, matching }) => {
-                const documents = variant.documents;
-                if (!documents || !matching?.length) {
-                    return;
-                }
+            candidates.forEach(({ variant, documents, matching }) => {
                 // Register loaded children in the origin so the changeset includes nested document deletions.
                 if (!variant.isNew() && !originChildren.has(variant.id)) {
                     originChildren.add(variant);

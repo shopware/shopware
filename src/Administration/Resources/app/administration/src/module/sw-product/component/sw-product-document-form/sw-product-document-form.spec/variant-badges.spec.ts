@@ -106,6 +106,7 @@ describe('sw-product-document-form variant badges', () => {
         wrapper = await createWrapper();
         expect(getDocuments()![1]).toBe(document);
         expect(wrapper.find('.sw-product-document-variant-badge').exists()).toBe(true);
+        expect(wrapper.text()).toContain('variant-manual.pdf');
     });
 
     it('clears the session badge when the product is reloaded as new entities', async () => {

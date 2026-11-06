@@ -22,7 +22,57 @@ describe('sw-product-document-form dialog sessions', () => {
         Shopware.Context.api.languageId = originalLanguage;
     });
 
+    it.each([false, true])('ignores a media lookup after leaving the tab (reject: %s)', async (reject) => {
+        const repository = repositoryFactory.create('media');
+        const media = createMedia();
+        let settle!: () => void;
+        jest.spyOn(repository, 'get').mockImplementationOnce(
+            () =>
+                new Promise((resolve, rejectRequest) => {
+                    settle = () => (reject ? rejectRequest(new Error('Late upload')) : resolve(media));
+                }),
+        );
+        const wrapper = await createWrapper(repository);
+        const notification = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+        wrapper
+            .getComponent<ComponentPublicInstance>('sw-upload-listener-stub')
+            .vm.$emit('media-upload-finish', { targetId: media.id });
+        await flushPromises();
+        wrapper.unmount();
+        settle();
+        await flushPromises();
+        expect(getDocuments()).toHaveLength(0);
+        expect(notification).not.toHaveBeenCalled();
+    });
+
     describe.each(['edit', 'remove'])('%s dialog', (action) => {
+        it('discards a pending variant lookup after leaving the tab', async () => {
+            const repository = repositoryFactory.create('product');
+            let resolveVariants!: (value: EntityCollection<'product'>) => void;
+            jest.spyOn(repository, 'search').mockImplementationOnce(
+                () =>
+                    new Promise((resolve) => {
+                        resolveVariants = resolve;
+                    }),
+            );
+            const wrapper = await createWrapper(undefined, undefined, repository);
+            await addMedia(wrapper, [createMedia()]);
+            await wrapper.findAll('sw-context-menu-item-stub')[action === 'edit' ? 0 : 2].trigger('click');
+            if (action === 'edit') {
+                wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', 'Stale title');
+            }
+            const checkbox =
+                action === 'edit'
+                    ? '.sw-product-document-form__apply-to-variants'
+                    : '.sw-product-document-form__remove-from-variants';
+            wrapper.getComponent<ComponentPublicInstance>(checkbox).vm.$emit('update:checked', true);
+            await clickButton(wrapper, action === 'edit' ? 'global.default.apply' : 'global.default.remove');
+            wrapper.unmount();
+            resolveVariants(new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api));
+            await flushPromises();
+            expect(Array.from(getDocuments()!, (document) => document.title)).toEqual(['manual']);
+        });
+
         it.each([false, true])('allows a new request while a cancelled request settles (reject: %s)', async (rejectOld) => {
             const repository = repositoryFactory.create('product');
             const variants = new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api);

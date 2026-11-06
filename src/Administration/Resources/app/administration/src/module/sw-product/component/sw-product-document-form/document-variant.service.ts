@@ -44,8 +44,9 @@ export function getDocumentVariantCandidates(
 ) {
     const candidates = new Map(variants.map((variant) => [variant.id, variant]));
     children.forEach((variant) => candidates.set(variant.id, variant));
-    return Array.from(candidates.values(), (variant) => ({
-        variant,
-        matching: getMatchingVariantDocuments(variant, mediaId) || [],
-    }));
+    return Array.from(candidates.values()).flatMap((variant) => {
+        const documents = variant.documents;
+        const matching = getMatchingVariantDocuments(variant, mediaId);
+        return documents && matching?.length ? [{ variant, documents, matching }] : [];
+    });
 }

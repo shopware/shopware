@@ -117,36 +117,37 @@ describe('src/app/component/entity/sw-many-to-many-assignment-card', () => {
          * @regression
          * @see https://github.com/shopware/shopware/issues/20962
          */
-        describe('clearing the search term', () => {
-            /** @regression */
-            it('should clear the search input', async () => {
-                const wrapper = await createWrapperWithSelectBase();
+        it('should clear the search input', async () => {
+            const wrapper = await createWrapperWithSelectBase();
 
-                const searchInput = wrapper.find('.sw-entity-many-to-many-select input');
-                await searchInput.setValue('shirt');
-                expect(searchInput.element.value).toBe('shirt');
+            const searchInput = wrapper.find('.sw-entity-many-to-many-select input');
+            await searchInput.setValue('shirt');
+            expect(searchInput.element.value).toBe('shirt');
 
-                await clickClear(wrapper);
+            await clickClear(wrapper);
 
-                expect(wrapper.vm.searchTerm).toBeNull();
-                expect(searchInput.element.value).toBe('');
-            });
+            expect(wrapper.vm.searchTerm).toBeNull();
+            expect(searchInput.element.value).toBe('');
+        });
 
-            /** @regression */
-            it('should reload the unfiltered results when the select is expanded', async () => {
-                const search = jest.fn().mockResolvedValue([]);
-                const wrapper = await createWrapperWithSelectBase({}, search);
+        /**
+         * The search field's clear button did nothing and the term kept filtering.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/20962
+         */
+        it('should reload the unfiltered results when the select is expanded', async () => {
+            const search = jest.fn().mockResolvedValue([]);
+            const wrapper = await createWrapperWithSelectBase({}, search);
 
-                await wrapper.find('.sw-select__selection').trigger('click');
-                await flushPromises();
-                await wrapper.setData({ searchTerm: 'shirt' });
-                search.mockClear();
+            await wrapper.find('.sw-select__selection').trigger('click');
+            await flushPromises();
+            await wrapper.setData({ searchTerm: 'shirt' });
+            search.mockClear();
 
-                await clickClear(wrapper);
+            await clickClear(wrapper);
 
-                expect(search).toHaveBeenCalledTimes(1);
-                expect(search.mock.calls[0][0].term).toBeNull();
-            });
+            expect(search).toHaveBeenCalledTimes(1);
+            expect(search.mock.calls[0][0].term).toBeNull();
         });
 
         it('should ignore results of a request that was started before the clear', async () => {

@@ -355,72 +355,67 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
         });
 
         /**
-         * Empty or malformed restrictions broke variant generation instead of being ignored.
+         * Restrictions with empty options broke variant generation instead of being ignored.
          * @regression
          * @see https://github.com/shopware/shopware/issues/12985
          */
-        describe('empty and malformed restrictions', () => {
-            /**
-             * Restrictions with empty options broke variant generation instead of being ignored.
-             * @regression
-             */
-            it('should return createQueue when all restrictions have empty options', () => {
-                variantsGenerator.product = {
-                    variantRestrictions: [
-                        {
-                            id: 'restriction1',
-                            values: [{ id: 'value1', group: 'group1', options: [] }],
-                        },
-                        {
-                            id: 'restriction2',
-                            values: [],
-                        },
-                    ],
-                };
-                expect(variantsGenerator.filterRestrictions(mockCreateQueue)).toEqual(mockCreateQueue);
-            });
-
-            /**
-             * Malformed or empty restrictions broke variant generation instead of being ignored.
-             * @regression
-             */
-            it('should filter out malformed restrictions and process valid ones', () => {
-                variantsGenerator.product = {
-                    variantRestrictions: [
-                        // Invalid: empty options
-                        {
-                            id: 'invalid1',
-                            values: [{ id: 'value1', group: 'group1', options: [] }],
-                        },
-                        // Invalid: no values
-                        {
-                            id: 'invalid2',
-                            values: [],
-                        },
-                        null,
-                        {
-                            id: 'valid1',
-                            values: [
-                                { id: 'value1', group: 'group1', options: ['option1'] },
-                                { id: 'value2', group: 'group2', options: ['option2'] },
-                            ],
-                        },
-                    ],
-                };
-
-                const result = variantsGenerator.filterRestrictions(mockCreateQueue);
-
-                expect(result).toEqual([
+        it('should return createQueue when all restrictions have empty options', () => {
+            variantsGenerator.product = {
+                variantRestrictions: [
                     {
-                        parentId: 'parent1',
-                        options: [{ id: 'option1' }, { id: 'option3' }],
+                        id: 'restriction1',
+                        values: [{ id: 'value1', group: 'group1', options: [] }],
                     },
                     {
-                        parentId: 'parent1',
-                        options: [{ id: 'option2' }, { id: 'option3' }],
+                        id: 'restriction2',
+                        values: [],
                     },
-                ]);
-            });
+                ],
+            };
+            expect(variantsGenerator.filterRestrictions(mockCreateQueue)).toEqual(mockCreateQueue);
+        });
+
+        /**
+         * Malformed or empty restrictions broke variant generation instead of being ignored.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/12985
+         */
+        it('should filter out malformed restrictions and process valid ones', () => {
+            variantsGenerator.product = {
+                variantRestrictions: [
+                    // Invalid: empty options
+                    {
+                        id: 'invalid1',
+                        values: [{ id: 'value1', group: 'group1', options: [] }],
+                    },
+                    // Invalid: no values
+                    {
+                        id: 'invalid2',
+                        values: [],
+                    },
+                    null,
+                    {
+                        id: 'valid1',
+                        values: [
+                            { id: 'value1', group: 'group1', options: ['option1'] },
+                            { id: 'value2', group: 'group2', options: ['option2'] },
+                        ],
+                    },
+                ],
+            };
+
+            const result = variantsGenerator.filterRestrictions(mockCreateQueue);
+
+            expect(result).toEqual([
+                {
+                    parentId: 'parent1',
+                    options: [{ id: 'option1' }, { id: 'option3' }],
+                },
+                {
+                    parentId: 'parent1',
+                    options: [{ id: 'option2' }, { id: 'option3' }],
+                },
+            ]);
         });
 
         it('should filter variants matching valid restrictions', () => {

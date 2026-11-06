@@ -173,35 +173,35 @@ describe('components/base/sw-property-search', () => {
      * @regression
      * @see https://github.com/shopware/shopware/issues/971
      */
-    describe('group grid pagination', () => {
-        /** @regression */
-        it('should have pagination with two buttons inside group grid', async () => {
-            const wrapper = await createWrapper();
-            await flushPromises();
+    it('should have pagination with two buttons inside group grid', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
 
-            await wrapper.vm.onFocusSearch();
-            await flushPromises();
+        await wrapper.vm.onFocusSearch();
+        await flushPromises();
 
-            const amountOfPages = wrapper.findAll('.sw-pagination__list-item').length;
+        const amountOfPages = wrapper.findAll('.sw-pagination__list-item').length;
 
-            expect(amountOfPages).toBe(2);
-        });
+        expect(amountOfPages).toBe(2);
+    });
 
-        /** @regression */
-        it('should change group page when paginating', async () => {
-            const wrapper = await createWrapper();
-            await flushPromises();
+    /**
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/971
+     */
+    it('should change group page when paginating', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
 
-            await wrapper.vm.onFocusSearch();
-            await flushPromises();
+        await wrapper.vm.onFocusSearch();
+        await flushPromises();
 
-            expect(wrapper.vm.groupPage).toBe(1);
+        expect(wrapper.vm.groupPage).toBe(1);
 
-            const nextPageButton = wrapper.find('.sw-pagination__list-button:not(.is-active)');
-            await nextPageButton.trigger('click');
+        const nextPageButton = wrapper.find('.sw-pagination__list-button:not(.is-active)');
+        await nextPageButton.trigger('click');
 
-            expect(wrapper.vm.groupPage).toBe(2);
-        });
+        expect(wrapper.vm.groupPage).toBe(2);
     });
 
     it('should open options grid after clicking on property group', async () => {
@@ -242,49 +242,49 @@ describe('components/base/sw-property-search', () => {
      * @regression
      * @see https://github.com/shopware/shopware/issues/971
      */
-    describe('option grid pagination', () => {
-        /** @regression */
-        it('should have multiple pages for option grid', async () => {
-            const wrapper = await createWrapper();
-            await flushPromises();
+    it('should have multiple pages for option grid', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
 
-            await wrapper.vm.onFocusSearch();
-            await flushPromises();
+        await wrapper.vm.onFocusSearch();
+        await flushPromises();
 
-            const groupElement = wrapper.find('.group_grid__column-name');
-            await groupElement.trigger('click');
+        const groupElement = wrapper.find('.group_grid__column-name');
+        await groupElement.trigger('click');
 
-            await flushPromises();
+        await flushPromises();
 
-            const amountOfOptionPages = wrapper.findAll(
-                '.sw-property-search__tree-selection__option_grid .sw-pagination .sw-pagination__list-button',
-            ).length;
+        const amountOfOptionPages = wrapper.findAll(
+            '.sw-property-search__tree-selection__option_grid .sw-pagination .sw-pagination__list-button',
+        ).length;
 
-            expect(amountOfOptionPages).toBe(2);
-        });
+        expect(amountOfOptionPages).toBe(2);
+    });
 
-        /** @regression */
-        it('should change the option page when clicking pagination', async () => {
-            const wrapper = await createWrapper();
-            await flushPromises();
+    /**
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/971
+     */
+    it('should change the option page when clicking pagination', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
 
-            await wrapper.vm.onFocusSearch();
-            await flushPromises();
+        await wrapper.vm.onFocusSearch();
+        await flushPromises();
 
-            const groupElement = wrapper.find('.group_grid__column-name');
-            await groupElement.trigger('click');
+        const groupElement = wrapper.find('.group_grid__column-name');
+        await groupElement.trigger('click');
 
-            await flushPromises();
+        await flushPromises();
 
-            expect(wrapper.vm.optionPage).toBe(1);
+        expect(wrapper.vm.optionPage).toBe(1);
 
-            const nextPageButton = wrapper.find(
-                '.sw-property-search__tree-selection__option_grid .sw-pagination__list-button:not(.is-active)',
-            );
-            await nextPageButton.trigger('click');
+        const nextPageButton = wrapper.find(
+            '.sw-property-search__tree-selection__option_grid .sw-pagination__list-button:not(.is-active)',
+        );
+        await nextPageButton.trigger('click');
 
-            expect(wrapper.vm.optionPage).toBe(2);
-        });
+        expect(wrapper.vm.optionPage).toBe(2);
     });
 
     it('should keep text when entering something into the search input', async () => {

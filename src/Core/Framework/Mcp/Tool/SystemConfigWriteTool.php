@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Mcp\Attribute\McpToolDependsOn;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
+use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
@@ -33,11 +34,11 @@ class SystemConfigWriteTool extends McpToolResponse
     ) {
     }
 
-    public function __invoke(string $key, string $value, ?string $salesChannelId = null, bool $dryRun = true): string
+    public function __invoke(string $key, string $value, ?string $salesChannelId = null, bool $dryRun = true): McpToolResult
     {
         $context = $this->contextProvider->getContext();
 
-        if ($error = $this->requirePrivilege($context, 'system_config:update')) {
+        if ($error = $this->requirePrivilegeResult($context, 'system_config:update')) {
             return $error;
         }
 
@@ -45,13 +46,13 @@ class SystemConfigWriteTool extends McpToolResponse
         $actualValue = json_last_error() === \JSON_ERROR_NONE ? $decodedValue : $value;
 
         if ($actualValue === null) {
-            return $this->error('Setting null is not supported via MCP as it would delete the config entry. Use the Admin API to delete configuration values.');
+            return $this->errorResult('Setting null is not supported via MCP as it would delete the config entry. Use the Admin API to delete configuration values.');
         }
 
         $oldValue = $this->systemConfigService->get($key, $salesChannelId);
 
         if ($dryRun) {
-            return $this->success([
+            return $this->successResult([
                 'key' => $key,
                 'oldValue' => $oldValue,
                 'newValue' => $actualValue,
@@ -60,7 +61,7 @@ class SystemConfigWriteTool extends McpToolResponse
 
         $this->systemConfigService->set($key, $actualValue, $salesChannelId);
 
-        return $this->success([
+        return $this->successResult([
             'key' => $key,
             'oldValue' => $oldValue,
             'newValue' => $actualValue,

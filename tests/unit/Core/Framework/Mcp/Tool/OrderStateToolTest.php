@@ -44,14 +44,13 @@ class OrderStateToolTest extends TestCase
         $tool = $this->createTool($order, availableActions: ['cancel']);
 
         $output = ($tool)(orderNumber: '10001', orderAction: 'cancel', transactionAction: 'cancel', deliveryAction: 'cancel', dryRun: true);
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertTrue($data['success']);
-        static::assertTrue($data['_meta']['dryRun']);
-        static::assertSame('cancel', $data['data']['order']['action']);
-        static::assertTrue($data['data']['order']['actionValid']);
-        static::assertCount(1, $data['data']['transactions']);
-        static::assertCount(1, $data['data']['deliveries']);
+        static::assertFalse($output->isError());
+        static::assertTrue($output->meta['dryRun']);
+        static::assertSame('cancel', $output->data['order']['action']);
+        static::assertTrue($output->data['order']['actionValid']);
+        static::assertCount(1, $output->data['transactions']);
+        static::assertCount(1, $output->data['deliveries']);
     }
 
     public function testCommitWithProcessAndShip(): void
@@ -60,13 +59,12 @@ class OrderStateToolTest extends TestCase
         $tool = $this->createTool($order, availableActions: ['process', 'ship'], executeTransitions: true);
 
         $output = ($tool)(orderNumber: '10001', orderAction: 'process', deliveryAction: 'ship', dryRun: false);
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertTrue($data['success']);
-        static::assertFalse($data['_meta']['dryRun']);
-        static::assertTrue($data['data']['order']['executed']);
-        static::assertArrayNotHasKey('transactions', $data['data']);
-        static::assertTrue($data['data']['deliveries'][0]['executed']);
+        static::assertFalse($output->isError());
+        static::assertFalse($output->meta['dryRun']);
+        static::assertTrue($output->data['order']['executed']);
+        static::assertArrayNotHasKey('transactions', $output->data);
+        static::assertTrue($output->data['deliveries'][0]['executed']);
     }
 
     public function testOnlyTransactionAction(): void
@@ -75,12 +73,11 @@ class OrderStateToolTest extends TestCase
         $tool = $this->createTool($order, availableActions: ['paid'], executeTransitions: true);
 
         $output = ($tool)(orderNumber: '10001', transactionAction: 'paid', dryRun: false);
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertTrue($data['success']);
-        static::assertArrayNotHasKey('order', $data['data']);
-        static::assertTrue($data['data']['transactions'][0]['executed']);
-        static::assertArrayNotHasKey('deliveries', $data['data']);
+        static::assertFalse($output->isError());
+        static::assertArrayNotHasKey('order', $output->data);
+        static::assertTrue($output->data['transactions'][0]['executed']);
+        static::assertArrayNotHasKey('deliveries', $output->data);
     }
 
     public function testTransitionNotAvailableReturnsNote(): void
@@ -89,11 +86,10 @@ class OrderStateToolTest extends TestCase
         $tool = $this->createTool($order, availableActions: []);
 
         $output = ($tool)(orderNumber: '10001', orderAction: 'cancel', dryRun: false);
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertTrue($data['success']);
-        static::assertFalse($data['data']['order']['executed']);
-        static::assertStringContainsString('not available', $data['data']['order']['note']);
+        static::assertFalse($output->isError());
+        static::assertFalse($output->data['order']['executed']);
+        static::assertStringContainsString('not available', $output->data['order']['note']);
     }
 
     public function testDryRunShowsAvailableTransitions(): void
@@ -102,10 +98,9 @@ class OrderStateToolTest extends TestCase
         $tool = $this->createTool($order, availableActions: ['cancel', 'process']);
 
         $output = ($tool)(orderNumber: '10001', orderAction: 'cancel', dryRun: true);
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertTrue($data['success']);
-        static::assertCount(2, $data['data']['order']['availableTransitions']);
+        static::assertFalse($output->isError());
+        static::assertCount(2, $output->data['order']['availableTransitions']);
     }
 
     public function testDeniesWritePermissionOnCommit(): void
@@ -118,10 +113,9 @@ class OrderStateToolTest extends TestCase
         $tool = $this->createToolWithContext($order, $context, availableActions: ['cancel']);
 
         $output = ($tool)(orderNumber: '10001', orderAction: 'cancel', dryRun: false);
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('Missing privilege', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('Missing privilege', $output->error->message);
     }
 
     public function testDeniesAccessWithoutReadPermission(): void
@@ -144,10 +138,8 @@ class OrderStateToolTest extends TestCase
         );
         $output = ($tool)(orderNumber: '10001', orderAction: 'cancel');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('order:read', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('order:read', $output->error->message);
     }
 
     public function testOnlyTransactionWritePrivilegeCheckedWhenOnlyTransactionAction(): void
@@ -160,10 +152,9 @@ class OrderStateToolTest extends TestCase
         $tool = $this->createToolWithContext($order, $context, availableActions: ['paid'], executeTransitions: true);
 
         $output = ($tool)(orderNumber: '10001', transactionAction: 'paid', dryRun: false);
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertTrue($data['success']);
-        static::assertTrue($data['data']['transactions'][0]['executed']);
+        static::assertFalse($output->isError());
+        static::assertTrue($output->data['transactions'][0]['executed']);
     }
 
     public function testOrderNotFoundReturnsError(): void
@@ -171,11 +162,10 @@ class OrderStateToolTest extends TestCase
         $tool = $this->createTool(null, availableActions: []);
 
         $output = ($tool)(orderNumber: '99999', orderAction: 'cancel');
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertFalse($data['success']);
-        static::assertSame('Order not found.', $data['error']);
-        static::assertSame(McpToolError::NOT_FOUND, $data['code']);
+        static::assertTrue($output->isError());
+        static::assertSame('Order not found.', $output->error->message);
+        static::assertSame(McpToolError::NOT_FOUND, $output->error->code);
     }
 
     public function testLookupByOrderId(): void
@@ -184,10 +174,9 @@ class OrderStateToolTest extends TestCase
         $tool = $this->createTool($order, availableActions: ['cancel']);
 
         $output = ($tool)(orderId: $order->getId(), orderAction: 'cancel', dryRun: true);
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertTrue($data['success']);
-        static::assertSame('cancel', $data['data']['order']['action']);
+        static::assertFalse($output->isError());
+        static::assertSame('cancel', $output->data['order']['action']);
     }
 
     public function testNoIdentifierReturnsError(): void
@@ -195,10 +184,9 @@ class OrderStateToolTest extends TestCase
         $tool = $this->createTool(null, availableActions: []);
 
         $output = ($tool)(orderAction: 'cancel');
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('orderNumber or orderId', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('orderNumber or orderId', $output->error->message);
     }
 
     public function testNoActionReturnsError(): void
@@ -206,10 +194,9 @@ class OrderStateToolTest extends TestCase
         $tool = $this->createTool(null, availableActions: []);
 
         $output = ($tool)(orderNumber: '10001');
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('orderAction, transactionAction, or deliveryAction', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('orderAction, transactionAction, or deliveryAction', $output->error->message);
     }
 
     public function testGetAvailableTransitionsExceptionTreatsAsEmpty(): void
@@ -218,11 +205,10 @@ class OrderStateToolTest extends TestCase
         $tool = $this->createTool($order, availableActions: [], throwOnGetTransitions: true);
 
         $output = ($tool)(orderNumber: '10001', orderAction: 'cancel', dryRun: true);
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertTrue($data['success']);
-        static::assertFalse($data['data']['order']['actionValid']);
-        static::assertSame([], $data['data']['order']['availableTransitions']);
+        static::assertFalse($output->isError());
+        static::assertFalse($output->data['order']['actionValid']);
+        static::assertSame([], $output->data['order']['availableTransitions']);
     }
 
     public function testNonDryRunWrapsTransitionsInTransaction(): void
@@ -237,10 +223,9 @@ class OrderStateToolTest extends TestCase
         $tool = $this->createToolWithContext($order, Context::createDefaultContext(), ['process'], true, false, $connection);
 
         $output = ($tool)(orderNumber: '10001', orderAction: 'process', dryRun: false);
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertTrue($data['success']);
-        static::assertFalse($data['_meta']['dryRun']);
+        static::assertFalse($output->isError());
+        static::assertFalse($output->meta['dryRun']);
     }
 
     public function testDryRunDoesNotUseTransaction(): void

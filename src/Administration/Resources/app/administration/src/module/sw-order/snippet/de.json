@@ -217,6 +217,7 @@
       "summaryLabelAmountTotal": "Gesamtsumme inkl. MwSt.",
       "summaryLabelAmountTotalRounded": "Gesamtsumme gerundet inkl. MwSt.",
       "summaryLabelShippingCosts": "Versandkosten",
+      "summaryLabelShipmentShippingCosts": "Versandkosten Lieferung {count} ({shippingMethod})",
       "discountLabelShippingCosts": "Versandkostenrabatt",
       "summaryLabelTaxes": "{taxRate}% MwSt.",
       "labelOrderStatus": "Bestellstatus",

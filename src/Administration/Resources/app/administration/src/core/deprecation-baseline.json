@@ -631,6 +631,10 @@
         ]
     },
     "systemConfigApiService.getConfig() is deprecated. Use `getSchema` instead.": {
+        "src/module/sw-sales-channel/page/sw-sales-channel-detail/index.js": [
+            "default",
+            "major"
+        ],
         "sw-media-quickinfo": [
             "default",
             "major"

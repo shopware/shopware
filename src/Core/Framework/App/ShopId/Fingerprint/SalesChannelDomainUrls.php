@@ -38,12 +38,18 @@ readonly class SalesChannelDomainUrls implements Fingerprint
     }
 
     /**
+     * Sorted, so the stamp does not depend on the order in which the database returns the rows.
+     *
      * @return list<string>
      */
     private function fetchSalesChannelDomainUrls(): array
     {
-        return $this->connection
+        $urls = $this->connection
             ->fetchFirstColumn('SELECT url FROM sales_channel_domain');
+
+        sort($urls);
+
+        return $urls;
     }
 
     /**

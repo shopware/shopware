@@ -34,10 +34,23 @@ class SalesChannelDomainUrlsTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
             ->method('fetchFirstColumn')
-            ->willReturn($urls = ['foo', 'bar', 'baz']);
+            ->willReturn(['foo', 'bar', 'baz']);
 
         $fingerprint = new SalesChannelDomainUrls($connection);
 
-        static::assertSame(\hash('md5', implode('', $urls)), $fingerprint->getStamp());
+        static::assertSame(\hash('md5', 'barbazfoo'), $fingerprint->getStamp());
+    }
+
+    public function testStampDoesNotDependOnTheOrderOfTheDomainUrls(): void
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchFirstColumn')->willReturnOnConsecutiveCalls(
+            ['https://a.example/de', 'https://b.example/de', 'https://c.example/en'],
+            ['https://c.example/en', 'https://a.example/de', 'https://b.example/de'],
+        );
+
+        $fingerprint = new SalesChannelDomainUrls($connection);
+
+        static::assertSame($fingerprint->getStamp(), $fingerprint->getStamp());
     }
 }

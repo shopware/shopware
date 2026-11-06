@@ -8,7 +8,7 @@ import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
 const mockHandleUpdateContent = jest.fn();
 
-async function createWrapper(props = {}) {
+async function createWrapper(props = {}, stubs = {}) {
     return mount(
         await wrapTestComponent('sw-cms-slot', {
             sync: true,
@@ -43,6 +43,7 @@ async function createWrapper(props = {}) {
                     },
                     'sw-sidebar-collapse': true,
                     'sw-skeleton-bar': true,
+                    ...stubs,
                 },
                 provide: {
                     cmsService: Shopware.Service('cmsService'),
@@ -378,16 +379,23 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
     });
 
     it('should show an error state after 10s when element is not existing', async () => {
-        const wrapper = await createWrapper({
-            element: {
-                type: 'not-existing',
+        const wrapper = await createWrapper(
+            {
+                element: {
+                    type: 'not-existing',
+                },
             },
-        });
+            {
+                'sw-skeleton-bar': await wrapTestComponent('sw-skeleton-bar', { sync: true }),
+                'sw-skeleton-bar-deprecated': true,
+                'mt-skeleton-bar': true,
+            },
+        );
 
         // Element not found should not be visible
         expect(wrapper.find('.sw-cms-slot__element-not-found').exists()).toBe(false);
         // Loading skeleton should be visible
-        expect(wrapper.find('sw-skeleton-bar-stub').exists()).toBe(true);
+        expect(wrapper.find('sw-skeleton-bar-deprecated-stub').exists()).toBe(true);
 
         // Advance time by 10s
         jest.advanceTimersByTime(10000);
@@ -396,7 +404,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         // Element not found should be visible after 10 seconds
         expect(wrapper.find('.sw-cms-slot__element-not-found').exists()).toBe(true);
         // Loading skeleton should not be visible after 10 seconds
-        expect(wrapper.find('sw-skeleton-bar-stub').exists()).toBe(false);
+        expect(wrapper.find('sw-skeleton-bar-deprecated-stub').exists()).toBe(false);
     });
 
     const toggleElementSelectionModalDataProvider = [

@@ -67,13 +67,7 @@ import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
 import flushPromises from '../_helper_/flushPromises';
 import wrapTestComponent from '../_helper_/componentWrapper';
 import 'blob-polyfill';
-import {
-    sendTimeoutExpired,
-    deprecationWarning,
-    deprecatedTabComponent,
-    deprecatedPopoverComponent,
-    unresolvedComponentWarning,
-} from '../_helper_/allowedErrors';
+import { sendTimeoutExpired, deprecationWarning, unresolvedComponentWarning } from '../_helper_/allowedErrors';
 import findByText from '../_helper_/find-by-text';
 import findByLabel from '../_helper_/find-by-label';
 import findByPlaceholder from '../_helper_/find-by-placeholder';
@@ -487,19 +481,6 @@ global.allowedErrors = [
             return msg.includes('[intlify] Fall back to translate');
         },
     },
-    {
-        method: 'warn',
-        msgCheck: (msg0, msg1) => {
-            if (typeof msg0 !== 'string') {
-                return false;
-            }
-
-            return (
-                msg0?.includes('is deprecated and will be removed in v6.8.0.0. Please use') ||
-                msg1?.includes?.('is deprecated and will be removed in v6.8.0.0. Please use')
-            );
-        },
-    },
     /*
      * Duplicate registrations will happen, when the root index file of CMS components is imported.
      * This file has to be imported during tests, since it's usually also registering the same
@@ -518,21 +499,6 @@ global.allowedErrors = [
             );
         },
     },
-    /*
-     * sw-entity-listing "items" prop deprecation - only deprecated for next major v6.8.0
-     * Allow this warning during the transition period
-     */
-    {
-        method: 'warn',
-        msgCheck: (msg0) => {
-            if (typeof msg0 !== 'string') {
-                return false;
-            }
-
-            return msg0?.includes('[Deprecation] sw-entity-listing: The "items" prop is deprecated');
-        },
-    },
-
     {
         method: 'warn',
         msgCheck: (msg0, msg1) => {
@@ -563,8 +529,6 @@ global.allowedErrors = [
 
     sendTimeoutExpired,
     deprecationWarning,
-    deprecatedTabComponent,
-    deprecatedPopoverComponent,
     // Vue 3 test stubs may have empty templates which triggers this warning
     // This is expected in test environments when stubbing router components
     {

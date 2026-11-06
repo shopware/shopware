@@ -6,11 +6,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\McpException;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -94,6 +97,24 @@ class McpRateLimiterTest extends TestCase
         static::assertSame($keys[0], $keys[1], 'a new token of the same integration must keep its bucket');
         static::assertSame($keys[2], $keys[3], 'access-key headers and a bearer token of one integration share a bucket');
         static::assertNotSame($keys[0], $keys[2], 'two integrations must not share a bucket');
+    }
+
+    public function testAnIntegrationKeepsOneBucketWhateverUserItActsFor(): void
+    {
+        $keys = [];
+        $this->rateLimiter->expects($this->exactly(2))
+            ->method('ensureAccepted')
+            ->willReturnCallback(static function (string $route, string $key) use (&$keys): void {
+                $keys[] = $key;
+            });
+
+        foreach ([self::USER_ID, Uuid::randomHex()] as $actingUserId) {
+            $request = $this->integrationRequest(self::INTEGRATION_A, 'mcp-' . self::INTEGRATION_A);
+            $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, new Context(new AdminApiSource($actingUserId, 'integration-id')));
+            $this->mcpRateLimiter->enforceForAdminApi($request);
+        }
+
+        static::assertSame(['integration-' . self::INTEGRATION_A, 'integration-' . self::INTEGRATION_A], $keys, 'sw-app-user-id must not open a new bucket');
     }
 
     public function testEnforceForStoreApiEnforcesBothContextAndPerIpBuckets(): void

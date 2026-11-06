@@ -118,6 +118,7 @@ The stateless protocol era and `/store-api/_mcp` are not affected.
 
 The `mcp_admin_api` rate limit now counts the requests of a user or integration, no longer of a single access token.
 A new or refreshed access token continues in the same bucket, and all MCP clients of one user share it.
+An integration has one bucket, whichever user it acts for with `sw-app-user-id`.
 Clients that requested a new token to get a fresh limit are throttled sooner.
 Requests without a known user or integration are still counted per client IP.
 

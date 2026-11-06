@@ -33,10 +33,11 @@ class McpRateLimiter
 
     /**
      * Keyed on the principal, not the token id, so a refreshed or newly issued token keeps the bucket.
+     * An integration has one bucket for all users it acts for, because `sw-app-user-id` is chosen by the caller.
      */
     public function enforceForAdminApi(Request $request): void
     {
-        $key = $this->principalResolver->resolve($request)
+        $key = $this->principalResolver->resolveIgnoringActingUser($request)
             ?: $request->getClientIp()
             ?: 'unknown';
 

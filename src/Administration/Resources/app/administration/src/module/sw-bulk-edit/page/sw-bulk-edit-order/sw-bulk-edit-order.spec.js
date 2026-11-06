@@ -1,4 +1,4 @@
-/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
 
 /**
  * @sw-package checkout
@@ -900,6 +900,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         wrapper.vm.fetchStatusOptions.mockRestore();
     });
 
+    /**
+     * After a bulk edit save, transaction and delivery states were written into the order status options.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/21213
+     */
     it('should assign the latest status options to their own status field', async () => {
         wrapper = await createWrapper();
         await flushPromises();
@@ -934,6 +939,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         expect(wrapper.vm.statusFormFields[1].name).not.toBe('orderDeliveries');
     });
 
+    /**
+     * Document selections from a previous bulk edit carried over and generated extra documents.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14360
+     */
     it('should reset order documents isChanged on component creation', async () => {
         const store = Shopware.Store.get('swBulkEdit');
         const resetSpy = jest.spyOn(store, 'resetOrderDocumentsIsChanged');

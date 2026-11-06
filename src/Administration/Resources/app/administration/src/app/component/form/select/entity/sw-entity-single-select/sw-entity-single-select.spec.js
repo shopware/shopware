@@ -1,4 +1,4 @@
-/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
 
 /**
  * @sw-package framework
@@ -166,6 +166,11 @@ async function createEntitySingleSelect(
 }
 
 describe('components/sw-entity-single-select', () => {
+    /**
+     * Exact total counts made entity selects time out on large product sets.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/12922
+     */
     it('should disable exact count mode per default', async () => {
         const swEntitySingleSelect = await createEntitySingleSelect();
         await flushPromises();
@@ -258,6 +263,11 @@ describe('components/sw-entity-single-select', () => {
         expect(singleSelection).toBeNull();
     });
 
+    /**
+     * A disabled select nulled an unresolved value, so every following order save failed.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/20030
+     */
     it('does not clear an unresolved selection when disabled', async () => {
         const repository = {
             get: jest.fn().mockResolvedValue(null),

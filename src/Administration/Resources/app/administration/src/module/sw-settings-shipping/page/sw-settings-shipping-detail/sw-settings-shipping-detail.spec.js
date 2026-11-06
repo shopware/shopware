@@ -184,6 +184,33 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
         expect(criteria.associations[0].association).toBe('conditions');
     });
 
+    it('loads only the ids of the sales channels of each currency', async () => {
+        const currencyCriteria = [];
+        await createWrapper(
+            [],
+            {},
+            {
+                repositoryFactory: {
+                    create: (entity) => ({
+                        ...repositoryFactoryMock,
+                        search: (criteria) => {
+                            if (entity === 'currency') {
+                                currencyCriteria.push(criteria.parse());
+                            }
+
+                            return Promise.resolve([]);
+                        },
+                    }),
+                },
+            },
+        );
+        await flushPromises();
+
+        expect(currencyCriteria).toHaveLength(1);
+        expect(Object.keys(currencyCriteria[0].associations)).toEqual(['salesChannels']);
+        expect(currencyCriteria[0].includes).toEqual({ sales_channel: ['id'] });
+    });
+
     it('should load customFieldSet on loadEntityData', async () => {
         const wrapper = await createWrapper([], { shippingMethodId: 'a1b2c3' });
         const spyGetMethod = jest.spyOn(wrapper.vm.shippingMethodRepository, 'get');

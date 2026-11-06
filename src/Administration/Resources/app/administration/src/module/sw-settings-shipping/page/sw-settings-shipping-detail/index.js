@@ -195,7 +195,8 @@ export default {
         loadCurrencies() {
             this.currenciesLoading = true;
             const criteria = new Criteria(1, 500);
-            criteria.addAssociation('salesChannels');
+            // the price matrix only checks whether a currency is used by any sales channel
+            criteria.addAssociation('salesChannels').addIncludes({ sales_channel: ['id'] });
             this.currencyRepository.search(criteria, Context.api).then((currencyResponse) => {
                 Shopware.Store.get('swShippingDetail').currencies = this.sortCurrencies(currencyResponse);
                 this.currenciesLoading = false;

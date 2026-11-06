@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Rule;
 
+use Shopware\Core\Checkout\Cart\Rule\DeliveryRuleScope;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\ZipCodeRule;
@@ -19,7 +20,11 @@ class ShippingZipCodeRule extends ZipCodeRule
             return false;
         }
 
-        $address = $scope->getSalesChannelContext()->getShippingLocation()->getAddress()
+        $location = $scope instanceof DeliveryRuleScope
+            ? $scope->getDelivery()->getLocation()
+            : $scope->getSalesChannelContext()->getShippingLocation();
+
+        $address = $location->getAddress()
             ?? $scope->getCustomer()?->getActiveShippingAddress();
 
         if (!$address) {

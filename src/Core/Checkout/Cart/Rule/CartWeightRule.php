@@ -37,7 +37,11 @@ class CartWeightRule extends Rule
             return false;
         }
 
-        return RuleComparison::numeric($this->calculateCartWeight($scope->getCart()), $this->weight, $this->operator);
+        $weight = $scope instanceof DeliveryRuleScope
+            ? $scope->getDelivery()->getPositions()->getWeight()
+            : $this->calculateCartWeight($scope->getCart());
+
+        return RuleComparison::numeric($weight, $this->weight, $this->operator);
     }
 
     public function getConstraints(): array

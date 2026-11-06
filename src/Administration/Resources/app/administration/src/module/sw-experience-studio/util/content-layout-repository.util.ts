@@ -19,6 +19,7 @@ export type ContentLayoutEntity = Omit<Entity<'content_layout'>, 'layout'> & {
 export type ContentLayoutRepository = {
     create: (context: apiContext) => ContentLayoutEntity;
     get: (id: string, context: apiContext, criteria: CriteriaType) => Promise<ContentLayoutEntity | null>;
+    search: (criteria: CriteriaType, context: apiContext) => Promise<ContentLayoutEntity[]>;
     save: (layout: ContentLayoutEntity, context: apiContext) => Promise<void>;
 };
 
@@ -46,6 +47,10 @@ export function createContentLayoutRepository(repository: Repository<'content_la
             }
 
             return entity;
+        },
+
+        async search(criteria: CriteriaType, context: apiContext): Promise<ContentLayoutEntity[]> {
+            return Array.from(await repository.search(criteria, context)) as ContentLayoutEntity[];
         },
 
         async save(layout: ContentLayoutEntity, context: apiContext): Promise<void> {

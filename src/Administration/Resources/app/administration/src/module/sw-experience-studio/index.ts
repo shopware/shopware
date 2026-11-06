@@ -1,3 +1,4 @@
+import './store/experience-studio-workspace.store';
 import defaultSearchConfiguration from './default-search-configuration';
 
 import './acl';
@@ -157,6 +158,18 @@ Shopware.Component.register(
  * @private
  * @sw-package discovery
  */
+Shopware.Component.register(
+    'sw-experience-studio-workspace-picker',
+    () => import('./component/sw-experience-studio-workspace-picker'),
+);
+
+/** @private @sw-package discovery */
+Shopware.Component.register(
+    'sw-experience-studio-workspace-switcher',
+    () => import('./component/sw-experience-studio-workspace-switcher'),
+);
+
+/** @private @sw-package discovery */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Module.register('sw-experience-studio', {
     type: 'core',
@@ -175,6 +188,11 @@ Shopware.Module.register('sw-experience-studio', {
             meta: {
                 privilege: 'experience_studio.viewer',
             },
+        },
+        workspace: {
+            component: 'sw-experience-studio-detail',
+            path: 'workspace/:workspaceId',
+            meta: { privilege: 'experience_studio.viewer' },
         },
         detail: {
             component: 'sw-experience-studio-detail',

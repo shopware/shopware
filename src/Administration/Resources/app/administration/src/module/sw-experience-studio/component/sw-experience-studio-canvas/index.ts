@@ -1,3 +1,4 @@
+import type { WorkspaceConfiguration } from '../../types/workspace.types';
 import {
     hasExperienceStudioCanvasPositionBeenManuallyPlaced,
     loadExperienceStudioCanvasPosition,
@@ -85,6 +86,10 @@ export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {
+        workspaceConfiguration: {
+            type: Object as PropType<WorkspaceConfiguration | null>,
+            default: null,
+        },
         frames: {
             type: Array as PropType<CanvasFrame[]>,
             required: false,
@@ -118,6 +123,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     emits: [
+        'configuration-change',
         'viewport-change',
         'frame-activate',
         'frame-close',
@@ -128,7 +134,8 @@ export default Shopware.Component.wrapComponentConfig({
 
     data() {
         return {
-            activePanel: 'structure' as 'structure' | 'layouts' | null,
+            isHydratingWorkspace: true,
+            activePanel: (this.workspaceConfiguration ? null : 'structure') as 'structure' | 'layouts' | null,
             isSettingsOpen: false,
             frameX: 0,
             frameY: 0,
@@ -195,8 +202,18 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     watch: {
+        canvasPanX(): void {
+            this.emitConfiguration();
+        },
+        canvasPanY(): void {
+            this.emitConfiguration();
+        },
+        canvasZoom(): void {
+            this.emitConfiguration();
+        },
         frameIds(): void {
             this.initializeFrameStates();
+            this.emitConfiguration();
         },
         layoutId(): void {
             if (this.frameStates[this.layoutId]) {
@@ -207,7 +224,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         viewport(viewport: Viewport): void {
-            if (viewport !== 'custom') {
+            if (viewport !== 'custom' && !this.workspaceConfiguration) {
                 this.applyViewportPreset(viewport);
             }
         },
@@ -216,9 +233,31 @@ export default Shopware.Component.wrapComponentConfig({
     mounted(): void {
         void this.$nextTick(() => {
             this.frameHeight = this.getDefaultFrameHeight();
-            this.restoreCanvasPosition();
+            if (this.workspaceConfiguration) {
+                this.frameStates = Object.fromEntries(
+                    this.workspaceConfiguration.frames.map((frame) => [
+                        frame.layoutId,
+                        {
+                            x: frame.x,
+                            y: frame.y,
+                            width: frame.width,
+                            height: frame.height,
+                        },
+                    ]),
+                );
+                this.canvasPanX = this.workspaceConfiguration.canvas.panX;
+                this.canvasPanY = this.workspaceConfiguration.canvas.panY;
+                this.canvasZoom = this.workspaceConfiguration.canvas.zoom;
+            } else {
+                this.restoreCanvasPosition();
+            }
             this.initializeFrameStates();
-            this.fitCanvasToFrame();
+            if (!this.workspaceConfiguration) {
+                this.fitCanvasToFrame();
+            }
+            void this.$nextTick(() => {
+                this.isHydratingWorkspace = false;
+            });
         });
     },
 
@@ -231,6 +270,26 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
+        getWorkspaceConfiguration(): WorkspaceConfiguration {
+            return {
+                frames: this.frames
+                    .filter((frame) => this.frameStates[frame.id])
+                    .map((frame) => ({
+                        layoutId: frame.id,
+                        ...this.frameStates[frame.id],
+                        viewport: frame.viewport,
+                        previewEntityId: frame.previewEntityId,
+                    })),
+                previewSalesChannelId: null,
+                canvas: { panX: this.canvasPanX, panY: this.canvasPanY, zoom: this.canvasZoom },
+            };
+        },
+        emitConfiguration(): void {
+            if (this.isHydratingWorkspace) {
+                return;
+            }
+            this.$emit('configuration-change', this.getWorkspaceConfiguration());
+        },
         getCurrentUserId(): string | null {
             const currentUser = Shopware.Store.get('session').currentUser as { id?: string } | null;
 
@@ -248,6 +307,9 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         restoreCanvasPosition(): void {
+            if (this.workspaceConfiguration) {
+                return;
+            }
             const position: ExperienceStudioCanvasPosition | null = loadExperienceStudioCanvasPosition(
                 this.getCurrentUserId(),
                 this.layoutId,
@@ -272,11 +334,12 @@ export default Shopware.Component.wrapComponentConfig({
                 const anchorFrameId = this.activeFrameId || this.frames.find((candidate) => candidate.isActive)?.id;
                 const anchorState = (anchorFrameId && this.frameStates[anchorFrameId]) || Object.values(this.frameStates)[0];
 
-                const savedPosition = loadExperienceStudioCanvasPosition(this.getCurrentUserId(), frame.id);
-                const isManuallyPlaced = hasExperienceStudioCanvasPositionBeenManuallyPlaced(
-                    this.getCurrentUserId(),
-                    frame.id,
-                );
+                const savedPosition = this.workspaceConfiguration
+                    ? null
+                    : loadExperienceStudioCanvasPosition(this.getCurrentUserId(), frame.id);
+                const isManuallyPlaced =
+                    !this.workspaceConfiguration &&
+                    hasExperienceStudioCanvasPositionBeenManuallyPlaced(this.getCurrentUserId(), frame.id);
                 const viewportWidth =
                     frame.viewport === 'custom' ? VIEWPORT_WIDTHS.desktop : VIEWPORT_WIDTHS[frame.viewport];
                 const frameHeight = this.getDefaultFrameHeight();
@@ -388,6 +451,10 @@ export default Shopware.Component.wrapComponentConfig({
                 width: this.frameWidth,
                 height: this.frameHeight,
             };
+            this.emitConfiguration();
+            if (this.workspaceConfiguration) {
+                return;
+            }
             saveExperienceStudioCanvasPosition(
                 this.getCurrentUserId(),
                 layoutId,

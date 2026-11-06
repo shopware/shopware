@@ -27,6 +27,14 @@ const experienceStudioEditorStore = Shopware.Store.register({
     }),
 
     getters: {
+        canUndoLayout:
+            (state) =>
+            (id: string): boolean =>
+                Boolean(state.historyByLayoutId[id]?.past.length),
+        canRedoLayout:
+            (state) =>
+            (id: string): boolean =>
+                Boolean(state.historyByLayoutId[id]?.future.length),
         canUndo: (state): boolean => {
             const activeHistory = state.activeLayoutId ? state.historyByLayoutId[state.activeLayoutId] : null;
 

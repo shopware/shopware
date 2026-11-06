@@ -46,7 +46,10 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail workspace
             allowSave: true,
             isSavingAll: false,
             openLayouts,
-            layoutRepository: { save },
+            layoutRepository: {
+                save,
+                get: jest.fn((id: string) => Promise.resolve(id === savedLayout.id ? savedLayout : failedLayout)),
+            },
             syncActiveLayoutState: jest.fn(),
             isLayoutDirty: () => true,
             saveOpenLayout: methods.saveOpenLayout,

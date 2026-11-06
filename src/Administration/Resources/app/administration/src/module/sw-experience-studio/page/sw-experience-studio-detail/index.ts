@@ -1,3 +1,7 @@
+import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router';
+import type { ContentWorkspace, WorkspaceConfiguration } from '../../types/workspace.types';
+import type { ExperienceStudioWorkspaceStore } from '../../store/experience-studio-workspace.store';
+import { createWorkspaceConfiguration, copyWorkspaceConfiguration } from '../../util/workspace-configuration.util';
 import type Repository from 'src/core/data/repository.data';
 import type { ContentSystemElementTypeSpecification } from 'src/core/service/api/content-system-element-type.api.service';
 import type {
@@ -50,6 +54,8 @@ const MAPPING_MUTATION_ERROR_SNIPPETS: Record<string, string> = {
     CONTENT_SYSTEM__UNKNOWN_MAPPING_PATH: 'sw-experience-studio.detail.mappingMutationErrors.unknownMappingPath',
     CONTENT_SYSTEM__MAPPING_TYPE_MISMATCH: 'sw-experience-studio.detail.mappingMutationErrors.mappingTypeMismatch',
 };
+
+type WorkspaceAction = { type: 'open'; id: string } | { type: 'create'; name: string } | { type: 'delete'; id: string };
 
 type Viewport = 'mobile' | 'tablet-landscape' | 'desktop' | 'custom';
 
@@ -121,6 +127,7 @@ type ExperienceStudioCanvasRef = {
     fitCanvasToFrame: () => void;
     fitCanvasToFrames: () => void;
     focusFrame: (layoutId: string) => void;
+    getWorkspaceConfiguration: () => WorkspaceConfiguration;
 };
 
 type DraftMutationOperation =
@@ -171,6 +178,17 @@ export default Shopware.Component.wrapComponentConfig({
     ],
 
     data(): {
+        isWorkspacePickerOpen: boolean;
+        workspaceNameAction: 'create' | 'rename' | null;
+        workspaceName: string;
+        managedWorkspace: ContentWorkspace | null;
+        isDeleteWorkspaceModalOpen: boolean;
+        pendingWorkspaceAction: WorkspaceAction | null;
+        workspaceCanvasConfiguration: WorkspaceConfiguration | null;
+        isRestoringWorkspace: boolean;
+        isWorkspaceTransitioning: boolean;
+        workspaceError: boolean;
+        pendingLinkedLayoutId: string | null;
         layout: ContentLayoutEntity | null;
         openLayouts: ExperienceStudioOpenLayout[];
         activeLayoutId: string | null;
@@ -214,6 +232,17 @@ export default Shopware.Component.wrapComponentConfig({
         resizePointerId: number | null;
     } {
         return {
+            isWorkspacePickerOpen: false,
+            workspaceNameAction: null,
+            workspaceName: '',
+            managedWorkspace: null,
+            isDeleteWorkspaceModalOpen: false,
+            pendingWorkspaceAction: null,
+            workspaceCanvasConfiguration: null,
+            isRestoringWorkspace: false,
+            isWorkspaceTransitioning: false,
+            workspaceError: false,
+            pendingLinkedLayoutId: null,
             layout: null,
             openLayouts: [],
             activeLayoutId: null,
@@ -259,6 +288,9 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
+        workspaceStore(): ExperienceStudioWorkspaceStore {
+            return Shopware.Store.get('experienceStudioWorkspace' as never) as ExperienceStudioWorkspaceStore;
+        },
         layoutRepository(): ContentLayoutRepository {
             return createContentLayoutRepository(this.repositoryFactory.create('content_layout'));
         },
@@ -464,6 +496,23 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     watch: {
+        'workspaceStore.workspaceMissing'(missing: boolean): void {
+            if (missing) {
+                this.isWorkspacePickerOpen = true;
+            }
+        },
+        layoutPickerOpenIds(): void {
+            void this.scheduleWorkspaceSetup();
+        },
+        previewSalesChannelId(): void {
+            void this.scheduleWorkspaceSetup();
+        },
+        previewEntityId(): void {
+            void this.scheduleWorkspaceSetup();
+        },
+        currentViewport(): void {
+            void this.scheduleWorkspaceSetup();
+        },
         selectedElementId(): void {
             this.adjustElementSettingsWidth();
         },
@@ -479,15 +528,20 @@ export default Shopware.Component.wrapComponentConfig({
             this.onHistoryKeydown(event);
         };
         if (this.isWorkspaceMode) {
-            this.isLayoutPickerOpen = this.openLayouts.length === 0;
-
-            if (this.$route.params.id) {
-                void this.loadLayout();
+            this.pendingLinkedLayoutId = (this.$route.params.id as string | undefined) ?? null;
+            const workspaceId = this.$route.params.workspaceId as string | undefined;
+            if (workspaceId) {
+                void this.openWorkspace(workspaceId);
+            } else {
+                this.workspaceStore.activate(null);
+                this.isWorkspacePickerOpen = true;
             }
         } else {
             void this.loadLayout();
         }
-        void this.loadDefaultPreviewSalesChannel();
+        if (!this.isWorkspaceMode) {
+            void this.loadDefaultPreviewSalesChannel();
+        }
         void this.loadElementTypes();
         void this.loadStyleOptions();
         void this.loadLayoutPresets();
@@ -501,7 +555,33 @@ export default Shopware.Component.wrapComponentConfig({
         }
     },
 
+    beforeRouteLeave(_to: RouteLocationNormalized, _from: RouteLocationNormalized, next: NavigationGuardNext): void {
+        void this.scheduleWorkspaceSetup()
+            .then(() => this.workspaceStore.flush())
+            .then(
+                (saved) => next(saved ? undefined : false),
+                () => next(false),
+            );
+    },
+
+    beforeRouteUpdate(to: RouteLocationNormalized): boolean {
+        const id = to.params.workspaceId as string | undefined;
+        if (id && id !== this.workspaceStore.activeWorkspace?.id) {
+            void this.requestWorkspaceAction({ type: 'open', id });
+            return false;
+        }
+        const layoutId = to.params.id as string | undefined;
+        if (to.name === 'sw.experience.studio.detail' && layoutId && this.workspaceStore.activeWorkspace) {
+            void this.openLayoutById(layoutId);
+            return false;
+        }
+        return true;
+    },
+
     beforeUnmount(): void {
+        if (this.isWorkspaceMode) {
+            void this.scheduleWorkspaceSetup().then(() => this.workspaceStore.flush());
+        }
         if (this.diagnoseTimeoutId !== null) {
             window.clearTimeout(this.diagnoseTimeoutId);
         }
@@ -516,6 +596,334 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
+        async scheduleWorkspaceSetup(): Promise<void> {
+            const workspaceId = this.workspaceStore?.activeWorkspace?.id;
+            if (!workspaceId || this.isRestoringWorkspace) {
+                return;
+            }
+            await this.$nextTick();
+            if (workspaceId !== this.workspaceStore.activeWorkspace?.id || this.isRestoringWorkspace) {
+                return;
+            }
+            const canvas = this.$refs.experienceStudioCanvas as ExperienceStudioCanvasRef | undefined;
+            if (!canvas) {
+                return;
+            }
+            const configuration = canvas.getWorkspaceConfiguration();
+            configuration.previewSalesChannelId = this.previewSalesChannelId;
+            configuration.frames = this.openLayouts
+                .filter((item) => !item.isNew)
+                .flatMap((item) => {
+                    const frame = configuration.frames.find((candidate) => candidate.layoutId === item.id);
+                    return frame
+                        ? [
+                              {
+                                  ...frame,
+                                  viewport: item.id === this.activeLayoutId ? this.currentViewport : item.viewport,
+                                  previewEntityId:
+                                      item.id === this.activeLayoutId ? this.previewEntityId : item.previewEntityId,
+                              },
+                          ]
+                        : [];
+                });
+            this.workspaceStore.schedule(configuration);
+        },
+
+        async openWorkspace(id: string): Promise<void> {
+            this.isLoading = true;
+            this.workspaceError = false;
+            try {
+                const workspace = await this.workspaceStore.get(id);
+                const configuration = copyWorkspaceConfiguration(workspace.configuration);
+                const criteria = this.layoutLoadCriteria;
+                const ids = configuration.frames.map((frame) => frame.layoutId);
+                criteria.setIds(ids);
+                criteria.setLimit(Math.max(1, ids.length));
+                const layouts = ids.length ? await this.layoutRepository.search(criteria, Shopware.Context.api) : [];
+                const byId = new Map(
+                    layouts.map((layout) => [
+                        layout.id,
+                        layout,
+                    ]),
+                );
+                const frames = configuration.frames.filter((frame) => byId.has(frame.layoutId));
+                const openLayouts = frames.map((frame) => ({
+                    ...this.createOpenLayoutState(byId.get(frame.layoutId)!),
+                    viewport: frame.viewport,
+                    previewEntityId: frame.previewEntityId,
+                }));
+                let missingReferences = frames.length !== configuration.frames.length;
+                for (const item of openLayouts) {
+                    const entityType = this.resolvePreviewContext(item.layout)?.entityType;
+                    if (
+                        !entityType ||
+                        [
+                            'none',
+                            'header',
+                            'footer',
+                        ].includes(entityType)
+                    ) {
+                        item.previewEntityId = null;
+                        continue;
+                    }
+                    try {
+                        const entityRepository = this.repositoryFactory.create(entityType as keyof EntitySchema.Entities);
+                        if (item.previewEntityId) {
+                            const entityCriteria = new Criteria(1, 1);
+                            entityCriteria.setIds([item.previewEntityId]);
+                            const found = await entityRepository.searchIds(entityCriteria, Shopware.Context.api);
+                            if (!found.data.includes(item.previewEntityId)) {
+                                item.previewEntityId = null;
+                                missingReferences = true;
+                            }
+                        }
+                        if (!item.previewEntityId) {
+                            const defaults = await entityRepository.search(new Criteria(1, 1), Shopware.Context.api);
+                            item.previewEntityId = defaults.first()?.id ?? null;
+                        }
+                    } catch {
+                        item.previewEntityId = null;
+                        missingReferences = true;
+                    }
+                }
+                let salesChannelId = configuration.previewSalesChannelId;
+                if (salesChannelId) {
+                    const channelCriteria = this.defaultSalesChannelCriteria;
+                    channelCriteria.addFilter(Criteria.equals('id', salesChannelId));
+                    const channels = await this.salesChannelRepository.search(channelCriteria, Shopware.Context.api);
+                    if (!channels.length) {
+                        salesChannelId = null;
+                        missingReferences = true;
+                    }
+                }
+                if (!salesChannelId) {
+                    const channels = await this.salesChannelRepository.search(
+                        this.defaultSalesChannelCriteria,
+                        Shopware.Context.api,
+                    );
+                    salesChannelId = channels.first()?.id ?? null;
+                }
+                this.isRestoringWorkspace = true;
+                this.resetWorkspaceEditor();
+                this.workspaceCanvasConfiguration = configuration;
+                this.workspaceStore.activate(workspace);
+                this.openLayouts = openLayouts;
+                this.previewSalesChannelId = salesChannelId;
+                if (openLayouts[0]) {
+                    this.activateLayout(openLayouts[0].id);
+                }
+                this.isWorkspacePickerOpen = false;
+                await this.$nextTick();
+                this.isRestoringWorkspace = false;
+                await this.$router.replace({ name: 'sw.experience.studio.workspace', params: { workspaceId: id } });
+                if (missingReferences) {
+                    this.createNotificationWarning({
+                        message: this.$t('sw-experience-studio.workspace.manager.missingReferences'),
+                    });
+                }
+                if (this.pendingLinkedLayoutId) {
+                    const linkedId = this.pendingLinkedLayoutId;
+                    this.pendingLinkedLayoutId = null;
+                    await this.openLayoutById(linkedId);
+                }
+            } catch {
+                this.workspaceError = true;
+                if (!this.workspaceStore.activeWorkspace) {
+                    this.isWorkspacePickerOpen = true;
+                }
+                this.createNotificationError({ message: this.$t('sw-experience-studio.workspace.manager.loadError') });
+            } finally {
+                this.isLoading = false;
+                this.isRestoringWorkspace = false;
+            }
+        },
+
+        resetWorkspaceEditor(): void {
+            if (this.diagnoseTimeoutId !== null) {
+                window.clearTimeout(this.diagnoseTimeoutId);
+            }
+            this.diagnoseTimeoutId = null;
+            this.latestDiagnoseRequestId = ++this.diagnoseRequestSequence;
+            this.editorStore.reset();
+            this.openLayouts = [];
+            this.activeLayoutId = null;
+            this.layout = null;
+            this.selectedElementId = null;
+            this.currentViewport = 'desktop';
+            this.previewEntityId = null;
+            this.diagnostics = [];
+            this.showDiagnostics = false;
+            this.isLayoutPickerOpen = false;
+            this.isElementPickerOpen = false;
+            this.isAssignmentModalOpen = false;
+            this.pendingCloseLayoutId = null;
+        },
+
+        async requestWorkspaceAction(action: WorkspaceAction): Promise<void> {
+            if (
+                this.isWorkspaceTransitioning ||
+                this.isSavingAll ||
+                this.isLoading ||
+                this.openLayouts.some((item) => item.isSaving)
+            ) {
+                return;
+            }
+            if (action.type === 'open' && action.id === this.workspaceStore?.activeWorkspace?.id) {
+                return;
+            }
+            if (action.type === 'delete' && action.id !== this.workspaceStore.activeWorkspace?.id) {
+                await this.executeWorkspaceAction(action);
+                return;
+            }
+            this.isWorkspaceTransitioning = true;
+            try {
+                await this.mutationQueue;
+                this.syncActiveLayoutState();
+                if (this.openLayouts.some((item) => this.isLayoutDirty(item))) {
+                    this.pendingWorkspaceAction = action;
+                    return;
+                }
+                await this.executeWorkspaceAction(action);
+            } finally {
+                this.isWorkspaceTransitioning = false;
+            }
+        },
+
+        async confirmWorkspaceAction(save: boolean): Promise<void> {
+            const action = this.pendingWorkspaceAction;
+            if (!action || this.isWorkspaceTransitioning) {
+                return;
+            }
+            if (save && !(await this.saveAllOpenLayouts())) {
+                return;
+            }
+            await this.executeWorkspaceAction(action);
+        },
+
+        cancelWorkspaceAction(): void {
+            if (this.pendingWorkspaceAction?.type === 'delete') {
+                this.managedWorkspace = null;
+                this.isWorkspacePickerOpen = true;
+            }
+            this.pendingWorkspaceAction = null;
+        },
+
+        async executeWorkspaceAction(action: WorkspaceAction): Promise<void> {
+            this.isWorkspaceTransitioning = true;
+            try {
+                const deletingInactiveWorkspace =
+                    action.type === 'delete' && action.id !== this.workspaceStore.activeWorkspace?.id;
+                if (!deletingInactiveWorkspace) {
+                    await this.scheduleWorkspaceSetup();
+                    if (!(await this.workspaceStore.flush())) {
+                        return;
+                    }
+                }
+                if (action.type === 'delete') {
+                    await this.workspaceStore.remove(action.id);
+                    if (!deletingInactiveWorkspace) {
+                        this.resetWorkspaceEditor();
+                        this.workspaceCanvasConfiguration = createWorkspaceConfiguration();
+                        await this.$router.replace({ name: 'sw.experience.studio.index' });
+                    }
+                    this.isWorkspacePickerOpen = true;
+                } else {
+                    const id = action.type === 'create' ? (await this.workspaceStore.create(action.name)).id : action.id;
+                    await this.openWorkspace(id);
+                    if (this.workspaceError) {
+                        return;
+                    }
+                }
+                this.pendingWorkspaceAction = null;
+                this.workspaceNameAction = null;
+                this.isDeleteWorkspaceModalOpen = false;
+                this.managedWorkspace = null;
+            } catch {
+                if (action.type === 'delete') {
+                    this.isWorkspacePickerOpen = true;
+                }
+                this.createNotificationError({ message: this.$t('sw-experience-studio.workspace.manager.actionError') });
+            } finally {
+                this.isWorkspaceTransitioning = false;
+            }
+        },
+
+        onWorkspaceRename(workspace: ContentWorkspace): void {
+            this.isWorkspacePickerOpen = false;
+            this.managedWorkspace = workspace;
+            this.workspaceName = workspace.name;
+            this.workspaceNameAction = 'rename';
+        },
+
+        onWorkspaceDelete(workspace: ContentWorkspace): void {
+            this.isWorkspacePickerOpen = false;
+            this.managedWorkspace = workspace;
+            this.isDeleteWorkspaceModalOpen = true;
+        },
+
+        onCancelWorkspaceName(): void {
+            this.isWorkspacePickerOpen = this.workspaceNameAction === 'rename' || !this.workspaceStore.activeWorkspace;
+            this.workspaceNameAction = null;
+            this.managedWorkspace = null;
+        },
+
+        onCancelWorkspaceDelete(): void {
+            this.isDeleteWorkspaceModalOpen = false;
+            this.managedWorkspace = null;
+            this.isWorkspacePickerOpen = true;
+        },
+
+        async onWorkspaceDeleteConfirm(): Promise<void> {
+            if (!this.managedWorkspace) {
+                return;
+            }
+            const id = this.managedWorkspace.id;
+            this.isDeleteWorkspaceModalOpen = false;
+            await this.requestWorkspaceAction({ type: 'delete', id });
+        },
+
+        async onWorkspaceNameSubmit(): Promise<void> {
+            const name = this.workspaceName.trim();
+            if (!name || name.length > 255 || this.isWorkspaceTransitioning) {
+                return;
+            }
+            if (this.workspaceNameAction === 'create') {
+                await this.requestWorkspaceAction({ type: 'create', name });
+                return;
+            }
+            const id = this.managedWorkspace?.id;
+            if (!id) {
+                return;
+            }
+            this.isWorkspaceTransitioning = true;
+            try {
+                await this.workspaceStore.rename(id, name);
+                this.onCancelWorkspaceName();
+            } catch {
+                this.createNotificationError({ message: this.$t('sw-experience-studio.workspace.manager.actionError') });
+            } finally {
+                this.isWorkspaceTransitioning = false;
+            }
+        },
+
+        onFrameUndo(layoutId: string): void {
+            if (!this.allowSave || !this.editorStore.canUndoLayout(layoutId)) {
+                return;
+            }
+            this.activateLayout(layoutId);
+            this.onUndo();
+            this.syncActiveLayoutState();
+        },
+
+        onFrameRedo(layoutId: string): void {
+            if (!this.allowSave || !this.editorStore.canRedoLayout(layoutId)) {
+                return;
+            }
+            this.activateLayout(layoutId);
+            this.onRedo();
+            this.syncActiveLayoutState();
+        },
+
         async loadLayout(): Promise<void> {
             this.isLoading = true;
             this.showDiagnostics = false;
@@ -721,7 +1129,7 @@ export default Shopware.Component.wrapComponentConfig({
                 } else {
                     this.layout = null;
                     this.selectedElementId = null;
-                    this.isLayoutPickerOpen = true;
+                    this.isLayoutPickerOpen = !this.workspaceStore?.activeWorkspace;
                 }
             }
         },
@@ -890,6 +1298,8 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             const previewEntityType = this.previewEntityType;
+            const layoutId = this.layout?.id;
+            const workspaceId = this.workspaceStore?.activeWorkspace?.id;
 
             if (!previewEntityType) {
                 return;
@@ -900,7 +1310,12 @@ export default Shopware.Component.wrapComponentConfig({
                 const entities = await repository.search(this.defaultPreviewEntityCriteria, Shopware.Context.api);
                 const firstEntity = entities.first();
 
-                if (!this.previewEntityId && firstEntity?.id) {
+                if (
+                    this.layout?.id === layoutId &&
+                    this.workspaceStore?.activeWorkspace?.id === workspaceId &&
+                    !this.previewEntityId &&
+                    firstEntity?.id
+                ) {
                     this.previewEntityId = firstEntity.id;
                 }
             } catch {
@@ -1134,6 +1549,9 @@ export default Shopware.Component.wrapComponentConfig({
 
             if (layoutId === this.activeLayoutId) {
                 this.previewEntityId = entityId;
+            }
+            if (this.workspaceStore?.activeWorkspace) {
+                void this.scheduleWorkspaceSetup();
             }
         },
 
@@ -1794,7 +2212,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onHistoryKeydown(event: KeyboardEvent): void {
-            if (!this.allowSave) {
+            if (!this.allowSave || this.pendingWorkspaceAction || this.isWorkspaceTransitioning) {
                 return;
             }
 
@@ -1885,23 +2303,23 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
-        async saveAllOpenLayouts(): Promise<void> {
+        async saveAllOpenLayouts(): Promise<boolean> {
             if (!this.allowSave || this.isSavingAll) {
-                return;
+                return false;
             }
 
             this.syncActiveLayoutState();
             const dirtyLayouts = this.openLayouts.filter((openLayout) => this.isLayoutDirty(openLayout));
 
             if (dirtyLayouts.length === 0) {
-                return;
+                return true;
             }
 
             this.isSavingAll = true;
             await Promise.all(dirtyLayouts.map((openLayout) => this.saveOpenLayout(openLayout.id)));
             this.isSavingAll = false;
 
-            const failures = this.openLayouts.filter((item) => item.saveError);
+            const failures = dirtyLayouts.filter((item) => item.saveError);
 
             if (failures.length) {
                 this.createNotificationError({
@@ -1914,6 +2332,7 @@ export default Shopware.Component.wrapComponentConfig({
                     message: this.$t('sw-experience-studio.workspace.saved'),
                 });
             }
+            return failures.length === 0;
         },
 
         async saveOpenLayout(layoutId: string): Promise<boolean> {
@@ -1933,9 +2352,25 @@ export default Shopware.Component.wrapComponentConfig({
 
             try {
                 openLayout.layout.layout = cloneDeep(openLayout.layout.layout);
+                const savedState = this.serializeLayoutState(openLayout.layout);
                 await this.layoutRepository.save(openLayout.layout, Shopware.Context.api);
-                openLayout.savedState = this.serializeLayoutState(openLayout.layout);
+                openLayout.savedState = savedState;
                 openLayout.isNew = false;
+                const reloaded = await this.layoutRepository.get(
+                    openLayout.id,
+                    Shopware.Context.api,
+                    this.layoutLoadCriteria,
+                );
+                if (reloaded && this.serializeLayoutState(openLayout.layout) === savedState) {
+                    openLayout.layout = reloaded;
+                    openLayout.savedState = this.serializeLayoutState(reloaded);
+                    if (this.activeLayoutId === openLayout.id) {
+                        this.layout = reloaded;
+                    }
+                }
+                if (this.workspaceStore?.activeWorkspace) {
+                    void this.scheduleWorkspaceSetup();
+                }
 
                 return true;
             } catch (error) {

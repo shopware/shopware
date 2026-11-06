@@ -1,0 +1,47 @@
+.sw-experience-studio-workspace-switcher {
+    min-width: 0;
+    max-width: 100%;
+    grid-template-columns: minmax(0, 1fr);
+
+    .mt-button__content {
+        min-width: 0;
+        max-width: 100%;
+        grid-template-columns: 16px minmax(0, 1fr) 12px;
+    }
+
+    &__menu {
+        width: 480px;
+        max-width: calc(100vw - 32px);
+        max-height: var(--reka-dropdown-menu-content-available-height);
+        overflow-y: auto;
+    }
+
+    &__entry-content {
+        display: grid;
+        flex: 1;
+        grid-template-columns: minmax(0, 1fr) minmax(0, auto) 20px;
+        align-items: center;
+        gap: var(--scale-size-8);
+        min-width: 0;
+    }
+
+    &__entry.is--active > .mt-icon {
+        color: var(--color-icon-brand-default);
+    }
+
+    &__entry.is--active &__name {
+        color: var(--color-text-brand-default);
+    }
+
+    &__name,
+    &__creator {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__creator {
+        max-width: 160px;
+        color: var(--color-text-secondary-default);
+    }
+}

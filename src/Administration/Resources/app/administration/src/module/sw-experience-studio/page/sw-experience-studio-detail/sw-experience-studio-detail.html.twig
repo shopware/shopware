@@ -24,7 +24,7 @@
             {% block sw_experience_studio_detail_toolbar %}
                 <sw-experience-studio-toolbar
                     :layout="layout"
-                    :is-loading="isLoading"
+                    :is-loading="isLoading || isWorkspaceTransitioning"
                     :allow-save="allowSave"
                     :preview-sales-channel-id="previewSalesChannelId"
                     :preview-entity-type="previewEntityType"
@@ -38,23 +38,48 @@
                     @save="onSave"
                     @undo="onUndo"
                     @redo="onRedo"
-                />
+                >
+                    <template #workspace-switcher>
+                        <sw-experience-studio-workspace-switcher
+                            :disabled="isLoading || isWorkspaceTransitioning || isSavingAll || openLayouts.some(item => item.isSaving)"
+                            @select="requestWorkspaceAction({ type: 'open', id: $event })"
+                            @browse="isWorkspacePickerOpen = true"
+                            @create="workspaceName = ''; workspaceNameAction = 'create'"
+                        />
+                    </template>
+                </sw-experience-studio-toolbar>
             {% endblock %}
 
+                <mt-banner
+                    v-if="workspaceStore.saveError"
+                    variant="critical"
+                >
+                    {{ $t('sw-experience-studio.workspace.manager.saveError') }}
+                    <mt-button
+                        variant="secondary"
+                        @click="workspaceStore.flush()"
+                    >
+                        {{ $t('sw-experience-studio.workspace.manager.retry') }}
+                    </mt-button>
+                </mt-banner>
             {% block sw_experience_studio_detail_workspace %}
                 <div
                     ref="workspace"
                     class="sw-experience-studio-detail__workspace"
                     :class="{ 'is-resizing': isResizingElementSettings }"
+                    :inert="(isWorkspaceMode && !workspaceStore.activeWorkspace) || isWorkspaceTransitioning || pendingWorkspaceAction !== null || undefined"
                 >
                     <sw-experience-studio-canvas
                         ref="experienceStudioCanvas"
+                        :key="workspaceStore.activeWorkspace?.id ?? 'standalone'"
+                        :workspace-configuration="workspaceCanvasConfiguration"
                         :frames="canvasFrames"
                         :layout-id="layoutId"
                         :layout-name="layout?.name ?? ''"
                         :viewport="currentViewport"
                         :settings-width="elementSettingsWidth"
                         :is-resizing-settings="isResizingElementSettings"
+                        @configuration-change="scheduleWorkspaceSetup"
                         @viewport-change="onViewportChange"
                         @frame-viewport-change="onFrameViewportChange"
                         @frame-activate="activateLayout"
@@ -77,6 +102,32 @@
                         {% endblock %}
 
                         <template #frame-controls="{ frame }">
+                            <button
+                                v-if="isWorkspaceMode"
+                                type="button"
+                                :aria-label="$t('sw-experience-studio.detail.toolbar.undo')"
+                                :disabled="!allowSave || pendingMutationCount > 0 || !editorStore.canUndoLayout(frame.id)"
+                                @pointerdown.stop
+                                @click.stop="onFrameUndo(frame.id)"
+                            >
+                                <mt-icon
+                                    name="regular-undo"
+                                    size="18px"
+                                />
+                            </button>
+                            <button
+                                v-if="isWorkspaceMode"
+                                type="button"
+                                :aria-label="$t('sw-experience-studio.detail.toolbar.redo')"
+                                :disabled="!allowSave || pendingMutationCount > 0 || !editorStore.canRedoLayout(frame.id)"
+                                @pointerdown.stop
+                                @click.stop="onFrameRedo(frame.id)"
+                            >
+                                <mt-icon
+                                    name="regular-redo"
+                                    size="18px"
+                                />
+                            </button>
                             <sw-entity-single-select
                                 class="sw-experience-studio-detail__frame-entity-select"
                                 :entity="resolvePreviewContext(frame.layout)?.entityType ?? null"
@@ -141,6 +192,7 @@
                                         >
                                             <span class="sw-experience-studio-detail__layout-name">
                                                 <span>{{ openLayout.layout.name }}</span>
+                                                <small v-if="openLayout.isNew">{{ $t('sw-experience-studio.workspace.manager.unsavedLayout') }}</small>
                                                 <span
                                                     v-if="isLayoutDirty(openLayout)"
                                                     class="sw-experience-studio-detail__dirty-indicator"
@@ -244,6 +296,100 @@
                 />
             {% endblock %}
 
+                <sw-experience-studio-workspace-picker
+                    v-if="isWorkspacePickerOpen"
+                    @select="isWorkspacePickerOpen = false; requestWorkspaceAction({ type: 'open', id: $event })"
+                    @create="isWorkspacePickerOpen = false; workspaceName = ''; workspaceNameAction = 'create'"
+                    @rename="onWorkspaceRename"
+                    @delete="onWorkspaceDelete"
+                    @close="isWorkspacePickerOpen = false"
+                />
+                <sw-modal
+                    v-if="workspaceNameAction"
+                    :title="$t(workspaceNameAction === 'create' ? 'sw-experience-studio.workspace.manager.create' : 'sw-experience-studio.workspace.manager.rename')"
+                    variant="small"
+                    @modal-close="!isWorkspaceTransitioning && onCancelWorkspaceName()"
+                >
+                    <form @submit.prevent="onWorkspaceNameSubmit">
+                        <mt-text-field
+                            v-model="workspaceName"
+                            :label="$t('sw-experience-studio.workspace.manager.name')"
+                            :maxlength="255"
+                            required
+                        />
+                    </form>
+                    <template #modal-footer>
+                        <mt-button
+                            variant="secondary"
+                            :disabled="isWorkspaceTransitioning"
+                            @click="onCancelWorkspaceName"
+                        >
+                            {{ $t('global.default.cancel') }}
+                        </mt-button>
+                        <mt-button
+                            variant="primary"
+                            :disabled="!workspaceName.trim() || workspaceName.trim().length > 255 || isWorkspaceTransitioning"
+                            :is-loading="isWorkspaceTransitioning"
+                            @click="onWorkspaceNameSubmit"
+                        >
+                            {{ $t('global.default.save') }}
+                        </mt-button>
+                    </template>
+                </sw-modal>
+                <sw-modal
+                    v-if="isDeleteWorkspaceModalOpen && managedWorkspace"
+                    :title="$t('sw-experience-studio.workspace.manager.deleteTitle')"
+                    variant="small"
+                    @modal-close="onCancelWorkspaceDelete"
+                >
+                    <p>{{ $t('sw-experience-studio.workspace.manager.deleteDescription', { name: managedWorkspace.name }) }}</p>
+                    <template #modal-footer>
+                        <mt-button
+                            variant="secondary"
+                            @click="onCancelWorkspaceDelete"
+                        >
+                            {{ $t('global.default.cancel') }}
+                        </mt-button>
+                        <mt-button
+                            variant="critical"
+                            :disabled="isWorkspaceTransitioning || isSavingAll || isLoading || openLayouts.some(item => item.isSaving)"
+                            @click="onWorkspaceDeleteConfirm"
+                        >
+                            {{ $t('global.default.delete') }}
+                        </mt-button>
+                    </template>
+                </sw-modal>
+                <sw-modal
+                    v-if="pendingWorkspaceAction"
+                    :title="$t('sw-experience-studio.workspace.closeDirty.title')"
+                    variant="small"
+                    @modal-close="!isWorkspaceTransitioning && !isSavingAll && cancelWorkspaceAction()"
+                >
+                    <p>{{ $t('sw-experience-studio.workspace.manager.switchDirtyDescription') }}</p>
+                    <template #modal-footer>
+                        <mt-button
+                            variant="secondary"
+                            :disabled="isWorkspaceTransitioning || isSavingAll"
+                            @click="cancelWorkspaceAction"
+                        >
+                            {{ $t('global.default.cancel') }}
+                        </mt-button>
+                        <mt-button
+                            variant="secondary"
+                            :disabled="isWorkspaceTransitioning || isSavingAll"
+                            @click="confirmWorkspaceAction(false)"
+                        >
+                            {{ $t('global.default.discard') }}
+                        </mt-button>
+                        <mt-button
+                            variant="primary"
+                            :is-loading="isWorkspaceTransitioning || isSavingAll"
+                            @click="confirmWorkspaceAction(true)"
+                        >
+                            {{ $t('global.default.save') }}
+                        </mt-button>
+                    </template>
+                </sw-modal>
                 <sw-experience-studio-layout-picker
                     v-if="isLayoutPickerOpen"
                     :open-layout-ids="layoutPickerOpenIds"

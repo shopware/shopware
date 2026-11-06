@@ -136,6 +136,8 @@ use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutRootSourceReader;
 use Shopware\Core\Framework\ContentSystem\Validation\StoredMappingValidator;
 use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
+use Shopware\Core\Framework\ContentSystem\Workspace\ContentWorkspaceDefinition;
+use Shopware\Core\Framework\ContentSystem\Workspace\ContentWorkspaceWriteValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
@@ -162,6 +164,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // Entity Definitions
     $services->set(ContentLayoutDefinition::class)
         ->tag('shopware.entity.definition');
+
+    $services->set(ContentWorkspaceDefinition::class)->tag('shopware.entity.definition');
+    $services->set(ContentWorkspaceWriteValidator::class)
+        ->args([service(ValidatorInterface::class)])
+        ->tag('kernel.event_subscriber');
 
     // Scaffolding Services
     $services->set(VirtualRootWrapper::class);

@@ -32,6 +32,27 @@
       "closeDirty": {
         "title": "Änderungen speichern?",
         "description": "Änderungen an {name} vor dem Schließen speichern?"
+      },
+      "manager": {
+        "title": "Arbeitsbereich öffnen",
+        "search": "Arbeitsbereiche durchsuchen",
+        "create": "Neuer Arbeitsbereich",
+        "manage": "Arbeitsbereiche verwalten",
+        "rename": "Arbeitsbereich umbenennen",
+        "name": "Name des Arbeitsbereichs",
+        "createdBy": "Erstellt von {name}",
+        "deletedUser": "Gelöschter Benutzer",
+        "empty": "Noch keine Arbeitsbereiche vorhanden. Erstelle einen, um Layouts anzuordnen.",
+        "loadError": "Die Arbeitsbereiche konnten nicht geladen werden.",
+        "saveError": "Die Canvas-Konfiguration konnte nicht gespeichert werden. Versuche es erneut, bevor Du den Arbeitsbereich wechselst.",
+        "actionError": "Der Arbeitsbereich konnte nicht geändert werden. Bitte versuche es erneut.",
+        "retry": "Erneut versuchen",
+        "missingReferences": "Einige gespeicherte Layouts oder Vorschauauswahlen sind nicht mehr verfügbar. Verfügbare Layouts wurden mit gültigen Vorschauwerten geöffnet.",
+        "deleteTitle": "Arbeitsbereich löschen?",
+        "deleteDescription": "„{name}“ löschen? Die Layouts bleiben verfügbar.",
+        "switchDirtyDescription": "Einige geöffnete Layouts haben ungespeicherte Änderungen. Speichere oder verwerfe diese Layout-Änderungen, bevor Du fortfährst. Die Canvas-Konfiguration wird automatisch gespeichert.",
+        "unsavedLayout": "Speichere dieses Layout, um es in den Arbeitsbereich aufzunehmen.",
+        "workspaceMissing": "Dieser Arbeitsbereich wurde gelöscht. Öffne oder erstelle einen anderen Arbeitsbereich. Ungespeicherte Layout-Änderungen bleiben in dieser Sitzung verfügbar."
       }
     },
     "mapping": {

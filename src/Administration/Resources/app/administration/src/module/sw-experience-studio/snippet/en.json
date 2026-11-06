@@ -32,6 +32,27 @@
       "closeDirty": {
         "title": "Save changes?",
         "description": "Save changes to {name} before closing it?"
+      },
+      "manager": {
+        "title": "Open a workspace",
+        "search": "Search workspaces",
+        "create": "New workspace",
+        "manage": "Manage workspaces",
+        "rename": "Rename workspace",
+        "name": "Workspace name",
+        "createdBy": "Created by {name}",
+        "deletedUser": "Deleted user",
+        "empty": "No workspaces yet. Create one to start arranging layouts.",
+        "loadError": "Workspaces could not be loaded.",
+        "saveError": "The canvas setup could not be saved. Retry before switching workspaces.",
+        "actionError": "The workspace could not be changed. Please try again.",
+        "retry": "Retry",
+        "missingReferences": "Some saved layouts or preview selections are no longer available. Available layouts were opened with valid preview defaults.",
+        "deleteTitle": "Delete workspace?",
+        "deleteDescription": "Delete “{name}”? Its layouts will remain available.",
+        "switchDirtyDescription": "Some open layouts have unsaved changes. Save or discard these layout changes before continuing. Canvas setup is saved automatically.",
+        "unsavedLayout": "Save this layout to include it in the workspace.",
+        "workspaceMissing": "This workspace was deleted. Open or create another workspace. Unsaved layout changes remain available in this session."
       }
     },
     "mapping": {

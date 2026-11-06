@@ -94,7 +94,8 @@ Call exactly one of:
 
       Copy both verbatim, as one line, from the page file and from `pr.diff` (or
       `files[].patch`), without the leading `+` or `-`. Never shorten, reword or join lines. A quote that cannot be found
-      word for word is dropped. **Add** bullets get no `Docs quote`.
+      word for word is dropped. **Add** bullets get no `Docs quote`. Evidence is optional:
+      decide on the candidate first, and never drop a bullet because you cannot quote it.
     - Developer page URL: `https://developer.shopware.com/docs/` plus the page's path in
       `shopware/docs` with `.md` replaced by `.html`.
     - End-user page URL: the `URL:` line of the page file.

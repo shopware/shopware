@@ -179,7 +179,7 @@ The hints are fields of the JSON-RPC result, not HTTP headers, and both MCP endp
   Default `private` with `ttlMs: 0`; `server/discover`, `tools/list`, `prompts/list`, `resources/list` and `resources/templates/list` are `private` for 60 seconds.
   The list TTL is the fallback for clients that do not follow `subscriptions/listen`, so an allowlist change also reaches a client that does not listen within a minute.
 - **Reference resources**: `resources/read` stays at 0, because it also reads stored tool results and app resources.
-  The reference resources return a `ReadResourceResult` with their own TTL through `McpResourceCacheHint`: one hour for data that only changes with a deployment or an extension lifecycle change (`shopware://entities`, `shopware://state-machines`, `shopware://business-events`, `shopware://flow-actions`), five minutes for shop configuration (`shopware://currencies`, `shopware://languages`, `shopware://sales-channels`).
+  The reference resources return a `ReadResourceResult` with their own TTL through `McpResourceCacheHint`: one hour for data that only changes with a deployment or an extension lifecycle change (`shopware://entities`, `shopware://state-machines`, `shopware://business-events`, `shopware://flow-actions`), 60 seconds for shop configuration (`shopware://currencies`, `shopware://languages`, `shopware://sales-channels`).
   `shopware://extensions` stays at 0: an agent that installs an extension reads it right after.
   `McpResourceCacheHint` sets the hints only when the request is on a modern revision, so handshake answers stay byte for byte as before.
 - **Never `public`.** The allowlist of the integration or user and `?toolsets=` shape the lists, and every resource is read with the caller's credentials.

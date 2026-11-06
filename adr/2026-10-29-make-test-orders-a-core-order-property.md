@@ -24,7 +24,7 @@ The SaaS platform (Rufus) has had test orders for years, built around the platfo
 Everything else treats test orders as real: flows, mails, documents, stock, statistics.
 The admin cannot filter them, and the token is part of the HTTP cache key, so every admin login gets a private cache namespace and never warms the shared one.
 
-The core already has the pieces a cleaner version needs: states on the sales channel context and its persisted payload, the shared JWT configuration, and Flow Builder rules on orders.
+The core already has the pieces a cleaner version needs: states on the sales channel context, the storefront session, the shared JWT configuration, and Flow Builder rules on orders.
 
 ## Decision
 
@@ -37,16 +37,18 @@ It reads a `test-mode` state on the sales channel context.
 Cart, order, payment and templates read the same state.
 There are two ways to get it:
 
-* **Test session in a live shop.** An admin action issues a short-lived signed token and a link per sales channel domain.
-  A storefront route verifies the token, stores the test flag with the visitor's sales channel context, the same place a customer login lives, and redirects home.
-  The flag ends with the session: browser closed, session expired, customer logout, or "end test mode" in the bar.
-  No iframe, no third-party cookie, no cookie of its own, works on custom domains.
-  A Store API route takes the same token and flags the context token, so headless frontends get the same behaviour.
+* **Test session in a live shop.** An admin action issues a signed token and a link per sales channel domain.
+  The token is reusable until it expires; its lifetime is the config parameter `shopware.checkout.test_session_token_ttl`, 15 minutes by default.
+  A storefront route verifies the token, marks the visitor's storefront session as a test session, sets a plain marker cookie for the bar, and redirects home.
+  The session is the carrier, not the sales channel context, so the mark never travels with a customer account: login migrates the session and keeps the mark, logout clears the site data and with it the mark, "end test mode" removes it.
+  No iframe, no third-party cookie, works on custom domains.
+  Headless frontends send the token in a `sw-test-session` header on every request, so their test session lasts as long as the token and the frontend fetches a new one when it expires.
 * **Admin order creation.** The create order screen gets a "test order" toggle that the proxy order route turns into the state.
   No route name sniffing.
 
 Both need a dedicated ACL permission.
-The context factory turns the persisted flag into the state once per request.
+A listener on context creation turns the session mark, the header token or the admin toggle into the state once per request.
+Assembling a context for an existing order adds the state when `order.isTest` is set, so recalculation, admin edits and after-order payment see it too and the converter keeps writing the flag consistently.
 
 The HTTP cache never sees the test session.
 Nothing about it is part of the cache key or the cache cookie, because cached pages do not depend on it.
@@ -80,11 +82,13 @@ Deferred to later iterations: a sales channel setting that marks every order in 
 
 * Downstream code has one source of truth and gets it at the same time as the order.
   Flow listeners no longer race a second write, apps and webhooks get the flag with the order entity for free.
-* A new column and a migration, a new ACL permission, a storefront route and a Store API route for the exchange, and a new key in the persisted sales channel context.
+* A new column and a migration, a new ACL permission, a storefront route for the exchange, a Store API header, a config parameter for the token lifetime, and a session attribute in the storefront.
   Commercial needs a companion change if a converter or persister constructor changes.
 * The epic's acceptance criteria change in one point: test orders consume normal order numbers, only document numbers stay out of the productive ranges.
 * A test session on a shared browser marks orders as test orders until the session ends.
   The visible bar and "end test mode" limit that.
+* A forwarded link starts test sessions until its token expires.
+  The default lifetime of 15 minutes bounds that, and operators can shorten it.
 * Test document numbers cannot collide with real ones unless a merchant uses a `TEST-` pattern themselves.
   No store extension uses that prefix for number ranges or documents.
   The generator refuses an existing number, so a collision fails loudly instead of overwriting.
@@ -95,28 +99,42 @@ Deferred to later iterations: a sales channel setting that marks every order in 
 
 ## Example
 
-The exchange route stores the flag with the visitor's context:
+The exchange route marks the visitor's session:
 
 ```php
 #[Route(path: '/test-session/{token}', name: 'frontend.test-session.start', methods: ['GET'])]
-public function start(string $token, SalesChannelContext $context): RedirectResponse
+public function start(string $token, Request $request): RedirectResponse
 {
     $this->tokens->verify($token);
-    $this->contextPersister->save(
-        $context->getToken(),
-        [SalesChannelContextService::TEST_MODE => true],
-        $context->getSalesChannelId()
-    );
+    $request->getSession()->set(CheckoutTestMode::SESSION_KEY, true);
 
-    return $this->redirectToRoute('frontend.home.page');
+    $response = $this->redirectToRoute('frontend.home.page');
+    $response->headers->setCookie(Cookie::create(CheckoutTestMode::MARKER_COOKIE, '1', httpOnly: false));
+
+    return $response;
 }
 ```
 
-The context factory turns the persisted flag into the state, once per request:
+A listener turns the session mark or the header token into the state, once per request:
 
 ```php
-if ($options[SalesChannelContextService::TEST_MODE] ?? false) {
-    $context->addState(CheckoutTestMode::STATE);
+public function __invoke(SalesChannelContextCreatedEvent $event): void
+{
+    $request = $this->requestStack->getMainRequest();
+    $marked = $request?->hasSession() && $request->getSession()->get(CheckoutTestMode::SESSION_KEY);
+    $token = $request?->headers->get(CheckoutTestMode::HEADER);
+
+    if ($marked || ($token && $this->tokens->isValid($token))) {
+        $event->getSalesChannelContext()->addState(CheckoutTestMode::STATE);
+    }
+}
+```
+
+Assembling a context for an existing order keeps the state:
+
+```php
+if ($order->isTest()) {
+    $salesChannelContext->addState(CheckoutTestMode::STATE);
 }
 ```
 

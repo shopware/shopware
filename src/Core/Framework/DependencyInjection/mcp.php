@@ -175,7 +175,10 @@ return static function (ContainerConfigurator $container): void {
         ]);
 
     $services->set(McpRateLimiter::class)
-        ->args([service(RateLimiter::class)]);
+        ->args([
+            service(RateLimiter::class),
+            service(McpPrincipalResolver::class),
+        ]);
 
     $services->set(McpAllowedHostsProvider::class)
         ->args([

@@ -28,6 +28,22 @@ class McpPrincipalResolver
 {
     public function resolve(Request $request): ?string
     {
+        return $this->doResolve($request, true);
+    }
+
+    /**
+     * The principal without the user an integration acts for: `integration-<accessKey>` instead of
+     * `integration-<accessKey>-user-<userId>`.
+     * The caller chooses `sw-app-user-id`, and for integrations without an app any valid UUID is
+     * accepted, so a key that contains it would let one integration open a new bucket per request.
+     */
+    public function resolveIgnoringActingUser(Request $request): ?string
+    {
+        return $this->doResolve($request, false);
+    }
+
+    private function doResolve(Request $request, bool $withActingUser): ?string
+    {
         $tokenUserId = $request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID);
         if (\is_string($tokenUserId) && $tokenUserId !== '') {
             return 'user-' . $tokenUserId;
@@ -51,7 +67,7 @@ class McpPrincipalResolver
         }
 
         if ($origin === 'integration') {
-            return 'integration-' . $clientId . ($sourceUserId !== null ? '-user-' . $sourceUserId : '');
+            return 'integration-' . $clientId . ($withActingUser && $sourceUserId !== null ? '-user-' . $sourceUserId : '');
         }
 
         return null;

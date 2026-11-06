@@ -317,15 +317,24 @@ export function normaliseText(text: string): string {
         .trim();
 }
 
-const BLOCK_TAG = /<\/?(?:p|div|li|ul|ol|h[1-6]|br|tr|td|th|table|section|article|header|footer|nav|blockquote|pre|dt|dd)\b[^>]*>/gi;
+const BLOCK_TAG = /^<\/?(?:p|div|li|ul|ol|h[1-6]|br|tr|td|th|table|section|article|header|footer|nav|blockquote|pre|dt|dd)\b/i;
 
 export function pageText(html: string): string {
-    return normaliseText(
-        html
-            .replace(BLOCK_TAG, ' ')
-            .replace(/<[^>]+>/g, '')
-            .replace(/[<>]/g, ' '),
-    );
+    let text = '';
+    let index = 0;
+    while (index < html.length) {
+        const start = html.indexOf('<', index);
+        const end = start === -1 ? -1 : html.indexOf('>', start);
+        if (end === -1) {
+            text += html.slice(index);
+            break;
+        }
+
+        text += html.slice(index, start) + (BLOCK_TAG.test(html.slice(start, end)) ? ' ' : '');
+        index = end + 1;
+    }
+
+    return normaliseText(text.replace(/[<>]/g, ' '));
 }
 
 export async function loadDocsPage(url: string): Promise<DocsPage> {

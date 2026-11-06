@@ -740,6 +740,12 @@ Category, landing and search pages with a filtered product listing now offer a "
 The link targets the new `id="product-listing"` on `.cms-element-product-listing-wrapper` and is only shown from the `lg` breakpoint, where the filters are not collapsed into the off-canvas button.
 Themes that override the `product_listing` block in `storefront/component/product/listing.html.twig` without `parent()` must keep `id="product-listing"` on their wrapper, otherwise the link has no target.
 `storefront/component/skip-to-content.html.twig` has a new `productListing` parameter (default `null`) and the new block `component_skip_to_content_product_listing`.
+### AI usage preferences in robots.txt
+
+The robots.txt rules accept the `Content-Usage` directive of the [IETF AI preferences drafts](https://datatracker.ietf.org/doc/draft-ietf-aipref-attach/) and the `Content-Signal` directive of [Content Signals](https://contentsignals.org/).
+Both are rendered inside their `User-agent` block with the value unchanged, for example `Content-signal: search=yes, ai-train=no`.
+`RobotsDirectiveType` has the new cases `CONTENT_USAGE` and `CONTENT_SIGNAL`;
+extensions that handled these lines through `RobotsUnknownDirectiveEvent` no longer receive that event for them.
 
 ### Cookie provider removal postponed to 6.9
 

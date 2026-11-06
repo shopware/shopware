@@ -34,6 +34,8 @@ class RobotsDirectiveTest extends TestCase
             'user-agent' => [RobotsDirectiveType::USER_AGENT, false],
             'crawl-delay' => [RobotsDirectiveType::CRAWL_DELAY, false],
             'sitemap' => [RobotsDirectiveType::SITEMAP, false],
+            'content-usage' => [RobotsDirectiveType::CONTENT_USAGE, false],
+            'content-signal' => [RobotsDirectiveType::CONTENT_SIGNAL, false],
         ];
     }
 

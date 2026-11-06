@@ -471,6 +471,10 @@ test('loadLinkedPages loads each docs URL once and unlinkDeadDocsLinks turns dea
     assert.deepEqual(loaded, ['https://docs.shopware.com/en/gone', 'https://developer.shopware.com/docs/rate-limiter.html']);
 });
 
+test('pageText leaves no tag fragments behind', () => {
+    assert.doesNotMatch(pageText('<scr<script>ipt>alert(1)</script> a < b > c'), /[<>]/);
+});
+
 test('pageText reduces HTML to comparable text', () => {
     assert.equal(
         pageText('<html><style>p{}</style><script>x()</script><p>Turn on <strong>Manage&nbsp;stock</strong> &amp; save the <code>user_recovery</code> option.</p></html>'),

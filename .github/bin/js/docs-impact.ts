@@ -324,7 +324,8 @@ export function pageText(html: string): string {
         html
             .replace(/<(script|style)\b[\s\S]*?<\/\1>/gi, ' ')
             .replace(BLOCK_TAG, ' ')
-            .replace(/<[^>]+>/g, ''),
+            .replace(/<[^>]+>/g, '')
+            .replace(/[<>]/g, ' '),
     );
 }
 

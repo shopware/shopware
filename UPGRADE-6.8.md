@@ -1446,6 +1446,7 @@ If you have a decorator that extends `AbstractTranslationLoader`, remove your `p
  ```
 
 The new method receives the exact locale being loaded, so the check can be scoped to that locale rather than treating any installed locale as a reason to skip all local snippet files.
+
 ## MCP tools returning the legacy `{"success": …}` string deprecated
 
 Returning the `{"success": …}` JSON string from an MCP tool was deprecated, whether it was built with `McpToolResponse::success()`, `::error()` and the other string helpers or by hand.

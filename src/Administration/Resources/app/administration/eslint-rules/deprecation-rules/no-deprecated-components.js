@@ -171,6 +171,21 @@ module.exports = withRunLevel({
                 const oldName = migration.component;
                 const newName = migration.replacement;
                 const headline = `"${oldName}" is deprecated. Please use "${newName}" instead.`;
+
+                // Broken markup, which the Vue compiler parses differently: renaming would leave a stray end tag
+                if (!node.startTag.selfClosing && !node.endTag) {
+                    context.report({
+                        node,
+                        message: appendRegistryContext(
+                            [headline, 'It is not converted, because its end tag is missing.'],
+                            migration,
+                        ),
+                        fixLevel: 'manual',
+                    });
+
+                    return;
+                }
+
                 const parts = renameUsage.fix === 'manual' ? [] : planConversion(context, node, migration);
                 const blockingParts = findBlockingParts(level, node, renameUsage, parts);
                 const nameRange = [

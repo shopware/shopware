@@ -70,6 +70,16 @@ tester.run('no-deprecated-components (safe level)', rule, {
             ],
         },
         {
+            name: 'keeps an element whose end tag is missing',
+            filename: 'test.html.twig',
+            settings: atLevel('safe'),
+            code: '<template>\n<div><sw-text-field label="L"\n</sw-text-field></div>\n</template>',
+            output: null,
+            errors: [
+                { message: /^"sw-text-field" is deprecated\. .*\nIt is not converted, because its end tag is missing\.\n/ },
+            ],
+        },
+        {
             name: 'keeps an element with an object v-bind, which can pass deprecated props',
             filename: 'test.html.twig',
             settings: atLevel('safe'),

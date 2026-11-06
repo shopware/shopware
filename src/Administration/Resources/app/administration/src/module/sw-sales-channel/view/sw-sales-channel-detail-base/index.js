@@ -194,8 +194,6 @@ export default {
         storefrontSalesChannelCurrencyCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addAssociation('salesChannels');
-
             return criteria.addFilter(Criteria.equals('salesChannels.id', this.productExport.storefrontSalesChannelId));
         },
 

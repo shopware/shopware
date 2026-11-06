@@ -24,11 +24,11 @@ class NoIndirectQueryInLoopRuleTest extends RuleTestCase
         $this->analyse([__DIR__ . '/data/NoIndirectQueryInLoopRule/IndirectQueryInLoop.php'], [
             [
                 'loadOne() queries the database and is called inside a loop, which causes an N+1 query problem. Load the data for all iterations with a single query before the loop instead.',
-                28,
+                30,
             ],
             [
                 'delegate() queries the database and is called inside a loop, which causes an N+1 query problem. Load the data for all iterations with a single query before the loop instead.',
-                46,
+                48,
             ],
         ]);
     }

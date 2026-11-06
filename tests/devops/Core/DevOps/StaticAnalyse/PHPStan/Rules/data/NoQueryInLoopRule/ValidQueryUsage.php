@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class ValidQueryUsage
 {
+    private const COUNTED_TABLES = ['history' => 'product_history', 'lineItemHistory' => 'product_history'];
+
     public function __construct(private readonly Connection $connection)
     {
     }
@@ -66,6 +68,26 @@ class ValidQueryUsage
     public function fetchPerFixedTable(): void
     {
         foreach (['product', 'category'] as $table) {
+            $this->connection->fetchOne('SELECT COUNT(*) FROM `' . $table . '`');
+        }
+    }
+
+    /**
+     * A class constant is written out in the code, so the loop runs a fixed number of times.
+     */
+    public function fetchPerConstantTable(): void
+    {
+        foreach (self::COUNTED_TABLES as $table) {
+            $this->connection->fetchOne('SELECT COUNT(*) FROM `' . $table . '`');
+        }
+    }
+
+    /**
+     * Reshaping that constant keeps the bound.
+     */
+    public function fetchPerUniqueConstantTable(): void
+    {
+        foreach (array_unique(self::COUNTED_TABLES) as $table) {
             $this->connection->fetchOne('SELECT COUNT(*) FROM `' . $table . '`');
         }
     }

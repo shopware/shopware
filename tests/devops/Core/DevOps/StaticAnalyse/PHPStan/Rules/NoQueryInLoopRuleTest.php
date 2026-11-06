@@ -55,6 +55,10 @@ class NoQueryInLoopRuleTest extends RuleTestCase
                 'Connection::fetchOne() is executed inside a loop, which causes an N+1 query problem. Load the data for all iterations with a single query before the loop instead.',
                 155,
             ],
+            [
+                'Connection::fetchOne() is executed inside a loop, which causes an N+1 query problem. Load the data for all iterations with a single query before the loop instead.',
+                167,
+            ],
         ]);
     }
 

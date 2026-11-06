@@ -155,4 +155,16 @@ class QueryInLoop
             $this->connection->fetchOne('SELECT id FROM product WHERE id = :id', ['id' => $row['id']]);
         }
     }
+
+    /**
+     * Reshaping a runtime list does not bound it, the loop still runs once per record.
+     *
+     * @param list<string> $ids
+     */
+    public function fetchPerUniqueId(array $ids): void
+    {
+        foreach (array_unique($ids) as $id) {
+            $this->connection->fetchOne('SELECT id FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
+        }
+    }
 }

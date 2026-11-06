@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class IndirectQueryInLoop
 {
+    private const HISTORY_TABLES = ['history' => 'product_history', 'lineItemHistory' => 'product_history'];
+
     public function __construct(private readonly Connection $connection)
     {
     }
@@ -80,6 +82,19 @@ class IndirectQueryInLoop
     }
 
     /**
+     * One query per table of a class constant, with every id passed into it, is the batched form rather than an
+     * N+1: the loop runs as often as the constant has entries.
+     *
+     * @param list<string> $ids
+     */
+    public function loadPerConstantTable(array $ids): void
+    {
+        foreach (array_unique(self::HISTORY_TABLES) as $table) {
+            $this->loadManyFrom($table, $ids);
+        }
+    }
+
+    /**
      * Mutual recursion walks a nested structure, so it is not one query per record even though the cycle queries.
      *
      * @param list<array<string, mixed>> $nodes
@@ -135,6 +150,20 @@ class IndirectQueryInLoop
     {
         return $this->connection->fetchAllAssociative(
             'SELECT id FROM product WHERE id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($ids)],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+    }
+
+    /**
+     * @param list<string> $ids
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function loadManyFrom(string $table, array $ids): array
+    {
+        return $this->connection->fetchAllAssociative(
+            'SELECT id FROM `' . $table . '` WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
             ['ids' => ArrayParameterType::BINARY]
         );

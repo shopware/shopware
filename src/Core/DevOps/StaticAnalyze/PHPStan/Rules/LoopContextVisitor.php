@@ -11,6 +11,7 @@ use PhpParser\Node\Expr\BinaryOp\Identical;
 use PhpParser\Node\Expr\BinaryOp\NotEqual;
 use PhpParser\Node\Expr\BinaryOp\NotIdentical;
 use PhpParser\Node\Expr\BooleanNot;
+use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Expr\Empty_;
 use PhpParser\Node\Expr\FuncCall;
@@ -72,6 +73,12 @@ class LoopContextVisitor extends NodeVisitorAbstract
      * is excluded: it reads a single record and is the typical shape of an N+1 lookup.
      */
     private const PAGINATED_LIMIT_REGEX = '/\bLIMIT\s+(?::\w+|\?|[2-9]|\d{2,})/i';
+
+    /**
+     * Array functions that hand back the same set in a different shape, so a statically known argument stays
+     * statically known.
+     */
+    private const SET_RESHAPING_FUNCTIONS = ['array_unique', 'array_values', 'array_keys', 'array_filter', 'array_reverse'];
 
     /**
      * @var list<FunctionLike>
@@ -251,9 +258,9 @@ class LoopContextVisitor extends NodeVisitorAbstract
 
     private function isBoundedLoop(Foreach_|For_|While_|Do_ $loop): bool
     {
-        // a literal array or a chunked source runs a fixed, reviewable number of times
+        // a statically known set or a chunked source runs a fixed, reviewable number of times
         if ($loop instanceof Foreach_) {
-            return $loop->expr instanceof Array_ || $this->containsChunkCall($loop->expr);
+            return $this->isStaticSet($loop->expr) || $this->containsChunkCall($loop->expr);
         }
 
         // a bound against a literal integer runs a fixed number of times, e.g. `for ($i = 0; $i < 3; ++$i)`
@@ -394,6 +401,29 @@ class LoopContextVisitor extends NodeVisitorAbstract
     private function isCall(Node $node): bool
     {
         return $node instanceof MethodCall || $node instanceof StaticCall || $node instanceof FuncCall;
+    }
+
+    /**
+     * A literal array and a class constant are both written out in the code, so the number of iterations can be
+     * read off it. The array functions that only reshape such a set keep that bound, and are unwrapped to it.
+     */
+    private function isStaticSet(Expr $expr): bool
+    {
+        if ($expr instanceof Array_ || $expr instanceof ClassConstFetch) {
+            return true;
+        }
+
+        if (!$expr instanceof FuncCall || !$expr->name instanceof Node\Name) {
+            return false;
+        }
+
+        if (!\in_array($expr->name->toLowerString(), self::SET_RESHAPING_FUNCTIONS, true)) {
+            return false;
+        }
+
+        $arguments = $expr->getArgs();
+
+        return $arguments !== [] && $this->isStaticSet($arguments[0]->value);
     }
 
     private function containsChunkCall(Expr $expr): bool

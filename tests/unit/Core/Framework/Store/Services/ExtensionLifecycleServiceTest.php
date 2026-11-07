@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
-use Shopware\Core\Framework\Store\Services\AbstractStoreAppLifecycleService;
+use Shopware\Core\Framework\Store\Services\AbstractAppExtensionService;
 use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
 use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -103,7 +103,7 @@ class ExtensionLifecycleServiceTest extends TestCase
         $pluginService->method('getPluginByName')->willReturn($plugin);
 
         return new ExtensionLifecycleService(
-            static::createStub(AbstractStoreAppLifecycleService::class),
+            static::createStub(AbstractAppExtensionService::class),
             $pluginService,
             $this->pluginLifecycleService,
             $this->pluginManagementService,

@@ -11,9 +11,11 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\NullLogger;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\App\AppArchiveValidator;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\AppExtractor;
 use Shopware\Core\Framework\App\Command\AppPrinter;
 use Shopware\Core\Framework\App\Command\InstallAppCommand;
 use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
@@ -22,6 +24,7 @@ use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
+use Shopware\Core\Framework\App\LocalAppDirectory;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
@@ -34,6 +37,7 @@ use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Exercises the whole app-secret-rotation lifecycle — install, rotation and recovery — against a fake app
@@ -585,7 +589,7 @@ class AppSecretRotationEndToEndTest extends TestCase
     private function createInstallCommand(): InstallAppCommand
     {
         return new InstallAppCommand(
-            new AppLoader(\dirname(self::FIXTURE_APP_DIR), new NullLogger()),
+            new AppLoader(new LocalAppDirectory(\dirname(self::FIXTURE_APP_DIR), new NullLogger(), new AppExtractor(new AppArchiveValidator()), static::createStub(EventDispatcherInterface::class)), new NullLogger()),
             static::getContainer()->get(AppLifecycle::class),
             new AppPrinter($this->appRepository),
             static::getContainer()->get(ManifestValidator::class)

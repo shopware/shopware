@@ -9,8 +9,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Store\Exception\ExtensionUpdateRequiresConsentAffirmationException;
+use Shopware\Core\Framework\Store\Services\AbstractAppExtensionService;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
-use Shopware\Core\Framework\Store\Services\AbstractStoreAppLifecycleService;
 use Shopware\Core\Framework\Store\Services\ExtensionDownloader;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 
@@ -27,7 +27,7 @@ class AppUpdater extends AbstractAppUpdater
         private readonly AbstractExtensionDataProvider $extensionDataProvider,
         private readonly EntityRepository $appRepo,
         private readonly ExtensionDownloader $downloader,
-        private readonly AbstractStoreAppLifecycleService $appLifecycle
+        private readonly AbstractAppExtensionService $appLifecycle
     ) {
     }
 

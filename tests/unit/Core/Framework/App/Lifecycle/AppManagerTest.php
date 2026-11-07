@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppDirectory;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
 use Shopware\Core\Framework\App\Event\AppActivatedEvent;
@@ -173,6 +174,58 @@ class AppManagerTest extends TestCase
 
         $this->createAppManager(AppFixture::createAppRepository())
             ->update($manifest, new AppUpdateParameters(), AppFixture::createAppEntity(active: false), Context::createDefaultContext());
+    }
+
+    public function testSuccessfulUpdateRemovesOldVersionsAfterTheUpdateHook(): void
+    {
+        $this->permissionLifecycle->expects($this->once())->method('updatePrivileges');
+        $this->registrationService->expects($this->never())->method('registerApp');
+        $this->appSecretRotationService->expects($this->never())->method('rotateNow');
+        $this->manifestFactory->expects($this->never())->method('createFromApp');
+        $this->activeAppsLoader->expects($this->never())->method('reset');
+        $this->systemConfigService->expects($this->never())->method('saveConfig');
+        $this->assetService->expects($this->once())->method('copyAssetsFromApp');
+        $this->configReader->expects($this->never())->method('read');
+
+        $manifest = ManifestFixture::empty();
+        $app = AppFixture::createAppEntity(active: false);
+        $appRepository = AppFixture::createAppRepository($app);
+        $appRepository->addSearch(new AppCollection([$app]));
+        $hookFinished = false;
+        $this->scriptExecutor->expects($this->once())->method('execute')->willReturnCallback(static function () use (&$hookFinished): void {
+            $hookFinished = true;
+        });
+        $directory = $this->createMock(AppDirectory::class);
+        $directory->expects($this->once())->method('removeOldVersions')->with($manifest)->willReturnCallback(static function () use (&$hookFinished): void {
+            static::assertTrue($hookFinished);
+        });
+
+        $this->createAppManager($appRepository, appDirectory: $directory)
+            ->update($manifest, new AppUpdateParameters(), $app, Context::createDefaultContext());
+    }
+
+    public function testFailedUpdateHookKeepsOldVersions(): void
+    {
+        $this->permissionLifecycle->expects($this->once())->method('updatePrivileges');
+        $this->registrationService->expects($this->never())->method('registerApp');
+        $this->appSecretRotationService->expects($this->never())->method('rotateNow');
+        $this->manifestFactory->expects($this->never())->method('createFromApp');
+        $this->activeAppsLoader->expects($this->never())->method('reset');
+        $this->systemConfigService->expects($this->never())->method('saveConfig');
+        $this->assetService->expects($this->once())->method('copyAssetsFromApp');
+        $this->configReader->expects($this->never())->method('read');
+
+        $app = AppFixture::createAppEntity(active: false);
+        $appRepository = AppFixture::createAppRepository($app);
+        $appRepository->addSearch(new AppCollection([$app]));
+        $exception = new \RuntimeException('Update hook failed');
+        $this->scriptExecutor->expects($this->once())->method('execute')->willThrowException($exception);
+        $directory = $this->createMock(AppDirectory::class);
+        $directory->expects($this->never())->method('removeOldVersions');
+
+        $this->expectExceptionObject($exception);
+        $this->createAppManager($appRepository, appDirectory: $directory)
+            ->update(ManifestFixture::empty(), new AppUpdateParameters(), $app, Context::createDefaultContext());
     }
 
     public function testInstallThrowsIfAppAlreadyExists(): void
@@ -1134,6 +1187,7 @@ XML,
         array $persisters = [],
         ?AclRoleEntity $aclRole = null,
         ?StaticEntityRepository $languageRepository = null,
+        ?AppDirectory $appDirectory = null,
     ): AppManager {
         $aclRoleRepository = new StaticEntityRepository([new AclRoleCollection($aclRole ? [$aclRole] : [])]);
 
@@ -1162,6 +1216,7 @@ XML,
             $this->deletedAppsGateway,
             $this->requirementsValidator,
             new NativeClock(),
+            $appDirectory ?? static::createStub(AppDirectory::class),
         );
     }
 

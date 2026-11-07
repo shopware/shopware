@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Store\StoreException;
 class ExtensionLifecycleService extends AbstractExtensionLifecycle
 {
     public function __construct(
-        private readonly AbstractStoreAppLifecycleService $storeAppLifecycleService,
+        private readonly AbstractAppExtensionService $appExtensionService,
         private readonly PluginService $pluginService,
         private readonly PluginLifecycleService $pluginLifecycleService,
         private readonly PluginManagementService $pluginManagementService
@@ -33,7 +33,7 @@ class ExtensionLifecycleService extends AbstractExtensionLifecycle
             return;
         }
 
-        $this->storeAppLifecycleService->installExtension($technicalName, $context);
+        $this->appExtensionService->installExtension($technicalName, $context);
     }
 
     public function update(string $type, string $technicalName, bool $allowNewPermissions, Context $context): void
@@ -45,7 +45,7 @@ class ExtensionLifecycleService extends AbstractExtensionLifecycle
             return;
         }
 
-        $this->storeAppLifecycleService->updateExtension($technicalName, $allowNewPermissions, $context);
+        $this->appExtensionService->updateExtension($technicalName, $allowNewPermissions, $context);
     }
 
     public function uninstall(string $type, string $technicalName, bool $keepUserData, Context $context): void
@@ -57,7 +57,7 @@ class ExtensionLifecycleService extends AbstractExtensionLifecycle
             return;
         }
 
-        $this->storeAppLifecycleService->uninstallExtension($technicalName, $context, $keepUserData);
+        $this->appExtensionService->uninstallExtension($technicalName, $context, $keepUserData);
     }
 
     public function activate(string $type, string $technicalName, Context $context): void
@@ -69,7 +69,7 @@ class ExtensionLifecycleService extends AbstractExtensionLifecycle
             return;
         }
 
-        $this->storeAppLifecycleService->activateExtension($technicalName, $context);
+        $this->appExtensionService->activateExtension($technicalName, $context);
     }
 
     public function deactivate(string $type, string $technicalName, Context $context): void
@@ -81,7 +81,7 @@ class ExtensionLifecycleService extends AbstractExtensionLifecycle
             return;
         }
 
-        $this->storeAppLifecycleService->deactivateExtension($technicalName, $context);
+        $this->appExtensionService->deactivateExtension($technicalName, $context);
     }
 
     public function remove(string $type, string $technicalName, bool $keepUserData, Context $context): void
@@ -102,7 +102,7 @@ class ExtensionLifecycleService extends AbstractExtensionLifecycle
             return;
         }
 
-        $this->storeAppLifecycleService->deleteExtension($technicalName, $keepUserData, $context);
+        $this->appExtensionService->deleteExtension($technicalName, $keepUserData, $context);
     }
 
     protected function getDecorated(): AbstractExtensionLifecycle

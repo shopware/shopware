@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppDirectory;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
@@ -93,6 +94,7 @@ class AppManager
         private readonly DeletedAppsGateway $deletedAppsGateway,
         private readonly AppRequirementsValidator $requirementsValidator,
         private readonly ClockInterface $clock,
+        private readonly AppDirectory $appDirectory,
     ) {
     }
 
@@ -207,6 +209,7 @@ class AppManager
         $event = new AppUpdatedEvent($appEntity, $manifest, $context);
         $this->eventDispatcher->dispatch($event);
         $this->scriptExecutor->execute(new AppUpdatedHook($event));
+        $this->appDirectory->removeOldVersions($manifest);
     }
 
     /**

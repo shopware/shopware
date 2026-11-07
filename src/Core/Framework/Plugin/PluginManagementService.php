@@ -5,12 +5,12 @@ namespace Shopware\Core\Framework\Plugin;
 use Composer\IO\NullIO;
 use GuzzleHttp\Client;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
-use Shopware\Core\Framework\App\Event\AppUploadedEvent;
-use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\AppDirectory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Event\PluginUploadedEvent;
 use Shopware\Core\Framework\Plugin\Util\ZipUtils;
+use Shopware\Core\Framework\Store\Services\AbstractAppExtensionService;
 use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -34,15 +34,22 @@ class PluginManagementService
         private readonly Filesystem $filesystem,
         private readonly CacheClearer $cacheClearer,
         private readonly Client $client,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AppDirectory $appDirectory,
+        private readonly AbstractAppExtensionService $appExtensionService,
     ) {
     }
 
     public function extractPluginZip(string $file, bool $delete = true, ?string $storeType = null): string
     {
         if ($storeType) {
-            $this->extensionExtractor->extract($file, $delete, $storeType);
-            if ($storeType === self::PLUGIN) {
+            if ($storeType === self::APP) {
+                $this->appDirectory->store($file);
+                if ($delete) {
+                    $this->filesystem->remove($file);
+                }
+            } else {
+                $this->extensionExtractor->extract($file, $delete);
                 $this->cacheClearer->clearContainerCache();
             }
 
@@ -53,14 +60,23 @@ class PluginManagementService
 
         match ($type) {
             self::PLUGIN => $this->extractPlugin($file, $delete),
-            self::APP => $this->extractApp($file, $delete),
+            self::APP => $this->storeApp($file, $delete),
         };
 
         return $type;
     }
 
-    public function uploadPlugin(UploadedFile $file, Context $context): void
+    public function uploadPlugin(UploadedFile $file, Context $context): string
     {
+        $type = $this->pluginZipDetector->detect($file->getPathname());
+
+        if ($type === self::APP) {
+            $technicalName = $this->appExtensionService->upload($file, $context);
+            $this->filesystem->remove($file->getPathname());
+
+            return $technicalName;
+        }
+
         $tempFileName = tempnam(sys_get_temp_dir(), $file->getClientOriginalName());
         if (!\is_string($tempFileName)) {
             throw PluginException::cannotCreateTemporaryDirectory(sys_get_temp_dir(), $file->getClientOriginalName());
@@ -72,15 +88,13 @@ class PluginManagementService
         $tempFile = $file->move($tempDirectory, $tempFileName);
 
         $type = $this->pluginZipDetector->detect($tempFile->getPathname());
-        $metadata = $this->readUploadMetadata($tempFile->getPathname(), $type);
+        $metadata = $this->readUploadMetadata($tempFile->getPathname());
         $this->extractPluginZip($tempFile->getPathname(), storeType: $type);
 
-        if ($type === self::PLUGIN) {
-            $this->pluginService->refreshPlugins($context, new NullIO());
-            $this->eventDispatcher->dispatch(new PluginUploadedEvent($file->getClientOriginalName(), $context, $metadata['name'], $metadata['version']));
-        } else {
-            $this->eventDispatcher->dispatch(new AppUploadedEvent($file->getClientOriginalName(), $context, $metadata['name'], $metadata['version']));
-        }
+        $this->pluginService->refreshPlugins($context, new NullIO());
+        $this->eventDispatcher->dispatch(new PluginUploadedEvent($file->getClientOriginalName(), $context, $metadata['name'], $metadata['version']));
+
+        return $metadata['name'];
     }
 
     public function downloadStorePlugin(PluginDownloadDataStruct $location, Context $context): void
@@ -124,21 +138,13 @@ class PluginManagementService
     /**
      * @return array{name: string, version: string|null}
      */
-    private function readUploadMetadata(string $path, string $type): array
+    private function readUploadMetadata(string $path): array
     {
         $archive = ZipUtils::openZip($path);
         try {
             $entry = $archive->statIndex(0);
             \assert($entry !== false);
             $directory = explode('/', (string) $entry['name'])[0];
-            if ($type === self::APP) {
-                $manifestXml = $archive->getFromName($directory . '/manifest.xml');
-                \assert(\is_string($manifestXml));
-                $metadata = Manifest::createFromXml($manifestXml)->getMetadata();
-
-                return ['name' => $metadata->getName(), 'version' => $metadata->getVersion()];
-            }
-
             $composerJson = $archive->getFromName($directory . '/composer.json');
             $composer = \is_string($composerJson) ? json_decode($composerJson, true, flags: \JSON_THROW_ON_ERROR) : null;
             $extra = \is_array($composer) ? ($composer['extra'] ?? null) : null;
@@ -154,14 +160,18 @@ class PluginManagementService
         }
     }
 
-    private function extractPlugin(string $fileName, bool $delete): void
+    private function storeApp(string $fileName, bool $delete): void
     {
-        $this->extensionExtractor->extract($fileName, $delete, self::PLUGIN);
-        $this->cacheClearer->clearContainerCache();
+        $this->appDirectory->store($fileName);
+
+        if ($delete) {
+            $this->filesystem->remove($fileName);
+        }
     }
 
-    private function extractApp(string $fileName, bool $delete): void
+    private function extractPlugin(string $fileName, bool $delete): void
     {
-        $this->extensionExtractor->extract($fileName, $delete, self::APP);
+        $this->extensionExtractor->extract($fileName, $delete);
+        $this->cacheClearer->clearContainerCache();
     }
 }

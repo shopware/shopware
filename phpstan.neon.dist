@@ -1,5 +1,6 @@
 includes:
     - phpstan-baseline.php
+    - phpstan-baseline-architecture.php
     # computes the analysed paths with node_modules subtrees pruned, see the file header
     - phpstan-paths.php
     - src/Core/DevOps/StaticAnalyze/PHPStan/common.neon
@@ -7,6 +8,10 @@ includes:
 
 parameters:
     tmpDir: var/cache/phpstan
+    # New or changed functions and classes above these limits fail; existing ones live in the baseline.
+    cognitive_complexity:
+        function: 15
+        class: 80
     bootstrapFiles:
         - src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php # run `php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php` to create the container
     symfony:

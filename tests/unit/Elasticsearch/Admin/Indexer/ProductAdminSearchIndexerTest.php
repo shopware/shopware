@@ -198,6 +198,29 @@ class ProductAdminSearchIndexerTest extends TestCase
         });
     }
 
+    public function testGetUpdatedIdsContainsProductsWithChangedCover(): void
+    {
+        $productId = Uuid::randomHex();
+
+        $event = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent('product', [
+                    new EntityWriteResult($productId, ['id' => $productId, 'coverId' => Uuid::randomHex()], 'product', EntityWriteResult::OPERATION_UPDATE),
+                ], Context::createDefaultContext()),
+            ]),
+            []
+        );
+
+        Feature::fake(['ENABLE_OPENSEARCH_FOR_ADMIN_API'], function () use ($event, $productId): void {
+            static::assertSame([$productId], $this->searchIndexer->getUpdatedIds($event));
+        });
+
+        Feature::withFeatureDisabled('ENABLE_OPENSEARCH_FOR_ADMIN_API', function () use ($event): void {
+            static::assertSame([], $this->searchIndexer->getUpdatedIds($event));
+        });
+    }
+
     public function testGetUpdatedIdsReadsTheProductOfDeletedOrMovedVisibilitiesAndMediaFromTheChangeSet(): void
     {
         $productWithDeletedVisibilityId = Uuid::randomHex();

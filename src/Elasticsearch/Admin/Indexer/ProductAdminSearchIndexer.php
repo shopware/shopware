@@ -95,6 +95,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
             // visibilities and media have their own primary key, the product id is only in the payload
             $productIds = [
                 ...$productIds,
+                ...$event->getPrimaryKeysWithPropertyChange($this->getEntity(), ['coverId']),
                 ...$this->getWrittenProductIds($event, ProductVisibilityDefinition::ENTITY_NAME, 'salesChannelId'),
                 ...$this->getWrittenProductIds($event, ProductMediaDefinition::ENTITY_NAME, 'mediaId'),
             ];

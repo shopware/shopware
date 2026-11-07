@@ -27,6 +27,17 @@ abstract class AbstractFileWriter extends AbstractWriter
         $this->initBuffer();
     }
 
+    public function __destruct()
+    {
+        if (\is_resource($this->tempFile)) {
+            fclose($this->tempFile);
+        }
+
+        if (isset($this->tempPath) && is_file($this->tempPath)) {
+            unlink($this->tempPath);
+        }
+    }
+
     public function flush(Config $config, string $targetPath): void
     {
         rewind($this->buffer);

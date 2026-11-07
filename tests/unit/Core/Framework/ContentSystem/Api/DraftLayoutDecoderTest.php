@@ -357,6 +357,13 @@ class DraftLayoutDecoderTest extends TestCase
             ]),
         ];
 
+        yield 'slot child with an empty component' => [
+            [['id' => 'el-1', 'component' => 'Sw:Block', 'slots' => ['content' => [['id' => 'el-2', 'component' => '']]]]],
+            new ConstraintViolationList([
+                new ConstraintViolation('Layout element component must be a non-empty string.', null, [], null, '[0].slots.content[0].component', ''),
+            ]),
+        ];
+
         yield 'nested slot child with an empty id' => [
             [['id' => 'el-1', 'component' => 'Sw:Block', 'slots' => ['content' => [
                 ['id' => 'el-2', 'component' => 'Sw:Block', 'slots' => ['inner' => [['id' => '', 'component' => 'Sw:Text']]]],

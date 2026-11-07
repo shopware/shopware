@@ -160,6 +160,8 @@ class DraftLayoutDecoder
                 $violations->add($this->structuralViolation($path . '.component', 'Layout element component must be a non-empty string.', $component));
             }
 
+            $this->gateSlotChildIds($element, $path, $violations);
+
             if (\is_string($id) && $id !== '' && \is_string($component) && $component !== '') {
                 $decodable[] = ['index' => $index, 'id' => $id, 'element' => $element];
             }
@@ -170,6 +172,41 @@ class DraftLayoutDecoder
         }
 
         return $decodable;
+    }
+
+    /**
+     * The codec admits an empty id at every level so a stored blank id stays readable, while the write boundary
+     * refuses it at every level. A slot child with an empty id is therefore refused here, like a top-level one.
+     *
+     * @param array<string, mixed> $element
+     */
+    private function gateSlotChildIds(array $element, string $path, ConstraintViolationList $violations): void
+    {
+        $slots = $element['slots'] ?? null;
+
+        if (!\is_array($slots)) {
+            return;
+        }
+
+        foreach ($slots as $slot => $children) {
+            if (!\is_array($children)) {
+                continue;
+            }
+
+            foreach ($children as $index => $child) {
+                if (!\is_array($child)) {
+                    continue;
+                }
+
+                $childPath = $path . '.slots.' . $slot . '[' . $index . ']';
+
+                if (($child['id'] ?? null) === '') {
+                    $violations->add($this->structuralViolation($childPath . '.id', 'Layout element id must be a non-empty string.', ''));
+                }
+
+                $this->gateSlotChildIds($child, $childPath, $violations);
+            }
+        }
     }
 
     /**

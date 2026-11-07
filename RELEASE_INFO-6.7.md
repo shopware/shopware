@@ -857,6 +857,12 @@ bin/console seo:repair:link-category-takeover --apply --no-interaction <category
 The categories get their SEO URLs back, and their fallback URLs redirect to them.
 The command is deprecated and will be removed in 6.9.0.0.
 
+### `ThemeConfigChangedEvent` is dispatched after the theme is saved
+
+`ThemeService::updateTheme()` now dispatches `ThemeConfigChangedEvent` after the new theme configuration is written to the database.
+Before, it was dispatched before the write, so with the static theme config loader a theme save dumped and compiled the `theme.json` defaults instead of the saved values.
+Subscribers that load the theme while handling the event now get the saved configuration instead of the previous one.
+
 ## Hosting & Configuration
 
 ### Readiness checks isolate their virtual requests

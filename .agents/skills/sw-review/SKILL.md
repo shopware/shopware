@@ -1,11 +1,10 @@
 ---
 name: sw-review
 description: >
-    Review a Shopware 6 GitHub pull request or local diff. Use when the user asks
-    to review a PR, references a PR by its number, asks for a focused
-    security / architecture / code-style / UX / maintainer review, or when a PR
-    needs automated reviewer feedback. Routes topic guides (BC, platform scope,
-    cache lifetime, queue, ...) deterministically from the changed code.
+    Review a Shopware 6 GitHub pull request or local diff, as a general review, a
+    focused security, architecture, code-style, UX or maintainer review, or automated
+    reviewer feedback. Picks topic guides (BC, platform scope, cache lifetime, queue)
+    from the changed code. Not for writing PR text, CI failures, or fixes.
 disable-model-invocation: true
 license: MIT
 allowed-tools: >

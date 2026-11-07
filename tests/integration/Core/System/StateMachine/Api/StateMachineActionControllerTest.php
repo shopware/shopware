@@ -145,8 +145,8 @@ class StateMachineActionControllerTest extends TestCase
         $history = $this->stateMachineHistoryRepository->search($criteria, $context)->getEntities();
 
         static::assertCount(1, $history->getElements(), 'Expected history to be written');
-        /** @var StateMachineHistoryEntity $historyEntry */
         $historyEntry = array_values($history->getElements())[0];
+        static::assertInstanceOf(StateMachineHistoryEntity::class, $historyEntry);
 
         $toStateMachineState = $historyEntry->getToStateMachineState();
         static::assertInstanceOf(StateMachineStateEntity::class, $toStateMachineState);
@@ -232,8 +232,8 @@ class StateMachineActionControllerTest extends TestCase
         /** @var EntityRepository<OrderCollection> $orderRepository */
         $orderRepository = static::getContainer()->get('order.repository');
 
-        /** @var OrderEntity $order */
         $order = $orderRepository->search(new Criteria([$orderId]), $salesChannelContext->getContext())->getEntities()->first();
+        static::assertInstanceOf(OrderEntity::class, $order);
 
         static::assertSame($order->getLanguageId(), $this->getDeDeLanguageId());
     }
@@ -296,8 +296,8 @@ class StateMachineActionControllerTest extends TestCase
         /** @var EntityRepository<OrderCollection> $orderRepository */
         $orderRepository = static::getContainer()->get('order.repository');
 
-        /** @var OrderEntity $order */
         $order = $orderRepository->search(new Criteria([$orderId]), $salesChannelContext->getContext())->getEntities()->first();
+        static::assertInstanceOf(OrderEntity::class, $order);
 
         static::assertSame($order->getLanguageId(), Defaults::LANGUAGE_SYSTEM);
     }

@@ -41,6 +41,20 @@ Existing log entries and stored sample data are not modified.
 Previously queued flows retain their original classification.
 Previously queued Shopware mails without a stored flag keep the default non-sensitive classification.
 
+### TypeScript Administration scaffolding
+
+`bin/console plugin:create --create-admin-module` now generates `main.ts` and TypeScript module and page implementations.
+Generated modules and components are checked against the installed Administration types.
+After installing and activating the plugin, run `bin/console bundle:dump`, `composer admin:setup-extension-tooling` and `composer admin:check-extensions -- --only=YourPlugin --fail-on-skipped` in a platform checkout to typecheck and lint it.
+Existing plugin files are unchanged.
+
+### TypeScript Storefront plugin scaffolding
+
+`bin/console plugin:create --create-javascript-plugin` now generates `main.ts` and `example-plugin.plugin.ts` instead of JavaScript files.
+The generated `main.ts` imports `PluginManager` directly instead of using `window.PluginManager`.
+The Storefront `Plugin` base class and `PluginManager.register` now ship TypeScript declarations next to their JavaScript implementation; runtime behavior is unchanged.
+Existing plugin files are unchanged.
+
 ### Missing plugin conditions in stored carts
 
 Stored carts can be recalculated when a rule container references a condition whose PHP class is no longer available, for example an uninstalled plugin.

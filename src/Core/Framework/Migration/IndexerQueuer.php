@@ -86,9 +86,30 @@ class IndexerQueuer
             }
         }
 
-        $indexerList[$name] = isset($indexerList[$name]) ? array_unique(array_merge($indexerList[$name], $requiredIndexers)) : $requiredIndexers;
+        $indexerList[$name] = self::mergeUpdaters($indexerList[$name] ?? null, $requiredIndexers);
 
         self::upsert($connection, $id, $indexerList);
+    }
+
+    /**
+     * An empty list runs every updater, so a full run is never narrowed to the updaters another migration needs
+     *
+     * @param array<string>|null $queuedUpdaters
+     * @param list<string> $requiredUpdaters
+     *
+     * @return array<string>
+     */
+    private static function mergeUpdaters(?array $queuedUpdaters, array $requiredUpdaters): array
+    {
+        if ($queuedUpdaters === null) {
+            return $requiredUpdaters;
+        }
+
+        if ($queuedUpdaters === [] || $requiredUpdaters === []) {
+            return [];
+        }
+
+        return array_unique(array_merge($queuedUpdaters, $requiredUpdaters));
     }
 
     /**
@@ -110,17 +131,19 @@ class IndexerQueuer
                 ['configuration_value' => $newValue, 'updated_at' => $date],
                 ['id' => $id]
             );
-        } else {
-            $connection->insert(
-                'system_config',
-                [
-                    'id' => Uuid::randomBytes(),
-                    'configuration_key' => self::INDEXER_KEY,
-                    'configuration_value' => $newValue,
-                    'created_at' => $date,
-                ]
-            );
+
+            return;
         }
+
+        $connection->insert(
+            'system_config',
+            [
+                'id' => Uuid::randomBytes(),
+                'configuration_key' => self::INDEXER_KEY,
+                'configuration_value' => $newValue,
+                'created_at' => $date,
+            ]
+        );
     }
 
     /**

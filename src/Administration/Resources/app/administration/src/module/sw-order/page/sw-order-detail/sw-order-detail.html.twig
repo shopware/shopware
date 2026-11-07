@@ -3,6 +3,12 @@
     v-if="orderId"
     class="sw-order-detail"
 >
+    {% block sw_order_detail_search_bar %}
+    <template v-if="adminEsEnable" #search-bar>
+        <sw-search-bar initial-search-type="order" />
+    </template>
+    {% endblock %}
+
     {% block sw_order_detail_header %}
     <template #smart-bar-header>
         {% block sw_order_detail_header_title %}

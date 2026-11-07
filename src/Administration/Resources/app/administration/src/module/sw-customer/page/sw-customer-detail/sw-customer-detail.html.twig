@@ -1,5 +1,11 @@
 {% block sw_customer_detail %}
 <sw-page class="sw-customer-detail">
+    {% block sw_customer_detail_search_bar %}
+    <template v-if="adminEsEnable" #search-bar>
+        <sw-search-bar initial-search-type="customer" />
+    </template>
+    {% endblock %}
+
     {% block sw_customer_detail_header %}
     <template
         v-if="!isLoading"

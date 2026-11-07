@@ -54,6 +54,10 @@ export default {
     },
 
     computed: {
+        adminEsEnable() {
+            return Shopware.Context.app.adminEsEnable ?? false;
+        },
+
         shippingMethod() {
             return Shopware.Store.get('swShippingDetail').shippingMethod;
         },

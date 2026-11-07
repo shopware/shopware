@@ -254,7 +254,7 @@ Additional safeguards:
 - **Rate limiting**: every request passes through `McpRateLimiter` before the protocol runs. Separate per-scope buckets (`mcp_admin_api`, `mcp_store_api`); exceeding the limit returns HTTP 429 via `McpException::throttled()`. See the Rate limiting section under "Future ideas / backlog" for the keying details and open improvements.
 - **Audit logging**: tool invocations logged via `mcp` Monolog channel
 - **App HMAC**: app tool calls signed with `RequestSigner` using the app secret
-- **Signed result pointers**: `McpToolResultPointerSigner` signs the pointers in tool result links (`<id>.<expiry>.<hmac>`, bound to the principal). Reuse it for any new short-lived signed token instead of calling `hash_hmac` directly; it already has an injected clock, a constant-time compare and validated fields. Sharing it outside MCP is tracked in #21520.
+- **Signed result pointers**: `McpToolResultPointerSigner` signs the pointers in tool result links (`<id>.<expiry>.<hmac>`, bound to the principal). It builds on the shared `Shopware\Core\Framework\Util\HmacSigner` (injected clock, constant-time compare, expiry). Use that helper for any new short-lived token Shopware signs and reads back itself instead of calling `hash_hmac` directly; keep a purpose label in the signed data and validate the fields when parsing.
 - **XML parsing**: `mcp.xml` parsed with `XmlUtils::loadFile()` to prevent XXE attacks
 - **Entity validation**: entity tools check `registry->has()` before ACL to give clear "entity not found" errors
 - **Global compile-time allowlist**: `shopware.mcp.allowed_tools` acts as an installation-wide safety switch (secondary to per-integration allowlists)

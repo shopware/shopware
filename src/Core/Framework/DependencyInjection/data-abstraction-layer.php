@@ -120,6 +120,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpret
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
 use Shopware\Core\Framework\DataAbstractionLayer\TechnicalNameExceptionHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\DalSearchInstrumentor;
+use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\DalWriteInstrumentor;
 use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\EntityGroupResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\EntityTelemetrySubscriber;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExistsValidator;
@@ -404,6 +405,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(LanguageLoader::class),
             service(DefinitionInstanceRegistry::class),
             service(EntityWriteResultFactory::class),
+            service(DalWriteInstrumentor::class),
         ]);
 
     $services->set(EntityWriteResultFactory::class)
@@ -999,5 +1001,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(EntityGroupResolver::class),
             service(MetricConfigProvider::class),
             param('shopware.telemetry.metrics.enabled'),
+        ]);
+
+    $services->set(DalWriteInstrumentor::class)
+        ->args([
+            service(Meter::class),
+            service(EntityGroupResolver::class),
         ]);
 };

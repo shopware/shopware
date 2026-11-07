@@ -14,6 +14,10 @@ on:
         type: string
         default: ""
 
+env:
+  # Temporary PHP 8.6 testing: include Composer calls nested inside setup-shopware.
+  COMPOSER_IGNORE_PLATFORM_REQ: php
+
 permissions:
   contents: read
 
@@ -151,7 +155,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
         with:
-          php-version: "8.2"
+          php-version: "8.6"
 
       - name: Install Composer
         run: |

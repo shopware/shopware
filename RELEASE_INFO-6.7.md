@@ -409,6 +409,12 @@ Use `mediaDefaultFolderService.getDefaultFolderId(entityName)` instead.
 
 The `customFieldSetIDs` data property, the `customFieldSetRelationsRepository` and `customFieldsRelationsCriteria` computed properties and the `fetchCustomFieldSetIds()` method of `sw-settings-listing-option-criteria-grid` are deprecated and will be removed without replacement.
 
+### Deprecated the sales channel lists of `sw-settings-search-live-search` and `sw-newsletter-recipient-list`
+
+The `salesChannels` data property, the `salesChannelRepository` computed property and the `fetchSalesChannels()` method of `sw-settings-search-live-search` are deprecated and will be removed without replacement.
+The `salesChannelFilters` data property of `sw-newsletter-recipient-list` is deprecated and will be removed without replacement.
+Their sales channel selects load their options themselves, so with the `V6_8_0_0` feature flag both components no longer load sales channels when they are created.
+
 ### Codemods for extensions in the extension tooling
 
 The new `administration:upgrade-extensions` command runs the codemods that prepare the Administration code of an extension for a Shopware major.

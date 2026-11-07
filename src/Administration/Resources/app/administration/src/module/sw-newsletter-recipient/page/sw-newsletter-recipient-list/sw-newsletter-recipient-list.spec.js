@@ -248,6 +248,25 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list',
         });
     });
 
+    // @deprecated tag:v6.8.0.0 - The test will be removed together with the sales channel request on mount.
+    it.deprecated('v6.8.0.0')('should load the sales channel filters on mount', async () => {
+        const salesChannelRepository = { search: jest.fn(() => Promise.resolve(['sales-channel'])) };
+
+        await createWrapper({ repositories: { sales_channel: salesChannelRepository } });
+        await flushPromises();
+
+        expect(salesChannelRepository.search).toHaveBeenCalledTimes(1);
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should not load the sales channel filters on mount', async () => {
+        const salesChannelRepository = { search: jest.fn(() => Promise.resolve(['sales-channel'])) };
+
+        await createWrapper({ repositories: { sales_channel: salesChannelRepository } });
+        await flushPromises();
+
+        expect(salesChannelRepository.search).not.toHaveBeenCalled();
+    });
+
     it('should open the filter sidebar via the open-filters shortcut', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

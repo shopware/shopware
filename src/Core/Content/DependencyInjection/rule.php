@@ -17,6 +17,7 @@ use Shopware\Core\Content\Rule\RuleValidator;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
@@ -38,8 +39,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('validator'),
             service(RuleConditionRegistry::class),
-            service('rule_condition.repository'),
             service('app_script_condition.repository'),
+            service(WriteOutcome::class),
         ])
         ->tag('kernel.event_subscriber');
 

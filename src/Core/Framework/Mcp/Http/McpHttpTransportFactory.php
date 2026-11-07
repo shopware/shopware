@@ -56,16 +56,25 @@ class McpHttpTransportFactory
             && $this->httpFoundationFactory !== null;
     }
 
-    public function createTransport(Request $request): StreamableHttpTransport
+    /**
+     * @param bool $sessionNotFound answer with the SDK's unknown-session `404` instead of handling the request,
+     *                              for a session the caller may not use (see `McpSessionPrincipalBinding`)
+     */
+    public function createTransport(Request $request, bool $sessionNotFound = false): StreamableHttpTransport
     {
         \assert($this->httpMessageFactory !== null && $this->responseFactory !== null && $this->streamFactory !== null);
+
+        $middleware = $this->middleware();
+        if ($sessionNotFound) {
+            $middleware[] = new McpSessionNotFoundMiddleware($this->responseFactory, $this->streamFactory);
+        }
 
         return new StreamableHttpTransport(
             $this->httpMessageFactory->createRequest($request),
             $this->responseFactory,
             $this->streamFactory,
             logger: $this->logger,
-            middleware: $this->middleware(),
+            middleware: $middleware,
         );
     }
 

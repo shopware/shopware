@@ -87,11 +87,11 @@ All capability names use hyphen-separated prefixes (`a-zA-Z0-9_-` only, no dots)
 ## Folder structure
 - `AllowList/` -- Per-integration capability allowlist (`McpAllowlistProvider`, `McpAllowlistFilter`, `McpAllowlist`)
 - `Attribute/` -- MCP-specific PHP attributes (`#[McpToolDependsOn]`, `#[McpToolRequires]`)
-- `Authentication/` -- MCP authentication and exception listeners
+- `Authentication/` -- MCP authentication and exception listeners, `McpPrincipalResolver` (the principal of a request: `user-<id>`, `integration-<accessKey>`, `integration-<accessKey>-user-<id>`)
 - `Context/` -- Context bridging (`McpContextProvider`, `StoreApiMcpContextProvider`)
 - `Controller/` -- HTTP endpoints for MCP protocol (`McpServerController` admin, `StoreApiMcpServerController` store)
 - `RateLimit/` -- `McpRateLimiter` wrapper around the core `RateLimiter` (per-scope keys + throttle translation)
-- `Session/` -- Session helpers: `McpSessionIdValidator` (rejects malformed `mcp-session-id`), `McpSessionCleanupSubscriber` (wipes the tool results a session stored and its toolset rows on session DELETE)
+- `Session/` -- Session helpers: `McpSessionIdValidator` (rejects malformed `mcp-session-id`), `McpSessionPrincipalBinding` (binds an Admin API session to the principal that sent `initialize`; another principal, or a session without one, gets the unknown-session `404`), `McpSessionCleanupSubscriber` (wipes the tool results a session stored and its toolset rows on session DELETE)
 - `ScheduledTask/` -- Periodic GC: `McpToolsetSessionCleanupTask` (session-store liveness for `mcp_toolset_session`), `McpToolResultCacheCleanupTask` (age TTL for `mcp_tool_result_cache`; does not require a session store)
 - `Tool/` -- Individual MCP tool implementations
 - `Prompt/` -- System prompts for AI context

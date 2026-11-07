@@ -89,7 +89,8 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
         }
 
         $term = new TermQuery($config->getField(), $normalizedToken, ['boost' => $config->getRanking()]);
-        $this->nameClause($term, $config, (string) $normalizedToken, 'exact', $context);
+        // weighted: the boost above already folds the field ranking into the score.
+        $this->nameClause($term, $config, (string) $normalizedToken, 'exact', $context, true);
 
         return $term;
     }
@@ -169,7 +170,8 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
         }
 
         $phrase = new MatchPhrasePrefixQuery($config->getField() . '.search', $token, $params);
-        $this->nameClause($phrase, $config, $token, 'phrase', $context);
+        // weighted: the boost above already folds the field ranking into the score.
+        $this->nameClause($phrase, $config, $token, 'phrase', $context, true);
 
         return $phrase;
     }
@@ -247,21 +249,28 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
     }
 
     /**
-     * In explain mode, tag a clause with its match type so the live-search preview can report
-     * how the field matched. Gated on the state, so normal search is untouched.
+     * Explain mode only: tag a clause with its match type for the live-search preview.
+     * `$weighted` = the clause boost already folds the field ranking, so the preview
+     * must not scale its score by the ranking again.
      */
-    private function nameClause(BuilderInterface $clause, SearchFieldConfig $config, string $term, string $type, Context $context): void
+    private function nameClause(BuilderInterface $clause, SearchFieldConfig $config, string $term, string $type, Context $context, bool $weighted = false): void
     {
         if (!$context->hasState(Context::ELASTICSEARCH_EXPLAIN_MODE) || !method_exists($clause, 'addParameter')) {
             return;
         }
 
-        $clause->addParameter('_name', (string) json_encode([
+        $payload = [
             'field' => $config->getField(),
             'term' => $term,
             'ranking' => $config->getRanking(),
             'type' => $type,
-        ]));
+        ];
+
+        if ($weighted) {
+            $payload['weighted'] = true;
+        }
+
+        $clause->addParameter('_name', (string) json_encode($payload));
     }
 
     /**

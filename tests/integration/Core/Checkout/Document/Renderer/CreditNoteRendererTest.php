@@ -556,8 +556,8 @@ class CreditNoteRendererTest extends TestCase
 
         static::assertInstanceOf(CreditNoteOrdersEvent::class, $caughtEvent);
 
-        /** @var OrderEntity $order */
         $order = $caughtEvent->getOrders()->first();
+        static::assertInstanceOf(OrderEntity::class, $order);
 
         $successCallback($order);
     }

@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -234,6 +235,7 @@ class ProductStreamUpdaterTest extends TestCase
             static function (Criteria $actualCriteria, Context $context) use ($criteria, $newMatches): array {
                 static::assertTrue($actualCriteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE));
                 $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+                $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
                 static::assertEquals($criteria, $actualCriteria);
 
@@ -297,6 +299,7 @@ class ProductStreamUpdaterTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
         $criteria->addFilter(new EqualsFilter('product.active', true));
 
         $definition = new ProductDefinition();
@@ -360,6 +363,7 @@ class ProductStreamUpdaterTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
         $criteria->addFilter(new EqualsFilter('product.active', true));
 
         $definition = new ProductDefinition();
@@ -378,6 +382,68 @@ class ProductStreamUpdaterTest extends TestCase
             ->expects($this->once())
             ->method('update')
             ->with($definition->getEntityName(), $oldMatches, $context, 'streamIds');
+
+        $updater = new ProductStreamUpdater(
+            $connection,
+            $definition,
+            $repository,
+            static::createStub(MessageBusInterface::class),
+            $manyToManyFieldUpdater,
+            $this->createDefaultLanguageRepo(),
+            true,
+        );
+
+        $updater->handle($message);
+    }
+
+    public function testHandleLoadsTruncatedOpenSearchResultFromDatabase(): void
+    {
+        $message = new ProductStreamMappingIndexingMessage(Uuid::randomHex());
+
+        $filters = json_encode([[
+            'type' => 'equals',
+            'field' => 'active',
+            'value' => '1',
+        ]]);
+
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->once())
+            ->method('fetchAssociative')
+            ->willReturn(['invalid' => 0, 'api_filter' => $filters]);
+
+        $connection
+            ->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->willReturn([]);
+
+        $connection
+            ->expects($this->once())
+            ->method('transactional')
+            ->withAnyParameters();
+
+        $openSearchMatches = [Uuid::randomHex()];
+        $allMatches = [...$openSearchMatches, Uuid::randomHex()];
+
+        $definition = new ProductDefinition();
+        $repository = StaticEntityRepository::of(ProductCollection::class, [
+            static function (Criteria $criteria, Context $context) use ($openSearchMatches): IdSearchResult {
+                static::assertTrue($criteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE));
+
+                return IdSearchResult::fromIds($openSearchMatches, $criteria, $context, 2);
+            },
+            static function (Criteria $criteria) use ($allMatches): array {
+                static::assertFalse($criteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE));
+
+                return $allMatches;
+            },
+        ], $definition);
+
+        $manyToManyFieldUpdater = $this->createMock(ManyToManyIdFieldUpdater::class);
+        $manyToManyFieldUpdater
+            ->expects($this->once())
+            ->method('update')
+            ->with($definition->getEntityName(), $allMatches, Context::createDefaultContext(), 'streamIds');
 
         $updater = new ProductStreamUpdater(
             $connection,

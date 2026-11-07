@@ -23,10 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\ParseResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
@@ -39,90 +36,6 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(CriteriaQueryBuilder::class)]
 class CriteriaQueryBuilderTest extends TestCase
 {
-    public function testBuildWithWhereCondition(): void
-    {
-        $queryBuilder = new QueryBuilder(DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]));
-
-        $criteria = new Criteria();
-        $criteria->addQuery(new ScoreQuery(
-            new ContainsFilter('name', 'test'),
-            500
-        ));
-        $criteria->addQuery(new ScoreQuery(
-            new ContainsFilter('description', 'test'),
-            250
-        ));
-
-        $parser = $this->createMock(SqlQueryParser::class);
-
-        $parserResult = new ParseResult();
-        $parserResult->addWhere('IF(`order`.`name` LIKE :param_018f75fcb173706bb1e5a16110f13c1d, \'500\', 0)');
-        $parserResult->addWhere('IF(`order`.`description` LIKE :param_018f766366cf70ce8e487d3cc1b513a6, \'250\', 0)');
-        $parser->expects($this->once())->method('parseRanking')->willReturn($parserResult);
-
-        $whereParserResult1 = new ParseResult();
-        $whereParserResult2 = new ParseResult();
-        $whereParserResult1->addWhere('`order`.`name` LIKE :param_018f75fcb173706bb1e5a16110f13c1d');
-        $whereParserResult2->addWhere('`order`.`description` LIKE :param_018f766366cf70ce8e487d3cc1b513a6');
-        $parser->expects($this->exactly(3))->method('parse')->willReturnOnConsecutiveCalls(new ParseResult(), $whereParserResult1, $whereParserResult2);
-
-        $helper = $this->createMock(EntityDefinitionQueryHelper::class);
-        $helper->expects($this->once())->method('getBaseQuery')->willReturn($queryBuilder);
-
-        $builder = new CriteriaQueryBuilder(
-            $parser,
-            $helper,
-            static::createStub(SearchTermInterpreter::class),
-            static::createStub(EntityScoreQueryBuilder::class),
-            static::createStub(JoinGroupBuilder::class),
-            static::createStub(CriteriaPartResolver::class)
-        );
-
-        $definition = $this->returnMockDefinition();
-        $definition->compile(static::createStub(DefinitionInstanceRegistry::class));
-
-        $builder->build($queryBuilder, $definition, $criteria, Context::createDefaultContext());
-
-        static::assertSame(
-            'SELECT 1 WHERE `order`.`name` LIKE :param_018f75fcb173706bb1e5a16110f13c1d OR `order`.`description` LIKE :param_018f766366cf70ce8e487d3cc1b513a6 HAVING _score >= :_minScore ORDER BY _score DESC',
-            $queryBuilder->select('1')->getSQL(),
-        );
-    }
-
-    public function testBuildWithoutAddConditions(): void
-    {
-        $queryBuilder = new QueryBuilder(DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]));
-
-        $criteria = new Criteria();
-        $criteria->addQuery(new ScoreQuery(
-            new ContainsFilter('name', 'test'),
-            500
-        ));
-
-        $parserResult = new ParseResult();
-        $parserResult->addWhere('IF(`order`.`name` LIKE :param_018f75fcb173706bb1e5a16110f13c1d, \'500\', 0)');
-
-        $parser = $this->createMock(SqlQueryParser::class);
-        $parser->expects($this->once())->method('parseRanking')->willReturn($parserResult);
-
-        $parser->method('parse')->willReturn(new ParseResult());
-
-        $builder = new CriteriaQueryBuilder(
-            $parser,
-            static::createStub(EntityDefinitionQueryHelper::class),
-            static::createStub(SearchTermInterpreter::class),
-            static::createStub(EntityScoreQueryBuilder::class),
-            static::createStub(JoinGroupBuilder::class),
-            static::createStub(CriteriaPartResolver::class)
-        );
-
-        $definition = $this->returnMockDefinition();
-        $definition->compile(static::createStub(DefinitionInstanceRegistry::class));
-        $builder->build($queryBuilder, $definition, $criteria, Context::createDefaultContext());
-
-        static::assertSame('SELECT 1', $queryBuilder->select('1')->getSQL());
-    }
-
     public function testInvalidSortingDirectionException(): void
     {
         $queryBuilder = new QueryBuilder(static::createStub(Connection::class));

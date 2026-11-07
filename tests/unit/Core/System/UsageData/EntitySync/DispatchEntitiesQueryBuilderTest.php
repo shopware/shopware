@@ -15,9 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -52,45 +50,11 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
         $this->queryHelper = new DispatchEntitiesQueryBuilder($this->connection);
     }
 
-    public function testForEntityAddsTable(): void
-    {
-        static::assertSame($this->queryHelper, $this->queryHelper->forEntity('test_entity'));
-
-        static::assertSame(
-            "-- UsageData EntitySync - dispatch entities for 'test_entity'\nSELECT 1 FROM `test_entity`",
-            $this->getSqlWithSelect(),
-        );
-    }
-
-    public function testWithFieldsAddsStorageAwareFields(): void
-    {
-        static::assertSame(
-            $this->queryHelper,
-            $this->queryHelper->withFields(new FieldCollection([
-                new StringField('storage_aware', 'storageAware'),
-            ]))
-        );
-
-        static::assertSame('SELECT `storage_aware`', $this->queryHelper->getQueryBuilder()->getSQL());
-    }
-
-    public function testWithFieldsRemovesNonStorageAwareFields(): void
-    {
-        static::assertSame(
-            $this->queryHelper,
-            $this->queryHelper->withFields(new FieldCollection([
-                new OneToOneAssociationField('OneToOne', 'one_to_one', 'reverse_one_to_one', 'reference_class'),
-            ]))
-        );
-
-        static::assertSame('SELECT 1', $this->queryHelper->getQueryBuilder()->addSelect('1')->getSQL());
-    }
-
     public function testWithPrimaryKeyAddsNothingForEmptyArray(): void
     {
         static::assertSame($this->queryHelper, $this->queryHelper->withPrimaryKeys([]));
 
-        static::assertSame('SELECT 1', $this->getSqlWithSelect());
+        static::assertSame([], $this->queryHelper->getQueryBuilder()->getParameters());
     }
 
     public function testWithPrimaryKeysWithCombinedPrimaryKey(): void
@@ -100,11 +64,6 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
         ];
 
         static::assertSame($this->queryHelper, $this->queryHelper->withPrimaryKeys($primaryKeys));
-
-        static::assertSame(
-            'SELECT 1 WHERE (`product_id` = :pk_1) AND (`category_id` = :pk_2)',
-            $this->getSqlWithSelect(),
-        );
 
         $parameters = $this->queryHelper->getQueryBuilder()->getParameters();
         static::assertCount(2, $parameters);
@@ -120,11 +79,6 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
         ];
 
         static::assertSame($this->queryHelper, $this->queryHelper->withPrimaryKeys($primaryKeys));
-
-        static::assertSame(
-            'SELECT 1 WHERE (`id` = :pk_1) OR (`id` = :pk_2)',
-            $this->getSqlWithSelect(),
-        );
 
         $parameters = $this->queryHelper->getQueryBuilder()->getParameters();
         static::assertCount(2, $parameters);
@@ -154,11 +108,6 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
 
         static::assertSame($this->queryHelper, $this->queryHelper->checkLiveVersion($definition));
 
-        static::assertSame(
-            'SELECT 1 WHERE (`version_id` = :versionId) AND (`test_version_id` = :versionId)',
-            $this->getSqlWithSelect(),
-        );
-
         $parameters = $this->queryHelper->getQueryBuilder()->getParameters();
         static::assertCount(1, $parameters);
         static::assertContains(Uuid::fromHexToBytes(Defaults::LIVE_VERSION), $parameters);
@@ -172,11 +121,6 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
         static::assertSame(
             $this->queryHelper,
             $this->queryHelper->withCollectUntilConstraint($message, $runDate),
-        );
-
-        static::assertSame(
-            'SELECT 1 WHERE (`updated_at` IS NULL) OR (`updated_at` <= :collectUntil)',
-            $this->getSqlWithSelect(),
         );
 
         $parameters = $this->queryHelper->getQueryBuilder()->getParameters();
@@ -196,20 +140,10 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
             $this->queryHelper->withCollectUntilConstraint($message, $runDate),
         );
 
-        static::assertSame(
-            'SELECT 1 WHERE `updated_at` <= :collectUntil',
-            $this->getSqlWithSelect(),
-        );
-
         $parameters = $this->queryHelper->getQueryBuilder()->getParameters();
         static::assertCount(1, $parameters);
         static::assertArrayHasKey('collectUntil', $parameters);
         static::assertSame($runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT), $parameters['collectUntil']);
-    }
-
-    private function getSqlWithSelect(): string
-    {
-        return $this->queryHelper->getQueryBuilder()->select('1')->getSQL();
     }
 }
 

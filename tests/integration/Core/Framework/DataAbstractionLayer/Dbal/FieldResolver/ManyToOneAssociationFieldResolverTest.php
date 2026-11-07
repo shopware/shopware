@@ -4,21 +4,14 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Dbal\Fi
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
 use Shopware\Core\Checkout\DocumentV2\DocumentCollection;
-use Shopware\Core\Checkout\DocumentV2\DocumentDefinition;
 use Shopware\Core\Checkout\DocumentV2\DocumentEntity;
 use Shopware\Core\Checkout\Order\OrderCollection;
-use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverContext;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\ManyToOneAssociationFieldResolver;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -40,12 +33,6 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
 {
     use DocumentTrait;
     use KernelTestBehaviour;
-
-    protected ManyToOneAssociationFieldResolver $resolver;
-
-    protected QueryBuilder $queryBuilder;
-
-    protected DefinitionInstanceRegistry $definitionInstanceRegistry;
 
     /**
      * @var EntityRepository<OrderCollection>
@@ -70,9 +57,6 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->resolver = static::getContainer()->get(ManyToOneAssociationFieldResolver::class);
-        $this->queryBuilder = new QueryBuilder(static::getContainer()->get(Connection::class));
-        $this->definitionInstanceRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
         $this->orderRepository = static::getContainer()->get('order.repository');
         $this->productRepository = static::getContainer()->get('product.repository');
         $this->documentRepository = static::getContainer()->get('document.repository');
@@ -85,112 +69,92 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
         );
     }
 
-    public function testVersionConstraintWithVersionedReferenceToVersionedEntity(): void
+    public function testVersionedReferenceJoinsOnlyTheReferencedOrderVersion(): void
     {
-        // Document itself is not versioned, but has a versioned reference on the versioned order
-        $documentDefinition = $this->definitionInstanceRegistry->get(DocumentDefinition::class);
-        $orderDefinition = $this->definitionInstanceRegistry->get(OrderDefinition::class);
-        $documentAssociationField = $documentDefinition->getField('order');
+        $orderId = $this->persistCart($this->generateDemoCart(1));
+        $document = $this->createDocumentEntity('invoice', $orderId);
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $this->context)->getEntities()->first();
+        static::assertInstanceOf(OrderEntity::class, $order);
 
-        static::assertNotNull($documentAssociationField);
-        $resolverContext = new FieldResolverContext(
-            '',
-            'document',
-            $documentAssociationField,
-            $documentDefinition,
-            $orderDefinition,
-            $this->queryBuilder,
+        // A second order version that the document does not reference
+        $versionId = $this->orderRepository->createVersion($orderId, $this->context);
+        $this->orderRepository->update(
+            [['id' => $orderId, 'orderNumber' => 'unreferenced-version']],
+            $this->context->createWithVersionId($versionId),
+        );
+
+        $documents = $this->documentRepository->search(
+            (new Criteria())
+                ->addFilter(new EqualsFilter('order.orderNumber', $order->getOrderNumber()))
+                ->addAssociation('order'),
             $this->context,
-            null,
-        );
+        )->getEntities();
 
-        $this->resolver->join($resolverContext);
+        static::assertSame([$document->getId()], array_values($documents->getIds()));
+        static::assertSame($document->getOrderVersionId(), $documents->first()?->getOrder()?->getVersionId());
 
-        static::assertSame(
-            'SELECT 1 FROM `document` LEFT JOIN `order` `document.order` ON `document`.`order_id` = `document.order`.`id` AND `document`.`order_version_id` = `document.order`.`version_id`',
-            $this->queryBuilder->select('1')->from('`document`')->getSQL(),
-        );
+        $documentIds = $this->documentRepository->searchIds(
+            (new Criteria())->addFilter(new EqualsFilter('order.orderNumber', 'unreferenced-version')),
+            $this->context,
+        )->getIds();
+
+        static::assertSame([], $documentIds);
     }
 
-    public function testVersionConstraintWithReferenceToNonVersionedEntity(): void
+    public function testReferenceToNonVersionedEntityJoinsWithoutVersion(): void
     {
-        // Document and document type are not versioned, thus also document cannot have a versioned reference to its type
-        $documentDefinition = $this->definitionInstanceRegistry->get(DocumentDefinition::class);
-        $documentTypeDefinition = $this->definitionInstanceRegistry->get(DocumentTypeDefinition::class);
-        $documentAssociationField = $documentDefinition->getField('documentType');
+        $orderId = $this->persistCart($this->generateDemoCart(1));
+        $document = $this->createDocumentEntity('invoice', $orderId);
 
-        static::assertNotNull($documentAssociationField);
-        $resolverContext = new FieldResolverContext(
-            '',
-            'document',
-            $documentAssociationField,
-            $documentDefinition,
-            $documentTypeDefinition,
-            $this->queryBuilder,
+        $documentIds = $this->documentRepository->searchIds(
+            (new Criteria([$document->getId()]))->addFilter(new EqualsFilter('documentType.technicalName', 'invoice')),
             $this->context,
-            null,
-        );
+        )->getIds();
 
-        $this->resolver->join($resolverContext);
-
-        static::assertSame(
-            'SELECT 1 FROM `document` LEFT JOIN `document_type` `document.documentType` ON `document`.`document_type_id` = `document.documentType`.`id`',
-            $this->queryBuilder->select('1')->from('`document`')->getSQL(),
-        );
+        static::assertSame([$document->getId()], $documentIds);
     }
 
-    public function testVersionConstraintWithReferenceToSelf(): void
+    public function testReferenceToSelfJoinsWithoutVersion(): void
     {
-        // Document and document type are not versioned, thus also document cannot have a versioned reference to its type
-        $documentDefinition = $this->definitionInstanceRegistry->get(DocumentDefinition::class);
-        $documentTypeDefinition = $this->definitionInstanceRegistry->get(DocumentDefinition::class);
-        $documentAssociationField = $documentDefinition->getField('referencedDocument');
+        $orderId = $this->persistCart($this->generateDemoCart(1));
+        $invoice = $this->createDocumentEntity('invoice', $orderId);
+        $deliveryNote = $this->createDocumentEntity('delivery_note', $orderId);
 
-        static::assertNotNull($documentAssociationField);
-        $resolverContext = new FieldResolverContext(
-            '',
-            'document',
-            $documentAssociationField,
-            $documentDefinition,
-            $documentTypeDefinition,
-            $this->queryBuilder,
+        $this->documentRepository->update(
+            [['id' => $deliveryNote->getId(), 'referencedDocumentId' => $invoice->getId()]],
             $this->context,
-            null,
         );
 
-        $this->resolver->join($resolverContext);
+        $documentIds = $this->documentRepository->searchIds(
+            (new Criteria())->addFilter(new EqualsFilter('referencedDocument.documentNumber', $invoice->getDocumentNumber())),
+            $this->context,
+        )->getIds();
 
-        static::assertSame(
-            'SELECT 1 FROM `document` LEFT JOIN `document` `document.referencedDocument` ON `document`.`referenced_document_id` = `document.referencedDocument`.`id`',
-            $this->queryBuilder->select('1')->from('`document`')->getSQL(),
-        );
+        static::assertSame([$deliveryNote->getId()], $documentIds);
     }
 
-    public function testVersionConstraintWithOneToOneVersionedReferenceFromVersionedEntity(): void
+    public function testOneToOneReferenceFromVersionedEntityJoinsTheSameVersion(): void
     {
-        // Document itself is not versioned, but has a versioned reference on the versioned order
-        $orderDefinition = $this->definitionInstanceRegistry->get(OrderDefinition::class);
-        $orderCustomerDefinition = $this->definitionInstanceRegistry->get(DocumentDefinition::class);
-        $orderAssociationField = $orderDefinition->getField('orderCustomer');
-
-        static::assertNotNull($orderAssociationField);
-        $resolverContext = new FieldResolverContext(
-            '',
-            'order',
-            $orderAssociationField,
-            $orderDefinition,
-            $orderCustomerDefinition,
-            $this->queryBuilder,
+        $orderId = $this->persistCart($this->generateDemoCart(1));
+        $order = $this->orderRepository->search(
+            (new Criteria([$orderId]))->addAssociation('orderCustomer'),
             $this->context,
-            null,
+        )->getEntities()->first();
+        static::assertInstanceOf(OrderEntity::class, $order);
+        $orderCustomer = $order->getOrderCustomer();
+        static::assertNotNull($orderCustomer);
+
+        $versionId = $this->orderRepository->createVersion($orderId, $this->context);
+        $versionContext = $this->context->createWithVersionId($versionId);
+        $this->orderRepository->update(
+            [['id' => $orderId, 'orderCustomer' => ['id' => $orderCustomer->getId(), 'email' => 'version-only@example.com']]],
+            $versionContext,
         );
 
-        $this->resolver->join($resolverContext);
+        $criteria = (new Criteria())->addFilter(new EqualsFilter('orderCustomer.email', 'version-only@example.com'));
 
-        static::assertSame(
-            'SELECT 1 FROM `order` LEFT JOIN `order_customer` `order.orderCustomer` ON `order`.`id` = `order.orderCustomer`.`order_id` AND `order`.`version_id` = `order.orderCustomer`.`order_version_id`',
-            $this->queryBuilder->select('1')->from('`order`')->getSQL(),
-        );
+        static::assertSame([], $this->orderRepository->searchIds($criteria, $this->context)->getIds());
+        static::assertSame([$orderId], $this->orderRepository->searchIds($criteria, $versionContext)->getIds());
     }
 
     public function testCorrectOrderVersionOverAssociationOverRepositorySearch(): void
@@ -277,5 +241,16 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
         [$product1, $product2] = $products;
         static::assertNotNull($product1->getCover());
         static::assertNotNull($product2->getCover());
+    }
+
+    private function createDocumentEntity(string $documentType, string $orderId): DocumentEntity
+    {
+        $documentId = $this->createDocument($documentType, $orderId, [], $this->context)->first()?->getId();
+        static::assertNotNull($documentId);
+
+        $document = $this->documentRepository->search(new Criteria([$documentId]), $this->context)->getEntities()->first();
+        static::assertInstanceOf(DocumentEntity::class, $document);
+
+        return $document;
     }
 }

@@ -22,7 +22,8 @@ export default class WishlistLocalStoragePlugin extends BaseWishlistStoragePlugi
     }
 
     /**
-     * @deprecated tag:v6.8.0 - The 'router' parameter will be removed.
+     * @param {string} productId
+     * @param {*} router @deprecated tag:v6.8.0 - The parameter will be removed.
      */
     // eslint-disable-next-line no-unused-vars
     add(productId, router = null) {

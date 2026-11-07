@@ -349,6 +349,71 @@ data() {
  };
 ```
 
+### Runtime deprecations in storefront JavaScript
+
+Mark deprecated APIs with `@deprecated tag:v6.8.0` and name the replacement, or state that there is no replacement.
+Call `window.Feature.triggerDeprecationOrThrow('v6.8.0.0', message)` where the deprecated behavior is used, before executing that behavior.
+Before the removal flag is active, the helper preserves the old behavior and warns only when `window.debug` is enabled.
+With the removal flag active, it throws regardless of debug mode.
+Use the registered four-part flag name, even when the annotation uses the three-part release version.
+
+If the entire method is deprecated, call `triggerDeprecationOrThrow` before its existing logic.
+Include the removal version and replacement in the message:
+
+```js
+/** @deprecated tag:v6.8.0 - Use replacementMethod() instead. */
+oldMethod() {
+    window.Feature.triggerDeprecationOrThrow(
+        'v6.8.0.0',
+        'oldMethod() will be removed in v6.8.0.0. Use replacementMethod() instead.',
+    );
+
+    // Existing method logic.
+}
+```
+
+If only one behavior inside a method is deprecated, put the guard inside that branch, before the deprecated behavior.
+Shared setup may run before the guard; it does not have to be the first statement in the method.
+Supported branches must remain usable with the removal flag enabled.
+The condition below is an example; use the condition that selects your deprecated behavior:
+
+```js
+/** @deprecated tag:v6.8.0 - Legacy submission will be removed. */
+submit(options) {
+    // Shared setup for both paths.
+
+    if (options.legacy) {
+        window.Feature.triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'Legacy submission will be removed in v6.8.0.0. Use the default submission behavior instead.',
+        );
+
+        // Existing legacy submission logic.
+        return;
+    }
+
+    // Supported submission logic.
+}
+```
+
+Guard methods and static helpers in their own body, deprecated plugin classes in `init()`, and deprecated property writes in the setter.
+Do not trigger deprecations during module evaluation: importing the module does not mean the deprecated API was used.
+For removed plugin options, use `this._deprecateOption(key, majorFlag, hint)`.
+A change to an option's default does not make every access to that option deprecated; select the default through the feature flag instead.
+Keep supported callers on the replacement path when the major flag is active, and verify both normal and major modes in tests.
+
+The Storefront ESLint rule `sw-core-rules/require-deprecation-guard` checks directly annotated functions, methods, getters and setters, and the own `init()` method of a class with a class-level deprecation.
+It requires a matching guard somewhere in that callable's body, including conditional branches and statements after other work.
+It does not prove execution order, reachability or which condition needs the guard.
+A guard in a nested function or callback does not guard the enclosing callable.
+Both `window.Feature` and a default import from `helper/feature.helper` are recognized.
+
+This initial rule skips explicitly `@private` callables, fields, options, and class-level deprecations without an own `init()`.
+Those skipped cases still need review to choose the appropriate runtime strategy.
+For another static-only exception, use a narrow ESLint disable with an explanation rather than a dummy guard.
+There is no automatic fix because the replacement message and conditional behavior require judgment.
+The rule's regression tests run with the usual Storefront Jest suite (`npm run unit`).
+
 ### Using flags in storefront templates
 
 ```

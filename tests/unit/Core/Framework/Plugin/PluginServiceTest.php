@@ -352,8 +352,7 @@ class PluginServiceTest extends TestCase
      */
     private function getLanguageRepository(): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<LanguageCollection> $repo */
-        $repo = new StaticEntityRepository([['foo'], ['foo']]);
+        $repo = StaticEntityRepository::of(LanguageCollection::class, [['foo'], ['foo']]);
 
         return $repo;
     }

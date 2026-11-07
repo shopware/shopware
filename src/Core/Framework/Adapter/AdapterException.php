@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Symfony\Component\Asset\Exception\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Response;
+use Twig\Error\SyntaxError;
 use Twig\Node\Expression\AbstractExpression;
 use Twig\Source;
 
@@ -116,6 +117,11 @@ class AdapterException extends HttpException
             'Failed rendering Twig string template due syntax error: "{{ message }}"',
             ['message' => $message]
         );
+    }
+
+    public static function invalidDeprecatedBlockDocumentation(int $line, ?Source $context): SyntaxError
+    {
+        return new SyntaxError('Deprecated block documentation must declare a removal version using "@deprecated tag:vX.Y.0".', $line, $context);
     }
 
     public static function swUseSyntaxError(int $line, Source $context): self

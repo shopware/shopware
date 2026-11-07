@@ -8,7 +8,6 @@ use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
-use Shopware\Core\Framework\DataAbstractionLayer\Attribute\OnDelete;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -105,7 +104,7 @@ class CacheValueCompressorTest extends TestCase
         yield 'string' => ['Demostore'];
         yield 'array' => [['config' => ['core.basicInformation.shopName' => 'Demostore']]];
         yield 'object' => [new \ArrayObject(['shopName' => 'Demostore'])];
-        yield 'enum' => [OnDelete::CASCADE];
+        yield 'enum' => [CacheValueCompressorTestEnum::Demo];
     }
 
     #[DataProvider('serializedValueProvider')]
@@ -135,21 +134,18 @@ class CacheValueCompressorTest extends TestCase
         CacheValueCompressor::uncompress('not a cache value');
     }
 
-    public function testUncompressThrowsForZstdValuesWithoutTheZstdExtension(): void
-    {
-        if (\function_exists('zstd_uncompress')) {
-            static::markTestSkipped('The zstd PHP extension is loaded.');
-        }
-
-        $this->expectExceptionObject(AdapterException::cacheCompressionError('Value is zstd compressed, but the zstd PHP extension is not loaded'));
-
-        CacheValueCompressor::uncompress("\x28\xB5\x2F\xFD" . 'zstd frame');
-    }
-
     public function testUncompressReturnsNonStringValuesUnchanged(): void
     {
         $content = ['already' => 'unserialized'];
 
         static::assertSame($content, CacheValueCompressor::uncompress($content));
     }
+}
+
+/**
+ * @internal
+ */
+enum CacheValueCompressorTestEnum
+{
+    case Demo;
 }

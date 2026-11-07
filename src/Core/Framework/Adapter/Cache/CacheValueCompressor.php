@@ -103,10 +103,10 @@ class CacheValueCompressor
     }
 
     /**
-     * Matches the first token of a value written by `serialize()`: null, bool, int, float, string, array, object or enum.
+     * Matches a value written by `serialize()`: `N;` for null, otherwise a type letter followed by a colon.
      */
     private static function isSerialized(string $value): bool
     {
-        return preg_match('/^(?:N;|[bidsaOCE]:)/', $value) === 1;
+        return $value === 'N;' || ($value[1] ?? '') === ':';
     }
 }

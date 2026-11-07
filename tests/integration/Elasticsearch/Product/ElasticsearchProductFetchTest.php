@@ -154,7 +154,7 @@ class ElasticsearchProductFetchTest extends TestCase
 
         $definition->fetch(Uuid::fromHexToBytesList([$this->ids->get('product')]), Context::createDefaultContext());
 
-        static::assertNotEmpty($queries);
+        static::assertArrayHasKey(0, $queries);
 
         return $queries[0];
     }

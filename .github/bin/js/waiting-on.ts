@@ -65,7 +65,9 @@
  *        an unresolved thread where the author wrote last -> shopware  (open-thread-answered)
  *        mergeability not computed yet                    -> shopware  (mergeability-unknown)
  *        otherwise                                        -> shopware  (just-merge-it)
- *   5. at least one approval, decision still open         -> shopware  (second-review-missing)
+ *   5. at least one approval, decision still open
+ *        an unresolved thread where we wrote last         -> author    (open-question)
+ *        otherwise                                        -> shopware  (second-review-missing)
  *   6. no review at all, ever                             -> shopware  (never-reviewed)
  *   7. a maintainer acted after the author last did       -> author    (author-turn)
  *   8. otherwise                                          -> shopware  (our-turn)
@@ -90,7 +92,10 @@ The thread cases in step 4 exist because `trunk` requires every conversation to 
 resolved: an approval with a question still open does not merge. On #20750 two reviewers
 asked something inline, approved anyway, and the author never answered, so `just-merge-it`
 sent us to a merge button GitHub would not let us press. A thread only bots wrote in is
-not a question anyone has to answer and is left out.
+not a question anyone has to answer and is left out. Step 5 asks the same question, since
+an open thread blocks the merge whatever the approval count: on #21823 one reviewer approved
+while another's inline questions stayed open, and `second-review-missing` kept it with us
+for twelve days.
  *
  * Unknowns resolve towards us, never towards the contributor: a pull request we cannot
  * classify lands in `shopware` so the worst case is that we look at it again.
@@ -319,6 +324,15 @@ export function classifyPullRequest(facts: PullRequestFacts): WaitingOnVerdict {
     }
 
     if (facts.approvals >= 1) {
+        if (facts.lastOpenQuestionAt) {
+            return {
+                waitingOn: 'author',
+                reason: 'open-question',
+                message: 'has an approval, but a review thread still waits for the author to answer',
+                since: facts.lastOpenQuestionAt,
+            };
+        }
+
         return {
             waitingOn: 'shopware',
             reason: 'second-review-missing',

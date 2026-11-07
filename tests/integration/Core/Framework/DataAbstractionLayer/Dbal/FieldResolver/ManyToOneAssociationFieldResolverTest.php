@@ -28,7 +28,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Stub\Doctrine\QueryBuilderDataExtractor;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
@@ -107,16 +106,10 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
 
         $this->resolver->join($resolverContext);
 
-        static::assertSame([
-            '`document`' => [
-                [
-                    'type' => 'LEFT',
-                    'table' => '`order`',
-                    'alias' => '`document.order`',
-                    'condition' => '`document`.`order_id` = `document.order`.`id` AND `document`.`order_version_id` = `document.order`.`version_id`',
-                ],
-            ],
-        ], QueryBuilderDataExtractor::getJoin($this->queryBuilder));
+        static::assertSame(
+            'SELECT 1 FROM `document` LEFT JOIN `order` `document.order` ON `document`.`order_id` = `document.order`.`id` AND `document`.`order_version_id` = `document.order`.`version_id`',
+            $this->queryBuilder->select('1')->from('`document`')->getSQL(),
+        );
     }
 
     public function testVersionConstraintWithReferenceToNonVersionedEntity(): void
@@ -140,16 +133,10 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
 
         $this->resolver->join($resolverContext);
 
-        static::assertSame([
-            '`document`' => [
-                [
-                    'type' => 'LEFT',
-                    'table' => '`document_type`',
-                    'alias' => '`document.documentType`',
-                    'condition' => '`document`.`document_type_id` = `document.documentType`.`id`',
-                ],
-            ],
-        ], QueryBuilderDataExtractor::getJoin($this->queryBuilder));
+        static::assertSame(
+            'SELECT 1 FROM `document` LEFT JOIN `document_type` `document.documentType` ON `document`.`document_type_id` = `document.documentType`.`id`',
+            $this->queryBuilder->select('1')->from('`document`')->getSQL(),
+        );
     }
 
     public function testVersionConstraintWithReferenceToSelf(): void
@@ -173,16 +160,10 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
 
         $this->resolver->join($resolverContext);
 
-        static::assertSame([
-            '`document`' => [
-                [
-                    'type' => 'LEFT',
-                    'table' => '`document`',
-                    'alias' => '`document.referencedDocument`',
-                    'condition' => '`document`.`referenced_document_id` = `document.referencedDocument`.`id`',
-                ],
-            ],
-        ], QueryBuilderDataExtractor::getJoin($this->queryBuilder));
+        static::assertSame(
+            'SELECT 1 FROM `document` LEFT JOIN `document` `document.referencedDocument` ON `document`.`referenced_document_id` = `document.referencedDocument`.`id`',
+            $this->queryBuilder->select('1')->from('`document`')->getSQL(),
+        );
     }
 
     public function testVersionConstraintWithOneToOneVersionedReferenceFromVersionedEntity(): void
@@ -206,16 +187,10 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
 
         $this->resolver->join($resolverContext);
 
-        static::assertSame([
-            '`order`' => [
-                [
-                    'type' => 'LEFT',
-                    'table' => '`order_customer`',
-                    'alias' => '`order.orderCustomer`',
-                    'condition' => '`order`.`id` = `order.orderCustomer`.`order_id` AND `order`.`version_id` = `order.orderCustomer`.`order_version_id`',
-                ],
-            ],
-        ], QueryBuilderDataExtractor::getJoin($this->queryBuilder));
+        static::assertSame(
+            'SELECT 1 FROM `order` LEFT JOIN `order_customer` `order.orderCustomer` ON `order`.`id` = `order.orderCustomer`.`order_id` AND `order`.`version_id` = `order.orderCustomer`.`order_version_id`',
+            $this->queryBuilder->select('1')->from('`order`')->getSQL(),
+        );
     }
 
     public function testCorrectOrderVersionOverAssociationOverRepositorySearch(): void

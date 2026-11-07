@@ -636,6 +636,18 @@ The deprecated cookie-provider API and the `snippet_name` and `snippet_descripti
 Their removal was postponed to 6.9.
 Extension and theme developers should migrate to `CookieGroupCollectEvent` and the `name` and `description` fields before 6.9; see [the migration guidance](UPGRADE-6.9.md#refactor-of-providing-cookies).
 
+### Legacy cookie providers are reported at container build
+
+Decorators of the deprecated `CookieProviderInterface` keep working through a compatibility bridge in the Storefront.
+The bridge applies only what a decorator changed compared to the default cookie groups.
+Added groups and entries, removed groups and entries, and changed properties are applied to the `CookieGroupCollectEvent` result.
+Listeners of `CookieGroupCollectEvent` keep their changes as well.
+
+Each service that decorates or replaces `CookieProviderInterface` is now reported once as a container build deprecation.
+Run `bin/console debug:container --deprecations` in debug mode to list the affected extensions.
+The report names the service and class, so you can see which extension needs a migration before 6.9.
+Shops without such a decorator do not register the bridge at all.
+
 ### `app.request` is the current request
 
 The Twig variable `app.request` now always returns the request that is currently rendered.

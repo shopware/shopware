@@ -26,6 +26,7 @@ use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Category\Service\NavigationLoader;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader;
+use Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent;
 use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRoute;
 use Shopware\Core\Content\Media\Cms\DefaultMediaResolver as CoreDefaultMediaResolver;
 use Shopware\Core\Content\Media\File\FileSaver;
@@ -82,6 +83,7 @@ use Shopware\Storefront\Framework\Command\SalesChannelCreateStorefrontCommand;
 use Shopware\Storefront\Framework\Cookie\AppCookieProvider;
 use Shopware\Storefront\Framework\Cookie\CookieProvider;
 use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
+use Shopware\Storefront\Framework\Cookie\LegacyCookieProviderBridge;
 use Shopware\Storefront\Framework\Guard\DoubleSubmitGuard;
 use Shopware\Storefront\Framework\Media\StorefrontMediaUploader;
 use Shopware\Storefront\Framework\Media\StorefrontMediaValidatorRegistry;
@@ -764,6 +766,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('.inner'),
         ])
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.9.0.0']);
+
+    // Removed by LegacyCookieProviderBridgePass when no extension decorates the legacy cookie provider
+    $services->set(LegacyCookieProviderBridge::class)
+        ->args([
+            service(CookieProviderInterface::class),
+            param('session.storage.options'),
+        ])
+        ->tag('kernel.event_listener', ['event' => CookieGroupCollectEvent::class, 'priority' => 10000])
         ->tag('shopware.inactiveFeature', ['flag' => 'v6.9.0.0']);
 
     $services->set(ResponseHeaderListener::class)

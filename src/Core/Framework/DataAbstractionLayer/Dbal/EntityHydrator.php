@@ -381,8 +381,13 @@ class EntityHydrator
             return null;
         }
 
-        if (self::$partial !== [] && !isset(self::$partialFullPaths[$pk])) {
+        if (self::$partial !== []) {
             self::$partialFullPaths[$key] = true;
+
+            // the reference field is not the primary key for one-to-one associations with the foreign key on the reference side
+            foreach ($field->getReferenceDefinition()->getPrimaryKeys() as $primaryKey) {
+                self::$partialFullPaths[$association . '.' . $primaryKey->getPropertyName()] = true;
+            }
         }
 
         return $this->hydrateEntity($field->getReferenceDefinition(), $field->getReferenceDefinition()->getEntityClass(), $row, $association, $context);

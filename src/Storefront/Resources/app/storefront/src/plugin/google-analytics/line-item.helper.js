@@ -1,3 +1,5 @@
+import ProductCategoryHelper from 'src/plugin/google-analytics/product-category.helper';
+
 export default class LineItemHelper
 {
     /**
@@ -24,6 +26,31 @@ export default class LineItemHelper
     }
 
     /**
+     * The categories of the line item payload. A product added on a page without a breadcrumb about
+     * it has none there, so the categories requested when it was added are used instead.
+     *
+     * @param {HTMLElement} element
+     * @returns {Object}
+     */
+    static getLineItemCategories(element) {
+        const categories = LineItemHelper.getCategoriesFromElement(element);
+
+        return Object.keys(categories).length > 0
+            ? categories
+            : ProductCategoryHelper.get(element.getAttribute('data-id'));
+    }
+
+    /**
+     * The ids of the products in the cart or order
+     * @returns {string[]}
+     */
+    static getProductIds() {
+        const elements = document.querySelectorAll('.hidden-line-items-information .hidden-line-item');
+
+        return [...elements].map(element => element.getAttribute('data-id')).filter(Boolean);
+    }
+
+    /**
      * @param {string|null} productId
      * @returns { Object[] }
      */
@@ -43,11 +70,12 @@ export default class LineItemHelper
                 quantity: itemEl.getAttribute('data-quantity'),
                 price: itemEl.getAttribute('data-price'),
                 item_brand: itemEl.getAttribute('data-brand'),
+                item_variant: itemEl.getAttribute('data-variant') || undefined,
             };
 
             lineItems.push({
                 ...itemData,
-                ...LineItemHelper.getCategoriesFromElement(itemEl),
+                ...LineItemHelper.getLineItemCategories(itemEl),
             });
         });
 
@@ -116,6 +144,7 @@ export default class LineItemHelper
             id: lineItem.item_id,
             name: lineItem.item_name,
             brand: lineItem.item_brand,
+            variant: lineItem.item_variant,
             value: lineItem.price,
             currency: additionalProperties.currency,
             categories,

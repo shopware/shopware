@@ -8,28 +8,10 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/src/Core/Content/Cms/Subscriber/CmsVersionMergeSubscriber.php',
 ];
 $ignoreErrors[] = [
-    'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
-    'identifier' => 'shopware.domainException',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Content/Flow/Dispatching/Storer/ScalarValuesStorer.php',
-];
-$ignoreErrors[] = [
     'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
     'identifier' => 'empty.notAllowed',
     'count' => 2,
     'path' => __DIR__ . '/src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializer.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductCrossSellingSerializer.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 6,
-    'path' => __DIR__ . '/src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductSerializer.php',
 ];
 $ignoreErrors[] = [
     'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
@@ -48,12 +30,6 @@ $ignoreErrors[] = [
     'identifier' => 'empty.notAllowed',
     'count' => 2,
     'path' => __DIR__ . '/src/Core/Content/ImportExport/Event/Subscriber/ProductCategoryPathsSubscriber.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 2,
-    'path' => __DIR__ . '/src/Core/Content/ImportExport/ImportExport.php',
 ];
 $ignoreErrors[] = [
     'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
@@ -84,12 +60,6 @@ $ignoreErrors[] = [
     'identifier' => 'shopware.domainException',
     'count' => 1,
     'path' => __DIR__ . '/src/Core/Content/ImportExport/Processing/Reader/AbstractReader.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
-    'identifier' => 'shopware.domainException',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Content/ImportExport/Processing/Reader/CsvReader.php',
 ];
 $ignoreErrors[] = [
     'rawMessage' => 'Cannot call method getFileType() on Shopware\\Core\\Content\\ImportExport\\ImportExportProfileEntity|null.',
@@ -196,12 +166,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
     'identifier' => 'shopware.domainException',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Framework/Api/Response/ResponseFactoryRegistry.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
-    'identifier' => 'shopware.domainException',
     'count' => 7,
     'path' => __DIR__ . '/src/Core/Framework/Api/Serializer/JsonApiDecoder.php',
 ];
@@ -240,12 +204,6 @@ $ignoreErrors[] = [
     'identifier' => 'shopware.domainException',
     'count' => 1,
     'path' => __DIR__ . '/src/Core/System/CustomField/Xml/CustomFieldTypes/CustomFieldTypeFactory.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
-    'identifier' => 'shopware.domainException',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Framework/App/Validation/ManifestValidator.php',
 ];
 $ignoreErrors[] = [
     'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
@@ -870,12 +828,6 @@ $ignoreErrors[] = [
     'identifier' => 'shopware.domainException',
     'count' => 1,
     'path' => __DIR__ . '/src/Storefront/Theme/ConfigLoader/StaticFileConfigLoader.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
-    'identifier' => 'shopware.domainException',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Storefront/Theme/Subscriber/FirstRunWizardSubscriber.php',
 ];
 $ignoreErrors[] = [
     'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',

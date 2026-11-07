@@ -11,11 +11,13 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
@@ -211,6 +213,68 @@ class EntityForeignKeyResolverTest extends TestCase
         static::assertArrayNotHasKey('sales_channel', $affected);
     }
 
+    public function testRuleUsedByAPromotionCannotBeDeleted(): void
+    {
+        $ids = new IdsCollection();
+        $context = Context::createDefaultContext();
+
+        $this->createRule($ids);
+        static::getContainer()->get('promotion.repository')->create([[
+            'id' => $ids->create('promotion'),
+            'name' => 'Promotion for a persona',
+            'active' => true,
+            'priority' => 1,
+            'exclusive' => false,
+            'useCodes' => false,
+            'useIndividualCodes' => false,
+            'useSetGroups' => false,
+            'preventCombination' => false,
+            'personaRules' => [['id' => $ids->get('rule')]],
+        ]], $context);
+
+        $ruleDefinition = static::getContainer()->get(RuleDefinition::class);
+        $restrictions = [
+            'promotion_persona_rule' => [['promotionId' => $ids->get('promotion'), 'ruleId' => $ids->get('rule')]],
+        ];
+
+        static::assertSame(
+            $restrictions,
+            static::getContainer()->get(EntityForeignKeyResolver::class)
+                ->getAffectedDeleteRestrictions($ruleDefinition, ['id' => $ids->get('rule')], $context, true)
+        );
+
+        static::expectExceptionObject(DataAbstractionLayerException::restrictDeleteViolations($ruleDefinition, $restrictions));
+
+        static::getContainer()->get('rule.repository')->delete([['id' => $ids->get('rule')]], $context);
+    }
+
+    public function testPropertyOptionUsedByAVariantCannotBeDeleted(): void
+    {
+        $ids = new IdsCollection();
+        $context = Context::createDefaultContext();
+
+        $product = (new ProductBuilder($ids, 'parent'))
+            ->price(100)
+            ->variant((new ProductBuilder($ids, 'variant'))->option('red', 'colour')->build())
+            ->build();
+        static::getContainer()->get('product.repository')->create([$product], $context);
+
+        $optionDefinition = static::getContainer()->get(PropertyGroupOptionDefinition::class);
+        $restrictions = [
+            'product_option' => [['productId' => $ids->get('variant'), 'optionId' => $ids->get('red')]],
+        ];
+
+        static::assertSame(
+            $restrictions,
+            static::getContainer()->get(EntityForeignKeyResolver::class)
+                ->getAffectedDeleteRestrictions($optionDefinition, ['id' => $ids->get('red')], $context, true)
+        );
+
+        static::expectExceptionObject(DataAbstractionLayerException::restrictDeleteViolations($optionDefinition, $restrictions));
+
+        static::getContainer()->get('property_group_option.repository')->delete([['id' => $ids->get('red')]], $context);
+    }
+
     public function testItAllowsDeletionWithSelfReferencingEntity(): void
     {
         $ids = new IdsCollection();
@@ -224,7 +288,6 @@ class EntityForeignKeyResolverTest extends TestCase
 
         $productRepository->create([$builder->build()], $context);
 
-        /** @var Connection $connection */
         $connection = static::getContainer()->get(Connection::class);
         // self referencing is not allowed over the application anymore, but we still want to support the deletion
         $connection->executeStatement('UPDATE product SET parent_id = :id WHERE id = :id', [

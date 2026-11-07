@@ -56,6 +56,7 @@ use Shopware\Core\Checkout\Promotion\Subscriber\Storefront\StorefrontCartSubscri
 use Shopware\Core\Checkout\Promotion\Util\PromotionCodeService;
 use Shopware\Core\Checkout\Promotion\Validator\PromotionValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
@@ -273,7 +274,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(PromotionDalValidator::class)
         ->args([
-            service(Connection::class),
+            service(WriteOutcome::class),
         ])
         ->tag('kernel.event_subscriber');
 

@@ -42,7 +42,6 @@ export default {
         'inline-edit-save',
         'inline-edit-cancel',
         'column-sort',
-        'column-visibility-change',
         'row-click',
     ],
 
@@ -560,7 +559,6 @@ export default {
 
         onChangeColumnVisibility(value, index) {
             this.currentColumns[index].visible = value;
-            this.$emit('column-visibility-change', this.currentColumns[index], value);
 
             this.saveUserSettings();
         },
@@ -599,7 +597,6 @@ export default {
 
         hideColumn(columnIndex) {
             this.currentColumns[columnIndex].visible = false;
-            this.$emit('column-visibility-change', this.currentColumns[columnIndex], false);
 
             this.saveUserSettings();
         },

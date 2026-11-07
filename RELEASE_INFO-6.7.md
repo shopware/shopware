@@ -395,11 +395,6 @@ If an app ships both, the file takes precedence, the inline definition is ignore
 
 ## Administration
 
-### Deprecated the full entry point sales channels in `sw-category-detail`
-
-With 6.8 the category detail loads only the sales channel fields its entry point card uses, because a category can be the entry point of hundreds of sales channels.
-Extensions that read other fields of `category.navigationSalesChannels`, `footerSalesChannels` or `serviceSalesChannels` in the category detail should load them with their own `sales_channel` request; see `UPGRADE-6.8.md`.
-
 ### Deprecated the `customFieldSetRepository` computed property of `sw-product-stream-detail`
 
 The `customFieldSetRepository` computed property of `sw-product-stream-detail` is deprecated and will be removed.
@@ -618,15 +613,6 @@ Check your Administration extensions for these changes:
 - `mt-radio-group-root` is labelled by its `label` and described by its `hint` and `error`.
 - `mt-radio-group-item`, `mt-radio-group-card-item`, `mt-radio-group-custom-item` and `mt-status-dot` have a new `disabled` prop.
 - New component `mt-extension-icon`.
-
-### Advanced selection loads the data of hidden columns only when they are shown
-
-`sw-entity-advanced-selection-modal` no longer loads the associations of columns that are hidden, for example the visibilities, categories and tags of the product selection.
-With many sales channels, a page of the product selection loaded every visibility with its sales channel, even though the column is hidden by default.
-An association is skipped when its first path segment is the `property` of a hidden column, and the list reloads with it once the user shows the column.
-If a slot, filter or `isRecordSelectableCallback` of your extension needs such an association while its column is hidden, give it a column with a different `property` or keep the column visible.
-
-`sw-data-grid` emits the new `column-visibility-change` event with the column and its new visibility when a column is shown or hidden in the list settings.
 
 ## API
 

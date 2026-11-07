@@ -1587,11 +1587,6 @@ The unused property was removed.
 
 # Administration
 
-## Entry point sales channels of `sw-category-detail` contain only the used fields
-
-The category loaded by `sw-category-detail` contains its `navigationSalesChannels`, `footerSalesChannels` and `serviceSalesChannels` with these sales channel fields only: `id`, `name`, `translated`, `navigationCategoryId`, `footerCategoryId`, `serviceCategoryId`, `homeEnabled`, `homeName`, `homeMetaTitle`, `homeMetaDescription`, `homeKeywords`, `homeCmsPageId` and `homeCmsPage`.
-Extensions that read other sales channel fields from these associations of the category must load them with their own `sales_channel` request.
-
 ## Custom field set lookup removed from `sw-settings-listing-option-criteria-grid`
 
 The `sw-settings-listing-option-criteria-grid` component filters custom fields by `customFieldSet.relations.entityName` directly.

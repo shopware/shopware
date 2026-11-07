@@ -67,7 +67,7 @@ const EntityFiltersFixture = {
     },
 };
 
-const createAdvancedSelectionModal = async (customOptions, { search = () => Promise.resolve(null), stubs = {} } = {}) => {
+const createAdvancedSelectionModal = async (customOptions) => {
     const options = {
         propsData: {
             entityName: 'test',
@@ -90,7 +90,6 @@ const createAdvancedSelectionModal = async (customOptions, { search = () => Prom
                 'sw-filter-panel': true,
                 'sw-entity-listing': true,
                 'sw-entity-advanced-selection-modal-grid': true,
-                ...stubs,
             },
             provide: {
                 acl: {
@@ -102,7 +101,7 @@ const createAdvancedSelectionModal = async (customOptions, { search = () => Prom
                     create: () => {
                         return {
                             get: (value) => Promise.resolve({ id: value, name: value }),
-                            search,
+                            search: () => Promise.resolve(null),
                         };
                     },
                 },
@@ -166,53 +165,6 @@ describe('components/sw-entity-advanced-selection-modal', () => {
                 'some.changed.association',
             ]),
         );
-    });
-
-    it('loads the associations of a hidden column only while the column is visible', async () => {
-        const searchedAssociations = [];
-        const searchModal = await createAdvancedSelectionModal(
-            {
-                propsData: {
-                    entityName: 'test',
-                    entityDisplayText: 'Test',
-                    storeKey: 'advancedSearch.test',
-                    entityColumns: [
-                        { property: 'name', label: 'name' },
-                        { property: 'tags', label: 'tags', visible: false },
-                    ],
-                    entityFilters: {},
-                    entityAssociations: [
-                        'cover',
-                        'tags',
-                    ],
-                },
-            },
-            {
-                search: (criteria) => {
-                    searchedAssociations.push(criteria.associations.map(({ association }) => association));
-
-                    return Promise.resolve([{ id: 'product-id', name: 'Product' }]);
-                },
-                stubs: {
-                    'sw-modal': { template: '<div><slot></slot></div>' },
-                    'mt-card': { template: '<div><slot name="grid"></slot></div>' },
-                },
-            },
-        );
-        await flushPromises();
-
-        await searchModal
-            .findComponent({ name: 'sw-entity-advanced-selection-modal-grid' })
-            .vm.$emit('column-visibility-change', { property: 'tags' }, true);
-        await flushPromises();
-
-        expect(searchedAssociations).toEqual([
-            ['cover'],
-            [
-                'cover',
-                'tags',
-            ],
-        ]);
     });
 
     it('should have the correct filter number', async () => {

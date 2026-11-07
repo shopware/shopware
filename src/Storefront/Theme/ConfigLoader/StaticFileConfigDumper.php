@@ -57,7 +57,8 @@ class StaticFileConfigDumper implements EventSubscriberInterface
 
         $this->privateFilesystem->write(StaticFileAvailableThemeProvider::THEME_INDEX, \json_encode($salesChannelToTheme, \JSON_THROW_ON_ERROR));
 
-        foreach ($salesChannelToTheme as $themeId) {
+        // Sales channels share themes, but the config is stored per theme
+        foreach (array_unique($salesChannelToTheme) as $themeId) {
             $struct = $this->configLoader->load($themeId, $context);
 
             $path = \sprintf('theme-config/%s.json', $themeId);

@@ -1,0 +1,13 @@
+{
+    "components": {
+        "schemas": {
+            "InvalidValue": {
+                "x-dto-namespace": "App\\DTO",
+                "type": "string",
+                "enum": [
+                    ""
+                ]
+            }
+        }
+    }
+}

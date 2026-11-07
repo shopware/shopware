@@ -1,0 +1,48 @@
+{
+    "openapi": "3.2.0",
+    "info": {
+        "title": "Inherited component package",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/order": {
+            "post": {
+                "x-dto-namespace": "App\\DTO",
+                "operationId": "createOrder",
+                "x-dto-package": "checkout",
+                "responses": {
+                    "200": {
+                        "description": "Order created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrderEnvelope"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "OrderEnvelope": {
+                "type": "object",
+                "properties": {
+                    "order": {
+                        "$ref": "#/components/schemas/Order"
+                    }
+                }
+            },
+            "Order": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}

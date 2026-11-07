@@ -1,0 +1,58 @@
+{
+    "openapi": "3.2.0",
+    "info": {"title": "referencedRequestBody", "version": "1.0.0"},
+    "paths": {
+        "/newsletter-recipient": {
+            "post": {
+                "x-dto-namespace": "App\\DTO",
+                "operationId": "readNewsletterRecipient",
+                "description": "Read newsletter recipients.",
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/Criteria"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Criteria": {
+                "type": "object",
+                "properties": {
+                    "sort": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Sort"
+                        }
+                    }
+                }
+            },
+            "Sort": {
+                "type": "object",
+                "properties": {
+                    "field": {
+                        "type": "string"
+                    },
+                    "options": {
+                        "type": "object",
+                        "properties": {
+                            "natural": {
+                                "type": "boolean"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

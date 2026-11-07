@@ -1,0 +1,59 @@
+{
+    "openapi": "3.2.0",
+    "info": {"title": "referencedMaps", "version": "1.0.0"},
+    "paths": {},
+    "components": {
+        "schemas": {
+            "Criteria": {
+                "x-dto-namespace": "App\\DTO",
+                "type": "object",
+                "properties": {
+                    "associations": {
+                        "$ref": "#/components/schemas/Associations"
+                    },
+                    "includes": {
+                        "$ref": "#/components/schemas/Includes"
+                    },
+                    "links": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "oneOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "object"
+                                }
+                            ]
+                        }
+                    },
+                    "link": {
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "object"
+                            }
+                        ]
+                    }
+                }
+            },
+            "Associations": {
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#/components/schemas/Criteria"
+                }
+            },
+            "Includes": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -76,6 +76,11 @@ class OpenApiFileLoader
     private function deduplicateArraysRecursive(array $data): array
     {
         foreach ($data as $key => $value) {
+            // Defaults are literal JSON values, including duplicate array entries.
+            if ($key === 'default') {
+                continue;
+            }
+
             if (!\is_array($value)) {
                 continue;
             }

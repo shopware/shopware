@@ -91,7 +91,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'discountId' => 'D5',
             'code' => 'my-Code-123',
             'discountType' => 'absolute',
-            'value' => '50',
+            'value' => '15',
             'maxValue' => '',
             'discountScope' => 'cart',
             'setGroups' => [],
@@ -374,6 +374,43 @@ class PromotionItemBuilderPayloadTest extends TestCase
         $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, $currency->getId(), $currencyFactor);
 
         static::assertSame('20', $item->getPayload()['maxValue']);
+    }
+
+    /**
+     * This test verifies that we have our value from
+     * the currency in our payload and not the one from
+     * our discount entity.
+     *
+     * @throws CartException
+     * @throws PromotionException
+     */
+    #[Group('promotions')]
+    public function testPayloadFixedUnitValueWithAdvancedPrices(): void
+    {
+        $currencyFactor = random_int(0, mt_getrandmax()) / mt_getrandmax();
+
+        $discount = new PromotionDiscountEntity();
+        $discount->setId('D5');
+        $discount->setType(PromotionDiscountEntity::TYPE_FIXED_UNIT);
+        $discount->setValue(110.99);
+        $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
+        $discount->setConsiderAdvancedRules(false);
+
+        $currency = new CurrencyEntity();
+        $currency->setId('currency');
+
+        $advancedPrice = new PromotionDiscountPriceEntity();
+        $advancedPrice->setUniqueIdentifier(Uuid::randomHex());
+        $advancedPrice->setCurrency($currency);
+        $advancedPrice->setCurrencyId($currency->getId());
+        $advancedPrice->setPrice(150);
+        $discount->setPromotionDiscountPrices(new PromotionDiscountPriceCollection([$advancedPrice]));
+
+        $builder = new PromotionItemBuilder();
+
+        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, $currency->getId(), $currencyFactor);
+
+        static::assertSame('150', $item->getPayload()['value']);
     }
 
     /**

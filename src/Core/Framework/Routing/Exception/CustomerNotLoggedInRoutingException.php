@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Routing\Exception;
 
+use Shopware\Core\Framework\CustomerAuthenticationRequiredExceptionInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 
@@ -9,6 +10,6 @@ use Shopware\Core\Framework\Routing\RoutingException;
  * @codeCoverageIgnore
  */
 #[Package('checkout')]
-class CustomerNotLoggedInRoutingException extends RoutingException
+class CustomerNotLoggedInRoutingException extends RoutingException implements CustomerAuthenticationRequiredExceptionInterface
 {
 }

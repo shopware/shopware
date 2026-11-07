@@ -59,12 +59,11 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         $salesChannelByLanguage = $this->salesChannelLanguageLoader->loadLanguages();
         $allSalesChannels = array_values(array_unique(array_merge(...array_values($salesChannelByLanguage))));
 
+        $visibilityField = ['type' => 'integer'];
         $visibilities = [];
 
         foreach ($allSalesChannels as $salesChannelId) {
-            $visibilities['visibility_' . $salesChannelId] = [
-                'type' => 'integer',
-            ];
+            $visibilities['visibility_' . $salesChannelId] = $visibilityField;
         }
 
         $debug = $this->environment === 'dev' || $this->environment === 'test';
@@ -167,6 +166,14 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     'price_fields' => [
                         'path_match' => 'price.*.*',
                         'mapping' => ['type' => 'double'],
+                    ],
+                ],
+                [
+                    // a sales channel created after the last full index has no explicit field yet, it must not become a double
+                    'visibility' => [
+                        'path_match' => 'visibility_*',
+                        'match_mapping_type' => 'long',
+                        'mapping' => $visibilityField,
                     ],
                 ],
                 [

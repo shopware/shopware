@@ -14,9 +14,11 @@ test.describe('Newsletter recipient promotion', () => {
     let product: Product;
     let guestCustomerEmail = '';
     let submittedOrderId = '';
+    let promotionId = '';
 
     test.beforeEach(async ({ IdProvider, DefaultSalesChannel, TestDataService, SalesChannelBaseConfig }) => {
         submittedOrderId = '';
+        promotionId = '';
         guestCustomerEmail = `${IdProvider.getIdPair().uuid}@test.com`;
         const ruleId = IdProvider.getIdPair().uuid;
         const ruleConfig = {
@@ -38,6 +40,7 @@ test.describe('Newsletter recipient promotion', () => {
             ruleId: ruleConfig.id,
         };
         await TestDataService.createPromotionWithConditionRule(promotionConfig);
+        promotionId = promotionConfig.id;
 
         const productPrices = [
             {
@@ -153,6 +156,18 @@ test.describe('Newsletter recipient promotion', () => {
     test.afterEach(async ({ TestDataService }) => {
         if (submittedOrderId) {
             TestDataService.addCreatedRecord('order', submittedOrderId);
+        }
+
+        if (!promotionId) {
+            return;
+        }
+
+        // The persona rule restricts its own deletion while the promotion exists, and the
+        // TestDataService cleanup deletes both in one sync, which then rolls back completely.
+        // Delete the promotion first, so the rule, product and newsletter recipient do not leak.
+        const response = await TestDataService.AdminApiClient.delete(`promotion/${promotionId}`);
+        if (!response.ok()) {
+            throw new Error(`Failed to delete promotion: ${response.status()} ${response.statusText()}`);
         }
     });
 });

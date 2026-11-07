@@ -86,7 +86,7 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
  *     class: class-string<DalField>,
  *     flags: array<string, array{class: string, args?: array<string, string|bool|float|null>|list<string>}>,
  *     translated: bool,
- *     args: list<string|int|false>
+ *     args: list<string|int|false|\BackedEnum|array<string>>
  * }
  */
 #[Package('framework')]
@@ -213,8 +213,8 @@ class AttributeEntityCompiler
      *     class: class-string<DalField>,
      *     flags: array<string, array{class: string, args?: array<string, string|bool|float|null>|list<string>}>,
      *     translated: bool,
-     *     args: list<string|int|false>
-     * }|null
+     *     args: list<string|int|false|\BackedEnum|array<string>>
+     * }|null - Make sure to keep in sync with FieldArray
      */
     private function parseField(string $entity, \ReflectionProperty $property): ?array
     {

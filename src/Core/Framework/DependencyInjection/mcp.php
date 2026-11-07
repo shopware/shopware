@@ -221,7 +221,11 @@ return static function (ContainerConfigurator $container): void {
         ]);
 
     $services->set('mcp.store_api.toolset_registry', McpToolsetRegistry::class)
-        ->args([service('mcp.store_api.capability_catalog')]);
+        ->args([
+            service('mcp.store_api.capability_catalog'),
+            null,
+            param('shopware.store_api_mcp.tool_group_descriptions'),
+        ]);
 
     $services->set('mcp.store_api.list_request_handler', McpAllowlistListRequestHandler::class)
         ->args([
@@ -265,6 +269,7 @@ return static function (ContainerConfigurator $container): void {
         ->args([
             service(McpCapabilityCatalog::class),
             service(McpAllowlistProvider::class),
+            param('shopware.mcp.tool_group_descriptions'),
         ]);
 
     $services->set(McpToolListController::class)

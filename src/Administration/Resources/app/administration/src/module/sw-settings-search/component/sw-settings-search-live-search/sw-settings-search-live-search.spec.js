@@ -224,7 +224,7 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         expect(wrapper.find('.sw-settings-search-live-search__sales-channel-select').exists()).toBeTruthy();
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed together with the sales channel request on mount.
+    // @deprecated tag:v6.8.0 - The test will be removed together with the sales channel request on mount.
     it.deprecated('v6.8.0.0')('should load the sales channels on mount', async () => {
         expect(salesChannelRepository.search).toHaveBeenCalledTimes(1);
         expect(salesChannelRepository.search.mock.calls[0][0]).toEqual(expect.objectContaining({ page: 1, limit: 25 }));

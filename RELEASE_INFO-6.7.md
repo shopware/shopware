@@ -614,15 +614,6 @@ Check your Administration extensions for these changes:
 - `mt-radio-group-item`, `mt-radio-group-card-item`, `mt-radio-group-custom-item` and `mt-status-dot` have a new `disabled` prop.
 - New component `mt-extension-icon`.
 
-### Advanced selection loads the data of hidden columns only when they are shown
-
-`sw-entity-advanced-selection-modal` no longer loads the associations of columns that are hidden, for example the visibilities, categories and tags of the product selection.
-With many sales channels, a page of the product selection loaded every visibility with its sales channel, even though the column is hidden by default.
-An association is skipped when its first path segment is the `property` of a hidden column, and the list reloads with it once the user shows the column.
-If a slot, filter or `isRecordSelectableCallback` of your extension needs such an association while its column is hidden, give it a column with a different `property` or keep the column visible.
-
-`sw-data-grid` emits the new `column-visibility-change` event with the column and its new visibility when a column is shown or hidden in the list settings.
-
 ## API
 
 To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`.

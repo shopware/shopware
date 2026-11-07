@@ -87,7 +87,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(CachedDefaultCategoryLevelLoader::class . '.inner'),
             service(EntityCacheKeyGenerator::class),
-            service('request_stack'),
         ])
         ->tag('kernel.event_subscriber');
 

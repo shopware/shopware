@@ -6,12 +6,14 @@ use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEvents;
 use Shopware\Core\Content\Category\Event\CategoryLevelLoaderCacheKeyEvent;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
@@ -27,6 +29,8 @@ class CachedDefaultCategoryLevelLoader implements DefaultCategoryLevelLoaderInte
         private readonly TagAwareCacheInterface $cache,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly DefaultCategoryLevelLoaderInterface $inner,
+        private readonly EntityCacheKeyGenerator $cacheKeyGenerator,
+        private readonly RequestStack $requestStack,
     ) {
     }
 
@@ -106,13 +110,22 @@ class CachedDefaultCategoryLevelLoader implements DefaultCategoryLevelLoaderInte
 
     private function getCacheKey(string $rootId, SalesChannelContext $context, Criteria $criteria, int $depth): ?string
     {
+        $parts = [
+            'rootId' => $rootId,
+            'depth' => $depth,
+            'salesChannelId' => $context->getSalesChannelId(),
+            'languageId' => $context->getContext()->getLanguageId(),
+            'criteria' => $this->cacheKeyGenerator->getCriteriaHash($criteria),
+        ];
+
+        // the SEO URL placeholders of the loaded categories contain the base URL of the current request (e.g. `/index.php`)
+        $baseUrl = $this->requestStack->getMainRequest()?->getBaseUrl();
+        if ($baseUrl !== null && $baseUrl !== '') {
+            $parts['baseUrl'] = $baseUrl;
+        }
+
         $event = new CategoryLevelLoaderCacheKeyEvent(
-            [
-                'rootId' => $rootId,
-                'depth' => $depth,
-                'salesChannelId' => $context->getSalesChannelId(),
-                'languageId' => $context->getContext()->getLanguageId(),
-            ],
+            $parts,
             $rootId,
             $depth,
             $context,

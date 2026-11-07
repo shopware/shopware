@@ -15,6 +15,8 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
@@ -145,6 +147,35 @@ class ErrorControllerTest extends TestCase
 
         static::assertSame('frontend.home.page', $this->controller->recorder()->forwardToRoute);
         static::assertArrayHasKey('formViolations', $this->controller->recorder()->forwardToRouteAttributes);
+    }
+
+    public function testOnCaptchaFailureFallsBackToHomeForPostOnlyRoute(): void
+    {
+        $controller = new class($this->errorTemplateResolver, $this->systemConfigService, $this->errorPageLoader) extends ErrorControllerStub {
+            public ?MethodNotAllowedException $exception = null;
+
+            protected function forwardToRoute(string $routeName, array $attributes = [], array $routeParameters = []): Response
+            {
+                if ($this->exception !== null) {
+                    $exception = $this->exception;
+                    $this->exception = null;
+
+                    throw $exception;
+                }
+
+                return parent::forwardToRoute($routeName, $attributes, $routeParameters);
+            }
+        };
+        $controller->exception = new MethodNotAllowedException([Request::METHOD_POST]);
+
+        $request = new Request();
+        $request->attributes->set('_route', 'frontend.form.contact.send');
+
+        $controller->onCaptchaFailure($this->violations, $request);
+
+        static::assertSame('frontend.home.page', $controller->recorder()->forwardToRoute);
+        static::assertArrayHasKey('formViolations', $controller->recorder()->forwardToRouteAttributes);
+        static::assertSame([], $controller->recorder()->forwardToRouteParameters);
     }
 
     public function testOnCaptchaFailureWithXmlHttpRequest(): void

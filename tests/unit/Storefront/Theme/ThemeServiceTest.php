@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
@@ -991,6 +992,72 @@ class ThemeServiceTest extends TestCase
         $themeCompiler->expects($this->exactly(2))->method('compileTheme');
 
         $this->getThemeService(themeCompiler: $themeCompiler, eventDispatcher: $eventDispatcher)->updateTheme($themeId, $config, $parentThemeId, $this->context);
+    }
+
+    public function testUpdateThemeDispatchesConfigChangedEventAfterThePersist(): void
+    {
+        $themeId = Uuid::randomHex();
+
+        $this->connectionMock->method('fetchAllAssociative')->willReturn([
+            ['id' => $themeId, 'saleschannelId' => TestDefaults::SALES_CHANNEL],
+        ]);
+
+        $searchResult = new EntitySearchResult(
+            'theme',
+            1,
+            new ThemeCollection([
+                (new ThemeEntity())->assign([
+                    '_uniqueIdentifier' => $themeId,
+                    'salesChannels' => new SalesChannelCollection(),
+                    // Null config mirrors the admin reset=1 save that triggers the bug.
+                    'configValues' => null,
+                    'baseConfig' => [
+                        'fields' => [
+                            'sw-color-brand-primary' => ['type' => 'color', 'value' => '#0042a0'],
+                        ],
+                    ],
+                ]),
+            ]),
+            null,
+            new Criteria(),
+            $this->context
+        );
+
+        $this->mergedConfigBuilderMock->method('getPlainThemeConfiguration')->willReturn([
+            'fields' => [
+                'sw-color-brand-primary' => ['type' => 'color', 'value' => '#0042a0'],
+            ],
+        ]);
+
+        $calls = [];
+
+        $themeRepository = $this->createMock(EntityRepository::class);
+        $themeRepository->method('search')->willReturn($searchResult);
+        $themeRepository->expects($this->once())->method('update')->willReturnCallback(
+            function (array $data) use (&$calls): EntityWrittenContainerEvent {
+                $calls[] = 'persist';
+
+                return $this->createStub(EntityWrittenContainerEvent::class);
+            }
+        );
+
+        $eventDispatcher = $this->createMock(EventDispatcher::class);
+        $eventDispatcher->expects($this->once())->method('dispatch')->willReturnCallback(
+            function (object $event) use (&$calls): object {
+                static::assertInstanceOf(ThemeConfigChangedEvent::class, $event);
+                $calls[] = 'dispatch';
+
+                return $event;
+            }
+        );
+
+        $this->getThemeService(
+            themeRepository: $themeRepository,
+            eventDispatcher: $eventDispatcher,
+        )->updateTheme($themeId, ['sw-color-brand-primary' => ['value' => '#ff00ff']], null, $this->context);
+
+        // The StaticFileConfigDumper listener re-reads the DB on this event, so the write must come first.
+        static::assertSame(['persist', 'dispatch'], $calls);
     }
 
     public function testUpdateThemeNoSalesChannelAssigned(): void

@@ -228,12 +228,13 @@ class ThemeService implements ResetInterface
             $data['configValues'] = array_intersect_key($data['configValues'], array_flip($validFields));
         }
 
-        if (\array_key_exists('configValues', $data)) {
-            $this->dispatcher->dispatch(new ThemeConfigChangedEvent($themeId, $data['configValues'], $context));
-        }
+        // Capture the submitted config values before the merge below mutates $data['configValues'],
+        // so the dispatched event payload stays identical to the previous behaviour.
+        $configValuesChanged = \array_key_exists('configValues', $data);
+        $changedConfig = $configValuesChanged ? $data['configValues'] : [];
 
         // This part is not executed if the theme was reset before, because the config values are then empty.
-        if (\array_key_exists('configValues', $data) && $theme->getConfigValues()) {
+        if ($configValuesChanged && $theme->getConfigValues()) {
             $submittedChanges = $data['configValues'];
             $currentConfig = $theme->getConfigValues();
             $data['configValues'] = array_replace_recursive($currentConfig, $data['configValues']);
@@ -249,6 +250,14 @@ class ThemeService implements ResetInterface
         }
 
         $this->themeRepository->update([$data], $context);
+
+        // Dispatch after the DB write. StaticFileConfigDumper listens to this event and re-reads the
+        // persisted theme config from the database to dump files/theme-config/<themeId>.json. Before
+        // the write (notably after the admin's reset=1 nulled config_values) it dumped the theme.json
+        // defaults instead of the saved values; the following compile then baked the defaults in.
+        if ($configValuesChanged) {
+            $this->dispatcher->dispatch(new ThemeConfigChangedEvent($themeId, $changedConfig, $context));
+        }
 
         // Administration resets inherited values before saving. Replace that intermediate
         // runtime configuration even for unassigned themes and descendants compiled asynchronously.

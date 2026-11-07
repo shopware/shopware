@@ -834,6 +834,72 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             });
         });
 
+        it('should load custom fields from all pages', async () => {
+            const createPage = (names, total) =>
+                new Shopware.Data.EntityCollection(
+                    '/custom-field',
+                    'custom_field',
+                    null,
+                    null,
+                    names.map((name) => ({ name, type: 'text', config: { customFieldType: 'text' } })),
+                    total,
+                    null,
+                );
+            const fieldNames = Array.from({ length: 205 }, (_, index) => `custom_field_${index}`);
+            const search = jest
+                .fn()
+                .mockResolvedValueOnce(createPage(fieldNames.slice(0, 100), 205))
+                .mockResolvedValueOnce(createPage(fieldNames.slice(100, 200), 205))
+                .mockResolvedValueOnce(createPage(fieldNames.slice(200), 205));
+            const createRepositorySpy = jest
+                .spyOn(Shopware.Service('repositoryFactory'), 'create')
+                .mockImplementation(() => ({ search }));
+
+            const mappings = {};
+            await cmsService.addCustomFieldsToMappingTypes('product', mappings);
+
+            expect(search).toHaveBeenCalledTimes(3);
+            expect(search.mock.calls.map(([criteria]) => criteria.page)).toEqual([
+                1,
+                2,
+                3,
+            ]);
+            search.mock.calls.forEach(([criteria]) => {
+                expect(criteria.limit).toBe(100);
+                expect(criteria.sortings).toEqual([{ field: 'name', order: 'ASC', naturalSorting: false }]);
+            });
+            expect(mappings.string).toEqual(fieldNames.map((name) => `product.customFields.${name}`));
+
+            createRepositorySpy.mockRestore();
+        });
+
+        it('should request only one page if all custom fields fit into it', async () => {
+            const search = jest
+                .fn()
+                .mockResolvedValueOnce(
+                    new Shopware.Data.EntityCollection(
+                        '/custom-field',
+                        'custom_field',
+                        null,
+                        null,
+                        [{ name: 'custom_text_field', type: 'text', config: { customFieldType: 'text' } }],
+                        1,
+                        null,
+                    ),
+                );
+            const createRepositorySpy = jest
+                .spyOn(Shopware.Service('repositoryFactory'), 'create')
+                .mockImplementation(() => ({ search }));
+
+            const mappings = {};
+            await cmsService.addCustomFieldsToMappingTypes('product', mappings);
+
+            expect(search).toHaveBeenCalledTimes(1);
+            expect(mappings.string).toEqual(['product.customFields.custom_text_field']);
+
+            createRepositorySpy.mockRestore();
+        });
+
         it('should not add custom fields if no fields are found for the entity', async () => {
             global.repositoryFactoryMock.responses.addResponse({
                 method: 'Post',

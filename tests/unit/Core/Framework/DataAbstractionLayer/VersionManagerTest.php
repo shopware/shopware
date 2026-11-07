@@ -16,10 +16,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtecti
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\NoConstraint;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
@@ -34,6 +37,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -45,6 +49,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(VersionManager::class)]
 class VersionManagerTest extends TestCase
 {
@@ -329,6 +334,217 @@ class VersionManagerTest extends TestCase
 
         $versionManager->merge($versionId, $this->createMock(WriteContext::class));
     }
+
+    public function testACopyPointsReferencesBetweenClonedRowsAtTheClone(): void
+    {
+        $sourceId = Uuid::randomHex();
+        $sourceAddressId = Uuid::randomHex();
+        $sourceDeliveryId = Uuid::randomHex();
+
+        $payload = $this->clonePayload('clone_order', $this->orderLikeSource($sourceId, $sourceAddressId, $sourceDeliveryId), $sourceId, Uuid::randomHex());
+
+        $clonedAddressId = $payload['addresses'][0]['id'];
+        static::assertNotSame($sourceAddressId, $clonedAddressId);
+        static::assertNotSame($sourceDeliveryId, $payload['deliveries'][0]['id']);
+
+        // The root and the delivery referenced the source address; both reference the cloned address now.
+        static::assertSame($clonedAddressId, $payload['billingAddressId']);
+        static::assertSame($clonedAddressId, $payload['deliveries'][0]['shippingAddressId']);
+
+        // The reference back to the root is left to the writer.
+        static::assertArrayNotHasKey('orderId', $payload['deliveries'][0]);
+    }
+
+    public function testAConstrainedReferenceToANestedRowKeepsTheSourceRow(): void
+    {
+        $sourceId = Uuid::randomHex();
+        $firstStateId = Uuid::randomHex();
+        $secondStateId = Uuid::randomHex();
+
+        $payload = $this->clonePayload('clone_machine', [
+            'id' => $sourceId,
+            'initialStateId' => $firstStateId,
+            'states' => [
+                ['id' => $firstStateId, 'machineId' => $sourceId, 'nextStateId' => $secondStateId],
+                ['id' => $secondStateId, 'machineId' => $sourceId],
+            ],
+        ], $sourceId, Uuid::randomHex());
+
+        // the cloned states could not be inserted after a machine that already references one of them
+        static::assertSame($firstStateId, $payload['initialStateId']);
+        // a reference between sibling rows has no such cycle and points at the clone
+        static::assertSame($payload['states'][1]['id'], $payload['states'][0]['nextStateId']);
+    }
+
+    public function testAVersionKeepsIdsAndReferences(): void
+    {
+        $sourceId = Uuid::randomHex();
+        $sourceAddressId = Uuid::randomHex();
+        $sourceDeliveryId = Uuid::randomHex();
+
+        $payload = $this->clonePayload('clone_order', $this->orderLikeSource($sourceId, $sourceAddressId, $sourceDeliveryId), $sourceId, $sourceId);
+
+        static::assertSame($sourceId, $payload['id']);
+        static::assertSame($sourceAddressId, $payload['addresses'][0]['id']);
+        static::assertSame($sourceDeliveryId, $payload['deliveries'][0]['id']);
+        static::assertSame($sourceAddressId, $payload['billingAddressId']);
+        static::assertSame($sourceAddressId, $payload['deliveries'][0]['shippingAddressId']);
+        static::assertSame($sourceId, $payload['deliveries'][0]['orderId']);
+    }
+
+    public function testAReferenceToARowOutsideTheCloneIsKept(): void
+    {
+        $sourceId = Uuid::randomHex();
+        $foreignAddressId = Uuid::randomHex();
+
+        $payload = $this->clonePayload('clone_order', [
+            'id' => $sourceId,
+            'billingAddressId' => $foreignAddressId,
+            'addresses' => [['id' => Uuid::randomHex(), 'orderId' => $sourceId]],
+        ], $sourceId, Uuid::randomHex());
+
+        static::assertSame($foreignAddressId, $payload['billingAddressId']);
+    }
+
+    public function testAReferenceThroughAOneToOneRowIsRemapped(): void
+    {
+        $sourceId = Uuid::randomHex();
+        $sourceAddressId = Uuid::randomHex();
+
+        $payload = $this->clonePayload('clone_order', [
+            'id' => $sourceId,
+            'addresses' => [['id' => $sourceAddressId, 'orderId' => $sourceId]],
+            'detail' => ['id' => Uuid::randomHex(), 'orderId' => $sourceId, 'noteAddressId' => $sourceAddressId],
+        ], $sourceId, Uuid::randomHex());
+
+        static::assertSame($payload['addresses'][0]['id'], $payload['detail']['noteAddressId']);
+        static::assertArrayNotHasKey('orderId', $payload['detail']);
+    }
+
+    public function testAForeignKeyExtensionIsCopiedAndRemapped(): void
+    {
+        $sourceId = Uuid::randomHex();
+        $sourceAddressId = Uuid::randomHex();
+
+        $payload = $this->clonePayload('clone_order', [
+            'id' => $sourceId,
+            'addresses' => [['id' => $sourceAddressId, 'orderId' => $sourceId]],
+            'extensions' => ['foreignKeys' => ['extRefId' => $sourceAddressId, 'unknown' => Uuid::randomHex()]],
+        ], $sourceId, Uuid::randomHex());
+
+        static::assertSame($payload['addresses'][0]['id'], $payload['extRefId']);
+        static::assertArrayNotHasKey('unknown', $payload);
+    }
+
+    public function testAnExtensionAssociationIsClonedUnderExtensionsAndRemapped(): void
+    {
+        $sourceId = Uuid::randomHex();
+        $sourceAddressId = Uuid::randomHex();
+
+        $payload = $this->clonePayload('clone_order', [
+            'id' => $sourceId,
+            'addresses' => [['id' => $sourceAddressId, 'orderId' => $sourceId]],
+            'extensions' => [
+                'extDetails' => [['id' => Uuid::randomHex(), 'orderId' => $sourceId, 'noteAddressId' => $sourceAddressId]],
+            ],
+        ], $sourceId, Uuid::randomHex());
+
+        $extDetail = $payload['extensions']['extDetails'][0];
+        static::assertNotSame($sourceAddressId, $extDetail['noteAddressId']);
+        static::assertSame($payload['addresses'][0]['id'], $extDetail['noteAddressId']);
+    }
+
+    /**
+     * Clones the serialized source through the version manager and returns the payload it writes.
+     *
+     * @param array<string, mixed> $source
+     *
+     * @return array<string, mixed>
+     */
+    private function clonePayload(string $entityName, array $source, string $sourceId, string $newId): array
+    {
+        $registry = new StaticDefinitionInstanceRegistry(
+            [
+                VersionManagerOrderTestDefinition::class,
+                VersionManagerAddressTestDefinition::class,
+                VersionManagerDeliveryTestDefinition::class,
+                VersionManagerDetailTestDefinition::class,
+                VersionManagerMachineTestDefinition::class,
+                VersionManagerStateTestDefinition::class,
+            ],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class),
+        );
+
+        $entityReader = static::createStub(EntityReaderInterface::class);
+        $entityReader->method('read')->willReturn(new EntityCollection([
+            (new Entity())->assign(['_uniqueIdentifier' => $sourceId]),
+        ]));
+        $serializer = static::createStub(SerializerInterface::class);
+        $serializer->method('serialize')->willReturn(json_encode($source, \JSON_THROW_ON_ERROR));
+
+        $payload = null;
+        $entityWriter = static::createStub(EntityWriterInterface::class);
+        $entityWriter->method('insert')->willReturnCallback(static function (EntityDefinition $definition, array $data) use (&$payload): array {
+            $payload = $data[0];
+
+            return [];
+        });
+
+        $versionManager = new VersionManager(
+            $entityWriter,
+            $entityReader,
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class),
+            static::createStub(EventDispatcherInterface::class),
+            $serializer,
+            static::createStub(DefinitionInstanceRegistry::class),
+            static::createStub(VersionCommitDefinition::class),
+            static::createStub(VersionCommitDataDefinition::class),
+            static::createStub(VersionDefinition::class),
+            static::createStub(LockFactory::class)
+        );
+
+        $context = Context::createDefaultContext();
+        $contextWithDisabledAuditLog = Context::createDefaultContext();
+        $contextWithDisabledAuditLog->addState(VersionManager::DISABLE_AUDIT_LOG);
+        $writeContext = static::createStub(WriteContext::class);
+        $writeContextWithVersionId = static::createStub(WriteContext::class);
+        $writeContext->method('getContext')->willReturn($context);
+        $writeContext->method('createWithVersionId')->willReturn($writeContextWithVersionId);
+        $writeContextWithVersionId->method('getContext')->willReturn($contextWithDisabledAuditLog);
+        $writeContextWithVersionId->method('scope')->willReturnCallback(static function (string $scope, callable $callback) use ($writeContextWithVersionId): void {
+            $callback($writeContextWithVersionId);
+        });
+
+        $versionManager->clone(
+            $registry->getByEntityName($entityName),
+            $sourceId,
+            $newId,
+            Uuid::randomHex(),
+            $writeContext,
+            new CloneBehavior(),
+        );
+
+        static::assertIsArray($payload);
+
+        return $payload;
+    }
+
+    /**
+     * An order-like source: the root and its delivery both reference one of the root's own addresses.
+     *
+     * @return array<string, mixed>
+     */
+    private function orderLikeSource(string $sourceId, string $addressId, string $deliveryId): array
+    {
+        return [
+            'id' => $sourceId,
+            'billingAddressId' => $addressId,
+            'addresses' => [['id' => $addressId, 'orderId' => $sourceId]],
+            'deliveries' => [['id' => $deliveryId, 'orderId' => $sourceId, 'shippingAddressId' => $addressId]],
+        ];
+    }
 }
 
 /**
@@ -404,6 +620,130 @@ class CloneProtectedVersionManagerChildTestDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
             new FkField('parent_id', 'parentId', VersionManagerRootTestDefinition::class),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class VersionManagerOrderTestDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'clone_order';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            new VersionField(),
+            (new FkField('billing_address_id', 'billingAddressId', VersionManagerAddressTestDefinition::class))->addFlags(new NoConstraint()),
+            (new FkField('ext_ref_id', 'extRefId', VersionManagerAddressTestDefinition::class))->addFlags(new Extension(), new NoConstraint()),
+            (new OneToManyAssociationField('addresses', VersionManagerAddressTestDefinition::class, 'order_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('deliveries', VersionManagerDeliveryTestDefinition::class, 'order_id'))->addFlags(new CascadeDelete()),
+            (new OneToOneAssociationField('detail', 'id', 'order_id', VersionManagerDetailTestDefinition::class, false))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('extDetails', VersionManagerDetailTestDefinition::class, 'order_id'))->addFlags(new CascadeDelete(), new Extension()),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class VersionManagerAddressTestDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'clone_address';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            new FkField('order_id', 'orderId', VersionManagerOrderTestDefinition::class),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class VersionManagerDeliveryTestDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'clone_delivery';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            new FkField('order_id', 'orderId', VersionManagerOrderTestDefinition::class),
+            new FkField('shipping_address_id', 'shippingAddressId', VersionManagerAddressTestDefinition::class),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class VersionManagerDetailTestDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'clone_detail';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            new FkField('order_id', 'orderId', VersionManagerOrderTestDefinition::class),
+            new FkField('note_address_id', 'noteAddressId', VersionManagerAddressTestDefinition::class),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class VersionManagerMachineTestDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'clone_machine';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            new FkField('initial_state_id', 'initialStateId', VersionManagerStateTestDefinition::class),
+            (new OneToManyAssociationField('states', VersionManagerStateTestDefinition::class, 'machine_id'))->addFlags(new CascadeDelete()),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class VersionManagerStateTestDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'clone_state';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            new FkField('machine_id', 'machineId', VersionManagerMachineTestDefinition::class),
+            new FkField('next_state_id', 'nextStateId', self::class),
         ]);
     }
 }

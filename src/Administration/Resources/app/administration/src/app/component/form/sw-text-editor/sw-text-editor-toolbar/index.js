@@ -345,7 +345,8 @@ Component.register('sw-text-editor-toolbar', {
                 });
             }
 
-            this.keepSelection();
+            // The search input of a searchable dropdown holds the focus, so the live selection is not in the editor.
+            this.keepSelection(!!parent?.searchable);
 
             if (button.handler) {
                 button.handler(button, parent);

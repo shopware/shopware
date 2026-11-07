@@ -209,7 +209,6 @@ class SetOrderStateActionTest extends TestCase
             static::getContainer()->get(OrderService::class),
         );
 
-        /** @var FlowFactory $flowFactory */
         $flowFactory = static::getContainer()->get(FlowFactory::class);
         $flow = $flowFactory->create($event);
         $flow->setConfig(['order_delivery' => 'shipped']);

@@ -382,7 +382,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             this.removingDocument = document;
-            this.removeFromVariants = false;
+            this.removeFromVariants = this.hasVariants;
             this.removeModalVersion += 1;
         },
 

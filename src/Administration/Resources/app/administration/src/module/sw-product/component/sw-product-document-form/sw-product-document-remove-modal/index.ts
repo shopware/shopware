@@ -36,4 +36,10 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     emits: ['close', 'remove', 'update:removeFromVariants'],
+
+    computed: {
+        isDisabled(): boolean {
+            return !this.canEdit || this.isRemovingDocument;
+        },
+    },
 });

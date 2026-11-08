@@ -74,9 +74,9 @@ describe('sw-product-document-form removal', () => {
         const wrapper = await createWrapper(mediaRepository, undefined, productRepository);
 
         await wrapper.findAll('sw-context-menu-item-stub')[2].trigger('click');
-        wrapper
-            .getComponent<ComponentPublicInstance>('.sw-product-document-form__remove-from-variants')
-            .vm.$emit('update:checked', true);
+        expect(wrapper.get<HTMLInputElement>('.sw-product-document-form__remove-from-variants input').element.checked).toBe(
+            true,
+        );
         await clickButton(wrapper, 'global.default.remove');
         await flushPromises();
 
@@ -148,6 +148,7 @@ describe('sw-product-document-form removal', () => {
         const wrapper = await createWrapper(undefined, undefined, productRepository);
 
         await wrapper.findAll('sw-context-menu-item-stub')[2].trigger('click');
+        await wrapper.get('.sw-product-document-form__remove-from-variants input').setValue(false);
         await clickButton(wrapper, 'global.default.remove');
         await flushPromises();
 
@@ -198,14 +199,12 @@ describe('sw-product-document-form removal', () => {
         store.product.childCount = 1;
         const wrapper = await createWrapper();
         await wrapper.findAll('sw-context-menu-item-stub')[2].trigger('click');
-        wrapper
-            .getComponent<ComponentPublicInstance>('.sw-product-document-form__remove-from-variants')
-            .vm.$emit('update:checked', true);
+        await wrapper.get('.sw-product-document-form__remove-from-variants input').setValue(false);
         await clickButton(wrapper, 'global.default.cancel');
         expect(getDocuments()).toHaveLength(1);
         await wrapper.findAll('sw-context-menu-item-stub')[2].trigger('click');
         expect(wrapper.get<HTMLInputElement>('.sw-product-document-form__remove-from-variants input').element.checked).toBe(
-            false,
+            true,
         );
     });
 

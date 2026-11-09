@@ -401,7 +401,7 @@ class ServiceSourceResolverTest extends TestCase
         $this->expectDownload();
         $underlying = new IOException('Write failed');
         $io = $this->createPartialMock(Filesystem::class, ['appendToFile']);
-        $io->method('appendToFile')->willThrowException($underlying);
+        $io->expects($this->once())->method('appendToFile')->willThrowException($underlying);
 
         $this->expectExceptionObject(AppException::cannotMountAppFilesystem(
             'TestService',
@@ -478,7 +478,7 @@ class ServiceSourceResolverTest extends TestCase
         $this->expectDownload();
         $underlying = new IOException('Write failed');
         $io = $this->createPartialMock(Filesystem::class, ['appendToFile']);
-        $io->method('appendToFile')->willThrowException($underlying);
+        $io->expects($this->once())->method('appendToFile')->willThrowException($underlying);
 
         $this->expectExceptionObject(AppException::cannotMountAppFilesystem(
             'TestService',
@@ -499,7 +499,7 @@ class ServiceSourceResolverTest extends TestCase
         $this->expectDownload();
         $underlying = new IOException('Promotion failed');
         $io = $this->createPartialMock(Filesystem::class, ['rename']);
-        $io->method('rename')->willReturnCallback(function (string $origin, string $target) use ($underlying): void {
+        $io->expects($this->exactly(3))->method('rename')->willReturnCallback(function (string $origin, string $target) use ($underlying): void {
             if (str_contains($origin, '.tmp-')) {
                 throw $underlying;
             }
@@ -527,7 +527,7 @@ class ServiceSourceResolverTest extends TestCase
         $this->expectDownload();
         $underlying = new IOException('Cleanup failed');
         $io = $this->createPartialMock(Filesystem::class, ['remove']);
-        $io->method('remove')->willReturnCallback(function (string $path) use ($suffix, $underlying): void {
+        $io->expects($this->exactly(2))->method('remove')->willReturnCallback(function (string $path) use ($suffix, $underlying): void {
             if (str_contains($path, $suffix)) {
                 throw $underlying;
             }
@@ -566,7 +566,7 @@ class ServiceSourceResolverTest extends TestCase
         });
         $cleanupError = new IOException('Cleanup failed');
         $io = $this->createPartialMock(Filesystem::class, ['remove']);
-        $io->method('remove')->willThrowException($cleanupError);
+        $io->expects($this->once())->method('remove')->willThrowException($cleanupError);
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->logger->expects($this->once())->method('warning');
         $this->expectExceptionObject(AppException::cannotMountAppFilesystem(

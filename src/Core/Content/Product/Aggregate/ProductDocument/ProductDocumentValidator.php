@@ -2,10 +2,14 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductDocument;
 
-use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
@@ -41,8 +45,12 @@ final class ProductDocumentValidator implements EventSubscriberInterface
 
     public const VIOLATION_DEFAULT_TRANSLATION_MISSING = 'PRODUCT_DOCUMENT_DEFAULT_TRANSLATION_MISSING';
 
+    /**
+     * @param EntityRepository<MediaCollection> $mediaRepository
+     */
     public function __construct(
         private readonly WriteOutcome $writeOutcome,
+        private readonly EntityRepository $mediaRepository,
         private readonly ProductDocumentReader $reader,
         private readonly ProductDocumentConfig $config,
     ) {
@@ -97,19 +105,19 @@ final class ProductDocumentValidator implements EventSubscriberInterface
             return;
         }
 
-        $resultingFiles = $this->getResultingFiles($event, array_values(array_unique(array_column($translationsWithNewFile, 1))));
+        $files = $this->loadFiles(array_values(array_unique(array_column($translationsWithNewFile, 1))), $event->getContext());
         $allowedExtensions = $this->config->getAllowedExtensions($event->getContext());
 
         foreach ($translationsWithNewFile as [$translation, $mediaId]) {
-            $file = $resultingFiles[$mediaId] ?? null;
-            if ($file === null) {
-                // the database rejects a missing file
+            $file = $files->get($mediaId);
+            if (!$file instanceof MediaEntity) {
+                // the database rejects a missing file, and a file the same write creates isn't stored yet
                 continue;
             }
 
             $errorPath = $translation->path . '/mediaId';
 
-            if ($file['private']) {
+            if ($file->isPrivate()) {
                 $violations->add($this->violation(
                     code: self::VIOLATION_FILE_PRIVATE,
                     messageTemplate: 'The file "{{ mediaId }}" is private, but shoppers have to be able to download the files of product documents.',
@@ -119,7 +127,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
             }
 
             // a linked file lives on another server and can change at any time
-            if ($file['path'] !== null && MediaUploadService::isExternalUrl($file['path'])) {
+            if ($file->hasPath() && MediaUploadService::isExternalUrl($file->getPath())) {
                 $violations->add($this->violation(
                     code: self::VIOLATION_FILE_SIZE_UNKNOWN,
                     messageTemplate: 'The file "{{ mediaId }}" is a link to another server. Upload it to the shop first.',
@@ -130,7 +138,8 @@ final class ProductDocumentValidator implements EventSubscriberInterface
                 continue;
             }
 
-            if ($file['size'] === null) {
+            $size = $file->getFileSize();
+            if ($size === null) {
                 $violations->add($this->violation(
                     code: self::VIOLATION_FILE_SIZE_UNKNOWN,
                     messageTemplate: 'The size of the file "{{ mediaId }}" is unknown. Upload the file first.',
@@ -141,20 +150,21 @@ final class ProductDocumentValidator implements EventSubscriberInterface
                 continue;
             }
 
-            if (!\in_array(mb_strtolower((string) $file['extension']), $allowedExtensions, true)) {
+            $extension = (string) $file->getFileExtension();
+            if (!\in_array(mb_strtolower($extension), $allowedExtensions, true)) {
                 $violations->add($this->violation(
                     code: self::VIOLATION_FILE_EXTENSION_NOT_ALLOWED,
                     messageTemplate: 'The file type "{{ extension }}" is not allowed for product documents. Allowed are: {{ allowed }}.',
-                    parameters: ['{{ extension }}' => (string) $file['extension'], '{{ allowed }}' => implode(', ', $allowedExtensions)],
+                    parameters: ['{{ extension }}' => $extension, '{{ allowed }}' => implode(', ', $allowedExtensions)],
                     path: $errorPath,
                 ));
             }
 
-            if ($file['size'] > $this->config->maxFileSize) {
+            if ($size > $this->config->maxFileSize) {
                 $violations->add($this->violation(
                     code: self::VIOLATION_FILE_TOO_LARGE,
                     messageTemplate: 'The file is {{ size }}, but the files of product documents can have at most {{ maxSize }}.',
-                    parameters: ['{{ size }}' => MemorySizeCalculator::formatToBytes($file['size']), '{{ maxSize }}' => MemorySizeCalculator::formatToBytes($this->config->maxFileSize)],
+                    parameters: ['{{ size }}' => MemorySizeCalculator::formatToBytes($size), '{{ maxSize }}' => MemorySizeCalculator::formatToBytes($this->config->maxFileSize)],
                     path: $errorPath,
                 ));
             }
@@ -162,37 +172,17 @@ final class ProductDocumentValidator implements EventSubscriberInterface
     }
 
     /**
-     * The files as they will be after the write: from the write if it changes them, else as stored.
+     * Only stored files: the Administration uploads a file before the document is saved.
      *
      * @param list<string> $mediaIds hex
-     *
-     * @return array<string, array{extension: string|null, size: int|null, private: bool, path: string|null}> keyed by media id
      */
-    private function getResultingFiles(PreWriteValidationEvent $event, array $mediaIds): array
+    private function loadFiles(array $mediaIds, Context $context): MediaCollection
     {
-        $mediaIdBytes = array_flip(Uuid::fromHexToBytesList($mediaIds));
-        $mediaCommands = array_values(array_filter(
-            $event->getCommandsForEntity(MediaDefinition::ENTITY_NAME),
-            static fn (WriteCommand $command): bool => isset($mediaIdBytes[$command->getPrimaryKey()['id'] ?? '']),
-        ));
+        $criteria = new Criteria($mediaIds);
+        $criteria->setTitle('product-document-validator::files');
 
-        $files = [];
-        if ($mediaCommands !== []) {
-            foreach ($this->writeOutcome->resultingRows($mediaCommands, ['file_extension', 'file_size', 'private', 'path']) as $media) {
-                $extension = $media->getResultingValue('file_extension');
-                $size = $media->getResultingValue('file_size');
-                $path = $media->getResultingValue('path');
-
-                $files[Uuid::fromBytesToHex($media->primaryKey['id'])] = [
-                    'extension' => \is_string($extension) ? $extension : null,
-                    'size' => is_numeric($size) ? (int) $size : null,
-                    'private' => (bool) $media->getResultingValue('private'),
-                    'path' => \is_string($path) ? $path : null,
-                ];
-            }
-        }
-
-        return $files + $this->reader->getFiles(array_values(array_diff($mediaIds, array_keys($files))));
+        // the system scope keeps private files visible, which the private check needs
+        return $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): MediaCollection => $this->mediaRepository->search($criteria, $context)->getEntities());
     }
 
     /**

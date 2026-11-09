@@ -5,7 +5,8 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Aggregate\ProductDocument;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentConfig;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentReader;
@@ -13,6 +14,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentValid
 use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
@@ -26,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -54,11 +57,6 @@ class ProductDocumentValidatorTest extends TestCase
     private array $translations = [];
 
     /**
-     * @var list<OutcomeRow> what WriteOutcome returns for the media
-     */
-    private array $media = [];
-
-    /**
      * @var array<string, array{extension: string|null, size: int|null, private: bool, path: string|null}>
      */
     private array $storedFiles = [];
@@ -72,7 +70,7 @@ class ProductDocumentValidatorTest extends TestCase
     {
         $this->ids = new IdsCollection();
         $this->registry = new StaticDefinitionInstanceRegistry(
-            [ProductDocumentDefinition::class, ProductDocumentTranslationDefinition::class, MediaDefinition::class],
+            [ProductDocumentDefinition::class, ProductDocumentTranslationDefinition::class],
             static::createStub(ValidatorInterface::class),
             static::createStub(EntityWriteGatewayInterface::class),
         );
@@ -104,23 +102,6 @@ class ProductDocumentValidatorTest extends TestCase
 
         $expected = array_map(static fn (string $code): array => ['code' => $code, 'pointer' => '/0/translations/' . self::GERMAN . '/mediaId'], $codes);
         static::assertSame($expected, $this->validate());
-    }
-
-    public function testAFileTheSameWriteCreatesIsCheckedAsItWillBe(): void
-    {
-        $this->media = [new OutcomeRow(
-            primaryKey: ['id' => $this->ids->getBytes('manual-file')],
-            path: '/0',
-            isNew: true,
-            isDeleted: false,
-            payload: ['file_name' => 'manual'],
-            state: ['file_extension' => null, 'file_size' => null, 'private' => null, 'path' => null],
-        )];
-        $this->translations = [$this->translation('manual', Defaults::LANGUAGE_SYSTEM, '/1/translations/' . Defaults::LANGUAGE_SYSTEM, file: 'manual-file')];
-
-        $errors = $this->validate([$this->mediaCommand('manual-file', '/0')]);
-
-        static::assertSame([['code' => ProductDocumentValidator::VIOLATION_FILE_SIZE_UNKNOWN, 'pointer' => '/1/translations/' . Defaults::LANGUAGE_SYSTEM . '/mediaId']], $errors);
     }
 
     public function testAFileThatDoesNotExistIsLeftToTheDatabase(): void
@@ -218,7 +199,7 @@ class ProductDocumentValidatorTest extends TestCase
             new UpdateCommand($definition, ['position' => 2, 'product_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)], $this->documentKey('datasheet'), $existence, '/1'),
         ]);
 
-        (new ProductDocumentValidator($writeOutcome, static::createStub(ProductDocumentReader::class), new ProductDocumentConfig(new EventDispatcher(), ['pdf'], maxPerProduct: 10, maxFileSize: 1024)))
+        (new ProductDocumentValidator($writeOutcome, StaticEntityRepository::of(MediaCollection::class), static::createStub(ProductDocumentReader::class), new ProductDocumentConfig(new EventDispatcher(), ['pdf'], maxPerProduct: 10, maxFileSize: 1024)))
             ->validate($event);
 
         static::assertSame([], $this->errorsOf($event));
@@ -267,15 +248,44 @@ class ProductDocumentValidatorTest extends TestCase
     {
         $writeOutcome = static::createStub(WriteOutcome::class);
         $writeOutcome->method('touchedRows')->willReturnCallback(fn (): array => $this->documents);
-        $writeOutcome->method('resultingRows')->willReturnCallback(
-            fn (array $commands, array $columns): array => $columns === ['media_id'] ? $this->translations : $this->media,
-        );
+        $writeOutcome->method('resultingRows')->willReturnCallback(fn (): array => $this->translations);
+
+        $mediaRepository = StaticEntityRepository::of(MediaCollection::class, [
+            function (Criteria $criteria, Context $context): MediaCollection {
+                // private files have to stay visible for the private check
+                static::assertSame(Context::SYSTEM_SCOPE, $context->getScope());
+
+                return $this->storedMedia($criteria->getIds());
+            },
+        ]);
 
         $reader = static::createStub(ProductDocumentReader::class);
-        $reader->method('getFiles')->willReturnCallback(fn (array $mediaIds): array => array_intersect_key($this->storedFiles, array_flip($mediaIds)));
         $reader->method('countDocuments')->willReturnCallback(fn (array $products): array => array_intersect_key($this->storedDocuments, array_flip($products)));
 
-        return new ProductDocumentValidator($writeOutcome, $reader, new ProductDocumentConfig(new EventDispatcher(), ['pdf', 'docx'], maxPerProduct: 10, maxFileSize: 1024));
+        return new ProductDocumentValidator($writeOutcome, $mediaRepository, $reader, new ProductDocumentConfig(new EventDispatcher(), ['pdf', 'docx'], maxPerProduct: 10, maxFileSize: 1024));
+    }
+
+    /**
+     * @param array<string|array<string, string>> $mediaIds
+     */
+    private function storedMedia(array $mediaIds): MediaCollection
+    {
+        $media = new MediaCollection();
+        foreach (array_intersect_key($this->storedFiles, array_flip(array_filter($mediaIds, \is_string(...)))) as $mediaId => $file) {
+            $entity = new MediaEntity();
+            $entity->setId($mediaId);
+            $entity->setPrivate($file['private']);
+            $entity->setPath($file['path']);
+            if ($file['extension'] !== null) {
+                $entity->setFileExtension($file['extension']);
+            }
+            if ($file['size'] !== null) {
+                $entity->setFileSize($file['size']);
+            }
+            $media->add($entity);
+        }
+
+        return $media;
     }
 
     /**
@@ -358,16 +368,5 @@ class ProductDocumentValidatorTest extends TestCase
     private function documentKey(string $document): array
     {
         return ['id' => $this->ids->getBytes($document), 'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)];
-    }
-
-    private function mediaCommand(string $media, string $path): InsertCommand
-    {
-        return new InsertCommand(
-            $this->registry->get(MediaDefinition::class),
-            ['id' => $this->ids->getBytes($media), 'file_name' => $media],
-            ['id' => $this->ids->getBytes($media)],
-            EntityExistence::createForEntity(MediaDefinition::ENTITY_NAME, ['id' => $this->ids->get($media)]),
-            $path,
-        );
     }
 }

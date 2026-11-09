@@ -260,6 +260,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ProductDocumentValidator::class)
         ->args([
             service(WriteOutcome::class),
+            service('media.repository'),
             service(ProductDocumentReader::class),
             service(ProductDocumentConfig::class),
         ])

@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -201,6 +202,23 @@ class UnusedMediaPurgerTest extends TestCase
         $batches = iterator_to_array($purger->getNotUsedMedia(offset: 0, gracePeriodDays: 1), false);
 
         static::assertSame([[]], $batches);
+    }
+
+    public function testDeleteNotUsedMediaWithGracePeriodDeletesOldMediaWithoutFile(): void
+    {
+        $this->setFixtureContext($this->context);
+        $media = $this->getEmptyMedia();
+
+        $connection = static::getContainer()->get(Connection::class);
+        static::assertInstanceOf(Connection::class, $connection);
+
+        (new UnusedMediaPurger($this->mediaRepo, $connection, new EventDispatcher(), new NativeClock()))
+            ->deleteNotUsedMedia(gracePeriodDays: 1);
+        static::assertNotNull($this->mediaRepo->search(new Criteria([$media->getId()]), $this->context)->first());
+
+        (new UnusedMediaPurger($this->mediaRepo, $connection, new EventDispatcher(), new MockClock('+2 days')))
+            ->deleteNotUsedMedia(gracePeriodDays: 1);
+        static::assertNull($this->mediaRepo->search(new Criteria([$media->getId()]), $this->context)->first());
     }
 
     public function testGetNotUsedMediaWithOffsetPastEndDoesNotCrash(): void

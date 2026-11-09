@@ -34,12 +34,12 @@ class CleanupUnusedDownloadMediaTaskHandlerTest extends TestCase
         );
     }
 
-    public function testRun(): void
+    public function testRunPurgesTheDownloadsFolderWithAOneDayGracePeriod(): void
     {
         $this->purger
             ->expects($this->once())
             ->method('deleteNotUsedMedia')
-            ->with(null, null, null, ProductDownloadDefinition::ENTITY_NAME);
+            ->with(50, null, 1, ProductDownloadDefinition::ENTITY_NAME);
 
         $this->handler->run();
     }

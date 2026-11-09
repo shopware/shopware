@@ -38,7 +38,8 @@
                 </template>
 
                 <template #headerRight>
-                {% block sw_product_document_form_add %}<div
+                {% block sw_product_document_form_add %}
+                    <div
                         v-if="currentValue.length"
                         class="sw-product-document-form__add-button"
                     >
@@ -50,7 +51,8 @@
                         >
                             {{ $t('sw-product.documentForm.buttonAdd') }}
                         </mt-button>
-                    </div> 
+                    </div>
+                {% endblock %}
                 </template>
 
                 <template #grid>
@@ -86,13 +88,17 @@
                             {{ itemIndex + 1 }}
                         </template>
                     {% endblock %}
-                    
-                    {% block sw_product_document_form_name %}<template #column-title="{ item }">
+
+                    {% block sw_product_document_form_name %}
+                        <template #column-title="{ item }">
                             {{ getTitle(item) }}
-                        </template> 
-                    {% block sw_product_document_form_file %}<template #column-fileName="{ item }">
+                        </template>
+                    {% endblock %}
+                    {% block sw_product_document_form_file %}
+                        <template #column-fileName="{ item }">
                             {{ getFileName(item) }}
-                        </template> 
+                        </template>
+                    {% endblock %}
                     {% block sw_product_document_form_type %}
                         <template #column-fileType="{ item }">
                             {{ getMedia(item)?.fileExtension?.toUpperCase() }}
@@ -108,7 +114,7 @@
                             {% block sw_product_document_form_action_download %}
                             <sw-product-document-download :media="getMedia(item)" />
                             {% endblock %}
-                            
+
                         </template>
                     {% endblock %}
                     </sw-data-grid>

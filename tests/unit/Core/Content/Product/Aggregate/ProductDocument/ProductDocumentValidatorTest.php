@@ -39,38 +39,33 @@ class ProductDocumentValidatorTest extends TestCase
      */
     private array $translations = [];
 
-    /**
-     * @var array<string, array{extension: string|null, size: int|null, private: bool, path: string|null}>
-     */
-    private array $storedFiles = [];
+    private MediaCollection $storedFiles;
 
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
+        $this->storedFiles = new MediaCollection();
     }
 
-    /**
-     * @return iterable<string, array{array{extension: string|null, size: int|null, private: bool, path: string|null}, list<string>}>
-     */
     public static function fileProvider(): iterable
     {
         yield 'an allowed file' => [self::file(), []];
         yield 'an allowed file type in upper case' => [self::file(extension: 'PDF'), []];
         yield 'another file type' => [self::file(extension: 'xlsx'), [ProductDocumentValidator::VIOLATION_FILE_EXTENSION_NOT_ALLOWED]];
         yield 'a file over the maximum size' => [self::file(size: 1025), [ProductDocumentValidator::VIOLATION_FILE_TOO_LARGE]];
+        yield 'a file of another type over the maximum size gets both errors' => [self::file(extension: 'xlsx', size: 1025), [ProductDocumentValidator::VIOLATION_FILE_EXTENSION_NOT_ALLOWED, ProductDocumentValidator::VIOLATION_FILE_TOO_LARGE]];
         yield 'a file without content' => [self::file(extension: null, size: null, path: null), [ProductDocumentValidator::VIOLATION_FILE_SIZE_UNKNOWN]];
         yield 'a link to a file on another server' => [self::file(path: 'https://cdn.example.com/manual.pdf'), [ProductDocumentValidator::VIOLATION_FILE_SIZE_UNKNOWN]];
         yield 'a private file only gets the private error' => [self::file(extension: 'xlsx', size: 1025, private: true), [ProductDocumentValidator::VIOLATION_FILE_PRIVATE]];
     }
 
     /**
-     * @param array{extension: string|null, size: int|null, private: bool, path: string|null} $file
      * @param list<string> $codes
      */
     #[DataProvider('fileProvider')]
-    public function testTheFileMustFitTheLimits(array $file, array $codes): void
+    public function testTheFileMustFitTheLimits(MediaEntity $file, array $codes): void
     {
-        $this->storedFiles = [$this->ids->get('manual-file') => $file];
+        $this->storeFile($file);
         $this->translations = [$this->translation('manual', self::GERMAN, '/0/translations/' . self::GERMAN, file: 'manual-file')];
 
         $expected = array_map(static fn (string $code): array => ['code' => $code, 'pointer' => '/0/translations/' . self::GERMAN . '/mediaId'], $codes);
@@ -87,18 +82,31 @@ class ProductDocumentValidatorTest extends TestCase
     public function testAFileIsOnlyCheckedWhenATranslationGetsIt(): void
     {
         // a file that broke a limit later doesn't block writes that keep it
-        $this->storedFiles = [$this->ids->get('manual-file') => self::file(private: true)];
+        $this->storeFile(self::file(private: true));
         $this->translations = [$this->translation('manual', Defaults::LANGUAGE_SYSTEM, '/0', file: 'manual-file', storedFile: 'manual-file')];
 
         static::assertSame([], $this->validate());
     }
 
-    /**
-     * @return array{extension: string|null, size: int|null, private: bool, path: string|null}
-     */
-    private static function file(?string $extension = 'pdf', ?int $size = 1024, bool $private = false, ?string $path = 'media/manual.pdf'): array
+    private static function file(?string $extension = 'pdf', ?int $size = 1024, bool $private = false, ?string $path = 'media/manual.pdf'): MediaEntity
     {
-        return ['extension' => $extension, 'size' => $size, 'private' => $private, 'path' => $path];
+        $file = new MediaEntity();
+        $file->setPrivate($private);
+        $file->setPath($path);
+        if ($extension !== null) {
+            $file->setFileExtension($extension);
+        }
+        if ($size !== null) {
+            $file->setFileSize($size);
+        }
+
+        return $file;
+    }
+
+    private function storeFile(MediaEntity $file): void
+    {
+        $file->setId($this->ids->get('manual-file'));
+        $this->storedFiles->add($file);
     }
 
     /**
@@ -112,7 +120,12 @@ class ProductDocumentValidatorTest extends TestCase
 
         $this->validator()->validate($event);
 
-        return $this->errorsOf($event);
+        $errors = [];
+        foreach ($event->getExceptions()->getErrors() as $error) {
+            $errors[] = ['code' => $error['code'], 'pointer' => $error['source']['pointer'] ?? null];
+        }
+
+        return $errors;
     }
 
     private function validator(): ProductDocumentValidator
@@ -125,70 +138,26 @@ class ProductDocumentValidatorTest extends TestCase
                 // the caller's scope, so files the caller can't see stay hidden
                 static::assertSame(Context::USER_SCOPE, $context->getScope());
 
-                return $this->storedMedia($criteria->getIds());
+                return $this->storedFiles->filter(static fn (MediaEntity $file): bool => \in_array($file->getId(), $criteria->getIds(), true));
             },
         ]);
 
         return new ProductDocumentValidator($writeOutcome, $mediaRepository, new ProductDocumentConfig(new EventDispatcher(), ['pdf', 'docx'], maxFileSize: 1024));
     }
 
-    /**
-     * @param array<string|array<string, string>> $mediaIds
-     */
-    private function storedMedia(array $mediaIds): MediaCollection
-    {
-        $media = new MediaCollection();
-        foreach (array_intersect_key($this->storedFiles, array_flip(array_filter($mediaIds, \is_string(...)))) as $mediaId => $file) {
-            $entity = new MediaEntity();
-            $entity->setId($mediaId);
-            $entity->setPrivate($file['private']);
-            $entity->setPath($file['path']);
-            if ($file['extension'] !== null) {
-                $entity->setFileExtension($file['extension']);
-            }
-            if ($file['size'] !== null) {
-                $entity->setFileSize($file['size']);
-            }
-            $media->add($entity);
-        }
-
-        return $media;
-    }
-
-    /**
-     * @return list<array{code: mixed, pointer: mixed}>
-     */
-    private function errorsOf(PreWriteValidationEvent $event): array
-    {
-        $errors = [];
-        foreach ($event->getExceptions()->getErrors() as $error) {
-            $errors[] = ['code' => $error['code'], 'pointer' => $error['source']['pointer'] ?? null];
-        }
-
-        return $errors;
-    }
-
     private function translation(string $document, string $languageId, string $path, string $file, ?string $storedFile = null): OutcomeRow
     {
         return new OutcomeRow(
-            primaryKey: $this->translationKey($document, $languageId),
+            primaryKey: [
+                'product_document_id' => $this->ids->getBytes($document),
+                'product_document_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                'language_id' => Uuid::fromHexToBytes($languageId),
+            ],
             path: $path,
             isNew: $storedFile === null,
             isDeleted: false,
             payload: ['media_id' => $this->ids->getBytes($file)],
             state: ['media_id' => $storedFile === null ? null : $this->ids->getBytes($storedFile)],
         );
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function translationKey(string $document, string $languageId): array
-    {
-        return [
-            'product_document_id' => $this->ids->getBytes($document),
-            'product_document_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-            'language_id' => Uuid::fromHexToBytes($languageId),
-        ];
     }
 }

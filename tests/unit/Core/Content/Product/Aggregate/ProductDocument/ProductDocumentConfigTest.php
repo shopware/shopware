@@ -57,9 +57,6 @@ class ProductDocumentConfigTest extends TestCase
         static::assertSame($context, $events[0]->getContext());
     }
 
-    /**
-     * @return iterable<string, array{int, int}>
-     */
     public static function uploadLimitProvider(): iterable
     {
         yield 'PHP limits below the configured size lower it' => [20 * 1024 * 1024, 8 * 1024 * 1024];

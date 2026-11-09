@@ -162,9 +162,6 @@ class InfoControllerTest extends TestCase
         static::assertSame(['SwagApp_premium'], $inAppPurchases['SwagApp']);
     }
 
-    /**
-     * @return iterable<string, array{bool, int}>
-     */
     public static function productDocumentUploadLimitProvider(): iterable
     {
         yield 'uploads through PHP are lowered by upload_max_filesize' => [false, 512];

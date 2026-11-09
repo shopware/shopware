@@ -60,27 +60,20 @@ class ProductDocumentValidatorTest extends TestCase
         $adminApiSource = new AdminApiSource(null);
         $adminApiSource->setIsAdmin(true);
 
-        $errors = $this->errorsOf(fn () => $this->addDocuments([
-            [
+        $errors = $this->errorsOf(fn () => $this->productRepository->update([[
+            'id' => $this->ids->get('drill'),
+            'documents' => [[
                 'translations' => [
                     Defaults::LANGUAGE_SYSTEM => ['title' => 'Manual', 'mediaId' => $this->createMedia('manual')],
                     $germanId => ['title' => 'Handbuch', 'mediaId' => $this->createMedia('handbuch', private: true)],
                 ],
-            ],
-        ], Context::createDefaultContext($adminApiSource)));
+            ]],
+        ]], Context::createDefaultContext($adminApiSource)));
 
         // the Admin API user can't see the private file, so it counts as not found
         static::assertSame([
             ['code' => ProductDocumentValidator::VIOLATION_FILE_NOT_FOUND, 'pointer' => '/0/documents/0/translations/' . $germanId . '/mediaId'],
         ], $errors);
-    }
-
-    /**
-     * @param list<array<string, mixed>> $documents
-     */
-    private function addDocuments(array $documents, ?Context $context = null): void
-    {
-        $this->productRepository->update([['id' => $this->ids->get('drill'), 'documents' => $documents]], $context ?? $this->context);
     }
 
     private function createMedia(string $fileName, bool $private = false): string

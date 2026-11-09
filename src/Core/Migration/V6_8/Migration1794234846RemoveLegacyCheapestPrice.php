@@ -9,6 +9,11 @@ use Shopware\Core\Framework\Migration\MigrationException;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
+ * Run system:update:finish in the default safe mode first to complete the synchronous reconciliation.
+ * Then run database:migrate-destructive with --version-selection-mode=all to remove the legacy column.
+ * The finish command runs destructive migrations before post-update indexers, so selecting mode "all"
+ * in the first step reaches the removal guard before the legacy values have been reconciled.
+ *
  * @internal
  */
 #[Package('framework')]

@@ -125,7 +125,14 @@
                             <sw-product-document-language-value
                                 :value="getTitle(item)"
                                 :is-translated="!!item.title"
-                            />
+                            >
+                                {% block sw_product_document_form_variant_badge %}
+                                <sw-product-document-variant-badge
+                                    v-if="!isInherited"
+                                    :document="item"
+                                />
+                                {% endblock %}
+                            </sw-product-document-language-value>
                         </template>
                     {% endblock %}
                     {% block sw_product_document_form_file %}
@@ -249,6 +256,7 @@
             <sw-product-document-edit-modal
                 v-if="editingDocument"
                 v-model:document-title="documentTitle"
+                v-model:apply-to-variants="applyToVariants"
                 :document-id="editingDocument.id"
                 :allow-fallback="!isDefaultLanguage"
                 :language-name="contentLanguageName"
@@ -262,6 +270,8 @@
                 :allowed-extensions="allowedExtensions"
                 :max-file-size="maxFileSize"
                 :can-edit="canEdit"
+                :is-saving-document="isSavingDocument"
+                :has-variants="hasVariants"
                 @close="closeDocumentEditor"
                 @save="applyDocumentEdit"
                 @upload="successfulUpload($event, editingDocument)"
@@ -273,9 +283,12 @@
         {% block sw_product_document_form_remove_modal %}
             <sw-product-document-remove-modal
                 v-if="removingDocument"
+                v-model:remove-from-variants="removeFromVariants"
                 :document-title="getTitle(removingDocument)"
                 :language-name="isDefaultLanguage ? '' : contentLanguageName"
                 :can-edit="canEdit"
+                :is-removing-document="isRemovingDocument"
+                :has-variants="hasVariants"
                 @close="closeRemoveDocumentModal"
                 @remove="removeDocument"
             />

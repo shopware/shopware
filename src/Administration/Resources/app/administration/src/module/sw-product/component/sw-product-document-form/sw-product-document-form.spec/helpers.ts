@@ -81,7 +81,9 @@ export async function createWrapper(
                 ...(options.baseView ? { 'sw-product-document-form': documentForm } : {}),
                 'sw-product-document-download': await wrapTestComponent('sw-product-document-download', { sync: true }),
                 'sw-product-document-add-button': await wrapTestComponent('sw-product-document-add-button', { sync: true }),
-
+                'sw-product-document-variant-badge': await wrapTestComponent('sw-product-document-variant-badge', {
+                    sync: true,
+                }),
                 'sw-product-document-language-value': await wrapTestComponent('sw-product-document-language-value', {
                     sync: true,
                 }),

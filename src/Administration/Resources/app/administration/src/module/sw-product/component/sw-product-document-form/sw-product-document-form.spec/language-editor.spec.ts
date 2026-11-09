@@ -147,6 +147,35 @@ describe('sw-product-document-form language editor', () => {
         expect(wrapper.find('.document-row').text()).toContain('english-manual.pdf');
     });
 
+    it('preserves a variant name override when applying only a new file', async () => {
+        const store = Shopware.Store.get('swProductDetail');
+        store.product.childCount = 1;
+        const variant = createProduct();
+        variant.parentId = store.product.id;
+        const copy = repositoryFactory.create('product_document').create();
+        Object.assign(copy, {
+            productId: variant.id,
+            title: 'Variant name',
+            mediaId: null,
+            translated: document.translated,
+        });
+        Object.assign(copy.getOrigin(), { title: 'Variant name', mediaId: null });
+        variant.documents!.add(copy);
+        const repository = repositoryFactory.create('product');
+        jest.spyOn(repository, 'search').mockResolvedValue(
+            new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api, null, [variant]),
+        );
+        wrapper = await createWrapper(undefined, undefined, repository);
+        const media = createMedia('new-german-file');
+        await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
+        await selectMedia(wrapper, [media]);
+        await wrapper.get('.sw-product-document-form__apply-to-variants input').setValue(true);
+        await clickButton(wrapper, 'global.default.apply');
+        await flushPromises();
+        expect(copy).toMatchObject({ title: 'Variant name', mediaId: media.id });
+        expect(document).toMatchObject({ title: null, mediaId: media.id });
+    });
+
     it.each(['name', 'file', 'both'])(
         'keeps the cleared %s out of the save payload after unlinking inheritance',
         async (field) => {
@@ -202,6 +231,54 @@ describe('sw-product-document-form language editor', () => {
             expect(document).toMatchObject({ title: 'Handbuch', mediaId: germanMedia.id });
         },
     );
+
+    it('clears a pending variant name translation while retaining its file', async () => {
+        const store = Shopware.Store.get('swProductDetail');
+        store.product.childCount = 1;
+        const media = createMedia('german-manual');
+        Object.assign(document, { title: 'Handbuch', mediaId: media.id });
+        const variant = createProduct();
+        variant.parentId = store.product.id;
+        const copy = repositoryFactory.create('product_document').create();
+        Object.assign(copy, {
+            productId: variant.id,
+            title: 'Variant name',
+            mediaId: media.id,
+            translated: document.translated,
+        });
+        const translation = new EntityFactory().create(
+            'product_document_translation',
+            null,
+            Shopware.Context.api,
+        ) as Entity<'product_document_translation'>;
+        Object.assign(translation, {
+            languageId: Shopware.Context.api.languageId,
+            title: 'Variant name',
+            mediaId: media.id,
+            media,
+        });
+        copy.translations.add(translation);
+        variant.documents!.add(copy);
+        store.product.children!.add(variant);
+        const repository = repositoryFactory.create('product');
+        jest.spyOn(repository, 'search').mockResolvedValue(
+            new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api, null, [variant]),
+        );
+        wrapper = await createWrapper(undefined, undefined, repository);
+        await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
+        await wrapper.get('.sw-product-document-form__name-input input').setValue('');
+        await wrapper.get('.sw-product-document-form__apply-to-variants input').setValue(true);
+        await clickButton(wrapper, 'global.default.apply');
+        await flushPromises();
+        expect(copy).toMatchObject({ title: null, mediaId: media.id });
+        expect(translation).toMatchObject({ title: null, mediaId: media.id });
+
+        const postSpy = jest.spyOn(repository.httpClient, 'post').mockResolvedValue({ data: {} });
+        await repository.save(store.product, Shopware.Context.api);
+        const payload = JSON.stringify(postSpy.mock.calls[0][1]);
+        expect(payload).not.toContain('Variant name');
+        expect(payload).toContain(media.id);
+    });
 
     it('discards a selected file and entered name on Cancel', async () => {
         wrapper = await createWrapper();

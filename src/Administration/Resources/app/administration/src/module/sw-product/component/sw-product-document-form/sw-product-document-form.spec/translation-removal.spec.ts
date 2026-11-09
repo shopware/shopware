@@ -226,4 +226,51 @@ describe('sw-product-document-form language-version removal', () => {
         wrapper = await createWrapper(undefined, undefined, repository);
         expect(wrapper.findAll('sw-context-menu-item-stub')).toHaveLength(2);
     });
+
+    it('resets matching variant versions while retaining unrelated documents, files and order', async () => {
+        const store = Shopware.Store.get('swProductDetail');
+        store.product = await loadProduct('Handbuch', germanMedia.id);
+        store.product.childCount = 3;
+        const matching = await loadProduct('Variante', germanMedia.id, repository.create().id, store.product.id);
+        const unrelated = await loadProduct('Andere', englishMedia.id, repository.create().id, store.product.id);
+        const inherited = repository.create();
+        inherited.parentId = store.product.id;
+        const searchSpy = jest.spyOn(repository, 'search').mockResolvedValue(
+            new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api, null, [
+                matching,
+                unrelated,
+                inherited,
+            ]),
+        );
+        const saveSpy = jest.spyOn(repository, 'save');
+        wrapper = await createWrapper(undefined, undefined, repository);
+        await wrapper.findAll('sw-context-menu-item-stub').at(-1)!.trigger('click');
+        await wrapper.get('.sw-product-document-form__remove-from-variants input').setValue(true);
+        await clickButton(wrapper, 'global.default.remove');
+        await flushPromises();
+        expect(matching.documents).toHaveLength(1);
+        expect(matching.documents![0]).toMatchObject({ title: null, mediaId: null, position: 4 });
+        expect(unrelated.documents![0]).toMatchObject({ title: 'Andere', mediaId: englishMedia.id, position: 4 });
+        expect(inherited.documents).toHaveLength(0);
+        expect(new ChangesetGenerator().generate(store.product).deletionQueue).toEqual([]);
+        expect(saveSpy).not.toHaveBeenCalled();
+        expect(searchSpy.mock.calls[0][0].parse()).toMatchObject({
+            associations: { documents: { associations: { translations: { associations: { media: {} } } } } },
+        });
+        const patchSpy = jest.spyOn(repository.httpClient, 'patch').mockResolvedValue({ data: {} });
+        await repository.save(store.product, Shopware.Context.api);
+        expect(patchSpy.mock.calls[0][1]).toMatchObject({
+            documents: [{ id: store.product.id, title: null, mediaId: null }],
+            children: [{ id: matching.id, documents: [{ id: matching.id, title: null, mediaId: null }] }],
+        });
+        searchSpy.mockRestore();
+        store.product = await loadProduct(null, null, store.product.id);
+        const reloadedVariant = await loadProduct(null, null, matching.id, store.product.id);
+        expect(reloadedVariant.documents![0]).toMatchObject({
+            title: null,
+            mediaId: null,
+            translated: { title: 'Manual', mediaId: englishMedia.id },
+        });
+        expect(new ChangesetGenerator().generate(store.product)).toEqual({ changes: null, deletionQueue: [] });
+    });
 });

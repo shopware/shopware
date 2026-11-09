@@ -40,6 +40,7 @@ const swProductDetail = Shopware.Store.register({
             isDownloadExternallyManaged: false,
             documentMedia: new WeakMap<Entity<'product'>, Record<string, Entity<'media'>>>(),
             documentLanguage: null as Entity<'language'> | null,
+            documentSaveNotifications: [] as { documentId: string; name: string; variantIds: string[] }[],
             currencies: [] as Entity<'currency'>[],
             apiContext: {} as ContextStore['api'],
             taxes: [] as Entity<'tax'>[],
@@ -283,6 +284,15 @@ const swProductDetail = Shopware.Store.register({
 
         addDocument(document: Entity<'product_document'>): void {
             this.product.documents?.add(document);
+        },
+
+        queueDocumentSaveNotification(documentId: string, name: string, variantIds: string[]): void {
+            this.documentSaveNotifications = this.documentSaveNotifications.filter(
+                (entry) => entry.documentId !== documentId,
+            );
+            if (variantIds.length) {
+                this.documentSaveNotifications.push({ documentId, name, variantIds: [...new Set(variantIds)] });
+            }
         },
     },
 });

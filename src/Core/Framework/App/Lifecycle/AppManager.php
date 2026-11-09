@@ -37,9 +37,9 @@ use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\Source\SourceResolver;
-use Shopware\Core\Framework\App\Validation\AppRequirementsValidator;
-use Shopware\Core\Framework\App\Validation\CompatibilityValidator;
-use Shopware\Core\Framework\App\Validation\ConfigValidator;
+use Shopware\Core\Framework\App\Validation\AppValidator;
+use Shopware\Core\Framework\App\Validation\Error\Error;
+use Shopware\Core\Framework\App\Validation\Error\Severity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -79,19 +79,17 @@ class AppManager
         private readonly ActiveAppsLoader $activeAppsLoader,
         private readonly EntityRepository $languageRepository,
         private readonly SystemConfigService $systemConfigService,
-        private readonly ConfigValidator $configValidator,
         private readonly EntityRepository $integrationRepository,
         private readonly EntityRepository $aclRoleRepository,
         private readonly AssetService $assetService,
         private readonly ScriptExecutor $scriptExecutor,
         private readonly string $projectDir,
         private readonly CustomEntityLifecycleService $customEntityLifecycleService,
-        private readonly CompatibilityValidator $compatibilityValidator,
         private readonly AppFeatureValidator $appFeatureValidator,
         private readonly SourceResolver $sourceResolver,
         private readonly ConfigReader $configReader,
         private readonly DeletedAppsGateway $deletedAppsGateway,
-        private readonly AppRequirementsValidator $requirementsValidator,
+        private readonly AppValidator $appValidator,
         private readonly ClockInterface $clock,
     ) {
     }
@@ -110,8 +108,7 @@ class AppManager
             return;
         }
 
-        $this->ensureIsCompatible($manifest);
-        $this->ensureMeetsRequirements($manifest);
+        $this->validateApp($manifest, $context);
 
         if ($app !== null) {
             throw AppException::alreadyInstalled($appName);
@@ -189,8 +186,7 @@ class AppManager
 
     public function update(Manifest $manifest, AppUpdateParameters $parameters, AppEntity $app, Context $context): void
     {
-        $this->ensureIsCompatible($manifest);
-        $this->ensureMeetsRequirements($manifest);
+        $this->validateApp($manifest, $context);
 
         $defaultLocale = $this->getDefaultLocale($context);
         $metadata = $manifest->getMetadata()->toArray($defaultLocale);
@@ -282,6 +278,21 @@ class AppManager
         $this->switchOff($app, $context);
     }
 
+    private function validateApp(Manifest $manifest, Context $context): void
+    {
+        $result = $this->appValidator->validate($manifest, $context);
+
+        if ($result->isOk()) {
+            return;
+        }
+
+        $failures = array_values(array_filter($result->errors, static fn (Error $error): bool => $error->getSeverity() === Severity::Fail));
+
+        if ($failures !== []) {
+            throw AppException::validationFailedFromErrors($failures);
+        }
+    }
+
     private function recoverInstallation(
         Manifest $manifest,
         AppInstallParameters $parameters,
@@ -318,8 +329,7 @@ class AppManager
         if ($resumeInstallation) {
             // These checks belong to installation, not credential repair. Run them before recovery clears
             // the only durable pending marker, otherwise a failed validation would strand the app row.
-            $this->ensureIsCompatible($manifest);
-            $this->ensureMeetsRequirements($manifest);
+            $this->validateApp($manifest, $context);
         }
 
         $this->appSecretRotationService->rotateNow(
@@ -368,14 +378,6 @@ class AppManager
 
         $event = new PostAppDeletedEvent($app->getName(), $app->getSourceType(), $context, $keepUserData);
         $this->eventDispatcher->dispatch($event);
-    }
-
-    private function ensureIsCompatible(Manifest $manifest): void
-    {
-        $error = $this->compatibilityValidator->validate($manifest, null)[0] ?? null;
-        if ($error !== null) {
-            throw AppException::validationFailedFromError($error);
-        }
     }
 
     private function dispatchInstalled(AppEntity $app, Manifest $manifest, Context $context): void
@@ -520,7 +522,7 @@ class AppManager
 
         $updatePayload = [
             'id' => $app->getId(),
-            'configurable' => $this->handleConfigUpdates($app, $manifest, $install),
+            'configurable' => $this->handleConfigUpdates($app, $install),
             'allowDisable' => $this->customEntityLifecycleService->allowsDisabling($app),
         ];
         $this->updateMetadata($updatePayload, $context);
@@ -732,17 +734,11 @@ class AppManager
         }
     }
 
-    private function handleConfigUpdates(AppEntity $app, Manifest $manifest, bool $install): bool
+    private function handleConfigUpdates(AppEntity $app, bool $install): bool
     {
         $config = $this->getAppConfig($app);
         if ($config === null) {
             return false;
-        }
-
-        $configError = $this->configValidator->validate($manifest, null)[0] ?? null;
-        if ($configError) {
-            // only one error can be in the returned collection
-            throw AppException::invalidConfiguration($manifest->getMetadata()->getName(), $configError);
         }
 
         $this->systemConfigService->saveConfig($config, $app->getName() . '.config.', $install);
@@ -780,13 +776,5 @@ class AppManager
 
         // reset only after new state is in the DB
         $this->activeAppsLoader->reset();
-    }
-
-    private function ensureMeetsRequirements(Manifest $manifest): void
-    {
-        $error = $this->requirementsValidator->validate($manifest, null)[0] ?? null;
-        if ($error !== null) {
-            throw AppException::validationFailedFromError($error);
-        }
     }
 }

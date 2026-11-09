@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Validation\Error;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Validation\Error\Severity;
 use Shopware\Core\Framework\App\Validation\Error\UnmetRequirementError;
 use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
 use Shopware\Core\Framework\Log\Package;
@@ -29,5 +30,6 @@ class UnmetRequirementErrorTest extends TestCase
         static::assertSame('The app requirements are not met: ' . $violations, $error->getMessage());
         static::assertSame(AppException::APP_REQUIREMENTS_NOT_MET, $error->getErrorCode());
         static::assertSame(['violations' => $violations], $error->getParameters());
+        static::assertSame(Severity::Notice, $error->getSeverity());
     }
 }

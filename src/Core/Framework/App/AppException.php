@@ -21,8 +21,6 @@ use Shopware\Core\Framework\App\Url\VerificationState;
 use Shopware\Core\Framework\App\Url\VerificationStatus;
 use Shopware\Core\Framework\App\Validation\Error\Error;
 use Shopware\Core\Framework\App\Validation\Error\IncompatibleAppError;
-use Shopware\Core\Framework\App\Validation\Error\UnmetRequirementError;
-use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -104,20 +102,30 @@ class AppException extends HttpException
 
     public static function notCompatible(string $pluginName): self
     {
-        return self::validationFailedFromError(new IncompatibleAppError($pluginName));
-    }
+        $error = new IncompatibleAppError($pluginName);
 
-    /**
-     * The error decides how the refusal is reported, so a check that already had its own API error
-     * code keeps reporting under it.
-     */
-    public static function validationFailedFromError(Error $error): AppValidationRefusedException
-    {
         return new AppValidationRefusedException(
             Response::HTTP_BAD_REQUEST,
             $error->getErrorCode(),
             $error->getMessage(),
             $error->getParameters()
+        );
+    }
+
+    /**
+     * @param non-empty-list<Error> $errors
+     */
+    public static function validationFailedFromErrors(array $errors): AppValidationRefusedException
+    {
+        return new AppValidationRefusedException(
+            Response::HTTP_BAD_REQUEST,
+            self::VALIDATION_FAILED,
+            implode("\n", array_map(static fn (Error $error): string => $error->getMessage(), $errors)),
+            ['errors' => array_map(static fn (Error $error): array => [
+                'code' => $error->getErrorCode(),
+                'message' => $error->getMessage(),
+                'parameters' => $error->getParameters(),
+            ], $errors)]
         );
     }
 
@@ -721,15 +729,5 @@ class AppException extends HttpException
             . 'run the shop ID change strategy "reinstall-apps" again.',
             ['count' => (string) \count($failedAppNames), 'apps' => implode(', ', $failedAppNames)]
         );
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - Will be removed without replacement in next major version as it is unused
-     */
-    public static function requirementsNotMet(UnmetRequirement ...$violations): self
-    {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
-
-        return self::validationFailedFromError(new UnmetRequirementError(...$violations));
     }
 }

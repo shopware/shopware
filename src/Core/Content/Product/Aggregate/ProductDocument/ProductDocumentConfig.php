@@ -10,7 +10,7 @@ use Symfony\Component\Mime\MimeTypes;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * The `shopware.product_documents` settings: allowed file types, documents per product and file size.
+ * The `shopware.product_documents` settings: allowed file types and file size.
  *
  * @internal
  */
@@ -24,7 +24,6 @@ readonly class ProductDocumentConfig
     public function __construct(
         private EventDispatcherInterface $eventDispatcher,
         private array $allowedExtensions,
-        public int $maxPerProduct,
         public int $maxFileSize,
     ) {
     }

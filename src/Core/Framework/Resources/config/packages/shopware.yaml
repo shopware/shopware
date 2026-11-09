@@ -746,7 +746,6 @@ shopware:
             relevant_keyword_count: 8
     product_documents:
         allowed_extensions: ["pdf", "docx", "jpg", "jpeg", "png"]
-        max_per_product: 10
         max_file_size: 20971520 # 20 MB
 
     webhook:

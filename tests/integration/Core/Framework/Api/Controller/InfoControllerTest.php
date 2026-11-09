@@ -141,7 +141,6 @@ class InfoControllerTest extends TestCase
                 'minSearchTermLength' => 2,
                 'productDocuments' => [
                     'allowedExtensions' => ['pdf', 'docx', 'jpg', 'jpeg', 'png'],
-                    'maxPerProduct' => 10,
                 ],
             ],
             'inAppPurchases' => [],

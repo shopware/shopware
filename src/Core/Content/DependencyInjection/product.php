@@ -26,7 +26,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\Produ
 use Shopware\Core\Content\Product\Aggregate\ProductCustomFieldSet\ProductCustomFieldSetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentConfig;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentReader;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentValidator;
 use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadDefinition;
@@ -250,18 +249,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('event_dispatcher'),
             param('shopware.product_documents.allowed_extensions'),
-            param('shopware.product_documents.max_per_product'),
             param('shopware.product_documents.max_file_size'),
         ]);
-
-    $services->set(ProductDocumentReader::class)
-        ->args([service(Connection::class)]);
 
     $services->set(ProductDocumentValidator::class)
         ->args([
             service(WriteOutcome::class),
             service('media.repository'),
-            service(ProductDocumentReader::class),
             service(ProductDocumentConfig::class),
         ])
         ->tag('kernel.event_subscriber');

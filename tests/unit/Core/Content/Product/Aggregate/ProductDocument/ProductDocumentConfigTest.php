@@ -34,7 +34,7 @@ class ProductDocumentConfigTest extends TestCase
     public function testFileTypesAreCleanedUp(): void
     {
         $context = Context::createDefaultContext();
-        $config = new ProductDocumentConfig(new EventDispatcher(), ['PDF', ' .docx', 'pdf', ''], maxPerProduct: 10, maxFileSize: 1024);
+        $config = new ProductDocumentConfig(new EventDispatcher(), ['PDF', ' .docx', 'pdf', ''], maxFileSize: 1024);
 
         static::assertSame(['pdf', 'docx'], $config->getAllowedExtensions($context));
         static::assertSame(['pdf', 'docx'], array_keys($config->getMimeTypesByExtension($context)));
@@ -50,7 +50,7 @@ class ProductDocumentConfigTest extends TestCase
             $event->setAllowedExtensions(['pdf', '.XLSX']);
         });
 
-        $config = new ProductDocumentConfig($dispatcher, ['pdf', 'docx'], maxPerProduct: 10, maxFileSize: 1024);
+        $config = new ProductDocumentConfig($dispatcher, ['pdf', 'docx'], maxFileSize: 1024);
 
         static::assertSame(['pdf', 'xlsx'], $config->getAllowedExtensions($context));
         static::assertCount(1, $events);
@@ -71,7 +71,7 @@ class ProductDocumentConfigTest extends TestCase
     {
         IniMock::withIniMock(['upload_max_filesize' => '8M', 'post_max_size' => '16M']);
 
-        $config = new ProductDocumentConfig(new EventDispatcher(), ['pdf'], maxPerProduct: 10, maxFileSize: $maxFileSize);
+        $config = new ProductDocumentConfig(new EventDispatcher(), ['pdf'], maxFileSize: $maxFileSize);
 
         static::assertSame($expected, $config->getMaxUploadFileSize());
     }

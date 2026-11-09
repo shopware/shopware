@@ -316,10 +316,6 @@
                         "type": "string"
                     }
                 },
-                "max_per_product": {
-                    "type": "integer",
-                    "minimum": 1
-                },
                 "max_file_size": {
                     "type": "integer",
                     "minimum": 1

@@ -4,8 +4,6 @@ namespace Shopware\Tests\Integration\Core\Content\Product\Aggregate\ProductDocum
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentValidator;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -13,8 +11,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
@@ -42,11 +38,6 @@ class ProductDocumentValidatorTest extends TestCase
     private EntityRepository $productRepository;
 
     /**
-     * @var EntityRepository<ProductDocumentCollection>
-     */
-    private EntityRepository $productDocumentRepository;
-
-    /**
      * @var EntityRepository<MediaCollection>
      */
     private EntityRepository $mediaRepository;
@@ -56,26 +47,9 @@ class ProductDocumentValidatorTest extends TestCase
         $this->ids = new IdsCollection();
         $this->context = Context::createDefaultContext();
         $this->productRepository = static::getContainer()->get('product.repository');
-        $this->productDocumentRepository = static::getContainer()->get('product_document.repository');
         $this->mediaRepository = static::getContainer()->get('media.repository');
 
         $this->productRepository->create([(new ProductBuilder($this->ids, 'drill'))->price(10)->build()], $this->context);
-    }
-
-    public function testAProductCanHaveTenDocuments(): void
-    {
-        $this->addDocuments(array_map(fn (int $number): array => $this->document('file-' . $number), range(1, 9)));
-
-        $errors = $this->errorsOf(fn () => $this->addDocuments([
-            // editing a document through the product doesn't add it
-            ['id' => $this->ids->get('file-1-document'), 'title' => 'Renamed'],
-            $this->document('file-10'),
-            $this->document('file-11'),
-        ]));
-
-        // the tenth fits, the eleventh doesn't
-        static::assertSame([['code' => ProductDocumentValidator::VIOLATION_TOO_MANY_DOCUMENTS, 'pointer' => '/0/documents/2']], $errors);
-        static::assertCount(9, $this->documentTitles());
     }
 
     public function testTheFilesOfAllLanguagesAreChecked(): void
@@ -109,14 +83,6 @@ class ProductDocumentValidatorTest extends TestCase
         $this->productRepository->update([['id' => $this->ids->get('drill'), 'documents' => $documents]], $context ?? $this->context);
     }
 
-    /**
-     * @return array{id: string, title: string, mediaId: string}
-     */
-    private function document(string $fileName): array
-    {
-        return ['id' => $this->ids->create($fileName . '-document'), 'title' => $fileName, 'mediaId' => $this->createMedia($fileName)];
-    }
-
     private function createMedia(string $fileName, bool $private = false): string
     {
         $this->mediaRepository->create([[
@@ -147,17 +113,5 @@ class ProductDocumentValidatorTest extends TestCase
         }
 
         static::fail('The write did not fail.');
-    }
-
-    /**
-     * @return list<string|null>
-     */
-    private function documentTitles(): array
-    {
-        $criteria = (new Criteria())->addFilter(new EqualsFilter('productId', $this->ids->get('drill')));
-
-        return array_values($this->productDocumentRepository->search($criteria, $this->context)->getEntities()->map(
-            static fn (ProductDocumentEntity $document): ?string => $document->getTitle(),
-        ));
     }
 }

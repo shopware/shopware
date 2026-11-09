@@ -229,7 +229,6 @@ class InfoController extends AbstractController
                 'productDocuments' => [
                     'allowedExtensions' => array_keys($productDocumentMimeTypesByExtension),
                     'allowedMimeTypesByExtension' => $productDocumentMimeTypesByExtension,
-                    'maxPerProduct' => $this->productDocumentConfig->maxPerProduct,
                     // presigned uploads go straight to the storage, past PHP's limits
                     'maxFileSize' => $presignedUploadSupported ? $this->productDocumentConfig->maxFileSize : $this->productDocumentConfig->getMaxUploadFileSize(),
                 ],

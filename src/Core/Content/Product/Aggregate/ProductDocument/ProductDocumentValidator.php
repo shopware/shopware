@@ -9,9 +9,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDo
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\OutcomeRow;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
@@ -24,16 +21,14 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
- * Checks product documents against `shopware.product_documents` before they are written.
- * Only what the write changes is checked: new files and added documents.
+ * Checks the files of product documents against `shopware.product_documents` before they are written.
+ * Only what the write changes is checked: the files that documents get with it.
  *
  * @internal
  */
 #[Package('inventory')]
 final class ProductDocumentValidator implements EventSubscriberInterface
 {
-    public const VIOLATION_TOO_MANY_DOCUMENTS = 'PRODUCT_DOCUMENT_TOO_MANY_DOCUMENTS';
-
     public const VIOLATION_FILE_EXTENSION_NOT_ALLOWED = 'PRODUCT_DOCUMENT_FILE_EXTENSION_NOT_ALLOWED';
 
     public const VIOLATION_FILE_TOO_LARGE = 'PRODUCT_DOCUMENT_FILE_TOO_LARGE';
@@ -48,7 +43,6 @@ final class ProductDocumentValidator implements EventSubscriberInterface
     public function __construct(
         private readonly WriteOutcome $writeOutcome,
         private readonly EntityRepository $mediaRepository,
-        private readonly ProductDocumentReader $reader,
         private readonly ProductDocumentConfig $config,
     ) {
     }
@@ -62,21 +56,17 @@ final class ProductDocumentValidator implements EventSubscriberInterface
 
     public function validate(PreWriteValidationEvent $event): void
     {
-        $documentCommands = $event->getCommandsForEntity(ProductDocumentDefinition::ENTITY_NAME);
-        // the product of a document is immutable, so only inserts add documents to a product
-        $newDocuments = array_values(array_filter($documentCommands, static fn (WriteCommand $command): bool => $command instanceof InsertCommand));
         $translations = $this->writeOutcome->resultingRows(
             $event->getCommandsForEntity(ProductDocumentTranslationDefinition::ENTITY_NAME),
             ['media_id'],
         );
 
-        if ($newDocuments === [] && $translations === []) {
+        if ($translations === []) {
             return;
         }
 
         $violations = new ConstraintViolationList();
         $this->validateFiles($event, $translations, $violations);
-        $this->validateNumberOfDocuments($newDocuments, $documentCommands, $violations);
 
         if ($violations->count() > 0) {
             $event->getExceptions()->add(new WriteConstraintViolationException($violations));
@@ -178,68 +168,6 @@ final class ProductDocumentValidator implements EventSubscriberInterface
 
         // the system scope keeps private files visible, which the private check needs
         return $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): MediaCollection => $this->mediaRepository->search($criteria, $context)->getEntities());
-    }
-
-    /**
-     * @param list<WriteCommand> $newDocuments
-     * @param list<WriteCommand> $documentCommands
-     */
-    private function validateNumberOfDocuments(array $newDocuments, array $documentCommands, ConstraintViolationList $violations): void
-    {
-        $addedPerProduct = [];
-        foreach ($newDocuments as $document) {
-            $product = $this->productKey($document->getPayload());
-            if ($product !== null) {
-                $addedPerProduct[$product][] = $document->getPath();
-            }
-        }
-
-        if ($addedPerProduct === []) {
-            return;
-        }
-
-        // documents the same write deletes make room, for example when a file is replaced by a new document
-        $deletedDocumentIds = [];
-        foreach ($documentCommands as $command) {
-            if ($command instanceof DeleteCommand) {
-                $deletedDocumentIds[] = $command->getPrimaryKey()['id'];
-            }
-        }
-
-        $storedCounts = $this->reader->countDocuments(array_keys($addedPerProduct), $deletedDocumentIds);
-
-        foreach ($addedPerProduct as $product => $paths) {
-            $overLimit = ($storedCounts[$product] ?? 0) + \count($paths) - $this->config->maxPerProduct;
-            if ($overLimit <= 0) {
-                continue;
-            }
-
-            // the last added documents are the ones over the limit
-            foreach (\array_slice($paths, -$overLimit) as $path) {
-                $violations->add($this->violation(
-                    code: self::VIOLATION_TOO_MANY_DOCUMENTS,
-                    messageTemplate: 'A product can have at most {{ max }} documents.',
-                    parameters: ['{{ max }}' => (string) $this->config->maxPerProduct],
-                    path: $path,
-                ));
-            }
-        }
-    }
-
-    /**
-     * The product key format of ProductDocumentReader: id and version id in hex.
-     *
-     * @param array<string, mixed> $payload
-     */
-    private function productKey(array $payload): ?string
-    {
-        $productId = $payload['product_id'] ?? null;
-        $versionId = $payload['product_version_id'] ?? null;
-        if (!\is_string($productId) || !\is_string($versionId)) {
-            return null;
-        }
-
-        return Uuid::fromBytesToHex($productId) . Uuid::fromBytesToHex($versionId);
     }
 
     /**

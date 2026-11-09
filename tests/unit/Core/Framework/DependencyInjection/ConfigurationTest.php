@@ -161,7 +161,6 @@ class ConfigurationTest extends TestCase
         // the core list lives in shopware.yaml, like filesystem.allowed_extensions
         static::assertSame([
             'allowed_extensions' => [],
-            'max_per_product' => 10,
             'max_file_size' => 20 * 1024 * 1024,
         ], $config['product_documents']);
     }
@@ -169,13 +168,12 @@ class ConfigurationTest extends TestCase
     public function testAShopReplacesTheProductDocumentSettings(): void
     {
         $config = (new Processor())->processConfiguration(new Configuration(), [
-            ['product_documents' => ['allowed_extensions' => ['pdf', 'docx', 'jpg', 'jpeg', 'png'], 'max_per_product' => 10, 'max_file_size' => 20 * 1024 * 1024]],
-            ['product_documents' => ['allowed_extensions' => ['pdf'], 'max_per_product' => 3, 'max_file_size' => 5 * 1024 * 1024]],
+            ['product_documents' => ['allowed_extensions' => ['pdf', 'docx', 'jpg', 'jpeg', 'png'], 'max_file_size' => 20 * 1024 * 1024]],
+            ['product_documents' => ['allowed_extensions' => ['pdf'], 'max_file_size' => 5 * 1024 * 1024]],
         ]);
 
         static::assertSame([
             'allowed_extensions' => ['pdf'],
-            'max_per_product' => 3,
             'max_file_size' => 5 * 1024 * 1024,
         ], $config['product_documents']);
     }

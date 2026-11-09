@@ -104,6 +104,29 @@ describe('src/module/sw-order/page/sw-order-detail order switch', () => {
         expect(orderRepository.createVersion).toHaveBeenLastCalledWith('order-b');
     });
 
+    it('deletes a draft that arrives after switching to another order instead of using it', async () => {
+        const orderRepository = createOrderRepository();
+        let resolveFirstDraft: (context: { versionId: string }) => void = () => {};
+        orderRepository.createVersion.mockImplementationOnce(
+            () =>
+                new Promise((resolve) => {
+                    resolveFirstDraft = resolve;
+                }),
+        );
+        const { router } = await createWrapper(orderRepository);
+
+        await router.push('/sw/order/detail/order-b/general');
+        await flushPromises();
+
+        resolveFirstDraft({ versionId: 'order-a-draft' });
+        await flushPromises();
+
+        expect(orderRepository.deleteVersion).toHaveBeenCalledTimes(1);
+        expect(orderRepository.deleteVersion).toHaveBeenCalledWith('order-a', 'order-a-draft');
+        expect(orderRepository.get).not.toHaveBeenCalledWith('order-a', expect.anything(), expect.anything());
+        expect(Shopware.Store.get('swOrderDetail').versionContext?.versionId).toBe('order-b-draft');
+    });
+
     it('switches the tabs of an order with unsaved changes without asking', async () => {
         const orderRepository = createOrderRepository();
         const { wrapper, router } = await createWrapper(orderRepository);

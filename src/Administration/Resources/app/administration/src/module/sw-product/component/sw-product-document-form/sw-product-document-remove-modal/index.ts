@@ -14,6 +14,11 @@ export default Shopware.Component.wrapComponentConfig({
             required: true,
         },
 
+        languageName: {
+            type: String,
+            default: '',
+        },
+
         canEdit: {
             type: Boolean,
             default: false,

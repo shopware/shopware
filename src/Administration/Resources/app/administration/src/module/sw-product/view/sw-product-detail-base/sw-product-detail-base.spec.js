@@ -350,6 +350,13 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         expect(cards[1].classes()).toContain('sw-product-detail-base__documents');
     });
 
+    it('forwards a document language-switch request to the product page', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+        wrapper.getComponent('sw-product-document-form-stub').vm.$emit('change-language', 'default-language');
+        expect(wrapper.emitted('change-language')).toEqual([['default-language']]);
+    });
+
     it('should render media card title as mt-card title', async () => {
         const wrapper = await createWrapper();
 

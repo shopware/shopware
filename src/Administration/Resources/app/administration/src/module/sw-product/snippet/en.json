@@ -597,7 +597,15 @@
       "cardSubtitle": "Files customers can download on the product detail page in the Storefront.",
       "emptyState": "No documents yet",
       "emptyDescription": "Add files such as manuals, datasheets or certificates. Customers download them on the product detail page in the Storefront.",
+      "emptyDescriptionOtherLanguage": "Switch the content language to the default language {language} to add documents.",
+      "defaultLanguage": "default language",
       "buttonAdd": "Add documents",
+      "addLanguageVersion": "Add {language} version",
+      "fileFallbackHint": "Without a file here, customers get the file from the fallback language.",
+      "removeLanguageVersion": "Remove {language} version",
+      "removeLanguageVersionTitle": "Remove {language} version of \"{name}\"?",
+      "removeLanguageVersionDescription": "The {language} version will be removed. The fallback values for the name and file will be used instead. The file remains available in Media.",
+      "changedForLanguage": "Changed for this language.",
       "switchContentLanguage": "Switch content language",
       "columnPosition": "Position",
       "columnTitle": "Name",
@@ -619,7 +627,8 @@
       "errorDocumentLimit": "You can add up to {count} documents per product.",
       "errorDocumentDuplicated": "This file is already assigned to the product.",
       "fileUploadLabel": "File upload",
-      "uploadHint": "{extensions} or {lastExtension}, up to {size} MB each."
+      "uploadHint": "{extensions} or {lastExtension}, up to {size} MB each.",
+      "unlinkToAdd": "Unlink the card to add documents for this variant."
     }
   },
   "sw-privileges": {

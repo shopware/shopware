@@ -47,20 +47,15 @@
 
                 <template #headerRight>
                 {% block sw_product_document_form_add %}
-                    <div
+                    <sw-product-document-add-button
                         v-if="currentValue.length"
                         class="sw-product-document-form__add-button"
-                    >
-                        <mt-button
-                            size="small"
-                            variant="secondary"
-                            :disabled="isInherited || !canAddDocuments"
-                            @click="showUploadModal = true"
-                        >
-                            {{ $t('sw-product.documentForm.buttonAdd') }}
-                        </mt-button>
-                    </div>
-{% endblock %}
+                        :is-inherited="isInherited"
+                        :disabled="isInherited || !canAddDocuments"
+                        @add-documents="showUploadModal = true"
+                        @change-language="$emit('change-language', $event)"
+                    />
+                {% endblock %}
                 </template>
 
                 <template #grid>
@@ -75,6 +70,7 @@
                         <sw-product-document-empty-state
                             :can-add-documents="!isInherited && canAddDocuments"
                             @add-documents="showUploadModal = true"
+                            @change-language="$emit('change-language', $event)"
                         />
                     </div>
                 {% endblock %}
@@ -126,14 +122,20 @@
                     {% endblock %}
                     {% block sw_product_document_form_name %}
                         <template #column-title="{ item }">
-                            {{ getTitle(item) }}
+                            <sw-product-document-language-value
+                                :value="getTitle(item)"
+                                :is-translated="!!item.title"
+                            />
                         </template>
-{% endblock %}
+                    {% endblock %}
                     {% block sw_product_document_form_file %}
                         <template #column-fileName="{ item }">
-                            {{ getFileName(item) }}
+                            <sw-product-document-language-value
+                                :value="getFileName(item)"
+                                :is-translated="!!item.mediaId"
+                            />
                         </template>
-{% endblock %}
+                    {% endblock %}
                     {% block sw_product_document_form_type %}
                         <template #column-fileType="{ item }">
                             {{ getMedia(item)?.fileExtension?.toUpperCase() }}
@@ -150,18 +152,19 @@
                                 :disabled="!canEdit || isInherited"
                                 @click="openDocumentEditor(item)"
                             >
-                                {{ $t('global.default.edit') }}
+                                {{ !isDefaultLanguage && !item.title && !item.mediaId ? $t('sw-product.documentForm.addLanguageVersion', { language: contentLanguageName }) : $t('global.default.edit') }}
                             </sw-context-menu-item>
                             {% block sw_product_document_form_action_download %}
                             <sw-product-document-download :media="getMedia(item)" />
                             {% endblock %}
                             {% block sw_product_document_form_action_remove %}
                             <sw-context-menu-item
+                                v-if="isDefaultLanguage || item.title || item.mediaId"
                                 variant="danger"
                                 :disabled="!canEdit || isInherited"
                                 @click="openRemoveDocumentModal(item)"
                             >
-                                {{ $t('global.default.remove') }}
+                                {{ isDefaultLanguage ? $t('global.default.remove') : $t('sw-product.documentForm.removeLanguageVersion', { language: contentLanguageName }) }}
                             </sw-context-menu-item>
                             {% endblock %}
                         </template>
@@ -247,6 +250,10 @@
                 v-if="editingDocument"
                 v-model:document-title="documentTitle"
                 :document-id="editingDocument.id"
+                :allow-fallback="!isDefaultLanguage"
+                :language-name="contentLanguageName"
+                :is-adding-language-version="!isDefaultLanguage && !editingDocument.title && !editingDocument.mediaId"
+                :document-title-placeholder="documentTitlePlaceholder"
                 :editing-media="editingMedia"
                 :document-name-error="documentNameError"
                 :document-file-error="documentFileError"
@@ -267,6 +274,7 @@
             <sw-product-document-remove-modal
                 v-if="removingDocument"
                 :document-title="getTitle(removingDocument)"
+                :language-name="isDefaultLanguage ? '' : contentLanguageName"
                 :can-edit="canEdit"
                 @close="closeRemoveDocumentModal"
                 @remove="removeDocument"

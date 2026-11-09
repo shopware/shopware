@@ -597,7 +597,15 @@
       "cardSubtitle": "Dateien, die Kunden auf der Produktdetailseite in der Storefront herunterladen können.",
       "emptyState": "Noch keine Dokumente",
       "emptyDescription": "Füge Dateien wie Anleitungen, Datenblätter oder Zertifikate hinzu. Kunden laden sie auf der Produktdetailseite in der Storefront herunter.",
+      "emptyDescriptionOtherLanguage": "Wechsle zur Standard-Inhaltssprache {language}, um Dokumente hinzuzufügen.",
+      "defaultLanguage": "Standardsprache",
       "buttonAdd": "Dokumente hinzufügen",
+      "addLanguageVersion": "Version auf {language} hinzufügen",
+      "fileFallbackHint": "Ohne eine Datei an dieser Stelle erhalten Kundinnen und Kunden die Datei aus der Fallback-Sprache.",
+      "removeLanguageVersion": "Version auf {language} entfernen",
+      "removeLanguageVersionTitle": "Version auf {language} von „{name}“ entfernen?",
+      "removeLanguageVersionDescription": "Die Version auf {language} wird entfernt. Stattdessen werden die Fallback-Werte für Name und Datei verwendet. Die Datei bleibt unter „Medien“ verfügbar.",
+      "changedForLanguage": "Für diese Sprache geändert.",
       "switchContentLanguage": "Inhaltssprache wechseln",
       "columnPosition": "Position",
       "columnTitle": "Name",
@@ -619,7 +627,8 @@
       "errorDocumentLimit": "Du kannst bis zu {count} Dokumente pro Produkt hinzufügen.",
       "errorDocumentDuplicated": "Diese Datei ist dem Produkt bereits zugewiesen.",
       "fileUploadLabel": "Datei-Upload",
-      "uploadHint": "{extensions} oder {lastExtension}, jeweils bis zu {size} MB."
+      "uploadHint": "{extensions} oder {lastExtension}, jeweils bis zu {size} MB.",
+      "unlinkToAdd": "Hebe die Vererbung der Karte auf, um Dokumente für diese Variante hinzuzufügen."
     }
   },
   "sw-privileges": {

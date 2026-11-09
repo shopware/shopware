@@ -587,9 +587,13 @@ Deprecation notices for the legacy Twig override shim and for deprecated extensi
 ### Deprecated Administration APIs warn when they are used
 
 Deprecated Administration JavaScript APIs now call `Shopware.Feature.triggerDeprecationOrThrow()` when they are used: deprecated `Shopware.*` globals including `Shopware.State`, services, exported functions, component `methods` and `computed` members, also through `this.$super()`, as well as deprecated components and props.
-In development builds, a use logs a warning naming the API and its replacement. With the next major flag active, it throws.
+In development builds, a use logs a warning naming the API and its replacement.
+With the next major flag active, it throws.
+Deprecated APIs that core itself still uses are listed in `deprecation-baseline.json` and only log an error, until core stops using them.
 
-To find the uses in your extension before the major, run its Jest suite with the environment variable `V6_8_0_0=1`.
+To find the uses in your extension, watch the browser console of a development build.
+In Jest, assert them with `expect(deprecations).toHaveTriggered()`;
+an extension test run does not fail on deprecations on its own.
 
 ### Unused runtime packages removed from the Administration
 

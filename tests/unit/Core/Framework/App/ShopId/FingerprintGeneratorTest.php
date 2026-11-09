@@ -128,6 +128,23 @@ class FingerprintGeneratorTest extends TestCase
         static::assertSame(1, $fingerprint->stampCalculations);
     }
 
+    public function testMatchesAnEqualStampWithoutCustomComparison(): void
+    {
+        $fingerprint = new CompareCountingFingerprint();
+
+        $result = (new FingerprintGenerator([$fingerprint]))->matchFingerprints(['compare-counting' => 'stamp']);
+
+        static::assertEquals(
+            new FingerprintComparisonResult(
+                ['compare-counting' => new FingerprintMatch('compare-counting', 'stamp', 25)],
+                [],
+                75,
+            ),
+            $result,
+        );
+        static::assertSame(0, $fingerprint->comparisons);
+    }
+
     public static function storedFingerprintsOfOneFingerprint(): \Generator
     {
         yield 'matching stamp is calculated once for the comparison and the match' => [['stamp-counting' => 'stamp']];
@@ -309,5 +326,35 @@ class LevenshteinFingerprint implements Fingerprint, FingerprintCustomCompare
         }
 
         return (int) (($lev / $maxLen) * 100);
+    }
+}
+
+/**
+ * @internal
+ */
+class CompareCountingFingerprint implements Fingerprint, FingerprintCustomCompare
+{
+    public int $comparisons = 0;
+
+    public function getIdentifier(): string
+    {
+        return 'compare-counting';
+    }
+
+    public function getScore(): int
+    {
+        return 25;
+    }
+
+    public function getStamp(): string
+    {
+        return 'stamp';
+    }
+
+    public function compare(?string $storedStamp): int
+    {
+        ++$this->comparisons;
+
+        return 0;
     }
 }

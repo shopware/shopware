@@ -41,6 +41,11 @@ class FingerprintGenerator
             // calculating a stamp can be expensive (e.g. reading all sales channel domains), so it is done once
             $stamp = $fingerprint->getStamp();
 
+            if ($storedStamp === $stamp) {
+                $matchingFingerprints[$fingerprint->getIdentifier()] = FingerprintMatch::fromFingerprint($fingerprint, $stamp);
+                continue;
+            }
+
             if ($fingerprint instanceof FingerprintCustomCompare) {
                 $score = $fingerprint->compare($storedStamp);
 
@@ -56,11 +61,6 @@ class FingerprintGenerator
                     $score,
                 );
 
-                continue;
-            }
-
-            if ($storedStamp === $stamp) {
-                $matchingFingerprints[$fingerprint->getIdentifier()] = FingerprintMatch::fromFingerprint($fingerprint, $stamp);
                 continue;
             }
 

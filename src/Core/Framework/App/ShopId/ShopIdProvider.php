@@ -53,9 +53,11 @@ class ShopIdProvider implements ResetInterface
             // if the shop does not have any apps we can update the existing shop id value
             // with the new APP_URL as no app knows the shop id
             $this->regenerateAndSetShopId($this->shopId->id);
+
+            return $this->shopId;
         }
 
-        return $this->shopId;
+        return $this->storeChangedStampsOfMatchingFingerprints($this->shopId, $fingerprintsComparison);
     }
 
     public function regenerateAndSetShopId(?string $existingShopId = null): ShopId
@@ -104,6 +106,26 @@ class ShopIdProvider implements ResetInterface
         }
 
         $this->shopId = $shopId;
+    }
+
+    private function storeChangedStampsOfMatchingFingerprints(ShopId $shopId, FingerprintComparisonResult $comparison): ShopId
+    {
+        $changedStamps = [];
+
+        foreach ($comparison->matchingFingerprints as $identifier => $match) {
+            if ($shopId->getFingerprint($identifier) !== $match->storedStamp) {
+                $changedStamps[$identifier] = $match->storedStamp;
+            }
+        }
+
+        if ($changedStamps === []) {
+            return $shopId;
+        }
+
+        $updatedShopId = ShopId::v2($shopId->id, [...$shopId->fingerprints, ...$changedStamps]);
+        $this->setShopId($updatedShopId);
+
+        return $updatedShopId;
     }
 
     private function hasAppsRegisteredAtAppServers(): bool

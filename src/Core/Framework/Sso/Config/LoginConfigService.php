@@ -39,6 +39,7 @@ readonly class LoginConfigService
     public function __construct(
         private array $rawConfig,
         private RouterInterface $router,
+        private bool $passwordRecoveryEnabled = true,
     ) {
     }
 
@@ -71,6 +72,7 @@ readonly class LoginConfigService
         return new TemplateData(
             $loginConfig->useDefault ?? true,
             $loginConfig ? TrustedOriginUrlGenerator::generate($this->router, 'oauth.sso.auth', ['rdm' => $random]) : null,
+            $this->passwordRecoveryEnabled,
         );
     }
 
@@ -153,25 +155,25 @@ readonly class LoginConfigService
                     new NotBlank(null, $notBlankMessage),
                     new Type('string', $invalidStringMessage),
                     new Url(message: $invalidUrlMessage, requireTld: false),
-                    new Regex('/\w+(?!\/)$/', 'should not end with "/"'),
+                    new Regex(pattern: '#/$#D', message: 'should not end with "/"', match: false),
                 ],
                 'authorize_path' => [
                     new NotNull(null, $isNullMessage),
                     new NotBlank(null, $notBlankMessage),
                     new Type('string', $invalidStringMessage),
-                    new Regex('/^[\/].+$/', $invalidPath), // path should start with "/"
+                    new Regex('/^[\/].+$/D', $invalidPath), // path should start with "/"
                 ],
                 'token_path' => [
                     new NotNull(null, $isNullMessage),
                     new NotBlank(null, $notBlankMessage),
                     new Type('string', $invalidStringMessage),
-                    new Regex('/^[\/].+$/', $invalidPath), // path should start with "/"
+                    new Regex('/^[\/].+$/D', $invalidPath), // path should start with "/"
                 ],
                 'jwks_path' => [
                     new NotNull(null, $isNullMessage),
                     new NotBlank(null, $notBlankMessage),
                     new Type('string', $invalidStringMessage),
-                    new Regex('/^[\/].+$/', $invalidPath), // path should start with "/"
+                    new Regex('/^[\/].+$/D', $invalidPath), // path should start with "/"
                 ],
                 'scope' => [
                     new NotNull(null, $isNullMessage),

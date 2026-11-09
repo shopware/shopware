@@ -18,9 +18,11 @@
  * major behaviour, so `.md` files never count, the same definition of docs-only the
  * `markdown-only-changes` action uses.
  *
- * The PHP arm retains that repository-wide marker detection. The Administration
- * Jest arm uses the same markers only in Administration source and test files;
+ * The PHP arm retains that repository-wide marker detection. The JavaScript
+ * Jest arm uses the same markers only in Administration and Storefront source and test files;
  * a feature-registry change enables both arms because it changes both baselines.
+ * A change to the Jest deprecation baseline enables the Jest arm, so the major run checks the
+ * usages it lists for that run.
  * Acceptance spec changes enable the ATS arm, using the same paths as
  * acceptance-tests-changed; fixtures, tasks and dependency-only changes do not.
  */
@@ -29,6 +31,8 @@ export const FEATURE_REGISTRY_PATH = 'src/Core/Framework/Resources/config/packag
 export const ADMINISTRATION_APP_PATH = 'src/Administration/Resources/app/administration/';
 export const ADMINISTRATION_SOURCE_PATH = `${ADMINISTRATION_APP_PATH}src/`;
 export const ADMINISTRATION_TEST_PATH = `${ADMINISTRATION_APP_PATH}test/`;
+const STOREFRONT_APP_PATH = 'src/Storefront/Resources/app/storefront/';
+export const ADMINISTRATION_DEPRECATION_BASELINE_PATH = `${ADMINISTRATION_SOURCE_PATH}core/deprecation-baseline.json`;
 
 type PullRequestLabel = {
     name: string;
@@ -216,16 +220,17 @@ export function hasMajorMarkers(diff: string, majorFlags: string[]): boolean {
 export function hasMajorJsMarkers(diff: string, majorFlags: string[]): boolean {
     const files = splitDiffByFile(diff);
 
-    if (files.some(({ path }) => path === FEATURE_REGISTRY_PATH)) {
+    if (files.some(({ path }) => path === FEATURE_REGISTRY_PATH || path === ADMINISTRATION_DEPRECATION_BASELINE_PATH)) {
         return true;
     }
 
-    const administrationFiles = files.filter(
+    const jsFiles = files.filter(
         ({ path }) =>
-            (path.startsWith(ADMINISTRATION_SOURCE_PATH) || path.startsWith(ADMINISTRATION_TEST_PATH)) &&
+            (path.startsWith(ADMINISTRATION_SOURCE_PATH) || path.startsWith(ADMINISTRATION_TEST_PATH)
+                || path.startsWith(`${STOREFRONT_APP_PATH}src/`) || path.startsWith(`${STOREFRONT_APP_PATH}test/`)) &&
             !isMarkdownFile(path),
     );
-    const changedLines = administrationFiles.flatMap(({ section }) =>
+    const changedLines = jsFiles.flatMap(({ section }) =>
         section.split('\n').filter((line) => /^[+-][^+-]/.test(line)),
     );
 

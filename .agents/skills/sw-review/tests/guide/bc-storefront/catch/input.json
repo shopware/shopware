@@ -1,0 +1,34 @@
+{
+  "persona": "ux",
+  "tier": "balanced",
+  "pr": {
+    "number": null,
+    "head_sha": "synthetic-bc-storefront-catch",
+    "title": "refactor(storefront): simplify listing pagination",
+    "body": "Renames the pagination item label block and drops an unused selector option from the pagination plugin.",
+    "labels": [],
+    "author": "synthetic",
+    "author_association": "MEMBER",
+    "base_ref_name": "trunk",
+    "head_ref_name": "synthetic/bc-storefront-catch",
+    "additions": 2,
+    "deletions": 3,
+    "changed_files": 2
+  },
+  "diff_path": "diff.patch",
+  "files": [
+    "src/Storefront/Resources/views/storefront/component/pagination.html.twig",
+    "src/Storefront/Resources/app/storefront/src/plugin/listing/listing-pagination.plugin.js"
+  ],
+  "guides": [
+    "guides/bc-storefront.md"
+  ],
+  "change_profile": {
+    "signals": [
+      "storefront_ui"
+    ],
+    "guides": [
+      "bc-storefront"
+    ]
+  }
+}

@@ -206,7 +206,7 @@ class XmlParserUtils
 
     private static function getLanguage(string $locale): ?string
     {
-        if (preg_match('/^([a-z]{2,3})(?:[-_]|$)/i', $locale, $matches) !== 1) {
+        if (preg_match('/^([a-z]{2,3})(?:[-_]|$)/iD', $locale, $matches) !== 1) {
             return null;
         }
 

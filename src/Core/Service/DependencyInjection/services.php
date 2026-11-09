@@ -183,6 +183,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(TemporaryDirectoryFactory::class),
             service(AppExtractor::class),
             service(Filesystem::class),
+            service('logger'),
         ])
         ->tag('app.source_resolver', ['priority' => 100]);
 
@@ -261,11 +262,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             env('ENABLE_SERVICES'),
             param('kernel.environment'),
             service(SystemConfigService::class),
-            service(ServiceStorage::class),
             service(ServiceLifecycle::class),
             service(AllServiceInstaller::class),
             service(PermissionsService::class),
-            service(Client::class),
         ]);
 
     $services->set(ServiceLifecycleSubscriber::class)

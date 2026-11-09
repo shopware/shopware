@@ -20,6 +20,7 @@ async function createWrapper(options = {}) {
                 },
                 repositoryFactory: {
                     create: () => ({
+                        searchIds: jest.fn(() => Promise.resolve({ total: 1, data: ['1'] })),
                         search: jest.fn(() =>
                             Promise.resolve([
                                 {
@@ -316,7 +317,7 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
         });
 
         wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'digital');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.activeTab).toBe('digital');
     });

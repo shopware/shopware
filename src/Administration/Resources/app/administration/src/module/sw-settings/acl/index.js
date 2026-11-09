@@ -16,6 +16,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'cms_page:read',
                 'product_sorting:read',
                 'custom_field:read',
+                'custom_field_set:read',
                 'custom_field_set_relation:read',
                 'product_sorting:create',
                 'product_sorting:update',

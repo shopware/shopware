@@ -111,6 +111,10 @@ describe('module/sw-product/page/sw-product-detail', () => {
                                     product._origin = {};
                                 }
 
+                                if (product && !product.isNew) {
+                                    product.isNew = () => false;
+                                }
+
                                 return product;
                             },
                             hasChanges: () => true,
@@ -591,7 +595,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                 name: 'general',
             };
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         settings.forEach((entry) => {
             expect(entry.enabled).toBe(!keys.includes(entry.key));
@@ -605,7 +609,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     it('should set purchasePrices to default value when given purchasePrices are empty', async () => {
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.unmount();
         wrapper = await createWrapper(() =>
             Promise.resolve([
@@ -693,6 +697,38 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await flushPromises();
         await flushPromises();
         expect(wrapper.vm.product.visibilities).toHaveLength(1);
+    });
+
+    it('should request every default sales channel by id', async () => {
+        await flushPromises();
+        await wrapper.unmount();
+
+        const searchedCriteria = [];
+
+        wrapper = await createWrapper(
+            (criteria) => {
+                searchedCriteria.push(criteria);
+
+                return Promise.resolve([
+                    {
+                        id: '98432def39fc4624b33213a56b8c944d',
+                        name: 'Headless',
+                    },
+                ]);
+            },
+            undefined,
+            null,
+        );
+
+        await flushPromises();
+        await flushPromises();
+
+        const salesChannelCriteria = searchedCriteria.find((criteria) =>
+            criteria.ids.includes('98432def39fc4624b33213a56b8c944d'),
+        );
+
+        expect(salesChannelCriteria).toBeDefined();
+        expect(salesChannelCriteria.limit).toBeNull();
     });
 
     it('should run custom validation service and handle errors', async () => {

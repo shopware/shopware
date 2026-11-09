@@ -82,6 +82,7 @@ export default {
             previousWeightUnit: null,
             updateSeoPromises: [],
             isProductNotFound: false,
+            lastViewedProductId: null,
         };
     },
 
@@ -527,6 +528,7 @@ export default {
 
             // when create
             if (!this.productId) {
+                this.lastViewedProductId = null;
                 // Immediately reset store to prevent
                 // stale data from a previous variant/child product from rendering
                 // before initState() creates a new product entity
@@ -840,6 +842,14 @@ export default {
                     } else {
                         Shopware.Store.get('swProductDetail').parentProduct = {};
                     }
+
+                    if (this.productId === product.id && this.lastViewedProductId !== product.id) {
+                        this.lastViewedProductId = product.id;
+                        Shopware.Telemetry.track({
+                            eventName: 'sw_product.detail.product_viewed',
+                            product_type: product.type,
+                        });
+                    }
                 })
                 .finally(() => {
                     Shopware.Store.get('swProductDetail').setLoading(['product', false]);
@@ -1024,9 +1034,9 @@ export default {
         },
 
         fetchSalesChannelByIds(ids) {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, null);
 
-            criteria.addFilter(Criteria.equalsAny('id', ids));
+            criteria.setIds(ids);
 
             return this.salesChannelRepository.search(criteria);
         },
@@ -1279,10 +1289,19 @@ export default {
                     return;
                 }
 
+                const productType = this.productType;
+                const productIsNew = this.product.isNew();
+
                 // save product
                 this.syncRepository
                     .save(this.product, this.productApiContext)
                     .then(() => {
+                        Shopware.Telemetry.track({
+                            eventName: 'sw_product.detail.product_saved',
+                            product_type: productType,
+                            product_is_new: productIsNew,
+                        });
+
                         this.savePreferenceUnits()
                             .then(() => {
                                 this.previousLengthUnit = this.lengthUnit;

@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Symfony\Component\Mime\MimeTypes;
 
 /**
- * The `shopware.product_documents` settings: allowed file types, documents per language and file size.
+ * The `shopware.product_documents` settings: allowed file types, documents per product and file size.
  *
  * @internal
  */
@@ -20,48 +20,41 @@ readonly class ProductDocumentConfig
     public array $allowedExtensions;
 
     /**
+     * @var array<string, list<string>>
+     */
+    public array $mimeTypesByExtension;
+
+    /**
      * @param list<string> $allowedExtensions
      * @param int $maxFileSize in bytes
      */
     public function __construct(
         array $allowedExtensions,
-        public int $maxPerLanguage,
+        public int $maxPerProduct,
         public int $maxFileSize,
     ) {
         $extensions = array_map(
             static fn (string $extension): string => mb_strtolower(ltrim(trim($extension), '.')),
             $allowedExtensions,
         );
-
         $this->allowedExtensions = array_values(array_unique(array_filter($extensions, static fn (string $extension): bool => $extension !== '')));
-    }
 
-    /**
-     * @return array<string, list<string>>
-     */
-    public function getMimeTypesByExtension(): array
-    {
         $mimeTypes = MimeTypes::getDefault();
-
         $mimeTypesByExtension = [];
         foreach ($this->allowedExtensions as $extension) {
             $mimeTypesByExtension[$extension] = array_values(array_unique($mimeTypes->getMimeTypes($extension)));
         }
-
-        return $mimeTypesByExtension;
+        $this->mimeTypesByExtension = $mimeTypesByExtension;
     }
 
     /**
-     * The largest file the Administration can upload: the configured size, lowered by PHP's `post_max_size`.
-     * The Administration sends the raw file, so `upload_max_filesize` doesn't apply; presigned uploads skip PHP.
+     * The largest file an upload through PHP can carry: the configured size, lowered by PHP's `post_max_size`.
+     * The Administration sends the raw file, so `upload_max_filesize` doesn't apply.
      */
-    public function getMaxUploadFileSize(bool $presignedUploadSupported): int
+    public function getMaxUploadFileSize(): int
     {
         $postMaxSize = MemorySizeCalculator::convertToBytes((string) ini_get('post_max_size'));
-        if ($presignedUploadSupported || $postMaxSize <= 0) {
-            return $this->maxFileSize;
-        }
 
-        return min($this->maxFileSize, $postMaxSize);
+        return $postMaxSize > 0 ? min($this->maxFileSize, $postMaxSize) : $this->maxFileSize;
     }
 }

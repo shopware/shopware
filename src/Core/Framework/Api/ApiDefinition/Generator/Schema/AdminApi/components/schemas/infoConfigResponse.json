@@ -162,7 +162,7 @@
               },
               "productDocuments": {
                 "type": "object",
-                "description": "The `shopware.product_documents` settings: allowed file types, documents per language and file size.",
+                "description": "The `shopware.product_documents` settings: allowed file types, documents per product and file size.",
                 "properties": {
                   "allowedExtensions": {
                     "type": "array",
@@ -177,16 +177,16 @@
                       "items": { "type": "string" }
                     }
                   },
-                  "maxPerLanguage": {
+                  "maxPerProduct": {
                     "type": "integer",
-                    "description": "How many documents a product can have in one language."
+                    "description": "How many documents a product can have."
                   },
                   "maxFileSize": {
                     "type": "integer",
                     "description": "The largest file in bytes the Administration can upload for a document: the configured size, lowered by PHP's post_max_size unless uploads go straight to the storage."
                   }
                 },
-                "required": ["allowedExtensions", "allowedMimeTypesByExtension", "maxPerLanguage", "maxFileSize"]
+                "required": ["allowedExtensions", "allowedMimeTypesByExtension", "maxPerProduct", "maxFileSize"]
               }
             },
             "required": ["firstMigrationDate"],

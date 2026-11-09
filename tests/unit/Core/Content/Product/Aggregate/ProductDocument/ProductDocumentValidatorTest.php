@@ -5,7 +5,8 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Aggregate\ProductDocument;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentConfig;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentReader;
@@ -13,19 +14,19 @@ use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentValid
 use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\OutcomeRow;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -42,120 +43,80 @@ class ProductDocumentValidatorTest extends TestCase
 
     private StaticDefinitionInstanceRegistry $registry;
 
-    /**
-     * @var list<OutcomeRow> what WriteOutcome returns for the documents
-     */
-    private array $documents = [];
+    private MediaCollection $files;
 
     /**
-     * @var list<OutcomeRow> what WriteOutcome returns for the translations
-     */
-    private array $translations = [];
-
-    /**
-     * @var list<OutcomeRow> what WriteOutcome returns for the media
-     */
-    private array $media = [];
-
-    /**
-     * @var array<string, array{extension: string|null, size: int|null, private: bool, path: string|null}>
-     */
-    private array $storedFiles = [];
-
-    /**
-     * @var array<string, int>
+     * @var array<string, int> stored documents per product key
      */
     private array $storedDocuments = [];
 
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
+        $this->files = new MediaCollection();
         $this->registry = new StaticDefinitionInstanceRegistry(
-            [ProductDocumentDefinition::class, ProductDocumentTranslationDefinition::class, MediaDefinition::class],
+            [ProductDocumentDefinition::class, ProductDocumentTranslationDefinition::class],
             static::createStub(ValidatorInterface::class),
             static::createStub(EntityWriteGatewayInterface::class),
         );
     }
 
     /**
-     * @return iterable<string, array{array{extension: string|null, size: int|null, private: bool, path: string|null}, list<string>}>
+     * @return iterable<string, array{string|null, int|null, list<string>}>
      */
     public static function fileProvider(): iterable
     {
-        yield 'an allowed file' => [self::file(), []];
-        yield 'an allowed file type in upper case' => [self::file(extension: 'PDF'), []];
-        yield 'another file type' => [self::file(extension: 'xlsx'), [ProductDocumentValidator::VIOLATION_FILE_EXTENSION_NOT_ALLOWED]];
-        yield 'a file over the maximum size' => [self::file(size: 1025), [ProductDocumentValidator::VIOLATION_FILE_TOO_LARGE]];
-        yield 'a file without content' => [self::file(extension: null, size: null, path: null), [ProductDocumentValidator::VIOLATION_FILE_SIZE_UNKNOWN]];
-        yield 'a link to a file on another server' => [self::file(path: 'https://cdn.example.com/manual.pdf'), [ProductDocumentValidator::VIOLATION_FILE_SIZE_UNKNOWN]];
-        yield 'a private file' => [self::file(private: true), [ProductDocumentValidator::VIOLATION_FILE_PRIVATE]];
+        yield 'an allowed file' => ['pdf', 1024, []];
+        yield 'an allowed file type in upper case' => ['PDF', 1024, []];
+        yield 'another file type' => ['xlsx', 1024, [ProductDocumentValidator::VIOLATION_FILE_EXTENSION_NOT_ALLOWED]];
+        yield 'a file over the maximum size' => ['pdf', 1025, [ProductDocumentValidator::VIOLATION_FILE_TOO_LARGE]];
+        yield 'a file without content' => [null, null, [ProductDocumentValidator::VIOLATION_FILE_SIZE_UNKNOWN]];
     }
 
     /**
-     * @param array{extension: string|null, size: int|null, private: bool, path: string|null} $file
      * @param list<string> $codes
      */
     #[DataProvider('fileProvider')]
-    public function testTheFileMustFitTheLimits(array $file, array $codes): void
+    public function testTheFileMustFitTheLimits(?string $extension, ?int $size, array $codes): void
     {
-        $this->storedFiles = [$this->ids->get('manual-file') => $file];
-        $this->translations = [$this->translation('manual', self::GERMAN, '/0/translations/' . self::GERMAN, file: 'manual-file')];
+        $this->file('manual-file', $extension, $size);
+        $path = '/0/translations/' . self::GERMAN;
 
-        $expected = array_map(static fn (string $code): array => ['code' => $code, 'pointer' => '/0/translations/' . self::GERMAN . '/mediaId'], $codes);
-        static::assertSame($expected, $this->validate());
+        $errors = $this->validate([$this->translationUpdate('manual', self::GERMAN, $path, file: 'manual-file')]);
+
+        static::assertSame(array_map(static fn (string $code): array => ['code' => $code, 'pointer' => $path . '/mediaId'], $codes), $errors);
     }
 
-    public function testAFileTheSameWriteCreatesIsCheckedAsItWillBe(): void
+    public function testOnlyTheFilesTheWriteSetsAreLoaded(): void
     {
-        $this->media = [new OutcomeRow(
-            primaryKey: ['id' => $this->ids->getBytes('manual-file')],
-            path: '/0',
-            isNew: true,
-            isDeleted: false,
-            payload: ['file_name' => 'manual'],
-            state: ['file_extension' => null, 'file_size' => null, 'private' => null, 'path' => null],
-        )];
-        $this->translations = [$this->translation('manual', Defaults::LANGUAGE_SYSTEM, '/1/translations/' . Defaults::LANGUAGE_SYSTEM, file: 'manual-file')];
+        $this->file('manual-file', 'pdf', 1024);
 
-        $errors = $this->validate([$this->mediaCommand('manual-file', '/0')]);
+        $validator = new ProductDocumentValidator(
+            new StaticEntityRepository([
+                function (Criteria $criteria): MediaCollection {
+                    static::assertSame([$this->ids->get('manual-file')], $criteria->getIds());
 
-        static::assertSame([['code' => ProductDocumentValidator::VIOLATION_FILE_SIZE_UNKNOWN, 'pointer' => '/1/translations/' . Defaults::LANGUAGE_SYSTEM . '/mediaId']], $errors);
+                    return $this->files;
+                },
+            ]),
+            static::createStub(ProductDocumentReader::class),
+            $this->config(),
+        );
+
+        $event = $this->event([
+            $this->translationUpdate('manual', Defaults::LANGUAGE_SYSTEM, '/0', file: 'manual-file'),
+            $this->translationUpdate('manual', self::GERMAN, '/1', file: 'manual-file'),
+            // a title change doesn't touch the file
+            new UpdateCommand($this->registry->get(ProductDocumentTranslationDefinition::class), ['title' => 'Handbook'], $this->translationKey('datasheet', self::GERMAN), $this->existence(), '/2'),
+        ]);
+        $validator->validate($event);
+
+        static::assertSame([], $this->errorsOf($event));
     }
 
     public function testAFileThatDoesNotExistIsLeftToTheDatabase(): void
     {
-        $this->translations = [$this->translation('manual', Defaults::LANGUAGE_SYSTEM, '/0', file: 'missing-file')];
-
-        static::assertSame([], $this->validate());
-    }
-
-    public function testAFileIsOnlyCheckedWhenATranslationGetsIt(): void
-    {
-        // a file that broke a limit later doesn't block writes that keep it
-        $this->storedFiles = [$this->ids->get('manual-file') => self::file(private: true)];
-        $this->translations = [$this->translation('manual', Defaults::LANGUAGE_SYSTEM, '/0', file: 'manual-file', storedFile: 'manual-file')];
-
-        static::assertSame([], $this->validate());
-    }
-
-    public function testANewDocumentNeedsADefaultLanguageTranslation(): void
-    {
-        $this->storedFiles = [
-            $this->ids->get('manual-file') => self::file(),
-            $this->ids->get('zertifikat-file') => self::file(),
-        ];
-        $this->documents = [
-            $this->addedDocument('manual', '/0/documents/0'),
-            $this->addedDocument('certificate', '/0/documents/1'),
-            // existing documents are not checked
-            $this->editedDocument('datasheet', '/0/documents/2'),
-        ];
-        $this->translations = [
-            $this->translation('manual', Defaults::LANGUAGE_SYSTEM, '/0/documents/0/translations/' . Defaults::LANGUAGE_SYSTEM, file: 'manual-file'),
-            $this->translation('certificate', self::GERMAN, '/0/documents/1/translations/' . self::GERMAN, file: 'zertifikat-file'),
-        ];
-
-        static::assertSame([['code' => ProductDocumentValidator::VIOLATION_DEFAULT_TRANSLATION_MISSING, 'pointer' => '/0/documents/1']], $this->validate());
+        static::assertSame([], $this->validate([$this->translationUpdate('manual', Defaults::LANGUAGE_SYSTEM, '/0', file: 'missing-file')]));
     }
 
     /**
@@ -169,9 +130,7 @@ class ProductDocumentValidatorTest extends TestCase
             ['/0/documents/2'],
         ];
         yield 'edits are allowed over a lowered limit' => [12, [['edited', '/0/documents/0']], []];
-        yield 'a document moved from another product is added' => [10, [['moved in', '/0']], ['/0']];
-        yield 'deleted documents make room' => [10, [['deleted', '/0'], ['added', '/1']], []];
-        yield 'documents moved to another product make room' => [10, [['moved out', '/0'], ['added', '/1']], []];
+        yield 'documents the write deletes make room' => [10, [['deleted', '/0'], ['added', '/1']], []];
     }
 
     /**
@@ -179,56 +138,73 @@ class ProductDocumentValidatorTest extends TestCase
      * @param list<string> $pointers
      */
     #[DataProvider('documentCountProvider')]
-    public function testAProductCanHaveTenDocumentsPerLanguage(int $storedDocuments, array $changes, array $pointers): void
+    public function testAProductCanHaveTenDocuments(int $storedDocuments, array $changes, array $pointers): void
     {
-        $this->storedDocuments = [$this->ids->get('drill') . Defaults::LIVE_VERSION => $storedDocuments];
-        $this->storedFiles = [$this->ids->get('file') => self::file()];
+        $deleted = [];
+        $commands = [];
+        $definition = $this->registry->get(ProductDocumentDefinition::class);
         foreach ($changes as $number => [$change, $path]) {
-            $document = 'document-' . $number;
-            if ($change === 'added') {
-                $this->translations[] = $this->translation($document, Defaults::LANGUAGE_SYSTEM, $path . '/translations/' . Defaults::LANGUAGE_SYSTEM, file: 'file');
-            }
-
-            $this->documents[] = match ($change) {
-                'added' => $this->addedDocument($document, $path),
-                'edited' => $this->editedDocument($document, $path),
-                'moved in' => $this->editedDocument($document, $path, product: 'screwdriver', movedTo: 'drill'),
-                'moved out' => $this->editedDocument($document, $path, movedTo: 'screwdriver'),
-                'deleted' => $this->deletedDocument($document, $path),
+            $key = ['id' => $this->ids->getBytes('document-' . $number), 'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)];
+            $commands[] = match ($change) {
+                'added' => new InsertCommand($definition, $this->productPayload(), $key, $this->existence(), $path),
+                // a save through the product sends the product of every document
+                'edited' => new UpdateCommand($definition, ['position' => 1, ...$this->productPayload()], $key, $this->existence(), $path),
+                'deleted' => new DeleteCommand($definition, $key, $this->existence()),
                 default => static::fail('Unknown change ' . $change),
             };
+            if ($change === 'deleted') {
+                $deleted[] = $key['id'];
+            }
         }
 
+        $reader = static::createStub(ProductDocumentReader::class);
+        $reader->method('countDocuments')->willReturnCallback(function (array $products, array $excludedIds) use ($storedDocuments, $deleted): array {
+            static::assertSame([$this->ids->get('drill') . Defaults::LIVE_VERSION], $products);
+            static::assertSame($deleted, $excludedIds);
+
+            return [$products[0] => $storedDocuments - \count($excludedIds)];
+        });
+
+        $event = $this->event($commands);
+        (new ProductDocumentValidator(new StaticEntityRepository([]), $reader, $this->config()))->validate($event);
+
         $expected = array_map(static fn (string $pointer): array => ['code' => ProductDocumentValidator::VIOLATION_TOO_MANY_DOCUMENTS, 'pointer' => $pointer], $pointers);
-        static::assertSame($expected, $this->validate());
+        static::assertSame($expected, $this->errorsOf($event));
     }
 
-    public function testAWriteThatAddsNoDocumentReadsNoStoredDocuments(): void
+    public function testAWriteThatAddsNoDocumentCountsNothing(): void
     {
-        $writeOutcome = $this->createMock(WriteOutcome::class);
-        $writeOutcome->expects($this->never())->method('touchedRows');
-        $writeOutcome->method('resultingRows')->willReturn([]);
+        $reader = $this->createMock(ProductDocumentReader::class);
+        $reader->expects($this->never())->method('countDocuments');
 
         $definition = $this->registry->get(ProductDocumentDefinition::class);
-        $existence = EntityExistence::createForEntity(ProductDocumentDefinition::ENTITY_NAME, []);
-        $event = new PreWriteValidationEvent(WriteContext::createFromContext(Context::createDefaultContext()), [
-            new DeleteCommand($definition, $this->documentKey('manual'), $existence),
-            // the DAL sets the product version of every document it updates
-            new UpdateCommand($definition, ['position' => 2, 'product_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)], $this->documentKey('datasheet'), $existence, '/1'),
+        $event = $this->event([
+            new DeleteCommand($definition, ['id' => $this->ids->getBytes('manual'), 'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)], $this->existence()),
+            new UpdateCommand($definition, ['position' => 2, ...$this->productPayload()], ['id' => $this->ids->getBytes('datasheet'), 'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)], $this->existence(), '/1'),
         ]);
 
-        (new ProductDocumentValidator($writeOutcome, static::createStub(ProductDocumentReader::class), new ProductDocumentConfig(['pdf'], maxPerLanguage: 10, maxFileSize: 1024)))
-            ->validate($event);
+        (new ProductDocumentValidator(new StaticEntityRepository([]), $reader, $this->config()))->validate($event);
 
         static::assertSame([], $this->errorsOf($event));
     }
 
-    /**
-     * @return array{extension: string|null, size: int|null, private: bool, path: string|null}
-     */
-    private static function file(?string $extension = 'pdf', ?int $size = 1024, bool $private = false, ?string $path = 'media/manual.pdf'): array
+    private function config(): ProductDocumentConfig
     {
-        return ['extension' => $extension, 'size' => $size, 'private' => $private, 'path' => $path];
+        return new ProductDocumentConfig(['pdf', 'docx'], maxPerProduct: 10, maxFileSize: 1024);
+    }
+
+    private function file(string $name, ?string $extension, ?int $size): void
+    {
+        $media = new MediaEntity();
+        $media->setId($this->ids->get($name));
+        if ($extension !== null) {
+            $media->setFileExtension($extension);
+        }
+        if ($size !== null) {
+            $media->setFileSize($size);
+        }
+
+        $this->files->add($media);
     }
 
     /**
@@ -236,45 +212,23 @@ class ProductDocumentValidatorTest extends TestCase
      *
      * @return list<array{code: mixed, pointer: mixed}>
      */
-    private function validate(array $commands = []): array
+    private function validate(array $commands): array
     {
-        $event = new PreWriteValidationEvent(WriteContext::createFromContext(Context::createDefaultContext()), [...$this->documentCommands(), ...$commands]);
+        $event = $this->event($commands);
+        $reader = static::createStub(ProductDocumentReader::class);
+        $reader->method('countDocuments')->willReturnCallback(fn (array $products): array => array_intersect_key($this->storedDocuments, array_flip($products)));
 
-        $this->validator()->validate($event);
+        (new ProductDocumentValidator(new StaticEntityRepository([$this->files]), $reader, $this->config()))->validate($event);
 
         return $this->errorsOf($event);
     }
 
     /**
-     * One command per document row, each setting the product, like a save through the product.
-     *
-     * @return list<WriteCommand>
+     * @param list<WriteCommand> $commands
      */
-    private function documentCommands(): array
+    private function event(array $commands): PreWriteValidationEvent
     {
-        $definition = $this->registry->get(ProductDocumentDefinition::class);
-        $existence = EntityExistence::createForEntity(ProductDocumentDefinition::ENTITY_NAME, []);
-
-        return array_map(static fn (OutcomeRow $document): WriteCommand => match (true) {
-            $document->isNew => new InsertCommand($definition, ['product_id' => $document->getPayloadValue('product_id')], $document->primaryKey, $existence, $document->path),
-            $document->isDeleted => new DeleteCommand($definition, $document->primaryKey, $existence),
-            default => new UpdateCommand($definition, ['product_id' => $document->getPayloadValue('product_id')], $document->primaryKey, $existence, $document->path),
-        }, $this->documents);
-    }
-
-    private function validator(): ProductDocumentValidator
-    {
-        $writeOutcome = static::createStub(WriteOutcome::class);
-        $writeOutcome->method('touchedRows')->willReturnCallback(fn (): array => $this->documents);
-        $writeOutcome->method('resultingRows')->willReturnCallback(
-            fn (array $commands, array $columns): array => $columns === ['media_id'] ? $this->translations : $this->media,
-        );
-
-        $reader = static::createStub(ProductDocumentReader::class);
-        $reader->method('getFiles')->willReturnCallback(fn (array $mediaIds): array => array_intersect_key($this->storedFiles, array_flip($mediaIds)));
-        $reader->method('countDocuments')->willReturnCallback(fn (array $products): array => array_intersect_key($this->storedDocuments, array_flip($products)));
-
-        return new ProductDocumentValidator($writeOutcome, $reader, new ProductDocumentConfig(['pdf', 'docx'], maxPerLanguage: 10, maxFileSize: 1024));
+        return new PreWriteValidationEvent(WriteContext::createFromContext(Context::createDefaultContext()), $commands);
     }
 
     /**
@@ -290,15 +244,14 @@ class ProductDocumentValidatorTest extends TestCase
         return $errors;
     }
 
-    private function translation(string $document, string $languageId, string $path, string $file, ?string $storedFile = null): OutcomeRow
+    private function translationUpdate(string $document, string $languageId, string $path, string $file): UpdateCommand
     {
-        return new OutcomeRow(
-            primaryKey: $this->translationKey($document, $languageId),
-            path: $path,
-            isNew: $storedFile === null,
-            isDeleted: false,
-            payload: ['media_id' => $this->ids->getBytes($file)],
-            state: ['media_id' => $storedFile === null ? null : $this->ids->getBytes($storedFile)],
+        return new UpdateCommand(
+            $this->registry->get(ProductDocumentTranslationDefinition::class),
+            ['media_id' => $this->ids->getBytes($file)],
+            $this->translationKey($document, $languageId),
+            $this->existence(),
+            $path,
         );
     }
 
@@ -314,59 +267,16 @@ class ProductDocumentValidatorTest extends TestCase
         ];
     }
 
-    private function addedDocument(string $document, string $path): OutcomeRow
-    {
-        return new OutcomeRow(
-            primaryKey: $this->documentKey($document),
-            path: $path,
-            isNew: true,
-            isDeleted: false,
-            payload: ['product_id' => $this->ids->getBytes('drill'), 'product_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-            state: ['product_id' => null, 'product_version_id' => null],
-        );
-    }
-
-    private function editedDocument(string $document, string $path, string $product = 'drill', ?string $movedTo = null): OutcomeRow
-    {
-        return new OutcomeRow(
-            primaryKey: $this->documentKey($document),
-            path: $path,
-            isNew: false,
-            isDeleted: false,
-            // a save through the product sets the product of every document, moved or not
-            payload: ['product_id' => $this->ids->getBytes($movedTo ?? $product), 'position' => 1],
-            state: ['product_id' => $this->ids->getBytes($product), 'product_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-        );
-    }
-
-    private function deletedDocument(string $document, string $path): OutcomeRow
-    {
-        return new OutcomeRow(
-            primaryKey: $this->documentKey($document),
-            path: $path,
-            isNew: false,
-            isDeleted: true,
-            payload: [],
-            state: ['product_id' => $this->ids->getBytes('drill'), 'product_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-        );
-    }
-
     /**
-     * @return array<string, string>
+     * @return array{product_id: string, product_version_id: string}
      */
-    private function documentKey(string $document): array
+    private function productPayload(): array
     {
-        return ['id' => $this->ids->getBytes($document), 'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)];
+        return ['product_id' => $this->ids->getBytes('drill'), 'product_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)];
     }
 
-    private function mediaCommand(string $media, string $path): InsertCommand
+    private function existence(): EntityExistence
     {
-        return new InsertCommand(
-            $this->registry->get(MediaDefinition::class),
-            ['id' => $this->ids->getBytes($media), 'file_name' => $media],
-            ['id' => $this->ids->getBytes($media)],
-            EntityExistence::createForEntity(MediaDefinition::ENTITY_NAME, ['id' => $this->ids->get($media)]),
-            $path,
-        );
+        return EntityExistence::createForEntity(ProductDocumentDefinition::ENTITY_NAME, []);
     }
 }

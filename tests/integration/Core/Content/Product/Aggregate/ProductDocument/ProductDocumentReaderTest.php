@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -33,22 +32,6 @@ class ProductDocumentReaderTest extends TestCase
         $this->reader = new ProductDocumentReader(static::getContainer()->get(Connection::class));
     }
 
-    public function testItReadsTheFiles(): void
-    {
-        $this->createMedia('manual', path: 'https://cdn.example.com/manual.pdf');
-        $this->createMedia('upload', extension: null, size: null, private: true);
-
-        $files = $this->reader->getFiles([$this->ids->get('manual'), $this->ids->get('upload'), Uuid::randomHex()]);
-
-        $expected = [
-            $this->ids->get('manual') => ['extension' => 'pdf', 'size' => 1024, 'private' => false, 'path' => 'https://cdn.example.com/manual.pdf'],
-            $this->ids->get('upload') => ['extension' => null, 'size' => null, 'private' => true, 'path' => null],
-        ];
-        ksort($expected);
-        ksort($files);
-        static::assertSame($expected, $files);
-    }
-
     public function testItCountsTheDocumentsOfEachProduct(): void
     {
         $this->createMedia('file');
@@ -61,15 +44,23 @@ class ProductDocumentReaderTest extends TestCase
         static::assertSame([$this->key('drill') => 2], $counts);
     }
 
-    private function createMedia(string $fileName, ?string $extension = 'pdf', ?int $size = 1024, bool $private = false, ?string $path = null): void
+    public function testItLeavesOutTheExcludedDocuments(): void
+    {
+        $this->createMedia('file');
+        $this->createProduct('drill', documents: ['Manual', 'Datasheet']);
+
+        $counts = $this->reader->countDocuments([$this->key('drill')], [$this->ids->getBytes('drill-document-0')]);
+
+        static::assertSame([$this->key('drill') => 1], $counts);
+    }
+
+    private function createMedia(string $fileName): void
     {
         static::getContainer()->get('media.repository')->create([[
             'id' => $this->ids->create($fileName),
             'fileName' => $fileName,
-            'fileExtension' => $extension,
-            'fileSize' => $size,
-            'private' => $private,
-            'path' => $path,
+            'fileExtension' => 'pdf',
+            'fileSize' => 1024,
         ]], Context::createDefaultContext());
     }
 
@@ -79,7 +70,11 @@ class ProductDocumentReaderTest extends TestCase
     private function createProduct(string $product, array $documents = []): void
     {
         $payload = (new ProductBuilder($this->ids, $product))->price(10)->build();
-        $payload['documents'] = array_map(fn (string $title): array => ['title' => $title, 'mediaId' => $this->ids->get('file')], $documents);
+        $payload['documents'] = array_map(
+            fn (string $title, int $number): array => ['id' => $this->ids->create($product . '-document-' . $number), 'title' => $title, 'mediaId' => $this->ids->get('file')],
+            $documents,
+            array_keys($documents),
+        );
 
         static::getContainer()->get('product.repository')->create([$payload], Context::createDefaultContext());
     }

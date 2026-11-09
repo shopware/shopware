@@ -25,37 +25,12 @@ class ProductDocumentReader
     }
 
     /**
-     * @param list<string> $mediaIds hex
-     *
-     * @return array<string, array{extension: string|null, size: int|null, private: bool, path: string|null}> keyed by media id
-     */
-    public function getFiles(array $mediaIds): array
-    {
-        if ($mediaIds === []) {
-            return [];
-        }
-
-        /** @var array<string, array{file_extension: string|null, file_size: string|null, private: string, path: string|null}> $rows */
-        $rows = $this->connection->fetchAllAssociativeIndexed(
-            'SELECT LOWER(HEX(`id`)), `file_extension`, `file_size`, `private`, `path` FROM `media` WHERE `id` IN (:ids)',
-            ['ids' => Uuid::fromHexToBytesList($mediaIds)],
-            ['ids' => ArrayParameterType::BINARY],
-        );
-
-        return array_map(static fn (array $row): array => [
-            'extension' => $row['file_extension'],
-            'size' => $row['file_size'] === null ? null : (int) $row['file_size'],
-            'private' => (bool) $row['private'],
-            'path' => $row['path'],
-        ], $rows);
-    }
-
-    /**
      * @param list<string> $products
+     * @param list<string> $excludedDocumentIds binary
      *
      * @return array<string, int> number of documents per product; products without any are left out
      */
-    public function countDocuments(array $products): array
+    public function countDocuments(array $products, array $excludedDocumentIds = []): array
     {
         if ($products === []) {
             return [];
@@ -67,10 +42,11 @@ class ProductDocumentReader
         $counts = $this->connection->fetchAllKeyValue(
             'SELECT CONCAT(LOWER(HEX(`product_id`)), LOWER(HEX(`product_version_id`))), COUNT(*)
             FROM `product_document`
-            WHERE `product_id` IN (:productIds) AND `product_version_id` IN (:versionIds)
+            WHERE `product_id` IN (:productIds) AND `product_version_id` IN (:versionIds) AND `id` NOT IN (:excludedIds)
             GROUP BY `product_id`, `product_version_id`',
-            ['productIds' => $productIds, 'versionIds' => $versionIds],
-            ['productIds' => ArrayParameterType::BINARY, 'versionIds' => ArrayParameterType::BINARY],
+            // an empty IN list is invalid SQL, and no document has an empty id
+            ['productIds' => $productIds, 'versionIds' => $versionIds, 'excludedIds' => $excludedDocumentIds !== [] ? $excludedDocumentIds : ['']],
+            ['productIds' => ArrayParameterType::BINARY, 'versionIds' => ArrayParameterType::BINARY, 'excludedIds' => ArrayParameterType::BINARY],
         );
 
         return array_map(intval(...), array_intersect_key($counts, array_flip($products)));

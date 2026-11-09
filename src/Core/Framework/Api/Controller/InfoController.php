@@ -226,10 +226,10 @@ class InfoController extends AbstractController
                 'minSearchTermLength' => $this->systemConfigService->getInt('core.search.minSearchTermLength') ?: 2,
                 'productDocuments' => [
                     'allowedExtensions' => $this->productDocumentConfig->allowedExtensions,
-                    'allowedMimeTypesByExtension' => $this->productDocumentConfig->getMimeTypesByExtension(),
-                    'maxPerLanguage' => $this->productDocumentConfig->maxPerLanguage,
-                    // the upload limit, which is what the Administration checks
-                    'maxFileSize' => $this->productDocumentConfig->getMaxUploadFileSize($presignedUploadSupported),
+                    'allowedMimeTypesByExtension' => $this->productDocumentConfig->mimeTypesByExtension,
+                    'maxPerProduct' => $this->productDocumentConfig->maxPerProduct,
+                    // presigned uploads go straight to the storage, past PHP's limits
+                    'maxFileSize' => $presignedUploadSupported ? $this->productDocumentConfig->maxFileSize : $this->productDocumentConfig->getMaxUploadFileSize(),
                 ],
             ],
             'inAppPurchases' => $this->inAppPurchase->all(),

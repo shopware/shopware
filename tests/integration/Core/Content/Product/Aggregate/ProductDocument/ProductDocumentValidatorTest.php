@@ -19,7 +19,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -62,7 +61,7 @@ class ProductDocumentValidatorTest extends TestCase
         $this->productRepository->create([(new ProductBuilder($this->ids, 'drill'))->price(10)->build()], $this->context);
     }
 
-    public function testAProductCanHaveTenDocumentsPerLanguage(): void
+    public function testAProductCanHaveTenDocuments(): void
     {
         $this->addDocuments(array_map(fn (int $number): array => $this->document('file-' . $number), range(1, 9)));
 
@@ -78,7 +77,7 @@ class ProductDocumentValidatorTest extends TestCase
         static::assertCount(9, $this->documentTitles());
     }
 
-    public function testTheFilesOfAllLanguagesAreCheckedAsTheyWillBe(): void
+    public function testTheFilesOfAllLanguagesAreChecked(): void
     {
         $germanId = $this->getDeDeLanguageId();
 
@@ -86,16 +85,13 @@ class ProductDocumentValidatorTest extends TestCase
             [
                 'translations' => [
                     Defaults::LANGUAGE_SYSTEM => ['title' => 'Manual', 'mediaId' => $this->createMedia('manual')],
-                    $germanId => ['title' => 'Handbuch', 'mediaId' => $this->createMedia('handbuch', private: true)],
+                    $germanId => ['title' => 'Handbuch', 'mediaId' => $this->createMedia('handbuch', extension: 'xlsx')],
                 ],
             ],
-            // a file created in the same write has no content yet
-            ['translations' => [Defaults::LANGUAGE_SYSTEM => ['title' => 'Datasheet', 'media' => ['id' => Uuid::randomHex()]]]],
         ]));
 
         static::assertSame([
-            ['code' => ProductDocumentValidator::VIOLATION_FILE_PRIVATE, 'pointer' => '/0/documents/0/translations/' . $germanId . '/mediaId'],
-            ['code' => ProductDocumentValidator::VIOLATION_FILE_SIZE_UNKNOWN, 'pointer' => $this->defaultTranslationPointer(1) . '/mediaId'],
+            ['code' => ProductDocumentValidator::VIOLATION_FILE_EXTENSION_NOT_ALLOWED, 'pointer' => '/0/documents/0/translations/' . $germanId . '/mediaId'],
         ], $errors);
     }
 
@@ -115,25 +111,16 @@ class ProductDocumentValidatorTest extends TestCase
         return ['id' => $this->ids->create($fileName . '-document'), 'title' => $fileName, 'mediaId' => $this->createMedia($fileName)];
     }
 
-    private function createMedia(string $fileName, bool $private = false): string
+    private function createMedia(string $fileName, string $extension = 'pdf'): string
     {
         $this->mediaRepository->create([[
             'id' => $this->ids->create($fileName),
             'fileName' => $fileName,
-            'fileExtension' => 'pdf',
+            'fileExtension' => $extension,
             'fileSize' => 1024,
-            'private' => $private,
         ]], $this->context);
 
         return $this->ids->get($fileName);
-    }
-
-    /**
-     * The path of a document's default-language translation, when title and file are set at the top.
-     */
-    private function defaultTranslationPointer(int $document): string
-    {
-        return '/0/documents/' . $document . '/translations/' . Defaults::LANGUAGE_SYSTEM;
     }
 
     /**

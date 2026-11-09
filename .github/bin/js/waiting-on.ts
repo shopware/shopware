@@ -4,6 +4,18 @@
  * The verdict is written back as one `waiting-on/*` label per pull request, so it can be
  * filtered on in the GitHub UI. Nothing else is written: no comments, no closing.
  *
+ * ## External pull requests only
+ *
+ * Only pull requests carrying `external-contribution` get a verdict, which
+ * `external-contributor-label.yml` sets when someone without write access opens one. A
+ * colleague's pull request has a team behind it that knows whose turn it is, and the label
+ * on it read as a reproach rather than help. Every other pull request loses its label, its
+ * item on the main project is archived, and it is left out of the report.
+ *
+ * The label lands seconds after the pull request opens, so the update for `opened` can run
+ * without it. The milestone label and the first bot comments follow within minutes and each
+ * starts another update, which then sees it.
+ *
  * ## Why not `updated_at`
  *
  * The obvious measure of a stalled pull request is how long ago it was updated, and it is
@@ -107,7 +119,7 @@ not a question anyone has to answer and is left out.
  */
 
 import { applyProjectChanges, fetchProject, parseTeamProjects, planProjectChanges, summarizeProjectChanges } from './waiting-on-project.ts';
-import { parseChannels, planReminders, postSlackMessage, renderReminder, type Slack } from './waiting-on-slack.ts';
+import { EXTERNAL_LABEL, parseChannels, planReminders, postSlackMessage, renderReminder, type Slack } from './waiting-on-slack.ts';
 
 export type WaitingOn = 'author' | 'shopware' | 'nobody';
 
@@ -677,9 +689,14 @@ function isHumanAuthored(node: PullRequestNode): node is PullRequestNode & { aut
     return node.author !== null && node.author.__typename !== 'Bot' && !isNonHumanLogin(node.author.login);
 }
 
+function isExternal(node: PullRequestNode): boolean {
+    return node.labels.nodes.some((label) => label.name === EXTERNAL_LABEL);
+}
+
 export function buildRows(nodes: PullRequestNode[], now: Date): Row[] {
     return nodes
         .filter(isHumanAuthored)
+        .filter(isExternal)
         .map((node) => {
             const verdict = classifyPullRequest(factsOf(node));
 
@@ -711,7 +728,7 @@ export function renderReport(rows: Row[]): string {
         byReason.set(row.reason, (byReason.get(row.reason) ?? 0) + 1);
     }
 
-    lines.push(`${rows.length} open pull request(s), bots excluded.`, '');
+    lines.push(`${rows.length} open external pull request(s), bots excluded.`, '');
     lines.push('| reason | count |', '| --- | --: |');
     for (const [reason, count] of [...byReason].sort((left, right) => right[1] - left[1])) {
         lines.push(`| \`${reason}\` | ${count} |`);
@@ -745,7 +762,8 @@ export type LabelChange = {
 
 /**
  * The label edits that bring every open pull request in line with its verdict. A pull
- * request without a row — one a bot opened — loses any `waiting-on/*` label it carries.
+ * request without a row — an internal one, or one a bot opened — loses any `waiting-on/*`
+ * label it carries.
  */
 export function planLabelChanges(nodes: PullRequestNode[], rows: Row[]): LabelChange[] {
     const targets = new Map(rows.map((row) => [row.number, row.label]));

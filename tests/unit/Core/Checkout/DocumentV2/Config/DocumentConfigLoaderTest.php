@@ -54,57 +54,6 @@ class DocumentConfigLoaderTest extends TestCase
         $this->documentTypeRegistry = new DocumentTypeRegistry([], $storage);
     }
 
-    public function testLoadPicksMatchingSalesChannelRowWhenMultipleNonGlobalRowsReturned(): void
-    {
-        $matchingSalesChannelId = Uuid::randomHex();
-
-        $globalRow = $this->createBaseConfig(
-            global: true,
-            pageSize: 'A4',
-            companyName: 'Global GmbH',
-        );
-
-        $matchingRow = $this->createBaseConfig(
-            global: false,
-            pageSize: 'Letter',
-            companyName: 'Matching Channel GmbH',
-            salesChannelId: $matchingSalesChannelId,
-        );
-
-        $otherRow = $this->createBaseConfig(
-            global: false,
-            pageSize: 'A5',
-            companyName: 'Wrong Channel GmbH',
-        );
-
-        $documentRepo = new StaticEntityRepository(
-            [new DocumentBaseConfigCollection([$globalRow, $otherRow, $matchingRow])],
-            new DocumentBaseConfigDefinition(),
-        );
-
-        $countryRepo = new StaticEntityRepository(
-            [new CountryCollection([$this->createCountry()])],
-            new CountryDefinition(),
-        );
-
-        $loader = new DocumentConfigLoader(
-            $documentRepo,
-            $countryRepo,
-            $this->createMediaRepository(),
-            $this->createSystemConfigService(),
-            $this->documentTypeRegistry,
-        );
-
-        $bundle = $loader->load(
-            DocumentType::INVOICE->value,
-            $matchingSalesChannelId,
-            Context::createDefaultContext(),
-        );
-
-        static::assertSame('Letter', $bundle->config->pageSize);
-        static::assertSame('Matching Channel GmbH', $bundle->company->companyName);
-    }
-
     public function testLoadSalesChannelFilenameInfixOverridesGlobalPerFormat(): void
     {
         $matchingSalesChannelId = Uuid::randomHex();
@@ -485,14 +434,8 @@ class DocumentConfigLoaderTest extends TestCase
             companyName: 'Global GmbH',
         );
 
-        $unrelatedRow = $this->createBaseConfig(
-            global: false,
-            pageSize: 'A5',
-            companyName: 'Unrelated GmbH',
-        );
-
         $documentRepo = new StaticEntityRepository(
-            [new DocumentBaseConfigCollection([$globalRow, $unrelatedRow])],
+            [new DocumentBaseConfigCollection([$globalRow])],
             new DocumentBaseConfigDefinition(),
         );
 

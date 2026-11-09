@@ -127,15 +127,10 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
             )
             ->addAssociation('logo');
 
-        $criteria->getAssociation('salesChannels')
-            ->addFilter(new EqualsFilter('salesChannelId', $salesChannelId));
-
         $rows = $this->documentConfigRepository->search($criteria, $context)->getEntities();
 
         $globalRow = $rows->filterByProperty('global', true)->first();
-        $salesChannelRow = $rows
-            ->filter(static fn (DocumentBaseConfigEntity $row): bool => ((int) $row->getSalesChannels()?->count()) > 0)
-            ->first();
+        $salesChannelRow = $rows->filterByProperty('global', false)->first();
 
         $legacyConfig = $this->mergeJsonConfig($globalRow, $salesChannelRow);
         $systemConfigCompanyInfo = $this->resolveCompanyInfoFromSystemConfig($salesChannelId);

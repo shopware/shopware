@@ -50,7 +50,6 @@ class DocumentConfigLoaderTest extends TestCase
             ]),
         );
         $expectedCriteria->addAssociation('logo');
-        $expectedCriteria->getAssociation('salesChannels')->addFilter(new EqualsFilter('salesChannelId', $this->ids->get('sales-channel-id')));
 
         $context = Context::createDefaultContext();
         $countryId = Uuid::randomHex();

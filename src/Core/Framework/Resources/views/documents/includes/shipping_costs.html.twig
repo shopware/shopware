@@ -15,50 +15,39 @@ All blocks of this template are available in the template which renders this tem
             {% if billingAddress.additionalAddressLine1 %}<br>{% endif %}
             {% if billingAddress.additionalAddressLine2 %}<br>{% endif %}
 
-            {% set shipments = order.deliveries|filter(delivery => delivery.shippingCosts.totalPrice >= 0)|sort((a, b) => [b.id == order.primaryOrderDeliveryId, b.shippingCosts.totalPrice] <=> [a.id == order.primaryOrderDeliveryId, a.shippingCosts.totalPrice]) %}
-            {% if shipments|length > 1 %}
-                {% set shippingCostDeliveries = shipments|merge(order.deliveries|filter(delivery => delivery.shippingCosts.totalPrice < 0)) %}
-            {% else %}
-                {% set shippingCostDeliveries = [order.deliveries.first] %}
-            {% endif %}
-
-            {% for delivery in shippingCostDeliveries %}
-                {% set deliveryShippingTotal = shipments|length > 1 ? delivery.shippingCosts.totalPrice : order.shippingTotal %}
-
-                <tr class="line-item" tabindex="0">
-                    {% block document_line_item_table_shipping_position %}
-                        {% if config.displayLineItemPosition %}
-                            <td>{{ nestedLineItems.count + loop.index }}</td>
-                        {% endif %}
-                    {% endblock %}
-
-                    {% block document_line_item_table_shipping_number %}
-                        <td></td>
-                    {% endblock %}
-
-                    {% block document_line_item_table_shipping_label %}
-                        <td class="line-item-breakable">{{ 'document.lineItems.shippingCosts'|trans|sw_sanitize }} - {{ delivery.shippingMethod.translated.name }}</td>
-                    {% endblock %}
-
-                    {% block document_line_item_table_shipping_quantity %}
-                        <td class="align-right">1</td>
-                    {% endblock %}
-
-                    {% if config.displayPrices %}
-                        {% block document_line_item_table_shipping_tax %}
-                            <td class="align-right">{% for tax in delivery.shippingCosts.calculatedTaxes %}{{ tax.taxRate }} % {% if loop.last %}{% else %}<br>{% endif %}{% endfor %}</td>
-                        {% endblock %}
-
-                        {% block document_line_item_table_unit_price %}
-                            <td class="align-right">{{ deliveryShippingTotal|currency(currencyIsoCode, languageId) }}</td>
-                        {% endblock %}
-
-                        {% block document_line_item_table_total_price %}
-                            <td class="align-right">{{ deliveryShippingTotal|currency(currencyIsoCode, languageId) }}</td>
-                        {% endblock %}
+            <tr class="line-item" tabindex="0">
+                {% block document_line_item_table_shipping_position %}
+                    {% if config.displayLineItemPosition %}
+                        <td>{{ nestedLineItems.count + 1 }}</td>
                     {% endif %}
-                </tr>
-            {% endfor %}
+                {% endblock %}
+
+                {% block document_line_item_table_shipping_number %}
+                    <td></td>
+                {% endblock %}
+
+                {% block document_line_item_table_shipping_label %}
+                    <td class="line-item-breakable">{{ 'document.lineItems.shippingCosts'|trans|sw_sanitize }} - {{ order.deliveries.shipments|map(shipment => shipment.shippingMethod.translated.name)|join(', ') }}</td>
+                {% endblock %}
+
+                {% block document_line_item_table_shipping_quantity %}
+                    <td class="align-right">1</td>
+                {% endblock %}
+
+                {% if config.displayPrices %}
+                    {% block document_line_item_table_shipping_tax %}
+                        <td class="align-right">{% for tax in (order.deliveries.shipments|length > 1 ? order.shippingCosts : order.deliveries.first.shippingCosts).calculatedTaxes %}{{ tax.taxRate }} % {% if loop.last %}{% else %}<br>{% endif %}{% endfor %}</td>
+                    {% endblock %}
+
+                    {% block document_line_item_table_unit_price %}
+                        <td class="align-right">{{ order.shippingTotal|currency(currencyIsoCode, languageId) }}</td>
+                    {% endblock %}
+
+                    {% block document_line_item_table_total_price %}
+                        <td class="align-right">{{ order.shippingTotal|currency(currencyIsoCode, languageId) }}</td>
+                    {% endblock %}
+                {% endif %}
+            </tr>
         {% endblock %}
     {% endif %}
 {% endblock %}

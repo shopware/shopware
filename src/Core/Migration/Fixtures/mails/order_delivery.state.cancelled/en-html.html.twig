@@ -4,8 +4,15 @@
         {% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/>
         <br/>
         the status of your delivery at {{ salesChannel.translated.name }} (Number: {{ order.orderNumber }}) on {{ order.orderDateTime|format_datetime('medium', 'short', locale='en-GB') }} has changed.<br/>
-        {% set shipments = order.deliveries|filter(delivery => delivery.shippingCosts.totalPrice >= 0)|sort((a, b) => [b.id == order.primaryOrderDeliveryId, b.shippingCosts.totalPrice] <=> [a.id == order.primaryOrderDeliveryId, a.shippingCosts.totalPrice]) %}
-        {% if shipments|length > 1 %}
+        {% set shipments = order.deliveries.shipments %}
+        {% set changedShipment = orderDelivery is defined and orderDelivery ? shipments.get(orderDelivery.id) : null %}
+        {% if shipments|length > 1 and changedShipment %}
+            {% set changedShipmentNumber = null %}
+            {% for shipment in shipments %}{% if shipment.id == changedShipment.id %}{% set changedShipmentNumber = loop.index %}{% endif %}{% endfor %}
+            {% set shipmentAddress = changedShipment.shippingOrderAddress %}
+            <strong>The new status of shipment {{ changedShipmentNumber }} ({{ changedShipment.shippingMethod.translated.name }}) is as follows: {{ changedShipment.stateMachineState.translated.name }}.</strong><br/>
+            {% if shipmentAddress.company %}{{ shipmentAddress.company }}, {% endif %}{{ shipmentAddress.firstName }} {{ shipmentAddress.lastName }}, {{ shipmentAddress.street }}, {{ shipmentAddress.zipcode }} {{ shipmentAddress.city }}, {{ shipmentAddress.country.translated.name }}<br/>
+        {% elseif shipments|length > 1 %}
             <strong>The status of your shipments is as follows:</strong><br/>
             {% for shipment in shipments %}
                 {% set shipmentAddress = shipment.shippingOrderAddress %}

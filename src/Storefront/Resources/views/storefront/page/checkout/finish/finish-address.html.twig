@@ -22,7 +22,7 @@
         {% endif %}
     {% endif %}
 
-    {% set shipments = order.deliveries|filter(delivery => delivery.shippingCosts.totalPrice >= 0)|sort((a, b) => [b.id == order.primaryOrderDeliveryId, b.shippingCosts.totalPrice] <=> [a.id == order.primaryOrderDeliveryId, a.shippingCosts.totalPrice]) %}
+    {% set shipments = order.deliveries.shipments %}
 
     <div class="row">
         {% block page_checkout_finish_address_shipping %}

@@ -114,7 +114,7 @@
                             {% endblock %}
 
                             {% block page_checkout_finish_order_dispatch_method %}
-                                {% set shipments = page.order.deliveries|filter(delivery => delivery.shippingCosts.totalPrice >= 0)|sort((a, b) => [b.id == page.order.primaryOrderDeliveryId, b.shippingCosts.totalPrice] <=> [a.id == page.order.primaryOrderDeliveryId, a.shippingCosts.totalPrice]) %}
+                                {% set shipments = page.order.deliveries.shipments %}
 
                                 {% if shipments|length > 1 %}
                                     {% block page_checkout_finish_order_dispatch_method_shipments %}

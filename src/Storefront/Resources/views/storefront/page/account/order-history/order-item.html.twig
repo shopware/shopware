@@ -26,7 +26,7 @@
                 {% set orderPaymentState = order.transactions.last.stateMachineState.technicalName %}
             {% endif %}
             {% set isPaymentNeeded = orderPaymentState in states and orderState != ORDER_STATE_CANCELLED %}
-            {% set shipments = order.deliveries|filter(delivery => delivery.shippingCosts.totalPrice >= 0)|sort((a, b) => [b.id == order.primaryOrderDeliveryId, b.shippingCosts.totalPrice] <=> [a.id == order.primaryOrderDeliveryId, a.shippingCosts.totalPrice]) %}
+            {% set shipments = order.deliveries.shipments %}
 
             <div class="row flex-wrap">
                 {% block page_account_order_item_heading %}

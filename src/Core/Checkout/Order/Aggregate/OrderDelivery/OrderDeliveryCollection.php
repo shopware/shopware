@@ -68,6 +68,17 @@ class OrderDeliveryCollection extends EntityCollection
         );
     }
 
+    /**
+     * Returns the deliveries that are not shipping discounts, highest shipping costs first
+     */
+    public function getShipments(): self
+    {
+        $shipments = $this->filter(static fn (OrderDeliveryEntity $orderDelivery) => $orderDelivery->getShippingCosts()->getTotalPrice() >= 0);
+        $shipments->sort(static fn (OrderDeliveryEntity $a, OrderDeliveryEntity $b) => $b->getShippingCosts()->getTotalPrice() <=> $a->getShippingCosts()->getTotalPrice());
+
+        return $shipments;
+    }
+
     public function getApiAlias(): string
     {
         return 'order_delivery_collection';

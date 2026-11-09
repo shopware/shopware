@@ -75,6 +75,17 @@ class DeliveryCollection extends Collection
         );
     }
 
+    /**
+     * Returns the deliveries that are not shipping discounts, highest shipping costs first
+     */
+    public function getShipments(): self
+    {
+        $shipments = $this->filter(static fn (Delivery $delivery) => $delivery->getShippingCosts()->getTotalPrice() >= 0);
+        $shipments->sort(static fn (Delivery $a, Delivery $b) => $b->getShippingCosts()->getTotalPrice() <=> $a->getShippingCosts()->getTotalPrice());
+
+        return $shipments;
+    }
+
     public function getAddresses(): CustomerAddressCollection
     {
         $addresses = new CustomerAddressCollection();

@@ -21,13 +21,7 @@ All blocks of this template are available in the template which renders this tem
                     {% endif %}
                 {% endblock %}
                 {% block document_shipping %}
-                    {% set shipments = order.deliveries|filter(delivery => delivery.shippingCosts.totalPrice >= 0)|sort((a, b) => [b.id == order.primaryOrderDeliveryId, b.shippingCosts.totalPrice] <=> [a.id == order.primaryOrderDeliveryId, a.shippingCosts.totalPrice]) %}
-                    {% if shipments|length > 1 %}
-                        {% set shippingMethodName = shipments|map(shipment => shipment.shippingMethod.translated.name)|join(', ') %}
-                    {% else %}
-                        {% set shippingMethodName = order.deliveries.first.shippingMethod.translated.name %}
-                    {% endif %}
-                    {{ 'document.paymentShippingInfo.shippingMethod'|trans({'%shippingMethod%': shippingMethodName})|sw_sanitize }}<br><br>
+                    {{ 'document.paymentShippingInfo.shippingMethod'|trans({'%shippingMethod%': order.deliveries.shipments|map(shipment => shipment.shippingMethod.translated.name)|join(', ')})|sw_sanitize }}<br><br>
                 {% endblock %}
                 {% block document_payment_shipping_additional %}
                     {{ 'document.paymentShippingInfo.additionalInfo'|trans|sw_sanitize(null, true) }}<br>

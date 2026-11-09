@@ -13,12 +13,14 @@ Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED` while ano
 
 A new line item rule condition `LineItemDimensionLongestAndGirthRule` (`cartLineItemDimensionLongestAndGirth`) was added. It matches the cart against the longest side plus girth of each individual line item. It is calculated as `longest side + 2 * (shortest side + second shortest side)`. This condition allows for more precise shipping rules based on the dimensions of the items in the cart.
 
-### Mails and invoices list every shipment
+### Mails and documents list every shipment
 
-When an order has more than one shipment, the default order confirmation, payment received, payment reminder and delivery status mails list each shipment with its shipping method, address and, where it applies, its costs, delivery period or status.
+`OrderDeliveryCollection::getShipments()` and the cart's `DeliveryCollection::getShipments()` return the deliveries that are not shipping discounts, highest shipping costs first.
+When an order has more than one shipment, the default order confirmation, payment received and payment reminder mails list each shipment with its shipping method, address, shipping costs and delivery period.
+The delivery status mails name the shipment whose state changed when the flow provides `orderDelivery`, and list every shipment with its state otherwise.
 A migration updates these mail templates unless they were changed in the Administration.
-Invoices and cancellation invoices then show one shipping costs row per shipment and per shipping discount, and the shipping address of the primary delivery.
-Overrides of the shipping costs row blocks render once per row; read the row's delivery from `delivery` instead of `order.deliveries.first`.
+Documents keep one shipping costs row with the shipping total of the order; this row and the shipping method line name the shipping method of every shipment.
+The invoice shows the shipping address of the primary delivery.
 Orders with one shipment render as before.
 
 ### Services can be reset between requests in long running runtimes

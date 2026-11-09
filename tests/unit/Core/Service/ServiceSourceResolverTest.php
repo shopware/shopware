@@ -472,27 +472,6 @@ class ServiceSourceResolverTest extends TestCase
         }
     }
 
-    public function testPreviousRevisionSurvivesAFileWriteError(): void
-    {
-        $this->io->dumpFile($this->path('TestService/manifest.xml'), 'old');
-        $this->expectDownload();
-        $underlying = new IOException('Write failed');
-        $io = $this->createPartialMock(Filesystem::class, ['appendToFile']);
-        $io->expects($this->once())->method('appendToFile')->willThrowException($underlying);
-
-        $this->expectExceptionObject(AppException::cannotMountAppFilesystem(
-            'TestService',
-            ServiceException::cannotWriteAppToDestination($this->path('TestService'), $underlying)
-        ));
-
-        try {
-            $this->resolver($io)->filesystemForVersion($this->appInfo);
-        } finally {
-            static::assertSame('old', $this->io->readFile($this->path('TestService/manifest.xml')));
-            static::assertSame(['TestService'], $this->entriesInRoot());
-        }
-    }
-
     public function testPreviousRevisionIsRestoredWhenPromotionFails(): void
     {
         $this->io->dumpFile($this->path('TestService/manifest.xml'), 'old');

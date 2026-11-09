@@ -2,14 +2,12 @@
  * @sw-package framework
  */
 
-const path = require('path');
-
 module.exports = {
     rules: {
-        'await-async-functions': require(path.resolve(__dirname, 'await-async-functions.js')),
-        'stabilize-feature-flag': require(path.resolve(__dirname, 'stabilize-feature-flag.js')),
-        'test-file-max-lines-warning': require(path.resolve(__dirname, 'test-file-max-lines/warning.js')),
-        'test-file-max-lines-error': require(path.resolve(__dirname, 'test-file-max-lines/error.js')),
-        'no-vm-access': require(path.resolve(__dirname, 'no-vm-access.js')),
+        'await-async-functions': require('./await-async-functions'),
+        'stabilize-feature-flag': require('./stabilize-feature-flag'),
+        'test-file-max-lines-warning': require('./test-file-max-lines/warning'),
+        'test-file-max-lines-error': require('./test-file-max-lines/error'),
+        'no-vm-access': require('./no-vm-access'),
     },
 };

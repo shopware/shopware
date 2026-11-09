@@ -149,6 +149,7 @@ use Shopware\Core\Framework\App\Url\AppUrlVerificationPrinter;
 use Shopware\Core\Framework\App\Url\AppUrlVerifier;
 use Shopware\Core\Framework\App\Validation\AppNameValidator;
 use Shopware\Core\Framework\App\Validation\AppRequirementsValidator;
+use Shopware\Core\Framework\App\Validation\CompatibilityValidator;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
 use Shopware\Core\Framework\App\Validation\HookableValidator;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
@@ -245,6 +246,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ConfigValidator::class)
         ->args([
             service(ConfigReader::class),
+            service(SourceResolver::class),
         ])
         ->tag('shopware.app_manifest.validator');
 
@@ -269,6 +271,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             tagged_iterator('app.requirements_validator'),
             service('logger'),
             param('kernel.environment'),
+        ]);
+
+    $services->set(CompatibilityValidator::class)
+        ->args([
+            param('kernel.shopware_version'),
         ]);
 
     $services->set(PermissionLifecycleService::class)
@@ -365,6 +372,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CustomFieldLifecycleHandler::class)
         ->args([
             service(CustomFieldSetPersister::class),
+            service('logger'),
         ])
         ->tag('shopware.app_lifecycle.handler', ['priority' => -1100]);
 
@@ -559,7 +567,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ScriptExecutor::class),
             param('kernel.project_dir'),
             service(CustomEntityLifecycleService::class),
-            param('kernel.shopware_version'),
+            service(CompatibilityValidator::class),
             service(AppFeatureValidator::class),
             service(SourceResolver::class),
             service(ConfigReader::class),

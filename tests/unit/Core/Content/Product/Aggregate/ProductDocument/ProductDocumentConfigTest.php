@@ -28,31 +28,32 @@ class ProductDocumentConfigTest extends TestCase
 
     public function testFileTypesAreCleanedUp(): void
     {
-        $config = new ProductDocumentConfig(['PDF', ' .docx', 'pdf', ''], maxPerProduct: 10, maxFileSize: 1024);
+        $config = new ProductDocumentConfig(['PDF', ' .docx', 'pdf', ''], maxPerLanguage: 10, maxFileSize: 1024);
 
         static::assertSame(['pdf', 'docx'], $config->allowedExtensions);
-        static::assertSame(['pdf', 'docx'], array_keys($config->mimeTypesByExtension));
+        static::assertSame(['pdf', 'docx'], array_keys($config->getMimeTypesByExtension()));
     }
 
     /**
-     * @return iterable<string, array{int, string, int}>
+     * @return iterable<string, array{int, bool, string, int}>
      */
     public static function uploadLimitProvider(): iterable
     {
-        yield 'a configured size below post_max_size' => [1024, '16M', 1024];
-        yield 'post_max_size lowers a larger configured size' => [20 * 1024 * 1024, '16M', 16 * 1024 * 1024];
-        yield 'no post_max_size' => [20 * 1024 * 1024, '0', 20 * 1024 * 1024];
+        yield 'a configured size below post_max_size' => [1024, false, '16M', 1024];
+        yield 'post_max_size lowers a larger configured size' => [20 * 1024 * 1024, false, '16M', 16 * 1024 * 1024];
+        yield 'no post_max_size' => [20 * 1024 * 1024, false, '0', 20 * 1024 * 1024];
+        yield 'a presigned upload goes past PHP' => [20 * 1024 * 1024, true, '16M', 20 * 1024 * 1024];
     }
 
     #[DataProvider('uploadLimitProvider')]
-    public function testTheUploadLimitIsTheConfiguredSizeLoweredByPostMaxSize(int $maxFileSize, string $postMaxSize, int $expected): void
+    public function testTheUploadLimitIsTheConfiguredSizeLoweredByPostMaxSize(int $maxFileSize, bool $presignedUploadSupported, string $postMaxSize, int $expected): void
     {
         // the Administration uploads the raw file, so upload_max_filesize doesn't apply
         IniMock::withIniMock(['upload_max_filesize' => '8M', 'post_max_size' => $postMaxSize]);
 
-        $config = new ProductDocumentConfig(['pdf'], maxPerProduct: 10, maxFileSize: $maxFileSize);
+        $config = new ProductDocumentConfig(['pdf'], maxPerLanguage: 10, maxFileSize: $maxFileSize);
 
-        static::assertSame($expected, $config->getMaxUploadFileSize());
+        static::assertSame($expected, $config->getMaxUploadFileSize($presignedUploadSupported));
         static::assertSame($maxFileSize, $config->maxFileSize);
     }
 }

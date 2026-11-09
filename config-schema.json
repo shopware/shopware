@@ -316,13 +316,12 @@
                         "type": "string"
                     }
                 },
-                "max_per_product": {
+                "max_per_language": {
                     "type": "integer",
                     "minimum": 1
                 },
                 "max_file_size": {
-                    "type": "integer",
-                    "minimum": 1
+                    "type": ["string", "integer"]
                 }
             },
             "title": "Product Documents"

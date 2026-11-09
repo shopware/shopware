@@ -25,6 +25,11 @@ class CheapestPriceContainer extends Struct
     protected ?array $default = null;
 
     /**
+     * @var array{parent: list<string>, variants: array<string, list<string>>}|null
+     */
+    protected ?array $salesChannelIds = null;
+
+    /**
      * @var list<string>|null
      */
     private ?array $ruleIds = null;
@@ -37,6 +42,11 @@ class CheapestPriceContainer extends Struct
         if (isset($value['default'])) {
             $this->default = $value['default'];
             unset($value['default']);
+        }
+
+        if (isset($value['sales_channel_ids'])) {
+            $this->salesChannelIds = $value['sales_channel_ids'];
+            unset($value['sales_channel_ids']);
         }
 
         $this->value = $value;
@@ -53,6 +63,10 @@ class CheapestPriceContainer extends Struct
         $currentSalesChannelId = $source instanceof SalesChannelApiSource ? $source->getSalesChannelId() : null;
 
         foreach ($this->value as $variantId => $group) {
+            if ($currentSalesChannelId && !$this->isVariantAvailableInSalesChannel((string) $variantId, $currentSalesChannelId)) {
+                continue;
+            }
+
             foreach ($ruleIds as $ruleId) {
                 $price = $this->filterByRuleId($group, $ruleId, $defaultWasAdded);
 
@@ -197,6 +211,18 @@ class CheapestPriceContainer extends Struct
     }
 
     /**
+     * @return list<string>|null
+     */
+    public function getSalesChannelIdsForVariant(string $variantId): ?array
+    {
+        if ($this->salesChannelIds === null) {
+            return null;
+        }
+
+        return $this->salesChannelIds['variants'][$variantId] ?? $this->salesChannelIds['parent'];
+    }
+
+    /**
      * @return list<string>
      */
     public function getRuleIds(): array
@@ -284,6 +310,13 @@ class CheapestPriceContainer extends Struct
         }
 
         return $this->getCurrencyPrice($collection, Defaults::CURRENCY, false);
+    }
+
+    private function isVariantAvailableInSalesChannel(string $variantId, string $salesChannelId): bool
+    {
+        $salesChannelIds = $this->getSalesChannelIdsForVariant($variantId);
+
+        return $salesChannelIds === null || \in_array($salesChannelId, $salesChannelIds, true);
     }
 
     /**

@@ -18,9 +18,9 @@ inputs:
   migration-coverage:
     default: "false"
     description: "Rewrite phpunit.xml.dist to scope coverage to the */Migration directories (migration suite)"
-  phpunit-version:
+  expected-phpunit:
     default: ""
-    description: "Composer constraint PHPUnit is forced to after the test install (e.g. `^13.3`); empty keeps the locked PHPUnit. Used by the phpunit-13 gate job."
+    description: "Major version vendor/bin/phpunit must report after the install (e.g. `13`); empty skips the check. Composer resolves PHPUnit 13 on PHP 8.4.1+ and PHPUnit 11 below from the root constraint."
 
 # Note: the caller controls feature flags via job-level env (e.g. V6_8_0_0: 1); the steps below
 # inherit it, so this action stays flag-agnostic. The caller must run actions/checkout before using this
@@ -100,15 +100,15 @@ runs:
       shell: bash
       run: php src/Core/TestBootstrap.php
 
-    - name: Force PHPUnit ${{ inputs.phpunit-version }}
-      if: ${{ inputs.phpunit-version != '' }}
+    - name: Assert the install resolved PHPUnit ${{ inputs.expected-phpunit }}
+      if: ${{ inputs.expected-phpunit != '' }}
       shell: bash
-      # composer require rewrites the root constraint for this run only, so every other job
-      # keeps resolving the locked PHPUnit (a shared ||-constraint made composer pick the newer one everywhere)
+      # a dev package that caps PHPUnit, or a PHP version below the floor of the newer constraint,
+      # would silently change which PHPUnit a lane runs
       env:
-        PHPUNIT_VERSION: ${{ inputs.phpunit-version }}
+        EXPECTED_PHPUNIT: ${{ inputs.expected-phpunit }}
       run: |
-        # dev packages that depend on PHPUnit cap it, and --update-with-all-dependencies only follows PHPUnit's own
-        # dependencies, never its dependants; let those float within their root constraints first
-        composer update shopware/dev-tools
-        composer require --dev --update-with-all-dependencies "phpunit/phpunit:${PHPUNIT_VERSION}"
+        set -euo pipefail
+        version=$(vendor/bin/phpunit --version)
+        echo "$version"
+        [[ "$version" == "PHPUnit ${EXPECTED_PHPUNIT}."* ]]

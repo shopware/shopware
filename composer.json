@@ -207,7 +207,7 @@
         "phpstan/phpstan-phpunit": "2.1.1",
         "phpstan/phpstan-strict-rules": "2.1.1",
         "phpstan/phpstan-symfony": "2.1.1",
-        "phpunit/phpunit": "^11.5.19",
+        "phpunit/phpunit": "^11.5.19 || ^13.3",
         "predis/predis": "^2.2",
         "rector/type-perfect": "2.2.0",
         "shipmonk/composer-dependency-analyser": "^1.8",

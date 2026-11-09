@@ -306,87 +306,10 @@ jobs:
           redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/adminApiSchema.json
 
   phpunit:
+    # runs the unit, migration and devops suites with coverage on PHP 8.5, where composer resolves
+    # PHPUnit 13, and tolerates no PHPUnit notices, warnings or deprecations; plain PHP ones stay
+    # tolerated. PHPUnit 11 on PHP 8.2 runs in the nightly through php-phpunit-11.yml.
     name: "PHPUnit for ${{ matrix.suite }}"
-    needs:
-      - markdown-only-changes
-    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
-    runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        suite:
-          - unit
-          - migration
-    env:
-      # the shared test environment (APP_ENV, DATABASE_URL, APP_SECRET, ...) is exported by
-      # ./.github/actions/phpunit-prepare; only the matrix-specific part lives here
-      COMPOSER_ROOT_VERSION: ${{ matrix.suite == 'migration' && '6.8.9999999-dev' || '6.7.9999999-dev' }}
-      V6_8_0_0: ${{ matrix.suite == 'migration' && '1' || '' }}
-
-    services:
-      elasticsearch:
-        image: ${{ matrix.suite == 'integration' && 'opensearchproject/opensearch:2' || 'alpine' }}
-        env:
-          discovery.type: single-node
-          plugins.security.disabled: "true"
-          OPENSEARCH_INITIAL_ADMIN_PASSWORD: "yourStrongPassword123!"
-        ports:
-          - "9200:9200"
-      database:
-        # Run the migration suite against MySQL 8.4, where restrict_fk_on_non_standard_key
-        # defaults to ON. This makes the install/migrate step reject any foreign key that
-        # references a non-unique key (the MySQL 8.4 disaster-recovery import failure),
-        # before tests even run. Other suites stay on MySQL 8.0.
-        image: ${{ matrix.suite == 'migration' && 'mysql:8.4' || 'mysql:8.0' }}
-        env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-          MYSQL_DATABASE: shopware
-        ports:
-          - "3306:3306"
-        options: --health-cmd="mysqladmin ping || mariadb-admin ping"
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup and install Shopware
-        uses: ./.github/actions/phpunit-prepare
-        with:
-          keep-composer-tools: "true"
-          migration-coverage: ${{ matrix.suite == 'migration' }}
-      - name: Install Danger # the unit tests for the Danger rules type against the danger-php package
-        if: ${{ matrix.suite == 'unit' }}
-        run: composer install -d vendor-bin/danger-php --no-interaction
-      - name: Run PHPUnit with coverage
-        id: phpunit
-        uses: ./.github/actions/phpunit-run
-        with:
-          test-testsuite: ${{ matrix.suite }}
-          coverage: "true"
-      - name: Upload coverage and test results to Codecov
-        uses: ./.github/actions/phpunit-upload
-        # !cancelled(): junit test results must upload even when the run failed.
-        # conclusion != 'skipped': but not when PHPUnit never ran (e.g. service container setup
-        # failed), because then checkout never ran either and this local action cannot resolve.
-        if: ${{ !cancelled() && steps.phpunit.conclusion != 'skipped' }}
-        with:
-          coverage: "true"
-          coverage-flags: phpunit-${{ matrix.suite }}
-          codecov-token: ${{ secrets.CODECOV_TOKEN }}
-      - name: Upload junit report for the failure tracking issue
-        if: failure() && github.event_name != 'pull_request' && github.event_name != 'merge_group'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: junit-phpunit-${{ matrix.suite }}
-          path: junit.xml
-          # a job that fails before PHPUnit reports (setup, crash) has no junit.xml
-          if-no-files-found: ignore
-          overwrite: true
-
-  phpunit-13:
-    # PHPUnit 13 gate: runs the unit, migration and devops suites on PHPUnit 13 and
-    # tolerates no PHPUnit notices, warnings or deprecations; plain PHP ones stay tolerated.
-    # Coverage stays on the PHPUnit 11 `phpunit` job above; this job gates the upgrade.
-    name: "PHPUnit 13 for ${{ matrix.suite }}"
     needs:
       - markdown-only-changes
     if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
@@ -436,24 +359,34 @@ jobs:
           php-version: "8.5"
           keep-composer-tools: "true"
           migration-coverage: ${{ matrix.suite == 'migration' }}
-          phpunit-version: "^13.3"
+          expected-phpunit: "13"
       - name: Install Danger # the unit tests for the Danger rules type against the danger-php package
         if: ${{ matrix.suite == 'unit' }}
         run: composer install -d vendor-bin/danger-php --no-interaction
-      - name: Run PHPUnit failing on notices and warnings
+      - name: Run PHPUnit with coverage, failing on notices and warnings
         id: phpunit
         uses: ./.github/actions/phpunit-run
         with:
           test-testsuite: ${{ matrix.suite }}
-          # coverage is collected but not uploaded: PHPUnit only validates #[CoversClass] targets
-          # ("is not a valid target for code coverage" PHPUnit warnings) while coverage is active
           coverage: "true"
           phpunit-options: "--display-phpunit-notices --display-phpunit-deprecations --fail-on-phpunit-notice --fail-on-phpunit-warning --fail-on-phpunit-deprecation"
+      - name: Upload coverage and test results to Codecov
+        uses: ./.github/actions/phpunit-upload
+        # !cancelled(): junit test results must upload even when the run failed.
+        # conclusion != 'skipped': but not when PHPUnit never ran (e.g. service container setup
+        # failed), because then checkout never ran either and this local action cannot resolve.
+        if: ${{ !cancelled() && steps.phpunit.conclusion != 'skipped' }}
+        with:
+          # the devops suite collects coverage only so PHPUnit validates the #[CoversClass] targets
+          # ("is not a valid target for code coverage" warnings); it stays out of Codecov
+          coverage: ${{ matrix.suite != 'devops' && 'true' || 'false' }}
+          coverage-flags: phpunit-${{ matrix.suite }}
+          codecov-token: ${{ secrets.CODECOV_TOKEN }}
       - name: Upload junit report for the failure tracking issue
-        if: failure() && github.event_name == 'schedule'
+        if: failure() && github.event_name != 'pull_request' && github.event_name != 'merge_group'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: junit-phpunit-13-${{ matrix.suite }}
+          name: junit-phpunit-${{ matrix.suite }}
           path: junit.xml
           # a job that fails before PHPUnit reports (setup, crash) has no junit.xml
           if-no-files-found: ignore
@@ -526,7 +459,6 @@ jobs:
       - phpstan
       - openapi-lint
       - phpunit
-      - phpunit-13
       - license-check
       - composer-audit
       - bc-checker
@@ -537,5 +469,5 @@ jobs:
         uses: re-actors/alls-green@b5b5b37504aa4183270bd3d855c52a67f212be35 # v1.3.0
         with:
           # allowed-failures: docs, linters
-          allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'lint, phpstan, rector, openapi-lint, phpunit, phpunit-13, license-check, composer-audit, bc-checker' || '' }}
+          allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'lint, phpstan, rector, openapi-lint, phpunit, license-check, composer-audit, bc-checker' || '' }}
           jobs: ${{ toJSON(needs) }}

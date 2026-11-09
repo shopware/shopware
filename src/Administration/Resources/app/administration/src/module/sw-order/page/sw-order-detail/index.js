@@ -566,6 +566,10 @@ export default {
             Store.get('swOrderDetail').setOrderAddressIds(null);
             this.hasNewVersionId = false;
 
+            if (!this.acl.can('order.editor')) {
+                return this.reloadEntityData(false);
+            }
+
             return this.orderRepository
                 .createVersion(this.orderId)
                 .then((newContext) => {

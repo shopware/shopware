@@ -10,8 +10,6 @@ use Symfony\Component\Mime\MimeTypes;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * The `shopware.product_documents` settings: allowed file types and file size.
- *
  * @internal
  */
 #[Package('inventory')]
@@ -29,8 +27,6 @@ readonly class ProductDocumentConfig
     }
 
     /**
-     * The configured file types, as extensions changed them: lower case, without a leading dot.
-     *
      * @return list<string>
      */
     public function getAllowedExtensions(Context $context): array
@@ -65,7 +61,7 @@ readonly class ProductDocumentConfig
     }
 
     /**
-     * The largest file an upload through PHP can carry: the configured size, lowered by PHP's upload limits.
+     * For uploads through PHP; saving checks `maxFileSize`.
      */
     public function getMaxUploadFileSize(): int
     {

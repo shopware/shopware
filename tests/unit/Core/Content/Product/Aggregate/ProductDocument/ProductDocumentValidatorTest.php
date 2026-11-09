@@ -35,7 +35,7 @@ class ProductDocumentValidatorTest extends TestCase
     private IdsCollection $ids;
 
     /**
-     * @var list<OutcomeRow> what WriteOutcome returns for the translations
+     * @var list<OutcomeRow>
      */
     private array $translations = [];
 

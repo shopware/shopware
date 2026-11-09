@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * Lets extensions change the file types product documents can have, on top of `shopware.product_documents.allowed_extensions`.
+ * Lets extensions change the allowed file types of product documents.
  *
  * @codeCoverageIgnore
  */

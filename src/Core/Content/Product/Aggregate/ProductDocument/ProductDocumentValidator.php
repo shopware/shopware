@@ -21,9 +21,6 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
- * Checks the files of product documents against `shopware.product_documents` before they are written.
- * Only what the write changes is checked: the files that documents get with it.
- *
  * @internal
  */
 #[Package('inventory')]
@@ -168,7 +165,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param list<string> $mediaIds hex
+     * @param list<string> $mediaIds
      */
     private function loadFiles(array $mediaIds, Context $context): MediaCollection
     {

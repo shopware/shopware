@@ -395,6 +395,15 @@ If an app ships both, the file takes precedence, the inline definition is ignore
 
 ## Administration
 
+### Order viewers no longer receive delete privileges
+
+The `order.viewer` permission no longer grants `order:delete` or `version:delete`, and viewing an order no longer creates a working version.
+Existing viewer roles lose `order:delete` during the update unless they also have `order.editor` or `order.deleter`.
+Existing `version:delete` grants are preserved because other modules and extensions may require them.
+Editor roles still require both grants to discard working versions.
+Custom roles without the `order.viewer` marker are unchanged.
+Extensions that require `order:delete` alongside `order.viewer` must explicitly restore that grant for the affected roles after the migration.
+
 ### Deprecated the `customFieldSetRepository` computed property of `sw-product-stream-detail`
 
 The `customFieldSetRepository` computed property of `sw-product-stream-detail` is deprecated and will be removed.

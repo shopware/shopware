@@ -10,7 +10,12 @@
  * behind the `ownedBlockNames` / `extendedBlockNames` fields the transform returns.
  */
 
-export { ShopwareSetupTransformError, transformShopwareSetupSfc, validateShopwareSetupSfc } from './index';
+export {
+    ShopwareSetupInternalError,
+    ShopwareSetupTransformError,
+    transformShopwareSetupSfc,
+    validateShopwareSetupSfc,
+} from './index';
 
 export type { ShopwareSetupTransformResult } from './index';
 

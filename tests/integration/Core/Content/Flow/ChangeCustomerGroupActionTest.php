@@ -116,8 +116,8 @@ class ChangeCustomerGroupActionTest extends TestCase
         /** @var CustomerGroupEntity $customerGroupId */
         $customerGroupId = static::getContainer()->get('customer_group.repository')->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
-        /** @var CustomerEntity $customer */
         $customer = $this->customerRepository->search(new Criteria([$this->ids->get('customer')]), Context::createDefaultContext())->getEntities()->first();
+        static::assertInstanceOf(CustomerEntity::class, $customer);
 
         static::assertSame($customerGroupId->getId(), $customer->getGroupId());
     }
@@ -138,7 +138,7 @@ class ChangeCustomerGroupActionTest extends TestCase
 
         // After login successfully, the context token will be set in the header
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
     }

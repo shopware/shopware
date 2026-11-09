@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
+use Shopware\Core\Framework\Api\Acl\AclVersionMergeValidator;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
@@ -36,6 +37,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -69,14 +72,15 @@ class ApiController extends AbstractController
         private readonly DecoderInterface $serializer,
         private readonly RequestCriteriaBuilder $criteriaBuilder,
         private readonly EntityProtectionValidator $entityProtectionValidator,
-        private readonly AclCriteriaValidator $criteriaValidator
+        private readonly AclCriteriaValidator $criteriaValidator,
+        private readonly AclVersionMergeValidator $versionMergeValidator,
     ) {
     }
 
     #[Route(
         path: '/api/_action/clone/{entity}/{id}',
         name: 'api.clone',
-        requirements: ['version' => '\d+', 'entity' => '[0-9a-zA-Z-]+', 'id' => '[0-9a-f]{32}'],
+        requirements: ['entity' => '[0-9a-zA-Z-]+', 'id' => '[0-9a-f]{32}'],
         methods: [Request::METHOD_POST]
     )]
     public function clone(Context $context, string $entity, string $id, Request $request): JsonResponse
@@ -114,7 +118,7 @@ class ApiController extends AbstractController
     #[Route(
         path: '/api/_action/version/{entity}/{id}',
         name: 'api.createVersion',
-        requirements: ['version' => '\d+', 'entity' => '[0-9a-zA-Z-]+', 'id' => '[0-9a-f]{32}'],
+        requirements: ['entity' => '[0-9a-zA-Z-]+', 'id' => '[0-9a-f]{32}'],
         methods: [Request::METHOD_POST]
     )]
     public function createVersion(Request $request, Context $context, string $entity, string $id): Response
@@ -138,6 +142,11 @@ class ApiController extends AbstractController
             throw ApiException::definitionNotFound($e);
         }
 
+        $missing = $this->validateAclPermissions($context, $entityDefinition, AclRoleDefinition::PRIVILEGE_READ);
+        if ($missing) {
+            throw ApiException::missingPrivileges([$missing]);
+        }
+
         $versionId = $context->scope(Context::CRUD_API_SCOPE, fn (Context $context): string => $this->definitionRegistry->getRepository($entityDefinition->getEntityName())->createVersion($id, $context, $versionName, $versionId));
 
         return new JsonResponse([
@@ -151,7 +160,7 @@ class ApiController extends AbstractController
     #[Route(
         path: '/api/_action/version/merge/{entity}/{versionId}',
         name: 'api.mergeVersion',
-        requirements: ['version' => '\d+', 'entity' => '[0-9a-zA-Z-]+', 'versionId' => '[0-9a-f]{32}'],
+        requirements: ['entity' => '[0-9a-zA-Z-]+', 'versionId' => '[0-9a-f]{32}'],
         methods: [Request::METHOD_POST]
     )]
     public function mergeVersion(Context $context, string $entity, string $versionId): JsonResponse
@@ -163,6 +172,12 @@ class ApiController extends AbstractController
         }
 
         $entityDefinition = $this->getEntityDefinition($entity);
+
+        $missing = $this->versionMergeValidator->getMissingPrivileges($versionId, $entityDefinition, $context);
+        if ($missing !== []) {
+            throw ApiException::missingPrivileges($missing);
+        }
+
         $repository = $this->definitionRegistry->getRepository($entityDefinition->getEntityName());
 
         // change scope to be able to update write protected fields
@@ -176,7 +191,7 @@ class ApiController extends AbstractController
     #[Route(
         path: '/api/_action/version/{versionId}/{entity}/{entityId}',
         name: 'api.deleteVersion',
-        requirements: ['version' => '\d+', 'entity' => '[0-9a-zA-Z-]+', 'id' => '[0-9a-f]{32}'],
+        requirements: ['versionId' => '[0-9a-f]{32}', 'entity' => '[0-9a-zA-Z-]+', 'entityId' => '[0-9a-f]{32}'],
         methods: [Request::METHOD_POST]
     )]
     public function deleteVersion(Context $context, string $entity, string $entityId, string $versionId): JsonResponse
@@ -199,13 +214,24 @@ class ApiController extends AbstractController
             throw ApiException::definitionNotFound($e);
         }
 
+        $missing = $this->validateAclPermissions($context, $entityDefinition, AclRoleDefinition::PRIVILEGE_DELETE);
+        if ($missing) {
+            throw ApiException::missingPrivileges([$missing]);
+        }
+
         $versionContext = $context->createWithVersionId($versionId);
+
+        // A version discard must not enter the change set: merge() replays recorded deletions against its target version.
+        $versionContext->addState(VersionManager::DISABLE_AUDIT_LOG);
 
         $entityRepository = $this->definitionRegistry->getRepository($entityDefinition->getEntityName());
 
         $versionContext->scope(Context::CRUD_API_SCOPE, static function (Context $versionContext) use ($entityId, $entityRepository): void {
             $entityRepository->delete([['id' => $entityId]], $versionContext);
         });
+
+        // Drop the change set before the version, so a merge starting in between finds no commits to replay.
+        $this->deleteVersionCommits($versionId, $context);
 
         $versionRepository = $this->definitionRegistry->getRepository('version');
         $versionRepository->delete([['id' => $versionId]], $context);
@@ -439,6 +465,22 @@ class ApiController extends AbstractController
         throw ApiException::unsupportedAssociation($association->getPropertyName());
     }
 
+    private function deleteVersionCommits(string $versionId, Context $context): void
+    {
+        $repository = $this->definitionRegistry->getRepository(VersionCommitDefinition::ENTITY_NAME);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('versionId', $versionId));
+
+        $ids = $repository->searchIds($criteria, $context)->getIds();
+
+        if ($ids === []) {
+            return;
+        }
+
+        $repository->delete(array_map(static fn (string $id): array => ['id' => $id], $ids), $context);
+    }
+
     /**
      * @return array{0: Criteria, 1: EntityRepository<covariant EntityCollection<covariant Entity>>}
      */
@@ -635,8 +677,6 @@ class ApiController extends AbstractController
     {
         $payload = $this->getRequestBody($request);
         $noContent = !$request->query->has('_response');
-        // safari bug prevents us from using the location header
-        $appendLocationHeader = false;
 
         if ($this->isCollection($payload)) {
             throw ApiException::badRequest('Only single write operations are supported. Please send the entities one by one or use the /sync api endpoint.');
@@ -646,7 +686,7 @@ class ApiController extends AbstractController
 
         $last = $pathSegments[\count($pathSegments) - 1];
 
-        if ($type === self::WRITE_CREATE && !empty($last['value'])) {
+        if ($type === self::WRITE_CREATE && $last['value'] !== null && $last['value'] !== '') {
             $methods = ['GET', 'PATCH', 'DELETE'];
 
             throw ApiException::methodNotAllowed($methods, \sprintf('No route found for "%s %s": Method Not Allowed (Allow: %s)', $request->getMethod(), $request->getPathInfo(), implode(', ', $methods)));

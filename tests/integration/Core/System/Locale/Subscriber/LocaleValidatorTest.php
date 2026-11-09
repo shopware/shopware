@@ -69,7 +69,7 @@ class LocaleValidatorTest extends TestCase
     {
         $locales = $this->localeRepository->search(new Criteria(), Context::createDefaultContext())->getEntities()->getElements();
         $definition = $this->definitionInstanceRegistry->get(LocaleDefinition::class);
-        $entityExistinceMock = $this->createMock(EntityExistence::class);
+        $entityExistinceMock = static::createStub(EntityExistence::class);
 
         $commands = array_map(static fn (LocaleEntity $locale) => new UpdateCommand(
             $definition,

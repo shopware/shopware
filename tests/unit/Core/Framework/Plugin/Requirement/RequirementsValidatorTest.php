@@ -178,7 +178,7 @@ class RequirementsValidatorTest extends TestCase
 
         $dependants = $this->createValidator()->resolveActiveDependants($dependentPlugin, [$basePlugin, $dependentPlugin]);
 
-        static::assertEmpty($dependants);
+        static::assertCount(0, $dependants);
 
         $dependants = $this->createValidator()->resolveActiveDependants($basePlugin, [$basePlugin, $dependentPlugin]);
 
@@ -188,7 +188,7 @@ class RequirementsValidatorTest extends TestCase
 
         $dependants = $this->createValidator()->resolveActiveDependants($basePlugin, [$basePlugin, $dependentPlugin]);
 
-        static::assertEmpty($dependants);
+        static::assertCount(0, $dependants);
     }
 
     public function testValidateConflictsValid(): void

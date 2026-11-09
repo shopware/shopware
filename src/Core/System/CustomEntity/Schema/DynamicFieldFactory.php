@@ -76,12 +76,12 @@ class DynamicFieldFactory
         $translations = new TranslationsAssociationField($entityName . '_translation', $entityName . '_id', 'translations', 'id');
         $collection->add($translations);
 
-        foreach ($translated as &$field) {
-            $required = $field['required'] ?? false;
-            $apiAware = $field['storeApiAware'] ?? false;
+        foreach ($translated as &$translatedFieldConfig) {
+            $required = $translatedFieldConfig['required'] ?? false;
+            $apiAware = $translatedFieldConfig['storeApiAware'] ?? false;
 
-            $property = self::kebabCaseToCamelCase($field['name']);
-            unset($field['translatable']);
+            $property = self::kebabCaseToCamelCase($translatedFieldConfig['name']);
+            unset($translatedFieldConfig['translatable']);
 
             $translatedField = new TranslatedField($property);
             if ($required) {
@@ -94,7 +94,7 @@ class DynamicFieldFactory
             $collection->add($translatedField);
         }
 
-        unset($field);
+        unset($translatedFieldConfig);
 
         $registry = $container->get(DefinitionInstanceRegistry::class);
         if (!$registry instanceof DefinitionInstanceRegistry) {

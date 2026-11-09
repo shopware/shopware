@@ -163,7 +163,7 @@ class HttpCacheKeyGenerator
         }
 
         /** @deprecated tag:v6.8.0 - Currency cookie will be removed */
-        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
+        if (!Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
             if ($currencyCookie = $this->getCookieValue($request, $response, self::CURRENCY_COOKIE)) {
                 $event->add(
                     self::CURRENCY_COOKIE,
@@ -207,7 +207,9 @@ class HttpCacheKeyGenerator
         // as the request value can be overwritten by the client;
         // however the response cookie is only set if it differs from the request cookie,
         // so callers need to fall back to the request when the response cookie is not set
-        return $responseCookie?->getValue();
+        // If the cookie was cleared during the request, return an explicit empty string and preserve it
+        // instead of falling back to the outdated request value.
+        return $responseCookie !== null ? ($responseCookie->getValue() ?? '') : null;
     }
 
     private function getRequestCookieValue(Request $request, string $cookieName): ?string

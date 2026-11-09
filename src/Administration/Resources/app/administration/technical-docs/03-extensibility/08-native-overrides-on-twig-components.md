@@ -1,0 +1,110 @@
+# Native Overrides on Twig Components
+
+Counterpart to the [Twig → Native Block Runtime Adapter](./06-twig-native-block-adapter.md): that adapter keeps _legacy Twig overrides_ working on _migrated_ components, this one lets _native SFC overrides_ target components that are _not migrated yet_.
+
+Both halves activate automatically. Nothing changes for override authors, and the same override file keeps working unchanged once its target is migrated.
+
+---
+
+## Problem
+
+A native override declares its target with `<sw-block extends="…">` and replaces state with `swDefineOverride({ … })`. Both need the target to be a native setup component: the block needs a matching `<sw-block name="…">`, the state needs an extendable setup wrapper. A component still rendered through TwigJS has neither, so an override against it used to do nothing at all, and without an error.
+
+Plugin authors therefore had to wait for core to migrate a component before they could write an override for it.
+
+---
+
+## Template half
+
+**The override announces its target blocks at build time.** The setup transform emits a plain `<script>` into every override SFC:
+
+```js
+Shopware.Component.registerNativeExtensionTargets?.({
+    component: 'sw-dashboard-index',
+    blocks: ['sw_dashboard_index_content_intro_welcome_message'],
+});
+```
+
+A plain `<script>` runs at module evaluation, during `loadPlugins()`, while `<script setup>` would only run on mount. The block names therefore land in the registry _before_ templates are resolved. The call is optional (`?.`) because it is compiled into every shipped plugin bundle: a missing function would abort the entry module and take the whole plugin down with it.
+
+**The template factory wraps the matching blocks.** `wrapNativeBlockTargets` inserts an extension point around every block that is a registered target:
+
+```twig
+<div class="sw-example">
+    {% block sw_example_title %}<h1>{{ title }}</h1>{% endblock %}
+    {% block sw_example_body %}<p>{{ body }}</p>{% endblock %}
+</div>
+```
+
+With `sw_example_body` registered as a target, the rendered template becomes:
+
+```html
+<div class="sw-example">
+    <h1>{{ title }}</h1>
+    <sw-block name="sw_example_body" :data="$dataScope" :sw-internal-legacy-shim="false"><p>{{ body }}</p></sw-block>
+</div>
+```
+
+`sw_example_title` is not a target and leaves no trace, exactly as before, because Twig block markers never reach the output. Only the registered block gains an element. (Whitespace is normalised here for readability; the transform does not reformat.)
+
+Wrapping happens **after** Twig overrides are merged and only for the render. The stored token tree stays untouched, because components inheriting it would otherwise inherit the wrapper too. The legacy shim is switched off because those overrides are already part of the merged content; leaving it on would feed the same override in a second time.
+
+### Blocks that open with a slot template
+
+Roughly one in six blocks starts with a named slot template. Wrapping such a block from the outside would bind the slot to `sw-block`, which renders only its default slot, so the content would disappear without an error. The extension point is therefore placed _inside_ the template:
+
+```twig
+<sw-card>
+    {% block sw_example_header %}<template #header><b>{{ title }}</b></template>{% endblock %}
+</sw-card>
+```
+
+```html
+<sw-card>
+    <template #header
+        ><sw-block name="sw_example_header" …><b>{{ title }}</b></sw-block></template
+    >
+</sw-card>
+```
+
+The slot stays on `sw-card`, and the override replaces the slot's content.
+
+This works when the block consists of exactly one slot template spanning its whole content. Several sibling slot templates, or a slot template next to other content, have no single position that serves every part; those blocks are left unwrapped and a warning names them. **15 of 8292 blocks** fall into this category, mostly `*_content` blocks of list pages that fill two slots of their `sw-page` at once.
+
+---
+
+## Setup half
+
+`swDefineOverride` replacements are applied by an adapter that works around one ordering constraint: only a `setup()` return value outranks `data` and `computed` in Vue's instance proxy, but `setup()` runs before either of them exists.
+
+The adapter therefore **reserves the slot early and fills it late**:
+
+1. `setup()` checks per instance whether overrides are registered for the component. The check cannot happen at build time: sync components are built before the override SFCs mount and register. Without overrides, `setup()` returns the component's own `setup()` result untouched. Otherwise it returns that result, or `{}` if the component has no `setup()`. Vue keeps a live reference to it as the component's setup state, the entry with the highest precedence.
+2. A `created()` hook runs the override callbacks. It is injected as the first mixin of the innermost `extends` config, so it runs before every other `created()` hook, including those of a base component reached through `Component.extend()` or a legacy `Component.override()`. At that point `data` and `computed` exist, so `previousState` can read them.
+3. The results are written into the object from step 1, before the first render.
+
+`previousState` is a proxy. Every key except functions is served as a read-only ref, so `previousState.x.value` works for `data`, `props`, `computed` and the setup state alike, the same shape migrated components get. Functions are passed through as they are, so a replaced method's original is called as `previousState.x()`. Each override sees the component's own `setup()` result and everything earlier overrides returned, but not its own result, which is only written after the call.
+
+`previousState` is read-only. Writes (`previousState.x.value = …` or `previousState.x = …`) are reported with `console.error` and dropped. A value is changed by returning it from the override.
+
+The base component keeps writing its own state through `this.x = …`, and Vue sends that write to the setup state before `data` and `computed`. For an overridden `data` key, the write is therefore sent back to `data`, so `previousState.x` stays live and an override deriving from it follows the base. For an overridden writable `computed`, the write is sent to the base setter, so a `currentValue` that emits `update:value` keeps a `v-model` on the component working. This matches migrated components, whose script writes to its own local ref. The exception is a writable ref the override returns: the override owns that state, so writes from the base and from a `v-model` in the override template reach that ref.
+
+---
+
+## Limits
+
+**Blocks that mix slot templates with other content** cannot host an extension point; see above.
+
+**Overrides do not reach components created with `Component.extend()`.** Both halves resolve overrides by the name of the component being rendered: the template factory stamps that name onto every extension point it inserts, and the setup adapter looks up `swDefineOverride` callbacks the same way. For example `sw-cms-create` extends `sw-cms-detail`, so its extension points carry `sw-internal-component-name="sw-cms-create"`, and neither the block nor the state override registered for `sw-cms-detail` applies there. A Twig override on the same block does reach the child, because Twig merges it into the template the child inherits. To cover a child, add a second override that targets the child by name.
+
+**An `immediate` watcher on an overridden key fires once with the base value.** Vue sets watchers up before any `created` hook, so the first run happens before the override exists. Every later evaluation sees the override.
+
+**The adapter relies on undocumented Vue behaviour**: that a setup result stays live and that keys added later are honoured. It is pinned to the Vue version in `package.json`, and a canary test fails loudly if an upgrade changes it.
+
+---
+
+## Lifetime
+
+Both halves become unnecessary once every override target renders natively. They are annotated `@experimental stableVersion:v6.9.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`, which by convention means: stable or removed by then.
+
+`registerNativeExtensionTargets` is the exception. It is compiled into shipped plugin bundles, so its signature is a runtime contract with every plugin already in the market. Adding fields stays compatible, renaming or removing it does not.

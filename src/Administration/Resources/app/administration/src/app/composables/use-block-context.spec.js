@@ -111,4 +111,48 @@ describe('use-block-context', () => {
             test: [testSlot1, testSlot3],
         });
     });
+
+    it('re-runs effects that read a block when it is invalidated', async () => {
+        const { addBlock, getBlocks, invalidateBlock } = useBlockContext();
+        const { watchEffect, nextTick } = await import('vue');
+        const testSlot = () => 'test';
+        const seen = [];
+
+        addBlock('test', testSlot);
+        watchEffect(() => {
+            seen.push(getBlocks('test'));
+        });
+
+        expect(seen).toHaveLength(1);
+
+        invalidateBlock('test');
+        await nextTick();
+
+        expect(seen).toHaveLength(2);
+        expect(seen[1]).toStrictEqual([testSlot]);
+    });
+
+    it('does not re-run effects that read a different block when a block is invalidated', async () => {
+        const { getBlocks, invalidateBlock } = useBlockContext();
+        const { watchEffect, nextTick } = await import('vue');
+        let runs = 0;
+
+        watchEffect(() => {
+            getBlocks('other');
+            runs += 1;
+        });
+
+        invalidateBlock('test');
+        await nextTick();
+
+        expect(runs).toBe(1);
+    });
+
+    it('does not expose the revision counter in the block context', () => {
+        const { blockContext, invalidateBlock } = useBlockContext();
+
+        invalidateBlock('test');
+
+        expect(blockContext).toStrictEqual({});
+    });
 });

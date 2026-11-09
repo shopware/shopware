@@ -4,7 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\MessageQueue\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
@@ -38,13 +38,13 @@ class ScheduledTaskHandlerTest extends TestCase
      */
     private EntityRepository $scheduledTaskRepo;
 
-    private LoggerInterface&MockObject $logger;
+    private LoggerInterface&Stub $logger;
 
     protected function setUp(): void
     {
         $this->connection = static::getContainer()->get(Connection::class);
         $this->scheduledTaskRepo = static::getContainer()->get('scheduled_task.repository');
-        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->logger = static::createStub(LoggerInterface::class);
     }
 
     #[DataProvider('allowedStatus')]
@@ -202,9 +202,10 @@ class ScheduledTaskHandlerTest extends TestCase
         $task = new TestRescheduleOnFailureTask();
         $task->setTaskId($taskId);
 
-        $this->logger->expects($this->once())->method('error');
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('error');
 
-        $handler = $this->createHandler($taskId, true);
+        $handler = $this->createHandler($taskId, true, $logger);
 
         try {
             $handler($task);
@@ -274,10 +275,12 @@ class ScheduledTaskHandlerTest extends TestCase
         ];
     }
 
-    private function createHandler(string $taskId, bool $shouldThrowException = false): DummyScheduledTaskHandler
+    private function createHandler(string $taskId, bool $shouldThrowException = false, ?LoggerInterface $logger = null): DummyScheduledTaskHandler
     {
-        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, $taskId, $shouldThrowException);
-        $handler->setScheduledTaskExecutor(new ScheduledTaskExecutor($this->scheduledTaskRepo, $this->logger, new NativeClock()));
+        $logger ??= $this->logger;
+
+        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $logger, $taskId, $shouldThrowException);
+        $handler->setScheduledTaskExecutor(new ScheduledTaskExecutor($this->scheduledTaskRepo, $logger, new NativeClock()));
 
         return $handler;
     }

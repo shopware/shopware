@@ -2,48 +2,54 @@
 
 namespace Shopware\Core\Framework\Mcp\Loader;
 
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception as DBALException;
 use Mcp\Capability\Registry\Loader\LoaderInterface;
 use Mcp\Capability\RegistryInterface;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\App\Feature\AppFeature;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
+use Shopware\Core\Framework\App\Mcp\Feature\McpPromptConfig;
+use Shopware\Core\Framework\App\Mcp\Feature\McpResourceConfig;
+use Shopware\Core\Framework\App\Mcp\Feature\McpToolConfig;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 
 /**
  * @experimental stableVersion:v6.8.0
+ *
+ * @template T of McpToolConfig|McpPromptConfig|McpResourceConfig
  */
 #[Package('framework')]
 abstract class AbstractAppMcpLoader implements LoaderInterface
 {
     public function __construct(
-        protected readonly Connection $connection,
+        protected readonly AppFeatureStorage $storage,
         protected readonly AppMcpCapabilityExecutor $executor,
+        protected readonly LanguageLocaleCodeProvider $localeProvider,
         protected readonly LoggerInterface $logger,
     ) {
     }
 
     public function load(RegistryInterface $registry): void
     {
-        try {
-            $rows = $this->fetchRows();
-        } catch (DBALException) {
-            return;
-        }
+        $features = $this->storage->forActiveApps($this->getConfigClass());
 
-        foreach ($rows as $row) {
-            $this->registerCapability($registry, $row);
+        $locale = $this->localeProvider->getLocaleForLanguageId(Defaults::LANGUAGE_SYSTEM);
+
+        foreach ($features as $feature) {
+            $this->registerCapability($registry, $feature, $locale);
         }
     }
 
     /**
-     * @return list<array<string, mixed>>
+     * @return class-string<T>
      */
-    abstract protected function fetchRows(): array;
+    abstract protected function getConfigClass(): string;
 
     /**
-     * @param array<string, mixed> $row
+     * @param AppFeature<T> $feature
      */
-    abstract protected function registerCapability(RegistryInterface $registry, array $row): void;
+    abstract protected function registerCapability(RegistryInterface $registry, AppFeature $feature, string $locale): void;
 
     protected function capabilityName(string $appName, string $name): string
     {
@@ -64,14 +70,8 @@ abstract class AbstractAppMcpLoader implements LoaderInterface
         return false;
     }
 
-    /**
-     * @param array<string, mixed> $row
-     */
-    protected function resolveDescription(array $row, string $fallback): string
+    protected function resolveDescription(?string $description, ?string $label, string $fallback): string
     {
-        $description = isset($row['description']) && $row['description'] !== '' ? (string) $row['description'] : null;
-        $label = isset($row['label']) && $row['label'] !== '' ? (string) $row['label'] : null;
-
-        return $description ?? $label ?? $fallback;
+        return $description ?: ($label ?: $fallback);
     }
 }

@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\DependencyInjection;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\Address\AddressValidator;
+use Shopware\Core\Checkout\Cart\Address\VatIdValidator;
 use Shopware\Core\Checkout\Cart\CachedRuleLoader;
 use Shopware\Core\Checkout\Cart\Calculator;
 use Shopware\Core\Checkout\Cart\CartCalculator;
@@ -60,6 +61,7 @@ use Shopware\Core\Checkout\Cart\Price\CurrencyPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\PriceSelector;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\PriceActionController;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
@@ -74,6 +76,7 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartItemRemoveRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartItemUpdateRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartReorderRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\SalesChannel\ProductShippingCostRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\ShippingCostRoute;
@@ -99,15 +102,15 @@ use Shopware\Core\Checkout\Gateway\Command\Handler\RemoveShippingMethodCommandHa
 use Shopware\Core\Checkout\Gateway\Command\Registry\CheckoutGatewayCommandRegistry;
 use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute;
 use Shopware\Core\Checkout\Order\OrderAddressService;
+use Shopware\Core\Checkout\Order\SalesChannel\OrderRoute;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
-use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Content\Product\Cart\ProductFeatureBuilder;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
 use Shopware\Core\Content\Product\Cart\ProductLineItemValidator;
-use Shopware\Core\Content\Product\ProductTypeRegistry;
+use Shopware\Core\Content\Product\Garan\GaranLabelResolver;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider;
@@ -120,7 +123,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
-use Shopware\Core\Framework\Telemetry\Metrics\Meter;
+use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute;
@@ -222,7 +225,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // Telemetry: cart calculation metrics collaborator
     $services->set(CartMetricsInstrumentor::class)
         ->args([
-            service(Meter::class),
+            service(Telemetry::class),
             service(SalesChannelTypeResolver::class),
         ]);
 
@@ -239,6 +242,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(LineItemFactoryRegistry::class),
             service('event_dispatcher'),
             service(CartLocker::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CartLoadRoute::class)
@@ -246,6 +250,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(CartCalculator::class),
             service(TaxProviderProcessor::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CartDeleteRoute::class)
@@ -254,6 +259,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CartPersister::class),
             service('event_dispatcher'),
             service(CartLocker::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CartItemRemoveRoute::class)
@@ -263,6 +269,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CartCalculator::class),
             service(CartPersister::class),
             service(CartLocker::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CartItemAddRoute::class)
@@ -274,6 +281,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(LineItemFactoryRegistry::class),
             service('shopware.rate_limiter'),
             service(CartLocker::class),
+            service(ExtensionDispatcher::class),
+            service('request_stack'),
+        ]);
+
+    $services->set(CartReorderRoute::class)
+        ->public()
+        ->args([
+            service(OrderRoute::class),
+            service(CartItemAddRoute::class),
+            service(LineItemFactoryRegistry::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CartOrderRoute::class)
@@ -298,6 +316,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shipping_method.repository'),
             service(CartRuleLoader::class),
             service(CheckoutGatewayRoute::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ProductShippingCostRoute::class)
@@ -306,6 +325,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductGateway::class),
             service('shipping_method.repository'),
             service(Processor::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(QuantityPriceCalculator::class)
@@ -343,6 +363,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(QuantityPriceCalculator::class),
             service(PercentageTaxRuleBuilder::class),
+            service(PriceSelector::class),
+        ]);
+
+    $services->set(PriceSelector::class)
+        ->args([
+            service(TaxCalculator::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CartContextHasher::class)
@@ -397,6 +424,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(PaymentMethodRoute::class),
             service(ShippingMethodRoute::class),
             service(AppCheckoutGateway::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CheckoutGatewayCommandRegistry::class)
@@ -452,6 +480,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(QuantityPriceCalculator::class),
             service(PercentageTaxRuleBuilder::class),
             service(CashRounding::class),
+            service(PriceSelector::class),
         ]);
 
     $services->set(PriceActionController::class)
@@ -496,6 +525,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.cart.validator')
         ->tag('kernel.reset', ['method' => 'reset']);
 
+    $services->set(VatIdValidator::class)
+        ->tag('shopware.cart.validator');
+
     $services->set(Validator::class)
         ->args([
             tagged_iterator('shopware.cart.validator'),
@@ -522,7 +554,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductPriceCalculator::class),
             service(EntityCacheKeyGenerator::class),
             service(Connection::class),
-            service(ProductTypeRegistry::class),
+            service('event_dispatcher'),
+            service(GaranLabelResolver::class),
         ])
         ->tag('shopware.cart.processor', ['priority' => 5000])
         ->tag('shopware.cart.collector', ['priority' => 5000]);
@@ -532,6 +565,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('custom_field.repository'),
             service(LanguageLocaleCodeProvider::class),
             service(DefinitionInstanceRegistry::class),
+            service(Translator::class),
+            service(PriceSelector::class),
+            service(QuantityPriceCalculator::class),
         ]);
 
     $services->set(TransactionProcessor::class);
@@ -569,7 +605,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('order_delivery.repository'),
             service(Processor::class),
             service(CartRuleLoader::class),
-            service(PromotionItemBuilder::class),
             service(LineItemFactoryRegistry::class),
         ]);
 
@@ -695,6 +730,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
             service(QuantityPriceCalculator::class),
             service(PercentagePriceCalculator::class),
+            service(PriceSelector::class),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
 

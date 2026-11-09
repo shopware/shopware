@@ -1,8 +1,84 @@
 # 6.8.0.0
 
+# New System Requirements and Dependency Updates
+
+## Minimum PHP version 8.5
+
+The minimum PHP version was raised from 8.2 to 8.5. PHP 8.5 is already supported by Shopware 6.6.10.11 and 6.7.6.0, so you can update PHP and test your extensions before upgrading to 6.8. Review the [PHP 8.3](https://www.php.net/manual/en/migration83.php), [8.4](https://www.php.net/manual/en/migration84.php), and [8.5](https://www.php.net/manual/en/migration85.php) migration guides for deprecations between your current PHP version and 8.5.
+
+Check any locale codes passed to number and currency formatting. The temporary fallback for invalid locale codes was removed in 6.8; see "Invalid locale codes no longer supported" in the Storefront section.
+
+## Minimum MySQL 8.4 and MariaDB 11.4
+
+The minimum database versions were raised from MySQL 8.0.22 to 8.4 and from MariaDB 10.11 to 11.4. Both newer versions are already supported by earlier Shopware releases, so you can upgrade your database server and test extension migrations before upgrading to 6.8.
+
+On MySQL 8.4, foreign keys must reference a complete primary or unique key. Check custom schemas and migrations, especially references to versioned entities that omit `version_id`.
+
+## Symfony components updated to 8.x
+
+Symfony components were updated from 7.4 to 8.x. Resolve Symfony deprecations in your extensions before upgrading, and consult the [Symfony 8.0 upgrade guide](https://github.com/symfony/symfony/blob/8.0/UPGRADE-8.0.md). In particular, migrate XML service and route configuration as described under "XML configuration is no longer supported" in the Core section. Symfony also removed `Request::get()`; read from the specific request bag or use Shopware's compatibility helper as described under "`Request::get()` removal and request parameter migration" in the Core section.
+
+## Twig 4.x and Symfony UX Twig Component 3.x
+
+Twig was updated from 3.x to 4.x, and Symfony UX Twig Component from 2.x to 3.x. Review deprecations in custom templates and Twig extensions against the [Twig deprecations guide](https://twig.symfony.com/doc/3.x/deprecated.html). Shopware's components were migrated as part of the upgrade; migrate custom components and test extensions that override or consume Shopware components against the [Symfony UX 3 upgrade guide](https://github.com/symfony/ux/blob/3.x/UPGRADE-3.0.md#twigcomponent).
+
+## PHPUnit 13
+
+The PHPUnit version provided by the Shopware platform was upgraded to 13. If your extension's test pipeline uses the platform's `vendor/bin/phpunit`, adapt your test suites and PHPUnit configuration to PHPUnit 13 before upgrading to Shopware 6.8. Projects using their own PHPUnit installation do not need to upgrade solely because of this change.
+
+Alternatively, decouple your test runner from the platform by explicitly requiring the PHPUnit version you expect in your plugin and using that separate installation in your test pipeline. Managing PHPUnit separately can be preferable when testing across multiple Shopware and PHP versions: choose a PHPUnit version compatible with your supported PHP versions and any Shopware test helpers your tests use, rather than adopting PHPUnit 13 for every test run.
+
+## Administration build updated to Vite 8
+
+The Administration and the Administration code of plugins and apps were built with Vite 6 before and are built with Vite 8 now. Vite 8 uses Rolldown and Oxc instead of Rollup and esbuild. Building the Administration requires Node.js `^20.19.0 || >=22.12.0`.
+
+In Shopware 6.7, you can already build with Vite 8 by activating the `ADMIN_VITE_8` feature flag, for example with `ADMIN_VITE_8=1 composer watch:admin`.
+
+Check the Administration code of your plugin or app for these changes:
+
+* `import.meta.glob` with extglob patterns like `!(*.spec)` matches no files in production builds, and depending on the pattern also in the watcher. Replace them with negated patterns:
+
+  ```js
+  // Before
+  import.meta.glob('./**/!(*.spec).{j,t}s', { eager: true });
+  // After
+  import.meta.glob(['./**/*.{j,t}s', '!./**/*.spec.{j,t}s'], { eager: true });
+  ```
+
+  If your Jest setup transforms `import.meta.glob` with `babel-plugin-shopware-vite-meta-glob`, update it to 0.0.6 or newer first. Older versions ignore negated patterns in arrays and exclude nothing. A `^0.0.x` range does not pick up 0.0.6 automatically.
+
+  `bin/console administration:upgrade-extensions -- --only=YourPlugin --target=6.8 --write` rewrites them for you.
+
+  With the `ADMIN_VITE_8` flag in 6.7, Shopware still rewrites negated extglobs in plugins and apps and logs a warning for each one. 6.8 no longer rewrites them.
+
+* A default import of a CommonJS module resolves to `module.exports` if the importing file is an `.mjs`/`.mts` file, the nearest `package.json` sets `"type": "module"`, or the module does not set `__esModule`. Otherwise it resolves to `module.exports.default`. Check default imports of CommonJS dependencies.
+
+If your plugin or app ships its own `vite.config.*` or Vite plugins, follow the [Vite 7](https://v7.vite.dev/guide/migration) and [Vite 8](https://vite.dev/guide/migration) migration guides.
+
 # Changed Functionality
 
 <details>
+
+## Reorder form line item blocks removed
+
+`frontend.checkout.cart.reorder` resolves the reordered products from the order itself, so the reorder form no longer posts any `lineItems`. These two blocks in `storefront/page/account/order-history/order-item.html.twig` were emptied in 6.7 and are now removed:
+
+- `page_account_order_item_context_menu_reorder_form_line_items_input`
+- `page_account_order_item_context_menu_reorder_form_line_item_input`
+
+From 6.7 on an override still rendered but no longer changed what a reorder adds. To change what a reorder adds, listen to the `checkout.cart.collect-reorder-line-items` extension, which hands you the `OrderEntity` and the built `list<LineItem>`:
+
+```php
+public static function getSubscribedEvents(): array
+{
+    return [CheckoutCartCollectReorderLineItemsExtension::onPost() => 'addMyLineItems'];
+}
+
+public function addMyLineItems(CheckoutCartCollectReorderLineItemsExtension $extension): void
+{
+    $extension->result = [...($extension->result ?? []), $myLineItem];
+}
+```
 
 ## Document generation v2 is the default
 
@@ -11,6 +87,8 @@ The `DOCUMENT_GENERATION_REWORK` feature flag now defaults to `true`. All Shopwa
 The flag became an opt-out. Set it to `false` to keep running the legacy implementation during 6.8. The legacy implementation and the flag are removed with Shopware 6.9, so verify your document related extensions are v2 ready before upgrading. Migration guidance is in `UPGRADE-6.9.md`.
 
 The `@experimental` annotations on the v2 surface were removed. The classes listed in `UPGRADE-6.7.md` ("Document generation v2 experimental public surface", section 6.7.15.0) are now the stable public API. Everything else in the `DocumentV2` namespace stays `@internal`.
+
+The shared document classes moved into `Shopware\Core\Checkout\DocumentV2` with 6.7.16.0 (see "Shared document classes moved to `DocumentV2`" in `UPGRADE-6.7.md`). Their previous class names and service IDs remained available as aliases throughout 6.8 and were removed with 6.9.
 
 ## State machine actions enforce a single destination per source state
 
@@ -58,7 +136,7 @@ See `src/Administration/Resources/app/administration/technical-docs/03-extensibi
 
 To ensure product property group options are sorted more precisely based on locale code:
 - `/Shopware/Core/Content/Product/AbstractPropertyGroupSorter`: The `sort` method will be removed, use `sortUsingLocaleCode` instead.
-- `/Shopware/Core/Content/Property/PropertyGroupCollection`: The `sortByConfig` method now requires a new parameter `localeCode`.
+- `Shopware\Core\Content\Property\PropertyGroupCollection::sortByConfig()` now declares the optional parameter `string $localeCode = 'en_GB'`. Calls without arguments remain valid. If you override this method, add the optional parameter to your signature. Passing `null` is no longer supported.
 
 ## Webhook Messenger transport — explicit receiver configuration required
 
@@ -97,6 +175,18 @@ The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now requi
 ## Minimum value constraint added to restockTime field in ProductDefinition
 
 The field `restockTime` of ProductDefinition now requires a minimum value of `0`. Writing a negative value via the API is rejected. Existing negative values are set to `NULL` by a migration, as they previously broke cart calculation for out-of-stock products.
+
+## `RegulationPrice` constructor is private
+
+Matching `ListPrice`, `Shopware\Core\Checkout\Cart\Price\Struct\RegulationPrice` is built through its factory, which also computes `discount` and `percentage`:
+
+```php
+// before
+$regulationPrice = new RegulationPrice($price);
+
+// after
+$regulationPrice = RegulationPrice::createFromUnitPrice($unitPrice, $price);
+```
 
 ## Default CMS page ID now persisted for categories
 
@@ -224,7 +314,7 @@ When no Sales Channel business timezone is configured, document rendering no lon
 
 ## Nullable order reference on `DocumentEntity`
 
-The order reference on `Shopware\Core\Checkout\Document\DocumentEntity` became nullable. `getOrderId()` and `getOrderVersionId()` returned `?string` instead of `string`; documents that are not based on an order returned `null`.
+The order reference on `Shopware\Core\Checkout\DocumentV2\DocumentEntity` became nullable. `getOrderId()` and `getOrderVersionId()` returned `?string` instead of `string`; documents that are not based on an order returned `null`.
 
 `DocumentEntity::setOrderId()` and `setOrderVersionId()` accepted `?string`. Extensions overriding these setters had to widen their parameter types accordingly.
 
@@ -240,6 +330,17 @@ Extensions that rely on these variables in document template overrides must remo
 
 The variable `displayCustomerVatIdForDelivery` in `src/Core/Framework/Resources/views/documents/includes/letter_header.html.twig` was deprecated and removed without replacement. Extensions that rely on this variable in document template overrides must remove its usage without replacement.
 
+## `sw_garan_label_mail` Twig filter removed
+
+The `sw_garan_label_mail` Twig filter and `Shopware\Core\Content\Product\Garan\GaranLabelTwigFilter::resolveMailLabel()` were removed. Mail templates read the GARAN label from the `garanLabels` template variable instead: replace `productId|sw_garan_label_mail(context)` with `garanLabels[productId] ?? null`. Order confirmation mail templates that were never edited had already been migrated.
+
+## GARAN label only from the line item payload
+
+Cart line items show only the GARAN label stored in their `payload.garanLabel`, as order line items do since 6.7.17.0.
+The Storefront no longer looks up the product of line items without that key, they show no GARAN label.
+The `sw_garan_label_nested` Twig filter and `Shopware\Core\Content\Product\Garan\GaranLabelTwigFilter::renderNestedLabel()` were removed.
+Render the label from `lineItem.payload.garanLabel` instead, as `storefront/component/line-item/element/garan-label.html.twig` does.
+
 ## Shipping price matrix ranges use currency conversion
 
 Price-based shipping method price matrix ranges are now compared in the default currency. When a cart is calculated in a currency with a factor, Shopware converts the cart price back to the default currency before matching the configured `quantityStart` and `quantityEnd` range.
@@ -248,9 +349,29 @@ Enable the `SHIPPING_PRICE_RANGE_CURRENCY_CONVERSION` feature flag in 6.7 to pre
 
 </details>
 
+## Storefront session continues on the token returned by the logout route
+
+After a customer logs out, the storefront session now holds the context token that `\Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute` created and returned in its response body, instead of a separately generated one. Both are fresh anonymous tokens, so no action is required unless an extension relied on the session token differing from the one the logout response returned.
+
 # API
 
 <details>
+
+## Plain JSON is the default Admin API response format
+
+Admin API entity responses switched to plain JSON when the `Accept` header is missing or contains only `*/*`.
+Integrations that parse JSON:API responses must explicitly send `Accept: application/vnd.api+json`.
+This header also works on earlier Shopware 6 versions.
+Plain JSON detail responses contain the entity in `data`, with fields directly on the entity instead of under `attributes`.
+Listing responses contain `data`, `total`, and `aggregations`.
+
+## Product reviews require a rating
+
+`POST /store-api/product/{productId}/review` rejects a request without `points`, or with `"points": null`, with `400` and a `VIOLATION::IS_BLANK_ERROR` on `/points`. Before, such a review was saved without a rating. Headless frontends that let customers skip the rating have to send `points` between 1 and 5.
+
+The `product_review` entity marks `externalUser` and `points` as required and only accepts `points` from 1 to 5, so creating a review through the Admin API, the Sync API or a repository without them, or with `points` outside that range, fails. Integrations and imports that create reviews have to send both fields.
+
+The columns `product_review.external_user` and `product_review.points` become `NOT NULL` in the destructive migration step, so code of the previous version keeps working until then. That step fills `external_user` for existing reviews without an author, with the first name of the review's customer or an empty string for reviews without a customer, and sets `points` to `0` for existing reviews without a rating. `0` points now stands for a review without a rating: the rating average ignores these reviews, and integrations, apps and headless frontends that read `points` have to treat `0` the way they treated `null` before.
 
 ## Type-based number range preview Admin API removed
 
@@ -320,11 +441,79 @@ The `/api/_action/mail-template/validate` route has been removed without replace
 The Admin API detail routes `/api/customer/{customerId}/default-billing-address`, `/api/customer/{customerId}/default-shipping-address`, and `/api/order/{orderId}/billing-address` now resolve their configured reference only.
 Previously, these routes could return unrelated records or fail because the underlying DAL associations were not modeled as one-to-one associations.
 
+## MCP tool results no longer wrap their data in a `{"success": …}` text envelope
+
+Tool results of both MCP servers (`/api/_mcp` and `/store-api/_mcp`) carry their data in `structuredContent`, and a failed call sets `isError: true`. Until 6.8.0 the first text block additionally contained the legacy envelope `{"success": true, "data": …, "_meta": …}` or `{"success": false, "error": …}`. With 6.8.0 that envelope is removed:
+
+- The first text block holds the result data as plain JSON (the copy of `structuredContent` the MCP specification asks for), or the error message for a failed call.
+- A failed call follows with its details as a text block `{"details": {…}}`, when it has any.
+- A summary, if the tool gives one, follows as a separate text block.
+- The metadata (for example `dryRun`, `total`, `resourceUri`, `usage`) follows as a text block `{"_meta": {…}}`, and is also sent in the result's `_meta` with the prefix `shopware/` (for example `shopware/dryRun`).
+
+If your MCP client or integration parses `content[0].text` as `{"success": …, "data": …}`:
+
+- Read `structuredContent` for the data and `isError` for the outcome. Both are already sent on 6.7, so you can switch before updating. `structuredContent` requires protocol revision 2025-06-18 or later; on older revisions read the first text block.
+- Read metadata from the result's `_meta` (`shopware/<key>`) instead of the envelope's `_meta`.
+- For error details, read `structuredContent.error` (`code`, `message`, `details`) instead of the envelope's `error` and `code`.
+
+Enable the `v6.8.0.0` feature flag in 6.7 to test your client against the new format.
+
 </details>
 
 # Core
 
 <details>
+
+## Multiple SQL statements restricted to migrations and installation
+
+Application database connections no longer accepted multiple SQL statements in a single call.
+The restriction was controlled by `DISABLE_SQL_MULTI_STATEMENTS`, which was enabled by the 6.8 major flag unless explicitly disabled.
+Replace batches such as `executeStatement('UPDATE ...; DELETE ...')` with separate calls and keep any required transaction around them.
+Separating read and write statements also improved compatibility with SQL proxies that could not route mixed read/write batches in a single query.
+
+Migration execution, discovery, and bookkeeping used a dedicated connection to the primary database.
+Use the connection passed to `MigrationStep::update()` and `MigrationStep::updateDestructive()` for migration queries; these methods and installer schema imports continued to support multiple statements.
+
+## Services are reset between requests
+
+Services tagged with `kernel.reset` are reset between two requests handled by the same kernel instance, as in a plain Symfony application.
+This was opt-in with the `LONGRUNNING_ENVIRONMENT` feature flag in 6.7; the flag is removed.
+Extensions that relied on state surviving across requests in long running runtimes (for example FrankenPHP worker mode, RoadRunner, or Swoole) must move that state to an explicit cache or store.
+
+Symfony's own `http_cache` service is no longer available, even if `framework.http_cache.enabled` is set in the project configuration.
+HTTP caching is handled by Shopware's own cache layer.
+Remove references to the `http_cache` service from your project.
+
+## Customer group price fields are required
+
+`customer_group.display_gross` and `customer_group.price_basis` are required fields now. Both carry entity defaults (`displayGross: true`, `priceBasis: "gross"`), so create payloads that omit them keep working, and an explicit `null` is rejected. A create that omits `priceBasis` gets `gross` regardless of `displayGross`, it is no longer derived from the display mode: send `'net'` explicitly for net-display groups whose net prices should stay fixed. Accordingly, `CustomerGroupEntity::$priceBasis`, `getPriceBasis()` and `setPriceBasis()` are narrowed to non-nullable `string`.
+
+## Rule container `__wakeup()` hooks are no longer called
+
+`Shopware\Core\Framework\Rule\Container\Container::__unserialize()` no longer calls subclass `__wakeup()` hooks.
+Move custom rule container initialization from `__wakeup()` into `__unserialize(array $data): void` and call `parent::__unserialize($data)` before running it.
+Remove the old `__wakeup()` implementation to avoid duplicate initialization when supporting earlier Shopware versions that provide the compatibility call.
+
+## Invalid price definition exceptions
+
+`PriceDefinitionFieldSerializer` now throws `DataAbstractionLayerException` for invalid price-definition types instead of the removed `InvalidPriceFieldTypeException`. Update exception catches and use `DataAbstractionLayerException::invalidPriceFieldType()` to construct this error. Its error code, status, and message remain unchanged.
+
+## Import CSV reader exception for invalid resources
+
+`CsvReader::read()` throws `ImportExportException` with the error code `CONTENT__IMPORT_EXPORT__INVALID_RESOURCE` instead of `\InvalidArgumentException` when the given argument is not a resource.
+Update exception catches accordingly.
+
+## `ReverseProxyCompilerPass` removed
+
+`Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass` was removed without replacement. Remove any manual registration of the compiler pass, and do not rely on reverse proxy services being absent from the container when the reverse proxy is disabled.
+## Removal of legacy `ConfigurationService` getters
+
+The `getConfiguration()` and `getResolvedConfiguration()` methods of `Shopware\Core\System\SystemConfig\Service\ConfigurationService` have been removed.
+Replace calls with `getSystemConfigDefinition()` and `getResolvedSystemConfigDefinition()`, respectively.
+
+## `Feature` is final
+
+`Shopware\Core\Framework\Feature` is `final` and cannot be extended. It is a static utility class, call its methods directly instead of subclassing it.
 
 ## `AbstractCartPersister::exists()` is abstract
 
@@ -351,6 +540,10 @@ public function load(Request $request, SalesChannelContext $context, ?Cart $cart
 ```
 
 A decoration that drops the parameter still works but gives up the optimization behind it, because the route then reads and calculates a cart the request already holds. Pass a cart wherever you have one: in a controller, type a `Cart` argument and the `CartValueResolver` provides the cart of the current request, elsewhere read it from `CartService::getCart()`.
+
+## `DocumentRoute::resolveRequest()` is private
+
+`Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute::resolveRequest()` is private, it only served the file type negotiation of the route itself. Download documents through `DocumentRoute::download()` or `/store-api/document/download/{documentId}/{deepLinkCode}`, which negotiate the file type from the `fileType` parameter or the `Accept` header.
 
 ## XML configuration is no longer supported
 
@@ -436,7 +629,7 @@ public function updateThumbnails(MediaEntity $media, Context $context, bool $str
 
 ## `EntitySearchResult`, `ProductListingResult` and `ProductReviewResult` no longer expose a collection API
 
-`EntitySearchResult` no longer extends `EntityCollection`, and `ProductListingResult` / `ProductReviewResult` no longer extend `EntitySearchResult`. The three classes remained supported result wrappers and `Struct` instances, so extensions, states, and JSON serialization kept working.
+`EntitySearchResult` no longer extends `EntityCollection`. It remained a supported result wrapper and a `Struct`, so extensions, states, and JSON serialization kept working. `ProductListingResult` and `ProductReviewResult` still extend `EntitySearchResult`, so they lost the collection API together with it.
 
 Previously, a result had two mutable entity lists: the collection inherited from `EntityCollection` and its typed `entities` collection. Collection helpers could operate on a different list from `getEntities()`, so the two lists could drift apart and callers could observe different entities depending on the method they used. The result wrapper is now separate from its one authoritative `entities` collection.
 
@@ -445,23 +638,29 @@ Changes affecting all three classes:
 - Collection methods (`first`, `last`, `filter`, `getElements`, `slice`, `map`, `getIds`, `merge`, …) were removed from the results. Call them on `$result->getEntities()`; the `entities` property remained available in PHP and Twig as the single collection of result entities.
 - The results are no longer iterable or countable: use `foreach ($result->getEntities() as $entity)` instead of `foreach ($result as $entity)`, and `$result->getEntities()->count()` (or `getTotal()` for the overall match count) instead of `count($result)` or `$result->count()`.
 - Twig: iterate `searchResult.entities` instead of `searchResult`, and read `searchResult.entities` instead of `searchResult.elements`.
-- Parameter and return types declared as `EntityCollection` (when expecting a search result) or `EntitySearchResult` (when expecting a `ProductListingResult` / `ProductReviewResult`) no longer match — narrow them to the actual types.
+- A parameter or return type declared as `EntityCollection` no longer matches a result — narrow it to `EntitySearchResult`. A type declared as `EntitySearchResult` still matches a `ProductListingResult` or a `ProductReviewResult`.
 
 `EntitySearchResult`:
 
 - The wrapper is immutable: `$entity`, `$total`, `$entities`, `$page`, `$limit`, `$criteria`, `$context`, and `$aggregations` are `readonly`; the setters `setPage()`, `setLimit()`, `setEntity()`, and `setCustomFields()` were removed.
 - The entity name remains available through `$entity` and `getEntity()`. `setEntity()` was removed; construct the result with the correct entity name instead.
-- The protected `createNew()` method was removed together with `filter()` and `slice()`, which were its only internal callers. Subclass overrides of it are no longer called.
+- The protected `createNew()` method was removed together with the collection methods that called it. Subclass overrides of it are no longer called.
 
 `ProductListingResult`:
 
-- Convert from a base search result with `ProductListingResult::fromSearchResult(...)`.
-- The listing state (`$sorting`, `$currentFilters`, `$availableSortings`, `$streamId`, `$page`, `$limit`) stays mutable: listing processors (`AbstractListingProcessor`) modify the result after construction by design, so `addCurrentFilter()`, `setSorting()`, `setAvailableSortings()`, `setStreamId()`, `setPage()`, and `setLimit()` remain available — the latter two were only removed from `EntitySearchResult`.
+- `fromSearchResult()` was removed. Build the result with `ProductListingResult::createFrom($searchResult)` and the setters.
+- The listing state (`$sorting`, `$currentFilters`, `$availableSortings`, `$streamId`) stayed mutable: listing processors (`AbstractListingProcessor`) modify the result after construction by design, so `addCurrentFilter()`, `setSorting()`, `setAvailableSortings()`, and `setStreamId()` remained available.
+- `setPage()` and `setLimit()` were removed with the parent. A result reports the page and limit of the criteria that was searched, so page the criteria in `AbstractListingProcessor::prepare()` instead:
+
+```php
+$criteria->setOffset(($page - 1) * $limit);
+$criteria->setLimit($limit);
+```
 
 `ProductReviewResult`:
 
 - Convert from a base search result with `ProductReviewResult::fromSearchResult(...)`.
-- The class is fully immutable: `$matrix`, `$productId`, `$customerReview`, `$totalReviewsInCurrentLanguage`, and `$parentId` are `readonly`; the setters (`setMatrix()`, `setProductId()`, `setCustomerReview()`, `setTotalReviewsInCurrentLanguage()`, `setParentId()`) were removed. Pass the values to `fromSearchResult()` instead.
+- The setters (`setMatrix()`, `setProductId()`, `setCustomerReview()`, `setTotalReviewsInCurrentLanguage()`, `setParentId()`) were removed. Pass the values to `fromSearchResult()` instead.
 
 ## Scheduled task execution moved to `ScheduledTaskExecutor`
 
@@ -590,6 +789,22 @@ $this->addPromotionNotEligibleError($name, $cart);
 // After
 $cart->addErrors(new \Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotFoundError($code));
 $cart->addErrors(new \Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError($name));
+```
+
+## Removal of `PromotionItemBuilder::buildPlaceholderItem()`
+
+`\Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder::buildPlaceholderItem()` was removed.
+Create the promotion placeholder line item through the `LineItemFactoryRegistry` with the `promotion` type, or call `PromotionLineItemFactory::create()` directly:
+
+```php
+// Before
+$lineItem = $promotionItemBuilder->buildPlaceholderItem($code);
+
+// After
+$lineItem = $lineItemFactoryRegistry->create([
+    'type' => LineItem::PROMOTION_LINE_ITEM_TYPE,
+    'referencedId' => $code,
+], $salesChannelContext);
 ```
 
 ## Removal of `$options` parameter in custom validator's constraints
@@ -800,12 +1015,21 @@ which means the `salesChannel` property of the `BaseSalesChannelContext` no long
 The `permisionsLocked` property of the `SalesChannelContext` was removed.
 Use `permissionsLocked` property or `SalesChannelContext::isPermissionsLocked()` instead.
 
-## `RequestParamHelper::get` ignores `attribute` bag
+## `Request::get()` removal and request parameter migration
 
-The `RequestParamHelper::get` method now ignores the `attribute` bag when fetching parameters from the request.
-It only checks the `query` and `request` bags now.
-When you need to get a value from the request attributes, you should use the `Request::attributes->get()` method directly.
-In case you used to set request attributes to override specific parameters, you should instead overwrite the parameters in the `query` or `request` parameter bags directly.
+Symfony removed `Request::get()`, which previously searched route attributes, query parameters, and submitted form data. Read from the known source instead:
+
+```php
+$request->attributes->get('productId'); // Route placeholder or custom attribute
+$request->query->get('search');          // Query parameter
+$request->request->get('search');        // Submitted form data
+```
+
+For array-valued query or form parameters, use `$request->query->all('ids')` or `$request->request->all('ids')` instead. The corresponding `get('ids')` calls reject arrays.
+
+If an action intentionally accepts the same input from either the query string or submitted form data, use `Shopware\Core\Framework\Adapter\Request\RequestParamHelper::get($request, 'search')`. The helper checks the query bag first, then the form data bag (`$request->request`), preserves array values, and returns the supplied default if neither contains the key.
+
+In 6.8, `RequestParamHelper::get()` no longer checks request attributes. Previously an attribute with the same name took precedence over both input bags. Read route placeholders and custom attributes with `$request->attributes->get()`; if code sets an attribute to override a client-supplied parameter, update the appropriate input bag instead.
 
 ## Removal of `ZugferdDocument::getPrice()`
 
@@ -922,6 +1146,9 @@ foreach ($entities as $entity) {
 
 The translation of the import/export profile label has been removed.
 Profiles are now identified and displayed only by their technical name.
+
+Direct construction of `ImportExportProfileTranslationDefinition`, `ImportExportProfileTranslationEntity` and `ImportExportProfileTranslationCollection`, including empty collections, already throws when the `v6.8.0.0` feature flag is active. Remove these constructions and use the profile's technical name instead of translated labels.
+
 - The `$label` property and the following methods in `Shopware\Core\Content\ImportExport\ImportExportProfileEntity` have been removed:
   - `getLabel()`
   - `setLabel()`
@@ -1035,6 +1262,26 @@ Refection has significantly improved in particular since PHP 8.1, therefore the 
 ```diff
 - $fileName = ReflectionHelper->getFileName(MyClass::class);
 + $fileName = \ReflectionClass(MyClass::class)->getFileName();
+```
+
+## Removal of `\Shopware\Core\Framework\Test\Api\Serializer\AssertValuesTrait`
+
+The test helper trait `AssertValuesTrait` is removed. Use the static assertion class `\Shopware\Core\Test\Assert\ArrayValues` instead, which compares the same way:
+
+```diff
+- use Shopware\Core\Framework\Test\Api\Serializer\AssertValuesTrait;
++ use Shopware\Core\Test\Assert\ArrayValues;
+
+  class MyTest extends TestCase
+  {
+-     use AssertValuesTrait;
+
+      public function testSomething(): void
+      {
+-         $this->assertValues($expected, $actual);
++         ArrayValues::assertValues($expected, $actual);
+      }
+  }
 ```
 
 ## Removal of ErrorRoutes
@@ -1252,6 +1499,19 @@ The `Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader::PA
 
 If you referenced this constant, build your own field list or switch to `Criteria::excludeFields(['description', ...])` to omit specific columns while keeping a full, typed entity.
 
+## Rate limiter: `salesChannelId` parameter is now part of the declared signatures
+
+`Shopware\Core\Framework\RateLimiter\RateLimiter::ensureAccepted()` and `Shopware\Core\Framework\RateLimiter\RateLimiterFactory::create()` now accept an optional sales channel ID.
+If you extend one of these classes and override the method, add the parameter to your override to keep a compatible signature:
+
+```php
+// Before
+public function ensureAccepted(string $route, string $key): void
+
+// After
+public function ensureAccepted(string $route, string $key, ?string $salesChannelId = null): void
+```
+
 ## Removed `ProductExportResult::getTotal()`
 
 `\Shopware\Core\Content\ProductExport\Struct\ProductExportResult::getTotal()` and its `$total` constructor argument have been removed. The product export paginates by an `autoIncrement` keyset cursor and no longer computes a grand total per run. Use `hasNextBatch()` to decide whether another batch follows and `getOffset()` for the resume position.
@@ -1262,8 +1522,125 @@ If your extension extends or decorates `\Shopware\Core\System\NumberRange\ValueG
 
 The method must raise the stored increment state to at least the given value without lowering an existing higher state.
 
+## Removed `DocumentException::documentNumberAlreadyExistsException()`
+
+`Shopware\Core\Checkout\Document\DocumentException::documentNumberAlreadyExistsException()` was removed. Use `documentNumberAlreadyExistsExceptionForType()`, which also names the document type:
+
+```php
+// Before
+throw DocumentException::documentNumberAlreadyExistsException($number);
+
+// After
+throw DocumentException::documentNumberAlreadyExistsExceptionForType($number, $documentType);
+```
+
+## Removal of `SalesChannelContextRestorer::restoreByOrder()`
+
+`\Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer::restoreByOrder()` and `\Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestorerOrderCriteriaEvent` were removed. Load the order with the `orderCustomer`, `transactions.stateMachineState` and `primaryOrderDelivery` associations and pass it to `\Shopware\Core\Checkout\Cart\Order\OrderConverter::assembleSalesChannelContext()`. Add associations you used to add through `SalesChannelContextRestorerOrderCriteriaEvent` to that criteria directly.
+
+`restoreByOrder()` also re-evaluated the rules against the order. The assembled context carries the rules stored on the order instead. If you need them re-evaluated, also load the `lineItems` and `deliveries` associations and run the cart rule loader on it:
+
+```php
+$salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context);
+$cart = $this->orderConverter->convertToCart($order, $salesChannelContext->getContext());
+$this->cartRuleLoader->loadByCart($salesChannelContext, $cart, new CartBehavior($salesChannelContext->getPermissions()), true);
+```
+
+
+## `HreflangLoaderParameter` no longer derives the homepage from the route name
+
+`HreflangLoaderParameter::isHomepage()` only reads the `$homepage` constructor argument and no longer compares the route name with `frontend.home.page`. If you construct `HreflangLoaderParameter` for the homepage, pass `true` as `$homepage`, otherwise no homepage hreflang links are generated:
+
+```php
+new HreflangLoaderParameter('frontend.home.page', $routeParameters, $salesChannelContext, true);
+```
+
+## Removal of the per-customer redemption counter of promotions
+
+The per-customer redemption counter of promotions was removed:
+
+* DAL: the promotion field `ordersPerCustomerCount` and the database column `promotion.orders_per_customer_count` were removed.
+* Admin API: promotions no longer contain `ordersPerCustomerCount`.
+* `\Shopware\Core\Checkout\Promotion\PromotionEntity`: `getOrdersPerCustomerCount()`, `setOrdersPerCustomerCount()` and `isOrderCountPerCustomerCountValid()` were removed.
+
+Count the customer's orders that contain a line item of the promotion instead:
+
+```php
+// Before
+$redemptions = $promotion->getOrdersPerCustomerCount()[$customerId] ?? 0;
+
+// After
+$criteria = (new Criteria())
+    ->addFilter(new EqualsFilter('orderCustomer.customerId', $customerId))
+    ->addFilter(new EqualsFilter('lineItems.promotionId', $promotion->getId()));
+
+$redemptions = $this->orderRepository->searchIds($criteria, $context)->getTotal();
+```
+
+## `NotFilter` constructor accepts a single filter
+
+The `$operator` parameter of `\Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter::__construct()` is widened from `string` to `string|Filter`, so `new NotFilter($filter)` negates a single filter like `NotFilter::negate($filter)`. Existing calls keep working unchanged.
+
+## Removed `PluginZipImportCommand::$cacheClearer`
+
+The unused property was removed.
 
 # Administration
+
+## Custom field set lookup removed from `sw-settings-listing-option-criteria-grid`
+
+The `sw-settings-listing-option-criteria-grid` component filters custom fields by `customFieldSet.relations.entityName` directly.
+The `customFieldSetIDs` data property, the `customFieldSetRelationsRepository` and `customFieldsRelationsCriteria` computed properties and the `fetchCustomFieldSetIds()` method were removed without replacement.
+
+## `sw-sales-channel-detail-products.saveProductVisibilities()` removed
+
+The `saveProductVisibilities()` method of the `sw-sales-channel-detail-products` component was removed.
+The component assigns products through the `salesChannelProductAssignmentApiService.assign()` service method, which resolves product groups and categories on the server.
+Extensions that called or overrode `saveProductVisibilities()` must use `salesChannelProductAssignmentApiService.assign(salesChannelId, { productIds })` instead.
+The method repeats the request until the server reports the assignment as complete and resolves with `{ assigned, complete }`.
+
+## Import/export profile language tooltip removed
+
+The deprecated snippet key `sw-import-export.profile.addNewProfileTooltipLanguage` was removed without replacement. Remove references to this tooltip from extensions, as profile creation no longer requires the system language.
+
+## Removal of deprecated `config` data property in `sw-system-config` component
+
+The deprecated data property `config` in `sw-system-config` component with the legacy card structure was removed. Please use the new data property `schema` with the tab structure instead.
+
+## Custom-field set loader computed properties removed
+
+The deprecated custom-field set loader computed properties were removed from these Administration components:
+
+| Component | Removed computed properties |
+|---|---|
+| `sw-category-detail` (categories and landing pages) | `customFieldSetRepository`, `customFieldSetCriteria`, `customFieldSetLandingPageCriteria` |
+| `sw-customer-detail-base` | `customFieldSetRepository`, `customFieldSetCriteria` |
+| `sw-customer-detail-addresses` | `customFieldSetRepository` |
+| `sw-manufacturer-detail` | `customFieldSetRepository`, `customFieldSetCriteria` |
+| `sw-order-detail-details` | `customFieldSetRepository`, `customFieldSetCriteria` |
+| `sw-sales-channel-detail` | `customFieldRepository` |
+| `sw-settings-units-detail` | `customFieldSetRepository`, `customFieldSetCriteria` |
+| `sw-bulk-edit-customer`, `sw-bulk-edit-order`, `sw-bulk-edit-product` | `customFieldSetRepository`, `customFieldSetCriteria` |
+
+These components switched to a shared loader to remove their duplicate custom-field queries and reuse cached results across them. Extensions that used the removed properties to load renderable custom-field sets must use `Shopware.Service('customFieldDataProviderService').getCustomFieldSets(entityName)` instead.
+
+`sw-customer-detail-base` no longer injects `repositoryFactory`, which was retained only for its removed `customFieldSetRepository` property. Extensions that still need `repositoryFactory` must inject it themselves.
+
+## Media default folder lookup computed properties removed
+
+The deprecated computed properties that loaded the media default folder were removed from these Administration components:
+
+| Component | Removed computed properties |
+|---|---|
+| `sw-product-detail-base` | `mediaDefaultFolderRepository`, `mediaDefaultFolderCriteria` |
+| `sw-bulk-edit-product-media` | `mediaDefaultFolderRepository`, `mediaDefaultFolderCriteria` |
+
+Use `mediaDefaultFolderService.getDefaultFolderId(entityName)` to get the id of an entity's default media folder.
+
+## `customFieldSetRepository` computed property removed from `sw-product-stream-detail`
+
+The deprecated computed property `customFieldSetRepository` was removed from `sw-product-stream-detail`.
+The component loads the product custom fields with the new `customFieldRepository` computed property instead.
 
 ## Deprecated password verification members in `sw-users-permissions-user-listing`
 
@@ -1272,6 +1649,19 @@ The `loginService` injection, the `confirmPassword` and `isConfirmingPassword` d
 ## Deprecated `sw-media-upload-v2.getUploadFailureMessage()`
 
 The `getUploadFailureMessage()` method on `sw-media-upload-v2` is deprecated and will be removed without replacement. Upload failure notifications are handled centrally by `sw-upload-status`; extensions should stop calling or overriding this method.
+
+## Deprecated state select styling members in the order module
+
+The `backgroundStyle` and `roundedStyle` props and the `selectStyle` computed property of `sw-order-state-select-v2` were removed without replacement. The select derives the status color from its `stateName` prop instead. For the same reason, the `backgroundStyle()` method of `sw-order-general-info` and the `stateSelectBackgroundStyle` computed property of `sw-order-details-state-card` were removed.
+
+Pass the technical name of the current state instead of `background-style` and `rounded-style`:
+
+```html
+<sw-order-state-select-v2
+    state-type="order"
+    :state-name="order.stateMachineState.technicalName"
+/>
+```
 
 ## Removed `integrationService.updateAdmin()`
 
@@ -1569,18 +1959,18 @@ Plan to migrate all code to axios v1 as soon as possible.
 For detailed migration instructions, see the migration guide at `src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md`.
 The architectural rationale is documented in [Keep Administration HTTP transports behind a compatibility facade](adr/2026-07-23-administration-http-client-compatibility-facade.md).
 
-## Removal of "sw-empty-state"
+## Removed empty state Twig block anchors
 
-The old `sw-empty-state` component will be removed in the next major version.
-Please use the new `mt-empty-state` component instead.
+The empty Twig anchors left behind when Administration empty states moved to `mt-empty-state` were removed: `sw_flow_list_empty_state_icon`, `sw_mail_header_footer_list_grid_empty_state_icon`, `sw_mail_template_list_grid_empty_state_icon`, `sw_order_create_address_modal_empty_state_content`, `sw_order_customer_grid_empty_state_icon`, `sw_promotion_v2_individual_codes_behavior_empty_state_icon`, `sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty_icon`, `sw_settings_listing_option_criteria_card_empty_state_icon`, `sw_settings_listing_content_card_view_options_card_empty_state_icon`, `sw_product_feature_set_card_empty_state_image`, `sw_product_feature_set_card_empty_state_label`, `sw_tax_rule_card_empty_state_image` and `sw_tax_rule_card_empty_state_label`. The product detail anchors went the same way: `sw_product_detail_prices_empty_state_image`, `sw_product_detail_prices_price_empty_state_text`, `sw_product_detail_prices_price_empty_state_text_child`, `sw_product_detail_prices_price_empty_state_text_inherited`, `sw_product_detail_prices_price_empty_state_text_link`, `sw_product_detail_prices_price_empty_state_text_not_inherited`, `sw_product_detail_prices_price_empty_state_text_empty`, `sw_product_detail_cross_selling_empty_state_actions`, `sw_product_detail_cross_selling_empty_state_icon`, `sw_product_detail_cross_selling_empty_state_content`, `sw_product_detail_cross_selling_empty_state_content_child`, `sw_product_detail_cross_selling_empty_state_content_child_inherited`, `sw_product_detail_cross_selling_empty_state_content_child_inherited_link`, `sw_product_detail_cross_selling_empty_state_content_child_not_inherited` and `sw_product_detail_cross_selling_empty_state_content_empty`. Override the surrounding `*_empty_state` block and pass the icon through the `icon` prop of `mt-empty-state` instead.
 
-Before:
-```html
-<sw-empty-state title="short title" subline="longer subline" />
-```
-After:
-```html
-<mt-empty-state title="short title" description="longer description"/>
+## Removed the `assetFilter` computed of the empty state components
+
+The `assetFilter` computed became unused when the Administration empty states moved to `mt-empty-state`, and was removed from `sw-cms-layout-assignment-modal`, `sw-flow-list`, `sw-mail-header-footer-list`, `sw-mail-template-list`, `sw-order-customer-grid`, `sw-promotion-v2-individual-codes-behavior`, `sw-sales-channel-products-assignment-dynamic-product-groups`, `sw-settings-listing-option-criteria-grid`, `sw-settings-listing`, `sw-settings-product-feature-sets-values-card` and `sw-tax-rule-card`.
+
+An override that read it resolves the filter directly instead:
+
+```js
+Shopware.Filter.getByName('asset');
 ```
 
 ## `sw-tabs` automatic wrapper switch deferred
@@ -2069,11 +2459,6 @@ The following Twig blocks have been removed:
   - `sw_theme_manager_detail_content_sections`
   - `sw_theme_manager_detail_content_fields`
 
-## Removal of $tc function:
-
-* The `$tc` function will be completely removed
-* All translation calls should use `$t` instead
-
 ## Removed translation of import/export profile label
 
 The translation of the import/export profile label has been removed.
@@ -2102,6 +2487,16 @@ The old classes are removed:
 
 `\Shopware\Administration\Controller\NotificationController` has been moved to core: `\Shopware\Core\Framework\Notification\Api\NotificationController` - if you type hint on this class, please refactor, it is now internal.
 The HTTP route is still the same. The old class has been removed.
+
+## Removed Elasticsearch search configuration loader alias
+
+`Shopware\Elasticsearch\Product\SearchConfigLoader` was removed.
+Use `Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader` instead.
+
+## Removed asset service alias
+
+`Shopware\Core\Framework\Plugin\Util\AssetService` was removed.
+The canonical `Shopware\Core\Framework\Adapter\Asset\AssetService` is now internal and must not be used as an extension dependency.
 
 ## Removal of snippets
 
@@ -2289,9 +2684,70 @@ After:
 const isInside = event.target instanceof Node && this.$el.contains(event.target);
 ```
 
+## Removed `composer run admin:code-mods`
+
+The `admin:code-mods` Composer script, the `code-mods` npm script and `code-mods.js` of the Administration have been removed.
+Use `administration:upgrade-extensions` instead:
+
+```bash
+bin/console administration:upgrade-extensions -- --only=YourPlugin --target=6.8          # preview
+bin/console administration:upgrade-extensions -- --only=YourPlugin --target=6.8 --write  # apply
+```
+
+The old options map to the new ones like this: `-p`/`--plugin-name` becomes `--only`, `-v`/`--shopware-version` becomes `--target`, `-r`/`--shopware-root` becomes `--project-root`, `--fix` becomes `--write`, and `-G`/`--ignore-git` becomes `--skip-git-check`.
+`-s`/`--src` has no replacement, because the command finds the Administration source folders of an extension itself.
+
+## Removed `sw-cms-layout-modal` grid selection methods
+
+The computed property `gridPreSelection` and the method `selectInGrid()` of the Administration component `sw-cms-layout-modal` were deprecated and are removed.
+The modal selects layouts with a Meteor radio group in both views and no longer uses the data grid's selection column.
+Set `selectedPageObject` through `selectItem(page)` or `onSelectPage(pageId)` instead.
+
 # Storefront
 
 <details>
+
+## Removal of CMS section background template variables
+
+The Twig variables `sectionBgImg` and `sectionBgImgMode` in `storefront/page/content/detail.html.twig` were deprecated and are removed in 6.8.0.0.
+The section background image is rendered through the `page_content_section_background_image` block.
+Use `section.backgroundMedia` with `sw_thumbnails` and `section.backgroundMediaMode` instead.
+
+## Removal of deprecated `ListingPlugin` properties
+
+The following deprecated properties of the `ListingPlugin` class in `listing.plugin.js` carrying single elements have been removed and were replaced respectively by new properties carrying `NodeList`s:
+
+- `_filterPanel` → `_filterPanels`
+- `activeFilterContainer` → `activeFilterContainers`
+- `ariaLiveContainer` → `ariaLiveContainers`
+
+The fallback to `this.activeFilterContainer` in `ListingPlugin.createResetAllButton()` was removed.
+Pass the target active-filter container explicitly with `createResetAllButton(activeFilterContainer)`.
+Update custom overrides to accept the argument and forward it when calling `super.createResetAllButton(activeFilterContainer)`.
+
+## Removal of deprecated `$offcanvas-zindex` SCSS variable
+
+The custom offcanvas z-index SCSS variable `$offcanvas-zindex` has been removed. To override the offcanvas z-index or calculate your own z-index based on it, use the bootstrap variable `$zindex-offcanvas` instead.
+
+## `ThemeService::compileTheme()` received a new optional `$notifyOnAsyncCompletion` parameter
+
+`Shopware\Storefront\Theme\ThemeService::compileTheme()` received a new optional parameter `bool $notifyOnAsyncCompletion = true`. With asynchronous theme compilation, it controls whether the Administration user is notified once the compilation is completed. Call sites are not affected. Classes overriding this method had to add the parameter to keep a compatible signature:
+
+Before:
+
+```php
+public function compileTheme(string $salesChannelId, string $themeId, Context $context, ?StorefrontPluginConfigurationCollection $configurationCollection = null, bool $withAssets = true): void
+```
+
+After:
+
+```php
+public function compileTheme(string $salesChannelId, string $themeId, Context $context, ?StorefrontPluginConfigurationCollection $configurationCollection = null, bool $withAssets = true, bool $notifyOnAsyncCompletion = true): void
+```
+
+## Removed `--no-cleanup` option of `theme:compile` and `theme:change`
+
+The `--no-cleanup` option was removed from both commands. The commands no longer delete unused theme directories themselves, the `theme.delete_files` scheduled task does. Passing the option now fails with an unknown-option error, so drop it from deploy scripts.
 
 ## Footer collapse headlines and columns now use semantic elements
 
@@ -2492,32 +2948,29 @@ The following variables were removed:
 * CSS classes `is-ctl-*` and `is-act-*`
 * JavaScript window properties `window.controllerName` and `window.actionName`
 
-## Removal of `hasChildren` variable in `item-link.html.twig`
+## Removal of `pathIdList` from `navbarOptions` in `navbar.html.twig`
 
-The variable `hasChildren` is not set inside the `@Storefront/storefront/layout/navigation/offcanvas/item-link.html.twig` template anymore, as it should be set in the templates which include these templates.
-In the default templates this is done in the `@Storefront/storefront/layout/navigation/offcanvas/categories.html.twig` template.
+The `pathIdList` key was removed from `navbarOptions` in `layout/navbar/navbar.html.twig`.
+Use `shopware.navigation.pathIdList` in Twig or `window.activeNavigationPathIdList` in JavaScript.
 
-## Removal of `pathIdList` option in NavbarPlugin
+## Deprecated theme.json translations
 
-The `pathIdList` option in `NavbarPlugin` and the corresponding key in the `navbarOptions` template variable in `navbar.html.twig` were removed.
+The `label` and `helpText` properties of `theme.json` were deprecated in favor of the administration snippet system. The theme manager reads its labels from administration snippets with a constructed key.
 
-Use the `window.activeNavigationPathIdList` global variable instead, which is set in `meta.html.twig`.
+Themes that still define the properties keep working: on `theme:refresh` and plugin installation or update, Shopware converts them into administration snippets under `snippets/administration/<technicalName>/<locale>.json` in the private filesystem. That conversion is all Shopware still does with the properties. Snippet files shipped by the theme always win over the generated ones, and a warning is logged while a theme relies on them.
 
-## Refactor of providing cookies
+Run the following command to create the snippet files in the theme and remove the deprecated properties from the `theme.json`:
 
-The `\Shopware\Storefront\Framework\Cookie\CookieProviderInterface` and all its implementations were removed.
-Use the `\Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent` instead to register new cookie groups and cookie entries.
-The `snippet_name` and `snippet_description` properties on cookies in Twig templates have been removed.
-Use `name` and `description` instead.
+```bash
+bin/console theme:migrate-translations <technicalName> --strip
+```
 
-## Removed theme.json translations
+The command writes `Resources/app/administration/src/snippet/<locale>.json`, keeps snippets the theme already maintains there, and warns when a generated file would shadow an existing `<language>.json`. Use `--dry-run` to preview. You should prefer the language-agnostic file names (`en.json`, `de.json`) the administration and the storefront use themselves, unless the theme deliberately ships different texts per region. For app themes the files go to `Resources/app/administration/snippet`. Keep the locale file names there, make sure `en-GB.json` exists, and refresh the app afterwards so the snippets are imported.
 
-We removed properties `label` and `helpText` properties of `theme.json`, to use the snippet system of the administration instead.
+Labels of tabs, blocks, sections and fields a child theme inherits are placed through the fields of its parent themes, so a theme that only relabels an inherited group or field gets the matching snippet without redefining the field. Labels of blocks or sections that no field of the theme or its parents uses have no snippet key. The command lists them as not migratable, so move the label to a group in use or drop it before running `--strip`.
 
-A constructed snippet key is now required.
-This affects `label` and `helpText` properties in the `theme.json`, which are used in the theme manager.
-The snippet keys to be used are constructed as follows.
-The mentioned `themeName` implies the `technicalName` property of the theme, or its respective parent theme name, since snippets are inherited from the parent theme as well.
+The snippet keys are constructed as follows.
+The mentioned `technicalName` implies the `technicalName` property of the theme, or its respective parent theme name, since snippets are inherited from the parent theme as well.
 Also, please notice that unnamed tabs, blocks or sections will be accessible via `default`.
 
 Examples:
@@ -2540,36 +2993,55 @@ Examples:
 Both deprecated fields `label` & `helpText` of `Shopware\Storefront\Theme\ThemeEntity` are removed.
 Please use the snippet keys to be found in `\Shopware\Storefront\Theme\ThemeService::getThemeConfigurationStructuredFields` instead.
 
+The legacy translations are no longer persisted in `theme_translation.labels` and `theme_translation.help_texts` either, because `theme:refresh` and the plugin lifecycle stopped writing them. Both columns and the `labels`/`helpTexts` properties of `ThemeTranslationEntity` are removed. Read the labels from the administration snippets instead, which are generated from the `theme.json` as described in "Deprecated theme.json translations" above.
+
 ## Removed `ThemeService::getThemeConfiguration` and `ThemeService::getThemeConfigurationStructuredFields`
 
 The `ThemeService::getThemeConfiguration` and `ThemeService::getThemeConfigurationStructuredFields` methods have been removed.
 Use the new `ThemeConfigurationService::getPlainThemeConfiguration` and `ThemeConfigurationService::getThemeConfigurationFieldStructure` methods instead.
 The new methods return the same data as the old ones, excluding the deprecated fields.
 
-## Removed `category_url` and `category_linknewtab` twig functions
+## Removed `sw_breadcrumb_full` and `sw_breadcrumb_full_by_id` Twig functions
 
-The `category_url` and `category_linknewtab` twig functions have been removed.
-The data is now directly available in the category entities, therefore use `category.seoUrl` or `category.shouldOpenInNewTab` instead.
+The Twig breadcrumb functions `sw_breadcrumb_full` and `sw_breadcrumb_full_by_id` have been removed. On storefront product and navigation pages, use `page.breadcrumb` instead. Its entries provide `name`, `categoryId`, and `type`.
 
-```diff
-<a class="link"
--   href="{{ category_url(item) }}"
-+   href="{{ item.seoUrl }}"
--   {% if category_linknewtab(item) %}target="_blank"{% endif %}
-+   {% if item.shouldOpenInNewTab %}target="_blank"{% endif %}
-</a>
+```twig
+{% for category in page.breadcrumb|default([]) %}
+    {{ category.name }}
+{% endfor %}
 ```
 
-## Breadcrumb template functions require the `SalesChannelContext`
+## Changed variables in `@Storefront/storefront/layout/breadcrumb.html.twig`
 
-The Twig breadcrumb functions `sw_breadcrumb_full` and `sw_breadcrumb_full_by_id` now require the `SalesChannelContext`, i.e.
+The breadcrumb template only accepts the breadcrumb entries as the `breadcrumb` input.
+The `category` and `categoryId` inputs and the `breadcrumbCollection` input were removed.
 
-```diff
-- sw_breadcrumb_full(category, context.context)
-- sw_breadcrumb_full_by_id(category, context.context)
-+ sw_breadcrumb_full(category, context)
-+ sw_breadcrumb_full_by_id(category, context)
-```
+Templates that extend the `layout_breadcrumb_list_item` block can rely on these variables:
+
+| Variable | Content |
+|----------|---------|
+| `breadcrumb` | The current `Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb` entry |
+| `categoryId` | The category ID of the current entry |
+| `activeId` | The category ID of the last entry, which is the current page |
+| `breadcrumbCollection` | All entries |
+| `name`, `type`, `categoryUrl`, `shouldOpenInNewTab`, `isActive` | Unchanged |
+
+The following variables were removed:
+
+| Removed variable | Replacement |
+|------------------|-------------|
+| `breadcrumbCategory` | `breadcrumb`, which is a `Breadcrumb` struct instead of a `CategoryEntity`. Use `breadcrumb.name` instead of `breadcrumbCategory.translated.name`, and `breadcrumb.categoryId` instead of `breadcrumbCategory.id`. |
+| `key` | `categoryId` |
+| `breadcrumbCategories` | `breadcrumbCollection` |
+| `breadcrumbKeys` | `loop.last` |
+
+`categoryId` changed its meaning.
+It used to hold the ID of the active category, and now holds the ID of the current entry.
+Use `activeId` to compare against the active category.
+`activeId` is already available in 6.7, so overrides can switch to it before the update.
+
+The `layout_breadcrumb_placeholder` block was removed, because the separator is rendered with CSS.
+Extend `layout_breadcrumb_list_item` to change the separator.
 
 ## Removal of DeleteThemeFilesMessage and its handler
 
@@ -2632,6 +3104,14 @@ Use `addressType` instead.
 The context-state flag that suppresses theme recompilation during app lifecycle operations is now owned by the Core app-lifecycle contract.
 
 Use `Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle::STATE_SKIP_THEME_COMPILATION` instead.
+
+## Legal guarantee notice moved out of the privacy section
+
+In `@Storefront/storefront/component/privacy-notice.html.twig`, the blocks `component_privacy_legal_guarantee_notice_paragraph` and `component_privacy_legal_guarantee_notice_modal` were moved out of `component_privacy_dpi`.
+The notice paragraph now renders before the privacy `<fieldset>` and the modal after it, so the notice no longer appears under the "Privacy" heading.
+Overrides of these blocks keep working.
+If your theme overrides `component_privacy_dpi` with a copy that contains these blocks, remove them from the copy, otherwise the notice and its modal render twice.
+Styles for `.privacy-notice .legal-guarantee-notice` have to target `.legal-guarantee-notice` directly.
 </details>
 
 # App System
@@ -2683,33 +3163,6 @@ State-based invalidation is not supported anymore.
 ```diff
 -{% do response.cache.invalidationState('logged-in', 'cart-filled') %}
 +{# No replacement #}
-```
-
-## Inline `<custom-fields>` in `manifest.xml` removed
-
-Defining custom fields inline in `manifest.xml` via the `<custom-fields>` element is no longer supported.
-Move the definitions into a dedicated `Resources/config/custom-fields.xml` file instead, using the same XML format.
-
-```diff
-// manifest.xml
-- <custom-fields>
--     <custom-field-set>
--         <name>swag_example_set</name>
--         ...
--     </custom-field-set>
-- </custom-fields>
-```
-
-```xml
-<!-- Resources/config/custom-fields.xml -->
-<?xml version="1.0" encoding="utf-8"?>
-<custom-fields xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-               xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/CustomField/Schema/custom-fields-1.0.xsd">
-    <custom-field-set>
-        <name>swag_example_set</name>
-        ...
-    </custom-field-set>
-</custom-fields>
 ```
 
 </details>

@@ -429,6 +429,39 @@ class UserControllerTest extends TestCase
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
     }
 
+    public function testPreventRoleManagerFromUpdatingNestedUserWithoutUserPrivilege(): void
+    {
+        $ids = new IdsCollection();
+
+        static::getContainer()->get('user.repository')->create([[
+            'id' => $ids->get('user'),
+            'email' => 'target@example.com',
+            'firstName' => 'Original',
+            'lastName' => 'Lastname',
+            'password' => TestDefaults::HASHED_PASSWORD,
+            'username' => 'target-user',
+            'localeId' => static::getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
+        ]], Context::createDefaultContext());
+
+        $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['acl_role:create']);
+        $client = $this->getBrowser();
+
+        $client->jsonRequest('POST', '/api/acl-role', [
+            'name' => 'role',
+            'privileges' => [],
+            'users' => [['id' => $ids->get('user'), 'firstName' => 'Changed']],
+        ]);
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $client->getResponse()->getStatusCode());
+        static::assertSame(
+            'Original',
+            static::getContainer()->get(Connection::class)->fetchOne(
+                'SELECT first_name FROM user WHERE id = :id',
+                ['id' => Uuid::fromHexToBytes($ids->get('user'))]
+            )
+        );
+    }
+
     public function testPreventUpdateUserRolesAsNonAdmin(): void
     {
         $ids = new IdsCollection();

@@ -4,12 +4,14 @@ namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
 use Shopware\Core\Framework\Adapter\Asset\AssetPackageService;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class AssetBundleRegistrationCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
@@ -33,7 +35,7 @@ class AssetBundleRegistrationCompilerPass implements CompilerPassInterface
         }
 
         $arguments = $assetService->getArguments();
-        array_unshift($arguments, new Reference('shopware.asset.public.version_strategy'));
+        array_unshift($arguments, new Reference('shopware.asset.asset.version_strategy'));
         array_unshift($arguments, new Reference('shopware.asset.asset_without_versioning'));
         array_unshift($arguments, $bundleMap);
 

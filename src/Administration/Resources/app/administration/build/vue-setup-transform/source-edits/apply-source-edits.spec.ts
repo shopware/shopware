@@ -7,6 +7,7 @@
  */
 
 import { applySourceEdits } from './apply-source-edits';
+import { ShopwareSetupInternalError } from '../utils/transform-error';
 
 describe('build/vue-setup-transform source-edits/apply-source-edits', () => {
     it('applies non-overlapping edits in order and produces a sourcemap', () => {
@@ -20,12 +21,14 @@ describe('build/vue-setup-transform source-edits/apply-source-edits', () => {
     });
 
     it('throws a named analyzer-bug error when two edits overlap', () => {
-        expect(() =>
+        const overlap = () =>
             applySourceEdits('0123456789', 'test.vue', [
                 { start: 2, end: 6, replacement: 'X' },
                 { start: 4, end: 8, replacement: 'Y' },
-            ]),
-        ).toThrow('Overlapping Shopware setup source edits');
+            ]);
+
+        expect(overlap).toThrow('Overlapping Shopware setup source edits');
+        expect(overlap).toThrow(ShopwareSetupInternalError);
     });
 
     it('allows a zero-width insertion sharing a position with the following edit', () => {

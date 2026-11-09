@@ -110,7 +110,7 @@ class LoginRouteTest extends TestCase
         $response = $this->browser->getResponse();
 
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
     }
 
     public function testItNotUpdatesCustomerLanguageIdOnValidLogin(): void
@@ -156,7 +156,7 @@ class LoginRouteTest extends TestCase
         $response = $this->browser->getResponse();
 
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
     }
 
     public function testLoginWithInvalidBoundSalesChannelId(): void

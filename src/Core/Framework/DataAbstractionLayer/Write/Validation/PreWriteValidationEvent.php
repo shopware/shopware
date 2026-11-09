@@ -76,7 +76,7 @@ class PreWriteValidationEvent extends Event implements ShopwareEvent
     /**
      * @return list<array<string, string>>
      */
-    private function findPrimaryKeys(string $entity, ?\Closure $closure = null): array
+    public function findPrimaryKeys(string $entity, ?\Closure $closure = null): array
     {
         $ids = [];
 

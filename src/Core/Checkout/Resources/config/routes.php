@@ -20,6 +20,6 @@ return static function (RoutingConfigurator $routes): void {
     $routes->import('../../Customer/Api/**/*Controller.php', 'attribute');
     $routes->import('../../Order/SalesChannel/**/*Route.php', 'attribute');
     $routes->import('../../Cart/SalesChannel/**/*Route.php', 'attribute');
-    $routes->import('../../Document/SalesChannel/**/*Route.php', 'attribute');
+    $routes->import('../../DocumentV2/SalesChannel/**/*Route.php', 'attribute');
     $routes->import('../../Gateway/SalesChannel/**/*Route.php', 'attribute');
 };

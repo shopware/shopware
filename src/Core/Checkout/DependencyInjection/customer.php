@@ -68,6 +68,8 @@ use Shopware\Core\Checkout\Customer\Subscriber\CustomerBeforeDeleteSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerChangePasswordSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerEmailUniqueSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerFlowEventsSubscriber;
+use Shopware\Core\Checkout\Customer\Subscriber\CustomerGroupPriceBasisSubscriber;
+use Shopware\Core\Checkout\Customer\Subscriber\CustomerGroupRegistrationSeoUrlSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerLanguageSalesChannelSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerLogoutSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerMetaFieldSubscriber;
@@ -87,10 +89,14 @@ use Shopware\Core\Checkout\Customer\Validation\PasswordValidationFactory;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater;
 use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
+use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\Routing\SessionContextTokenAccessor;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
@@ -150,6 +156,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CartRestorer::class),
             service(DoubleOptInService::class),
             service(ClockInterface::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(DoubleOptInService::class)
@@ -253,10 +260,20 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.event_subscriber');
 
+    $services->set(CustomerGroupRegistrationSeoUrlSubscriber::class)
+        ->args([
+            service('customer_group.repository'),
+            service('seo_url.repository'),
+            service(SeoUrlPersister::class),
+            service('slugify'),
+        ])
+        ->tag('kernel.event_subscriber');
+
     $services->set(CustomerTokenSubscriber::class)
         ->args([
             service(SalesChannelContextPersister::class),
             service('request_stack'),
+            service(SessionContextTokenAccessor::class),
         ])
         ->tag('kernel.event_subscriber');
 
@@ -287,6 +304,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AccountService::class),
             service(RequestStack::class),
             service(RateLimiter::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(LogoutRoute::class)
@@ -297,6 +315,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SystemConfigService::class),
             service(CartService::class),
             service(SalesChannelContextService::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(SendPasswordRecoveryMailRoute::class)
@@ -309,6 +328,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SystemConfigService::class),
             service(RequestStack::class),
             service('shopware.rate_limiter'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ResetPasswordRoute::class)
@@ -322,6 +342,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shopware.rate_limiter'),
             service(PasswordValidationFactory::class),
             service(ClockInterface::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CustomerRecoveryIsExpiredRoute::class)
@@ -331,9 +352,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(DataValidator::class),
             service(ClockInterface::class),
-            service(SystemConfigService::class),
-            service(RequestStack::class),
-            service('shopware.rate_limiter'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ChangeCustomerProfileRoute::class)
@@ -345,6 +364,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CustomerProfileValidationFactory::class),
             service(StoreApiCustomFieldMapper::class),
             service('salutation.repository'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ChangePasswordRoute::class)
@@ -354,6 +374,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(SystemConfigService::class),
             service(DataValidator::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ChangeEmailRoute::class)
@@ -363,6 +384,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(DataValidator::class),
             service('customer_recovery.repository'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ChangeLanguageRoute::class)
@@ -371,6 +393,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('customer.repository'),
             service('event_dispatcher'),
             service(DataValidator::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ConvertGuestRoute::class)
@@ -382,18 +405,21 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(PasswordValidationFactory::class),
             service(RequestStack::class),
             service('shopware.rate_limiter'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CustomerRoute::class)
         ->public()
         ->args([
             service('customer.repository'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(DeleteCustomerRoute::class)
         ->public()
         ->args([
             service('customer.repository'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(RegisterRoute::class)
@@ -416,6 +442,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DoubleOptInService::class),
             service(CustomerNewsletterSalesChannelsUpdater::class),
             service(ClockInterface::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(RegisterConfirmRoute::class)
@@ -427,6 +454,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SalesChannelContextPersister::class),
             service(SalesChannelContextService::class),
             service(ClockInterface::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ListAddressRoute::class)
@@ -434,6 +462,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('sales_channel.customer_address.repository'),
             service('event_dispatcher'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(UpsertAddressRoute::class)
@@ -447,12 +476,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SystemConfigService::class),
             service(StoreApiCustomFieldMapper::class),
             service('salutation.repository'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(DeleteAddressRoute::class)
         ->public()
         ->args([
             service('customer_address.repository'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(SwitchDefaultAddressRoute::class)
@@ -461,12 +492,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('customer_address.repository'),
             service('customer.repository'),
             service(EventDispatcherInterface::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CustomerGroupRegistrationSettingsRoute::class)
         ->public()
         ->args([
             service('customer_group.repository'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(SalesChannelCustomerAddressDefinition::class)
@@ -515,6 +548,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(SystemConfigService::class),
             service(ProductCloseoutFilterFactory::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(AddWishlistProductRoute::class)
@@ -524,6 +558,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('sales_channel.product.repository'),
             service(SystemConfigService::class),
             service('event_dispatcher'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(RemoveWishlistProductRoute::class)
@@ -533,6 +568,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('customer_wishlist_product.repository'),
             service(SystemConfigService::class),
             service('event_dispatcher'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CustomerWishlistProductExceptionHandler::class)
@@ -546,6 +582,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SystemConfigService::class),
             service('event_dispatcher'),
             service(Connection::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(WishlistCookieCollectListener::class)
@@ -561,6 +598,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service('sales_channel.newsletter_recipient.repository'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ImitateCustomerRoute::class)
@@ -572,6 +610,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SalesChannelContextFactory::class),
             service('event_dispatcher'),
             service(DataValidator::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(DeleteUnusedGuestCustomerService::class)
@@ -635,8 +674,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(CustomerEmailUniqueSubscriber::class)
         ->args([
-            service(Connection::class),
             service(CustomerEmailUniqueChecker::class),
+            service(WriteOutcome::class),
         ])
         ->tag('kernel.event_subscriber');
 
@@ -645,6 +684,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('order_line_item_download.repository'),
             service(DownloadResponseGenerator::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CustomerSalutationSubscriber::class)
@@ -652,6 +692,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
         ])
         ->tag('kernel.event_subscriber');
+
+    $services->set(CustomerGroupPriceBasisSubscriber::class)
+        ->tag('kernel.event_subscriber')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(CustomerAddressSubscriber::class)
         ->tag('kernel.event_subscriber');

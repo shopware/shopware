@@ -24,9 +24,6 @@ import {
 } from './data-scope-helper';
 import type { ExtendableSetupState, OverrideLocalState } from './data-scope-helper';
 
-/** @private */
-export { getScriptSetupDataScope } from './data-scope-helper';
-
 /**
  * @private
  * @sw-package framework
@@ -90,8 +87,8 @@ type ComponentInstanceWithSetupContext = ComponentInternalInstance & {
 /**
  * Typed wrapper around Vue's getCurrentInstance that includes the setupContext property.
  * Use this instead of Vue's getCurrentInstance when you need access to setupContext.
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function getCurrentInstance(): ComponentInstanceWithSetupContext | null {
     return vueGetCurrentInstance() as ComponentInstanceWithSetupContext | null;
 }
@@ -265,6 +262,8 @@ export function createExtendableSetup<
         name: TComponentName;
         props: TProps;
         context?: TContext;
+        /** Bindings that are a prop and setup state on purpose, i.e. `defineModel()` bindings. */
+        modelBindings?: string[];
     },
     originalSetup: (
         props: TProps,
@@ -275,6 +274,11 @@ export function createExtendableSetup<
     },
 ): ExtendableSetupState<Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult> {
     const componentContext = options.context ? options.context : (getComponentContext() as TContext);
+    const propKeys = new Set(Object.keys(options.props));
+    const modelBindings = new Set(options.modelBindings ?? []);
+    // A model binding names a prop and setup state on purpose, so it is the one name both prop guards
+    // below must let through.
+    const isProtectedProp = (key: string): boolean => propKeys.has(key) && !modelBindings.has(key);
     // Call the original setup function
     const originalSetupResultRaw = originalSetup(options.props, componentContext);
 
@@ -307,15 +311,17 @@ export function createExtendableSetup<
     exposeOverrideLocalState(setupState, overrideLocalState);
 
     // Check if any prop value was returned from the original setup
-    Object.keys(options.props).forEach((key) => {
-        if (Object.keys(setupState).includes(key)) {
-            console.error(
-                `[${options.name}] The original setup function for the originalComponent component returned a prop. This is not allowed. Props are only available for overrides with the second argument.`,
-            );
-
-            // Delete the prop values from the original setup result
-            delete setupState[key];
+    Object.keys(setupState).forEach((key) => {
+        if (!isProtectedProp(key)) {
+            return;
         }
+
+        console.error(
+            `[${options.name}] The original setup function for the originalComponent component returned a prop. This is not allowed. Props are only available for overrides with the second argument.`,
+        );
+
+        // Delete the prop values from the original setup result
+        delete setupState[key];
     });
 
     if (!_overridesMap[options.name]) {
@@ -394,7 +400,7 @@ export function createExtendableSetup<
                 }
 
                 // Skip if the key is a prop, as props should not be overridden
-                if (Object.keys(options.props).includes(key)) {
+                if (isProtectedProp(key)) {
                     console.error(
                         `[${options.name}] Override result value not working. Cannot override props. Following prop should be changed: "${key}"`,
                     );
@@ -555,11 +561,14 @@ export function getExposedProps(): Record<string, ComputedRef<unknown>> {
  *
  * The props object handed to override callbacks is read from the current instance, so the generated
  * footer never has to thread a props binding through (and destructured `defineProps()` works too).
+ * Model binding names are forwarded separately because a binding that also names a prop is
+ * intentional there, and must stay replaceable instead of being removed by the returned-prop guard.
  */
 export function attachOverrides<TComponentName extends keyof ComponentPublicApiMapping>(options: {
     name: TComponentName;
     public?: Record<string, unknown>;
     private?: Record<string, unknown>;
+    modelBindings?: string[];
 }): ExtendableSetupState<Record<string, unknown>> {
     const props = (getCurrentInstance()?.props ?? {}) as Record<string, unknown>;
 
@@ -569,6 +578,7 @@ export function attachOverrides<TComponentName extends keyof ComponentPublicApiM
         {
             name: options.name,
             props: props as never,
+            modelBindings: options.modelBindings,
         },
         () =>
             ({

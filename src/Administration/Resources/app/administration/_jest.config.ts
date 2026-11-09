@@ -15,6 +15,7 @@ import type { Config } from 'jest';
 import { existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isMajorRun, loadFeatureConfig } from './test/_helper_/majorFeatureFlags';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -53,6 +54,15 @@ if (isCi) {
     // eslint-disable-next-line no-console
     console.info('Run Jest in local mode');
 }
+
+// The reporter checks and rewrites only the deprecation baseline's markings for this run.
+const deprecationBaselineReporter: [string, Record<string, unknown>] = [
+    '<rootDir>/test/_helper_/deprecationBaselineReporter.js',
+    {
+        baselinePath: join(__dirname, 'src/core/deprecation-baseline.json'),
+        run: isMajorRun(loadFeatureConfig(), process.env) ? 'major' : 'default',
+    },
+];
 
 const config: Config = {
     roots: [
@@ -133,6 +143,9 @@ const config: Config = {
     ],
 
     setupFiles: [
+        // Ahead of every other setup file: `setup-shopware.js` loads the mixin registry, which imports
+        // `shopware:utils`, and a virtual module has to be registered before anything requires it.
+        resolve(join(__dirname, '/test/_helper_/virtual-shopware-modules/register-mocks.js')),
         resolve(join(__dirname, '/test/_setup/jsdom-polyfills.js')),
     ],
 
@@ -177,7 +190,7 @@ const config: Config = {
     },
 
     transformIgnorePatterns: [
-        '/node_modules/(?!(@shopware-ag/meteor-component-library|@shopware-ag/meteor-icon-kit|uuidv7|other)/)',
+        '/node_modules/(?!(@shopware-ag/meteor-component-library|@shopware-ag/meteor-icon-kit|uuidv7|three|other)/)',
     ],
 
     moduleNameMapper: {
@@ -215,10 +228,12 @@ const config: Config = {
                       outputName: 'administration.junit.xml',
                   },
               ],
+              deprecationBaselineReporter,
           ]
         : [
               'default',
               '<rootDir>/test/_helper_/failedSpecFileReporter.js',
+              deprecationBaselineReporter,
           ],
 
     testMatch: [

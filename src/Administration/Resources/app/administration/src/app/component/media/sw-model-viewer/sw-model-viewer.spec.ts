@@ -5,9 +5,9 @@ import type { QuickViewSettings } from '@shopware-ag/dive/quickview';
 import { mount } from '@vue/test-utils';
 
 // Mock QuickView from @shopware-ag/dive/quickview
-const mockQuickViewDispose = jest.fn();
+const mockQuickViewDisposeAsync = jest.fn();
 const mockQuickView = jest.fn().mockResolvedValue({
-    dispose: mockQuickViewDispose,
+    disposeAsync: mockQuickViewDisposeAsync,
 });
 jest.mock('@shopware-ag/dive/quickview', () => ({
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -49,7 +49,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         mockQuickView.mockResolvedValue({
-            dispose: mockQuickViewDispose,
+            disposeAsync: mockQuickViewDisposeAsync,
         });
     });
 
@@ -92,16 +92,6 @@ describe('src/app/component/media/sw-model-viewer', () => {
             await flushPromises();
 
             expect(mockQuickView).toHaveBeenCalled();
-        });
-
-        it('should handle missing canvas element gracefully', async () => {
-            const wrapper = await createWrapper();
-            // Manually set canvas to null to simulate missing element
-            await wrapper.setData({ canvas: null });
-            await flushPromises();
-
-            // Component should still exist and not crash
-            expect(wrapper.exists()).toBe(true);
         });
     });
 

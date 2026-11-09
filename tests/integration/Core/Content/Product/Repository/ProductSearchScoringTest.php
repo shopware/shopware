@@ -77,7 +77,7 @@ class ProductSearchScoringTest extends TestCase
     public function testMultipleMatchingKeywordsHaveHigherScore(): void
     {
         $context = Context::createDefaultContext();
-        $mockSalesChannelContext = $this->createMock(SalesChannelContext::class);
+        $mockSalesChannelContext = static::createStub(SalesChannelContext::class);
         $mockSalesChannelContext->method('getContext')->willReturn($context);
         $mockSalesChannelContext->method('getLanguageId')->willReturn($context->getLanguageId());
 
@@ -125,8 +125,6 @@ class ProductSearchScoringTest extends TestCase
             ],
         ], $context);
 
-        $criteria = new Criteria();
-
         $pattern = new SearchPattern(new SearchTerm('ring saphir', 1.0));
         $pattern->addTerm(new SearchTerm('ring', 1.1));
         $pattern->addTerm(new SearchTerm('saphir', 1.1));
@@ -142,7 +140,7 @@ class ProductSearchScoringTest extends TestCase
             ->method('interpret')
             ->with('ring saphir', static::isInstanceOf(Context::class))
             ->willReturn($pattern);
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = static::createStub(LoggerInterface::class);
         $searchBuilder = new ProductSearchBuilder(
             $termInterpreter,
             $logger,

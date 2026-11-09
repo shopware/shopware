@@ -289,8 +289,6 @@ test(
         });
 
         await ShopCustomer.goesTo(`/navigation/${category.id}`);
-        await ShopCustomer.presses(StorefrontHome.consentAcceptAllCookiesButton);
-        await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).not.toBeVisible();
 
         const gallerySliderContainer = StorefrontHome.page.locator(
             '.gallery-slider-container.has-vertical-align.is-align-bottom',

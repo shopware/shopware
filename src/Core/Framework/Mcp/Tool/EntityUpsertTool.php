@@ -4,12 +4,14 @@ namespace Shopware\Core\Framework\Mcp\Tool;
 
 use Doctrine\DBAL\Connection;
 use Mcp\Capability\Attribute\McpTool;
+use Mcp\Capability\Attribute\Schema;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolDependsOn;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
+use Shopware\Core\Framework\Mcp\Result\McpToolError;
 
 /**
  * @experimental stableVersion:v6.8.0
@@ -18,7 +20,7 @@ use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 #[McpTool(
     name: 'shopware-entity-upsert',
     title: 'Entity Upsert',
-    description: 'Create or update Shopware entity data. Always use dryRun=true (default) first to validate, then set dryRun=false to persist. If you don\'t already know the required fields, shopware-entity-schema will tell you. Returns validation result in dryRun mode, or the written entity data on commit.'
+    description: 'Create or update Shopware entity data. Always use dryRun=true (default) first to validate, then set dryRun=false to persist. If you don\'t already know the required fields, shopware-entity-schema will tell you. Returns validation result in dryRun mode, or the written entity data on commit. Many-to-many links (e.g. product categories) can only be added here. To remove one, use shopware-entity-delete on the mapping entity; a "remove" flag inside "categories" would be written to the category itself.'
 )]
 #[McpToolDependsOn('shopware-entity-schema')]
 #[McpToolGroup('entity')]
@@ -35,12 +37,18 @@ class EntityUpsertTool extends McpToolResponse
     ) {
     }
 
-    public function __invoke(string $entity, string $payload, bool $dryRun = true): string
-    {
+    public function __invoke(
+        #[Schema(description: 'Entity name to write, e.g. "product" or "category". See the shopware://entities resource for the full list.')]
+        string $entity,
+        #[Schema(description: 'The entity\'s fields as a JSON string: one OBJECT, or an ARRAY of objects to write several records in a single call. Include "id" on a record to UPDATE it, omit it to CREATE one — e.g. {"id":"...","name":"Summer Sale"} renames an existing category, and [{...},{...}] upserts both. shopware-entity-schema lists the field names and which are required.')]
+        string $payload,
+        #[Schema(description: 'Validate without writing. Leave true first, then call again with false to persist.')]
+        bool $dryRun = true,
+    ): string {
         $context = $this->contextProvider->getContext();
 
         if (!$this->registry->has($entity)) {
-            return $this->error(\sprintf('Entity "%s" not found. Use the shopware://entities resource for available entity names.', $entity));
+            return $this->error(\sprintf('Entity "%s" not found. Use the shopware://entities resource for available entity names.', $entity), McpToolError::INVALID_ARGUMENTS);
         }
 
         $data = $this->decodeJsonOrError($payload, 'payload');

@@ -13,7 +13,7 @@ class AnnotationTagTester
     /**
      * short names of all BC-change attributes, see Shopware\Core\Framework\Deprecation\BCChange
      */
-    private const BC_CHANGE_ATTRIBUTES = 'ReturnTypeNarrowing|ReturnTypeWidening|ParameterTypeNarrowing|ParameterTypeWidening|PropertyTypeNarrowing|PropertyTypeWidening|ExceptionChange|ExperimentalReplacement|NewOptionalParameter|NewRequiredParameter|ParameterDefaultValueChange|ParameterNameChange|ParameterRemoval|BecomesAbstract|BecomesInternal|BecomesFinal|BecomesReadonly|ClassHierarchyChange|VisibilityChange';
+    private const BC_CHANGE_ATTRIBUTES = 'ReturnTypeNarrowing|ReturnTypeWidening|ParameterTypeNarrowing|ParameterTypeWidening|PropertyTypeNarrowing|PropertyTypeWidening|ExceptionChange|ExperimentalReplacement|NewOptionalParameter|NewRequiredParameter|ParameterDefaultValueChange|ParameterNameChange|ParameterRemoval|BecomesAbstract|BecomesInternal|BecomesFinal|BecomesReadonly|ClassHierarchyChange|ClassMoved|VisibilityChange';
 
     public function __construct(
         private readonly string $shopwareVersion,
@@ -187,7 +187,7 @@ class AnnotationTagTester
         // experimental code) but must be in ALL_CAPS format when present.
         match (true) {
             !isset($properties['stableVersion']) => throw new \InvalidArgumentException('Could not find property stableVersion in experimental annotation.'),
-            isset($properties['feature']) && !preg_match('/^(?:[A-Z]+(_[A-Z]+)*)+$/', $properties['feature']) => throw new \InvalidArgumentException('The value of feature-property can not be empty, contain white spaces and must be in ALL_CAPS format.'),
+            isset($properties['feature']) && !preg_match('/^(?:[A-Z]+(_[A-Z]+)*)+$/D', $properties['feature']) => throw new \InvalidArgumentException('The value of feature-property can not be empty, contain white spaces and must be in ALL_CAPS format.'),
             default => $this->validateVersion($properties['stableVersion'], AnnotationTagVersionSchema::PLATFORM_DEPRECATION_SCHEMA),
         };
     }

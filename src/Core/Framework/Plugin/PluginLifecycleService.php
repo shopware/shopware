@@ -8,6 +8,7 @@ use Composer\Semver\Comparator;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Asset\AssetService;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -44,7 +45,6 @@ use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackException;
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
-use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
@@ -231,11 +231,14 @@ class PluginLifecycleService
 
         $pluginBaseClass->uninstall($uninstallContext);
 
+        $pluginId = $plugin->getId();
+
         if (!$uninstallContext->keepUserData()) {
             $this->systemConfigService->deletePluginConfiguration($pluginBaseClass);
+            $this->removeCustomEntities($pluginId);
+            $this->removePluginCustomFields($pluginBaseClass, $shopwareContext);
         }
 
-        $pluginId = $plugin->getId();
         $this->updatePluginData(
             [
                 'id' => $pluginId,
@@ -246,11 +249,6 @@ class PluginLifecycleService
         );
         $plugin->setActive(false);
         $plugin->setInstalledAt(null);
-
-        if (!$uninstallContext->keepUserData()) {
-            $this->removeCustomEntities($plugin->getId());
-            $this->removePluginCustomFields($pluginBaseClass, $shopwareContext);
-        }
 
         if ($pluginBaseClass->executeComposerCommands()) {
             $this->executeComposerRemoveCommand($plugin, $shopwareContext);
@@ -474,7 +472,9 @@ class PluginLifecycleService
             $pluginBaseClass->deactivate($deactivateContext);
 
             if (!$shopwareContext->hasState(self::STATE_SKIP_ASSET_BUILDING)) {
-                $this->assetInstaller->removeAssetsOfBundle($plugin->getName());
+                // Retain the files until uninstall. A delayed remote delete could otherwise
+                // remove assets uploaded by a subsequent activation under the same keys.
+                $this->assetInstaller->removeAssetsOfBundle($plugin->getName(), false);
             }
 
             $plugin->setActive(false);

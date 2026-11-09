@@ -4,7 +4,9 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Extension\DeleteCustomerRouteExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -23,7 +25,7 @@ class DeleteCustomerRoute extends AbstractDeleteCustomerRoute
      *
      * @param EntityRepository<CustomerCollection> $customerRepository
      */
-    public function __construct(private readonly EntityRepository $customerRepository)
+    public function __construct(private readonly EntityRepository $customerRepository, private readonly ExtensionDispatcher $extensions)
     {
     }
 
@@ -42,6 +44,15 @@ class DeleteCustomerRoute extends AbstractDeleteCustomerRoute
         methods: [Request::METHOD_DELETE]
     )]
     public function delete(SalesChannelContext $context, CustomerEntity $customer): NoContentResponse
+    {
+        return $this->extensions->publish(
+            name: DeleteCustomerRouteExtension::NAME,
+            extension: new DeleteCustomerRouteExtension($context, $customer),
+            function: $this->_delete(...),
+        );
+    }
+
+    private function _delete(SalesChannelContext $context, CustomerEntity $customer): NoContentResponse
     {
         $this->customerRepository->delete([['id' => $customer->getId()]], $context->getContext());
 

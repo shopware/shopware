@@ -29,7 +29,9 @@ export default class CountryStateSelectPlugin extends Plugin {
 
     init() {
         /** @deprecated tag:v6.8.0 - initClient is deprecated because client instance is no longer needed. Use native fetch API instead. */
-        this.initClient();
+        if (!window.Feature.isActive('v6.8.0.0')) {
+            this.initClient();
+        }
         this.initSelects();
 
         this._getFormFieldToggleInstance();
@@ -41,6 +43,11 @@ export default class CountryStateSelectPlugin extends Plugin {
 
     /** @deprecated tag:v6.8.0 - initClient is deprecated because client instance is no longer needed. Use native fetch API instead. */
     initClient() {
+        window.Feature.triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'The "initClient" method is deprecated. It will be removed in v6.8.0.0. Please use native fetch API instead.',
+        );
+
         /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this._client = new HttpClient();
     }
@@ -71,6 +78,10 @@ export default class CountryStateSelectPlugin extends Plugin {
         const checkZipcodePattern = countrySelectCurrentOption.getAttribute(this.options.checkZipcodePattern) === '1';
 
         countrySelect.addEventListener('change', this.onChangeCountry.bind(this));
+
+        if (vatIdInput) {
+            this._bindVatIdNormalization(vatIdInput);
+        }
 
         if (!initialCountryId) {
             return;
@@ -153,6 +164,47 @@ export default class CountryStateSelectPlugin extends Plugin {
         } else {
             vatIdFieldInput.removeAttribute('pattern');
         }
+    }
+
+    /**
+     * VAT ID patterns only ever require upper case letters, so the input is normalized as the
+     * customer types while a pattern constraint is active. Without this, the native "pattern"
+     * attribute set in "_updateVatIdField" blocks submission for a technically valid VAT ID that
+     * was merely typed in lower case or grouped with spaces.
+     *
+     * @param {HTMLElement} vatIdFieldInput
+     * @private
+     */
+    _bindVatIdNormalization(vatIdFieldInput) {
+        if (vatIdFieldInput.dataset.vatIdNormalizationBound) {
+            return;
+        }
+
+        vatIdFieldInput.dataset.vatIdNormalizationBound = 'true';
+        vatIdFieldInput.addEventListener('input', this._normalizeVatIdInput.bind(this));
+    }
+
+    /**
+     * @param {Event} event
+     * @private
+     */
+    _normalizeVatIdInput(event) {
+        const input = event.target;
+
+        if (!input.hasAttribute('pattern')) {
+            return;
+        }
+
+        const normalizedValue = input.value.replace(/\s+/gu, '').toUpperCase();
+
+        if (normalizedValue === input.value) {
+            return;
+        }
+
+        const caretOffsetFromEnd = input.value.length - (input.selectionEnd ?? input.value.length);
+        input.value = normalizedValue;
+        const caretPosition = Math.max(0, normalizedValue.length - caretOffsetFromEnd);
+        input.setSelectionRange(caretPosition, caretPosition);
     }
 
     /**

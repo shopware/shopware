@@ -52,7 +52,7 @@ class ImportExportFileRepositoryTest extends TestCase
         $record = $this->connection->fetchAssociative('SELECT * FROM import_export_file WHERE id = :id', ['id' => $id]);
 
         $expect = $data[$id];
-        static::assertNotEmpty($record);
+        static::assertNotFalse($record);
         static::assertSame($id, $record['id']);
         static::assertSame($expect['originalName'], $record['original_name']);
         static::assertSame($expect['path'], $record['path']);
@@ -122,8 +122,8 @@ class ImportExportFileRepositoryTest extends TestCase
             static::assertCount(\count($requiredProperties), $e->getExceptions());
             $foundViolations = [];
 
-            /** @var WriteConstraintViolationException $violations */
             foreach ($e->getExceptions() as $violations) {
+                static::assertInstanceOf(WriteConstraintViolationException::class, $violations);
                 foreach ($violations->getViolations() as $violation) {
                     $foundViolations[] = $violation->getPropertyPath();
                 }

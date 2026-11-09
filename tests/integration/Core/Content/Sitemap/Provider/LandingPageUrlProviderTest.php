@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
-use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
 use Shopware\Core\Content\Sitemap\Provider\LandingPageUrlProvider;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
@@ -89,13 +88,17 @@ class LandingPageUrlProviderTest extends TestCase
         $excludedId = Uuid::randomHex();
 
         $configHandler = $this->createMock(ConfigHandler::class);
-        $configHandler->method('get')->with(ConfigHandler::EXCLUDED_URLS_KEY)->willReturn([
-            [
-                'resource' => LandingPageEntity::class,
-                'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
-                'identifier' => $excludedId,
-            ],
-        ]);
+        $configHandler
+            ->expects($this->once())
+            ->method('get')
+            ->with(ConfigHandler::EXCLUDED_URLS_KEY)
+            ->willReturn([
+                [
+                    'resource' => LandingPageEntity::class,
+                    'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
+                    'identifier' => $excludedId,
+                ],
+            ]);
 
         $this->landingPageRepository->upsert([
             [
@@ -156,7 +159,6 @@ class LandingPageUrlProviderTest extends TestCase
         /** @var EntityRepository<SeoUrlCollection> $seuUrlRepository */
         $seuUrlRepository = static::getContainer()->get('seo_url.repository');
 
-        /** @var SeoUrlEntity|null $seoUrl */
         $seoUrl = $seuUrlRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
 
         static::assertNotNull($seoUrl);

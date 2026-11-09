@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Manifest\XmlParserUtils;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
@@ -14,7 +15,6 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 abstract class XmlElement extends Struct
 {
     protected const REQUIRED_FIELDS = [];
-    private const FALLBACK_LOCALE = 'en-GB';
 
     /**
      * @param array<string, mixed> $data
@@ -67,24 +67,15 @@ abstract class XmlElement extends Struct
     abstract protected static function parse(\DOMElement $element): array;
 
     /**
-     * if translations for system default language are not provided it tries to use the english translation as the default,
-     * if english does not exist it uses the first translation
+     * @see XmlParserUtils::ensureTranslationForLocale()
      *
-     * @param array<string, string> $translations
+     * @param array<string, string>|null $translations
      *
-     * @return array<string, string>
+     * @return ($translations is null ? null : array<string, string>)
      */
-    protected function ensureTranslationForDefaultLanguageExist(array $translations, string $defaultLocale): array
+    protected function ensureTranslationForDefaultLanguageExist(?array $translations, string $defaultLocale): ?array
     {
-        if ($translations === []) {
-            return $translations;
-        }
-
-        if (!\array_key_exists($defaultLocale, $translations)) {
-            $translations[$defaultLocale] = $this->getFallbackTranslation($translations);
-        }
-
-        return $translations;
+        return XmlParserUtils::ensureTranslationForLocale($translations, $defaultLocale);
     }
 
     /**
@@ -98,17 +89,5 @@ abstract class XmlElement extends Struct
                 throw AppException::invalidArgument($field . ' must not be empty');
             }
         }
-    }
-
-    /**
-     * @param array<string, string> $translations
-     */
-    private function getFallbackTranslation(array $translations): string
-    {
-        if (\array_key_exists(self::FALLBACK_LOCALE, $translations)) {
-            return $translations[self::FALLBACK_LOCALE];
-        }
-
-        return array_values($translations)[0];
     }
 }

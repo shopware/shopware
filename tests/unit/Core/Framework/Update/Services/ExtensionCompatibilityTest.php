@@ -122,7 +122,7 @@ class ExtensionCompatibilityTest extends TestCase
             new EventDispatcher()
         );
 
-        static::assertEmpty($pluginCompatibility->getExtensionsToDeactivate(new Version(), Context::createDefaultContext(), ExtensionCompatibility::PLUGIN_DEACTIVATION_FILTER_NONE));
+        static::assertCount(0, $pluginCompatibility->getExtensionsToDeactivate(new Version(), Context::createDefaultContext(), ExtensionCompatibility::PLUGIN_DEACTIVATION_FILTER_NONE));
     }
 
     public function testExtensionsToDeactivateAll(): void

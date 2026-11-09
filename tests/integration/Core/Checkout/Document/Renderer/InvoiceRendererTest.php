@@ -14,9 +14,9 @@ use Shopware\Core\Checkout\Document\Event\InvoiceOrdersEvent;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\OrderDocumentCriteriaFactory;
-use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\Struct\RenderedDocument;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
@@ -34,6 +34,7 @@ use Shopware\Core\System\Currency\CurrencyFormatter;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Integration\Traits\SnapshotTesting;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
@@ -95,10 +96,6 @@ class InvoiceRendererTest extends TestCase
     protected function tearDown(): void
     {
         static::getContainer()->get(Translator::class)->reset();
-
-        if (self::$callback instanceof \Closure) {
-            static::getContainer()->get('event_dispatcher')->removeListener(DocumentTemplateRendererParameterEvent::class, self::$callback);
-        }
 
         parent::tearDown();
     }
@@ -176,13 +173,12 @@ class InvoiceRendererTest extends TestCase
 
         $caughtEvent = null;
 
-        static::getContainer()->get('event_dispatcher')
-            ->addListener(InvoiceOrdersEvent::class, static function (InvoiceOrdersEvent $event) use (&$caughtEvent): void {
-                $caughtEvent = $event;
-            });
+        EventHookDispatcher::fromContainer(static::getContainer())->on(InvoiceOrdersEvent::class, static function (InvoiceOrdersEvent $event) use (&$caughtEvent): void {
+            $caughtEvent = $event;
+        });
 
         if ($beforeRenderHook instanceof \Closure) {
-            $beforeRenderHook($operationInvoice, static::getContainer());
+            $beforeRenderHook($operationInvoice, static::getContainer(), EventHookDispatcher::fromContainer(static::getContainer())->on(...));
         }
 
         $processedTemplate = $this->invoiceRenderer->render(
@@ -325,16 +321,16 @@ class InvoiceRendererTest extends TestCase
 
         yield 'render with syntax error' => [
             [7, 19, 22],
-            static function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
+            static function (DocumentGenerateOperation $operation, ContainerInterface $container, \Closure $onEvent): void {
                 self::$callback = static function (DocumentTemplateRendererParameterEvent $event): void {
                     throw new \RuntimeException('Errors happened while rendering');
                 };
 
-                $container->get('event_dispatcher')->addListener(DocumentTemplateRendererParameterEvent::class, self::$callback);
+                $onEvent(DocumentTemplateRendererParameterEvent::class, self::$callback);
             },
             static function (string $orderId, array $errors): void {
                 static::assertNotNull(self::$callback);
-                static::assertNotEmpty($errors);
+                static::assertNotCount(0, $errors);
                 static::assertArrayHasKey($orderId, $errors);
 
                 $error = $errors[$orderId];
@@ -608,7 +604,7 @@ class InvoiceRendererTest extends TestCase
                 $rendered = $rendered->getContent();
 
                 static::assertNotNull($customer);
-                static::assertEmpty($customer->getVatIds());
+                static::assertCount(0, $customer->getVatIds() ?? []);
 
                 static::assertStringNotContainsString('VAT Reg.No:', $rendered);
             },
@@ -881,7 +877,7 @@ class InvoiceRendererTest extends TestCase
         );
 
         $data = $rendered->getSuccess();
-        static::assertNotEmpty($data);
+        static::assertNotCount(0, $data);
 
         if ($shouldDisplay) {
             static::assertStringContainsString('Intra-community delivery (EU)', $data[$orderId]->getContent());

@@ -28,13 +28,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Integration\App\TestAppServer;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Exercises the whole app-secret-rotation lifecycle — install, rotation and recovery — against a fake app
@@ -50,7 +49,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class AppSecretRotationEndToEndTest extends TestCase
 {
     use AppSystemTestBehaviour;
-    use EventDispatcherBehaviour;
     use GuzzleTestClientBehaviour;
 
     private const FIXTURE_APP_DIR = __DIR__ . '/../Manifest/_fixtures/test';
@@ -137,9 +135,7 @@ class AppSecretRotationEndToEndTest extends TestCase
     {
         $command = new CommandTester($this->createInstallCommand());
         $installedEvents = new \ArrayObject();
-        $eventDispatcher = static::getContainer()->get('event_dispatcher');
-        static::assertInstanceOf(EventDispatcherInterface::class, $eventDispatcher);
-        $this->addEventListener($eventDispatcher, AppInstalledEvent::class, static function (AppInstalledEvent $event) use ($installedEvents): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(AppInstalledEvent::class, static function (AppInstalledEvent $event) use ($installedEvents): void {
             $installedEvents->append($event);
         });
 
@@ -195,9 +191,7 @@ class AppSecretRotationEndToEndTest extends TestCase
     {
         $command = new CommandTester($this->createInstallCommand());
         $installedEvents = new \ArrayObject();
-        $eventDispatcher = static::getContainer()->get('event_dispatcher');
-        static::assertInstanceOf(EventDispatcherInterface::class, $eventDispatcher);
-        $this->addEventListener($eventDispatcher, AppInstalledEvent::class, static function (AppInstalledEvent $event) use ($installedEvents): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(AppInstalledEvent::class, static function (AppInstalledEvent $event) use ($installedEvents): void {
             $installedEvents->append($event);
         });
 
@@ -698,7 +692,7 @@ class AppSecretRotationEndToEndTest extends TestCase
     private function lastConfirm(): RequestInterface
     {
         $confirms = $this->confirmRequests();
-        static::assertNotEmpty($confirms, 'expected at least one confirm to have been sent');
+        static::assertNotCount(0, $confirms, 'expected at least one confirm to have been sent');
 
         return $confirms[array_key_last($confirms)];
     }

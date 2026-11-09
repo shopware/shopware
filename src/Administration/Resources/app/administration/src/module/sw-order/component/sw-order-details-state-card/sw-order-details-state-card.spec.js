@@ -108,7 +108,7 @@ async function createWrapper(lastStateChange = lastStateChangeByAdminUser) {
                 swOrderDetailAskAndSaveEdits: () => Promise.resolve(true),
             },
             stubs: {
-                'sw-order-state-select-v2': true,
+                'sw-order-state-select-v2': await wrapTestComponent('sw-order-state-select-v2', { sync: true }),
                 'sw-external-link': { template: '<a href="#"></a>' },
                 'sw-order-state-change-modal': true,
                 'sw-container': await wrapTestComponent('sw-container', {

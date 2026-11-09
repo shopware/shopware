@@ -18,6 +18,7 @@ use Shopware\Core\Content\Newsletter\ScheduledTask\NewsletterRecipientTask;
 use Shopware\Core\Content\Newsletter\ScheduledTask\NewsletterRecipientTaskHandler;
 use Shopware\Core\Content\Newsletter\Subscriber\NewsletterRecipientSalutationSubscriber;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
@@ -65,6 +66,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(RequestStack::class),
             service(StoreApiCustomFieldMapper::class),
             service('customer.repository'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(NewsletterConfirmRoute::class)
@@ -74,6 +76,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DataValidator::class),
             service('event_dispatcher'),
             service(ClockInterface::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(NewsletterUnsubscribeRoute::class)
@@ -84,6 +87,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(RateLimiter::class),
             service(RequestStack::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(NewsletterRecipientIndexer::class)

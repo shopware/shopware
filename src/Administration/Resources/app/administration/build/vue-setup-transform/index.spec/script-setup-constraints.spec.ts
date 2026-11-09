@@ -23,6 +23,31 @@ describe('build/vue-setup-transform script setup constraints', () => {
         );
     });
 
+    it('reports a parse error at its absolute SFC offset without the script-relative Babel position', () => {
+        const source = stripIndent`
+            <template>
+                <div>{{ broken }}</div>
+            </template>
+
+            <script setup>
+            const broken = { a: 1 b: 2 };
+            </script>
+        `;
+
+        let diagnostic: unknown;
+        try {
+            transformShopwareSetupSfc(source, 'parse-error.vue');
+        } catch (error: unknown) {
+            diagnostic = error;
+        }
+
+        // Babel would append "(2:22)", relative to the script block, while the SFC position is line 6.
+        expect(diagnostic).toMatchObject({
+            message: 'Unable to parse Shopware setup script: Unexpected token, expected ","',
+            index: source.indexOf('b: 2'),
+        });
+    });
+
     it('rejects ES module exports like native script setup', () => {
         const source = stripIndent`
             <script setup>
@@ -245,7 +270,7 @@ describe('build/vue-setup-transform script setup constraints', () => {
         const error = thrown as { name: string; index: number; endIndex: number };
 
         // The absolute SFC offset must land on the offending `await`, not at 0 (block-relative) or the
-        // block start - this is the contract index.ts's withBlockOffset() exists to preserve.
+        // block start - this is the contract index.ts's withAuthorLocation() exists to preserve.
         expect(error.name).toBe('ShopwareSetupTransformError');
         expect(source.slice(error.index, error.index + 'await'.length)).toBe('await');
         // The error also carries the full node range (endIndex), so ESLint can underline the whole

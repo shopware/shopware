@@ -1,6 +1,33 @@
 {% block sw_product_deliverability_downloadable_form %}
 <sw-container class="product-deliverability-downloadable-form">
 
+    {% block sw_product_deliverability_downloadable_form_delivery_time_field %}
+    <sw-inherit-wrapper
+        v-if="showModeSetting"
+        v-model:value="product.deliveryTimeId"
+        :inherited-value="parentProduct.deliveryTimeId"
+        :has-parent="!!parentProduct.id"
+        :label="$t('sw-product.settingsForm.labelDeliveryTime')"
+    >
+        <template #content="{ currentValue, updateCurrentValue, isInherited }">
+
+            <sw-entity-single-select
+                id="deliveryTimeId"
+                :key="isInherited"
+                :value="currentValue"
+                entity="delivery_time"
+                :disabled="isInherited || disabled"
+                class="product-deliverability-downloadable-form__delivery-time"
+                :error="productDeliveryTimeIdError"
+                :placeholder="$t('sw-product.settingsForm.placeholderDeliveryTime')"
+                show-clearable-button
+                @update:value="updateCurrentValue"
+            />
+        </template>
+    </sw-inherit-wrapper>
+    {% endblock %}
+
+    {% block sw_product_deliverability_downloadable_form_is_closeout_field %}
     <sw-inherit-wrapper
         v-model:value="product.isCloseout"
         :has-parent="!!parentProduct.id"
@@ -27,13 +54,14 @@
 
         </template>
     </sw-inherit-wrapper>
+    {% endblock %}
 
     <sw-container
         v-show="showStockSetting"
         columns="1fr 1fr"
         gap="0 var(--scale-size-30)"
     >
-
+        {% block sw_product_deliverability_downloadable_form_stock_field %}
         <mt-number-field
             v-model="product.stock"
             name="sw-field--product-stock"
@@ -43,7 +71,9 @@
             :placeholder="$t('sw-product.settingsForm.placeholderStock')"
             :error="productStockError"
         />
+        {% endblock %}
 
+        {% block sw_product_deliverability_downloadable_form_available_stock_field %}
         <mt-number-field
             v-model="product.availableStock"
             name="sw-field--product-available-stock"
@@ -51,31 +81,112 @@
             :disabled="true"
             :label="$t('sw-product.settingsForm.labelAvailableStock')"
         />
-
+        {% endblock %}
     </sw-container>
 
-    <sw-inherit-wrapper
+    {% block sw_product_deliverability_downloadable_form_order_quantity_switch %}
+    <mt-switch
         v-if="showModeSetting"
-        v-model:value="product.deliveryTimeId"
-        :inherited-value="parentProduct.deliveryTimeId"
-        :has-parent="!!parentProduct.id"
-        :label="$t('sw-product.settingsForm.labelDeliveryTime')"
-    >
-        <template #content="{ currentValue, updateCurrentValue, isInherited }">
+        class="product-deliverability-downloadable-form__order-quantity-switch"
+        name="sw-field--product-allow-multiple-units"
+        :label="$t('sw-product.settingsForm.labelAllowMultipleUnits')"
+        :help-text="$t('sw-product.settingsForm.helpTextAllowMultipleUnits')"
+        :disabled="disabled"
+        :model-value="showOrderQuantitySetting"
+        @update:model-value="onOrderQuantitySwitchInput"
+    />
+    {% endblock %}
 
-            <sw-entity-single-select
-                id="deliveryTimeId"
-                :key="isInherited"
-                :value="currentValue"
-                entity="delivery_time"
-                :disabled="isInherited || disabled"
-                class="product-deliverability-downloadable-form__delivery-time"
-                :error="productDeliveryTimeIdError"
-                :placeholder="$t('sw-product.settingsForm.placeholderDeliveryTime')"
-                show-clearable-button
-                @update:value="updateCurrentValue"
-            />
-        </template>
-    </sw-inherit-wrapper>
+    <sw-container
+        v-if="showModeSetting && showOrderQuantitySetting"
+        columns="1fr 1fr 1fr"
+        gap="0 var(--scale-size-30)"
+    >
+        {% block sw_product_deliverability_downloadable_form_min_purchase_field %}
+        <sw-inherit-wrapper
+            v-model:value="product.minPurchase"
+            class="product-deliverability-downloadable-form__min-purchase"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.minPurchase"
+        >
+            <template #content="props">
+
+                <mt-number-field
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
+                    number-type="int"
+                    :min="1"
+                    :error="productMinPurchaseError"
+                    :label="$t('sw-product.settingsForm.labelMinPurchase')"
+                    :placeholder="$t('sw-product.settingsForm.placeholderMinPurchase')"
+                    :disabled="props.isInherited || disabled"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
+                />
+
+            </template>
+        </sw-inherit-wrapper>
+        {% endblock %}
+
+        {% block sw_product_deliverability_downloadable_form_purchase_steps_field %}
+        <sw-inherit-wrapper
+            v-model:value="product.purchaseSteps"
+            class="product-deliverability-downloadable-form__purchase-steps"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.purchaseSteps"
+        >
+            <template #content="props">
+
+                <mt-number-field
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
+                    number-type="int"
+                    :min="1"
+                    :error="productPurchaseStepsError"
+                    :label="$t('sw-product.settingsForm.labelPurchaseSteps')"
+                    :placeholder="$t('sw-product.settingsForm.placeholderPurchaseSteps')"
+                    :disabled="props.isInherited || disabled"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
+                />
+
+            </template>
+        </sw-inherit-wrapper>
+        {% endblock %}
+
+        {% block sw_product_deliverability_downloadable_form_max_purchase_field %}
+        <sw-inherit-wrapper
+            v-model:value="product.maxPurchase"
+            class="product-deliverability-downloadable-form__max-purchase"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.maxPurchase"
+        >
+            <template #content="props">
+
+                <mt-number-field
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
+                    number-type="int"
+                    :allow-empty="true"
+                    :min="1"
+                    :error="productMaxPurchaseError"
+                    :label="$t('sw-product.settingsForm.labelMaxPurchase')"
+                    :placeholder="$t('sw-product.settingsForm.placeholderMaxPurchase')"
+                    :help-text="$t('sw-product.settingsForm.helpTextMaxPurchaseDigital')"
+                    :disabled="props.isInherited || disabled"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
+                />
+
+            </template>
+        </sw-inherit-wrapper>
+        {% endblock %}
+    </sw-container>
 </sw-container>
 {% endblock %}

@@ -1,8 +1,10 @@
 name: 'Code Owners'
 
+# Only a push cancels: its new head makes the running result stale, while a review on the same head queues
+# so its cancelled run does not turn the PR's checks red.
 concurrency:
   group: codeowners-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event.action == 'synchronize' }}
 
 on:
   pull_request_target:

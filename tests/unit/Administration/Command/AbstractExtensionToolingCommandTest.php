@@ -9,6 +9,7 @@ use Shopware\Administration\Command\CheckExtensionsCommand;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @internal
@@ -22,12 +23,10 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(AbstractExtensionToolingCommand::class)]
 class AbstractExtensionToolingCommandTest extends TestCase
 {
-    use ExtensionToolingCommandTestBehaviour;
-
     public function testFailsWithNpmCiGuidanceWhenNodeDependenciesAreMissing(): void
     {
         // A vendor/flex install ships the tooling code but not its node_modules.
-        $administrationRoot = $this->createAdministrationRoot(withToolingStub: false);
+        $administrationRoot = ExtensionToolingFixture::createAdministrationRoot(withToolingStub: false);
 
         $tester = new CommandTester(new CheckExtensionsCommand($this->kernel(), $administrationRoot));
         $exitCode = $tester->execute([]);
@@ -39,27 +38,27 @@ class AbstractExtensionToolingCommandTest extends TestCase
             'the tooling must not be spawned when its dependencies are missing',
         );
 
-        $this->removeAdministrationRoot($administrationRoot);
+        ExtensionToolingFixture::removeAdministrationRoot($administrationRoot);
     }
 
     public function testForwardsArgumentsAndProjectRootAndPropagatesExitCode(): void
     {
         // A non-zero tooling exit (findings) must reach the shell unchanged.
-        $administrationRoot = $this->createAdministrationRoot(withToolingStub: true, stubExitCode: 1);
+        $administrationRoot = ExtensionToolingFixture::createAdministrationRoot(withToolingStub: true, stubExitCode: 1);
 
         $tester = new CommandTester(new CheckExtensionsCommand($this->kernel(), $administrationRoot));
         $exitCode = $tester->execute(['tooling-args' => ['--only=MyPlugin', '--all']]);
 
         static::assertSame(1, $exitCode);
 
-        $capture = $this->readToolingCapture($administrationRoot);
+        $capture = ExtensionToolingFixture::readToolingCapture($administrationRoot);
         static::assertSame('/shop', $capture['project_root']);
         static::assertSame(realpath($administrationRoot), $capture['cwd']);
         static::assertContains('--transpileOnly', $capture['argv']);
         static::assertContains('--only=MyPlugin', $capture['argv']);
         static::assertContains('--all', $capture['argv']);
 
-        $this->removeAdministrationRoot($administrationRoot);
+        ExtensionToolingFixture::removeAdministrationRoot($administrationRoot);
     }
 
     public function testAdministrationRootResolvesToTheBundleResourcesPathByDefault(): void
@@ -72,5 +71,13 @@ class AbstractExtensionToolingCommandTest extends TestCase
         };
 
         static::assertStringEndsWith('/Resources/app/administration', $command->exposedAdministrationRoot());
+    }
+
+    private function kernel(): KernelInterface
+    {
+        $kernel = static::createStub(KernelInterface::class);
+        $kernel->method('getProjectDir')->willReturn('/shop');
+
+        return $kernel;
     }
 }

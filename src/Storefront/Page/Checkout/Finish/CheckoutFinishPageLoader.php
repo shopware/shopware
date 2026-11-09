@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Checkout\Order\OrderProductAvailabilityResolver;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,6 +40,7 @@ class CheckoutFinishPageLoader
         private readonly AbstractOrderRoute $orderRoute,
         private readonly AbstractTranslator $translator,
         private readonly SystemConfigService $systemConfigService,
+        private readonly OrderProductAvailabilityResolver $productAvailabilityResolver,
     ) {
     }
 
@@ -60,9 +62,9 @@ class CheckoutFinishPageLoader
             $page->setOrder($this->getOrder($request, $salesChannelContext));
         });
 
-        $page->setChangedPayment((bool) $request->query->get('changedPayment', ''));
+        $page->setChangedPayment((bool) ($request->attributes->get('changedPayment') ?? $request->query->get('changedPayment', '')));
 
-        $page->setPaymentFailed((bool) $request->query->get('paymentFailed', ''));
+        $page->setPaymentFailed((bool) ($request->attributes->get('paymentFailed') ?? $request->query->get('paymentFailed', '')));
 
         $page->setLogoutCustomer($salesChannelContext->getCustomer()?->getGuest() && $this->systemConfigService->get('core.cart.logoutGuestAfterCheckout', $salesChannelContext->getSalesChannelId()));
 
@@ -102,7 +104,7 @@ class CheckoutFinishPageLoader
             throw CartException::customerNotLoggedIn();
         }
 
-        $orderId = $request->query->get('orderId');
+        $orderId = $request->attributes->getString('orderId') ?: $request->query->getString('orderId');
         if (!$orderId) {
             throw RoutingException::missingRequestParameter('orderId', '/orderId');
         }
@@ -149,6 +151,8 @@ class CheckoutFinishPageLoader
         if (!$order) {
             throw OrderException::orderNotFound($orderId);
         }
+
+        $this->productAvailabilityResolver->addAvailability([$order], $salesChannelContext);
 
         return $order;
     }

@@ -93,6 +93,7 @@ use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyDefinition;
@@ -685,7 +686,8 @@ class MailDataSimulator
             return $entity;
         } catch (\Throwable) {
             // MappingEntityDefinition throws for example, so we need to catch that and return a default entity.
-            return new Entity();
+            // ArrayEntity keeps the simulated fields in its data array; a bare Entity would create dynamic properties
+            return new ArrayEntity();
         }
     }
 

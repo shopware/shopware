@@ -16,7 +16,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Storefront\Theme\Snippet\ThemeSnippetFileWriter;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
@@ -63,12 +65,89 @@ class ThemeLifecycleServiceTest extends TestCase
         );
         $runtimeConfig->expects($this->once())->method('resetCaches');
 
-        $service = $this->createService($themeRepository, $themeChildRepository, $runtimeConfig);
+        $snippetFileWriter = $this->createMock(ThemeSnippetFileWriter::class);
+        $snippetFileWriter->expects($this->once())->method('write')->with($configuration);
+
+        $service = $this->createService($themeRepository, $themeChildRepository, $runtimeConfig, $snippetFileWriter);
         $service->refreshTheme($configuration, $context);
 
         static::assertCount(2, $themeRepository->upserts);
         static::assertSame($themeRepository->upserts[0], $themeRepository->upserts[1]);
         static::assertSame([[]], $themeChildRepository->deletes);
+    }
+
+    public function testRefreshThemeNoLongerPersistsLegacyLabelTranslations(): void
+    {
+        $themeRepository = $this->createThemeRepositoryWithExistingTheme();
+        /** @var StaticEntityRepository<EntityCollection<Entity>> $themeChildRepository */
+        $themeChildRepository = new StaticEntityRepository([[]]);
+        $service = $this->createService(
+            $themeRepository,
+            $themeChildRepository,
+            static::createStub(ThemeRuntimeConfigService::class),
+            static::createStub(ThemeSnippetFileWriter::class),
+        );
+
+        $service->refreshTheme($this->createConfigurationWithLegacyLabels(), Context::createDefaultContext());
+
+        static::assertArrayNotHasKey('translations', $themeRepository->upserts[0][0]);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove together with the legacy translation persistence in ThemeLifecycleService::refreshTheme
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testRefreshThemePersistsLegacyLabelTranslationsWithoutMajorFlag(): void
+    {
+        $themeRepository = $this->createThemeRepositoryWithExistingTheme();
+        /** @var StaticEntityRepository<EntityCollection<Entity>> $themeChildRepository */
+        $themeChildRepository = new StaticEntityRepository([[]]);
+        $service = $this->createService(
+            $themeRepository,
+            $themeChildRepository,
+            static::createStub(ThemeRuntimeConfigService::class),
+            static::createStub(ThemeSnippetFileWriter::class),
+        );
+
+        $service->refreshTheme($this->createConfigurationWithLegacyLabels(), Context::createDefaultContext());
+
+        static::assertSame(
+            ['en-GB' => ['labels' => ['fields.sw-logo' => 'Logo'], 'helpTexts' => ['fields.sw-logo' => 'Header logo']]],
+            $themeRepository->upserts[0][0]['translations'],
+        );
+    }
+
+    /**
+     * @return StaticEntityRepository<ThemeCollection>
+     */
+    private function createThemeRepositoryWithExistingTheme(): StaticEntityRepository
+    {
+        $theme = new ThemeEntity();
+        $theme->setId('theme-id');
+        $theme->setUniqueIdentifier('theme-id');
+        $theme->setTechnicalName('ExampleTheme');
+        $theme->setThemeJson(null);
+
+        return StaticEntityRepository::of(ThemeCollection::class, [new ThemeCollection([$theme])]);
+    }
+
+    private function createConfigurationWithLegacyLabels(): StorefrontPluginConfiguration
+    {
+        $configuration = new StorefrontPluginConfiguration('ExampleTheme');
+        $configuration->setName('Example');
+        $configuration->setAuthor('Author');
+        $configuration->setThemeJson(null);
+        $configuration->setThemeConfig([
+            'fields' => [
+                'sw-logo' => [
+                    'type' => 'media',
+                    'label' => ['en-GB' => 'Logo'],
+                    'helpText' => ['en-GB' => 'Header logo'],
+                ],
+            ],
+        ]);
+
+        return $configuration;
     }
 
     /**
@@ -79,6 +158,7 @@ class ThemeLifecycleServiceTest extends TestCase
         EntityRepository $themeRepository,
         EntityRepository $themeChildRepository,
         ThemeRuntimeConfigService $runtimeConfig,
+        ThemeSnippetFileWriter $snippetFileWriter,
     ): ThemeLifecycleService {
         $language = new LanguageEntity();
         $language->setUniqueIdentifier('language-id');
@@ -106,6 +186,7 @@ class ThemeLifecycleServiceTest extends TestCase
             $connection,
             static::createStub(AbstractStorefrontPluginConfigurationFactory::class),
             $runtimeConfig,
+            $snippetFileWriter,
         );
     }
 }

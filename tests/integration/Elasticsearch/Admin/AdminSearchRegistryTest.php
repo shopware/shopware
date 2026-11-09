@@ -67,15 +67,15 @@ class AdminSearchRegistryTest extends TestCase
             100
         );
 
-        $searchHelper = new AdminElasticsearchHelper(true, true, 'sw-admin', 'test', true, $this->createMock(LoggerInterface::class));
+        $searchHelper = new AdminElasticsearchHelper(true, true, 'sw-admin', 'test', true, static::createStub(LoggerInterface::class));
         $this->registry = new AdminSearchRegistry(
             ['promotion' => $indexer, 'order' => static::getContainer()->get(OrderAdminSearchIndexer::class)],
             $this->connection,
             $this->getDiContainer()->get(MessageBusInterface::class),
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             $this->client,
             $searchHelper,
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
             [
                 'settings' => [
                     'analysis' => [
@@ -166,7 +166,7 @@ class AdminSearchRegistryTest extends TestCase
     public function testIterate(): void
     {
         $c = static::getContainer()->get(Connection::class);
-        static::assertEmpty($c->fetchAllAssociative('SELECT `index` FROM `admin_elasticsearch_index_task`'));
+        static::assertCount(0, $c->fetchAllAssociative('SELECT `index` FROM `admin_elasticsearch_index_task`'));
 
         $this->registry->iterate(new AdminIndexingBehavior(true));
 
@@ -199,7 +199,7 @@ class AdminSearchRegistryTest extends TestCase
     public function testRefresh(): void
     {
         $c = static::getContainer()->get(Connection::class);
-        static::assertEmpty($c->fetchAllAssociative('SELECT `index` FROM `admin_elasticsearch_index_task`'));
+        static::assertCount(0, $c->fetchAllAssociative('SELECT `index` FROM `admin_elasticsearch_index_task`'));
 
         $this->registry->refresh(new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([
             new EntityWrittenEvent('promotion', [

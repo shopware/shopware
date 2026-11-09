@@ -55,7 +55,7 @@
         {% block sw_cms_layout_assignment_modal_mt_tabs_permission_warning %}
         {# TODO: Replace this temporary banner with MtTabs item tooltip metadata once Meteor supports badge/disabled tab tooltips. #}
         <mt-banner
-            v-if="!acl.can('system.system_config') && (page.type === 'page' || page.type === 'landingpage')"
+            v-if="!acl.can('system.system_config') && page.type === 'page'"
             class="sw-cms-layout-assignment-modal__tab-permission-warning"
             variant="attention"
         >
@@ -187,12 +187,12 @@
 
                 {% block sw_cms_layout_assignment_modal_mt_product_detail_pages_empty_state %}
                 <template #empty-state>
-                    <img
-                        class="sw-cms-product-assignment__empty-state"
-                        :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                        alt=""
-                    >
-                    <p>{{ $t('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentEmptyStateDescription') }}</p>
+                    <mt-empty-state
+                        centered
+                        icon="regular-products"
+                        :headline="$t('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentEmptyStateDescription')"
+                        description=""
+                    />
                 </template>
                 {% endblock %}
             </sw-cms-product-assignment>
@@ -242,14 +242,8 @@
                 {% block sw_cms_layout_assignment_modal_tab_landing_pages %}
                 <sw-tabs-item
                     v-if="page.type === 'landingpage'"
-                    v-tooltip="{
-                        message: $t('sw-privileges.tooltip.warning'),
-                        showOnDisabledElements: true,
-                        disabled: acl.can('system.system_config')
-                    }"
                     :active-tab="active"
                     :title="$t('sw-cms.components.cmsLayoutAssignmentModal.tabLandingPages')"
-                    :disabled="!acl.can('system.system_config')"
                     class="sw-cms-layout-assignment-modal__tab-landing-pages"
                     name="landing_pages"
                 >
@@ -383,12 +377,12 @@
 
                         {% block sw_cms_layout_assignment_modal_product_detail_pages_empty_state %}
                         <template #empty-state>
-                            <img
-                                class="sw-cms-product-assignment__empty-state"
-                                :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                                alt=""
-                            >
-                            <p>{{ $t('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentEmptyStateDescription') }}</p>
+                            <mt-empty-state
+                                centered
+                                icon="regular-products"
+                                :headline="$t('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentEmptyStateDescription')"
+                                description=""
+                            />
                         </template>
                         {% endblock %}
                     </sw-cms-product-assignment>

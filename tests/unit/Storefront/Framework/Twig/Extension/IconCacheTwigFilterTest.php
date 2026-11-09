@@ -38,17 +38,13 @@ use Twig\Loader\FilesystemLoader;
  */
 #[Package('discovery')]
 #[CoversClass(IconCacheTwigFilter::class)]
-#[CoversClass(IconExtension::class)]
 class IconCacheTwigFilterTest extends TestCase
 {
     public function testStorefrontRenderIconCacheEnabled(): void
     {
-        $storefrontBundleFileName = (new \ReflectionClass(Storefront::class))->getFileName();
-        static::assertNotFalse($storefrontBundleFileName);
-
         $twig = $this->createFinder([
             new BundleFixture('StorefrontTest', __DIR__ . '/fixtures/Storefront/'),
-            new BundleFixture('Storefront', \dirname($storefrontBundleFileName)),
+            new BundleFixture('Storefront', (new Storefront())->getPath()),
         ]);
 
         $container = $this->buildContainer();
@@ -117,7 +113,6 @@ class IconCacheTwigFilterTest extends TestCase
     {
         $loader = new FilesystemLoader(__DIR__ . '/fixtures/Storefront/Resources/views');
 
-        /** @var BundleFixture $bundle */
         foreach ($bundles as $bundle) {
             $directory = $bundle->getPath() . '/Resources/views';
             $loader->addPath($directory);

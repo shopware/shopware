@@ -36,6 +36,7 @@ use Shopware\Core\Content\ProductExport\Provider\AbstractAgenticCommerceProductE
 use Shopware\Core\Content\ProductExport\Validator\ValidatorInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\EntitySeoUrlRouteInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
+use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteLoaderInterface;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\MailFlowDataProviderInterface;
 use Shopware\Core\Content\Sitemap\ConfigHandler\ConfigHandlerInterface;
 use Shopware\Core\Content\Sitemap\Provider\AbstractUrlProvider;
@@ -59,6 +60,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\PeriodicMetricCollectorInte
 use Shopware\Core\Framework\Telemetry\Metrics\MetricTransportInterface;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\AbstractValueGenerator;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage;
+use Shopware\Core\System\SalesChannel\Capability\AbstractSalesChannelTypeCapabilities;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterInterface;
 use Shopware\Core\System\Tax\TaxRuleType\TaxRuleTypeFilterInterface;
 use Shopware\Elasticsearch\Admin\Indexer\AbstractAdminIndexer;
@@ -125,8 +127,10 @@ return [
             'shopware.route_scope' => AbstractRouteScope::class,
             'shopware.route_scope_whitelist' => RouteScopeWhitelistInterface::class,
             'shopware.rule.definition' => Rule::class,
+            'shopware.sales_channel.type_capabilities' => AbstractSalesChannelTypeCapabilities::class,
             'shopware.scheduled.task' => ScheduledTask::class,
             'shopware.seo_url.route' => SeoUrlRouteInterface::class,
+            'shopware.seo_url.route_loader' => SeoUrlRouteLoaderInterface::class,
             'shopware.sitemap.config_handler' => ConfigHandlerInterface::class,
             'shopware.sitemap_url_provider' => AbstractUrlProvider::class,
             'shopware.snippet.filter' => SnippetFilterInterface::class,

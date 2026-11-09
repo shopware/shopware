@@ -26,16 +26,23 @@
  * binding of a default import rather than a named one.
  */
 
+import path from 'node:path';
+import { readRegistry } from '../../../../build/vite-plugins/virtual-shopware-modules/index';
 import {
     type ComposableCallback,
-    type ComposableCallbackKind,
     type ComposableDescriptor,
-    type ComposableMember,
-    type ComposableMemberKind,
     type ComposableProvidedProp,
     type ComposableScaffold,
 } from './types';
 import { COMPOSABLE_DESCRIPTORS } from './descriptors';
+
+/**
+ * The composables `shopware:composables` publishes, read from the checked-in registry. A descriptor whose
+ * composable is not among them is imported from its Administration file, which an extension cannot do.
+ */
+const PUBLISHED_COMPOSABLES: ReadonlySet<string> = new Set(
+    readRegistry(path.resolve(__dirname, '../../../..'))['shopware:composables'].exports,
+);
 
 /** The descriptor covering a mixin registered under `name`, if one exists. */
 function findComposableDescriptor(name: string): ComposableDescriptor | undefined {
@@ -64,13 +71,11 @@ function scaffoldRunsUnread(descriptor: ComposableDescriptor): boolean {
 
 export {
     type ComposableCallback,
-    type ComposableCallbackKind,
     type ComposableDescriptor,
-    type ComposableMember,
-    type ComposableMemberKind,
     type ComposableProvidedProp,
     type ComposableScaffold,
     COMPOSABLE_DESCRIPTORS,
+    PUBLISHED_COMPOSABLES,
     composableCallbacks,
     findComposableDescriptor,
     scaffoldRunsUnread,

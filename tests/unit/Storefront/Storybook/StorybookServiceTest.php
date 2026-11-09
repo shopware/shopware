@@ -140,6 +140,22 @@ class StorybookServiceTest extends TestCase
         static::assertArrayNotHasKey('viewport', $result);
     }
 
+    public function testResolveComponentPropsKeepsBlockContentSeparateFromProps(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $request = new Request();
+
+        $result = $this->createService()->resolveComponentProps($request, $salesChannelContext, [
+            'content' => 'A prop value',
+            'storybookBlockContent' => 'A formerly reserved prop value',
+        ]);
+
+        static::assertSame([
+            'content' => 'A prop value',
+            'storybookBlockContent' => 'A formerly reserved prop value',
+        ], $result);
+    }
+
     public function testResolveComponentPropsFiltersInvalidQueryParamIdentifiers(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -148,6 +164,7 @@ class StorybookServiceTest extends TestCase
             'validProp' => 'hello',
             '123invalid' => 'bad',
             'also-invalid' => 'bad',
+            "trailing_newline\n" => 'bad',
             'valid_prop2' => 'world',
         ]);
 
@@ -157,6 +174,7 @@ class StorybookServiceTest extends TestCase
         static::assertArrayHasKey('valid_prop2', $result);
         static::assertArrayNotHasKey('123invalid', $result);
         static::assertArrayNotHasKey('also-invalid', $result);
+        static::assertArrayNotHasKey("trailing_newline\n", $result);
     }
 
     public function testResolveComponentPropsResolvesProductEntityProperty(): void

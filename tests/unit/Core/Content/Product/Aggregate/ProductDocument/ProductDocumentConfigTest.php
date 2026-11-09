@@ -6,8 +6,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentConfig;
+use Shopware\Core\Content\Product\Events\ProductDocumentAllowedExtensionsEvent;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Common\Stubs\IniMock;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -28,32 +31,49 @@ class ProductDocumentConfigTest extends TestCase
 
     public function testFileTypesAreCleanedUp(): void
     {
-        $config = new ProductDocumentConfig(['PDF', ' .docx', 'pdf', ''], maxPerProduct: 10, maxFileSize: 1024);
+        $context = Context::createDefaultContext();
+        $config = new ProductDocumentConfig(new EventDispatcher(), ['PDF', ' .docx', 'pdf', ''], maxPerProduct: 10, maxFileSize: 1024);
 
-        static::assertSame(['pdf', 'docx'], $config->allowedExtensions);
-        static::assertSame(['pdf', 'docx'], array_keys($config->getMimeTypesByExtension()));
+        static::assertSame(['pdf', 'docx'], $config->getAllowedExtensions($context));
+        static::assertSame(['pdf', 'docx'], array_keys($config->getMimeTypesByExtension($context)));
+    }
+
+    public function testExtensionsCanChangeTheFileTypes(): void
+    {
+        $context = Context::createDefaultContext();
+        $events = [];
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(ProductDocumentAllowedExtensionsEvent::class, static function (ProductDocumentAllowedExtensionsEvent $event) use (&$events): void {
+            $events[] = $event;
+            $event->setAllowedExtensions(['pdf', '.XLSX']);
+        });
+
+        $config = new ProductDocumentConfig($dispatcher, ['pdf', 'docx'], maxPerProduct: 10, maxFileSize: 1024);
+
+        static::assertSame(['pdf', 'xlsx'], $config->getAllowedExtensions($context));
+        static::assertCount(1, $events);
+        static::assertSame($context, $events[0]->getContext());
     }
 
     /**
-     * @return iterable<string, array{int, bool, string, int}>
+     * @return iterable<string, array{int, string, int}>
      */
     public static function uploadLimitProvider(): iterable
     {
-        yield 'a configured size below post_max_size' => [1024, false, '16M', 1024];
-        yield 'post_max_size lowers a larger configured size' => [20 * 1024 * 1024, false, '16M', 16 * 1024 * 1024];
-        yield 'no post_max_size' => [20 * 1024 * 1024, false, '0', 20 * 1024 * 1024];
-        yield 'a presigned upload goes past PHP' => [20 * 1024 * 1024, true, '16M', 20 * 1024 * 1024];
+        yield 'a configured size below post_max_size' => [1024, '16M', 1024];
+        yield 'post_max_size lowers a larger configured size' => [20 * 1024 * 1024, '16M', 16 * 1024 * 1024];
+        yield 'no post_max_size' => [20 * 1024 * 1024, '0', 20 * 1024 * 1024];
     }
 
     #[DataProvider('uploadLimitProvider')]
-    public function testTheUploadLimitIsTheConfiguredSizeLoweredByPostMaxSize(int $maxFileSize, bool $presignedUploadSupported, string $postMaxSize, int $expected): void
+    public function testTheUploadLimitIsTheConfiguredSizeLoweredByPostMaxSize(int $maxFileSize, string $postMaxSize, int $expected): void
     {
         // the Administration uploads the raw file, so upload_max_filesize doesn't apply
         IniMock::withIniMock(['upload_max_filesize' => '8M', 'post_max_size' => $postMaxSize]);
 
-        $config = new ProductDocumentConfig(['pdf'], maxPerProduct: 10, maxFileSize: $maxFileSize);
+        $config = new ProductDocumentConfig(new EventDispatcher(), ['pdf'], maxPerProduct: 10, maxFileSize: $maxFileSize);
 
-        static::assertSame($expected, $config->getMaxUploadFileSize($presignedUploadSupported));
+        static::assertSame($expected, $config->getMaxUploadFileSize());
         static::assertSame($maxFileSize, $config->maxFileSize);
     }
 }

@@ -10,7 +10,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
 use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
+use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentConfig;
+use Shopware\Core\Content\Product\Events\ProductDocumentAllowedExtensionsEvent;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Event\AdminInfoConfigEvent;
@@ -158,6 +160,47 @@ class InfoControllerTest extends TestCase
         static::assertCount(1, $inAppPurchases);
         static::assertArrayHasKey('SwagApp', $inAppPurchases);
         static::assertSame(['SwagApp_premium'], $inAppPurchases['SwagApp']);
+    }
+
+    /**
+     * @return iterable<string, array{bool, int}>
+     */
+    public static function productDocumentUploadLimitProvider(): iterable
+    {
+        yield 'uploads through PHP are lowered by post_max_size' => [false, 512];
+        yield 'presigned uploads go past PHP' => [true, 1024];
+    }
+
+    #[DataProvider('productDocumentUploadLimitProvider')]
+    public function testConfigGivesTheProductDocumentUploadLimit(bool $presignedUploadAvailable, int $expected): void
+    {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+        IniMock::withIniMock(['post_max_size' => '512']);
+        $presignedMediaUploadService = static::createStub(PresignedMediaUploadService::class);
+        $presignedMediaUploadService->method('isAvailable')->willReturn($presignedUploadAvailable);
+
+        $response = $this->createController(presignedMediaUploadService: $presignedMediaUploadService)->config(Context::createDefaultContext(), Request::create('http://localhost'));
+        IniMock::withIniMock([]);
+
+        $data = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
+        static::assertSame($expected, $data['settings']['productDocuments']['maxFileSize']);
+    }
+
+    public function testConfigDispatchesTheProductDocumentFileTypesEventOnlyOnce(): void
+    {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+        $dispatchCount = 0;
+        $this->eventDispatcher->addListener(ProductDocumentAllowedExtensionsEvent::class, static function (ProductDocumentAllowedExtensionsEvent $event) use (&$dispatchCount): void {
+            ++$dispatchCount;
+            $event->setAllowedExtensions(['pdf']);
+        });
+
+        $response = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'));
+
+        $data = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
+        static::assertSame(1, $dispatchCount);
+        static::assertSame(['pdf'], $data['settings']['productDocuments']['allowedExtensions']);
+        static::assertSame(['pdf'], array_keys($data['settings']['productDocuments']['allowedMimeTypesByExtension']));
     }
 
     public function testReturnsCurrentShopIdIfShopIdFingerprintsHaveChanged(): void
@@ -386,7 +429,7 @@ class InfoControllerTest extends TestCase
     /**
      * @param list<string> $adminWorkerTransports
      */
-    private function createController(array $adminWorkerTransports = ['slow'], bool $hideUpdateModule = false): InfoController
+    private function createController(array $adminWorkerTransports = ['slow'], bool $hideUpdateModule = false, ?PresignedMediaUploadService $presignedMediaUploadService = null): InfoController
     {
         $parameterBag = new ParameterBag([
             'shopware.html_sanitizer.enabled' => true,
@@ -419,9 +462,9 @@ class InfoControllerTest extends TestCase
             $this->shopIdProvider,
             $this->statsService,
             $this->eventDispatcher,
-            null,
+            $presignedMediaUploadService,
             new MediaFileExtensionListProvider($this->eventDispatcher, [], ['pdf', 'epub']),
-            new ProductDocumentConfig(['pdf', 'docx'], maxPerProduct: 10, maxFileSize: 1024),
+            new ProductDocumentConfig($this->eventDispatcher, ['pdf', 'docx'], maxPerProduct: 10, maxFileSize: 1024),
         );
     }
 }

@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductDocument;
 
+use Shopware\Core\Content\Product\Events\ProductDocumentAllowedExtensionsEvent;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Symfony\Component\Mime\MimeTypes;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * The `shopware.product_documents` settings: allowed file types, documents per product and file size.
@@ -15,36 +18,47 @@ use Symfony\Component\Mime\MimeTypes;
 readonly class ProductDocumentConfig
 {
     /**
-     * @var list<string> lower case, without a leading dot
-     */
-    public array $allowedExtensions;
-
-    /**
      * @param list<string> $allowedExtensions
      * @param int $maxFileSize in bytes
      */
     public function __construct(
-        array $allowedExtensions,
+        private EventDispatcherInterface $eventDispatcher,
+        private array $allowedExtensions,
         public int $maxPerProduct,
         public int $maxFileSize,
     ) {
-        $extensions = array_map(
-            static fn (string $extension): string => mb_strtolower(ltrim(trim($extension), '.')),
-            $allowedExtensions,
-        );
+    }
 
-        $this->allowedExtensions = array_values(array_unique(array_filter($extensions, static fn (string $extension): bool => $extension !== '')));
+    /**
+     * The configured file types, as extensions changed them: lower case, without a leading dot.
+     *
+     * @return list<string>
+     */
+    public function getAllowedExtensions(Context $context): array
+    {
+        $event = new ProductDocumentAllowedExtensionsEvent($this->allowedExtensions, $context);
+        $this->eventDispatcher->dispatch($event);
+
+        $extensions = [];
+        foreach ($event->getAllowedExtensions() as $extension) {
+            $extension = mb_strtolower(ltrim(trim($extension), '.'));
+            if ($extension !== '') {
+                $extensions[$extension] = true;
+            }
+        }
+
+        return array_keys($extensions);
     }
 
     /**
      * @return array<string, list<string>>
      */
-    public function getMimeTypesByExtension(): array
+    public function getMimeTypesByExtension(Context $context): array
     {
         $mimeTypes = MimeTypes::getDefault();
 
         $mimeTypesByExtension = [];
-        foreach ($this->allowedExtensions as $extension) {
+        foreach ($this->getAllowedExtensions($context) as $extension) {
             $mimeTypesByExtension[$extension] = array_values(array_unique($mimeTypes->getMimeTypes($extension)));
         }
 
@@ -52,16 +66,13 @@ readonly class ProductDocumentConfig
     }
 
     /**
-     * The largest file the Administration can upload: the configured size, lowered by PHP's `post_max_size`.
-     * The Administration sends the raw file, so `upload_max_filesize` doesn't apply; presigned uploads skip PHP.
+     * The largest file an upload through PHP can carry: the configured size, lowered by PHP's `post_max_size`.
+     * The Administration sends the raw file, so `upload_max_filesize` doesn't apply.
      */
-    public function getMaxUploadFileSize(bool $presignedUploadSupported): int
+    public function getMaxUploadFileSize(): int
     {
         $postMaxSize = MemorySizeCalculator::convertToBytes((string) ini_get('post_max_size'));
-        if ($presignedUploadSupported || $postMaxSize <= 0) {
-            return $this->maxFileSize;
-        }
 
-        return min($this->maxFileSize, $postMaxSize);
+        return $postMaxSize > 0 ? min($this->maxFileSize, $postMaxSize) : $this->maxFileSize;
     }
 }

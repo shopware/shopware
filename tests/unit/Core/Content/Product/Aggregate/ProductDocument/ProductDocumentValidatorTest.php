@@ -27,6 +27,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -217,7 +218,7 @@ class ProductDocumentValidatorTest extends TestCase
             new UpdateCommand($definition, ['position' => 2, 'product_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)], $this->documentKey('datasheet'), $existence, '/1'),
         ]);
 
-        (new ProductDocumentValidator($writeOutcome, static::createStub(ProductDocumentReader::class), new ProductDocumentConfig(['pdf'], maxPerProduct: 10, maxFileSize: 1024)))
+        (new ProductDocumentValidator($writeOutcome, static::createStub(ProductDocumentReader::class), new ProductDocumentConfig(new EventDispatcher(), ['pdf'], maxPerProduct: 10, maxFileSize: 1024)))
             ->validate($event);
 
         static::assertSame([], $this->errorsOf($event));
@@ -274,7 +275,7 @@ class ProductDocumentValidatorTest extends TestCase
         $reader->method('getFiles')->willReturnCallback(fn (array $mediaIds): array => array_intersect_key($this->storedFiles, array_flip($mediaIds)));
         $reader->method('countDocuments')->willReturnCallback(fn (array $products): array => array_intersect_key($this->storedDocuments, array_flip($products)));
 
-        return new ProductDocumentValidator($writeOutcome, $reader, new ProductDocumentConfig(['pdf', 'docx'], maxPerProduct: 10, maxFileSize: 1024));
+        return new ProductDocumentValidator($writeOutcome, $reader, new ProductDocumentConfig(new EventDispatcher(), ['pdf', 'docx'], maxPerProduct: 10, maxFileSize: 1024));
     }
 
     /**

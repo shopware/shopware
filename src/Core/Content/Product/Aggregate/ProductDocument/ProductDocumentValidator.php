@@ -98,7 +98,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
         }
 
         $resultingFiles = $this->getResultingFiles($event, array_values(array_unique(array_column($translationsWithNewFile, 1))));
-        $allowedExtensions = $this->config->allowedExtensions;
+        $allowedExtensions = $this->config->getAllowedExtensions($event->getContext());
 
         foreach ($translationsWithNewFile as [$translation, $mediaId]) {
             $file = $resultingFiles[$mediaId] ?? null;

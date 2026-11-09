@@ -202,6 +202,8 @@ class InfoController extends AbstractController
 
         $appUrlReachable = $this->appUrlVerifier->verifyForAdministration();
         $presignedUploadSupported = $this->presignedMediaUploadService !== null && $this->presignedMediaUploadService->isAvailable();
+        // its keys are the allowed file types, so the event that can change them is dispatched once
+        $productDocumentMimeTypesByExtension = $this->productDocumentConfig->getMimeTypesByExtension($context);
 
         $config = [
             'version' => $this->getShopwareVersion(),
@@ -225,11 +227,11 @@ class InfoController extends AbstractController
                 'hideUpdateModule' => (bool) $this->params->get('shopware.auto_update.hide_module'),
                 'minSearchTermLength' => $this->systemConfigService->getInt('core.search.minSearchTermLength') ?: 2,
                 'productDocuments' => [
-                    'allowedExtensions' => $this->productDocumentConfig->allowedExtensions,
-                    'allowedMimeTypesByExtension' => $this->productDocumentConfig->getMimeTypesByExtension(),
+                    'allowedExtensions' => array_keys($productDocumentMimeTypesByExtension),
+                    'allowedMimeTypesByExtension' => $productDocumentMimeTypesByExtension,
                     'maxPerProduct' => $this->productDocumentConfig->maxPerProduct,
-                    // the upload limit, which is what the Administration checks
-                    'maxFileSize' => $this->productDocumentConfig->getMaxUploadFileSize($presignedUploadSupported),
+                    // presigned uploads go straight to the storage, past PHP's limits
+                    'maxFileSize' => $presignedUploadSupported ? $this->productDocumentConfig->maxFileSize : $this->productDocumentConfig->getMaxUploadFileSize(),
                 ],
             ],
             'inAppPurchases' => $this->inAppPurchase->all(),

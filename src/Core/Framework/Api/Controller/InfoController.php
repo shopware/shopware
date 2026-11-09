@@ -227,7 +227,7 @@ class InfoController extends AbstractController
                 'productDocuments' => [
                     'allowedExtensions' => $this->productDocumentConfig->allowedExtensions,
                     'allowedMimeTypesByExtension' => $this->productDocumentConfig->getMimeTypesByExtension(),
-                    'maxPerLanguage' => $this->productDocumentConfig->maxPerLanguage,
+                    'maxPerProduct' => $this->productDocumentConfig->maxPerProduct,
                     // the upload limit, which is what the Administration checks
                     'maxFileSize' => $this->productDocumentConfig->getMaxUploadFileSize($presignedUploadSupported),
                 ],

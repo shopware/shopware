@@ -149,7 +149,7 @@ class InfoControllerTest extends TestCase
         $productDocuments = $settings['productDocuments'];
         static::assertSame(['pdf', 'docx'], $productDocuments['allowedExtensions']);
         static::assertContains('application/pdf', $productDocuments['allowedMimeTypesByExtension']['pdf']);
-        static::assertSame(10, $productDocuments['maxPerLanguage']);
+        static::assertSame(10, $productDocuments['maxPerProduct']);
         static::assertSame(1024, $productDocuments['maxFileSize']);
 
         static::assertArrayHasKey('inAppPurchases', $data);
@@ -421,7 +421,7 @@ class InfoControllerTest extends TestCase
             $this->eventDispatcher,
             null,
             new MediaFileExtensionListProvider($this->eventDispatcher, [], ['pdf', 'epub']),
-            new ProductDocumentConfig(['pdf', 'docx'], maxPerLanguage: 10, maxFileSize: 1024),
+            new ProductDocumentConfig(['pdf', 'docx'], maxPerProduct: 10, maxFileSize: 1024),
         );
     }
 }

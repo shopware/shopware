@@ -62,7 +62,7 @@ class ProductDocumentValidatorTest extends TestCase
         $this->productRepository->create([(new ProductBuilder($this->ids, 'drill'))->price(10)->build()], $this->context);
     }
 
-    public function testAProductCanHaveTenDocumentsPerLanguage(): void
+    public function testAProductCanHaveTenDocuments(): void
     {
         $this->addDocuments(array_map(fn (int $number): array => $this->document('file-' . $number), range(1, 9)));
 

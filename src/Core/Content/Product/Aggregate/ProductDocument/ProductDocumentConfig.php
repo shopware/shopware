@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Symfony\Component\Mime\MimeTypes;
 
 /**
- * The `shopware.product_documents` settings: allowed file types, documents per language and file size.
+ * The `shopware.product_documents` settings: allowed file types, documents per product and file size.
  *
  * @internal
  */
@@ -25,7 +25,7 @@ readonly class ProductDocumentConfig
      */
     public function __construct(
         array $allowedExtensions,
-        public int $maxPerLanguage,
+        public int $maxPerProduct,
         public int $maxFileSize,
     ) {
         $extensions = array_map(

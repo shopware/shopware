@@ -28,7 +28,7 @@ class ProductDocumentConfigTest extends TestCase
 
     public function testFileTypesAreCleanedUp(): void
     {
-        $config = new ProductDocumentConfig(['PDF', ' .docx', 'pdf', ''], maxPerLanguage: 10, maxFileSize: 1024);
+        $config = new ProductDocumentConfig(['PDF', ' .docx', 'pdf', ''], maxPerProduct: 10, maxFileSize: 1024);
 
         static::assertSame(['pdf', 'docx'], $config->allowedExtensions);
         static::assertSame(['pdf', 'docx'], array_keys($config->getMimeTypesByExtension()));
@@ -51,7 +51,7 @@ class ProductDocumentConfigTest extends TestCase
         // the Administration uploads the raw file, so upload_max_filesize doesn't apply
         IniMock::withIniMock(['upload_max_filesize' => '8M', 'post_max_size' => $postMaxSize]);
 
-        $config = new ProductDocumentConfig(['pdf'], maxPerLanguage: 10, maxFileSize: $maxFileSize);
+        $config = new ProductDocumentConfig(['pdf'], maxPerProduct: 10, maxFileSize: $maxFileSize);
 
         static::assertSame($expected, $config->getMaxUploadFileSize($presignedUploadSupported));
         static::assertSame($maxFileSize, $config->maxFileSize);

@@ -227,9 +227,6 @@ final class ProductDocumentValidator implements EventSubscriberInterface
     }
 
     /**
-     * The limit is per language, but every document exists in the default language,
-     * so counting per product gives the same number.
-     *
      * @param list<OutcomeRow> $documents
      */
     private function validateNumberOfDocuments(array $documents, ConstraintViolationList $violations): void
@@ -259,7 +256,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
         $storedCounts = $this->reader->countDocuments(array_keys($addedPerProduct));
 
         foreach ($addedPerProduct as $product => $addedDocuments) {
-            $overLimit = ($storedCounts[$product] ?? 0) - ($removedPerProduct[$product] ?? 0) + \count($addedDocuments) - $this->config->maxPerLanguage;
+            $overLimit = ($storedCounts[$product] ?? 0) - ($removedPerProduct[$product] ?? 0) + \count($addedDocuments) - $this->config->maxPerProduct;
             if ($overLimit <= 0) {
                 continue;
             }
@@ -268,8 +265,8 @@ final class ProductDocumentValidator implements EventSubscriberInterface
             foreach (\array_slice($addedDocuments, -$overLimit) as $document) {
                 $violations->add($this->violation(
                     code: self::VIOLATION_TOO_MANY_DOCUMENTS,
-                    messageTemplate: 'A product can have at most {{ max }} documents per language.',
-                    parameters: ['{{ max }}' => (string) $this->config->maxPerLanguage],
+                    messageTemplate: 'A product can have at most {{ max }} documents.',
+                    parameters: ['{{ max }}' => (string) $this->config->maxPerProduct],
                     path: $document->path,
                 ));
             }

@@ -179,7 +179,7 @@ class ProductDocumentValidatorTest extends TestCase
      * @param list<string> $pointers
      */
     #[DataProvider('documentCountProvider')]
-    public function testAProductCanHaveTenDocumentsPerLanguage(int $storedDocuments, array $changes, array $pointers): void
+    public function testAProductCanHaveTenDocuments(int $storedDocuments, array $changes, array $pointers): void
     {
         $this->storedDocuments = [$this->ids->get('drill') . Defaults::LIVE_VERSION => $storedDocuments];
         $this->storedFiles = [$this->ids->get('file') => self::file()];
@@ -217,7 +217,7 @@ class ProductDocumentValidatorTest extends TestCase
             new UpdateCommand($definition, ['position' => 2, 'product_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)], $this->documentKey('datasheet'), $existence, '/1'),
         ]);
 
-        (new ProductDocumentValidator($writeOutcome, static::createStub(ProductDocumentReader::class), new ProductDocumentConfig(['pdf'], maxPerLanguage: 10, maxFileSize: 1024)))
+        (new ProductDocumentValidator($writeOutcome, static::createStub(ProductDocumentReader::class), new ProductDocumentConfig(['pdf'], maxPerProduct: 10, maxFileSize: 1024)))
             ->validate($event);
 
         static::assertSame([], $this->errorsOf($event));
@@ -274,7 +274,7 @@ class ProductDocumentValidatorTest extends TestCase
         $reader->method('getFiles')->willReturnCallback(fn (array $mediaIds): array => array_intersect_key($this->storedFiles, array_flip($mediaIds)));
         $reader->method('countDocuments')->willReturnCallback(fn (array $products): array => array_intersect_key($this->storedDocuments, array_flip($products)));
 
-        return new ProductDocumentValidator($writeOutcome, $reader, new ProductDocumentConfig(['pdf', 'docx'], maxPerLanguage: 10, maxFileSize: 1024));
+        return new ProductDocumentValidator($writeOutcome, $reader, new ProductDocumentConfig(['pdf', 'docx'], maxPerProduct: 10, maxFileSize: 1024));
     }
 
     /**

@@ -273,6 +273,11 @@ A `0` is no longer replaced by the mapping's default value and satisfies a requi
 Empty cells behave as before.
 Check import files that relied on `0` being ignored.
 
+### Collection class for import/export files
+
+`import_export_file` entities are now loaded into an `ImportExportFileCollection` instead of a generic `EntityCollection`.
+Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations with `EntityRepository<ImportExportFileCollection>`.
+
 ### Deprecated `PluginZipImportCommand::$cacheClearer`
 
 The property is unused and will be removed in 6.8.
@@ -342,6 +347,12 @@ Saving is not blocked.
 ### Sync API reports missing references as write errors
 
 Sync API writes that reference a missing entity or version now return a field-specific write error with HTTP 400 instead of exposing a database error as HTTP 500.
+
+### Installed extensions tell whether they can be removed
+
+Extensions returned by `GET /api/_action/extension/installed` have a new `allowRemove` flag, also available as `ExtensionStruct::isAllowRemove()`.
+It is `false` when Shopware can't delete the extension's files, for example for extensions that Composer installed outside `custom/plugins`, and for extensions that are only available in the store.
+Check it before calling `POST /api/_action/extension/remove/{type}/{technicalName}`.
 
 ### Refused removal of a Composer-managed app keeps it installed
 

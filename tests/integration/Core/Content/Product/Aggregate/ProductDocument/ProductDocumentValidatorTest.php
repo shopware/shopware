@@ -96,6 +96,16 @@ class ProductDocumentValidatorTest extends TestCase
         ], $errors);
     }
 
+    public function testANewDocumentNeedsAFileInTheDefaultLanguage(): void
+    {
+        // the DAL accepts it: foreign keys don't count as required translated fields
+        $errors = $this->errorsOf(fn () => $this->addDocuments([
+            ['translations' => [$this->getDeDeLanguageId() => ['title' => 'Handbuch', 'mediaId' => $this->createMedia('handbuch')]]],
+        ]));
+
+        static::assertSame([['code' => ProductDocumentValidator::VIOLATION_DEFAULT_TRANSLATION_MISSING, 'pointer' => '/0/documents/0']], $errors);
+    }
+
     /**
      * @param list<array<string, mixed>> $documents
      */

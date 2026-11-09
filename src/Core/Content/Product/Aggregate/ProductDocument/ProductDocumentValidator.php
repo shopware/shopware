@@ -10,8 +10,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\OutcomeRow;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
@@ -66,22 +66,21 @@ final class ProductDocumentValidator implements EventSubscriberInterface
     public function validate(PreWriteValidationEvent $event): void
     {
         $documentCommands = $event->getCommandsForEntity(ProductDocumentDefinition::ENTITY_NAME);
-        $documents = $this->addsDocuments($documentCommands)
-            ? $this->writeOutcome->touchedRows($documentCommands, ['product_id', 'product_version_id'])
-            : [];
+        // the product of a document is immutable, so only inserts add documents to a product
+        $newDocuments = array_values(array_filter($documentCommands, static fn (WriteCommand $command): bool => $command instanceof InsertCommand));
         $translations = $this->writeOutcome->resultingRows(
             $event->getCommandsForEntity(ProductDocumentTranslationDefinition::ENTITY_NAME),
             ['media_id'],
         );
 
-        if ($documents === [] && $translations === []) {
+        if ($newDocuments === [] && $translations === []) {
             return;
         }
 
         $violations = new ConstraintViolationList();
         $this->validateFiles($event, $translations, $violations);
-        $this->validateDefaultTranslations($documents, $translations, $violations);
-        $this->validateNumberOfDocuments($documents, $violations);
+        $this->validateDefaultTranslations($newDocuments, $translations, $violations);
+        $this->validateNumberOfDocuments($newDocuments, $documentCommands, $violations);
 
         if ($violations->count() > 0) {
             $event->getExceptions()->add(new WriteConstraintViolationException($violations));
@@ -187,12 +186,13 @@ final class ProductDocumentValidator implements EventSubscriberInterface
 
     /**
      * A new document needs a default-language translation, which other languages fall back to.
-     * The DAL already requires a file there, and existing documents can't lose it.
+     * The DAL doesn't require one, because foreign keys don't count as required translated fields,
+     * and core's TranslationValidator keeps it from being deleted later.
      *
-     * @param list<OutcomeRow> $documents
+     * @param list<WriteCommand> $newDocuments
      * @param list<OutcomeRow> $translations
      */
-    private function validateDefaultTranslations(array $documents, array $translations, ConstraintViolationList $violations): void
+    private function validateDefaultTranslations(array $newDocuments, array $translations, ConstraintViolationList $violations): void
     {
         $systemLanguageId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
@@ -203,39 +203,30 @@ final class ProductDocumentValidator implements EventSubscriberInterface
             }
         }
 
-        foreach ($documents as $document) {
-            $hasDefaultTranslation = isset($documentsWithDefaultTranslation[$document->primaryKey['id'] . $document->primaryKey['version_id']]);
-            if ($document->isNew && !$hasDefaultTranslation) {
+        foreach ($newDocuments as $document) {
+            $primaryKey = $document->getPrimaryKey();
+            if (!isset($documentsWithDefaultTranslation[$primaryKey['id'] . $primaryKey['version_id']])) {
                 $violations->add($this->violation(
                     code: self::VIOLATION_DEFAULT_TRANSLATION_MISSING,
                     messageTemplate: 'The product document "{{ documentId }}" has no file in the default language, which other languages fall back to.',
-                    parameters: ['{{ documentId }}' => Uuid::fromBytesToHex($document->primaryKey['id'])],
-                    path: $document->path,
+                    parameters: ['{{ documentId }}' => Uuid::fromBytesToHex($primaryKey['id'])],
+                    path: $document->getPath(),
                 ));
             }
         }
     }
 
     /**
-     * @param list<OutcomeRow> $documents
+     * @param list<WriteCommand> $newDocuments
+     * @param list<WriteCommand> $documentCommands
      */
-    private function validateNumberOfDocuments(array $documents, ConstraintViolationList $violations): void
+    private function validateNumberOfDocuments(array $newDocuments, array $documentCommands, ConstraintViolationList $violations): void
     {
         $addedPerProduct = [];
-        $removedPerProduct = [];
-        foreach ($documents as $document) {
-            $storedProduct = $this->productKey($document->getStoredValue('product_id'), $document->getStoredValue('product_version_id'));
-            $resultingProduct = $this->productKey($document->getResultingValue('product_id'), $document->getResultingValue('product_version_id'));
-            if ($storedProduct === $resultingProduct) {
-                continue;
-            }
-
-            if ($storedProduct !== null) {
-                $removedPerProduct[$storedProduct] = ($removedPerProduct[$storedProduct] ?? 0) + 1;
-            }
-
-            if ($resultingProduct !== null) {
-                $addedPerProduct[$resultingProduct][] = $document;
+        foreach ($newDocuments as $document) {
+            $product = $this->productKey($document->getPayload());
+            if ($product !== null) {
+                $addedPerProduct[$product][] = $document->getPath();
             }
         }
 
@@ -243,58 +234,48 @@ final class ProductDocumentValidator implements EventSubscriberInterface
             return;
         }
 
-        $storedCounts = $this->reader->countDocuments(array_keys($addedPerProduct));
+        // documents the same write deletes make room, for example when a file is replaced by a new document
+        $deletedDocumentIds = [];
+        foreach ($documentCommands as $command) {
+            if ($command instanceof DeleteCommand) {
+                $deletedDocumentIds[] = $command->getPrimaryKey()['id'];
+            }
+        }
 
-        foreach ($addedPerProduct as $product => $addedDocuments) {
-            $overLimit = ($storedCounts[$product] ?? 0) - ($removedPerProduct[$product] ?? 0) + \count($addedDocuments) - $this->config->maxPerProduct;
+        $storedCounts = $this->reader->countDocuments(array_keys($addedPerProduct), $deletedDocumentIds);
+
+        foreach ($addedPerProduct as $product => $paths) {
+            $overLimit = ($storedCounts[$product] ?? 0) + \count($paths) - $this->config->maxPerProduct;
             if ($overLimit <= 0) {
                 continue;
             }
 
             // the last added documents are the ones over the limit
-            foreach (\array_slice($addedDocuments, -$overLimit) as $document) {
+            foreach (\array_slice($paths, -$overLimit) as $path) {
                 $violations->add($this->violation(
                     code: self::VIOLATION_TOO_MANY_DOCUMENTS,
                     messageTemplate: 'A product can have at most {{ max }} documents.',
                     parameters: ['{{ max }}' => (string) $this->config->maxPerProduct],
-                    path: $document->path,
+                    path: $path,
                 ));
             }
         }
     }
 
     /**
-     * Whether the write creates a document or moves one to another product. Only then are the stored documents needed.
-     * The product version doesn't count: the DAL sets it on every update.
+     * The product key format of ProductDocumentReader: id and version id in hex.
      *
-     * @param list<WriteCommand> $commands
+     * @param array<string, mixed> $payload
      */
-    private function addsDocuments(array $commands): bool
+    private function productKey(array $payload): ?string
     {
-        foreach ($commands as $command) {
-            if ($command instanceof InsertCommand || ($command instanceof UpdateCommand && $command->hasAnyField('product_id'))) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private function productKey(mixed $productId, mixed $versionId): ?string
-    {
+        $productId = $payload['product_id'] ?? null;
+        $versionId = $payload['product_version_id'] ?? null;
         if (!\is_string($productId) || !\is_string($versionId)) {
             return null;
         }
 
-        return $this->key($productId, $versionId);
-    }
-
-    /**
-     * The product key format of ProductDocumentReader.
-     */
-    private function key(string $id, string $versionId): string
-    {
-        return Uuid::fromBytesToHex($id) . Uuid::fromBytesToHex($versionId);
+        return Uuid::fromBytesToHex($productId) . Uuid::fromBytesToHex($versionId);
     }
 
     /**

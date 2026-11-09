@@ -47,7 +47,7 @@ class ProductDocumentValidatorTest extends TestCase
     private StaticDefinitionInstanceRegistry $registry;
 
     /**
-     * @var list<OutcomeRow> what WriteOutcome returns for the documents
+     * @var list<WriteCommand> the write's document commands
      */
     private array $documents = [];
 
@@ -151,9 +151,7 @@ class ProductDocumentValidatorTest extends TestCase
             ['/0/documents/2'],
         ];
         yield 'edits are allowed over a lowered limit' => [12, [['edited', '/0/documents/0']], []];
-        yield 'a document moved from another product is added' => [10, [['moved in', '/0']], ['/0']];
-        yield 'deleted documents make room' => [10, [['deleted', '/0'], ['added', '/1']], []];
-        yield 'documents moved to another product make room' => [10, [['moved out', '/0'], ['added', '/1']], []];
+        yield 'documents the same write deletes make room' => [10, [['deleted', '/0'], ['added', '/1']], []];
     }
 
     /**
@@ -174,9 +172,7 @@ class ProductDocumentValidatorTest extends TestCase
             $this->documents[] = match ($change) {
                 'added' => $this->addedDocument($document, $path),
                 'edited' => $this->editedDocument($document, $path),
-                'moved in' => $this->editedDocument($document, $path, product: 'screwdriver', movedTo: 'drill'),
-                'moved out' => $this->editedDocument($document, $path, movedTo: 'screwdriver'),
-                'deleted' => $this->deletedDocument($document, $path),
+                'deleted' => $this->deletedDocument($document),
                 default => static::fail('Unknown change ' . $change),
             };
         }
@@ -185,21 +181,19 @@ class ProductDocumentValidatorTest extends TestCase
         static::assertSame($expected, $this->validate());
     }
 
-    public function testAWriteThatAddsNoDocumentReadsNoStoredDocuments(): void
+    public function testAWriteThatAddsNoDocumentCountsNothing(): void
     {
-        $writeOutcome = $this->createMock(WriteOutcome::class);
-        $writeOutcome->expects($this->never())->method('touchedRows');
+        $writeOutcome = static::createStub(WriteOutcome::class);
         $writeOutcome->method('resultingRows')->willReturn([]);
+        $reader = $this->createMock(ProductDocumentReader::class);
+        $reader->expects($this->never())->method('countDocuments');
 
-        $definition = $this->registry->get(ProductDocumentDefinition::class);
-        $existence = EntityExistence::createForEntity(ProductDocumentDefinition::ENTITY_NAME, []);
         $event = new PreWriteValidationEvent(WriteContext::createFromContext(Context::createDefaultContext()), [
-            new DeleteCommand($definition, $this->documentKey('manual'), $existence),
-            // the DAL sets the product version of every document it updates
-            new UpdateCommand($definition, ['position' => 2, 'product_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)], $this->documentKey('datasheet'), $existence, '/1'),
+            $this->deletedDocument('manual'),
+            $this->editedDocument('datasheet', '/1'),
         ]);
 
-        (new ProductDocumentValidator($writeOutcome, StaticEntityRepository::of(MediaCollection::class), static::createStub(ProductDocumentReader::class), new ProductDocumentConfig(new EventDispatcher(), ['pdf'], maxPerProduct: 10, maxFileSize: 1024)))
+        (new ProductDocumentValidator($writeOutcome, StaticEntityRepository::of(MediaCollection::class), $reader, new ProductDocumentConfig(new EventDispatcher(), ['pdf'], maxPerProduct: 10, maxFileSize: 1024)))
             ->validate($event);
 
         static::assertSame([], $this->errorsOf($event));
@@ -220,34 +214,16 @@ class ProductDocumentValidatorTest extends TestCase
      */
     private function validate(array $commands = []): array
     {
-        $event = new PreWriteValidationEvent(WriteContext::createFromContext(Context::createDefaultContext()), [...$this->documentCommands(), ...$commands]);
+        $event = new PreWriteValidationEvent(WriteContext::createFromContext(Context::createDefaultContext()), [...$this->documents, ...$commands]);
 
         $this->validator()->validate($event);
 
         return $this->errorsOf($event);
     }
 
-    /**
-     * One command per document row, each setting the product, like a save through the product.
-     *
-     * @return list<WriteCommand>
-     */
-    private function documentCommands(): array
-    {
-        $definition = $this->registry->get(ProductDocumentDefinition::class);
-        $existence = EntityExistence::createForEntity(ProductDocumentDefinition::ENTITY_NAME, []);
-
-        return array_map(static fn (OutcomeRow $document): WriteCommand => match (true) {
-            $document->isNew => new InsertCommand($definition, ['product_id' => $document->getPayloadValue('product_id')], $document->primaryKey, $existence, $document->path),
-            $document->isDeleted => new DeleteCommand($definition, $document->primaryKey, $existence),
-            default => new UpdateCommand($definition, ['product_id' => $document->getPayloadValue('product_id')], $document->primaryKey, $existence, $document->path),
-        }, $this->documents);
-    }
-
     private function validator(): ProductDocumentValidator
     {
         $writeOutcome = static::createStub(WriteOutcome::class);
-        $writeOutcome->method('touchedRows')->willReturnCallback(fn (): array => $this->documents);
         $writeOutcome->method('resultingRows')->willReturnCallback(fn (): array => $this->translations);
 
         $mediaRepository = StaticEntityRepository::of(MediaCollection::class, [
@@ -260,7 +236,11 @@ class ProductDocumentValidatorTest extends TestCase
         ]);
 
         $reader = static::createStub(ProductDocumentReader::class);
-        $reader->method('countDocuments')->willReturnCallback(fn (array $products): array => array_intersect_key($this->storedDocuments, array_flip($products)));
+        // the stored documents, without those the write deletes
+        $reader->method('countDocuments')->willReturnCallback(fn (array $products, array $excludedDocumentIds): array => array_map(
+            static fn (int $count): int => $count - \count($excludedDocumentIds),
+            array_intersect_key($this->storedDocuments, array_flip($products)),
+        ));
 
         return new ProductDocumentValidator($writeOutcome, $mediaRepository, $reader, new ProductDocumentConfig(new EventDispatcher(), ['pdf', 'docx'], maxPerProduct: 10, maxFileSize: 1024));
     }
@@ -325,40 +305,35 @@ class ProductDocumentValidatorTest extends TestCase
         ];
     }
 
-    private function addedDocument(string $document, string $path): OutcomeRow
+    private function addedDocument(string $document, string $path): InsertCommand
     {
-        return new OutcomeRow(
-            primaryKey: $this->documentKey($document),
-            path: $path,
-            isNew: true,
-            isDeleted: false,
-            payload: ['product_id' => $this->ids->getBytes('drill'), 'product_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-            state: ['product_id' => null, 'product_version_id' => null],
+        return new InsertCommand(
+            $this->registry->get(ProductDocumentDefinition::class),
+            ['product_id' => $this->ids->getBytes('drill'), 'product_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+            $this->documentKey($document),
+            EntityExistence::createForEntity(ProductDocumentDefinition::ENTITY_NAME, []),
+            $path,
         );
     }
 
-    private function editedDocument(string $document, string $path, string $product = 'drill', ?string $movedTo = null): OutcomeRow
+    private function editedDocument(string $document, string $path): UpdateCommand
     {
-        return new OutcomeRow(
-            primaryKey: $this->documentKey($document),
-            path: $path,
-            isNew: false,
-            isDeleted: false,
-            // a save through the product sets the product of every document, moved or not
-            payload: ['product_id' => $this->ids->getBytes($movedTo ?? $product), 'position' => 1],
-            state: ['product_id' => $this->ids->getBytes($product), 'product_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+        return new UpdateCommand(
+            $this->registry->get(ProductDocumentDefinition::class),
+            // a save through the product sends the product of every document
+            ['position' => 1, 'product_id' => $this->ids->getBytes('drill'), 'product_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+            $this->documentKey($document),
+            EntityExistence::createForEntity(ProductDocumentDefinition::ENTITY_NAME, []),
+            $path,
         );
     }
 
-    private function deletedDocument(string $document, string $path): OutcomeRow
+    private function deletedDocument(string $document): DeleteCommand
     {
-        return new OutcomeRow(
-            primaryKey: $this->documentKey($document),
-            path: $path,
-            isNew: false,
-            isDeleted: true,
-            payload: [],
-            state: ['product_id' => $this->ids->getBytes('drill'), 'product_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+        return new DeleteCommand(
+            $this->registry->get(ProductDocumentDefinition::class),
+            $this->documentKey($document),
+            EntityExistence::createForEntity(ProductDocumentDefinition::ENTITY_NAME, []),
         );
     }
 

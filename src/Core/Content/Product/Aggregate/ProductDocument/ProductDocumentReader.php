@@ -26,10 +26,11 @@ class ProductDocumentReader
 
     /**
      * @param list<string> $products
+     * @param list<string> $excludedDocumentIds binary
      *
      * @return array<string, int> number of documents per product; products without any are left out
      */
-    public function countDocuments(array $products): array
+    public function countDocuments(array $products, array $excludedDocumentIds = []): array
     {
         if ($products === []) {
             return [];
@@ -37,14 +38,16 @@ class ProductDocumentReader
 
         [$productIds, $versionIds] = $this->splitKeys($products);
 
+        $excluded = $excludedDocumentIds === [] ? '' : 'AND `id` NOT IN (:excludedIds)';
+
         /** @var array<string, string> $counts */
         $counts = $this->connection->fetchAllKeyValue(
             'SELECT CONCAT(LOWER(HEX(`product_id`)), LOWER(HEX(`product_version_id`))), COUNT(*)
             FROM `product_document`
-            WHERE `product_id` IN (:productIds) AND `product_version_id` IN (:versionIds)
+            WHERE `product_id` IN (:productIds) AND `product_version_id` IN (:versionIds) ' . $excluded . '
             GROUP BY `product_id`, `product_version_id`',
-            ['productIds' => $productIds, 'versionIds' => $versionIds],
-            ['productIds' => ArrayParameterType::BINARY, 'versionIds' => ArrayParameterType::BINARY],
+            ['productIds' => $productIds, 'versionIds' => $versionIds, 'excludedIds' => $excludedDocumentIds],
+            ['productIds' => ArrayParameterType::BINARY, 'versionIds' => ArrayParameterType::BINARY, 'excludedIds' => ArrayParameterType::BINARY],
         );
 
         return array_map(intval(...), array_intersect_key($counts, array_flip($products)));

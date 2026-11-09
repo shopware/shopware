@@ -44,6 +44,16 @@ class ProductDocumentReaderTest extends TestCase
         static::assertSame([$this->key('drill') => 2], $counts);
     }
 
+    public function testItLeavesOutExcludedDocuments(): void
+    {
+        $this->createMedia('file');
+        $this->createProduct('drill', documents: ['Manual', 'Datasheet']);
+
+        $counts = $this->reader->countDocuments([$this->key('drill')], [$this->ids->getBytes('Manual')]);
+
+        static::assertSame([$this->key('drill') => 1], $counts);
+    }
+
     private function createMedia(string $fileName): void
     {
         static::getContainer()->get('media.repository')->create([[
@@ -60,7 +70,10 @@ class ProductDocumentReaderTest extends TestCase
     private function createProduct(string $product, array $documents = []): void
     {
         $payload = (new ProductBuilder($this->ids, $product))->price(10)->build();
-        $payload['documents'] = array_map(fn (string $title): array => ['title' => $title, 'mediaId' => $this->ids->get('file')], $documents);
+        $payload['documents'] = array_map(
+            fn (string $title): array => ['id' => $this->ids->create($title), 'title' => $title, 'mediaId' => $this->ids->get('file')],
+            $documents,
+        );
 
         static::getContainer()->get('product.repository')->create([$payload], Context::createDefaultContext());
     }

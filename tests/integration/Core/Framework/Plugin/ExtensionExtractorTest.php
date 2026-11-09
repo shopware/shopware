@@ -3,11 +3,9 @@
 namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\ExtensionExtractor;
 use Shopware\Core\Framework\Plugin\PluginException;
-use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -31,10 +29,7 @@ class ExtensionExtractorTest extends TestCase
         $this->container = static::getContainer();
         $this->filesystem = $this->container->get(Filesystem::class);
         $this->extractor = new ExtensionExtractor(
-            [
-                PluginManagementService::PLUGIN => __DIR__ . '/_fixtures/plugins',
-                PluginManagementService::APP => __DIR__ . '/_fixtures/apps',
-            ],
+            __DIR__ . '/_fixtures/plugins',
             $this->filesystem
         );
     }
@@ -45,24 +40,12 @@ class ExtensionExtractorTest extends TestCase
 
         $archive = __DIR__ . '/_fixtures/SwagFashionTheme.zip';
 
-        $this->extractor->extract($archive, false, PluginManagementService::PLUGIN);
+        $this->extractor->extract($archive, false);
 
         static::assertFileExists(__DIR__ . '/_fixtures/plugins/SwagFashionTheme');
         static::assertFileExists(__DIR__ . '/_fixtures/plugins/SwagFashionTheme/SwagFashionTheme.php');
 
         $this->filesystem->remove(__DIR__ . '/_fixtures/plugins/SwagFashionTheme');
-    }
-
-    public function testExtractWithInvalidAppManifest(): void
-    {
-        $this->filesystem->copy(__DIR__ . '/_fixtures/archives/InvalidManifestShippingApp.zip', __DIR__ . '/_fixtures/TestShippingApp.zip');
-
-        $archive = __DIR__ . '/_fixtures/TestShippingApp.zip';
-
-        static::assertFileDoesNotExist(__DIR__ . '/_fixtures/apps/TestShippingApp');
-
-        $this->expectExceptionObject(AppException::xmlParsingException('TestShippingApp/manifest.xml', 'deliveryTime must not be empty'));
-        $this->extractor->extract($archive, false, PluginManagementService::APP);
     }
 
     public function testExtractWithPathTraversal(): void
@@ -76,6 +59,6 @@ class ExtensionExtractorTest extends TestCase
         $archive->close();
 
         $this->expectExceptionObject(PluginException::pluginExtractionError('Directory Traversal detected'));
-        $this->extractor->extract($zipPath, false, PluginManagementService::PLUGIN);
+        $this->extractor->extract($zipPath, false);
     }
 }

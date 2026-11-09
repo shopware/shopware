@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
-use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginExtractionException;
 use Shopware\Core\Framework\Plugin\Util\ZipUtils;
@@ -14,11 +13,8 @@ use Symfony\Component\Filesystem\Filesystem;
 #[Package('framework')]
 readonly class ExtensionExtractor
 {
-    /**
-     * @param array<string, string> $extensionDirectories
-     */
     public function __construct(
-        private array $extensionDirectories,
+        private string $pluginDirectory,
         private Filesystem $filesystem
     ) {
     }
@@ -29,11 +25,11 @@ readonly class ExtensionExtractor
      * @throws PluginExtractionException
      * @throws \Throwable
      */
-    public function extract(string $zipFilePath, bool $delete, string $type): void
+    public function extract(string $zipFilePath, bool $delete): void
     {
         $archive = ZipUtils::openZip($zipFilePath);
 
-        $destination = $this->extensionDirectories[$type];
+        $destination = $this->pluginDirectory;
 
         if (!is_writable($destination)) {
             throw PluginException::pluginExtractionError(
@@ -77,12 +73,6 @@ readonly class ExtensionExtractor
      */
     private function validatePluginZip(string $prefix, \ZipArchive $archive): void
     {
-        $file = $prefix . '/manifest.xml';
-        $manifestAsString = $archive->getFromName($file);
-        if (\is_string($manifestAsString)) {
-            Manifest::validate($manifestAsString, $file);
-        }
-
         for ($i = 0; $i < $archive->numFiles; ++$i) {
             $stat = $archive->statIndex($i);
             \assert($stat !== false);

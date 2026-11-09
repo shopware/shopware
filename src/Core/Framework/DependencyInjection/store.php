@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DependencyInjection;
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Client;
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Framework\App\AppDirectory;
 use Shopware\Core\Framework\App\AppStorage;
 use Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider;
 use Shopware\Core\Framework\App\InAppPurchases\Gateway\InAppPurchasesGateway;
@@ -35,9 +36,10 @@ use Shopware\Core\Framework\Store\InAppPurchase\Services\InAppPurchaseProvider;
 use Shopware\Core\Framework\Store\InAppPurchase\Services\InAppPurchaseUpdater;
 use Shopware\Core\Framework\Store\InAppPurchase\Services\KeyFetcher;
 use Shopware\Core\Framework\Store\InAppPurchase\Subscriber\InAppPurchaseConfigSubscriber;
+use Shopware\Core\Framework\Store\Services\AbstractAppExtensionService;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionStoreLicensesService;
-use Shopware\Core\Framework\Store\Services\AbstractStoreAppLifecycleService;
+use Shopware\Core\Framework\Store\Services\AppExtensionService;
 use Shopware\Core\Framework\Store\Services\ExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\ExtensionDownloader;
 use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
@@ -49,7 +51,6 @@ use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
 use Shopware\Core\Framework\Store\Services\InstanceService;
 use Shopware\Core\Framework\Store\Services\RetryFailedStoreRequestMiddleware;
 use Shopware\Core\Framework\Store\Services\ShopSecretInvalidMiddleware;
-use Shopware\Core\Framework\Store\Services\StoreAppLifecycleService;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Store\Services\StoreClientFactory;
 use Shopware\Core\Framework\Store\Services\StoreService;
@@ -232,14 +233,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('service_container'),
         ]);
 
-    $services->set(AbstractStoreAppLifecycleService::class, StoreAppLifecycleService::class)
+    $services->set(AbstractAppExtensionService::class, AppExtensionService::class)
         ->args([
-            service(StoreClient::class),
             service(AppLoader::class),
             service(AppLifecycle::class),
             service(AppStorage::class),
             tagged_iterator('shopware.store.extension_removal_validator'),
             service(AppConfirmationDeltaProvider::class),
+            service(AppDirectory::class),
+            service('event_dispatcher'),
         ]);
 
     $services->set(AbstractExtensionStoreLicensesService::class, ExtensionStoreLicensesService::class)
@@ -265,7 +267,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ExtensionLifecycleService::class)
         ->args([
-            service(AbstractStoreAppLifecycleService::class),
+            service(AbstractAppExtensionService::class),
             service(PluginService::class),
             service(PluginLifecycleService::class),
             service(PluginManagementService::class),

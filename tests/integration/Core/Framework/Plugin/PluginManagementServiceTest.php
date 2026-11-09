@@ -4,10 +4,14 @@ namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\DevOps\StaticAnalyze\StaticAnalyzeKernel;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
+use Shopware\Core\Framework\App\AppArchiveValidator;
+use Shopware\Core\Framework\App\AppExtractor;
+use Shopware\Core\Framework\App\LocalAppDirectory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\ExtensionExtractor;
@@ -16,6 +20,7 @@ use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\PluginZipDetector;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
+use Shopware\Core\Framework\Store\Services\AbstractAppExtensionService;
 use Shopware\Core\Framework\Test\Plugin\PluginTestsHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -169,18 +174,19 @@ class PluginManagementServiceTest extends TestCase
 
     private function getPluginManagementService(): PluginManagementService
     {
+        $extensionExtractor = new ExtensionExtractor(self::PLUGINS_PATH, $this->filesystem);
+
         return new PluginManagementService(
             self::PLUGINS_PATH,
             new PluginZipDetector(),
-            new ExtensionExtractor([
-                PluginManagementService::PLUGIN => self::PLUGINS_PATH,
-                PluginManagementService::APP => self::APPS_PATH,
-            ], $this->filesystem),
+            $extensionExtractor,
             $this->getPluginService(),
             $this->filesystem,
             $this->getCacheClearer(),
             static::getContainer()->get('shopware.store_download_client'),
-            static::createStub(EventDispatcherInterface::class)
+            static::createStub(EventDispatcherInterface::class),
+            new LocalAppDirectory(self::APPS_PATH, new NullLogger(), new AppExtractor(new AppArchiveValidator()), static::createStub(EventDispatcherInterface::class), $this->filesystem),
+            static::createStub(AbstractAppExtensionService::class),
         );
     }
 

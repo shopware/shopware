@@ -921,6 +921,10 @@ shopware:
 ```
 
 The option defaults to `true`, preserving the existing behavior for all existing installations.
+### Extension upload returns the uploaded extension's technical name
+
+`POST /api/_action/extension/upload` now answers with the technical name of the uploaded extension instead of an empty `204`.
+For apps, the upload only stores the archive. Call `POST /api/_action/extension/install/app/{technicalName}` for a new app or `POST /api/_action/extension/update/app/{technicalName}` for an existing app afterwards.
 
 # 6.7.16.0
 
@@ -1368,7 +1372,7 @@ The product detail page links the terms below the GARAN label, in the new block 
 - Default metrics prefix was changed from `io.opentelemetry.contrib.php.shopware` to `shopware.platform`.
 - `http.server.request.duration` now shows client-facing latency without post-response processing.
 - `cart.calculation.duration` records failed calculations (added `result=success|failed` label).
-- `Telemetry::instrument()` now collects duration metrics also for failed callbacks. 
+- `Telemetry::instrument()` now collects duration metrics also for failed callbacks.
 - Added support for lazy labels calculation in `DurationMetric` and `ConfiguredMetric` (see instrumentors for usage examples).
 - New methods `Telemetry::isMetricEnabled()` / `Meter::isEnabled()` saying if a metric would be emitted, so expensive calculations may be skipped for disabled metrics.
 - Metrics are flushed after all other terminate tasks.

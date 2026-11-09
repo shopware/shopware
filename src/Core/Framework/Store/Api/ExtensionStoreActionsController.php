@@ -17,6 +17,7 @@ use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -90,7 +91,7 @@ class ExtensionStoreActionsController extends AbstractController
         }
 
         try {
-            $this->pluginManagementService->uploadPlugin($file, $context);
+            $technicalName = $this->pluginManagementService->uploadPlugin($file, $context);
         } catch (\Exception $e) {
             try {
                 $this->fileSystem->remove($file->getPathname());
@@ -101,7 +102,7 @@ class ExtensionStoreActionsController extends AbstractController
             throw $e;
         }
 
-        return new Response('', Response::HTTP_NO_CONTENT);
+        return new JsonResponse($technicalName);
     }
 
     #[Route(

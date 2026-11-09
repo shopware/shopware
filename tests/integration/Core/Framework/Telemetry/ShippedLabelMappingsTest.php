@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\NumberRange\Telemetry\NumberRangeTypeResolver;
 use Shopware\Core\System\SalesChannel\Telemetry\SalesChannelTypeResolver;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Pins the mapping tables core ships in `telemetry.yaml` as the container builds them: the config tree
@@ -55,8 +56,20 @@ class ShippedLabelMappingsTest extends TestCase
         $mappings = static::getContainer()->getParameter('shopware.telemetry.metrics.mappings');
         static::assertIsArray($mappings);
 
-        // every resolver binding has a shipped table and every shipped table a consuming resolver
-        static::assertEqualsCanonicalizing(self::RESOLVER_MAPPINGS, array_keys($mappings));
+        // every resolver binding has a table in the compiled configuration; additional tables are
+        // tolerated, they can come from other bundles or custom config when the suite runs outside
+        // a clean platform checkout (downstream pipelines, local setups)
+        foreach (self::RESOLVER_MAPPINGS as $mapping) {
+            static::assertArrayHasKey($mapping, $mappings);
+        }
+
+        // every shipped core table has a consuming resolver — checked against the shipped file, which
+        // core owns, so the orphan check is not diluted by tables contributed from elsewhere
+        $shippedConfig = Yaml::parseFile(\dirname(__DIR__, 5) . '/src/Core/Framework/Resources/config/packages/telemetry.yaml');
+        static::assertIsArray($shippedConfig);
+        $shippedTables = $shippedConfig['shopware']['telemetry']['metrics']['mappings'] ?? null;
+        static::assertIsArray($shippedTables);
+        static::assertEqualsCanonicalizing(self::RESOLVER_MAPPINGS, array_keys($shippedTables));
 
         // one resolver per mapping: all keys of a table come from a single identifier space (see the ADR)
         static::assertSame(self::RESOLVER_MAPPINGS, array_values(array_unique(self::RESOLVER_MAPPINGS)));

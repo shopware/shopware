@@ -218,6 +218,28 @@ test('a pull request nobody ever reviewed dates from when it was offered, not op
     assert.equal(verdict.since, '2026-08-02T00:00:00Z');
 });
 
+test('maintainer comments without a review are not never-reviewed', () => {
+    // Regression: this is #21029, where two maintainers gave feedback as plain comments
+    // and nobody submitted a review.
+    const theirs = classify({
+        createdAt: '2026-09-29T15:26:23Z',
+        lastAuthorActivityAt: '2026-09-29T15:26:23Z',
+        lastMaintainerActivityAt: '2026-11-02T22:05:57Z',
+    });
+
+    assert.equal(theirs.waitingOn, 'author');
+    assert.equal(theirs.reason, 'author-turn');
+
+    const ours = classify({
+        createdAt: '2026-09-29T15:26:23Z',
+        lastAuthorActivityAt: '2026-11-04T06:56:58Z',
+        lastMaintainerActivityAt: '2026-11-02T22:05:57Z',
+    });
+
+    assert.equal(ours.waitingOn, 'shopware');
+    assert.equal(ours.reason, 'our-turn');
+});
+
 test('a maintainer writing last puts it back with the author', () => {
     const verdict = classify({
         reviewCount: 2,
@@ -537,7 +559,7 @@ test('buildRows keeps a label set by hand, so the sweep does not undo it, and th
                 reviewDecision: 'APPROVED',
                 approvals: { totalCount: 2 },
                 allReviews: { totalCount: 2 },
-                labels: { nodes: [{ name: 'waiting-on/author' }] },
+                labels: { nodes: [{ name: 'external-contribution' }, { name: 'waiting-on/author' }] },
                 labelEvents: { nodes: [{ createdAt: '2026-09-02T00:00:00Z', actor: { login: 'larskemper', __typename: 'User' }, label: { name: 'waiting-on/author' } }] },
             }),
         ],
@@ -546,6 +568,6 @@ test('buildRows keeps a label set by hand, so the sweep does not undo it, and th
 
     assert.equal(rows[0].label, 'waiting-on/author');
     assert.equal(rows[0].setBy, 'larskemper');
-    assert.deepEqual(planLabelChanges([node({ labels: { nodes: [{ name: 'waiting-on/author' }] } })], rows), []);
+    assert.deepEqual(planLabelChanges([node({ labels: { nodes: [{ name: 'external-contribution' }, { name: 'waiting-on/author' }] } })], rows), []);
     assert.match(renderReport(rows), /### Set by hand — 1/);
 });

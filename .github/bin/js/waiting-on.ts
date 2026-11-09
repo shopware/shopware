@@ -68,7 +68,7 @@
  *        mergeability not computed yet                    -> shopware  (mergeability-unknown)
  *        otherwise                                        -> shopware  (just-merge-it)
  *   5. at least one approval, decision still open         -> shopware  (second-review-missing)
- *   6. no review at all, ever                             -> shopware  (never-reviewed)
+ *   6. no review and no maintainer comment, ever          -> shopware  (never-reviewed)
  *   7. a maintainer acted after the author last did       -> author    (author-turn)
  *   8. otherwise                                          -> shopware  (our-turn)
  *
@@ -87,6 +87,11 @@
  * approvals, so one approval reads as REVIEW_REQUIRED, indistinguishable from a pull
  * request nobody has opened. That is the state #9265 (approved 12 May 2025) and #19124
  * have been sitting in, and it is invisible in the GitHub UI's own filters.
+ *
+ * Step 6 needs silence on our side, not just the absence of a review. Feedback written as
+ * plain comments is no review in GitHub's terms: on #21029 two maintainers commented and
+ * nobody submitted a review, so `never-reviewed` kept it with us while the author owed the
+ * answer. Once we have said anything, steps 7 and 8 read the last word instead.
  *
  * The thread cases in step 4 exist because `trunk` requires every conversation to be
  * resolved: an approval with a question still open does not merge. On #20750 two reviewers
@@ -362,7 +367,7 @@ function classifyByRule(facts: PullRequestFacts): WaitingOnVerdict {
         };
     }
 
-    if (facts.reviewCount === 0) {
+    if (facts.reviewCount === 0 && !lastMaintainerActivityAt) {
         return {
             waitingOn: 'shopware',
             reason: 'never-reviewed',

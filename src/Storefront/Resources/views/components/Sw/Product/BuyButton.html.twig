@@ -23,7 +23,17 @@
     <div {{ attributes.defaults({ class: buyButtonCVA.apply({ buyable: false }) }) }}>
         {% block fallback %}
             {% if product is not null %}
-                {{ 'detail.soldOut'|trans|sw_sanitize }}
+                <p {{ attributes.nested('sold-out').defaults({ class: 'sw-buy-widget__sold-out mb-0' }) }}>
+                    <twig:Sw:Badge
+                        variant="danger"
+                        :dot="true"
+                        {{ ...attributes.nested('sold-out-indicator').defaults({
+                            class: 'sw-buy-widget__sold-out-indicator me-1',
+                            'aria-hidden': 'true',
+                        }) }}
+                    />
+                    {{ 'detail.soldOut'|trans|sw_sanitize }}
+                </p>
             {% endif %}
         {% endblock %}
     </div>

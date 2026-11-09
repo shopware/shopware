@@ -1,0 +1,8 @@
+.badge.sw-badge.is--dot {
+    --sw-badge-dot-size: 0.625rem;
+    --bs-badge-padding-x: 0;
+    --bs-badge-padding-y: 0;
+    display: inline-block;
+    width: var(--sw-badge-dot-size);
+    height: var(--sw-badge-dot-size);
+}

@@ -112,7 +112,12 @@
 
                 {% if isListPrice and not displayFrom and not displayFromVariants %}
                     {% if showListPriceBadge %}
-                        <span class="badge text-bg-danger sw-product-price-display__list-price-badge" aria-hidden="true">&#37;</span>
+                        <twig:Sw:Badge
+                            variant="danger"
+                            text="%"
+                            class="sw-product-price-display__list-price-badge"
+                            aria-hidden="true"
+                        />
                     {% endif %}
                     <span class="visually-hidden">{{ 'listing.regularPriceLabel'|trans|sw_sanitize }}</span>
                     <s class="fs-6">{{ price.listPrice.price|currency }}</s>

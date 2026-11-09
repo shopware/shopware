@@ -12,7 +12,6 @@ The decision is in [`adr/2026-10-16-administration-lint-gate.md`](../../../../..
 |---|---|
 | `src/Administration/Resources/app/administration/eslint-suppressions.json` | The Administration |
 | `src/Storefront/Resources/app/administration/eslint-suppressions.json` | The Storefront's Administration modules |
-| `src/Administration/Resources/app/administration/test-annotation-baseline.json` | Untagged Jest tests, per test, see [Test annotations](03-test-annotations.md) |
 
 Each baseline is ESLint's own [bulk suppressions](https://eslint.org/docs/latest/use/suppressions) file.
 It counts the violations per file and rule.
@@ -25,7 +24,6 @@ One more, even in a line you did not touch, fails `npm run lint`.
 - You fixed a violation or deleted a file: run `npm run lint:fix`, which also removes the entries that are no longer needed, and commit the smaller baseline.
 - You moved or renamed a file: the baseline stores paths, so the violations of the moved file count as new.
   Fix them, or run `npm run lint:fix` and then `npx eslint <new path> --suppress-rule <rule>` for each rule that still fires.
-  `sw-test-rules/test-annotation` is the exception: run `npm run lint:test-annotations:add <new path>` instead, see [Test annotations](03-test-annotations.md).
   The totals stay the same.
 - A folder without a baseline joins the gate: run `npm run lint -- --suppress-all` once in that folder and commit the new `eslint-suppressions.json`.
   Add the file to the "Lint baselines do not grow" job in `.github/workflows/admin.yml`.

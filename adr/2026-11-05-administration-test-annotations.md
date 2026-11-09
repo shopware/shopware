@@ -41,7 +41,7 @@ If your source deviates from that rule, you can use `@seeException <reason for d
 Tests can inherit the `@see` from a `describe` above them so they don't need to reference their source over and over again.
 
 An ESLint rule enforces the tags on new tests.
-Existing tests are baselined.
+Tests that were already untagged at the merge base with the target branch may stay untagged, so no baseline file is needed.
 
 A pull request that closes an issue of type Bug and changes Administration source code must add at least one `@regression` test that links the bug.
 The `no-regression-test` label skips the check for bugs Jest can't cover, and the job summary names the skipped bug.
@@ -59,4 +59,5 @@ Only Administration Jest tests in Platform are affected by the rule.
 - `@regression` and `@behavior` cost a link, so reviewers can check the claim in seconds.
 - ESLint barely checks whether a linked source is legit.
   Reviewers or their agents need to validate it themselves.
-- Renaming a test or a `describe` drops it from the baseline, so it needs a tag.
+- Renaming a test or a `describe` makes it a new test, so it needs a tag.
+- Lint needs git and the target branch to tell new tests from old ones.

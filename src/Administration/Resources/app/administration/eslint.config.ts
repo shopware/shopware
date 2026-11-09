@@ -27,6 +27,7 @@ import listeners from 'eslint-plugin-listeners';
 import json from '@eslint/json';
 
 import swTestRules from 'eslint-plugin-sw-test-rules';
+import { resolveBase } from './eslint-rules/test-rules/test-annotation/base-tests.js';
 import twigVue from 'eslint-plugin-twig-vue';
 // The factory is the single source of the base lint setup for admin AND
 // extensions. pluginVue/swDeprecationRules must be the factory's own objects:
@@ -35,6 +36,7 @@ import twigVue from 'eslint-plugin-twig-vue';
 import shopwareAdminExtension, { pluginVue, swCoreRules, swDeprecationRules } from './extension-tooling/eslint.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.resolve(__dirname, '../../../../..');
 
 // eslint-plugin-filename-rules doesn't define meta.schema, which ESLint 9 treats
 // as "no options allowed". Patch the rule to accept an option.
@@ -834,9 +836,10 @@ export default [
             'sw-test-rules/test-annotation': [
                 'error',
                 {
-                    // Untagged tests that predate the rule, see technical-docs/11-code-quality/03-test-annotations.md
-                    baseline: path.join(__dirname, 'test-annotation-baseline.json'),
-                    repoRoot: path.resolve(__dirname, '../../../../..'),
+                    // Untagged tests at the merge base may stay, see technical-docs/11-code-quality/03-test-annotations.md
+                    repoRoot,
+                    adminRoot: __dirname,
+                    base: resolveBase(repoRoot),
                 },
             ],
             'sw-test-rules/test-annotation-see-exception': 'warn',

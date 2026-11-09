@@ -23,6 +23,7 @@ class Migration1794227308RemoveOrderViewerDeletePrivileges extends MigrationStep
         foreach ($connection->iterateAssociative('SELECT id, privileges FROM acl_role') as $role) {
             $privileges = json_decode((string) $role['privileges'], true, 512, \JSON_THROW_ON_ERROR);
 
+            // Remove order:delete from every role with order.viewer unless it also has order.editor or order.deleter.
             if (!\in_array('order.viewer', $privileges, true)
                 || \in_array('order.editor', $privileges, true)
                 || \in_array('order.deleter', $privileges, true)

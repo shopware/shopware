@@ -86,7 +86,10 @@ export async function createWrapper(
                 'sw-product-document-empty-state': await wrapTestComponent('sw-product-document-empty-state', {
                     sync: true,
                 }),
-
+                'sw-product-document-edit-modal': await wrapTestComponent('sw-product-document-edit-modal', { sync: true }),
+                'sw-product-document-remove-modal': await wrapTestComponent('sw-product-document-remove-modal', {
+                    sync: true,
+                }),
                 'sw-container': { template: '<div><slot/></div>' },
                 'router-link': true,
                 'mt-icon': { template: '<span class="mt-icon" />' },

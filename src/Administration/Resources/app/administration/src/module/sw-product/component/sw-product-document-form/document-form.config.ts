@@ -11,6 +11,11 @@ export default [
         align: 'center',
     },
     {
+        property: 'position',
+        label: 'sw-product.documentForm.columnPosition',
+        width: '110px',
+    },
+    {
         property: 'title',
         label: 'sw-product.documentForm.columnTitle',
         primary: true,

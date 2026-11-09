@@ -47,6 +47,14 @@ Shopware.Component.register(
     'sw-product-document-empty-state',
     () => import('./component/sw-product-document-form/sw-product-document-empty-state'),
 );
+Shopware.Component.register(
+    'sw-product-document-edit-modal',
+    () => import('./component/sw-product-document-form/sw-product-document-edit-modal'),
+);
+Shopware.Component.register(
+    'sw-product-document-remove-modal',
+    () => import('./component/sw-product-document-form/sw-product-document-remove-modal'),
+);
 Shopware.Component.register('sw-product-visibility-detail', () => import('./component/sw-product-visibility-detail'));
 Shopware.Component.register(
     'sw-product-restriction-selection',

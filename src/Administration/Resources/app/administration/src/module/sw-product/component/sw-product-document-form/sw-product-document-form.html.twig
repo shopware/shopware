@@ -7,6 +7,7 @@
     :inherited-value="parentProduct.documents"
     :has-parent="!!product.parentId"
     :disabled="!canEdit"
+    :custom-remove-inheritance-function="documentRemoveInheritanceFunction"
     is-association
 >
     <template #content="{ currentValue, isInherited, isInheritField, restoreInheritance, removeInheritance }">
@@ -28,6 +29,13 @@
                             class="sw-inherit-wrapper__card-title"
                             :class="{ 'sw-inherit-wrapper__card-title--inherited': isInherited }"
                         >
+                            <sw-inheritance-switch
+                                v-if="isInheritField"
+                                :is-inherited="isInherited"
+                                :disabled="!canEdit"
+                                @inheritance-restore="restoreInheritance"
+                                @inheritance-remove="removeInheritance"
+                            />
                             <h3 class="mt-card__title">
                                 {{ $t('sw-product.documentForm.cardTitle', { count: currentValue.length }) }}
                             </h3>
@@ -52,7 +60,7 @@
                             {{ $t('sw-product.documentForm.buttonAdd') }}
                         </mt-button>
                     </div>
-                {% endblock %}
+{% endblock %}
                 </template>
 
                 <template #grid>
@@ -88,17 +96,44 @@
                             {{ itemIndex + 1 }}
                         </template>
                     {% endblock %}
-
+                    {% block sw_product_document_form_position %}
+                        <template #column-position="{ item, itemIndex }">
+                            <sw-button-group class="sw-product-document-form__position">
+                                <mt-button
+                                    square
+                                    size="x-small"
+                                    :aria-label="$t('sw-product.documentForm.contextMoveDown')"
+                                    :disabled="!canEdit || isInherited || itemIndex === currentValue.length - 1"
+                                    variant="secondary"
+                                    @click="moveDocument(item, 1)"
+                                ><mt-icon
+                                    name="regular-chevron-down-xs"
+                                    size="var(--scale-size-12)"
+                                /></mt-button>
+                                <mt-button
+                                    square
+                                    size="x-small"
+                                    :aria-label="$t('sw-product.documentForm.contextMoveUp')"
+                                    :disabled="!canEdit || isInherited || itemIndex === 0"
+                                    variant="secondary"
+                                    @click="moveDocument(item, -1)"
+                                ><mt-icon
+                                    name="regular-chevron-up-xs"
+                                    size="var(--scale-size-12)"
+                                /></mt-button>
+                            </sw-button-group>
+                        </template>
+                    {% endblock %}
                     {% block sw_product_document_form_name %}
                         <template #column-title="{ item }">
                             {{ getTitle(item) }}
                         </template>
-                    {% endblock %}
+{% endblock %}
                     {% block sw_product_document_form_file %}
                         <template #column-fileName="{ item }">
                             {{ getFileName(item) }}
                         </template>
-                    {% endblock %}
+{% endblock %}
                     {% block sw_product_document_form_type %}
                         <template #column-fileType="{ item }">
                             {{ getMedia(item)?.fileExtension?.toUpperCase() }}
@@ -111,10 +146,24 @@
                     {% endblock %}
                     {% block sw_product_document_form_actions %}
                         <template #actions="{ item }">
+                            <sw-context-menu-item
+                                :disabled="!canEdit || isInherited"
+                                @click="openDocumentEditor(item)"
+                            >
+                                {{ $t('global.default.edit') }}
+                            </sw-context-menu-item>
                             {% block sw_product_document_form_action_download %}
                             <sw-product-document-download :media="getMedia(item)" />
                             {% endblock %}
-
+                            {% block sw_product_document_form_action_remove %}
+                            <sw-context-menu-item
+                                variant="danger"
+                                :disabled="!canEdit || isInherited"
+                                @click="openRemoveDocumentModal(item)"
+                            >
+                                {{ $t('global.default.remove') }}
+                            </sw-context-menu-item>
+                            {% endblock %}
                         </template>
                     {% endblock %}
                     </sw-data-grid>
@@ -188,8 +237,39 @@
                 entity-context="product_document"
                 :initial-folder-id="mediaFolderId"
                 :file-accept="fileAccept"
-                @media-modal-selection-change="addDocuments($event)"
+                @media-modal-selection-change="addDocuments($event, editingDocument)"
                 @modal-close="showMediaModal = false"
+            />
+        {% endblock %}
+
+        {% block sw_product_document_form_edit_modal %}
+            <sw-product-document-edit-modal
+                v-if="editingDocument"
+                v-model:document-title="documentTitle"
+                :document-id="editingDocument.id"
+                :editing-media="editingMedia"
+                :document-name-error="documentNameError"
+                :document-file-error="documentFileError"
+                :upload-tag="`${uploadTag}-replace-${editingDocument.id}-${documentEditSession}`"
+                :upload-hint="uploadHint"
+                :allowed-extensions="allowedExtensions"
+                :max-file-size="maxFileSize"
+                :can-edit="canEdit"
+                @close="closeDocumentEditor"
+                @save="applyDocumentEdit"
+                @upload="successfulUpload($event, editingDocument)"
+                @remove-file="removeEditingFile"
+                @select-media="showMediaModal = true"
+            />
+        {% endblock %}
+
+        {% block sw_product_document_form_remove_modal %}
+            <sw-product-document-remove-modal
+                v-if="removingDocument"
+                :document-title="getTitle(removingDocument)"
+                :can-edit="canEdit"
+                @close="closeRemoveDocumentModal"
+                @remove="removeDocument"
             />
         {% endblock %}
 

@@ -101,7 +101,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
                 // unknown, hidden from the caller, or created by the same write
                 $violations->add($this->violation(
                     code: self::VIOLATION_FILE_NOT_FOUND,
-                    messageTemplate: 'The file "{{ mediaId }}" was not found. Upload the file first.',
+                    messageTemplate: 'The file "{{ mediaId }}" was not found.',
                     parameters: ['{{ mediaId }}' => $mediaId],
                     path: $errorPath,
                 ));
@@ -112,7 +112,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
             if ($file->isPrivate()) {
                 $violations->add($this->violation(
                     code: self::VIOLATION_FILE_PRIVATE,
-                    messageTemplate: 'The file "{{ mediaId }}" is private, but shoppers have to be able to download the files of product documents.',
+                    messageTemplate: 'The file "{{ mediaId }}" must be public.',
                     parameters: ['{{ mediaId }}' => $mediaId],
                     path: $errorPath,
                 ));
@@ -124,7 +124,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
             if ($file->hasPath() && MediaUploadService::isExternalUrl($file->getPath())) {
                 $violations->add($this->violation(
                     code: self::VIOLATION_FILE_SIZE_UNKNOWN,
-                    messageTemplate: 'The file "{{ mediaId }}" is a link to another server. Upload it to the shop first.',
+                    messageTemplate: 'The file "{{ mediaId }}" must not be a link to another server.',
                     parameters: ['{{ mediaId }}' => $mediaId],
                     path: $errorPath,
                 ));
@@ -136,7 +136,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
             if ($size === null) {
                 $violations->add($this->violation(
                     code: self::VIOLATION_FILE_SIZE_UNKNOWN,
-                    messageTemplate: 'The size of the file "{{ mediaId }}" is unknown. Upload the file first.',
+                    messageTemplate: 'The size of the file "{{ mediaId }}" is unknown.',
                     parameters: ['{{ mediaId }}' => $mediaId],
                     path: $errorPath,
                 ));
@@ -157,7 +157,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
             if ($size > $this->config->maxFileSize) {
                 $violations->add($this->violation(
                     code: self::VIOLATION_FILE_TOO_LARGE,
-                    messageTemplate: 'The file is {{ size }}, but the files of product documents can have at most {{ maxSize }}.',
+                    messageTemplate: 'The file is {{ size }}, over the limit of {{ maxSize }}.',
                     parameters: ['{{ size }}' => MemorySizeCalculator::formatToBytes($size), '{{ maxSize }}' => MemorySizeCalculator::formatToBytes($this->config->maxFileSize)],
                     path: $errorPath,
                 ));

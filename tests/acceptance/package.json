@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@currents/playwright": "2.3.3",
-    "@shopware-ag/acceptance-test-suite": "https://pkg.pr.new/shopware/acceptance-test-suite/@shopware-ag/acceptance-test-suite@8f9fbe5df6fca364d9e0edbe99a1cba5d61baf2e",
+    "@shopware-ag/acceptance-test-suite": "https://pkg.pr.new/shopware/acceptance-test-suite/@shopware-ag/acceptance-test-suite@f3d0da38140a1507bc3ba870fb1451e201e3aeb8",
     "@shopware/api-client": "1.4.0",
     "lighthouse": "12.6.1",
     "playwright-lighthouse": "4.0.0"

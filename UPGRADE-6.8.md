@@ -1722,6 +1722,19 @@ Error: Tried to access deprecated functionality: sw-select-base.computePath() is
 
 This covers deprecated `Shopware.*` globals including `Shopware.State`, services, exported functions, component `methods` and `computed` members, also through `this.$super()`, as well as deprecated components and props.
 Run your extension's tests with `V6_8_0_0=1` and move every reported use to the named replacement before upgrading.
+APIs listed in `deprecation-baseline.json` are still used by core and only log an error until core stops using them.
+Find the uses in your extension through the warnings in the browser console of a development build, and move each to the named replacement before upgrading.
+
+## Media default folder lookup computed properties removed
+
+The deprecated computed properties that loaded the media default folder were removed from these Administration components:
+
+| Component | Removed computed properties |
+|---|---|
+| `sw-product-detail-base` | `mediaDefaultFolderRepository`, `mediaDefaultFolderCriteria` |
+| `sw-bulk-edit-product-media` | `mediaDefaultFolderRepository`, `mediaDefaultFolderCriteria` |
+
+Use `mediaDefaultFolderService.getDefaultFolderId(entityName)` to get the id of an entity's default media folder.
 
 ## Deprecated password verification members in `sw-users-permissions-user-listing`
 

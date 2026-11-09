@@ -2,7 +2,14 @@
  * @sw-package inventory
  */
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
-import { cleanupWrappers, createWrapper, createMedia, addMedia, getDocuments } from './helpers';
+import {
+    createProduct,
+    cleanupWrappers,
+    createWrapper,
+    createMedia,
+    addMedia,
+    getDocuments,
+} from '../sw-product-document-form.spec/helpers';
 
 describe('sw-product-document-form downloads', () => {
     const originalLanguage = Shopware.Context.api.languageId;
@@ -18,8 +25,8 @@ describe('sw-product-document-form downloads', () => {
         Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
         const store = Shopware.Store.get('swProductDetail');
         store.$reset();
-        store.product = repositoryFactory.create('product').create();
-        store.parentProduct = repositoryFactory.create('product').create();
+        store.product = createProduct();
+        store.parentProduct = createProduct();
         Object.assign(global, { activeAclRoles: ['product.editor', 'media.viewer'] });
         link = document.createElement('a');
         dispatchSpy = jest.spyOn(link, 'dispatchEvent').mockReturnValue(true);

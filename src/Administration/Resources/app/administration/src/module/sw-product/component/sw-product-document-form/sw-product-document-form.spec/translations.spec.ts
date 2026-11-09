@@ -4,7 +4,16 @@
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import type { ComponentPublicInstance } from 'vue';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
-import { cleanupWrappers, createWrapper, createMedia, clickButton, selectMedia, getDocuments } from './helpers';
+import {
+    withProductStates,
+    createProduct,
+    cleanupWrappers,
+    createWrapper,
+    createMedia,
+    clickButton,
+    selectMedia,
+    getDocuments,
+} from './helpers';
 
 describe('sw-product-document-form translated editing', () => {
     const originalLanguage = Shopware.Context.api.languageId;
@@ -14,7 +23,7 @@ describe('sw-product-document-form translated editing', () => {
         Object.assign(global, { activeAclRoles: ['product.editor'] });
         const store = Shopware.Store.get('swProductDetail');
         store.$reset();
-        store.parentProduct = repositoryFactory.create('product').create();
+        store.parentProduct = createProduct();
     });
 
     afterEach(() => {
@@ -124,7 +133,7 @@ describe('sw-product-document-form translated editing', () => {
                     ],
                 },
             });
-            return (await repository.get(productId, Shopware.Context.api))!;
+            return withProductStates((await repository.get(productId, Shopware.Context.api))!);
         }
 
         const store = Shopware.Store.get('swProductDetail');

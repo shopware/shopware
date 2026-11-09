@@ -18,6 +18,19 @@ export function cleanupWrappers(): void {
 }
 
 /** @private */
+export function createProduct(id?: EntityKey<'product'>) {
+    return withProductStates(repositoryFactory.create('product').create(Shopware.Context.api, id));
+}
+
+/** @private */
+export function withProductStates(product: Entity<'product'>) {
+    // Document fixtures have no legacy download states; the detail store expects a string array.
+    const states: string[] = [];
+    Object.assign(product.getOrigin(), { states });
+    return Object.assign(product, { states });
+}
+
+/** @private */
 export async function createWrapper(
     mediaRepository = repositoryFactory.create('media'),
     mediaService = { prepareDownloadMedia: jest.fn(), downloadMedia: jest.fn() },
@@ -64,6 +77,7 @@ export async function createWrapper(
                 },
             },
             stubs: {
+                'mt-badge': { template: '<span class="mt-badge"><slot /></span>' },
                 ...(options.baseView ? { 'sw-product-document-form': documentForm } : {}),
                 'sw-product-document-download': await wrapTestComponent('sw-product-document-download', { sync: true }),
                 'sw-product-document-add-button': await wrapTestComponent('sw-product-document-add-button', { sync: true }),

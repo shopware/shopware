@@ -5,7 +5,16 @@ import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.moc
 import type { ComponentPublicInstance } from 'vue';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
 
-import { cleanupWrappers, createWrapper, createMedia, clickButton, selectMedia, addMedia, getDocuments } from './helpers';
+import {
+    createProduct,
+    cleanupWrappers,
+    createWrapper,
+    createMedia,
+    clickButton,
+    selectMedia,
+    addMedia,
+    getDocuments,
+} from './helpers';
 
 describe('sw-product-document-form variant editing', () => {
     const originalLanguage = Shopware.Context.api.languageId;
@@ -15,8 +24,8 @@ describe('sw-product-document-form variant editing', () => {
         Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
         const store = Shopware.Store.get('swProductDetail');
         store.$reset();
-        Object.assign(store, { product: repositoryFactory.create('product').create() });
-        store.parentProduct = repositoryFactory.create('product').create();
+        Object.assign(store, { product: createProduct() });
+        store.parentProduct = createProduct();
     });
 
     afterEach(() => {
@@ -26,7 +35,7 @@ describe('sw-product-document-form variant editing', () => {
 
     describe('applying document edits to variants', () => {
         function createVariant(media: Entity<'media'>) {
-            const variant = repositoryFactory.create('product').create();
+            const variant = createProduct();
             variant.parentId = Shopware.Store.get('swProductDetail').product.id;
             const document = repositoryFactory.create('product_document').create();
             Object.assign(document, { productId: variant.id, title: 'Variant title', mediaId: media.id, position: 3 });
@@ -51,7 +60,7 @@ describe('sw-product-document-form variant editing', () => {
             const first = createVariant(original);
             const second = createVariant(original);
             const custom = createVariant(createMedia('custom'));
-            const inherited = repositoryFactory.create('product').create();
+            const inherited = createProduct();
             const variants = new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api, null, [
                 first,
                 second,

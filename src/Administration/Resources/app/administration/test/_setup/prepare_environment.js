@@ -59,7 +59,6 @@ import {
     MtToast,
     MtTextEditor,
     MtTooltip,
-    MtBadge,
 } from '@shopware-ag/meteor-component-library';
 import { createI18n } from 'vue-i18n';
 import aclService from './_mocks_/acl.service.mock';
@@ -355,7 +354,6 @@ config.global.stubs = {
     'mt-toast': MtToast,
     'mt-text-editor': MtTextEditor,
     'mt-tooltip': MtTooltip,
-    'mt-badge': MtBadge,
     ...config.global.stubs,
 };
 

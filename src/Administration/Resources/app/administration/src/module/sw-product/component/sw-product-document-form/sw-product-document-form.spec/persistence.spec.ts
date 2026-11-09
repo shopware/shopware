@@ -3,7 +3,7 @@
  */
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
-import { cleanupWrappers, createWrapper, createMedia, getDocuments } from './helpers';
+import { withProductStates, cleanupWrappers, createWrapper, createMedia, getDocuments } from './helpers';
 
 describe('sw-product-detail-base document save and reload', () => {
     const originalLanguage = Shopware.Context.api.languageId;
@@ -117,7 +117,7 @@ describe('sw-product-detail-base document save and reload', () => {
                         : [],
                 },
             });
-            return (await repository.get(productId, Shopware.Context.api))!;
+            return withProductStates((await repository.get(productId, Shopware.Context.api))!);
         }
 
         const store = Shopware.Store.get('swProductDetail');

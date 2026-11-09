@@ -5,7 +5,7 @@ import type { VueWrapper } from '@vue/test-utils';
 import type { ComponentPublicInstance } from 'vue';
 import EntityFactory from 'src/core/data/entity-factory.data';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
-import { cleanupWrappers, createWrapper, createMedia, clickButton, selectMedia } from './helpers';
+import { createProduct, cleanupWrappers, createWrapper, createMedia, clickButton, selectMedia } from './helpers';
 
 describe('sw-product-document-form language editor', () => {
     const originalLanguageId = Shopware.Context.api.languageId;
@@ -21,8 +21,8 @@ describe('sw-product-document-form language editor', () => {
         });
         const store = Shopware.Store.get('swProductDetail');
         store.$reset();
-        store.product = repositoryFactory.create('product').create();
-        store.parentProduct = repositoryFactory.create('product').create();
+        store.product = createProduct();
+        store.parentProduct = createProduct();
         document = repositoryFactory.create('product_document').create();
         const media = createMedia('english-manual');
         Object.assign(document, {
@@ -150,7 +150,7 @@ describe('sw-product-document-form language editor', () => {
     it('preserves a variant name override when applying only a new file', async () => {
         const store = Shopware.Store.get('swProductDetail');
         store.product.childCount = 1;
-        const variant = repositoryFactory.create('product').create();
+        const variant = createProduct();
         variant.parentId = store.product.id;
         const copy = repositoryFactory.create('product_document').create();
         Object.assign(copy, {
@@ -237,7 +237,7 @@ describe('sw-product-document-form language editor', () => {
         store.product.childCount = 1;
         const media = createMedia('german-manual');
         Object.assign(document, { title: 'Handbuch', mediaId: media.id });
-        const variant = repositoryFactory.create('product').create();
+        const variant = createProduct();
         variant.parentId = store.product.id;
         const copy = repositoryFactory.create('product_document').create();
         Object.assign(copy, {

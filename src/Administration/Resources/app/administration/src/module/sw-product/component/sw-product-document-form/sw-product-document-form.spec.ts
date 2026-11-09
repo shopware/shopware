@@ -7,6 +7,7 @@ import ChangesetGenerator from 'src/core/data/changeset-generator.data';
 import fileValidationService from 'src/app/service/file-validation.service';
 
 import {
+    createProduct,
     cleanupWrappers,
     createWrapper,
     createMedia,
@@ -23,8 +24,8 @@ describe('sw-product-document-form', () => {
         Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
         const store = Shopware.Store.get('swProductDetail');
         store.$reset();
-        Object.assign(store, { product: repositoryFactory.create('product').create() });
-        store.parentProduct = repositoryFactory.create('product').create();
+        Object.assign(store, { product: createProduct() });
+        store.parentProduct = createProduct();
     });
 
     afterEach(() => {
@@ -185,7 +186,7 @@ describe('sw-product-document-form', () => {
         wrapper
             .getComponent<ComponentPublicInstance>('sw-upload-listener-stub')
             .vm.$emit('media-upload-finish', { targetId: media.id });
-        Object.assign(Shopware.Store.get('swProductDetail'), { product: repositoryFactory.create('product').create() });
+        Object.assign(Shopware.Store.get('swProductDetail'), { product: createProduct() });
         resolveMedia(media);
         await flushPromises();
 

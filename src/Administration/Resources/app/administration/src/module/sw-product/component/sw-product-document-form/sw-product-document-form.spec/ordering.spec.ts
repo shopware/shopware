@@ -4,7 +4,15 @@
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
 
-import { cleanupWrappers, createWrapper, createMedia, addMedia, getDocuments } from './helpers';
+import {
+    withProductStates,
+    createProduct,
+    cleanupWrappers,
+    createWrapper,
+    createMedia,
+    addMedia,
+    getDocuments,
+} from './helpers';
 
 describe('sw-product-document-form ordering', () => {
     const originalLanguage = Shopware.Context.api.languageId;
@@ -14,8 +22,8 @@ describe('sw-product-document-form ordering', () => {
         Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
         const store = Shopware.Store.get('swProductDetail');
         store.$reset();
-        Object.assign(store, { product: repositoryFactory.create('product').create() });
-        store.parentProduct = repositoryFactory.create('product').create();
+        Object.assign(store, { product: createProduct() });
+        store.parentProduct = createProduct();
     });
 
     afterEach(() => {
@@ -111,7 +119,7 @@ describe('sw-product-document-form ordering', () => {
                     })),
                 },
             });
-            return (await repository.get(productId, Shopware.Context.api))!;
+            return withProductStates((await repository.get(productId, Shopware.Context.api))!);
         }
 
         const store = Shopware.Store.get('swProductDetail');

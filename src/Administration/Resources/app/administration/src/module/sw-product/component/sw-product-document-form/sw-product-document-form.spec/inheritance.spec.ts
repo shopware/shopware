@@ -6,7 +6,7 @@ import type { ComponentPublicInstance } from 'vue';
 import Entity from 'src/core/data/entity.data';
 import EntityFactory from 'src/core/data/entity-factory.data';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
-import { cleanupWrappers, createWrapper, createMedia, clickButton, getDocuments } from './helpers';
+import { createProduct, cleanupWrappers, createWrapper, createMedia, clickButton, getDocuments } from './helpers';
 
 describe('sw-product-document-form inheritance', () => {
     const originalLanguage = Shopware.Context.api.languageId;
@@ -16,8 +16,8 @@ describe('sw-product-document-form inheritance', () => {
         Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
         const store = Shopware.Store.get('swProductDetail');
         store.$reset();
-        store.product = repositoryFactory.create('product').create();
-        store.parentProduct = repositoryFactory.create('product').create();
+        store.product = createProduct();
+        store.parentProduct = createProduct();
     });
     afterEach(() => {
         Shopware.Context.api.languageId = originalLanguage;
@@ -166,7 +166,7 @@ describe('sw-product-document-form inheritance', () => {
         await wrapper.get('.sw-inheritance-switch--is-inherited .mt-icon').trigger('click');
         expect(wrapper.get('.sw-product-document-form__empty-state button').attributes('disabled')).toBeUndefined();
 
-        const nextVariant = repositoryFactory.create('product').create();
+        const nextVariant = createProduct();
         nextVariant.parentId = store.parentProduct.id;
         store.product = nextVariant;
         await flushPromises();

@@ -3,7 +3,7 @@
  */
 import type { VueWrapper } from '@vue/test-utils';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
-import { cleanupWrappers, createWrapper, createMedia, getDocuments } from './helpers';
+import { createProduct, cleanupWrappers, createWrapper, createMedia, getDocuments } from './helpers';
 
 describe('sw-product-document-form language markers', () => {
     let wrapper: VueWrapper;
@@ -18,8 +18,8 @@ describe('sw-product-document-form language markers', () => {
         });
         const store = Shopware.Store.get('swProductDetail');
         store.$reset();
-        store.product = repositoryFactory.create('product').create();
-        store.parentProduct = repositoryFactory.create('product').create();
+        store.product = createProduct();
+        store.parentProduct = createProduct();
     });
 
     afterEach(() => {

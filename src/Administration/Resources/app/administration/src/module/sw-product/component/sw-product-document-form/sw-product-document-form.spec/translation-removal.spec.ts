@@ -4,7 +4,7 @@
 import type { VueWrapper } from '@vue/test-utils';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
-import { cleanupWrappers, createWrapper, createMedia, clickButton, selectMedia } from './helpers';
+import { withProductStates, cleanupWrappers, createWrapper, createMedia, clickButton, selectMedia } from './helpers';
 
 describe('sw-product-document-form language-version removal', () => {
     const originalLanguageId = Shopware.Context.api.languageId;
@@ -88,7 +88,7 @@ describe('sw-product-document-form language-version removal', () => {
                 ],
             },
         });
-        return (await repository.get(id, Shopware.Context.api))!;
+        return withProductStates((await repository.get(id, Shopware.Context.api))!);
     }
 
     beforeEach(() => {
@@ -188,7 +188,7 @@ describe('sw-product-document-form language-version removal', () => {
     it('saves the language removal after unlinking inherited documents, preserving other languages', async () => {
         const store = Shopware.Store.get('swProductDetail');
         store.parentProduct = await loadProduct('Handbuch', germanMedia.id);
-        store.product = repository.create();
+        store.product = withProductStates(repository.create());
         store.product.parentId = store.parentProduct.id;
         wrapper = await createWrapper(undefined, undefined, repository);
 

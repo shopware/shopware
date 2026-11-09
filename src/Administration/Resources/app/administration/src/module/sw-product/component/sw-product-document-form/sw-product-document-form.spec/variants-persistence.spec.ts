@@ -4,7 +4,15 @@
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
 import type { ComponentPublicInstance } from 'vue';
-import { cleanupWrappers, createWrapper, clickButton, selectMedia, createMedia } from './helpers';
+import {
+    withProductStates,
+    createProduct,
+    cleanupWrappers,
+    createWrapper,
+    clickButton,
+    selectMedia,
+    createMedia,
+} from './helpers';
 
 describe('sw-product-document-form variant persistence', () => {
     const originalLanguage = Shopware.Context.api.languageId;
@@ -22,7 +30,7 @@ describe('sw-product-document-form variant persistence', () => {
         Object.assign(global, { activeAclRoles: ['product.editor'] });
         const store = Shopware.Store.get('swProductDetail');
         store.$reset();
-        store.parentProduct = repositoryFactory.create('product').create();
+        store.parentProduct = createProduct();
     });
 
     afterEach(() => {
@@ -123,13 +131,13 @@ describe('sw-product-document-form variant persistence', () => {
                     : [],
             },
         });
-        return (await repositoryFactory.create('product').get(productId, Shopware.Context.api))!;
+        return withProductStates((await repositoryFactory.create('product').get(productId, Shopware.Context.api))!);
     }
 
     it.each(['title', 'file'])('saves and reloads a German %s edit without pinning the other fallback', async (field) => {
         const repository = repositoryFactory.create('product', '', { useSync: true });
-        const productId = repositoryFactory.create('product').create().id;
-        const variantId = repositoryFactory.create('product').create().id;
+        const productId = createProduct().id;
+        const variantId = createProduct().id;
         const documentId = repositoryFactory.create('product_document').create().id;
         const variantDocumentId = repositoryFactory.create('product_document').create().id;
         const store = Shopware.Store.get('swProductDetail');
@@ -220,8 +228,8 @@ describe('sw-product-document-form variant persistence', () => {
     it('includes loaded variant deletions in the parent Sync save and reloads both removals', async () => {
         Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
         const repository = repositoryFactory.create('product', '', { useSync: true });
-        const productId = repositoryFactory.create('product').create().id;
-        const variantId = repositoryFactory.create('product').create().id;
+        const productId = createProduct().id;
+        const variantId = createProduct().id;
         const documentId = repositoryFactory.create('product_document').create().id;
         const variantDocumentId = repositoryFactory.create('product_document').create().id;
         const store = Shopware.Store.get('swProductDetail');

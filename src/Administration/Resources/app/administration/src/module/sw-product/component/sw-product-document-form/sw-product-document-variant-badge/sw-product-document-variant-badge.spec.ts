@@ -3,7 +3,16 @@
  */
 import type { VueWrapper } from '@vue/test-utils';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
-import { cleanupWrappers, createWrapper, createMedia, addMedia, clickButton, selectMedia, getDocuments } from './helpers';
+import {
+    createProduct,
+    cleanupWrappers,
+    createWrapper,
+    createMedia,
+    addMedia,
+    clickButton,
+    selectMedia,
+    getDocuments,
+} from '../sw-product-document-form.spec/helpers';
 
 describe('sw-product-document-form variant badges', () => {
     let wrapper: VueWrapper;
@@ -14,8 +23,8 @@ describe('sw-product-document-form variant badges', () => {
         Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
         const store = Shopware.Store.get('swProductDetail');
         store.$reset();
-        store.product = repositoryFactory.create('product').create();
-        store.parentProduct = repositoryFactory.create('product').create();
+        store.product = createProduct();
+        store.parentProduct = createProduct();
         store.product.parentId = store.parentProduct.id;
     });
 
@@ -116,7 +125,7 @@ describe('sw-product-document-form variant badges', () => {
         await addMedia(wrapper, [media]);
         expect(wrapper.find('.sw-product-document-variant-badge').exists()).toBe(true);
         const store = Shopware.Store.get('swProductDetail');
-        const reloaded = repositoryFactory.create('product').create(Shopware.Context.api, store.product.id);
+        const reloaded = createProduct(store.product.id);
         reloaded.parentId = store.parentProduct.id;
         const document = repositoryFactory.create('product_document').create(Shopware.Context.api, getDocuments()![1].id);
         Object.assign(document, { mediaId: media.id, title: media.fileName, position: 0 });

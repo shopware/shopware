@@ -4,7 +4,7 @@
 import type { ComponentPublicInstance } from 'vue';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
-import { cleanupWrappers, createWrapper, createMedia, clickButton, getDocuments } from './helpers';
+import { createProduct, cleanupWrappers, createWrapper, createMedia, clickButton, getDocuments } from './helpers';
 
 function addPersistedDocument(product: Entity<'product'>, media: Entity<'media'>, position = 0) {
     const document = repositoryFactory.create('product_document').create();
@@ -19,7 +19,7 @@ function addPersistedDocument(product: Entity<'product'>, media: Entity<'media'>
 }
 
 function createVariant(media: Entity<'media'>, other?: Entity<'media'>) {
-    const variant = repositoryFactory.create('product').create();
+    const variant = createProduct();
     variant.parentId = Shopware.Store.get('swProductDetail').product.id;
     addPersistedDocument(variant, media);
     if (other) {
@@ -36,8 +36,8 @@ describe('sw-product-document-form removal', () => {
         Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
         const store = Shopware.Store.get('swProductDetail');
         store.$reset();
-        store.product = repositoryFactory.create('product').create();
-        store.parentProduct = repositoryFactory.create('product').create();
+        store.product = createProduct();
+        store.parentProduct = createProduct();
     });
 
     afterEach(() => {
@@ -55,7 +55,7 @@ describe('sw-product-document-form removal', () => {
         const first = createVariant(media, other);
         const second = createVariant(media);
         const custom = createVariant(other);
-        const inherited = repositoryFactory.create('product').create();
+        const inherited = createProduct();
         const firstDocumentId = first.documents?.[0].id;
         const secondDocumentId = second.documents?.[0].id;
         const productRepository = repositoryFactory.create('product');
@@ -107,7 +107,7 @@ describe('sw-product-document-form removal', () => {
         const media = createMedia('remove-middle');
         addPersistedDocument(store.product, media);
         store.product.childCount = 1;
-        const variant = repositoryFactory.create('product').create();
+        const variant = createProduct();
         variant.parentId = store.product.id;
         const first = addPersistedDocument(variant, createMedia('first'), 0);
         const middle = addPersistedDocument(variant, media, 1);

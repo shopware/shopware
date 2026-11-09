@@ -28,6 +28,7 @@ describe('sw-product-document-language-value', () => {
         Object.assign(store, { documentLanguage: { id: germanLanguageId, locale: { code: 'de-DE' } } });
         wrapper = shallowMount(await wrapTestComponent('sw-product-document-language-value', { sync: true }), {
             props: { value: 'Manuel français', isTranslated: true },
+            global: { stubs: { 'mt-badge': { template: '<span class="mt-badge"><slot /></span>' } } },
         });
         expect(wrapper.text()).toContain('Manuel français');
         expect(wrapper.find('.mt-badge').exists()).toBe(false);

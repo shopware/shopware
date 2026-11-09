@@ -3,7 +3,16 @@
  */
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
-import { cleanupWrappers, createWrapper, createMedia, addMedia, clickButton, getDocuments } from './helpers';
+import {
+    withProductStates,
+    createProduct,
+    cleanupWrappers,
+    createWrapper,
+    createMedia,
+    addMedia,
+    clickButton,
+    getDocuments,
+} from './helpers';
 
 describe('sw-product-document-form removal', () => {
     const originalLanguage = Shopware.Context.api.languageId;
@@ -13,8 +22,8 @@ describe('sw-product-document-form removal', () => {
         Object.assign(global, { activeAclRoles: ['product.editor'] });
         const store = Shopware.Store.get('swProductDetail');
         store.$reset();
-        store.product = repositoryFactory.create('product').create();
-        store.parentProduct = repositoryFactory.create('product').create();
+        store.product = createProduct();
+        store.parentProduct = createProduct();
     });
 
     afterEach(() => {
@@ -127,7 +136,7 @@ describe('sw-product-document-form removal', () => {
                     included: [...documents.flatMap((item) => [item.document, ...item.translations]), ...files],
                 },
             });
-            return (await repository.get(productId, Shopware.Context.api))!;
+            return withProductStates((await repository.get(productId, Shopware.Context.api))!);
         }
 
         const store = Shopware.Store.get('swProductDetail');

@@ -4,7 +4,7 @@
 import type { VueWrapper } from '@vue/test-utils';
 import EntityFactory from 'src/core/data/entity-factory.data';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
-import { cleanupWrappers, createWrapper, createMedia, clickButton } from './helpers';
+import { createProduct, cleanupWrappers, createWrapper, createMedia, clickButton } from './helpers';
 
 describe('sw-product-document-form delayed language metadata', () => {
     const originalLanguageId = Shopware.Context.api.languageId;
@@ -30,8 +30,8 @@ describe('sw-product-document-form delayed language metadata', () => {
             Shopware.Store.get('context').api.language = staleLanguage;
             const store = Shopware.Store.get('swProductDetail');
             store.$reset();
-            store.product = repositoryFactory.create('product').create();
-            store.parentProduct = repositoryFactory.create('product').create();
+            store.product = createProduct();
+            store.parentProduct = createProduct();
             const document = repositoryFactory.create('product_document').create();
             const activeMedia = createMedia('localized-file');
             const parentMedia = createMedia('parent-language-file');

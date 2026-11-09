@@ -10,7 +10,7 @@ import {
     getEditChanges,
     type DocumentChanges,
 } from './document-translation.utils';
-import { loadDocumentVariants, getDocumentVariantCandidates } from './document-variant.service';
+import { loadDocumentVariants, getDocumentVariantCandidates } from './document-variant.helper';
 import template from './sw-product-document-form.html.twig';
 import './sw-product-document-form.scss';
 
@@ -66,6 +66,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         parentProduct: () => Shopware.Store.get('swProductDetail').parentProduct,
 
+        documentContext() {
+            return { ...Shopware.Context.api, language: Shopware.Store.get('swProductDetail').documentLanguage };
+        },
+
         documents(): EntityCollection<'product_document'> {
             return this.product.documents as EntityCollection<'product_document'>;
         },
@@ -79,7 +83,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         canEdit(): boolean {
-            const language = Shopware.Context.api.language as Entity<'language'> | null;
+            const language = this.documentContext.language;
             const languageLoaded = this.isDefaultLanguage || language?.id === Shopware.Context.api.languageId;
             return !this.disabled && this.acl.can('product.editor') && languageLoaded;
         },
@@ -91,7 +95,7 @@ export default Shopware.Component.wrapComponentConfig({
         isDefaultLanguage: () => Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId,
 
         contentLanguageName(): string {
-            const language = Shopware.Store.get('context').api.language as Entity<'language'> | null;
+            const language = this.documentContext.language;
             const code = language?.locale?.code.split('-')[0];
             const locale = Shopware.Store.get('session').currentLocale || 'en-GB';
             const names = new Intl.DisplayNames([locale], { type: 'language' });
@@ -103,7 +107,7 @@ export default Shopware.Component.wrapComponentConfig({
             if (!document || this.isDefaultLanguage) {
                 return '';
             }
-            const changes = getDocumentTranslationChanges(document, { title: null }, Shopware.Context.api);
+            const changes = getDocumentTranslationChanges(document, { title: null }, this.documentContext);
             const title = (changes.translated ?? document.translated)?.title;
             return title || this.getMedia(document)?.fileName || '';
         },
@@ -302,7 +306,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.updatePositions();
         },
 
-        editDocument(document: ProductDocument): void {
+        openDocumentEditor(document: ProductDocument): void {
             if (!this.canChangeDocuments()) {
                 return;
             }
@@ -312,7 +316,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.documentTitle = this.isDefaultLanguage ? this.getTitle(document) : document.title || '';
             this.replacementMedia = null;
             this.documentFileRemoved = false;
-            this.applyToVariants = false;
+            this.applyToVariants = this.hasVariants;
             this.documentValidationSubmitted = false;
         },
 
@@ -321,7 +325,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.documentFileRemoved = true;
         },
 
-        async saveDocument(): Promise<void> {
+        async applyDocumentEdit(): Promise<void> {
             this.documentValidationSubmitted = true;
             if (!this.canChangeDocuments() || !this.editingDocument || !this.canSaveDocument) {
                 return;
@@ -331,7 +335,7 @@ export default Shopware.Component.wrapComponentConfig({
             const document = this.editingDocument;
             const session = this.documentEditSession;
             const replacementMedia = this.replacementMedia;
-            const context = { ...Shopware.Context.api, languageId: Shopware.Context.api.languageId, inheritance: false };
+            const context = { ...this.documentContext, inheritance: false };
             const isCurrentEdit = () =>
                 session === this.documentEditSession &&
                 product === this.product &&
@@ -376,7 +380,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.showMediaModal = false;
         },
 
-        confirmRemoveDocument(document: ProductDocument): void {
+        openRemoveDocumentModal(document: ProductDocument): void {
             if (!this.canChangeDocuments() || (!this.isDefaultLanguage && !document.title && !document.mediaId)) {
                 return;
             }
@@ -400,7 +404,7 @@ export default Shopware.Component.wrapComponentConfig({
             const product = this.product;
             const document = this.removingDocument;
             const modalVersion = this.removeModalVersion;
-            const context = { ...Shopware.Context.api, languageId: Shopware.Context.api.languageId, inheritance: false };
+            const context = { ...this.documentContext, inheritance: false };
             const isCurrentRemoval = () =>
                 modalVersion === this.removeModalVersion &&
                 product === this.product &&
@@ -454,7 +458,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         resetDocumentLanguageVersion(document: ProductDocument): void {
-            const { language, systemLanguageId } = Shopware.Context.api;
+            const { language, systemLanguageId } = this.documentContext;
             this.applyDocumentChanges(document, resetDocumentTranslation(document, language, systemLanguageId));
         },
 
@@ -475,7 +479,7 @@ export default Shopware.Component.wrapComponentConfig({
                 this.product.children || new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api);
             const candidates = getDocumentVariantCandidates(variants, children, originalMediaId);
             const updatedVariantIds: string[] = [];
-            const context = Shopware.Context.api;
+            const context = this.documentContext;
             candidates.forEach(({ variant, matching }) => {
                 let changed = false;
                 matching.forEach((copy) => {

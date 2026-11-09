@@ -948,6 +948,59 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(store.documentSaveNotifications).toHaveLength(1);
     });
 
+    it('loads document language metadata when opening a product', async () => {
+        wrapper.unmount();
+        const api = Shopware.Store.get('context').api;
+        const originalLanguageId = api.languageId;
+        const originalLanguage = api.language;
+        const language = { id: 'french', parentId: 'parent-language', locale: { code: 'fr-FR' } };
+        const get = jest.fn((id) => Promise.resolve(id === language.id ? language : { variation: [] }));
+
+        try {
+            api.languageId = language.id;
+            wrapper = await createWrapper(undefined, get);
+            await flushPromises();
+
+            expect(Shopware.Store.get('swProductDetail').documentLanguage).toEqual(expect.objectContaining(language));
+            const request = get.mock.calls.find(([id]) => id === language.id);
+            expect(request[1]).toEqual(expect.objectContaining({ inheritance: true }));
+            expect(request[2].parse()).toMatchObject({ associations: { locale: {} } });
+        } finally {
+            api.languageId = originalLanguageId;
+            api.language = originalLanguage;
+        }
+    });
+
+    it('reports failed document language loading without retaining stale metadata', async () => {
+        wrapper.unmount();
+        const api = Shopware.Store.get('context').api;
+        const originalLanguageId = api.languageId;
+        const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+        const store = Shopware.Store.get('swProductDetail');
+        store.documentLanguage = { id: 'previous-language' };
+
+        try {
+            api.languageId = 'french';
+            wrapper = await createWrapper(undefined, (id) => {
+                if (id === 'french') {
+                    return Promise.reject(new Error('Language unavailable'));
+                }
+                return Promise.resolve({ variation: [] });
+            });
+            await flushPromises();
+
+            expect(store.documentLanguage).toBeNull();
+            expect(notificationSpy).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    variant: 'error',
+                    message: 'global.notification.notificationLoadingDataErrorMessage',
+                }),
+            );
+        } finally {
+            api.languageId = originalLanguageId;
+        }
+    });
+
     it('keeps the active language when an earlier page lookup finishes last', async () => {
         wrapper.unmount();
         let resolveGerman;
@@ -985,11 +1038,13 @@ describe('module/sw-product/page/sw-product-detail', () => {
             await wrapper.get('.request-french').trigger('click');
             await flushPromises();
             expect(api.language.id).toBe('french');
+            expect(Shopware.Store.get('swProductDetail').documentLanguage.id).toBe('french');
 
             resolveGerman({ id: 'german', locale: { code: 'de-DE' } });
             await flushPromises();
             expect(api.languageId).toBe('french');
             expect(api.language.id).toBe('french');
+            expect(Shopware.Store.get('swProductDetail').documentLanguage.id).toBe('french');
         } finally {
             api.languageId = originalLanguageId;
             api.language = originalLanguage;

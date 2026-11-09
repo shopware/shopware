@@ -24,6 +24,7 @@ describe('sw-product-document-form delayed language metadata', () => {
             Object.assign(global, { activeAclRoles: ['product.editor', 'media.viewer'] });
             const language = repositoryFactory.create('language').create();
             language.parentId = repositoryFactory.create('language').create().id;
+            Object.assign(language, { locale: { code: 'fr-FR' } });
             const staleLanguage = repositoryFactory.create('language').create();
             Shopware.Context.api.languageId = language.id;
             Shopware.Store.get('context').api.language = staleLanguage;
@@ -68,7 +69,7 @@ describe('sw-product-document-form delayed language metadata', () => {
             const loading = new Promise<Entity<'language'>>((resolve) => {
                 resolveLanguage = resolve;
             }).then((loaded) => {
-                Shopware.Store.get('context').api.language = loaded;
+                store.documentLanguage = loaded;
             });
             wrapper = await createWrapper();
             const menuIndex = operation === 'remove version' ? -1 : 0;
@@ -82,6 +83,11 @@ describe('sw-product-document-form delayed language metadata', () => {
             await loading;
             await flushPromises();
             expect(action.attributes('disabled')).toBe('false');
+            // The global fetch can finish later, without locale data or for an earlier language.
+            Shopware.Store.get('context').api.language = staleLanguage;
+            await flushPromises();
+            expect(action.attributes('disabled')).toBe('false');
+            expect(wrapper.get('.sw-product-document-language-value .mt-badge').text()).toBe('FR');
             await action.trigger('click');
             if (operation === 'clear name') {
                 await wrapper.get('.sw-product-document-form__name-input input').setValue('');

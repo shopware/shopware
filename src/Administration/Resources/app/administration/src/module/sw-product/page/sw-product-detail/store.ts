@@ -39,8 +39,9 @@ const swProductDetail = Shopware.Store.register({
             parentProduct: {} as Entity<'product'>,
             isDownloadExternallyManaged: false,
             // Retain session badges across tabs while reloaded entities remain unmarked.
-            newDocuments: new WeakSet<Entity<'product_document'>>(),
+            sessionAddedDocuments: new WeakSet<Entity<'product_document'>>(),
             documentMedia: new WeakMap<Entity<'product'>, Record<string, Entity<'media'>>>(),
+            documentLanguage: null as Entity<'language'> | null,
             documentSaveNotifications: [] as { documentId: string; name: string; variantIds: string[] }[],
             currencies: [] as Entity<'currency'>[],
             apiContext: {} as ContextStore['api'],
@@ -205,26 +206,6 @@ const swProductDetail = Shopware.Store.register({
     },
 
     actions: {
-        cacheDocumentMedia(media: Entity<'media'>): void {
-            const files = this.documentMedia.get(this.product) || {};
-            files[media.id] = media;
-            this.documentMedia.set(this.product, files);
-        },
-
-        addDocument(document: Entity<'product_document'>): void {
-            this.newDocuments.add(document);
-            this.product.documents?.add(document);
-        },
-
-        queueDocumentSaveNotification(documentId: string, name: string, variantIds: string[]): void {
-            this.documentSaveNotifications = this.documentSaveNotifications.filter(
-                (entry) => entry.documentId !== documentId,
-            );
-            if (variantIds.length) {
-                this.documentSaveNotifications.push({ documentId, name, variantIds: [...new Set(variantIds)] });
-            }
-        },
-
         showProductCard(key: string) {
             if (this.product?.parentId) {
                 return true;
@@ -295,6 +276,26 @@ const swProductDetail = Shopware.Store.register({
 
         setWeightUnit(unit: string) {
             this.weightUnit = unit;
+        },
+
+        cacheDocumentMedia(media: Entity<'media'>): void {
+            const files = this.documentMedia.get(this.product) || {};
+            files[media.id] = media;
+            this.documentMedia.set(this.product, files);
+        },
+
+        addDocument(document: Entity<'product_document'>): void {
+            this.sessionAddedDocuments.add(document);
+            this.product.documents?.add(document);
+        },
+
+        queueDocumentSaveNotification(documentId: string, name: string, variantIds: string[]): void {
+            this.documentSaveNotifications = this.documentSaveNotifications.filter(
+                (entry) => entry.documentId !== documentId,
+            );
+            if (variantIds.length) {
+                this.documentSaveNotifications.push({ documentId, name, variantIds: [...new Set(variantIds)] });
+            }
         },
     },
 });

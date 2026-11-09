@@ -39,9 +39,7 @@ describe('src/app/service/language-auto-fetching.service.js', () => {
         expect(repositoryGetMock).toHaveBeenCalledWith(
             'initial-language-id',
             expect.objectContaining({ inheritance: true }),
-            expect.any(Shopware.Data.Criteria),
         );
-        expect(repositoryGetMock.mock.calls[0][2].parse()).toMatchObject({ associations: { locale: {} } });
 
         expect(Shopware.Store.get('context').api.language).toEqual(
             expect.objectContaining({
@@ -62,12 +60,7 @@ describe('src/app/service/language-auto-fetching.service.js', () => {
         Shopware.Store.get('context').api.languageId = 'new-language-id';
         await flushPromises();
 
-        expect(repositoryGetMock).toHaveBeenCalledWith(
-            'new-language-id',
-            expect.objectContaining({ inheritance: true }),
-            expect.any(Shopware.Data.Criteria),
-        );
-        expect(repositoryGetMock.mock.calls[0][2].parse()).toMatchObject({ associations: { locale: {} } });
+        expect(repositoryGetMock).toHaveBeenCalledWith('new-language-id', expect.objectContaining({ inheritance: true }));
 
         expect(Shopware.Store.get('context').api.language).toEqual(
             expect.objectContaining({
@@ -75,29 +68,5 @@ describe('src/app/service/language-auto-fetching.service.js', () => {
                 name: 'Language new-language-id',
             }),
         );
-    });
-
-    it('keeps the active language when an earlier lookup finishes last', async () => {
-        LanguageAutoFetchingService();
-        await flushPromises();
-        const api = Shopware.Store.get('context').api;
-        let resolveGerman;
-        repositoryGetMock.mockImplementationOnce(
-            () =>
-                new Promise((resolve) => {
-                    resolveGerman = resolve;
-                }),
-        );
-
-        api.languageId = 'german';
-        await flushPromises();
-        api.languageId = 'french';
-        await flushPromises();
-        expect(api.language.id).toBe('french');
-
-        resolveGerman({ id: 'german', locale: { code: 'de-DE' } });
-        await flushPromises();
-        expect(api.languageId).toBe('french');
-        expect(api.language.id).toBe('french');
     });
 });

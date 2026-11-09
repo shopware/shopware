@@ -545,6 +545,7 @@ export default {
 
             Shopware.Store.get('swProductDetail').setLoading(['product', true]);
 
+            this.loadLanguage(Shopware.Context.api.languageId);
             await this.initProductMeasurementUnits();
 
             // initialize default state
@@ -1472,19 +1473,33 @@ export default {
         },
 
         async loadLanguage(newLanguageId) {
-            const criteria = new Criteria();
-            criteria.addAssociation('locale');
-            const language = await this.languageRepository.get(
-                newLanguageId,
-                { ...Shopware.Context.api, inheritance: true },
-                criteria,
-            );
-
-            if (newLanguageId !== Shopware.Context.api.languageId) {
+            if (!newLanguageId) {
                 return;
             }
 
-            Shopware.Store.get('context').api.language = language;
+            const criteria = new Criteria();
+            criteria.addAssociation('locale');
+            try {
+                const language = await this.languageRepository.get(
+                    newLanguageId,
+                    { ...Shopware.Context.api, inheritance: true },
+                    criteria,
+                );
+
+                if (newLanguageId !== Shopware.Context.api.languageId) {
+                    return;
+                }
+
+                Shopware.Store.get('swProductDetail').documentLanguage = language;
+                Shopware.Store.get('context').api.language = language;
+            } catch {
+                if (newLanguageId === Shopware.Context.api.languageId) {
+                    Shopware.Store.get('swProductDetail').documentLanguage = null;
+                    this.createNotificationError({
+                        message: this.$t('global.notification.notificationLoadingDataErrorMessage'),
+                    });
+                }
+            }
         },
 
         async initProductMeasurementUnits() {

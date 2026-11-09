@@ -69,9 +69,9 @@ describe('sw-product-document-form variant editing', () => {
             wrapper
                 .getComponent<ComponentPublicInstance>('.mt-text-field')
                 .vm.$emit('update:modelValue', 'Battery safety data sheet');
-            wrapper
-                .getComponent<ComponentPublicInstance>('.sw-product-document-form__apply-to-variants')
-                .vm.$emit('update:checked', true);
+            expect(wrapper.get<HTMLInputElement>('.sw-product-document-form__apply-to-variants input').element.checked).toBe(
+                true,
+            );
             await clickButton(wrapper, 'global.default.apply');
             await flushPromises();
 
@@ -129,6 +129,7 @@ describe('sw-product-document-form variant editing', () => {
             await addMedia(wrapper, [createMedia()]);
             await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
             wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', 'Parent only');
+            await wrapper.get('.sw-product-document-form__apply-to-variants input').setValue(false);
             await clickButton(wrapper, 'global.default.apply');
             await flushPromises();
 
@@ -136,6 +137,26 @@ describe('sw-product-document-form variant editing', () => {
             expect(store.product.children).toHaveLength(0);
             expect(store.documentSaveNotifications).toHaveLength(0);
             expect(getDocuments()?.[0].title).toBe('Parent only');
+        });
+
+        it('resets the variant option to checked on reopening without applying cancelled edits', async () => {
+            Shopware.Store.get('swProductDetail').product.childCount = 1;
+            const wrapper = await createWrapper();
+            await addMedia(wrapper, [createMedia()]);
+            await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
+            await wrapper.get('.sw-product-document-form__apply-to-variants input').setValue(false);
+            wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', 'Cancelled title');
+
+            await clickButton(wrapper, 'global.default.cancel');
+            await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
+
+            expect(wrapper.get<HTMLInputElement>('.sw-product-document-form__apply-to-variants input').element.checked).toBe(
+                true,
+            );
+            expect(getDocuments()?.[0].title).toBe('manual');
+            expect(wrapper.get<HTMLInputElement>('.sw-product-document-form__name-input input').element.value).toBe(
+                'manual',
+            );
         });
 
         it('does not report variant updates when a replacement is reverted before saving the product', async () => {
@@ -224,12 +245,14 @@ describe('sw-product-document-form variant editing', () => {
             const variant = createVariant(original);
             const productRepository = repositoryFactory.create('product');
             let resolveSearch!: (variants: EntityCollection<'product'>) => void;
-            jest.spyOn(productRepository, 'search').mockImplementationOnce(
-                () =>
-                    new Promise((resolve) => {
-                        resolveSearch = resolve;
-                    }),
-            );
+            jest.spyOn(productRepository, 'search')
+                .mockResolvedValue(new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api))
+                .mockImplementationOnce(
+                    () =>
+                        new Promise((resolve) => {
+                            resolveSearch = resolve;
+                        }),
+                );
             const wrapper = await createWrapper(undefined, undefined, productRepository);
             await addMedia(wrapper, [original]);
             await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');

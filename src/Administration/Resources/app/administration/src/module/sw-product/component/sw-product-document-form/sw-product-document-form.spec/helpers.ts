@@ -24,6 +24,8 @@ export async function createWrapper(
     productRepository = repositoryFactory.create('product'),
     options: { baseView?: boolean; isInherited?: boolean } = {},
 ) {
+    Shopware.Store.get('swProductDetail').documentLanguage = Shopware.Store.get('context').api
+        .language as Entity<'language'> | null;
     if (options.isInherited) {
         const store = Shopware.Store.get('swProductDetail');
         store.product.parentId = store.parentProduct.id;

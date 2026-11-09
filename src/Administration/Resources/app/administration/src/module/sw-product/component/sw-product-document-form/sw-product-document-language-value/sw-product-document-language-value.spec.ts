@@ -9,6 +9,11 @@ describe('sw-product-document-language-value', () => {
     const api = Shopware.Store.get('context').api;
     const originalLanguageId = api.languageId;
     const originalLanguage = api.language;
+    const store = Shopware.Store.get('swProductDetail');
+
+    beforeEach(() => {
+        store.$reset();
+    });
 
     afterEach(() => {
         wrapper?.unmount();
@@ -20,14 +25,18 @@ describe('sw-product-document-language-value', () => {
         const frenchLanguageId = repositoryFactory.create('language').create().id;
         const germanLanguageId = repositoryFactory.create('language').create().id;
         api.languageId = frenchLanguageId;
-        Object.assign(api, { language: { id: germanLanguageId, locale: { code: 'de-DE' } } });
+        Object.assign(store, { documentLanguage: { id: germanLanguageId, locale: { code: 'de-DE' } } });
         wrapper = shallowMount(await wrapTestComponent('sw-product-document-language-value', { sync: true }), {
             props: { value: 'Manuel français', isTranslated: true },
         });
         expect(wrapper.text()).toContain('Manuel français');
         expect(wrapper.find('.mt-badge').exists()).toBe(false);
 
-        Object.assign(api, { language: { id: frenchLanguageId, locale: { code: 'fr-FR' } } });
+        Object.assign(store, { documentLanguage: { id: frenchLanguageId, locale: { code: 'fr-FR' } } });
+        await flushPromises();
+        expect(wrapper.get('.mt-badge').text()).toBe('FR');
+
+        Object.assign(api, { language: { id: germanLanguageId } });
         await flushPromises();
         expect(wrapper.get('.mt-badge').text()).toBe('FR');
     });

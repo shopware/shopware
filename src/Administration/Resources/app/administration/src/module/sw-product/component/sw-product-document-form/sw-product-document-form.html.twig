@@ -157,7 +157,7 @@
                         <template #actions="{ item }">
                             <sw-context-menu-item
                                 :disabled="!canEdit || isInherited"
-                                @click="editDocument(item)"
+                                @click="openDocumentEditor(item)"
                             >
                                 {{ !isDefaultLanguage && !item.title && !item.mediaId ? $t('sw-product.documentForm.addLanguageVersion', { language: contentLanguageName }) : $t('global.default.edit') }}
                             </sw-context-menu-item>
@@ -169,7 +169,7 @@
                                 v-if="isDefaultLanguage || item.title || item.mediaId"
                                 variant="danger"
                                 :disabled="!canEdit || isInherited"
-                                @click="confirmRemoveDocument(item)"
+                                @click="openRemoveDocumentModal(item)"
                             >
                                 {{ isDefaultLanguage ? $t('global.default.remove') : $t('sw-product.documentForm.removeLanguageVersion', { language: contentLanguageName }) }}
                             </sw-context-menu-item>
@@ -205,7 +205,7 @@
                     <sw-media-upload-v2
                         :upload-tag="uploadTag"
                         variant="regular"
-                        :allow-multi-select="false"
+                        :allow-multi-select="true"
                         :label="$t('sw-product.documentForm.fileUploadLabel')"
                         required
                         :extension-accept="allowedExtensions.join(',')"
@@ -272,7 +272,7 @@
                 :is-saving-document="isSavingDocument"
                 :has-variants="hasVariants"
                 @close="closeDocumentEditor"
-                @save="saveDocument"
+                @save="applyDocumentEdit"
                 @upload="successfulUpload($event, editingDocument)"
                 @remove-file="removeEditingFile"
                 @select-media="showMediaModal = true"

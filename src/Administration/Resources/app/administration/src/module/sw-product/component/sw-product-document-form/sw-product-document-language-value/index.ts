@@ -23,7 +23,7 @@ export default Shopware.Component.wrapComponentConfig({
         isDefaultLanguage: () => Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId,
 
         languageCode(): string {
-            const language = Shopware.Store.get('context').api.language as Entity<'language'> | null;
+            const language = Shopware.Store.get('swProductDetail').documentLanguage;
             if (language?.id !== Shopware.Context.api.languageId) {
                 return '';
             }

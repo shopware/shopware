@@ -60,7 +60,7 @@ class ProductDocumentValidatorTest extends TestCase
         yield 'a file over the maximum size' => [self::file(size: 1025), [ProductDocumentValidator::VIOLATION_FILE_TOO_LARGE]];
         yield 'a file without content' => [self::file(extension: null, size: null, path: null), [ProductDocumentValidator::VIOLATION_FILE_SIZE_UNKNOWN]];
         yield 'a link to a file on another server' => [self::file(path: 'https://cdn.example.com/manual.pdf'), [ProductDocumentValidator::VIOLATION_FILE_SIZE_UNKNOWN]];
-        yield 'a private file' => [self::file(private: true), [ProductDocumentValidator::VIOLATION_FILE_PRIVATE]];
+        yield 'a private file only gets the private error' => [self::file(extension: 'xlsx', size: 1025, private: true), [ProductDocumentValidator::VIOLATION_FILE_PRIVATE]];
     }
 
     /**
@@ -77,11 +77,11 @@ class ProductDocumentValidatorTest extends TestCase
         static::assertSame($expected, $this->validate());
     }
 
-    public function testAFileThatDoesNotExistIsLeftToTheDatabase(): void
+    public function testAFileTheSearchDoesNotReturnIsReportedAsNotFound(): void
     {
         $this->translations = [$this->translation('manual', Defaults::LANGUAGE_SYSTEM, '/0', file: 'missing-file')];
 
-        static::assertSame([], $this->validate());
+        static::assertSame([['code' => ProductDocumentValidator::VIOLATION_FILE_NOT_FOUND, 'pointer' => '/0/mediaId']], $this->validate());
     }
 
     public function testAFileIsOnlyCheckedWhenATranslationGetsIt(): void
@@ -122,8 +122,8 @@ class ProductDocumentValidatorTest extends TestCase
 
         $mediaRepository = StaticEntityRepository::of(MediaCollection::class, [
             function (Criteria $criteria, Context $context): MediaCollection {
-                // private files have to stay visible for the private check
-                static::assertSame(Context::SYSTEM_SCOPE, $context->getScope());
+                // the caller's scope, so files the caller can't see stay hidden
+                static::assertSame(Context::USER_SCOPE, $context->getScope());
 
                 return $this->storedMedia($criteria->getIds());
             },

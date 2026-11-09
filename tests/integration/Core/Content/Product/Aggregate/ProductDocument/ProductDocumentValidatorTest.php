@@ -69,9 +69,9 @@ class ProductDocumentValidatorTest extends TestCase
             ],
         ], Context::createDefaultContext($adminApiSource)));
 
-        // the private file is found although the repository hides private files outside the system scope
+        // the Admin API user can't see the private file, so it counts as not found
         static::assertSame([
-            ['code' => ProductDocumentValidator::VIOLATION_FILE_PRIVATE, 'pointer' => '/0/documents/0/translations/' . $germanId . '/mediaId'],
+            ['code' => ProductDocumentValidator::VIOLATION_FILE_NOT_FOUND, 'pointer' => '/0/documents/0/translations/' . $germanId . '/mediaId'],
         ], $errors);
     }
 

@@ -37,6 +37,8 @@ final class ProductDocumentValidator implements EventSubscriberInterface
 
     public const VIOLATION_FILE_PRIVATE = 'PRODUCT_DOCUMENT_FILE_PRIVATE';
 
+    public const VIOLATION_FILE_NOT_FOUND = 'PRODUCT_DOCUMENT_FILE_NOT_FOUND';
+
     /**
      * @param EntityRepository<MediaCollection> $mediaRepository
      */
@@ -94,13 +96,20 @@ final class ProductDocumentValidator implements EventSubscriberInterface
         $allowedExtensions = $this->config->getAllowedExtensions($event->getContext());
 
         foreach ($translationsWithNewFile as [$translation, $mediaId]) {
+            $errorPath = $translation->path . '/mediaId';
+
             $file = $files->get($mediaId);
             if (!$file instanceof MediaEntity) {
-                // the database rejects a missing file, and a file the same write creates isn't stored yet
+                // unknown, hidden from the caller, or created by the same write
+                $violations->add($this->violation(
+                    code: self::VIOLATION_FILE_NOT_FOUND,
+                    messageTemplate: 'The file "{{ mediaId }}" was not found. Upload the file first.',
+                    parameters: ['{{ mediaId }}' => $mediaId],
+                    path: $errorPath,
+                ));
+
                 continue;
             }
-
-            $errorPath = $translation->path . '/mediaId';
 
             if ($file->isPrivate()) {
                 $violations->add($this->violation(
@@ -109,6 +118,8 @@ final class ProductDocumentValidator implements EventSubscriberInterface
                     parameters: ['{{ mediaId }}' => $mediaId],
                     path: $errorPath,
                 ));
+
+                continue;
             }
 
             // a linked file lives on another server and can change at any time
@@ -157,8 +168,6 @@ final class ProductDocumentValidator implements EventSubscriberInterface
     }
 
     /**
-     * Only stored files: the Administration uploads a file before the document is saved.
-     *
      * @param list<string> $mediaIds hex
      */
     private function loadFiles(array $mediaIds, Context $context): MediaCollection
@@ -166,8 +175,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
         $criteria = new Criteria($mediaIds);
         $criteria->setTitle('product-document-validator::files');
 
-        // the system scope keeps private files visible, which the private check needs
-        return $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): MediaCollection => $this->mediaRepository->search($criteria, $context)->getEntities());
+        return $this->mediaRepository->search($criteria, $context)->getEntities();
     }
 
     /**

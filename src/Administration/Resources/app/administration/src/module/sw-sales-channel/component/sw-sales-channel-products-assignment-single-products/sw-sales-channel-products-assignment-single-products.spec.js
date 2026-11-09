@@ -117,18 +117,14 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
     });
 
-    it('loads only the visibility of the current sales channel for each product', async () => {
+    it('does not load the visibilities of the products', async () => {
         setProductData([]);
         const searchedCriteria = [];
         await createWrapper({ onSearch: (criteria) => searchedCriteria.push(criteria.parse()) });
         await flushPromises();
 
         expect(searchedCriteria).toHaveLength(1);
-        const visibilities = searchedCriteria[0].associations.visibilities;
-        expect(visibilities.filter).toEqual([
-            { type: 'equals', field: 'salesChannelId', value: 1 },
-        ]);
-        expect(visibilities.associations).toBeUndefined();
+        expect(searchedCriteria[0].associations).toBeUndefined();
     });
 
     it('should display data grid when there is product data', async () => {

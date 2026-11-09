@@ -4,7 +4,10 @@
 
 const { collectTestCases } = require('./test-cases');
 const { isAcceptedSource, EXPECTED_SOURCES } = require('./sources');
-const { readBaseline, baselineKey } = require('./baseline-file');
+const { hasRepository, untaggedAtBase } = require('./base-tests');
+const { relative, sep } = require('node:path');
+
+let reportedMissingBase = false;
 
 const KINDS = [
     'regression',
@@ -50,10 +53,13 @@ module.exports = {
                 type: 'object',
                 additionalProperties: false,
                 properties: {
-                    // Absolute path of the baseline that lists the untagged tests which predate this rule.
-                    baseline: { type: 'string' },
-                    // Absolute path of the repository root, to resolve `@see adr/….md`.
+                    // Absolute path of the repository root, to resolve `@see adr/….md` and run git.
                     repoRoot: { type: 'string' },
+                    // Absolute path of the Administration root, where the spec paths start.
+                    adminRoot: { type: 'string' },
+                    // The base commit when the config was loaded. The rule resolves the base itself; this only makes
+                    // a moved base change the config, so ESLint's cache drops results that depend on the old one.
+                    base: { type: ['string', 'null'] },
                     minExceptionLength: { type: 'number', minimum: 1 },
                 },
             },
@@ -65,6 +71,8 @@ module.exports = {
             missingSee: `@{{ kind }} needs a @see on the test or on an enclosing describe tagged @{{ kind }}. ${DOCS}`,
             inheritedKindMismatch: `The nearest describe with a @see is tagged @{{ inherited }}, so this @{{ kind }} test needs its own @see. ${DOCS}`,
             invalidSee: `@see for @{{ kind }} must be {{ expected }}. Add @seeException <reason> if no such source exists. ${DOCS}`,
+            noRepository: `Test annotations were not checked: git can't find this repository here. A worktree links to its repository by an absolute path, which doesn't exist where lint runs, for example in a container that mounts the checkout elsewhere. Make the links relative by running \`git worktree repair --relative-paths\` inside this worktree on the host (git 2.48 or later), then lint again. ${DOCS}`,
+            noBase: `Test annotations were not checked: git found no merge base with the target branch, so it can't tell which tests are new. Fetch the target branch (\`git fetch origin trunk\`), or set TEST_ANNOTATION_BASE to the commit this branch starts from, then lint again. ${DOCS}`,
             shortException: `@seeException needs a reason of at least {{ min }} characters that says why the source counts. ${DOCS}`,
         },
     },
@@ -165,17 +173,32 @@ module.exports = {
         return {
             Program(program) {
                 const { tests, describes } = collectTestCases(program, sourceCode.text, sourceCode.getAllComments());
-                const baseline = options.baseline
-                    ? (readBaseline(options.baseline)[baselineKey(options.baseline, context.filename)] ?? {})
-                    : {};
-                const remaining = { ...baseline };
+                const base = untaggedAtBase(options.repoRoot, options.adminRoot);
+                if (!base && !reportedMissingBase) {
+                    // Once per run: the other checks still run, only untagged tests are let through.
+                    reportedMissingBase = true;
+                    context.report({
+                        node: program,
+                        messageId: hasRepository(options.repoRoot) ? 'noBase' : 'noRepository',
+                    });
+                }
+                const remaining = { ...base?.byFile[relative(options.adminRoot, context.filename).split(sep).join('/')] };
 
                 describes.forEach(checkDescribe);
                 tests.forEach((test) => {
                     checkTest(test, {
-                        // Each baselined identity covers as many untagged tests as it was counted.
+                        // An untagged test may stay when it was already untagged at the base, in this file or,
+                        // after a move, in another one.
                         consume() {
-                            if (!(remaining[test.identity] > 0)) {
+                            if (!base) {
+                                return true;
+                            }
+
+                            if (remaining[test.identity] === undefined) {
+                                return base.anywhere.has(test.identity);
+                            }
+
+                            if (remaining[test.identity] === 0) {
                                 return false;
                             }
 

@@ -1,7 +1,8 @@
+const { execFileSync } = require('node:child_process');
 const { mkdtempSync, mkdirSync, writeFileSync } = require('node:fs');
 const { tmpdir } = require('node:os');
 const { join } = require('node:path');
-const { RuleTester } = require('eslint');
+const { Linter, RuleTester } = require('eslint');
 const rule = require('./index');
 const seeExceptionRule = require('./see-exception');
 
@@ -13,19 +14,39 @@ const ruleTester = new RuleTester({
 });
 
 const root = mkdtempSync(join(tmpdir(), 'test-annotation-'));
+const admin = join(root, 'admin');
 mkdirSync(join(root, 'adr'));
 writeFileSync(join(root, 'adr/2026-01-01-decision.md'), '');
-const baseline = join(root, 'admin/test-annotation-baseline.json');
-mkdirSync(join(root, 'admin/src'), { recursive: true });
+mkdirSync(join(admin, 'src/moved'), { recursive: true });
 writeFileSync(
-    baseline,
-    JSON.stringify({
-        'src/old.spec.js': { 'sw-old > should render': 1 },
-    }),
+    join(admin, 'src/old.spec.js'),
+    `describe('sw-old', () => {
+    it('should render', () => {});
+});
+`,
 );
 
-const options = [{ repoRoot: root, baseline }];
-const oldSpec = join(root, 'admin/src/old.spec.js');
+// The base commit holds the untagged tests that may stay untagged
+const git = (...args) => execFileSync('git', args, { cwd: root, stdio: 'ignore' });
+git('init', '--quiet');
+git('add', '.');
+git(
+    '-c',
+    'user.name=test',
+    '-c',
+    'user.email=test@example.com',
+    '-c',
+    'commit.gpgsign=false',
+    'commit',
+    '--quiet',
+    '-m',
+    'base',
+);
+process.env.TEST_ANNOTATION_BASE = 'HEAD';
+
+const options = [{ repoRoot: root, adminRoot: admin }];
+const oldSpec = join(admin, 'src/old.spec.js');
+const movedSpec = join(admin, 'src/moved/old.spec.js');
 const ISSUE = 'https://github.com/shopware/shopware/issues/123';
 const COMMENT = 'https://github.com/shopware/shopware/issues/123#issuecomment-456';
 
@@ -103,11 +124,19 @@ ruleTester.run('test-annotation', rule, {
             options,
         },
         {
-            name: 'skips untagged tests recorded in the baseline',
+            name: 'skips tests that were untagged at the base',
             code: `describe('sw-old', () => {
     it('should render', () => {});
 });`,
             filename: oldSpec,
+            options,
+        },
+        {
+            name: 'keeps an untagged test that moved to another spec',
+            code: `describe('sw-old', () => {
+    it('should render', () => {});
+});`,
+            filename: movedSpec,
             options,
         },
         {
@@ -133,7 +162,7 @@ ruleTester.run('test-annotation', rule, {
             errors: [{ messageId: 'missingKind' }],
         },
         {
-            name: 'a baseline entry covers only as many tests as it counted',
+            name: 'a test at the base covers only as many copies in its file as it had',
             code: `describe('sw-old', () => {
     it('should render', () => {});
     it('should render', () => {});
@@ -294,4 +323,45 @@ ruleTester.run('test-annotation-see-exception', seeExceptionRule, {
             errors: [{ messageId: 'seeException' }],
         },
     ],
+});
+
+describe('without a base', () => {
+    const untagged = `describe('sw-foo', () => {
+    it('should render', () => {});
+    it('should save', () => {});
+});`;
+
+    // A fresh rule per case, because it reports a missing base once per process
+    const lint = (ruleOptions) => {
+        let fresh;
+        jest.isolateModules(() => {
+            fresh = require('./index');
+        });
+        return new Linter({ configType: 'flat' }).verify(untagged, {
+            plugins: { sw: { rules: { 'test-annotation': fresh } } },
+            rules: { 'sw/test-annotation': ['error', ruleOptions] },
+        });
+    };
+
+    afterEach(() => {
+        process.env.TEST_ANNOTATION_BASE = 'HEAD';
+    });
+
+    it('explains a missing merge base once and lets untagged tests through', () => {
+        process.env.TEST_ANNOTATION_BASE = 'does-not-exist';
+
+        const messages = lint(options[0]);
+
+        expect(messages).toHaveLength(1);
+        expect(messages[0]).toMatchObject({ line: 1, message: expect.stringContaining('no merge base') });
+    });
+
+    it('explains a repository git cannot find', () => {
+        const outside = mkdtempSync(join(tmpdir(), 'test-annotation-no-git-'));
+
+        const messages = lint({ repoRoot: outside, adminRoot: outside });
+
+        expect(messages).toHaveLength(1);
+        expect(messages[0].message).toContain('git worktree repair --relative-paths');
+    });
 });

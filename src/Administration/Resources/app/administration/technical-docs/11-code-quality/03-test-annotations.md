@@ -109,24 +109,27 @@ Do not fall back to `@characterization` when the source is merely unusual.
 
 ## Existing tests
 
-The tests that existed when the rule was introduced are listed in `test-annotation-baseline.json`, by file and by identity.
-The identity is the titles of the enclosing `describe` blocks and of the test, as written in the source, joined with ` > `.
-A listed test may stay untagged.
-Each entry covers as many untagged tests of that identity as it counts.
+Tests that were already untagged where your branch starts may stay untagged.
+The rule asks git for that commit: the merge base of `HEAD` and `origin/trunk`.
+It compares tests by identity, the titles of the enclosing `describe` blocks and of the test, as written in the source, joined with ` > `.
 
 | You … | Then |
 |---|---|
-| Add a test | Tag it. The baseline does not cover it. |
-| Rename a test or one of its `describe` blocks | It is a new test for the baseline. Tag it. |
-| Tag, rename or delete a listed test | Run `npm run lint:fix`, which runs `npm run lint:test-annotations:prune` and drops the entries that match nothing. |
-| Move or split a spec, keeping the test names | Run `npm run lint:test-annotations:add <new spec>...`, then `npm run lint:fix`. |
+| Add a test | Tag it. |
+| Rename a test or one of its `describe` blocks | It is a new test. Tag it. |
+| Move a spec, or move tests to another spec, keeping their names | Nothing to do. |
+| Tag or delete an untagged test | Nothing to do. |
 
-The CI job "Lint baselines do not grow" counts the entries per identity across all files.
-It fails when an identity grows, so moving a spec passes, but listing a new or renamed test does not.
-It also fails when the baseline holds entries of a deleted file.
-Unlike the ESLint baseline, a change to `eslint.config.ts` does not let new entries in.
+`TEST_ANNOTATION_BASE` sets another target instead of `origin/trunk`, for example the branch a stacked pull request builds on.
+In CI it is the base commit of the pull request.
+The rule reads all specs at the base once per base commit and caches them in `node_modules/.cache/test-annotation`.
 
-Never record new tests in the baseline by hand, and never run `baseline.js init` while a baseline exists.
+When git can't tell which tests are new, the rule reports that once at the top of the first spec it lints, with the cause and the fix, and lets untagged tests through:
+
+- **No merge base**: fetch the target branch with `git fetch origin trunk`, or set `TEST_ANNOTATION_BASE`.
+- **No repository**: a worktree links to its repository by an absolute path, which doesn't exist where lint runs, for example in a container that mounts the checkout elsewhere.
+  Run `git worktree repair --relative-paths` inside the worktree on the host (git 2.48 or later).
+
 `sw-test-rules/test-annotation` can't be disabled with an `eslint-disable` comment, and the growth check rejects it in `eslint-suppressions.json`.
 
 ## Bug fixes need a regression test

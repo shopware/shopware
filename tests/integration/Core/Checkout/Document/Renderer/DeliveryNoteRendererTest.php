@@ -238,7 +238,7 @@ class DeliveryNoteRendererTest extends TestCase
         static::assertNotNull($firstLineItem);
         $cart = $this->cartService->changeQuantity($cart, $firstLineItem->getId(), 3, $this->salesChannelContext);
         $orderId = $this->persistCart($cart);
-        $orderDeliveryId = $this->addOrderDelivery($orderId, 'Second Street 2', ['p0' => 1, 'p2' => 1]);
+        $orderDeliveryId = $this->addOrderDelivery($orderId, 'Second Street 2', ['p0' => 1, 'p2' => 1], $this->createShippingMethod());
 
         $html = $this->renderHtml($orderId, ['custom' => ['orderDeliveryId' => $orderDeliveryId]]);
 
@@ -254,7 +254,7 @@ class DeliveryNoteRendererTest extends TestCase
         static::assertNotNull($firstLineItem);
         $cart = $this->cartService->changeQuantity($cart, $firstLineItem->getId(), 3, $this->salesChannelContext);
         $orderId = $this->persistCart($cart);
-        $this->addOrderDelivery($orderId, 'Second Street 2', ['p0' => 1, 'p2' => 1]);
+        $this->addOrderDelivery($orderId, 'Second Street 2', ['p0' => 1, 'p2' => 1], $this->createShippingMethod());
 
         $html = $this->renderHtml($orderId, []);
 

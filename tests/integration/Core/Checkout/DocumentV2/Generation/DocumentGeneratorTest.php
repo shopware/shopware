@@ -85,7 +85,7 @@ class DocumentGeneratorTest extends TestCase
         $orderId = $this->persistCart($this->generateDemoCartWithTaxes([19, 7]));
         $this->enrichOrderForRendering($orderId);
         $this->seedDemoBaseConfig(DocumentType::DELIVERY_NOTE->value);
-        $orderDeliveryId = $this->addOrderDelivery($orderId, 'Second Street 2', ['p1' => 1]);
+        $orderDeliveryId = $this->addOrderDelivery($orderId, 'Second Street 2', ['p1' => 1], $this->createShippingMethod());
 
         $deliveryNote = $this->documentGenerator->generate(
             new DocumentGenerationRequest(

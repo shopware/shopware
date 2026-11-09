@@ -345,7 +345,7 @@ trait DocumentTrait
     /**
      * @param array<string, int> $quantities position quantities keyed by product number
      */
-    private function addOrderDelivery(string $orderId, string $street, array $quantities): string
+    private function addOrderDelivery(string $orderId, string $street, array $quantities, ?string $shippingMethodId = null): string
     {
         $context = Context::createDefaultContext();
 
@@ -397,7 +397,7 @@ trait DocumentTrait
                     [
                         'id' => $deliveryId,
                         'shippingOrderAddressId' => $addressId,
-                        'shippingMethodId' => $this->createShippingMethod(),
+                        'shippingMethodId' => $shippingMethodId ?? $delivery->getShippingMethodId(),
                         'stateId' => $delivery->getStateId(),
                         'trackingCodes' => [],
                         'shippingDateEarliest' => $delivery->getShippingDateEarliest(),

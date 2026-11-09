@@ -321,20 +321,20 @@
     },
     "openInStorefrontModal": {
       "title": "In der Storefront öffnen",
-      "description": "Wähle den Verkaufskanal, in dem Du das Produkt öffnen möchtest.",
+      "description": "Wähle den Verkaufskanal, in dem du das Produkt öffnen möchtest.",
       "infoUnsavedChanges": "Das Produkt hat ungespeicherte Änderungen. Die Storefront zeigt den zuletzt gespeicherten Stand.",
       "infoNoSalesChannels": "Das Produkt ist keinem Storefront-Verkaufskanal zugewiesen.",
       "labelSalesChannel": "Verkaufskanal",
       "placeholderSalesChannel": "Verkaufskanal auswählen ...",
       "labelDomains": "Domains",
       "checks": {
-        "salesChannelActive": "Verkaufskanal ist inaktiv",
-        "hasDomain": "Verkaufskanal hat keine Domain",
-        "maintenanceAllowlist": "Die Produkt-URLs können nicht geladen werden, weil der Verkaufskanal im Wartungsmodus ist und Deine IP-Adresse nicht auf seiner Allowlist steht",
-        "productActive": "Produkt ist inaktiv",
-        "inStock": "Produkt ist ausverkauft, und dieser Verkaufskanal blendet ausverkaufte Abverkaufsprodukte aus",
-        "inStockPossibly": "Produkt ist ausverkauft, und dieser Verkaufskanal blendet ausverkaufte Abverkaufsprodukte möglicherweise aus",
-        "storefrontShowsProduct": "Dieser Verkaufskanal zeigt das Produkt nicht an, zum Beispiel wegen Sichtbarkeit, Bestand oder einer installierten Erweiterung"
+        "salesChannelActive": "Verkaufskanal ist inaktiv.",
+        "hasDomain": "Verkaufskanal hat keine Domain.",
+        "maintenanceAllowlist": "Die Produkt-URLs können nicht geladen werden, da der Verkaufskanal im Wartungsmodus ist und deine IP-Adresse nicht auf seiner Allowlist steht.",
+        "productActive": "Produkt ist inaktiv.",
+        "inStock": "Produkt ist ausverkauft, und dieser Verkaufskanal blendet ausverkaufte Abverkaufsprodukte aus.",
+        "inStockPossibly": "Produkt ist ausverkauft, und dieser Verkaufskanal blendet ausverkaufte Abverkaufsprodukte möglicherweise aus.",
+        "storefrontShowsProduct": "Dieser Verkaufskanal zeigt das Produkt nicht an, zum Beispiel aufgrund der Sichtbarkeit, des Lagerbestands oder einer installierten Erweiterung."
       },
       "maintenanceHint": "Verkaufskanal ist im Wartungsmodus. Nur IP-Adressen auf seiner Allowlist können ihn öffnen.",
       "infoDomainsWithoutValidUrl": "Diese Domain hat keine gültige http- oder https-URL: {urls} | Diese Domains haben keine gültige http- oder https-URL: {urls}",

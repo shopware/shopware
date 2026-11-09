@@ -6,6 +6,7 @@
 
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
+import EntityFactory from 'src/core/data/entity-factory.data';
 import { nextTick } from 'vue';
 
 async function createWrapper() {
@@ -67,6 +68,7 @@ async function createWrapper() {
                 'sw-text-editor': true,
 
                 'sw-product-media-form': true,
+                'sw-product-document-form': true,
                 'sw-entity-single-select': true,
                 'sw-help-text': true,
                 'sw-text-field': true,
@@ -85,6 +87,7 @@ async function createWrapper() {
                 },
             },
             provide: {
+                entityFactory: new EntityFactory(),
                 repositoryFactory: {
                     create: () => ({
                         search: () =>
@@ -334,6 +337,17 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         await flushPromises();
 
         expect(wrapper.getComponent({ name: 'sw-product-download-form' }).props('required')).toBe(true);
+    });
+
+    it.each(['physical', 'digital'])('places documents immediately below media for a %s product', async (type) => {
+        Shopware.Store.get('swProductDetail').product.type = type;
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const cards = wrapper.findAll('.sw-product-detail-base__media, .sw-product-detail-base__documents');
+        expect(cards).toHaveLength(2);
+        expect(cards[0].classes()).toContain('sw-product-detail-base__media');
+        expect(cards[1].classes()).toContain('sw-product-detail-base__documents');
     });
 
     it('should render media card title as mt-card title', async () => {

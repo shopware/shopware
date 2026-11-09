@@ -270,6 +270,9 @@ export default {
             const criteria = new Criteria(1, 1);
             criteria.setTotalCountMode(0);
 
+            criteria.getAssociation('documents').addSorting(Criteria.sort('position', 'ASC'));
+            criteria.addAssociation('documents.translations.media');
+
             criteria.getAssociation('media').addSorting(Criteria.sort('position', 'ASC'));
             criteria.addAssociation('media.media');
 

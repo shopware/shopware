@@ -591,6 +591,25 @@
     },
     "notification": {
       "notificationSaveErrorProductNoAlreadyExists": "Product No. \"{productNo}\" is already assigned."
+    },
+    "documentForm": {
+      "cardTitle": "Documents ({count})",
+      "cardSubtitle": "Files customers can download on the product detail page in the Storefront.",
+      "emptyState": "No documents yet",
+      "emptyDescription": "Add files such as manuals, datasheets or certificates. Customers download them on the product detail page in the Storefront.",
+      "buttonAdd": "Add documents",
+      "switchContentLanguage": "Switch content language",
+      "columnTitle": "Name",
+      "columnFileName": "File",
+      "columnFileType": "Format",
+      "columnFileSize": "Size",
+      "contextDownload": "Download",
+      "errorLoadMedia": "The uploaded file could not be loaded. Please try again.",
+      "errorPrivateMedia": "Product documents must use public media files.",
+      "errorDocumentLimit": "You can add up to {count} documents per product.",
+      "errorDocumentDuplicated": "This file is already assigned to the product.",
+      "fileUploadLabel": "File upload",
+      "uploadHint": "{extensions} or {lastExtension}, up to {size} MB each."
     }
   },
   "sw-privileges": {

@@ -69,7 +69,7 @@ class CleanupUnusedProductDocumentMediaTaskHandlerTest extends TestCase
     }
 
     /**
-     * @return array{id: string, fileName: string, fileExtension: string, mimeType: string, mediaFolderId: string, uploadedAt: \DateTimeImmutable}
+     * @return array{id: string, fileName: string, fileExtension: string, mimeType: string, fileSize: int, mediaFolderId: string, uploadedAt: \DateTimeImmutable}
      */
     private static function file(string $id, string $folderId, \DateTimeImmutable $uploadedAt): array
     {
@@ -78,6 +78,8 @@ class CleanupUnusedProductDocumentMediaTaskHandlerTest extends TestCase
             'fileName' => 'file-' . $id,
             'fileExtension' => 'pdf',
             'mimeType' => 'application/pdf',
+            // the files of product documents need a size
+            'fileSize' => 1024,
             'mediaFolderId' => $folderId,
             'uploadedAt' => $uploadedAt,
         ];

@@ -462,6 +462,20 @@ Enable the `v6.8.0.0` feature flag in 6.7 to test your client against the new fo
 
 # Core
 
+## Cheapest-price blob storage
+
+Serialized cheapest prices moved from `product.cheapest_price` to `product.cheapest_price_blob`.
+Update extensions that read the column directly; writes should use the product APIs and indexing instead of modifying the serialized payload.
+The JSON data in `cheapest_price_accessor` is unchanged.
+
+The update schedules a synchronous, batched reconciliation that rebuilds cheapest prices when the legacy and blob payloads differ, including missing blob values.
+Drain older application instances and workers before running `system:update:finish`, and keep storefront traffic stopped until it completes.
+The reconciliation scans all product versions and only recalculates mismatches.
+
+Destructive migrations refuse to drop the legacy column until reconciliation completes.
+When using `--version-selection-mode=all`, first run the non-destructive migrations and `system:update:finish` with the default safe mode, then run the destructive migrations with `--version-selection-mode=all`.
+The default safe migration mode retains the unused legacy column for later removal.
+
 <details>
 
 ## Multiple SQL statements restricted to migrations and installation

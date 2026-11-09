@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -145,7 +146,8 @@ class CheapestPriceTest extends TestCase
             ->getContainer()
             ->get(Connection::class);
 
-        $cheapestPriceQuery = $connection->prepare('UPDATE product SET cheapest_price = :price WHERE id = :id AND version_id = :version');
+        $column = Feature::isActive('v6.8.0.0') ? 'cheapest_price_blob' : 'cheapest_price';
+        $cheapestPriceQuery = $connection->prepare('UPDATE product SET ' . $column . ' = :price WHERE id = :id AND version_id = :version');
 
         $prices = file_get_contents(__DIR__ . '/_fixtures/serialized_prices.json');
         static::assertIsString($prices);

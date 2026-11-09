@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -42,9 +43,14 @@ class CheapestPriceUpdater
 
         $versionId = Uuid::fromHexToBytes($context->getVersionId());
 
+        // @deprecated tag:v6.8.0 - Stop writing the legacy text column after the blob cutover.
+        $priceAssignment = Feature::isActive('v6.8.0.0')
+            ? 'cheapest_price_blob = :price'
+            : 'cheapest_price_blob = :price, cheapest_price = :price';
+
         $cheapestPrice = new RetryableQuery(
             $this->connection,
-            $this->connection->prepare('UPDATE product SET cheapest_price = :price WHERE id = :id AND version_id = :version')
+            $this->connection->prepare('UPDATE product SET ' . $priceAssignment . ' WHERE id = :id AND version_id = :version')
         );
 
         $accessorQuery = new RetryableQuery(

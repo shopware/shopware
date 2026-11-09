@@ -17,14 +17,14 @@ use Shopware\Storefront\Page\Robots\Struct\RobotsDirectiveType;
 class RobotsDirectiveTest extends TestCase
 {
     #[DataProvider('providePathBasedCases')]
-    public function testIsPathBased(RobotsDirectiveType $type, bool $expected): void
+    public function testIsPathBased(RobotsDirectiveType $type, bool $expected, string $value = 'test-value'): void
     {
-        $directive = new RobotsDirective($type, 'test-value');
+        $directive = new RobotsDirective($type, $value);
         static::assertSame($expected, $directive->isPathBased());
     }
 
     /**
-     * @return array<string, array{RobotsDirectiveType, bool}>
+     * @return array<string, array{0: RobotsDirectiveType, 1: bool, 2?: string}>
      */
     public static function providePathBasedCases(): array
     {
@@ -34,7 +34,8 @@ class RobotsDirectiveTest extends TestCase
             'user-agent' => [RobotsDirectiveType::USER_AGENT, false],
             'crawl-delay' => [RobotsDirectiveType::CRAWL_DELAY, false],
             'sitemap' => [RobotsDirectiveType::SITEMAP, false],
-            'content-usage' => [RobotsDirectiveType::CONTENT_USAGE, false],
+            'content-usage' => [RobotsDirectiveType::CONTENT_USAGE, false, 'train-ai=n'],
+            'content-usage with path' => [RobotsDirectiveType::CONTENT_USAGE, true, '/blog/ train-ai=n'],
             'content-signal' => [RobotsDirectiveType::CONTENT_SIGNAL, false],
         ];
     }
@@ -55,6 +56,22 @@ class RobotsDirectiveTest extends TestCase
 
         static::assertSame(RobotsDirectiveType::CRAWL_DELAY, $withBasePath->type);
         static::assertSame('10', $withBasePath->value);
+    }
+
+    public function testWithBasePathPrefixesOnlyThePathOfContentUsage(): void
+    {
+        $directive = new RobotsDirective(RobotsDirectiveType::CONTENT_USAGE, '/blog/ train-ai=n, search=y');
+        $withBasePath = $directive->withBasePath('/de');
+
+        static::assertSame(RobotsDirectiveType::CONTENT_USAGE, $withBasePath->type);
+        static::assertSame('/de/blog/ train-ai=n, search=y', $withBasePath->value);
+    }
+
+    public function testWithBasePathDoesNotApplyPathForContentUsageWithoutPath(): void
+    {
+        $directive = new RobotsDirective(RobotsDirectiveType::CONTENT_USAGE, 'train-ai=n');
+
+        static::assertSame($directive, $directive->withBasePath('/de'));
     }
 
     public function testWithBasePathNormalizesSlashes(): void

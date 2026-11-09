@@ -83,6 +83,40 @@ describe('scripts/extensionTooling/upgrade codemods', () => {
         expect(fs.existsSync(path.join(projectRoot, SOURCE, 'component/acme-card/acme-card.vue'))).toBe(false);
     });
 
+    it('writes a TODO comment once and keeps listing its spot as manual work', async () => {
+        const storeFile = 'src/Resources/app/administration/src/page/acme-list/store.js';
+        const hint =
+            'TODO Codemod: Vuex is removed in 6.8. Use Pinia stores: Shopware.Store.get(id) and ' +
+            'Shopware.Store.register({ id, state, getters, actions }).';
+        const vuex = (result: Awaited<ReturnType<typeof upgradeExtensions>>) => {
+            return result.extensions[0].codemods.find((report) => report.codemod.id === 'vuex-state');
+        };
+
+        writeFile(path.join(projectRoot, SOURCE, 'page/acme-list/store.js'), [
+            "export const count = () => Shopware.State.get('acme').count;",
+        ]);
+        commitAll(path.join(projectRoot, PLUGIN));
+
+        const preview = await upgradeExtensions({ projectRoot, administrationRoot });
+
+        expect(vuex(preview)).toMatchObject({ changes: 1, files: 1 });
+        expect(vuex(preview)?.manual).toEqual([expect.objectContaining({ file: storeFile, line: 1 })]);
+
+        const written = await upgradeExtensions({ projectRoot, administrationRoot, write: true });
+        const source = readSource(projectRoot, 'page/acme-list/store.js');
+
+        expect(source).toBe(`// ${hint}\nexport const count = () => Shopware.State.get('acme').count;\n`);
+        expect(vuex(written)?.manual).toEqual([expect.objectContaining({ file: storeFile, line: 2 })]);
+
+        commitAll(path.join(projectRoot, PLUGIN));
+
+        const again = await upgradeExtensions({ projectRoot, administrationRoot, write: true });
+
+        expect(vuex(again)).toMatchObject({ changes: 0, files: 0 });
+        expect(vuex(again)?.manual).toHaveLength(1);
+        expect(readSource(projectRoot, 'page/acme-list/store.js')).toBe(source);
+    });
+
     it('converts components to SFCs only when the opt-in codemod is requested', async () => {
         await upgradeExtensions({ projectRoot, administrationRoot, write: true, optIns: ['sfc-migration'] });
 

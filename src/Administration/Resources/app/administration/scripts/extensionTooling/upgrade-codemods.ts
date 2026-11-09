@@ -31,7 +31,10 @@ export interface SfcMigrationCodemod extends BaseCodemod {
 
 export type Codemod = EslintCodemod | SfcMigrationCodemod;
 
-/** The components `code-mods.js` migrated: the ones whose `mt-*` replacement is a drop-in for extensions. */
+/**
+ * The components `code-mods.js` migrated, plus the ones 6.8 removes. Their `mt-*` replacement is a
+ * drop-in, or `mt-component-usage` adapts the usage, like the `items` of `mt-tabs`.
+ */
 const MT_COMPONENTS = [
     'sw-button',
     'sw-alert',
@@ -48,7 +51,21 @@ const MT_COMPONENTS = [
     'sw-checkbox-field',
     'sw-number-field',
     'sw-password-field',
+    'sw-loader',
+    'sw-skeleton-bar',
+    'sw-progress-bar',
+    'sw-tabs',
 ];
+
+const eslint68 = (id: string, title: string, rule: string, scope: CodemodScope): EslintCodemod => ({
+    id,
+    title,
+    target: '6.8',
+    optIn: false,
+    kind: 'eslint',
+    rule: `sw-deprecation-rules/${rule}`,
+    scope,
+});
 
 export const CODEMODS: Codemod[] = [
     {
@@ -124,6 +141,50 @@ export const CODEMODS: Codemod[] = [
         rule: 'sw-core-rules/no-tc-translation',
         scope: 'both',
     },
+    eslint68('module-snippets', 'Module.register() snippets', 'no-module-snippets', 'script'),
+    eslint68('select-components', 'Removed select components', 'no-removed-select-components', 'template'),
+    eslint68('date-filter', 'dateFilter computeds', 'no-date-filter-computed', 'both'),
+    eslint68('asset-filter', 'assetFilter computeds', 'no-asset-filter-computed', 'both'),
+    eslint68('order-list-helpers', 'sw-order-list delivery helpers', 'no-order-list-delivery-helpers', 'both'),
+    eslint68('renamed-twig-blocks', 'Renamed Twig blocks', 'no-renamed-twig-blocks', 'template'),
+    eslint68('service-methods', 'Removed service methods', 'no-removed-service-methods', 'both'),
+    eslint68('order-state-select', 'sw-order-state-select-v2 styles', 'no-order-state-select-styles', 'template'),
+    eslint68('snippet-keys-images', 'Removed snippet keys and images', 'no-removed-snippet-keys-and-images', 'both'),
+    // The codemods below only annotate each spot with a comment that names the replacement.
+    eslint68(
+        'composition-extension-api',
+        'Composition API extension system',
+        'no-private-composition-extension-api',
+        'script',
+    ),
+    eslint68('vuex-state', 'Vuex Shopware.State → Pinia', 'no-vuex-state', 'both'),
+    eslint68('removed-twig-blocks', 'Removed Twig blocks', 'no-removed-twig-blocks', 'template'),
+    eslint68('text-editor', 'sw-text-editor → mt-text-editor', 'no-sw-text-editor', 'both'),
+    eslint68('order-detail-loading', 'Order detail loading and editing', 'no-order-detail-loading-members', 'both'),
+    eslint68('product-states', 'Product states → productType', 'no-product-states', 'both'),
+    eslint68('system-config-schema', 'sw-system-config config → schema', 'no-system-config-config', 'both'),
+    eslint68('axios-cancel-token', 'axios CancelToken → AbortController', 'no-axios-cancel-token', 'script'),
+    eslint68('product-advanced-mode', 'Product detail advanced mode', 'no-product-advanced-mode', 'both'),
+    eslint68('vite-8-config', 'Vite 8 build config', 'no-vite-7-config', 'script'),
+    eslint68('help-sidebar', 'sw-help-sidebar', 'no-sw-help-sidebar', 'both'),
+    eslint68('popover', 'sw-popover → mt-floating-ui', 'no-sw-popover', 'both'),
+    eslint68('custom-field-set-loaders', 'Custom field set loaders', 'no-custom-field-set-loaders', 'both'),
+    eslint68('rule-conditions', 'Removed rule conditions', 'no-removed-rule-conditions', 'both'),
+    eslint68('automatic-promotions', 'Automatic promotion toggle', 'no-automatic-promotion-toggle', 'both'),
+    eslint68('unused-order-components', 'Unused order components', 'no-unused-order-components', 'both'),
+    eslint68('order-shipping-costs', 'sw-order-detail-details shipping', 'no-order-detail-shipping-costs', 'both'),
+    eslint68('worker-notification', 'Shopware.WorkerNotification', 'no-worker-notification', 'script'),
+    eslint68('agentic-commerce', 'Agentic Commerce UI', 'no-agentic-commerce-ui', 'both'),
+    eslint68('mail-template-preview', 'Mail template preview APIs', 'no-mail-template-preview-apis', 'both'),
+    eslint68('media-grid-deselect', 'sw-media-grid outside click', 'no-media-grid-outside-click', 'both'),
+    eslint68('cms-helpers', 'CMS helpers', 'no-cms-page-helpers', 'both'),
+    eslint68(
+        'settings-product-promotion',
+        'Settings, product, promotion members',
+        'no-removed-settings-product-promotion-members',
+        'both',
+    ),
+    eslint68('changed-defaults', 'Changed Administration defaults', 'no-changed-default-behaviour', 'both'),
     {
         id: 'sfc-migration',
         title: 'Options API → SFC',

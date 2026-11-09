@@ -214,11 +214,11 @@ class UnusedMediaPurgerTest extends TestCase
 
         (new UnusedMediaPurger($this->mediaRepo, $connection, new EventDispatcher(), new NativeClock()))
             ->deleteNotUsedMedia(gracePeriodDays: 1);
-        static::assertNotNull($this->mediaRepo->search(new Criteria([$media->getId()]), $this->context)->first());
+        static::assertNotNull($this->mediaRepo->search(new Criteria([$media->getId()]), $this->context)->getEntities()->get($media->getId()));
 
         (new UnusedMediaPurger($this->mediaRepo, $connection, new EventDispatcher(), new MockClock('+2 days')))
             ->deleteNotUsedMedia(gracePeriodDays: 1);
-        static::assertNull($this->mediaRepo->search(new Criteria([$media->getId()]), $this->context)->first());
+        static::assertNull($this->mediaRepo->search(new Criteria([$media->getId()]), $this->context)->getEntities()->get($media->getId()));
     }
 
     public function testGetNotUsedMediaWithOffsetPastEndDoesNotCrash(): void

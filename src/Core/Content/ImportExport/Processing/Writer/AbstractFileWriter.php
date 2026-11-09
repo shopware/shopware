@@ -75,6 +75,11 @@ abstract class AbstractFileWriter extends AbstractWriter
         if (!\is_string($tempFilePath)) {
             throw ImportExportException::couldNotCreateFile($tempDir);
         }
+
+        if (isset($this->tempPath) && is_file($this->tempPath)) {
+            unlink($this->tempPath);
+        }
+
         $this->tempPath = $tempFilePath;
         $file = fopen($this->tempPath, 'a+');
         if (!\is_resource($file)) {

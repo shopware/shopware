@@ -6,7 +6,6 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -26,7 +25,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * Checks product documents against `shopware.product_documents` before they are written.
- * Only what the write changes is checked: new files, added documents and the default-language file of new documents.
+ * Only what the write changes is checked: new files and added documents.
  *
  * @internal
  */
@@ -42,8 +41,6 @@ final class ProductDocumentValidator implements EventSubscriberInterface
     public const VIOLATION_FILE_SIZE_UNKNOWN = 'PRODUCT_DOCUMENT_FILE_SIZE_UNKNOWN';
 
     public const VIOLATION_FILE_PRIVATE = 'PRODUCT_DOCUMENT_FILE_PRIVATE';
-
-    public const VIOLATION_DEFAULT_TRANSLATION_MISSING = 'PRODUCT_DOCUMENT_DEFAULT_TRANSLATION_MISSING';
 
     /**
      * @param EntityRepository<MediaCollection> $mediaRepository
@@ -79,7 +76,6 @@ final class ProductDocumentValidator implements EventSubscriberInterface
 
         $violations = new ConstraintViolationList();
         $this->validateFiles($event, $translations, $violations);
-        $this->validateDefaultTranslations($newDocuments, $translations, $violations);
         $this->validateNumberOfDocuments($newDocuments, $documentCommands, $violations);
 
         if ($violations->count() > 0) {
@@ -182,38 +178,6 @@ final class ProductDocumentValidator implements EventSubscriberInterface
 
         // the system scope keeps private files visible, which the private check needs
         return $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): MediaCollection => $this->mediaRepository->search($criteria, $context)->getEntities());
-    }
-
-    /**
-     * A new document needs a default-language translation, which other languages fall back to.
-     * The DAL doesn't require one, because foreign keys don't count as required translated fields,
-     * and core's TranslationValidator keeps it from being deleted later.
-     *
-     * @param list<WriteCommand> $newDocuments
-     * @param list<OutcomeRow> $translations
-     */
-    private function validateDefaultTranslations(array $newDocuments, array $translations, ConstraintViolationList $violations): void
-    {
-        $systemLanguageId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
-
-        $documentsWithDefaultTranslation = [];
-        foreach ($translations as $translation) {
-            if ($translation->primaryKey['language_id'] === $systemLanguageId) {
-                $documentsWithDefaultTranslation[$translation->primaryKey['product_document_id'] . $translation->primaryKey['product_document_version_id']] = true;
-            }
-        }
-
-        foreach ($newDocuments as $document) {
-            $primaryKey = $document->getPrimaryKey();
-            if (!isset($documentsWithDefaultTranslation[$primaryKey['id'] . $primaryKey['version_id']])) {
-                $violations->add($this->violation(
-                    code: self::VIOLATION_DEFAULT_TRANSLATION_MISSING,
-                    messageTemplate: 'The product document "{{ documentId }}" has no file in the default language, which other languages fall back to.',
-                    parameters: ['{{ documentId }}' => Uuid::fromBytesToHex($primaryKey['id'])],
-                    path: $document->getPath(),
-                ));
-            }
-        }
     }
 
     /**

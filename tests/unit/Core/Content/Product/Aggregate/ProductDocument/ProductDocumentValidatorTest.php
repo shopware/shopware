@@ -121,26 +121,6 @@ class ProductDocumentValidatorTest extends TestCase
         static::assertSame([], $this->validate());
     }
 
-    public function testANewDocumentNeedsADefaultLanguageTranslation(): void
-    {
-        $this->storedFiles = [
-            $this->ids->get('manual-file') => self::file(),
-            $this->ids->get('zertifikat-file') => self::file(),
-        ];
-        $this->documents = [
-            $this->addedDocument('manual', '/0/documents/0'),
-            $this->addedDocument('certificate', '/0/documents/1'),
-            // existing documents are not checked
-            $this->editedDocument('datasheet', '/0/documents/2'),
-        ];
-        $this->translations = [
-            $this->translation('manual', Defaults::LANGUAGE_SYSTEM, '/0/documents/0/translations/' . Defaults::LANGUAGE_SYSTEM, file: 'manual-file'),
-            $this->translation('certificate', self::GERMAN, '/0/documents/1/translations/' . self::GERMAN, file: 'zertifikat-file'),
-        ];
-
-        static::assertSame([['code' => ProductDocumentValidator::VIOLATION_DEFAULT_TRANSLATION_MISSING, 'pointer' => '/0/documents/1']], $this->validate());
-    }
-
     /**
      * @return iterable<string, array{int, list<array{string, string}>, list<string>}>
      */
@@ -163,13 +143,8 @@ class ProductDocumentValidatorTest extends TestCase
     public function testAProductCanHaveTenDocuments(int $storedDocuments, array $changes, array $pointers): void
     {
         $this->storedDocuments = [$this->ids->get('drill') . Defaults::LIVE_VERSION => $storedDocuments];
-        $this->storedFiles = [$this->ids->get('file') => self::file()];
         foreach ($changes as $number => [$change, $path]) {
             $document = 'document-' . $number;
-            if ($change === 'added') {
-                $this->translations[] = $this->translation($document, Defaults::LANGUAGE_SYSTEM, $path . '/translations/' . Defaults::LANGUAGE_SYSTEM, file: 'file');
-            }
-
             $this->documents[] = match ($change) {
                 'added' => $this->addedDocument($document, $path),
                 'edited' => $this->editedDocument($document, $path),

@@ -13,6 +13,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentReade
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentValidator;
 use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
@@ -214,7 +215,9 @@ class ProductDocumentValidatorTest extends TestCase
      */
     private function validate(array $commands = []): array
     {
-        $event = new PreWriteValidationEvent(WriteContext::createFromContext(Context::createDefaultContext()), [...$this->documents, ...$commands]);
+        // an Admin API request runs in the user scope, where the media repository hides private files
+        $context = Context::createDefaultContext(new AdminApiSource(null));
+        $event = new PreWriteValidationEvent(WriteContext::createFromContext($context), [...$this->documents, ...$commands]);
 
         $this->validator()->validate($event);
 

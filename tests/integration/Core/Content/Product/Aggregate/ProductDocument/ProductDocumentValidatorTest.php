@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentValid
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -81,6 +82,10 @@ class ProductDocumentValidatorTest extends TestCase
     {
         $germanId = $this->getDeDeLanguageId();
 
+        // an Admin API request runs in the user scope, where the media repository hides private files
+        $adminApiSource = new AdminApiSource(null);
+        $adminApiSource->setIsAdmin(true);
+
         $errors = $this->errorsOf(fn () => $this->addDocuments([
             [
                 'translations' => [
@@ -88,7 +93,7 @@ class ProductDocumentValidatorTest extends TestCase
                     $germanId => ['title' => 'Handbuch', 'mediaId' => $this->createMedia('handbuch', private: true)],
                 ],
             ],
-        ]));
+        ], Context::createDefaultContext($adminApiSource)));
 
         // the private file is found although the repository hides private files outside the system scope
         static::assertSame([
@@ -109,9 +114,9 @@ class ProductDocumentValidatorTest extends TestCase
     /**
      * @param list<array<string, mixed>> $documents
      */
-    private function addDocuments(array $documents): void
+    private function addDocuments(array $documents, ?Context $context = null): void
     {
-        $this->productRepository->update([['id' => $this->ids->get('drill'), 'documents' => $documents]], $this->context);
+        $this->productRepository->update([['id' => $this->ids->get('drill'), 'documents' => $documents]], $context ?? $this->context);
     }
 
     /**

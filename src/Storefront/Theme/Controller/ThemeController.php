@@ -93,7 +93,7 @@ class ThemeController extends AbstractController
         }
 
         if ($request->query->getBoolean('reset')) {
-            $this->themeService->resetTheme($themeId, $context);
+            $context->addState(ThemeService::STATE_RESET_CONFIG);
         }
 
         $this->themeService->updateTheme(

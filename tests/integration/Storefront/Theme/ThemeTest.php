@@ -22,6 +22,7 @@ use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
+use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\ScssPhpCompiler;
@@ -40,6 +41,7 @@ use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimpleThemeConfigInheri
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\ThemeFixtures;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
@@ -858,6 +860,58 @@ class ThemeTest extends TestCase
 
         static::assertNull($resetTheme->getConfigValues());
         static::assertNotNull($resetTheme->getUpdatedAt());
+    }
+
+    public function testFailedUpdateWithResetKeepsTheSavedConfig(): void
+    {
+        $theme = $this->themeRepository->search((new Criteria())->addFilter(new EqualsFilter('technicalName', 'Storefront')), $this->context)->getEntities()->first();
+        static::assertNotNull($theme);
+        $savedConfig = ['sw-color-brand-primary' => ['value' => '#ff00ff']];
+        $this->themeRepository->update([['id' => $theme->getId(), 'configValues' => $savedConfig]], $this->context);
+        $runtimeConfigService = static::getContainer()->get(ThemeRuntimeConfigService::class);
+        $runtimeConfigService->refreshConfigValues($theme->getId(), $this->context);
+
+        // Fails the save after the reset was written and before the values are written.
+        $failure = new \RuntimeException('value write failed');
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(ThemeConfigChangedEvent::class, static function () use ($failure): void {
+            throw $failure;
+        });
+        $themeService = new ThemeService(
+            static::getContainer()->get(StorefrontPluginRegistry::class),
+            $this->themeRepository,
+            static::getContainer()->get('theme_sales_channel.repository'),
+            static::createStub(ThemeCompiler::class),
+            static::createStub(ScssPhpCompiler::class),
+            $dispatcher,
+            static::getContainer()->get(DatabaseConfigLoader::class),
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(SystemConfigService::class),
+            static::getContainer()->get('messenger.default_bus'),
+            static::getContainer()->get(NotificationService::class),
+            static::getContainer()->get(ThemeMergedConfigBuilder::class),
+            $runtimeConfigService,
+        );
+
+        try {
+            $this->context->state(
+                static fn (Context $context) => $themeService->updateTheme(
+                    $theme->getId(),
+                    ['sw-color-brand-primary' => ['value' => '#123456']],
+                    null,
+                    $context,
+                ),
+                ThemeService::STATE_RESET_CONFIG,
+            );
+            static::fail('The failure must be passed on.');
+        } catch (\RuntimeException $e) {
+            static::assertSame($failure, $e);
+        }
+
+        $savedTheme = $this->themeRepository->search(new Criteria([$theme->getId()]), $this->context)->getEntities()->first();
+        static::assertNotNull($savedTheme);
+        static::assertSame($savedConfig, $savedTheme->getConfigValues());
+        static::assertSame('#ff00ff', $runtimeConfigService->getRuntimeConfig($theme->getId())?->resolvedConfig['fields']['sw-color-brand-primary']['value']);
     }
 
     private function createBundleTheme(StorefrontPluginConfiguration $config, ThemeEntity $parentTheme): string

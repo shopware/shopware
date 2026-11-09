@@ -9,12 +9,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileCollection;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Service\DownloadService;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
@@ -42,7 +42,7 @@ class DownloadServiceTest extends TestCase
     public function testInvalidAccessToken(ImportExportFileEntity $fileEntity, string $accessToken): void
     {
         $this->expectExceptionObject(ImportExportException::invalidFileAccessToken());
-        $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
+        $fileRepository = new StaticEntityRepository([new ImportExportFileCollection([$fileEntity])]);
 
         $downloadService = $this->createDownloadService(fileRepository: $fileRepository);
 
@@ -54,7 +54,7 @@ class DownloadServiceTest extends TestCase
     {
         $this->expectExceptionObject(ImportExportException::fileNotFound($fileId));
 
-        $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
+        $fileRepository = new StaticEntityRepository([new ImportExportFileCollection([$fileEntity])]);
 
         $downloadService = $this->createDownloadService(fileRepository: $fileRepository);
 
@@ -69,7 +69,7 @@ class DownloadServiceTest extends TestCase
         string $expectOutputFilename,
         string $expectedContentType
     ): void {
-        $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
+        $fileRepository = new StaticEntityRepository([new ImportExportFileCollection([$fileEntity])]);
 
         $fileSystem = $this->createMock(Filesystem::class);
         $fileSystem->method('temporaryUrl')->willReturn('');
@@ -104,7 +104,7 @@ class DownloadServiceTest extends TestCase
             'updatedAt' => new \DateTimeImmutable(self::NOW),
         ]);
 
-        $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
+        $fileRepository = new StaticEntityRepository([new ImportExportFileCollection([$fileEntity])]);
 
         $fileSystem = $this->createMock(Filesystem::class);
         $fileSystem->method('temporaryUrl')->willThrowException(new UnableToGenerateTemporaryUrl('reason', '/any/path'));
@@ -166,7 +166,7 @@ class DownloadServiceTest extends TestCase
             'updatedAt' => new \DateTimeImmutable(self::NOW),
         ]);
 
-        $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
+        $fileRepository = new StaticEntityRepository([new ImportExportFileCollection([$fileEntity])]);
 
         $fileSystem = $this->createMock(Filesystem::class);
         $fileSystem->expects($this->once())->method('temporaryUrl')->with(
@@ -382,7 +382,7 @@ class DownloadServiceTest extends TestCase
     }
 
     /**
-     * @param EntityRepository<EntityCollection<ImportExportFileEntity>>|null $fileRepository
+     * @param EntityRepository<ImportExportFileCollection>|null $fileRepository
      */
     private function createDownloadService(
         ?FilesystemOperator $fileSystem = null,
@@ -409,11 +409,10 @@ class DownloadServiceTest extends TestCase
     }
 
     /**
-     * @return StaticEntityRepository<EntityCollection<ImportExportFileEntity>>
+     * @return StaticEntityRepository<ImportExportFileCollection>
      */
     private function createFileRepository(): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<EntityCollection<ImportExportFileEntity>> */
-        return new StaticEntityRepository([]);
+        return StaticEntityRepository::of(ImportExportFileCollection::class);
     }
 }

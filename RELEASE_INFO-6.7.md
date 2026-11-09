@@ -280,7 +280,7 @@ The property is unused and will be removed in 6.8.
 ### Promotion line items store the discount value in the cart currency
 
 `payload.value` of promotion line items with an absolute, fixed or fixed unit discount now contains the value in the cart currency, using the advanced price of the currency or the currency factor.
-Before, it always contained the value of the default currency.
+Orders placed before this change still contain the default currency value.
 Extensions and headless frontends that convert `payload.value` into the cart currency themselves must remove that conversion.
 
 ## API

@@ -13,9 +13,10 @@ use Shopware\Core\Framework\Log\Package;
  * order per key: configured entry → the resolver's code-level fallback → the replacement value. Configured
  * entries win so an extension or operator can always correct a code-level heuristic.
  *
- * Table lookups are memoized per mapping and key, the callback-based fallback is not, as it may produce
- * different results for the same key. The identifier keyspaces are finite and fixed per deployment,
- * so no eviction is implemented.
+ * The compiled form of a table is memoized per mapping name (bounded by configuration). Per-key results
+ * are deliberately not cached: some resolvers feed request-derived keys, so a per-key cache would
+ * grow without bound in long-running runtimes. A lookup is one hash access plus a short prefix
+ * scan - cheap enough per emit.
  *
  * @internal
  */
@@ -26,11 +27,6 @@ class LabelMappingRegistry
      * @var array<string, array{exact: array<string, string>, prefixes: list<array{string, string}>}>
      */
     private array $compiled = [];
-
-    /**
-     * @var array<string, array<string, string|null>>
-     */
-    private array $cache = [];
 
     /**
      * @param array<string, array<string, string>> $mappings mapping name → (key → label value)
@@ -46,18 +42,9 @@ class LabelMappingRegistry
      */
     public function resolve(string $mapping, string $key, ?\Closure $codeLevelFallback = null): string
     {
-        return $this->lookupCached($mapping, $key)
+        return $this->lookup($mapping, $key)
             ?? ($codeLevelFallback !== null ? $codeLevelFallback($key) : null)
             ?? $this->replacementValue;
-    }
-
-    private function lookupCached(string $mapping, string $key): ?string
-    {
-        if (\array_key_exists($key, $this->cache[$mapping] ?? [])) {
-            return $this->cache[$mapping][$key];
-        }
-
-        return $this->cache[$mapping][$key] = $this->lookup($mapping, $key);
     }
 
     private function lookup(string $mapping, string $key): ?string

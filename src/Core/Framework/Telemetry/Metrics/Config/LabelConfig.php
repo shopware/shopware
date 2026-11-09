@@ -26,16 +26,24 @@ readonly class LabelConfig
      */
     public static function fromDefinition(array $definition): self
     {
-        // the config tree folds the two keys at container build: a non-empty `allowed_values`
-        // is the complete final list (locked label), otherwise the merged `add_allowed_values` are
-        $allowedValues = $definition['allowed_values'] ?? [];
-        if ($allowedValues === []) {
-            $allowedValues = $definition['add_allowed_values'] ?? [];
+        $policy = isset($definition['policy']) ? LabelPolicy::tryFrom($definition['policy']) : null;
+
+        // a label's values list can come from two keys: a non-empty `allowed_values` is the complete,
+        // final list and always wins; without one, the list is the union of all `add_allowed_values` contributions.
+        // The config tree applies this precedence at container build, this method mirrors it.
+        // An open label uses no list at all - both keys are inert there and stay in the raw config
+        // solely for debug:config visibility
+        $allowedValues = [];
+        if ($policy !== LabelPolicy::OPEN) {
+            $allowedValues = $definition['allowed_values'] ?? [];
+            if ($allowedValues === []) {
+                $allowedValues = $definition['add_allowed_values'] ?? [];
+            }
         }
 
         return new self(
             allowedValues: $allowedValues === [] ? null : $allowedValues,
-            policy: isset($definition['policy']) ? LabelPolicy::tryFrom($definition['policy']) : null,
+            policy: $policy,
         );
     }
 }

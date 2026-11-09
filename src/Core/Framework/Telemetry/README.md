@@ -69,7 +69,7 @@ Each definition supports:
 - `unit` (optional) - unit of measurement (e.g. `byte`).
 - `parameters` (optional) - type-specific parameters (e.g. `buckets` for histograms).
 - `labels` (optional) - map of label names to their value configuration. Every label must declare values
-  (`allowed_values` and/or `add_allowed_values`) or `policy: open`.
+  (`allowed_values` and/or `add_allowed_values`) or a `policy`.
 
 ### Label allow lists
 
@@ -86,8 +86,30 @@ A value outside the effective list is replaced with `replace_unknown_label_value
 silently, in every environment. To collapse a label entirely, lock it to exactly the replacement value:
 `allowed_values: [other]`.
 
-Locking is an operator-level act: set `allowed_values` on a label you do not own only from project config or
-from a base plugin/bundle that acts as the installation's policy layer, never from a redistributed plugin.
+On a `policy: open` label both value keys are inert (an open label consults no list) and stay visible in
+`debug:config` only. To bound an open label, override its policy from a later config source (the `policy`
+key is last-source-wins) and declare the list explicitly:
+
+```yaml
+shopware:
+    telemetry:
+        metrics:
+            definitions:
+                dal.search.duration:
+                    labels:
+                        entity_group:
+                            policy: replace     # fold out-of-list values into `other`
+                            allowed_values: [product, order, other]
+```
+
+Choose the out-of-list behavior per metric type: `replace` folds unlisted values into the replacement,
+`discard` drops the whole measurement - the right bound for gauge labels, where folding distinct series
+corrupts the value. A label declaring neither values nor a policy fails the container build; no other
+combination does, so configuration shipped by one source can never break another's build.
+
+Locking a label or overriding its policy is an operator-level act: do it on a label you do not own only from
+project config or from a base plugin/bundle that acts as the installation's policy layer, never from a
+redistributed plugin.
 
 ### Label mappings
 

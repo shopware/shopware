@@ -29,16 +29,19 @@ A label declares its values through two sibling keys with different merge semant
 Core ships extensible labels (like `payment_method`) with `add_allowed_values`, structurally closed labels (`result`, `status_class`, ...) keep `allowed_values` and stay locked.
 
 The key processing is done at container build: a present `allowed_values` wins and `add_allowed_values` is cleared, otherwise `add_allowed_values` becomes the deduplicated union.
-A label combining values with `policy: open`, or declaring neither, fails the container build.
+A label declaring neither values nor a policy fails the container build; no other combination does, so configuration shipped by one party can't fail the build of a merged setup.
+On a `policy: open` label both value keys are inert: they stay visible in `debug:config` but are ignored at runtime.
+Bounding an open label is an explicit policy override: `policy` is a last-source-wins key, so a later source sets `policy: replace` (fold unlisted values) or `policy: discard` (drop the measurement) together with `allowed_values`.
 
-Locking of open labels is an operator-level decision, so plugins meant for public distribution should not do it (risk of conflicts with other plugins).
+Locking a label or overriding its policy is an operator-level decision, so plugins meant for public distribution should not do it (risk of conflicts with other plugins).
 But this is not enforced - operator's project policy can still be configured through a plugin.
 
 A value outside the effective list is replaced with `replace_unknown_label_values_with` (default `other`) silently, in every environment.
 The previous dev/test replacement notice is removed: an extension that delivers custom route/entity/task should not be forced to provide telemetry configuration (opt-in approach), and should not produce logs noise at the same time.
 This supersedes the "log replacements at notice level in dev/test" decision of the v2 ADR; typo detection moves to emitter unit tests and to `other` showing up in dashboards where it should not.
 
-To collapse a label entirely, lock it to exactly the replacement value: `allowed_values: [other]`.
+To collapse a label entirely, lock it to exactly the replacement value: `allowed_values: [other]`; an open label
+additionally needs the policy override (`policy: replace`), or a catch-all mapping entry (`'*': other`).
 
 ### 2. Named mappings for derived labels
 
@@ -63,10 +66,15 @@ At feature stabilization, the following join the BC promise and change only in m
 
 - metric names and label names,
 - mapping names and the identifier space each mapping is keyed on,
-- the merge semantics of `add_allowed_values`, `allowed_values` and `mappings`,
-- the per-label mechanism (allow list or mapping).
-  Switching an allow-list label to a mapping fails the container build for every plugin or project that contributed values to it;
-  the reverse silently orphans mapping entries.
+- the merge semantics of `add_allowed_values`, `allowed_values` and `mappings`.
+
+The integration test `TelemetryMetricContractTest` pins these names; updating its snapshot is the conscious decision 
+and, once stable, needs proper deprecation cycle.
+
+The per-label mechanism (allow list or mapping) is deliberately not part of the promise, so core may switch a label's mechanism in a minor.
+A switch degrades gracefully in both directions: switching to a mapping turns contributed `add_allowed_values`
+and operator locks inert (unless operator fixed the policy), but label stays bounded by its mapping;
+the reverse silently orphans mapping entries.
 
 The shipped group values (the right-hand side of the mapping tables and the core `add_allowed_values`) are not part of the promise.
 Core may regroup, rename or add values in minors.
@@ -76,8 +84,9 @@ Core may regroup, rename or add values in minors.
 - The public surface stays declarative: yaml for plugins and projects, no PHP extension points.
 - Plugins and projects widen allow lists with `add_allowed_values` and contribute mapping entries in yaml.
   Extensions that do not opt in keep folding into `other`, silently.
-- Operators close an allow list with `allowed_values` (which also locks it against further contributions) and reshape mapped labels per key or prefix in project config.
-  `debug:config shopware` shows the effective state.
+- Operators close an allow list with `allowed_values` (which also locks it against further contributions), bound an open
+  label with an explicit policy override, and reshape mappings per key or prefix in project config.
+- `debug:config shopware` shows the effective state.
 - What folded into `other` is not reconstructable from the emitted series.
   If the need arises, an opt-in debug flag that logs replacements can be added without breaks.
 - Developers must choose a label's mechanism consciously: allow lists for sets where the raw value is desired and subtraction is rare, mappings for open, growing populations where folding into limited list of values is required.
@@ -91,3 +100,8 @@ Core may regroup, rename or add values in minors.
    Rejected: additional complexity, hard to distinguish cases where extension just did not opt-in vs `accidental` typo cases.
 3. `task_name` as an allow list with plugin opt-in.
    Rejected: gives operators no subtractive tool except maintaining the full list, which every plugin update can extend.
+
+## Scope note: app support postponed
+
+Apps stay out of scope until a concrete need arises; their identifiers fold into `other` like any extension that does not opt in.
+Two (#22232, #22235) app-facing implementations were explored and parked unmerged. When decision is revisited - consult comments on relevant PRs for more context..

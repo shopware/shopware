@@ -1634,22 +1634,22 @@ class Configuration implements ConfigurationInterface
                                     ->useAttributeAsKey('label_name')
                                     ->arrayPrototype()
                                         ->validate()
+                                            // the only invalid shape is an empty declaration; cross-source combinations
+                                            // should never fail the build, so third-party config cannot break a shop on a core
+                                            // update that changes how a label is served (see the ADR)
                                             ->ifTrue(static function (array $label): bool {
                                                 $hasValues = ($label['allowed_values'] ?? []) !== [] || ($label['add_allowed_values'] ?? []) !== [];
-                                                $hasPolicy = isset($label['policy']);
 
-                                                if ($hasPolicy && $label['policy'] === LabelPolicy::OPEN->value && $hasValues) {
-                                                    return true;
-                                                }
-
-                                                return !$hasValues && !$hasPolicy;
+                                                return !$hasValues && !isset($label['policy']);
                                             })
-                                            ->thenInvalid('Each label must have values ("allowed_values" and/or "add_allowed_values") or "policy: open", but not both. Missing both is also invalid.')
+                                            ->thenInvalid('Each label must declare values ("allowed_values" and/or "add_allowed_values") or a "policy".')
                                         ->end()
                                         ->validate()
                                             // fold to the effective state: a present `allowed_values` is the complete,
-                                            // final list and locks the label — all `add_allowed_values` contributions
-                                            // are discarded; otherwise the deduplicated contributions are the list
+                                            // final list and locks the label - all `add_allowed_values` contributions
+                                            // are discarded; otherwise the deduplicated contributions are the list.
+                                            // The fold is policy-agnostic; on a `policy: open` label the folded values
+                                            // are inert at runtime and only visible in debug:config
                                             ->always(static function (array $label): array {
                                                 if (($label['allowed_values'] ?? []) !== []) {
                                                     $label['add_allowed_values'] = [];

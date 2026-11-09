@@ -66,6 +66,20 @@ class MetricLabelProcessorTest extends TestCase
         static::assertSame(['status' => 'anything'], $result);
     }
 
+    public function testOpenPolicyIgnoresConfiguredValues(): void
+    {
+        // values on an open label are inert: bounding an open label is an explicit policy
+        // override (`policy: replace|discard` plus `allowed_values`) in a later config source
+        $processor = new MetricLabelProcessor('other', static::createStub(LoggerInterface::class), 'prod');
+        $config = new MetricConfig('test', 'desc', Type::COUNTER, true, [], [
+            'entity_group' => new LabelConfig(allowedValues: ['product'], policy: LabelPolicy::OPEN),
+        ]);
+
+        $result = $processor->process($config, ['entity_group' => 'customer']);
+
+        static::assertSame(['entity_group' => 'customer'], $result);
+    }
+
     public function testAllowedValuePassesThrough(): void
     {
         $processor = new MetricLabelProcessor('other', static::createStub(LoggerInterface::class), 'prod');

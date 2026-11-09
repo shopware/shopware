@@ -849,11 +849,44 @@ class ConfigurationTest extends TestCase
         static::assertSame([], $label['add_allowed_values']);
     }
 
-    public function testTelemetryLabelRejectsOpenPolicyWithContributions(): void
+    public function testTelemetryOpenLabelKeepsContributionsVisible(): void
     {
-        $this->expectException(InvalidConfigurationException::class);
+        // no base list to extend on an open label: the contributions are inert at runtime,
+        // but stay in the processed config so debug:config shows what a source tried to add
+        $label = $this->processTelemetryLabel(
+            ['policy' => 'open'],
+            ['add_allowed_values' => ['plugin_a']],
+        );
 
-        $this->processTelemetryLabel(['policy' => 'open', 'add_allowed_values' => ['a']]);
+        static::assertSame('open', $label['policy']);
+        static::assertSame(['plugin_a'], $label['add_allowed_values']);
+        static::assertSame([], $label['allowed_values'] ?? []);
+    }
+
+    public function testTelemetryOpenLabelAcceptsLockAndDiscardsContributions(): void
+    {
+        $label = $this->processTelemetryLabel(
+            ['policy' => 'open'],
+            ['add_allowed_values' => ['plugin_a']],
+            ['allowed_values' => ['product', 'other']],
+        );
+
+        static::assertSame('open', $label['policy']);
+        static::assertSame(['product', 'other'], $label['allowed_values']);
+        static::assertSame([], $label['add_allowed_values']);
+    }
+
+    public function testTelemetryLaterSourcePolicyOverrideBoundsAnOpenLabel(): void
+    {
+        // bounding an open label is an explicit policy override: `policy` is last-source-wins,
+        // so project config can turn a shipped open label into a bounded one
+        $label = $this->processTelemetryLabel(
+            ['policy' => 'open'],
+            ['policy' => 'replace', 'allowed_values' => ['product', 'other']],
+        );
+
+        static::assertSame('replace', $label['policy']);
+        static::assertSame(['product', 'other'], $label['allowed_values']);
     }
 
     public function testTelemetryLabelRejectsMissingValuesAndPolicy(): void

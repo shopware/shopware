@@ -67,5 +67,17 @@ class LabelConfigTest extends TestCase
             null,
             null,
         ];
+
+        yield 'contributions on an open label are inert' => [
+            ['policy' => 'open', 'add_allowed_values' => ['contributed']],
+            null,
+            LabelPolicy::OPEN,
+        ];
+
+        yield 'an allowed_values lock on an open label is inert too' => [
+            ['policy' => 'open', 'allowed_values' => ['product', 'other'], 'add_allowed_values' => ['contributed']],
+            null,
+            LabelPolicy::OPEN,
+        ];
     }
 }

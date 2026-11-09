@@ -46,7 +46,7 @@ Use `XmlParser` for XML that may come from an extension.
 ### Twig templates only read the request context
 
 Twig templates can no longer call methods that change the request context or the request, such as setters.
-Reading them stays possible, for example `context.languageId`.
+Reading them stays possible, for example `context.languageId`, and so does adding an extension with `addExtension()` or `addArrayExtension()`.
 Such a call fails with the error code `FRAMEWORK__TWIG_METHOD_CALL_NOT_ALLOWED`; make the change in PHP instead, for example in an event subscriber.
 
 ### App Script services use a separate context for each call

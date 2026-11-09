@@ -28,6 +28,11 @@ class SwTwigFunction
     private const DENIED_CONTEXT_METHODS = ['scope', 'state', 'live', 'withPermissions', 'enableInheritance', 'disableInheritance', 'assign', 'assignRecursive'];
 
     /**
+     * Add methods a template may still call on a context: extensions only carry data for templates and PHP checks their type.
+     */
+    private const ALLOWED_CONTEXT_METHODS = ['addExtension', 'addArrayExtension', 'addExtensions'];
+
+    /**
      * Request methods that rebuild the request or change process-wide state, next to set methods.
      */
     private const DENIED_REQUEST_METHODS = ['initialize', 'createFromGlobals', 'create', 'duplicate', 'overrideGlobals', 'enableHttpMethodParameterOverride'];
@@ -169,9 +174,11 @@ class SwTwigFunction
      */
     private static function deniedMethods(object $object): array
     {
+        $allowed = [];
         if ($object instanceof Context || $object instanceof SalesChannelContext || $object instanceof ContextSource) {
             $pattern = '/^(set|add|remove|lock)[A-Z]/';
             $named = self::DENIED_CONTEXT_METHODS;
+            $allowed = self::ALLOWED_CONTEXT_METHODS;
         } elseif ($object instanceof Request) {
             $pattern = '/^set[A-Z]/';
             $named = self::DENIED_REQUEST_METHODS;
@@ -181,6 +188,10 @@ class SwTwigFunction
 
         $deniedMethods = [];
         foreach (get_class_methods($object) as $method) {
+            if (\in_array($method, $allowed, true)) {
+                continue;
+            }
+
             if (preg_match($pattern, $method) === 1 || \in_array($method, $named, true)) {
                 $deniedMethods[strtolower($method)] = $method;
             }

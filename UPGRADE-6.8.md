@@ -1626,19 +1626,6 @@ These components switched to a shared loader to remove their duplicate custom-fi
 
 `sw-customer-detail-base` no longer injects `repositoryFactory`, which was retained only for its removed `customFieldSetRepository` property. Extensions that still need `repositoryFactory` must inject it themselves.
 
-## Deprecated Administration JavaScript APIs throw instead of warning
-
-Deprecated Administration JavaScript APIs call `Shopware.Feature.triggerDeprecationOrThrow()` when they are used.
-In 6.7, a use logs a development warning. With the 6.8 major flag active, the same use throws:
-
-```text
-Error: Tried to access deprecated functionality: sw-select-base.computePath() is deprecated. Use `Element.contains()` instead.
-```
-
-This covers deprecated `Shopware.*` globals including `Shopware.State`, services, exported functions, component `methods` and `computed` members, also through `this.$super()`, as well as deprecated components and props.
-APIs listed in `deprecation-baseline.json` are still used by core and only log an error until core stops using them.
-Find the uses in your extension through the warnings in the browser console of a development build, and move each to the named replacement before upgrading.
-
 ## Media default folder lookup computed properties removed
 
 The deprecated computed properties that loaded the media default folder were removed from these Administration components:

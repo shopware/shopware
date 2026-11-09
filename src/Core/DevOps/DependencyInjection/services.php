@@ -41,6 +41,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(PolicyRegistry::class),
             tagged_iterator('shopware.hookable_event.describer'),
             service('twig'),
+            service(Filesystem::class),
         ])
         ->tag('console.command');
 

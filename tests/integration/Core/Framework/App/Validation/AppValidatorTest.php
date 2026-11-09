@@ -5,13 +5,14 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Validation;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Validation\AppValidator;
 use Shopware\Core\Framework\App\Validation\Error\AppNameError;
 use Shopware\Core\Framework\App\Validation\Error\ConfigurationError;
 use Shopware\Core\Framework\App\Validation\Error\Error;
 use Shopware\Core\Framework\App\Validation\Error\MissingPermissionError;
 use Shopware\Core\Framework\App\Validation\Error\MissingTranslationError;
 use Shopware\Core\Framework\App\Validation\Error\NotHookableError;
-use Shopware\Core\Framework\App\Validation\ManifestValidator;
+use Shopware\Core\Framework\App\Validation\Error\Severity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -20,22 +21,22 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
  * @internal
  */
 #[Package('framework')]
-class ManifestValidatorTest extends TestCase
+class AppValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private ManifestValidator $manifestValidator;
+    private AppValidator $appValidator;
 
     protected function setUp(): void
     {
-        $this->manifestValidator = static::getContainer()->get(ManifestValidator::class);
+        $this->appValidator = static::getContainer()->get(AppValidator::class);
     }
 
     public function testValidate(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
 
-        $result = $this->manifestValidator->validate($manifest, Context::createDefaultContext());
+        $result = $this->appValidator->validate($manifest, Context::createDefaultContext());
 
         static::assertTrue($result->isOk(), \sprintf(
             'No error expected, got: %s',
@@ -47,18 +48,18 @@ class ManifestValidatorTest extends TestCase
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/invalidManifest/manifest.xml');
 
-        $result = $this->manifestValidator->validate($manifest, Context::createDefaultContext());
+        $result = $this->appValidator->validate($manifest, Context::createDefaultContext());
 
         static::assertNotNull($result->errors);
         static::assertSame(
             [
-                [MissingTranslationError::class, AppException::VALIDATION_FAILED],
-                [AppNameError::class, AppException::VALIDATION_FAILED],
-                [ConfigurationError::class, AppException::INVALID_CONFIGURATION],
-                [NotHookableError::class, AppException::VALIDATION_FAILED],
-                [MissingPermissionError::class, AppException::VALIDATION_FAILED],
+                [MissingTranslationError::class, AppException::VALIDATION_FAILED, Severity::Notice],
+                [AppNameError::class, AppException::VALIDATION_FAILED, Severity::Fail],
+                [ConfigurationError::class, AppException::INVALID_CONFIGURATION, Severity::Fail],
+                [NotHookableError::class, AppException::VALIDATION_FAILED, Severity::Notice],
+                [MissingPermissionError::class, AppException::VALIDATION_FAILED, Severity::Fail],
             ],
-            array_map(static fn (Error $error): array => [$error::class, $error->getErrorCode()], $result->errors)
+            array_map(static fn (Error $error): array => [$error::class, $error->getErrorCode(), $error->getSeverity()], $result->errors)
         );
     }
 }

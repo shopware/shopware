@@ -47,4 +47,9 @@ class UnmetRequirementError implements Error
     {
         return ['violations' => $this->violations];
     }
+
+    public function getSeverity(): Severity
+    {
+        return Severity::Notice;
+    }
 }

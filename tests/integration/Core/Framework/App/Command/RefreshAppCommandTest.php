@@ -9,7 +9,6 @@ use Shopware\Core\Framework\App\Command\AppPrinter;
 use Shopware\Core\Framework\App\Command\RefreshAppCommand;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator;
-use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -289,32 +288,22 @@ class RefreshAppCommandTest extends TestCase
         static::assertSame(0, $registeredApps->getTotal());
     }
 
-    public function testRefreshValidationFailure(): void
+    public function testRefreshInstallsAppsWithNoticesAndListsFailedApps(): void
     {
         $commandTester = new CommandTester($this->createCommand(__DIR__ . '/_fixtures'));
-        $commandTester->setInputs(['yes', 'yes', 'yes', 'yes', 'yes', 'yes', 'yes']);
+        $commandTester->execute(['-f' => true]);
 
-        $commandTester->execute([]);
-
-        static::assertSame(1, $commandTester->getStatusCode());
         $display = $commandTester->getDisplay();
 
-        static::assertStringContainsString('[ERROR] The app "validationFailures" is invalid:', $display);
-        static::assertStringContainsString('[ERROR] The app "validationFailure" is invalid:', $display);
-
-        $registeredApps = $this->appRepository->search(new Criteria(), Context::createDefaultContext());
-        static::assertSame(0, $registeredApps->getTotal());
-    }
-
-    public function testRefreshInvalidAppWithNoValidate(): void
-    {
-        $commandTester = new CommandTester($this->createCommand(__DIR__ . '/_fixtures'));
-        $commandTester->execute(['-f' => true, '--no-validate' => true]);
-
         // header app list
-        static::assertMatchesRegularExpression('/.*App\s+Label\s+Version\s+Author\s+\n.*/', $commandTester->getDisplay());
-        // content app list
-        static::assertMatchesRegularExpression('/.*validationFailures\s+Swag App Test\s+1.0.0\s+shopware AG\s+\n.*/', $commandTester->getDisplay());
+        static::assertMatchesRegularExpression('/.*App\s+Label\s+Version\s+Author\s+\n.*/', $display);
+
+        // `validationFailure` only gets notices, so it installs ...
+        static::assertMatchesRegularExpression('/.*validationFailure\s+Swag App Test\s+1.0.0\s+shopware AG\s+\n.*/', $display);
+
+        // ... while `validationFailures` is missing permissions its webhooks require.
+        static::assertStringContainsString('Incomplete installations', $display);
+        static::assertStringContainsString('The following permissions are missing:', $display);
     }
 
     public function testRefreshWithLimitation(): void
@@ -336,8 +325,7 @@ class RefreshAppCommandTest extends TestCase
                 ),
                 static::getContainer()->get(AppLifecycle::class)
             ),
-            new AppPrinter($this->appRepository),
-            static::getContainer()->get(ManifestValidator::class)
+            new AppPrinter($this->appRepository)
         );
     }
 }

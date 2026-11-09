@@ -40,4 +40,9 @@ class WebhookNotPermittedError implements Error
     {
         return [];
     }
+
+    public function getSeverity(): Severity
+    {
+        return Severity::Fail;
+    }
 }

@@ -349,6 +349,14 @@ Enable the `SHIPPING_PRICE_RANGE_CURRENCY_CONVERSION` feature flag in 6.7 to pre
 
 </details>
 
+## `HtmlSanitizer` no longer repairs double-encoded entities
+
+Since 6.7.6.0, `\Shopware\Core\Framework\Util\HtmlSanitizer::sanitize()` repaired double-encoded entities, for example `&amp;ouml;` to `ö`.
+This repair is removed. Double-encoded input is kept as text and shown as `&ouml;`.
+It affects fields with `AllowHtml` on write, and CMS text elements, the `sw_sanitize` Twig filter and product description teasers on render.
+Make sure the sender of your data, for example an import or an API integration, sends single-encoded HTML.
+Fix CMS text elements that still contain double-encoded entities, because they are sanitized again on every render.
+
 ## Storefront session continues on the token returned by the logout route
 
 After a customer logs out, the storefront session now holds the context token that `\Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute` created and returned in its response body, instead of a separately generated one. Both are fresh anonymous tokens, so no action is required unless an extension relied on the session token differing from the one the logout response returned.

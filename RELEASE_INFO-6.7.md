@@ -7,6 +7,18 @@
 Since 6.7.12.0, `RestrictDelete` on many-to-many associations, and on other associations to entities with a composite primary key, did not stop a delete.
 Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED` while another entity still references them.
 
+### Escaped `<` and `>` stay text in sanitized HTML again
+
+Since 6.7.6.0, `HtmlSanitizer::sanitize()` decoded all HTML entities before purifying.
+An escaped `<` in front of a word, for example `Price &lt;abc` in a CMS text element, became a tag and all following text was removed.
+For fields with `AllowHtml`, such as product and category descriptions, the shortened text was stored.
+Escaped `&lt;` and `&gt;` are kept as text again.
+Double-encoded entities from a sender, for example `&amp;ouml;`, are still repaired to `ö` in 6.7.
+With 6.8 this repair is removed and the sender has to send single-encoded HTML.
+Activate the `v6.8.0.0` feature flag to check your data before updating.
+Text that was shortened on save since 6.7.6.0 can't be restored automatically and has to be entered again.
+Sanitized HTML may contain escaped `&lt;` and `&gt;` again, so don't decode it before you output it as raw HTML.
+
 ## Core
 
 ### Rule Builder: new "Item with longest side and girth" condition

@@ -7,7 +7,7 @@ import swThemeModal from './index';
 Shopware.Component.register('sw-theme-modal', swThemeModal);
 
 describe('sw-theme-modal', () => {
-    async function createWrapper({ repositorySearch = null, selectedThemeId = null, routeQuery = {} } = {}) {
+    async function createWrapper({ repositorySearch = null, selectedThemeId = null } = {}) {
         const component = await Shopware.Component.build('sw-theme-modal');
         const themeRepository = {
             search: repositorySearch || jest.fn(() => Promise.resolve({ total: 0, length: 0 })),
@@ -32,13 +32,14 @@ describe('sw-theme-modal', () => {
                     repositoryFactory: {
                         create: () => themeRepository,
                     },
+                    feature: {},
                     searchRankingService: {
                         getSearchFieldsByEntity: () => ({}),
                     },
                 },
                 mocks: {
                     $t: (key) => key,
-                    $route: { name: 'sw.theme.manager.index', query: routeQuery },
+                    $route: { name: 'sw.theme.manager.index', query: {} },
                 },
             },
         });
@@ -61,45 +62,6 @@ describe('sw-theme-modal', () => {
         expect(wrapper.vm.total).toBe(2);
         expect(wrapper.vm.themes).toEqual({ total: 2, length: 2 });
         expect(wrapper.vm.isLoading).toBe(false);
-    });
-
-    it.activeFeatureFlags(['v6.8.0.0'])('loads only the ids of the sales channels of each theme', async () => {
-        const searchedCriteria = [];
-        await createWrapper({
-            repositorySearch: jest.fn((criteria) => {
-                searchedCriteria.push(criteria.parse());
-
-                return Promise.resolve({ total: 0, length: 0 });
-            }),
-            routeQuery: { page: 1, limit: 9 },
-        });
-        await flushPromises();
-
-        expect(searchedCriteria.length).toBeGreaterThan(0);
-        searchedCriteria.forEach((criteria) => {
-            expect(criteria.associations).toHaveProperty('salesChannels');
-            expect(criteria.includes).toEqual({ sales_channel: ['id'] });
-        });
-    });
-
-    // @deprecated tag:v6.8.0 - The test will be removed when the data is always limited.
-    it.deprecated('v6.8.0.0')('loads the full sales channels of each theme before 6.8', async () => {
-        const searchedCriteria = [];
-        await createWrapper({
-            repositorySearch: jest.fn((criteria) => {
-                searchedCriteria.push(criteria.parse());
-
-                return Promise.resolve({ total: 0, length: 0 });
-            }),
-            routeQuery: { page: 1, limit: 9 },
-        });
-        await flushPromises();
-
-        expect(searchedCriteria.length).toBeGreaterThan(0);
-        searchedCriteria.forEach((criteria) => {
-            expect(criteria.associations).toHaveProperty('salesChannels');
-            expect(criteria.includes).toBeUndefined();
-        });
     });
 
     it('clears loading state when list fetch fails', async () => {

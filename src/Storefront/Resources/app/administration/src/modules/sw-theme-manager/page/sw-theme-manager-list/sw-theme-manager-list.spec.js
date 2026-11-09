@@ -20,7 +20,7 @@ describe('sw-theme-manager-list', () => {
         });
     });
 
-    async function createWrapper({ aclCan = true, searchResult = null, onSearch = () => {} } = {}) {
+    async function createWrapper({ aclCan = true, searchResult = null } = {}) {
         const component = await Shopware.Component.build('sw-theme-manager-list');
         const themes =
             searchResult ||
@@ -31,11 +31,7 @@ describe('sw-theme-manager-list', () => {
             })();
 
         const themeRepository = {
-            search: jest.fn((criteria) => {
-                onSearch(criteria);
-
-                return Promise.resolve(themes);
-            }),
+            search: jest.fn(() => Promise.resolve(themes)),
             save: jest.fn(() => Promise.resolve()),
         };
 
@@ -69,6 +65,7 @@ describe('sw-theme-manager-list', () => {
                         can: jest.fn(() => aclCan),
                     },
                     themeService: {},
+                    feature: {},
                     searchRankingService: {
                         isValidTerm: () => true,
                         getSearchFieldsByEntity: () => ({}),
@@ -92,31 +89,6 @@ describe('sw-theme-manager-list', () => {
         expect(wrapper.vm.total).toBe(1);
         expect(wrapper.vm.themes).toHaveLength(1);
         expect(wrapper.vm.isLoading).toBe(false);
-    });
-
-    it.activeFeatureFlags(['v6.8.0.0'])('loads only the ids of the sales channels of each theme', async () => {
-        const searchedCriteria = [];
-        await createWrapper({ onSearch: (criteria) => searchedCriteria.push(criteria.parse()) });
-        await flushPromises();
-
-        expect(searchedCriteria.length).toBeGreaterThan(0);
-        searchedCriteria.forEach((criteria) => {
-            expect(criteria.associations).toHaveProperty('salesChannels');
-            expect(criteria.includes).toEqual({ sales_channel: ['id'] });
-        });
-    });
-
-    // @deprecated tag:v6.8.0 - The test will be removed when the data is always limited.
-    it.deprecated('v6.8.0.0')('loads the full sales channels of each theme before 6.8', async () => {
-        const searchedCriteria = [];
-        await createWrapper({ onSearch: (criteria) => searchedCriteria.push(criteria.parse()) });
-        await flushPromises();
-
-        expect(searchedCriteria.length).toBeGreaterThan(0);
-        searchedCriteria.forEach((criteria) => {
-            expect(criteria.associations).toHaveProperty('salesChannels');
-            expect(criteria.includes).toBeUndefined();
-        });
     });
 
     it('clears loading state when list fetch fails', async () => {

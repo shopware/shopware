@@ -8,14 +8,9 @@ const deviceMock = {
     removeResizeListener: jest.fn(),
 };
 
-let languageSearchCriteria = [];
-
 async function createWrapper(privileges = [], customStubs = {}) {
-    languageSearchCriteria = [];
     const languageRepositoryMock = {
-        search: (criteria) => {
-            languageSearchCriteria.push(criteria.parse());
-
+        search: () => {
             return Promise.resolve([
                 {
                     name: 'English',
@@ -279,25 +274,6 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
                 ]),
             }),
         );
-    });
-
-    it.activeFeatureFlags(['v6.8.0.0'])('loads only the ids of the sales channels of each language', async () => {
-        await createWrapper();
-        await flushPromises();
-
-        const listingCriteria = languageSearchCriteria.find((criteria) => criteria.associations?.salesChannels);
-        expect(listingCriteria).toBeDefined();
-        expect(listingCriteria.includes).toEqual({ sales_channel: ['id'] });
-    });
-
-    // @deprecated tag:v6.8.0 - The test will be removed when the data is always limited.
-    it.deprecated('v6.8.0.0')('loads the full sales channels of each language before 6.8', async () => {
-        await createWrapper();
-        await flushPromises();
-
-        const listingCriteria = languageSearchCriteria.find((criteria) => criteria.associations?.salesChannels);
-        expect(listingCriteria).toBeDefined();
-        expect(listingCriteria.includes).toBeUndefined();
     });
 
     it('should render the sales channels and snippet status columns', async () => {

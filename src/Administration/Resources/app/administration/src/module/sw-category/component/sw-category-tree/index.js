@@ -92,20 +92,10 @@ export default {
         },
 
         criteria() {
-            const criteria = new Criteria()
+            return new Criteria()
                 .addAssociation('navigationSalesChannels')
                 .addAssociation('footerSalesChannels')
                 .addAssociation('serviceSalesChannels');
-
-            /**
-             * @deprecated tag:v6.8.0 - The entry point sales channels of the categories will only contain their id.
-             */
-            if (Shopware.Feature.isActive('v6.8.0.0')) {
-                // the tree only checks whether a category is an entry point, so the ids of its sales channels are enough
-                criteria.addIncludes({ sales_channel: ['id'] });
-            }
-
-            return criteria;
         },
 
         criteriaWithChildren() {

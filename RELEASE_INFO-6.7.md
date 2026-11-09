@@ -395,17 +395,16 @@ If an app ships both, the file takes precedence, the inline definition is ignore
 
 ## Administration
 
-### Deprecated the full sales channel data in Administration lists
+### Deprecated the unused visibilities and sales channels in the sales channel detail
 
-Several Administration components load every sales channel of each listed entity, although they only count them or check one of them.
-With 6.8 they load less sales channel data:
+Some sales channel detail components load the visibilities or sales channels of their products and currencies, although they only need one of them or none.
+With 6.8 they load less:
 
-- `sw-settings-language-list`, `sw-settings-shipping-detail`, `sw-category-tree`, `sw-theme-manager-list` and `sw-theme-modal` load the sales channels of their entities with the `id` field only.
 - The *Currency* select of `sw-sales-channel-detail-base` loads the currencies without their `salesChannels`.
 - `sw-sales-channel-detail-products` loads only the visibility of the current sales channel, without its `salesChannel`.
 - `sw-sales-channel-products-assignment-single-products` loads the products without their `visibilities`.
 
-Extensions that read other sales channel or visibility data in these components should load it with their own request; see `UPGRADE-6.8.md`.
+Extensions that read this data in these components should load it with their own request; see `UPGRADE-6.8.md`.
 
 ### Deprecated the `customFieldSetRepository` computed property of `sw-product-stream-detail`
 

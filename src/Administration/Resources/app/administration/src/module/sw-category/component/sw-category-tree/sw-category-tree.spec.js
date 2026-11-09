@@ -125,7 +125,7 @@ async function createWrapper(categories = null, props = {}) {
     });
 }
 
-async function createInteractiveWrapper({ props = {}, onSearch = () => {} } = {}) {
+async function createInteractiveWrapper({ props = {} } = {}) {
     const routes = [
         {
             name: 'sw.category.detail',
@@ -161,7 +161,6 @@ async function createInteractiveWrapper({ props = {}, onSearch = () => {} } = {}
                 repositoryFactory: {
                     create: () => ({
                         search: (criteria) => {
-                            onSearch(criteria);
                             const parentId = criteria.filters.find((filter) => filter.field === 'parentId')?.value ?? null;
 
                             return Promise.resolve(
@@ -392,48 +391,6 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
 
         expect(wrapper.get('[data-item-id="second-grand-child"]').isVisible()).toBe(true);
         expect(getFirstRoot().attributes('aria-expanded')).toBe('false');
-    });
-
-    it.activeFeatureFlags(['v6.8.0.0'])(
-        'loads only the ids of the sales channels using a category as entry point',
-        async () => {
-            const searchedCriteria = [];
-            const wrapper = await createInteractiveWrapper({
-                onSearch: (criteria) => searchedCriteria.push(criteria.parse()),
-            });
-            await flushPromises();
-
-            expect(wrapper.get('[data-item-id="first-root"]').exists()).toBe(true);
-            expect(searchedCriteria.length).toBeGreaterThan(0);
-            searchedCriteria.forEach((criteria) => {
-                expect(Object.keys(criteria.associations)).toEqual([
-                    'navigationSalesChannels',
-                    'footerSalesChannels',
-                    'serviceSalesChannels',
-                ]);
-                expect(criteria.includes).toEqual({ sales_channel: ['id'] });
-            });
-        },
-    );
-
-    // @deprecated tag:v6.8.0 - The test will be removed when the data is always limited.
-    it.deprecated('v6.8.0.0')('loads the full sales channels using a category as entry point before 6.8', async () => {
-        const searchedCriteria = [];
-        const wrapper = await createInteractiveWrapper({
-            onSearch: (criteria) => searchedCriteria.push(criteria.parse()),
-        });
-        await flushPromises();
-
-        expect(wrapper.get('[data-item-id="first-root"]').exists()).toBe(true);
-        expect(searchedCriteria.length).toBeGreaterThan(0);
-        searchedCriteria.forEach((criteria) => {
-            expect(Object.keys(criteria.associations)).toEqual([
-                'navigationSalesChannels',
-                'footerSalesChannels',
-                'serviceSalesChannels',
-            ]);
-            expect(criteria.includes).toBeUndefined();
-        });
     });
 
     it('should not initially expand root categories when a category is selected', async () => {

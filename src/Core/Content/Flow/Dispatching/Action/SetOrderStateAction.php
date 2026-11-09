@@ -178,7 +178,9 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
 
         $primaryOrderDeliveryId = $this->connection->fetchOne(
             'SELECT LOWER(HEX(order_delivery.id)) FROM `order`
-            INNER JOIN order_delivery ON order_delivery.id = `order`.primary_order_delivery_id AND order_delivery.version_id = `order`.version_id
+            INNER JOIN order_delivery ON order_delivery.id = `order`.primary_order_delivery_id
+                AND order_delivery.order_id = `order`.id
+                AND order_delivery.version_id = `order`.version_id
             WHERE `order`.id = :id AND `order`.version_id = :version',
             $params,
         );

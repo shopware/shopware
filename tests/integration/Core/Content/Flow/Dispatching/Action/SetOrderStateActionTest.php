@@ -267,6 +267,49 @@ class SetOrderStateActionTest extends TestCase
         static::assertSame('open', $orderDeliveries->get($otherOrderDeliveryId)?->getStateMachineState()?->getTechnicalName());
     }
 
+    public function testSetStateIgnoresPrimaryOrderDeliveryOfAnotherOrder(): void
+    {
+        $this->createCustomerAndLogin();
+        $customerId = $this->ids->get('customer');
+
+        $ids = $this->ids;
+        $this->ids = new IdsCollection();
+        $this->createOrder($customerId, ['id' => $ids->get('other-order')]);
+        $otherOrderDeliveryId = $this->ids->get('delivery');
+        $this->ids = $ids;
+
+        $orderId = $this->ids->get('order');
+        $orderDeliveryId = $this->ids->get('own-delivery');
+
+        $this->createOrder($customerId, [
+            'id' => $orderId,
+            'primaryOrderDeliveryId' => $otherOrderDeliveryId,
+            'deliveries' => [
+                $this->generateOrderDeliveryPayload(['id' => $orderDeliveryId]),
+            ],
+        ]);
+
+        $context = Generator::generateSalesChannelContext();
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $context->getContext())->getEntities()->first();
+        static::assertInstanceOf(OrderEntity::class, $order);
+
+        $flow = static::getContainer()->get(FlowFactory::class)->create(new CheckoutOrderPlacedEvent($context, $order));
+        $flow->setConfig(['order_delivery' => 'shipped']);
+
+        $action = new SetOrderStateAction(
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(OrderService::class),
+        );
+        $action->handleFlow($flow);
+
+        $criteria = new Criteria([$orderDeliveryId, $otherOrderDeliveryId]);
+        $criteria->addAssociation('stateMachineState');
+        $orderDeliveries = $this->orderDeliveryRepository->search($criteria, $context->getContext())->getEntities();
+
+        static::assertSame('shipped', $orderDeliveries->get($orderDeliveryId)?->getStateMachineState()?->getTechnicalName());
+        static::assertSame('open', $orderDeliveries->get($otherOrderDeliveryId)?->getStateMachineState()?->getTechnicalName());
+    }
+
     /**
      * @param array<int|string, mixed> $payload
      *

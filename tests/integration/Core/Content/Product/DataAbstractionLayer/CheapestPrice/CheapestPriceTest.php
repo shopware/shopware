@@ -146,8 +146,11 @@ class CheapestPriceTest extends TestCase
             ->getContainer()
             ->get(Connection::class);
 
-        $column = Feature::isActive('v6.8.0.0') ? 'cheapest_price_blob' : 'cheapest_price';
-        $cheapestPriceQuery = $connection->prepare('UPDATE product SET ' . $column . ' = :price WHERE id = :id AND version_id = :version');
+        // @deprecated tag:v6.8.0 - Remove the legacy fixture write after the blob cutover.
+        $priceAssignment = Feature::isActive('v6.8.0.0')
+            ? 'cheapest_price_blob = :price'
+            : 'cheapest_price_blob = :price, cheapest_price = :price';
+        $cheapestPriceQuery = $connection->prepare('UPDATE product SET ' . $priceAssignment . ' WHERE id = :id AND version_id = :version');
 
         $prices = file_get_contents(__DIR__ . '/_fixtures/serialized_prices.json');
         static::assertIsString($prices);

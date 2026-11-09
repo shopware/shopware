@@ -69,7 +69,6 @@ describe('sw-theme-manager-list', () => {
                         can: jest.fn(() => aclCan),
                     },
                     themeService: {},
-                    feature: {},
                     searchRankingService: {
                         isValidTerm: () => true,
                         getSearchFieldsByEntity: () => ({}),
@@ -95,7 +94,7 @@ describe('sw-theme-manager-list', () => {
         expect(wrapper.vm.isLoading).toBe(false);
     });
 
-    it('loads only the ids of the sales channels of each theme', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('loads only the ids of the sales channels of each theme', async () => {
         const searchedCriteria = [];
         await createWrapper({ onSearch: (criteria) => searchedCriteria.push(criteria.parse()) });
         await flushPromises();
@@ -104,6 +103,19 @@ describe('sw-theme-manager-list', () => {
         searchedCriteria.forEach((criteria) => {
             expect(criteria.associations).toHaveProperty('salesChannels');
             expect(criteria.includes).toEqual({ sales_channel: ['id'] });
+        });
+    });
+
+    // @deprecated tag:v6.8.0 - The test will be removed when the data is always limited.
+    it.deprecated('v6.8.0.0')('loads the full sales channels of each theme before 6.8', async () => {
+        const searchedCriteria = [];
+        await createWrapper({ onSearch: (criteria) => searchedCriteria.push(criteria.parse()) });
+        await flushPromises();
+
+        expect(searchedCriteria.length).toBeGreaterThan(0);
+        searchedCriteria.forEach((criteria) => {
+            expect(criteria.associations).toHaveProperty('salesChannels');
+            expect(criteria.includes).toBeUndefined();
         });
     });
 

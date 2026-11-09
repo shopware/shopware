@@ -394,7 +394,30 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         expect(getFirstRoot().attributes('aria-expanded')).toBe('false');
     });
 
-    it('loads only the ids of the sales channels using a category as entry point', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'loads only the ids of the sales channels using a category as entry point',
+        async () => {
+            const searchedCriteria = [];
+            const wrapper = await createInteractiveWrapper({
+                onSearch: (criteria) => searchedCriteria.push(criteria.parse()),
+            });
+            await flushPromises();
+
+            expect(wrapper.get('[data-item-id="first-root"]').exists()).toBe(true);
+            expect(searchedCriteria.length).toBeGreaterThan(0);
+            searchedCriteria.forEach((criteria) => {
+                expect(Object.keys(criteria.associations)).toEqual([
+                    'navigationSalesChannels',
+                    'footerSalesChannels',
+                    'serviceSalesChannels',
+                ]);
+                expect(criteria.includes).toEqual({ sales_channel: ['id'] });
+            });
+        },
+    );
+
+    // @deprecated tag:v6.8.0 - The test will be removed when the data is always limited.
+    it.deprecated('v6.8.0.0')('loads the full sales channels using a category as entry point before 6.8', async () => {
         const searchedCriteria = [];
         const wrapper = await createInteractiveWrapper({
             onSearch: (criteria) => searchedCriteria.push(criteria.parse()),
@@ -409,7 +432,7 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
                 'footerSalesChannels',
                 'serviceSalesChannels',
             ]);
-            expect(criteria.includes).toEqual({ sales_channel: ['id'] });
+            expect(criteria.includes).toBeUndefined();
         });
     });
 

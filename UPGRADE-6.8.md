@@ -1587,6 +1587,17 @@ The unused property was removed.
 
 # Administration
 
+## Administration lists load less sales channel data
+
+These components no longer load the full sales channels of their entities:
+
+- `sw-settings-language-list`, `sw-settings-shipping-detail`, `sw-category-tree`, `sw-theme-manager-list` and `sw-theme-modal`: the sales channels contain the `id` only.
+- `sw-sales-channel-detail-base`: the currencies of the *Currency* select are loaded without `salesChannels`.
+- `sw-sales-channel-detail-products`: the products contain only the visibility of the current sales channel, without its `salesChannel`.
+- `sw-sales-channel-products-assignment-single-products`: the products are loaded without `visibilities`.
+
+Extensions that read other sales channel or visibility data in these components must load it with their own `sales_channel` or `product_visibility` request.
+
 ## Custom field set lookup removed from `sw-settings-listing-option-criteria-grid`
 
 The `sw-settings-listing-option-criteria-grid` component filters custom fields by `customFieldSet.relations.entityName` directly.

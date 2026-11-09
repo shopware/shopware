@@ -117,7 +117,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
     });
 
-    it('does not load the visibilities of the products', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('does not load the visibilities of the products', async () => {
         setProductData([]);
         const searchedCriteria = [];
         await createWrapper({ onSearch: (criteria) => searchedCriteria.push(criteria.parse()) });
@@ -125,6 +125,17 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
 
         expect(searchedCriteria).toHaveLength(1);
         expect(searchedCriteria[0].associations).toBeUndefined();
+    });
+
+    // @deprecated tag:v6.8.0 - The test will be removed when the data is always limited.
+    it.deprecated('v6.8.0.0')('loads the visibilities with their sales channels before 6.8', async () => {
+        setProductData([]);
+        const searchedCriteria = [];
+        await createWrapper({ onSearch: (criteria) => searchedCriteria.push(criteria.parse()) });
+        await flushPromises();
+
+        expect(searchedCriteria).toHaveLength(1);
+        expect(searchedCriteria[0].associations.visibilities.associations).toHaveProperty('salesChannel');
     });
 
     it('should display data grid when there is product data', async () => {

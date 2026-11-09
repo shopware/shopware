@@ -52,9 +52,6 @@ async function createWrapper(privileges = [], props = {}, serviceOverrides = {})
                     customFieldDataProviderService: {
                         getCustomFieldSets: () => Promise.resolve([]),
                     },
-                    feature: {
-                        isActive: () => true,
-                    },
                     ...serviceOverrides,
                 },
                 stubs: {
@@ -184,7 +181,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
         expect(criteria.associations[0].association).toBe('conditions');
     });
 
-    it('loads only the ids of the sales channels of each currency', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('loads only the ids of the sales channels of each currency', async () => {
         const currencyCriteria = [];
         await createWrapper(
             [],
@@ -209,6 +206,34 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
         expect(currencyCriteria).toHaveLength(1);
         expect(Object.keys(currencyCriteria[0].associations)).toEqual(['salesChannels']);
         expect(currencyCriteria[0].includes).toEqual({ sales_channel: ['id'] });
+    });
+
+    // @deprecated tag:v6.8.0 - The test will be removed when the data is always limited.
+    it.deprecated('v6.8.0.0')('loads the full sales channels of each currency before 6.8', async () => {
+        const currencyCriteria = [];
+        await createWrapper(
+            [],
+            {},
+            {
+                repositoryFactory: {
+                    create: (entity) => ({
+                        ...repositoryFactoryMock,
+                        search: (criteria) => {
+                            if (entity === 'currency') {
+                                currencyCriteria.push(criteria.parse());
+                            }
+
+                            return Promise.resolve([]);
+                        },
+                    }),
+                },
+            },
+        );
+        await flushPromises();
+
+        expect(currencyCriteria).toHaveLength(1);
+        expect(Object.keys(currencyCriteria[0].associations)).toEqual(['salesChannels']);
+        expect(currencyCriteria[0].includes).toBeUndefined();
     });
 
     it('should load customFieldSet on loadEntityData', async () => {

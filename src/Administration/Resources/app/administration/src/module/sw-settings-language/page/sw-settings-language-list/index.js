@@ -96,8 +96,15 @@ export default {
             const criteria = new Criteria(this.page, this.limit);
             criteria.addAssociation('locale');
             criteria.addAssociation('translationCode');
-            // the sales channels column only shows how many sales channels use the language
-            criteria.addAssociation('salesChannels').addIncludes({ sales_channel: ['id'] });
+            criteria.addAssociation('salesChannels');
+
+            /**
+             * @deprecated tag:v6.8.0 - The sales channels of the languages will only contain their id.
+             */
+            if (Shopware.Feature.isActive('v6.8.0.0')) {
+                // the sales channels column only shows how many sales channels use the language
+                criteria.addIncludes({ sales_channel: ['id'] });
+            }
 
             if (this.sortBy) {
                 criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));

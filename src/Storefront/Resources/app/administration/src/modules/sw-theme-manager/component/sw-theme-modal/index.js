@@ -56,8 +56,16 @@ export default {
             this.isLoading = true;
             const criteria = new Criteria(this.page, this.limit);
             criteria.addAssociation('previewMedia');
-            // only the number of sales channels using a theme is shown
-            criteria.addAssociation('salesChannels').addIncludes({ sales_channel: ['id'] });
+            criteria.addAssociation('salesChannels');
+
+            /**
+             * @deprecated tag:v6.8.0 - The sales channels of the themes will only contain their id.
+             */
+            if (Shopware.Feature.isActive('v6.8.0.0')) {
+                // only the number of sales channels using a theme is shown
+                criteria.addIncludes({ sales_channel: ['id'] });
+            }
+
             criteria.addFilter(Criteria.equals('active', true));
 
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));

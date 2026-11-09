@@ -195,8 +195,15 @@ export default {
         loadCurrencies() {
             this.currenciesLoading = true;
             const criteria = new Criteria(1, 500);
-            // the price matrix only checks whether a currency is used by any sales channel
-            criteria.addAssociation('salesChannels').addIncludes({ sales_channel: ['id'] });
+            criteria.addAssociation('salesChannels');
+
+            /**
+             * @deprecated tag:v6.8.0 - The sales channels of the currencies will only contain their id.
+             */
+            if (Shopware.Feature.isActive('v6.8.0.0')) {
+                // the price matrix only checks whether a currency is used by any sales channel
+                criteria.addIncludes({ sales_channel: ['id'] });
+            }
             this.currencyRepository.search(criteria, Context.api).then((currencyResponse) => {
                 Shopware.Store.get('swShippingDetail').currencies = this.sortCurrencies(currencyResponse);
                 this.currenciesLoading = false;

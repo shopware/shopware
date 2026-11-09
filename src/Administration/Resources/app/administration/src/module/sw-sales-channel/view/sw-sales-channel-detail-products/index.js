@@ -67,8 +67,15 @@ export default {
 
             criteria.setTotalCountMode(1);
 
-            // only the visibility of this sales channel is needed to remove the product from it
-            criteria.getAssociation('visibilities').addFilter(Criteria.equals('salesChannelId', this.salesChannel.id));
+            /**
+             * @deprecated tag:v6.8.0 - The products will only contain their visibility of this sales channel, without its sales channel.
+             */
+            if (Shopware.Feature.isActive('v6.8.0.0')) {
+                // only the visibility of this sales channel is needed to remove the product from it
+                criteria.getAssociation('visibilities').addFilter(Criteria.equals('salesChannelId', this.salesChannel.id));
+            } else {
+                criteria.addAssociation('visibilities.salesChannel');
+            }
             criteria.addAssociation('options.group');
             criteria.addFilter(Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id));
 

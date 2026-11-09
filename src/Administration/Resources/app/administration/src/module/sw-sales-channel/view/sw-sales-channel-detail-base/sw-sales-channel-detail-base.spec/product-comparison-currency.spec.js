@@ -85,7 +85,24 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base/product-
         global.activeAclRoles = ['sales_channel.editor'];
     });
 
-    it('filters the currencies by the storefront without loading the sales channels of each currency', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'filters the currencies by the storefront without loading the sales channels of each currency',
+        async () => {
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            const currencySelect = wrapper
+                .findAllComponents({ name: 'sw-entity-single-select' })
+                .find((select) => select.props('entity') === 'currency');
+
+            const criteria = currencySelect.props('criteria').parse();
+            expect(criteria.associations).toBeUndefined();
+            expect(criteria.filter).toEqual([{ type: 'equals', field: 'salesChannels.id', value: STOREFRONT_ID }]);
+        },
+    );
+
+    // @deprecated tag:v6.8.0 - The test will be removed when the data is always limited.
+    it.deprecated('v6.8.0.0')('loads the sales channels of each currency before 6.8', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -94,7 +111,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base/product-
             .find((select) => select.props('entity') === 'currency');
 
         const criteria = currencySelect.props('criteria').parse();
-        expect(criteria.associations).toBeUndefined();
+        expect(criteria.associations).toHaveProperty('salesChannels');
         expect(criteria.filter).toEqual([{ type: 'equals', field: 'salesChannels.id', value: STOREFRONT_ID }]);
     });
 });

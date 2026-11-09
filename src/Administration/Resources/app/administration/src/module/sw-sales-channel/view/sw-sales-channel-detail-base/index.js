@@ -194,6 +194,13 @@ export default {
         storefrontSalesChannelCurrencyCriteria() {
             const criteria = new Criteria(1, 25);
 
+            /**
+             * @deprecated tag:v6.8.0 - The currencies will be loaded without their sales channels.
+             */
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                criteria.addAssociation('salesChannels');
+            }
+
             return criteria.addFilter(Criteria.equals('salesChannels.id', this.productExport.storefrontSalesChannelId));
         },
 

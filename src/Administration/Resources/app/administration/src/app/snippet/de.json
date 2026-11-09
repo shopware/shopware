@@ -879,6 +879,7 @@
         "lineItemDimensionWidthRule": "Position mit Breite",
         "lineItemDimensionHeightRule": "Position mit Höhe",
         "lineItemDimensionLengthRule": "Position mit Länge",
+        "lineItemDimensionLongestAndGirthRule": "Position mit längster Seite und Gurtmaß",
         "lineItemDimensionWeightRule": "Position mit Gewicht",
         "lineItemDimensionVolumeRule": "Position mit Volumen",
         "lineItemListPriceRule": "Position mit Streichpreis",
@@ -1311,6 +1312,11 @@
       "placeholderProduct": "Produkt auswählen ...",
       "placeholderCategory": "Kategorie auswählen ..."
     },
+    "childSearch": {
+      "label": "Einträge durchsuchen",
+      "placeholder": "Suchen ...",
+      "noResults": "Keine Ergebnisse gefunden."
+    },
     "table": {
       "addHeading": "Tabellenkopf hinzufügen",
       "cols": "Spalten",
@@ -1418,6 +1424,7 @@
     "reload": "Neu laden",
     "alertText": "Für mindestens eine der Erweiterungen in dieser Installation liegt eine Lizenzverletzung vor. Buche ein Abonnement für die Erweiterung nach oder kaufe/miete die Erweiterung (je nach Art des Verstoßes), um die Lizenzverletzung zu beheben und rechtliche Konsequenzen zu vermeiden.\nNutzt Du die Erweiterung nicht mehr? Dann lösche sie vollständig. Falls Du keinen dieser Schritte vollziehst, behält sich die shopware AG vor, Strafgebühren für die Lizenzverletzung zu berechnen.",
     "deletePlugin": "Erweiterung vollständig entfernen",
+    "removeExternally": "Entferne die Erweiterung außerhalb der Administration, zum Beispiel mit Composer.",
     "messageDeleteConfirm": "Möchtest Du die Erweiterung \"{pluginName}\" vollständig löschen?",
     "checkboxMessage": "Ich habe die Warnung gelesen und verstehe die möglichen Konsequenzen.",
     "closeModal": "Warnung schließen",
@@ -1645,6 +1652,11 @@
         "newValue": "Neuer Wert",
         "remindMeLater": "Später erinnern",
         "selectAnOption": "Lies die verfügbaren Optionen sorgfältig durch und wähle diejenige, die am besten zu Deinem Szenario passt:",
+        "moveShopPermanently": {
+          "title": "Shop-ID beibehalten?",
+          "text": "Tu das nur, wenn Du Deinen Live-Shop dauerhaft auf diese Installation umgezogen hast. Die Apps ziehen hierher um und funktionieren in der vorherigen Installation nicht mehr, auch wenn sie noch läuft. Wenn das eine Staging- oder Testkopie ist, brich ab und wähle stattdessen \"Neue Shop-ID generieren\".",
+          "confirm": "Shop-ID beibehalten"
+        },
         "fingerprints": {
           "app_url": {
             "label": "APP_URL Umgebungsvariable",
@@ -1660,7 +1672,7 @@
         },
         "strategies": {
           "move-shop-permanently": {
-            "description": "Das ist in der Regel die richtige Option, wenn Du Deinen Shop dauerhaft in eine andere Infrastruktur oder Umgebung verschoben hast. Shopware benachrichtigt die Apps (d. h. erneute Registrierung bei den App-Servern) unter Verwendung derselben Shop-ID, und die Apps bleiben installiert. Dein Shop identifiziert sich weiterhin als derselbe wie zuvor. Das bedeuted, dass die neue Instanz die App-Daten der alten Installation überschreibt.",
+            "description": "Das ist nur die richtige Option, wenn Du Deinen Live-Shop dauerhaft auf einen neuen Server oder in eine neue Umgebung umgezogen hast. Shopware registriert die Apps mit derselben Shop-ID neu, sodass sie ihre Daten behalten. In der vorherigen Installation funktionieren die Apps danach nicht mehr, auch wenn sie noch läuft.",
             "name": "Shop-ID beibehalten"
           },
           "reinstall-apps": {

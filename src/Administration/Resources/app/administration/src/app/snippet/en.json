@@ -879,6 +879,7 @@
         "lineItemDimensionWidthRule": "Item with width",
         "lineItemDimensionHeightRule": "Item with height",
         "lineItemDimensionLengthRule": "Item with length",
+        "lineItemDimensionLongestAndGirthRule": "Item with longest side and girth",
         "lineItemDimensionWeightRule": "Item with weight",
         "lineItemDimensionVolumeRule": "Item with volume",
         "lineItemListPriceRule": "Item with list price",
@@ -1276,6 +1277,11 @@
       "placeholderProduct": "Select a product...",
       "placeholderCategory": "Select a category..."
     },
+    "childSearch": {
+      "label": "Search entries",
+      "placeholder": "Search...",
+      "noResults": "No results found."
+    },
     "table": {
       "addHeading": "Add table heading",
       "cols": "Columns",
@@ -1416,8 +1422,9 @@
   "sw-license-violation": {
     "title": "Extension warning",
     "reload": "Reload",
-    "alertText": "We have detected a license violation for at least one of your extensions in this installation. To fix the license violation and avoid legal consequences, book a subscription or buy/rent the extension (according to inflicted violation type). You do not use the extension anymore? Then delete it via the \"Delete extension permanently\" button or via My Extensions. If none of these measures are taken, shopware AG reserves the right to charge penalty fees for any license violation.",
+    "alertText": "We have detected a license violation for at least one of your extensions in this installation. To fix the license violation and avoid legal consequences, book a subscription or buy/rent the extension (according to inflicted violation type). You do not use the extension anymore? Then remove it from your installation. If none of these measures are taken, shopware AG reserves the right to charge penalty fees for any license violation.",
     "deletePlugin": "Delete extension permanently",
+    "removeExternally": "Remove outside Administration, for example with Composer.",
     "messageDeleteConfirm": "Do you want to delete the extension \"{pluginName}\" completely?",
     "checkboxMessage": "I have taken notice of this message and eventually accruing consequences.",
     "closeModal": "Close notification",
@@ -1645,6 +1652,11 @@
         "newValue": "New value",
         "remindMeLater": "Remind me later",
         "selectAnOption": "Read the available options carefully and select the one that best suits your scenario:",
+        "moveShopPermanently": {
+          "title": "Keep the shop identifier?",
+          "text": "Only do this if you permanently moved your live shop to this installation. The apps move here and stop working in the previous installation, even if it is still running. If this is a staging or test copy, cancel and choose \"Generate a new shop identifier\" instead.",
+          "confirm": "Keep the shop identifier"
+        },
         "fingerprints": {
           "app_url": {
             "label": "APP_URL environment variable",
@@ -1660,7 +1672,7 @@
         },
         "strategies": {
           "move-shop-permanently": {
-            "description": "This is typically the right option if you have permanently moved your shop to a different infrastructure or new environment. Shopware will notify apps (i.e. re-register at the app servers) using the same shop identifier and apps remain installed. Your shop will identify as the same shop as before. This means, that this instance will override the app data of the original installation.",
+            "description": "This is only the right option if you have permanently moved your live shop to a new server or environment. Shopware re-registers the apps with the same shop identifier, so they keep their data. The apps stop working in the previous installation, even if it is still running.",
             "name": "Keep the shop identifier"
           },
           "reinstall-apps": {

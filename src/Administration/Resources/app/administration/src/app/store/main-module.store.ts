@@ -3,8 +3,7 @@
  * @sw-package framework
  */
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export type MainModule = {
+type MainModule = {
     extensionName: string;
     moduleId: string;
 };

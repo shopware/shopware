@@ -57,24 +57,6 @@ export type LegacyConditionCaseReservation = {
 };
 
 /**
- * Represents the result of rewriting one block template string.
- * Use it when a caller needs both the rewritten template and the reservation metadata.
- *
- * @example
- * const result: LegacyConditionTransformResult = {
- *     template,
- *     conditionCases: [],
- * };
- *
- * @private
- */
-export type LegacyConditionTransformResult = {
-    template: string;
-    conditionCases: LegacyConditionCaseReservation[];
-    trailingChainKey?: string;
-};
-
-/**
  * Stores a single top-level Twig block extracted from an override template.
  * Use it as the input shape before condition chains are analyzed and rewritten.
  *

@@ -37,6 +37,7 @@ use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Migration\MigrationInfo;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
@@ -68,7 +69,7 @@ class InfoControllerTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // register before the first ini_get(), or the ini mocks of later tests stop working
-        IniMock::register(ProductDocumentConfig::class);
+        IniMock::register(MemorySizeCalculator::class);
     }
 
     protected function setUp(): void
@@ -167,7 +168,7 @@ class InfoControllerTest extends TestCase
      */
     public static function productDocumentUploadLimitProvider(): iterable
     {
-        yield 'uploads through PHP are lowered by post_max_size' => [false, 512];
+        yield 'uploads through PHP are lowered by upload_max_filesize' => [false, 512];
         yield 'presigned uploads go past PHP' => [true, 1024];
     }
 
@@ -175,7 +176,7 @@ class InfoControllerTest extends TestCase
     public function testConfigGivesTheProductDocumentUploadLimit(bool $presignedUploadAvailable, int $expected): void
     {
         $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
-        IniMock::withIniMock(['post_max_size' => '512']);
+        IniMock::withIniMock(['upload_max_filesize' => '512', 'post_max_size' => '2048']);
         $presignedMediaUploadService = static::createStub(PresignedMediaUploadService::class);
         $presignedMediaUploadService->method('isAvailable')->willReturn($presignedUploadAvailable);
 

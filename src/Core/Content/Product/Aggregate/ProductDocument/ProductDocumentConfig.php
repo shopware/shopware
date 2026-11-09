@@ -66,13 +66,10 @@ readonly class ProductDocumentConfig
     }
 
     /**
-     * The largest file an upload through PHP can carry: the configured size, lowered by PHP's `post_max_size`.
-     * The Administration sends the raw file, so `upload_max_filesize` doesn't apply.
+     * The largest file an upload through PHP can carry: the configured size, lowered by PHP's upload limits.
      */
     public function getMaxUploadFileSize(): int
     {
-        $postMaxSize = MemorySizeCalculator::convertToBytes((string) ini_get('post_max_size'));
-
-        return $postMaxSize > 0 ? min($this->maxFileSize, $postMaxSize) : $this->maxFileSize;
+        return MemorySizeCalculator::getMaxUploadSize($this->maxFileSize);
     }
 }

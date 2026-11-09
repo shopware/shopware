@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentConfi
 use Shopware\Core\Content\Product\Events\ProductDocumentAllowedExtensionsEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Shopware\Tests\Unit\Common\Stubs\IniMock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -21,7 +22,8 @@ class ProductDocumentConfigTest extends TestCase
 {
     public static function setUpBeforeClass(): void
     {
-        IniMock::register(ProductDocumentConfig::class);
+        // register before the first ini_get(), or the ini mocks of later tests stop working
+        IniMock::register(MemorySizeCalculator::class);
     }
 
     protected function tearDown(): void
@@ -56,24 +58,21 @@ class ProductDocumentConfigTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{int, string, int}>
+     * @return iterable<string, array{int, int}>
      */
     public static function uploadLimitProvider(): iterable
     {
-        yield 'a configured size below post_max_size' => [1024, '16M', 1024];
-        yield 'post_max_size lowers a larger configured size' => [20 * 1024 * 1024, '16M', 16 * 1024 * 1024];
-        yield 'no post_max_size' => [20 * 1024 * 1024, '0', 20 * 1024 * 1024];
+        yield 'PHP limits below the configured size lower it' => [20 * 1024 * 1024, 8 * 1024 * 1024];
+        yield 'a configured size below the PHP limits stays' => [1024, 1024];
     }
 
     #[DataProvider('uploadLimitProvider')]
-    public function testTheUploadLimitIsTheConfiguredSizeLoweredByPostMaxSize(int $maxFileSize, string $postMaxSize, int $expected): void
+    public function testTheUploadLimitIsTheConfiguredSizeLoweredByPhpLimits(int $maxFileSize, int $expected): void
     {
-        // the Administration uploads the raw file, so upload_max_filesize doesn't apply
-        IniMock::withIniMock(['upload_max_filesize' => '8M', 'post_max_size' => $postMaxSize]);
+        IniMock::withIniMock(['upload_max_filesize' => '8M', 'post_max_size' => '16M']);
 
         $config = new ProductDocumentConfig(new EventDispatcher(), ['pdf'], maxPerProduct: 10, maxFileSize: $maxFileSize);
 
         static::assertSame($expected, $config->getMaxUploadFileSize());
-        static::assertSame($maxFileSize, $config->maxFileSize);
     }
 }

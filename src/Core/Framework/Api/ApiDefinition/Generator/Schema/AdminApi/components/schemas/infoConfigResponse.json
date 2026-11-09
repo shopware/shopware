@@ -183,7 +183,7 @@
                   },
                   "maxFileSize": {
                     "type": "integer",
-                    "description": "The largest file in bytes the Administration can upload for a document: the configured size, lowered by PHP's post_max_size unless uploads go straight to the storage."
+                    "description": "The largest file in bytes the Administration can upload for a document: the configured size, lowered by PHP's upload_max_filesize and post_max_size unless uploads go straight to the storage."
                   }
                 },
                 "required": ["allowedExtensions", "allowedMimeTypesByExtension", "maxPerProduct", "maxFileSize"]

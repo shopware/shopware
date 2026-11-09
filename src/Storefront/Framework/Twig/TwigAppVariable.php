@@ -18,6 +18,13 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[Package('discovery')]
 class TwigAppVariable extends AppVariable
 {
+    /**
+     * The request the cached clone was made from.
+     * Long-running workers handle many requests with the same service instance,
+     * so the clone is only reused while the inner variable still returns this request.
+     */
+    private ?Request $sourceRequest = null;
+
     private ?Request $request = null;
 
     /**
@@ -33,14 +40,14 @@ class TwigAppVariable extends AppVariable
 
     public function getRequest(): ?Request
     {
-        if ($this->request !== null) {
-            return $this->request;
-        }
-
         $request = $this->appVariable->getRequest();
 
         if ($request === null) {
             throw StorefrontFrameworkException::appRequestNotAvailable();
+        }
+
+        if ($this->request !== null && $this->sourceRequest === $request) {
+            return $this->request;
         }
 
         $clonedRequest = clone $request;
@@ -53,6 +60,7 @@ class TwigAppVariable extends AppVariable
             }
         }
 
+        $this->sourceRequest = $request;
         $this->request = $clonedRequest;
 
         return $clonedRequest;

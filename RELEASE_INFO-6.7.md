@@ -12,6 +12,7 @@ Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED` while ano
 ### Rule Builder: new "Item with longest side and girth" condition
 
 A new line item rule condition `LineItemDimensionLongestAndGirthRule` (`cartLineItemDimensionLongestAndGirth`) was added. It matches the cart against the longest side plus girth of each individual line item. It is calculated as `longest side + 2 * (shortest side + second shortest side)`. This condition allows for more precise shipping rules based on the dimensions of the items in the cart.
+
 ### Cheapest-price blob storage
 
 Product indexing now also writes serialized cheapest prices to `product.cheapest_price_blob`.

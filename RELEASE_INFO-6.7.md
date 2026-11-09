@@ -22,6 +22,18 @@ In a `DeliveryRuleScope` the shipping address rules read only the delivery's add
 
 Custom rules that read `getShippingLocation()` or `getShippingMethod()` from the sales channel context should read them from `$scope->getDelivery()` when the scope is a `DeliveryRuleScope`, otherwise they decide by the context for every delivery.
 See `UPGRADE-6.8.md` for an example.
+### Attribute entities can generate the reverse side of a many-to-many association
+
+`Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToMany` now accepts `reversedBy`, `reverseApi` and `reverseOnDelete`:
+
+```php
+#[ManyToMany(entity: 'product', onDelete: OnDelete::CASCADE, api: true, reversedBy: 'attributeEntities', reverseApi: ['admin-api' => true, 'store-api' => false], reverseOnDelete: OnDelete::CASCADE)]
+public array $products = [];
+```
+
+When `reversedBy` is set, the target entity (`product` in the example) gains a reverse many-to-many association with that property name over the same mapping table, added as an entity extension and therefore available on the target struct through its extensions for loading and filtering.
+`reverseApi` and `reverseOnDelete` control the reverse association's API visibility and delete behaviour independently; when omitted, they mirror the forward association's `api` and `onDelete`.
+Without `reversedBy`, the relation stays one-sided as before.
 
 ### Rule Builder: new "Item with longest side and girth" condition
 
@@ -1235,17 +1247,6 @@ Feature flags such as `JSON_LD_DATA` and `CACHE_REWORK` now activate automatical
 The Rule Builder condition `orderDaysSincePlaced` compares the order's `orderDate` with the current date in calendar days. It supports numeric comparison operators and requires a numeric `daysPassed` value, for example `operator: <=` and `daysPassed: 30` to match orders placed within the last 30 days.
 
 Extensions can evaluate `Shopware\Core\Content\Flow\Rule\OrderDaysSincePlacedRule` in a `FlowRuleScope` or a derived scope to apply date limits to existing orders.
-
-### Attribute entities can generate the reverse side of a many-to-many association
-
-`Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToMany` now accepts `reversedBy`, `reverseApi` and `reverseOnDelete`:
-
-```php
-#[ManyToMany(entity: 'product', onDelete: OnDelete::CASCADE, api: true, reversedBy: 'attributeEntities', reverseApi: ['admin-api' => true, 'store-api' => false], reverseOnDelete: OnDelete::CASCADE)]
-public array $products = [];
-```
-
-When `reversedBy` is set, the target entity (`product` in the example) gains a reverse many-to-many association with that property name over the same mapping table, added as an entity extension and therefore available on the target struct through its extensions for loading and filtering. `reverseApi` and `reverseOnDelete` control the reverse association's API visibility and delete behaviour independently; when omitted, they mirror the forward association's `api` and `onDelete`. Without `reversedBy`, the relation stays one-sided as before.
 
 ### Unlimited DAL searches with next-pages totals
 

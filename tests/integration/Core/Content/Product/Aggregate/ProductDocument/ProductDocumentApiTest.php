@@ -61,6 +61,27 @@ class ProductDocumentApiTest extends TestCase
         static::assertContains($this->ids->get('drill.blue'), $deleted);
     }
 
+    public function testADocumentCannotMoveToAnotherProduct(): void
+    {
+        $this->createDrillWithBlueVariant();
+        $this->getBrowser()->request('POST', '/api/product-document', server: ['CONTENT_TYPE' => 'application/json'], content: json_encode(
+            ['id' => $this->ids->create('document'), 'productId' => $this->ids->get('drill'), ...$this->manual()],
+            \JSON_THROW_ON_ERROR,
+        ));
+        static::assertTrue($this->getBrowser()->getResponse()->isSuccessful());
+
+        $url = '/api/product-document/' . $this->ids->get('document');
+        $this->getBrowser()->request('PATCH', $url, server: ['CONTENT_TYPE' => 'application/json'], content: json_encode(['productId' => $this->ids->get('drill')], \JSON_THROW_ON_ERROR));
+        static::assertTrue($this->getBrowser()->getResponse()->isSuccessful(), 'the same product can be sent again');
+
+        $this->getBrowser()->request('PATCH', $url, server: ['CONTENT_TYPE' => 'application/json'], content: json_encode(['productId' => $this->ids->get('drill.blue')], \JSON_THROW_ON_ERROR));
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(400, $response->getStatusCode());
+        $error = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR)['errors'][0];
+        static::assertSame('The field "product_id" of "product_document" is immutable and cannot be updated.', $error['detail']);
+    }
+
     /**
      * @return array{title: string, mediaId: string}
      */

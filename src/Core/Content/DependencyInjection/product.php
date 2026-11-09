@@ -57,6 +57,8 @@ use Shopware\Core\Content\Product\Cleanup\CleanupProductKeywordDictionaryTask;
 use Shopware\Core\Content\Product\Cleanup\CleanupProductKeywordDictionaryTaskHandler;
 use Shopware\Core\Content\Product\Cleanup\CleanupUnusedDownloadMediaTask;
 use Shopware\Core\Content\Product\Cleanup\CleanupUnusedDownloadMediaTaskHandler;
+use Shopware\Core\Content\Product\Cleanup\CleanupUnusedProductDocumentMediaTask;
+use Shopware\Core\Content\Product\Cleanup\CleanupUnusedProductDocumentMediaTaskHandler;
 use Shopware\Core\Content\Product\Cms\BuyBoxCmsElementResolver;
 use Shopware\Core\Content\Product\Cms\CrossSellingCmsElementResolver;
 use Shopware\Core\Content\Product\Cms\ManufacturerLogoCmsElementResolver;
@@ -144,6 +146,7 @@ use Shopware\Core\Content\Product\Stock\OrderStockSubscriber;
 use Shopware\Core\Content\Product\Stock\StockStorage;
 use Shopware\Core\Content\Product\Subscriber\CustomFieldSearchableSubscriber;
 use Shopware\Core\Content\Product\Subscriber\ProductDescriptionTeaserSubscriber;
+use Shopware\Core\Content\Product\Subscriber\ProductDocumentTitleSubscriber;
 use Shopware\Core\Content\Product\Subscriber\ProductSubscriber;
 use Shopware\Core\Content\Product\Subscriber\RepairDigitalProductStatesSubscriber;
 use Shopware\Core\Content\Product\Util\VariantCombinationLoader;
@@ -416,6 +419,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductDescriptionTeaserBuilder::class),
         ])
         ->tag('shopware.entity_indexer');
+
+    $services->set(ProductDocumentTitleSubscriber::class)
+        ->args([
+            service(Connection::class),
+        ])
+        ->tag('kernel.event_subscriber');
 
     $services->set(OrderStockSubscriber::class)
         ->args([
@@ -914,6 +923,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.scheduled.task');
 
     $services->set(CleanupUnusedDownloadMediaTaskHandler::class)
+        ->args([
+            service('scheduled_task.repository'),
+            service('logger'),
+            service(UnusedMediaPurger::class),
+        ])
+        ->tag('messenger.message_handler');
+
+    $services->set(CleanupUnusedProductDocumentMediaTask::class)
+        ->tag('shopware.scheduled.task');
+
+    $services->set(CleanupUnusedProductDocumentMediaTaskHandler::class)
         ->args([
             service('scheduled_task.repository'),
             service('logger'),

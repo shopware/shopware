@@ -476,6 +476,13 @@ bin/console administration:check-extensions -- --only=MyPlugin --fix
 
 To keep a rule off, set it to `'off'` in the `eslint.config.mjs` of your extension, or record the current findings with `--update-baseline`.
 
+### The Administration watcher applies template edits without a page reload
+
+While `composer watch:admin` runs, saving the Twig template of a component or of a component override updates that component on the page and keeps its state.
+Components that extend it update as well.
+The watcher still reloads the page when it cannot apply an edit in place:
+for a Twig override of a component without a Twig template, for a template whose content another template file has as well, or for a component that has not been rendered yet.
+
 ### Experimental: Vite 8 and HTTP/2 for the Administration behind the `ADMIN_VITE_8` feature flag
 
 The new `ADMIN_VITE_8` feature flag builds the Administration and the Administration code of extensions with Vite 8.

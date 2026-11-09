@@ -1,0 +1,53 @@
+meta:
+  label: "Product Cross Selling"
+  description: "Displays the product's cross-selling groups as tabs, each with a product slider."
+  icon: "regular-products"
+  illustration: "product-cross-selling"
+  category: "commerce"
+  priority: 97
+  copilot:
+    summary: "Cross-selling groups of the current product, one tab with a product slider per group."
+    hints:
+      - "Use on a product detail page; the cross-selling groups are loaded for the current product."
+      - "The groups and their products are managed in the cross-selling tab of the product in the Administration."
+      - "Renders one tab per group with products. A single group is shown as a slider with the group name as its title."
+      - "Renders nothing when the product has no cross-selling group with products."
+
+properties:
+  crossSellings:
+    type: Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementCollection
+    required: false
+    title: "Cross sellings"
+    description: "Active cross-selling groups of the current product, each with its resolved products. Received as root-scoped context from the page, which loads it once. Optional because a product context may be unavailable; without groups that contain products, the component renders nothing."
+
+  variant:
+    type: string
+    title: "Tab Style"
+    description: "Visual style of the tab navigation shown when the product has more than one cross-selling group."
+    default: "underline"
+    enum:
+      - "tabs"
+      - "pills"
+      - "underline"
+    adminUI:
+      component: "select"
+
+  itemSizing:
+    type: string
+    title: "Item Sizing"
+    description: "How the product cards are sized. Fixed keeps a fixed card width and lets the next card peek in at the edge, fit sizes the cards so a whole number of columns fills the available width."
+    default: "fixed"
+    enum:
+      - "fixed"
+      - "fit"
+    adminUI:
+      component: "select"
+      helpText: "Fixed keeps a fixed product card width and allows overlapping cards. Fit sizes the cards so a whole number of columns fills the available width."
+
+  showNavigationArrows:
+    type: boolean
+    title: "Show Navigation Arrows"
+    description: "Show the arrow buttons to scroll the sliders."
+    default: true
+    adminUI:
+      component: "switch"

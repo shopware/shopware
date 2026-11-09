@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="128" viewBox="0 0 200 128" fill="none">
+  <defs>
+    <linearGradient id="paper" x1="30" y1="18" x2="160" y2="114" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff" />
+      <stop offset="1" stop-color="#f3f8ff" />
+    </linearGradient>
+    <linearGradient id="wash" x1="40" y1="30" x2="160" y2="110" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#eaf5ff" />
+      <stop offset="1" stop-color="#d3eaff" />
+    </linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop stop-color="#62b8ff" />
+      <stop offset="1" stop-color="#1895ff" />
+    </linearGradient>
+    <filter id="frame-shadow" x="0" y="0" width="200" height="128" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#24436b" flood-opacity="0.14" />
+    </filter>
+  </defs>
+  <g stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="16" y="14" width="168" height="100" rx="8" fill="url(#paper)" stroke="#9eb3ce" filter="url(#frame-shadow)" />
+    <rect x="30" y="27" width="44" height="16" rx="4" fill="url(#wash)" stroke="#1895ff" />
+    <path d="M39 35h26" stroke="#1895ff" stroke-width="3" />
+    <path d="M86 35h24" stroke="#a7b8cf" stroke-width="3" />
+    <path d="M124 35h24" stroke="#a7b8cf" stroke-width="3" />
+    <path d="M28 44h144" stroke="#c5dbf3" stroke-width="1" />
+    <path d="m37 68-5 5 5 5m126-10 5 5-5 5" fill="none" stroke="#17265c" stroke-width="2" />
+    <rect x="45" y="52" width="32" height="44" rx="4" fill="white" stroke="#96b6df" />
+    <g transform="translate(51.5 58) scale(0.5)">
+      <path d="M0 7 11 0c4 6 12 6 16 0l11 7-7 13-5-3v24H12V17l-5 3Z" fill="#c1e1ff" stroke="#1895ff" stroke-width="2" />
+    </g>
+    <path d="M52 87h18" stroke="#a7b8cf" stroke-width="3" />
+    <rect x="84" y="52" width="32" height="44" rx="4" fill="url(#wash)" stroke="#1895ff" />
+    <g transform="translate(90.5 58) scale(0.5)">
+      <path d="M0 7 11 0c4 6 12 6 16 0l11 7-7 13-5-3v24H12V17l-5 3Z" fill="url(#blue)" stroke="#1895ff" stroke-width="2" />
+    </g>
+    <path d="M91 87h18" stroke="#1895ff" stroke-width="3" />
+    <rect x="123" y="52" width="32" height="44" rx="4" fill="white" stroke="#96b6df" />
+    <g transform="translate(129.5 58) scale(0.5)">
+      <path d="M0 7 11 0c4 6 12 6 16 0l11 7-7 13-5-3v24H12V17l-5 3Z" fill="#c1e1ff" stroke="#1895ff" stroke-width="2" />
+    </g>
+    <path d="M130 87h18" stroke="#a7b8cf" stroke-width="3" />
+  </g>
+</svg>

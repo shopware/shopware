@@ -89,3 +89,7 @@ layout:
                 slots:
                   content:
                     - preset: Sw:ProductReviews
+  - component: Sw:Grid:Container
+    slots:
+      content:
+        - component: Sw:Product:CrossSelling

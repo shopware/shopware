@@ -863,7 +863,7 @@ class ConfigurationTest extends TestCase
         static::assertSame([], $label['allowed_values'] ?? []);
     }
 
-    public function testTelemetryOpenLabelAcceptsLockAndDiscardsContributions(): void
+    public function testTelemetryOpenLabelLockIsLegal(): void
     {
         $label = $this->processTelemetryLabel(
             ['policy' => 'open'],
@@ -872,6 +872,7 @@ class ConfigurationTest extends TestCase
         );
 
         static::assertSame('open', $label['policy']);
+        // folding mechanism is still applied, even though open policy ignores bounding afterwards
         static::assertSame(['product', 'other'], $label['allowed_values']);
         static::assertSame([], $label['add_allowed_values']);
     }

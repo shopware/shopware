@@ -52,6 +52,19 @@ class MemorySizeCalculator
         return round($bytes, 2) . ' ' . $units[$pow];
     }
 
+    public static function formatToBytesByLocale(int $bytes, string $locale, int $precision = 2): string
+    {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+
+        $bytes = max($bytes, 0);
+        $pow = $bytes > 0 ? min((int) floor(log($bytes) / log(1024)), \count($units) - 1) : 0;
+
+        $formatter = new \NumberFormatter($locale, \NumberFormatter::DECIMAL);
+        $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, $precision);
+
+        return $formatter->format($bytes / 1024 ** $pow) . ' ' . $units[$pow];
+    }
+
     public static function getMaxUploadSize(?int $maxSize = null): int
     {
         $values = [

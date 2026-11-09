@@ -21,7 +21,11 @@
                                 {% endblock %}
 
                                 {% block component_product_documents_item_link %}
-                                    <a href="{{ media.url }}" class="product-detail-documents-link" download>
+                                    <a href="{{ media.url }}"
+                                       class="product-detail-documents-link"
+                                       target="_blank"
+                                       rel="noopener noreferrer"
+                                       download>
                                         {% block component_product_documents_item_name %}
                                             <span class="product-detail-documents-name">{{ document.translated.title ?: media.fileName }}</span>
                                         {% endblock %}

@@ -75,6 +75,28 @@ class MemorySizeCalculatorTest extends TestCase
         yield 'terabyte value is formatted with decimals' => [7369137415768749, '6702.19 TB'];
     }
 
+    #[DataProvider('bytesByLocaleProvider')]
+    public function testFormatBytesByLocale(int $bytes, string $locale, int $precision, string $formatted): void
+    {
+        static::assertSame($formatted, MemorySizeCalculator::formatToBytesByLocale($bytes, $locale, $precision));
+    }
+
+    /**
+     * @return iterable<string, array{int, string, int, string}>
+     */
+    public static function bytesByLocaleProvider(): iterable
+    {
+        yield 'zero bytes are formatted as bytes' => [0, 'en-GB', 2, '0 B'];
+        yield 'negative value is formatted as zero bytes' => [-5, 'en-GB', 2, '0 B'];
+        yield 'small value is formatted as bytes' => [512, 'en-GB', 2, '512 B'];
+        yield 'one kilobyte is formatted without decimals' => [1024, 'en-GB', 2, '1 KB'];
+        yield 'kilobyte value is formatted with decimals' => [2024, 'en-GB', 2, '1.98 KB'];
+        yield 'megabyte value uses the given precision' => [1_677_722, 'en-GB', 1, '1.6 MB'];
+        yield 'megabyte value uses the decimal separator of the locale' => [1_677_722, 'de-DE', 1, '1,6 MB'];
+        yield 'megabyte value is rounded without precision' => [1_700_000, 'en-GB', 0, '2 MB'];
+        yield 'value above the largest unit uses the grouping separator of the locale' => [2 * 1024 ** 5, 'en-GB', 2, '2,048 TB'];
+    }
+
     #[DataProvider('maxUploadSizeProvider')]
     public function testGetMaxUploadSize(
         string $uploadMaxFilesize,

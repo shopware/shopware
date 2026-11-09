@@ -79,9 +79,10 @@ final class ProductDocumentValidator implements EventSubscriberInterface
     {
         $translationsWithNewFile = [];
         foreach ($translations as $translation) {
-            $resultingMediaId = $translation->getResultingValue('media_id');
-            if (\is_string($resultingMediaId) && $resultingMediaId !== $translation->getStoredValue('media_id')) {
-                $translationsWithNewFile[] = [$translation, Uuid::fromBytesToHex($resultingMediaId)];
+            $oldMediaId = $translation->getStoredValue('media_id');
+            $newMediaId = $translation->getResultingValue('media_id');
+            if (\is_string($newMediaId) && $newMediaId !== $oldMediaId) {
+                $translationsWithNewFile[] = [$translation, Uuid::fromBytesToHex($newMediaId)];
             }
         }
 
@@ -89,7 +90,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
             return;
         }
 
-        $files = $this->loadFiles(array_values(array_unique(array_column($translationsWithNewFile, 1))), $event->getContext());
+        $files = $this->loadFiles(array_column($translationsWithNewFile, 1), $event->getContext());
         $allowedExtensions = $this->config->getAllowedExtensions($event->getContext());
 
         foreach ($translationsWithNewFile as [$translation, $mediaId]) {
@@ -169,7 +170,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
      */
     private function loadFiles(array $mediaIds, Context $context): MediaCollection
     {
-        $criteria = new Criteria($mediaIds);
+        $criteria = new Criteria(array_unique($mediaIds));
         $criteria->setTitle('product-document-validator::files');
 
         return $this->mediaRepository->search($criteria, $context)->getEntities();

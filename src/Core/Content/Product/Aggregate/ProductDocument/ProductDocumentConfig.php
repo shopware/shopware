@@ -60,9 +60,6 @@ readonly class ProductDocumentConfig
         return $mimeTypesByExtension;
     }
 
-    /**
-     * For uploads through PHP; saving checks `maxFileSize`.
-     */
     public function getMaxUploadFileSize(): int
     {
         return MemorySizeCalculator::getMaxUploadSize($this->maxFileSize);

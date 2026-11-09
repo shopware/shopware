@@ -202,7 +202,6 @@ class InfoController extends AbstractController
 
         $appUrlReachable = $this->appUrlVerifier->verifyForAdministration();
         $presignedUploadSupported = $this->presignedMediaUploadService !== null && $this->presignedMediaUploadService->isAvailable();
-        // its keys are the allowed file types, so the event that can change them is dispatched once
         $productDocumentMimeTypesByExtension = $this->productDocumentConfig->getMimeTypesByExtension($context);
 
         $config = [

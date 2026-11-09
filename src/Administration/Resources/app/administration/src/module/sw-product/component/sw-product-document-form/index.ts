@@ -11,6 +11,7 @@ import {
     type DocumentChanges,
 } from './document-translation.utils';
 import { loadDocumentVariants, getDocumentVariantCandidates } from './document-variant.helper';
+import { getHintParams, getFileAccept, isInvalidDocumentFile } from './document-upload.helper';
 import template from './sw-product-document-form.html.twig';
 import './sw-product-document-form.scss';
 
@@ -28,6 +29,7 @@ export default Shopware.Component.wrapComponentConfig({
         'entityFactory',
         'acl',
         'fileValidationService',
+        'mediaService',
     ],
 
     emits: ['change-language'],
@@ -43,6 +45,7 @@ export default Shopware.Component.wrapComponentConfig({
         return {
             showUploadModal: false,
             showMediaModal: false,
+            mediaFolderId: undefined as string | null | undefined,
             editingDocument: null as ProductDocument | null,
             removingDocument: null as ProductDocument | null,
             removeFromVariants: false,
@@ -72,6 +75,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         documents(): EntityCollection<'product_document'> {
             return this.product.documents as EntityCollection<'product_document'>;
+        },
+
+        productRepository() {
+            return this.repositoryFactory.create('product');
         },
 
         documentRepository() {
@@ -147,19 +154,11 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         uploadHint(): string {
-            const extensions = this.allowedExtensions.filter((extension) => extension !== 'jpeg');
-            return this.$t('sw-product.documentForm.uploadHint', {
-                extensions: extensions.slice(0, -1).join(', ').toUpperCase(),
-                lastExtension: extensions.at(-1)?.toUpperCase(),
-                size: this.maxFileSize / (1024 * 1024),
-            });
+            return this.$t('sw-product.documentForm.uploadHint', getHintParams(this.allowedExtensions, this.maxFileSize));
         },
 
         fileAccept(): string {
-            return Object.entries(this.fileValidationService.extensionByType)
-                .filter(([, extensions]) => extensions.some((extension) => this.allowedExtensions.includes(extension)))
-                .map(([mimeType]) => mimeType)
-                .join(',');
+            return getFileAccept(this.fileValidationService.extensionByType, this.allowedExtensions);
         },
     },
 
@@ -169,6 +168,11 @@ export default Shopware.Component.wrapComponentConfig({
             this.closeDocumentEditor();
             this.closeRemoveDocumentModal();
         },
+    },
+
+    async created() {
+        const folder = this.mediaService.getDefaultFolderId('product_document');
+        this.mediaFolderId = await folder.catch(() => /* The picker can open at the media root. */ null);
     },
 
     beforeUnmount() {
@@ -246,11 +250,7 @@ export default Shopware.Component.wrapComponentConfig({
                     continue;
                 }
 
-                if (
-                    !this.allowedExtensions.includes(media.fileExtension?.toLowerCase() ?? '') ||
-                    typeof media.fileSize !== 'number' ||
-                    media.fileSize > this.maxFileSize
-                ) {
+                if (isInvalidDocumentFile(media, this.allowedExtensions, this.maxFileSize)) {
                     useNotification().createNotificationError({ message: this.uploadHint });
                     continue;
                 }
@@ -467,7 +467,7 @@ export default Shopware.Component.wrapComponentConfig({
             mediaId: string,
             context: typeof Shopware.Context.api,
         ): Promise<Entity<'product'>[]> {
-            return loadDocumentVariants(this.repositoryFactory.create('product'), productId, mediaId, context);
+            return loadDocumentVariants(this.productRepository, productId, mediaId, context);
         },
 
         stageVariantDocumentChanges(

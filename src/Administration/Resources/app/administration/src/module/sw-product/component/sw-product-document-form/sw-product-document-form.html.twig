@@ -243,8 +243,9 @@
 
         {% block sw_product_document_form_media_modal %}
             <sw-media-modal-v2
-                v-if="showMediaModal"
+                v-if="showMediaModal && mediaFolderId !== undefined"
                 entity-context="product_document"
+                :initial-folder-id="mediaFolderId"
                 :file-accept="fileAccept"
                 @media-modal-selection-change="addDocuments($event, editingDocument)"
                 @modal-close="showMediaModal = false"

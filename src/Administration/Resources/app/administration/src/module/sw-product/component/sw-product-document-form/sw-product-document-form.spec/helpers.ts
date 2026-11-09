@@ -22,7 +22,7 @@ export async function createWrapper(
     mediaRepository = repositoryFactory.create('media'),
     mediaService = { prepareDownloadMedia: jest.fn(), downloadMedia: jest.fn() },
     productRepository = repositoryFactory.create('product'),
-    options: { baseView?: boolean; isInherited?: boolean } = {},
+    options: { baseView?: boolean; isInherited?: boolean; getDefaultFolderId?: () => Promise<string | null> } = {},
 ) {
     Shopware.Store.get('swProductDetail').documentLanguage = Shopware.Store.get('context').api
         .language as Entity<'language'> | null;
@@ -45,7 +45,7 @@ export async function createWrapper(
                     addListener: jest.fn(),
                     removeListener: jest.fn(),
                     removeByTag: jest.fn(),
-                    getDefaultFolderId: jest.fn().mockResolvedValue(null),
+                    getDefaultFolderId: options.getDefaultFolderId ?? jest.fn().mockResolvedValue(null),
                     ...mediaService,
                 },
                 mediaPresignedUploadService: {},

@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Authorization\Subscription\Subscriber;
 use Shopware\Core\Framework\Webhook\Hookable;
+use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Framework\Webhook\Webhook;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Service\ResetInterface;
@@ -26,8 +27,10 @@ final class PrivilegePolicy implements Policy, EventSubscriberInterface, ResetIn
      */
     private array $rolePrivileges = [];
 
-    public function __construct(private readonly AclRoleLoader $aclRoleLoader)
-    {
+    public function __construct(
+        private readonly AclRoleLoader $aclRoleLoader,
+        private readonly WebhookOutboxStore $webhookOutboxStore,
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -54,7 +57,13 @@ final class PrivilegePolicy implements Policy, EventSubscriberInterface, ResetIn
             return true;
         }
 
-        return $event->isAllowed($webhook->appId ?? Hookable::NO_APP_ID, $this->getPrivileges($webhook->roles->roleIds));
+        if ($event->isAllowed($webhook->appId ?? Hookable::NO_APP_ID, $this->getPrivileges($webhook->roles->roleIds))) {
+            return true;
+        }
+
+        $this->webhookOutboxStore->recordNotPermitted($webhook->id);
+
+        return false;
     }
 
     public function reset(): void

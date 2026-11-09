@@ -219,6 +219,40 @@ class CustomerGroupSubscriberTest extends TestCase
         }
     }
 
+    public function testUrlIsNotWrittenForInactiveLanguage(): void
+    {
+        $s1 = $this->createSalesChannel()['id'];
+        $inactiveLanguageId = $this->getDeDeLanguageId();
+
+        static::getContainer()->get('language.repository')->update([
+            ['id' => $inactiveLanguageId, 'active' => false],
+        ], Context::createDefaultContext());
+
+        static::getContainer()->get('sales_channel.repository')->upsert([
+            [
+                'id' => $s1,
+                'languages' => [['id' => $inactiveLanguageId]],
+            ],
+        ], Context::createDefaultContext());
+
+        $id = Uuid::randomHex();
+
+        $this->customerGroupRepository->create([
+            [
+                'id' => $id,
+                'name' => 'Test',
+                'registrationActive' => true,
+                'registrationTitle' => 'test',
+                'registrationSalesChannels' => [['id' => $s1]],
+            ],
+        ], Context::createDefaultContext());
+
+        $urls = $this->getSeoUrlsById($id);
+
+        static::assertCount(1, $urls);
+        static::assertSame(Defaults::LANGUAGE_SYSTEM, $urls->first()?->getLanguageId());
+    }
+
     public function testCreatedUrlsAreDeletedWhenGroupIsDeleted(): void
     {
         $s1 = $this->createSalesChannel()['id'];

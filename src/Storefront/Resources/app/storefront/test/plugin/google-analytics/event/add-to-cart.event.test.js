@@ -71,6 +71,9 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         document.body.innerHTML = `
             <meta property="product:price:currency" content="EUR">
             <meta property="product:price:amount" content="99.99">
+            <script type="application/ld+json">
+                {"@type":"Product","offers":{"priceCurrency":"EUR","price":"99.99"}}
+            </script>
         `;
 
         const addToCartInstance = createMockPluginInstance();
@@ -110,6 +113,9 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
             document.body.innerHTML = `
                 <meta property="product:price:amount" content="10">
                 <h1 class="product-detail-name">Shirt</h1>
+                <script type="application/ld+json">
+                    {"@type":"Product","name":"Shirt","offers":{"price":"10"}}
+                </script>
                 <div class="product-detail-buy" data-product-variant="Red, L"
                      data-product-prices='[{"quantity":10,"price":20},{"quantity":11,"price":15}]'>
                     <div class="form-slot"></div>
@@ -519,6 +525,9 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         document.body.innerHTML = `
             <meta property="product:price:currency" content="EUR">
             <meta property="product:price:amount" content="99.99">
+            <script type="application/ld+json">
+                {"@type":"Product","offers":{"priceCurrency":"EUR","price":"99.99"}}
+            </script>
         `;
 
         const addToCartInstance = createMockPluginInstance();

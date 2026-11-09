@@ -63,7 +63,7 @@ describe('sw-product-document-form variant badges', () => {
         expect(wrapper.find('.sw-product-document-variant-badge').exists()).toBe(false);
     });
 
-    it('keeps a replacement file and download after remounting an unlinked variant', async () => {
+    it('keeps a replacement file, variant badge and download after remounting an unlinked variant', async () => {
         Object.assign(global, { activeAclRoles: ['product.editor', 'media.viewer'] });
         await unlinkDocuments();
         await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
@@ -87,7 +87,7 @@ describe('sw-product-document-form variant badges', () => {
         await wrapper.get('.sw-product-document-form__download').trigger('click');
         await flushPromises();
         expect(mediaService.prepareDownloadMedia).toHaveBeenCalledWith(replacement.id);
-        expect(wrapper.find('.sw-product-document-variant-badge').exists()).toBe(false);
+        expect(wrapper.find('.sw-product-document-variant-badge').exists()).toBe(true);
     });
 
     it('does not mark documents added to a parent product', async () => {
@@ -110,7 +110,7 @@ describe('sw-product-document-form variant badges', () => {
         expect(wrapper.text()).toContain('variant-manual.pdf');
     });
 
-    it('clears the session badge when the product is reloaded as new entities', async () => {
+    it('keeps the variant badge after reloading new entities and reopening the form', async () => {
         await unlinkDocuments();
         const media = createMedia('variant-manual');
         await addMedia(wrapper, [media]);
@@ -125,6 +125,23 @@ describe('sw-product-document-form variant badges', () => {
         await flushPromises();
 
         expect(wrapper.text()).toContain('variant-manual');
+        expect(wrapper.find('.sw-product-document-variant-badge').exists()).toBe(true);
+        wrapper.unmount();
+        wrapper = await createWrapper();
+        expect(wrapper.find('.sw-product-document-variant-badge').exists()).toBe(true);
+    });
+
+    it('removes the variant badge when the file is also used by a parent translation', async () => {
+        await unlinkDocuments();
+        const media = createMedia('variant-manual');
+        await addMedia(wrapper, [media]);
+        expect(wrapper.find('.sw-product-document-variant-badge').exists()).toBe(true);
+
+        const parentDocument = Shopware.Store.get('swProductDetail').parentProduct.documents![0];
+        Object.assign(parentDocument, {
+            translations: [{ languageId: 'other-language', mediaId: media.id, media }],
+        });
+        await flushPromises();
         expect(wrapper.find('.sw-product-document-variant-badge').exists()).toBe(false);
     });
 

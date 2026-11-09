@@ -38,8 +38,6 @@ const swProductDetail = Shopware.Store.register({
             product: {} as ProductDetailProduct,
             parentProduct: {} as Entity<'product'>,
             isDownloadExternallyManaged: false,
-            // Retain session badges across tabs while reloaded entities remain unmarked.
-            sessionAddedDocuments: new WeakSet<Entity<'product_document'>>(),
             documentMedia: new WeakMap<Entity<'product'>, Record<string, Entity<'media'>>>(),
             documentLanguage: null as Entity<'language'> | null,
             documentSaveNotifications: [] as { documentId: string; name: string; variantIds: string[] }[],
@@ -285,7 +283,6 @@ const swProductDetail = Shopware.Store.register({
         },
 
         addDocument(document: Entity<'product_document'>): void {
-            this.sessionAddedDocuments.add(document);
             this.product.documents?.add(document);
         },
 

@@ -434,6 +434,14 @@ Apps no longer trigger a deprecation when they install or update with inline cus
 `Resources/config/custom-fields.xml` stays the preferred format for new apps.
 If an app ships both, the file takes precedence, the inline definition is ignored, and Shopware logs a warning.
 
+### App MCP prompt and resource responses
+
+App MCP prompt responses are now decoded as JSON arrays of messages with a `user` or `assistant` role and `content`, for example `[{"role":"user","content":"Hello"}]`.
+App MCP resource responses must be JSON objects containing a `text` string or a base64-encoded `blob` string, for example `{"uri":"my-app://status","mimeType":"application/json","text":"{\"ok\":true}"}`.
+Plain-text resource responses are no longer accepted; wrap the content in a JSON object.
+Resources use the URI declared in `mcp.xml`; a non-empty `mimeType` in the response takes precedence over the configured MIME type.
+Invalid JSON, malformed messages or resource contents, and `{"success":false,"error":"..."}` responses produce MCP errors with details for the client.
+
 ## Administration
 
 ### Deprecated the `customFieldSetRepository` computed property of `sw-product-stream-detail`

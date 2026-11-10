@@ -290,6 +290,15 @@ Shops with such rules see them apply earlier in the checkout once their frontend
 Contexts without an address behave as before.
 The prospective customer is removed when the visitor logs in or registers.
 
+### Collection class for import/export files
+
+`import_export_file` entities are now loaded into an `ImportExportFileCollection` instead of a generic `EntityCollection`.
+Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations with `EntityRepository<ImportExportFileCollection>`.
+
+### Deprecated `PluginZipImportCommand::$cacheClearer`
+
+The property is unused and will be removed in 6.8.
+
 ## API
 
 ### Checkout draft route
@@ -318,16 +327,6 @@ Check `customer` or `prospectiveCustomer` before treating it as a customer addre
 
 Admin API and Store API responses with HTTP 429 now contain a `Retry-After` header with the seconds to wait.
 It is listed in `Access-Control-Expose-Headers`, so browser clients on another origin can read it.
-### Collection class for import/export files
-
-`import_export_file` entities are now loaded into an `ImportExportFileCollection` instead of a generic `EntityCollection`.
-Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations with `EntityRepository<ImportExportFileCollection>`.
-
-### Deprecated `PluginZipImportCommand::$cacheClearer`
-
-The property is unused and will be removed in 6.8.
-
-## API
 
 ### Plain JSON becomes the default Admin API response format in 6.8
 

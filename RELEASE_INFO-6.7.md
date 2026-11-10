@@ -312,6 +312,12 @@ Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations
 
 The property is unused and will be removed in 6.8.
 
+### Promotion line items store the discount value in the cart currency
+
+`payload.value` of promotion line items with an absolute, fixed or fixed unit discount now contains the value in the cart currency, using the advanced price of the currency or the currency factor.
+Orders placed before this change still contain the default currency value.
+Extensions and headless frontends that convert `payload.value` into the cart currency themselves must remove that conversion.
+
 ## API
 
 ### Plain JSON becomes the default Admin API response format in 6.8

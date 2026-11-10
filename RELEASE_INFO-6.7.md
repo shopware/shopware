@@ -344,6 +344,10 @@ The customer group detail page offers both settings separately. Plugins customiz
 
 ## Administration
 
+### Product list filters by product documents
+
+The product list has a new "Documents" filter, registered as `product-documents-filter`. It finds the products with or without product documents; variants count the documents they inherit from their parent.
+
 ### Apps can add tabs to the media modal they open
 
 `ui.mediaModal.open()` of the Meteor Admin SDK takes optional `tabs` (`{ label, locationId }`).

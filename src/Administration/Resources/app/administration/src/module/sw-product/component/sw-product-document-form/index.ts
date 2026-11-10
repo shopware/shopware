@@ -37,7 +37,6 @@ export default Shopware.Component.wrapComponentConfig({
             showUploadModal: false,
             showMediaModal: false,
             mediaFolderId: undefined as string | null | undefined,
-            documentMedia: {} as Record<string, Entity<'media'>>,
             documentEditSession: 0,
             allowedExtensions: [...allowedExtensions],
             maxFileSize,
@@ -110,7 +109,6 @@ export default Shopware.Component.wrapComponentConfig({
         product() {
             this.showUploadModal = false;
             this.showMediaModal = false;
-            this.documentMedia = {};
             this.documentEditSession += 1;
         },
     },
@@ -141,7 +139,8 @@ export default Shopware.Component.wrapComponentConfig({
             const mediaId = document?.mediaId || document?.translated?.mediaId;
 
             return mediaId
-                ? this.documentMedia[mediaId] || document?.translations?.find((item) => item.mediaId === mediaId)?.media
+                ? Shopware.Store.get('swProductDetail').getDocumentMedia(mediaId) ||
+                      document?.translations?.find((item) => item.mediaId === mediaId)?.media
                 : undefined;
         },
 
@@ -216,7 +215,7 @@ export default Shopware.Component.wrapComponentConfig({
                 document.mediaId = media.id;
                 document.title = media.fileName;
                 document.position = this.documents.length;
-                this.documentMedia[media.id] = media;
+                Shopware.Store.get('swProductDetail').cacheDocumentMedia(media);
                 this.documents.add(document);
             }
             this.showMediaModal = false;

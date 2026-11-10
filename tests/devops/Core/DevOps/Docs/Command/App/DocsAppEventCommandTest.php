@@ -34,4 +34,17 @@ class DocsAppEventCommandTest extends TestCase
             . 'This file also need to be uploaded to gitbook at /resources/references/app-reference/webhook-events-reference.md!'
         );
     }
+
+    public function testTheCommittedWebhookEventsJsonIsUpToDate(): void
+    {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
+        $docsAppEventCommand = static::getContainer()->get(DocsAppEventCommand::class);
+
+        static::assertSame(
+            $docsAppEventCommand->renderJson(),
+            file_get_contents($docsAppEventCommand->getJsonEventPath()),
+            'webhook-events-reference.json is not up to date. Run command docs:app-system-events.'
+        );
+    }
 }

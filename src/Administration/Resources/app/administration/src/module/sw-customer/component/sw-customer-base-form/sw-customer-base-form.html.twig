@@ -136,9 +136,11 @@
         {% endblock %}
 
         {% block sw_customer_base_form_birthday_field %}
+        {# Birthdays are calendar dates; UTC prevents user timezones from changing the day. #}
         <mt-datepicker
             v-model="customer.birthday"
-            type="date"
+            date-type="date"
+            time-zone="UTC"
             name="birthday"
             hide-hint
             :label="$t('sw-customer.baseForm.labelBirthday')"

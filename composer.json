@@ -540,12 +540,16 @@
             "phpunit"
         ],
         "post-install-cmd": [
-            "@composer bin all install --ansi",
+            "@composer bin danger-php install --ansi",
+            "@composer bin rector install --ansi",
+            "@composer bin roave-backward-compatibility-check install --ansi",
             "ln -sf ./../../vendor-bin/roave-backward-compatibility-check/vendor/bin/roave-backward-compatibility-check vendor/bin/roave-backward-compatibility-check",
             "ln -sf ./../../vendor-bin/rector/vendor/bin/rector vendor/bin/rector"
         ],
         "post-update-cmd": [
-            "@composer bin all update --ansi",
+            "@composer bin danger-php update --ansi",
+            "@composer bin rector update --ansi",
+            "@composer bin roave-backward-compatibility-check update --ansi",
             "ln -sf ./../../vendor-bin/roave-backward-compatibility-check/vendor/bin/roave-backward-compatibility-check vendor/bin/roave-backward-compatibility-check",
             "ln -sf ./../../vendor-bin/rector/vendor/bin/rector vendor/bin/rector"
         ],

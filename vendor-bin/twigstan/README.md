@@ -3,6 +3,7 @@
 This tool runs TwigStan against Shopware's test Twig environment and an initialized database.
 Its dependencies and collector tests are isolated from the root Composer installation.
 PHP 8.4 is required.
+Root Composer hooks install and update only the standard tools; install this optional analyzer explicitly.
 
 ## Run locally
 

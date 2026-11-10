@@ -6,7 +6,6 @@ use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\StreamInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Shopware\Core\Content\Product\Extension\ProductDocumentArchiveRouteExtension;
@@ -133,18 +132,18 @@ class ProductDocumentArchiveRouteTest extends TestCase
         $this->createRoute()->load($this->product->getId(), new Request(), $this->context);
     }
 
-    public function testAnArchiveThatCannotBeReadFails(): void
+    public function testSendsTheWholeArchive(): void
     {
-        $stream = static::createStub(StreamInterface::class);
-        $stream->method('detach')->willReturn(null);
-
+        $content = str_repeat('zip', 100000);
         $archiver = static::createStub(ProductDocumentArchiver::class);
-        $archiver->method('archive')->willReturn(new ProductDocumentArchive('product-documents/archives/archive.zip', 'Cordless drill.zip', 3));
-        $archiver->method('readStream')->willReturn($stream);
+        $archiver->method('archive')->willReturn(new ProductDocumentArchive('product-documents/archives/archive.zip', 'Cordless drill.zip', \strlen($content)));
+        $archiver->method('readStream')->willReturn((new Psr17Factory())->createStream($content));
 
-        $this->expectExceptionObject(ProductException::documentArchiveFailed('the ZIP file could not be read'));
+        $response = $this->createRoute(archiver: $archiver)->load($this->product->getId(), new Request(), $this->context);
 
-        $this->createRoute(archiver: $archiver)->load($this->product->getId(), new Request(), $this->context);
+        ob_start();
+        $response->sendContent();
+        static::assertSame($content, ob_get_clean());
     }
 
     public function testRejectsTooManyDownloadsFromOneIpAddressAndLogsThem(): void

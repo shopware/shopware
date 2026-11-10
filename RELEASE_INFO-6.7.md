@@ -493,6 +493,13 @@ bin/console administration:check-extensions -- --only=MyPlugin --fix
 
 To keep a rule off, set it to `'off'` in the `eslint.config.mjs` of your extension, or record the current findings with `--update-baseline`.
 
+### Meteor apps get their own path in the Administration watcher
+
+An extension that ships an Administration entry and a `meteor-app` used to get both dev servers under `/_internal_ext/<technical-name>/`.
+Both servers shared one proxy path, so the Administration only reached one of them.
+The watcher now serves meteor-apps under `/_internal_app/<technical-name>/`, also for extensions without an Administration entry.
+The Administration reads the new URL from `sw-plugin-dev.json`, so you only need to adjust tooling that calls the old URL of a meteor-app directly.
+
 ### The Administration watcher applies template edits without a page reload
 
 While `composer watch:admin` runs, saving the Twig template of a component or of a component override updates that component on the page and keeps its state.

@@ -29,6 +29,7 @@ import VirtualShopwareModulesPlugin from './vite-plugins/virtual-shopware-module
 import {
     createPluginDevJson,
     loadExtensions,
+    getExtensionBasePath,
     getViteServerPorts,
     isInsideDockerContainer,
     runForEachExtension,
@@ -229,17 +230,15 @@ const main = async () => {
         );
 
         await runForEachExtension(extensionEntries, 'start', async (extension) => {
+            const base = getExtensionBasePath(extension);
+            const serverConfig = { host: '127.0.0.1', port: extensionPorts[base], strictPort: true, cors: true };
             let server;
 
             if (extension.isApp) {
                 server = await toolchain.vite.createServer({
                     root: extension.path,
-                    base: `/_internal_ext/${extension.technicalName}/`,
-                    server: {
-                        host: '127.0.0.1',
-                        port: extensionPorts[extension.technicalName],
-                        cors: true,
-                    },
+                    base,
+                    server: serverConfig,
                     plugins: toolchain.isVite8 ? [ExtglobCompatPlugin({ warnOnRewrite: true })] : [],
                 });
 
@@ -247,12 +246,8 @@ const main = async () => {
             } else {
                 server = await toolchain.vite.createServer({
                     ...getBaseConfig(toolchain, extension, false, useBundledDev),
-                    base: `/_internal_ext/${extension.technicalName}/`,
-                    server: {
-                        host: '127.0.0.1',
-                        port: extensionPorts[extension.technicalName],
-                        cors: true,
-                    },
+                    base,
+                    server: serverConfig,
                 });
 
                 console.log(colors.green(`# Plugin "${extension.name}": Injected successfully`));

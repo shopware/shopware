@@ -1,3 +1,127 @@
+const espree = require('espree');
+
+// vue-eslint-parser drops Twig tags from text nodes, so they are only visible in the source text
+const TWIG_PATTERN = /{%|%}|{#|#}/;
+const MUSTACHE_PATTERN = /^{{([\s\S]*)}}$/;
+
+/**
+ * Quotes a text as a single-quoted JS string.
+ *
+ * @param {string} text
+ * @returns {string}
+ */
+function quote(text) {
+    return `'${text.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+}
+
+function isExpression(code) {
+    try {
+        const program = espree.parse(`(${code})`, { ecmaVersion: 'latest' });
+
+        return program.body.length === 1 && program.body[0].type === 'ExpressionStatement';
+    } catch {
+        return false;
+    }
+}
+
+/**
+ * Makes an expression usable inside a double-quoted attribute: double-quoted strings become single-quoted.
+ *
+ * @param {string} code
+ * @returns {string|null} null when a double quote can't be replaced
+ */
+function toAttributeExpression(code) {
+    if (!code.includes('"')) {
+        return code;
+    }
+
+    let tokens;
+
+    try {
+        tokens = espree.tokenize(code, { ecmaVersion: 'latest', range: true });
+    } catch {
+        return null;
+    }
+
+    let result = code;
+
+    [...tokens].reverse().forEach((token) => {
+        const inner = token.value.slice(1, -1);
+
+        if (token.type === 'String' && token.value.startsWith('"') && !/['\\]/.test(inner)) {
+            result = `${result.slice(0, token.range[0])}'${inner}'${result.slice(token.range[1])}`;
+        }
+    });
+
+    return result.includes('"') ? null : result;
+}
+
+/**
+ * Reads the content of an element as a JS expression for a prop. Plain text becomes a string literal,
+ * a single interpolation like `{{ $t('key') }}` stays an expression, so the label is still translated.
+ *
+ * @param {import('eslint').SourceCode} sourceCode
+ * @param {object} element VElement
+ * @returns {{ code: string|null }|null} `code` is null for empty content; null for markup, Twig or mixed content
+ */
+function readContentExpression(sourceCode, element) {
+    if (!element.endTag) {
+        return { code: null };
+    }
+
+    if (element.children.some((child) => child.type === 'VElement')) {
+        return null;
+    }
+
+    const inner = sourceCode.text.slice(element.startTag.range[1], element.endTag.range[0]);
+
+    // `<` also catches HTML comments, which are no children
+    if (TWIG_PATTERN.test(inner) || inner.includes('<')) {
+        return null;
+    }
+
+    const text = inner.trim();
+
+    if (text === '') {
+        return { code: null };
+    }
+
+    // Interpolations are only parsed in .vue files, in .twig files they are part of the text
+    const mustache = MUSTACHE_PATTERN.exec(text);
+
+    if (mustache) {
+        const code = mustache[1].trim();
+
+        if (/{{|}}/.test(code) || !isExpression(code)) {
+            return null;
+        }
+
+        const attributeCode = toAttributeExpression(code);
+
+        return attributeCode === null ? null : { code: attributeCode };
+    }
+
+    if (/{{|}}|["&]/.test(text)) {
+        return null;
+    }
+
+    return { code: quote(text.replace(/\s+/g, ' ')) };
+}
+
+/**
+ * @param {Array<{ label: string, name: string }>} items JS source of each value
+ * @returns {string}
+ */
+function serializeItems(items) {
+    if (items.length === 0) {
+        return '[]';
+    }
+
+    const entries = items.map((item) => `    {\n        'label': ${item.label},\n        'name': ${item.name}\n    }`);
+
+    return `[\n${entries.join(',\n')}\n]`;
+}
+
 /** @param {RuleContext} context
  *  @param {VElement} node
  */
@@ -125,34 +249,16 @@ const handleMtTabs = (context, node) => {
                         routeAttributeFallbackValue = routeAttribute.value.value;
                     }
 
+                    // Keep $t(...) and $tc(...) labels as expressions, so the label is still translated
+                    const label = readContentExpression(context.getSourceCode(), child)?.code ?? quote(textContent ?? '');
+
                     return {
-                        name: nameAttributeValue ?? routeAttributeFallbackValue,
-                        textContent
+                        name: quote(nameAttributeValue ?? routeAttributeFallbackValue),
+                        label,
                     };
                 });
 
-                // Create new "items" property with the values from the previous slot children
-                const items = slotChildrenValues.map((child) => {
-                    // If label was a snippet ($tc or $t), just use the snippet as label
-                    // Examples:
-                    //  - {{ $tc('sw-cms.elements.general.config.tab.content') }}
-                    //  - {{ $t('sw-cms.elements.general.config.tab.example) }}
-                    // Read just the snippet and use it as label:
-                    // - sw-cms.elements.general.config.tab.content
-                    // - sw-cms.elements.general.config.tab.example
-                    const rawLabel = child.textContent.match(/\$tc\((.*)\)/)?.[1] || child.textContent.match(/\$t\((.*)\)/)?.[1] || child.textContent;
-                    // Remove quotes and trim the label
-                    const label = rawLabel.replace(/['"]+/g, '').trim();
-
-                    const item = {
-                        label: label,
-                        name: child?.name
-                    };
-
-                    return item;
-                });
-
-                const itemPropValue = JSON.stringify(items, null, 4).replace(/[\/\(\)\']/g, "\\'").replace(/"/g, "'");
+                const itemPropValue = serializeItems(slotChildrenValues);
 
                 // Add items array to mt-tabs component as a property
                 const rangeAfterStartTag = node.startTag?.range[0] + '<mt-tabs'.length;
@@ -224,34 +330,16 @@ const handleMtTabs = (context, node) => {
                         routeAttributeFallbackValue = routeAttribute.value.value;
                     }
 
+                    // Keep $t(...) and $tc(...) labels as expressions, so the label is still translated
+                    const label = readContentExpression(context.getSourceCode(), child)?.code ?? quote(textContent ?? '');
+
                     return {
-                        name: nameAttributeValue ?? routeAttributeFallbackValue,
-                        textContent
+                        name: quote(nameAttributeValue ?? routeAttributeFallbackValue),
+                        label,
                     };
                 });
 
-                // Create new "items" property with the values from the previous slot children
-                const items = slotChildrenValues.map((child) => {
-                    // If label was a snippet ($tc or $t), just use the snippet as label
-                    // Examples:
-                    //  - {{ $tc('sw-cms.elements.general.config.tab.content') }}
-                    //  - {{ $t('sw-cms.elements.general.config.tab.example) }}
-                    // Read just the snippet and use it as label:
-                    // - sw-cms.elements.general.config.tab.content
-                    // - sw-cms.elements.general.config.tab.example
-                    const rawLabel = child.textContent.match(/\$tc\((.*)\)/)?.[1] || child.textContent.match(/\$t\((.*)\)/)?.[1] || child.textContent;
-                    // Remove quotes and trim the label
-                    const label = rawLabel.replace(/['"]+/g, '').trim();
-
-                    const item = {
-                        label: label,
-                        name: child.name
-                    };
-
-                    return item;
-                });
-
-                const itemPropValue = JSON.stringify(items, null, 4).replace(/[\/\(\)\']/g, "\\'").replace(/"/g, "'");
+                const itemPropValue = serializeItems(slotChildrenValues);
                 const indentation = ' '.repeat(node.startTag.loc.start.column);
 
                 // Add items array to mt-tabs component as a property
@@ -402,11 +490,11 @@ const mtTabsInvalidTests = [
             <template>
                 <mt-tabs :items="[
     {
-        'label': 'sw-cms.elements.general.config.tab.one',
+        'label': $tc('sw-cms.elements.general.config.tab.one'),
         'name': 'tab1'
     },
     {
-        'label': 'sw-cms.elements.general.config.tab.two',
+        'label': $tc('sw-cms.elements.general.config.tab.two'),
         'name': 'tab2'
     }
 ]">
@@ -622,11 +710,11 @@ const mtTabsInvalidTests = [
             <template>
                 <mt-tabs :items="[
     {
-        'label': 'sw-product.detail.tabGeneral',
+        'label': $tc('sw-product.detail.tabGeneral'),
         'name': 'sw.product.detail.base'
     },
     {
-        'label': 'sw-product.detail.tabSpecifications',
+        'label': $tc('sw-product.detail.tabSpecifications'),
         'name': '{ name: \\'sw.product.detail.specifications\\', params: { id: $route.params.id } }'
     }
 ]"
@@ -656,10 +744,39 @@ const mtTabsInvalidTests = [
             { message: '[mt-tabs] The default slot usage in mt-tabs was removed and replaced with the property "items".' },
         ]
     },
+    {
+        name: '"mt-tabs" keeps double-quoted snippet labels as expressions in .vue files',
+        filename: 'test.vue',
+        code: `
+            <template>
+                <mt-tabs>
+                    <sw-tabs-item name="tab1">{{ $t("sw-cms.tab.one") }}</sw-tabs-item>
+                </mt-tabs>
+            </template>`,
+        output: `
+            <template>
+                <mt-tabs :items="[
+    {
+        'label': $t('sw-cms.tab.one'),
+        'name': 'tab1'
+    }
+]"><!-- TODO Codemod: This slot is not used anymore. Please use the "items" property instead. -->
+                    <sw-tabs-item name="tab1">{{ $t("sw-cms.tab.one") }}</sw-tabs-item>
+                </mt-tabs>
+            </template>`,
+        errors: [
+            { message: '[mt-tabs] The default slot usage in mt-tabs was removed and replaced with the property "items".' },
+        ]
+    },
 ];
 
 module.exports = {
     handleMtTabs,
     mtTabsValidTests,
-    mtTabsInvalidTests
+    mtTabsInvalidTests,
+    TWIG_PATTERN,
+    quote,
+    isExpression,
+    toAttributeExpression,
+    readContentExpression,
 };

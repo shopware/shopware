@@ -17,6 +17,10 @@ function plural(count: number, singular: string, pluralForm = `${singular}s`): s
     return `${count} ${count === 1 ? singular : pluralForm}`;
 }
 
+function isEmptyRow(report: CodemodReport): boolean {
+    return report.enabled && report.changes === 0 && report.manual.length === 0;
+}
+
 function renderCodemodRow(report: CodemodReport, write: boolean): string {
     const { codemod, changes, files, manual } = report;
     const title = codemod.title.padEnd(TITLE_WIDTH, ' ');
@@ -41,6 +45,12 @@ function renderCodemodRow(report: CodemodReport, write: boolean): string {
         detail = write
             ? `${plural(changes, '.vue draft')} written, originals still registered`
             : `${plural(changes, 'component')} can be converted`;
+    } else if (codemod.action === 'todo') {
+        if (changes === 0) {
+            detail = '';
+        } else {
+            detail = write ? `${plural(changes, 'TODO')} written` : plural(changes, 'spot gets a TODO', 'spots get a TODO');
+        }
     } else {
         detail = changes > 0 ? `${plural(changes, 'change')} in ${plural(files, 'file')}` : '';
     }
@@ -59,7 +69,17 @@ function renderExtension(extension: ExtensionUpgrade, write: boolean): string[] 
         return lines;
     }
 
-    lines.push(...extension.codemods.map((report) => renderCodemodRow(report, write)));
+    const empty = extension.codemods.filter(isEmptyRow);
+
+    lines.push(
+        ...extension.codemods.filter((report) => !isEmptyRow(report)).map((report) => renderCodemodRow(report, write)),
+    );
+
+    if (empty.length > 0) {
+        const label = empty.length === extension.codemods.length ? 'codemods' : 'more codemods';
+
+        lines.push(`  ${colors.dim('·')} ${colors.dim(`${empty.length} ${label} found nothing to change`)}`);
+    }
 
     const manual = extension.codemods.filter((report) => report.enabled).flatMap((report) => report.manual);
 
@@ -166,15 +186,25 @@ export function renderUpgradeReport(result: UpgradeExtensionsResult, commands: T
 export function renderCodemodList(codemods: Codemod[]): string {
     const lines: string[] = [];
 
+    const row = (codemod: Codemod, indent: string) => {
+        const note = codemod.optIn ? colors.dim(`opt-in, --with=${codemod.id}`) : colors.dim(codemod.id);
+
+        // Grouped rows sit two columns deeper; the notes stay aligned and keep at least one space of distance.
+        return `${indent}${codemod.title.padEnd(TITLE_WIDTH + 1 - indent.length, ' ')} ${note}`;
+    };
+
     for (const target of availableTargets(codemods)) {
+        const ofTarget = codemods.filter((candidate) => candidate.target === target);
+        const groups = [...new Set(ofTarget.map((codemod) => codemod.group).filter((group) => group !== undefined))];
+
         lines.push(colors.bold(`Shopware ${target}`));
 
-        for (const codemod of codemods.filter((candidate) => candidate.target === target)) {
-            const note = codemod.optIn ? colors.dim(`opt-in, --with=${codemod.id}`) : colors.dim(codemod.id);
-
-            lines.push(`  ${codemod.title.padEnd(TITLE_WIDTH, ' ')}${note}`);
+        for (const group of groups) {
+            lines.push(`  ${group}`);
+            lines.push(...ofTarget.filter((codemod) => codemod.group === group).map((codemod) => row(codemod, '    ')));
         }
 
+        lines.push(...ofTarget.filter((codemod) => codemod.group === undefined).map((codemod) => row(codemod, '  ')));
         lines.push('');
     }
 

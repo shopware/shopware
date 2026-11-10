@@ -13,5 +13,15 @@ module.exports = {
         'no-empty-listeners': require('./no-empty-listeners'),
         'no-vue-options-api': require('./no-vue-options-api'),
         'no-import-meta-glob-extglob': require('./no-import-meta-glob-extglob'),
+        // The 6.8 codemods of `administration:upgrade-extensions`. The runner keys its config by rule name,
+        // so a rule that serves a second codemod with other options is registered under a second name.
+        'no-deprecated-components-6-8': require('./no-deprecated-components'),
+        'migrate-sw-tabs': require('./migrate-sw-tabs'),
+        'no-sw-text-editor': require('./no-sw-text-editor'),
+        'no-removed-form-components': require('./no-removed-form-components'),
+        'no-order-state-select-v2-styles': require('./no-order-state-select-v2-styles'),
+        'no-sw-popover-resize-width': require('./no-sw-popover-resize-width'),
+        'no-renamed-twig-blocks': require('./no-renamed-twig-blocks'),
+        'no-removed-twig-blocks': require('./no-removed-twig-blocks'),
     },
 };

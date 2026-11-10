@@ -1,0 +1,216 @@
+diff --git a/analysis/phpstan-stock-source/src/Analyser/MutatingScope.php b/analysis/phpstan-source/src/Analyser/MutatingScope.php
+index 3d6e2b548cd..c73a492827e 100644
+--- a/analysis/phpstan-stock-source/src/Analyser/MutatingScope.php
++++ b/analysis/phpstan-source/src/Analyser/MutatingScope.php
+@@ -3210,10 +3210,24 @@ class MutatingScope implements \PHPStan\Analyser\Scope, \PHPStan\Analyser\NodeCa
+                 $constantArraysB = TypeCombinator::union(...$constantArrays['b']);
+                 if ($constantArraysA->getIterableKeyType()->equals($constantArraysB->getIterableKeyType()) && $constantArraysA->getArraySize()->getGreaterOrEqualType($this->services->phpVersion)->isSuperTypeOf($constantArraysB->getArraySize())->yes()) {
+                     $resultArrayBuilder = ConstantArrayTypeBuilder::createEmpty();
++                    $preserveArrayShape = false;
++                    foreach ([...$constantArraysA->getConstantArrays(), ...$constantArraysB->getConstantArrays()] as $constantArray) {
++                        if (!$constantArray->isArrayShapePreserved()) {
++                            continue;
++                        }
++                        $preserveArrayShape = true;
++                        $resultArrayBuilder->disableArrayDegradation();
++                        break;
++                    }
+                     foreach (TypeUtils::flattenTypes($constantArraysA->getIterableKeyType()) as $keyType) {
+                         $resultArrayBuilder->setOffsetValueType($keyType, $this->generalizeType($constantArraysA->getOffsetValueType($keyType), $constantArraysB->getOffsetValueType($keyType), $depth + 1), !$constantArraysA->hasOffsetValueType($keyType)->and($constantArraysB->hasOffsetValueType($keyType))->negate()->no());
+                     }
+-                    $resultTypes[] = $resultArrayBuilder->getArray();
++                    $resultArray = $resultArrayBuilder->getArray();
++                    $resultConstantArrays = $resultArray->getConstantArrays();
++                    if ($preserveArrayShape && count($resultConstantArrays) === 1) {
++                        $resultArray = TypeCombinator::intersect($resultConstantArrays[0]->withPreservedArrayShape(), ...TypeUtils::getAccessoryTypes($resultArray));
++                    }
++                    $resultTypes[] = $resultArray;
+                 } else {
+                     // Both inputs are sealed constant array shapes — their key
+                     // sets are finite by construction. On the fall-through
+diff --git a/analysis/phpstan-stock-source/src/Type/Constant/ConstantArrayType.php b/analysis/phpstan-source/src/Type/Constant/ConstantArrayType.php
+index 577d64c457c..38bef3d8ffc 100644
+--- a/analysis/phpstan-stock-source/src/Type/Constant/ConstantArrayType.php
++++ b/analysis/phpstan-source/src/Type/Constant/ConstantArrayType.php
+@@ -139,6 +139,7 @@ class ConstantArrayType implements Type
+     // phpcs:ignore
+     /** @var self[]|null */
+     private ?array $allArrays = null;
++    private bool $preserveArrayShape = false;
+     private ?Type $iterableKeyType = null;
+     private ?Type $iterableValueType = null;
+     private ?Type $keyTypesUnion = null;
+@@ -246,7 +247,24 @@ class ConstantArrayType implements Type
+      */
+     protected function recreate(array $keyTypes, array $valueTypes, array $nextAutoIndexes, array $optionalKeys, ?TrinaryLogic $isList, ?array $unsealed): self
+     {
+-        return new self($keyTypes, $valueTypes, $nextAutoIndexes, $optionalKeys, $isList, $unsealed);
++        $array = new self($keyTypes, $valueTypes, $nextAutoIndexes, $optionalKeys, $isList, $unsealed);
++        return $this->preserveArrayShape ? $array->withPreservedArrayShape() : $array;
++    }
++    /** @api */
++    public function withPreservedArrayShape(): self
++    {
++        if ($this->preserveArrayShape) {
++            return $this;
++        }
++        $array = clone $this;
++        $array->preserveArrayShape = true;
++        $array->allArrays = null;
++        return $array;
++    }
++    /** @api */
++    public function isArrayShapePreserved(): bool
++    {
++        return $this->preserveArrayShape;
+     }
+     public function getConstantArrays(): array
+     {
+@@ -379,7 +397,8 @@ class ConstantArrayType implements Type
+                 // builder's getArray() would degrade this to a general
+                 // ArrayType. Construct the CAT directly so the variant keeps
+                 // its extras for downstream consumers (e.g. flattenTypes).
+-                $arrays[] = new \PHPStan\Type\Constant\ConstantArrayType([], [], [0 => 0], [], \null, $this->unsealed);
++                $array = new \PHPStan\Type\Constant\ConstantArrayType([], [], [0 => 0], [], \null, $this->unsealed);
++                $arrays[] = $this->preserveArrayShape ? $array->withPreservedArrayShape() : $array;
+                 continue;
+             }
+             $builder = \PHPStan\Type\Constant\ConstantArrayTypeBuilder::createEmpty();
+@@ -394,7 +413,7 @@ class ConstantArrayType implements Type
+             if (!$array instanceof self) {
+                 throw new ShouldNotHappenException();
+             }
+-            $arrays[] = $array;
++            $arrays[] = $this->preserveArrayShape ? $array->withPreservedArrayShape() : $array;
+         }
+         return $this->allArrays = $arrays;
+     }
+@@ -596,6 +615,10 @@ class ConstantArrayType implements Type
+     }
+     public function isSuperTypeOf(Type $type): IsSuperTypeOfResult
+     {
++        if ($type === $this) {
++            return IsSuperTypeOfResult::createYes();
++        }
++
+         if ($type instanceof self) {
+             $thisUnsealedness = $this->isUnsealed();
+             $typeUnsealedness = $type->isUnsealed();
+@@ -744,6 +767,9 @@ class ConstantArrayType implements Type
+         if (!$type instanceof self) {
+             return \false;
+         }
++        if ($this->preserveArrayShape !== $type->preserveArrayShape) {
++            return \false;
++        }
+         if (count($this->keyTypes) !== count($type->keyTypes)) {
+             return \false;
+         }
+@@ -2447,6 +2473,9 @@ class ConstantArrayType implements Type
+     }
+     public function mergeWith(self $otherArray): self
+     {
++        if (!$this->preserveArrayShape && $otherArray->preserveArrayShape) {
++            return $this->withPreservedArrayShape()->mergeWith($otherArray);
++        }
+         // only call this after verifying isKeysSupersetOf, or if losing tagged unions is not an issue
+         if ($this->unsealed === null || $otherArray->unsealed === null) {
+             return $this->legacyMergeWith($otherArray);
+diff --git a/analysis/phpstan-stock-source/src/Type/Constant/ConstantArrayTypeBuilder.php b/analysis/phpstan-source/src/Type/Constant/ConstantArrayTypeBuilder.php
+index f37693550ae..b2d6d3226d9 100644
+--- a/analysis/phpstan-stock-source/src/Type/Constant/ConstantArrayTypeBuilder.php
++++ b/analysis/phpstan-source/src/Type/Constant/ConstantArrayTypeBuilder.php
+@@ -60,6 +60,7 @@ final class ConstantArrayTypeBuilder
+     private bool $disableArrayDegradation = \false;
+     private ?bool $degradeClosures = null;
+     private bool $oversized = \false;
++    private bool $preserveArrayShape = false;
+     private TrinaryLogic $isNonEmpty;
+     /**
+      * @param list<Type> $keyTypes
+@@ -91,7 +92,10 @@ final class ConstantArrayTypeBuilder
+     {
+         $builder = new self($startArrayType->getKeyTypes(), $startArrayType->getValueTypes(), $startArrayType->getNextAutoIndexes(), $startArrayType->getOptionalKeys(), $startArrayType->isList(), $startArrayType->getUnsealedTypes());
+         $builder->isNonEmpty = $startArrayType->isIterableAtLeastOnce();
+-        if (count($startArrayType->getKeyTypes()) > self::ARRAY_COUNT_LIMIT) {
++        $builder->preserveArrayShape = $startArrayType->isArrayShapePreserved();
++        if ($builder->preserveArrayShape) {
++            $builder->disableArrayDegradation();
++        } elseif (count($startArrayType->getKeyTypes()) > self::ARRAY_COUNT_LIMIT) {
+             $builder->degradeToGeneralArray(\true);
+         }
+         return $builder;
+@@ -408,12 +412,16 @@ final class ConstantArrayTypeBuilder
+                     return $arrayType;
+                 }
+             }
+-            return new \PHPStan\Type\Constant\ConstantArrayType([], [], [0 => 0], [], \null, $this->unsealed);
++            $array = new \PHPStan\Type\Constant\ConstantArrayType([], [], [0 => 0], [], \null, $this->unsealed);
++            return $this->preserveArrayShape ? $array->withPreservedArrayShape() : $array;
+         }
+         if (!$this->degradeToGeneralArray) {
+             /** @var list<ConstantIntegerType|ConstantStringType> $keyTypes */
+             $keyTypes = $this->keyTypes;
+             $array = new \PHPStan\Type\Constant\ConstantArrayType($keyTypes, $this->valueTypes, $this->nextAutoIndexes, $this->optionalKeys, $this->isList, $this->unsealed);
++            if ($this->preserveArrayShape) {
++                $array = $array->withPreservedArrayShape();
++            }
+             if ($this->isNonEmpty->yes() && !$array->isIterableAtLeastOnce()->yes()) {
+                 return TypeCombinator::intersect($array, new NonEmptyArrayType());
+             }
+diff --git a/analysis/phpstan-stock-source/src/Type/Generic/TemplateConstantArrayType.php b/analysis/phpstan-source/src/Type/Generic/TemplateConstantArrayType.php
+index 59f9793a1a0..3832fafda1e 100644
+--- a/analysis/phpstan-stock-source/src/Type/Generic/TemplateConstantArrayType.php
++++ b/analysis/phpstan-source/src/Type/Generic/TemplateConstantArrayType.php
+@@ -30,6 +30,7 @@ final class TemplateConstantArrayType extends ConstantArrayType implements \PHPS
+     }
+     protected function recreate(array $keyTypes, array $valueTypes, array $nextAutoIndexes, array $optionalKeys, ?TrinaryLogic $isList, ?array $unsealed): ConstantArrayType
+     {
+-        return new self($this->scope, $this->strategy, $this->variance, $this->name, new ConstantArrayType($keyTypes, $valueTypes, $nextAutoIndexes, $optionalKeys, $isList, $unsealed), $this->default);
++        $array = new self($this->scope, $this->strategy, $this->variance, $this->name, new ConstantArrayType($keyTypes, $valueTypes, $nextAutoIndexes, $optionalKeys, $isList, $unsealed), $this->default);
++        return $this->isArrayShapePreserved() ? $array->withPreservedArrayShape() : $array;
+     }
+ }
+diff --git a/analysis/phpstan-stock-source/src/Type/TypeCombinator.php b/analysis/phpstan-source/src/Type/TypeCombinator.php
+index a5b79e359b1..f69a447d072 100644
+--- a/analysis/phpstan-stock-source/src/Type/TypeCombinator.php
++++ b/analysis/phpstan-source/src/Type/TypeCombinator.php
+@@ -1162,6 +1162,9 @@ final class TypeCombinator
+                 if (!$type instanceof ConstantArrayType) {
+                     return $traverse($type);
+                 }
++                if ($type->isArrayShapePreserved()) {
++                    return $type;
++                }
+                 if ($type->isIterableAtLeastOnce()->no()) {
+                     return $type;
+                 }
+@@ -1196,6 +1199,9 @@ final class TypeCombinator
+                     //   reached directly, leaving `processArrayTypes` with a
+                     //   mix of shapes it cannot unify cleanly.
+                     $generalizedValueType = \PHPStan\Type\TypeTraverser::map($innerValueTypes[$i], static function (\PHPStan\Type\Type $type, callable $innerTraverse): \PHPStan\Type\Type {
++                        if ($type instanceof ConstantArrayType && $type->isArrayShapePreserved()) {
++                            return $type;
++                        }
+                         if ($type instanceof ConstantArrayType && $type->isIterableAtLeastOnce()->no()) {
+                             return $type;
+                         }
+@@ -1260,6 +1266,9 @@ final class TypeCombinator
+         foreach ($types as $type) {
+             \PHPStan\Type\TypeTraverser::map($type, static function (\PHPStan\Type\Type $type, callable $traverse) use (&$constantArrayValuesCount): \PHPStan\Type\Type {
+                 if ($type instanceof ConstantArrayType) {
++                    if ($type->isArrayShapePreserved()) {
++                        return $type;
++                    }
+                     $constantArrayValuesCount += count($type->getValueTypes());
+                 }
+                 return $traverse($type);
+@@ -1535,7 +1544,7 @@ final class TypeCombinator
+             $listVariants = [];
+             $listVariantSignatures = [];
+             foreach ($arraysToProcess as $idx => $arr) {
+-                if (!$arr->isList()->yes() || !$arr->isIterableAtLeastOnce()->yes()) {
++                if ($arr->isArrayShapePreserved() || !$arr->isList()->yes() || !$arr->isIterableAtLeastOnce()->yes()) {
+                     continue;
+                 }
+                 $listVariantIndices[] = $idx;

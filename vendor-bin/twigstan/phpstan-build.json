@@ -1,0 +1,10 @@
+{
+    "version": "2.3.5",
+    "sha256": "92804f43449c3c0ff08a9d62a6ab35f11520e7346afbb7c5970b0c8de5179c41",
+    "source": "https://github.com/keulinho/phpstan-src/tree/25f0ab3d8aefc6b5968bef28126507d0be282716",
+    "base": "https://github.com/phpstan/phpstan/releases/tag/2.3.5",
+    "patch": "patches/phpstan-2.3.5-phar.patch",
+    "bundledPhpDocParser": "2.4.1",
+    "turbo": false,
+    "notes": "The PHP implementation of context-shape preservation and the identity fast path is backported to the released 2.3.5 archive. The source fork also contains the native implementation; this committed PHAR uses PHP only."
+}

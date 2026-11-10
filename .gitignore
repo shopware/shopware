@@ -188,6 +188,7 @@ install.lock
 
 vendor-bin/**/vendor
 vendor-bin/**/composer.lock
+!vendor-bin/twigstan/composer.lock
 
 http-client.private.env.json
 

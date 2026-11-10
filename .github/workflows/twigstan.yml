@@ -1,0 +1,70 @@
+name: TwigStan experimental analysis
+
+on:
+  pull_request:
+  merge_group:
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  # Runs in both Shopware repositories and contributor forks using public dependency forks.
+  twigstan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      COMPOSER_ROOT_VERSION: 6.7.9999999-dev
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          php-version: "8.4"
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+          keep-composer-tools: true
+          install: true
+          # Current trunk pins mcp/sdk 0.8.1 (PKSA-s52d-n7sx-trsg); allow its installation in this experimental analysis job.
+          allow-insecure-versions: true
+
+      - name: Install matching Twig and isolated analyzer dependencies
+        # Match the setup action's temporary advisory exception during this job's additional Composer resolution.
+        env:
+          COMPOSER_NO_SECURITY_BLOCKING: "1"
+        run: |
+          set -euo pipefail
+          composer update twig/twig --with twig/twig:3.30.0 --no-interaction --no-progress
+          composer install --working-dir=vendor-bin/twigstan --no-interaction --no-progress
+          sha256sum --check vendor-bin/twigstan/phpstan.phar.sha256
+
+      - name: Test the collectors and analysis completion guard
+        run: php vendor-bin/twigstan/vendor/bin/phpunit --configuration vendor-bin/twigstan/phpunit.xml
+
+      - name: Generate the analysis container
+        run: php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php
+
+      - name: Analyze all Storefront templates
+        run: |
+          set -euo pipefail
+          mkdir -p var/twigstan-report
+          php vendor-bin/twigstan/bin/report.php > var/twigstan-report/analysis.log 2>&1
+
+      - name: Publish the analysis summary
+        # Preserve the report after failures; the analysis step retains its failing status.
+        if: always()
+        run: |
+          set -euo pipefail
+          if [ -f var/twigstan-report/summary.md ]; then
+            cat var/twigstan-report/summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload the analysis report
+        # Preserve diagnostics and crash logs from unsuccessful analyses.
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: twigstan-report
+          path: var/twigstan-report/
+          if-no-files-found: error
+          retention-days: 14

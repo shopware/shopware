@@ -126,7 +126,6 @@
         "scssphp/scssphp": "v1.12.0",
         "setasign/fpdi": "^2.3.7",
         "setasign/tfpdf": "^1.33",
-        "shopware/conflicts": "0.6.3",
         "shyim/opensearch-php-dsl": "^1.1.4",
         "squirrelphp/twig-php-syntax": "^1.13.0",
         "symfony/asset": "~7.4.0",
@@ -309,6 +308,7 @@
         "lint:actions": "Lints GitHub Actions workflows/actions with actionlint, checks their formatting with yamlfmt, and audits them with zizmor",
         "lint:actions:fix": "Formats GitHub Actions workflows/actions with yamlfmt",
         "lint:snippets": "Validates existence of snippets in all core-supported languages",
+        "lint:twigstan": "Analyzes Twig templates using TwigStan",
         "ludtwig:storefront": "Codestyle checks for all Storefront twig files using ludtwig",
         "ludtwig:storefront:fix": "Auto-fixes all fixable twig codestyle in Storefront",
         "make:coverage": "Generate test coverage files for current branch",
@@ -487,6 +487,10 @@
         "lint:actions": ".github/bin/lint-actions.bash",
         "lint:actions:fix": ".github/bin/lint-actions.bash --fix",
         "lint:snippets": "@php bin/shopware translation:validate",
+        "lint:twigstan": [
+            "@php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php",
+            "@php vendor-bin/twigstan/bin/twigstan"
+        ],
         "ludtwig:storefront": "cd ./src/Storefront/Resources/views; ludtwig .",
         "ludtwig:storefront:fix": "@ludtwig:storefront --fix",
         "make:coverage": [

@@ -26,8 +26,8 @@ class ConfigExtension extends AbstractExtension
     {
         return [
             new TwigFunction('theme_config', $this->theme(...), ['needs_context' => true]),
-            new TwigFunction('theme_scripts', $this->scripts(...), ['needs_context' => true]),
-            new TwigFunction('import_map', $this->importMap(...), ['needs_context' => true]),
+            new TwigFunction('theme_scripts', $this->scripts(...)),
+            new TwigFunction('import_map', $this->importMap(...)),
             new TwigFunction('theme_css_vars', $this->themeCssVars(...), ['needs_context' => true]),
         ];
     }

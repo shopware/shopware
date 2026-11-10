@@ -1,0 +1,47 @@
+{
+    "name": "shopware/twigstan-experiment",
+    "description": "Isolated experimental Storefront template analysis",
+    "license": "MIT",
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/keulinho/twigstan"
+        }
+    ],
+    "require": {
+        "php": "^8.4",
+        "phpstan/extension-installer": "^1.4.3",
+        "phpstan/phpdoc-parser": "2.4.1",
+        "phpstan/phpstan": "2.3.5",
+        "phpstan/phpstan-deprecation-rules": "2.0.5",
+        "phpstan/phpstan-strict-rules": "2.1.1",
+        "phpstan/phpstan-symfony": "2.1.1",
+        "symfony/console": "~7.4.0",
+        "symfony/filesystem": "~7.4.0",
+        "symfony/finder": "~7.4.0",
+        "symfony/process": "~7.4.0",
+        "symfony/string": "~7.4.0",
+        "twig/twig": "3.30.0",
+        "twigstan/twigstan": "dev-codex/shopware-analysis#596faae3e8a53ef0dcfa0ba822e60161776b0221 as 0.2.3"
+    },
+    "require-dev": {
+        "phpstan/phpstan-phpunit": "2.1.1",
+        "phpunit/phpunit": "^11.5.19"
+    },
+    "autoload": {
+        "psr-4": {
+            "Shopware\\Tests\\DevOps\\Core\\DevOps\\StaticAnalyse\\TwigStan\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Shopware\\Tests\\DevOps\\Core\\DevOps\\StaticAnalyse\\TwigStan\\": "tests/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "phpstan/extension-installer": true
+        },
+        "sort-packages": true
+    }
+}

@@ -225,7 +225,7 @@ class CheckoutDraftRouteTest extends TestCase
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID, 'domain-id');
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID, 'domain-currency-id');
 
-        $this->contextSwitchRoute->method('switchContext')->willReturn(new ContextTokenResponse('token'));
+        $this->switchContextOf($request, Generator::generateSalesChannelContext(token: 'token'));
         $this->contextService = $contextService = $this->createMock(SalesChannelContextServiceInterface::class);
         $contextService->expects($this->once())
             ->method('get')
@@ -240,6 +240,22 @@ class CheckoutDraftRouteTest extends TestCase
             ->willReturn($this->context);
 
         $this->createRoute()->draft($request, $this->context);
+    }
+
+    public function testPatchReusesTheContextTheSwitchRouteRebuiltWithoutParametersOfTheRequest(): void
+    {
+        $request = $this->createPatchRequest(['shippingAddress' => ['countryId' => 'country-id'], 'methods' => false]);
+
+        $switchedContext = Generator::generateSalesChannelContext(token: 'token');
+        $switchedContext->setProspectiveCustomer(new ProspectiveCustomer(new ProspectiveAddress('country-id'), null, new CustomerEntity()));
+        $this->switchContextOf($request, $switchedContext);
+
+        $this->contextService = $contextService = $this->createMock(SalesChannelContextServiceInterface::class);
+        $contextService->expects($this->never())->method('get');
+
+        $draft = $this->createRoute()->draft($request, $this->context)->getDraft();
+
+        static::assertSame($switchedContext->getProspectiveCustomer(), $draft->prospectiveCustomer);
     }
 
     public function testPatchAcceptsTheFieldsOfTheResponseAndTheContextGateway(): void
@@ -331,6 +347,16 @@ class CheckoutDraftRouteTest extends TestCase
         $request->setMethod(Request::METHOD_PATCH);
 
         return $request;
+    }
+
+    private function switchContextOf(Request $request, SalesChannelContext $switchedContext): void
+    {
+        $this->contextSwitchRoute->method('switchContext')->willReturnCallback(static function () use ($request, $switchedContext): ContextTokenResponse {
+            // like `SalesChannelContextService::get()`, which the switch route calls for the current request
+            $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $switchedContext);
+
+            return new ContextTokenResponse($switchedContext->getToken());
+        });
     }
 
     private function createRoute(): CheckoutDraftRoute

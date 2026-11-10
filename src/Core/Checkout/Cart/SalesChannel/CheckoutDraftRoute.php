@@ -212,15 +212,25 @@ class CheckoutDraftRoute
     {
         $languageId = (string) $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID);
         $currencyId = (string) $request->headers->get(PlatformRequest::HEADER_CURRENCY_ID);
+        $domainCurrencyId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID);
+        $domainId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID);
         $source = $context->getContext()->getSource();
+        $originalContext = $source instanceof AdminSalesChannelApiSource ? $source->getOriginalContext() : null;
+
+        // without any of these parameters, the context the switch route or the context gateway rebuilt is already the right one, building it again would calculate the cart again
+        $current = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+        if ($languageId === '' && $currencyId === '' && $domainCurrencyId === null && $domainId === null && $originalContext === null && $context->getImitatingUserId() === null
+            && $current instanceof SalesChannelContext && $current !== $context && $current->getToken() === $token) {
+            return $current;
+        }
 
         return $this->contextService->get(new SalesChannelContextServiceParameters(
             $context->getSalesChannelId(),
             $token,
             $languageId !== '' ? $languageId : null,
-            $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID),
-            $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID),
-            $source instanceof AdminSalesChannelApiSource ? $source->getOriginalContext() : null,
+            $domainCurrencyId,
+            $domainId,
+            $originalContext,
             null,
             $context->getImitatingUserId(),
             $currencyId !== '' ? $currencyId : null,

@@ -40,8 +40,8 @@ class ProductStreamRepositoryTest extends TestCase
         $id = Uuid::randomHex();
         $this->repository->upsert([['id' => $id, 'name' => 'Test stream']], $this->context);
 
-        /** @var ProductStreamEntity $entity */
         $entity = $this->repository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
+        static::assertInstanceOf(ProductStreamEntity::class, $entity);
         static::assertTrue($entity->isInvalid());
         static::assertNull($entity->getApiFilter());
         static::assertSame('Test stream', $entity->getName());
@@ -54,8 +54,8 @@ class ProductStreamRepositoryTest extends TestCase
         $this->repository->upsert([['id' => $id, 'name' => 'Test stream']], $this->context);
         $this->repository->upsert([['id' => $id, 'name' => 'New Name']], $this->context);
 
-        /** @var ProductStreamEntity $entity */
         $entity = $this->repository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
+        static::assertInstanceOf(ProductStreamEntity::class, $entity);
         static::assertTrue($entity->isInvalid());
         static::assertNull($entity->getApiFilter());
         static::assertSame('New Name', $entity->getName());
@@ -67,8 +67,8 @@ class ProductStreamRepositoryTest extends TestCase
         $id = Uuid::randomHex();
         $this->repository->upsert([['id' => $id, 'name' => 'Test stream', 'filters' => [['type' => 'contains', 'field' => 'name', 'value' => 'awesome']]]], $this->context);
 
-        /** @var ProductStreamEntity $entity */
         $entity = $this->repository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
+        static::assertInstanceOf(ProductStreamEntity::class, $entity);
         static::assertFalse($entity->isInvalid());
         static::assertNotNull($entity->getApiFilter());
         static::assertSame('Test stream', $entity->getName());
@@ -110,8 +110,8 @@ class ProductStreamRepositoryTest extends TestCase
 
         $this->repository->upsert([$data], $this->context);
 
-        /** @var ProductStreamEntity $entity */
         $entity = $this->repository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
+        static::assertInstanceOf(ProductStreamEntity::class, $entity);
         static::assertFalse($entity->isInvalid());
         static::assertNotNull($entity->getApiFilter());
         static::assertSame('Test stream', $entity->getName());
@@ -157,8 +157,8 @@ class ProductStreamRepositoryTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('filters');
 
-        /** @var ProductStreamEntity $entity */
         $entity = $this->repository->search($criteria, $this->context)->getEntities()->get($id);
+        static::assertInstanceOf(ProductStreamEntity::class, $entity);
 
         /** @var ProductStreamFilterCollection $filters */
         $filters = $entity->getFilters();
@@ -208,10 +208,9 @@ class ProductStreamRepositoryTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product_stream.filters.queries.queries.queries.field', 'product.name'));
-        /** @var ProductStreamEntity $entity */
         $entity = $this->repository->search($criteria, $this->context)->getEntities()->get($id);
+        static::assertInstanceOf(ProductStreamEntity::class, $entity);
 
-        static::assertNotNull($entity);
         static::assertSame('Test stream', $entity->getName());
     }
 }

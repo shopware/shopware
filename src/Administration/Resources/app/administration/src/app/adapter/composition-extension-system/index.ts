@@ -26,9 +26,6 @@ import {
 import type { ExtendableSetupState, OverrideLocalState } from './data-scope-helper';
 import { registerSetupOverrideForHmr, trackSetupHmrComponent } from './script-hmr';
 
-/** @private */
-export { getScriptSetupDataScope } from './data-scope-helper';
-
 /**
  * @private
  * @sw-package framework

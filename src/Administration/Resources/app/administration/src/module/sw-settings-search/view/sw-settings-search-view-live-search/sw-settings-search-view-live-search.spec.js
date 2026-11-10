@@ -24,7 +24,7 @@ async function createWrapper(privileges = []) {
                         create: (name) => {
                             if (name === 'product') {
                                 return {
-                                    search: () => Promise.resolve([]),
+                                    searchIds: () => Promise.resolve({ total: 0, data: [] }),
                                 };
                             }
 

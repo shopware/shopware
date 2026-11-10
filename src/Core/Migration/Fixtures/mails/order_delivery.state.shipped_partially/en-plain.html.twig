@@ -17,7 +17,7 @@ Shipment {{ loop.index }} ({{ shipment.shippingMethod.translated.name }}): {{ sh
 {% if shipmentAddress.company %}{{ shipmentAddress.company }}, {% endif %}{{ shipmentAddress.firstName }} {{ shipmentAddress.lastName }}, {{ shipmentAddress.street }}, {{ shipmentAddress.zipcode }} {{ shipmentAddress.city }}, {{ shipmentAddress.country.translated.name }}
 {% endfor %}
 {% else %}
-The new status is as follows: {{ shipments|first.stateMachineState.translated.name }}.
+The new status is as follows: {{ (shipments|first ?: order.deliveries.first).stateMachineState.translated.name }}.
 {% endif %}
 
 You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl('frontend.account.order.single.page', { 'deepLinkCode': order.deepLinkCode }, salesChannel.domains|first.url) }}

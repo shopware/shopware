@@ -237,7 +237,7 @@
                                     {% elseif feature('v6.8.0.0') %}
                                         <span class="order-table-body-value">{{ order.primaryOrderDelivery.stateMachineState.translated.name }}</span>
                                     {% else %}
-                                        <span class="order-table-body-value">{{ shipments|first.stateMachineState.translated.name }}</span>
+                                        <span class="order-table-body-value">{{ (shipments|first ?: order.deliveries.first).stateMachineState.translated.name }}</span>
                                     {% endif %}
                                 </div>
                             {% endif %}

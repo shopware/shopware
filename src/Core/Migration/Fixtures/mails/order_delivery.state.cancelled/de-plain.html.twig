@@ -17,7 +17,7 @@ Lieferung {{ loop.index }} ({{ shipment.shippingMethod.translated.name }}): {{ s
 {% if shipmentAddress.company %}{{ shipmentAddress.company }}, {% endif %}{{ shipmentAddress.firstName }} {{ shipmentAddress.lastName }}, {{ shipmentAddress.street }}, {{ shipmentAddress.zipcode }} {{ shipmentAddress.city }}, {{ shipmentAddress.country.translated.name }}
 {% endfor %}
 {% else %}
-Die Bestellung hat jetzt den Lieferstatus: {{ shipments|first.stateMachineState.translated.name }}.
+Die Bestellung hat jetzt den Lieferstatus: {{ (shipments|first ?: order.deliveries.first).stateMachineState.translated.name }}.
 {% endif %}
 
 Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl('frontend.account.order.single.page', { 'deepLinkCode': order.deepLinkCode }, salesChannel.domains|first.url) }}

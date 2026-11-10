@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Plugin\PluginException;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -224,35 +223,24 @@ PHP;
 
     public function testDoesNotGenerateMigrationWhenEntityMigrationAlreadyExists(): void
     {
-        $filesystem = new Filesystem();
-        $directory = sys_get_temp_dir() . '/shopware-entity-generator-' . uniqid('', true);
-        $filesystem->dumpFile(
-            $directory . '/src/Migration/Migration123456789CreateTestTable.php',
-            '<?php'
-        );
+        $stubs = new StubCollection();
+        $timestamp = (new \DateTimeImmutable('1988-01-01 00:00:00'))->getTimestamp();
 
-        try {
-            $stubs = new StubCollection();
-            $timestamp = (new \DateTimeImmutable('1988-01-01 00:00:00'))->getTimestamp();
+        (new EntityGenerator(new MockClock(new \DateTimeImmutable('1988-01-01 00:00:00'))))
+            ->generateStubs(
+                new PluginScaffoldConfiguration(
+                    'TestPlugin',
+                    'MyNamespace',
+                    __DIR__ . '/_fixtures/plugin-with-migration',
+                    [EntityGenerator::OPTION_NAME => ['Test']],
+                ),
+                $stubs,
+            );
 
-            (new EntityGenerator(new MockClock(new \DateTimeImmutable('1988-01-01 00:00:00'))))
-                ->generateStubs(
-                    new PluginScaffoldConfiguration(
-                        'TestPlugin',
-                        'MyNamespace',
-                        $directory,
-                        [EntityGenerator::OPTION_NAME => ['Test']],
-                    ),
-                    $stubs,
-                );
-
-            static::assertCount(3, $stubs);
-            static::assertCount(3, $stubs);
-            static::assertTrue($stubs->has('src/Core/Content/Test/TestEntity.php'));
-            static::assertFalse($stubs->has('src/Migration/Migration' . $timestamp . 'CreateTestTable.php'));
-        } finally {
-            $filesystem->remove($directory);
-        }
+        static::assertCount(3, $stubs);
+        static::assertCount(3, $stubs);
+        static::assertTrue($stubs->has('src/Core/Content/Test/TestEntity.php'));
+        static::assertFalse($stubs->has('src/Migration/Migration' . $timestamp . 'CreateTestTable.php'));
     }
 
     public static function generateProvider(): \Generator

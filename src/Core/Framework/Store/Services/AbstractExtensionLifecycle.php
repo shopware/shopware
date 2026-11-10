@@ -23,9 +23,9 @@ abstract class AbstractExtensionLifecycle
 
     abstract public function remove(string $type, string $technicalName, bool $keepUserData, Context $context): void;
 
-    abstract public function composerRequire(string $type, string $technicalName, Context $context): void;
+    abstract public function composerRequire(string $type, string $technicalName, Context $context): bool;
 
-    abstract public function composerRemove(string $type, string $technicalName, Context $context): void;
+    abstract public function composerRemove(string $type, string $technicalName, Context $context): bool;
 
     abstract protected function getDecorated(): AbstractExtensionLifecycle;
 }

@@ -18,6 +18,7 @@ use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -228,10 +229,7 @@ class ExtensionStoreActionsController extends AbstractController
     {
         $this->checkExtensionManagementAllowed();
 
-        $this->extensionLifecycleService->composerRequire($type, $technicalName, $context);
-
-        // vendor/ was replaced; nothing else may load classes in this request
-        return new Response('', Response::HTTP_NO_CONTENT);
+        return new JsonResponse(['composerRan' => $this->extensionLifecycleService->composerRequire($type, $technicalName, $context)]);
     }
 
     #[Route(
@@ -243,9 +241,7 @@ class ExtensionStoreActionsController extends AbstractController
     {
         $this->checkExtensionManagementAllowed();
 
-        $this->extensionLifecycleService->composerRemove($type, $technicalName, $context);
-
-        return new Response('', Response::HTTP_NO_CONTENT);
+        return new JsonResponse(['composerRan' => $this->extensionLifecycleService->composerRemove($type, $technicalName, $context)]);
     }
 
     private function checkExtensionManagementAllowed(): void

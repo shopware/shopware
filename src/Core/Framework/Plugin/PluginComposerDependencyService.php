@@ -55,7 +55,9 @@ class PluginComposerDependencyService
             return false;
         }
 
-        if ($plugin->getInstalledAt() !== null && $this->getPluginBaseClass($plugin)->executeComposerCommands()) {
+        // after an uninstall only plugins that asked for Composer, after an update only those that stopped asking
+        $isUninstalled = $plugin->getInstalledAt() === null;
+        if ($this->getPluginBaseClass($plugin)->executeComposerCommands() !== $isUninstalled) {
             return false;
         }
 

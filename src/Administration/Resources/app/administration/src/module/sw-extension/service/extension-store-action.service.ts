@@ -129,7 +129,7 @@ export default class ExtensionStoreActionService extends ApiService {
     }
 
     public async installExtension(technicalName: string, type: ExtensionType): Promise<AxiosResponse<void>> {
-        await this.composerRequireExtension(technicalName, type);
+        const composerRan = await this.composerRequireExtension(technicalName, type);
 
         try {
             return await this.httpClient.post(
@@ -141,18 +141,20 @@ export default class ExtensionStoreActionService extends ApiService {
                 },
             );
         } catch (error) {
-            await this.composerRemoveExtension(technicalName, type).catch(() => undefined);
+            if (composerRan) {
+                await this.composerRemoveExtension(technicalName, type).catch(() => false);
+            }
 
             throw error;
         }
     }
 
-    public async composerRequireExtension(technicalName: string, type: ExtensionType): Promise<void> {
+    public async composerRequireExtension(technicalName: string, type: ExtensionType): Promise<boolean> {
         if (type !== 'plugin') {
-            return;
+            return false;
         }
 
-        await this.httpClient.post(
+        const { data } = await this.httpClient.post<{ composerRan: boolean }>(
             `_action/${this.getApiBasePath()}/composer-require/${type}/${technicalName}`,
             {},
             {
@@ -160,14 +162,16 @@ export default class ExtensionStoreActionService extends ApiService {
                 version: 3,
             },
         );
+
+        return data.composerRan;
     }
 
-    public async composerRemoveExtension(technicalName: string, type: ExtensionType): Promise<void> {
+    public async composerRemoveExtension(technicalName: string, type: ExtensionType): Promise<boolean> {
         if (type !== 'plugin') {
-            return;
+            return false;
         }
 
-        await this.httpClient.post(
+        const { data } = await this.httpClient.post<{ composerRan: boolean }>(
             `_action/${this.getApiBasePath()}/composer-remove/${type}/${technicalName}`,
             {},
             {
@@ -175,6 +179,8 @@ export default class ExtensionStoreActionService extends ApiService {
                 version: 3,
             },
         );
+
+        return data.composerRan;
     }
 
     public async updateExtension(

@@ -956,7 +956,7 @@ It no longer leaves an empty index for every other entity, and it keeps the pend
 
 The Elasticsearch product index has a new `documents` field, so dynamic product groups can filter products by whether they have documents.
 Run `bin/console es:index` after the update.
-Until then, the "Has documents" condition does not find products with documents in Elasticsearch.
+Until then, the "Has documents" condition gives wrong results in Elasticsearch: "Yes" finds no products and "No" finds all products, including products with documents.
 
 ### Configurable last-modified version strategy for theme assets
 

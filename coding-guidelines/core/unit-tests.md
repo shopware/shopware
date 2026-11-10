@@ -176,11 +176,12 @@ A unit test never touches the real filesystem.
 The result of a test that does depends on the machine: CI runs on Linux with `/tmp`, a developer machine resolves `/private/var` through a symlink, adds a trailing slash to the temp directory or runs another PHP build.
 A failing test also leaves its files behind for the next run.
 
-The PHPStan rule `shopware.realFilesystemInUnitTest` reports `sys_get_temp_dir()`, `tempnam()`, `mkdir()`, `unlink()`, `file_put_contents()` and the other writing functions, and the writing methods of a Symfony `Filesystem`, in the unit namespaces.
+The PHPStan rule `shopware.realFilesystemInUnitTest` reports `sys_get_temp_dir()`, `getcwd()`, `tempnam()`, `mkdir()`, `unlink()`, `file_put_contents()` and the other writing functions, and the writing methods called on a real Symfony `Filesystem`, in the unit namespaces.
 
 Pick the lightest alternative:
 
-1. Inject a stubbed Symfony `Filesystem` through the constructor, or the `StaticFilesystem` stub for the Shopware `Filesystem` util, and assert on the calls.
+1. Drive the subject with `InMemoryUtilFilesystem`, the in-memory double of the Symfony `Filesystem`, and assert on `dumpedFiles()`, or with a stubbed `Filesystem` and assert on the calls.
+   The `StaticFilesystem` stub plays the same role for the Shopware `Filesystem` util.
 2. Read a checked-in fixture under `__DIR__` when the code only reads.
 3. Use a Flysystem with `InMemoryFilesystemAdapter` when the code writes through Flysystem.
 4. Move the case to an integration test at the mirrored path under `tests/integration/` when only a real tree proves the behaviour, for example path confinement through symlinks or files outside the application.

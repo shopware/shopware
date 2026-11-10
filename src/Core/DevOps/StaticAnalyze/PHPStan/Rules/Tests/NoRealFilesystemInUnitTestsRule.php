@@ -13,22 +13,17 @@ use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
-use PHPStan\Type\ObjectType;
+use PHPStan\Type\NeverType;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * A unit test runs the same on every machine and leaves nothing behind. Writing to the real filesystem, or
- * resolving a temp directory to write into, breaks both: the result depends on permissions, the working
- * directory and files left over by an earlier run, and a failing test leaks its files. This rule reports,
- * in the enabled unit namespaces ({@see Configuration}):
- *
- *  - the PHP functions that resolve a temp location or change the filesystem (`sys_get_temp_dir()`,
- *    `tempnam()`, `mkdir()`, `unlink()`, `file_put_contents()`, ...),
- *  - the writing methods of a Symfony `Filesystem` (`mkdir()`, `dumpFile()`, `remove()`, ...).
- *
- * Reading a checked-in fixture through `__DIR__` is fine, and so is a Flysystem with an in-memory adapter.
+ * A unit test runs the same on every machine and leaves nothing behind, so it never touches the real filesystem.
+ * In the enabled unit namespaces ({@see Configuration}) this rule reports the PHP functions that resolve a temp
+ * location or the working directory or change the filesystem, and the writing methods called on a real Symfony
+ * Filesystem. Doubles and subclasses such as InMemoryUtilFilesystem pass, and so do string callables and stream
+ * handles: the rule is a deny list, not a sandbox.
  *
  * @implements Rule<CallLike>
  *
@@ -37,14 +32,14 @@ use Symfony\Component\Filesystem\Filesystem;
 #[Package('framework')]
 class NoRealFilesystemInUnitTestsRule implements Rule
 {
-    public const ERROR_FUNCTION = 'Unit tests must not call %s(): it touches the real filesystem, which differs between machines and keeps state between runs. Inject a stubbed Symfony Filesystem or a StaticFilesystem, read a checked-in fixture through __DIR__, or move the case to an integration test.';
+    public const ERROR_FUNCTION = 'Unit tests must not call %s(): it touches the real filesystem, which differs between machines and keeps state between runs. Drive the subject with an InMemoryUtilFilesystem or a stubbed Symfony Filesystem, read a checked-in fixture through __DIR__, or move the case to an integration test.';
 
-    public const ERROR_METHOD = 'Unit tests must not call Filesystem::%s() on a real Symfony Filesystem: it touches the real filesystem, which differs between machines and keeps state between runs. Inject a stubbed Symfony Filesystem or a StaticFilesystem, read a checked-in fixture through __DIR__, or move the case to an integration test.';
+    public const ERROR_METHOD = 'Unit tests must not call Filesystem::%s() on a real Symfony Filesystem: it touches the real filesystem, which differs between machines and keeps state between runs. Use an InMemoryUtilFilesystem or a stubbed Symfony Filesystem instead, or move the case to an integration test.';
 
     private const IDENTIFIER = 'shopware.realFilesystemInUnitTest';
 
     /**
-     * PHP functions that resolve a location on the real filesystem or change it.
+     * Resolve a temp location or the working directory, or change the filesystem.
      */
     private const DENIED_FUNCTIONS = [
         'sys_get_temp_dir',
@@ -67,7 +62,7 @@ class NoRealFilesystemInUnitTestsRule implements Rule
     ];
 
     /**
-     * Methods of the Symfony Filesystem that change the real filesystem or resolve a temp file on it.
+     * The writing methods of the Symfony Filesystem.
      */
     private const DENIED_FILESYSTEM_METHODS = [
         'appendtofile',
@@ -149,7 +144,8 @@ class NoRealFilesystemInUnitTestsRule implements Rule
             return [];
         }
 
-        if (!(new ObjectType(Filesystem::class))->isSuperTypeOf($scope->getType($node->var))->yes()) {
+        $receiverType = $scope->getType($node->var);
+        if ($receiverType instanceof NeverType || $receiverType->getObjectClassNames() !== [Filesystem::class]) {
             return [];
         }
 

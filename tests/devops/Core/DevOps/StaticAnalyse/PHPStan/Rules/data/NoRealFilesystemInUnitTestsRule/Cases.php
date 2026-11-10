@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\NoRea
 use League\Flysystem\Filesystem as FlysystemFilesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Test\Stub\Framework\Util\InMemoryUtilFilesystem;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -71,6 +72,10 @@ class Cases extends TestCase
 
         $static = new StaticFilesystem(['a' => 'content']);
         $static->read('a');
+
+        $inMemory = new InMemoryUtilFilesystem(['/app/a' => 'content']);
+        $inMemory->dumpFile('/app/b', 'content'); // the in-memory double keeps everything in an array
+        static::createStub(Filesystem::class)->remove('/app/a'); // a double never reaches the disk
 
         $flysystem = new FlysystemFilesystem(new InMemoryFilesystemAdapter());
         $flysystem->write('a', 'content'); // an in-memory Flysystem never reaches the disk

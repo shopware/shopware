@@ -228,6 +228,35 @@ class ProductAdminSearchIndexerTest extends TestCase
         static::assertSame([$productId], $this->searchIndexer->getUpdatedIds($event));
     }
 
+    public function testGetUpdatedIdsContainsTheVariantsOfProductsWithChangedDocuments(): void
+    {
+        $productId = Uuid::randomHex();
+        $variantId = Uuid::randomHex();
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchFirstColumn')->willReturn([$variantId]);
+
+        $indexer = new ProductAdminSearchIndexer(
+            $connection,
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            100
+        );
+
+        $event = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent('product_document', [
+                    new EntityWriteResult(Uuid::randomHex(), ['productId' => $productId], 'product_document', EntityWriteResult::OPERATION_INSERT),
+                ], Context::createDefaultContext()),
+            ]),
+            []
+        );
+
+        static::assertSame([$productId, $variantId], $indexer->getUpdatedIds($event));
+    }
+
     public function testGlobalCriteria(): void
     {
         $indexer = new ProductAdminSearchIndexer(

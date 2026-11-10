@@ -557,7 +557,18 @@ SQL,
             }
         }
 
-        return array_values(array_filter($productIds, '\is_string'));
+        $productIds = array_values(array_filter($productIds, '\is_string'));
+        if ($productIds === []) {
+            return [];
+        }
+
+        $variantIds = $this->connection->fetchFirstColumn(
+            'SELECT LOWER(HEX(id)) FROM product WHERE parent_id IN (:ids) AND version_id = :versionId',
+            ['ids' => Uuid::fromHexToBytesList($productIds), 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        return array_merge($productIds, array_values(array_filter($variantIds, '\is_string')));
     }
 
     /**

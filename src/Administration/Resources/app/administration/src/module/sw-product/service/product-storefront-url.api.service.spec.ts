@@ -91,6 +91,28 @@ describe('module/sw-product/service/product-storefront-url.api.service', () => {
         });
     });
 
+    it('asks the Storefront for all domain languages at the same time', async () => {
+        let respond = (): void => {};
+        const response = new Promise((resolve) => {
+            respond = () => resolve({ data: { product: { seoUrls: [] } } });
+        });
+        const { service, httpClient } = createService({
+            domains: [
+                { id: 'domain-en', url: 'https://shop.test/en', languageId: ENGLISH_LANGUAGE_ID },
+                { id: 'domain-de', url: 'https://shop.test/de', languageId: GERMAN_LANGUAGE_ID },
+            ],
+            product: () => response,
+        });
+
+        const result = service.fetchProductUrls('product-id', 'sales-channel-id');
+        await flushPromises();
+
+        expect(httpClient.get).toHaveBeenCalledTimes(2);
+
+        respond();
+        expect((await result)?.reachable).toBe(true);
+    });
+
     it('links the technical product URL when the product has no SEO URL', async () => {
         const { service } = createService({
             domains: [{ id: 'domain-en', url: 'https://shop.test', languageId: ENGLISH_LANGUAGE_ID }],
@@ -128,7 +150,7 @@ describe('module/sw-product/service/product-storefront-url.api.service', () => {
 
         const result = await service.fetchProductUrls('product-id', 'sales-channel-id');
 
-        expect(httpClient.get).toHaveBeenCalledTimes(1);
+        expect(httpClient.get).toHaveBeenCalledTimes(2);
         expect(result).toEqual({
             reachable: false,
             domains: [

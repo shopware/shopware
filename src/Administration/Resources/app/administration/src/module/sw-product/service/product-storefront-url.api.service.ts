@@ -65,10 +65,13 @@ export default class ProductStorefrontUrlApiService extends ApiService {
             return null;
         }
 
-        const paths: Record<string, string> = {};
-        for (const languageId of new Set(domains.map((domain) => domain.languageId))) {
-            const path = await this.fetchProductPath(productId, salesChannelId, languageId);
+        const languageIds = [...new Set(domains.map((domain) => domain.languageId))];
+        const languagePaths = await Promise.all(
+            languageIds.map((languageId) => this.fetchProductPath(productId, salesChannelId, languageId)),
+        );
 
+        const paths: Record<string, string> = {};
+        for (const [index, path] of languagePaths.entries()) {
             if (path === null) {
                 return {
                     reachable: false,
@@ -76,7 +79,7 @@ export default class ProductStorefrontUrlApiService extends ApiService {
                 };
             }
 
-            paths[languageId] = path;
+            paths[languageIds[index]] = path;
         }
 
         return {

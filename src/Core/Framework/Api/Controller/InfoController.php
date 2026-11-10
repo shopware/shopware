@@ -28,6 +28,7 @@ use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Migration\MigrationInfo;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Store\InAppPurchase;
+use Shopware\Core\Framework\Update\Services\VersionHistory;
 use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
 use Shopware\Core\PlatformRequest;
@@ -64,6 +65,7 @@ class InfoController extends AbstractController
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ?PresignedMediaUploadService $presignedMediaUploadService,
         private readonly MediaFileExtensionListProvider $mediaFileExtensionListProvider,
+        private readonly VersionHistory $versionHistory,
         private readonly ProductDocumentConfig $productDocumentConfig,
     ) {
     }
@@ -233,6 +235,7 @@ class InfoController extends AbstractController
                 ],
             ],
             'inAppPurchases' => $this->inAppPurchase->all(),
+            'versionHistory' => $this->versionHistory->all(),
         ];
 
         $config = $this->eventDispatcher->dispatch(new AdminInfoConfigEvent($config))->getConfig();

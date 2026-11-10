@@ -37,12 +37,16 @@ use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Migration\MigrationInfo;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Framework\Update\Services\VersionHistory;
+use Shopware\Core\Framework\Update\Services\VersionHistoryEntryType;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Tests\Unit\Common\Stubs\IniMock;
 use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -66,6 +70,8 @@ class InfoControllerTest extends TestCase
 
     private EventDispatcher $eventDispatcher;
 
+    private VersionHistory $versionHistory;
+
     public static function setUpBeforeClass(): void
     {
         // register before the first ini_get(), or the ini mocks of later tests stop working
@@ -75,6 +81,8 @@ class InfoControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->versionHistory = new VersionHistory(new ArrayKeyValueStorage(), new MockClock('2026-11-04T10:00:00+00:00'), '6.6.9999999-dev');
+        $this->versionHistory->record(VersionHistoryEntryType::INSTALL);
         $this->shopIdProvider = $this->createMock(ShopIdProvider::class);
         $this->statsService = static::createStub(StatsService::class);
         $this->migrationInfo = static::createStub(MigrationInfo::class);
@@ -160,6 +168,10 @@ class InfoControllerTest extends TestCase
         static::assertCount(1, $inAppPurchases);
         static::assertArrayHasKey('SwagApp', $inAppPurchases);
         static::assertSame(['SwagApp_premium'], $inAppPurchases['SwagApp']);
+
+        static::assertSame([
+            ['version' => '6.6.9999999-dev', 'recordedAt' => '2026-11-04T10:00:00+00:00', 'type' => 'install'],
+        ], $data['versionHistory']);
     }
 
     public static function productDocumentUploadLimitProvider(): iterable
@@ -461,6 +473,7 @@ class InfoControllerTest extends TestCase
             $this->eventDispatcher,
             $presignedMediaUploadService,
             new MediaFileExtensionListProvider($this->eventDispatcher, [], ['pdf', 'epub']),
+            $this->versionHistory,
             new ProductDocumentConfig($this->eventDispatcher, ['pdf', 'docx'], maxFileSize: 1024),
         );
     }

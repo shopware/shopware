@@ -9,6 +9,7 @@ use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentArchiver;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
@@ -60,7 +61,8 @@ class ProductDocumentArchiveRouteTest extends TestCase
 
         $archives = static::getContainer()->get('shopware.filesystem.private');
         static::assertInstanceOf(FilesystemOperator::class, $archives);
-        $folder = ProductDocumentArchiver::DIRECTORY . '/' . $ids->get('drill');
+        $productFolder = ProductDocumentArchiver::DIRECTORY . '/' . $ids->get('drill');
+        $folder = $productFolder . '/' . Defaults::LANGUAGE_SYSTEM;
         static::assertCount(1, $archives->listContents($folder)->toArray());
 
         $handbook = 'handbook-' . Uuid::randomHex();
@@ -70,6 +72,7 @@ class ProductDocumentArchiveRouteTest extends TestCase
             [$handbook . '.pdf' => 'manual content', $sheet . '.pdf' => 'sheet content'],
             $this->download($browser, $ids->get('drill-red'))
         );
+        static::assertCount(1, $archives->listContents($folder)->toArray());
 
         $newSheet = 'data-sheet-' . Uuid::randomHex();
         $newSheetId = $mediaService->saveFile('new sheet content', 'pdf', 'application/pdf', $newSheet, $context, private: false);
@@ -79,8 +82,9 @@ class ProductDocumentArchiveRouteTest extends TestCase
             [$handbook . '.pdf' => 'manual content', $newSheet . '.pdf' => 'new sheet content'],
             $this->download($browser, $ids->get('drill-red'))
         );
+        static::assertCount(1, $archives->listContents($folder)->toArray());
 
-        $archives->deleteDirectory($folder);
+        $archives->deleteDirectory($productFolder);
     }
 
     /**

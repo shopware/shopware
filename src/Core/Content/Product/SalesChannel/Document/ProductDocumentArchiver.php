@@ -57,11 +57,14 @@ class ProductDocumentArchiver
             return null;
         }
 
+        // each language can have its own files
+        $folder = \sprintf('%s/%s/%s', self::DIRECTORY, $document->getProductId(), $context->getLanguageId());
         // named after its files, so changed files get a new ZIP
-        $path = \sprintf('%s/%s/%s.zip', self::DIRECTORY, $document->getProductId(), $this->hashFiles($files));
+        $path = \sprintf('%s/%s.zip', $folder, $this->hashFiles($files));
 
         if (!$this->privateFilesystem->fileExists($path)) {
             $this->build($path, $files);
+            $this->deleteOutdatedArchives($folder, $path);
         }
 
         return new ProductDocumentArchive($path, $this->createFileName($product), $this->privateFilesystem->fileSize($path));
@@ -205,6 +208,16 @@ class ProductDocumentArchiver
             }
         } finally {
             $this->filesystem->remove($localFiles);
+        }
+    }
+
+    private function deleteOutdatedArchives(string $folder, string $currentPath): void
+    {
+        foreach ($this->privateFilesystem->listContents($folder) as $item) {
+            // temporary uploads end with a random suffix, not `.zip`
+            if ($item->isFile() && str_ends_with($item->path(), '.zip') && $item->path() !== $currentPath) {
+                $this->privateFilesystem->delete($item->path());
+            }
         }
     }
 }

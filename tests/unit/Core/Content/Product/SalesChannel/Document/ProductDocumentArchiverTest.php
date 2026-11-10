@@ -17,6 +17,9 @@ use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentEntit
 use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentArchive;
 use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentArchiver;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\SystemSource;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -211,7 +214,36 @@ class ProductDocumentArchiverTest extends TestCase
             ->archive($this->createProduct('Cordless drill'), $this->context);
 
         static::assertNotNull($archive);
-        static::assertStringStartsWith(ProductDocumentArchiver::DIRECTORY . '/' . $parentId . '/', $archive->path);
+        static::assertStringStartsWith(ProductDocumentArchiver::DIRECTORY . '/' . $parentId . '/' . $this->context->getLanguageId() . '/', $archive->path);
+    }
+
+    public function testReplacesOnlyTheOlderArchiveOfTheSameLanguage(): void
+    {
+        $manual = $this->createFile('manual', 'manual content');
+        $handbook = $this->createFile('handbook', 'handbook content');
+        $german = Generator::generateSalesChannelContext(baseContext: new Context(new SystemSource(), [], Defaults::CURRENCY, [Uuid::randomHex()]));
+        $archiver = $this->createArchiver(
+            [$this->createDocument($manual), $this->createDocument($handbook)],
+            [$manual, $handbook],
+            [[0], [0], [1]],
+            [new MediaCollection([$manual]), new MediaCollection([$manual]), new MediaCollection([$handbook])],
+        );
+
+        $older = $archiver->archive($this->createProduct('Cordless drill'), $this->context);
+        $germanArchive = $archiver->archive($this->createProduct('Cordless drill'), $german);
+        static::assertNotNull($older);
+        static::assertNotNull($germanArchive);
+        // another request's upload in progress
+        $upload = $older->path . '.' . Uuid::randomHex();
+        $this->privateFilesystem->write($upload, 'zip');
+
+        $newer = $archiver->archive($this->createProduct('Cordless drill'), $this->context);
+
+        static::assertNotNull($newer);
+        static::assertFalse($this->privateFilesystem->fileExists($older->path));
+        static::assertTrue($this->privateFilesystem->fileExists($newer->path));
+        static::assertTrue($this->privateFilesystem->fileExists($germanArchive->path));
+        static::assertTrue($this->privateFilesystem->fileExists($upload));
     }
 
     public function testRemovesTheTemporaryFileWhenItCannotBeMovedIntoPlace(): void

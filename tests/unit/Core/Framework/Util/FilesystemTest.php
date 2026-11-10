@@ -7,8 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Util\UtilException;
-use Symfony\Component\Filesystem\Filesystem as Io;
-use Symfony\Component\Filesystem\Path;
 
 /**
  * @internal
@@ -17,123 +15,88 @@ use Symfony\Component\Filesystem\Path;
 #[CoversClass(Filesystem::class)]
 class FilesystemTest extends TestCase
 {
-    private Io $io;
-
     private string $root;
 
     protected function setUp(): void
     {
-        $this->io = new Io();
-
-        $this->root = Path::join(sys_get_temp_dir(), $this->name());
-
-        $this->io->mkdir($this->root);
-
-        $this->root = (string) realpath($this->root);
-    }
-
-    protected function tearDown(): void
-    {
-        $this->io->remove($this->root);
+        $this->root = (string) realpath(__DIR__ . '/fixtures/filesystem');
     }
 
     public function testHas(): void
     {
         $fs = new Filesystem($this->root);
 
-        $this->io->mkdir($this->root . '/folder');
-        $this->io->touch($this->root . '/folder/file2.php');
-        $this->io->touch($this->root . '/file3.php');
-
-        static::assertFalse($fs->has('file.php'));
-        static::assertTrue($fs->has('file3.php'));
-        static::assertTrue($fs->has('folder', 'file2.php'));
-        static::assertTrue($fs->has('folder/file2.php'));
+        static::assertFalse($fs->has('missing.txt'));
+        static::assertTrue($fs->has('file3.txt'));
+        static::assertTrue($fs->has('folder', 'file2.txt'));
+        static::assertTrue($fs->has('folder/file2.txt'));
     }
 
     public function testHasFile(): void
     {
         $fs = new Filesystem($this->root);
 
-        $this->io->mkdir($this->root . '/folder');
-        $this->io->touch($this->root . '/folder/file2.php');
-        $this->io->touch($this->root . '/file3.php');
-
-        static::assertFalse($fs->hasFile('file.php'));
-        static::assertTrue($fs->hasFile('file3.php'));
+        static::assertFalse($fs->hasFile('missing.txt'));
+        static::assertTrue($fs->hasFile('file3.txt'));
         static::assertFalse($fs->hasFile('folder'));
-        static::assertTrue($fs->hasFile('folder/file2.php'));
+        static::assertTrue($fs->hasFile('folder/file2.txt'));
     }
 
     public function testRealPathThrowsExceptionWhenFileDoesNotExist(): void
     {
         $fs = new Filesystem($this->root);
 
-        static::expectExceptionObject(UtilException::cannotFindFileInFilesystem('file1.php', $this->root));
+        static::expectExceptionObject(UtilException::cannotFindFileInFilesystem('missing.txt', $this->root));
 
-        $fs->realpath('file1.php');
+        $fs->realpath('missing.txt');
     }
 
     public function testRealPath(): void
     {
-        $this->io->mkdir($this->root . '/folder');
-        $this->io->touch($this->root . '/folder/file1.php');
-
         $fs = new Filesystem($this->root);
 
-        static::assertSame($this->root . '/folder/file1.php', $fs->realpath('folder/../folder/file1.php'));
+        static::assertSame($this->root . '/folder/file1.txt', $fs->realpath('folder/../folder/file1.txt'));
     }
 
     public function testPath(): void
     {
         $fs = new Filesystem($this->root);
 
-        $this->io->mkdir($this->root . '/folder');
-        $this->io->touch($this->root . '/folder/file2.php');
-        $this->io->touch($this->root . '/file1.php');
-
-        static::assertSame($this->root . '/file1.php', $fs->path('file1.php'));
-        static::assertSame($this->root . '/folder/file2.php', $fs->path('folder', 'file2.php'));
-        static::assertSame($this->root . '/folder/file3.php', $fs->path('folder', 'file3.php')); // file does not exist but still works
+        static::assertSame($this->root . '/file3.txt', $fs->path('file3.txt'));
+        static::assertSame($this->root . '/folder/file2.txt', $fs->path('folder', 'file2.txt'));
+        static::assertSame($this->root . '/folder/missing.txt', $fs->path('folder', 'missing.txt')); // file does not exist but still works
     }
 
     public function testReadThrowsAnExceptionWhenFileDoesNotExist(): void
     {
         $fs = new Filesystem($this->root);
 
-        static::expectExceptionObject(UtilException::cannotFindFileInFilesystem('file.php', $this->root));
+        static::expectExceptionObject(UtilException::cannotFindFileInFilesystem('missing.txt', $this->root));
 
-        $fs->read('file.php');
+        $fs->read('missing.txt');
     }
 
     public function testRead(): void
     {
         $fs = new Filesystem($this->root);
 
-        $this->io->dumpFile($this->root . '/file.php', 'somecontent');
-
-        static::assertSame('somecontent', $fs->read('file.php'));
+        static::assertSame('somecontent', $fs->read('file.txt'));
     }
 
     public function testFindFiles(): void
     {
         $fs = new Filesystem($this->root);
 
-        $this->io->mkdir($this->root . '/folder');
-        $this->io->touch($this->root . '/folder/file1.php');
-        $this->io->touch($this->root . '/folder/file2.php');
-        $this->io->touch($this->root . '/folder/file3.xml');
-
         $actual = array_map(
             static fn (\SplFileInfo $file) => $file->getPathname(),
-            $fs->findFiles('*.php', 'folder')
+            $fs->findFiles('*.txt', 'folder')
         );
 
         sort($actual);
         static::assertSame(
             [
-                $this->root . '/folder/file1.php',
-                $this->root . '/folder/file2.php',
+                $this->root . '/folder/file1.txt',
+                $this->root . '/folder/file2.txt',
             ],
             $actual
         );

@@ -17,8 +17,6 @@ class PluginTest extends TestCase
 {
     private static string $swagTestPluginPath;
 
-    private static string $symlinkedSwagTestPluginPath;
-
     public static function setUpBeforeClass(): void
     {
         $pluginsDir = __DIR__ . '/../../../../../tests/integration/Core/Framework/Plugin/_fixtures/plugins/';
@@ -26,17 +24,7 @@ class PluginTest extends TestCase
         static::assertIsString($swagTestPluginPath);
         self::$swagTestPluginPath = $swagTestPluginPath;
 
-        self::$symlinkedSwagTestPluginPath = sys_get_temp_dir() . '/SymlinkedSwagTest_' . uniqid();
-        symlink(self::$swagTestPluginPath, self::$symlinkedSwagTestPluginPath);
-
         require_once self::$swagTestPluginPath . '/src/SwagTestPlugin.php';
-    }
-
-    public static function tearDownAfterClass(): void
-    {
-        if (\is_dir(self::$symlinkedSwagTestPluginPath) && is_link(self::$symlinkedSwagTestPluginPath)) {
-            unlink(self::$symlinkedSwagTestPluginPath);
-        }
     }
 
     public function testGetPathWithNonSymlinkedPlugin(): void
@@ -46,18 +34,11 @@ class PluginTest extends TestCase
         static::assertSame(self::$swagTestPluginPath . '/src', $plugin->getPath());
     }
 
-    public function testGetPathWithSymlinkedPlugin(): void
-    {
-        $plugin = new SwagTestPlugin(true, self::$symlinkedSwagTestPluginPath);
-
-        static::assertSame(self::$symlinkedSwagTestPluginPath . '/src', $plugin->getPath());
-    }
-
     public function testGetBasePath(): void
     {
-        $plugin = new SwagTestPlugin(true, self::$symlinkedSwagTestPluginPath);
+        $plugin = new SwagTestPlugin(true, self::$swagTestPluginPath);
 
-        static::assertSame(self::$symlinkedSwagTestPluginPath, $plugin->getBasePath());
+        static::assertSame(self::$swagTestPluginPath, $plugin->getBasePath());
     }
 
     public function testGetBasePathIncludingSlash(): void

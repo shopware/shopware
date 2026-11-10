@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\System\CustomField\CustomFieldSetPersister;
 use Shopware\Core\System\CustomField\CustomFieldXmlLoader;
 use Shopware\Core\System\CustomField\Xml\CustomFields;
-use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 
 /**
  * @internal
@@ -25,28 +24,14 @@ use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 #[CoversClass(CustomFieldLifecycleHandler::class)]
 class CustomFieldLifecycleHandlerTest extends TestCase
 {
-    private const FIXTURE_FILE = __DIR__ . '/../../../../System/CustomField/_fixtures/custom-fields.xml';
+    private const APP_WITH_CUSTOM_FIELDS = __DIR__ . '/_fixtures/app-with-custom-fields';
 
-    private string $tmpDir;
+    private const APP_WITHOUT_CUSTOM_FIELDS = __DIR__ . '/_fixtures/app-without-custom-fields';
 
-    private SymfonyFilesystem $fs;
-
-    protected function setUp(): void
-    {
-        $this->fs = new SymfonyFilesystem();
-        $this->tmpDir = sys_get_temp_dir() . '/sw-test-app-' . bin2hex(random_bytes(4));
-        $this->fs->mkdir($this->tmpDir . '/Resources');
-    }
-
-    protected function tearDown(): void
-    {
-        $this->fs->remove($this->tmpDir);
-    }
+    private const FIXTURE_FILE = self::APP_WITH_CUSTOM_FIELDS . '/Resources/config/custom-fields.xml';
 
     public function testPersistWithExternalFile(): void
     {
-        $this->fs->copy(self::FIXTURE_FILE, $this->tmpDir . '/Resources/config/custom-fields.xml');
-
         $sharedPersister = $this->createMock(CustomFieldSetPersister::class);
         $sharedPersister->expects($this->once())
             ->method('sync')
@@ -63,7 +48,7 @@ class CustomFieldLifecycleHandlerTest extends TestCase
             );
 
         $handler = new CustomFieldLifecycleHandler($sharedPersister, new NullLogger());
-        $handler->install($this->createContext($this->tmpDir));
+        $handler->install($this->createContext(self::APP_WITH_CUSTOM_FIELDS));
     }
 
     public function testPersistWithoutFileAndWithoutManifest(): void
@@ -81,7 +66,7 @@ class CustomFieldLifecycleHandlerTest extends TestCase
             );
 
         $handler = new CustomFieldLifecycleHandler($sharedPersister, new NullLogger());
-        $handler->install($this->createContext($this->tmpDir));
+        $handler->install($this->createContext(self::APP_WITHOUT_CUSTOM_FIELDS));
     }
 
     public function testPersistWithInlineManifestCustomFields(): void
@@ -97,12 +82,11 @@ class CustomFieldLifecycleHandlerTest extends TestCase
         $logger->expects($this->never())->method('warning');
 
         $handler = new CustomFieldLifecycleHandler($sharedPersister, $logger);
-        $handler->update($this->createContext($this->tmpDir, $inlineCustomFields));
+        $handler->update($this->createContext(self::APP_WITHOUT_CUSTOM_FIELDS, $inlineCustomFields));
     }
 
     public function testExternalFileTakesPrecedenceOverInlineManifestCustomFields(): void
     {
-        $this->fs->copy(self::FIXTURE_FILE, $this->tmpDir . '/Resources/config/custom-fields.xml');
         $inlineCustomFields = CustomFields::fromArray([]);
 
         $sharedPersister = $this->createMock(CustomFieldSetPersister::class);
@@ -122,7 +106,7 @@ class CustomFieldLifecycleHandlerTest extends TestCase
             ->with(static::stringContains('The inline definition in manifest.xml is ignored.'), ['appName' => 'TestApp']);
 
         $handler = new CustomFieldLifecycleHandler($sharedPersister, $logger);
-        $handler->install($this->createContext($this->tmpDir, $inlineCustomFields));
+        $handler->install($this->createContext(self::APP_WITH_CUSTOM_FIELDS, $inlineCustomFields));
     }
 
     private function createContext(string $appDir, ?CustomFields $inlineCustomFields = null): AppPersistContext

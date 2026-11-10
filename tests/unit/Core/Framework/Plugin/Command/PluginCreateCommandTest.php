@@ -24,9 +24,7 @@ use Symfony\Component\Filesystem\Filesystem;
 #[CoversClass(PluginCreateCommand::class)]
 class PluginCreateCommandTest extends TestCase
 {
-    private string $projectDir;
-
-    private Filesystem $projectFilesystem;
+    private const PROJECT_DIR = __DIR__ . '/_fixtures/project';
 
     private string|false $previousColumns;
 
@@ -35,16 +33,10 @@ class PluginCreateCommandTest extends TestCase
         // Keep Symfony's error blocks from wrapping the directory path in the middle of a word.
         $this->previousColumns = getenv('COLUMNS');
         putenv('COLUMNS=200');
-
-        $this->projectFilesystem = new Filesystem();
-        $this->projectDir = sys_get_temp_dir() . '/sw-pc-' . bin2hex(random_bytes(4));
-        $this->projectFilesystem->mkdir($this->projectDir . '/custom/plugins');
     }
 
     protected function tearDown(): void
     {
-        $this->projectFilesystem->remove($this->projectDir);
-
         if ($this->previousColumns === false) {
             putenv('COLUMNS');
         } else {
@@ -54,7 +46,7 @@ class PluginCreateCommandTest extends TestCase
 
     public function testCreatesPluginFromArguments(): void
     {
-        $directory = $this->projectDir . '/custom/plugins/TestPlugin';
+        $directory = self::PROJECT_DIR . '/custom/plugins/TestPlugin';
         $tester = $this->commandTester(writer: $this->writerExpectingPlugin($directory));
 
         $status = $tester->execute([
@@ -71,7 +63,7 @@ class PluginCreateCommandTest extends TestCase
 
     public function testCreatesPluginInStaticPluginsDirectory(): void
     {
-        $directory = $this->projectDir . '/custom/static-plugins/TestPlugin';
+        $directory = self::PROJECT_DIR . '/custom/static-plugins/TestPlugin';
         $tester = $this->commandTester(writer: $this->writerExpectingPlugin($directory));
 
         $status = $tester->execute([
@@ -86,7 +78,7 @@ class PluginCreateCommandTest extends TestCase
     #[DataProvider('nestedNamespaceProvider')]
     public function testCreatesPluginWithNestedNamespace(string $namespace, bool $interactive): void
     {
-        $directory = $this->projectDir . '/custom/plugins/TestPlugin';
+        $directory = self::PROJECT_DIR . '/custom/plugins/TestPlugin';
         $tester = $this->commandTester(writer: $this->writerExpectingPlugin($directory, $namespace));
         $arguments = ['plugin-name' => 'TestPlugin'];
 
@@ -259,15 +251,16 @@ class PluginCreateCommandTest extends TestCase
         ], $this->consoleOptions(interactive: false));
 
         static::assertSame(Command::FAILURE, $status);
+        // SymfonyStyle wraps error blocks at 120 characters, which splits the fixture path mid-word.
         static::assertStringContainsString(
-            'Plugin directory ' . $this->projectDir . '/custom/plugins/TestPlugin already exists',
-            $this->display($tester),
+            str_replace(' ', '', 'Plugin directory ' . self::PROJECT_DIR . '/custom/plugins/TestPlugin already exists'),
+            str_replace(' ', '', $this->display($tester)),
         );
     }
 
     public function testRejectsRunOutsideAShopwareProject(): void
     {
-        $tester = $this->commandTester(projectDir: $this->projectDir . '/missing');
+        $tester = $this->commandTester(projectDir: self::PROJECT_DIR . '/missing');
 
         $status = $tester->execute([
             'plugin-name' => 'TestPlugin',
@@ -283,7 +276,7 @@ class PluginCreateCommandTest extends TestCase
 
     public function testRemovesDirectoryWhenWritingFails(): void
     {
-        $directory = $this->projectDir . '/custom/plugins/TestPlugin';
+        $directory = self::PROJECT_DIR . '/custom/plugins/TestPlugin';
 
         $filesystem = $this->createMock(Filesystem::class);
         $filesystem->method('exists')->willReturnOnConsecutiveCalls(false, true);
@@ -305,7 +298,7 @@ class PluginCreateCommandTest extends TestCase
 
     public function testPromptsForMissingNameAndNamespace(): void
     {
-        $directory = $this->projectDir . '/custom/plugins/TestPlugin';
+        $directory = self::PROJECT_DIR . '/custom/plugins/TestPlugin';
         $tester = $this->commandTester(writer: $this->writerExpectingPlugin($directory));
         $tester->setInputs(['TestPlugin', 'Test', 'n', 'y']);
 
@@ -473,7 +466,7 @@ class PluginCreateCommandTest extends TestCase
         ?string $projectDir = null,
     ): CommandTester {
         $command = new PluginCreateCommand(
-            $projectDir ?? $this->projectDir,
+            $projectDir ?? self::PROJECT_DIR,
             static::createStub(ScaffoldingCollector::class),
             $writer ?? static::createStub(ScaffoldingWriter::class),
             $filesystem ?? $this->filesystemThatDoesNotFindPlugin(),

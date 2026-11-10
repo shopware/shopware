@@ -14,6 +14,6 @@ describe('sw-product-document-empty-state', () => {
             global: { stubs: { 'mt-empty-state': { template: '<div><slot name="button"/></div>' } } },
         });
         await wrapper.get('button').trigger('click');
-        expect(wrapper.emitted('add-documents')).toHaveLength(1);
+        expect(wrapper.emitted('documents-add')).toHaveLength(1);
     });
 });

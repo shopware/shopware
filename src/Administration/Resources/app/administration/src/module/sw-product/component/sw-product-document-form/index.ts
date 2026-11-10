@@ -10,8 +10,6 @@ import template from './sw-product-document-form.html.twig';
 import './sw-product-document-form.scss';
 
 type DocumentChanges = Partial<Pick<Entity<'product_document'>, 'title' | 'mediaId'>>;
-
-type ProductDocument = Entity<'product_document'>;
 type DocumentInheritance = { isInherited: boolean; forceInheritanceRemove: boolean };
 
 /**
@@ -28,11 +26,10 @@ export default Shopware.Component.wrapComponentConfig({
         'mediaService',
     ],
 
-    emits: ['change-language'],
-
     props: {
         disabled: {
             type: Boolean,
+            required: false,
             default: false,
         },
     },
@@ -42,9 +39,10 @@ export default Shopware.Component.wrapComponentConfig({
             showUploadModal: false,
             showMediaModal: false,
             mediaFolderId: undefined as string | null | undefined,
-            editingDocument: null as ProductDocument | null,
-            removingDocument: null as ProductDocument | null,
+            editingDocument: null as Entity<'product_document'> | null,
+            removingDocument: null as Entity<'product_document'> | null,
             documentTitle: '',
+            documentMedia: {} as Record<string, Entity<'media'>>,
             documentEditSession: 0,
             replacementMedia: null as Entity<'media'> | null,
             documentFileRemoved: false,
@@ -56,9 +54,21 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        product: () => Shopware.Store.get('swProductDetail').product,
+        product(): Entity<'product'> {
+            return Shopware.Store.get('swProductDetail').product;
+        },
 
-        parentProduct: () => Shopware.Store.get('swProductDetail').parentProduct,
+        parentProduct(): Entity<'product'> {
+            return Shopware.Store.get('swProductDetail').parentProduct;
+        },
+
+        languageId() {
+            return Shopware.Store.get('context').api.languageId;
+        },
+
+        systemLanguageId() {
+            return Shopware.Store.get('context').api.systemLanguageId;
+        },
 
         documents(): EntityCollection<'product_document'> {
             return this.product.documents as EntityCollection<'product_document'>;
@@ -68,8 +78,12 @@ export default Shopware.Component.wrapComponentConfig({
             return this.repositoryFactory.create('product_document');
         },
 
+        mediaRepository() {
+            return this.repositoryFactory.create('media');
+        },
+
         uploadTag(): string {
-            return `product-documents-${this.product.id}-${Shopware.Context.api.languageId}`;
+            return `product-documents-${this.product.id}-${this.languageId}`;
         },
 
         canEdit(): boolean {
@@ -80,7 +94,9 @@ export default Shopware.Component.wrapComponentConfig({
             return this.canEdit && this.isDefaultLanguage && this.documents.length < this.maxDocuments;
         },
 
-        isDefaultLanguage: () => Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId,
+        isDefaultLanguage(): boolean {
+            return this.languageId === this.systemLanguageId;
+        },
 
         editingMedia(): Entity<'media'> | undefined {
             const document = this.editingDocument;
@@ -125,12 +141,12 @@ export default Shopware.Component.wrapComponentConfig({
             this.showUploadModal = false;
             this.closeDocumentEditor();
             this.closeRemoveDocumentModal();
+            this.documentMedia = {};
         },
     },
 
-    async created() {
-        const folder = this.mediaService.getDefaultFolderId('product_document');
-        this.mediaFolderId = await folder.catch(() => /* The picker can open at the media root. */ null);
+    created() {
+        void this.createdComponent();
     },
 
     beforeUnmount() {
@@ -139,50 +155,58 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
+        async createdComponent(): Promise<void> {
+            try {
+                this.mediaFolderId = await this.mediaService.getDefaultFolderId('product_document');
+            } catch {
+                this.mediaFolderId = null;
+            }
+        },
+
         canChangeDocuments(): boolean {
             const inheritance = this.$refs.documentInheritance as DocumentInheritance | undefined;
             return this.canEdit && inheritance?.isInherited === false;
         },
 
-        getMedia(document: ProductDocument | null): Entity<'media'> | undefined {
+        getMedia(document: Entity<'product_document'> | null): Entity<'media'> | undefined {
             const mediaId = document?.mediaId || document?.translated?.mediaId;
 
-            const files = Shopware.Store.get('swProductDetail').documentMedia.get(this.product);
             return mediaId
-                ? files?.[mediaId] || document?.translations?.find((item) => item.mediaId === mediaId)?.media
+                ? this.documentMedia[mediaId] || document?.translations?.find((item) => item.mediaId === mediaId)?.media
                 : undefined;
         },
 
-        getTitle(document: ProductDocument): string {
-            return document.title || document.translated?.title || this.getMedia(document)?.fileName || '';
+        getTitle(document: Entity<'product_document'>): string {
+            return document.translated?.title || document.title || this.getMedia(document)?.fileName || '';
         },
 
-        getFileSize(document: ProductDocument): string {
+        getFileSize(document: Entity<'product_document'>): string {
             const size = this.getMedia(document)?.fileSize;
             return size === undefined ? '' : Shopware.Utils.format.fileSize(size);
         },
 
-        getFileName(document: ProductDocument): string {
+        getFileName(document: Entity<'product_document'>): string {
             const media = this.getMedia(document);
             return media?.fileName ? [media.fileName, media.fileExtension].filter(Boolean).join('.') : '';
         },
 
         async successfulUpload(
             { targetId }: { targetId: EntityKey<'media'> },
-            editingDocument: ProductDocument | null = null,
+            editingDocument: Entity<'product_document'> | null = null,
         ): Promise<void> {
             const product = this.product;
-            const languageId = Shopware.Context.api.languageId;
-            const editSession = this.documentEditSession;
+            const languageId = this.languageId;
+            const session = this.documentEditSession;
 
             const isCurrentUpload = () =>
                 product === this.product &&
-                languageId === Shopware.Context.api.languageId &&
+                languageId === this.languageId &&
+                session === this.documentEditSession &&
                 this.canChangeDocuments() &&
-                (!editingDocument || (editSession === this.documentEditSession && editingDocument === this.editingDocument));
+                (!editingDocument || editingDocument === this.editingDocument);
 
             try {
-                const media = await this.repositoryFactory.create('media').get(targetId, Shopware.Context.api);
+                const media = await this.mediaRepository.get(targetId, Shopware.Context.api);
                 if (isCurrentUpload() && media) {
                     this.addDocuments([media], editingDocument);
                 }
@@ -195,7 +219,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
-        addDocuments(mediaItems: Entity<'media'>[], editingDocument: ProductDocument | null = null): void {
+        addDocuments(mediaItems: Entity<'media'>[], editingDocument: Entity<'product_document'> | null = null): void {
             if (!this.canChangeDocuments() || (!editingDocument && !this.isDefaultLanguage)) {
                 return;
             }
@@ -243,13 +267,13 @@ export default Shopware.Component.wrapComponentConfig({
                 document.mediaId = media.id;
                 document.title = media.fileName;
                 document.position = this.documents.length;
-                Shopware.Store.get('swProductDetail').cacheDocumentMedia(media);
-                Shopware.Store.get('swProductDetail').addDocument(document);
+                this.documentMedia[media.id] = media;
+                this.documents.add(document);
             }
             this.showMediaModal = false;
         },
 
-        moveDocument(document: ProductDocument, offset: number): void {
+        moveDocument(document: Entity<'product_document'>, offset: number): void {
             if (!this.canChangeDocuments()) {
                 return;
             }
@@ -264,7 +288,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.updatePositions();
         },
 
-        openDocumentEditor(document: ProductDocument): void {
+        openDocumentEditor(document: Entity<'product_document'>): void {
             if (!this.canChangeDocuments()) {
                 return;
             }
@@ -286,7 +310,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.documentValidationSubmitted = true;
             if (!this.canChangeDocuments() || !this.editingDocument || !this.canSaveDocument) return;
             const document = this.editingDocument;
-            if (this.replacementMedia) Shopware.Store.get('swProductDetail').cacheDocumentMedia(this.replacementMedia);
+            if (this.replacementMedia) this.documentMedia[this.replacementMedia.id] = this.replacementMedia;
             const changes: DocumentChanges = {};
             if (this.documentTitle.trim() !== this.getTitle(document).trim()) changes.title = this.documentTitle.trim();
             if (this.replacementMedia) changes.mediaId = this.replacementMedia.id;
@@ -301,7 +325,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.showMediaModal = false;
         },
 
-        openRemoveDocumentModal(document: ProductDocument): void {
+        openRemoveDocumentModal(document: Entity<'product_document'>): void {
             if (!this.canChangeDocuments()) return;
             this.removingDocument = document;
         },
@@ -317,7 +341,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.closeRemoveDocumentModal();
         },
 
-        applyDocumentChanges(document: ProductDocument, changes: DocumentChanges): void {
+        applyDocumentChanges(document: Entity<'product_document'>, changes: DocumentChanges): void {
             Object.assign(document, changes);
             const translation = document.translations?.find((entry) => entry.languageId === Shopware.Context.api.languageId);
             if (!translation?.isNew()) {

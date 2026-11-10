@@ -217,8 +217,8 @@ details.box[open] { padding-bottom: 16px; }
   <b>In short</b>
   <ul>
     <li><b>Idea:</b> a generator writes the complete public API of the Administration into committed files. CI compares base and head and fails on breaks that nobody announced.</li>
-    <li><b>Decided:</b> what counts as public, the file format, the two flag states, the CI checks, the plugin integration, the block context rules and the plugin-facing names found in the store plugins (<a href="decisions.html#D1">D1</a>–<a href="decisions.html#D30">D30</a>).</li>
-    <li><b>Done:</b> the format spec, a hand-written example snapshot that compiles, 22 test fixtures and 4 real PRs as backtest.</li>
+    <li><b>Decided:</b> what counts as public, the file format, the two flag states, the CI checks, the plugin integration, the block context rules the plugin-facing names found in the store plugins, and the upgrade path for plugins: <code>@bc-change</code> markers modelled on PHP, change patterns, the upgrade report and marker validation (<a href="decisions.html#D1">D1</a>–<a href="decisions.html#D37">D37</a>).</li>
+    <li><b>Done:</b> the format spec, a hand-written example snapshot that compiles, 24 test fixtures and 4 real PRs as backtest.</li>
     <li><b>Proposed, not decided:</b> the generator design and the answers to the open questions <a href="open.html#Q1">Q1</a>–<a href="open.html#Q13">Q13</a>.</li>
     <li><b>Wanted from you:</b> feedback on readability of the reports, on coverage gaps, and on the open questions, by ID.</li>
   </ul>
@@ -226,7 +226,7 @@ details.box[open] { padding-bottom: 16px; }
 
 <h2 id="how-to-review">How to review</h2>
 <div class="meta"><span><b>Total:</b> about 70 minutes for the must-read pages</span></div>
-<div class="tw"><table><thead><tr><th>Page</th><th>Priority</th><th>Time</th><th>Question for you</th></tr></thead><tbody><tr><td><a href="index.html">Overview</a></td><td><b>must read</b></td><td>10 min</td><td>Is the idea clear, and is the worked example convincing?</td></tr><tr><td><a href="snapshot.html">Generated files</a></td><td><b>must read</b></td><td>20 min</td><td>Do the .api.md reports read well, and do they contain the right things?</td></tr><tr><td><a href="coverage.html">Coverage</a></td><td><b>must read</b></td><td>25 min</td><td>Is every API part and every kind of change covered and classified the way we want?</td></tr><tr><td><a href="open.html">Open questions</a></td><td><b>must read</b></td><td>15 min</td><td>Do you agree with the proposed answers?</td></tr><tr><td><a href="plugins.html">Plugins</a></td><td>skim</td><td>10 min</td><td>Is the plugin experience worth the core change and the migration?</td></tr><tr><td><a href="generator.html">Generator</a></td><td>skim</td><td>10 min</td><td>Is the workflow right, and is the proposed design reasonable?</td></tr><tr><td><a href="backtest.html">Backtest</a></td><td>skim</td><td>10 min</td><td>Are the expected results for the real PRs right?</td></tr><tr><td><a href="decisions.html">Decisions</a></td><td>skim</td><td>5 min</td><td>Do you disagree with any decision, including the new <a href="decisions.html#D23">D23</a> to <a href="decisions.html#D30">D30</a>?</td></tr><tr><td><a href="glossary.html">Glossary</a></td><td>reference</td><td>3 min</td><td>Look up a term.</td></tr></tbody></table></div>
+<div class="tw"><table><thead><tr><th>Page</th><th>Priority</th><th>Time</th><th>Question for you</th></tr></thead><tbody><tr><td><a href="index.html">Overview</a></td><td><b>must read</b></td><td>10 min</td><td>Is the idea clear, and is the worked example convincing?</td></tr><tr><td><a href="snapshot.html">Generated files</a></td><td><b>must read</b></td><td>20 min</td><td>Do the .api.md reports read well, and do they contain the right things?</td></tr><tr><td><a href="coverage.html">Coverage</a></td><td><b>must read</b></td><td>25 min</td><td>Is every API part and every kind of change covered and classified the way we want?</td></tr><tr><td><a href="open.html">Open questions</a></td><td><b>must read</b></td><td>15 min</td><td>Do you agree with the proposed answers?</td></tr><tr><td><a href="plugins.html">Plugins</a></td><td>skim</td><td>10 min</td><td>Is the plugin experience worth the core change and the migration?</td></tr><tr><td><a href="generator.html">Generator</a></td><td>skim</td><td>10 min</td><td>Is the workflow right, and is the proposed design reasonable?</td></tr><tr><td><a href="backtest.html">Backtest</a></td><td>skim</td><td>10 min</td><td>Are the expected results for the real PRs right?</td></tr><tr><td><a href="decisions.html">Decisions</a></td><td>skim</td><td>5 min</td><td>Do you disagree with any decision, including the new <a href="decisions.html#D31">D31</a> to <a href="decisions.html#D37">D37</a>?</td></tr><tr><td><a href="glossary.html">Glossary</a></td><td>reference</td><td>3 min</td><td>Look up a term.</td></tr></tbody></table></div>
 <p>Refer to IDs in your feedback: A for API parts, B for finding types, N for what is not covered, D for decisions, S for assumptions, Q for open questions.
 You do not need to read <code>FORMAT.md</code>. These pages summarize it; open it only to check a detail.</p>
 
@@ -294,7 +294,7 @@ The report shows both in one tree and marks what exists in only one of them, by 
 Break (1)
   method_missing  component:sw-sales-channel-detail/method:getLoadSalesChannelCriteria  current, major
     The method is gone, so plugin overrides that call $super(&#x27;getLoadSalesChannelCriteria&#x27;) throw at runtime.
-    Fix: keep the method and mark it @deprecated tag:v6.8.0, or add an entry to public-api/accepted-breaks.json.
+    Fix: pattern &quot;Rename&quot;. Keep getLoadSalesChannelCriteria, let it call getSalesChannelCriteria, keep calling it from core while v6.8.0.0 is off, and mark it @deprecated tag:v6.8.0 - Use {@link getSalesChannelCriteria} instead.
     Possible rename: getSalesChannelCriteria.
     Also affects: sw-sales-channel-create (extends sw-sales-channel-detail).
     At: src/module/sw-sales-channel/page/sw-sales-channel-detail/index.js:303
@@ -302,22 +302,27 @@ Break (1)
 Addition (1)
   method_added  component:sw-sales-channel-detail/method:getSalesChannelCriteria  current, major
     A new public method that plugins can rely on from now on.
-    Fix: mark it @private if it is not meant for plugins.</pre></div>
+    Fix: mark it @private if it is not meant for plugins.
+
+Change patterns: public-api/FORMAT.md#change-patterns
+Breaking this on purpose? See &quot;Intended breaks&quot; in public-api/FORMAT.md.</pre></div>
   <div class="step"><h4>How the author resolves it</h4>
-    <p><b>Option A, keep and deprecate.</b> The old name stays and delegates. The check passes with one addition and one info, and the removal is allowed in 6.8.</p><pre class="code"><span class="c">/** @deprecated tag:v6.8.0 - Use getSalesChannelCriteria instead */</span>
+    <p><b>Option A, the pattern "Rename".</b> The <code>Fix:</code> line names it. The old name stays, delegates, and links its replacement. The check passes with one addition and one info, and the removal is allowed in 6.8. Plugin developers see the rename in their upgrade report and can switch on the current version.</p><pre class="code"><span class="c">/** @deprecated tag:v6.8.0 - Use {@link getSalesChannelCriteria} instead. */</span>
 getLoadSalesChannelCriteria() {
+<span class="c">    // Core keeps calling the old name while v6.8.0.0 is off, so plugin overrides of it keep running.</span>
     <span class="k">return</span> <span class="k">this</span>.getSalesChannelCriteria();
 },
 
 getSalesChannelCriteria() {
 <span class="c">    // the code of the old method</span>
 },</pre>
-    <p><b>Option B, break on purpose.</b> The author adds an entry with a justification. Code owners approve it, and the check passes with the break in the accepted group.</p><pre class="code">{
+    <p><b>Option B, only when the pattern cannot be followed.</b> The author adds an entry that names the pattern and says why it does not work here. Code owners approve it, and the check passes with the break listed first, in the accepted group. The check output never suggests this file; only its last line points to the rules.</p><pre class="code">{
     &quot;accepted&quot;: [
         {
             &quot;finding&quot;: &quot;method_missing&quot;,
             &quot;element&quot;: &quot;component:sw-sales-channel-detail/method:getLoadSalesChannelCriteria&quot;,
-            &quot;justification&quot;: &quot;The criteria builder is renamed for 6.8, see UPGRADE-6.8.md.&quot;,
+            &quot;pattern&quot;: &quot;Rename&quot;,
+            &quot;justification&quot;: &quot;The old criteria builder returns a different association set, so it cannot delegate to getSalesChannelCriteria.&quot;,
             &quot;issue&quot;: &quot;https://github.com/shopware/shopware/issues/22591&quot;
         }
     ]
@@ -341,7 +346,7 @@ getSalesChannelCriteria() {
 <tr><td>Format spec</td><td><span class="tag t-ok">written, in review</span></td><td><code>public-api/FORMAT.md</code></td></tr>
 <tr><td>Decisions and plan</td><td><span class="tag t-ok">written</span></td><td><code>PUBLIC_API_SNAPSHOT_PLAN.md</code></td></tr>
 <tr><td>Example snapshot</td><td><span class="tag t-ok">hand-written, compiles with tsc</span></td><td><code>public-api/</code>: sw-sales-channel, sw-order, two mixins, the Shopware object, a service, a store, the shopware:* modules, referenced types</td></tr>
-<tr><td>Test fixtures</td><td><span class="tag t-ok">22 written</span></td><td><code>scripts/generate-public-api/__fixtures__/</code></td></tr>
+<tr><td>Test fixtures</td><td><span class="tag t-ok">24 written</span></td><td><code>scripts/generate-public-api/__fixtures__/</code></td></tr>
 <tr><td>Historical cases</td><td><span class="tag t-ok">4 written</span></td><td><a href="https://github.com/shopware/shopware/issues/20959">#20959</a>, <a href="https://github.com/shopware/shopware/issues/17339">#17339</a>, <a href="https://github.com/shopware/shopware/issues/15271">#15271</a>, <a href="https://github.com/shopware/shopware/issues/17081">#17081</a></td></tr>
 <tr><td>Generator, CI checks</td><td><span class="tag">not started</span></td><td>after this review</td></tr>
 <tr><td>Core change for typed overrides (<a href="decisions.html#D20">D20</a>, <a href="decisions.html#D21">D21</a>)</td><td><span class="tag">not started</span></td><td><code>global.types.ts</code>, <code>async-component.factory.ts</code></td></tr>

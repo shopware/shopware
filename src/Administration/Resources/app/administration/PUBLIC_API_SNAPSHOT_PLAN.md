@@ -6,7 +6,7 @@ There is no generator yet.
 Issue: [shopware/shopware#22591](https://github.com/shopware/shopware/issues/22591).
 Branch: `22591-admin-make-public-api-breaks-statically-analyzable`.
 Background proposal: [Review-Engpass Administration](https://claude.ai/artifact/9mZ2k5SMAXzLosYNv94XQH) (artifact, German and English).
-Last updated: 2026-11-06.
+Last updated: 2026-11-10.
 
 This file is a working document for this branch.
 Once the format is settled, the durable decisions belong in an ADR, and this file should be removed.
@@ -47,6 +47,10 @@ Hand-written golden files define what the generator has to produce.
 - Detecting behavior changes inside a method or a block.
   Changing `new Criteria(1, 25)` to `new Criteria(1, 500)` stays a human judgment.
 - Making large PRs smaller.
+- Telling plugin developers about every change.
+  The snapshot, the break check and the upgrade report cover names: components, blocks, members, parameters, routes, snippet keys and the other units of D4.
+  They do not see behaviour inside a method (#17081), visual changes beyond CSS class names, Meteor component versions, Extension SDK locations or names built at runtime.
+  "Plugin developers know which code has to change" therefore means "which uses of core names".
 
 ## Current state in the repository
 
@@ -106,6 +110,30 @@ About 460 of roughly 880 component, view and page index files contain `@private`
 | D28 | SCSS | Variables and mixins that plugins import from `~scss/` are units. A missing name is a break, a changed value is info. |
 | D29 | Plugin tooling warnings | `admin:check-extensions` also checks the new names and warns about `$parent` access and imports from `src/`. |
 | D30 | Store usage (proposal) | A store usage index with counts per element id annotates findings, reports private elements that store plugins use, and detects name collisions. Where it comes from in CI is open. |
+| D31 | Planned changes | Follow the PHP split from `coding-guidelines/core/backward-compatibility.md`. `@deprecated tag:vX` is for elements that are removed or replaced; its message names a replacement with `{@link}`. A planned change to an element that stays uses `@bc-change <Kind> version:vX` with the names of PHP's `BCChange` attributes where they fit, plus Administration-only kinds such as `BlockMoved`. Each kind states its audience (caller or extender), and the break check validates new markers like `BCChangeAttributeUsageRule`. Putting planned changes into `@deprecated` is ruled out, because the extension ESLint preset reports every `@deprecated` use as an error, as PHP's `reason:*` markers did. |
+| D32 | Parameters as elements | Method parameters and emit arguments get element ids (`/param:<name>`, `/arg:<index>`) and findings of their own (`param_missing`, `param_now_required`, `param_added`). Removing a parameter, also the last one, is a break unless it was announced with `@bc-change ParameterRemoval`. This answers Q4 of the review pages. |
+| D33 | Change patterns | One pattern per kind of change: what the PR does, what goes behind the major flag, what happens at the major, what plugins change, and how the tooling checks it. Rules: additive first, core keeps using the old way while the flag is off, both flag states are tested. Findings name their pattern instead of a generic fix hint, and `pattern_incomplete` reports a marker without its required counterpart. The draft lives in `FORMAT.md` and moves to `coding-guidelines/administration/feature-flags-and-deprecations.md` once settled. |
+| D34 | Upgrade report | `admin:check-extensions --target=<major>` reports, on the current version, every plugin use that the next major breaks. Findings are `actionable now` or `at upgrade`, name their pattern, and come as text, JSON or SARIF. Warnings by default; `--fail-on=actionable` is opt-in. |
+| D35 | Change once for both versions | A plugin is ready for a major when `check-extensions` reports nothing against both the current and the major state. Patterns that allow one change for both versions get a codemod in `administration:upgrade-extensions`, runnable on the current version. |
+| D36 | Intended breaks stay quiet | Finding texts and annotations never suggest `accepted-breaks.json`; the summary points to it once. Entries need `pattern` (the pattern that would apply, or `none`), a justification why it cannot be followed, and `issue`. Accepted breaks are listed right after the breaks. Coding agents never add entries on their own. |
+| D37 | Marker validation | A comment that looks like a marker is valid or an error, never ignored. The Administration validates its markers with its own TypeScript implementation (`scripts/generate-public-api/markers.ts`), separate from PHP: format in the generator and an ESLint rule, attachment in the generator, change semantics in the break check. Once it runs in CI, `AnnotationTagTest` stops scanning the Administration app, so each file has one validator. |
+
+## Plugin-side feedback (D31 to D37)
+
+A review on 2026-11-10 asked for the plugin side of the concept: warnings before the update, deprecations as precise as a single parameter, one fixed way per kind of change, plugin code that can change once and work on both versions, and no advertised escape hatch.
+D31 to D37 are the result.
+The PHP code already solved the metadata part with the `BCChange` attributes and their PHPStan rules, so D31 and D33 follow that model.
+
+Considered and dropped:
+
+- A runtime log of deprecated elements that plugin overrides touch: it duplicates the static upgrade report and only finds what someone clicks through.
+- Running the upgrade report for all store plugins and sending vendors their results.
+- A hand-written change manifest per major next to the code: it drifts, and the upgrade report can generate the same list from the markers.
+- Core helpers that encode the patterns at runtime: they add public API twice (Options API and native SFC).
+  The existing `deprecated` option on components and props stays.
+- Keeping deprecated names one more major by default.
+- Acceptance entries written only by a bot after a maintainer command.
+- Tracking success numbers per release.
 
 ## Assumptions
 
@@ -114,8 +142,8 @@ Correct them here if they are wrong.
 
 - A1: Only the core Administration is generated.
   The Storefront bundle's Administration extension and locally installed plugins serve as real consumers for verification.
-- A2: `@deprecated tag:vX` and `@experimental` stay visible as markers in the snapshot.
-  Removing something in the major that its `@deprecated` tag announced is not a break.
+- A2: `@deprecated tag:vX`, `@bc-change` and `@experimental` stay visible as markers in the snapshot.
+  Removing something in the major that its `@deprecated` tag announced is not a break, and neither is a change that its `@bc-change` marker announced (D31).
 - A4: The folder name and the file split (one file per component or per module) are proposed together with the golden files.
 
 ## Open questions
@@ -146,8 +174,13 @@ Each row becomes a fixture with a before state, an after state and the expected 
 | SCSS variable or mixin removed, mixin parameters changed | Break |
 | SCSS variable value changed, feature flag removed | Info |
 | Prop removed, renamed, or changed from optional to required | Break |
-| Method parameters changed in an incompatible way | Break |
+| Method parameter removed, also the last one, or a new required parameter | Break |
+| Method parameters reordered, or a switch between sync and `async` | Break |
+| New optional method parameter | Addition |
 | Removal announced with `@deprecated tag:vX`, done in that major | Allowed |
+| Change announced with `@bc-change <Kind>`, done in that major | Allowed |
+| `@deprecated` or `@bc-change` without the counterpart its pattern requires | Break |
+| Invalid `@bc-change` marker | Break |
 | Any change to a `@private` part | Reported, never a break |
 
 ## Plan
@@ -161,14 +194,22 @@ Each row becomes a fixture with a before state, an after state and the expected 
    Output has to be deterministic and sorted.
 3. Classifying diff and CI.
    Compare base and head with the trunk generator, classify by the taxonomy, add the drift check and the break check.
-4. Replace the existing lists.
+   Validate markers in three layers (D37): format and attachment in the generator, `bc_change_invalid` and `pattern_incomplete` in the break check.
+   Add the ESLint rule `sw-deprecation-rules/valid-api-markers`, and exclude the Administration app from `AnnotationTagTest` once the format layer runs in CI.
+4. Change patterns (D33).
+   Run the break check over the 6.7 to trunk history and the existing `@deprecated tag:v6.8.0` sites, cluster the findings by kind, and classify how each change was made.
+   Write patterns for the most frequent kinds first, list inconsistent changes as cleanup, and move "Change patterns" from `FORMAT.md` to `coding-guidelines/administration/feature-flags-and-deprecations.md`.
+5. Replace the existing lists.
    Move `meta.spec.js` and the `scripts/generate-*` generators to the snapshot and delete the old JSON files.
-5. Plugin compatibility.
+6. Plugin compatibility.
    Include the snapshot in `admin-types.d.ts` and extend `admin:check-extensions`.
    Besides `tsc`, plugins need an index of names they use only as strings: `Component.override` targets, `$super` method names and block names in plugin templates.
-6. HTML page.
+   Add the upgrade report with `--target`, the text, JSON and SARIF output and the verdict per target (D34).
+7. Codemods (D35).
+   Add one codemod per pattern marked "codemod" to `administration:upgrade-extensions`, driven by the `announcements` in `index.json`.
+8. HTML page.
    Generate the simple page from the classified diff.
-7. Verification (see below).
+9. Verification (see below).
 
 Prior art to check before step 2: Microsoft API Extractor, `elm diff`, `cargo-semver-checks` and `roave/backward-compatibility-check`.
 
@@ -182,6 +223,8 @@ The prototype is done when these pass:
 - Two runs on the same commit produce byte-identical output.
 - A PR that only regenerates the snapshot still fails the break check.
 - On about 50 random merged Administration PRs, fewer than 5% of findings are false alarms, judged together with an Administration lead.
+- Plugin backtest: the upgrade report for SwagCommercial, SwagPayPal and the Storefront bundle's Administration extension, each at its 6.7 version against the 6.8 major state, is compared with the changes these plugins actually needed for 6.8.
+  Every change the report missed is listed as a known gap.
 
 ## Workflow for step 1
 
@@ -230,9 +273,11 @@ Result of 1b:
   Route components that have no snapshot file yet are stubbed in `_excerpt/route-component-stubs.d.ts`.
 - `index.json` covers the excerpt, and its `virtualModules` equal the old `shopware-modules.json`.
 - 22 taxonomy fixtures and 4 historical cases (#20959, #17339, #15271, #17081), each with expected findings, the historical ones also with snapshot diffs and the HTML page.
+- After the plugin-side review, 2 more taxonomy fixtures for D31 to D37: `announced-change` and `marker-checks`.
 - The cases not written yet and the spec gaps the review found are listed at the end of `FORMAT.md` ("Test fixtures" and "Open points").
 
 ## How to continue
 
 Step 1 is done up to the review.
+D31 to D37 changed `FORMAT.md`, the fixtures, the concept pages and the game; the changes they need outside the Administration are listed under "Open points" in `FORMAT.md`.
 After the review, settle the "Open points" in `public-api/FORMAT.md`, then start step 2: the generator, tested against the fixtures.

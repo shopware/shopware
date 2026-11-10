@@ -4,13 +4,15 @@
             "finding": "block_missing",
             "element": "component:sw-mail-template-index/block:sw_mail_template_list_tabs_templates",
             "states": ["major"],
-            "justification": "The legacy sw-tabs branch is replaced by mt-tabs in 6.8, see UPGRADE-6.8.md.",
+            "pattern": "none",
+            "justification": "Accepted before the change patterns existed (D33). The entry stays as history until 6.8 is released.",
             "issue": "https://github.com/shopware/shopware/issues/14822"
         },
         {
             "finding": "method_missing",
             "element": "component:sw-sales-channel-detail/method:getLoadSalesChannelCriteria",
-            "justification": "The criteria builder is renamed for 6.8, see UPGRADE-6.8.md.",
+            "pattern": "Rename",
+            "justification": "The old criteria builder returns a different association set, so it cannot delegate to getSalesChannelCriteria.",
             "issue": "https://github.com/shopware/shopware/issues/22591"
         }
     ]

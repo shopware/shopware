@@ -3,9 +3,12 @@ Public API check failed: 2 unannounced breaks.
 Break (2)
   route_missing  route:sw.sales.channel.detail.agenticFile  current, major
     The route is gone, so plugin links and $router.push calls with the name 'sw.sales.channel.detail.agenticFile' throw at runtime.
-    Fix: keep the route and mark it @deprecated tag:v6.8.0, or add an entry to public-api/accepted-breaks.json.
+    Fix: pattern "Removal". Keep the route and mark it @deprecated tag:v6.8.0.
     At: src/module/sw-sales-channel/index.js:39
   snippet_missing  snippet:sw-sales-channel.list.title  current, major
     The snippet key is gone, so plugin calls of $t('sw-sales-channel.list.title') show the key instead of a text.
-    Fix: keep the key until v6.8.0, or add an entry to public-api/accepted-breaks.json.
+    Fix: pattern "Removal". Keep the key until v6.8.0.
     At: src/module/sw-sales-channel/snippet/en.json:6
+
+Change patterns: public-api/FORMAT.md#change-patterns
+Breaking this on purpose? See "Intended breaks" in public-api/FORMAT.md.

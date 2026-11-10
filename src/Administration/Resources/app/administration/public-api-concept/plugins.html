@@ -204,6 +204,7 @@ details.box[open] { padding-bottom: 16px; }
 <a class="" href="#override-files-loaded-lazily-d21">Override files loaded lazily (D21)</a>
 <a class="" href="#name-helpers">Name helpers</a>
 <a class="" href="#admin-check-extensions">admin:check-extensions</a>
+<a class="" href="#upgrade-report">Upgrade report</a>
 <a class="" href="#limits-and-migration">Limits and migration</a>
 </aside>
 <main>
@@ -291,6 +292,25 @@ Shopware.Component.override(<span class="s">'sw-sales-channel-detail'</span>, ()
 <div class="note"><p>The Storefront bundle overrides <code>sw_sales_channel_detail_content_tab_theme</code>.
 That block exists only in the current flag state, so the check against <code>major.d.ts</code> fails.
 This is a real result from the example snapshot.</p></div>
+
+<h2 id="upgrade-report">Upgrade report</h2>
+<p>With <code>--target=6.8</code> the same command answers "how much work is the 6.8 upgrade?" while the shop still runs 6.7 (<a href="decisions.html#D34">D34</a>).
+Every finding names its change pattern and is either <em>actionable now</em>, because the replacement already exists, or <em>at upgrade</em>, because it depends on the new version.
+The output comes as text, JSON for scripts and coding agents, or SARIF for GitHub code scanning.</p>
+<pre class="code">MyPlugin · target 6.8 · 14 findings
+
+actionable now (9)
+  Rename (7, codemod)                 4 methods, 3 blocks
+  New required parameter (2)          2 calls
+
+at upgrade (5)
+  Block move (3)                      3 overrides without {% parent %}
+  Parameter removal (2)               2 overrides read a removed parameter
+
+MyPlugin  current: ok  6.8: 14 findings (7 with codemod)</pre>
+<p>Findings are warnings by default. <code>--fail-on=actionable</code> lets plugin CI stop new uses without failing on changes the plugin cannot make yet.
+<code>administration:upgrade-extensions --target=6.8</code> applies the codemods on the current version, because each of them produces code that runs on both versions (<a href="decisions.html#D35">D35</a>).
+A plugin is ready for 6.8 when both targets report nothing; the report covers names, not behaviour inside methods.</p>
 
 <h2 id="limits-and-migration">Limits and migration</h2>
 <ul>

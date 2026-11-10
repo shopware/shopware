@@ -3,5 +3,8 @@ Public API check failed: 1 unannounced break.
 Break (1)
   visibility_became_private  component:sw-example-filter  current, major
     The component became @private, which removes its name, members and blocks from the public API.
-    Fix: keep it public with @deprecated tag:v6.8.0 and make it private in the major, or add an entry to public-api/accepted-breaks.json.
+    Fix: pattern "Becomes private". Keep it public, mark it @bc-change BecomesPrivate version:v6.8.0, and make it private in the major.
     At: src/app/component/base/sw-example-filter/index.js:10
+
+Change patterns: public-api/FORMAT.md#change-patterns
+Breaking this on purpose? See "Intended breaks" in public-api/FORMAT.md.

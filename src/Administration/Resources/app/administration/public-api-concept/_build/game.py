@@ -251,7 +251,7 @@ def end_screen():
   <div class="cols">
     <div class="col"><div class="lbl">Where it stands</div>
       <ul class="status">
-        <li class="done">Format spec, decisions D1–D30</li>
+        <li class="done">Format spec, decisions D1–D37</li>
         <li class="done">Hand-written example snapshot that compiles</li>
         <li class="done">{fixture_count()} test fixtures and {history_count()} real PRs as backtest</li>
         <li class="todo">Generator and CI check: next, after this review</li>

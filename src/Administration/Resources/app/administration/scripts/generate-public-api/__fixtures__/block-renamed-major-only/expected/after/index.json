@@ -21,5 +21,6 @@
     },
     "dynamicPositionIdentifiers": {},
     "dataSets": {},
-    "virtualModules": {}
+    "virtualModules": {},
+    "announcements": []
 }

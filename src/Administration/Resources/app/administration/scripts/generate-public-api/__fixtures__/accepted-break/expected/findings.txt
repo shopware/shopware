@@ -1,15 +1,16 @@
 Public API check passed: 1 break accepted in public-api/accepted-breaks.json.
 
-Addition (1)
-  method_added  component:sw-sales-channel-detail/method:getSalesChannelCriteria  current, major
-    A new public method that plugins can rely on from now on.
-    Fix: mark it @private if it is not meant for plugins.
-    At: src/module/sw-sales-channel/page/sw-sales-channel-detail/index.js:48
-
 Accepted (1)
   method_missing  component:sw-sales-channel-detail/method:getLoadSalesChannelCriteria  current, major
     The method is gone, so plugin overrides that call $super('getLoadSalesChannelCriteria') throw at runtime.
     Possible rename: getSalesChannelCriteria.
     Also affects: sw-sales-channel-create (extends sw-sales-channel-detail).
-    Justification: The criteria builder is renamed for 6.8, see UPGRADE-6.8.md.
+    Pattern not followed: Rename. The old criteria builder returns a different association set, so it cannot delegate to getSalesChannelCriteria.
+    Issue: https://github.com/shopware/shopware/issues/22591
     At: src/module/sw-sales-channel/page/sw-sales-channel-detail/index.js:33
+
+Addition (1)
+  method_added  component:sw-sales-channel-detail/method:getSalesChannelCriteria  current, major
+    A new public method that plugins can rely on from now on.
+    Fix: mark it @private if it is not meant for plugins.
+    At: src/module/sw-sales-channel/page/sw-sales-channel-detail/index.js:48

@@ -3,35 +3,35 @@ Public API check failed: 8 unannounced breaks.
 Break (8)
   block_moved_parent  component:sw-order-details-state-card/block:sw_order_detail_state_card_state_history_text  current, major
     The block moved from sw_order_detail_state_card_state to sw_order_detail_state_card_state_select, so plugin overrides of sw_order_detail_state_card_state_select without {% parent %} now drop it.
-    Fix: keep the block under sw_order_detail_state_card_state, or add an entry to public-api/accepted-breaks.json.
+    Fix: pattern "Block move". Keep the block under sw_order_detail_state_card_state while v6.8.0.0 is off, move it only with the flag on, and mark it {# @bc-change BlockMoved version:v6.8.0 parent:sw_order_detail_state_card_state_select #}.
     At: src/module/sw-order/component/sw-order-details-state-card/sw-order-details-state-card.html.twig:28
   block_scope_missing  component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_delete/scope:itemIndex  current, major
     The template variable itemIndex from the actions slot is no longer available in block sw_order_line_items_grid_grid_actions_delete, so plugin overrides that use itemIndex fail at render time.
-    Fix: keep itemIndex in the slot props, or add an entry to public-api/accepted-breaks.json.
+    Fix: pattern "Scope variable removal". Keep itemIndex in the slot props while v6.8.0.0 is off, and mark the block {# @bc-change ScopeVariableRemoval version:v6.8.0 variable:itemIndex #}.
     At: src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:316
   block_scope_missing  component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_delete_label/scope:itemIndex  current, major
     The template variable itemIndex from the actions slot is no longer available in block sw_order_line_items_grid_grid_actions_delete_label, so plugin overrides that use itemIndex fail at render time.
-    Fix: keep itemIndex in the slot props, or add an entry to public-api/accepted-breaks.json.
+    Fix: pattern "Scope variable removal". Keep itemIndex in the slot props while v6.8.0.0 is off, and mark the block {# @bc-change ScopeVariableRemoval version:v6.8.0 variable:itemIndex #}.
     At: src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:329
   block_scope_missing  component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_extension/scope:itemIndex  current, major
     The template variable itemIndex from the actions slot is no longer available in block sw_order_line_items_grid_grid_actions_extension, so plugin overrides that use itemIndex fail at render time.
-    Fix: keep itemIndex in the slot props, or add an entry to public-api/accepted-breaks.json.
+    Fix: pattern "Scope variable removal". Keep itemIndex in the slot props while v6.8.0.0 is off, and mark the block {# @bc-change ScopeVariableRemoval version:v6.8.0 variable:itemIndex #}.
     At: src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:314
   block_scope_missing  component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_show/scope:itemIndex  current, major
     The template variable itemIndex from the actions slot is no longer available in block sw_order_line_items_grid_grid_actions_show, so plugin overrides that use itemIndex fail at render time.
-    Fix: keep itemIndex in the slot props, or add an entry to public-api/accepted-breaks.json.
+    Fix: pattern "Scope variable removal". Keep itemIndex in the slot props while v6.8.0.0 is off, and mark the block {# @bc-change ScopeVariableRemoval version:v6.8.0 variable:itemIndex #}.
     At: src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:303
   block_scope_missing  component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_show_label/scope:itemIndex  current, major
     The template variable itemIndex from the actions slot is no longer available in block sw_order_line_items_grid_grid_actions_show_label, so plugin overrides that use itemIndex fail at render time.
-    Fix: keep itemIndex in the slot props, or add an entry to public-api/accepted-breaks.json.
+    Fix: pattern "Scope variable removal". Keep itemIndex in the slot props while v6.8.0.0 is off, and mark the block {# @bc-change ScopeVariableRemoval version:v6.8.0 variable:itemIndex #}.
     At: src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:308
   element_crosses_block  component:sw-order-detail/crossing:div@sw_order_detail_header>sw_order_detail_header_label_manual_order  current, major
     The <div> element opens in block sw_order_detail_header and closes in block sw_order_detail_header_label_manual_order, so plugin overrides of either block without {% parent %} break the markup.
-    Fix: open and close the element inside the same block, or add an entry to public-api/accepted-breaks.json.
+    Fix: open and close the element inside the same block.
     At: src/module/sw-order/page/sw-order-detail/sw-order-detail.html.twig:8
-  method_signature_changed  component:sw-order-line-items-grid/method:onDeleteItem  current, major
-    The method lost its parameter itemIndex, so plugin overrides that read the second argument get undefined, because the template now calls onDeleteItem(item).
-    Fix: keep the parameter and keep passing it, or add an entry to public-api/accepted-breaks.json.
+  param_missing  component:sw-order-line-items-grid/method:onDeleteItem/param:itemIndex  current, major
+    The parameter itemIndex is gone, so plugin overrides that read the second argument get undefined, because the template now calls onDeleteItem(item).
+    Fix: pattern "Parameter removal". Keep itemIndex optional, keep passing it while v6.8.0.0 is off, and mark the method @bc-change ParameterRemoval version:v6.8.0 parameter:itemIndex.
     At: src/module/sw-order/component/sw-order-line-items-grid/index.js:330
 
 Addition (12)
@@ -108,3 +108,6 @@ Info (6)
     The prop now carries @deprecated tag:v6.8.0, so its removal in v6.8.0 is announced.
     Fix: add an upgrade note for it to UPGRADE-6.8.md.
     At: src/module/sw-order/component/sw-order-state-select-v2/index.js:36
+
+Change patterns: public-api/FORMAT.md#change-patterns
+Breaking this on purpose? See "Intended breaks" in public-api/FORMAT.md.

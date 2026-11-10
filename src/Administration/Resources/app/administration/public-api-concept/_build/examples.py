@@ -346,11 +346,11 @@ INDEX_JSON = """{
 ACCEPT_JSON = """{
     "accepted": [
         {
-            "finding": "block_missing",
-            "element": "component:sw-mail-template-index/block:sw_mail_template_list_tabs_templates",
-            "states": ["major"],
-            "justification": "The legacy sw-tabs branch is replaced by mt-tabs in 6.8, see UPGRADE-6.8.md.",
-            "issue": "https://github.com/shopware/shopware/issues/14822"
+            "finding": "method_missing",
+            "element": "component:sw-sales-channel-detail/method:getLoadSalesChannelCriteria",
+            "pattern": "Rename",
+            "justification": "The old criteria builder returns a different association set, so it cannot delegate to getSalesChannelCriteria.",
+            "issue": "https://github.com/shopware/shopware/issues/22591"
         }
     ]
 }"""
@@ -383,7 +383,7 @@ SUMMARY = """Public API check failed: 1 unannounced break.
 Break (1)
   method_missing  component:sw-sales-channel-detail/method:getLoadSalesChannelCriteria  current, major
     The method is gone, so plugin overrides that call $super('getLoadSalesChannelCriteria') throw at runtime.
-    Fix: keep the method and mark it @deprecated tag:v6.8.0, or add an entry to public-api/accepted-breaks.json.
+    Fix: pattern "Rename". Keep getLoadSalesChannelCriteria, let it call getSalesChannelCriteria, keep calling it from core while v6.8.0.0 is off, and mark it @deprecated tag:v6.8.0 - Use {@link getSalesChannelCriteria} instead.
     Possible rename: getSalesChannelCriteria.
     Also affects: sw-sales-channel-create (extends sw-sales-channel-detail).
     At: src/module/sw-sales-channel/page/sw-sales-channel-detail/index.js:303
@@ -392,9 +392,12 @@ Addition (1)
   method_added  component:sw-sales-channel-detail/method:getSalesChannelCriteria  current, major
     A new public method that plugins can rely on from now on.
     Fix: mark it @private if it is not meant for plugins.
-    At: src/module/sw-sales-channel/page/sw-sales-channel-detail/index.js:369"""
+    At: src/module/sw-sales-channel/page/sw-sales-channel-detail/index.js:369
 
-ANNOT = """::error file=src/Administration/.../sw-sales-channel-detail/index.js,line=303,title=method_missing::The method getLoadSalesChannelCriteria is gone, so plugin overrides that call $super('getLoadSalesChannelCriteria') throw at runtime. Fix: keep the method and mark it @deprecated tag:v6.8.0, or accept the break.
+Change patterns: public-api/FORMAT.md#change-patterns
+Breaking this on purpose? See "Intended breaks" in public-api/FORMAT.md."""
+
+ANNOT = """::error file=src/Administration/.../sw-sales-channel-detail/index.js,line=303,title=method_missing::The method getLoadSalesChannelCriteria is gone, so plugin overrides that call $super('getLoadSalesChannelCriteria') throw at runtime. Fix: pattern "Rename", see public-api/FORMAT.md#change-patterns.
 ::notice file=src/Administration/.../sw-sales-channel-detail/index.js,line=369,title=method_added::A new public method getSalesChannelCriteria. Mark it @private if it is not meant for plugins."""
 
 

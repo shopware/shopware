@@ -247,20 +247,20 @@ GitHub collapses these files by default; reviewers open them when the check summ
 Break (8)
   block_moved_parent  component:sw-order-details-state-card/block:sw_order_detail_state_card_state_history_text  current, major
     The block moved from sw_order_detail_state_card_state to sw_order_detail_state_card_state_select, so plugin overrides of sw_order_detail_state_card_state_select without {% parent %} now drop it.
-    Fix: keep the block under sw_order_detail_state_card_state, or add an entry to public-api/accepted-breaks.json.
+    Fix: pattern &quot;Block move&quot;. Keep the block under sw_order_detail_state_card_state while v6.8.0.0 is off, move it only with the flag on, and mark it {# @bc-change BlockMoved version:v6.8.0 parent:sw_order_detail_state_card_state_select #}.
     At: src/module/sw-order/component/sw-order-details-state-card/sw-order-details-state-card.html.twig:28
   block_scope_missing  component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_delete/scope:itemIndex  current, major
     The template variable itemIndex from the actions slot is no longer available in block sw_order_line_items_grid_grid_actions_delete, so plugin overrides that use itemIndex fail at render time.
-    Fix: keep itemIndex in the slot props, or add an entry to public-api/accepted-breaks.json.
+    Fix: pattern &quot;Scope variable removal&quot;. Keep itemIndex in the slot props while v6.8.0.0 is off, and mark the block {# @bc-change ScopeVariableRemoval version:v6.8.0 variable:itemIndex #}.
     At: src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:316
   … 4 more block_scope_missing for the other action blocks
   element_crosses_block  component:sw-order-detail/crossing:div@sw_order_detail_header&gt;sw_order_detail_header_label_manual_order  current, major
     The &lt;div&gt; element opens in block sw_order_detail_header and closes in block sw_order_detail_header_label_manual_order, so plugin overrides of either block without {% parent %} break the markup.
-    Fix: open and close the element inside the same block, or add an entry to public-api/accepted-breaks.json.
+    Fix: open and close the element inside the same block.
     At: src/module/sw-order/page/sw-order-detail/sw-order-detail.html.twig:8
-  method_signature_changed  component:sw-order-line-items-grid/method:onDeleteItem  current, major
-    The method lost its parameter itemIndex, so plugin overrides that read the second argument get undefined, because the template now calls onDeleteItem(item).
-    Fix: keep the parameter and keep passing it, or add an entry to public-api/accepted-breaks.json.
+  param_missing  component:sw-order-line-items-grid/method:onDeleteItem/param:itemIndex  current, major
+    The parameter itemIndex is gone, so plugin overrides that read the second argument get undefined, because the template now calls onDeleteItem(item).
+    Fix: pattern &quot;Parameter removal&quot;. Keep itemIndex optional, keep passing it while v6.8.0.0 is off, and mark the method @bc-change ParameterRemoval version:v6.8.0 parameter:itemIndex.
     At: src/module/sw-order/component/sw-order-line-items-grid/index.js:330
 
 Addition (12)
@@ -268,10 +268,13 @@ Addition (12)
 Info (6)
   crossing_resolved  component:sw-order-detail/crossing:v-if@sw_order_detail_header_title&gt;sw_order_detail_header_title_new  current, major
     The v-if chain of block sw_order_detail_header_title no longer continues in block sw_order_detail_header_title_new.
-  …</pre>
+  …
+
+Change patterns: public-api/FORMAT.md#change-patterns
+Breaking this on purpose? See &quot;Intended breaks&quot; in public-api/FORMAT.md.</pre>
 <h3 id="annotations">Annotations <span class="src-tag src-illu">illustrative</span></h3>
 <p>One GitHub annotation per finding, on the head source line. Breaks are errors, everything else is a notice. This line follows the annotation rules for the third <a href="https://github.com/shopware/shopware/issues/20959">#20959</a> finding.</p>
-<pre class="code wrap">::error file=src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-line-items-grid/index.js,line=330,title=method_signature_changed::The method onDeleteItem lost its parameter itemIndex, so plugin overrides that read the second argument get undefined. Fix: keep the parameter and keep passing it, or accept the break.</pre>
+<pre class="code wrap">::error file=src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-line-items-grid/index.js,line=330,title=param_missing::The parameter itemIndex of onDeleteItem is gone, so plugin overrides that read the second argument get undefined. Fix: pattern &quot;Parameter removal&quot;, see public-api/FORMAT.md#change-patterns.</pre>
 <h3 id="html-page">HTML page</h3>
 <p>The break check also writes a simple page as a workflow artifact: the verdict, one card per finding, and base and head side by side with the changed lines marked.
 An expected page exists for each historical case, for example <code>__fixtures__/history/20959/expected/report.html</code>.</p>
@@ -508,15 +511,15 @@ In the <code>.d.ts</code> file every block names its parent, so a moved block is
 <div style="margin-top:14px"><div class="fname"><b>scss/mixins.api.md (shortened)</b></div><pre class="code"><span class="ln">mixins src/app/assets/scss/mixins.scss</span><span class="ln">  @mixin animated-truncate()</span><span class="ln">  @mixin circle($dimension)</span><span class="ln">  @mixin drop-shadow-default()</span><span class="ln">  @mixin flex-centering()</span><span class="ln">  @mixin flex-centering-horizontal()</span><span class="ln">  …</span></pre></div>
 
 <h3 id="intended-breaks">Intended breaks <span class="src-tag src-real">real golden file</span></h3>
-<p>A break made on purpose gets an entry with a mandatory justification. Code owners approve changes to this file.</p>
+<p>A break that no change pattern can avoid gets an entry with the pattern that would apply, a justification why it cannot be followed, and an issue. Code owners approve changes to this file, and the check output never suggests it (<a href="decisions.html#D36">D36</a>).</p>
 <div style="margin-top:14px"><div class="fname"><b>accepted-breaks.json</b></div><pre class="code">{
     &quot;accepted&quot;: [
         {
-            &quot;finding&quot;: &quot;block_missing&quot;,
-            &quot;element&quot;: &quot;component:sw-mail-template-index/block:sw_mail_template_list_tabs_templates&quot;,
-            &quot;states&quot;: [&quot;major&quot;],
-            &quot;justification&quot;: &quot;The legacy sw-tabs branch is replaced by mt-tabs in 6.8, see UPGRADE-6.8.md.&quot;,
-            &quot;issue&quot;: &quot;https://github.com/shopware/shopware/issues/14822&quot;
+            &quot;finding&quot;: &quot;method_missing&quot;,
+            &quot;element&quot;: &quot;component:sw-sales-channel-detail/method:getLoadSalesChannelCriteria&quot;,
+            &quot;pattern&quot;: &quot;Rename&quot;,
+            &quot;justification&quot;: &quot;The old criteria builder returns a different association set, so it cannot delegate to getSalesChannelCriteria.&quot;,
+            &quot;issue&quot;: &quot;https://github.com/shopware/shopware/issues/22591&quot;
         }
     ]
 }</pre></div>

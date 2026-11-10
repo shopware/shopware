@@ -48,7 +48,7 @@ QUESTIONS = {
     "plugins.html": "Is the plugin experience worth the core change and the migration?",
     "generator.html": "Is the workflow right, and is the proposed design reasonable?",
     "backtest.html": "Are the expected results for the real PRs right?",
-    "decisions.html": "Do you disagree with any decision, including the new D23 to D30?",
+    "decisions.html": "Do you disagree with any decision, including the new D31 to D37?",
     "glossary.html": "Look up a term.",
 }
 
@@ -73,7 +73,7 @@ RENAME_SUMMARY = """Public API check failed: 1 unannounced break.
 Break (1)
   method_missing  component:sw-sales-channel-detail/method:getLoadSalesChannelCriteria  current, major
     The method is gone, so plugin overrides that call $super('getLoadSalesChannelCriteria') throw at runtime.
-    Fix: keep the method and mark it @deprecated tag:v6.8.0, or add an entry to public-api/accepted-breaks.json.
+    Fix: pattern "Rename". Keep getLoadSalesChannelCriteria, let it call getSalesChannelCriteria, keep calling it from core while v6.8.0.0 is off, and mark it @deprecated tag:v6.8.0 - Use {@link getSalesChannelCriteria} instead.
     Possible rename: getSalesChannelCriteria.
     Also affects: sw-sales-channel-create (extends sw-sales-channel-detail).
     At: src/module/sw-sales-channel/page/sw-sales-channel-detail/index.js:303
@@ -81,10 +81,14 @@ Break (1)
 Addition (1)
   method_added  component:sw-sales-channel-detail/method:getSalesChannelCriteria  current, major
     A new public method that plugins can rely on from now on.
-    Fix: mark it @private if it is not meant for plugins."""
+    Fix: mark it @private if it is not meant for plugins.
 
-RENAME_FIX_A = """/** @deprecated tag:v6.8.0 - Use getSalesChannelCriteria instead */
+Change patterns: public-api/FORMAT.md#change-patterns
+Breaking this on purpose? See "Intended breaks" in public-api/FORMAT.md."""
+
+RENAME_FIX_A = """/** @deprecated tag:v6.8.0 - Use {@link getSalesChannelCriteria} instead. */
 getLoadSalesChannelCriteria() {
+    // Core keeps calling the old name while v6.8.0.0 is off, so plugin overrides of it keep running.
     return this.getSalesChannelCriteria();
 },
 
@@ -97,7 +101,8 @@ RENAME_FIX_B = """{
         {
             "finding": "method_missing",
             "element": "component:sw-sales-channel-detail/method:getLoadSalesChannelCriteria",
-            "justification": "The criteria builder is renamed for 6.8, see UPGRADE-6.8.md.",
+            "pattern": "Rename",
+            "justification": "The old criteria builder returns a different association set, so it cannot delegate to getSalesChannelCriteria.",
             "issue": "https://github.com/shopware/shopware/issues/22591"
         }
     ]
@@ -141,8 +146,8 @@ def overview(page_list):
   <b>In short</b>
   <ul>
     <li><b>Idea:</b> a generator writes the complete public API of the Administration into committed files. CI compares base and head and fails on breaks that nobody announced.</li>
-    <li><b>Decided:</b> what counts as public, the file format, the two flag states, the CI checks, the plugin integration, the block context rules and the plugin-facing names found in the store plugins (D1–D30).</li>
-    <li><b>Done:</b> the format spec, a hand-written example snapshot that compiles, 22 test fixtures and 4 real PRs as backtest.</li>
+    <li><b>Decided:</b> what counts as public, the file format, the two flag states, the CI checks, the plugin integration, the block context rules the plugin-facing names found in the store plugins, and the upgrade path for plugins: <code>@bc-change</code> markers modelled on PHP, change patterns, the upgrade report and marker validation (D1–D37).</li>
+    <li><b>Done:</b> the format spec, a hand-written example snapshot that compiles, 24 test fixtures and 4 real PRs as backtest.</li>
     <li><b>Proposed, not decided:</b> the generator design and the answers to the open questions Q1–Q13.</li>
     <li><b>Wanted from you:</b> feedback on readability of the reports, on coverage gaps, and on the open questions, by ID.</li>
   </ul>
@@ -210,8 +215,8 @@ The report shows both in one tree and marks what exists in only one of them, by 
   <div class="step"><h4>The diff in the PR</h4><p>The author regenerates and commits the snapshot. The method list in the report changes by two lines. The neighbouring lines are real.</p>{single("module/sw-sales-channel/page/sw-sales-channel-detail.api.md", RENAME_REPORT)}</div>
   <div class="step"><h4>What CI prints {src(False)}</h4><p>The break check fails. The text follows the format in <code>FORMAT.md</code>. The source line also gets an annotation.</p>{code(RENAME_SUMMARY, "plain", wrap=True)}</div>
   <div class="step"><h4>How the author resolves it</h4>
-    <p><b>Option A, keep and deprecate.</b> The old name stays and delegates. The check passes with one addition and one info, and the removal is allowed in 6.8.</p>{code(RENAME_FIX_A, "ts")}
-    <p><b>Option B, break on purpose.</b> The author adds an entry with a justification. Code owners approve it, and the check passes with the break in the accepted group.</p>{code(RENAME_FIX_B, "plain")}
+    <p><b>Option A, the pattern "Rename".</b> The <code>Fix:</code> line names it. The old name stays, delegates, and links its replacement. The check passes with one addition and one info, and the removal is allowed in 6.8. Plugin developers see the rename in their upgrade report and can switch on the current version.</p>{code(RENAME_FIX_A, "ts")}
+    <p><b>Option B, only when the pattern cannot be followed.</b> The author adds an entry that names the pattern and says why it does not work here. Code owners approve it, and the check passes with the break listed first, in the accepted group. The check output never suggests this file; only its last line points to the rules.</p>{code(RENAME_FIX_B, "plain")}
     <p>If the new method is not meant for plugins, the author marks it <code>@private</code>, and the addition moves to the private group.</p></div>
   <div class="step"><h4>What a plugin developer sees {src(False)}</h4><p>A plugin that still calls the old name gets a type error. This needs the core change for D20; the message text is not specified yet.</p>{code(RENAME_PLUGIN_TS, "ts")}<p>JS plugins get the same finding from <code>admin:check-extensions</code>, with the plugin file and line.</p></div>
 </div>
@@ -222,7 +227,7 @@ The report shows both in one tree and marks what exists in only one of them, by 
 <tr><td>Format spec</td><td><span class="tag t-ok">written, in review</span></td><td><code>public-api/FORMAT.md</code></td></tr>
 <tr><td>Decisions and plan</td><td><span class="tag t-ok">written</span></td><td><code>PUBLIC_API_SNAPSHOT_PLAN.md</code></td></tr>
 <tr><td>Example snapshot</td><td><span class="tag t-ok">hand-written, compiles with tsc</span></td><td><code>public-api/</code>: sw-sales-channel, sw-order, two mixins, the Shopware object, a service, a store, the shopware:* modules, referenced types</td></tr>
-<tr><td>Test fixtures</td><td><span class="tag t-ok">22 written</span></td><td><code>scripts/generate-public-api/__fixtures__/</code></td></tr>
+<tr><td>Test fixtures</td><td><span class="tag t-ok">24 written</span></td><td><code>scripts/generate-public-api/__fixtures__/</code></td></tr>
 <tr><td>Historical cases</td><td><span class="tag t-ok">4 written</span></td><td>#20959, #17339, #15271, #17081</td></tr>
 <tr><td>Generator, CI checks</td><td><span class="tag">not started</span></td><td>after this review</td></tr>
 <tr><td>Core change for typed overrides (D20, D21)</td><td><span class="tag">not started</span></td><td><code>global.types.ts</code>, <code>async-component.factory.ts</code></td></tr>
@@ -281,20 +286,20 @@ SUMMARY_20959 = """Public API check failed: 8 unannounced breaks.
 Break (8)
   block_moved_parent  component:sw-order-details-state-card/block:sw_order_detail_state_card_state_history_text  current, major
     The block moved from sw_order_detail_state_card_state to sw_order_detail_state_card_state_select, so plugin overrides of sw_order_detail_state_card_state_select without {% parent %} now drop it.
-    Fix: keep the block under sw_order_detail_state_card_state, or add an entry to public-api/accepted-breaks.json.
+    Fix: pattern "Block move". Keep the block under sw_order_detail_state_card_state while v6.8.0.0 is off, move it only with the flag on, and mark it {# @bc-change BlockMoved version:v6.8.0 parent:sw_order_detail_state_card_state_select #}.
     At: src/module/sw-order/component/sw-order-details-state-card/sw-order-details-state-card.html.twig:28
   block_scope_missing  component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_delete/scope:itemIndex  current, major
     The template variable itemIndex from the actions slot is no longer available in block sw_order_line_items_grid_grid_actions_delete, so plugin overrides that use itemIndex fail at render time.
-    Fix: keep itemIndex in the slot props, or add an entry to public-api/accepted-breaks.json.
+    Fix: pattern "Scope variable removal". Keep itemIndex in the slot props while v6.8.0.0 is off, and mark the block {# @bc-change ScopeVariableRemoval version:v6.8.0 variable:itemIndex #}.
     At: src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:316
   … 4 more block_scope_missing for the other action blocks
   element_crosses_block  component:sw-order-detail/crossing:div@sw_order_detail_header>sw_order_detail_header_label_manual_order  current, major
     The <div> element opens in block sw_order_detail_header and closes in block sw_order_detail_header_label_manual_order, so plugin overrides of either block without {% parent %} break the markup.
-    Fix: open and close the element inside the same block, or add an entry to public-api/accepted-breaks.json.
+    Fix: open and close the element inside the same block.
     At: src/module/sw-order/page/sw-order-detail/sw-order-detail.html.twig:8
-  method_signature_changed  component:sw-order-line-items-grid/method:onDeleteItem  current, major
-    The method lost its parameter itemIndex, so plugin overrides that read the second argument get undefined, because the template now calls onDeleteItem(item).
-    Fix: keep the parameter and keep passing it, or add an entry to public-api/accepted-breaks.json.
+  param_missing  component:sw-order-line-items-grid/method:onDeleteItem/param:itemIndex  current, major
+    The parameter itemIndex is gone, so plugin overrides that read the second argument get undefined, because the template now calls onDeleteItem(item).
+    Fix: pattern "Parameter removal". Keep itemIndex optional, keep passing it while v6.8.0.0 is off, and mark the method @bc-change ParameterRemoval version:v6.8.0 parameter:itemIndex.
     At: src/module/sw-order/component/sw-order-line-items-grid/index.js:330
 
 Addition (12)
@@ -302,9 +307,12 @@ Addition (12)
 Info (6)
   crossing_resolved  component:sw-order-detail/crossing:v-if@sw_order_detail_header_title>sw_order_detail_header_title_new  current, major
     The v-if chain of block sw_order_detail_header_title no longer continues in block sw_order_detail_header_title_new.
-  …"""
+  …
 
-ANNOT_20959 = """::error file=src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-line-items-grid/index.js,line=330,title=method_signature_changed::The method onDeleteItem lost its parameter itemIndex, so plugin overrides that read the second argument get undefined. Fix: keep the parameter and keep passing it, or accept the break."""
+Change patterns: public-api/FORMAT.md#change-patterns
+Breaking this on purpose? See "Intended breaks" in public-api/FORMAT.md."""
+
+ANNOT_20959 = """::error file=src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-line-items-grid/index.js,line=330,title=param_missing::The parameter itemIndex of onDeleteItem is gone, so plugin overrides that read the second argument get undefined. Fix: pattern "Parameter removal", see public-api/FORMAT.md#change-patterns."""
 
 
 def snapshot():
@@ -433,7 +441,7 @@ blocks
 {unit("scss/mixins.api.md (shortened)", golden("scss/mixins.api.md", limit=6))}
 
 <h3>Intended breaks {src(True)}</h3>
-<p>A break made on purpose gets an entry with a mandatory justification. Code owners approve changes to this file.</p>
+<p>A break that no change pattern can avoid gets an entry with the pattern that would apply, a justification why it cannot be followed, and an issue. Code owners approve changes to this file, and the check output never suggests it (D36).</p>
 {single("accepted-breaks.json", ACCEPT_JSON, "plain")}
 
 <h2>Internal files</h2>
@@ -528,7 +536,7 @@ composer admin:generate-public-api</pre>
 </ul>
 
 <h3>Testing</h3>
-<p>The generator is built against the 22 fixtures and the 4 historical cases. The done criteria are on the <a href="backtest.html#done-criteria">Backtest</a> page.</p>
+<p>The generator is built against the 24 fixtures and the 4 historical cases. The done criteria are on the <a href="backtest.html#done-criteria">Backtest</a> page.</p>
 
 <h3>Open design questions</h3>
 <p>Q8 (CI runtime), Q9 (Twig parsing) and Q10 (native SFC extraction).</p>
@@ -629,6 +637,25 @@ Shopware.Component.override(<span class="s">'sw-sales-channel-detail'</span>, ()
 That block exists only in the current flag state, so the check against <code>major.d.ts</code> fails.
 This is a real result from the example snapshot.</p></div>
 
+<h2>Upgrade report</h2>
+<p>With <code>--target=6.8</code> the same command answers "how much work is the 6.8 upgrade?" while the shop still runs 6.7 (D34).
+Every finding names its change pattern and is either <em>actionable now</em>, because the replacement already exists, or <em>at upgrade</em>, because it depends on the new version.
+The output comes as text, JSON for scripts and coding agents, or SARIF for GitHub code scanning.</p>
+<pre class="code">MyPlugin · target 6.8 · 14 findings
+
+actionable now (9)
+  Rename (7, codemod)                 4 methods, 3 blocks
+  New required parameter (2)          2 calls
+
+at upgrade (5)
+  Block move (3)                      3 overrides without {{% parent %}}
+  Parameter removal (2)               2 overrides read a removed parameter
+
+MyPlugin  current: ok  6.8: 14 findings (7 with codemod)</pre>
+<p>Findings are warnings by default. <code>--fail-on=actionable</code> lets plugin CI stop new uses without failing on changes the plugin cannot make yet.
+<code>administration:upgrade-extensions --target=6.8</code> applies the codemods on the current version, because each of them produces code that runs on both versions (D35).
+A plugin is ready for 6.8 when both targets report nothing; the report covers names, not behaviour inside methods.</p>
+
 <h2>Limits and migration</h2>
 <ul>
   <li>JS members are typed as <code>any</code>, so TypeScript checks names and argument counts, not value types.</li>
@@ -652,7 +679,7 @@ F20959 = """Break (8)
   block_scope_missing  …/block:sw_order_line_items_grid_grid_actions_extension/scope:itemIndex  current, major
   block_scope_missing  …/block:sw_order_line_items_grid_grid_actions_show/scope:itemIndex  current, major
   block_scope_missing  …/block:sw_order_line_items_grid_grid_actions_show_label/scope:itemIndex  current, major
-  method_signature_changed  component:sw-order-line-items-grid/method:onDeleteItem  current, major"""
+  param_missing  component:sw-order-line-items-grid/method:onDeleteItem/param:itemIndex  current, major"""
 
 F17339 = """Break (4)
   block_missing  component:sw-bulk-edit-custom-fields/block:sw_custom_field_set_renderer_card_form_renderer_change_field  major
@@ -713,15 +740,17 @@ Fixtures that are still missing are the rows with a gap on the Coverage page.</p
 <tr><td><code>refs-and-classes</code></td><td>Template ref removed, ref moved to another component, class removed</td><td>{chips(Break=2, Info=1)}</td><td>B42, B43, B47</td></tr>
 <tr><td><code>block-renamed-major-only</code></td><td>Block renamed only with the major flag</td><td>{chips(Break=1, Addition=1)}</td><td>B7, B38</td></tr>
 <tr><td><code>prop-changes</code></td><td>Props removed, renamed, now required</td><td>{chips(Break=3, Addition=1)}</td><td>B6, B10</td></tr>
-<tr><td><code>method-signature</code></td><td>Required parameter added, sync to async, optional parameter added</td><td>{chips(Break=2, Addition=1)}</td><td>B12, B27</td></tr>
+<tr><td><code>method-signature</code></td><td>Required parameter added, sync to async, optional parameter added</td><td>{chips(Break=2, Addition=1)}</td><td>B12, B27, B51</td></tr>
 <tr><td><code>deprecated-removal</code></td><td>Announced removal in that major</td><td><div class="chips"><span class="tag t-allowed">Allowed 4</span><span class="tag t-info">Info 1</span></div></td><td>B28, B47</td></tr>
+<tr><td><code>announced-change</code></td><td>Parameter removal announced with <code>@bc-change ParameterRemoval</code>, done in that major</td><td><div class="chips"><span class="tag t-allowed">Allowed 1</span></div></td><td>B54</td></tr>
+<tr><td><code>marker-checks</code></td><td>Markers added in a PR: one valid, one naming a parameter that does not exist, one linking a missing replacement</td><td>{chips(Break=2, Info=2)}</td><td>B31, B52, B53, B55</td></tr>
 <tr><td><code>deprecated-removal-too-early</code></td><td>The same removal one version too early</td><td>{chips(Break=4, Info=1)}</td><td>B28, B47</td></tr>
 <tr><td><code>private-change</code></td><td>Changes inside a @private unit</td><td>{chips(Private=4)}</td><td>B30</td></tr>
 <tr><td><code>public-becomes-private</code></td><td>Public component becomes @private</td><td>{chips(Break=1)}</td><td>B25</td></tr>
 <tr><td><code>snippet-signature</code></td><td>Placeholder renamed, plural forms changed</td><td>{chips(Break=2)}</td><td>B17</td></tr>
 <tr><td><code>referenced-type</code></td><td>Member of a referenced type removed</td><td>{chips(Break=1)}</td><td>B21</td></tr>
 <tr><td><code>native-sfc</code></td><td>Native SFC: public binding removed, block renamed</td><td>{chips(Break=2, Addition=1)}</td><td>B23</td></tr>
-<tr><td><code>accepted-break</code></td><td>Intended break with an acceptance entry</td><td><span class="tag t-accepted">Accepted 1</span></td><td>B29</td></tr>
+<tr><td><code>accepted-break</code></td><td>Intended break with an acceptance entry that names the pattern it cannot follow</td><td><span class="tag t-accepted">Accepted 1</span></td><td>B29</td></tr>
 <tr><td><code>acceptance-stale</code></td><td>Acceptance entry without a matching finding</td><td>{chips(Info=1)}</td><td>B35</td></tr>
 </tbody></table></div>
 
@@ -735,7 +764,7 @@ Fixtures that are still missing are the rows with a gap on the Coverage page.</p
   <li>Fewer than 5% false alarms on about 50 merged Administration PRs, judged together with an Administration lead.</li>
 </ul>
 """
-    lead = "Four real PRs and 22 hand-written fixtures define what the check must report. They are the acceptance test for the generator."
+    lead = "Four real PRs and 24 hand-written fixtures define what the check must report. They are the acceptance test for the generator."
     return lead, body
 
 
@@ -767,6 +796,7 @@ DECISION_GROUPS = [
         ("D7", "A drift check and a break check that runs the target branch's generator on base and head.", "Regenerating the snapshot or changing the generator cannot hide a break."),
         ("D11", "A simple HTML page per check run, without simulating plugin overrides.", "A simulation would be costly and still incomplete."),
         ("D14", "Intended breaks go into <code>accepted-breaks.json</code> with a justification, approved by code owners.", "A PR label leaves no reason and no review trail."),
+        ("D36", "Finding texts never suggest <code>accepted-breaks.json</code>. Entries name the pattern that would apply, why it cannot be followed, and an issue. Coding agents never add entries on their own.", "Developers and agents take the easy way out when the check offers it on every finding."),
         ("D18", "Elements that already cross blocks on trunk are the baseline.", "Otherwise every PR would fail on old crossings."),
     ]),
     ("Plugins and existing tools", [
@@ -780,6 +810,14 @@ DECISION_GROUPS = [
         ("D29", "<code>admin:check-extensions</code> checks the new names and warns about <code>$parent</code> and imports from <code>src/</code>.", "These uses cannot be typed, but plugin developers should know the risk."),
         ("D30", "A store usage index annotates findings and detects name collisions (proposal).", "Counts make findings concrete and measure false alarms."),
         ("D24", "Blocks record their context: whether they follow an open <code>v-if</code> chain, and which <code>v-for</code> and slot variables they can use. <code>v-if</code> chains across blocks count as crossings.", "Plugin templates continue core <code>v-if</code> chains and use loop and slot variables; #20959 removed <code>itemIndex</code> from a slot."),
+    ]),
+    ("Upgrade path for plugins", [
+        ("D31", "<code>@deprecated</code> is for removals and replacements, with <code>{@link}</code> to the replacement. A planned change to an element that stays uses <code>@bc-change &lt;Kind&gt;</code>, named after the PHP <code>BCChange</code> attributes where they fit.", "The extension lint reports every <code>@deprecated</code> use as an error, so planned changes in <code>@deprecated</code> would flag plugins that have nothing to migrate yet. PHP dropped its <code>reason:*</code> markers for the same reason."),
+        ("D32", "Method parameters and emit arguments get element ids and findings of their own. Removing a parameter is a break unless announced with <code>ParameterRemoval</code>.", "#20959 removed <code>itemIndex</code>, and overrides that read it got <code>undefined</code>."),
+        ("D33", "One change pattern per kind of change. Findings name their pattern, and <code>pattern_incomplete</code> reports a marker without its counterpart.", "Without fixed patterns every PR invents its own way, and some ways break plugins on the current version."),
+        ("D34", "<code>admin:check-extensions --target=&lt;major&gt;</code> reports every plugin use the next major breaks, as <em>actionable now</em> or <em>at upgrade</em>, in text, JSON or SARIF.", "Plugin developers can answer \"how much work is the upgrade?\" before they update, and hand the list to an agent."),
+        ("D35", "A plugin is ready when nothing is reported against both states. Patterns that allow one change for both versions get a codemod.", "Plugins can adapt once on the current version and keep working after the update."),
+        ("D37", "Marker validation in three layers, implemented for the Administration separately from PHP: format and attachment in the generator and an ESLint rule, references and patterns in the break check.", "A typo in a marker would otherwise stay a plain comment and surface as an unannounced break at the major."),
     ]),
 ]
 
@@ -821,11 +859,11 @@ OPEN_BLOCKING = [
     ("Q3", "Private functions that every built plugin calls", "<code>overrideComponentSetup</code>, <code>registerNativeExtensionTargets</code>, <code>registerOverrideComponent</code>, <code>attachOverrides</code> and <code>getExposedProps</code> are marked <code>@private</code>, but compiled plugin bundles call them.",
      "A new tag for these functions: changes to them are breaks, but the name helpers do not offer them to plugin code.", "A33"),
     ("Q4", "Removed trailing parameter", "Is removing the last parameter of a method always a break? In #20959 the template stopped passing <code>itemIndex</code>, and overrides that read it got <code>undefined</code>.",
-     "Yes, always a break. An override can read the parameter even when core no longer uses it.", "B12"),
+     "Decided in D32: a break (<code>param_missing</code>) unless the method announced it with <code>@bc-change ParameterRemoval</code>, see the pattern \"Parameter removal\".", "B12"),
     ("Q6", "Finding texts", "The fixtures use explanations and fix hints for each element kind that the spec does not define.",
      "One text template per finding id, with one sentence per element kind, kept in a table in <code>FORMAT.md</code>.", "B6, B18, B26"),
-    ("Q7", "Missing finding ids", "<code>method_optional_param_added</code>, <code>service_member_missing</code>, <code>store_member_missing</code> and <code>setup_missing</code> are used but not defined. A position identifier that moves to another host has no finding.",
-     "Add the four ids to the table, and add <code>position_id_moved</code> as a break.", "A18, B18, B23, B27"),
+    ("Q7", "Missing finding ids", "<code>service_member_missing</code>, <code>store_member_missing</code> and <code>setup_missing</code> are used but not defined. A position identifier that moves to another host has no finding.",
+     "Add the three ids to the table, and add <code>position_id_moved</code> as a break.", "A18, B18, B23"),
     ("Q11", "Still not covered", "CSS classes, directives, filters and ACL privileges are now covered (A47–A50). Should Meteor components or Extension SDK locations follow?",
      "Leave both out for now: Meteor components have their own versioning, and only 11 store plugins use the SDK.", "N11, N12"),
     ("Q14", "Private API that store plugins use", "<code>Shopware.Application</code> (601 store plugins, <code>getContainer</code> 520), <code>Component.getComponentRegistry</code> (94), <code>Component.build</code> (16) and <code>Shopware.Utils.EventBus</code> (59) are <code>@private</code>.",
@@ -902,7 +940,10 @@ TERMS = [
     ("Break check", "CI check that compares base and head and fails on breaks that are not announced or accepted."),
     ("Finding", "One classified difference between base and head, for example <code>block_missing</code>. Each finding has a group: break, addition, allowed, accepted, private or info."),
     ("Element id", "The stable name of an API element in findings and in <code>accepted-breaks.json</code>, for example <code>component:sw-order-detail/method:onSave</code>."),
-    ("Accepted break", "A break the PR makes on purpose, listed with a justification in <code>accepted-breaks.json</code>."),
+    ("Accepted break", "A break that no change pattern can avoid, listed in <code>accepted-breaks.json</code> with the pattern that would apply, a justification and an issue."),
+    ("Change pattern", "The one way core makes a kind of change, for example \"Rename\" or \"Parameter removal\": what the PR does, what goes behind the major flag, what happens at the major and what plugins change. Findings name their pattern."),
+    ("<code>@bc-change</code>", "A marker for a planned change to an element that stays, for example <code>@bc-change ParameterRemoval version:v6.8.0 parameter:itemIndex</code>. Modelled on the PHP <code>BCChange</code> attributes; <code>@deprecated</code> stays for removals and replacements."),
+    ("Upgrade report", "<code>admin:check-extensions --target=6.8</code> on the current version: every plugin use that the next major breaks, split into <em>actionable now</em> and <em>at upgrade</em>."),
     ("Block", "A Twig <code>{% block %}</code> or a native <code>&lt;sw-block&gt;</code>. Plugins override blocks by name."),
     ("Extend child", "A component created with <code>Component.extend</code>. It inherits the blocks and members of its parent."),
     ("Crossing", "An HTML element that opens in one block and closes in another, or a <code>v-if</code> chain that continues in another block. Overriding the first block without <code>{% parent %}</code> breaks the markup or the chain."),

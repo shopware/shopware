@@ -1,0 +1,6 @@
+Public API check passed: no breaks.
+
+Allowed (1)
+  announced_change  component:sw-example-list/method:onDeleteItem/param:itemIndex  current, major
+    The parameter carried @bc-change ParameterRemoval version:v6.8.0 at base and the head version is 6.8, so its removal is announced.
+    At: src/app/component/base/sw-example-list/index.js:27

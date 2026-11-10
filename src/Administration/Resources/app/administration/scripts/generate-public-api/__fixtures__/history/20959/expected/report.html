@@ -82,7 +82,7 @@ mark { background: var(--mark); color: inherit; }
 <dt>Element</dt><dd><code>component:sw-order-details-state-card/block:sw_order_detail_state_card_state_history_text</code></dd>
 <dt>States</dt><dd>current, major</dd>
 <dt>Explanation</dt><dd>The block moved from sw_order_detail_state_card_state to sw_order_detail_state_card_state_select, so plugin overrides of sw_order_detail_state_card_state_select without {% parent %} now drop it.</dd>
-<dt>Fix</dt><dd>Keep the block under sw_order_detail_state_card_state, or add an entry to public-api/accepted-breaks.json.</dd>
+<dt>Fix</dt><dd>Pattern "Block move". Keep the block under sw_order_detail_state_card_state while v6.8.0.0 is off, move it only with the flag on, and mark it {# @bc-change BlockMoved version:v6.8.0 parent:sw_order_detail_state_card_state_select #}.</dd>
 <dt>Base</dt><dd><code>src/module/sw-order/component/sw-order-details-state-card/sw-order-details-state-card.html.twig:36</code></dd>
 <dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-details-state-card/sw-order-details-state-card.html.twig:28</code></dd>
 </dl>
@@ -93,7 +93,7 @@ mark { background: var(--mark); color: inherit; }
 <dt>Element</dt><dd><code>component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_delete/scope:itemIndex</code></dd>
 <dt>States</dt><dd>current, major</dd>
 <dt>Explanation</dt><dd>The template variable itemIndex from the actions slot is no longer available in block sw_order_line_items_grid_grid_actions_delete, so plugin overrides that use itemIndex fail at render time.</dd>
-<dt>Fix</dt><dd>Keep itemIndex in the slot props, or add an entry to public-api/accepted-breaks.json.</dd>
+<dt>Fix</dt><dd>Pattern "Scope variable removal". Keep itemIndex in the slot props while v6.8.0.0 is off, and mark the block {# @bc-change ScopeVariableRemoval version:v6.8.0 variable:itemIndex #}.</dd>
 <dt>Base</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:340</code></dd>
 <dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:316</code></dd>
 </dl>
@@ -104,7 +104,7 @@ mark { background: var(--mark); color: inherit; }
 <dt>Element</dt><dd><code>component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_delete_label/scope:itemIndex</code></dd>
 <dt>States</dt><dd>current, major</dd>
 <dt>Explanation</dt><dd>The template variable itemIndex from the actions slot is no longer available in block sw_order_line_items_grid_grid_actions_delete_label, so plugin overrides that use itemIndex fail at render time.</dd>
-<dt>Fix</dt><dd>Keep itemIndex in the slot props, or add an entry to public-api/accepted-breaks.json.</dd>
+<dt>Fix</dt><dd>Pattern "Scope variable removal". Keep itemIndex in the slot props while v6.8.0.0 is off, and mark the block {# @bc-change ScopeVariableRemoval version:v6.8.0 variable:itemIndex #}.</dd>
 <dt>Base</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:353</code></dd>
 <dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:329</code></dd>
 </dl>
@@ -115,7 +115,7 @@ mark { background: var(--mark); color: inherit; }
 <dt>Element</dt><dd><code>component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_extension/scope:itemIndex</code></dd>
 <dt>States</dt><dd>current, major</dd>
 <dt>Explanation</dt><dd>The template variable itemIndex from the actions slot is no longer available in block sw_order_line_items_grid_grid_actions_extension, so plugin overrides that use itemIndex fail at render time.</dd>
-<dt>Fix</dt><dd>Keep itemIndex in the slot props, or add an entry to public-api/accepted-breaks.json.</dd>
+<dt>Fix</dt><dd>Pattern "Scope variable removal". Keep itemIndex in the slot props while v6.8.0.0 is off, and mark the block {# @bc-change ScopeVariableRemoval version:v6.8.0 variable:itemIndex #}.</dd>
 <dt>Base</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:338</code></dd>
 <dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:314</code></dd>
 </dl>
@@ -126,7 +126,7 @@ mark { background: var(--mark); color: inherit; }
 <dt>Element</dt><dd><code>component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_show/scope:itemIndex</code></dd>
 <dt>States</dt><dd>current, major</dd>
 <dt>Explanation</dt><dd>The template variable itemIndex from the actions slot is no longer available in block sw_order_line_items_grid_grid_actions_show, so plugin overrides that use itemIndex fail at render time.</dd>
-<dt>Fix</dt><dd>Keep itemIndex in the slot props, or add an entry to public-api/accepted-breaks.json.</dd>
+<dt>Fix</dt><dd>Pattern "Scope variable removal". Keep itemIndex in the slot props while v6.8.0.0 is off, and mark the block {# @bc-change ScopeVariableRemoval version:v6.8.0 variable:itemIndex #}.</dd>
 <dt>Base</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:325</code></dd>
 <dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:303</code></dd>
 </dl>
@@ -137,7 +137,7 @@ mark { background: var(--mark); color: inherit; }
 <dt>Element</dt><dd><code>component:sw-order-line-items-grid/block:sw_order_line_items_grid_grid_actions_show_label/scope:itemIndex</code></dd>
 <dt>States</dt><dd>current, major</dd>
 <dt>Explanation</dt><dd>The template variable itemIndex from the actions slot is no longer available in block sw_order_line_items_grid_grid_actions_show_label, so plugin overrides that use itemIndex fail at render time.</dd>
-<dt>Fix</dt><dd>Keep itemIndex in the slot props, or add an entry to public-api/accepted-breaks.json.</dd>
+<dt>Fix</dt><dd>Pattern "Scope variable removal". Keep itemIndex in the slot props while v6.8.0.0 is off, and mark the block {# @bc-change ScopeVariableRemoval version:v6.8.0 variable:itemIndex #}.</dd>
 <dt>Base</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:331</code></dd>
 <dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig:308</code></dd>
 </dl>
@@ -148,18 +148,18 @@ mark { background: var(--mark); color: inherit; }
 <dt>Element</dt><dd><code>component:sw-order-detail/crossing:div@sw_order_detail_header&gt;sw_order_detail_header_label_manual_order</code></dd>
 <dt>States</dt><dd>current, major</dd>
 <dt>Explanation</dt><dd>The &lt;div&gt; element opens in block sw_order_detail_header and closes in block sw_order_detail_header_label_manual_order, so plugin overrides of either block without {% parent %} break the markup.</dd>
-<dt>Fix</dt><dd>Open and close the element inside the same block, or add an entry to public-api/accepted-breaks.json.</dd>
+<dt>Fix</dt><dd>Open and close the element inside the same block.</dd>
 <dt>Base</dt><dd>not present</dd>
 <dt>Head</dt><dd><code>src/module/sw-order/page/sw-order-detail/sw-order-detail.html.twig:8</code></dd>
 </dl>
 </section>
-<section class="finding finding--break" id="method_signature_changed--component:sw-order-line-items-grid/method:onDeleteItem">
-<h3><code>method_signature_changed</code></h3>
+<section class="finding finding--break" id="param_missing--component:sw-order-line-items-grid/method:onDeleteItem/param:itemIndex">
+<h3><code>param_missing</code></h3>
 <dl>
-<dt>Element</dt><dd><code>component:sw-order-line-items-grid/method:onDeleteItem</code></dd>
+<dt>Element</dt><dd><code>component:sw-order-line-items-grid/method:onDeleteItem/param:itemIndex</code></dd>
 <dt>States</dt><dd>current, major</dd>
-<dt>Explanation</dt><dd>The method lost its parameter itemIndex, so plugin overrides that read the second argument get undefined, because the template now calls onDeleteItem(item).</dd>
-<dt>Fix</dt><dd>Keep the parameter and keep passing it, or add an entry to public-api/accepted-breaks.json.</dd>
+<dt>Explanation</dt><dd>The parameter itemIndex is gone, so plugin overrides that read the second argument get undefined, because the template now calls onDeleteItem(item).</dd>
+<dt>Fix</dt><dd>Pattern "Parameter removal". Keep itemIndex optional, keep passing it while v6.8.0.0 is off, and mark the method @bc-change ParameterRemoval version:v6.8.0 parameter:itemIndex.</dd>
 <dt>Base</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/index.js:321</code></dd>
 <dt>Head</dt><dd><code>src/module/sw-order/component/sw-order-line-items-grid/index.js:330</code></dd>
 </dl>

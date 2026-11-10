@@ -204,6 +204,7 @@ details.box[open] { padding-bottom: 16px; }
 <a class="" href="#format">Format</a>
 <a class="" href="#ci-and-review">CI and review</a>
 <a class="" href="#plugins-and-existing-tools">Plugins and existing tools</a>
+<a class="" href="#upgrade-path-for-plugins">Upgrade path for plugins</a>
 <a class="" href="#assumptions">Assumptions</a>
 <a class="" href="#prior-art">Prior art</a>
 </aside>
@@ -241,6 +242,7 @@ details.box[open] { padding-bottom: 16px; }
 <tr id="D7"><td class="id"><a href="#D7">D7</a></td><td>A drift check and a break check that runs the target branch's generator on base and head.</td><td class="muted">Regenerating the snapshot or changing the generator cannot hide a break.</td></tr>
 <tr id="D11"><td class="id"><a href="#D11">D11</a></td><td>A simple HTML page per check run, without simulating plugin overrides.</td><td class="muted">A simulation would be costly and still incomplete.</td></tr>
 <tr id="D14"><td class="id"><a href="#D14">D14</a></td><td>Intended breaks go into <code>accepted-breaks.json</code> with a justification, approved by code owners.</td><td class="muted">A PR label leaves no reason and no review trail.</td></tr>
+<tr id="D36"><td class="id"><a href="#D36">D36</a></td><td>Finding texts never suggest <code>accepted-breaks.json</code>. Entries name the pattern that would apply, why it cannot be followed, and an issue. Coding agents never add entries on their own.</td><td class="muted">Developers and agents take the easy way out when the check offers it on every finding.</td></tr>
 <tr id="D18"><td class="id"><a href="#D18">D18</a></td><td>Elements that already cross blocks on trunk are the baseline.</td><td class="muted">Otherwise every PR would fail on old crossings.</td></tr>
 </tbody></table></div>
 <h2 id="plugins-and-existing-tools">Plugins and existing tools</h2>
@@ -255,6 +257,15 @@ details.box[open] { padding-bottom: 16px; }
 <tr id="D29"><td class="id"><a href="#D29">D29</a></td><td><code>admin:check-extensions</code> checks the new names and warns about <code>$parent</code> and imports from <code>src/</code>.</td><td class="muted">These uses cannot be typed, but plugin developers should know the risk.</td></tr>
 <tr id="D30"><td class="id"><a href="#D30">D30</a></td><td>A store usage index annotates findings and detects name collisions (proposal).</td><td class="muted">Counts make findings concrete and measure false alarms.</td></tr>
 <tr id="D24"><td class="id"><a href="#D24">D24</a></td><td>Blocks record their context: whether they follow an open <code>v-if</code> chain, and which <code>v-for</code> and slot variables they can use. <code>v-if</code> chains across blocks count as crossings.</td><td class="muted">Plugin templates continue core <code>v-if</code> chains and use loop and slot variables; <a href="https://github.com/shopware/shopware/issues/20959">#20959</a> removed <code>itemIndex</code> from a slot.</td></tr>
+</tbody></table></div>
+<h2 id="upgrade-path-for-plugins">Upgrade path for plugins</h2>
+<div class="tw"><table><thead><tr><th>ID</th><th>Decision</th><th>Why</th></tr></thead><tbody>
+<tr id="D31"><td class="id"><a href="#D31">D31</a></td><td><code>@deprecated</code> is for removals and replacements, with <code>{@link}</code> to the replacement. A planned change to an element that stays uses <code>@bc-change &lt;Kind&gt;</code>, named after the PHP <code>BCChange</code> attributes where they fit.</td><td class="muted">The extension lint reports every <code>@deprecated</code> use as an error, so planned changes in <code>@deprecated</code> would flag plugins that have nothing to migrate yet. PHP dropped its <code>reason:*</code> markers for the same reason.</td></tr>
+<tr id="D32"><td class="id"><a href="#D32">D32</a></td><td>Method parameters and emit arguments get element ids and findings of their own. Removing a parameter is a break unless announced with <code>ParameterRemoval</code>.</td><td class="muted"><a href="https://github.com/shopware/shopware/issues/20959">#20959</a> removed <code>itemIndex</code>, and overrides that read it got <code>undefined</code>.</td></tr>
+<tr id="D33"><td class="id"><a href="#D33">D33</a></td><td>One change pattern per kind of change. Findings name their pattern, and <code>pattern_incomplete</code> reports a marker without its counterpart.</td><td class="muted">Without fixed patterns every PR invents its own way, and some ways break plugins on the current version.</td></tr>
+<tr id="D34"><td class="id"><a href="#D34">D34</a></td><td><code>admin:check-extensions --target=&lt;major&gt;</code> reports every plugin use the next major breaks, as <em>actionable now</em> or <em>at upgrade</em>, in text, JSON or SARIF.</td><td class="muted">Plugin developers can answer "how much work is the upgrade?" before they update, and hand the list to an agent.</td></tr>
+<tr id="D35"><td class="id"><a href="#D35">D35</a></td><td>A plugin is ready when nothing is reported against both states. Patterns that allow one change for both versions get a codemod.</td><td class="muted">Plugins can adapt once on the current version and keep working after the update.</td></tr>
+<tr id="D37"><td class="id"><a href="#D37">D37</a></td><td>Marker validation in three layers, implemented for the Administration separately from PHP: format and attachment in the generator and an ESLint rule, references and patterns in the break check.</td><td class="muted">A typo in a marker would otherwise stay a plain comment and surface as an unannounced break at the major.</td></tr>
 </tbody></table></div>
 
 <h2 id="assumptions">Assumptions</h2>

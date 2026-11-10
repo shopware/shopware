@@ -617,12 +617,12 @@ Private (219)
   method_missing  component:sw-search-bar/method:showSearchFieldOnLargerViewports  current, major
     The method is gone, so plugin overrides that call $super('showSearchFieldOnLargerViewports') throw at runtime.
     At: src/app/component/structure/sw-search-bar/index.js:256
-  method_optional_param_added  component:sw-admin-menu-item/method:getIconName  current, major
-    The method has a new optional parameter isActive that plugins can pass from now on.
-    At: src/app/component/structure/sw-admin-menu-item/index.js:346
   mixin_missing  component:sw-login-login/mixin:notification  current, major
     The component no longer lists the mixin notification, so plugin overrides that call its members, for example this.createNotificationError(), throw at runtime.
     At: src/module/sw-login/view/sw-login-login/index.ts:25
+  param_added  component:sw-admin-menu-item/method:getIconName/param:isActive  current, major
+    A new optional parameter isActive. Plugin overrides that call $super with explicit arguments do not pass it on.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:346
   prop_added  component:sw-admin-menu-item/prop:flyoutActive  current, major
     A new prop of a private component, so it is not public API and plugins cannot rely on it.
     At: src/app/component/structure/sw-admin-menu-item/index.js:93

@@ -209,7 +209,7 @@ details.box[open] { padding-bottom: 16px; }
 <main>
 <div class="eyebrow">Page 7 of 9 · Skim · about 10 min</div>
 <h1>Backtest</h1>
-<p class="lead">Four real PRs and 22 hand-written fixtures define what the check must report. They are the acceptance test for the generator.</p>
+<p class="lead">Four real PRs and 24 hand-written fixtures define what the check must report. They are the acceptance test for the generator.</p>
 
 <p>We wrote the expected results by hand from the real commits. The generator has to reproduce them exactly.</p>
 
@@ -232,7 +232,7 @@ details.box[open] { padding-bottom: 16px; }
   block_scope_missing  …/block:sw_order_line_items_grid_grid_actions_extension/scope:itemIndex  current, major
   block_scope_missing  …/block:sw_order_line_items_grid_grid_actions_show/scope:itemIndex  current, major
   block_scope_missing  …/block:sw_order_line_items_grid_grid_actions_show_label/scope:itemIndex  current, major
-  method_signature_changed  component:sw-order-line-items-grid/method:onDeleteItem  current, major</pre>
+  param_missing  component:sw-order-line-items-grid/method:onDeleteItem/param:itemIndex  current, major</pre>
 <h3 id="17339-expected-breaks"><a href="https://github.com/shopware/shopware/issues/17339">#17339</a> expected breaks</h3>
 <pre class="code wrap">Break (4)
   block_missing  component:sw-bulk-edit-custom-fields/block:sw_custom_field_set_renderer_card_form_renderer_change_field  major
@@ -265,15 +265,17 @@ Fixtures that are still missing are the rows with a gap on the Coverage page.</p
 <tr><td><code>refs-and-classes</code></td><td>Template ref removed, ref moved to another component, class removed</td><td><div class="chips"><span class="tag t-break">Break 2</span><span class="tag t-info">Info 1</span></div></td><td><a href="coverage.html#B42">B42</a>, <a href="coverage.html#B43">B43</a>, <a href="coverage.html#B47">B47</a></td></tr>
 <tr><td><code>block-renamed-major-only</code></td><td>Block renamed only with the major flag</td><td><div class="chips"><span class="tag t-break">Break 1</span><span class="tag t-add">Addition 1</span></div></td><td><a href="coverage.html#B7">B7</a>, <a href="coverage.html#B38">B38</a></td></tr>
 <tr><td><code>prop-changes</code></td><td>Props removed, renamed, now required</td><td><div class="chips"><span class="tag t-break">Break 3</span><span class="tag t-add">Addition 1</span></div></td><td><a href="coverage.html#B6">B6</a>, <a href="coverage.html#B10">B10</a></td></tr>
-<tr><td><code>method-signature</code></td><td>Required parameter added, sync to async, optional parameter added</td><td><div class="chips"><span class="tag t-break">Break 2</span><span class="tag t-add">Addition 1</span></div></td><td><a href="coverage.html#B12">B12</a>, <a href="coverage.html#B27">B27</a></td></tr>
+<tr><td><code>method-signature</code></td><td>Required parameter added, sync to async, optional parameter added</td><td><div class="chips"><span class="tag t-break">Break 2</span><span class="tag t-add">Addition 1</span></div></td><td><a href="coverage.html#B12">B12</a>, <a href="coverage.html#B27">B27</a>, <a href="coverage.html#B51">B51</a></td></tr>
 <tr><td><code>deprecated-removal</code></td><td>Announced removal in that major</td><td><div class="chips"><span class="tag t-allowed">Allowed 4</span><span class="tag t-info">Info 1</span></div></td><td><a href="coverage.html#B28">B28</a>, <a href="coverage.html#B47">B47</a></td></tr>
+<tr><td><code>announced-change</code></td><td>Parameter removal announced with <code>@bc-change ParameterRemoval</code>, done in that major</td><td><div class="chips"><span class="tag t-allowed">Allowed 1</span></div></td><td><a href="coverage.html#B54">B54</a></td></tr>
+<tr><td><code>marker-checks</code></td><td>Markers added in a PR: one valid, one naming a parameter that does not exist, one linking a missing replacement</td><td><div class="chips"><span class="tag t-break">Break 2</span><span class="tag t-info">Info 2</span></div></td><td><a href="coverage.html#B31">B31</a>, <a href="coverage.html#B52">B52</a>, <a href="coverage.html#B53">B53</a>, <a href="coverage.html#B55">B55</a></td></tr>
 <tr><td><code>deprecated-removal-too-early</code></td><td>The same removal one version too early</td><td><div class="chips"><span class="tag t-break">Break 4</span><span class="tag t-info">Info 1</span></div></td><td><a href="coverage.html#B28">B28</a>, <a href="coverage.html#B47">B47</a></td></tr>
 <tr><td><code>private-change</code></td><td>Changes inside a @private unit</td><td><div class="chips"><span class="tag ">Private 4</span></div></td><td><a href="coverage.html#B30">B30</a></td></tr>
 <tr><td><code>public-becomes-private</code></td><td>Public component becomes @private</td><td><div class="chips"><span class="tag t-break">Break 1</span></div></td><td><a href="coverage.html#B25">B25</a></td></tr>
 <tr><td><code>snippet-signature</code></td><td>Placeholder renamed, plural forms changed</td><td><div class="chips"><span class="tag t-break">Break 2</span></div></td><td><a href="coverage.html#B17">B17</a></td></tr>
 <tr><td><code>referenced-type</code></td><td>Member of a referenced type removed</td><td><div class="chips"><span class="tag t-break">Break 1</span></div></td><td><a href="coverage.html#B21">B21</a></td></tr>
 <tr><td><code>native-sfc</code></td><td>Native SFC: public binding removed, block renamed</td><td><div class="chips"><span class="tag t-break">Break 2</span><span class="tag t-add">Addition 1</span></div></td><td><a href="coverage.html#B23">B23</a></td></tr>
-<tr><td><code>accepted-break</code></td><td>Intended break with an acceptance entry</td><td><span class="tag t-accepted">Accepted 1</span></td><td><a href="coverage.html#B29">B29</a></td></tr>
+<tr><td><code>accepted-break</code></td><td>Intended break with an acceptance entry that names the pattern it cannot follow</td><td><span class="tag t-accepted">Accepted 1</span></td><td><a href="coverage.html#B29">B29</a></td></tr>
 <tr><td><code>acceptance-stale</code></td><td>Acceptance entry without a matching finding</td><td><div class="chips"><span class="tag t-info">Info 1</span></div></td><td><a href="coverage.html#B35">B35</a></td></tr>
 </tbody></table></div>
 

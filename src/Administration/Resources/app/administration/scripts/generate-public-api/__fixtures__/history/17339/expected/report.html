@@ -82,7 +82,7 @@ mark { background: var(--mark); color: inherit; }
 <dt>Element</dt><dd><code>component:sw-bulk-edit-custom-fields/block:sw_custom_field_set_renderer_card_form_renderer_change_field</code></dd>
 <dt>States</dt><dd>major</dd>
 <dt>Explanation</dt><dd>The block is gone, because the parent sw-custom-field-set-renderer no longer declares sw_custom_field_set_renderer_card_form_renderer, which this component overrides, so plugin templates that override {% block sw_custom_field_set_renderer_card_form_renderer_change_field %} render nothing.</dd>
-<dt>Fix</dt><dd>Keep sw_custom_field_set_renderer_card_form_renderer in the major branch of sw-custom-field-set-renderer, or also override sw_custom_field_set_renderer_card_mt_tabs_form_renderer in this component, or add an entry to public-api/accepted-breaks.json.</dd>
+<dt>Fix</dt><dd>Pattern "Rename". Keep sw_custom_field_set_renderer_card_form_renderer in the major branch of sw-custom-field-set-renderer, wrapped by sw_custom_field_set_renderer_card_mt_tabs_form_renderer, or also override sw_custom_field_set_renderer_card_mt_tabs_form_renderer in this component.</dd>
 <dt>Base</dt><dd><code>src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/sw-bulk-edit-custom-fields.html.twig:11</code></dd>
 <dt>Head</dt><dd><code>src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/sw-bulk-edit-custom-fields.html.twig:1</code></dd>
 </dl>
@@ -93,7 +93,7 @@ mark { background: var(--mark); color: inherit; }
 <dt>Element</dt><dd><code>component:sw-bulk-edit-custom-fields/block:sw_custom_field_set_renderer_card_form_renderer_custom_field</code></dd>
 <dt>States</dt><dd>major</dd>
 <dt>Explanation</dt><dd>The block is gone, because the parent sw-custom-field-set-renderer no longer declares sw_custom_field_set_renderer_card_form_renderer, which this component overrides, so plugin templates that override {% block sw_custom_field_set_renderer_card_form_renderer_custom_field %} render nothing.</dd>
-<dt>Fix</dt><dd>Keep sw_custom_field_set_renderer_card_form_renderer in the major branch of sw-custom-field-set-renderer, or also override sw_custom_field_set_renderer_card_mt_tabs_form_renderer in this component, or add an entry to public-api/accepted-breaks.json.</dd>
+<dt>Fix</dt><dd>Pattern "Rename". Keep sw_custom_field_set_renderer_card_form_renderer in the major branch of sw-custom-field-set-renderer, wrapped by sw_custom_field_set_renderer_card_mt_tabs_form_renderer, or also override sw_custom_field_set_renderer_card_mt_tabs_form_renderer in this component.</dd>
 <dt>Base</dt><dd><code>src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/sw-bulk-edit-custom-fields.html.twig:19</code></dd>
 <dt>Head</dt><dd><code>src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/sw-bulk-edit-custom-fields.html.twig:1</code></dd>
 </dl>
@@ -104,7 +104,7 @@ mark { background: var(--mark); color: inherit; }
 <dt>Element</dt><dd><code>component:sw-mail-template-index/block:sw_mail_template_list_tabs_header_footer</code></dd>
 <dt>States</dt><dd>major</dd>
 <dt>Explanation</dt><dd>The block is gone, so plugin templates that override {% block sw_mail_template_list_tabs_header_footer %} render nothing.</dd>
-<dt>Fix</dt><dd>Keep the block in the major branch, even empty, and mark it {# @deprecated tag:v6.8.0 #}, or add an entry to public-api/accepted-breaks.json.</dd>
+<dt>Fix</dt><dd>Pattern "Removal". Keep the block in the major branch, even empty, and mark it {# @deprecated tag:v6.8.0 #}.</dd>
 <dt>Possible rename</dt><dd>sw_mail_template_list_mt_tabs.</dd>
 <dt>Base</dt><dd><code>src/module/sw-mail-template/page/sw-mail-template-index/sw-mail-template-index.html.twig:105</code></dd>
 <dt>Head</dt><dd><code>src/module/sw-mail-template/page/sw-mail-template-index/sw-mail-template-index.html.twig:91</code></dd>
@@ -116,7 +116,7 @@ mark { background: var(--mark); color: inherit; }
 <dt>Element</dt><dd><code>component:sw-mail-template-index/block:sw_mail_template_list_tabs_templates</code></dd>
 <dt>States</dt><dd>major</dd>
 <dt>Explanation</dt><dd>The block is gone, so plugin templates that override {% block sw_mail_template_list_tabs_templates %} render nothing.</dd>
-<dt>Fix</dt><dd>Keep the block in the major branch, even empty, and mark it {# @deprecated tag:v6.8.0 #}, or add an entry to public-api/accepted-breaks.json.</dd>
+<dt>Fix</dt><dd>Pattern "Removal". Keep the block in the major branch, even empty, and mark it {# @deprecated tag:v6.8.0 #}.</dd>
 <dt>Possible rename</dt><dd>sw_mail_template_list_mt_tabs.</dd>
 <dt>Base</dt><dd><code>src/module/sw-mail-template/page/sw-mail-template-index/sw-mail-template-index.html.twig:96</code></dd>
 <dt>Head</dt><dd><code>src/module/sw-mail-template/page/sw-mail-template-index/sw-mail-template-index.html.twig:91</code></dd>

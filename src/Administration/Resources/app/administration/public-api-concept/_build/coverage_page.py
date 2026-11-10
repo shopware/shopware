@@ -22,7 +22,7 @@ MATRIX = [
     ("Prop", ["B6", "B10, B11", "", "B26", "B25", "B28"]),
     ("Emit, slot, inject, provide, data", ["B6", "B11", "", "B26", "B25", "B28"]),
     ("Computed", ["B6", "B11", "", "B26", "B25", "B28"]),
-    ("Method", ["B6", "B12, B27, B33", "", "B26", "B25", "B28"]),
+    ("Method", ["B6", "B12, B27, B33, B50, B51", "", "B26", "B25", "B28"]),
     ("Block", ["B7", "B2", "B8", "B26", "B25", "B28"]),
     ("Block context (v-if, scope)", ["B39, B40", "", "", "", "", ""]),
     ("HTML element or v-if chain across blocks", ["B34", "", "", "B9, B41", "", ""]),
@@ -100,11 +100,11 @@ def pre(text):
 def decision_tree():
     rows = [
         ("Is the element, or the unit it belongs to, @private?", '<span class="tag">private</span>', "never blocks"),
-        ("Was it removed, and did it carry @deprecated tag:vX that the head version has reached?", '<span class="tag t-allowed">allowed</span>', ""),
-        ("Does the PR add a matching entry to accepted-breaks.json?", '<span class="tag t-accepted">accepted</span>', "never blocks"),
-        ("Was it removed, renamed, moved or changed incompatibly, or did a block lose its v-if context or a scope variable?", '<span class="tag t-break">break</span>', "fails CI"),
+        ("Was it removed or changed as a @deprecated tag:vX or a @bc-change marker announced, and has the head version reached vX?", '<span class="tag t-allowed">allowed</span>', ""),
+        ("Does the PR add a matching entry to accepted-breaks.json, naming the pattern that would apply and why it cannot be followed?", '<span class="tag t-accepted">accepted</span>', "code owners approve"),
+        ("Was it removed, renamed, moved or changed incompatibly, did a block lose its v-if context or a scope variable, or is a new marker invalid or incomplete?", '<span class="tag t-break">break</span>', "fails CI"),
         ("Is it new?", '<span class="tag t-add">addition</span>', ""),
-        ("Is it a new deprecation, a wider type, a renamed parameter or a resolved crossing?", '<span class="tag t-info">info</span>', ""),
+        ("Is it a new deprecation or @bc-change marker, a wider type, a renamed parameter or a resolved crossing?", '<span class="tag t-info">info</span>', ""),
     ]
     out = ['<div class="tree">']
     for i, (q, tag, note) in enumerate(rows, 1):

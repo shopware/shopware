@@ -264,7 +264,11 @@ BREAKS = [
         ("B9", "element_crosses_block", "break", "A new HTML element opens in one block and closes in another.", "element_crosses_block  component:sw-order-detail/crossing:div@sw_order_detail_header>..._label_manual_order", ["spec", "fix", "hist"], ""),
         ("B10", "prop_now_required", "break", "An optional prop becomes required.", "prop_now_required  component:sw-example-entity-select/prop:entity", ["spec", "fix"], ""),
         ("B11", "type_changed", "break", "The declared type of a member becomes incompatible.", "", ["spec", "gap"], "No fixture."),
-        ("B12", "method_signature_changed", "break", "A parameter is added as required, removed or reordered, or the method switches between sync and async.", "method_signature_changed  .../method:onDeleteItem\n  The method lost its parameter itemIndex", ["spec", "fix", "hist"], ""),
+        ("B12", "method_signature_changed", "break", "Parameters are reordered, or the method switches between sync and async.", "method_signature_changed  component:sw-example-list/method:validateSelection", ["spec", "fix"], ""),
+        ("B50", "param_missing", "break", "A method parameter is removed, also the last one, without a ParameterRemoval announcement (D32).", "param_missing  component:sw-order-line-items-grid/method:onDeleteItem/param:itemIndex", ["spec", "hist"], ""),
+        ("B51", "param_now_required", "break", "A new parameter is required, or an optional one loses its default.", "param_now_required  component:sw-example-list/method:onDeleteItem/param:itemIndex", ["spec", "fix"], ""),
+        ("B52", "pattern_incomplete", "break", "A @deprecated or @bc-change marker lacks the counterpart its change pattern requires, for example a {@link} to a replacement that does not exist (D33).", "pattern_incomplete  component:sw-example-list/method:validateSelection", ["spec", "fix"], ""),
+        ("B53", "bc_change_invalid", "break", "A @bc-change marker added in the PR names something that does not exist or announces no real change (D37).", "bc_change_invalid  component:sw-example-list/method:onPageChange/param:limit", ["spec", "fix"], ""),
         ("B13", "route_missing", "break", "A named route is removed or renamed.", "route_missing  route:sw.sales.channel.detail.agenticFile", ["spec", "fix"], ""),
         ("B14", "route_parent_changed", "break", "A top-level route becomes a child or the other way round.", "", ["spec", "gap"], "No fixture."),
         ("B15", "route_params_changed", "break", "A path parameter is removed or renamed.", "", ["spec", "gap"], "No fixture."),
@@ -284,7 +288,7 @@ BREAKS = [
     ]),
     ("Additions", "additions", [
         ("B26", "<kind>_added", "add", "A new public element that plugins can rely on.", "method_added  component:sw-sales-channel-detail/method:getSalesChannelCriteria", ["spec", "fix", "hist"], ""),
-        ("B27", "method_optional_param_added", "add", "A method gets a new optional parameter at the end.", "method_optional_param_added  .../method:onPageChange", ["fix", "gap"], "Finding id not in the findings table yet (Q7)."),
+        ("B27", "param_added", "add", "A method gets a new optional parameter at the end. Overrides that pass explicit arguments to $super do not forward it.", "param_added  component:sw-example-list/method:onPageChange/param:limit", ["spec", "fix"], ""),
     ]),
     ("Plugin-facing names", "names", [
         ("B42", "ref_missing", "break", "A template ref is gone.", "ref_missing  component:sw-example-card/ref:titleField", ["spec", "fix"], ""),
@@ -295,7 +299,8 @@ BREAKS = [
     ]),
     ("Allowed, accepted and private", "allowed", [
         ("B28", "deprecated_removal", "allowed", "The element carried @deprecated tag:vX at base and the head version is X or later.", "deprecated_removal  component:sw-example-card/prop:subtitle", ["spec", "fix"], "Not specified yet: how tag v6.8.0 is compared with head version 6.8, and whether the rule is applied separately per flag state (Q13)."),
-        ("B29", "any break, accepted", "accepted", "The finding matches an entry added to accepted-breaks.json in this PR.", "Justification: The criteria builder is renamed for 6.8, see UPGRADE-6.8.md.", ["spec", "fix"], ""),
+        ("B54", "announced_change", "allowed", "The element carried a @bc-change at base whose kind allows the finding, and the head version has reached the announced version (D31).", "announced_change  component:sw-example-list/method:onDeleteItem/param:itemIndex", ["spec", "fix"], ""),
+        ("B29", "any break, accepted", "accepted", "The finding matches an entry added to accepted-breaks.json in this PR. The entry names the pattern that would apply and why it cannot be followed (D36).", "Pattern not followed: Rename. The old criteria builder returns a different association set, so it cannot delegate to getSalesChannelCriteria.", ["spec", "fix"], ""),
         ("B30", "any finding on a private element", "private", "Changes inside @private units or members. Reported, never blocking.", "block_added  component:sw-admin-menu-item/block:..._fold  (Private)", ["spec", "fix", "hist"], ""),
     ]),
     ("Info", "info", [
@@ -306,7 +311,8 @@ BREAKS = [
         ("B32", "type_widened", "info", "Untyped becomes a concrete type, or a type becomes wider (JS to TS migration).", "", ["spec", "hist"], ""),
         ("B33", "method_param_renamed", "info", "A parameter changes its name, not its position.", "", ["spec", "gap"], "Fixture not written."),
         ("B34", "crossing_resolved", "info", "A baseline crossing disappears.", "crossing_resolved  component:sw-order-detail/crossing:v-if@sw_order_detail_header_title>sw_order_detail_header_title_new", ["spec", "hist"], ""),
-        ("B35", "acceptance_stale", "info", "An entry added to accepted-breaks.json matches no finding.", "acceptance_stale  component:sw-sales-channel-create/method:getLoadSalesChannelCriteria", ["spec", "fix"], ""),
+        ("B55", "bc_change_added", "info", "An element newly carries a @bc-change marker. Reminds to add the upgrade note.", "bc_change_added  component:sw-example-list/method:onDeleteItem/param:itemIndex", ["spec", "fix"], ""),
+        ("B35", "acceptance_stale", "info", "An entry added to accepted-breaks.json matches no finding or names an unknown pattern.", "acceptance_stale  component:sw-sales-channel-create/method:getLoadSalesChannelCriteria", ["spec", "fix"], ""),
     ]),
     ("Cross-cutting rules", "rules", [
         ("B36", "Possible rename", "none", "A removed element that comes back under another name in the same parent gets a rename hint on the break.", "Possible rename: getSalesChannelCriteria.", ["spec", "fix"], ""),

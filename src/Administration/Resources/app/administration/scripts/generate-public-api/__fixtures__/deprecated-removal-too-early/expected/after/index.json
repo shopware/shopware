@@ -18,5 +18,6 @@
     "positionIdentifiers": {},
     "dynamicPositionIdentifiers": {},
     "dataSets": {},
-    "virtualModules": {}
+    "virtualModules": {},
+    "announcements": []
 }

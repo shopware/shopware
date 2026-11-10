@@ -2128,16 +2128,6 @@ mark { background: var(--mark); color: inherit; }
 <dt>Head</dt><dd><code>src/app/component/structure/sw-search-bar/index.js:256</code></dd>
 </dl>
 </section>
-<section class="finding finding--private" id="method_optional_param_added--component:sw-admin-menu-item/method:getIconName">
-<h3><code>method_optional_param_added</code></h3>
-<dl>
-<dt>Element</dt><dd><code>component:sw-admin-menu-item/method:getIconName</code></dd>
-<dt>States</dt><dd>current, major</dd>
-<dt>Explanation</dt><dd>The method has a new optional parameter isActive that plugins can pass from now on.</dd>
-<dt>Base</dt><dd>not present</dd>
-<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:346</code></dd>
-</dl>
-</section>
 <section class="finding finding--private" id="mixin_missing--component:sw-login-login/mixin:notification">
 <h3><code>mixin_missing</code></h3>
 <dl>
@@ -2146,6 +2136,16 @@ mark { background: var(--mark); color: inherit; }
 <dt>Explanation</dt><dd>The component no longer lists the mixin notification, so plugin overrides that call its members, for example this.createNotificationError(), throw at runtime.</dd>
 <dt>Base</dt><dd><code>src/module/sw-login/view/sw-login-login/index.ts:40</code></dd>
 <dt>Head</dt><dd><code>src/module/sw-login/view/sw-login-login/index.ts:25</code></dd>
+</dl>
+</section>
+<section class="finding finding--private" id="param_added--component:sw-admin-menu-item/method:getIconName/param:isActive">
+<h3><code>param_added</code></h3>
+<dl>
+<dt>Element</dt><dd><code>component:sw-admin-menu-item/method:getIconName/param:isActive</code></dd>
+<dt>States</dt><dd>current, major</dd>
+<dt>Explanation</dt><dd>A new optional parameter isActive. Plugin overrides that call $super with explicit arguments do not pass it on.</dd>
+<dt>Base</dt><dd>not present</dd>
+<dt>Head</dt><dd><code>src/app/component/structure/sw-admin-menu-item/index.js:346</code></dd>
 </dl>
 </section>
 <section class="finding finding--private" id="prop_added--component:sw-admin-menu-item/prop:flyoutActive">

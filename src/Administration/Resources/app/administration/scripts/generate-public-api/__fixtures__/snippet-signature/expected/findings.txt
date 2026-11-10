@@ -3,9 +3,12 @@ Public API check failed: 2 unannounced breaks.
 Break (2)
   snippet_signature_changed  snippet:sw-example.list.textDeleteConfirm  current, major
     The placeholders of the English text changed from {name} to {exampleName}, so plugin calls of $t('sw-example.list.textDeleteConfirm', { name }) render the text without the value.
-    Fix: add a new key and deprecate the old one, or add an entry to public-api/accepted-breaks.json.
+    Fix: pattern "Rename". Add a new key with the new placeholders and deprecate the old one.
     At: src/module/sw-example/snippet/en.json:8
   snippet_signature_changed  snippet:sw-example.list.textSelectionCount  current, major
     The English text changed from 2 to 3 plural forms, so plugin calls of $tc('sw-example.list.textSelectionCount', 0) now get the first form instead of the plural form.
-    Fix: add a new key and deprecate the old one, or add an entry to public-api/accepted-breaks.json.
+    Fix: pattern "Rename". Add a new key with the new placeholders and deprecate the old one.
     At: src/module/sw-example/snippet/en.json:11
+
+Change patterns: public-api/FORMAT.md#change-patterns
+Breaking this on purpose? See "Intended breaks" in public-api/FORMAT.md.

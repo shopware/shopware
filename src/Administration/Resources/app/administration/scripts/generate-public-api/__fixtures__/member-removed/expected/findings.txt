@@ -3,12 +3,12 @@ Public API check failed: 2 unannounced breaks.
 Break (2)
   computed_missing  component:sw-sales-channel-detail/computed:salesChannelRepository  current, major
     The computed property is gone, so plugin overrides that call $super('salesChannelRepository') throw at runtime.
-    Fix: keep the computed property and mark it @deprecated tag:v6.8.0, or add an entry to public-api/accepted-breaks.json.
+    Fix: pattern "Removal". Keep salesChannelRepository and mark it @deprecated tag:v6.8.0.
     Also affects: sw-sales-channel-create (extends sw-sales-channel-detail).
     At: src/module/sw-sales-channel/page/sw-sales-channel-detail/index.js:24
   method_missing  component:sw-sales-channel-detail/method:getLoadSalesChannelCriteria  current, major
     The method is gone, so plugin overrides that call $super('getLoadSalesChannelCriteria') throw at runtime.
-    Fix: keep the method and mark it @deprecated tag:v6.8.0, or add an entry to public-api/accepted-breaks.json.
+    Fix: pattern "Rename". Keep getLoadSalesChannelCriteria, let it call getSalesChannelCriteria, keep calling it from core while v6.8.0.0 is off, and mark it @deprecated tag:v6.8.0 - Use {@link getSalesChannelCriteria} instead.
     Possible rename: getSalesChannelCriteria.
     Also affects: sw-sales-channel-create (extends sw-sales-channel-detail).
     At: src/module/sw-sales-channel/page/sw-sales-channel-detail/index.js:57
@@ -18,3 +18,6 @@ Addition (1)
     A new public method that plugins can rely on from now on.
     Fix: mark it @private if it is not meant for plugins.
     At: src/module/sw-sales-channel/page/sw-sales-channel-detail/index.js:78
+
+Change patterns: public-api/FORMAT.md#change-patterns
+Breaking this on purpose? See "Intended breaks" in public-api/FORMAT.md.

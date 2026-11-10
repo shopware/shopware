@@ -1,5 +1,5 @@
 {
-    "row": "Method parameters changed in an incompatible way",
+    "row": "Method parameter removed, also the last one, or a new required parameter",
     "headVersion": "6.7",
     "majorFlags": ["v6.8.0.0"],
     "acceptedBreaks": null

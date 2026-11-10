@@ -25,12 +25,13 @@ def option(choice, label, grade, verdict, note):
 AUTHOR = [
     {
         "case": "20959",
-        "element": "component:sw-order-line-items-grid/method:onDeleteItem",
+        "element": "component:sw-order-line-items-grid/method:onDeleteItem/param:itemIndex",
         "context": "You removed the second parameter of <code>onDeleteItem</code>. The template now calls <code>onDeleteItem(item)</code>.",
         "options": [
-            option("keep", "Keep the parameter and keep passing it", "best", "pass", "Plugins that read the second argument keep working."),
-            option("accept", "Add an entry to <code>accepted-breaks.json</code> with a justification", "ok", "accepted",
-             "Fine for a break you mean to make. The file has code owners, so the framework team approves the entry, and the justification shows up in the check summary."),
+            option("keep", "Keep <code>itemIndex</code>, keep passing it while <code>v6.8.0.0</code> is off, and mark the method <code>@bc-change ParameterRemoval</code>", "best", "pass",
+             "The pattern \"Parameter removal\". Plugins that read the second argument keep working, <code>admin:check-extensions</code> shows them the change before 6.8, and deleting the parameter in 6.8 is allowed."),
+            option("accept", "Add an entry to <code>accepted-breaks.json</code> with a justification", "fail", "accepted",
+             "The check would pass, but the framework team rejects the entry: the pattern \"Parameter removal\" covers this change, and an entry has to say why the pattern cannot be followed. Here it can."),
             option("private", "Mark <code>onDeleteItem</code> <code>@private</code>", "fail", "fail",
              "<code>visibility_became_private</code>: a public method that becomes private is a break too. Deprecate first, make it private in the major."),
             option("ignore", "Push anyway, the reviewer will decide", "fail", "fail", "The check blocks the merge until the break is fixed or accepted."),
@@ -51,9 +52,9 @@ AUTHOR = [
         "context": "You replaced <code>sw-tabs</code> with <code>mt-tabs</code> behind the major flag. In the major branch, the old tab blocks are gone.",
         "options": [
             option("deprecate", "Keep the block in the major branch, even empty, and mark it <code>{# @deprecated tag:v6.8.0 #}</code>", "best", "pass",
-             "The removal is announced in the source, and <code>admin:check-extensions</code> warns plugins that still use the block."),
-            option("accept", "Add an entry to <code>accepted-breaks.json</code> with a justification", "ok", "accepted",
-             "Valid if the break is intended. <code>FORMAT.md</code> uses exactly this block as its example entry, with a pointer to <code>UPGRADE-6.8.md</code>."),
+             "The pattern \"Removal\". The removal is announced in the source, and <code>admin:check-extensions</code> warns plugins that still use the block."),
+            option("accept", "Add an entry to <code>accepted-breaks.json</code> with a justification", "fail", "accepted",
+             "The check would pass, but the framework team rejects the entry: the pattern \"Removal\" covers this block. <code>accepted-breaks.json</code> is for breaks that no pattern can avoid, such as a security fix."),
             option("flag", "Leave it, the flag is off in today's releases", "fail", "fail",
              "The check compares both flag states. In the major state the block is gone, so it is a break, like the bulk edit in round 2."),
         ],
@@ -145,11 +146,11 @@ PLUGIN = [
     },
 });"""),
         "source": "editor · current, major",
-        "finding": ("20959", "component:sw-order-line-items-grid/method:onDeleteItem"),
+        "finding": ("20959", "component:sw-order-line-items-grid/method:onDeleteItem/param:itemIndex"),
         "message": "$super('onDeleteItem') expects 1 argument, but got 2.",
         "fixes": [
             ("Log <code>item.id</code> instead and call <code>$super('onDeleteItem', item)</code>", "best",
-             "Fixed. Core calls <code>onDeleteItem(item)</code> now, so <code>itemIndex</code> was always undefined."),
+             "Fixed, and it works before and after the update. Core calls <code>onDeleteItem(item)</code> now, so <code>itemIndex</code> was always undefined."),
             ("Keep it, <code>itemIndex</code> is optional", "fail", "Core calls <code>onDeleteItem(item)</code> now. Your log has written <code>undefined</code> since the update."),
         ],
     },
@@ -213,7 +214,7 @@ def verdict_note(key, note):
 def author_screen(i, a):
     options = [(o["choice"], str(n + 1), o["label"], o["grade"]) for n, o in enumerate(a["options"])]
     notes = {o["choice"]: verdict_note(o["verdict"], o["note"]) for o in a["options"]}
-    controls, result = quiz("What do you do?", options, {"best": "Best fix", "ok": "Works", "fail": "CI says no"}, notes)
+    controls, result = quiz("What do you do?", options, {"best": "Best fix", "ok": "Works", "fail": "Blocked"}, notes)
     return f"""
 <section class="screen quiz" data-group="author" data-act="Act 3 · PR author" hidden>
   <h2 class="kicker" tabindex="-1">PR author · {i + 1} of {len(AUTHOR)}</h2>

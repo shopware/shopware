@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "157fb891299a9eeaaddaf42fa214671c",
+    "content-hash": "e84495d3bc9c9b759b6ffea3e6421f19",
     "packages": [
         {
             "name": "nette/bootstrap",
@@ -2034,7 +2034,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/keulinho/twigstan",
-                "reference": "596faae3e8a53ef0dcfa0ba822e60161776b0221"
+                "reference": "12069ced366b597928acd80fe2111e5850d1b550"
             },
             "require": {
                 "composer-runtime-api": "^2.2",
@@ -2084,6 +2084,11 @@
                 "bin/twigstan"
             ],
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-codex/shopware-analysis": "0.2.x-dev"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "TwigStan\\": "src/"
@@ -2102,7 +2107,7 @@
                 "static analysis",
                 "twig"
             ],
-            "time": "2026-11-10T13:44:49+00:00"
+            "time": "2026-11-10T14:33:53+00:00"
         }
     ],
     "packages-dev": [
@@ -3872,14 +3877,7 @@
             "time": "2025-11-17T20:03:58+00:00"
         }
     ],
-    "aliases": [
-        {
-            "package": "twigstan/twigstan",
-            "version": "dev-codex/shopware-analysis",
-            "alias": "0.2.3",
-            "alias_normalized": "0.2.3.0"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
         "twigstan/twigstan": 20
@@ -3887,7 +3885,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "^8.4"
+        "php": "~8.4.0"
     },
     "platform-dev": {},
     "plugin-api-version": "2.9.0"

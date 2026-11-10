@@ -35,8 +35,8 @@ Findings require triage before becoming blocking checks.
 
 ## Public dependency forks
 
-- [TwigStan experiment](https://github.com/keulinho/twigstan/tree/596faae3e8a53ef0dcfa0ba822e60161776b0221): context preservation, recursive convergence and separate resolver memoization.
-  The exact revision is pinned in `composer.json` and `composer.lock`.
+- [TwigStan experiment](https://github.com/keulinho/twigstan/tree/12069ced366b597928acd80fe2111e5850d1b550): context preservation, recursive convergence and separate resolver memoization.
+  The exact revision is pinned in `composer.lock` through the fork's `0.2.x-dev` branch alias.
 - [PHPStan experiment](https://github.com/keulinho/phpstan-src/tree/25f0ab3d8aefc6b5968bef28126507d0be282716): persistent array-shape preservation and the independent identical-array fast path.
   Their PHP implementation is backported to the committed PHPStan 2.3.5 PHAR.
   `patches/phpstan-2.3.5-phar.patch` records the exact archive-source changes.

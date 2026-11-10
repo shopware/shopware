@@ -26,7 +26,7 @@ function createService({
         }),
 } = {}) {
     const httpClient = {
-        get: jest.fn((url: string, config: { headers: Record<string, string> }) =>
+        post: jest.fn((url: string, data: unknown, config: { headers: Record<string, string> }) =>
             product(config.headers['sw-language-id']),
         ),
     };
@@ -58,14 +58,23 @@ describe('module/sw-product/service/product-storefront-url.api.service', () => {
 
         const result = await service.fetchProductUrls('product-id', 'sales-channel-id');
 
-        expect(httpClient.get).toHaveBeenCalledTimes(2);
-        expect(httpClient.get).toHaveBeenCalledWith('_proxy/store-api/sales-channel-id/product/product-id', {
-            headers: expect.objectContaining({
-                'sw-language-id': GERMAN_LANGUAGE_ID,
-                'sw-include-seo-urls': '1',
-            }) as Record<string, string>,
-            params: { skipCmsPage: 1, skipConfigurator: 1 },
-        });
+        expect(httpClient.post).toHaveBeenCalledTimes(2);
+        expect(httpClient.post).toHaveBeenCalledWith(
+            '_proxy/store-api/sales-channel-id/product/product-id',
+            {
+                includes: {
+                    product: ['id', 'seoUrls'],
+                    seo_url: ['seoPathInfo', 'isCanonical', 'salesChannelId'],
+                },
+            },
+            {
+                headers: expect.objectContaining({
+                    'sw-language-id': GERMAN_LANGUAGE_ID,
+                    'sw-include-seo-urls': '1',
+                }) as Record<string, string>,
+                params: { skipCmsPage: 1, skipConfigurator: 1 },
+            },
+        );
         expect(result).toEqual({
             reachable: true,
             domains: [
@@ -107,10 +116,31 @@ describe('module/sw-product/service/product-storefront-url.api.service', () => {
         const result = service.fetchProductUrls('product-id', 'sales-channel-id');
         await flushPromises();
 
-        expect(httpClient.get).toHaveBeenCalledTimes(2);
+        expect(httpClient.post).toHaveBeenCalledTimes(2);
 
         respond();
         expect((await result)?.reachable).toBe(true);
+    });
+
+    it('prefers the SEO URL of the sales channel over one for all sales channels, like the Storefront', async () => {
+        const { service } = createService({
+            domains: [{ id: 'domain-en', url: 'https://shop.test', languageId: ENGLISH_LANGUAGE_ID }],
+            product: () =>
+                Promise.resolve({
+                    data: {
+                        product: {
+                            seoUrls: [
+                                { seoPathInfo: 'Shirt-all/SW10000', isCanonical: true, salesChannelId: null },
+                                { seoPathInfo: 'Shirt-own/SW10000', isCanonical: true, salesChannelId: 'sales-channel-id' },
+                            ],
+                        },
+                    },
+                }),
+        });
+
+        const result = await service.fetchProductUrls('product-id', 'sales-channel-id');
+
+        expect(result?.domains[0].productUrl).toBe('https://shop.test/Shirt-own/SW10000');
     });
 
     it('links the technical product URL when the product has no SEO URL', async () => {
@@ -150,7 +180,7 @@ describe('module/sw-product/service/product-storefront-url.api.service', () => {
 
         const result = await service.fetchProductUrls('product-id', 'sales-channel-id');
 
-        expect(httpClient.get).toHaveBeenCalledTimes(2);
+        expect(httpClient.post).toHaveBeenCalledTimes(2);
         expect(result).toEqual({
             reachable: false,
             domains: [
@@ -164,7 +194,7 @@ describe('module/sw-product/service/product-storefront-url.api.service', () => {
         const { service, httpClient } = createService();
 
         expect(await service.fetchProductUrls('product-id', 'sales-channel-id')).toBeNull();
-        expect(httpClient.get).not.toHaveBeenCalled();
+        expect(httpClient.post).not.toHaveBeenCalled();
     });
 
     it('passes on errors other than 404', async () => {

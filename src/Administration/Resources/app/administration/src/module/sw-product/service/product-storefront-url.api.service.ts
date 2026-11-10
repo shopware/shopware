@@ -32,6 +32,7 @@ type StoreApiProduct = {
         seoUrls?: {
             seoPathInfo: string;
             isCanonical: boolean;
+            salesChannelId: string | null;
         }[];
     };
 };
@@ -119,8 +120,14 @@ export default class ProductStorefrontUrlApiService extends ApiService {
 
     private async fetchProductPath(productId: string, salesChannelId: string, languageId: string): Promise<string | null> {
         try {
-            const response = await this.httpClient.get<StoreApiProduct>(
+            const response = await this.httpClient.post<StoreApiProduct>(
                 `${this.apiEndpoint}/${salesChannelId}/product/${productId}`,
+                {
+                    includes: {
+                        product: ['id', 'seoUrls'],
+                        seo_url: ['seoPathInfo', 'isCanonical', 'salesChannelId'],
+                    },
+                },
                 {
                     headers: {
                         ...this.getBasicHeaders(),
@@ -130,7 +137,8 @@ export default class ProductStorefrontUrlApiService extends ApiService {
                     params: { skipCmsPage: 1, skipConfigurator: 1 },
                 },
             );
-            const seoUrl = response.data.product.seoUrls?.find(({ isCanonical }) => isCanonical);
+            const seoUrls = (response.data.product.seoUrls ?? []).filter(({ isCanonical }) => isCanonical);
+            const seoUrl = seoUrls.find((url) => url.salesChannelId === salesChannelId) ?? seoUrls[0];
 
             return seoUrl ? `/${seoUrl.seoPathInfo.replace(/^\/+/, '')}` : `/detail/${productId}`;
         } catch (error) {

@@ -194,6 +194,22 @@ class SwTwigFunctionTest extends TestCase
             'method' => 'lockRules',
         ];
 
+        yield 'extension removed from the context' => [
+            'object' => Context::createDefaultContext(),
+            'item' => 'removeExtension',
+            'arguments' => ['myExtension'],
+            'type' => Template::METHOD_CALL,
+            'method' => 'removeExtension',
+        ];
+
+        yield 'extensions replaced on the sales channel context' => [
+            'object' => Generator::generateSalesChannelContext(),
+            'item' => 'setExtensions',
+            'arguments' => [[]],
+            'type' => Template::METHOD_CALL,
+            'method' => 'setExtensions',
+        ];
+
         yield 'process-wide trust configuration on the request' => [
             'object' => new Request(),
             'item' => 'setTrustedProxies',
@@ -328,6 +344,41 @@ class SwTwigFunctionTest extends TestCase
 
         static::assertInstanceOf(Context::class, $result);
         static::assertSame('version-id', $result->getVersionId());
+    }
+
+    /**
+     * @return \Generator<string, array{object: Struct, item: string, arguments: list<mixed>}>
+     */
+    public static function allowedContextExtensionProvider(): \Generator
+    {
+        yield 'array extension on the context' => [
+            'object' => Context::createDefaultContext(),
+            'item' => 'addArrayExtension',
+            'arguments' => ['myExtension', ['key' => 'value']],
+        ];
+
+        yield 'struct extension on the sales channel context' => [
+            'object' => Generator::generateSalesChannelContext(),
+            'item' => 'addExtension',
+            'arguments' => ['myExtension', new ArrayStruct(['key' => 'value'])],
+        ];
+
+        yield 'several extensions on the context without parentheses' => [
+            'object' => Context::createDefaultContext(),
+            'item' => 'addExtensions',
+            'arguments' => [['myExtension' => new ArrayStruct(['key' => 'value'])]],
+        ];
+    }
+
+    /**
+     * @param list<mixed> $arguments
+     */
+    #[DataProvider('allowedContextExtensionProvider')]
+    public function testTemplatesCanExtendARequestContext(Struct $object, string $item, array $arguments): void
+    {
+        SwTwigFunction::getAttribute($this->environment, new Source('', 'empty'), $object, $item, $arguments, Template::ANY_CALL);
+
+        static::assertTrue($object->hasExtension('myExtension'));
     }
 
     public function testTemplatesCanStillExtendOtherStructs(): void

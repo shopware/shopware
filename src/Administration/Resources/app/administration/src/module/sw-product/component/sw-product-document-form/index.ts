@@ -40,29 +40,17 @@ export default Shopware.Component.wrapComponentConfig({
     data() {
         return {
             showUploadModal: false,
-
             showMediaModal: false,
-
             mediaFolderId: undefined as string | null | undefined,
-
             editingDocument: null as ProductDocument | null,
-
             removingDocument: null as ProductDocument | null,
-
             documentTitle: '',
-
             documentEditSession: 0,
-
             replacementMedia: null as Entity<'media'> | null,
-
             documentFileRemoved: false,
-
             documentValidationSubmitted: false,
-
             allowedExtensions: [...allowedExtensions],
-
             maxFileSize,
-
             maxDocuments,
         };
     },

@@ -30,8 +30,6 @@ class ProductDocumentArchiver
 {
     public const DIRECTORY = 'product-documents/archives';
 
-    private const TAG_PREFIX = 'product-document-archive-';
-
     /**
      * @param EntityRepository<ProductDocumentCollection> $productDocumentRepository
      * @param EntityRepository<MediaCollection> $mediaRepository
@@ -44,22 +42,6 @@ class ProductDocumentArchiver
         private readonly Filesystem $filesystem,
         private readonly StreamFactoryInterface $streamFactory,
     ) {
-    }
-
-    public static function buildTag(string $productId): string
-    {
-        return self::TAG_PREFIX . $productId;
-    }
-
-    public static function extractProductId(string $tag): ?string
-    {
-        if (!str_starts_with($tag, self::TAG_PREFIX)) {
-            return null;
-        }
-
-        $productId = substr($tag, \strlen(self::TAG_PREFIX));
-
-        return Uuid::isValid($productId) ? $productId : null;
     }
 
     public function archive(SalesChannelProductEntity $product, SalesChannelContext $context): ?ProductDocumentArchive
@@ -75,7 +57,7 @@ class ProductDocumentArchiver
             return null;
         }
 
-        // named after its files, so changed files get a new ZIP before the delayed tag purge
+        // named after its files, so changed files get a new ZIP
         $path = \sprintf('%s/%s/%s.zip', self::DIRECTORY, $document->getProductId(), $this->hashFiles($files));
 
         if (!$this->privateFilesystem->fileExists($path)) {

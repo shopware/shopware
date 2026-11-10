@@ -247,13 +247,6 @@ class ProductDocumentArchiverTest extends TestCase
             ->archive($this->createProduct('Cordless drill'), $this->context);
     }
 
-    public function testTagsNameTheProductTheirArchivesBelongTo(): void
-    {
-        static::assertSame($this->productId, ProductDocumentArchiver::extractProductId(ProductDocumentArchiver::buildTag($this->productId)));
-        static::assertNull(ProductDocumentArchiver::extractProductId('product-' . $this->productId));
-        static::assertNull(ProductDocumentArchiver::extractProductId(ProductDocumentArchiver::buildTag('../media')));
-    }
-
     /**
      * @param list<ProductDocumentEntity> $documents
      * @param list<MediaEntity> $files

@@ -51,6 +51,8 @@ use Shopware\Core\Content\Product\Api\ProductActionController;
 use Shopware\Core\Content\Product\Api\ProductNumberFkResolver;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
 use Shopware\Core\Content\Product\Cart\ProductLineItemCommandValidator;
+use Shopware\Core\Content\Product\Cleanup\CleanupProductDocumentArchivesTask;
+use Shopware\Core\Content\Product\Cleanup\CleanupProductDocumentArchivesTaskHandler;
 use Shopware\Core\Content\Product\Cleanup\CleanupProductKeywordDictionaryTask;
 use Shopware\Core\Content\Product\Cleanup\CleanupProductKeywordDictionaryTaskHandler;
 use Shopware\Core\Content\Product\Cleanup\CleanupUnusedDownloadMediaTask;
@@ -146,14 +148,12 @@ use Shopware\Core\Content\Product\Stock\OrderStockSubscriber;
 use Shopware\Core\Content\Product\Stock\StockStorage;
 use Shopware\Core\Content\Product\Subscriber\CustomFieldSearchableSubscriber;
 use Shopware\Core\Content\Product\Subscriber\ProductDescriptionTeaserSubscriber;
-use Shopware\Core\Content\Product\Subscriber\ProductDocumentArchiveSubscriber;
 use Shopware\Core\Content\Product\Subscriber\ProductDocumentTitleSubscriber;
 use Shopware\Core\Content\Product\Subscriber\ProductSubscriber;
 use Shopware\Core\Content\Product\Subscriber\RepairDigitalProductStatesSubscriber;
 use Shopware\Core\Content\Product\Util\VariantCombinationLoader;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\ProductProvider;
-use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -813,15 +813,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Psr17Factory::class),
         ]);
 
-    $services->set(ProductDocumentArchiveSubscriber::class)
-        ->args([
-            service(Connection::class),
-            service(CacheInvalidator::class),
-            service('shopware.filesystem.private'),
-            service('logger'),
-        ])
-        ->tag('kernel.event_subscriber');
-
     $services->set(ProductPurchaseLimitRoute::class)
         ->public()
         ->args([
@@ -955,6 +946,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('scheduled_task.repository'),
             service('logger'),
             service(UnusedMediaPurger::class),
+        ])
+        ->tag('messenger.message_handler');
+
+    $services->set(CleanupProductDocumentArchivesTask::class)
+        ->tag('shopware.scheduled.task');
+
+    $services->set(CleanupProductDocumentArchivesTaskHandler::class)
+        ->args([
+            service('scheduled_task.repository'),
+            service('logger'),
+            service('shopware.filesystem.private'),
+            service(ClockInterface::class),
         ])
         ->tag('messenger.message_handler');
 

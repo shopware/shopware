@@ -66,7 +66,6 @@ class ProductDocumentArchiveRouteTest extends TestCase
         $handbook = 'handbook-' . Uuid::randomHex();
         static::getContainer()->get(FileSaver::class)->renameMedia($manualId, $handbook, $context);
 
-        static::assertSame([], $archives->listContents($folder)->toArray());
         static::assertSame(
             [$handbook . '.pdf' => 'manual content', $sheet . '.pdf' => 'sheet content'],
             $this->download($browser, $ids->get('drill-red'))
@@ -76,7 +75,6 @@ class ProductDocumentArchiveRouteTest extends TestCase
         $newSheetId = $mediaService->saveFile('new sheet content', 'pdf', 'application/pdf', $newSheet, $context, private: false);
         static::getContainer()->get('product_document.repository')->update([['id' => $ids->get('sheet'), 'mediaId' => $newSheetId]], $context);
 
-        static::assertSame([], $archives->listContents($folder)->toArray());
         static::assertSame(
             [$handbook . '.pdf' => 'manual content', $newSheet . '.pdf' => 'new sheet content'],
             $this->download($browser, $ids->get('drill-red'))

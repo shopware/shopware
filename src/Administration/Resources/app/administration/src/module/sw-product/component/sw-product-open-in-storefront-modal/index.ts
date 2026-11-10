@@ -1,4 +1,5 @@
 import type { PropType } from 'vue';
+import type RepositoryType from 'src/core/data/repository.data';
 import useNotification from 'src/app/composables/use-notification';
 import type { ProductStorefrontUrls } from '../../service/product-storefront-url.api.service';
 import template from './sw-product-open-in-storefront-modal.html.twig';
@@ -98,6 +99,14 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
+        productRepository(): RepositoryType<'product'> {
+            return this.repositoryFactory.create('product');
+        },
+
+        languageRepository(): RepositoryType<'language'> {
+            return this.repositoryFactory.create('language');
+        },
+
         modalSubtitle(): string {
             const variations = (this.product.variation ?? []) as { group: string; option: string }[];
             const variation = variations.map(({ group, option }) => `${group}: ${option}`).join(' | ');
@@ -241,7 +250,7 @@ export default Shopware.Component.wrapComponentConfig({
             criteria.setIds([...new Set(domains.map(({ languageId }) => languageId))]);
 
             try {
-                const languages = await this.repositoryFactory.create('language').search(criteria);
+                const languages = await this.languageRepository.search(criteria);
 
                 return Object.fromEntries(languages.map((language) => [language.id, language.name]));
             } catch {
@@ -280,7 +289,7 @@ export default Shopware.Component.wrapComponentConfig({
                     ]),
                 );
 
-                const availableVariants = await this.repositoryFactory.create('product').searchIds(criteria, {
+                const availableVariants = await this.productRepository.searchIds(criteria, {
                     ...Shopware.Context.api,
                     inheritance: true,
                 });

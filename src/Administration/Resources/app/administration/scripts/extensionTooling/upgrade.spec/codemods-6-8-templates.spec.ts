@@ -71,7 +71,7 @@ describe('scripts/extensionTooling/upgrade 6.8 template codemods', () => {
                 '{% endblock %}',
             ],
         );
-        writeFile(path.join(projectRoot, ADMINISTRATION, 'vite.config.mjs'), [
+        writeFile(path.join(projectRoot, ADMINISTRATION, 'vite.config.mts'), [
             "const entries = import.meta.glob('./src/**/!(*.spec).js');",
             '',
             'export default { entries };',
@@ -164,8 +164,8 @@ describe('scripts/extensionTooling/upgrade 6.8 template codemods', () => {
     it("also lints the extension's own vite.config", async () => {
         const { extensions } = await upgradeExtensions({ projectRoot, administrationRoot, write: true });
 
-        expect(extensions[0].changedFiles).toContain('src/Resources/app/administration/vite.config.mjs');
-        expect(fs.readFileSync(path.join(projectRoot, ADMINISTRATION, 'vite.config.mjs'), 'utf8')).toContain(
+        expect(extensions[0].changedFiles).toContain('src/Resources/app/administration/vite.config.mts');
+        expect(fs.readFileSync(path.join(projectRoot, ADMINISTRATION, 'vite.config.mts'), 'utf8')).toContain(
             "import.meta.glob(['./src/**/*.js', '!./src/**/*.spec.js'])",
         );
     });

@@ -11,7 +11,7 @@ const rule = createTodoRule({
     members: [
         { component: 'sw-order-detail', name: 'isLoading', message: 'isLoading is removed. Use loading.order.' },
         { component: ['sw-a', 'sw-b'], name: 'onSave', kinds: ['methods'], message: 'onSave is removed.' },
-        { name: 'swOrderDetailOnLoadingChange', unique: true, message: 'The provide is removed.' },
+        { component: 'sw-order-detail', name: 'swOrderDetailOnLoadingChange', unique: true, message: 'The provide is removed.' },
     ],
     calls: [{ service: 'orderService', method: 'toggleAutomaticPromotions', message: 'Use applyAutomaticPromotions().' }],
     globals: [{ path: 'Shopware.State', message: 'Shopware.State is removed.' }],
@@ -33,6 +33,11 @@ new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } })
         { name: 'ignores kinds that do not match', code: "Component.override('sw-a', { computed: { onSave() {} } });" },
         { name: 'ignores other services', code: 'this.cartService.toggleAutomaticPromotions();' },
         { name: 'ignores Shopware.Store', code: "Shopware.Store.get('swOrderDetail').isLoading;" },
+        {
+            name: 'ignores a unique name that another core component declares itself',
+            code: "Component.override('sw-settings-index', { methods: { swOrderDetailOnLoadingChange() {} } });",
+        },
+        { name: 'ignores component names from the object prototype', code: "Component.override('constructor', {});" },
     ],
     invalid: [
         {

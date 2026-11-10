@@ -39,6 +39,7 @@ const { twigTargets } = require('./twig-target');
 const { twigInterpolations } = require('./twig-interpolations');
 
 const asList = (value) => (Array.isArray(value) ? value : [value]);
+const CORE_COMPONENT_NAME = /^sw-[a-z0-9-]+$/;
 
 function matches(pattern, value) {
     return pattern instanceof RegExp ? pattern.test(value) : pattern === value;
@@ -89,7 +90,7 @@ function mergeVisitors(...visitorSets) {
  * @returns {import('eslint').Rule.RuleModule}
  */
 function createTodoRule(spec) {
-    const components = spec.components ?? {};
+    const components = new Map(Object.entries(spec.components ?? {}));
     const members = spec.members ?? [];
     const calls = spec.calls ?? [];
     const globals = spec.globals ?? [];
@@ -97,13 +98,28 @@ function createTodoRule(spec) {
     const imports = spec.imports ?? [];
     const events = spec.events ?? [];
 
-    function memberEntry(targets, name, kind) {
-        return members.find(
-            (entry) =>
-                entry.name === name &&
-                (!kind || !entry.kinds || entry.kinds.includes(kind)) &&
-                (entry.unique || targets.some((target) => asList(entry.component).includes(target))),
-        );
+    /**
+     * A unique name matches anywhere, except in an override of another core component that declares it itself:
+     * there it belongs to that component.
+     */
+    function memberEntry(targets, name, kind, declared = false) {
+        return members.find((entry) => {
+            if (entry.name !== name || (kind && entry.kinds && !entry.kinds.includes(kind))) {
+                return false;
+            }
+
+            const owners = entry.component ? asList(entry.component) : [];
+
+            if (targets.some((target) => owners.includes(target))) {
+                return true;
+            }
+
+            if (!entry.unique) {
+                return false;
+            }
+
+            return !declared || owners.length === 0 || !targets.some((target) => CORE_COMPONENT_NAME.test(target));
+        });
     }
 
     return {
@@ -148,7 +164,7 @@ function createTodoRule(spec) {
                         }
 
                         for (const member of declaredMembers(override.options)) {
-                            const entry = memberEntry([override.target], member.name, member.kind);
+                            const entry = memberEntry([override.target], member.name, member.kind, true);
 
                             if (entry) {
                                 todo(member.node, entry.message);
@@ -162,8 +178,8 @@ function createTodoRule(spec) {
                     if (call) {
                         const name = call.method === 'extend' ? call.target : call.name;
 
-                        if (name && components[name]) {
-                            todo(node, components[name]);
+                        if (name && components.has(name)) {
+                            todo(node, components.get(name));
                         }
                     }
 
@@ -258,7 +274,7 @@ function createTodoRule(spec) {
 
             const templateVisitors = {
                 VElement(node) {
-                    const message = components[elementName(node)];
+                    const message = components.get(elementName(node));
 
                     if (message) {
                         todo(node, message, 'template');

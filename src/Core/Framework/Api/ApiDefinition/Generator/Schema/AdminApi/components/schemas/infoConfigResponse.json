@@ -181,9 +181,9 @@
               "properties": {
                 "version": { "type": "string", "description": "Shopware version." },
                 "recordedAt": { "type": "string", "format": "date-time", "description": "Time the install or update finished." },
-                "installed": { "type": "boolean", "description": "True if the entry was recorded by the installation." }
+                "type": { "type": "string", "enum": ["install", "update"], "description": "Whether the version was installed or reached by an update." }
               },
-              "required": ["version", "recordedAt", "installed"],
+              "required": ["version", "recordedAt", "type"],
               "additionalProperties": false
             }
           }

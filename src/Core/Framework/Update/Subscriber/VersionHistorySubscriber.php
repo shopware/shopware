@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Event\SystemInstallCompletedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Core\Framework\Update\Services\VersionHistory;
+use Shopware\Core\Framework\Update\Services\VersionHistoryEntryType;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -29,11 +30,11 @@ final readonly class VersionHistorySubscriber implements EventSubscriberInterfac
 
     public function onInstallCompleted(): void
     {
-        $this->versionHistory->record(installed: true);
+        $this->versionHistory->record(VersionHistoryEntryType::INSTALL);
     }
 
     public function onUpdateFinished(): void
     {
-        $this->versionHistory->record(installed: false);
+        $this->versionHistory->record(VersionHistoryEntryType::UPDATE);
     }
 }

@@ -35,8 +35,8 @@ class VersionHistorySubscriberTest extends TestCase
         $dispatcher->dispatch(new UpdatePostFinishEvent(Context::createDefaultContext(), '6.7.16.0', '6.7.17.0'));
 
         static::assertSame(
-            [['6.7.16.0', true], ['6.7.17.0', false]],
-            array_map(static fn (array $entry) => [$entry['version'], $entry['installed']], $updatedVersionHistory->all()),
+            [['6.7.16.0', 'install'], ['6.7.17.0', 'update']],
+            array_map(static fn (array $entry) => [$entry['version'], $entry['type']], $updatedVersionHistory->all()),
         );
     }
 }

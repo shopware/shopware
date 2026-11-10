@@ -71,7 +71,7 @@ function getArrivedAt(since: string, versionHistory: VersionHistory): number | n
 
     const arrival = versionHistory[arrivalIndex];
 
-    if (arrivalIndex === 0 && arrival.installed) {
+    if (arrivalIndex === 0 && arrival.type === 'install') {
         return null;
     }
 

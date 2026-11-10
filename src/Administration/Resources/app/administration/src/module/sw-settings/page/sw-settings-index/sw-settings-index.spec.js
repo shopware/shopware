@@ -565,8 +565,8 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             expect(Shopware.Service('userConfigService').upsert).not.toHaveBeenCalled();
 
             Shopware.Context.app.config.versionHistory = [
-                { version: '6.7.16.0', recordedAt: new Date(Date.now() - 86400000 * 60).toISOString(), installed: true },
-                { version: '6.7.17.0', recordedAt: new Date().toISOString(), installed: false },
+                { version: '6.7.16.0', recordedAt: new Date(Date.now() - 86400000 * 60).toISOString(), type: 'install' },
+                { version: '6.7.17.0', recordedAt: new Date().toISOString(), type: 'update' },
             ];
             await flushPromises();
 
@@ -584,8 +584,8 @@ describe('module/sw-settings/page/sw-settings-index', () => {
 
         it('does not mark badges as seen again while the user searches', async () => {
             Shopware.Context.app.config.versionHistory = [
-                { version: '6.7.16.0', recordedAt: new Date(Date.now() - 86400000 * 60).toISOString(), installed: true },
-                { version: '6.7.17.0', recordedAt: new Date().toISOString(), installed: false },
+                { version: '6.7.16.0', recordedAt: new Date(Date.now() - 86400000 * 60).toISOString(), type: 'install' },
+                { version: '6.7.17.0', recordedAt: new Date().toISOString(), type: 'update' },
             ];
             const markSeenSpy = jest.spyOn(Shopware.Store.get('whatsNew'), 'markSeen');
             const wrapper = await createWrapper();

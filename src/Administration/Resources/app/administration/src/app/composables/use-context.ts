@@ -47,7 +47,7 @@ export interface ContextState {
             versionHistory?: {
                 version: string;
                 recordedAt: string;
-                installed: boolean;
+                type: 'install' | 'update';
             }[];
             shopId: null | string;
             appUrl: null | string;

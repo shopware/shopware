@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Services\VersionHistory;
+use Shopware\Core\Framework\Update\Services\VersionHistoryEntryType;
 use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
 use Symfony\Component\Clock\MockClock;
 
@@ -27,10 +28,10 @@ class VersionHistoryTest extends TestCase
     {
         $versionHistory = new VersionHistory(new ArrayKeyValueStorage(), $this->clock, '6.7.17.0');
 
-        $versionHistory->record(installed: true);
+        $versionHistory->record(VersionHistoryEntryType::INSTALL);
 
         static::assertSame([
-            ['version' => '6.7.17.0', 'recordedAt' => '2026-11-04T10:00:00+00:00', 'installed' => true],
+            ['version' => '6.7.17.0', 'recordedAt' => '2026-11-04T10:00:00+00:00', 'type' => 'install'],
         ], $versionHistory->all());
     }
 
@@ -38,18 +39,18 @@ class VersionHistoryTest extends TestCase
     {
         $storage = new ArrayKeyValueStorage([
             VersionHistory::STORAGE_KEY => json_encode([
-                ['version' => '6.7.16.0', 'recordedAt' => '2026-10-01T10:00:00+00:00', 'installed' => true],
+                ['version' => '6.7.16.0', 'recordedAt' => '2026-10-01T10:00:00+00:00', 'type' => 'install'],
             ]),
         ]);
         $versionHistory = new VersionHistory($storage, $this->clock, '6.7.17.0');
 
-        $versionHistory->record(installed: false);
+        $versionHistory->record(VersionHistoryEntryType::UPDATE);
         $this->clock->modify('+1 hour');
-        $versionHistory->record(installed: false);
+        $versionHistory->record(VersionHistoryEntryType::UPDATE);
 
         static::assertSame([
-            ['version' => '6.7.16.0', 'recordedAt' => '2026-10-01T10:00:00+00:00', 'installed' => true],
-            ['version' => '6.7.17.0', 'recordedAt' => '2026-11-04T10:00:00+00:00', 'installed' => false],
+            ['version' => '6.7.16.0', 'recordedAt' => '2026-10-01T10:00:00+00:00', 'type' => 'install'],
+            ['version' => '6.7.17.0', 'recordedAt' => '2026-11-04T10:00:00+00:00', 'type' => 'update'],
         ], $versionHistory->all());
     }
 
@@ -57,18 +58,18 @@ class VersionHistoryTest extends TestCase
     {
         $storage = new ArrayKeyValueStorage([
             VersionHistory::STORAGE_KEY => json_encode([
-                ['version' => '6.7.16.0', 'recordedAt' => '2026-09-01T10:00:00+00:00', 'installed' => true],
-                ['version' => '6.7.17.0', 'recordedAt' => '2026-10-01T10:00:00+00:00', 'installed' => false],
+                ['version' => '6.7.16.0', 'recordedAt' => '2026-09-01T10:00:00+00:00', 'type' => 'install'],
+                ['version' => '6.7.17.0', 'recordedAt' => '2026-10-01T10:00:00+00:00', 'type' => 'update'],
             ]),
         ]);
 
-        (new VersionHistory($storage, $this->clock, '6.7.16.0'))->record(installed: false);
+        (new VersionHistory($storage, $this->clock, '6.7.16.0'))->record(VersionHistoryEntryType::UPDATE);
         $versionHistory = new VersionHistory($storage, $this->clock, '6.7.17.0');
-        $versionHistory->record(installed: false);
+        $versionHistory->record(VersionHistoryEntryType::UPDATE);
 
         static::assertSame([
-            ['version' => '6.7.16.0', 'recordedAt' => '2026-09-01T10:00:00+00:00', 'installed' => true],
-            ['version' => '6.7.17.0', 'recordedAt' => '2026-10-01T10:00:00+00:00', 'installed' => false],
+            ['version' => '6.7.16.0', 'recordedAt' => '2026-09-01T10:00:00+00:00', 'type' => 'install'],
+            ['version' => '6.7.17.0', 'recordedAt' => '2026-10-01T10:00:00+00:00', 'type' => 'update'],
         ], $versionHistory->all());
     }
 
@@ -76,16 +77,16 @@ class VersionHistoryTest extends TestCase
     {
         $storage = new ArrayKeyValueStorage([
             VersionHistory::STORAGE_KEY => json_encode([
-                ['version' => '6.7.16.0', 'recordedAt' => '2026-09-01T10:00:00+00:00', 'installed' => true],
-                ['version' => '6.7.17.0', 'recordedAt' => '2026-10-01T10:00:00+00:00', 'installed' => false],
+                ['version' => '6.7.16.0', 'recordedAt' => '2026-09-01T10:00:00+00:00', 'type' => 'install'],
+                ['version' => '6.7.17.0', 'recordedAt' => '2026-10-01T10:00:00+00:00', 'type' => 'update'],
             ]),
         ]);
         $versionHistory = new VersionHistory($storage, $this->clock, '6.7.17.0');
 
-        $versionHistory->record(installed: true);
+        $versionHistory->record(VersionHistoryEntryType::INSTALL);
 
         static::assertSame([
-            ['version' => '6.7.17.0', 'recordedAt' => '2026-11-04T10:00:00+00:00', 'installed' => true],
+            ['version' => '6.7.17.0', 'recordedAt' => '2026-11-04T10:00:00+00:00', 'type' => 'install'],
         ], $versionHistory->all());
     }
 
@@ -103,13 +104,13 @@ class VersionHistoryTest extends TestCase
     public function testKeepsTheLast24Entries(): void
     {
         $entries = array_map(
-            static fn (int $minor) => ['version' => '6.6.' . $minor . '.0', 'recordedAt' => '2024-01-01T10:00:00+00:00', 'installed' => false],
+            static fn (int $minor) => ['version' => '6.6.' . $minor . '.0', 'recordedAt' => '2024-01-01T10:00:00+00:00', 'type' => 'update'],
             range(0, 23),
         );
         $storage = new ArrayKeyValueStorage([VersionHistory::STORAGE_KEY => $entries]);
         $versionHistory = new VersionHistory($storage, $this->clock, '6.7.17.0');
 
-        $versionHistory->record(installed: false);
+        $versionHistory->record(VersionHistoryEntryType::UPDATE);
 
         $history = $versionHistory->all();
         static::assertCount(24, $history);

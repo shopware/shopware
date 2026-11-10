@@ -5,11 +5,11 @@ const USER_CONFIG_KEY = 'core.whatsNew';
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const NOW = new Date('2026-11-03T12:00:00Z').getTime();
 
-function historyEntry(version: string, ageInMs: number, installed = false) {
+function historyEntry(version: string, ageInMs: number, type: 'install' | 'update' = 'update') {
     return {
         version,
         recordedAt: new Date(NOW - ageInMs).toISOString(),
-        installed,
+        type,
     };
 }
 
@@ -39,7 +39,7 @@ describe('whats-new.store', () => {
 
         Shopware.Context.app.config.version = '6.7.17.0';
         Shopware.Context.app.config.versionHistory = [
-            historyEntry('6.7.16.0', 60 * DAY_IN_MS, true),
+            historyEntry('6.7.16.0', 60 * DAY_IN_MS, 'install'),
             historyEntry('6.7.17.0', DAY_IN_MS),
         ];
     });
@@ -56,7 +56,7 @@ describe('whats-new.store', () => {
             scenario: 'the update that brought its version',
             version: '6.7.17.0',
             versionHistory: [
-                historyEntry('6.7.16.0', 60 * DAY_IN_MS, true),
+                historyEntry('6.7.16.0', 60 * DAY_IN_MS, 'install'),
                 historyEntry('6.7.17.0', DAY_IN_MS),
             ],
             expected: true,
@@ -65,7 +65,7 @@ describe('whats-new.store', () => {
             scenario: 'an update that skipped its version',
             version: '6.7.19.0',
             versionHistory: [
-                historyEntry('6.6.0.0', 400 * DAY_IN_MS, true),
+                historyEntry('6.6.0.0', 400 * DAY_IN_MS, 'install'),
                 historyEntry('6.7.19.0', DAY_IN_MS),
             ],
             expected: true,
@@ -73,7 +73,7 @@ describe('whats-new.store', () => {
         {
             scenario: 'a shop installed with its version',
             version: '6.7.17.0',
-            versionHistory: [historyEntry('6.7.17.0', DAY_IN_MS, true)],
+            versionHistory: [historyEntry('6.7.17.0', DAY_IN_MS, 'install')],
             expected: false,
         },
         {
@@ -86,7 +86,7 @@ describe('whats-new.store', () => {
             scenario: 'a patch update of a shop installed with its version',
             version: '6.7.17.1',
             versionHistory: [
-                historyEntry('6.7.17.0', 10 * DAY_IN_MS, true),
+                historyEntry('6.7.17.0', 10 * DAY_IN_MS, 'install'),
                 historyEntry('6.7.17.1', DAY_IN_MS),
             ],
             expected: false,
@@ -94,7 +94,7 @@ describe('whats-new.store', () => {
         {
             scenario: 'a shop on an older version',
             version: '6.7.16.0',
-            versionHistory: [historyEntry('6.7.16.0', DAY_IN_MS, true)],
+            versionHistory: [historyEntry('6.7.16.0', DAY_IN_MS, 'install')],
             expected: false,
         },
         {
@@ -107,7 +107,7 @@ describe('whats-new.store', () => {
             scenario: 'an arrival just under 30 days ago',
             version: '6.7.17.0',
             versionHistory: [
-                historyEntry('6.7.16.0', 90 * DAY_IN_MS, true),
+                historyEntry('6.7.16.0', 90 * DAY_IN_MS, 'install'),
                 historyEntry('6.7.17.0', 30 * DAY_IN_MS - 1000),
             ],
             expected: true,
@@ -116,7 +116,7 @@ describe('whats-new.store', () => {
             scenario: 'an arrival 30 days ago',
             version: '6.7.17.0',
             versionHistory: [
-                historyEntry('6.7.16.0', 90 * DAY_IN_MS, true),
+                historyEntry('6.7.16.0', 90 * DAY_IN_MS, 'install'),
                 historyEntry('6.7.17.0', 30 * DAY_IN_MS),
             ],
             expected: false,

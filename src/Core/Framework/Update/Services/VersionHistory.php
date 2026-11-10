@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  *
- * @phpstan-type VersionHistoryEntry array{version: string, recordedAt: string, installed: bool}
+ * @phpstan-type VersionHistoryEntry array{version: string, recordedAt: string, type: value-of<VersionHistoryEntryType>}
  */
 #[Package('framework')]
 final readonly class VersionHistory
@@ -25,9 +25,9 @@ final readonly class VersionHistory
     ) {
     }
 
-    public function record(bool $installed): void
+    public function record(VersionHistoryEntryType $type): void
     {
-        $entries = $installed ? [] : $this->all();
+        $entries = $type === VersionHistoryEntryType::INSTALL ? [] : $this->all();
 
         if (\in_array($this->shopwareVersion, array_column($entries, 'version'), true)) {
             return;
@@ -36,7 +36,7 @@ final readonly class VersionHistory
         $entries[] = [
             'version' => $this->shopwareVersion,
             'recordedAt' => $this->clock->now()->format(\DateTimeInterface::ATOM),
-            'installed' => $installed,
+            'type' => $type->value,
         ];
 
         $this->storage->set(

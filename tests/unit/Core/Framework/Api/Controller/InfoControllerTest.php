@@ -35,6 +35,7 @@ use Shopware\Core\Framework\Migration\MigrationInfo;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Update\Services\VersionHistory;
+use Shopware\Core\Framework\Update\Services\VersionHistoryEntryType;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
@@ -70,7 +71,7 @@ class InfoControllerTest extends TestCase
     {
         parent::setUp();
         $this->versionHistory = new VersionHistory(new ArrayKeyValueStorage(), new MockClock('2026-11-04T10:00:00+00:00'), '6.6.9999999-dev');
-        $this->versionHistory->record(installed: true);
+        $this->versionHistory->record(VersionHistoryEntryType::INSTALL);
         $this->shopIdProvider = $this->createMock(ShopIdProvider::class);
         $this->statsService = static::createStub(StatsService::class);
         $this->migrationInfo = static::createStub(MigrationInfo::class);
@@ -153,7 +154,7 @@ class InfoControllerTest extends TestCase
         static::assertSame(['SwagApp_premium'], $inAppPurchases['SwagApp']);
 
         static::assertSame([
-            ['version' => '6.6.9999999-dev', 'recordedAt' => '2026-11-04T10:00:00+00:00', 'installed' => true],
+            ['version' => '6.6.9999999-dev', 'recordedAt' => '2026-11-04T10:00:00+00:00', 'type' => 'install'],
         ], $data['versionHistory']);
     }
 

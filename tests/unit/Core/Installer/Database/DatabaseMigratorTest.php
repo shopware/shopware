@@ -210,9 +210,9 @@ class DatabaseMigratorTest extends TestCase
             'isFinished' => true,
         ], $result);
         static::assertSame(
-            [[Kernel::SHOPWARE_FALLBACK_VERSION, true]],
+            [[Kernel::SHOPWARE_FALLBACK_VERSION, 'install']],
             array_map(
-                static fn (array $entry) => [$entry['version'], $entry['installed']],
+                static fn (array $entry) => [$entry['version'], $entry['type']],
                 $writtenConfig[VersionHistory::STORAGE_KEY],
             ),
         );

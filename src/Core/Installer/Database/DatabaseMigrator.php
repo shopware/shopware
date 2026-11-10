@@ -8,6 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Storage\MySQLKeyValueStorage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Services\VersionHistory;
+use Shopware\Core\Framework\Update\Services\VersionHistoryEntryType;
 use Shopware\Core\Installer\Requirements\IniConfigReader;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 
@@ -75,7 +76,7 @@ class DatabaseMigrator
         $isFinished = $coreMigrations->getExecutableDestructiveMigrations() === [];
 
         if ($isFinished) {
-            (new VersionHistory(new MySQLKeyValueStorage($connection), $this->clock, $this->version))->record(installed: true);
+            (new VersionHistory(new MySQLKeyValueStorage($connection), $this->clock, $this->version))->record(VersionHistoryEntryType::INSTALL);
         }
 
         return [

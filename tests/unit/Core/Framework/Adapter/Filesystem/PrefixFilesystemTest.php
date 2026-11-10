@@ -78,16 +78,16 @@ class PrefixFilesystemTest extends TestCase
     {
         $fs = new Filesystem(new InMemoryFilesystemAdapter());
         $prefix = new PrefixFilesystem($fs, 'foo');
-        $tmpFile = sys_get_temp_dir() . '/' . uniqid('test', true);
-        file_put_contents($tmpFile, 'test');
+        $stream = fopen('php://memory', 'r+');
+        static::assertIsResource($stream);
+        fwrite($stream, 'test');
+        rewind($stream);
 
-        $prefix->writeStream('a.txt', fopen($tmpFile, 'r'));
+        $prefix->writeStream('a.txt', $stream);
 
         static::assertTrue($prefix->fileExists('a.txt'));
         static::assertSame('test', $prefix->read('a.txt'));
         static::assertSame('test', stream_get_contents($prefix->readStream('a.txt')));
-
-        unlink($tmpFile);
     }
 
     public function testEmptyPrefix(): void

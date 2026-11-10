@@ -20,23 +20,20 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(CopyBatch::class)]
 class CopyBatchTest extends TestCase
 {
+    private const SOURCE_FILE = __DIR__ . '/_fixtures/test.txt';
+
     public function testCopy(): void
     {
         $fs = new Filesystem(new InMemoryFilesystemAdapter());
 
-        $tmpFile = sys_get_temp_dir() . '/' . uniqid('test', true);
-        file_put_contents($tmpFile, 'test');
-
-        $sourceFile = fopen($tmpFile, 'r');
+        $sourceFile = fopen(self::SOURCE_FILE, 'r');
         static::assertIsResource($sourceFile);
-        CopyBatch::copy($fs, new CopyBatchInput($tmpFile, ['test.txt']), new CopyBatchInput($sourceFile, ['test2.txt']));
+        CopyBatch::copy($fs, new CopyBatchInput(self::SOURCE_FILE, ['test.txt']), new CopyBatchInput($sourceFile, ['test2.txt']));
 
         static::assertTrue($fs->fileExists('test.txt'));
         static::assertTrue($fs->fileExists('test2.txt'));
         static::assertSame('test', $fs->read('test.txt'));
         static::assertSame('test', $fs->read('test2.txt'));
-
-        unlink($tmpFile);
     }
 
     public function testCopyWithBatchCopyInterface(): void
@@ -48,14 +45,9 @@ class CopyBatchTest extends TestCase
 
         $fs = new Filesystem($adapter);
 
-        $tmpFile = sys_get_temp_dir() . '/' . uniqid('test', true);
-        file_put_contents($tmpFile, 'test');
-
-        $sourceFile = fopen($tmpFile, 'r');
+        $sourceFile = fopen(self::SOURCE_FILE, 'r');
         static::assertIsResource($sourceFile);
-        CopyBatch::copy($fs, new CopyBatchInput($tmpFile, ['test.txt']), new CopyBatchInput($sourceFile, ['test2.txt']));
-
-        unlink($tmpFile);
+        CopyBatch::copy($fs, new CopyBatchInput(self::SOURCE_FILE, ['test.txt']), new CopyBatchInput($sourceFile, ['test2.txt']));
     }
 
     public function testConstructorThrowsAnExceptionWithNoResource(): void

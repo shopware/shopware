@@ -7,8 +7,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
-use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Util\Hasher;
@@ -43,9 +41,8 @@ class PhpSyntaxExtensionTest extends TestCase
         $template = file_get_contents(__DIR__ . '/fixture/php-syntax-extension.html.twig');
         static::assertIsString($template);
 
-        $environment = new Environment(new ArrayLoader());
+        $environment = new Environment(new ArrayLoader(['test' => $template]), ['strict_variables' => true]);
         $environment->addExtension(new PhpSyntaxExtension());
-        $renderer = new StringTemplateRenderer($environment, sys_get_temp_dir());
 
         $jsonEncodeData = [
             -4,
@@ -80,7 +77,7 @@ class PhpSyntaxExtensionTest extends TestCase
             ],
         ];
 
-        $result = $renderer->render($template, $data, Context::createDefaultContext());
+        $result = $environment->render('test', $data);
 
         $expected = '';
         for ($i = 1; $i <= 22; ++$i) {

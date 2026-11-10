@@ -25,113 +25,34 @@ class UpdateHtaccessTest extends TestCase
         );
     }
 
-    #[DataProvider('getCombinations')]
-    public function testCombination(string $currentEnv, ?string $newEnv, string $expected): void
+    public function testUpdateIgnoresMissingHtaccess(): void
     {
-        $fs = sys_get_temp_dir() . '/' . uniqid(__METHOD__, true) . '/';
-        mkdir($fs);
+        $htaccess = __DIR__ . '/_fixtures/UpdateHtaccess/missing-htaccess/htaccess';
 
-        file_put_contents($fs . '.env', $currentEnv);
+        (new UpdateHtaccess($htaccess))->update();
 
-        if ($newEnv) {
-            file_put_contents($fs . '.env.dist', $newEnv);
-        }
-
-        $updater = new UpdateHtaccess($fs . '.env');
-        $updater->update();
-
-        static::assertSame($expected, file_get_contents($fs . '.env'));
+        static::assertFileDoesNotExist($htaccess);
     }
 
     /**
-     * @return iterable<array-key, array{string, ?string, string}>
+     * The rewriting cases live in the integration test of the same name: they need a writable tree.
      */
-    public static function getCombinations(): iterable
+    #[DataProvider('getUntouchedCombinations')]
+    public function testCombination(string $fixture, string $expected): void
     {
-        // Dist file missing
-        yield [
-            'Test',
-            null,
-            'Test',
-        ];
+        $htaccess = __DIR__ . '/_fixtures/UpdateHtaccess/' . $fixture . '/htaccess';
 
-        // User has removed marker
-        yield [
-            'Test',
-            '# BEGIN Shopware
-Test
-# END Shopware',
-            'Test',
-        ];
+        (new UpdateHtaccess($htaccess))->update();
 
-        // Update marker
-        yield [
-            '# BEGIN Shopware
-OLD
-# END Shopware',
-            '# BEGIN Shopware
-NEW
-# END Shopware',
-            '# BEGIN Shopware
-# The directives (lines) between "# BEGIN Shopware" and "# END Shopware" are dynamically generated. Any changes to the directives between these markers will be overwritten.
-NEW
-# END Shopware',
-        ];
-
-        // Update marker with pre and after lines
-        yield [
-            'BEFORE
-# BEGIN Shopware
-OLD
-# END Shopware
-AFTER',
-            '# BEGIN Shopware
-NEW
-# END Shopware',
-            'BEFORE
-# BEGIN Shopware
-# The directives (lines) between "# BEGIN Shopware" and "# END Shopware" are dynamically generated. Any changes to the directives between these markers will be overwritten.
-NEW
-# END Shopware
-AFTER',
-        ];
-
-        // Update containg help text
-        yield [
-            'BEFORE
-# BEGIN Shopware
-# The directives (lines) between "# BEGIN Shopware" and "# END Shopware" are dynamically generated. Any changes to the directives between these markers will be overwritten.
-OLD
-# END Shopware
-AFTER',
-            '# BEGIN Shopware
-# The directives (lines) between "# BEGIN Shopware" and "# END Shopware" are dynamically generated. Any changes to the directives between these markers will be overwritten.
-NEW
-# END Shopware',
-            'BEFORE
-# BEGIN Shopware
-# The directives (lines) between "# BEGIN Shopware" and "# END Shopware" are dynamically generated. Any changes to the directives between these markers will be overwritten.
-NEW
-# END Shopware
-AFTER',
-        ];
+        static::assertStringEqualsFile($htaccess, $expected);
     }
 
-    public function testReplaceComplete(): void
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function getUntouchedCombinations(): iterable
     {
-        $fs = sys_get_temp_dir() . '/' . uniqid(__METHOD__, true) . '/';
-        mkdir($fs);
-
-        copy(__DIR__ . '/../_fixtures/htaccess', $fs . '.htaccess');
-        $newHtaccess = '# BEGIN Shopware
-# The directives (lines) between "# BEGIN Shopware" and "# END Shopware" are dynamically generated. Any changes to the directives between these markers will be overwritten.
-NEW
-# END Shopware';
-        file_put_contents($fs . '.htaccess.dist', $newHtaccess);
-
-        $updater = new UpdateHtaccess($fs . '.htaccess');
-        $updater->update();
-
-        static::assertSame($newHtaccess, file_get_contents($fs . '.htaccess'));
+        yield 'dist file missing' => ['missing-dist', 'Test'];
+        yield 'user has removed marker' => ['removed-marker', 'Test'];
     }
 }

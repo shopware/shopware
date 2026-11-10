@@ -26,7 +26,7 @@ class ScriptLoaderTest extends TestCase
             $this->createConnection(),
             static::createStub(ScriptLifecycleHandler::class),
             $cache,
-            sys_get_temp_dir(),
+            '/cache',
             false,
         );
 
@@ -43,7 +43,7 @@ class ScriptLoaderTest extends TestCase
             $this->createConnection(),
             static::createStub(ScriptLifecycleHandler::class),
             $cache,
-            sys_get_temp_dir(),
+            '/cache',
             false,
         );
 
@@ -70,7 +70,7 @@ class ScriptLoaderTest extends TestCase
             $connection,
             static::createStub(ScriptLifecycleHandler::class),
             $cache,
-            sys_get_temp_dir(),
+            '/cache',
             false,
         );
 

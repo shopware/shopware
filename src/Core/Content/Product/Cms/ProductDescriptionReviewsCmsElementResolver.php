@@ -3,18 +3,15 @@
 namespace Shopware\Core\Content\Product\Cms;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
-use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductDescriptionReviewsStruct;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentEntity;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook;
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Context;
@@ -31,17 +28,17 @@ class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailC
 {
     final public const TYPE = 'product-description-reviews';
 
-    private const DOCUMENTS_KEY = 'product_documents_';
-
     /**
      * @internal
      *
+     * @param EntityRepository<ProductDocumentCollection> $productDocumentRepository
      * @param EntityRepository<MediaCollection> $mediaRepository
      */
     public function __construct(
         private readonly AbstractProductReviewLoader $productReviewLoader,
         private readonly ScriptExecutor $scriptExecutor,
         private readonly SystemConfigService $systemConfigService,
+        private readonly EntityRepository $productDocumentRepository,
         private readonly EntityRepository $mediaRepository,
     ) {
     }
@@ -49,26 +46,6 @@ class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailC
     public function getType(): string
     {
         return self::TYPE;
-    }
-
-    public function collect(CmsSlotEntity $slot, ResolverContext $resolverContext): ?CriteriaCollection
-    {
-        $criteriaCollection = parent::collect($slot, $resolverContext);
-
-        if (!$resolverContext instanceof EntityResolverContext || !$resolverContext->getDefinition() instanceof SalesChannelProductDefinition) {
-            return $criteriaCollection;
-        }
-
-        // `product.id` resolves the documents a variant inherits from its parent
-        $criteria = new Criteria();
-        $criteria->setTitle('cms::product-description-reviews-documents');
-        $criteria->addFilter(new EqualsFilter('product.id', $resolverContext->getEntity()->getUniqueIdentifier()));
-        $criteria->addSorting(new FieldSorting('position'));
-
-        $criteriaCollection ??= new CriteriaCollection();
-        $criteriaCollection->add(self::DOCUMENTS_KEY . $slot->getUniqueIdentifier(), ProductDocumentDefinition::class, $criteria);
-
-        return $criteriaCollection;
     }
 
     public function enrich(CmsSlotEntity $slot, ResolverContext $resolverContext, ElementDataCollection $result): void
@@ -102,10 +79,7 @@ class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailC
 
         $data->setProduct($product);
 
-        $documents = $result->get(self::DOCUMENTS_KEY . $slot->getUniqueIdentifier())?->getEntities();
-        if ($documents instanceof ProductDocumentCollection) {
-            $this->addDocuments($data, $documents, $resolverContext->getSalesChannelContext()->getContext());
-        }
+        $this->addDocuments($data, $product, $resolverContext->getSalesChannelContext()->getContext());
 
         if ($this->systemConfigService->getBool('core.listing.showReview', $resolverContext->getSalesChannelContext()->getSalesChannelId())) {
             $reviews = $this->productReviewLoader->load($request, $resolverContext->getSalesChannelContext(), $product->getId(), $product->getParentId());
@@ -116,8 +90,16 @@ class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailC
         }
     }
 
-    private function addDocuments(ProductDescriptionReviewsStruct $data, ProductDocumentCollection $documents, Context $context): void
+    private function addDocuments(ProductDescriptionReviewsStruct $data, SalesChannelProductEntity $product, Context $context): void
     {
+        // `product.id` resolves the documents a variant inherits from its parent
+        $criteria = new Criteria();
+        $criteria->setTitle('cms::product-description-reviews-documents');
+        $criteria->addFilter(new EqualsFilter('product.id', $product->getId()));
+        $criteria->addSorting(new FieldSorting('position'));
+
+        $documents = $this->productDocumentRepository->search($criteria, $context)->getEntities();
+
         $mediaIds = array_filter(
             $documents->map(static fn (ProductDocumentEntity $document): mixed => $document->getTranslation('mediaId')),
             \is_string(...)
@@ -134,9 +116,12 @@ class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailC
 
         $media = $this->mediaRepository->search($mediaCriteria, $context)->getEntities();
 
+        foreach ($documents as $document) {
+            $document->setMedia($media->get($mediaIds[$document->getId()] ?? ''));
+        }
+
         $data->setDocuments($documents->filter(
-            static fn (ProductDocumentEntity $document): bool => $media->has($mediaIds[$document->getId()] ?? '')
+            static fn (ProductDocumentEntity $document): bool => $document->getMedia() !== null
         ));
-        $data->setDocumentMedia($media);
     }
 }

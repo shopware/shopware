@@ -12,6 +12,7 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -126,6 +127,34 @@ class SalesChannelProductDefinitionTest extends TestCase
             ])],
             $criteria->getAssociation('productReviews')->getFilters()
         );
+    }
+
+    #[DataProvider('nestingLevelProvider')]
+    public function testProcessCriteriaFiltersDocumentTranslationsOnEveryNestingLevel(int $nestingLevel): void
+    {
+        $criteria = new Criteria(nestingLevel: $nestingLevel);
+        $criteria->addAssociation('documents.translations.media');
+        $context = Generator::generateSalesChannelContext();
+
+        (new SalesChannelProductDefinition())->processCriteria($criteria, $context);
+
+        static::assertEquals(
+            [
+                new EqualsAnyFilter('languageId', $context->getContext()->getLanguageIdChain()),
+                new EqualsFilter('media.private', false),
+            ],
+            $criteria->getAssociation('documents')->getAssociation('translations')->getFilters()
+        );
+    }
+
+    public function testProcessCriteriaDoesNotAddTheTranslationsOfDocuments(): void
+    {
+        $criteria = new Criteria();
+        $criteria->addAssociation('documents');
+
+        (new SalesChannelProductDefinition())->processCriteria($criteria, Generator::generateSalesChannelContext());
+
+        static::assertFalse($criteria->getAssociation('documents')->hasAssociation('translations'));
     }
 
     /**

@@ -174,7 +174,6 @@ valid-filters = [
     "sw_sanitize",
     "sw_encode_url",
     "sw_encode_media_url",
-    "format_bytes",
     "sw_convert_unit",
     "sw_garan_label_duration",
     "sw_garan_label",

@@ -116,7 +116,6 @@ use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentRenderEventListener;
 use Shopware\Storefront\Framework\Twig\ErrorTemplateResolver;
-use Shopware\Storefront\Framework\Twig\Extension\ByteFormatTwigFilter;
 use Shopware\Storefront\Framework\Twig\Extension\ConfigExtension;
 use Shopware\Storefront\Framework\Twig\Extension\IconCacheTwigFilter;
 use Shopware\Storefront\Framework\Twig\Extension\UrlEncodingTwigFilter;
@@ -392,10 +391,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     $services->set(UrlEncodingTwigFilter::class)
-        ->tag('twig.extension');
-
-    $services->set(ByteFormatTwigFilter::class)
-        ->args([service('request_stack')])
         ->tag('twig.extension');
 
     $services->set(IconCacheTwigFilter::class)

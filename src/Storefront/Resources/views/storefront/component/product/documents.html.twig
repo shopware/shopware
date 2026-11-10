@@ -12,7 +12,7 @@
             {% block component_product_documents_list %}
                 <ul class="product-detail-documents-list list-unstyled">
                     {% for document in documents %}
-                        {% set media = documentMedia.get(document.translated.mediaId) %}
+                        {% set media = document.media %}
 
                         {% block component_product_documents_item %}
                             <li class="product-detail-documents-item">
@@ -28,22 +28,6 @@
                                        download>
                                         {% block component_product_documents_item_name %}
                                             <span class="product-detail-documents-name">{{ document.translated.title ?: media.fileName }}</span>
-                                        {% endblock %}
-
-                                        {% block component_product_documents_item_file_info %}
-                                            {% set fileInfo = [] %}
-
-                                            {% if media.fileExtension %}
-                                                {% set fileInfo = fileInfo|merge([media.fileExtension|upper]) %}
-                                            {% endif %}
-
-                                            {% if media.fileSize %}
-                                                {% set fileInfo = fileInfo|merge([media.fileSize|format_bytes]) %}
-                                            {% endif %}
-
-                                            {% if fileInfo is not empty %}
-                                                <span class="product-detail-documents-file-info">({{ fileInfo|join(', ') }})</span>
-                                            {% endif %}
                                         {% endblock %}
                                     </a>
                                 {% endblock %}

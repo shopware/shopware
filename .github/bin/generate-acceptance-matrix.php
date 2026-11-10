@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-$php = ['8.2'];
+$php = ['8.6'];
 
 // Emits the `strategy.matrix` object only — `fail-fast` is set statically by the calling
 // workflow, because zizmor cannot audit a file whose whole `strategy:` is an expression.
@@ -19,12 +19,12 @@ $majorFilter = \strtolower($_SERVER['argv'][3] ?? '');
 
 if ($nightly) {
     // We add 8.4 separate because of currents
-    $php = ['8.2', '8.5'];
+    $php = ['8.2', '8.6'];
 }
 
 if ($release) {
     // Patch release gate: cover all supported PHP versions, but without Currents or major simulation.
-    $php = ['8.2', '8.4', '8.5'];
+    $php = ['8.2', '8.4', '8.5', '8.6'];
 }
 
 $majorVariants = ($major || $nightly) ? ['', 'major'] : [''];
@@ -48,7 +48,7 @@ $matrix = [
 if ($majorFilter !== 'only') {
     $matrix['include'][] = [
         'name' => 'Install',
-        'php-version' => ($nightly || $release) ? '8.4' : '8.2',
+        'php-version' => ($nightly || $release) ? '8.4' : '8.6',
         'shard' => 1,
         'shard-count' => 1,
         'no-currents' => !$nightly,
@@ -60,7 +60,7 @@ if ($nightly) {
         if ($majorFilter !== 'only') {
             $matrix['include'][] = [
                 'name' => 'Platform',
-                'php-version' => '8.4',
+                'php-version' => '8.6',
                 'shard' => $i + 1,
                 'shard-count' => 3,
                 'no-currents' => false,
@@ -70,7 +70,7 @@ if ($nightly) {
             $matrix['include'][] = [
                 'name' => 'Platform',
                 'major' => 'major',
-                'php-version' => '8.4',
+                'php-version' => '8.6',
                 'shard' => $i + 1,
                 'shard-count' => 3,
                 'no-currents' => true,

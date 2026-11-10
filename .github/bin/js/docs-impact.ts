@@ -359,6 +359,8 @@ export async function postComment(
 
 export const END_USER_DOCS_SECTIONS: Record<string, string> = {
     'shopware-6/migration-en': 'https://docs.shopware.com/en/migration-en',
+    'shopware-6/shopware-en': 'https://docs.shopware.com/en/shopware-en',
+    'shopware-6/en': 'https://docs.shopware.com/en/en',
     'shopware-6': 'https://docs.shopware.com/en/shopware-6-en',
     'shopware-account': 'https://docs.shopware.com/en/account-en',
 };

@@ -170,6 +170,24 @@ There are better options but that depends on the use cases. Here are a few alter
 
 The way you design your codebase directly impacts whether you can rely on option 1 or option 2 without resorting to heavy mocking.
 
+## The filesystem in unit tests
+
+A unit test never touches the real filesystem.
+The result of a test that does depends on the machine: CI runs on Linux with `/tmp`, a developer machine resolves `/private/var` through a symlink, adds a trailing slash to the temp directory or runs another PHP build.
+A failing test also leaves its files behind for the next run.
+
+The PHPStan rule `shopware.realFilesystemInUnitTest` reports `sys_get_temp_dir()`, `tempnam()`, `mkdir()`, `unlink()`, `file_put_contents()` and the other writing functions, and the writing methods of a Symfony `Filesystem`, in the unit namespaces.
+
+Pick the lightest alternative:
+
+1. Inject a stubbed Symfony `Filesystem` through the constructor, or the `StaticFilesystem` stub for the Shopware `Filesystem` util, and assert on the calls.
+2. Read a checked-in fixture under `__DIR__` when the code only reads.
+3. Use a Flysystem with `InMemoryFilesystemAdapter` when the code writes through Flysystem.
+4. Move the case to an integration test at the mirrored path under `tests/integration/` when only a real tree proves the behaviour, for example path confinement through symlinks or files outside the application.
+   The inside, happy and missing cases stay in the unit test.
+
+Do not add a seam to production code only to keep a test in memory.
+
 # Conclusion: Write tests first!
 
 When you write tests first, most of the points described above should come out of the box!

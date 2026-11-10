@@ -76,6 +76,14 @@ final readonly class Configuration
     /**
      * @return list<string>
      */
+    public function getRealFilesystemInUnitTestsEnabledNamespaces(): array
+    {
+        return $this->parameters['realFilesystemInUnitTestsEnabledNamespaces'] ?? [];
+    }
+
+    /**
+     * @return list<string>
+     */
     public function getReflectionInUnitTestsEnabledNamespaces(): array
     {
         return $this->parameters['reflectionInUnitTestsEnabledNamespaces'] ?? [];

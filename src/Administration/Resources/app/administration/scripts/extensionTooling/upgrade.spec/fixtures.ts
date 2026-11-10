@@ -27,7 +27,7 @@ export interface UpgradeFixtureProject {
     administrationRoot: string;
 }
 
-function useRealToolchain(administrationRoot: string): void {
+export function useRealToolchain(administrationRoot: string): void {
     for (const toolingFile of fs.readdirSync(path.join(realAdministrationRoot, 'extension-tooling'))) {
         fs.copyFileSync(
             path.join(realAdministrationRoot, 'extension-tooling', toolingFile),

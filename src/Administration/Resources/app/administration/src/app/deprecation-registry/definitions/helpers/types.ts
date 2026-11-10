@@ -190,6 +190,12 @@ export type RemovePropStep = ComponentUsageStepBase & {
     reviewWhenTrue?: string;
     /** The old component behaved as if the prop was true when it was not set; such elements get the review note too. */
     trueByDefault?: boolean;
+    /**
+     * Review note for a boolean prop whose "false" behaviour the new component lost, because it always
+     * behaves as if the prop was true. A valueless attribute, `="true"` or a binding to a literal `true`
+     * is removed without it; converted elements that did not set the prop get the note too.
+     */
+    reviewWhenFalse?: string;
 };
 
 export type ReplacePropStep = ComponentUsageStepBase & {
@@ -276,6 +282,8 @@ export type ItemFieldSource =
           emptyAsNull?: boolean;
           /** Review note for a bound value, for example when the new component keeps its type and the old one did not. */
           boundReview?: string;
+          /** Writes a static value as a number, for components that turned the value into a number; other text needs a manual move. */
+          asNumber?: boolean;
       }
     | { from: 'text' };
 
@@ -363,7 +371,10 @@ export type RenameCallStep = UsageStepBase & { kind: 'rename-call'; from: string
 export type ReplaceObjectOptionStep = UsageStepBase & { kind: 'replace-object-option'; from: string; to: string };
 export type MemberCallStep = UsageStepBase & { kind: 'member-call'; from: string; to?: string };
 export type ReplaceExtensionStep = UsageStepBase & { kind: 'replace-extension'; from: string[]; to: string };
+/** Points references of every file of the migration to one other file, for assets without a converted twin. */
+export type ReplaceAssetStep = UsageStepBase & { kind: 'replace-asset'; to: string };
 export type RemoveAssetStep = UsageStepBase & { kind: 'remove-asset' };
+
 export type RemoveTemplateBlockStep = UsageStepBase & { kind: 'remove-template-block'; from: string };
 export type RenameTemplateBlockStep = UsageStepBase & { kind: 'rename-template-block'; from: string; to: string };
 export type RenameTemplateEventStep = UsageStepBase & {
@@ -374,6 +385,8 @@ export type RenameTemplateEventStep = UsageStepBase & {
     to: string;
 };
 export type RemoveSnippetKeyStep = UsageStepBase & { kind: 'remove-snippet-key'; from: string };
+/** Replaces a string literal that is exactly the removed key; keys that only start with it are reported. */
+export type RenameSnippetKeyStep = UsageStepBase & { kind: 'rename-snippet-key'; from: string; to: string };
 export type RenamePackageStep = UsageStepBase & { kind: 'rename-package'; from: string; to: string };
 
 type DeprecationUsage =
@@ -382,11 +395,13 @@ type DeprecationUsage =
     | ReplaceObjectOptionStep
     | MemberCallStep
     | ReplaceExtensionStep
+    | ReplaceAssetStep
     | RemoveAssetStep
     | RemoveTemplateBlockStep
     | RenameTemplateBlockStep
     | RenameTemplateEventStep
     | RemoveSnippetKeyStep
+    | RenameSnippetKeyStep
     | RenamePackageStep;
 
 type MigrationBase<Step extends DeprecationUsage> = {
@@ -428,14 +443,14 @@ export type GlobalApiMigration = MigrationBase<RenameCallStep> & {
 
 export type JsApiMigration = MigrationBase<ReplaceObjectOptionStep | MemberCallStep>;
 
-export type AssetMigration = MigrationBase<ReplaceExtensionStep | RemoveAssetStep> & {
+export type AssetMigration = MigrationBase<ReplaceExtensionStep | ReplaceAssetStep | RemoveAssetStep> & {
     /** The deprecated files, relative to the Administration root and starting with `/`. */
     files: string[];
 };
 
 export type TemplateBlockMigration = MigrationBase<RemoveTemplateBlockStep | RenameTemplateBlockStep>;
 export type TemplateEventMigration = MigrationBase<RenameTemplateEventStep>;
-export type SnippetKeyMigration = MigrationBase<RemoveSnippetKeyStep>;
+export type SnippetKeyMigration = MigrationBase<RemoveSnippetKeyStep | RenameSnippetKeyStep>;
 export type PackageMigration = MigrationBase<RenamePackageStep>;
 
 export type DeprecationMigration =

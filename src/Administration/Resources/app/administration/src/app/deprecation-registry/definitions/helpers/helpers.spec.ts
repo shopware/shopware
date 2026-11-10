@@ -3,6 +3,8 @@
  */
 import {
     addPropWhenMissing,
+    renameSnippetKey,
+    replaceAsset,
     booleanPropToPropValue,
     childElementsToArrayProp,
     componentMigration,
@@ -79,6 +81,8 @@ describe('src/app/deprecation-registry/definitions/helpers', () => {
         ['rename-template-event', 'auto', templateEventUsage({ component: 'sw-a', from: 'a', to: 'b' })],
         ['remove-snippet-key', 'manual', removeSnippetKey({ from: 'a' })],
         ['rename-package', 'auto', renamePackage({ from: '@a/a', to: '@a/b' })],
+        ['replace-asset', 'auto', replaceAsset({ to: '/static/img/a.webp' })],
+        ['rename-snippet-key', 'auto', renameSnippetKey({ from: 'a.b', to: 'a.c' })],
     ])('builds a plain %s step with fix level %s', (kind, fix, step) => {
         expect(step).toEqual(expect.objectContaining({ kind, fix }));
     });

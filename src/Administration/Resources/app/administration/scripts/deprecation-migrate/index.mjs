@@ -45,7 +45,7 @@ Options:
                   manual   Changes no code and puts a "TODO Codemod" comment above
                            every deprecated usage.
 
-Asset deprecations (for example PNG/JPG to WebP) are reported by the admin build, not by this command.
+Asset paths (for example PNG/JPG to WebP) are fixed in scripts and templates, not in SCSS files.
 
 Composer/Docker example:
   docker compose exec web composer npm:admin run deprecation:migrate -- --id component.sw-button --fix

@@ -1,0 +1,390 @@
+[
+    {
+        "id": "api.module-register-snippets",
+        "deprecatedIn": "6.7.0",
+        "removedIn": "6.8.0",
+        "description": "Module.register() throws for the snippets property. The Administration loads the <language>.json and <language>-<COUNTRY>.json files below Resources/app/administration/src of active plugins on its own.",
+        "upgrade": ["UPGRADE-6.8.md#removed-snippets-property-of-moduleregister"],
+        "usage": [
+            { "type": "module-snippets", "message": "Module.register() no longer takes snippets in 6.8. Name the snippet files <language>.json or <language>-<COUNTRY>.json, move them below Resources/app/administration/src and remove the property." }
+        ]
+    },
+    {
+        "id": "api.composition-extension-system",
+        "deprecatedIn": "6.7.0",
+        "removedIn": "6.8.0",
+        "description": "The functions of the Composition API extension system are private. Extensions write native setup overrides or keep Options API overrides.",
+        "upgrade": ["UPGRADE-6.8.md#composition-api-extension-system-is-no-longer-a-public-entry-point", "UPGRADE-6.8.md#options-api-overrides-stay-supported"],
+        "usage": [
+            { "type": "member-usage", "object": "Shopware.Component", "properties": ["createExtendableSetup", "attachOverrides", "getExposedProps", "overrideComponentSetup", "registerNativeExtensionTargets", "registerOverrideComponent", "getOverrideComponents"], "message": "This Composition API extension system function is private in 6.8. Write a native setup override (<component>.override.vue with swDefineOverride()) or keep Component.override()." },
+            { "type": "member-usage", "object": "Component", "properties": ["createExtendableSetup", "attachOverrides", "getExposedProps", "overrideComponentSetup", "registerNativeExtensionTargets", "registerOverrideComponent", "getOverrideComponents"], "message": "This Composition API extension system function is private in 6.8. Write a native setup override (<component>.override.vue with swDefineOverride()) or keep Component.override()." },
+            { "type": "import-source", "sources": ["src/app/adapter/composition-extension-system", "src/core/factory/native-extension-targets"], "message": "This Composition API extension system function is private in 6.8. Write a native setup override (<component>.override.vue with swDefineOverride()) or keep Component.override()." }
+        ]
+    },
+    {
+        "id": "api.vuex",
+        "deprecatedIn": "6.7.0",
+        "removedIn": "6.8.0",
+        "description": "Vuex, Shopware.State, the StateFactory and the Vuex component helpers are removed. All stores are Pinia stores.",
+        "upgrade": ["UPGRADE-6.8.md#removed-vuex-in-favor-of-pinia"],
+        "usage": [
+            { "type": "member-usage", "object": "Shopware", "properties": ["State"], "message": "Vuex is removed in 6.8. Use Pinia stores: Shopware.Store.get(id) and Shopware.Store.register({ id, state, getters, actions })." },
+            { "type": "member-usage", "object": "this", "properties": ["$store"], "message": "Vuex is removed in 6.8. Use Pinia stores: Shopware.Store.get(id) and Shopware.Store.register({ id, state, getters, actions })." },
+            { "type": "member-usage", "properties": ["mapVuexState", "mapVuexMutations", "mapVuexGetters", "mapVuexActions"], "message": "Vuex is removed in 6.8. Use Pinia stores: Shopware.Store.get(id) and Shopware.Store.register({ id, state, getters, actions }). Map them with mapState and mapActions of the component helper." },
+            { "type": "import-source", "sources": ["vuex"], "message": "Vuex is removed in 6.8. Use Pinia stores: Shopware.Store.get(id) and Shopware.Store.register({ id, state, getters, actions })." },
+            { "type": "import-source", "sources": ["src/core/factory/state.factory"], "message": "Vuex is removed in 6.8. Use Pinia stores: Shopware.Store.get(id) and Shopware.Store.register({ id, state, getters, actions }). The StateFactory is removed without replacement." }
+        ]
+    },
+    {
+        "id": "api.date-filter-computed",
+        "deprecatedIn": "6.7.0",
+        "removedIn": "6.8.0",
+        "description": "The unused dateFilter computed was removed from these components. Resolve the filter directly.",
+        "upgrade": ["UPGRADE-6.8.md#removed-unused-datefilter-computeds"],
+        "usage": [
+            { "type": "replace-component-member", "components": ["sw-advanced-selection-rule", "sw-media-folder-item", "sw-media-media-item", "sw-settings-logging-list", "sw-extension-card-base", "sw-self-maintained-extension-card", "sw-import-export-activity", "sw-import-export-activity-result-modal", "sw-import-export-activity-log-info-modal", "sw-cms-list", "sw-cms-layout-modal", "sw-review-detail", "sw-review-list", "sw-promotion-v2-individual-codes-behavior", "sw-settings-rule-list", "sw-product-list", "sw-product-detail-reviews", "sw-settings-snippet-set-list", "sw-product-stream-list", "sw-order-list", "sw-order-send-document-modal", "sw-order-state-history-card-entry", "sw-order-document-card", "sw-order-general-info", "sw-dashboard-statistics", "sw-sales-channel-list", "sw-sales-channel-detail-base", "sw-sales-channel-create-base", "sw-newsletter-recipient-list"], "name": "dateFilter", "with": "Shopware.Filter.getByName('date')", "message": "The dateFilter computed is removed in 6.8. Use Shopware.Filter.getByName('date').", "templateMessage": "The dateFilter computed is removed in 6.8. Add a dateFilter computed that returns Shopware.Filter.getByName('date') to your override, or use <sw-time-ago>." }
+        ]
+    },
+    {
+        "id": "api.asset-filter-computed",
+        "deprecatedIn": "6.7.0",
+        "removedIn": "6.8.0",
+        "description": "The assetFilter computed became unused when the empty states moved to mt-empty-state and was removed. Resolve the filter directly.",
+        "upgrade": ["UPGRADE-6.8.md#removed-the-assetfilter-computed-of-the-empty-state-components"],
+        "usage": [
+            { "type": "replace-component-member", "components": ["sw-cms-layout-assignment-modal", "sw-flow-list", "sw-mail-header-footer-list", "sw-mail-template-list", "sw-order-customer-grid", "sw-product-detail-context-prices", "sw-product-detail-cross-selling", "sw-promotion-v2-individual-codes-behavior", "sw-sales-channel-products-assignment-dynamic-product-groups", "sw-settings-listing-option-criteria-grid", "sw-settings-listing", "sw-settings-product-feature-sets-values-card", "sw-tax-rule-card"], "name": "assetFilter", "with": "Shopware.Filter.getByName('asset')", "message": "The assetFilter computed is removed in 6.8. Use Shopware.Filter.getByName('asset').", "templateMessage": "The assetFilter computed is removed in 6.8. Add an assetFilter computed that returns Shopware.Filter.getByName('asset') to your override." }
+        ]
+    },
+    {
+        "id": "api.sw-order-list.delivery-helpers",
+        "deprecatedIn": "6.7.0",
+        "removedIn": "6.8.0",
+        "description": "sw-order-list reads the primary delivery and transaction of an order directly. Its criteria no longer load the addresses, deliveries and transactions associations.",
+        "upgrade": ["UPGRADE-6.8.md#removed-delivery-and-transaction-helpers-of-sw-order-list"],
+        "usage": [
+            { "type": "replace-component-method-call", "components": ["sw-order-list"], "name": "getDelivery", "with": "{0}.primaryOrderDelivery", "message": "sw-order-list no longer has getDelivery() in 6.8. Use order.primaryOrderDelivery.", "strictNullMessage": "sw-order-list no longer has getDelivery() in 6.8. Use order.primaryOrderDelivery, which is undefined instead of null when it is missing." },
+            { "type": "replace-component-method-call", "components": ["sw-order-list"], "name": "transaction", "with": "{0}.primaryOrderTransaction", "message": "sw-order-list no longer has transaction() in 6.8. Use order.primaryOrderTransaction.", "strictNullMessage": "sw-order-list no longer has transaction() in 6.8. Use order.primaryOrderTransaction, which is undefined instead of null when it is missing." },
+            { "type": "replace-component-method-call", "components": ["sw-order-list"], "name": "getDeliveryAddress", "with": "{0}.primaryOrderDelivery?.shippingOrderAddress", "message": "sw-order-list no longer has getDeliveryAddress() in 6.8. Use order.primaryOrderDelivery?.shippingOrderAddress.", "strictNullMessage": "sw-order-list no longer has getDeliveryAddress() in 6.8. Use order.primaryOrderDelivery?.shippingOrderAddress, which is undefined instead of null when it is missing." },
+            { "type": "replace-component-method-call", "components": ["sw-order-list"], "name": "getDeliveryState", "with": "{0}.primaryOrderDelivery?.stateMachineState", "message": "sw-order-list no longer has getDeliveryState() in 6.8. Use order.primaryOrderDelivery?.stateMachineState.", "strictNullMessage": "sw-order-list no longer has getDeliveryState() in 6.8. Use order.primaryOrderDelivery?.stateMachineState, which is undefined instead of null when it is missing." },
+            { "type": "replace-component-method-call", "components": ["sw-order-list"], "name": "getTransactionState", "with": "{0}.primaryOrderTransaction?.stateMachineState", "message": "sw-order-list no longer has getTransactionState() in 6.8. Use order.primaryOrderTransaction?.stateMachineState.", "strictNullMessage": "sw-order-list no longer has getTransactionState() in 6.8. Use order.primaryOrderTransaction?.stateMachineState, which is undefined instead of null when it is missing." },
+            { "type": "replace-component-method-call", "components": ["sw-order-list"], "name": "getBillingAddress", "with": "{0}.billingAddress", "message": "sw-order-list no longer has getBillingAddress() in 6.8. Use order.billingAddress.", "strictNullMessage": "sw-order-list no longer has getBillingAddress() in 6.8. Use order.billingAddress, which is undefined instead of null when it is missing." },
+            { "type": "component-member", "components": ["sw-order-list"], "names": ["deliveryTooltip"], "message": "sw-order-list no longer has deliveryTooltip() in 6.8. Build the tooltip from order.primaryOrderDelivery.shippingOrderAddress yourself." }
+        ]
+    },
+    {
+        "id": "api.sw-text-editor.overrides",
+        "deprecatedIn": "6.7.0",
+        "removedIn": "6.8.0",
+        "description": "sw-text-editor and its toolbar components are removed in favor of mt-text-editor.",
+        "upgrade": ["UPGRADE-6.8.md#removed-sw-text-editor"],
+        "usage": [
+            { "type": "removed-component", "names": ["sw-text-editor"], "inTemplates": false, "message": "sw-text-editor is removed in 6.8. Use mt-text-editor with v-model, custom-buttons instead of button-config, and createTextEditorDataMappingButton() of the component helper for data mapping." },
+            { "type": "removed-component", "names": ["sw-text-editor-toolbar", "sw-text-editor-toolbar-button", "sw-text-editor-toolbar-table-button", "sw-text-editor-table-toolbar", "sw-text-editor-link-menu"], "inTemplates": false, "message": "The sw-text-editor toolbar components are removed in 6.8. Add buttons with the custom-buttons prop of mt-text-editor." }
+        ]
+    },
+    {
+        "id": "api.sw-popover.overrides",
+        "deprecatedIn": "6.7.0",
+        "removedIn": "6.8.0",
+        "description": "sw-popover is removed in favor of mt-floating-ui.",
+        "upgrade": ["UPGRADE-6.8.md#removed-sw-popover"],
+        "usage": [
+            { "type": "removed-component", "names": ["sw-popover"], "inTemplates": false, "message": "sw-popover is removed in 6.8. Use mt-floating-ui: the reference element goes into #trigger, bind :is-opened, resize-width becomes match-reference-width, and floating-ui-options replaces z-index and popover-config-extension." }
+        ]
+    },
+    {
+        "id": "api.sw-help-sidebar",
+        "deprecatedIn": "6.7.0",
+        "removedIn": "6.8.0",
+        "description": "sw-help-sidebar is removed without replacement. The help center lives in sw-help-center-v2.",
+        "upgrade": ["UPGRADE-6.8.md#removed-sw-select-number-field-sw-entity-many-to-many-select-and-sw-help-sidebar"],
+        "usage": [
+            { "type": "removed-component", "names": ["sw-help-sidebar"], "message": "sw-help-sidebar is removed in 6.8. The help center lives in sw-help-center-v2, which has the same block names but renders mt-action-menu-item elements. Move your override there or remove it." }
+        ]
+    },
+    {
+        "id": "api.sw-order-detail.loading-and-editing",
+        "deprecatedIn": "6.7.0",
+        "removedIn": "6.8.0",
+        "description": "The order detail page and its views read the loading and editing state from the swOrderDetail store instead of passing it to each other.",
+        "upgrade": ["UPGRADE-6.8.md#order-detail-loading-and-editing-moved-to-the-sworderdetail-store"],
+        "usage": [
+            { "type": "inject-key", "names": ["swOrderDetailOnLoadingChange", "swOrderDetailOnEditingChange", "swOrderDetailOnCreatedByIdChange"], "message": "Order detail loading and editing moved to the swOrderDetail store in 6.8. Use Shopware.Store.get('swOrderDetail'): loading.order, setLoading(['order', value]), editing, savedSuccessful and saveAndReload()." },
+            { "type": "template-attribute", "components": ["sw-order-detail"], "elements": ["router-view"], "names": ["is-editing", "is-save-successful", "@created-by-id-change", "@loading-change", "@editing-change"], "message": "Order detail loading and editing moved to the swOrderDetail store in 6.8. Use Shopware.Store.get('swOrderDetail'): loading.order, setLoading(['order', value]), editing, savedSuccessful and saveAndReload()." },
+            { "type": "template-attribute", "elements": ["sw-order-promotion-field"], "names": ["@loading-change"], "message": "Order detail loading and editing moved to the swOrderDetail store in 6.8. Use Shopware.Store.get('swOrderDetail'): loading.order, setLoading(['order', value]), editing, savedSuccessful and saveAndReload()." },
+            { "type": "component-member", "components": ["sw-order-detail"], "names": ["isEditing", "isLoading", "createdById", "updateCreatedById", "onChangeLanguage", "onStartEditing", "onSaveAndReload", "onUpdateLoading", "onUpdateEditing"], "message": "Order detail loading and editing moved to the swOrderDetail store in 6.8. Use Shopware.Store.get('swOrderDetail'): loading.order, setLoading(['order', value]), editing, savedSuccessful and saveAndReload()." },
+            { "type": "component-member", "components": ["sw-order-detail-general", "sw-order-detail-details"], "names": ["isLoading", "isSaveSuccessful", "updateLoading"], "message": "Order detail loading and editing moved to the swOrderDetail store in 6.8. Use Shopware.Store.get('swOrderDetail'): loading.order, setLoading(['order', value]), editing, savedSuccessful and saveAndReload()." }
+        ]
+    },
+    {
+        "id": "api.product-states",
+        "deprecatedIn": "6.7.0",
+        "removedIn": "6.8.0",
+        "description": "The Administration uses the product type instead of the removed product states.",
+        "upgrade": ["UPGRADE-6.8.md#product-states-replaced-by-the-product-type-in-the-administration", "UPGRADE-6.8.md#removal-of-products-states-field-in-favor-of-type-field"],
+        "usage": [
+            { "type": "component-member", "components": ["sw-product-detail"], "names": ["creationStates"], "message": "Product states are removed in 6.8. Use product.type or productType ('physical' or 'digital') and creationType instead." },
+            { "type": "component-member", "components": ["sw-product-detail", "sw-product-detail-base", "sw-product-detail-specifications", "sw-product-variants-overview"], "names": ["productStates"], "message": "Product states are removed in 6.8. Use product.type or productType ('physical' or 'digital') and creationType instead." },
+            { "type": "component-member", "components": ["sw-product-detail-variants"], "names": ["currentProductStates"], "message": "Product states are removed in 6.8. Use product.type or productType ('physical' or 'digital') and creationType instead." },
+            { "type": "component-member", "components": ["sw-product-stream-value"], "names": ["productStateOptions"], "message": "Product states are removed in 6.8. Use product.type or productType ('physical' or 'digital') and creationType instead." },
+            { "type": "member-usage", "store": "swProductDetail", "properties": ["productStates", "creationStates"], "message": "Product states are removed in 6.8. Use product.type or productType ('physical' or 'digital') and creationType instead." },
+            { "type": "member-usage", "object": "product", "properties": ["states"], "message": "Product states are removed in 6.8. Use product.type or productType ('physical' or 'digital') and creationType instead." },
+            { "type": "member-usage", "object": "this.product", "properties": ["states"], "message": "Product states are removed in 6.8. Use product.type or productType ('physical' or 'digital') and creationType instead." },
+            { "type": "string-literal", "values": ["is-physical", "is-download", "product-states-filter"], "message": "Product states are removed in 6.8. Use product.type or productType ('physical' or 'digital') and creationType instead." },
+            { "type": "template-attribute", "elements": ["sw-product-variants-overview"], "names": ["product-states"], "message": "Product states are removed in 6.8. Use product.type or productType ('physical' or 'digital') and creationType instead." }
+        ]
+    },
+    {
+        "id": "api.sw-system-config.config",
+        "deprecatedIn": "6.7.0",
+        "removedIn": "6.8.0",
+        "description": "sw-system-config only has the schema with tabs and cards, and systemConfigApiService.getConfig() and its route are removed.",
+        "upgrade": ["UPGRADE-6.8.md#removal-of-deprecated-config-data-property-in-sw-system-config-component"],
+        "usage": [
+            { "type": "component-member", "components": ["sw-system-config"], "names": ["config", "isSyncingFromSchema", "isSyncingFromConfig", "schemaToConfig", "configToSchema", "assignConfigIds", "getSchemaForDomain", "getTabIndexByElementOverlap"], "message": "sw-system-config no longer has config and its config/schema sync helpers in 6.8. Use schema, a list of tabs with their cards." },
+            { "type": "member-usage", "service": "systemConfigApiService", "properties": ["getConfig"], "message": "systemConfigApiService.getConfig() is removed in 6.8. Use getSchema(domain), and decorate getSchema instead of getConfig." }
+        ]
+    },
+    {
+        "id": "api.axios-v1",
+        "deprecatedIn": "6.7.0",
+        "removedIn": "6.8.0",
+        "description": "axios 1.x is the default HTTP client. It does not support the CancelToken of axios 0.x, and its errors differ; review the error handling of your requests.",
+        "upgrade": ["UPGRADE-6.8.md#axios-v1-is-now-the-default-http-client"],
+        "usage": [
+            { "type": "member-usage", "object": "axios", "properties": ["CancelToken"], "message": "axios 1.x is the default HTTP client in 6.8. Replace the CancelToken with an AbortController and pass its signal." },
+            { "type": "member-usage", "object": "Axios", "properties": ["CancelToken"], "message": "axios 1.x is the default HTTP client in 6.8. Replace the CancelToken with an AbortController and pass its signal." },
+            { "type": "member-usage", "properties": ["__CANCEL__"], "message": "axios 1.x is the default HTTP client in 6.8. Detect a cancelled request with httpClient.isCancel(error)." },
+            { "type": "object-key", "names": ["cancelToken"], "message": "axios 1.x is the default HTTP client in 6.8. Replace the CancelToken with an AbortController and pass its signal." },
+            { "type": "import-source", "sources": ["axios", "src/core/factory/http.factory"], "specifiers": ["CancelToken", "Cancel", "isCancel"], "message": "axios 1.x is the default HTTP client in 6.8. Replace the CancelToken with an AbortController and pass its signal. Detect a cancelled request with httpClient.isCancel(error)." },
+            { "type": "member-usage", "object": "axios", "properties": ["isCancel", "Cancel"], "message": "axios 1.x is the default HTTP client in 6.8. Detect a cancelled request with httpClient.isCancel(error)." },
+            { "type": "member-usage", "object": "Axios", "properties": ["isCancel", "Cancel"], "message": "axios 1.x is the default HTTP client in 6.8. Detect a cancelled request with httpClient.isCancel(error)." },
+            { "type": "object-key", "names": ["useAxiosV1"], "message": "axios 1.x is the default HTTP client in 6.8. Remove useAxiosV1 and migrate the request to axios 1.x." }
+        ]
+    },
+    {
+        "id": "api.sw-product-detail.advanced-mode",
+        "deprecatedIn": "6.7.0",
+        "removedIn": "6.8.0",
+        "description": "The advanced mode of the product detail page was removed without replacement.",
+        "upgrade": ["UPGRADE-6.8.md#removed-the-product-detail-advanced-mode"],
+        "usage": [
+            { "type": "component-member", "components": ["sw-product-detail"], "names": ["advancedModeSetting", "getModeSettingGeneralTab", "getModeSettingSpecificationsTab", "showAdvanceModeSetting", "initAdvancedModeSettings", "createUserModeSetting", "getAdvancedModeDefaultSetting", "getAdvancedModeSetting", "saveAdvancedMode", "onChangeSetting", "changeModeSettings", "onChangeSettingItem", "advanceModeEnabled"], "message": "The product detail advanced mode is removed in 6.8 without replacement. Stop extending the mode settings and show your card without showProductCard()." },
+            { "type": "removed-component", "names": ["sw-product-settings-mode"], "message": "The product detail advanced mode is removed in 6.8 without replacement. Stop extending the mode settings and show your card without showProductCard()." },
+            { "type": "member-usage", "store": "swProductDetail", "properties": ["advancedModeSetting", "showModeSetting", "advanceModeEnabled"], "message": "The product detail advanced mode is removed in 6.8 without replacement. Stop extending the mode settings and show your card without showProductCard()." },
+            { "type": "string-literal", "values": ["mode.setting.advancedModeSettings"], "message": "The product detail advanced mode is removed in 6.8 without replacement. Stop extending the mode settings and show your card without showProductCard()." }
+        ]
+    },
+    {
+        "id": "api.vite-8-build-config",
+        "deprecatedIn": "6.7.0",
+        "removedIn": "6.8.0",
+        "description": "Shopware 6.8 builds the Administration with Vite 8 (Rolldown, Oxc, Node ^20.19 or >=22.12). Migrate own Vite configs with the Vite 7 and Vite 8 migration guides.",
+        "upgrade": ["UPGRADE-6.8.md#administration-build-updated-to-vite-8"],
+        "usage": [
+            { "type": "object-key", "names": ["rollupOptions", "esbuildOptions", "commonjsOptions"], "files": "^vite\\.config\\.[cm]?[jt]s$", "message": "Vite 8 bundles with Rolldown: rename rollupOptions to rolldownOptions and optimizeDeps.esbuildOptions to optimizeDeps.rolldownOptions, build.commonjsOptions has no effect." }
+        ]
+    },
+    {
+        "id": "api.integration-service.update-admin",
+        "deprecatedIn": "6.7.0",
+        "removedIn": "6.8.0",
+        "description": "integrationService.updateAdmin() is removed. Save the integration with its repository.",
+        "upgrade": ["UPGRADE-6.8.md#removed-integrationserviceupdateadmin"],
+        "usage": [
+            { "type": "member-usage", "service": "integrationService", "properties": ["updateAdmin"], "message": "integrationService.updateAdmin() is removed in 6.8. Set integration.admin and save the integration with repositoryFactory.create('integration').save(integration)." }
+        ]
+    },
+    {
+        "id": "api.validation-service.email",
+        "deprecatedIn": "6.7.0",
+        "removedIn": "6.8.0",
+        "description": "The synchronous email check of the validationService is removed, also for the email rule of the validation attribute. Validate on the server.",
+        "upgrade": ["UPGRADE-6.8.md#removed-validationserviceemail"],
+        "usage": [
+            { "type": "member-usage", "service": "validationService", "properties": ["email"], "message": "validationService.email() is removed in 6.8. Use await validationApiService.validateEmailAddress(value), it validates on the server." },
+            { "type": "import-source", "sources": ["src/core/service/validation.service"], "specifiers": ["email"], "message": "validationService.email() is removed in 6.8. Use await validationApiService.validateEmailAddress(value), it validates on the server." }
+        ]
+    },
+    {
+        "id": "api.number-range-service.preview-pattern",
+        "deprecatedIn": "6.7.0",
+        "removedIn": "6.8.0",
+        "description": "numberRangeService.previewPattern() is removed with its type-based route. The replacement previews a saved number range by its id.",
+        "upgrade": ["UPGRADE-6.8.md#removed-numberrangeservicepreviewpattern"],
+        "usage": [
+            { "type": "member-usage", "service": "numberRangeService", "properties": ["previewPattern"], "message": "numberRangeService.previewPattern() is removed in 6.8. Use previewPatternByNumberRangeId(numberRange.id, pattern, start), which needs a saved number range." }
+        ]
+    },
+    {
+        "id": "api.custom-field-set-loaders",
+        "deprecatedIn": "6.7.0",
+        "removedIn": "6.8.0",
+        "description": "These components switched to a shared custom field set loader and lost their own loader members.",
+        "upgrade": ["UPGRADE-6.8.md#custom-field-set-loader-computed-properties-removed"],
+        "usage": [
+            { "type": "component-member", "components": ["sw-category-detail", "sw-customer-detail-base", "sw-manufacturer-detail", "sw-order-detail-details", "sw-settings-units-detail", "sw-bulk-edit-customer", "sw-bulk-edit-order", "sw-bulk-edit-product"], "names": ["customFieldSetRepository", "customFieldSetCriteria"], "message": "The custom field set loaders are removed in 6.8. Load the sets with Shopware.Service('customFieldDataProviderService').getCustomFieldSets(entityName)." },
+            { "type": "component-member", "components": ["sw-category-detail"], "names": ["customFieldSetLandingPageCriteria"], "message": "The custom field set loaders are removed in 6.8. Load the sets with Shopware.Service('customFieldDataProviderService').getCustomFieldSets(entityName)." },
+            { "type": "component-member", "components": ["sw-customer-detail-addresses"], "names": ["customFieldSetRepository"], "message": "The custom field set loaders are removed in 6.8. Load the sets with Shopware.Service('customFieldDataProviderService').getCustomFieldSets(entityName)." },
+            { "type": "component-member", "components": ["sw-sales-channel-detail"], "names": ["customFieldRepository"], "message": "The custom field set loaders are removed in 6.8. Load the sets with Shopware.Service('customFieldDataProviderService').getCustomFieldSets(entityName)." }
+        ]
+    },
+    {
+        "id": "api.removed-rule-conditions",
+        "deprecatedIn": "6.7.0",
+        "removedIn": "6.8.0",
+        "description": "Core renders these rule conditions with sw-condition-generic-line-item from their backend configuration.",
+        "upgrade": ["UPGRADE-6.8.md#removed-rule-condition-components"],
+        "usage": [
+            { "type": "removed-component", "names": ["sw-condition-line-item-in-category", "sw-condition-line-item-purchase-price", "sw-condition-is-net-select"], "message": "This rule condition component is removed in 6.8. Use sw-condition-generic (sw-condition-generic-line-item for line items), it renders the condition from its backend config." },
+            { "type": "string-literal", "values": ["sw-condition-line-item-in-category", "sw-condition-line-item-purchase-price", "sw-condition-is-net-select"], "message": "This rule condition component is removed in 6.8. Use sw-condition-generic (sw-condition-generic-line-item for line items), it renders the condition from its backend config." }
+        ]
+    },
+    {
+        "id": "api.order-automatic-promotion-toggle",
+        "deprecatedIn": "6.7.0",
+        "removedIn": "6.8.0",
+        "description": "The toggle that switched automatic promotions off in an existing order is removed.",
+        "upgrade": ["UPGRADE-6.8.md#removed-the-automatic-promotion-toggle-of-orders"],
+        "usage": [
+            { "type": "component-member", "components": ["sw-order-promotion-field"], "names": ["automaticPromotions", "hasAutomaticPromotions", "changesetGenerator", "hasOrderUnsavedChanges", "disabledAutoPromotions", "emitLoadingChange", "handleUnsavedOrderChangesResponse", "deleteAutomaticPromotions", "toggleAutomaticPromotions", "getLineItemByPromotionCode"], "message": "Automatic promotions can no longer be switched off in an order in 6.8. Use applyAutomaticPromotions() of sw-order-promotion-field or orderService.applyAutomaticPromotions(orderId, versionId)." },
+            { "type": "component-member", "components": ["sw-order-promotion-field"], "names": ["createdComponent"], "message": "sw-order-promotion-field no longer has createdComponent() in 6.8, nothing calls it and $super('createdComponent') fails. Move your code to created() of the override." },
+            { "type": "member-usage", "service": "orderService", "properties": ["toggleAutomaticPromotions"], "message": "Automatic promotions can no longer be switched off in an order in 6.8. Use applyAutomaticPromotions() of sw-order-promotion-field or orderService.applyAutomaticPromotions(orderId, versionId)." }
+        ]
+    },
+    {
+        "id": "api.unused-order-components",
+        "deprecatedIn": "6.7.0",
+        "removedIn": "6.8.0",
+        "description": "These order create and state history components were unused and are removed without replacement.",
+        "upgrade": ["UPGRADE-6.8.md#removed-unused-order-components"],
+        "usage": [
+            { "type": "removed-component", "names": ["sw-order-create-base", "sw-order-create-details-header", "sw-order-create-details-body", "sw-order-create-details-footer", "sw-order-create-address-modal", "sw-order-state-history-card", "sw-order-state-history-card-entry", "sw-order-user-card"], "message": "Core no longer uses this order component. It is removed in 6.8 without replacement. Remove this override or usage." },
+            { "type": "component-member", "components": ["sw-order-state-history-modal"], "names": ["total"], "message": "sw-order-state-history-modal no longer has total in 6.8. Use dataSource.length instead." },
+            { "type": "template-attribute", "elements": ["sw-order-state-history-modal"], "names": ["is-loading"], "message": "sw-order-state-history-modal no longer has the isLoading prop in 6.8. Remove the binding." }
+        ]
+    },
+    {
+        "id": "api.sw-order-detail-details.shipping-costs",
+        "deprecatedIn": "6.7.0",
+        "removedIn": "6.8.0",
+        "description": "Shipping costs are edited in the general view of the order detail page.",
+        "upgrade": ["UPGRADE-6.8.md#removed-shipping-cost-editing-of-sw-order-detail-details"],
+        "usage": [
+            { "type": "component-member", "components": ["sw-order-detail-details"], "names": ["shippingCosts", "onShippingChargeEdited", "currency"], "message": "Shipping costs are edited in sw-order-detail-general in 6.8: block sw_order_detail_general_line_items_summary_shipping_cost and onShippingChargeUpdated(amount)." }
+        ]
+    },
+    {
+        "id": "api.worker-notification",
+        "deprecatedIn": "6.7.0",
+        "removedIn": "6.8.0",
+        "description": "Shopware.WorkerNotification, its factory and the WorkerNotificationListener are removed. Registered middlewares no longer run.",
+        "upgrade": ["UPGRADE-6.8.md#removal-of-increment-based-message-queue-notifications"],
+        "usage": [
+            { "type": "member-usage", "object": "Shopware", "properties": ["WorkerNotification"], "message": "Increment-based message queue notifications are removed in 6.8 without replacement. Remove this WorkerNotification middleware." },
+            { "type": "member-usage", "object": "*.adminWorker", "properties": ["enableQueueStatsWorker"], "message": "Increment-based message queue notifications are removed in 6.8 without replacement. Remove this WorkerNotification middleware." },
+            { "type": "import-source", "sources": ["src/core/factory/worker-notification.factory", "src/core/worker/worker-notification-listener"], "message": "Increment-based message queue notifications are removed in 6.8 without replacement. Remove this WorkerNotification middleware." }
+        ]
+    },
+    {
+        "id": "api.agentic-commerce-ui",
+        "deprecatedIn": "6.7.0",
+        "removedIn": "6.8.0",
+        "description": "The Agentic Commerce Administration UI moved to the SwagAgenticCommerce plugin.",
+        "upgrade": ["UPGRADE-6.8.md#agentic-commerce-administration-ui-moved-to-swagagenticcommerce"],
+        "usage": [
+            { "type": "component-member", "components": ["sw-sales-channel-detail"], "names": ["agenticCommerceExportConfig", "isAgenticCommerce", "hasSwagAgenticCommercePlugin", "showAgenticCommerceDeprecationBanner", "defaultAgenticCommerceExportConfig", "onClickInstallAgenticCommercePlugin", "validateAgenticCommerceExportConfig", "loadAgenticCommerceExportConfig", "saveAgenticCommerceExportConfig"], "message": "The Agentic Commerce Administration UI moves to the SwagAgenticCommerce plugin in 6.8. Install it and remove this override." },
+            { "type": "component-member", "components": ["sw-sales-channel-detail-base"], "names": ["isAgenticCommerce", "resolvedAgenticCommerceExportConfig", "getAgenticCommerceExportElementBind", "getAgenticCommerceExportCardTitle", "getAgenticCommerceExportCardPositionIdentifier", "onAgenticCommerceExportFieldUpdate"], "message": "The Agentic Commerce Administration UI moves to the SwagAgenticCommerce plugin in 6.8. Install it and remove this override." },
+            { "type": "component-member", "components": ["sw-sales-channel-modal-grid"], "names": ["isAgenticCommerceSalesChannelType", "showAgenticCommerceType"], "message": "The Agentic Commerce Administration UI moves to the SwagAgenticCommerce plugin in 6.8. Install it and remove this override." },
+            { "type": "component-member", "components": ["sw-sales-channel-detail-product-comparison"], "names": ["isAgenticCommerce"], "message": "The Agentic Commerce Administration UI moves to the SwagAgenticCommerce plugin in 6.8. Install it and remove this override." },
+            { "type": "component-member", "components": ["sw-sales-channel-create-base"], "names": ["prefillAgenticCommerceDefaults"], "message": "The Agentic Commerce Administration UI moves to the SwagAgenticCommerce plugin in 6.8. Install it and remove this override." },
+            { "type": "removed-component", "names": ["sw-agentic-commerce-tracking-config"], "message": "The Agentic Commerce Administration UI moves to the SwagAgenticCommerce plugin in 6.8. Install it and remove this override." },
+            { "type": "inject-key", "names": ["swSalesChannelDetailGetAgenticCommerceExportConfig"], "message": "The Agentic Commerce Administration UI moves to the SwagAgenticCommerce plugin in 6.8. Install it and remove this override." }
+        ]
+    },
+    {
+        "id": "api.mail-template-preview",
+        "deprecatedIn": "6.7.0",
+        "removedIn": "6.8.0",
+        "description": "The mail template preview modal was extracted into sw-mail-template-preview-modal, and the mail template lists search on their own.",
+        "upgrade": ["UPGRADE-6.8.md#mail-template-preview-component-changes", "UPGRADE-6.8.md#mail-template-component-changes"],
+        "usage": [
+            { "type": "component-member", "components": ["sw-mail-template-detail"], "names": ["hasTemplateData", "mailPreviewContent", "replaceContent"], "message": "The mail template preview moved to sw-mail-template-preview-modal in 6.8. It previews with mailService.previewMailTemplate() and sends test mails with sendMailTemplate() in test mode." },
+            { "type": "component-member", "components": ["sw-mail-template-index"], "names": ["term", "getList"], "message": "The mail template lists search on their own in 6.8. It is removed without replacement." },
+            { "type": "member-usage", "service": "mailService", "properties": ["testMailTemplate", "buildRenderPreview"], "message": "The mail template preview moved to sw-mail-template-preview-modal in 6.8. It previews with mailService.previewMailTemplate() and sends test mails with sendMailTemplate() in test mode." },
+            { "type": "template-attribute", "elements": ["sw-mail-template-list", "sw-mail-header-footer-list"], "names": ["search-term"], "message": "The mail template lists no longer have the searchTerm prop in 6.8. Remove the binding." }
+        ]
+    },
+    {
+        "id": "api.sw-media-grid.outside-click",
+        "deprecatedIn": "6.7.0",
+        "removedIn": "6.8.0",
+        "description": "sw-media-grid no longer clears the media selection on a click outside of the grid.",
+        "upgrade": ["UPGRADE-6.8.md#removed-outside-click-deselection-of-sw-media-grid"],
+        "usage": [
+            { "type": "component-member", "components": ["sw-media-grid"], "names": ["nonDeselectingComponents", "beforeDestroyComponent", "clearSelectionOnClickOutside", "originatesFromExcludedComponent", "isEmittedFromChildren", "emitSelectionCleared"], "message": "sw-media-grid no longer clears the selection on an outside click in 6.8. Listen to media-item-selection-clear of sw-media-quickinfo-multiple instead." },
+            { "type": "component-member", "components": ["sw-media-grid"], "names": ["createdComponent"], "message": "sw-media-grid no longer has createdComponent() in 6.8, nothing calls it and $super('createdComponent') fails. Move your code to created() of the override." },
+            { "type": "template-attribute", "elements": ["sw-media-grid"], "names": ["@media-grid-selection-clear"], "message": "sw-media-grid no longer clears the selection on an outside click in 6.8. Listen to media-item-selection-clear of sw-media-quickinfo-multiple instead." }
+        ]
+    },
+    {
+        "id": "api.cms-helpers",
+        "deprecatedIn": "6.7.0",
+        "removedIn": "6.8.0",
+        "description": "Several CMS helpers of the category, product and layout pages were removed.",
+        "upgrade": ["UPGRADE-6.8.md#removed-cms-helpers"],
+        "usage": [
+            { "type": "component-member", "components": ["sw-category-detail"], "names": ["extractSlotOverrides", "getCmsPageOverrides", "deleteSpecifcKeys"], "message": "It is removed in 6.8 without replacement." },
+            { "type": "component-member", "components": ["sw-product-detail"], "names": ["getCmsPageOverrides", "deleteSpecifcKeys"], "message": "It is removed in 6.8 without replacement." },
+            { "type": "component-member", "components": ["sw-cms-detail", "sw-cms-create"], "names": ["resetCmsPageState"], "message": "It is removed in 6.8. Use resetRelatedStores()." },
+            { "type": "component-member", "components": ["sw-cms-inherit-wrapper"], "names": ["isSystemDefaultLanguage"], "message": "It is removed in 6.8. Use Shopware.Store.get('context').isSystemDefaultLanguage." },
+            { "type": "component-member", "components": ["sw-cms-section"], "names": ["pageSlotconfigError"], "message": "It is removed in 6.8 without replacement." },
+            { "type": "component-member", "components": ["sw-cms-el-product-slider"], "names": ["navArrowsClasses"], "message": "It is removed in 6.8 without replacement." },
+            { "type": "component-member", "components": ["sw-cms-list"], "names": ["associatedCategoryBuckets", "associatedProductBuckets"], "message": "It is removed in 6.8 without replacement." },
+            { "type": "component-member", "components": ["sw-cms-layout-modal"], "names": ["gridPreSelection", "selectInGrid"], "message": "It is removed in 6.8. Use selectItem(page) or onSelectPage(pageId)." }
+        ]
+    },
+    {
+        "id": "api.settings-product-promotion-members",
+        "deprecatedIn": "6.7.0",
+        "removedIn": "6.8.0",
+        "description": "Members of settings, product and promotion components were removed.",
+        "upgrade": ["UPGRADE-6.8.md#removed-settings-product-and-promotion-members"],
+        "usage": [
+            { "type": "component-member", "components": ["sw-settings-index"], "names": ["hideSettingRenameBanner", "getUserConfig", "onCloseSettingRenameBanner"], "message": "The settings rename banner is removed in 6.8 without replacement." },
+            { "type": "component-member", "components": ["sw-settings-customer-group-detail"], "names": ["seoUrlRepository", "seoUrlCriteria", "loadSeoUrls", "getSeoUrl"], "message": "The SEO URLs are built in the template in 6.8. It is removed in 6.8 without replacement." },
+            { "type": "component-member", "components": ["sw-settings-number-range-detail"], "names": ["selectedNumberRangeSalesChannels"], "message": "It is removed in 6.8. Use selectedSalesChannelsCollection." },
+            { "type": "component-member", "components": ["sw-settings-number-range-detail"], "names": ["loadSalesChannels"], "message": "It is removed in 6.8. Use buildSelectedSalesChannelsCollection()." },
+            { "type": "component-member", "components": ["sw-settings-shipping-price-matrix"], "names": ["shippingRuleFilterCriteria"], "message": "It is removed in 6.8. Use ruleFilterCriteria." },
+            { "type": "component-member", "components": ["sw-settings-listing-option-base"], "names": ["productSortingEntityCriteria"], "message": "It is removed in 6.8 without replacement." },
+            { "type": "component-member", "components": ["sw-settings-language-list"], "names": ["filterSidebarItem", "registerFilterSidebarItem", "openFilterSidebar"], "message": "It is removed in 6.8 without replacement." },
+            { "type": "component-member", "components": ["sw-settings-snippet-set-list"], "names": ["onClone", "closeCloneModal", "getNoPermissionsTooltip"], "message": "It is removed in 6.8 without replacement." },
+            { "type": "component-member", "components": ["sw-settings-snippet-list"], "names": ["inlineSaveSuccessMessage", "createSuccessMessage"], "message": "It is removed in 6.8 without replacement." },
+            { "type": "component-member", "components": ["sw-settings-cache-index"], "names": ["processSuccess", "resetButtons"], "message": "It is removed in 6.8 without replacement." },
+            { "type": "component-member", "components": ["sw-settings-document-detail"], "names": ["selectedType", "isSaveSuccessful", "isShowCountriesSelect", "countryRepository", "documentTypeRepository", "documentBaseConfigSalesChannelRepository", "loadAvailableSalesChannel", "showOption"], "message": "It is removed in 6.8 without replacement." },
+            { "type": "component-member", "components": ["sw-settings-document-list"], "names": ["sortBy", "expandButtonClass", "collapseButtonClass"], "message": "It is removed in 6.8 without replacement." },
+            { "type": "component-member", "components": ["sw-product-cross-selling-form"], "names": ["productCrossSellingRepository", "crossSellingAssigmentRepository", "disablePositioning"], "message": "It is removed in 6.8 without replacement." },
+            { "type": "component-member", "components": ["sw-product-clone-modal", "sw-product-modal-variant-generation"], "names": ["progressInPercentage"], "message": "It is removed in 6.8 without replacement." },
+            { "type": "component-member", "components": ["sw-product-packaging-form"], "names": ["isLoading"], "message": "It is removed in 6.8 without replacement." },
+            { "type": "component-member", "components": ["sw-product-list"], "names": ["productTypeOptions"], "message": "It is removed in 6.8 without replacement." },
+            { "type": "component-member", "components": ["sw-promotion-v2-cart-condition-form", "sw-promotion-discount-component"], "names": ["ruleFilter"], "message": "It is removed in 6.8. Remove the :rule-filter binding, sw-select-rule-create filters the rules by default." },
+            { "type": "component-member", "components": ["sw-promotion-v2-settings-rule-selection", "sw-promotion-v2-settings-trigger"], "names": ["ruleCriteria"], "message": "It is removed in 6.8. Remove the :rule-filter binding, sw-select-rule-create filters the rules by default." },
+            { "type": "component-member", "components": ["sw-promotion-v2-conditions"], "names": ["personaRuleFilter", "cartConditionsRuleFilter", "orderConditionsFilter"], "message": "It is removed in 6.8. Remove the :rule-filter binding, sw-select-rule-create filters the rules by default." },
+            { "type": "component-member", "components": ["sw-promotion-discount-component"], "names": ["maxValueAdvancedPricesTooltip"], "message": "It is removed in 6.8 without replacement." },
+            { "type": "component-member", "components": ["sw-promotion-detail-discounts"], "names": ["deleteDiscountId", "repository"], "message": "It is removed in 6.8 without replacement." },
+            { "type": "removed-component", "names": ["sw-settings-services-dashboard-banner", "sw-promotion-v2-empty-state-hero"], "message": "This component is removed in 6.8. It is removed in 6.8 without replacement." }
+        ]
+    },
+    {
+        "id": "api.changed-administration-defaults",
+        "deprecatedIn": "6.7.0",
+        "removedIn": "6.8.0",
+        "description": "Media URLs come percent-encoded from the server, and sendMailTemplate() no longer fills the template data on its own.",
+        "upgrade": ["UPGRADE-6.8.md#changed-administration-defaults"],
+        "usage": [
+            { "type": "component-member", "components": ["sw-media-preview-v2"], "names": ["buildSourceSet"], "message": "Media and thumbnail URLs come percent-encoded from the server in 6.8. Remove your own encodeURI() to avoid double encoding." },
+            { "type": "member-usage", "service": "mailService", "properties": ["sendMailTemplate"], "withoutArgument": 7, "message": "sendMailTemplate() no longer fills templateData from the mail template type in 6.8. Pass templateData explicitly." },
+            { "type": "member-usage", "object": "*.mailTemplateType", "properties": ["templateData"], "message": "The stored templateData of mail template types is removed in 6.8. Build the template data yourself." }
+        ]
+    }
+]

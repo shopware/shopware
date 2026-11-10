@@ -142,7 +142,7 @@ describe('scripts/deprecation-migrate/migration-selection', () => {
     });
 
     describe('getRunnableMigrations', () => {
-        it('offers every migration list of the registry', () => {
+        it('offers every migration list of the registry, sorted by id', () => {
             const registry = {
                 componentApiMigrations: [migration('component.sw-button')],
                 futureMigrations: [migration('future.example')],
@@ -150,18 +150,19 @@ describe('scripts/deprecation-migrate/migration-selection', () => {
             };
 
             expect(getRunnableMigrations(registry).map((entry: { id: string }) => entry.id)).toEqual([
+                'asset.example',
                 'component.sw-button',
                 'future.example',
             ]);
         });
 
-        it('does not offer asset migrations, which no lint rule can fix', () => {
+        it('offers asset migrations, which no-deprecated-assets reports and fixes', () => {
             const runnableMigrations = getRunnableMigrations(loadRegistry());
 
-            expect(runnableMigrations.filter((entry: { id: string }) => entry.id.startsWith('asset.'))).toEqual([]);
+            expect(runnableMigrations.map((entry: { id: string }) => entry.id)).toContain('asset.admin-png-jpg-to-webp');
             expect(() =>
                 validateSelection({ all: false, ids: ['asset.admin-png-jpg-to-webp'], fix: true }, runnableMigrations),
-            ).toThrow('Unknown migration id(s): asset.admin-png-jpg-to-webp');
+            ).not.toThrow();
         });
     });
 });

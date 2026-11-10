@@ -12,7 +12,9 @@ import type {
     RenameComponentStep,
     RenamePackageStep,
     RenameTemplateBlockStep,
+    RenameSnippetKeyStep,
     RenameTemplateEventStep,
+    ReplaceAssetStep,
     ReplaceExtensionStep,
     ReplaceObjectOptionStep,
     StepConfig,
@@ -26,8 +28,10 @@ type SimpleStep =
     | RenameCallStep
     | RenameComponentStep
     | RenamePackageStep
+    | RenameSnippetKeyStep
     | RenameTemplateBlockStep
     | RenameTemplateEventStep
+    | ReplaceAssetStep
     | ReplaceExtensionStep
     | ReplaceObjectOptionStep;
 
@@ -89,6 +93,15 @@ export const memberCall = simpleStep<MemberCallStep>('member-call', 'manual');
  */
 export const replaceExtension = simpleStep<ReplaceExtensionStep>('replace-extension', 'auto');
 
+/**
+ * Points references of the migration's files to another file, for assets that have no converted twin
+ * with the same name.
+ *
+ * @example
+ * replaceAsset({ to: '/static/img/cms/preview_mountain_small.webp' });
+ */
+export const replaceAsset = simpleStep<ReplaceAssetStep>('replace-asset', 'auto');
+
 const removeAssetStep = simpleStep<RemoveAssetStep>('remove-asset', 'manual');
 
 /**
@@ -133,6 +146,14 @@ export const templateEventUsage = simpleStep<RenameTemplateEventStep>('rename-te
  * removeSnippetKey({ from: 'global.sw-condition.condition.dayOfWeekRule' });
  */
 export const removeSnippetKey = simpleStep<RemoveSnippetKeyStep>('remove-snippet-key', 'manual');
+
+/**
+ * Replaces string literals that are exactly a removed snippet key with its successor.
+ *
+ * @example
+ * renameSnippetKey({ from: 'global.sw-condition.condition.cartTaxDisplay.net', to: 'global.sw-condition-generic.cartTaxDisplay.taxDisplay.options.net' });
+ */
+export const renameSnippetKey = simpleStep<RenameSnippetKeyStep>('rename-snippet-key', 'auto');
 
 /**
  * Rewrites imports of a renamed npm package, keeping the import subpath.

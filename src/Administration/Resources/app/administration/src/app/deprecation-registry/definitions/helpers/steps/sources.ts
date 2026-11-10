@@ -62,10 +62,11 @@ export function fromText(): ItemFieldSource {
  * fromAttribute('value', { required: true, emptyAsNull: true });
  * // <option value="a"> → 'a'; <option value=""> → null; <option> → manual
  * fromAttribute('disabled'); // <sw-tabs-item disabled> → true
+ * fromAttribute('value', { asNumber: true }); // <option value="1"> → 1; <option value="a"> → manual
  */
 export function fromAttribute(
     attribute: string,
-    options: { required?: boolean; emptyAsNull?: boolean; boundReview?: string } = {},
+    options: { required?: boolean; emptyAsNull?: boolean; boundReview?: string; asNumber?: boolean } = {},
 ): ItemFieldSource {
     return { from: 'attribute', attribute, ...options };
 }

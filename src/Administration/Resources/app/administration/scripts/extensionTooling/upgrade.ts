@@ -33,8 +33,15 @@ import {
 import type { BundleConfig, ExtensionToolingProject } from './shared';
 import { CliUsageError, parseCli, renderHelp } from './cli';
 import type { CommandSpec } from './cli';
-import { CODEMODS, CodemodSelectionError, availableTargets, selectCodemods } from './upgrade-codemods';
-import type { Codemod, EslintCodemod, SfcMigrationCodemod } from './upgrade-codemods';
+import {
+    CODEMODS,
+    CodemodSelectionError,
+    DEFAULT_UPGRADE_LEVEL,
+    UPGRADE_LEVELS,
+    availableTargets,
+    selectCodemods,
+} from './upgrade-codemods';
+import type { Codemod, EslintCodemod, SfcMigrationCodemod, UpgradeLevel } from './upgrade-codemods';
 import { renderCodemodList, renderUpgradeReport } from './upgrade-report';
 
 export interface ManualSpot {
@@ -77,6 +84,8 @@ export interface UpgradeExtensionsOptions {
     explicitOnly?: string[];
     /** Opt-in codemod ids requested via --with. */
     optIns?: string[];
+    /** How much the codemods may change, defaults to `partial`. */
+    level?: UpgradeLevel;
     write?: boolean;
     /** Write even when git cannot protect the extension. */
     skipGitCheck?: boolean;
@@ -84,6 +93,7 @@ export interface UpgradeExtensionsOptions {
 
 export interface UpgradeExtensionsResult {
     target: string;
+    level: UpgradeLevel;
     write: boolean;
     skipGitCheck: boolean;
     optIns: string[];
@@ -98,7 +108,17 @@ interface EslintMessage {
     line?: number;
     column?: number;
     message: string;
-    fix?: unknown;
+    fix?: { range: [number, number]; text: string };
+}
+
+const REVIEW_COMMENT = /^\s*(<!--|\/\*)\s*TODO Codemod\b[\s\S]*?(-->|\*\/)\s*$/;
+
+/**
+ * Whether the fix only inserts the review comment the codemods write above a spot that a human has
+ * to migrate. Such a spot counts as manual work, also in a dry run.
+ */
+function onlyAddsReviewComment(fix: EslintMessage['fix']): boolean {
+    return fix !== undefined && fix.range[0] === fix.range[1] && REVIEW_COMMENT.test(fix.text);
 }
 
 interface EslintFileResult {
@@ -129,7 +149,7 @@ function gitState(directory: string): 'clean' | 'dirty' | 'untracked' {
     return status.stdout.trim() === '' ? 'clean' : 'dirty';
 }
 
-function writeCodemodConfig(administrationRoot: string, codemods: EslintCodemod[]): string {
+function writeCodemodConfig(administrationRoot: string, codemods: EslintCodemod[], level: UpgradeLevel): string {
     const configDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'sw-admin-codemods-'));
     const configPath = path.join(configDirectory, 'eslint.config.mjs');
     const factoryUrl = pathToFileURL(path.join(administrationRoot, 'extension-tooling', 'codemods.mjs')).href;
@@ -137,6 +157,7 @@ function writeCodemodConfig(administrationRoot: string, codemods: EslintCodemod[
     const rules = {
         scriptRules: codemods.filter((codemod) => codemod.scope !== 'template').map(entry),
         templateRules: codemods.filter((codemod) => codemod.scope !== 'script').map(entry),
+        level,
     };
 
     fs.writeFileSync(
@@ -205,6 +226,7 @@ interface CodemodRunContext {
     administrationRoot: string;
     extensionRoot: string;
     sourceDirectories: string[];
+    level: UpgradeLevel;
     write: boolean;
 }
 
@@ -225,7 +247,7 @@ function emptyRunResult(codemods: Codemod[]): CodemodRunResult {
 function runEslintCodemods(context: CodemodRunContext, codemods: EslintCodemod[]): CodemodRunResult {
     const result = emptyRunResult(codemods);
     const codemodByRule = new Map(codemods.map((codemod) => [codemod.rule, codemod]));
-    const configPath = writeCodemodConfig(context.administrationRoot, codemods);
+    const configPath = writeCodemodConfig(context.administrationRoot, codemods, context.level);
     const relativeFile = (filePath: string) => toPosix(path.relative(context.extensionRoot, filePath));
     const tallyOf = (message: EslintMessage) => {
         const codemod = message.ruleId ? codemodByRule.get(message.ruleId) : undefined;
@@ -280,12 +302,14 @@ function runEslintCodemods(context: CodemodRunContext, codemods: EslintCodemod[]
             for (const message of file.messages) {
                 const tally = tallyOf(message);
 
-                if (tally && !message.fix) {
+                // A spot that only gets a review comment still needs a human, also in a dry run that has not written it.
+                if (tally && (!message.fix || onlyAddsReviewComment(message.fix))) {
                     tally.manual.push({
                         file: relativeFile(file.filePath),
                         line: message.line,
                         column: message.column,
-                        message: message.message,
+                        // Registry rules append the migration description and references below the headline.
+                        message: message.message.split('\n')[0],
                     });
                 }
             }
@@ -361,7 +385,14 @@ function emptyUpgrade(project: ExtensionToolingProject, skipped?: string): Exten
 
 async function upgradeExtension(
     project: ExtensionToolingProject,
-    options: { projectRoot: string; administrationRoot: string; codemods: Codemod[]; optIns: string[]; write: boolean },
+    options: {
+        projectRoot: string;
+        administrationRoot: string;
+        codemods: Codemod[];
+        optIns: string[];
+        level: UpgradeLevel;
+        write: boolean;
+    },
 ): Promise<ExtensionUpgrade> {
     const upgrade = emptyUpgrade(project);
     const isEnabled = (codemod: Codemod) => !codemod.optIn || options.optIns.includes(codemod.id);
@@ -372,6 +403,7 @@ async function upgradeExtension(
         administrationRoot: options.administrationRoot,
         extensionRoot: path.join(options.projectRoot, project.basePath),
         sourceDirectories: project.targets.map((target) => path.join(options.projectRoot, target.sourcePath)),
+        level: options.level,
     };
     const tallies = new Map<string, CodemodTally>();
 
@@ -434,18 +466,35 @@ function discoverUpgradeProjects(
     ];
 }
 
+/**
+ * The real path of a directory, so it compares with the paths ESLint reports, e.g. `/private/var/…`
+ * instead of the `/var/…` symlink of macOS temp folders.
+ */
+function realDirectory(directory: string): string {
+    const resolved = path.resolve(directory);
+
+    return fs.existsSync(resolved) ? fs.realpathSync(resolved) : resolved;
+}
+
 export async function upgradeExtensions(options: UpgradeExtensionsOptions): Promise<UpgradeExtensionsResult> {
-    const projectRoot = path.resolve(options.projectRoot);
+    const projectRoot = realDirectory(options.projectRoot);
     const administrationRoot = path.resolve(options.administrationRoot);
     const targets = availableTargets();
     const target = options.target ?? targets[targets.length - 1];
     const optIns = options.optIns ?? [];
+    const level = options.level ?? DEFAULT_UPGRADE_LEVEL;
     const write = options.write ?? false;
     const skipGitCheck = options.skipGitCheck ?? false;
     const codemods = selectCodemods(target, optIns);
+
+    if (!UPGRADE_LEVELS.includes(level)) {
+        throw new CodemodSelectionError(`--level must be one of ${UPGRADE_LEVELS.join(', ')}, got "${level}".`);
+    }
+
     const explicitOnly = options.explicitOnly ?? [];
     const result: UpgradeExtensionsResult = {
         target,
+        level,
         write,
         skipGitCheck,
         optIns,
@@ -498,7 +547,7 @@ export async function upgradeExtensions(options: UpgradeExtensionsOptions): Prom
 
     for (const project of runnable) {
         result.extensions.push(
-            await upgradeExtension(project, { projectRoot, administrationRoot, codemods, optIns, write }),
+            await upgradeExtension(project, { projectRoot, administrationRoot, codemods, optIns, level, write }),
         );
     }
 
@@ -533,6 +582,15 @@ const UPGRADE_COMMAND: CommandSpec = {
             description: `Also run opt-in codemods: ${CODEMODS.filter((codemod) => codemod.optIn)
                 .map((codemod) => codemod.id)
                 .join(', ')}.`,
+        },
+        {
+            name: '--level',
+            value: 'required',
+            valueName: '<level>',
+            description:
+                `How much to change: ${UPGRADE_LEVELS.join(', ')} (defaults to ${DEFAULT_UPGRADE_LEVEL}). ` +
+                'safe keeps the behaviour, review also applies fixes with a TODO Codemod comment, ' +
+                'partial also comments every spot that needs manual work, manual only comments.',
         },
         {
             name: '--write',
@@ -645,6 +703,7 @@ export async function runUpgradeCli(argv: string[]): Promise<number> {
             only: selection.only,
             explicitOnly: selection.explicitOnly,
             optIns: normalizeSelection(parsed.values['--with']),
+            level: parsed.values['--level'] as UpgradeLevel | undefined,
             write,
             skipGitCheck: parsed.flags.has('--skip-git-check'),
         });

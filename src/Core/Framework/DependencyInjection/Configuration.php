@@ -63,6 +63,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createProductExportSection())
                 ->append($this->createSsoLoginSection())
                 ->append($this->createProductTypesSection())
+                ->append($this->createProductDocumentsSection())
                 ->append($this->createMcpSection())
                 ->append($this->createAppSystemSection())
                 ->append($this->createWebhookSection())
@@ -1059,6 +1060,28 @@ class Configuration implements ConfigurationInterface
                         ->min(1)
                         ->defaultValue(8)
                     ->end()
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createProductDocumentsSection(): ArrayNodeDefinition
+    {
+        $rootNode = (new TreeBuilder('product_documents'))->getRootNode();
+        $rootNode
+            ->info('Settings for product documents, such as manuals or datasheets. They are checked when a document is saved.')
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->arrayNode('allowed_extensions')
+                    ->info('File types a document can have. A list in your own configuration replaces the core list.')
+                    ->performNoDeepMerging()
+                    ->prototype('scalar')->end()
+                ->end()
+                ->integerNode('max_file_size')
+                    ->info('Largest file of a document, in bytes. Default: 20 MB.')
+                    ->min(1)
+                    ->defaultValue(20 * 1024 * 1024)
                 ->end()
             ->end();
 

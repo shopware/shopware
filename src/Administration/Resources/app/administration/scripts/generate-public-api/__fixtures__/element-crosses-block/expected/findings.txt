@@ -1,0 +1,10 @@
+Public API check failed: 1 unannounced break.
+
+Break (1)
+  element_crosses_block  component:sw-example-card/crossing:div@sw_example_card_header>sw_example_card_header_label_manual  current, major
+    The <div> element opens in block sw_example_card_header and closes in block sw_example_card_header_label_manual, so plugin overrides of either block without {% parent %} break the markup.
+    Fix: open and close the element inside the same block.
+    At: src/app/component/base/sw-example-card/sw-example-card.html.twig:8
+
+Change patterns: technical-docs/11-code-quality/03-public-api-snapshot.md#change-patterns
+Breaking this on purpose? See "Intended breaks" in technical-docs/11-code-quality/03-public-api-snapshot.md.

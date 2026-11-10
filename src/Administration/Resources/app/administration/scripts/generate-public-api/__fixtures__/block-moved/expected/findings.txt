@@ -1,0 +1,14 @@
+Public API check failed: 2 unannounced breaks.
+
+Break (2)
+  block_moved_parent  component:sw-order-details-state-card/block:sw_order_detail_state_card_state_history_button  current, major
+    The block moved from sw_order_detail_state_card_state to sw_order_state_change_card_content, so plugin overrides of sw_order_detail_state_card_state without {% parent %} now drop it, and overrides of sw_order_state_change_card_content drop it too.
+    Fix: pattern "Block move". Keep the block under sw_order_detail_state_card_state while v6.8.0.0 is off, move it only with the flag on, and mark it {# @bc-change BlockMoved version:v6.8.0 parent:sw_order_state_change_card_content #}.
+    At: src/module/sw-order/component/sw-order-details-state-card/sw-order-details-state-card.html.twig:59
+  block_moved_parent  component:sw-order-details-state-card/block:sw_order_detail_state_card_state_history_text  current, major
+    The block moved from sw_order_detail_state_card_state to sw_order_detail_state_card_state_select, so plugin overrides of sw_order_detail_state_card_state without {% parent %} now drop it, and overrides of sw_order_detail_state_card_state_select drop it too.
+    Fix: pattern "Block move". Keep the block under sw_order_detail_state_card_state while v6.8.0.0 is off, move it only with the flag on, and mark it {# @bc-change BlockMoved version:v6.8.0 parent:sw_order_detail_state_card_state_select #}.
+    At: src/module/sw-order/component/sw-order-details-state-card/sw-order-details-state-card.html.twig:20
+
+Change patterns: technical-docs/11-code-quality/03-public-api-snapshot.md#change-patterns
+Breaking this on purpose? See "Intended breaks" in technical-docs/11-code-quality/03-public-api-snapshot.md.

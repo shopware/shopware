@@ -4,8 +4,8 @@
 
 The Administration gets a generated snapshot of its public API and a check that blocks unannounced breaks, see [#22591](https://github.com/shopware/shopware/issues/22591).
 Both are built in steps.
-The markers that announce a change exist so far.
-The grammar of the markers is in `eslint-rules/deprecation-rules/utils/api-markers.ts`.
+Two parts exist so far: the markers that announce a change, and the fixtures that the generator and the break check have to satisfy.
+The grammar of the markers is in `eslint-rules/deprecation-rules/utils/api-markers.ts`, the code of the generator in `scripts/generate-public-api/`.
 
 ## Markers
 
@@ -75,3 +75,41 @@ Without the rule such a comment would stay a plain comment, and the change would
 
 Only the format is checked so far.
 Whether a marker sits on an element its kind fits, and whether its version is not released yet, comes with the break check.
+
+## Fixtures
+
+Each folder in `scripts/generate-public-api/__fixtures__/` is one case: a small source tree before and after a change, and the output expected for it.
+
+| Path | Content |
+|---|---|
+| `case.json` | What the case covers, the version the base branch releases next, and the major flags |
+| `before/`, `after/` | Minimal Administration source tree at the base and at the head commit |
+| `expected/before/`, `expected/after/` | The snapshot files for each tree |
+| `expected/findings.txt` | The summary the break check prints for the change |
+
+The `expected/` folders are written by hand and are the specification the generator is built against.
+They hold whole files with every unit kind, while the generator covers one kind at a time.
+`fixtures.spec.ts` therefore compares each case several times:
+
+- Once per unit kind.
+  The comparison takes the kind's sections of the `.api.md` reports, its members of the `.d.ts` contracts, its keys in `index.json` and the findings on its elements, and ignores the rest.
+  `blocks` is the only kind so far, and it covers the block tree and the crossings.
+- Once as `complete`, which compares every file and the whole summary.
+
+`expected-failures.ts` lists the comparisons that cannot pass yet, by name, for example `block-moved/blocks`.
+The spec runs them with `it.failing`, so the run is green while they fail and turns red as soon as one of them passes.
+An entry that names no comparison is an error.
+So is a unit kind that occurs in no expected snapshot, because it would compare nothing.
+
+To build the next part:
+
+1. Add its fixture cases, and its unit kind to `UNIT_KINDS` in `fixture-runner.ts` when it is a new one.
+2. Implement it behind `generateSnapshot` in `snapshot.ts` and `classifyChanges` in `break-check.ts`.
+3. Remove the entries that now pass from `expected-failures.ts`.
+   The part is done when its entries are gone.
+
+Run the comparisons in `src/Administration/Resources/app/administration`:
+
+```bash
+npx jest --collectCoverage=false scripts/generate-public-api
+```

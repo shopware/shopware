@@ -1,0 +1,6 @@
+{
+    "row": "Block context: v-if chains and template scope",
+    "headVersion": "6.7",
+    "majorFlags": ["v6.8.0.0"],
+    "acceptedBreaks": null
+}

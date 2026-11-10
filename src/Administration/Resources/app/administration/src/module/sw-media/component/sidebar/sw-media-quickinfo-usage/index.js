@@ -152,7 +152,9 @@ export default {
 
     methods: {
         async createdComponent() {
-            this.loadProductAssociations();
+            const item = this.item;
+            this.isLoading = true;
+            const productAssociations = this.loadProductAssociations();
             this.loadCategoryAssociations();
             this.loadManufacturerAssociations();
             this.loadMailTemplateAssociations();
@@ -161,11 +163,17 @@ export default {
             this.loadPaymentMethodAssociations();
             this.loadShippingMethodAssociations();
             this.loadLayoutAssociations();
-            await this.loadSlotConfigAssociations();
+            try {
+                await Promise.all([productAssociations, this.loadSlotConfigAssociations()]);
+            } finally {
+                if (this.item === item) {
+                    this.isLoading = false;
+                }
+            }
         },
 
         async loadSlotConfigAssociations() {
-            this.isLoading = true;
+            const item = this.item;
 
             const [
                 foundInProducts,
@@ -178,6 +186,10 @@ export default {
                 this.categoryRepository.search(this.slotConfigCriteria),
                 this.cmsPageRepository.search(this.cmsPageBlockConfigCriteria),
             ]);
+
+            if (this.item !== item) {
+                return;
+            }
 
             foundInProducts.forEach((foundInProduct) => {
                 if (this.products && !this.products.some((productMedia) => productMedia.product.id === foundInProduct.id)) {
@@ -198,18 +210,57 @@ export default {
                     this.layouts.push(foundInCmsPage);
                 }
             });
-
-            this.isLoading = false;
         },
 
-        loadProductAssociations() {
-            this.products = [...this.item.productMedia];
-            this.item.productDocumentTranslations?.forEach(({ productDocument }) => {
-                const product = productDocument?.product;
-                if (product && !this.products.some((usage) => usage.product.id === product.id)) {
-                    this.products.push({ product });
+        async loadProductAssociations() {
+            const item = this.item;
+            const assignments = [
+                ...item.productMedia.map(({ productId, product }) => ({ productId, product })),
+                ...(item.productDocumentTranslations ?? []).map(({ productDocument }) => ({
+                    productId: productDocument?.productId,
+                    product: productDocument?.product,
+                })),
+            ];
+            const productIds = new Set();
+            const directProducts = new Map();
+            assignments.forEach(({ productId, product }) => {
+                if (!productId) {
+                    return;
+                }
+
+                productIds.add(productId);
+                if (product?.id === productId) {
+                    directProducts.set(productId, product);
                 }
             });
+            this.products = [...directProducts.values()].map((product) => ({ product }));
+
+            if (productIds.size === 0) {
+                return;
+            }
+
+            const criteria = new Criteria(1, productIds.size);
+            criteria.setIds([...productIds]);
+            criteria.addAssociation('options.group');
+
+            try {
+                const products = await this.productRepository.search(criteria, {
+                    ...Shopware.Context.api,
+                    inheritance: true,
+                });
+                if (this.item !== item) {
+                    return;
+                }
+
+                const productsById = new Map(products.map((product) => [product.id, product]));
+                const usages = [...productIds]
+                    .map((productId) => productsById.get(productId) ?? directProducts.get(productId))
+                    .filter(Boolean)
+                    .map((product) => ({ product }));
+                this.products = [...usages, ...this.products.filter(({ product }) => !productIds.has(product.id))];
+            } catch {
+                // Keep the directly loaded assignments if variant details are unavailable.
+            }
         },
 
         loadCategoryAssociations() {
@@ -278,7 +329,7 @@ export default {
 
         getProductUsage(product) {
             return {
-                name: product.translated.name,
+                name: product.translated.name || product.productNumber,
                 variations: product.variation,
                 tooltip: this.$t('sw-media.sidebar.usage.tooltipFoundInProducts'),
                 link: {

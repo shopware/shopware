@@ -233,14 +233,13 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
             );
             const [criteria, context] = request ?? [];
             expect(criteria).toBeDefined();
-            expect(context).toEqual(expect.objectContaining({ inheritance: true }));
+            expect(context?.inheritance).not.toBe(true);
             const associations = criteria.parse().associations;
             expect(associations).not.toHaveProperty('productDocumentTranslations.limit');
             expect(associations).toHaveProperty(
-                'productDocumentTranslations.associations.productDocument.associations.product.associations.options.associations.group',
+                'productDocumentTranslations.associations.productDocument.associations.product',
             );
             expect(associations.productMedia.limit).toBe(25);
-            expect(associations).toHaveProperty('productMedia.associations.product.associations.options.associations.group');
         } finally {
             wrapper?.unmount();
             search.mockRestore();

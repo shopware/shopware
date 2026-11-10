@@ -2,8 +2,8 @@
 <div class="sw-seo-main-category">
     {% block sw_seo_main_category_select %}
     <sw-single-select
-        :options="categories"
-        label-property="translated.name"
+        :options="categoryOptions"
+        label-property="label"
         value-property="id"
         show-clearable-button
         :placeholder="$t('sw-seo-url.placeholderMainCategory')"

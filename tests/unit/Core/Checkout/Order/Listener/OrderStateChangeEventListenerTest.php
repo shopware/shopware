@@ -30,6 +30,8 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 use Shopware\Core\System\StateMachine\Event\StateMachineStateChangeEvent;
 use Shopware\Core\System\StateMachine\StateMachineEntity;
 use Shopware\Core\System\StateMachine\Transition;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -45,6 +47,8 @@ class OrderStateChangeEventListenerTest extends TestCase
             'state_machine.order.state_changed' => 'onOrderStateChange',
             'state_machine.order_delivery.state_changed' => 'onOrderDeliveryStateChange',
             'state_machine.order_transaction.state_changed' => 'onOrderTransactionStateChange',
+            'state_machine.order_transaction_capture.state_changed' => 'onOrderTransactionCaptureStateChange',
+            'state_machine.order_transaction_capture_refund.state_changed' => 'onOrderTransactionCaptureRefundStateChange',
             BusinessEventCollectorEvent::NAME => 'onAddStateEvents',
         ];
 
@@ -526,6 +530,96 @@ class OrderStateChangeEventListenerTest extends TestCase
         $listener->onOrderStateChange($event);
     }
 
+    public function testOnOrderTransactionCaptureStateChange(): void
+    {
+        $order = $this->createOrder();
+        $dispatcher = new CollectingEventDispatcher();
+
+        $listener = new OrderStateChangeEventListener(
+            new StaticEntityRepository([[$order->getId()], new OrderCollection([$order]), new OrderCollection([$order])]),
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class),
+            $dispatcher,
+            static::createStub(BusinessEventCollector::class),
+            static::createStub(EntityRepository::class)
+        );
+
+        $listener->onOrderTransactionCaptureStateChange($this->createEnterStateEvent(
+            new Transition('order_transaction_capture', 'capture_id', 'complete', 'stateId'),
+            stateMachine: 'order_transaction_capture.state',
+            state: 'completed',
+        ));
+
+        $stateEvent = $dispatcher->getEvents()['state_enter.order_transaction_capture.state.completed'] ?? null;
+        static::assertInstanceOf(OrderStateMachineStateChangeEvent::class, $stateEvent);
+        static::assertSame($order, $stateEvent->getOrder());
+    }
+
+    public function testOnOrderTransactionCaptureStateChangeWithoutOrder(): void
+    {
+        $listener = new OrderStateChangeEventListener(
+            StaticEntityRepository::of(OrderCollection::class, [[]]),
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(BusinessEventCollector::class),
+            static::createStub(EntityRepository::class)
+        );
+
+        $this->expectExceptionObject(OrderException::orderTransactionCaptureNotFound('capture_id'));
+
+        $listener->onOrderTransactionCaptureStateChange($this->createEnterStateEvent(
+            new Transition('order_transaction_capture', 'capture_id', 'complete', 'stateId'),
+            stateMachine: 'order_transaction_capture.state',
+            state: 'completed',
+        ));
+    }
+
+    public function testOnOrderTransactionCaptureRefundStateChange(): void
+    {
+        $order = $this->createOrder();
+        $dispatcher = new CollectingEventDispatcher();
+
+        $listener = new OrderStateChangeEventListener(
+            new StaticEntityRepository([[$order->getId()], new OrderCollection([$order]), new OrderCollection([$order])]),
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class),
+            $dispatcher,
+            static::createStub(BusinessEventCollector::class),
+            static::createStub(EntityRepository::class)
+        );
+
+        $listener->onOrderTransactionCaptureRefundStateChange($this->createEnterStateEvent(
+            new Transition('order_transaction_capture_refund', 'refund_id', 'complete', 'stateId'),
+            stateMachine: 'order_transaction_capture_refund.state',
+            state: 'completed',
+        ));
+
+        $stateEvent = $dispatcher->getEvents()['state_enter.order_transaction_capture_refund.state.completed'] ?? null;
+        static::assertInstanceOf(OrderStateMachineStateChangeEvent::class, $stateEvent);
+        static::assertSame($order, $stateEvent->getOrder());
+    }
+
+    public function testOnOrderTransactionCaptureRefundStateChangeWithoutOrder(): void
+    {
+        $listener = new OrderStateChangeEventListener(
+            StaticEntityRepository::of(OrderCollection::class, [[]]),
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(BusinessEventCollector::class),
+            static::createStub(EntityRepository::class)
+        );
+
+        $this->expectExceptionObject(OrderException::orderTransactionCaptureRefundNotFound('refund_id'));
+
+        $listener->onOrderTransactionCaptureRefundStateChange($this->createEnterStateEvent(
+            new Transition('order_transaction_capture_refund', 'refund_id', 'complete', 'stateId'),
+            stateMachine: 'order_transaction_capture_refund.state',
+            state: 'completed',
+        ));
+    }
+
     /**
      * @param array<string, string|null> $states technical name of the state, mapped to the technical name of its state machine or null when it has none
      * @param list<string> $expectedEventNames
@@ -609,5 +703,37 @@ class OrderStateChangeEventListenerTest extends TestCase
             ['open' => null, 'paid' => 'order'],
             ['state_enter.order.paid', 'state_leave.order.paid'],
         ];
+    }
+
+    private function createOrder(): OrderEntity
+    {
+        $order = new OrderEntity();
+        $order->setId('order_id');
+        $order->setItemRounding(new CashRoundingConfig(2, 0.01, true));
+        $order->setCurrencyId('currency_id');
+        $order->setLanguageId('language_id');
+        $order->setCurrencyFactor(1.0);
+        $order->setTaxStatus('free');
+
+        return $order;
+    }
+
+    private function createEnterStateEvent(Transition $transition, string $stateMachine, string $state): StateMachineStateChangeEvent
+    {
+        $machine = new StateMachineEntity();
+        $machine->setTechnicalName($stateMachine);
+        $previousState = new StateMachineStateEntity();
+        $previousState->setTechnicalName('previous_state');
+        $nextState = new StateMachineStateEntity();
+        $nextState->setTechnicalName($state);
+
+        return new StateMachineStateChangeEvent(
+            Context::createDefaultContext(),
+            StateMachineStateChangeEvent::STATE_MACHINE_TRANSITION_SIDE_ENTER,
+            $transition,
+            $machine,
+            $previousState,
+            $nextState
+        );
     }
 }

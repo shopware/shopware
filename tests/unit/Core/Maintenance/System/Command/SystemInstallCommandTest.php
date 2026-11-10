@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Maintenance\System\Command;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
@@ -26,10 +27,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\ApplicationTester;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
+ *
+ * @see \Shopware\Tests\Integration\Core\Maintenance\System\Command\SystemInstallCommandTest for the install.lock and .htaccess files
  */
 #[Package('framework')]
 #[CoversClass(SystemInstallCommand::class)]
@@ -37,48 +39,13 @@ class SystemInstallCommandTest extends TestCase
 {
     use EnvTestBehaviour;
 
-    protected function tearDown(): void
-    {
-        $fs = new Filesystem();
-        $fs->remove([
-            __DIR__ . '/install.lock',
-            __DIR__ . '/config',
-            __DIR__ . '/public/.htaccess',
-            __DIR__ . '/public/.htaccess.dist',
-            __DIR__ . '/public',
-        ]);
-    }
-
-    public function testExecuteWhenInstallLockExists(): void
-    {
-        touch(__DIR__ . '/install.lock');
-
-        $systemInstallCmd = $this->prepareCommandInstance();
-
-        $output = new BufferedOutput();
-        $result = $systemInstallCmd->run(new ArrayInput([
-            '--shop-name' => 'Storefront',
-            '--shop-email' => 'admin@gmail.com',
-            '--shop-locale' => 'de-DE',
-            '--shop-currency' => 'USD',
-            '--basic-setup' => true,
-            '--no-assign-theme' => true,
-            '--drop-database' => true,
-            '--create-database' => true,
-        ]), $output);
-
-        static::assertSame(Command::FAILURE, $result);
-        static::assertStringContainsString('install.lock already exists', $output->fetch());
-    }
-
     public function testDefaultInstallFlow(): void
     {
-        $systemInstallCmd = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
+        $systemInstallCmd = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install'], systemLocker: $this->createSystemLocker(expectLock: true));
 
         $result = $systemInstallCmd->run(new ArrayInput([]), new BufferedOutput());
 
         static::assertSame(Command::SUCCESS, $result);
-        static::assertFileExists(__DIR__ . '/install.lock');
     }
 
     public function testBasicSetupFlow(): void
@@ -88,22 +55,20 @@ class SystemInstallCommandTest extends TestCase
             'sales-channel:create:storefront',
             'theme:change',
             'assets:install',
-        ]);
+        ], systemLocker: $this->createSystemLocker(expectLock: true));
 
         $result = $command->run(new ArrayInput(['--basic-setup' => true]), new BufferedOutput());
 
         static::assertSame(Command::SUCCESS, $result);
-        static::assertFileExists(__DIR__ . '/install.lock');
     }
 
     public function testAssetsInstallCanBeSkipped(): void
     {
-        $command = $this->prepareCommandInstanceWithDefaultInstallCommands();
+        $command = $this->prepareCommandInstanceWithDefaultInstallCommands(systemLocker: $this->createSystemLocker(expectLock: true));
 
         $result = $command->run(new ArrayInput(['--skip-assets-install' => true]), new BufferedOutput());
 
         static::assertSame(Command::SUCCESS, $result);
-        static::assertFileExists(__DIR__ . '/install.lock');
     }
 
     public function testSkipFirstRunWizardOption(): void
@@ -111,19 +76,18 @@ class SystemInstallCommandTest extends TestCase
         $command = $this->prepareCommandInstanceWithDefaultInstallCommands([
             'assets:install',
             'system:config:set',
-        ]);
+        ], systemLocker: $this->createSystemLocker(expectLock: true));
 
         $result = $command->run(new ArrayInput(['--skip-first-run-wizard' => true]), new BufferedOutput());
 
         static::assertSame(Command::SUCCESS, $result);
-        static::assertFileExists(__DIR__ . '/install.lock');
     }
 
     public function testSkipWebInstallerWithFalsyEnvironmentVariable(): void
     {
         $this->setEnvVars(['SHOPWARE_SKIP_WEBINSTALLER' => '0']);
 
-        $command = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
+        $command = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install'], systemLocker: $this->createSystemLocker(expectLock: true));
 
         $output = new BufferedOutput();
         $result = $command->run(new ArrayInput([]), $output);
@@ -132,14 +96,13 @@ class SystemInstallCommandTest extends TestCase
 
         $outputContent = $output->fetch();
         static::assertStringNotContainsString('Skipping install.lock and .htaccess creation', $outputContent);
-        static::assertFileExists(__DIR__ . '/install.lock');
     }
 
     public function testSkipWebInstallerWithTruthyEnvironmentVariable(): void
     {
         $this->setEnvVars(['SHOPWARE_SKIP_WEBINSTALLER' => '1']);
 
-        $command = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
+        $command = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install'], systemLocker: $this->createSystemLocker(expectLock: false));
 
         $output = new BufferedOutput();
         $result = $command->run(new ArrayInput([]), $output);
@@ -148,31 +111,6 @@ class SystemInstallCommandTest extends TestCase
 
         $outputContent = $output->fetch();
         static::assertStringContainsString('Skipping install.lock and .htaccess creation', $outputContent);
-        static::assertFileDoesNotExist(__DIR__ . '/install.lock');
-    }
-
-    public function testForceOptionBypassesLockFile(): void
-    {
-        touch(__DIR__ . '/install.lock');
-
-        $systemInstallCmd = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
-
-        $result = $systemInstallCmd->run(new ArrayInput(['--force' => true]), new BufferedOutput());
-
-        static::assertSame(Command::SUCCESS, $result);
-    }
-
-    public function testSkipWebInstallerIgnoresExistingLockFile(): void
-    {
-        touch(__DIR__ . '/install.lock');
-
-        $this->setEnvVars(['SHOPWARE_SKIP_WEBINSTALLER' => '1']);
-
-        $command = $this->prepareCommandInstance();
-
-        $result = $command->run(new ArrayInput([]), new BufferedOutput());
-
-        static::assertSame(Command::FAILURE, $result);
     }
 
     public function testInstallLockNotCreatedOnFailure(): void
@@ -193,7 +131,7 @@ class SystemInstallCommandTest extends TestCase
             $setupDatabaseAdapterMock,
             $connectionFactory,
             static::createStub(CacheClearer::class),
-            static::createStub(SystemLocker::class),
+            $this->createSystemLocker(expectLock: false),
             new NativeClock(),
             $dispatcher
         );
@@ -215,118 +153,7 @@ class SystemInstallCommandTest extends TestCase
         $result = $systemInstallCmd->run(new ArrayInput([]), new BufferedOutput());
 
         static::assertSame(Command::FAILURE, $result);
-        static::assertFileDoesNotExist(__DIR__ . '/install.lock');
         static::assertFalse($dispatched);
-    }
-
-    public function testHtaccessCreatedFromDistFile(): void
-    {
-        $this->createHtaccessDist('Test .htaccess content');
-
-        $command = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
-
-        $result = $command->run(new ArrayInput([]), new BufferedOutput());
-
-        static::assertSame(Command::SUCCESS, $result);
-        static::assertFileExists(__DIR__ . '/public/.htaccess');
-        static::assertStringEqualsFile(__DIR__ . '/public/.htaccess', 'Test .htaccess content');
-    }
-
-    public function testExistingHtaccessPreserved(): void
-    {
-        $publicDir = __DIR__ . '/public';
-        if (!is_dir($publicDir)) {
-            mkdir($publicDir, 0755, true);
-        }
-        file_put_contents($publicDir . '/.htaccess', 'Custom .htaccess content');
-
-        // Create .htaccess.dist with different content
-        $this->createHtaccessDist();
-
-        $command = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
-
-        $result = $command->run(new ArrayInput([]), new BufferedOutput());
-
-        static::assertSame(Command::SUCCESS, $result);
-        static::assertFileExists(__DIR__ . '/public/.htaccess');
-        static::assertStringEqualsFile(__DIR__ . '/public/.htaccess', 'Custom .htaccess content');
-    }
-
-    public function testHtaccessSkippedWithWebInstallerSkip(): void
-    {
-        $this->setEnvVars(['SHOPWARE_SKIP_WEBINSTALLER' => '1']);
-        $this->createHtaccessDist('Test .htaccess content');
-
-        $command = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
-
-        $output = new BufferedOutput();
-        $result = $command->run(new ArrayInput([]), $output);
-
-        static::assertSame(Command::SUCCESS, $result);
-
-        $outputContent = $output->fetch();
-        static::assertStringContainsString('Skipping install.lock and .htaccess creation', $outputContent);
-        static::assertFileDoesNotExist(__DIR__ . '/public/.htaccess');
-        static::assertFileDoesNotExist(__DIR__ . '/install.lock');
-    }
-
-    public function testHtaccessCreatedWithWebInstallerNotSkipped(): void
-    {
-        $this->setEnvVars(['SHOPWARE_SKIP_WEBINSTALLER' => '0']);
-        $this->createHtaccessDist('Test .htaccess content');
-
-        $command = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
-
-        $output = new BufferedOutput();
-        $result = $command->run(new ArrayInput([]), $output);
-
-        static::assertSame(Command::SUCCESS, $result);
-
-        $outputContent = $output->fetch();
-        static::assertStringNotContainsString('Skipping install.lock and .htaccess creation', $outputContent);
-        static::assertFileExists(__DIR__ . '/public/.htaccess');
-        static::assertStringEqualsFile(__DIR__ . '/public/.htaccess', 'Test .htaccess content');
-        static::assertFileExists(__DIR__ . '/install.lock');
-    }
-
-    public function testHtaccessNotCreatedOnFailure(): void
-    {
-        $this->createHtaccessDist('Test .htaccess content');
-
-        $connection = static::createStub(Connection::class);
-        $connectionFactory = static::createStub(DatabaseConnectionFactory::class);
-        $connectionFactory->method('getConnection')->willReturn($connection);
-        $setupDatabaseAdapterMock = static::createStub(SetupDatabaseAdapter::class);
-
-        $systemInstallCmd = new SystemInstallCommand(
-            __DIR__,
-            $setupDatabaseAdapterMock,
-            $connectionFactory,
-            static::createStub(CacheClearer::class),
-            static::createStub(SystemLocker::class),
-            new NativeClock(),
-            new EventDispatcher()
-        );
-
-        $application = new class extends Application {
-            public function has(string $name): bool
-            {
-                return true;
-            }
-
-            public function doRun(InputInterface $input, OutputInterface $output): int
-            {
-                return Command::FAILURE;
-            }
-        };
-
-        $systemInstallCmd->setApplication($application);
-
-        $result = $systemInstallCmd->run(new ArrayInput([]), new BufferedOutput());
-
-        static::assertSame(Command::FAILURE, $result);
-        static::assertFileDoesNotExist(__DIR__ . '/public/.htaccess');
-        static::assertFileDoesNotExist(__DIR__ . '/install.lock');
     }
 
     /**
@@ -402,19 +229,26 @@ class SystemInstallCommandTest extends TestCase
             $dispatched = true;
         });
 
-        $command = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install'], dispatcher: $dispatcher);
+        $command = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install'], dispatcher: $dispatcher, systemLocker: $this->createSystemLocker(expectLock: false));
 
         $result = $command->run(new ArrayInput([]), new BufferedOutput());
 
         static::assertSame(Command::SUCCESS, $result);
         static::assertTrue($dispatched);
-        static::assertFileDoesNotExist(__DIR__ . '/install.lock');
+    }
+
+    private function createSystemLocker(bool $expectLock): SystemLocker&MockObject
+    {
+        $systemLocker = $this->createMock(SystemLocker::class);
+        $systemLocker->expects($expectLock ? $this->once() : $this->never())->method('lock');
+
+        return $systemLocker;
     }
 
     /**
      * @param array<string> $expectedCommands
      */
-    private function prepareCommandInstance(array $expectedCommands = [], string $projectDir = __DIR__, ?EventDispatcherInterface $eventDispatcher = null): SystemInstallCommand
+    private function prepareCommandInstance(array $expectedCommands = [], ?EventDispatcherInterface $eventDispatcher = null, ?SystemLocker $systemLocker = null): SystemInstallCommand
     {
         $connection = static::createStub(Connection::class);
         $connectionFactory = static::createStub(DatabaseConnectionFactory::class);
@@ -422,14 +256,13 @@ class SystemInstallCommandTest extends TestCase
         $connectionFactory->method('getConnection')->willReturn($connection);
 
         $setupDatabaseAdapterMock = static::createStub(SetupDatabaseAdapter::class);
-        $systemLocker = new SystemLocker($projectDir);
 
         $systemInstallCmd = new SystemInstallCommand(
-            $projectDir,
+            __DIR__,
             $setupDatabaseAdapterMock,
             $connectionFactory,
             static::createStub(CacheClearer::class),
-            $systemLocker,
+            $systemLocker ?? static::createStub(SystemLocker::class),
             new NativeClock(),
             $eventDispatcher ?? new EventDispatcher()
         );
@@ -450,7 +283,7 @@ class SystemInstallCommandTest extends TestCase
     /**
      * @param array<string> $additionalCommands
      */
-    private function prepareCommandInstanceWithDefaultInstallCommands(array $additionalCommands = [], string $projectDir = __DIR__, ?EventDispatcherInterface $dispatcher = null): SystemInstallCommand
+    private function prepareCommandInstanceWithDefaultInstallCommands(array $additionalCommands = [], ?EventDispatcherInterface $dispatcher = null, ?SystemLocker $systemLocker = null): SystemInstallCommand
     {
         $defaultCommands = [
             'database:migrate',
@@ -464,15 +297,6 @@ class SystemInstallCommandTest extends TestCase
             'cache:clear',
         ];
 
-        return $this->prepareCommandInstance(array_merge($defaultCommands, $additionalCommands), $projectDir, $dispatcher);
-    }
-
-    private function createHtaccessDist(string $content = 'Default .htaccess content'): void
-    {
-        $publicDir = __DIR__ . '/public';
-        if (!is_dir($publicDir)) {
-            mkdir($publicDir, 0755, true);
-        }
-        file_put_contents($publicDir . '/.htaccess.dist', $content);
+        return $this->prepareCommandInstance(array_merge($defaultCommands, $additionalCommands), $dispatcher, $systemLocker);
     }
 }

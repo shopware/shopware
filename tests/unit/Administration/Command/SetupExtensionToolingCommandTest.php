@@ -6,11 +6,15 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Command\SetupExtensionToolingCommand;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @internal
+ *
+ * The bridge behaviour this command inherits is covered by
+ * AbstractExtensionToolingCommandTest; the entry script is all this subclass owns.
  */
 #[Package('framework')]
 #[CoversClass(SetupExtensionToolingCommand::class)]
@@ -18,16 +22,25 @@ class SetupExtensionToolingCommandTest extends TestCase
 {
     public function testSetupCommandRunsTheSetupEntryScript(): void
     {
-        $administrationRoot = ExtensionToolingFixture::createAdministrationRoot(withToolingStub: true);
+        $command = new class($this->kernel(), __DIR__ . '/_fixtures/administration-root') extends SetupExtensionToolingCommand {
+            /**
+             * @var list<string>|null
+             */
+            public ?array $spawned = null;
 
-        $tester = new CommandTester(new SetupExtensionToolingCommand($this->kernel(), $administrationRoot));
-        $tester->execute(['tooling-args' => ['--check']]);
+            protected function runTooling(array $command, string $cwd, array $env, OutputInterface $output): int
+            {
+                $this->spawned = $command;
 
-        $capture = ExtensionToolingFixture::readToolingCapture($administrationRoot);
-        static::assertStringEndsWith('scripts/extensionTooling/setup.ts', $capture['argv'][1]);
-        static::assertContains('--check', $capture['argv']);
+                return self::SUCCESS;
+            }
+        };
 
-        ExtensionToolingFixture::removeAdministrationRoot($administrationRoot);
+        (new CommandTester($command))->execute(['tooling-args' => ['--check']]);
+
+        static::assertNotNull($command->spawned);
+        static::assertStringEndsWith('scripts/extensionTooling/setup.ts', $command->spawned[2]);
+        static::assertContains('--check', $command->spawned);
     }
 
     public function testCommandDescriptionMarksTheToolingExperimental(): void

@@ -28,7 +28,7 @@ class TranslationControllerTest extends TestCase
     {
         $this->twig = $this->createMock(Environment::class);
 
-        $this->controller = new TranslationController(\sys_get_temp_dir());
+        $this->controller = new TranslationController(__DIR__);
         $this->controller->setContainer(InstallerControllerFixture::getInstallerContainer($this->twig));
     }
 

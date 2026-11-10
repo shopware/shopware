@@ -5,36 +5,27 @@ namespace Shopware\Core\Content\Product\SalesChannel\Review;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Deprecation\BCChange\BecomesReadonly;
-use Shopware\Core\Framework\Deprecation\BCChange\ClassHierarchyChange;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @extends EntitySearchResult<ProductReviewCollection>
  */
 #[Package('after-sales')]
-#[ClassHierarchyChange(version: 'v6.8.0', description: 'Will no longer extend EntitySearchResult, but will keep extending Struct.', newParentClass: Struct::class)]
 class ProductReviewResult extends EntitySearchResult
 {
-    #[BecomesReadonly(version: 'v6.8.0')]
     protected ?string $parentId = null;
 
-    #[BecomesReadonly(version: 'v6.8.0')]
     protected string $productId;
 
-    #[BecomesReadonly(version: 'v6.8.0')]
     protected RatingMatrix $matrix;
 
-    #[BecomesReadonly(version: 'v6.8.0')]
     protected ?ProductReviewEntity $customerReview = null;
 
-    #[BecomesReadonly(version: 'v6.8.0')]
     protected int $totalReviewsInCurrentLanguage;
 
     /**
-     * Construction entry point with a stable signature across the v6.8.0 cut. Callers that adopt this method now will keep working after the structural change.
+     * Sets every property at once.
      *
      * @param EntitySearchResult<ProductReviewCollection> $result
      */
@@ -62,7 +53,7 @@ class ProductReviewResult extends EntitySearchResult
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed; the property becomes readonly. Pass the value via fromSearchResult() instead.
+     * @deprecated tag:v6.8.0 - Will be removed. Pass the value via fromSearchResult() instead.
      */
     public function setProductId(string $productId): void
     {
@@ -77,7 +68,7 @@ class ProductReviewResult extends EntitySearchResult
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed; the property becomes readonly. Pass the value via fromSearchResult() instead.
+     * @deprecated tag:v6.8.0 - Will be removed. Pass the value via fromSearchResult() instead.
      */
     public function setMatrix(RatingMatrix $matrix): void
     {
@@ -92,7 +83,7 @@ class ProductReviewResult extends EntitySearchResult
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed; the property becomes readonly. Pass the value via fromSearchResult() instead.
+     * @deprecated tag:v6.8.0 - Will be removed. Pass the value via fromSearchResult() instead.
      */
     public function setCustomerReview(?ProductReviewEntity $customerReview): void
     {
@@ -107,7 +98,7 @@ class ProductReviewResult extends EntitySearchResult
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed; the property becomes readonly. Pass the value via fromSearchResult() instead.
+     * @deprecated tag:v6.8.0 - Will be removed. Pass the value via fromSearchResult() instead.
      */
     public function setTotalReviewsInCurrentLanguage(int $totalReviewsInCurrentLanguage): void
     {
@@ -122,7 +113,7 @@ class ProductReviewResult extends EntitySearchResult
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed; the property becomes readonly. Pass the value via fromSearchResult() instead.
+     * @deprecated tag:v6.8.0 - Will be removed. Pass the value via fromSearchResult() instead.
      */
     public function setParentId(?string $parentId): void
     {

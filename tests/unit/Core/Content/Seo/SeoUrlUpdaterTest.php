@@ -30,11 +30,6 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 #[CoversClass(SeoUrlUpdater::class)]
 class SeoUrlUpdaterTest extends TestCase
 {
-    /**
-     * @var StaticEntityRepository<LanguageCollection>
-     */
-    private StaticEntityRepository $languageRepository;
-
     private SeoUrlRouteRegistry $seoUrlRouteRegistry;
 
     private SeoUrlGenerator&MockObject $seoUrlGenerator;
@@ -42,11 +37,6 @@ class SeoUrlUpdaterTest extends TestCase
     private SeoUrlPersister&MockObject $seoUrlPersister;
 
     private Connection&Stub $connection;
-
-    /**
-     * @var StaticEntityRepository<SalesChannelCollection>
-     */
-    private StaticEntityRepository $salesChannelRepository;
 
     protected function setUp(): void
     {
@@ -195,17 +185,17 @@ class SeoUrlUpdaterTest extends TestCase
         array $salesChannelSearches = [],
         array $seoUrlRoutes = []
     ): SeoUrlUpdater {
-        $this->languageRepository = new StaticEntityRepository($languageSearches);
+        $languageRepository = new StaticEntityRepository($languageSearches);
         $this->seoUrlRouteRegistry = new SeoUrlRouteRegistry($seoUrlRoutes);
-        $this->salesChannelRepository = new StaticEntityRepository($salesChannelSearches);
+        $salesChannelRepository = new StaticEntityRepository($salesChannelSearches);
 
         return new SeoUrlUpdater(
-            $this->languageRepository,
+            $languageRepository,
             $this->seoUrlRouteRegistry,
             $this->seoUrlGenerator,
             $this->seoUrlPersister,
             $this->connection,
-            $this->salesChannelRepository
+            $salesChannelRepository
         );
     }
 }

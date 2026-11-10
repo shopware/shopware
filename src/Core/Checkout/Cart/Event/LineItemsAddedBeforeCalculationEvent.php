@@ -15,7 +15,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @codeCoverageIgnore
  */
 #[Package('checkout')]
-final class LineItemsAddedEvent implements ShopwareSalesChannelEvent, CartEvent
+final class LineItemsAddedBeforeCalculationEvent implements ShopwareSalesChannelEvent, CartEvent
 {
     /**
      * @param array<LineItem> $lineItems

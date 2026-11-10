@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartLocker;
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemAddedEvent;
-use Shopware\Core\Checkout\Cart\Event\LineItemsAddedEvent;
+use Shopware\Core\Checkout\Cart\Event\LineItemsAddedBeforeCalculationEvent;
 use Shopware\Core\Checkout\Cart\Extension\CartItemAddRouteExtension;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
@@ -313,7 +313,7 @@ class CartItemAddRouteTest extends TestCase
         ]);
     }
 
-    public function testLineItemsAddedEventIsDispatchedOnceAllLineItemsAreInTheCart(): void
+    public function testLineItemsAddedBeforeCalculationEventIsDispatchedOnceAllLineItemsAreInTheCart(): void
     {
         $cart = new Cart('test');
         $items = [
@@ -335,16 +335,16 @@ class CartItemAddRouteTest extends TestCase
         $route->add(new Request(), $cart, $this->createSalesChannelContext(), $items);
 
         static::assertSame(
-            [BeforeLineItemAddedEvent::class, BeforeLineItemAddedEvent::class, LineItemsAddedEvent::class],
+            [BeforeLineItemAddedEvent::class, BeforeLineItemAddedEvent::class, LineItemsAddedBeforeCalculationEvent::class],
             $dispatchedBeforeCalculation,
         );
-        $events = $eventDispatcher->getEventsOfClass(LineItemsAddedEvent::class);
+        $events = $eventDispatcher->getEventsOfClass(LineItemsAddedBeforeCalculationEvent::class);
         static::assertCount(1, $events);
         static::assertSame($items, $events[0]->getLineItems());
         static::assertSame($cart, $events[0]->getCart());
     }
 
-    public function testLineItemsAddedEventIsNotDispatchedWhenTheAddFails(): void
+    public function testLineItemsAddedBeforeCalculationEventIsNotDispatchedWhenTheAddFails(): void
     {
         $exception = RateLimiterException::limitExceeded(time() + 30);
         $rateLimiter = static::createStub(RateLimiter::class);
@@ -358,7 +358,7 @@ class CartItemAddRouteTest extends TestCase
                 new LineItem('product', LineItem::PRODUCT_LINE_ITEM_TYPE, 'product-id'),
             ]);
         } finally {
-            static::assertSame([], $eventDispatcher->getEventsOfClass(LineItemsAddedEvent::class));
+            static::assertSame([], $eventDispatcher->getEventsOfClass(LineItemsAddedBeforeCalculationEvent::class));
         }
     }
 

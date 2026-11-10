@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Cart\CartLocker;
 use Shopware\Core\Checkout\Cart\Event\AfterLineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
-use Shopware\Core\Checkout\Cart\Event\LineItemsAddedEvent;
+use Shopware\Core\Checkout\Cart\Event\LineItemsAddedBeforeCalculationEvent;
 use Shopware\Core\Checkout\Cart\Extension\CartItemAddRouteExtension;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
@@ -87,7 +87,7 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
                 $this->eventDispatcher->dispatch(new BeforeLineItemAddedEvent($item, $cart, $context, $alreadyExists));
             }
 
-            $this->eventDispatcher->dispatch(new LineItemsAddedEvent($items, $cart, $context));
+            $this->eventDispatcher->dispatch(new LineItemsAddedBeforeCalculationEvent($items, $cart, $context));
 
             $cart->markModified();
 

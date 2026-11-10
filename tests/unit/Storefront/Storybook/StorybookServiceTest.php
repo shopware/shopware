@@ -140,6 +140,22 @@ class StorybookServiceTest extends TestCase
         static::assertArrayNotHasKey('viewport', $result);
     }
 
+    public function testResolveComponentPropsKeepsBlockContentSeparateFromProps(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $request = new Request();
+
+        $result = $this->createService()->resolveComponentProps($request, $salesChannelContext, [
+            'content' => 'A prop value',
+            'storybookBlockContent' => 'A formerly reserved prop value',
+        ]);
+
+        static::assertSame([
+            'content' => 'A prop value',
+            'storybookBlockContent' => 'A formerly reserved prop value',
+        ], $result);
+    }
+
     public function testResolveComponentPropsFiltersInvalidQueryParamIdentifiers(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();

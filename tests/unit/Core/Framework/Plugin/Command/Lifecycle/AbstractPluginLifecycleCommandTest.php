@@ -147,6 +147,31 @@ class AbstractPluginLifecycleCommandTest extends TestCase
         ], ['interactive' => false]);
     }
 
+    #[TestDox('With several matching plugins, the user can pick the one plugin to run the lifecycle method for')]
+    public function testInteractiveSelectionRunsTheLifecycleMethodForTheChosenPluginOnly(): void
+    {
+        $unchosenPlugin = $this->createActivePlugin();
+        $chosenPlugin = $this->createActivePlugin();
+        $chosenPlugin->setName('TestPluginSecond');
+        $this->plugins->add($unchosenPlugin);
+        $this->plugins->add($chosenPlugin);
+
+        $pluginLifecycleService = $this->createMock(PluginLifecycleService::class);
+        $pluginLifecycleService->expects($this->once())->method('deactivatePlugin')->with($chosenPlugin);
+
+        $command = new PluginDeactivateCommand(
+            $pluginLifecycleService,
+            new StaticEntityRepository([fn (): PluginCollection => $this->plugins, fn (): PluginCollection => $this->plugins]),
+            $this->cacheClearer
+        );
+        $command->setHelperSet(new HelperSet());
+
+        $commandTester = new CommandTester($command);
+        $commandTester->setInputs(['Select one Plugin to deactivate.', 'TestPluginSecond']);
+
+        static::assertSame(Command::SUCCESS, $commandTester->execute(['plugins' => ['TestPlugin']]));
+    }
+
     #[TestDox('handleClearCacheOption throws, because the method deprecation is enforced when v6.8.0.0 is active')]
     public function testHandleClearCacheOptionThrowsWhenV68IsActive(): void
     {

@@ -191,6 +191,12 @@ abstract class AbstractPluginLifecycleCommand extends Command
         );
     }
 
+    /**
+     * @param array<string> $arguments
+     */
+    /**
+     * @param array<string> $arguments
+     */
     private function parsePluginArgument(
         array $arguments,
         string $lifecycleMethod,
@@ -260,7 +266,7 @@ abstract class AbstractPluginLifecycleCommand extends Command
                 )
             );
 
-            return new PluginCollection([$pluginCollection->get($id)]);
+            return $pluginCollection->filter(static fn (PluginEntity $plugin) => $plugin->getId() === $id);
         }
 
         return $pluginCollection;

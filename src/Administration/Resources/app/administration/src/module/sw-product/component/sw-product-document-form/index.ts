@@ -11,6 +11,7 @@ import {
     type DocumentChanges,
 } from './document-translation.utils';
 import { loadDocumentVariants, getDocumentVariantCandidates } from './document-variant.helper';
+import { copyInheritedDocuments } from './document-inheritance.helper';
 import { getHintParams, getFileAccept, isInvalidDocumentFile } from './document-upload.helper';
 import template from './sw-product-document-form.html.twig';
 import './sw-product-document-form.scss';
@@ -133,8 +134,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return '';
             }
             const changes = getDocumentTranslationChanges(document, { title: null }, this.documentContext);
-            const title = (changes.translated ?? document.translated)?.title;
-            return title || this.getMedia(document)?.fileName || '';
+            return (changes.translated ?? document.translated)?.title || this.getMedia(document)?.fileName || '';
         },
 
         editingMedia(): Entity<'media'> | undefined {
@@ -188,8 +188,12 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
-    created() {
-        void this.createdComponent();
+    async created() {
+        try {
+            this.mediaFolderId = await this.mediaService.getDefaultFolderId('product_document');
+        } catch {
+            this.mediaFolderId = null;
+        }
     },
 
     beforeUnmount() {
@@ -198,14 +202,6 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
-        async createdComponent(): Promise<void> {
-            try {
-                this.mediaFolderId = await this.mediaService.getDefaultFolderId('product_document');
-            } catch {
-                this.mediaFolderId = null;
-            }
-        },
-
         canChangeDocuments(): boolean {
             const inheritance = this.$refs.documentInheritance as DocumentInheritance | undefined;
             return this.canEdit && inheritance?.isInherited === false;
@@ -377,7 +373,12 @@ export default Shopware.Component.wrapComponentConfig({
                 }
                 let updatedVariantIds: string[] = [];
                 if (matchingMediaId) {
-                    const variants = await this.loadDocumentVariants(product.id, matchingMediaId, context);
+                    const variants = await loadDocumentVariants(
+                        this.productRepository,
+                        product.id,
+                        matchingMediaId,
+                        context,
+                    );
                     if (!isCurrentEdit()) {
                         return;
                     }
@@ -439,7 +440,9 @@ export default Shopware.Component.wrapComponentConfig({
                 this.removeFromVariants && this.hasVariants ? document.mediaId || document.translated?.mediaId : null;
             this.isRemovingDocument = true;
             try {
-                const variants = mediaId ? await this.loadDocumentVariants(product.id, mediaId, context) : [];
+                const variants = mediaId
+                    ? await loadDocumentVariants(this.productRepository, product.id, mediaId, context)
+                    : [];
                 if (!isCurrentRemoval()) {
                     return;
                 }
@@ -485,14 +488,6 @@ export default Shopware.Component.wrapComponentConfig({
         resetDocumentLanguageVersion(document: Entity<'product_document'>): void {
             const { language, systemLanguageId } = this.documentContext;
             this.applyDocumentChanges(document, resetDocumentTranslation(document, language, systemLanguageId));
-        },
-
-        async loadDocumentVariants(
-            productId: string,
-            mediaId: string,
-            context: typeof Shopware.Context.api,
-        ): Promise<Entity<'product'>[]> {
-            return loadDocumentVariants(this.productRepository, productId, mediaId, context);
         },
 
         stageVariantDocumentChanges(
@@ -562,29 +557,12 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             (this.$refs.documentInheritance as DocumentInheritance).forceInheritanceRemove = true;
-            inheritedDocuments.forEach((source) => {
-                const document = this.documentRepository.create(Shopware.Context.api);
-                document.productId = this.product.id;
-                document.position = source.position;
-                document.title = source.title;
-                document.mediaId = source.mediaId;
-                document.customFields = Shopware.Utils.object.cloneDeep(source.customFields);
-                document.translated = Shopware.Utils.object.cloneDeep(source.translated);
-
-                source.translations?.forEach((sourceTranslation) => {
-                    const translation = (this.entityFactory as EntityFactory).create(
-                        'product_document_translation',
-                        null,
-                        Shopware.Context.api,
-                    ) as Entity<'product_document_translation'>;
-                    translation.productDocumentId = document.id;
-                    translation.languageId = sourceTranslation.languageId;
-                    translation.mediaId = sourceTranslation.mediaId;
-                    translation.title = sourceTranslation.title;
-                    translation.customFields = Shopware.Utils.object.cloneDeep(sourceTranslation.customFields);
-                    document.translations.add(translation);
-                    translation.media = sourceTranslation.media;
-                });
+            copyInheritedDocuments(
+                inheritedDocuments,
+                this.product.id,
+                this.documentRepository,
+                this.entityFactory as EntityFactory,
+            ).forEach((document) => {
                 this.documents.add(document);
             });
 

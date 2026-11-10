@@ -31,7 +31,11 @@ export interface SfcMigrationCodemod extends BaseCodemod {
 
 export type Codemod = EslintCodemod | SfcMigrationCodemod;
 
-/** The components `code-mods.js` migrated: the ones whose `mt-*` replacement is a drop-in for extensions. */
+/**
+ * The components `no-deprecated-components` converts for extensions: the ones `code-mods.js` migrated and
+ * the ones 6.8 removes. The deprecation registry decides per component how much the run level converts;
+ * `sw-tabs` and `sw-text-editor` only get a review comment, because their replacements take a different API.
+ */
 const MT_COMPONENTS = [
     'sw-button',
     'sw-alert',
@@ -48,7 +52,37 @@ const MT_COMPONENTS = [
     'sw-checkbox-field',
     'sw-number-field',
     'sw-password-field',
+    'sw-loader',
+    'sw-skeleton-bar',
+    'sw-progress-bar',
+    'sw-tabs',
+    'sw-popover',
+    'sw-select-number-field',
+    'sw-entity-many-to-many-select',
+    'sw-text-editor',
+    'sw-text-editor-toolbar',
+    'sw-text-editor-toolbar-button',
+    'sw-text-editor-toolbar-table-button',
+    'sw-text-editor-table-toolbar',
+    'sw-text-editor-link-menu',
 ];
+
+/**
+ * How much an upgrade may change, see the run levels of the deprecation registry:
+ * `safe` only applies fixes that keep the behaviour, `review` also fixes that leave a review comment,
+ * `partial` additionally comments every spot that needs manual work, `manual` only comments.
+ */
+export const UPGRADE_LEVELS = [
+    'safe',
+    'review',
+    'partial',
+    'manual',
+] as const;
+
+export type UpgradeLevel = (typeof UPGRADE_LEVELS)[number];
+
+/** Rewrites what is safe and leaves a review comment wherever a human has to finish the migration. */
+export const DEFAULT_UPGRADE_LEVEL: UpgradeLevel = 'partial';
 
 export const CODEMODS: Codemod[] = [
     {
@@ -122,6 +156,42 @@ export const CODEMODS: Codemod[] = [
         optIn: false,
         kind: 'eslint',
         rule: 'sw-core-rules/no-tc-translation',
+        scope: 'both',
+    },
+    {
+        id: 'api-usage',
+        title: 'Removed Administration APIs',
+        target: '6.8',
+        optIn: false,
+        kind: 'eslint',
+        rule: 'sw-deprecation-rules/no-deprecated-api-usage',
+        scope: 'both',
+    },
+    {
+        id: 'template-blocks',
+        title: 'Removed and renamed Twig blocks',
+        target: '6.8',
+        optIn: false,
+        kind: 'eslint',
+        rule: 'sw-deprecation-rules/no-deprecated-template-blocks',
+        scope: 'template',
+    },
+    {
+        id: 'snippet-keys',
+        title: 'Removed snippet keys',
+        target: '6.8',
+        optIn: false,
+        kind: 'eslint',
+        rule: 'sw-deprecation-rules/no-deprecated-snippet-keys',
+        scope: 'both',
+    },
+    {
+        id: 'assets',
+        title: 'PNG and JPG images → WebP',
+        target: '6.8',
+        optIn: false,
+        kind: 'eslint',
+        rule: 'sw-deprecation-rules/no-deprecated-assets',
         scope: 'both',
     },
     {

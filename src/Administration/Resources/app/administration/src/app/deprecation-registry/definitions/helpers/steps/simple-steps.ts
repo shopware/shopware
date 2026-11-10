@@ -12,7 +12,9 @@ import type {
     RenameComponentStep,
     RenamePackageStep,
     RenameTemplateBlockStep,
+    RenameSnippetKeyStep,
     RenameTemplateEventStep,
+    ReplaceAssetStep,
     ReplaceExtensionStep,
     ReplaceObjectOptionStep,
     StepConfig,
@@ -26,8 +28,10 @@ type SimpleStep =
     | RenameCallStep
     | RenameComponentStep
     | RenamePackageStep
+    | RenameSnippetKeyStep
     | RenameTemplateBlockStep
     | RenameTemplateEventStep
+    | ReplaceAssetStep
     | ReplaceExtensionStep
     | ReplaceObjectOptionStep;
 
@@ -89,6 +93,15 @@ export const memberCall = simpleStep<MemberCallStep>('member-call', 'manual');
  */
 export const replaceExtension = simpleStep<ReplaceExtensionStep>('replace-extension', 'auto');
 
+/**
+ * Points references of the migration's files to another file, for assets that have no converted twin
+ * with the same name.
+ *
+ * @example
+ * replaceAsset({ to: '/static/img/cms/preview_mountain_small.webp' });
+ */
+export const replaceAsset = simpleStep<ReplaceAssetStep>('replace-asset', 'auto');
+
 const removeAssetStep = simpleStep<RemoveAssetStep>('remove-asset', 'manual');
 
 /**
@@ -103,15 +116,18 @@ export function removeAsset(config: StepConfig<RemoveAssetStep> = {}): RemoveAss
 }
 
 /**
- * Reports overrides of a Twig block that was removed without replacement.
+ * Reports overrides of a removed Twig block. `to` names the block the override moves to, `component`
+ * limits the step to overrides of that component's template, for names other components still use.
  *
  * @example
  * removeTemplateBlock({ from: 'sw_mail_template_detail_preview_modal_footer' });
+ * removeTemplateBlock({ from: 'sw_x_title', to: 'sw_x_header', component: 'sw-x' });
  */
 export const removeTemplateBlock = simpleStep<RemoveTemplateBlockStep>('remove-template-block', 'manual');
 
 /**
- * Renames overrides of a renamed Twig block.
+ * Renames overrides of a renamed Twig block. `component` limits the step to overrides of that
+ * component's template, for names that more than one component defines.
  *
  * @example
  * renameTemplateBlock({ from: 'sw_condiiton_date_range_field_to_date', to: 'sw_condition_date_range_field_to_date' });
@@ -133,6 +149,14 @@ export const templateEventUsage = simpleStep<RenameTemplateEventStep>('rename-te
  * removeSnippetKey({ from: 'global.sw-condition.condition.dayOfWeekRule' });
  */
 export const removeSnippetKey = simpleStep<RemoveSnippetKeyStep>('remove-snippet-key', 'manual');
+
+/**
+ * Replaces string literals that are exactly a removed snippet key with its successor.
+ *
+ * @example
+ * renameSnippetKey({ from: 'global.sw-condition.condition.cartTaxDisplay.net', to: 'global.sw-condition-generic.cartTaxDisplay.taxDisplay.options.net' });
+ */
+export const renameSnippetKey = simpleStep<RenameSnippetKeyStep>('rename-snippet-key', 'auto');
 
 /**
  * Rewrites imports of a renamed npm package, keeping the import subpath.

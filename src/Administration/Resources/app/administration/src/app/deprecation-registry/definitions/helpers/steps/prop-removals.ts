@@ -15,6 +15,9 @@ import { defineUsageStep, hasObjectVBind, reportUsage } from '../shared';
  *   comment wherever the prop was or could be true; bound to `false` → removed without one
  * - `trueByDefault`, for a prop the old component treated as true when unset → the review comment
  *   also on converted elements that did not set it
+ * - `reviewWhenFalse`, for a boolean prop whose "false" behaviour the new component lost → review
+ *   comment unless the prop is a valueless attribute, `="true"` or bound to `true`, also on converted
+ *   elements that did not set it
  *
  * @example
  * removeProp({ prop: 'is-invalid' });
@@ -22,6 +25,8 @@ import { defineUsageStep, hasObjectVBind, reportUsage } from '../shared';
  * removeProp({ prop: 'absolute', trueByDefault: true, reviewWhenTrue: 'It covered its container: check the spacing.' });
  * // <sw-empty-state /> → <mt-empty-state /> + review comment
  * // <sw-empty-state :absolute="false" /> → <mt-empty-state />
+ * removeProp({ prop: 'local-mode', reviewWhenFalse: 'The new select never saves on its own.' });
+ * // <sw-x local-mode /> → <mt-x />; <sw-x /> → <mt-x /> + review comment
  */
 export function removeProp({ fix = 'auto', ...config }: StepConfig<RemovePropStep>): RemovePropStep {
     return defineUsageStep<RemovePropStep>({ kind: 'remove-prop', fix, ...config }, (api, step) => {
@@ -29,12 +34,14 @@ export function removeProp({ fix = 'auto', ...config }: StepConfig<RemovePropSte
         // Once converted, an unset prop could also be one this step removed, so only the old element tells
         const isOldElement = api.node.name === api.migration.component;
 
-        if (!isSet && step.trueByDefault && step.reviewWhenTrue && isOldElement) {
+        const reviewWhenUnset = step.trueByDefault ? step.reviewWhenTrue : step.reviewWhenFalse;
+
+        if (!isSet && reviewWhenUnset && isOldElement) {
             reportUsage(api, {
                 node: api.node,
                 apiName: step.prop,
                 headline: `The "${step.prop}" prop is not set.`,
-                reviewReason: step.reviewWhenTrue,
+                reviewReason: reviewWhenUnset,
                 conversionNote: true,
             });
 
@@ -86,13 +93,15 @@ function planRemoval(
         };
     }
 
-    const isFalse = api.ast.getAttributeValueSource(attribute) === 'false' && api.ast.getDirectiveName(attribute) === 'bind';
+    const isBound = api.ast.getDirectiveName(attribute) === 'bind';
+    const value = api.ast.getAttributeValueSource(attribute);
+    const isFalse = isBound && value === 'false';
+    const isTrue = isBound ? value === 'true' : [null, '', 'true'].includes(value);
+    const reviewReason = (!isFalse && step.reviewWhenTrue) || (!isTrue && step.reviewWhenFalse) || undefined;
 
     return {
         fix: (fixer) => api.removeAttribute(fixer, attribute),
-        ...(step.reviewWhenTrue && !isFalse
-            ? { headline: `The "${step.prop}" prop is removed.`, reviewReason: step.reviewWhenTrue }
-            : {}),
+        ...(reviewReason ? { headline: `The "${step.prop}" prop is removed.`, reviewReason } : {}),
     };
 }
 

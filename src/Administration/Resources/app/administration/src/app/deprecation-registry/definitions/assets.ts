@@ -2,8 +2,10 @@
  * @sw-package framework
  */
 
-import { assetMigration, removeAsset, replaceExtension, upgradeGuide } from './helpers';
+import { assetMigration, removeAsset, replaceAsset, replaceExtension, upgradeGuide } from './helpers';
 import type { AssetMigration } from './helpers';
+
+const REMOVED_IMAGES = upgradeGuide('UPGRADE-6.8.md#removed-png-and-jpg-images');
 
 export default [
     assetMigration({
@@ -14,6 +16,7 @@ export default [
             'Administration PNG and JPG assets are deprecated in favor of WebP variants. Update imports to the matching .webp file.',
         references: [
             upgradeGuide('UPGRADE-6.7.md#administration'),
+            REMOVED_IMAGES,
         ],
         files: [
             '/static/img/sw-login-background.png',
@@ -25,7 +28,6 @@ export default [
             '/static/img/cms/preview_page_default.png',
             '/static/img/cms/preview_page_sidebar.png',
             '/static/img/cms/preview_glasses_small.jpg',
-            '/static/img/cms/preview_youtube.jpg',
             '/static/img/cms/preview_plant_large.jpg',
             '/static/img/cms/preview_custom_entity_detail_default.png',
             '/static/img/cms/preview_mountain_large.jpg',
@@ -44,13 +46,11 @@ export default [
             '/static/img/cms/preview_camera_small.jpg',
             '/static/img/cms/preview_custom_entity_list_sidebar.png',
             '/static/img/cms/preview_camera_large.jpg',
-            '/static/img/cms/preview_vimeo.jpg',
             '/static/img/cms/preview_custom_entity_list_default.png',
             '/static/img/theme/default_theme_preview.jpg',
             '/static/fixtures/sw-login-background.png',
             '/static/fixtures/sw-test-image.png',
             '/static/fixtures/sw-login-background-2.png',
-            '/src/module/sw-login/page/index/assets/sw-login-background.png',
         ],
         usage: [
             replaceExtension({
@@ -60,6 +60,59 @@ export default [
                 ],
                 to: '.webp',
             }),
+        ],
+    }),
+    assetMigration({
+        id: 'asset.cms-video-previews',
+        deprecatedIn: '6.7.0',
+        removedIn: '6.8.0',
+        description:
+            'The YouTube and Vimeo preview images of the CMS video blocks are removed without a WebP version. The video blocks show preview_mountain_small.webp instead.',
+        references: [
+            REMOVED_IMAGES,
+        ],
+        files: [
+            '/static/img/cms/preview_youtube.jpg',
+            '/static/img/cms/preview_vimeo.jpg',
+        ],
+        usage: [
+            replaceAsset({
+                to: '/static/img/cms/preview_mountain_small.webp',
+                fix: 'unsafe-auto',
+                message: 'The replacement shows another picture: check that it fits where the preview is shown.',
+            }),
+        ],
+    }),
+    assetMigration({
+        id: 'asset.usage-data-consent-background',
+        deprecatedIn: '6.7.0',
+        removedIn: '6.8.0',
+        description:
+            'The consent banner of the usage data module no longer ships its own background image. The same image is available as administration/static/img/data-consent-background.webp.',
+        references: [
+            REMOVED_IMAGES,
+        ],
+        files: [
+            '/src/module/sw-settings-usage-data/component/sw-usage-data-consent-banner/assets/data-consent-background.png',
+        ],
+        usage: [
+            replaceAsset({ to: '/static/img/data-consent-background.webp' }),
+        ],
+    }),
+    assetMigration({
+        id: 'asset.sw-login-module-background',
+        deprecatedIn: '6.7.0',
+        removedIn: '6.8.0',
+        description:
+            'The login module no longer ships its PNG background. The same image is available as administration/static/img/sw-login-background.webp.',
+        references: [
+            REMOVED_IMAGES,
+        ],
+        files: [
+            '/src/module/sw-login/page/index/assets/sw-login-background.png',
+        ],
+        usage: [
+            replaceAsset({ to: '/static/img/sw-login-background.webp' }),
         ],
     }),
     assetMigration({

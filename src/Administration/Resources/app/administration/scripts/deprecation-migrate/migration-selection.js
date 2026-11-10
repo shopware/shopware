@@ -10,9 +10,6 @@ const FIX_LEVELS_LEAST_AUTOMATIC_FIRST = [
     'auto',
 ];
 
-// The vite image-deprecation plugin warns about asset migrations at build time; no ESLint rule reports them.
-const MIGRATIONS_WITHOUT_LINT_RULE = new Set(['assetMigrations']);
-
 /**
  * Parses the `deprecation:migrate` command line. Throws on unknown options and on an `--id`
  * without a value, so a typo never silently runs every migration.
@@ -144,16 +141,16 @@ function getFixLevel(migration) {
 
 /**
  * Lists the registry migrations `deprecation:migrate` can run, sorted by id: every migration list the
- * registry exports, except the ones no ESLint rule reports.
+ * registry exports, as each one has an ESLint rule that reports it.
  *
  * @example
  * getRunnableMigrations(loadRegistry()).map((migration) => migration.id);
- * // ['component.sw-alert', …, 'template-event.vue3-v-model-events']
+ * // ['api.vuex', 'asset.admin-png-jpg-to-webp', 'component.sw-alert', …, 'template-event.vue3-v-model-events']
  */
 function getRunnableMigrations(registry) {
-    return Object.entries(registry)
-        .filter(([name, migrations]) => Array.isArray(migrations) && !MIGRATIONS_WITHOUT_LINT_RULE.has(name))
-        .flatMap(([, migrations]) => migrations)
+    return Object.values(registry)
+        .filter((migrations) => Array.isArray(migrations))
+        .flat()
         .sort((left, right) => left.id.localeCompare(right.id));
 }
 

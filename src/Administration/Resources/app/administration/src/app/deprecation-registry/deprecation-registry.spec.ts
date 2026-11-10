@@ -12,6 +12,7 @@ import templateBlockMigrations from './definitions/template-blocks';
 import templateEventMigrations from './definitions/template-events';
 import snippetKeyMigrations from './definitions/snippet-keys';
 import packageMigrations from './definitions/packages';
+import apiUsageMigrations from './definitions/api-usage';
 
 const REPOSITORY_ROOT = path.resolve(__dirname, '../../../../../../../..');
 
@@ -48,6 +49,7 @@ describe('src/app/deprecation-registry', () => {
             templateEventMigrations,
             snippetKeyMigrations,
             packageMigrations,
+            apiUsageMigrations,
         });
     });
 

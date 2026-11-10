@@ -7,7 +7,7 @@
 
 import colors from 'picocolors';
 import type { ToolingCommands } from './shared';
-import { availableTargets } from './upgrade-codemods';
+import { DEFAULT_UPGRADE_LEVEL, availableTargets } from './upgrade-codemods';
 import type { Codemod } from './upgrade-codemods';
 import type { CodemodReport, ExtensionUpgrade, UpgradeExtensionsResult } from './upgrade';
 
@@ -88,6 +88,7 @@ function commandArguments(result: UpgradeExtensionsResult, names: string[], writ
     return [
         `--only=${names.join(',')}`,
         `--target=${result.target}`,
+        ...(result.level !== DEFAULT_UPGRADE_LEVEL ? [`--level=${result.level}`] : []),
         ...(result.optIns.length > 0 ? [`--with=${result.optIns.join(',')}`] : []),
         ...(write ? ['--write'] : []),
     ].join(' ');
@@ -95,7 +96,7 @@ function commandArguments(result: UpgradeExtensionsResult, names: string[], writ
 
 export function renderUpgradeReport(result: UpgradeExtensionsResult, commands: ToolingCommands): string {
     const mode = result.write ? 'writing' : 'dry run';
-    const lines = [colors.dim(`Administration codemods · target ${result.target} · ${mode}`), ''];
+    const lines = [colors.dim(`Administration codemods · target ${result.target} · level ${result.level} · ${mode}`), ''];
 
     if (result.fatalDiagnostics.length > 0) {
         lines.push(...result.fatalDiagnostics.map((diagnostic) => colors.red(`✖ ${diagnostic}`)));

@@ -28,6 +28,9 @@ type Blocker = { manualReason: string };
 
 const IDENTIFIER = /^[A-Za-z_$][\w$]*$/;
 
+// A static value `asNumber` writes as it is
+const NUMBER = /^-?\d+(\.\d+)?$/;
+
 // Output longer than this is written with one item per line
 const MAX_INLINE_LENGTH = 80;
 
@@ -41,6 +44,7 @@ const MAX_INLINE_LENGTH = 80;
  * - every `v-for` list → review comment, because the list has to be an array
  * - a child without a `required` attribute, with another attribute, markup or Twig, other content
  *   next to the children, a conditional slot, or `arrayProp` already set → manual
+ * - an `asNumber` attribute with a static value that is no number → manual
  *
  * @example
  * childElementsToArrayProp({
@@ -314,7 +318,19 @@ function readField(
 
     const text = attribute.value.value as string;
 
-    return text === '' && source.emptyAsNull ? 'null' : toStringLiteral(text);
+    if (text === '' && source.emptyAsNull) {
+        return 'null';
+    }
+
+    if (source.asNumber) {
+        return NUMBER.test(text)
+            ? text
+            : {
+                  manualReason: `A <${step.childElement}> element has the ${source.attribute} "${text}", which is no number.`,
+              };
+    }
+
+    return toStringLiteral(text);
 }
 
 /**

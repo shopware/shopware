@@ -2,9 +2,11 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Document;
 
+use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\StreamInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Shopware\Core\Content\Product\Extension\ProductDocumentArchiveRouteExtension;
@@ -78,14 +80,7 @@ class ProductDocumentArchiveRouteTest extends TestCase
         $archive = new ProductDocumentArchive('product-documents/archives/archive.zip', $fileName, 3);
         $archiver = static::createStub(ProductDocumentArchiver::class);
         $archiver->method('archive')->willReturn($archive);
-        $archiver->method('readStream')->willReturnCallback(static function () {
-            $stream = fopen('php://memory', 'r+');
-            static::assertIsResource($stream);
-            fwrite($stream, 'zip');
-            rewind($stream);
-
-            return $stream;
-        });
+        $archiver->method('readStream')->willReturn((new Psr17Factory())->createStream('zip'));
 
         $response = $this->createRoute(archiver: $archiver)->load($this->product->getId(), new Request(), $this->context);
 
@@ -136,6 +131,20 @@ class ProductDocumentArchiveRouteTest extends TestCase
         $this->expectExceptionObject(ProductException::documentArchiveNotFound($this->product->getId()));
 
         $this->createRoute()->load($this->product->getId(), new Request(), $this->context);
+    }
+
+    public function testAnArchiveThatCannotBeReadFails(): void
+    {
+        $stream = static::createStub(StreamInterface::class);
+        $stream->method('detach')->willReturn(null);
+
+        $archiver = static::createStub(ProductDocumentArchiver::class);
+        $archiver->method('archive')->willReturn(new ProductDocumentArchive('product-documents/archives/archive.zip', 'Cordless drill.zip', 3));
+        $archiver->method('readStream')->willReturn($stream);
+
+        $this->expectExceptionObject(ProductException::documentArchiveFailed('the ZIP file could not be read'));
+
+        $this->createRoute(archiver: $archiver)->load($this->product->getId(), new Request(), $this->context);
     }
 
     public function testRejectsTooManyDownloadsFromOneIpAddressAndLogsThem(): void

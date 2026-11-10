@@ -3,6 +3,8 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Document;
 
 use League\Flysystem\FilesystemOperator;
+use Psr\Http\Message\StreamFactoryInterface;
+use Psr\Http\Message\StreamInterface;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Util\PathHelper;
@@ -40,6 +42,7 @@ class ProductDocumentArchiver
         private readonly FilesystemOperator $publicFilesystem,
         private readonly FilesystemOperator $privateFilesystem,
         private readonly Filesystem $filesystem,
+        private readonly StreamFactoryInterface $streamFactory,
     ) {
     }
 
@@ -62,8 +65,8 @@ class ProductDocumentArchiver
     public function archive(SalesChannelProductEntity $product, SalesChannelContext $context): ?ProductDocumentArchive
     {
         $documents = $this->loadDocuments($product->getId(), $context);
-        $owner = $documents->first();
-        if ($owner === null) {
+        $document = $documents->first();
+        if ($document === null) {
             return null;
         }
 
@@ -72,8 +75,7 @@ class ProductDocumentArchiver
             return null;
         }
 
-        // the documents belong to the product itself, or to its parent when a variant has none of its own
-        $path = \sprintf('%s/%s/%s.zip', self::DIRECTORY, $owner->getProductId(), $this->hashFiles($files));
+        $path = \sprintf('%s/%s/%s.zip', self::DIRECTORY, $document->getProductId(), $this->hashFiles($files));
 
         if (!$this->privateFilesystem->fileExists($path)) {
             $this->build($path, $files);
@@ -82,12 +84,9 @@ class ProductDocumentArchiver
         return new ProductDocumentArchive($path, $this->createFileName($product), $this->privateFilesystem->fileSize($path));
     }
 
-    /**
-     * @return resource
-     */
-    public function readStream(ProductDocumentArchive $archive)
+    public function readStream(ProductDocumentArchive $archive): StreamInterface
     {
-        return $this->privateFilesystem->readStream($archive->path);
+        return $this->streamFactory->createStreamFromResource($this->privateFilesystem->readStream($archive->path));
     }
 
     private function loadDocuments(string $productId, SalesChannelContext $context): ProductDocumentCollection
@@ -115,12 +114,10 @@ class ProductDocumentArchiver
             return new MediaCollection();
         }
 
-        // each file once and in the order of the documents, which a search without sorting keeps
         $criteria = new Criteria(array_values(array_unique($mediaIds)));
         $criteria->setTitle('product-document-archiver::media');
         $criteria->addFilter(
             new EqualsFilter('private', false),
-            // media without a file have no path
             new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('path', null)]),
         );
 
@@ -132,7 +129,6 @@ class ProductDocumentArchiver
      */
     private function createEntryName(MediaEntity $media, array $names): string
     {
-        // file names are validated on upload, so they are safe entry names
         $base = (string) $media->getFileName();
         if ($base === '') {
             $base = $media->getId();
@@ -140,9 +136,11 @@ class ProductDocumentArchiver
 
         $extension = (string) $media->getFileExtension();
         $extension = $extension !== '' ? '.' . $extension : '';
-        $name = $base . $extension;
 
-        for ($number = 2; isset($names[mb_strtolower($name)]); ++$number) {
+        $name = $base . $extension;
+        $number = 1;
+        while (isset($names[mb_strtolower($name)])) {
+            ++$number;
             $name = \sprintf('%s (%d)%s', $base, $number, $extension);
         }
 

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Document;
 
 use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
+use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -68,6 +69,17 @@ class ProductDocumentArchiverTest extends TestCase
         ], $this->readEntries($archive));
     }
 
+    public function testReadsTheStoredArchive(): void
+    {
+        $manual = $this->createFile('manual', 'manual content');
+        $archiver = $this->createArchiver([$this->createDocument($manual)], [$manual]);
+
+        $archive = $archiver->archive($this->createProduct('Cordless drill'), $this->context);
+
+        static::assertNotNull($archive);
+        static::assertSame($this->privateFilesystem->read($archive->path), $archiver->readStream($archive)->getContents());
+    }
+
     public function testLoadsTheDocumentsTheProductPageShows(): void
     {
         $manual = $this->createFile('manual', 'manual content');
@@ -97,6 +109,7 @@ class ProductDocumentArchiverTest extends TestCase
             $this->publicFilesystem,
             $this->privateFilesystem,
             new LocalFilesystem(),
+            new Psr17Factory(),
         );
 
         static::assertNull($archiver->archive($this->createProduct('Cordless drill'), $this->context));
@@ -226,6 +239,7 @@ class ProductDocumentArchiverTest extends TestCase
             $this->publicFilesystem,
             $this->privateFilesystem,
             new LocalFilesystem(),
+            new Psr17Factory(),
         );
     }
 

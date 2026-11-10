@@ -85,8 +85,12 @@ class ProductDocumentArchiveRoute
             throw ProductException::documentArchiveNotFound($productId);
         }
 
-        $response = new StreamedResponse(function () use ($archive): void {
-            $stream = $this->archiver->readStream($archive);
+        $stream = $this->archiver->readStream($archive)->detach();
+        if (!\is_resource($stream)) {
+            throw ProductException::documentArchiveFailed('the ZIP file could not be read');
+        }
+
+        $response = new StreamedResponse(static function () use ($stream): void {
             fpassthru($stream);
             fclose($stream);
         });

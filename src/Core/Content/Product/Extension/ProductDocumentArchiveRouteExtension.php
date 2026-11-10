@@ -21,7 +21,7 @@ final class ProductDocumentArchiveRouteExtension extends Extension
     public const NAME = 'product-document-archive-route.load';
 
     /**
-     * @internal Shopware owns the constructor; the properties are public API.
+     * @internal
      */
     public function __construct(
         public readonly string $productId,

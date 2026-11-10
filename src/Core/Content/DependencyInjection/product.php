@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
+use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs;
 use Shopware\Core\Checkout\Cart\Price\PriceSelector;
@@ -809,6 +810,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shopware.filesystem.public'),
             service('shopware.filesystem.private'),
             service(Filesystem::class),
+            service(Psr17Factory::class),
         ]);
 
     $services->set(ProductDocumentArchiveSubscriber::class)

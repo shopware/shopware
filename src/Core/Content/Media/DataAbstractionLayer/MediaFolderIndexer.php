@@ -10,6 +10,7 @@ use Shopware\Core\Content\Media\Event\MediaFolderIndexerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
@@ -74,8 +75,27 @@ class MediaFolderIndexer extends EntityIndexer
         }
 
         $idsWithChangedParentIds = [];
-        foreach ($event->getResults(MediaFolderDefinition::ENTITY_NAME)->withPayloadProperties('parentId') as $result) {
-            $idsWithChangedParentIds[] = $result->getProperty('id');
+        $previousParentIds = [];
+        foreach ($event->getResults(MediaFolderDefinition::ENTITY_NAME) as $result) {
+            $parentIdChanged = \array_key_exists('parentId', $result->getPayload());
+
+            if ($parentIdChanged) {
+                $idsWithChangedParentIds[] = $result->getProperty('id');
+            }
+
+            $existence = $result->getExistence();
+            if ($existence === null) {
+                continue;
+            }
+
+            $childCountAffected = $parentIdChanged
+                || $result->getOperation() === EntityWriteResult::OPERATION_INSERT
+                || $result->getOperation() === EntityWriteResult::OPERATION_DELETE;
+
+            $state = $existence->getState();
+            if ($childCountAffected && isset($state['parent_id'])) {
+                $previousParentIds[] = Uuid::fromBytesToHex($state['parent_id']);
+            }
         }
 
         if ($idsWithChangedParentIds !== []) {
@@ -87,7 +107,7 @@ class MediaFolderIndexer extends EntityIndexer
             );
         }
 
-        $updates = array_values(array_merge($updates, $this->fetchChildren($updates), $this->getParentIds($updates)));
+        $updates = array_values(array_unique(array_merge($updates, $this->fetchChildren($updates), $this->getParentIds($updates), $previousParentIds)));
 
         return new MediaIndexingMessage($updates, null, $event->getContext());
     }
@@ -109,7 +129,6 @@ class MediaFolderIndexer extends EntityIndexer
             $this->connection->prepare('UPDATE media_folder SET media_folder_configuration_id = :configId WHERE id = :id')
         );
 
-        $children = [];
         foreach ($ids as $id) {
             $folder = $this->connection->fetchAssociative(
                 'SELECT LOWER(HEX(child.id)) as id,
@@ -141,12 +160,15 @@ class MediaFolderIndexer extends EntityIndexer
             $this->childCountUpdater->update(MediaFolderDefinition::ENTITY_NAME, $ids, $message->getContext());
         }
 
-        if ($children !== [] && $message->allow(self::TREE_UPDATER)) {
+        // update() already updates the tree synchronously whenever a write changes a parentId. What is
+        // left are the paths that bypass write events -- the reindex migration, dal:refresh:index and
+        // direct SQL -- and those are all full indexing, which pages through every folder on its own.
+        if ($message->isFullIndexing && $message->allow(self::TREE_UPDATER)) {
             $this->treeUpdater->batchUpdate(
-                $children,
+                $ids,
                 MediaFolderDefinition::ENTITY_NAME,
                 $message->getContext(),
-                !$message->isFullIndexing
+                false
             );
         }
 

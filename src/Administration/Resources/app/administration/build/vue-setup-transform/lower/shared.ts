@@ -33,4 +33,13 @@ function formatObjectProperties(properties: string[], spaces: number): string {
 /**
  * @private
  */
-export { escapeSingleQuoted, formatObjectProperties };
+/**
+ * What the lowerers need to know about the file beyond its analysis.
+ */
+type LowerOptions = {
+    filename: string;
+    /** The output is served for hot updates, see `transformShopwareSetupSfc`. */
+    hotUpdates: boolean;
+};
+
+export { escapeSingleQuoted, formatObjectProperties, type LowerOptions };

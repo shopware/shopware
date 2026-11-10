@@ -261,7 +261,6 @@ declare module 'shopware:utils/genericRuleCondition' {
     const member: (typeof branch)['genericRuleCondition'];
 
     export default member;
-    export const getPlaceholderSnippet: (typeof member)['getPlaceholderSnippet'];
 }
 
 /** @experimental stableVersion:v6.8.0 */
@@ -271,7 +270,6 @@ declare module 'shopware:utils/unitConversion' {
     const member: (typeof branch)['unitConversion'];
 
     export default member;
-    export const convert: (typeof member)['convert'];
 }
 
 /** @experimental stableVersion:v6.8.0 */
@@ -281,7 +279,6 @@ declare module 'shopware:utils/extension' {
     const member: (typeof branch)['extension'];
 
     export default member;
-    export const getExtensionNameByOrigin: (typeof member)['getExtensionNameByOrigin'];
 }
 
 /** @experimental stableVersion:v6.8.0 */

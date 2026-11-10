@@ -109,15 +109,9 @@
             "moveItem": [],
             "VueHelper": [],
             "EventBus": [],
-            "genericRuleCondition": [
-                "getPlaceholderSnippet"
-            ],
-            "unitConversion": [
-                "convert"
-            ],
-            "extension": [
-                "getExtensionNameByOrigin"
-            ],
+            "genericRuleCondition": [],
+            "unitConversion": [],
+            "extension": [],
             "mapInheritanceSlotPropsToMeteorProps": []
         }
     },

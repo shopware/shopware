@@ -54,6 +54,7 @@ Check the Administration code of your plugin or app for these changes:
 * A default import of a CommonJS module resolves to `module.exports` if the importing file is an `.mjs`/`.mts` file, the nearest `package.json` sets `"type": "module"`, or the module does not set `__esModule`. Otherwise it resolves to `module.exports.default`. Check default imports of CommonJS dependencies.
 
 If your plugin or app ships its own `vite.config.*` or Vite plugins, follow the [Vite 7](https://v7.vite.dev/guide/migration) and [Vite 8](https://vite.dev/guide/migration) migration guides.
+`administration:upgrade-extensions` comments `rollupOptions`, `esbuildOptions` and `commonjsOptions` in a `vite.config.*` of the extension.
 
 # Changed Functionality
 
@@ -131,6 +132,7 @@ Nothing is removed from the `Shopware.Component` global — generated component 
 Write native setup SFCs instead. The build-time transform emits these calls for you: a base component (`sw-thing.vue`) keeps its `<script setup>` body and gains a generated `attachOverrides(...)` footer, and an override (`sw-thing.override.vue`) registers its callback through `overrideComponentSetup()`. Extension points are declared with `swDefinePublic({ ... })` in the base and consumed with `swDefineOverride({ ... })` in the override.
 
 See `src/Administration/Resources/app/administration/technical-docs/03-extensibility/07-native-setup-authoring.md` for the authoring rules.
+`administration:upgrade-extensions` comments every call of these functions in extension code.
 
 ## Locale-aware sorting for product property group options
 
@@ -1587,6 +1589,20 @@ The unused property was removed.
 
 # Administration
 
+`bin/console administration:upgrade-extensions -- --only=YourPlugin --target=6.8 --write` applies codemods for most changes in this section.
+The codemods come from the deprecation registry of the Administration, see `src/Administration/Resources/app/administration/src/app/deprecation-registry`.
+Where a change cannot be rewritten safely, the codemod writes a `TODO Codemod:` comment with the replacement above the affected spot and lists the spot in its report.
+Run it without `--write` first to preview the changes, and with `--list` to see the codemods.
+
+`--level` sets how much the codemods change, like the levels of `npm run deprecation:migrate`:
+
+* `safe` applies only the fixes that keep the behaviour.
+* `review` also applies the fixes that leave a `TODO Codemod:` comment for a review.
+* `partial`, the default, also comments every spot that needs manual work.
+* `manual` changes no code and comments every spot.
+
+<details>
+
 ## Custom field set lookup removed from `sw-settings-listing-option-criteria-grid`
 
 The `sw-settings-listing-option-criteria-grid` component filters custom fields by `customFieldSet.relations.entityName` directly.
@@ -1606,6 +1622,12 @@ The deprecated snippet key `sw-import-export.profile.addNewProfileTooltipLanguag
 ## Removal of deprecated `config` data property in `sw-system-config` component
 
 The deprecated data property `config` in `sw-system-config` component with the legacy card structure was removed. Please use the new data property `schema` with the tab structure instead.
+The helpers that kept both in sync were removed as well: the data properties `isSyncingFromSchema` and `isSyncingFromConfig`, and the methods `getSchemaForDomain()`, `assignConfigIds()`, `schemaToConfig()`, `configToSchema()` and `getTabIndexByElementOverlap()`.
+Overrides of the `sw_system_config_content_card` block can no longer read the `config` loop variable, use `tab.cards` instead.
+
+`systemConfigApiService.getConfig()` and the Admin API route `/api/_action/system-config/schema` were removed.
+Use `systemConfigApiService.getSchema(domain)`, which calls `/api/_action/system-config/get-schema`.
+Extensions that decorated `getConfig()` must decorate `getSchema()` instead.
 
 ## Custom-field set loader computed properties removed
 
@@ -1625,6 +1647,19 @@ The deprecated custom-field set loader computed properties were removed from the
 These components switched to a shared loader to remove their duplicate custom-field queries and reuse cached results across them. Extensions that used the removed properties to load renderable custom-field sets must use `Shopware.Service('customFieldDataProviderService').getCustomFieldSets(entityName)` instead.
 
 `sw-customer-detail-base` no longer injects `repositoryFactory`, which was retained only for its removed `customFieldSetRepository` property. Extensions that still need `repositoryFactory` must inject it themselves.
+
+`administration:upgrade-extensions` comments every use of the removed properties in overrides of these components.
+
+## Media default folder lookup computed properties removed
+
+The deprecated computed properties that loaded the media default folder were removed from these Administration components:
+
+| Component | Removed computed properties |
+|---|---|
+| `sw-product-detail-base` | `mediaDefaultFolderRepository`, `mediaDefaultFolderCriteria` |
+| `sw-bulk-edit-product-media` | `mediaDefaultFolderRepository`, `mediaDefaultFolderCriteria` |
+
+Use `mediaDefaultFolderService.getDefaultFolderId(entityName)` to get the id of an entity's default media folder.
 
 ## Deprecated password verification members in `sw-users-permissions-user-listing`
 
@@ -1647,177 +1682,86 @@ Pass the technical name of the current state instead of `background-style` and `
 />
 ```
 
+`administration:upgrade-extensions` removes `background-style` and `rounded-style` and adds `state-name` when it can derive the state from the placeholder.
+
 ## Removed `integrationService.updateAdmin()`
 
 `Shopware.Service('integrationService').updateAdmin()` was removed. Use the integration repository instead:
 
 ```javascript
 const integrationRepository = Shopware.Service('repositoryFactory').create('integration');
+integration.admin = true;
 await integrationRepository.save(integration);
 ```
 
-<details>
+## Removed `validationService.email()`
 
-### Block removals
+The synchronous `email()` check of the Administration `validationService` was removed.
+This also applies to the `email` rule of the `validation` attribute, e.g. `validation="required,email"`, which the `validation` mixin and `useValidation()` resolve through it.
+Validate email addresses on the server with the async `validationApiService.validateEmailAddress()` instead:
 
-Due to inappropriate block names, the following deprecated blocks have been removed. Use the respective replacements instead:
+```javascript
+const isValid = await Shopware.Service('validationApiService').validateEmailAddress(email);
+```
 
-#### sw-cms-el-config-buy-box.html.twig
+## Removed `numberRangeService.previewPattern()`
 
-* `sw_cms_element_buy_box_config_product_variant_label` -> `sw_cms_element_buy_box_config_product_selection_label`
-* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_buy_box_config_product_select_result_item_inner`
+`numberRangeService.previewPattern(typeName, pattern, start)` was removed together with its type-based Admin API route.
+Use `previewPatternByNumberRangeId(numberRangeId, pattern, start)`, which previews the given number range and needs a saved number range:
 
-#### sw-cms-el-config-cross-selling.html.twig
+```javascript
+// Before
+this.numberRangeService.previewPattern(this.numberRange.type.technicalName, this.numberRange.pattern, this.numberRange.start);
 
-* `sw_entity_single_select_variant_selected_item` -> `sw_cms_element_cross_selling_config_content_products_selection_label`
-* `sw_entity_single_select_variant_result_item` -> `sw_cms_element_cross_selling_config_content_products_select_result_item`
-* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_cross_selling_config_content_products_select_result_item_inner`
+// After
+this.numberRangeService.previewPatternByNumberRangeId(this.numberRange.id, this.numberRange.pattern, this.numberRange.start);
+```
 
-#### sw-cms-el-config-product-box.html.twig
+`administration:upgrade-extensions` comments every use of the three removed service methods.
+It does not rewrite `previewPattern()`, because the replacement needs the id of a saved number range.
+
+## Renamed CMS element config blocks
+
+Due to inappropriate block names, the following blocks were renamed.
+Where an entry names two old blocks, the second one belonged to the legacy `sw-tabs` branch, which was removed as well.
+Override the new blocks instead, `administration:upgrade-extensions` renames the overrides.
+
+### sw-cms-el-config-buy-box.html.twig
+
+* `sw_cms_element_buy_box_config_product_variant_label` and `sw_cms_element_buy_box_config_product_selection_label` -> `sw_cms_element_buy_box_config_mt_product_variant_label`
+* `sw_entity_single_select_base_results_list_result_label` and `sw_cms_element_buy_box_config_product_select_result_item_inner` -> `sw_cms_element_buy_box_config_mt_product_select_result_label`
+
+### sw-cms-el-config-cross-selling.html.twig
+
+* `sw_entity_single_select_variant_selected_item` and `sw_cms_element_cross_selling_config_content_products_selection_label` -> `sw_cms_element_cross_selling_config_mt_product_variant_label`
+* `sw_entity_single_select_variant_result_item` and `sw_cms_element_cross_selling_config_content_products_select_result_item` -> `sw_cms_element_cross_selling_config_mt_product_select_result_item`
+* `sw_entity_single_select_base_results_list_result_label` and `sw_cms_element_cross_selling_config_content_products_select_result_item_inner` -> `sw_cms_element_cross_selling_config_mt_product_select_result_label`
+
+### sw-cms-el-config-product-box.html.twig
 
 * `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_box_config_product_select_result_item_inner`
 
-#### sw-cms-el-config-product-description-reviews.html.twig
+### sw-cms-el-config-product-description-reviews.html.twig
 
-* `sw_entity_single_select_variant_selected_item` -> `sw_cms_element_product_description_reviews_config_product_selection_label`
-* `sw_entity_single_select_variant_result_item` -> `sw_cms_element_product_description_reviews_config_product_select_result_item`
-* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_description_reviews_config_product_select_result_item_inner`
+* `sw_entity_single_select_variant_selected_item` and `sw_cms_element_product_description_reviews_config_product_selection_label` -> `sw_cms_element_product_description_reviews_config_mt_product_variant_label`
+* `sw_entity_single_select_variant_result_item` and `sw_cms_element_product_description_reviews_config_product_select_result_item` -> `sw_cms_element_product_description_reviews_config_mt_product_select_result_item`
+* `sw_entity_single_select_base_results_list_result_label` and `sw_cms_element_product_description_reviews_config_product_select_result_item_inner` -> `sw_cms_element_product_description_reviews_config_mt_product_select_result_label`
 
-#### sw-cms-el-config-product-slider.html.twig
+### sw-cms-el-config-product-slider.html.twig
 
-* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_slider_config_content_products_select_result_item_inner`
+* `sw_entity_single_select_base_results_list_result_label` and `sw_cms_element_product_slider_config_content_products_select_result_item_inner` -> `sw_cms_element_product_slider_config_mt_entity_single_select_base_results_list_result_label`
 
-#### sw-product-cross-selling-assignment.html.twig
+### sw-product-cross-selling-assignment.html.twig
 
 * `sw_entity_single_select_base_results_list_result_label` -> `sw_product_cross_selling_assignment_select_result_item_inner`
 
-## Migrating Options API overrides to the Composition API Extension System
+## Options API overrides stay supported
 
-Starting with Shopware 6.7, core components are gradually being migrated from Options API to Composition API using `createExtendableSetup()`. When a component you override has been converted, a backward-compatibility shim keeps your existing `Shopware.Component.override()` call working — but logs a deprecation warning. In Shopware 6.8, all fully-migrated components will require the new `overrideComponentSetup()` API.
-
-This guide shows how to migrate your plugin override to `Shopware.Component.overrideComponentSetup()` so it works natively against Composition API components.
-
-> **Note:** Only migrate overrides for components that have already been converted to use `createExtendableSetup()`. If the target component still uses Options API, keep using `Shopware.Component.override()` as-is.
-
-### Before: Options API override
-
-```javascript
-Shopware.Component.override('sw-product-list', {
-    data() {
-        return {
-            customFilters: [],
-            isCustomMode: false,
-        };
-    },
-
-    computed: {
-        columns() {
-            const original = this.$super('columns');
-            return [...original, { property: 'custom', label: 'Custom' }];
-        },
-    },
-
-    methods: {
-        async loadData() {
-            await this.$super('loadData');
-            this.customFilters = await this.fetchCustomFilters();
-        },
-
-        async fetchCustomFilters() {
-            // ...
-        },
-    },
-
-    watch: {
-        isCustomMode(val) {
-            if (val) this.loadData();
-        },
-    },
-});
-```
-
-### After: Composition API override
-
-```javascript
-import { ref, computed, watch } from 'vue';
-
-Shopware.Component.overrideComponentSetup()('sw-product-list', (previousState, props, context) => {
-    const customFilters = ref([]);
-    const isCustomMode = ref(false);
-
-    // computed — previousState refs are NOT auto-unwrapped, use .value
-    const columns = computed(() => {
-        return [...previousState.columns.value, { property: 'custom', label: 'Custom' }];
-    });
-
-    // method — call the original via previousState
-    async function loadData() {
-        await previousState.loadData.value();
-        customFilters.value = await fetchCustomFilters();
-    }
-
-    async function fetchCustomFilters() {
-        // ...
-    }
-
-    watch(isCustomMode, (val) => {
-        if (val) loadData();
-    });
-
-    return {
-        customFilters,
-        isCustomMode,
-        columns,
-        loadData,
-        fetchCustomFilters,
-    };
-});
-```
-
-### Key differences
-
-| Concept | Options API (`override`) | Composition API (`overrideComponentSetup`) |
-|---|---|---|
-| Reactive state | `data()` returning an object | `ref()` / `reactive()` |
-| Calling the original method | `this.$super('methodName')` | `previousState.methodName.value()` |
-| Accessing original computed | `this.$super('columns')` | `previousState.columns.value` |
-| Watching state | `watch: { prop: handler }` | `watch(ref, handler)` |
-| Accessing props | `this.myProp` | `props.myProp` |
-| Emitting events | `this.$emit(...)` | `context.emit(...)` |
-| Refs are not auto-unwrapped | n/a | Always use `.value` on `previousState` refs |
-
-### TypeScript: typing the override
-
-If the target component declares its public API in `ComponentPublicApiMapping`, you get full type safety:
-
-```typescript
-import { ref, computed } from 'vue';
-import type SwProductList from 'src/module/sw-product/page/sw-product-list';
-
-Shopware.Component.overrideComponentSetup<typeof SwProductList>()(
-    'sw-product-list',
-    (previousState, props) => {
-        // previousState is fully typed — IDE autocomplete works
-        const columns = computed(() => [
-            ...previousState.columns.value,
-            { property: 'custom', label: 'Custom' },
-        ]);
-
-        return { columns };
-    },
-);
-```
-
-### Unsupported Options API patterns
-
-The following patterns have no direct equivalent in `overrideComponentSetup()` and must be restructured:
-
-| Pattern | Alternative |
-|---|---|
-| `provide` | Not supported in overrides; move `provide` into the component itself |
-| `components` / `directives` | Register globally via `Shopware.Component.register()` / `Shopware.Directive.register()` |
-| `render()` function | Not supported in overrides |
-| Dot-notation watch paths (`'a.b.c'`) | Use a `computed` to extract the nested value, then `watch` the computed ref |
+`Shopware.Component.override()` keeps working in 6.8 for every Administration component, and core components were not migrated to the Composition API.
+Do not call `Shopware.Component.overrideComponentSetup()` from extension code, it is private, see "Composition API extension system is no longer a public entry point".
+To write an override in the Composition API style, write a native setup override `<component>.override.vue` with `swDefineOverride()` and `<sw-block extends="…">`.
+Native setup overrides also work against components that still render Twig templates.
+See `07-native-setup-authoring.md` and `08-native-overrides-on-twig-components.md` in `src/Administration/Resources/app/administration/technical-docs/03-extensibility/`.
 
 ## Removal of `loadConfigSettingGroups()` in `sw-product-detail-variants`
 
@@ -1947,15 +1891,27 @@ The architectural rationale is documented in [Keep Administration HTTP transport
 
 The empty Twig anchors left behind when Administration empty states moved to `mt-empty-state` were removed: `sw_flow_list_empty_state_icon`, `sw_mail_header_footer_list_grid_empty_state_icon`, `sw_mail_template_list_grid_empty_state_icon`, `sw_order_create_address_modal_empty_state_content`, `sw_order_customer_grid_empty_state_icon`, `sw_promotion_v2_individual_codes_behavior_empty_state_icon`, `sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty_icon`, `sw_settings_listing_option_criteria_card_empty_state_icon`, `sw_settings_listing_content_card_view_options_card_empty_state_icon`, `sw_product_feature_set_card_empty_state_image`, `sw_product_feature_set_card_empty_state_label`, `sw_tax_rule_card_empty_state_image` and `sw_tax_rule_card_empty_state_label`. The product detail anchors went the same way: `sw_product_detail_prices_empty_state_image`, `sw_product_detail_prices_price_empty_state_text`, `sw_product_detail_prices_price_empty_state_text_child`, `sw_product_detail_prices_price_empty_state_text_inherited`, `sw_product_detail_prices_price_empty_state_text_link`, `sw_product_detail_prices_price_empty_state_text_not_inherited`, `sw_product_detail_prices_price_empty_state_text_empty`, `sw_product_detail_cross_selling_empty_state_actions`, `sw_product_detail_cross_selling_empty_state_icon`, `sw_product_detail_cross_selling_empty_state_content`, `sw_product_detail_cross_selling_empty_state_content_child`, `sw_product_detail_cross_selling_empty_state_content_child_inherited`, `sw_product_detail_cross_selling_empty_state_content_child_inherited_link`, `sw_product_detail_cross_selling_empty_state_content_child_not_inherited` and `sw_product_detail_cross_selling_empty_state_content_empty`. Override the surrounding `*_empty_state` block and pass the icon through the `icon` prop of `mt-empty-state` instead.
 
+The same applies to these image and action blocks:
+
+* `sw_property_search_empty_image` -> `sw_property_search_empty`
+* `sw_product_properties_empty_state_image` -> `sw_product_properties_empty_state`
+* `sw_product_properties_filled_state_body_empty_state_image` -> `sw_product_properties_filled_state_body_empty_state`
+* `sw_sales_channel_detail_products_card_section_primary_image` -> `sw_sales_channel_detail_products_card_section_primary_empty_state`
+* `sw_sales_channel_detail_products_empty_state_image` -> `sw_sales_channel_detail_products_empty_state`
+* `sw_promotion_v2_list_empty_state_actions` -> `sw_promotion_v2_list_empty_state`
+
 ## Removed the `assetFilter` computed of the empty state components
 
-The `assetFilter` computed became unused when the Administration empty states moved to `mt-empty-state`, and was removed from `sw-cms-layout-assignment-modal`, `sw-flow-list`, `sw-mail-header-footer-list`, `sw-mail-template-list`, `sw-order-customer-grid`, `sw-promotion-v2-individual-codes-behavior`, `sw-sales-channel-products-assignment-dynamic-product-groups`, `sw-settings-listing-option-criteria-grid`, `sw-settings-listing`, `sw-settings-product-feature-sets-values-card` and `sw-tax-rule-card`.
+The `assetFilter` computed became unused when the Administration empty states moved to `mt-empty-state`, and was removed from `sw-cms-layout-assignment-modal`, `sw-flow-list`, `sw-mail-header-footer-list`, `sw-mail-template-list`, `sw-order-customer-grid`, `sw-promotion-v2-individual-codes-behavior`, `sw-sales-channel-products-assignment-dynamic-product-groups`, `sw-settings-listing-option-criteria-grid`, `sw-settings-listing`, `sw-settings-product-feature-sets-values-card`, `sw-tax-rule-card`, `sw-product-detail-context-prices` and `sw-product-detail-cross-selling`.
 
 An override that read it resolves the filter directly instead:
 
 ```js
 Shopware.Filter.getByName('asset');
 ```
+
+`administration:upgrade-extensions` rewrites `this.assetFilter` in overrides of these components.
+A template cannot call `Shopware.Filter`, so the codemod comments template uses instead: add an `assetFilter` computed that returns the filter to your override.
 
 ## `sw-tabs` automatic wrapper switch deferred
 
@@ -1970,6 +1926,8 @@ When an extension has already prepared for the Meteor API, it can opt in to the 
 Prefer migrating directly to `mt-tabs`. The opt-in only helps validate a prepared migration while retaining the wrapper; it does not replace the migration required before 6.9.
 
 The `mt-tabs` API uses an `items` prop instead of `sw-tabs-item` child components and does not support the legacy content slot. The codemod cannot fully convert this API difference; review every TODO it creates.
+`administration:upgrade-extensions` comments every `sw-tabs` with the steps of this migration.
+On an `mt-tabs` written by hand, it renames `is-vertical` to `vertical`, removes `align-right` and moves static `sw-tabs-item` children into the `items` prop.
 
 ### Replace `sw-tabs` with `mt-tabs`
 
@@ -2068,6 +2026,13 @@ After:
 ## Removed Administration Twig blocks from legacy `sw-tabs` branches
 
 The affected core Administration components use `mt-tabs` in their `v6.8.0.0` branches. Their legacy `sw-tabs` fallback branches have been removed. Extensions can no longer extend these areas through the removed Twig blocks. Custom tab entries need to migrate to the new `mt-tabs` item API or to the tab item data provided by the corresponding Administration component.
+
+Most blocks of the tab contents have a counterpart in the `mt-tabs` branch with `mt` in its name and the same content, e.g. `sw_cms_element_image_gallery_config_settings_min_height` became `sw_cms_element_image_gallery_config_mt_settings_min_height`.
+`administration:upgrade-extensions` renames overrides of these blocks, and comments overrides of blocks without a counterpart with the block to move them to.
+The content blocks of the counterparts no longer receive the `active` slot variable of `sw-tabs`, use `activeTab` instead.
+
+The legacy `sw-tabs` markup without own Twig blocks was also removed from `sw-extension-component-section`, `sw-meteor-card`, `sw-meteor-page`, `sw-cms-list`, `sw-generic-custom-entity-detail`, `sw-product-detail-variants`, `sw-settings-usage-data` and `sw-users-permissions-role-detail`.
+`sw-meteor-card` and `sw-meteor-page` still accept `sw-tabs-item` elements in their `tabs` and `page-tabs` slots.
 
 The following Twig blocks have been removed:
 
@@ -2244,6 +2209,8 @@ The following Twig blocks have been removed:
 - `src/Administration/Resources/app/administration/src/module/sw-cms/elements/product-slider/config/sw-cms-el-config-product-slider.html.twig`
   - `sw_cms_element_product_slider_config_tab_content`
   - `sw_cms_element_product_slider_config_tab_options`
+  - `sw_cms_element_product_slider_config_content_products_selection_label`
+  - `sw_cms_element_product_slider_config_content_products_select_result_item`
   - `sw_cms_element_product_slider_config_content`
   - `sw_cms_element_product_slider_config_content_title`
   - `sw_cms_element_product_slider_config_content_product_assignment_type`
@@ -2309,8 +2276,7 @@ The following Twig blocks have been removed:
   - `sw_import_export_tabs_export`
   - `sw_import_export_tabs_profiles`
 - `src/Administration/Resources/app/administration/src/module/sw-mail-template/page/sw-mail-template-index/sw-mail-template-index.html.twig`
-  - `sw_mail_template_list_tabs_templates`
-  - `sw_mail_template_list_tabs_header_footer`
+  - `sw_mail_template_list_content_card`
 - `src/Administration/Resources/app/administration/src/module/sw-media/component/sw-media-modal-v2/sw-media-modal-v2.html.twig`
   - `sw_media_modal_v2_tab_items`
   - `sw_media_modal_v2_tab_item_library`
@@ -2427,6 +2393,16 @@ The following Twig blocks have been removed:
   - `sw_settings_tag_detail_modal_tabs_assignments`
   - `sw_settings_tag_detail_modal_tabs_general_tab`
   - `sw_settings_tag_detail_modal_tabs_assignments_tab`
+- `src/Administration/Resources/app/administration/src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/sw-bulk-edit-custom-fields.html.twig`
+  - `sw_custom_field_set_renderer_card_form_renderer_change_field`
+  - `sw_custom_field_set_renderer_card_form_renderer_custom_field`
+- `src/Administration/Resources/app/administration/src/module/sw-settings-logging/component/sw-settings-logging-mail-sent-info/sw-settings-logging-mail-sent-info.html.twig`
+  - `sw_settings_logging_mail_sent_content_recipients`
+  - `sw_settings_logging_mail_sent_content_recipients_title`
+  - `sw_settings_logging_mail_sent_content_mailbody`
+  - `sw_settings_logging_mail_sent_content_mailbody_title`
+  - `sw_settings_logging_mail_sent_content_mailbody_html`
+  - `sw_settings_logging_mail_sent_content_mailbody_plain`
 - `src/Storefront/Resources/app/administration/src/modules/sw-theme-manager/page/sw-theme-manager-detail/sw-theme-manager-detail.html.twig`
   - `sw_theme_manager_detail_content_inheritance`
   - `sw_theme_manager_detail_content_inheritance_icon`
@@ -2484,11 +2460,21 @@ The canonical `Shopware\Core\Framework\Adapter\Asset\AssetService` is now intern
 
 ## Removal of snippets
 
-The following snippet keys have been removed:
-* `global.sw-condition.condition.cartTaxDisplay`
-* `global.sw-condition.condition.lineItemOfTypeRule`
-* `global.sw-condition.condition.promotionCodeOfTypeRule`
-* `global.sw-condition.condition.dayOfWeekRule`
+The option snippets of the tax display, line item type and promotion code type rule conditions were removed.
+Use the snippets of `sw-condition-generic` instead:
+
+| Removed snippet key | Replacement |
+|---|---|
+| `global.sw-condition.condition.cartTaxDisplay.gross` | `global.sw-condition-generic.cartTaxDisplay.taxDisplay.options.gross` |
+| `global.sw-condition.condition.cartTaxDisplay.net` | `global.sw-condition-generic.cartTaxDisplay.taxDisplay.options.net` |
+| `global.sw-condition.condition.lineItemOfTypeRule.product` | `global.sw-condition-generic.cartLineItemOfType.lineItemType.options.product` |
+| `global.sw-condition.condition.lineItemOfTypeRule.discount_surcharge` | `global.sw-condition-generic.cartLineItemOfType.lineItemType.options.promotion` |
+| `global.sw-condition.condition.promotionCodeOfTypeRule.global` | `global.sw-condition-generic.promotionCodeOfType.promotionCodeType.options.global` |
+| `global.sw-condition.condition.promotionCodeOfTypeRule.fixed` | `global.sw-condition-generic.promotionCodeOfType.promotionCodeType.options.fixed` |
+| `global.sw-condition.condition.promotionCodeOfTypeRule.individual` | `global.sw-condition-generic.promotionCodeOfType.promotionCodeType.options.individual` |
+
+The labels `global.sw-condition.condition.cartTaxDisplay.label`, `global.sw-condition.condition.lineItemOfTypeRule.label` and `global.sw-condition.condition.dayOfWeekRule` stay.
+`administration:upgrade-extensions` replaces string literals that are exactly one of the removed keys.
 
 ## The following template blocks of the newsletter recipient filter have been removed
 * `sw_newsletter_recipient_list_sidebar_filter_status_not_set`
@@ -2517,6 +2503,8 @@ The Storefront settings Administration page owns its settings fields directly.
 * `sw_settings_listing_option_base_smart_content_general_info` -> `sw_settings_listing_option_base_content_general_info`
 * `sw_settings_listing_option_base_smart_bar_actions_grid` -> `sw_settings_listing_option_base_content_criteria_grid`
 * `sw_settings_listing_option_base_smart_bar_actions_grid_delete_modal` -> `sw_settings_listing_option_base_content_delete_modal`
+
+`administration:upgrade-extensions` renames overrides of these blocks.
 
 ## Removed .png and .jpg images
 
@@ -2560,7 +2548,11 @@ In favor of WebP the following images have been removed:
 -   `administration/src/module/sw-settings-usage-data/component/sw-usage-data-consent-banner/assets/data-consent-background.png`
 
 Update image references to their `.webp` equivalents.
-For example instead of `administration/static/img/sw-login-background.png` use `administration/static/img/sw-login-background.webp`
+For example instead of `administration/static/img/sw-login-background.png` use `administration/static/img/sw-login-background.webp`.
+`preview_youtube.jpg` and `preview_vimeo.jpg` have no `.webp` version, core uses `administration/static/img/cms/preview_mountain_small.webp` instead.
+Instead of the `data-consent-background.png` of `sw-usage-data-consent-banner`, use `administration/static/img/data-consent-background.webp`.
+Instead of the `sw-login-background.png` of the login module, use `administration/static/img/sw-login-background.webp`.
+`administration:upgrade-extensions` replaces image paths in string literals and static attributes, but not in SCSS files.
 
 ## Mail template component changes
 
@@ -2575,6 +2567,7 @@ Changes in `sw-mail-template-index`:
 * `listing` mixin was removed
 * `term` data property was removed
 * `onChangeLanguage` method now only calls `tabContent` ref
+* The `sw_mail_template_list_content_card` Twig block was removed, override `sw_mail_template_list_router_view` or the list components instead
 
 ## Removal of increment-based message queue notifications
 
@@ -2584,8 +2577,9 @@ The indexing progress notifications in the Administration notification center ha
 
 - `WorkerNotificationListener` class and its exported constants `POLL_BACKGROUND_INTERVAL`, `POLL_FOREGROUND_INTERVAL` (`src/core/worker/worker-notification-listener.js`)
 - `enableQueueStatsWorker` property from `Shopware.Context.app.config.adminWorker`
+- `Shopware.WorkerNotification` with `register()`, `override()`, `remove()`, `getRegistry()` and `initialize()`, the `workerNotification` factory of the service container and the types `NotificationService` and `NotificationWorkerOptions` (`src/core/factory/worker-notification.factory.ts`)
 
-</details>
+Middlewares that extensions register with `Shopware.WorkerNotification` no longer run, remove them.
 
 ## Document settings changes
 
@@ -2621,12 +2615,19 @@ The new company settings are stored as flat system-config entries under `core.ba
 
 As part of this update, the following administration component parts have been deprecated:
 * `src/module/sw-settings-document/page/sw-settings-document-detail`:
+  * computed `countryRepository` was deprecated without replacement
+  * computed `documentTypeRepository` was deprecated without replacement
+  * computed `documentBaseConfigSalesChannelRepository` was deprecated without replacement
+  * property `selectedType` was deprecated without replacement
+  * property `isSaveSuccessful` was deprecated without replacement
+  * property `isShowCountriesSelect` was deprecated without replacement
+  * method `loadAvailableSalesChannel()` was deprecated without replacement
+  * method `showOption()` was deprecated without replacement
+
+* `src/module/sw-settings-document/page/sw-settings-document-list`
   * computed `expandButtonClass` was deprecated without replacement
   * computed `collapseButtonClass` was deprecated without replacement
   * property `sortBy` was deprecated without replacement
-
-* `src/module/sw-settings-document/page/sw-settings-document-list`
-  * computed `countryRepository` was deprecated without replacement
 
 ## Mail template preview component changes
 
@@ -2637,13 +2638,10 @@ The following legacy blocks are removed in Shopware 6.8:
 
 - `sw_mail_template_detail_preview_modal_footer`
 - `sw_mail_template_detail_preview_modal_footer_cancel`
-  * computed `documentTypeRepository` was deprecated without replacement
-  * computed `documentBaseConfigSalesChannelRepository` was deprecated without replacement
-  * property `selectedType` was deprecated without replacement
-  * property `isSaveSuccessful` was deprecated without replacement
-  * property `isShowCountriesSelect` was deprecated without replacement
-  * method `loadAvailableSalesChannel()` was deprecated without replacement
-  * method `showOption()` was deprecated without replacement
+
+The preview members of `sw-mail-template-detail` were removed as well: the computed `hasTemplateData` and the methods `mailPreviewContent()` and `replaceContent()`.
+`mailService.testMailTemplate()` and `mailService.buildRenderPreview()` were removed.
+`sw-mail-template-preview-modal` previews with `mailService.previewMailTemplate()` and sends test mails with `mailService.sendMailTemplate()` in test mode.
 
 ## Deprecated unused methods in `sw-order-document-card`
 
@@ -2686,6 +2684,471 @@ The old options map to the new ones like this: `-p`/`--plugin-name` becomes `--o
 The computed property `gridPreSelection` and the method `selectInGrid()` of the Administration component `sw-cms-layout-modal` were deprecated and are removed.
 The modal selects layouts with a Meteor radio group in both views and no longer uses the data grid's selection column.
 Set `selectedPageObject` through `selectItem(page)` or `onSelectPage(pageId)` instead.
+
+## `$tc` deprecated in favor of `$t`
+
+The translation helpers `$tc()` and `Shopware.Snippet.tc()` were deprecated and are removed in 6.9.
+Use `$t()` and `Shopware.Snippet.t()`, which handle pluralization natively, and pass named parameters before the plural count:
+
+```js
+// Before
+this.$tc('sw-product.list.messageDelete', count, { name });
+
+// After
+this.$t('sw-product.list.messageDelete', { name }, count);
+```
+
+`administration:upgrade-extensions` rewrites these calls in scripts, Vue templates and bound attributes of Twig templates.
+It does not rewrite `{{ }}` interpolations in `.html.twig` templates.
+
+## Removed `snippets` property of `Module.register()`
+
+`Shopware.Module.register()` throws when a module sets the `snippets` property.
+The Administration loads the snippet files of active plugins on its own: every `<language>.json` and `<language>-<COUNTRY>.json` file below `Resources/app/administration/src`, e.g. `en.json` or `de-DE.json`.
+Remove the property and the imports of the snippet files:
+
+```js
+// Before
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
+
+Shopware.Module.register('swag-example', {
+    snippets: { 'de-DE': deDE, 'en-GB': enGB },
+});
+
+// After
+Shopware.Module.register('swag-example', {});
+```
+
+Rename snippet files with other names, e.g. `de_DE.json`, and move snippet files that are outside of `Resources/app/administration/src` into it.
+`administration:upgrade-extensions` removes the property when the Administration loads all of its snippet files, and comments it otherwise.
+
+## Replace `sw-loader`, `sw-skeleton-bar` and `sw-progress-bar`
+
+`sw-loader` and `sw-skeleton-bar` were deprecated and only render their legacy implementation.
+Use the Meteor components `mt-loader` and `mt-skeleton-bar` instead, and `mt-progress-bar` instead of `sw-progress-bar`:
+
+* `mt-loader` takes the `size` with its unit, e.g. `size="30px"`, and shows a backdrop unless you pass `:backdrop="false"`.
+* `mt-progress-bar` takes the value as `model-value` and requires `max-value`, which defaulted to 100 for `sw-progress-bar`.
+
+`administration:upgrade-extensions` replaces the tags, renames `value` to `model-value` and adds `:max-value="100"` where it is missing.
+
+## Removed Vuex in favor of Pinia
+
+Vuex was removed from the Administration, together with `Shopware.State`, `this.$store`, the `StateFactory` (`src/core/factory/state.factory`), the `VuexRootState` type and the component helpers `mapVuexState`, `mapVuexGetters`, `mapVuexMutations` and `mapVuexActions`.
+All Administration stores are Pinia stores, use them through `Shopware.Store`:
+
+```js
+// Before
+Shopware.State.registerModule('swagExample', {
+    namespaced: true,
+    state: () => ({ count: 0 }),
+    mutations: { increment(state) { state.count += 1; } },
+});
+Shopware.State.commit('swagExample/increment');
+
+// After
+Shopware.Store.register({
+    id: 'swagExample',
+    state: () => ({ count: 0 }),
+    actions: { increment() { this.count += 1; } },
+});
+Shopware.Store.get('swagExample').increment();
+```
+
+Replace the Vuex helpers with `mapState()` and `mapActions()` of `Shopware.Component.getComponentHelper()`.
+`administration:upgrade-extensions` comments every use of the Vuex APIs, including imports of `vuex` and of the `StateFactory`.
+
+## Removed unused `dateFilter` computeds
+
+The unused `dateFilter` computed was removed from `sw-advanced-selection-rule`, `sw-media-folder-item`, `sw-media-media-item`, `sw-settings-logging-list`, `sw-extension-card-base`, `sw-import-export-activity`, `sw-import-export-activity-result-modal`, `sw-import-export-activity-log-info-modal`, `sw-cms-list`, `sw-cms-layout-modal`, `sw-review-detail`, `sw-review-list`, `sw-promotion-v2-individual-codes-behavior`, `sw-settings-rule-list`, `sw-product-list`, `sw-product-detail-reviews`, `sw-settings-snippet-set-list`, `sw-product-stream-list`, `sw-order-list`, `sw-order-send-document-modal`, `sw-order-state-history-card-entry`, `sw-order-document-card`, `sw-order-general-info`, `sw-dashboard-statistics`, `sw-sales-channel-list`, `sw-sales-channel-detail-base` and `sw-newsletter-recipient-list`.
+`sw-self-maintained-extension-card` and `sw-sales-channel-create-base` lost it too, because they extend `sw-extension-card-base` and `sw-sales-channel-detail-base`.
+An override that read it resolves the filter directly instead:
+
+```js
+Shopware.Filter.getByName('date');
+```
+
+`administration:upgrade-extensions` rewrites `this.dateFilter` in overrides of these components.
+A template cannot call `Shopware.Filter`, so the codemod comments template uses instead: add a `dateFilter` computed that returns the filter to your override, or use `<sw-time-ago :date="…" />`.
+
+## Removed `sw-text-editor`
+
+`sw-text-editor` and its toolbar components `sw-text-editor-toolbar`, `sw-text-editor-toolbar-button`, `sw-text-editor-toolbar-table-button`, `sw-text-editor-table-toolbar` and `sw-text-editor-link-menu` were removed.
+Use `mt-text-editor` instead:
+
+* Bind the content with `v-model` instead of `:value` and `@update:value`.
+* Pass custom toolbar buttons with `custom-buttons` instead of `button-config`.
+* Replace `allow-inline-data-mapping` with `:custom-buttons="[createTextEditorDataMappingButton(() => mappings)]"`.
+  The helper comes from `Shopware.Component.getComponentHelper()`.
+* `vertical-align`, `enable-transparent-background` and the `sanitize-*` props have no replacement.
+
+`administration:upgrade-extensions` comments every use, override and extension of these components.
+
+## Order detail loading and editing moved to the `swOrderDetail` store
+
+The order detail page and its views read the loading and editing state from the `swOrderDetail` store instead of passing it to each other.
+These members were removed:
+
+| Component | Removed members | Replacement |
+|---|---|---|
+| `sw-order-detail` | provide `swOrderDetailOnLoadingChange`, computed `isLoading`, method `onUpdateLoading()` | `loading.order` and `setLoading(['order', value])` of the store |
+| `sw-order-detail` | provide `swOrderDetailOnEditingChange`, data `isEditing`, method `onUpdateEditing()` | `editing` of the store |
+| `sw-order-detail` | method `onSaveAndReload()` | `saveAndReload()` |
+| `sw-order-detail` | provide `swOrderDetailOnCreatedByIdChange`, data `createdById`, methods `updateCreatedById()`, `onChangeLanguage()` and `onStartEditing()` | none |
+| `sw-order-detail-general`, `sw-order-detail-details` | prop `isSaveSuccessful`, computed `isLoading` | `savedSuccessful` and `loading.order` of the store |
+| `sw-order-detail-general` | method `updateLoading()` | `setLoading(['order', value])` of the store |
+
+The `router-view` of `sw-order-detail` no longer passes `is-editing` and `is-save-successful`, and no longer listens to `created-by-id-change`, `loading-change` and `editing-change`:
+
+```js
+const orderDetailStore = Shopware.Store.get('swOrderDetail');
+
+orderDetailStore.setLoading(['order', true]);
+const isEditing = orderDetailStore.editing;
+```
+
+`administration:upgrade-extensions` comments every use of the removed members.
+
+## Product states replaced by the product type in the Administration
+
+The Administration uses the product `type` instead of the removed `states` field, see "Removal of product's `states` field in favor of `type` field".
+These members were replaced:
+
+| Component | Removed member | Replacement |
+|---|---|---|
+| `sw-product-detail` | prop and route query `creationStates` | `creationType` |
+| `sw-product-detail`, `sw-product-detail-base`, `sw-product-detail-specifications` | computed `productStates` | `productType` |
+| `sw-product-detail-variants` | computed `currentProductStates` | `currentProductType` |
+| `sw-product-variants-overview` | prop `productStates` | prop `productType` |
+| `sw-product-stream-value` | computed `productStateOptions` | `productTypeOptions` |
+| `swProductDetail` store | state `creationStates`, getter `productStates` | `creationType`, `productType` |
+
+The values `is-physical` and `is-download` became `physical` and `digital`, and the product list filter `product-states-filter` became `product-type-filter`.
+`administration:upgrade-extensions` comments every use of the removed members.
+
+## Removed the product detail advanced mode
+
+The advanced mode of the product detail page was removed without replacement.
+`sw-product-detail` lost the computeds `advancedModeSetting`, `getModeSettingGeneralTab`, `getModeSettingSpecificationsTab` and `showAdvanceModeSetting`, the methods `initAdvancedModeSettings()`, `createUserModeSetting()`, `getAdvancedModeDefaultSetting()`, `getAdvancedModeSetting()`, `saveAdvancedMode()`, `onChangeSetting()`, `changeModeSettings()` and `onChangeSettingItem()`, and the Twig block `sw_product_settings_mode`.
+The `swProductDetail` store lost `advancedModeSetting`, `showModeSetting` and `advanceModeEnabled`, and `sw-product-settings-mode` was removed.
+Stop hooking cards into the mode settings, and show your cards without `showProductCard()`, which only knows the core cards.
+`administration:upgrade-extensions` comments every use of the removed members.
+
+## Removed delivery and transaction helpers of `sw-order-list`
+
+`sw-order-list` reads the primary delivery and transaction of an order directly, so these methods were removed:
+
+| Removed method | Replacement |
+|---|---|
+| `getDelivery(order)` | `order.primaryOrderDelivery` |
+| `transaction(order)` | `order.primaryOrderTransaction` |
+| `getDeliveryAddress(order)` | `order.primaryOrderDelivery?.shippingOrderAddress` |
+| `getDeliveryState(order)` | `order.primaryOrderDelivery?.stateMachineState` |
+| `getTransactionState(order)` | `order.primaryOrderTransaction?.stateMachineState` |
+| `getBillingAddress(order)` | `order.billingAddress` |
+| `deliveryTooltip(deliveries)` | none |
+
+The order criteria of the list no longer load the `addresses`, `deliveries` and `transactions` associations.
+Add them yourself when an override still reads them.
+`administration:upgrade-extensions` rewrites calls of the removed methods in overrides of `sw-order-list` and in their templates.
+
+## Removed `sw-select-number-field`, `sw-entity-many-to-many-select` and `sw-help-sidebar`
+
+* `sw-select-number-field` was removed.
+  Use `mt-select` with an `options` prop like `[{ value: 1, label: 'One' }]` instead of `<option>` children.
+* `sw-entity-many-to-many-select` was removed.
+  Use `sw-entity-multi-select`, which never saves the assignment on its own, like `sw-entity-many-to-many-select` in local mode.
+  Save the entity collection together with its parent entity.
+* `sw-help-sidebar` was removed without replacement.
+  The help center lives in `sw-help-center-v2`, which has the same block names but renders `mt-action-menu-item` elements.
+
+`administration:upgrade-extensions` replaces the first two components and leaves a review comment where the behaviour can change, e.g. on an `sw-entity-many-to-many-select` without a static `local-mode` or an `sw-select-number-field` with bound option values.
+
+## Removed `sw-popover`
+
+`sw-popover` was removed, use `mt-floating-ui` instead:
+
+* Put the reference element into the `trigger` slot and bind `is-opened`.
+* Replace `resize-width` with `match-reference-width`.
+* Pass the `z-index` and `popover-config-extension` settings through `floating-ui-options`.
+
+`administration:upgrade-extensions` comments every use and override of `sw-popover`.
+
+## Removed rule condition components
+
+The rule condition components `sw-condition-line-item-in-category`, `sw-condition-line-item-purchase-price` and `sw-condition-is-net-select` were removed together with their Twig blocks.
+Core renders these conditions with `sw-condition-generic-line-item` from their backend configuration.
+Build custom conditions on `sw-condition-generic` or `sw-condition-generic-line-item` instead of extending the removed components.
+`administration:upgrade-extensions` comments overrides, extensions and references of these components.
+
+## Removed the automatic promotion toggle of orders
+
+Automatic promotions can no longer be switched off in an existing order.
+`orderService.toggleAutomaticPromotions()` was removed, and so were these members of `sw-order-promotion-field`: the computeds `automaticPromotions`, `hasAutomaticPromotions`, `changesetGenerator` and `hasOrderUnsavedChanges`, the data `disabledAutoPromotions`, and the methods `createdComponent()`, `emitLoadingChange()`, `handleUnsavedOrderChangesResponse()`, `deleteAutomaticPromotions()`, `toggleAutomaticPromotions()` and `getLineItemByPromotionCode()`.
+Use `applyAutomaticPromotions()` of `sw-order-promotion-field` or `orderService.applyAutomaticPromotions(orderId, versionId)` instead.
+The Twig block `sw_order_detail_details_order_promotion` of `sw-order-detail-details` was removed.
+
+## Removed unused order components
+
+These order components were unused and were removed without replacement: `sw-order-create-base`, `sw-order-create-details-header`, `sw-order-create-details-body`, `sw-order-create-details-footer`, `sw-order-create-address-modal`, `sw-order-state-history-card`, `sw-order-state-history-card-entry` and `sw-order-user-card`.
+Remove overrides and extensions of these components.
+The prop `isLoading` and the data `total` of `sw-order-state-history-modal` were removed as well, use `dataSource.length` instead of `total`.
+
+## Removed shipping cost editing of `sw-order-detail-details`
+
+Shipping costs are edited in the general view of the order detail page.
+The computeds `shippingCosts` and `currency`, the method `onShippingChargeEdited()` and the Twig block `sw_order_detail_details_shipping_costs` of `sw-order-detail-details` were removed.
+Extend `sw-order-detail-general` instead, with its block `sw_order_detail_general_line_items_summary_shipping_cost` and its methods `onShippingChargeEdited()` and `onShippingChargeUpdated(amount)`.
+
+## Agentic Commerce Administration UI moved to SwagAgenticCommerce
+
+The Agentic Commerce Administration UI moved to the SwagAgenticCommerce plugin, see "Agentic Commerce sales channel features removed".
+Install the plugin and remove overrides of these parts:
+
+* the component `sw-agentic-commerce-tracking-config` and the block `sw_sales_channel_detail_agentic_commerce_tracking` that renders it
+* in `sw-sales-channel-detail`: the provide `swSalesChannelDetailGetAgenticCommerceExportConfig`, `agenticCommerceExportConfig`, `isAgenticCommerce`, `hasSwagAgenticCommercePlugin`, `showAgenticCommerceDeprecationBanner`, `defaultAgenticCommerceExportConfig`, `onClickInstallAgenticCommercePlugin()`, `validateAgenticCommerceExportConfig()`, `loadAgenticCommerceExportConfig()`, `saveAgenticCommerceExportConfig()` and the block `sw_sales_channel_detail_agentic_commerce_deprecation_banner`
+* in `sw-sales-channel-detail-base`: `isAgenticCommerce`, `resolvedAgenticCommerceExportConfig`, `getAgenticCommerceExportElementBind()`, `getAgenticCommerceExportCardTitle()`, `getAgenticCommerceExportCardPositionIdentifier()` and `onAgenticCommerceExportFieldUpdate()`
+* `isAgenticCommerceSalesChannelType()` and `showAgenticCommerceType()` of `sw-sales-channel-modal-grid`, `isAgenticCommerce` of `sw-sales-channel-detail-product-comparison` and `prefillAgenticCommerceDefaults()` of `sw-sales-channel-create-base`
+
+## Removed outside click deselection of `sw-media-grid`
+
+`sw-media-grid` no longer clears the media selection on a click outside of the grid and no longer emits `media-grid-selection-clear`.
+Its computed `nonDeselectingComponents` and its methods `createdComponent()`, `beforeDestroyComponent()`, `clearSelectionOnClickOutside()`, `originatesFromExcludedComponent()`, `isEmittedFromChildren()` and `emitSelectionCleared()` were removed.
+Listen to `media-item-selection-clear` of `sw-media-quickinfo-multiple` instead, which its "Unselect all" button emits.
+
+## Removed CMS helpers
+
+These CMS helpers were removed:
+
+* `extractSlotOverrides()`, `getCmsPageOverrides()` and `deleteSpecifcKeys()` of `sw-category-detail`, and `getCmsPageOverrides()` and `deleteSpecifcKeys()` of `sw-product-detail`, without replacement
+* `resetCmsPageState()` of `sw-cms-detail` and `sw-cms-create`, use `resetRelatedStores()` instead
+* `isSystemDefaultLanguage()` of `sw-cms-inherit-wrapper`, use `Shopware.Store.get('context').isSystemDefaultLanguage` instead
+* the data `pageSlotconfigError` of `sw-cms-section`, the computed `navArrowsClasses` of `sw-cms-el-product-slider`, and the computeds `associatedCategoryBuckets` and `associatedProductBuckets` of `sw-cms-list`, without replacement
+
+The `resetCmsPageState()` action of the `cmsPage` store stays.
+
+## Removed settings, product and promotion members
+
+These members of settings, product and promotion components were removed:
+
+| Component | Removed members | Replacement |
+|---|---|---|
+| `sw-settings-index` | `hideSettingRenameBanner`, `getUserConfig()`, `onCloseSettingRenameBanner()` | none |
+| `sw-settings-customer-group-detail` | `seoUrlRepository`, `seoUrlCriteria`, `loadSeoUrls()`, `getSeoUrl()` | none, the template builds the SEO URLs |
+| `sw-settings-number-range-detail` | `selectedNumberRangeSalesChannels`, `loadSalesChannels()` | `selectedSalesChannelsCollection`, `buildSelectedSalesChannelsCollection()` |
+| `sw-settings-shipping-price-matrix` | `shippingRuleFilterCriteria` | `ruleFilterCriteria` |
+| `sw-settings-listing-option-base` | `productSortingEntityCriteria` | none |
+| `sw-settings-language-list` | `filterSidebarItem`, `registerFilterSidebarItem()`, `openFilterSidebar()` | none |
+| `sw-settings-snippet-set-list` | `onClone()`, `closeCloneModal()`, `getNoPermissionsTooltip()` | none |
+| `sw-settings-snippet-list` | `inlineSaveSuccessMessage()`, `createSuccessMessage()` | none |
+| `sw-settings-cache-index` | `processSuccess`, `resetButtons()` | none |
+| `sw-settings-services-dashboard-banner` | the whole component | none |
+| `sw-product-cross-selling-form` | `productCrossSellingRepository`, `crossSellingAssigmentRepository`, `disablePositioning` | none |
+| `sw-product-clone-modal`, `sw-product-modal-variant-generation` | `progressInPercentage` | none |
+| `sw-product-packaging-form` | `isLoading` | none |
+| `sw-product-list` | `productTypeOptions` | none |
+| `sw-promotion-v2-cart-condition-form`, `sw-promotion-discount-component` | `ruleFilter` | the default filter of `sw-select-rule-create` |
+| `sw-promotion-v2-settings-rule-selection`, `sw-promotion-v2-settings-trigger` | `ruleCriteria` | the default filter of `sw-select-rule-create` |
+| `sw-promotion-v2-conditions` | `personaRuleFilter`, `cartConditionsRuleFilter`, `orderConditionsFilter` | the default filter of `sw-select-rule-create` |
+| `sw-promotion-discount-component` | `maxValueAdvancedPricesTooltip` | none |
+| `sw-promotion-detail-discounts` | `deleteDiscountId`, `repository` | none |
+| `sw-promotion-v2-empty-state-hero` | the whole component | none |
+
+`administration:upgrade-extensions` comments every use of the removed members in overrides of these components.
+
+## Changed Administration defaults
+
+* The media library and `sw-media-display-options` sort by `createdAt` descending by default.
+  Set `sorting` if you rely on another order.
+* Media and thumbnail URLs come percent-encoded from the server, and `sw-media-preview-v2` no longer encodes them.
+  Remove your own `encodeURI()` calls around these URLs to avoid double encoding.
+* `mailService.sendMailTemplate()` no longer fills `templateData` from the mail template type when you pass none.
+  Pass the template data explicitly.
+
+`administration:upgrade-extensions` comments overrides of `buildSourceSet()` of `sw-media-preview-v2`, `sendMailTemplate()` calls without template data and reads of the stored `templateData` of mail template types.
+
+## Removed Administration Twig blocks
+
+These Twig blocks were removed outside of the legacy `sw-tabs` branches.
+Move an override to the block after the arrow, or remove it when there is none.
+`administration:upgrade-extensions` comments every override of a removed block with the block to move it to.
+
+### `sw-settings-snippet-set-list`
+
+* `sw_settings_snippet_set_list_card_title` -> `sw_settings_snippet_set_list_card_list`
+* `sw_settings_snippet_set_list_card_list_container` -> `sw_settings_snippet_set_list_card_list` (the header actions are in the smart-bar-actions slot, which has no block)
+* `sw_settings_snippet_set_list_card_list_container_header` -> `sw_settings_snippet_set_list_card_list` (the header actions are in the smart-bar-actions slot, which has no block)
+* `sw_settings_snippet_set_list_card_list_container_header_btn_export` -> `sw_settings_snippet_set_list_card_list` (the header actions are in the smart-bar-actions slot, which has no block)
+* `sw_settings_snippet_set_list_card_list_container_header_btn_edit_set` -> `sw_settings_snippet_set_list_card_list` (the header actions are in the smart-bar-actions slot, which has no block)
+* `sw_settings_snippet_set_list_card_list_container_header_btn_split` -> `sw_settings_snippet_set_list_card_list` (the header actions are in the smart-bar-actions slot, which has no block)
+* `sw_settings_snippet_set_list_card_list_container_header_btn_add_set` -> `sw_settings_snippet_set_list_card_list` (the header actions are in the smart-bar-actions slot, which has no block)
+* `sw_settings_snippet_set_list_card_btn_copy_icon` -> `sw_settings_snippet_set_list_card_list` (the header actions are in the smart-bar-actions slot, which has no block)
+* `sw_settings_snippet_set_list_card_list_btn_copy_split` -> `sw_settings_snippet_set_list_card_list` (the header actions are in the smart-bar-actions slot, which has no block)
+* `sw_settings_snippet_set_list_card_btn_copy` -> `sw_settings_snippet_set_list_card_list` (the header actions are in the smart-bar-actions slot, which has no block)
+* `sw_settings_snippet_set_list_card_copy_context_menu` -> `sw_settings_snippet_set_list_card_list` (the header actions are in the smart-bar-actions slot, which has no block)
+* `sw_settings_snippet_set_list_card_copy_context_divider` -> `sw_settings_snippet_set_list_card_list` (the header actions are in the smart-bar-actions slot, which has no block)
+* `sw_settings_snippet_set_list_card_copy_context_menu_items` -> `sw_settings_snippet_set_list_card_list` (the header actions are in the smart-bar-actions slot, which has no block)
+* `sw_settings_snippet_set_list_card_list_grid_template` -> `sw_settings_snippet_set_list_card_list_grid`
+* `sw_settings_snippet_set_list_card_list_grid_column_name` -> `sw_settings_snippet_set_list_card_list_grid`
+* `sw_settings_snippet_set_list_card_list_grid_column_name_link` -> `sw_settings_snippet_set_list_card_list_grid`
+* `sw_settings_snippet_set_list_card_list_grid_column_name_editor` -> `sw_settings_snippet_set_list_card_list_grid`
+* `sw_settings_snippet_set_list_card_list_grid_column_changed` -> `sw_settings_snippet_set_list_card_list_grid`
+* `sw_settings_snippet_set_list_card_list_grid_column_changed_date` -> `sw_settings_snippet_set_list_card_list_grid`
+* `sw_settings_snippet_set_list_card_list_grid_column_base_file` -> `sw_settings_snippet_set_list_card_list_grid`
+* `sw_settings_snippet_set_list_card_list_grid_column_base_file_editor` -> `sw_settings_snippet_set_list_card_list_grid`
+* `sw_settings_snippet_set_list_card_list_grid_column_base_action` -> `sw_settings_snippet_set_list_card_list_grid`
+* `sw_settings_snippet_set_list_card_list_grid_column_base_action_buttons` -> `sw_settings_snippet_set_list_card_list_grid`
+* `sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_edit` -> `sw_settings_snippet_set_list_card_list_grid`
+* `sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_clone` -> `sw_settings_snippet_set_list_card_list_grid`
+* `sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_delete` -> `sw_settings_snippet_set_list_card_list_grid`
+* `sw_settings_snippet_set_list_columns_delete_modal` -> `sw_settings_snippet_set_list_card_list_grid`
+* `sw_settings_snippet_set_list_delete_modal_confirm_delete_text` -> `sw_settings_snippet_set_list_card_list_grid`
+* `sw_settings_snippet_set_list_delete_modal_footer` -> `sw_settings_snippet_set_list_card_list_grid`
+* `sw_settings_snippet_set_list_delete_modal_cancel` -> `sw_settings_snippet_set_list_card_list_grid`
+* `sw_settings_snippet_set_list_delete_modal_confirm` -> `sw_settings_snippet_set_list_card_list_grid`
+* `sw_settings_snippet_set_list_columns_clone_modal` -> `sw_settings_snippet_set_list_card_list_grid`
+* `sw_settings_snippet_set_list_clone_modal_confirm_delete_text` -> `sw_settings_snippet_set_list_card_list_grid`
+* `sw_settings_snippet_set_list_clone_modal_footer` -> `sw_settings_snippet_set_list_card_list_grid`
+* `sw_settings_snippet_set_list_clone_modal_cancel` -> `sw_settings_snippet_set_list_card_list_grid`
+* `sw_settings_snippet_set_list_clone_modal_confirm` -> `sw_settings_snippet_set_list_card_list_grid`
+* `sw_settings_snippet_set_list_card_list_grid_pagination` -> `sw_settings_snippet_set_list_card_list_grid`
+* `sw_settings_snippet_set_list_card_list_grid_pagination_bar` -> `sw_settings_snippet_set_list_card_list_grid`
+
+### `sw-settings-language-list`
+
+* `sw_settings_language_list_smart_bar_header_amount` -> `sw_settings_language_list_smart_bar_header_title`
+* `sw_settings_language_list_content_list_column_id` -> `sw_settings_language_list_content_list_columns`
+* `sw_settings_language_list_content_list_delete_confirm_action` -> `sw_settings_language_list_delete_modal`
+* `sw_settings_language_list_grid_sidebar_filter` without replacement
+* `sw_settings_language_list_grid_sidebar_filter_header` without replacement
+* `sw_settings_language_list_grid_sidebar_filter_header_title` without replacement
+* `sw_settings_language_list_grid_sidebar_filter_header_icon` without replacement
+* `sw_settings_language_list_grid_sidebar_filter_header_icon_expanded` without replacement
+* `sw_settings_language_list_grid_sidebar_filter_header_icon_not_expanded` without replacement
+* `sw_settings_language_list_grid_sidebar_filter_content` without replacement
+* `sw_settings_language_list_grid_sidebar_filter_content_root_languages` without replacement
+* `sw_settings_language_list_grid_sidebar_filter_content_inherited_languages` without replacement
+
+### `sw-settings-language-detail`
+
+* `sw_settings_language_detail_content_language_info` without replacement
+
+### `sw-settings-search-excluded-search-terms`
+
+* `sw_settings_search_excluded_search_terms_empty_state_image` -> `sw_settings_search_excluded_search_terms_empty_state`
+
+### `sw-settings-search-searchable-content-general`
+
+* `sw_settings_search_searchable_content_general_state_image` -> `sw_settings_search_searchable_content_general_empty_state`
+
+### `sw-settings-search-searchable-content-customfields`
+
+* `sw_settings_search_searchable_content_customfields_state_image` -> `sw_settings_search_searchable_content_customfields_empty_state`
+
+### `sw-settings-search-live-search`
+
+* `sw_settings_search_view_live_search_search_icon_wrapper` -> `sw_settings_search_view_live_search_input`
+* `sw_settings_search_view_live_search_search_icon` -> `sw_settings_search_view_live_search_input`
+
+### `sw-settings-search-search-index`
+
+* `sw_settings_search_search_index_warning_top` -> `sw_settings_search_search_index_warning_bottom`
+* `sw_settings_search_search_index_rebuild_progress_text` -> `sw_settings_search_search_index_rebuild_progress_bar`
+
+### `sw-settings-search-searchable-content`
+
+* `sw_settings_search_searchable_show_example` -> `sw_settings_search_searchable_show_example_link`
+* `sw_settings_search_searchable_show_example_link_element` -> `sw_settings_search_searchable_show_example_link`
+
+### `sw-product-packaging-form`
+
+* `sw_product_packaging_form_width_field` -> `sw_product_measurement_form_width_field` of `sw-product-measurement-form`
+* `sw_product_packaging_form_height_field` -> `sw_product_measurement_form_height_field` of `sw-product-measurement-form`
+* `sw_product_settings_form_length_field` -> `sw_product_measurement_form_length_field` of `sw-product-measurement-form`
+* `sw_product_settings_form_weight_field` -> `sw_product_measurement_form_weight_field` of `sw-product-measurement-form`
+
+### `sw-bulk-edit-product`
+
+* `sw_bulk_edit_product_content_meansures_packaging_card` -> `sw_bulk_edit_product_content_measurement_card`
+
+### `sw-newsletter-recipient-filter-switch`
+
+* `sw_newsletter_recipient_filter_switch` without replacement
+* `sw_newsletter_recipient_filter_switch_field` without replacement
+
+### `sw-import-export-view-import`
+
+* `sw_import_export_view_import_activity_title` -> `sw_import_export_view_import_activity` (the title is a prop of `mt-card`)
+
+### `sw-import-export-view-export`
+
+* `sw_import_export_view_export_activity_title` -> `sw_import_export_view_export_activity` (the title is a prop of `mt-card`)
+
+### `sw-import-export-new-profile-wizard-csv-page`
+
+* `sw_import_export_new_profile_wizard_csv_page_text` -> `sw_import_export_new_profile_wizard_csv_page_csv_upload`
+
+### `sw-settings-storefront-index`
+
+* `sw_settings_storefront_smtp_settings` -> `sw_settings_storefront_settings_icon_cache` and `sw_settings_storefront_settings_speculation_rules`
+
+### `sw-settings-storefront-configuration`
+
+* `sw_settings_storefront` -> the block of the same name in `sw-settings-storefront-index`
+* `sw_settings_storefront_settings_icon_cache` -> the block of the same name in `sw-settings-storefront-index`
+* `sw_settings_storefront_settings_theme_async` -> the block of the same name in `sw-settings-storefront-index`
+* `sw_settings_storefront_settings_speculation_rules` -> the block of the same name in `sw-settings-storefront-index`
+
+### `sw-theme-manager-detail`
+
+* `sw_theme_manager_detail_sidebar` -> `sw_theme_manager_detail_media_modal`
+* `sw_theme_manager_detail_sidebar_media` -> `sw_theme_manager_detail_media_modal`
+* `sw_theme_manager_detail_sidebar_media_items` -> `sw_theme_manager_detail_media_modal`
+
+### `sw-settings-customer-group-detail`
+
+* `sw_settings_customer_group_detail_content_card_display_gross` -> `sw_settings_customer_group_detail_content_card_tax_display`
+
+### `sw-integration-list`
+
+* `sw_integration_list_introduction` without replacement
+
+### `sw-manufacturer-detail`
+
+* `sw_manufacturer_detail_sidebar` without replacement
+
+### `sw-order-line-items-grid-sales-channel`
+
+* `sw_order_line_items_grid_sales_channel_line_item_filter` -> `sw_order_line_items_grid_sales_channel_header`
+
+### `sw-product-stream-filter`
+
+* `sw_product_stream_filter` -> `sw_condition_base`
+* `sw_product_stream_filter_container` -> `sw_condition_base_content`
+
+### `sw-product-detail`
+
+* `sw_product_settings_mode` without replacement
+
+### `sw-settings-mailer`
+
+* `sw_settings_mailer_headline_agent` -> `sw_settings_mailer_agent_options`
+
+### `sw-order-detail-details`
+
+* `sw_order_detail_details_shipping_costs` -> `sw_order_detail_general_line_items_summary_shipping_cost` of `sw-order-detail-general`
+* `sw_order_detail_details_order_promotion` without replacement
+
+### `sw-promotion-v2-empty-state-hero`
+
+All blocks of `sw-promotion-v2-empty-state-hero`, which was removed without replacement.
+
+### `sw-order-user-card`
+
+All blocks of `sw-order-user-card`, see "Removed unused order components".
+
+</details>
 
 # Storefront
 

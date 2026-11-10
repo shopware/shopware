@@ -12,13 +12,17 @@ export default templateBlockMigration({
         'Several import/export profile Twig blocks are deprecated because the surrounding Administration markup was removed or renamed.',
     references: [
         upgradeGuide('UPGRADE-6.7.md#administration'),
+        upgradeGuide('UPGRADE-6.8.md#removed-translation-of-importexport-profile-label'),
     ],
     usage: [
-        removeTemplateBlock({ from: 'sw_import_export_edit_profile_general_container_name', fix: 'manual' }),
+        removeTemplateBlock({
+            from: 'sw_import_export_edit_profile_general_container_name',
+            to: 'sw_import_export_edit_profile_general_container_technical_name',
+        }),
         removeTemplateBlock({
             from: 'sw_import_export_view_profile_profiles_listing_column_label',
-            fix: 'manual',
+            to: 'sw_import_export_view_profile_profiles_listing',
         }),
-        removeTemplateBlock({ from: 'sw_import_export_language_switch', fix: 'manual' }),
+        removeTemplateBlock({ from: 'sw_import_export_language_switch' }),
     ],
 });

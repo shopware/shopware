@@ -12,6 +12,7 @@ export default templateBlockMigration({
         'Several Administration Twig blocks were renamed to fix typos or align names with the new component structure.',
     references: [
         upgradeGuide('UPGRADE-6.7.md#administration'),
+        upgradeGuide('UPGRADE-6.8.md#the-following-template-blocks-have-been-replaced-due-to-typos-or-misleading-names'),
     ],
     usage: [
         renameTemplateBlock({

@@ -28,8 +28,11 @@ const vueFiles = ['**/*.vue'];
  * - `scriptRules`: run on JavaScript, TypeScript and the script part of `.vue` files.
  * - `templateRules`: run on `.vue` templates and legacy `.html.twig` templates. Template rules need
  *   the Vue parser services, so they must never reach a plain script file.
+ *
+ * `level` is the run level of the deprecation registry rules (`safe`, `review`, `partial`, `manual`);
+ * without it they run at `safe`.
  */
-export function shopwareAdminCodemods({ scriptRules = [], templateRules = [] } = {}) {
+export function shopwareAdminCodemods({ scriptRules = [], templateRules = [], level = undefined } = {}) {
     const vueParser = resolveVueParser();
     const plugins = {
         'sw-core-rules': swCoreRules,
@@ -53,6 +56,7 @@ export function shopwareAdminCodemods({ scriptRules = [], templateRules = [] } =
                 '**/*.spec.tsx',
             ],
         },
+        ...(level ? [{ name: 'shopware/admin-codemods/run-level', settings: { 'sw-deprecation-rules': { level } } }] : []),
         {
             name: 'shopware/admin-codemods/linter-options',
             // An upgrade must not touch the extension's own disable comments for rules it does not run.

@@ -1,9 +1,13 @@
 /**
  * @sw-package framework
  */
+import fs from 'node:fs';
+import path from 'node:path';
 import assetMigrations from './assets';
 import templateEventMigrations from './template-events';
 import { expectWellFormedMigrations } from './helpers/test-utils';
+
+const ADMINISTRATION_ROOT = path.resolve(__dirname, '../../../..');
 
 describe('src/app/deprecation-registry/definitions', () => {
     describe('assets', () => {
@@ -26,10 +30,41 @@ describe('src/app/deprecation-registry/definitions', () => {
                 migration.usage.forEach((usage) => {
                     expect([
                         'replace-extension',
+                        'replace-asset',
                         'remove-asset',
                     ]).toContain(usage.kind);
                 });
             });
+        });
+
+        it('points every replaced file to a file the Administration ships and keeps', () => {
+            const deprecatedFiles = assetMigrations.flatMap((migration) => migration.files);
+            const replacements = assetMigrations.flatMap((migration) => {
+                return migration.usage.flatMap((usage) => {
+                    if (usage.kind === 'replace-asset') {
+                        return [usage.to];
+                    }
+
+                    if (usage.kind !== 'replace-extension') {
+                        return [];
+                    }
+
+                    return migration.files.map((file) => {
+                        const extension = path.extname(file);
+
+                        expect(usage.from).toContain(extension);
+
+                        return `${file.slice(0, -extension.length)}${usage.to}`;
+                    });
+                });
+            });
+
+            expect(replacements.length).toBeGreaterThan(0);
+            replacements.forEach((file) => {
+                expect(fs.existsSync(path.join(ADMINISTRATION_ROOT, file))).toBe(true);
+            });
+            // A replacement that is removed itself would need a second run and end in a manual report.
+            expect(replacements.filter((file) => deprecatedFiles.includes(file))).toEqual([]);
         });
     });
 

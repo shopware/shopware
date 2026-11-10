@@ -34,6 +34,8 @@ import sw_loader from './sw-loader';
 import sw_checkbox_field from './sw-checkbox-field';
 import sw_entity_listing from './sw-entity-listing';
 import sw_empty_state from './sw-empty-state';
+import sw_entity_many_to_many_select from './sw-entity-many-to-many-select';
+import sw_order_state_select_v2 from './sw-order-state-select-v2';
 import type { ComponentMigration } from '../helpers';
 
 export default [
@@ -69,4 +71,6 @@ export default [
     sw_checkbox_field,
     sw_entity_listing,
     sw_empty_state,
+    sw_entity_many_to_many_select,
+    sw_order_state_select_v2,
 ] satisfies ComponentMigration[];

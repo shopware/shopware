@@ -7,6 +7,7 @@
  */
 
 import type {
+    ApiUsageMigration,
     AssetMigration,
     ComponentMigration,
     ComponentMigrationConfig,
@@ -128,5 +129,16 @@ export function snippetKeyMigration(migration: SnippetKeyMigration): SnippetKeyM
  * packageMigration({ id: 'package.x', usage: [renamePackage({ from: '@a/old', to: '@a/new' })], ... });
  */
 export function packageMigration(migration: PackageMigration): PackageMigration {
+    return migration;
+}
+
+/**
+ * Migrates removed or changed Administration APIs that extension code uses: component members in
+ * overrides, services, stores, imports and module options. `no-deprecated-api-usage` runs the steps.
+ *
+ * @example
+ * apiUsageMigration({ id: 'api.vuex', usage: [memberUsage({ object: 'Shopware', properties: ['State'] })], ... });
+ */
+export function apiUsageMigration(migration: ApiUsageMigration): ApiUsageMigration {
     return migration;
 }

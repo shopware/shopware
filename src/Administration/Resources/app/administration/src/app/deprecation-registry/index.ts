@@ -13,3 +13,4 @@ export { default as templateBlockMigrations } from './definitions/template-block
 export { default as templateEventMigrations } from './definitions/template-events';
 export { default as snippetKeyMigrations } from './definitions/snippet-keys';
 export { default as packageMigrations } from './definitions/packages';
+export { default as apiUsageMigrations } from './definitions/api-usage';

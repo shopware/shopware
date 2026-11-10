@@ -91,6 +91,15 @@ tester.run('withRunLevel', testRule, {
             name: 'partial: the review comment keeps tab indentation',
             output: '<template>\n\t<!-- TODO Codemod: Found old-manual. -->\n\t<old-manual />\n</template>',
         },
+        {
+            ...testCase('partial', template('<!-- eslint-disable-next-line vue/no-v-html -->', '<old-manual />'), null),
+            name: 'partial: the review comment goes above an eslint-disable-next-line directive',
+            output: template(
+                '<!-- TODO Codemod: Found old-manual. -->',
+                '<!-- eslint-disable-next-line vue/no-v-html -->',
+                '<old-manual />',
+            ),
+        },
     ],
 });
 
@@ -124,6 +133,21 @@ new RuleTester({ languageOptions: { ecmaVersion: 2020, sourceType: 'module' } })
             output: null,
             errors: [{ message: 'Found oldCall.' }],
         },
+        {
+            name: 'partial: the block comment goes above an eslint-disable-next-line directive',
+            settings: atLevel('partial'),
+            code: 'function a() {\n    // eslint-disable-next-line no-console\n    return oldCall();\n}',
+            output:
+                'function a() {\n    /* TODO Codemod: Found oldCall. */\n    // eslint-disable-next-line no-console\n    return oldCall();\n}',
+            errors: [{ message: 'Found oldCall.' }],
+        },
+        {
+            name: 'partial: the block comment above a directive is not added twice',
+            settings: atLevel('partial'),
+            code: 'function a() {\n    /* TODO Codemod: Found oldCall. */\n    // eslint-disable-next-line no-console\n    return oldCall();\n}',
+            output: null,
+            errors: [{ message: 'Found oldCall.' }],
+        },
     ],
 });
 
@@ -154,7 +178,44 @@ tester.run('withRunLevel (rule without fixes)', reportOnlyRule, {
     ],
 });
 
+const twoHintsRule = withRunLevel({
+    meta: { fixable: 'code', schema: [] },
+    create(context) {
+        return {
+            CallExpression(node) {
+                if (node.callee.name === 'oldCall') {
+                    context.report({ node, message: 'First hint.', fix: null });
+                    context.report({ node: node.arguments[0], message: 'Second hint.', fix: null });
+                }
+            },
+        };
+    },
+});
+
 describe('registry/run-level', () => {
+    it('stacks the different comments of one line once each, also over several fix passes', () => {
+        const config = {
+            plugins: { test: { rules: { hints: twoHintsRule } } },
+            languageOptions: { ecmaVersion: 2020, sourceType: 'module' },
+            settings: atLevel('partial'),
+            rules: { 'test/hints': 'error' },
+        };
+        const linter = new Linter();
+        const first = linter.verifyAndFix('function a() {\n    return oldCall(b);\n}', config, 'test.js');
+        const second = linter.verifyAndFix(first.output, config, 'test.js');
+
+        expect(first.output).toBe(
+            [
+                'function a() {',
+                '    /* TODO Codemod: First hint. */',
+                '    /* TODO Codemod: Second hint. */',
+                '    return oldCall(b);',
+                '}',
+            ].join('\n'),
+        );
+        expect(second.fixed).toBe(false);
+    });
+
     it('rejects an unknown level', () => {
         const config = {
             files: ['**/*.twig'],

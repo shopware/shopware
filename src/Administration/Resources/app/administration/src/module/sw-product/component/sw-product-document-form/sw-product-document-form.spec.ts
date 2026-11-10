@@ -103,7 +103,7 @@ describe('sw-product-document-form', () => {
         expect(wrapper.find('.sw-product-document-form__empty-state .mt-button').exists()).toBe(false);
         expect(wrapper.find('.sw-product-document-form__language-hint').exists()).toBe(false);
         await wrapper.get('.sw-product-document-form__empty-state .mt-link').trigger('click');
-        expect(wrapper.emitted('change-language')).toEqual([[Shopware.Context.api.systemLanguageId]]);
+        expect(wrapper.emitted('language-change')).toEqual([[Shopware.Context.api.systemLanguageId]]);
     });
 
     it('accepts the tenth document and rejects additional media from the same selection', async () => {

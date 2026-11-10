@@ -15,16 +15,27 @@ export default Shopware.Component.wrapComponentConfig({
         },
         isTranslated: {
             type: Boolean,
+            required: false,
             default: false,
         },
     },
 
     computed: {
-        isDefaultLanguage: () => Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId,
+        languageId() {
+            return Shopware.Store.get('context').api.languageId;
+        },
+
+        systemLanguageId() {
+            return Shopware.Store.get('context').api.systemLanguageId;
+        },
+
+        isDefaultLanguage(): boolean {
+            return this.languageId === this.systemLanguageId;
+        },
 
         languageCode(): string {
             const language = Shopware.Store.get('swProductDetail').documentLanguage;
-            if (language?.id !== Shopware.Context.api.languageId) {
+            if (language?.id !== this.languageId) {
                 return '';
             }
 

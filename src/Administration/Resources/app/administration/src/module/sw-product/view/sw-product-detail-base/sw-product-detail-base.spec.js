@@ -342,8 +342,8 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     it('forwards a document language-switch request to the product page', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
-        wrapper.getComponent('sw-product-document-form-stub').vm.$emit('change-language', 'default-language');
-        expect(wrapper.emitted('change-language')).toEqual([['default-language']]);
+        wrapper.getComponent('sw-product-document-form-stub').vm.$emit('language-change', 'default-language');
+        expect(wrapper.emitted('language-change')).toEqual([['default-language']]);
     });
 
     it('should render media card title as mt-card title', async () => {

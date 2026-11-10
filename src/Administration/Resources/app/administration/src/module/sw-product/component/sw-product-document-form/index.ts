@@ -23,6 +23,8 @@ type DocumentInheritance = { isInherited: boolean; forceInheritanceRemove: boole
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    emits: ['language-change'],
+
     inject: [
         'repositoryFactory',
         'entityFactory',
@@ -97,7 +99,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         canEdit(): boolean {
             const language = this.documentContext.language;
-            const languageLoaded = this.isDefaultLanguage || language?.id === Shopware.Context.api.languageId;
+            const languageLoaded = this.isDefaultLanguage || language?.id === this.languageId;
             return !this.disabled && this.acl.can('product.editor') && languageLoaded;
         },
 

@@ -35,7 +35,7 @@ describe('sw-product-document-language-hint', () => {
         expect(getLanguage).toHaveBeenCalledWith(Shopware.Context.api.systemLanguageId);
         expect(wrapper.text()).toContain('English');
         await wrapper.get('button').trigger('click');
-        expect(wrapper.emitted('change-language')).toEqual([[Shopware.Context.api.systemLanguageId]]);
+        expect(wrapper.emitted('language-change')).toEqual([[Shopware.Context.api.systemLanguageId]]);
     });
 
     it('does not load a language name while editing the default language', async () => {
@@ -49,6 +49,6 @@ describe('sw-product-document-language-hint', () => {
         await createWrapper();
         expect(wrapper.text()).toContain('sw-product.documentForm.defaultLanguage');
         await wrapper.get('button').trigger('click');
-        expect(wrapper.emitted('change-language')).toEqual([[Shopware.Context.api.systemLanguageId]]);
+        expect(wrapper.emitted('language-change')).toEqual([[Shopware.Context.api.systemLanguageId]]);
     });
 });

@@ -52,8 +52,8 @@
                         class="sw-product-document-form__add-button"
                         :is-inherited="isInherited"
                         :disabled="isInherited || !canAddDocuments"
-                        @add-documents="showUploadModal = true"
-                        @change-language="$emit('change-language', $event)"
+                        @documents-add="showUploadModal = true"
+                        @language-change="$emit('language-change', $event)"
                     />
                 {% endblock %}
                 </template>
@@ -70,7 +70,7 @@
                         <sw-product-document-empty-state
                             :can-add-documents="!isInherited && canAddDocuments"
                             @documents-add="showUploadModal = true"
-                            @change-language="$emit('change-language', $event)"
+                            @language-change="$emit('language-change', $event)"
                         />
                     </div>
                 {% endblock %}

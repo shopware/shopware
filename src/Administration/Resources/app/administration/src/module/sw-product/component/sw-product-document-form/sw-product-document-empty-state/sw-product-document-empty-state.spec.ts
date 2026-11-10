@@ -57,7 +57,7 @@ describe('sw-product-document-empty-state', () => {
         const link = wrapper.get('button.mt-link');
         expect(link.text()).toBe("'Français'");
         await link.trigger('click');
-        expect(wrapper.emitted('change-language')).toEqual([[Shopware.Context.api.systemLanguageId]]);
+        expect(wrapper.emitted('language-change')).toEqual([[Shopware.Context.api.systemLanguageId]]);
         expect(wrapper.emitted('documents-add')).toBeUndefined();
     });
 
@@ -68,7 +68,7 @@ describe('sw-product-document-empty-state', () => {
 
         expect(wrapper.get('button.mt-link').text()).toContain('sw-product.documentForm.defaultLanguage');
         await wrapper.get('button.mt-link').trigger('click');
-        expect(wrapper.emitted('change-language')).toEqual([[Shopware.Context.api.systemLanguageId]]);
+        expect(wrapper.emitted('language-change')).toEqual([[Shopware.Context.api.systemLanguageId]]);
     });
 
     it('offers Add documents after switching back to the default language', async () => {

@@ -1005,8 +1005,8 @@ describe('module/sw-product/page/sw-product-detail', () => {
                 },
                 routedComponent: {
                     template: `<div>
-                    <button class="request-german" @click="$emit('change-language', 'german')">German</button>
-                    <button class="request-french" @click="$emit('change-language', 'french')">French</button>
+                    <button class="request-german" @click="$emit('language-change', 'german')">German</button>
+                    <button class="request-french" @click="$emit('language-change', 'french')">French</button>
                 </div>`,
                 },
             },
@@ -1042,7 +1042,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             languageSwitchInput,
             routedComponent: {
                 template:
-                    '<button class="request-default-language" @click="$emit(\'change-language\', \'default-language\')">Switch language</button>',
+                    '<button class="request-default-language" @click="$emit(\'language-change\', \'default-language\')">Switch language</button>',
             },
         });
         await flushPromises();

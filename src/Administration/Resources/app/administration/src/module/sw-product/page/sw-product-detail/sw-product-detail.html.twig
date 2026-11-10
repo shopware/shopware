@@ -271,7 +271,7 @@
                 <component
                     :is="Component"
                     @cover-change="onCoverChange"
-                    @change-language="$refs.languageSwitch.onInput($event)"
+                    @language-change="$refs.languageSwitch.onInput($event)"
                 />
             </router-view>
             {% endblock %}

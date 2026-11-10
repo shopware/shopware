@@ -20,5 +20,8 @@ module.exports = {
         'no-empty-listeners': require('./no-empty-listeners'),
         'no-vue-options-api': require('./no-vue-options-api'),
         'no-import-meta-glob-extglob': require('./no-import-meta-glob-extglob'),
+        'no-renamed-twig-blocks': require('./twig-blocks-6-8').renamed,
+        'no-removed-twig-blocks': require('./twig-blocks-6-8').removed,
+        ...require('./api-usage-rules-6-8'),
     },
 };

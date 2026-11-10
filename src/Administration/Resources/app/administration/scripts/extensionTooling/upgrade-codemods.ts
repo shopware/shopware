@@ -84,6 +84,22 @@ export type UpgradeLevel = (typeof UPGRADE_LEVELS)[number];
 /** Rewrites what is safe and leaves a review comment wherever a human has to finish the migration. */
 export const DEFAULT_UPGRADE_LEVEL: UpgradeLevel = 'partial';
 
+/**
+ * The codemod of one entry of `eslint-rules/deprecation-rules/data/v6.8/api-usage.json`. The id is the
+ * name of its rule, see `eslint-rules/deprecation-rules/api-usage-rules-6-8.js`.
+ */
+function apiUsage68(id: string, title: string): EslintCodemod {
+    return {
+        id,
+        title,
+        target: '6.8',
+        optIn: false,
+        kind: 'eslint',
+        rule: `sw-deprecation-rules/${id}`,
+        scope: 'both',
+    };
+}
+
 export const CODEMODS: Codemod[] = [
     {
         id: 'compat-conditions',
@@ -176,6 +192,54 @@ export const CODEMODS: Codemod[] = [
         rule: 'sw-deprecation-rules/no-deprecated-assets',
         scope: 'both',
     },
+    {
+        id: 'renamed-twig-blocks',
+        title: 'Renamed Twig blocks',
+        target: '6.8',
+        optIn: false,
+        kind: 'eslint',
+        rule: 'sw-deprecation-rules/no-renamed-twig-blocks',
+        scope: 'template',
+    },
+    {
+        id: 'removed-twig-blocks',
+        title: 'Removed Twig blocks',
+        target: '6.8',
+        optIn: false,
+        kind: 'eslint',
+        rule: 'sw-deprecation-rules/no-removed-twig-blocks',
+        scope: 'template',
+    },
+    apiUsage68('api-module-register-snippets', 'Module.register() snippets'),
+    apiUsage68('api-composition-extension-system', 'Private Composition API extension system'),
+    apiUsage68('api-vuex', 'Vuex → Pinia'),
+    apiUsage68('api-date-filter-computed', 'dateFilter computeds'),
+    apiUsage68('api-asset-filter-computed', 'assetFilter computeds'),
+    apiUsage68('api-sw-order-list-delivery-helpers', 'sw-order-list delivery helpers'),
+    apiUsage68('api-sw-text-editor-overrides', 'sw-text-editor overrides'),
+    apiUsage68('api-sw-popover-overrides', 'sw-popover overrides'),
+    apiUsage68('api-sw-help-sidebar', 'sw-help-sidebar'),
+    apiUsage68('api-sw-order-detail-loading-and-editing', 'Order detail loading and editing → swOrderDetail store'),
+    apiUsage68('api-product-states', 'Product states → product type'),
+    apiUsage68('api-sw-system-config-config', 'sw-system-config config'),
+    apiUsage68('api-axios-v1', 'axios 1.x HTTP client'),
+    apiUsage68('api-sw-product-detail-advanced-mode', 'Product detail advanced mode'),
+    apiUsage68('api-vite-8-build-config', 'Vite 8 build configs'),
+    apiUsage68('api-integration-service-update-admin', 'integrationService.updateAdmin()'),
+    apiUsage68('api-validation-service-email', 'validationService.email()'),
+    apiUsage68('api-number-range-service-preview-pattern', 'numberRangeService.previewPattern()'),
+    apiUsage68('api-custom-field-set-loaders', 'Custom field set loaders'),
+    apiUsage68('api-removed-rule-conditions', 'Removed rule condition components'),
+    apiUsage68('api-order-automatic-promotion-toggle', 'Automatic promotion toggle of orders'),
+    apiUsage68('api-unused-order-components', 'Unused order components'),
+    apiUsage68('api-sw-order-detail-details-shipping-costs', 'Shipping costs of sw-order-detail-details'),
+    apiUsage68('api-worker-notification', 'WorkerNotification'),
+    apiUsage68('api-agentic-commerce-ui', 'Agentic Commerce UI → SwagAgenticCommerce'),
+    apiUsage68('api-mail-template-preview', 'Mail template preview'),
+    apiUsage68('api-sw-media-grid-outside-click', 'sw-media-grid outside click'),
+    apiUsage68('api-cms-helpers', 'CMS helpers'),
+    apiUsage68('api-settings-product-promotion-members', 'Settings, product and promotion members'),
+    apiUsage68('api-changed-administration-defaults', 'Changed Administration defaults'),
     {
         id: 'sfc-migration',
         title: 'Options API → SFC',

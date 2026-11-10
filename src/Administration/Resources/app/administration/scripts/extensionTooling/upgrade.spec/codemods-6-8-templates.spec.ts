@@ -379,14 +379,12 @@ describe('scripts/extensionTooling/upgrade 6.8 template codemods', () => {
     });
 
     it("also lints the extension's own vite.config", () => {
+        // Other codemods may mark the config as well; this test only proves that the runner lints it.
+        const config = fs.readFileSync(path.join(projectRoot, ADMINISTRATION, 'vite.config.mts'), 'utf8');
+
         expect(written.changedFiles).toContain('src/Resources/app/administration/vite.config.mts');
-        expect(fs.readFileSync(path.join(projectRoot, ADMINISTRATION, 'vite.config.mts'), 'utf8')).toBe(
-            lines(
-                "const entries = import.meta.glob(['./src/**/*.js', '!./src/**/*.spec.js']);",
-                '',
-                'export default { entries };',
-            ),
-        );
+        expect(config).toContain("const entries = import.meta.glob(['./src/**/*.js', '!./src/**/*.spec.js']);");
+        expect(config).not.toContain('!(*.spec)');
     });
 
     // Runs last: it writes a second time into the project the other tests read.

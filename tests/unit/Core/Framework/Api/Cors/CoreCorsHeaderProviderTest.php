@@ -33,14 +33,14 @@ class CoreCorsHeaderProviderTest extends TestCase
         PlatformRequest::HEADER_MCP_PROTOCOL_VERSION,
     ];
 
-    public function testContributesThePlatformHeadersToBothLists(): void
+    public function testContributesThePlatformHeadersToBothListsAndExposesRetryAfter(): void
     {
         $headers = new CorsHeaders();
 
         (new CoreCorsHeaderProvider())->provide($headers);
 
         static::assertSame(self::PLATFORM_HEADERS, $headers->getAllowed());
-        static::assertSame(self::PLATFORM_HEADERS, $headers->getExposed());
+        static::assertSame([...self::PLATFORM_HEADERS, 'Retry-After'], $headers->getExposed());
     }
 
     public function testContributedHeadersCanBeRemovedAgain(): void

@@ -1,0 +1,137 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "CheckoutDraft": {
+                "description": "The checkout of a context: its cart, selected and available methods and the stored address of a visitor without a customer.",
+                "type": "object",
+                "required": [
+                    "cart",
+                    "prospectiveCustomer",
+                    "shippingMethod",
+                    "paymentMethod",
+                    "currency",
+                    "language",
+                    "shippingMethods",
+                    "paymentMethods",
+                    "shippingCosts",
+                    "apiAlias"
+                ],
+                "properties": {
+                    "cart": {
+                        "$ref": "#/components/schemas/Cart"
+                    },
+                    "prospectiveCustomer": {
+                        "description": "The stored addresses of a visitor without a customer, to restore a checkout form. `null` for logged in customers and before an address was sent.",
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/ProspectiveCustomer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "shippingMethod": {
+                        "$ref": "#/components/schemas/ShippingMethod"
+                    },
+                    "paymentMethod": {
+                        "$ref": "#/components/schemas/PaymentMethod"
+                    },
+                    "currency": {
+                        "$ref": "#/components/schemas/Currency"
+                    },
+                    "language": {
+                        "type": "object",
+                        "required": [
+                            "name",
+                            "localeCode"
+                        ],
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "localeCode": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "shippingMethods": {
+                        "description": "The shipping methods available for the context, with their prices. `null` with `methods=false`.",
+                        "oneOf": [
+                            {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/ShippingMethod"
+                                }
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "paymentMethods": {
+                        "description": "The payment methods available for the context. `null` with `methods=false`.",
+                        "oneOf": [
+                            {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/PaymentMethod"
+                                }
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "shippingCosts": {
+                        "description": "The costs per available shipping method with `shippingCosts=true`, otherwise `null`.",
+                        "oneOf": [
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [
+                                        "shippingCost",
+                                        "deliveryDate",
+                                        "shippingMethod"
+                                    ],
+                                    "properties": {
+                                        "shippingCost": {
+                                            "$ref": "#/components/schemas/CalculatedPrice"
+                                        },
+                                        "deliveryDate": {
+                                            "type": "object",
+                                            "properties": {
+                                                "earliest": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "latest": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            }
+                                        },
+                                        "shippingMethod": {
+                                            "$ref": "#/components/schemas/ShippingMethod"
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "apiAlias": {
+                        "type": "string",
+                        "const": "checkout_draft"
+                    }
+                }
+            }
+        }
+    }
+}

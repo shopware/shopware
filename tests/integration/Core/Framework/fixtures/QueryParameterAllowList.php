@@ -87,6 +87,7 @@ class QueryParameterAllowList
                 '/store-api/shipping-method' => ['@criteria', 'onlyAvailable'],
                 '/store-api/checkout/cart/line-item' => ['ids'],
                 '/store-api/context/gateway' => ['data'],
+                '/store-api/checkout/draft' => ['methods', 'shippingCosts', 'checkoutGateway', 'taxed'],
             ],
         ];
     }

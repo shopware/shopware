@@ -51,6 +51,11 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
     final public const IMITATING_USER_ID = 'imitatingUserId';
 
     /**
+     * Holds the shipping and billing address of a visitor without a customer, see `ProspectiveCustomer`
+     */
+    final public const PROSPECTIVE_CUSTOMER = 'prospectiveCustomer';
+
+    /**
      * @internal do not rely on this externally, use the rules from the context instead
      */
     final public const RULE_IDS = 'sw-rule-ids';

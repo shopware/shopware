@@ -3,8 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator;
 
 use OpenApi\Annotations\Schema;
-use PHPUnit\Framework\Attributes\After;
-use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
@@ -22,7 +20,6 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistr
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_extensionFixtures\ExtensionDefinition;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\CustomBundleWithApiSchema\ShopwareBundleWithName;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SalesChannelSimpleDefinition;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -32,35 +29,10 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(StoreApiSchemaMigrationReporter::class)]
 class StoreApiSchemaMigrationReporterTest extends TestCase
 {
-    private Filesystem $filesystem;
-
-    private string $temporaryDirectory;
-
-    #[Before]
-    public function createTemporaryDirectory(): void
-    {
-        $this->filesystem = new Filesystem();
-        $this->temporaryDirectory = sys_get_temp_dir() . '/store-api-schema-migration-reporter-test-' . bin2hex(random_bytes(4));
-        $this->filesystem->mkdir($this->temporaryDirectory);
-    }
-
-    #[After]
-    public function removeTemporaryDirectory(): void
-    {
-        $this->filesystem->remove($this->temporaryDirectory);
-    }
-
     public function testReportGroupsStoreApiSchemaMigrationState(): void
     {
         $report = $this->createReporter(
-            schemaPath: $this->createSchemaPath([
-                'paths' => $this->createPathReferencingSchemas('GroupByTest', 'AclRole'),
-                'components' => [
-                    'schemas' => [
-                        'CalculatedPrice' => ['type' => 'object'],
-                    ],
-                ],
-            ]),
+            schemaPath: $this->schemaPath('php-generated-and-json-only'),
         )->report($this->createDefinitions());
 
         static::assertContains('GroupByTest', $report->phpGeneratedOnly);
@@ -107,10 +79,7 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
 
         $report = $this->createReporter(
             definitionSchemaBuilder: $definitionSchemaBuilder,
-            schemaPath: $this->createSchemaPath([
-                'paths' => $this->createPathReferencingSchemas('Parent'),
-                'components' => ['schemas' => []],
-            ]),
+            schemaPath: $this->schemaPath('transitive-reference'),
         )->report([
             'parent' => $this->createDefinition('parent'),
             'child' => $this->createDefinition('child'),
@@ -125,14 +94,7 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
     public function testJsonSchemaWithPhpDefinitionIsTreatedAsJsonOnly(): void
     {
         $report = $this->createReporter(
-            schemaPath: $this->createSchemaPath([
-                'paths' => $this->createPathReferencingSchemas('GroupByTest'),
-                'components' => [
-                    'schemas' => [
-                        'GroupByTest' => ['type' => 'object'],
-                    ],
-                ],
-            ]),
+            schemaPath: $this->schemaPath('json-schema-with-php-definition'),
         )->report($this->createDefinitions());
 
         static::assertContains('GroupByTest', $report->jsonWithoutPhpGenerated);
@@ -144,10 +106,7 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
     public function testReportTracksLegacyJsonApiSchemaForPhpOwnedDefinition(): void
     {
         $report = $this->createReporter(
-            schemaPath: $this->createSchemaPath([
-                'paths' => $this->createPathReferencingSchemas('Simple'),
-                'components' => ['schemas' => []],
-            ]),
+            schemaPath: $this->schemaPath('legacy-json-api'),
         )->report(
             $this->createDefinitions([SalesChannelSimpleDefinition::class]),
             AllStoreApiSchemaMigrationScopeProvider::SCOPE,
@@ -167,14 +126,7 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
 
         $report = $this->createReporter(
             definitionSchemaBuilder: $definitionSchemaBuilder,
-            schemaPath: $this->createSchemaPath([
-                'paths' => $this->createPathReferencingSchemas('GroupByTest'),
-                'components' => [
-                    'schemas' => [
-                        'GroupByTest' => ['type' => 'object'],
-                    ],
-                ],
-            ]),
+            schemaPath: $this->schemaPath('json-schema-with-php-definition'),
         )->report([
             'group_by_test' => $this->createDefinition('group_by_test'),
         ], AllStoreApiSchemaMigrationScopeProvider::SCOPE);
@@ -187,10 +139,7 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
     {
         $reporter = $this->createReporter(
             new BundleSchemaPathCollection([new ShopwareBundleWithName()]),
-            schemaPath: $this->createSchemaPath([
-                'paths' => $this->createPathReferencingSchemas('GroupByTest', 'AclRole', 'Extension'),
-                'components' => ['schemas' => []],
-            ]),
+            schemaPath: $this->schemaPath('core-and-extension'),
         );
         $definitions = $this->createDefinitions([ExtensionDefinition::class]);
 
@@ -231,7 +180,7 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
 
         $report = $this->createReporter(
             definitionSchemaBuilder: $definitionSchemaBuilder,
-            schemaPath: $this->createSchemaPath(['components' => ['schemas' => []]]),
+            schemaPath: $this->schemaPath('empty-schemas'),
         )->report([
             'example_translation' => $this->createDefinition('example_translation'),
             'version_example' => $this->createDefinition('version_example'),
@@ -243,7 +192,7 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
     public function testReportHandlesSchemaWithoutComponents(): void
     {
         $report = $this->createReporter(
-            schemaPath: $this->createSchemaPath(['paths' => []]),
+            schemaPath: $this->schemaPath('without-components'),
         )->report([]);
 
         static::assertSame([], $report->jsonWithoutPhpGenerated);
@@ -252,7 +201,7 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
     public function testReportHandlesSchemaWithInvalidSchemasValue(): void
     {
         $report = $this->createReporter(
-            schemaPath: $this->createSchemaPath(['components' => ['schemas' => 'invalid']]),
+            schemaPath: $this->schemaPath('invalid-schemas-value'),
         )->report([]);
 
         static::assertSame([], $report->jsonWithoutPhpGenerated);
@@ -289,44 +238,9 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
         ))->getDefinitions();
     }
 
-    /**
-     * @param array<string, mixed> $spec
-     */
-    private function createSchemaPath(array $spec): string
+    private function schemaPath(string $fixture): string
     {
-        $schemaPath = $this->temporaryDirectory . '/schema-' . bin2hex(random_bytes(4));
-        $this->filesystem->mkdir($schemaPath);
-        $this->filesystem->dumpFile($schemaPath . '/schema.json', json_encode($spec, \JSON_THROW_ON_ERROR));
-
-        return $schemaPath;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function createPathReferencingSchemas(string ...$schemaNames): array
-    {
-        return [
-            '/test' => [
-                'get' => [
-                    'responses' => [
-                        '200' => [
-                            'description' => 'OK',
-                            'content' => [
-                                'application/json' => [
-                                    'schema' => [
-                                        'oneOf' => array_map(
-                                            static fn (string $schemaName): array => ['$ref' => '#/components/schemas/' . $schemaName],
-                                            $schemaNames
-                                        ),
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ];
+        return __DIR__ . '/_fixtures/StoreApiSchemaMigrationReporter/' . $fixture;
     }
 
     /**

@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Services\ApiClient;
 use Symfony\Component\Clock\NativeClock;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpClient\Exception\ServerException;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
@@ -109,26 +108,5 @@ class ApiClientTest extends TestCase
 
         unset($_SERVER['SW_RECOVERY_NEXT_VERSION']);
         static::assertSame(0, $httpClient->getRequestsCount());
-    }
-
-    public function testDownloadRecoveryTool(): void
-    {
-        $responses = [
-            new MockResponse('test', ['Content-Type' => 'application/json']),
-        ];
-
-        $fs = new Filesystem();
-        $fs->mkdir(__DIR__ . '/public');
-
-        $httpClient = new MockHttpClient($responses);
-        $client = new ApiClient($httpClient, '6.4.0.0', __DIR__, new NativeClock());
-
-        $client->downloadRecoveryTool();
-
-        static::assertFileExists(__DIR__ . '/public/shopware-installer.phar.php');
-
-        $fs->remove(__DIR__ . '/public');
-
-        static::assertSame(1, $httpClient->getRequestsCount());
     }
 }

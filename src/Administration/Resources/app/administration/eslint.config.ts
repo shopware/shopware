@@ -284,8 +284,6 @@ export default [
             '!scripts/extensionTooling/**/*',
             '!scripts/generate-shopware-modules/',
             '!scripts/generate-shopware-modules/**/*',
-            '!scripts/generate-public-api/',
-            '!scripts/generate-public-api/**/*',
             '!scripts/codemods/',
             '!scripts/codemods/sfc-migration/',
             '!scripts/codemods/sfc-migration/**/*',

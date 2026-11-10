@@ -5,7 +5,7 @@
 The Administration gets a generated snapshot of its public API and a check that blocks unannounced breaks, see [#22591](https://github.com/shopware/shopware/issues/22591).
 Both are built in steps.
 The markers that announce a change exist so far.
-The code is in `scripts/generate-public-api/`.
+The grammar of the markers is in `eslint-rules/deprecation-rules/utils/api-markers.ts`.
 
 ## Markers
 
@@ -37,6 +37,7 @@ onDeleteItem(item, itemIndex) {
   A mention inside a sentence is not a marker.
 - The version has three parts, as in `coding-guidelines/core/backward-compatibility.md`.
 - A value ends at the next space, so it contains none.
+  Write a type without spaces, as in `type:string|null`.
 - The text of a `@bc-change` starts on the line after the marker.
 
 | Kind | Announces | Keys |
@@ -55,13 +56,15 @@ onDeleteItem(item, itemIndex) {
 | `RegistryGroupChange` | A registry entry, for example a rule condition, moves to another group | `group` |
 
 The first five kinds have the names of the PHP attributes in `src/Core/Framework/Deprecation/BCChange/`.
+Their keys are shorter than the PHP arguments, for example `parameter` for `parameterName` and `type` for `newType`.
 `BecomesPrivate` is what PHP calls `BecomesInternal`.
 The other kinds exist only in the Administration.
+The list of kinds can still change until the break check uses them.
 
-`scripts/generate-public-api/markers.ts` holds the grammar and the kinds.
+`eslint-rules/deprecation-rules/utils/api-markers.ts` holds the grammar and the kinds.
 The ESLint rule `sw-deprecation-rules/valid-api-markers` uses it and reports, in `.js`, `.ts`, `.vue` and `.html.twig` files:
 
-- a typo in the tag name, such as `@bc-chnage` or `@deprecate`
+- a typo in the tag name one edit away, such as `@bc-chnage` or `@deprecate`
 - a missing or malformed version
 - an unknown kind
 - a missing key, or a key the kind does not take
@@ -69,4 +72,4 @@ The ESLint rule `sw-deprecation-rules/valid-api-markers` uses it and reports, in
 Without the rule such a comment would stay a plain comment, and the change would surface as an unannounced break in the major.
 
 Only the format is checked so far.
-Whether a marker sits on an element its kind fits, and whether it describes a change that can still happen, needs the snapshot and comes with the break check.
+Whether a marker sits on an element its kind fits, and whether its version is not released yet, comes with the break check.

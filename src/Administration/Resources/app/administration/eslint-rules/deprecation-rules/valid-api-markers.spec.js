@@ -93,7 +93,7 @@ function getLoadSalesChannelCriteria() {}
         {
             name: 'a typo in the tag name',
             code: '/** @bc-chnage BecomesPrivate version:v6.8.0 */',
-            errors: [{ message: '"@bc-chnage" is not a tag, the closest one is "@bc-change".', line: 1, column: 5 }],
+            errors: [{ message: '"@bc-chnage" is not a tag, did you mean "@bc-change"?', line: 1, column: 5 }],
         },
         {
             name: 'an unknown kind',
@@ -103,7 +103,7 @@ function getLoadSalesChannelCriteria() {}
                  */
                 function onDeleteItem(item, itemIndex) {}
             `,
-            errors: [{ message: '"ParamterRemoval" is not a @bc-change kind, the closest one is "ParameterRemoval".' }],
+            errors: [{ message: '"ParamterRemoval" is not a @bc-change kind, did you mean "ParameterRemoval"?' }],
         },
         {
             name: 'every problem of one marker',
@@ -185,7 +185,7 @@ const legacyTitle = 'title';
     {# @depreciated tag:v6.8.0 #}
     {% block sw_example_card_title %}{% endblock %}
 </template>`,
-            errors: [{ message: '"@depreciated" is not a tag, the closest one is "@deprecated".', line: 3 }],
+            errors: [{ message: '"@depreciated" is not a tag, did you mean "@deprecated"?', line: 3 }],
         },
         {
             name: 'malformed markers in the template and the script of a single-file component',

@@ -8,10 +8,11 @@
 
 const { createJiti } = require('jiti');
 
-// The grammar is TypeScript and shared with the public API generator, so jiti bridges it into this CommonJS plugin.
-const { parseMarkers, parseTemplateMarkers } = createJiti(__filename)('../../scripts/generate-public-api/markers.ts');
+// The grammar is TypeScript so the public API generator can reuse it, jiti loads it into this CommonJS plugin.
+const { parseMarkers, parseTemplateMarkers } = createJiti(__filename)('./utils/api-markers.ts');
 
-const COMMENT_START_LENGTH = '/*'.length;
+// `//`, `/*` and a `#!` shebang all open with two characters
+const COMMENT_OPENER_LENGTH = 2;
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
@@ -45,7 +46,7 @@ module.exports = {
         return {
             Program() {
                 sourceCode.getAllComments().forEach((comment) => {
-                    report(parseMarkers(comment.value), comment.range[0] + COMMENT_START_LENGTH);
+                    report(parseMarkers(comment.value), comment.range[0] + COMMENT_OPENER_LENGTH);
                 });
 
                 // vue-eslint-parser keeps Twig comments as plain text, so they are only visible in the source text

@@ -40,8 +40,6 @@ class AnnotationTagTest extends TestCase
         'deprecation.plugin.js',
         // some eslint rules check for @deprecated and therefore produce false positives
         'administration/eslint-rules',
-        // the marker grammar and its tests contain malformed markers on purpose
-        'administration/scripts/generate-public-api/markers',
         // checks for deprecations too and annotation fails
         'DataAbstractionLayer/DefinitionValidator.php',
         // Test/AnnotationTagTest.php

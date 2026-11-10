@@ -1,12 +1,8 @@
 /**
  * @sw-package framework
  */
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
-import { BC_CHANGE_KINDS, parseMarkers, parseTemplateMarkers } from './markers';
-import type { BcChangeKind, MarkerMatch } from './markers';
-
-const PHP_BC_CHANGE_ATTRIBUTES = join(__dirname, '../../../../../../Core/Framework/Deprecation/BCChange');
+import { BC_CHANGE_KINDS, parseMarkers, parseTemplateMarkers } from './api-markers';
+import type { MarkerMatch } from './api-markers';
 
 function markersOf(matches: MarkerMatch[]) {
     return matches.map((match) => ('marker' in match ? match.marker : match.errors));
@@ -82,42 +78,32 @@ describe('parseMarkers', () => {
     );
 
     it.each([
-        'ParameterRemoval',
-        'NewRequiredParameter',
-        'ParameterDefaultValueChange',
-        'ReturnTypeNarrowing',
-        'ReturnTypeWidening',
-    ] satisfies BcChangeKind[])('shares the name %s with a PHP BCChange attribute', (kind) => {
-        expect(existsSync(join(PHP_BC_CHANGE_ATTRIBUTES, `${kind}.php`))).toBe(true);
-    });
-
-    it.each([
         ['@deprecated', '@deprecated needs "tag:vX.Y.Z" directly after the tag name.'],
         ['@deprecated Use load instead', '@deprecated needs "tag:vX.Y.Z" directly after the tag name.'],
         ['@deprecated tag:v6.8.0.0', '"v6.8.0.0" is not a version of the form vX.Y.Z, for example v6.8.0.'],
         ['@deprecated tag:6.8.0', '"6.8.0" is not a version of the form vX.Y.Z, for example v6.8.0.'],
         ['@deprecated tag:v6.8', '"v6.8" is not a version of the form vX.Y.Z, for example v6.8.0.'],
         ['@deprecated tag:', '"" is not a version of the form vX.Y.Z, for example v6.8.0.'],
-        ['@deprecate tag:v6.8.0', '"@deprecate" is not a tag, the closest one is "@deprecated".'],
-        ['@depreciated tag:v6.8.0', '"@depreciated" is not a tag, the closest one is "@deprecated".'],
-        ['@Deprecated tag:v6.8.0', '"@Deprecated" is not a tag, the closest one is "@deprecated".'],
-        ['@bc-chnage BlockMoved version:v6.8.0', '"@bc-chnage" is not a tag, the closest one is "@bc-change".'],
-        ['@bcchange BlockMoved version:v6.8.0', '"@bcchange" is not a tag, the closest one is "@bc-change".'],
+        ['@deprecate tag:v6.8.0', '"@deprecate" is not a tag, did you mean "@deprecated"?'],
+        ['@depreciated tag:v6.8.0', '"@depreciated" is not a tag, did you mean "@deprecated"?'],
+        ['@Deprecated tag:v6.8.0', '"@Deprecated" is not a tag, did you mean "@deprecated"?'],
+        ['@bc-chnage BlockMoved version:v6.8.0', '"@bc-chnage" is not a tag, did you mean "@bc-change"?'],
+        ['@bcchange BlockMoved version:v6.8.0', '"@bcchange" is not a tag, did you mean "@bc-change"?'],
         [
             '@bc-change',
             `@bc-change needs a kind, one of: ${Object.keys(BC_CHANGE_KINDS).join(', ')}.`,
         ],
         [
             '@bc-change ParamterRemoval version:v6.8.0 parameter:itemIndex',
-            '"ParamterRemoval" is not a @bc-change kind, the closest one is "ParameterRemoval".',
+            '"ParamterRemoval" is not a @bc-change kind, did you mean "ParameterRemoval"?',
         ],
         [
             '@bc-change blockmoved version:v6.8.0 parent:sw_card',
-            '"blockmoved" is not a @bc-change kind, the closest one is "BlockMoved".',
+            '"blockmoved" is not a @bc-change kind, did you mean "BlockMoved"?',
         ],
         [
             '@bc-change constructor version:v6.8.0',
-            '"constructor" is not a @bc-change kind, the closest one is "BecomesPrivate".',
+            `"constructor" is not a @bc-change kind, use one of: ${Object.keys(BC_CHANGE_KINDS).join(', ')}.`,
         ],
         [
             '@bc-change BecomesPrivate version:v6.8.0 constructor:x',
@@ -159,6 +145,7 @@ describe('parseMarkers', () => {
         ['a tag inside a sentence', ' The old way is marked @deprecated and the kinds come from @bc-change.'],
         ['a link to the tag', ' See {@link deprecated} for details.'],
         ['a JSDoc tag that is also an object property', '*\n * @constructor\n * @toString\n '],
+        ['a tag two edits away from a marker tag', '*\n * @change Emitted when the value changes\n '],
         ['a Vue listener in commented-out markup', '\n<sw-field\n    @change="onChange"\n    @deprecate="onDeprecate"\n/>'],
     ])('does not treat %s as a marker', (_, comment) => {
         expect(parseMarkers(comment)).toEqual([]);
@@ -209,7 +196,7 @@ describe('parseTemplateMarkers', () => {
         const [match] = parseTemplateMarkers(template);
 
         expect(match).toEqual(
-            expect.objectContaining({ errors: ['"@bc-chnage" is not a tag, the closest one is "@bc-change".'] }),
+            expect.objectContaining({ errors: ['"@bc-chnage" is not a tag, did you mean "@bc-change"?'] }),
         );
         expect(template.slice(match.offset, match.offset + match.length)).toBe(
             '@bc-chnage BlockMoved version:v6.8.0 parent:sw_card',

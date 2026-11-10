@@ -54,33 +54,34 @@ const TAG_LINE = /^[ \t*]*@([\w-]+)(?=[ \t]|$)[ \t]*(.*?)[ \t]*$/gm;
 const TEMPLATE_COMMENT = /\{#-?([\s\S]*?)-?#\}|<!--([\s\S]*?)-->/g;
 const VERSION = /^v\d+\.\d+\.\d+$/;
 const KEY_VALUE = /^([A-Za-z]+):(.+)$/;
-const MAX_TYPO_DISTANCE = 2;
+// One edit catches `@deprecate` and `@bc-chnage`, two would already report `@change` as a typo of `@bc-change`.
+const MAX_TYPO_DISTANCE = 1;
 
+// Optimal string alignment distance, so swapping two neighbouring letters counts as one edit.
 function editDistance(a: string, b: string): number {
-    let previous = Array.from({ length: b.length + 1 }, (_, index) => index);
+    const distances = Array.from({ length: a.length + 1 }, (_, i) =>
+        Array.from({ length: b.length + 1 }, (__, j) => (i === 0 ? j : i)),
+    );
 
     for (let i = 1; i <= a.length; i += 1) {
-        const current = [i];
-
         for (let j = 1; j <= b.length; j += 1) {
-            const substitution = previous[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1);
-            current.push(Math.min(previous[j] + 1, current[j - 1] + 1, substitution));
-        }
+            const substitution = distances[i - 1][j - 1] + Number(a[i - 1] !== b[j - 1]);
+            const swap =
+                i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1] ? distances[i - 2][j - 2] + 1 : Infinity;
 
-        previous = current;
+            distances[i][j] = Math.min(distances[i - 1][j] + 1, distances[i][j - 1] + 1, substitution, swap);
+        }
     }
 
-    return previous[b.length];
+    return distances[a.length][b.length];
 }
 
 function normalize(name: string): string {
     return name.toLowerCase().replace(/[-_]/g, '');
 }
 
-function closest(name: string, candidates: readonly string[]): { name: string; distance: number } {
-    return candidates
-        .map((candidate) => ({ name: candidate, distance: editDistance(normalize(name), normalize(candidate)) }))
-        .reduce((best, candidate) => (candidate.distance < best.distance ? candidate : best));
+function nearMiss(name: string, candidates: readonly string[]): string | undefined {
+    return candidates.find((candidate) => editDistance(normalize(name), normalize(candidate)) <= MAX_TYPO_DISTANCE);
 }
 
 function versionErrors(version: string): string[] {
@@ -150,20 +151,31 @@ function parseBcChange(rest: string): Marker | string[] {
         return [`@bc-change needs a kind, one of: ${kindNames.join(', ')}.`];
     }
 
-    const { entries, errors } = readKeyValues(words);
-    const { version, ...parameters } = entries;
-    errors.push(...(version === undefined ? ['@bc-change needs "version:vX.Y.Z".'] : versionErrors(version)));
+    const {
+        entries: { version, ...parameters },
+        errors: keyValueErrors,
+    } = readKeyValues(words);
+    const formatErrors = [
+        ...keyValueErrors,
+        ...(version === undefined ? ['@bc-change needs "version:vX.Y.Z".'] : versionErrors(version)),
+    ];
 
     if (!isBcChangeKind(kind)) {
+        const suggestion = nearMiss(kind, kindNames);
+        const hint = suggestion ? `did you mean "${suggestion}"?` : `use one of: ${kindNames.join(', ')}.`;
+
         return [
-            `"${kind}" is not a @bc-change kind, the closest one is "${closest(kind, kindNames).name}".`,
-            ...errors,
+            `"${kind}" is not a @bc-change kind, ${hint}`,
+            ...formatErrors,
         ];
     }
 
-    errors.push(...parameterErrors(kind, parameters));
+    const errors = [
+        ...formatErrors,
+        ...parameterErrors(kind, parameters),
+    ];
 
-    return errors.length > 0 ? errors : { tag: 'bc-change', kind, version, parameters };
+    return errors.length > 0 || version === undefined ? errors : { tag: 'bc-change', kind, version, parameters };
 }
 
 const TAG_PARSERS: Record<Marker['tag'], (rest: string) => Marker | string[]> = {
@@ -176,9 +188,9 @@ function parseTagLine(name: string, rest: string): Marker | string[] | null {
         return TAG_PARSERS[name as Marker['tag']](rest);
     }
 
-    const tag = closest(name, Object.keys(TAG_PARSERS));
+    const suggestion = nearMiss(name, Object.keys(TAG_PARSERS));
 
-    return tag.distance <= MAX_TYPO_DISTANCE ? [`"@${name}" is not a tag, the closest one is "@${tag.name}".`] : null;
+    return suggestion ? [`"@${name}" is not a tag, did you mean "@${suggestion}"?`] : null;
 }
 
 /**

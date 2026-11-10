@@ -55,7 +55,6 @@
     "./eslint-rules/**/*.ts",
     "./scripts/codemods/**/*.ts",
     "./scripts/extensionTooling/**/*.ts",
-    "./scripts/generate-public-api/**/*.ts",
     "./scripts/generate-shopware-modules/**/*.ts",
     "./test/**/*.d.ts",
     "./test/**/*.ts",

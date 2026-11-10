@@ -37,17 +37,11 @@ export default Shopware.Component.wrapComponentConfig({
     data() {
         return {
             showUploadModal: false,
-
             showMediaModal: false,
-
             mediaFolderId: undefined as string | null | undefined,
-
             documentEditSession: 0,
-
             allowedExtensions: [...allowedExtensions],
-
             maxFileSize,
-
             maxDocuments,
         };
     },

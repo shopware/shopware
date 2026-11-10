@@ -175,6 +175,34 @@ function findCommentElement(sourceCode, descriptor, fixes) {
     return node && node !== templateBody ? node : null;
 }
 
+// The text of an `eslint-disable-next-line` directive, which has to stay directly above the code it disables.
+const DISABLE_NEXT_LINE = /^eslint-disable-next-line\b/;
+
+/**
+ * The text of a line that only holds a comment, without its comment markers.
+ *
+ * @example
+ * stripCommentMarkers('    // eslint-disable-next-line no-console'); // 'eslint-disable-next-line no-console'
+ */
+function stripCommentMarkers(line) {
+    return line
+        .trim()
+        .replace(/^(\/\/|\/\*|<!--)\s*/, '')
+        .replace(/\s*(\*\/|-->)$/, '');
+}
+
+/**
+ * Whether a line only holds a review comment, as `createReviewCommentFix` writes it above a line.
+ */
+function isReviewCommentLine(line) {
+    const text = line.trim();
+
+    return (
+        (text.startsWith(`/* ${REVIEW_MARKER}`) && text.endsWith('*/')) ||
+        (text.startsWith(`<!-- ${REVIEW_MARKER}`) && text.endsWith('-->'))
+    );
+}
+
 /**
  * Builds the fix that puts a review comment with `text` above the reported usage, or null when the
  * same comment is already there. Template usages get an HTML comment above their element, script
@@ -188,13 +216,29 @@ function createReviewCommentFix(sourceCode, descriptor, text, fixes = []) {
 
     if (element) {
         const comment = templateCodemodComment(text.replace(/--+>/g, '->'));
-        const exists = getLeadingComments(sourceCode, element).some((leading) => `<!--${leading.value}-->` === comment);
+        const leadingComments = getLeadingComments(sourceCode, element);
+        const exists = leadingComments.some((leading) => `<!--${leading.value}-->` === comment);
+        // The comment goes above `eslint-disable-next-line` directives, which have to stay on the line before the code.
+        let target = element;
 
-        return exists ? null : (fixer) => fixer.insertTextBeforeRange(element.range, commentBefore(sourceCode, element, comment));
+        for (const leading of leadingComments) {
+            if (!DISABLE_NEXT_LINE.test(leading.value.trim())) {
+                break;
+            }
+
+            target = leading;
+        }
+
+        return exists ? null : (fixer) => fixer.insertTextBeforeRange(target.range, commentBefore(sourceCode, target, comment));
     }
 
     const start = descriptor.node?.loc?.start ?? descriptor.loc.start ?? descriptor.loc;
-    const line = start.line;
+    let line = start.line;
+
+    while (line > 1 && DISABLE_NEXT_LINE.test(stripCommentMarkers(sourceCode.lines[line - 2]))) {
+        line -= 1;
+    }
+
     const lineStart = sourceCode.getIndexFromLoc({ line, column: 0 });
     const indentation = sourceCode.lines[line - 1].match(/^\s*/)[0];
     const templateRange = sourceCode.ast?.templateBody?.range;
@@ -204,8 +248,11 @@ function createReviewCommentFix(sourceCode, descriptor, text, fixes = []) {
         ? templateCodemodComment(text.replace(/--+>/g, '->'))
         : scriptCodemodComment(text.replace(/\*\//g, '* /'));
 
-    if (line > 1 && sourceCode.lines[line - 2].trim() === comment) {
-        return null;
+    // Several usages on one line stack their comments above it: look through the whole stack, not only the line above.
+    for (let above = line - 1; above >= 1 && isReviewCommentLine(sourceCode.lines[above - 1]); above -= 1) {
+        if (sourceCode.lines[above - 1].trim() === comment) {
+            return null;
+        }
     }
 
     return (fixer) => fixer.insertTextBeforeRange([lineStart, lineStart], `${indentation}${comment}\n`);

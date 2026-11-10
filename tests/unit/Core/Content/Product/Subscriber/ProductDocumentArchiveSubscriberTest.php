@@ -8,6 +8,7 @@ use League\Flysystem\FilesystemOperator;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use League\Flysystem\UnableToDeleteDirectory;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -55,31 +56,45 @@ class ProductDocumentArchiveSubscriberTest extends TestCase
         $this->productId = Uuid::randomHex();
     }
 
-    public function testDocumentWritesInvalidateTheArchiveTagOfTheirProduct(): void
+    /**
+     * @param string|array<string, string> $primaryKey
+     * @param array<string, mixed> $payload
+     */
+    #[DataProvider('writesThatChangeTheArchive')]
+    public function testWritesThatChangeTheArchiveInvalidateTheTagOfTheirProduct(string $entity, string|array $primaryKey, array $payload): void
     {
         $this->connection->method('fetchFirstColumn')->willReturn([$this->productId]);
         $this->cacheInvalidator->expects($this->once())
             ->method('invalidate')
             ->with([ProductDocumentArchiver::buildTag($this->productId)]);
 
-        $this->createSubscriber()->invalidateWrittenDocuments($this->createWrittenEvent([
-            ProductDocumentDefinition::ENTITY_NAME => [['id' => Uuid::randomHex(), 'versionId' => Defaults::LIVE_VERSION]],
-            ProductDocumentTranslationDefinition::ENTITY_NAME => [[
-                'productDocumentId' => Uuid::randomHex(),
-                'productDocumentVersionId' => Defaults::LIVE_VERSION,
-                'languageId' => Defaults::LANGUAGE_SYSTEM,
-            ]],
-        ]));
+        $this->createSubscriber()->invalidateWrittenDocuments($this->createWrittenEvent($entity, $primaryKey, $payload));
     }
 
-    public function testWritesOfOtherEntitiesInvalidateNothing(): void
+    public static function writesThatChangeTheArchive(): \Generator
+    {
+        yield 'a document moved to another position' => [ProductDocumentDefinition::ENTITY_NAME, Uuid::randomHex(), ['position' => 2]];
+        yield 'a new file for a language' => [ProductDocumentTranslationDefinition::ENTITY_NAME, self::translationKey(), ['mediaId' => Uuid::randomHex()]];
+    }
+
+    /**
+     * @param string|array<string, string> $primaryKey
+     * @param array<string, mixed> $payload
+     */
+    #[DataProvider('writesThatKeepTheArchive')]
+    public function testWritesThatKeepTheArchiveInvalidateNothing(string $entity, string|array $primaryKey, array $payload): void
     {
         $this->connection->method('fetchFirstColumn')->willReturn([$this->productId]);
         $this->cacheInvalidator->expects($this->never())->method('invalidate');
 
-        $this->createSubscriber()->invalidateWrittenDocuments($this->createWrittenEvent([
-            ProductDefinition::ENTITY_NAME => [Uuid::randomHex()],
-        ]));
+        $this->createSubscriber()->invalidateWrittenDocuments($this->createWrittenEvent($entity, $primaryKey, $payload));
+    }
+
+    public static function writesThatKeepTheArchive(): \Generator
+    {
+        yield 'a new title' => [ProductDocumentTranslationDefinition::ENTITY_NAME, self::translationKey(), ['title' => 'Handbook']];
+        yield 'the document that a translation write touches' => [ProductDocumentDefinition::ENTITY_NAME, Uuid::randomHex(), []];
+        yield 'a write of another entity' => [ProductDefinition::ENTITY_NAME, Uuid::randomHex(), ['position' => 2]];
     }
 
     public function testDeletedDocumentsInvalidateTheArchiveTagAfterTheDelete(): void
@@ -163,20 +178,22 @@ class ProductDocumentArchiveSubscriberTest extends TestCase
     }
 
     /**
-     * @param array<string, list<string|array<string, string>>> $primaryKeys
+     * @return array<string, string>
      */
-    private function createWrittenEvent(array $primaryKeys): EntityWrittenContainerEvent
+    private static function translationKey(): array
+    {
+        return ['productDocumentId' => Uuid::randomHex(), 'productDocumentVersionId' => Defaults::LIVE_VERSION, 'languageId' => Defaults::LANGUAGE_SYSTEM];
+    }
+
+    /**
+     * @param string|array<string, string> $primaryKey
+     * @param array<string, mixed> $payload
+     */
+    private function createWrittenEvent(string $entity, string|array $primaryKey, array $payload): EntityWrittenContainerEvent
     {
         $context = Context::createDefaultContext();
-        $events = [];
-        foreach ($primaryKeys as $entity => $keys) {
-            $events[] = new EntityWrittenEvent(
-                $entity,
-                array_map(static fn (string|array $key): EntityWriteResult => new EntityWriteResult($key, [], $entity, EntityWriteResult::OPERATION_UPDATE), $keys),
-                $context,
-            );
-        }
+        $written = new EntityWrittenEvent($entity, [new EntityWriteResult($primaryKey, $payload, $entity, EntityWriteResult::OPERATION_UPDATE)], $context);
 
-        return new EntityWrittenContainerEvent($context, new NestedEventCollection($events), []);
+        return new EntityWrittenContainerEvent($context, new NestedEventCollection([$written]), []);
     }
 }

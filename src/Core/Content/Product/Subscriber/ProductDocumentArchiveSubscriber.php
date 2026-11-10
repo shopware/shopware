@@ -49,9 +49,10 @@ class ProductDocumentArchiveSubscriber implements EventSubscriberInterface
 
     public function invalidateWrittenDocuments(EntityWrittenContainerEvent $event): void
     {
+        // a ZIP only depends on the files and their order
         $this->invalidate($this->fetchProductIds([
-            ...$event->getPrimaryKeys(ProductDocumentDefinition::ENTITY_NAME),
-            ...$event->getPrimaryKeys(ProductDocumentTranslationDefinition::ENTITY_NAME),
+            ...$event->getPrimaryKeysWithPropertyChange(ProductDocumentDefinition::ENTITY_NAME, ['position']),
+            ...$event->getPrimaryKeysWithPropertyChange(ProductDocumentTranslationDefinition::ENTITY_NAME, ['mediaId']),
         ]));
     }
 

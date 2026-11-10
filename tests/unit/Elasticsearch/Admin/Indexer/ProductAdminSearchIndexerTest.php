@@ -142,6 +142,22 @@ class ProductAdminSearchIndexerTest extends TestCase
         static::assertSame(84.03, $document['price']['c_b7d2554b0ce847cd82f3ac9bd1c0dfca']['net']);
     }
 
+    public function testFetchingAProductWithoutDocuments(): void
+    {
+        $indexer = new ProductAdminSearchIndexer(
+            $this->getConnection(['documentsId' => null]),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            100
+        );
+
+        $id = '809c1844f4734243b6aa04aba860cd45';
+        $documents = $indexer->fetch([$id]);
+
+        static::assertSame([], $documents[$id]['documents'] ?? null);
+    }
+
     public function testGetUpdatedIds(): void
     {
         $indexer = new ProductAdminSearchIndexer(
@@ -297,14 +313,17 @@ class ProductAdminSearchIndexerTest extends TestCase
         static::assertSame(["test\n"], array_column($textQueries, 'query'));
     }
 
-    private function getConnection(): Connection
+    /**
+     * @param array<string, mixed> $overrides
+     */
+    private function getConnection(array $overrides = []): Connection
     {
         $connection = static::createStub(Connection::class);
 
         $languageId = 'b7d2554b0ce847cd82f3ac9bd1c0dfca';
         $connection->method('fetchAllAssociative')->willReturn(
             [
-                [
+                array_merge([
                     'id' => '809c1844f4734243b6aa04aba860cd45',
                     'name' => 'Product',
                     'translatedNames' => json_encode([
@@ -343,7 +362,7 @@ class ProductAdminSearchIndexerTest extends TestCase
                     'createdAt' => '2024-01-01 00:00:00.000',
                     'updatedAt' => null,
                     'releaseDate' => null,
-                ],
+                ], $overrides),
             ],
         );
 

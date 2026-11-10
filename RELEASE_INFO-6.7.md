@@ -952,6 +952,12 @@ The other indices stay as they are.
 `bin/console es:index --only=<entities>` now creates new indices only for the given entities.
 It no longer leaves an empty index for every other entity, and it keeps the pending alias switches of other entities.
 
+### Product search index contains product documents
+
+The Elasticsearch product index has a new `documents` field, so dynamic product groups can filter products by whether they have documents.
+Run `bin/console es:index` after the update.
+Until then, the "Has documents" condition does not find products with documents in Elasticsearch.
+
 ### Configurable last-modified version strategy for theme assets
 
 The `FlysystemLastModifiedVersionStrategy` used for theme assets can now be disabled per-shop in `config/packages/shopware.yaml`.

@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSetAware;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -44,12 +43,10 @@ class CustomerGroupRegistrationSeoUrlSubscriber implements EventSubscriberInterf
     /**
      * @param EntityRepository<CustomerGroupCollection> $customerGroupRepository
      * @param EntityRepository<SeoUrlCollection> $seoUrlRepository
-     * @param EntityRepository<LanguageCollection> $languageRepository
      */
     public function __construct(
         private readonly EntityRepository $customerGroupRepository,
         private readonly EntityRepository $seoUrlRepository,
-        private readonly EntityRepository $languageRepository,
         private readonly SeoUrlPersister $persister,
         private readonly SlugifyInterface $slugify
     ) {
@@ -179,6 +176,9 @@ class CustomerGroupRegistrationSeoUrlSubscriber implements EventSubscriberInterf
             ->addFilter(new EqualsFilter('registrationActive', true))
             ->addAssociations(['registrationSalesChannels.languages', 'registrationSalesChannels.domains', 'translations']);
 
+        $criteria->getAssociation('registrationSalesChannels.languages')
+            ->addFilter(new EqualsFilter('active', true));
+
         if ($salesChannelIds !== null) {
             $criteria->addFilter(new EqualsAnyFilter('registrationSalesChannels.id', $salesChannelIds));
         }
@@ -204,18 +204,7 @@ class CustomerGroupRegistrationSeoUrlSubscriber implements EventSubscriberInterf
                     continue;
                 }
 
-                $languageIds = $registrationSalesChannel->getLanguages()->getIds();
-                $languageCriteria = new Criteria($languageIds);
-                $languageCriteria->addFilter(new EqualsFilter('active', true));
-
-                $languageCollection = $this->languageRepository->search($languageCriteria, $context)->getEntities();
-
-                foreach ($languageIds as $languageId) {
-                    $language = $languageCollection->get($languageId);
-                    if (!$language) {
-                        continue;
-                    }
-
+                foreach ($registrationSalesChannel->getLanguages() as $languageId => $language) {
                     // rows are only created for languages with an external storefront domain,
                     // mirroring the SEO URL generation of products, categories and landing pages
                     if (!$this->hasExternalStorefrontDomain($registrationSalesChannel, $languageId)) {

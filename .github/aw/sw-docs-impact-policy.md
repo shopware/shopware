@@ -18,6 +18,7 @@ change to make. When in doubt, report nothing.
 ## Inputs
 
 - `.sw-docs-impact/pr.json`: pull request metadata (`pr`) and changed files (`files`).
+  Read it with `jq`; Python is not available.
 - `.sw-docs-impact/pr.diff`: the full diff. Missing when the diff is too large for the API;
   then `files[].patch` in `pr.json` carries the per-file patches instead.
 - `.sw-docs-impact/docs`: the developer documentation.
@@ -84,6 +85,8 @@ Call exactly one of:
 
     - The verb is **Add**, **Adjust** or **Remove**. For **Add**, link the page the new
       section fits best.
+    - Each bullet names one page and one change. No conditional or fallback suggestions
+      such as "if no page exists, ..."; leave out a bullet you are not sure about.
     - Developer page URL: `https://developer.shopware.com/docs/` plus the page's path in
       `shopware/docs` with `.md` replaced by `.html`.
     - End-user page URL: the `URL:` line of the page file.

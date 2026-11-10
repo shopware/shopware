@@ -50,7 +50,7 @@ describe('sw-product-document-add-button', () => {
         wrapper = await createWrapper();
         await wrapper.get('button').trigger('click');
         await wrapper.get('button').trigger('mouseenter');
-        expect(wrapper.emitted('add-documents')).toEqual([[]]);
+        expect(wrapper.emitted('documents-add')).toEqual([[]]);
         expect(wrapper.find('[role="dialog"]').exists()).toBe(false);
     });
 
@@ -79,8 +79,8 @@ describe('sw-product-document-add-button', () => {
             );
             expect(trigger.attributes('aria-label')).toContain(wrapper.get('button').text());
             expect(wrapper.find('button.mt-link').exists()).toBe(false);
-            expect(wrapper.emitted('change-language')).toBeUndefined();
-            expect(wrapper.emitted('add-documents')).toBeUndefined();
+            expect(wrapper.emitted('language-change')).toBeUndefined();
+            expect(wrapper.emitted('documents-add')).toBeUndefined();
         },
     );
 
@@ -95,8 +95,8 @@ describe('sw-product-document-add-button', () => {
         await wrapper.get('[role="dialog"]').trigger('keydown', { key: 'Escape' });
         expect(document.activeElement).toBe(trigger.element);
         expect(wrapper.find('[role="dialog"]').exists()).toBe(false);
-        expect(wrapper.emitted('add-documents')).toBeUndefined();
-        expect(wrapper.emitted('change-language')).toBeUndefined();
+        expect(wrapper.emitted('documents-add')).toBeUndefined();
+        expect(wrapper.emitted('language-change')).toBeUndefined();
     });
 
     it('offers a language switch on focus instead of uploading in another content language', async () => {
@@ -107,8 +107,8 @@ describe('sw-product-document-add-button', () => {
         await flushPromises();
         expect(wrapper.get('[role="dialog"]').text()).toContain("'English'");
         await wrapper.get('button.mt-link').trigger('click');
-        expect(wrapper.emitted('change-language')).toEqual([[Shopware.Context.api.systemLanguageId]]);
-        expect(wrapper.emitted('add-documents')).toBeUndefined();
+        expect(wrapper.emitted('language-change')).toEqual([[Shopware.Context.api.systemLanguageId]]);
+        expect(wrapper.emitted('documents-add')).toBeUndefined();
         expect(wrapper.find('[role="dialog"]').exists()).toBe(false);
     });
 
@@ -216,7 +216,7 @@ describe('sw-product-document-add-button', () => {
         expect(hint?.textContent).toContain('sw-product.documentForm.unlinkToAdd');
         expect(document.activeElement).toBe(hint);
         expect(wrapper.get<HTMLButtonElement>('button').element.disabled).toBe(true);
-        expect(wrapper.emitted('add-documents')).toBeUndefined();
+        expect(wrapper.emitted('documents-add')).toBeUndefined();
     });
 
     it('renders the language link in the real Meteor floating panel', async () => {

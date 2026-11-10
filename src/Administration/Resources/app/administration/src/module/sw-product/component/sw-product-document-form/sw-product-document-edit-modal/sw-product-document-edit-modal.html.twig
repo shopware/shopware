@@ -42,8 +42,8 @@
                     :extension-accept="allowedExtensions.join(',')"
                     :max-file-size="maxFileSize"
                     :disabled="isDisabled"
-                    @media-upload-sidebar-open="$emit('select-media')"
-                    @media-upload-remove-image="$emit('remove-file')"
+                    @media-upload-sidebar-open="$emit('media-select')"
+                    @media-upload-remove-image="$emit('file-remove')"
                 />
                 {% block sw_product_document_form_file_error %}
                 <sw-field-error

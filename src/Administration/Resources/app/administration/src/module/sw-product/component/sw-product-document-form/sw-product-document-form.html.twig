@@ -52,8 +52,8 @@
                         class="sw-product-document-form__add-button"
                         :is-inherited="isInherited"
                         :disabled="isInherited || !canAddDocuments"
-                        @add-documents="showUploadModal = true"
-                        @change-language="$emit('change-language', $event)"
+                        @documents-add="showUploadModal = true"
+                        @language-change="$emit('language-change', $event)"
                     />
                 {% endblock %}
                 </template>
@@ -69,8 +69,8 @@
                     >
                         <sw-product-document-empty-state
                             :can-add-documents="!isInherited && canAddDocuments"
-                            @add-documents="showUploadModal = true"
-                            @change-language="$emit('change-language', $event)"
+                            @documents-add="showUploadModal = true"
+                            @language-change="$emit('language-change', $event)"
                         />
                     </div>
                 {% endblock %}
@@ -275,8 +275,8 @@
                 @close="closeDocumentEditor"
                 @save="applyDocumentEdit"
                 @upload="successfulUpload($event, editingDocument)"
-                @remove-file="removeEditingFile"
-                @select-media="showMediaModal = true"
+                @file-remove="removeEditingFile"
+                @media-select="showMediaModal = true"
             />
         {% endblock %}
 

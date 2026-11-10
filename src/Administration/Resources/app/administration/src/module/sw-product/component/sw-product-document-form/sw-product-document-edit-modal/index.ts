@@ -37,14 +37,17 @@ export default Shopware.Component.wrapComponentConfig({
         },
         editingMedia: {
             type: Object as PropType<Entity<'media'> | undefined>,
+            required: false,
             default: undefined,
         },
         documentNameError: {
             type: Object as PropType<FieldError | null>,
+            required: false,
             default: null,
         },
         documentFileError: {
             type: Object as PropType<FieldError | null>,
+            required: false,
             default: null,
         },
         uploadTag: {
@@ -65,10 +68,12 @@ export default Shopware.Component.wrapComponentConfig({
         },
         canEdit: {
             type: Boolean,
+            required: false,
             default: false,
         },
         isSavingDocument: {
             type: Boolean,
+            required: false,
             default: false,
         },
         hasVariants: {
@@ -85,8 +90,8 @@ export default Shopware.Component.wrapComponentConfig({
         'close',
         'save',
         'upload',
-        'remove-file',
-        'select-media',
+        'file-remove',
+        'media-select',
         'update:documentTitle',
         'update:applyToVariants',
     ],

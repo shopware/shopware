@@ -38,7 +38,6 @@ const swProductDetail = Shopware.Store.register({
             product: {} as ProductDetailProduct,
             parentProduct: {} as Entity<'product'>,
             isDownloadExternallyManaged: false,
-            documentMedia: new WeakMap<Entity<'product'>, Record<string, Entity<'media'>>>(),
             documentLanguage: null as Entity<'language'> | null,
             documentSaveNotifications: [] as { documentId: string; name: string; variantIds: string[] }[],
             currencies: [] as Entity<'currency'>[],
@@ -275,17 +274,6 @@ const swProductDetail = Shopware.Store.register({
         setWeightUnit(unit: string) {
             this.weightUnit = unit;
         },
-
-        cacheDocumentMedia(media: Entity<'media'>): void {
-            const files = this.documentMedia.get(this.product) || {};
-            files[media.id] = media;
-            this.documentMedia.set(this.product, files);
-        },
-
-        addDocument(document: Entity<'product_document'>): void {
-            this.product.documents?.add(document);
-        },
-
         queueDocumentSaveNotification(documentId: string, name: string, variantIds: string[]): void {
             this.documentSaveNotifications = this.documentSaveNotifications.filter(
                 (entry) => entry.documentId !== documentId,

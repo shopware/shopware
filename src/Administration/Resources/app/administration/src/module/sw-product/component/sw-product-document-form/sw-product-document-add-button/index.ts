@@ -9,15 +9,17 @@ import './sw-product-document-add-button.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    emits: ['add-documents', 'change-language'],
+    emits: ['documents-add', 'language-change'],
 
     props: {
         isInherited: {
             type: Boolean,
+            required: false,
             default: false,
         },
         disabled: {
             type: Boolean,
+            required: false,
             default: false,
         },
     },
@@ -35,7 +37,17 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        isDefaultLanguage: () => Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId,
+        languageId() {
+            return Shopware.Store.get('context').api.languageId;
+        },
+
+        systemLanguageId() {
+            return Shopware.Store.get('context').api.systemLanguageId;
+        },
+
+        isDefaultLanguage(): boolean {
+            return this.languageId === this.systemLanguageId;
+        },
 
         hintLabel(): string {
             return this.$t(

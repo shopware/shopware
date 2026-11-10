@@ -5,7 +5,7 @@
         :disabled="disabled"
         size="small"
         variant="secondary"
-        @click="$emit('add-documents')"
+        @click="$emit('documents-add')"
     >
         {{ $t('sw-product.documentForm.buttonAdd') }}
     </mt-button>
@@ -70,7 +70,7 @@
                 <sw-product-document-language-hint
                     v-else
                     @vue:mounted="focusHintContent"
-                    @change-language="closeHint(); $emit('change-language', $event)"
+                    @language-change="closeHint(); $emit('language-change', $event)"
                 />
             </mt-text>
             {% endblock %}

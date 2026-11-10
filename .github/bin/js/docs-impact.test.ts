@@ -439,7 +439,8 @@ test('postComment in a dry run writes the comment to the step summary only', asy
     assert.ok(written[0].includes('New event'));
 });
 
-test('unlinkDeadDocsLinks turns dead docs links into plain text and checks each URL once', async () => {
+test('unlinkDeadDocsLinks turns dead docs links into plain text, checks each URL once and warns', async () => {
+    const { core, messages } = fakeCore();
     const checked: string[] = [];
     const isDead = async (url: string) => {
         checked.push(url);
@@ -454,7 +455,7 @@ test('unlinkDeadDocsLinks turns dead docs links into plain text and checks each 
     ].join('\n');
 
     assert.equal(
-        await unlinkDeadDocsLinks(summary, isDead),
+        await unlinkDeadDocsLinks(summary, isDead, core),
         [
             '- **Adjust** Products: a',
             '- **Adjust** Products again: b',
@@ -463,6 +464,7 @@ test('unlinkDeadDocsLinks turns dead docs links into plain text and checks each 
         ].join('\n'),
     );
     assert.deepEqual(checked, ['https://docs.shopware.com/en/gone', 'https://developer.shopware.com/docs/rate-limiter.html']);
+    assert.deepEqual(messages, ['warning: Removed the link to https://docs.shopware.com/en/gone: the page returns 404 or 410']);
 });
 
 test('postComment posts dead docs links as plain text', async () => {

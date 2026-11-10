@@ -303,9 +303,12 @@ export async function isDeadLink(url: string): Promise<boolean> {
     }
 }
 
-export async function unlinkDeadDocsLinks(summary: string, isDead: (url: string) => Promise<boolean>): Promise<string> {
+export async function unlinkDeadDocsLinks(summary: string, isDead: (url: string) => Promise<boolean>, core: Pick<Core, 'warning'>): Promise<string> {
     const urls = [...new Set([...summary.matchAll(DOCS_LINK)].map((match) => match[2]))];
     const dead = new Set((await Promise.all(urls.map(async (url) => ((await isDead(url)) ? url : null)))).filter((url) => url !== null));
+    for (const url of dead) {
+        core.warning(`Removed the link to ${url}: the page returns 404 or 410`);
+    }
 
     return summary.replace(DOCS_LINK, (link, text: string, url: string) => (dead.has(url) ? text : link));
 }
@@ -332,7 +335,7 @@ export async function postComment(
     const number = requestedPullRequestNumber(context);
     const audiences = parseAudiences(item.audiences ?? '');
     const summary = redactSecrets(item.summary, process.env.SW_DOCS_IMPACT_REDACT);
-    const body = buildComment(await unlinkDeadDocsLinks(summary, isDead));
+    const body = buildComment(await unlinkDeadDocsLinks(summary, isDead, core));
     if (isDryRun(context)) {
         core.info(`Dry run: not commenting on #${number}`);
         await core.summary?.addRaw(`## Dry run: comment for #${number}\n\n${body}`, true).write();

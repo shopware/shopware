@@ -240,12 +240,12 @@ class ExtensionStoreActionsControllerTest extends TestCase
             true
         );
 
-        $lifecycle->expects($this->once())->method('composerRequire')->with('plugin', 'test');
+        $lifecycle->expects($this->once())->method('composerRequire')->with('plugin', 'test')->willReturn(true);
 
-        static::assertSame(
-            Response::HTTP_NO_CONTENT,
-            $controller->composerRequireExtension('plugin', 'test', Context::createDefaultContext())->getStatusCode()
-        );
+        $response = $controller->composerRequireExtension('plugin', 'test', Context::createDefaultContext());
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame('{"composerRan":true}', $response->getContent());
     }
 
     public function testComposerRemoveExtension(): void
@@ -259,12 +259,12 @@ class ExtensionStoreActionsControllerTest extends TestCase
             true
         );
 
-        $lifecycle->expects($this->once())->method('composerRemove')->with('plugin', 'test');
+        $lifecycle->expects($this->once())->method('composerRemove')->with('plugin', 'test')->willReturn(false);
 
-        static::assertSame(
-            Response::HTTP_NO_CONTENT,
-            $controller->composerRemoveExtension('plugin', 'test', Context::createDefaultContext())->getStatusCode()
-        );
+        $response = $controller->composerRemoveExtension('plugin', 'test', Context::createDefaultContext());
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame('{"composerRan":false}', $response->getContent());
     }
 
     public function testUninstallExtension(): void

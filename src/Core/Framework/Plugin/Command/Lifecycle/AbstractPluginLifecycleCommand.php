@@ -52,9 +52,14 @@ abstract class AbstractPluginLifecycleCommand extends Command
         }
     }
 
-    protected function requireComposerDependency(PluginEntity $plugin, Context $context): void
+    protected function requireComposerDependency(PluginEntity $plugin, Context $context): bool
     {
-        $this->composerDependencyService?->requireDependency($plugin, $context);
+        return $this->composerDependencyService?->requireDependency($plugin, $context) ?? false;
+    }
+
+    protected function removeRequiredComposerPackage(PluginEntity $plugin, Context $context): void
+    {
+        $this->composerDependencyService?->removePackage($plugin, $context);
     }
 
     protected function removeComposerDependency(PluginEntity $plugin, Context $context): void
@@ -191,9 +196,6 @@ abstract class AbstractPluginLifecycleCommand extends Command
         );
     }
 
-    /**
-     * @param array<string> $arguments
-     */
     /**
      * @param array<string> $arguments
      */

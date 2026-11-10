@@ -96,8 +96,17 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
             $activationSuffix = '';
             $message = 'Plugin "%s" has been installed%s successfully.';
 
-            $this->requireComposerDependency($plugin, $context);
-            $this->pluginLifecycleService->installPlugin($plugin, $context);
+            $isComposerDependencyRequired = $this->requireComposerDependency($plugin, $context);
+
+            try {
+                $this->pluginLifecycleService->installPlugin($plugin, $context);
+            } catch (\Throwable $e) {
+                if ($isComposerDependencyRequired) {
+                    $this->removeRequiredComposerPackage($plugin, $context);
+                }
+
+                throw $e;
+            }
             ++$installedPluginCount;
 
             if ($activatePlugins) {

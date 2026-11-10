@@ -152,6 +152,17 @@ class PluginComposerDependencyServiceTest extends TestCase
         static::assertTrue($this->createService()->removeDependency($plugin, Context::createDefaultContext()));
     }
 
+    public function testRemoveDependencyKeepsThePackageOfAnUninstalledPluginThatNeverAskedForComposer(): void
+    {
+        $this->executesComposerCommands = false;
+        $plugin = $this->createPlugin(version: '1.0.0', managedByComposer: true);
+        $plugin->setPath('custom/static-plugins/SwagTest');
+
+        $this->executor->expects($this->never())->method('remove');
+
+        static::assertFalse($this->createService()->removeDependency($plugin, Context::createDefaultContext()));
+    }
+
     public function testRemoveDependencyKeepsThePackageOfAnInstalledPluginThatAsksForComposer(): void
     {
         $plugin = $this->createPlugin(version: '1.0.0', managedByComposer: true);

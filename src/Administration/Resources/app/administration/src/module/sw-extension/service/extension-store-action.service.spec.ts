@@ -24,6 +24,7 @@ function requestedUrls(clientMock: MockAdapter): string[] {
 describe('src/module/sw-extension/service/extension-store-action.service', () => {
     it('requires the Composer package of a plugin before it installs the plugin', async () => {
         const { service, clientMock } = createService();
+        clientMock.onPost(/composer-(require|remove)/).reply(200, { composerRan: true });
         clientMock.onPost().reply(204);
 
         await service.installExtension('SwagExample', 'plugin');
@@ -38,6 +39,7 @@ describe('src/module/sw-extension/service/extension-store-action.service', () =>
     it('removes the Composer package again when the install fails', async () => {
         const { service, clientMock } = createService();
         clientMock.onPost('_action/extension/install/plugin/SwagExample').reply(500);
+        clientMock.onPost(/composer-(require|remove)/).reply(200, { composerRan: true });
         clientMock.onPost().reply(204);
 
         await expect(service.installExtension('SwagExample', 'plugin')).rejects.toThrow();
@@ -49,9 +51,23 @@ describe('src/module/sw-extension/service/extension-store-action.service', () =>
         ]);
     });
 
+    it('keeps a package the project required itself when the install fails', async () => {
+        const { service, clientMock } = createService();
+        clientMock.onPost('_action/extension/install/plugin/SwagExample').reply(500);
+        clientMock.onPost(/composer-(require|remove)/).reply(200, { composerRan: false });
+
+        await expect(service.installExtension('SwagExample', 'plugin')).rejects.toThrow();
+
+        expect(requestedUrls(clientMock)).toEqual([
+            '_action/extension/composer-require/plugin/SwagExample',
+            '_action/extension/install/plugin/SwagExample',
+        ]);
+    });
+
     it('does not install a plugin whose Composer package could not be required', async () => {
         const { service, clientMock } = createService();
         clientMock.onPost('_action/extension/composer-require/plugin/SwagExample').reply(400);
+        clientMock.onPost(/composer-(require|remove)/).reply(200, { composerRan: true });
         clientMock.onPost().reply(204);
 
         await expect(service.installExtension('SwagExample', 'plugin')).rejects.toThrow();
@@ -61,6 +77,7 @@ describe('src/module/sw-extension/service/extension-store-action.service', () =>
 
     it('runs Composer before and after the update of a plugin', async () => {
         const { service, clientMock } = createService();
+        clientMock.onPost(/composer-(require|remove)/).reply(200, { composerRan: true });
         clientMock.onPost().reply(204);
 
         await service.updateExtension('SwagExample', 'plugin', true);
@@ -78,6 +95,7 @@ describe('src/module/sw-extension/service/extension-store-action.service', () =>
 
     it('removes the Composer package of a plugin after its uninstall', async () => {
         const { service, clientMock } = createService();
+        clientMock.onPost(/composer-(require|remove)/).reply(200, { composerRan: true });
         clientMock.onPost().reply(204);
 
         await service.uninstallExtension('SwagExample', 'plugin', true);
@@ -94,6 +112,7 @@ describe('src/module/sw-extension/service/extension-store-action.service', () =>
 
     it('leaves Composer out for apps', async () => {
         const { service, clientMock } = createService();
+        clientMock.onPost(/composer-(require|remove)/).reply(200, { composerRan: true });
         clientMock.onPost().reply(204);
 
         await service.installExtension('SwagApp', 'app');

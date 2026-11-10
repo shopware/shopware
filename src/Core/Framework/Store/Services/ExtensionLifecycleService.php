@@ -111,24 +111,26 @@ class ExtensionLifecycleService extends AbstractExtensionLifecycle
         $this->storeAppLifecycleService->deleteExtension($technicalName, $keepUserData, $context);
     }
 
-    public function composerRequire(string $type, string $technicalName, Context $context): void
+    public function composerRequire(string $type, string $technicalName, Context $context): bool
     {
         if ($type !== 'plugin') {
-            return;
+            return false;
         }
 
         $plugin = $this->pluginService->getPluginByName($technicalName, $context);
-        $this->pluginComposerDependencyService->requireDependency($plugin, $context);
+
+        return $this->pluginComposerDependencyService->requireDependency($plugin, $context);
     }
 
-    public function composerRemove(string $type, string $technicalName, Context $context): void
+    public function composerRemove(string $type, string $technicalName, Context $context): bool
     {
         if ($type !== 'plugin') {
-            return;
+            return false;
         }
 
         $plugin = $this->pluginService->getPluginByName($technicalName, $context);
-        $this->pluginComposerDependencyService->removeDependency($plugin, $context);
+
+        return $this->pluginComposerDependencyService->removeDependency($plugin, $context);
     }
 
     protected function getDecorated(): AbstractExtensionLifecycle

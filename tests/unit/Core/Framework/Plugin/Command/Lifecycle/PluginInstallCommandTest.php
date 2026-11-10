@@ -288,6 +288,56 @@ class PluginInstallCommandTest extends TestCase
         static::assertSame(['composer require', 'install'], $callOrder);
     }
 
+    public function testRemovesTheRequiredPackageWhenTheInstallFails(): void
+    {
+        $plugin = $this->createPluginEntity('SwagFirst', 'swag/first');
+        $this->plugins->add($plugin);
+
+        $composerDependencyService = $this->createMock(PluginComposerDependencyService::class);
+        $composerDependencyService->method('requireDependency')->willReturn(true);
+        $composerDependencyService->expects($this->once())->method('removePackage')->with($plugin);
+        $installFailure = new \RuntimeException('install failed');
+        $this->pluginLifecycleService->method('installPlugin')->willThrowException($installFailure);
+
+        $command = new PluginInstallCommand(
+            $this->pluginLifecycleService,
+            new StaticEntityRepository([fn (): PluginCollection => $this->plugins]),
+            $this->cacheClearer,
+            $this->projectDir,
+            $composerDependencyService,
+        );
+        $command->setHelperSet(new HelperSet());
+
+        $this->expectExceptionObject($installFailure);
+
+        (new CommandTester($command))->execute(['plugins' => ['SwagFirst']], ['interactive' => false]);
+    }
+
+    public function testKeepsAPackageThatWasInstalledBeforeWhenTheInstallFails(): void
+    {
+        $plugin = $this->createPluginEntity('SwagFirst', 'swag/first');
+        $this->plugins->add($plugin);
+
+        $composerDependencyService = $this->createMock(PluginComposerDependencyService::class);
+        $composerDependencyService->method('requireDependency')->willReturn(false);
+        $composerDependencyService->expects($this->never())->method('removePackage');
+        $installFailure = new \RuntimeException('install failed');
+        $this->pluginLifecycleService->method('installPlugin')->willThrowException($installFailure);
+
+        $command = new PluginInstallCommand(
+            $this->pluginLifecycleService,
+            new StaticEntityRepository([fn (): PluginCollection => $this->plugins]),
+            $this->cacheClearer,
+            $this->projectDir,
+            $composerDependencyService,
+        );
+        $command->setHelperSet(new HelperSet());
+
+        $this->expectExceptionObject($installFailure);
+
+        (new CommandTester($command))->execute(['plugins' => ['SwagFirst']], ['interactive' => false]);
+    }
+
     private function createPluginEntity(string $name, string $composerName): PluginEntity
     {
         $plugin = new PluginEntity();

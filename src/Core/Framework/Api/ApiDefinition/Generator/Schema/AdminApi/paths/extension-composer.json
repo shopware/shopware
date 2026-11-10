@@ -1,0 +1,134 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": {
+        "/_action/extension/composer-require/{type}/{technicalName}": {
+            "post": {
+                "tags": [
+                    "Extension Management"
+                ],
+                "summary": "Require the Composer package of a plugin",
+                "description": "Requires the Composer package of a plugin whose `executeComposerCommands()` returns `true`, in the version found on disk. Call it in a request of its own before the install or update request. Composer runs in a copy of `vendor/`, `composer.json` and `composer.lock`, which replaces the live files only after Composer succeeded. Apps need no Composer step. Requires the `system.plugin_maintain` permission.",
+                "operationId": "composerRequireExtension",
+                "parameters": [
+                    {
+                        "name": "type",
+                        "in": "path",
+                        "description": "The type of the extension.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "plugin",
+                                "app"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "technicalName",
+                        "in": "path",
+                        "description": "The technical name of the extension.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Whether Composer required the package in this request.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "composerRan"
+                                    ],
+                                    "properties": {
+                                        "composerRan": {
+                                            "type": "boolean",
+                                            "description": "`false` when the extension is an app, the plugin needs no Composer run, or its package is installed in that version already."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Composer could not require the package."
+                    },
+                    "409": {
+                        "description": "Another Composer operation for plugins is running."
+                    },
+                    "500": {
+                        "description": "The vendor directory cannot be replaced, or an earlier operation stopped while it replaced it."
+                    }
+                }
+            }
+        },
+        "/_action/extension/composer-remove/{type}/{technicalName}": {
+            "post": {
+                "tags": [
+                    "Extension Management"
+                ],
+                "summary": "Remove the Composer package of a plugin",
+                "description": "Removes the Composer package of a plugin that the project required at runtime: after the uninstall of a plugin whose `executeComposerCommands()` returns `true`, or after an update to a version whose `executeComposerCommands()` returns `false`. Call it in a request of its own after the uninstall or update request. Packages outside `custom/` stay. Requires the `system.plugin_maintain` permission.",
+                "operationId": "composerRemoveExtension",
+                "parameters": [
+                    {
+                        "name": "type",
+                        "in": "path",
+                        "description": "The type of the extension.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "plugin",
+                                "app"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "technicalName",
+                        "in": "path",
+                        "description": "The technical name of the extension.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Whether Composer removed the package in this request.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "composerRan"
+                                    ],
+                                    "properties": {
+                                        "composerRan": {
+                                            "type": "boolean",
+                                            "description": "`false` when the extension is an app or the plugin's package had nothing to remove."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Composer could not remove the package."
+                    },
+                    "409": {
+                        "description": "Another Composer operation for plugins is running."
+                    },
+                    "500": {
+                        "description": "The vendor directory cannot be replaced, or an earlier operation stopped while it replaced it."
+                    }
+                }
+            }
+        }
+    }
+}

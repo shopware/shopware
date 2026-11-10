@@ -47,6 +47,14 @@ class ProductDocumentValidatorTest extends TestCase
         $this->storedFiles = new MediaCollection();
     }
 
+    public function testSubscribedEvents(): void
+    {
+        static::assertSame(
+            [PreWriteValidationEvent::class => 'validate'],
+            ProductDocumentValidator::getSubscribedEvents()
+        );
+    }
+
     public static function fileProvider(): iterable
     {
         yield 'an allowed file' => [self::file(), []];
@@ -84,6 +92,13 @@ class ProductDocumentValidatorTest extends TestCase
         // a file that broke a limit later doesn't block writes that keep it
         $this->storeFile(self::file(private: true));
         $this->translations = [$this->translation('manual', Defaults::LANGUAGE_SYSTEM, '/0', file: 'manual-file', storedFile: 'manual-file')];
+
+        static::assertSame([], $this->validate());
+    }
+
+    public function testAWriteWithoutDocumentTranslationsPasses(): void
+    {
+        $this->translations = [];
 
         static::assertSame([], $this->validate());
     }

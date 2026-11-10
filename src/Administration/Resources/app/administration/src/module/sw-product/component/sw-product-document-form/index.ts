@@ -150,7 +150,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         getFileSize(document: Entity<'product_document'>): string {
             const size = this.getMedia(document)?.fileSize;
-            return size === undefined ? '' : Shopware.Utils.format.fileSize(size);
+            return size == null ? '' : Shopware.Utils.format.fileSize(size);
         },
 
         getFileName(document: Entity<'product_document'>): string {

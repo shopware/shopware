@@ -14,6 +14,8 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundDefinition;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
@@ -68,6 +70,74 @@ class OrderStateChangeEventListenerTest extends TestCase
                 ),
                 Context::createDefaultContext()
             );
+    }
+
+    public function testTriggerCaptureEvents(): void
+    {
+        $ids = new IdsCollection();
+
+        $this->createCustomer($ids);
+        $this->createOrder($ids);
+
+        $this->assertEvent('state_leave.order_transaction_capture.state.pending');
+
+        $enterEvent = null;
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
+            'state_enter.order_transaction_capture.state.completed',
+            static function (OrderStateMachineStateChangeEvent $event) use (&$enterEvent): void {
+                $enterEvent = $event;
+            }
+        );
+
+        static::getContainer()
+            ->get(StateMachineRegistry::class)
+            ->transition(
+                new Transition(
+                    OrderTransactionCaptureDefinition::ENTITY_NAME,
+                    $ids->get('capture'),
+                    StateMachineTransitionActions::ACTION_COMPLETE,
+                    'stateId'
+                ),
+                Context::createDefaultContext()
+            );
+
+        static::assertInstanceOf(OrderStateMachineStateChangeEvent::class, $enterEvent);
+        $capture = $enterEvent->getOrder()->getTransactions()?->first()?->getCaptures()?->get($ids->get('capture'));
+        static::assertNotNull($capture);
+    }
+
+    public function testTriggerRefundEvents(): void
+    {
+        $ids = new IdsCollection();
+
+        $this->createCustomer($ids);
+        $this->createOrder($ids);
+
+        $this->assertEvent('state_leave.order_transaction_capture_refund.state.open');
+
+        $enterEvent = null;
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
+            'state_enter.order_transaction_capture_refund.state.in_progress',
+            static function (OrderStateMachineStateChangeEvent $event) use (&$enterEvent): void {
+                $enterEvent = $event;
+            }
+        );
+
+        static::getContainer()
+            ->get(StateMachineRegistry::class)
+            ->transition(
+                new Transition(
+                    OrderTransactionCaptureRefundDefinition::ENTITY_NAME,
+                    $ids->get('refund'),
+                    StateMachineTransitionActions::ACTION_PROCESS,
+                    'stateId'
+                ),
+                Context::createDefaultContext()
+            );
+
+        static::assertInstanceOf(OrderStateMachineStateChangeEvent::class, $enterEvent);
+        $refund = $enterEvent->getOrder()->getTransactions()?->first()?->getCaptures()?->first()?->getRefunds()?->get($ids->get('refund'));
+        static::assertNotNull($refund);
     }
 
     public function testTriggerOrderEvent(): void
@@ -246,6 +316,20 @@ class OrderStateChangeEventListenerTest extends TestCase
                     'paymentMethodId' => $this->getPrePaymentMethodId(),
                     'stateId' => $this->getStateId('open', 'order_transaction.state'),
                     'amount' => new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                    'captures' => [
+                        [
+                            'id' => $ids->create('capture'),
+                            'stateId' => $this->getStateId('pending', 'order_transaction_capture.state'),
+                            'amount' => new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                            'refunds' => [
+                                [
+                                    'id' => $ids->create('refund'),
+                                    'stateId' => $this->getStateId('open', 'order_transaction_capture_refund.state'),
+                                    'amount' => new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                                ],
+                            ],
+                        ],
+                    ],
                 ],
             ],
         ];

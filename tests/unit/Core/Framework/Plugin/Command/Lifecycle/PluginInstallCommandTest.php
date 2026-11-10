@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\PluginCollection;
+use Shopware\Core\Framework\Plugin\PluginComposerDependencyService;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
@@ -248,6 +249,43 @@ class PluginInstallCommandTest extends TestCase
             'plugins' => ['SkipAssetBuildPlugin'],
             '--skip-asset-build' => true,
         ], ['interactive' => false]));
+    }
+
+    public function testRequiresThePackageBeforeTheInstall(): void
+    {
+        $plugin = $this->createPluginEntity('SwagFirst', 'swag/first');
+        $this->plugins->add($plugin);
+
+        $callOrder = [];
+        $composerDependencyService = $this->createMock(PluginComposerDependencyService::class);
+        $composerDependencyService->expects($this->once())->method('requireDependency')->willReturnCallback(static function () use (&$callOrder): bool {
+            $callOrder[] = 'composer require';
+
+            return true;
+        });
+        $composerDependencyService->expects($this->never())->method('removeDependency');
+        $this->pluginLifecycleService
+            ->expects($this->once())
+            ->method('installPlugin')
+            ->willReturnCallback(static function (PluginEntity $plugin, Context $context) use (&$callOrder): InstallContext {
+                static::assertTrue($context->hasState(PluginLifecycleService::STATE_SEPARATE_COMPOSER_STEP));
+                $callOrder[] = 'install';
+
+                return static::createStub(InstallContext::class);
+            });
+
+        $command = new PluginInstallCommand(
+            $this->pluginLifecycleService,
+            new StaticEntityRepository([fn (): PluginCollection => $this->plugins]),
+            $this->cacheClearer,
+            $this->projectDir,
+            $composerDependencyService,
+        );
+        $command->setHelperSet(new HelperSet());
+
+        (new CommandTester($command))->execute(['plugins' => ['SwagFirst']], ['interactive' => false]);
+
+        static::assertSame(['composer require', 'install'], $callOrder);
     }
 
     private function createPluginEntity(string $name, string $composerName): PluginEntity

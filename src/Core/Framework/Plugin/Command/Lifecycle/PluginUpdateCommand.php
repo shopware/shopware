@@ -30,6 +30,7 @@ class PluginUpdateCommand extends AbstractPluginLifecycleCommand
     {
         $io = new SymfonyStyle($input, $output);
         $context = Context::createCLIContext();
+        $this->useSeparateComposerStep($context);
         $plugins = $this->prepareExecution(self::LIFECYCLE_METHOD, $io, $input, $context);
 
         if ($plugins === null) {
@@ -43,7 +44,9 @@ class PluginUpdateCommand extends AbstractPluginLifecycleCommand
 
                 continue;
             }
+            $this->requireComposerDependency($plugin, $context);
             $this->pluginLifecycleService->updatePlugin($plugin, $context);
+            $this->removeComposerDependency($plugin, $context);
             ++$updatedPluginCount;
 
             $io->text(\sprintf('Plugin "%s" has been updated successfully.', $plugin->getName()));

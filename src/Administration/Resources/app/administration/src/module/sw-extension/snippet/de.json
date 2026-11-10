@@ -105,6 +105,7 @@
       "messagePluginUpdateFailed": "Die Erweiterung konnte nicht aktualisiert werden: \"{message}\". {pluginDeactivatedHint}",
       "pluginDeactivatedHint": "Erweiterung deaktiviert.",
       "messagePluginRequirementMismatch": "Die Erweiterung hat technische Anforderungen, die nicht mit denen der installierten Shopware-Version kompatibel sind. Bitte wende Dich an den Hersteller.",
+      "messageComposerOperationInProgress": "Gerade wird eine andere Erweiterung installiert, aktualisiert oder entfernt. Bitte versuche es erneut, sobald der Vorgang abgeschlossen ist.",
       "appIsNotCompatible": "Die Erweiterung \"{name}\" ist nicht kompatibel mit dieser Shopware Version",
       "appValidationFailed": "Die App hat Validierungsfehler",
       "appLicenseCouldNotBeVerified": {

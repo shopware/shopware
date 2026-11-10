@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Store\Services;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Plugin\PluginComposerDependencyService;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
@@ -20,7 +21,8 @@ class ExtensionLifecycleService extends AbstractExtensionLifecycle
         private readonly AbstractStoreAppLifecycleService $storeAppLifecycleService,
         private readonly PluginService $pluginService,
         private readonly PluginLifecycleService $pluginLifecycleService,
-        private readonly PluginManagementService $pluginManagementService
+        private readonly PluginManagementService $pluginManagementService,
+        private readonly PluginComposerDependencyService $pluginComposerDependencyService,
     ) {
     }
 
@@ -97,12 +99,36 @@ class ExtensionLifecycleService extends AbstractExtensionLifecycle
                 $this->pluginLifecycleService->uninstallPlugin($plugin, $context, $keepUserData);
             }
 
+            if ($context->hasState(PluginLifecycleService::STATE_SEPARATE_COMPOSER_STEP)) {
+                $this->pluginComposerDependencyService->removeDependency($plugin, $context);
+            }
+
             $this->pluginManagementService->deletePlugin($plugin, $context);
 
             return;
         }
 
         $this->storeAppLifecycleService->deleteExtension($technicalName, $keepUserData, $context);
+    }
+
+    public function composerRequire(string $type, string $technicalName, Context $context): void
+    {
+        if ($type !== 'plugin') {
+            return;
+        }
+
+        $plugin = $this->pluginService->getPluginByName($technicalName, $context);
+        $this->pluginComposerDependencyService->requireDependency($plugin, $context);
+    }
+
+    public function composerRemove(string $type, string $technicalName, Context $context): void
+    {
+        if ($type !== 'plugin') {
+            return;
+        }
+
+        $plugin = $this->pluginService->getPluginByName($technicalName, $context);
+        $this->pluginComposerDependencyService->removeDependency($plugin, $context);
     }
 
     protected function getDecorated(): AbstractExtensionLifecycle

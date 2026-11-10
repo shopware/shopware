@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Composer\Factory;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\PluginCollection;
+use Shopware\Core\Framework\Plugin\PluginComposerDependencyService;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
@@ -41,9 +42,10 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
         PluginLifecycleService $pluginLifecycleService,
         EntityRepository $pluginRepo,
         CacheClearer $cacheClearer,
-        private readonly string $projectDir
+        private readonly string $projectDir,
+        ?PluginComposerDependencyService $composerDependencyService = null,
     ) {
-        parent::__construct($pluginLifecycleService, $pluginRepo, $cacheClearer);
+        parent::__construct($pluginLifecycleService, $pluginRepo, $cacheClearer, $composerDependencyService);
     }
 
     protected function configure(): void
@@ -62,6 +64,7 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
     {
         $io = new SymfonyStyle($input, $output);
         $context = Context::createCLIContext();
+        $this->useSeparateComposerStep($context);
         $plugins = $this->prepareExecution(self::LIFECYCLE_METHOD, $io, $input, $context);
 
         if ($plugins === null) {
@@ -93,6 +96,7 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
             $activationSuffix = '';
             $message = 'Plugin "%s" has been installed%s successfully.';
 
+            $this->requireComposerDependency($plugin, $context);
             $this->pluginLifecycleService->installPlugin($plugin, $context);
             ++$installedPluginCount;
 

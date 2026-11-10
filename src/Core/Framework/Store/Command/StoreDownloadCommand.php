@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
+use Shopware\Core\Framework\Plugin\PluginComposerDependencyService;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
@@ -42,6 +43,7 @@ class StoreDownloadCommand extends Command
         private readonly PluginManagementService $pluginManagementService,
         private readonly PluginLifecycleService $pluginLifecycleService,
         private readonly EntityRepository $userRepository,
+        private readonly ?PluginComposerDependencyService $composerDependencyService = null,
     ) {
         parent::__construct();
     }
@@ -81,7 +83,13 @@ class StoreDownloadCommand extends Command
         }
 
         if ($plugin->getUpgradeVersion()) {
+            if ($this->composerDependencyService !== null) {
+                $context->addState(PluginLifecycleService::STATE_SEPARATE_COMPOSER_STEP);
+                $this->composerDependencyService->requireDependency($plugin, $context);
+            }
+
             $this->pluginLifecycleService->updatePlugin($plugin, $context);
+            $this->composerDependencyService?->removeDependency($plugin, $context);
         }
 
         return self::SUCCESS;

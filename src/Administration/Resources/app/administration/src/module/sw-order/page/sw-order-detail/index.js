@@ -327,6 +327,7 @@ export default {
         beforeDestroyComponent(useKeepalive = false) {
             Store.get('swOrderDetail').setOrderAddressIds(null);
             Store.get('swOrderDetail').resetCustomer();
+            this.versionRequestId += 1;
 
             if (this.hasNewVersionId) {
                 const oldVersionContext = this.versionContext;

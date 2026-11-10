@@ -30,6 +30,11 @@ async function createWrapper(orderRepository: ReturnType<typeof createOrderRepos
         history: createMemoryHistory(),
         routes: [
             {
+                name: 'sw.order.index',
+                path: '/sw/order/index',
+                component: { template: '<div></div>' },
+            },
+            {
                 name: 'sw.order.detail',
                 path: '/sw/order/detail/:id',
                 component: await wrapTestComponent('sw-order-detail', { sync: true }),
@@ -125,6 +130,27 @@ describe('src/module/sw-order/page/sw-order-detail order switch', () => {
         expect(orderRepository.deleteVersion).toHaveBeenCalledWith('order-a', 'order-a-draft');
         expect(orderRepository.get).not.toHaveBeenCalledWith('order-a', expect.anything(), expect.anything());
         expect(Shopware.Store.get('swOrderDetail').versionContext?.versionId).toBe('order-b-draft');
+    });
+
+    it('deletes a draft that arrives after leaving the order page', async () => {
+        const orderRepository = createOrderRepository();
+        let resolveDraft: (context: { versionId: string }) => void = () => {};
+        orderRepository.createVersion.mockImplementationOnce(
+            () =>
+                new Promise((resolve) => {
+                    resolveDraft = resolve;
+                }),
+        );
+        const { router } = await createWrapper(orderRepository);
+
+        await router.push('/sw/order/index');
+        await flushPromises();
+
+        resolveDraft({ versionId: 'order-a-draft' });
+        await flushPromises();
+
+        expect(orderRepository.deleteVersion).toHaveBeenCalledWith('order-a', 'order-a-draft');
+        expect(orderRepository.get).not.toHaveBeenCalled();
     });
 
     it('switches the tabs of an order with unsaved changes without asking', async () => {

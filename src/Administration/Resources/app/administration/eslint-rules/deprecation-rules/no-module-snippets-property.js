@@ -157,6 +157,15 @@ module.exports = {
             const ownLine = lineRange(text, [property.range[0], end]);
 
             if (ownLine) {
+                // Between blank lines, or between a blank line and the end of the object, take one blank line along.
+                const blankBefore = ownLine[0] > 0 && /\n[ \t]*\n$/.test(text.slice(0, ownLine[0]));
+                const rest = text.slice(ownLine[1]);
+                const closesNext = /^[ \t]*[}\]]/.test(rest);
+
+                if (blankBefore && (/^[ \t]*\n/.test(rest) || closesNext)) {
+                    return [text.lastIndexOf('\n', ownLine[0] - 2) + 1, ownLine[1]];
+                }
+
                 return ownLine;
             }
 

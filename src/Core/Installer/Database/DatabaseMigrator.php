@@ -76,6 +76,7 @@ class DatabaseMigrator
         $isFinished = $coreMigrations->getExecutableDestructiveMigrations() === [];
 
         if ($isFinished) {
+            // The installer kernel has no core container, so VersionHistorySubscriber never sees an install event here.
             (new VersionHistory(new MySQLKeyValueStorage($connection), $this->clock, $this->version))->record(VersionHistoryEntryType::INSTALL);
         }
 

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem as ThemeFilesystem;
+use Shopware\Core\Test\Stub\Framework\Util\InMemoryUtilFilesystem;
 use Shopware\Storefront\Theme\Command\ThemeMigrateTranslationsCommand;
 use Shopware\Storefront\Theme\Snippet\ThemeConfigSnippetGenerator;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -14,7 +15,6 @@ use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeFilesystemResolver;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -25,7 +25,7 @@ class ThemeMigrateTranslationsCommandTest extends TestCase
 {
     private const SNIPPET_FILE = '/Resources/app/administration/src/snippet/en-GB.json';
 
-    private Filesystem $filesystem;
+    private InMemoryUtilFilesystem $filesystem;
 
     private string $themeDirectory;
 
@@ -35,9 +35,8 @@ class ThemeMigrateTranslationsCommandTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->filesystem = new Filesystem();
-        $this->themeDirectory = sys_get_temp_dir() . '/' . uniqid('SwagTheme', true);
-        $this->filesystem->mkdir($this->themeDirectory . '/Resources');
+        $this->filesystem = new InMemoryUtilFilesystem();
+        $this->themeDirectory = '/custom/plugins/SwagTheme';
 
         $this->configuration = new StorefrontPluginConfiguration('SwagTheme');
         $this->configuration->setIsTheme(true);
@@ -54,11 +53,6 @@ class ThemeMigrateTranslationsCommandTest extends TestCase
             new ThemeConfigSnippetGenerator(static::createStub(StorefrontPluginRegistry::class)),
             $this->filesystem,
         ));
-    }
-
-    protected function tearDown(): void
-    {
-        $this->filesystem->remove($this->themeDirectory);
     }
 
     public function testUnknownThemeFails(): void
@@ -78,7 +72,7 @@ class ThemeMigrateTranslationsCommandTest extends TestCase
         $display = $this->commandTester->getDisplay();
 
         static::assertSame(Command::SUCCESS, $exitCode);
-        static::assertFileDoesNotExist($this->themeDirectory . self::SNIPPET_FILE);
+        static::assertFalse($this->filesystem->exists($this->themeDirectory . self::SNIPPET_FILE));
         static::assertSame(
             ['sw-theme' => ['SwagTheme' => ['default' => ['default' => ['default' => ['sw-logo' => ['label' => 'Logo']]]]]]],
             $this->readJson($this->themeDirectory . '/Resources/app/administration/snippet/en-GB.json'),
@@ -95,7 +89,7 @@ class ThemeMigrateTranslationsCommandTest extends TestCase
         $this->commandTester->execute(['technical-name' => 'SwagTheme']);
 
         static::assertStringContainsString('App snippets require en-GB.json', $this->commandTester->getDisplay());
-        static::assertFileExists($this->themeDirectory . '/Resources/app/administration/snippet/de-DE.json');
+        static::assertTrue($this->filesystem->exists($this->themeDirectory . '/Resources/app/administration/snippet/de-DE.json'));
     }
 
     public function testThemeWithoutLegacyTranslationsWritesNothing(): void
@@ -106,7 +100,7 @@ class ThemeMigrateTranslationsCommandTest extends TestCase
 
         static::assertSame(Command::SUCCESS, $exitCode);
         static::assertStringContainsString('has no legacy translations', $this->commandTester->getDisplay());
-        static::assertFileDoesNotExist($this->themeDirectory . self::SNIPPET_FILE);
+        static::assertFalse($this->filesystem->exists($this->themeDirectory . self::SNIPPET_FILE));
     }
 
     public function testWritesOneSnippetFilePerLanguage(): void
@@ -199,7 +193,7 @@ class ThemeMigrateTranslationsCommandTest extends TestCase
 
         static::assertSame(Command::SUCCESS, $exitCode);
         static::assertStringContainsString('Dry run, nothing was written.', $this->commandTester->getDisplay());
-        static::assertFileDoesNotExist($this->themeDirectory . self::SNIPPET_FILE);
+        static::assertFalse($this->filesystem->exists($this->themeDirectory . self::SNIPPET_FILE));
         static::assertSame($themeJson, $this->readJson($this->themeDirectory . '/Resources/theme.json'));
     }
 
@@ -238,7 +232,7 @@ class ThemeMigrateTranslationsCommandTest extends TestCase
             $this->readJson($this->themeDirectory . '/Resources/theme.json'),
         );
         static::assertStringContainsString('"brand": {}', $this->filesystem->readFile($this->themeDirectory . '/Resources/theme.json'));
-        static::assertFileExists($this->themeDirectory . self::SNIPPET_FILE);
+        static::assertTrue($this->filesystem->exists($this->themeDirectory . self::SNIPPET_FILE));
     }
 
     /**

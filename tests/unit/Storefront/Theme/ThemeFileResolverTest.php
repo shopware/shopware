@@ -91,15 +91,8 @@ class ThemeFileResolverTest extends TestCase
     public function testResolveScriptFilesAddsOwnEntryAfterIncludedThemeWhenIncludeComesFirst(): void
     {
         $config = new StorefrontPluginConfiguration('TestTheme');
-        $ownEntry = tempnam(sys_get_temp_dir(), 'theme-file-resolver-own-entry-');
-        if ($ownEntry === false) {
-            static::fail('Could not create temporary file for own entry.');
-        }
-        $includedEntry = tempnam(sys_get_temp_dir(), 'theme-file-resolver-included-entry-');
-        if ($includedEntry === false) {
-            @unlink($ownEntry);
-            static::fail('Could not create temporary file for included entry.');
-        }
+        $ownEntry = __DIR__ . '/fixtures/SimplePlugin/Resources/app/storefront/src/main.js';
+        $includedEntry = __DIR__ . '/fixtures/MockStorefront/Resources/app/storefront/dist/storefront/js/storefront.js';
 
         $config->setStorefrontEntryFilepath($ownEntry);
         $config->setScriptFiles(FileCollection::createFromArray(['@Storefront', '/tmp/should-be-skipped.js']));
@@ -117,16 +110,11 @@ class ThemeFileResolverTest extends TestCase
         $resolver = new ThemeFileResolver($themeFilesystemResolver);
         $configCollection = new StorefrontPluginConfigurationCollection([$config, $storefront]);
 
-        try {
-            $result = $resolver->resolveScriptFiles($config, $configCollection, true);
+        $result = $resolver->resolveScriptFiles($config, $configCollection, true);
 
-            static::assertSame([$includedEntry, $ownEntry], $result->getFilepaths());
-            static::assertSame('storefront', $result->first()?->assetName);
-            static::assertSame($config->getAssetName(), $result->last()?->assetName);
-        } finally {
-            @unlink($ownEntry);
-            @unlink($includedEntry);
-        }
+        static::assertSame([$includedEntry, $ownEntry], $result->getFilepaths());
+        static::assertSame('storefront', $result->first()?->assetName);
+        static::assertSame($config->getAssetName(), $result->last()?->assetName);
     }
 
     public function testResolveStyleFilesReturnsEmptyCollectionForCircularThemeIncludes(): void
@@ -157,10 +145,7 @@ class ThemeFileResolverTest extends TestCase
         $files->add($file);
         $config->setStyleFiles($files);
 
-        $existingFilePath = tempnam(sys_get_temp_dir(), 'theme-file-resolver-');
-        if ($existingFilePath === false) {
-            static::fail('Could not create temporary file for test.');
-        }
+        $existingFilePath = __DIR__ . '/fixtures/MockStorefront/Resources/app/storefront/src/scss/base.scss';
 
         $filesystem = static::createStub(\Shopware\Core\Framework\Util\Filesystem::class);
         $filesystem->method('has')->willReturnMap([
@@ -178,17 +163,13 @@ class ThemeFileResolverTest extends TestCase
         $resolver = new ThemeFileResolver($themeFilesystemResolver);
         $configCollection = new StorefrontPluginConfigurationCollection([$config]);
 
-        try {
-            $resolvedFiles = $resolver->resolveFiles($config, $configCollection, false);
+        $resolvedFiles = $resolver->resolveFiles($config, $configCollection, false);
 
-            static::assertSame([$existingFilePath], $resolvedFiles[ThemeFileResolver::STYLE_FILES]->getFilepaths());
-            static::assertSame(
-                ['vendor' => '/tmp/Resources/app/storefront/vendor'],
-                $resolvedFiles[ThemeFileResolver::STYLE_FILES]->getResolveMappings()
-            );
-        } finally {
-            @unlink($existingFilePath);
-        }
+        static::assertSame([$existingFilePath], $resolvedFiles[ThemeFileResolver::STYLE_FILES]->getFilepaths());
+        static::assertSame(
+            ['vendor' => '/tmp/Resources/app/storefront/vendor'],
+            $resolvedFiles[ThemeFileResolver::STYLE_FILES]->getResolveMappings()
+        );
     }
 
     public function testResolvedFilesIncludeSkinScssPath(): void

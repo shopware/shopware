@@ -148,10 +148,7 @@ class FileSaverTest extends TestCase
         $mediaCollection->set($mediaId, $currentMedia);
         $this->mediaRepository->addSearch($mediaCollection, $mediaCollection, $mediaCollection);
 
-        $file = tmpfile();
-        static::assertIsResource($file);
-        $tempMeta = stream_get_meta_data($file);
-        $mediaFile = new MediaFile($tempMeta['uri'] ?? '', 'image/png', 'png', 0);
+        $mediaFile = new MediaFile(__DIR__ . '/_fixtures/image1x1.png', 'image/png', 'png', 0);
 
         $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()));
 
@@ -218,10 +215,7 @@ class FileSaverTest extends TestCase
         $mediaCollection->set($mediaId, $currentMedia);
         $this->mediaRepository->addSearch($mediaCollection, $mediaCollection, $mediaCollection);
 
-        $file = tmpfile();
-        static::assertIsResource($file);
-        $tempMeta = stream_get_meta_data($file);
-        $mediaFile = new MediaFile($tempMeta['uri'] ?? '', 'image/png', 'png', 0);
+        $mediaFile = new MediaFile(__DIR__ . '/_fixtures/image1x1.png', 'image/png', 'png', 0);
 
         $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()));
 

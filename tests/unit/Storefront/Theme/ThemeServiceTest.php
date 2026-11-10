@@ -1046,7 +1046,10 @@ class ThemeServiceTest extends TestCase
                 ]], $repository->updates);
             });
 
-        $this->getThemeService(themeRepository: $repository, runtimeConfigService: $runtime)->updateTheme(
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('transactional');
+
+        $this->getThemeService(themeRepository: $repository, connection: $connection, runtimeConfigService: $runtime)->updateTheme(
             $themeId,
             ['sw-color-brand-primary' => ['value' => '#00ff00']],
             null,
@@ -1061,6 +1064,79 @@ class ThemeServiceTest extends TestCase
         $this->expectExceptionObject(ThemeException::couldNotFindThemeById($themeId));
 
         $this->getThemeService(themeRepository: StaticEntityRepository::of(ThemeCollection::class, [[]]))->updateTheme($themeId, null, null, $this->context);
+    }
+
+    public function testUpdateThemeWithResetStateCommitsResetAndValuesTogetherBeforeCompiling(): void
+    {
+        $themeId = Uuid::randomHex();
+        $savedTheme = new ThemeEntity();
+        $savedTheme->setId($themeId);
+        $savedTheme->setSalesChannels(new SalesChannelCollection());
+        $savedTheme->setConfigValues([
+            'sw-color-brand-primary' => ['value' => '#ff00ff'],
+            'sw-color-brand-secondary' => ['value' => '#00ff00'],
+        ]);
+        $resetTheme = clone $savedTheme;
+        $resetTheme->setConfigValues(null);
+        // Like the database, the read after the reset write sees the reset config.
+        $repository = StaticEntityRepository::of(ThemeCollection::class, [
+            [$themeId],
+            static fn () => new ThemeCollection([$resetTheme]),
+        ]);
+        $this->mergedConfigBuilderMock->method('getPlainThemeConfiguration')->willReturn([
+            'fields' => ['sw-color-brand-primary' => ['type' => 'color', 'value' => '#0000ff']],
+        ]);
+
+        $calls = new \ArrayObject();
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([['id' => $themeId, 'saleschannelId' => TestDefaults::SALES_CHANNEL]]);
+        $connection->expects($this->once())->method('transactional')->willReturnCallback(
+            static function (\Closure $closure) use ($calls, $repository): void {
+                $calls->append('begin');
+                $closure();
+                $calls->append(['commit' => $repository->updates]);
+            }
+        );
+        $themeCompiler = $this->createMock(ThemeCompiler::class);
+        $themeCompiler->expects($this->once())->method('compileTheme')->willReturnCallback(static function () use ($calls): void {
+            $calls->append('compile');
+        });
+
+        $this->context->state(
+            fn () => $this->getThemeService(themeRepository: $repository, themeCompiler: $themeCompiler, connection: $connection)->updateTheme(
+                $themeId,
+                ['sw-color-brand-primary' => ['value' => '#123456']],
+                null,
+                $this->context,
+            ),
+            ThemeService::STATE_RESET_CONFIG,
+        );
+
+        static::assertSame([
+            'begin',
+            ['commit' => [
+                [['id' => $themeId, 'configValues' => null]],
+                [['id' => $themeId, 'configValues' => ['sw-color-brand-primary' => ['value' => '#123456']]]],
+            ]],
+            'compile',
+        ], $calls->getArrayCopy());
+    }
+
+    public function testFailedUpdateThemeWithResetStateDropsTheRuntimeConfigCachedByTheReset(): void
+    {
+        $failure = new \RuntimeException('value write failed');
+        $connection = static::createStub(Connection::class);
+        $connection->method('transactional')->willThrowException($failure);
+        $runtimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+        $runtimeConfigService->expects($this->once())->method('resetCaches');
+
+        $this->expectExceptionObject($failure);
+
+        $this->context->state(
+            fn () => $this->getThemeService(connection: $connection, runtimeConfigService: $runtimeConfigService)
+                ->updateTheme(Uuid::randomHex(), [], null, $this->context),
+            ThemeService::STATE_RESET_CONFIG,
+        );
     }
 
     public function testResetTheme(): void

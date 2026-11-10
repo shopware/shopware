@@ -25,8 +25,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use Twig\Environment;
-use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
@@ -64,9 +62,11 @@ class ProductExportRendererTest extends TestCase
         $dispatcher = static::createStub(EventDispatcherInterface::class);
         $dispatcher->method('dispatch')->willReturn($event);
 
-        $environment = new Environment(new ArrayLoader());
-
-        $twigRenderer = new StringTemplateRenderer($environment, sys_get_temp_dir());
+        $twigRenderer = $this->createMock(StringTemplateRenderer::class);
+        $twigRenderer->expects($headerTemplate === null ? $this->never() : $this->once())
+            ->method('render')
+            ->with((string) $headerTemplate, $event->getContext(), $this->context->getContext())
+            ->willReturnArgument(0);
 
         $renderer = new ProductExportRenderer(
             $twigRenderer,
@@ -136,9 +136,11 @@ class ProductExportRendererTest extends TestCase
         $dispatcher = static::createStub(EventDispatcherInterface::class);
         $dispatcher->method('dispatch')->willReturn($event);
 
-        $environment = new Environment(new ArrayLoader());
-
-        $twigRenderer = new StringTemplateRenderer($environment, sys_get_temp_dir());
+        $twigRenderer = $this->createMock(StringTemplateRenderer::class);
+        $twigRenderer->expects($footerTemplate === null ? $this->never() : $this->once())
+            ->method('render')
+            ->with((string) $footerTemplate, $event->getContext(), $this->context->getContext())
+            ->willReturnArgument(0);
 
         $renderer = new ProductExportRenderer(
             $twigRenderer,
@@ -167,9 +169,11 @@ class ProductExportRendererTest extends TestCase
 
         $dispatcher = static::createStub(EventDispatcherInterface::class);
 
-        $environment = new Environment(new ArrayLoader());
-
-        $twigRenderer = new StringTemplateRenderer($environment, sys_get_temp_dir());
+        $twigRenderer = $this->createMock(StringTemplateRenderer::class);
+        $twigRenderer->expects($this->once())
+            ->method('render')
+            ->with((string) $bodyTemplate, $data, $this->context->getContext())
+            ->willReturnArgument(0);
 
         $renderer = new ProductExportRenderer(
             $twigRenderer,
@@ -268,7 +272,13 @@ class ProductExportRendererTest extends TestCase
 
     public function testRenderBodyKeepsUrlLikeDescriptionsUnchanged(): void
     {
-        $renderer = $this->createRenderer();
+        $renderer = $this->createRenderer(static function (array $data): string {
+            static::assertIsArray($data['custom']);
+            static::assertIsArray($data['custom']['nested']);
+            static::assertIsString($data['custom']['nested']['description']);
+
+            return $data['custom']['nested']['description'];
+        });
         $productExport = new ProductExportEntity();
         $productExport->setId(Uuid::randomHex());
         $productExport->setBodyTemplate('{{ custom.nested.description }}');
@@ -290,7 +300,12 @@ class ProductExportRendererTest extends TestCase
     #[DisabledFeatures(['MEDIA_URL_PATH_ENCODING'])]
     public function testRenderBodyEncodesUrlsInNestedStructsWithoutMutatingThem(): void
     {
-        $renderer = $this->createRenderer();
+        $renderer = $this->createRenderer(static function (array $data): string {
+            static::assertInstanceOf(ProductMediaEntity::class, $data['cover']);
+            static::assertInstanceOf(MediaEntity::class, $data['cover']->getMedia());
+
+            return $data['cover']->getMedia()->getUrl();
+        });
         $productExport = new ProductExportEntity();
         $productExport->setId(Uuid::randomHex());
         $productExport->setBodyTemplate('{{ cover.media.url }}');
@@ -317,7 +332,12 @@ class ProductExportRendererTest extends TestCase
     #[DisabledFeatures(['MEDIA_URL_PATH_ENCODING'])]
     public function testRenderBodyEncodesNestedThumbnailUrlsWithoutMutatingThem(): void
     {
-        $renderer = $this->createRenderer();
+        $renderer = $this->createRenderer(static function (array $data): string {
+            static::assertInstanceOf(ArrayStruct::class, $data['media']);
+            static::assertInstanceOf(MediaThumbnailEntity::class, $data['media']->get('thumbnail'));
+
+            return $data['media']->get('thumbnail')->getUrl();
+        });
         $productExport = new ProductExportEntity();
         $productExport->setId(Uuid::randomHex());
         $productExport->setBodyTemplate('{{ media.thumbnail.url }}');
@@ -375,7 +395,11 @@ class ProductExportRendererTest extends TestCase
 
     public function testRenderBodyKeepsEncodedMediaUrls(): void
     {
-        $renderer = $this->createRenderer();
+        $renderer = $this->createRenderer(static function (array $data): string {
+            static::assertInstanceOf(MediaEntity::class, $data['media']);
+
+            return $data['media']->getUrl();
+        });
         $productExport = new ProductExportEntity();
         $productExport->setId(Uuid::randomHex());
         $productExport->setBodyTemplate('{{ media.url }}');
@@ -393,7 +417,12 @@ class ProductExportRendererTest extends TestCase
 
     public function testRenderBodyKeepsNonUrlAndUnparsableUrlValues(): void
     {
-        $renderer = $this->createRenderer();
+        $renderer = $this->createRenderer(static function (array $data): string {
+            static::assertIsString($data['label']);
+            static::assertIsString($data['url']);
+
+            return $data['label'] . ' ' . $data['url'];
+        });
         $productExport = new ProductExportEntity();
         $productExport->setId(Uuid::randomHex());
         $productExport->setBodyTemplate('{{ label }} {{ url }}');
@@ -408,7 +437,11 @@ class ProductExportRendererTest extends TestCase
 
     public function testRenderBodyKeepsInvalidMediaUrlsUnchanged(): void
     {
-        $renderer = $this->createRenderer();
+        $renderer = $this->createRenderer(static function (array $data): string {
+            static::assertInstanceOf(MediaEntity::class, $data['media']);
+
+            return $data['media']->getUrl();
+        });
         $productExport = new ProductExportEntity();
         $productExport->setId(Uuid::randomHex());
         $productExport->setBodyTemplate('{{ media.url }}');
@@ -425,7 +458,11 @@ class ProductExportRendererTest extends TestCase
 
     public function testRenderBodyPassesThroughMediaUrlsWhenV68IsActive(): void
     {
-        $renderer = $this->createRenderer();
+        $renderer = $this->createRenderer(static function (array $data): string {
+            static::assertInstanceOf(MediaEntity::class, $data['media']);
+
+            return $data['media']->getUrl();
+        });
         $productExport = new ProductExportEntity();
         $productExport->setId(Uuid::randomHex());
         $productExport->setBodyTemplate('{{ media.url }}');
@@ -490,10 +527,19 @@ class ProductExportRendererTest extends TestCase
         ];
     }
 
-    private function createRenderer(): ProductExportRenderer
+    /**
+     * @param \Closure(array<string, mixed>): string $resolve what the body template prints from the rendered data
+     */
+    private function createRenderer(\Closure $resolve): ProductExportRenderer
     {
+        $twigRenderer = $this->createMock(StringTemplateRenderer::class);
+        $twigRenderer->expects($this->once())
+            ->method('render')
+            ->with(static::isString(), static::isArray(), $this->context->getContext())
+            ->willReturnCallback(static fn (string $template, array $data): string => $resolve($data));
+
         return new ProductExportRenderer(
-            new StringTemplateRenderer(new Environment(new ArrayLoader()), sys_get_temp_dir()),
+            $twigRenderer,
             static::createStub(EventDispatcherInterface::class),
         );
     }

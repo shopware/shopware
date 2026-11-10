@@ -42,7 +42,13 @@ class Migration1794221136AddProductDocumentMediaUsagePrivilegesTest extends Test
         $this->migration->update($this->connection);
 
         $privileges = $this->fetchPrivileges($roleId);
-        static::assertSame(['media.viewer', 'product_document:read', 'product_document_translation:read'], $privileges);
+        static::assertSame([
+            'media.viewer',
+            'product_document:read',
+            'product_document_translation:read',
+            'property_group_option:read',
+            'property_group:read',
+        ], $privileges);
     }
 
     public function testOtherRolesAreLeftAlone(): void

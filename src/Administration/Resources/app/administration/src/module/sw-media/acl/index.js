@@ -18,6 +18,8 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'product_document:read',
                 'product_document_translation:read',
                 'product:read',
+                'property_group_option:read',
+                'property_group:read',
                 'category:read',
                 'product_manufacturer:read',
                 'mail_template_media:read',

@@ -26,7 +26,7 @@ function createMedia(overrides: Record<string, unknown> = {}) {
 describe('sw-media-quickinfo-usage products', () => {
     let wrapper: VueWrapper;
     const product = { id: 'product', translated: { name: 'Operating manual product' } };
-    const documentUsage = { productDocument: { product } };
+    const documentUsage = { productDocument: { productId: product.id, product } };
     const modules = Shopware.Module.getModuleRegistry();
     const originalProductModule = modules.get('sw-product');
 
@@ -50,7 +50,11 @@ describe('sw-media-quickinfo-usage products', () => {
         }
     });
 
-    async function createWrapper(item: ReturnType<typeof createMedia>, slotProducts: (typeof product)[] = []) {
+    async function createWrapper(
+        item: ReturnType<typeof createMedia>,
+        slotProducts: (typeof product)[] = [],
+        inheritedProducts: Record<string, unknown>[] = [],
+    ) {
         wrapper = mount(await wrapTestComponent('sw-media-quickinfo-usage', { sync: true }), {
             props: { item },
             global: {
@@ -62,7 +66,16 @@ describe('sw-media-quickinfo-usage products', () => {
                 provide: {
                     repositoryFactory: {
                         create: (entity: string) => ({
-                            search: () => Promise.resolve(entity === 'product' ? slotProducts : []),
+                            search: (criteria: { parse: () => { ids?: string[] } }, context?: { inheritance?: boolean }) =>
+                                Promise.resolve(
+                                    entity === 'product'
+                                        ? context?.inheritance
+                                            ? inheritedProducts.filter(({ id }) =>
+                                                  criteria.parse().ids?.includes(id as string),
+                                              )
+                                            : slotProducts
+                                        : [],
+                                ),
                         }),
                     },
                 },
@@ -84,7 +97,11 @@ describe('sw-media-quickinfo-usage products', () => {
 
     it('lists each product once across document assignments and languages', async () => {
         const otherProduct = { id: 'other-product', translated: { name: 'Other product' } };
-        const translations = [documentUsage, documentUsage, { productDocument: { product: otherProduct } }];
+        const translations = [
+            documentUsage,
+            documentUsage,
+            { productDocument: { productId: otherProduct.id, product: otherProduct } },
+        ];
         const item = createMedia({ productDocumentTranslations: translations });
         await createWrapper(item);
 
@@ -100,24 +117,30 @@ describe('sw-media-quickinfo-usage products', () => {
             id: 'variant-1',
             parentId: product.id,
             productNumber: 'SW-100-1',
-            translated: { name: product.translated.name },
-            variation: [{ group: 'Color', option: 'Tan' }],
+            translated: { name: null },
+            variation: [],
         };
         const secondVariant = {
             id: 'variant-2',
             parentId: product.id,
             productNumber: 'SW-100-2',
-            translated: { name: product.translated.name },
-            variation: [{ group: 'Color', option: 'Blue' }],
+            translated: { name: null },
+            variation: [],
         };
         await createWrapper(
             createMedia({
                 productDocumentTranslations: [
                     documentUsage,
-                    { productDocument: { product: firstVariant } },
-                    { productDocument: { product: secondVariant } },
+                    { productDocument: { productId: firstVariant.id, product: firstVariant } },
+                    { productDocument: { productId: secondVariant.id, product: secondVariant } },
                 ],
             }),
+            [],
+            [
+                product,
+                { ...secondVariant, translated: product.translated, variation: [{ group: 'Color', option: 'Blue' }] },
+                { ...firstVariant, translated: product.translated, variation: [{ group: 'Color', option: 'Tan' }] },
+            ],
         );
 
         const links = wrapper.findAllComponents(RouterLinkStub);
@@ -132,7 +155,7 @@ describe('sw-media-quickinfo-usage products', () => {
     });
 
     it('does not duplicate a product also using the file as an image and in CMS content', async () => {
-        const productMedia = [{ product }];
+        const productMedia = [{ productId: product.id, product }];
         const item = createMedia({ productMedia, productDocumentTranslations: [documentUsage] });
         await createWrapper(item, [product]);
 
@@ -145,10 +168,23 @@ describe('sw-media-quickinfo-usage products', () => {
         const variant = {
             id: 'variant',
             parentId: product.id,
-            translated: { name: product.translated.name },
-            variation: [{ group: 'Color', option: 'Tan' }],
+            productNumber: 'SW-100-1',
+            translated: { name: null },
+            variation: [],
         };
-        await createWrapper(createMedia({ productMedia: [{ product }, { product: variant }] }));
+        await createWrapper(
+            createMedia({
+                productMedia: [
+                    { productId: product.id, product },
+                    { productId: variant.id, product: variant },
+                ],
+            }),
+            [],
+            [
+                product,
+                { ...variant, translated: product.translated, variation: [{ group: 'Color', option: 'Tan' }] },
+            ],
+        );
 
         const links = wrapper.findAllComponents(RouterLinkStub);
         expect(links).toHaveLength(2);
@@ -156,6 +192,31 @@ describe('sw-media-quickinfo-usage products', () => {
         expect(links[1].text()).toContain(product.translated.name);
         expect(links[1].text()).toContain('Color: Tan');
         expect(links[1].props('to')).toEqual({ name: 'sw.product.detail', params: { id: variant.id } });
+    });
+
+    it('links the saved assignment owners when embedded products resolve to another variant', async () => {
+        const imageOwner = { id: 'image-owner', translated: { name: 'Image owner' } };
+        const documentOwner = { id: 'document-owner', translated: { name: 'Document owner' } };
+        const wrongVariant = { id: 'wrong-variant', translated: { name: 'Wrong variant' } };
+        await createWrapper(
+            createMedia({
+                productMedia: [{ productId: imageOwner.id, product: wrongVariant }],
+                productDocumentTranslations: [
+                    { productDocument: { productId: documentOwner.id, product: wrongVariant } },
+                ],
+            }),
+            [],
+            [imageOwner, documentOwner],
+        );
+
+        const links = wrapper.findAllComponents(RouterLinkStub);
+        expect(links.map((link) => link.props('to'))).toEqual([
+            { name: 'sw.product.detail', params: { id: imageOwner.id } },
+            { name: 'sw.product.detail', params: { id: documentOwner.id } },
+        ]);
+        expect(wrapper.text()).toContain(imageOwner.translated.name);
+        expect(wrapper.text()).toContain(documentOwner.translated.name);
+        expect(wrapper.text()).not.toContain(wrongVariant.translated.name);
     });
 
     it('clears document usages when selecting another media file', async () => {
@@ -169,7 +230,9 @@ describe('sw-media-quickinfo-usage products', () => {
     });
 
     it('preserves image usages when document associations were not loaded', async () => {
-        await createWrapper(createMedia({ productMedia: [{ product }], productDocumentTranslations: undefined }));
+        await createWrapper(
+            createMedia({ productMedia: [{ productId: product.id, product }], productDocumentTranslations: undefined }),
+        );
 
         expect(wrapper.findAllComponents(RouterLinkStub)).toHaveLength(1);
         expect(wrapper.text()).toContain(product.translated.name);

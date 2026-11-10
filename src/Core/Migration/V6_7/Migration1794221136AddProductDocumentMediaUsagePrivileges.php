@@ -23,6 +23,8 @@ class Migration1794221136AddProductDocumentMediaUsagePrivileges extends Migratio
             'media.viewer' => [
                 'product_document:read',
                 'product_document_translation:read',
+                'property_group_option:read',
+                'property_group:read',
             ],
         ]);
     }

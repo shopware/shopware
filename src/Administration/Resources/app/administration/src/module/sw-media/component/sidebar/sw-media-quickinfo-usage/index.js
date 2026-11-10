@@ -204,6 +204,12 @@ export default {
 
         loadProductAssociations() {
             this.products = [...this.item.productMedia];
+            this.item.productDocumentTranslations?.forEach(({ productDocument }) => {
+                const product = productDocument?.product;
+                if (product && !this.products.some((usage) => usage.product.id === product.id)) {
+                    this.products.push({ product });
+                }
+            });
         },
 
         loadCategoryAssociations() {
@@ -273,6 +279,7 @@ export default {
         getProductUsage(product) {
             return {
                 name: product.translated.name,
+                variations: product.variation,
                 tooltip: this.$t('sw-media.sidebar.usage.tooltipFoundInProducts'),
                 link: {
                     name: 'sw.product.detail',

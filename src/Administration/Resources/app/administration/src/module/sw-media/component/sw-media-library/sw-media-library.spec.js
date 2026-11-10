@@ -222,6 +222,31 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
         });
     });
 
+    it('loads document usage without paginating translation records with composite keys', async () => {
+        const search = jest.spyOn(Repository.prototype, 'search');
+        let wrapper;
+        try {
+            wrapper = await createWrapper();
+            await flushPromises();
+            const request = search.mock.calls.find(
+                ([usedCriteria]) => usedCriteria.parse().associations?.productDocumentTranslations,
+            );
+            const [criteria, context] = request ?? [];
+            expect(criteria).toBeDefined();
+            expect(context).toEqual(expect.objectContaining({ inheritance: true }));
+            const associations = criteria.parse().associations;
+            expect(associations).not.toHaveProperty('productDocumentTranslations.limit');
+            expect(associations).toHaveProperty(
+                'productDocumentTranslations.associations.productDocument.associations.product.associations.options.associations.group',
+            );
+            expect(associations.productMedia.limit).toBe(25);
+            expect(associations).toHaveProperty('productMedia.associations.product.associations.options.associations.group');
+        } finally {
+            wrapper?.unmount();
+            search.mockRestore();
+        }
+    });
+
     it('should show the load more button if the folder request fails', async () => {
         const wrapper = await createWrapper({
             folderAmount: [null, 3],
@@ -309,6 +334,10 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
                     associations: expect.any(Object),
                     'total-count-mode': 1,
                 },
+                productDocumentTranslations: {
+                    associations: expect.any(Object),
+                    'total-count-mode': 1,
+                },
                 categories: { limit: 25, 'total-count-mode': 1 },
                 productManufacturers: {
                     limit: 25,
@@ -353,6 +382,10 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
                 tags: { limit: 25, 'total-count-mode': 1 },
                 productMedia: {
                     limit: 25,
+                    associations: expect.any(Object),
+                    'total-count-mode': 1,
+                },
+                productDocumentTranslations: {
                     associations: expect.any(Object),
                     'total-count-mode': 1,
                 },

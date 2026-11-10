@@ -238,6 +238,11 @@ export default {
                 });
             });
 
+            criteria.addAssociation('productMedia.product.options.group');
+
+            // Translation records have a composite key and cannot use paginated associations.
+            criteria.addAssociation('productDocumentTranslations.productDocument.product.options.group');
+
             return criteria;
         },
 
@@ -430,7 +435,7 @@ export default {
                 );
             }
 
-            const media = await this.mediaRepository.search(criteria, Context.api);
+            const media = await this.mediaRepository.search(criteria, { ...Context.api, inheritance: true });
 
             this.itemTotal = media.total ?? 0;
             this.itemLoaderDone = this.isLoaderDone(criteria, media);

@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
@@ -1029,23 +1028,14 @@ class ThemeServiceTest extends TestCase
             ],
         ]);
 
-        $calls = [];
-
-        $themeRepository = $this->createMock(EntityRepository::class);
-        $themeRepository->method('search')->willReturn($searchResult);
-        $themeRepository->expects($this->once())->method('update')->willReturnCallback(
-            function (array $data) use (&$calls): EntityWrittenContainerEvent {
-                $calls[] = 'persist';
-
-                return $this->createStub(EntityWrittenContainerEvent::class);
-            }
-        );
+        $themeRepository = new StaticEntityRepository([$searchResult]);
+        $updatesAtDispatch = 0;
 
         $eventDispatcher = $this->createMock(EventDispatcher::class);
         $eventDispatcher->expects($this->once())->method('dispatch')->willReturnCallback(
-            function (object $event) use (&$calls): object {
+            function (object $event) use ($themeRepository, &$updatesAtDispatch): object {
                 static::assertInstanceOf(ThemeConfigChangedEvent::class, $event);
-                $calls[] = 'dispatch';
+                $updatesAtDispatch = \count($themeRepository->updates);
 
                 return $event;
             }
@@ -1057,7 +1047,8 @@ class ThemeServiceTest extends TestCase
         )->updateTheme($themeId, ['sw-color-brand-primary' => ['value' => '#ff00ff']], null, $this->context);
 
         // The StaticFileConfigDumper listener re-reads the DB on this event, so the write must come first.
-        static::assertSame(['persist', 'dispatch'], $calls);
+        static::assertSame(1, $updatesAtDispatch);
+        static::assertCount(1, $themeRepository->updates);
     }
 
     public function testUpdateThemeNoSalesChannelAssigned(): void

@@ -228,8 +228,7 @@ class ThemeService implements ResetInterface
             $data['configValues'] = array_intersect_key($data['configValues'], array_flip($validFields));
         }
 
-        // Capture the submitted config values before the merge below mutates $data['configValues'],
-        // so the dispatched event payload stays identical to the previous behaviour.
+        // The event carries the submitted values, not the merged config built below.
         $configValuesChanged = \array_key_exists('configValues', $data);
         $changedConfig = $configValuesChanged ? $data['configValues'] : [];
 
@@ -251,10 +250,7 @@ class ThemeService implements ResetInterface
 
         $this->themeRepository->update([$data], $context);
 
-        // Dispatch after the DB write. StaticFileConfigDumper listens to this event and re-reads the
-        // persisted theme config from the database to dump files/theme-config/<themeId>.json. Before
-        // the write (notably after the admin's reset=1 nulled config_values) it dumped the theme.json
-        // defaults instead of the saved values; the following compile then baked the defaults in.
+        // Dispatch after the write, because listeners such as StaticFileConfigDumper read the theme config from the database.
         if ($configValuesChanged) {
             $this->dispatcher->dispatch(new ThemeConfigChangedEvent($themeId, $changedConfig, $context));
         }

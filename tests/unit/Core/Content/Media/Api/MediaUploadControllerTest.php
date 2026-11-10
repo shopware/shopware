@@ -33,6 +33,11 @@ class MediaUploadControllerTest extends TestCase
      */
     public static array $createdTempFiles = [];
 
+    /**
+     * @var list<string>
+     */
+    public static array $removedTempFiles = [];
+
     private FileSaver&Stub $fileSaver;
 
     private MediaService&Stub $mediaService;
@@ -52,14 +57,8 @@ class MediaUploadControllerTest extends TestCase
     protected function tearDown(): void
     {
         self::$simulateFailedTempnam = false;
-
-        foreach (self::$createdTempFiles as $tempFile) {
-            if (is_file($tempFile)) {
-                unlink($tempFile);
-            }
-        }
-
         self::$createdTempFiles = [];
+        self::$removedTempFiles = [];
     }
 
     public function testRemoveNonPrintingCharactersInFileNameBeforeUpload(): void
@@ -97,6 +96,9 @@ class MediaUploadControllerTest extends TestCase
         );
 
         $mediaUploadController->upload($request, $mediaId, $context, $this->responseFactory);
+
+        static::assertCount(1, self::$createdTempFiles);
+        static::assertSame(self::$createdTempFiles, self::$removedTempFiles);
     }
 
     public function testRemoveNonPrintingCharactersInFileNameBeforeRename(): void
@@ -299,11 +301,16 @@ function tempnam(string $dir, string $prefix): string|false
         return false;
     }
 
-    $tempFile = \tempnam($dir, $prefix);
-
-    if (\is_string($tempFile)) {
-        MediaUploadControllerTest::$createdTempFiles[] = $tempFile;
-    }
+    // a path that is never created, the controller only hands it on and removes it
+    $tempFile = $dir . '/' . $prefix . uniqid('media-upload-controller-test-', true);
+    MediaUploadControllerTest::$createdTempFiles[] = $tempFile;
 
     return $tempFile;
+}
+
+function unlink(string $filename): bool
+{
+    MediaUploadControllerTest::$removedTempFiles[] = $filename;
+
+    return true;
 }

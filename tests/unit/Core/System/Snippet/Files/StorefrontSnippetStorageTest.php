@@ -18,6 +18,7 @@ use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem as AppFilesystem;
 use Shopware\Core\System\Snippet\Files\StorefrontSnippetStorage;
+use Shopware\Core\Test\Stub\Framework\Util\InMemoryUtilFilesystem;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem as Io;
 
@@ -32,7 +33,7 @@ class StorefrontSnippetStorageTest extends TestCase
 
     private Filesystem $filesystem;
 
-    private Io $io;
+    private InMemoryUtilFilesystem $io;
 
     /**
      * @var non-empty-string
@@ -43,13 +44,8 @@ class StorefrontSnippetStorageTest extends TestCase
     {
         $this->adapter = new SnippetSnapshotAdapter();
         $this->filesystem = new Filesystem($this->adapter);
-        $this->io = new Io();
-        $this->directory = sys_get_temp_dir() . '/' . uniqid('shopware-snippet-storage-', true);
-    }
-
-    protected function tearDown(): void
-    {
-        $this->io->remove($this->directory);
+        $this->io = new InMemoryUtilFilesystem();
+        $this->directory = '/var/cache/snippets';
     }
 
     public function testPersistPublishesOneSnapshotWithPathsAndContents(): void
@@ -81,7 +77,7 @@ class StorefrontSnippetStorageTest extends TestCase
 
         $remote = $this->createMock(FilesystemOperator::class);
         $remote->expects($this->never())->method(static::anything());
-        $storage = new StorefrontSnippetStorage($remote, $source, new NullLogger(), $this->directory);
+        $storage = new StorefrontSnippetStorage($remote, $source, new NullLogger(), $this->directory, $this->io);
         static::assertSame($directory, $storage->directory('TestApp', '1.0.0'));
         static::assertSame($reads + 1, $this->adapter->reads);
         static::assertSame(1, $this->adapter->writes);
@@ -258,7 +254,7 @@ class StorefrontSnippetStorageTest extends TestCase
         static::assertNotNull($directory);
         static::assertJsonStringEqualsJsonString('{"app":{"title":"Root"}}', $this->io->readFile($directory . '/Resources/snippet/storefront.de.json'));
         static::assertSame(
-            $this->io->readFile(__DIR__ . '/_fixtures/AppWithNestedSnippets/Resources/snippet/de/storefront.de.json'),
+            (new Io())->readFile(__DIR__ . '/_fixtures/AppWithNestedSnippets/Resources/snippet/de/storefront.de.json'),
             $this->io->readFile($directory . '/Resources/snippet/de/storefront.de.json')
         );
     }

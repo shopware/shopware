@@ -140,7 +140,8 @@ class IconCacheTwigFilterTest extends TestCase
         $templateFinder = new TemplateFinder(
             $twig,
             $loader,
-            sys_get_temp_dir() . '/' . uniqid('twig_test_', true),
+            // never written: the environment runs without a filesystem cache
+            __DIR__ . '/fixtures/twig-cache',
             new NamespaceHierarchyBuilder([
                 $builder,
             ]),

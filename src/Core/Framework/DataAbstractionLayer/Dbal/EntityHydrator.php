@@ -576,12 +576,15 @@ class EntityHydrator
         // products) is hydrated only once. Keying on the raw bytes keeps the lookup free of the
         // per-field serializer decode, which only runs on a cache miss below. self::$hydrated is reset
         // per hydrate() call, so the key only needs to be consistent within a single call.
+        // Each raw value is length-prefixed so a composite key stays unambiguous even when the raw
+        // storage bytes contain the separator.
         $cacheKey = $root;
         foreach ($definition->getPrimaryKeys() as $primaryKeyField) {
             if ($primaryKeyField instanceof VersionField || $primaryKeyField instanceof ReferenceVersionField) {
                 continue;
             }
-            $cacheKey .= '::' . $row[$root . '.' . $primaryKeyField->getPropertyName()];
+            $value = (string) $row[$root . '.' . $primaryKeyField->getPropertyName()];
+            $cacheKey .= '::' . \strlen($value) . ':' . $value;
         }
 
         if (isset(self::$hydrated[$cacheKey])) {

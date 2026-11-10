@@ -201,9 +201,8 @@ export default Shopware.Component.wrapComponentConfig({
             const isCurrentUpload = () =>
                 product === this.product &&
                 languageId === this.languageId &&
-                session === this.documentEditSession &&
                 this.canChangeDocuments() &&
-                (!editingDocument || editingDocument === this.editingDocument);
+                (!editingDocument || (session === this.documentEditSession && editingDocument === this.editingDocument));
 
             try {
                 const media = await this.mediaRepository.get(targetId, Shopware.Context.api);
@@ -343,7 +342,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         applyDocumentChanges(document: Entity<'product_document'>, changes: DocumentChanges): void {
             Object.assign(document, changes);
-            const translation = document.translations?.find((entry) => entry.languageId === Shopware.Context.api.languageId);
+            const translation = document.translations?.find((entry) => entry.languageId === this.languageId);
             if (!translation?.isNew()) {
                 return;
             }

@@ -120,7 +120,6 @@
             <file>src/Core/Test/Stub/Doctrine/TestExceptionFactory.php</file>
             <file>src/Core/Test/Stub/EventDispatcher/AssertingEventDispatcher.php</file>
             <file>src/Core/Test/Stub/Framework/BundleFixture.php</file>
-            <file>src/Core/Test/Stub/Framework/Util/InMemoryUtilFilesystem.php</file>
             <file>src/Core/Test/Stub/Framework/Util/NullRawDefinitionHtmlPurifierConfig.php</file>
             <file>src/Core/Test/Stub/Framework/Util/StaticHtmlPurifierConfigProvider.php</file>
             <file>src/Core/Test/AppSystemTestBehaviour.php</file>

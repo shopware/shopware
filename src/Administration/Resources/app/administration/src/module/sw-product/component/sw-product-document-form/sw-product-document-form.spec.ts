@@ -47,6 +47,16 @@ describe('sw-product-document-form', () => {
         expect(JSON.stringify(payload)).not.toContain('"media":');
     });
 
+    it('keeps unsaved file details after returning to the document form', async () => {
+        const wrapper = await createWrapper();
+        await addMedia(wrapper, [createMedia('unsaved-manual')]);
+        wrapper.unmount();
+
+        const reopened = await createWrapper();
+        expect(reopened.text()).toContain('unsaved-manual.pdf');
+        expect(reopened.text()).toContain('1.00KB');
+    });
+
     it.each([
         ['manual.pdf', 'application/pdf'],
         ['manual.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],

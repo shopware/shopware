@@ -406,6 +406,10 @@ If an app ships both, the file takes precedence, the inline definition is ignore
 
 ## Administration
 
+### Product list filters by product documents
+
+The product list has a new "Documents" filter, registered as `product-documents-filter`. It finds the products with or without product documents; variants count the documents they inherit from their parent.
+
 ### Deprecated the `customFieldSetRepository` computed property of `sw-product-stream-detail`
 
 The `customFieldSetRepository` computed property of `sw-product-stream-detail` is deprecated and will be removed.
@@ -923,6 +927,11 @@ Shopware now verifies that `APP_URL` reaches this installation before it registe
 The verification stores its token in the `cache.app_url_verification` cache pool, which uses `cache.app` by default. With several app servers, this pool must be shared between them, for example on Redis.
 
 `bin/console system:check` and the `recurrent` system health check now include an `AppUrlVerification` check.
+
+### Admin product search index contains product documents
+
+With `ENABLE_OPENSEARCH_FOR_ADMIN_API`, the admin product search index has a new `documents` field, so the "Documents" filter of the product list runs on OpenSearch.
+Run `bin/console es:admin:index` after the update.
 
 ### Elasticsearch errors no longer fail `system:update:finish`
 

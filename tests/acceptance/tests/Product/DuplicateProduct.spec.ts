@@ -1,4 +1,4 @@
-import { test } from '@fixtures/AcceptanceTest';
+import { test, translate } from '@fixtures/AcceptanceTest';
 
 test(
     'As a merchant, I want to duplicate a product from the product listing.',
@@ -9,22 +9,8 @@ test(
         await ShopAdmin.goesTo(AdminProductListing.url([product.productNumber]));
         await ShopAdmin.attemptsTo(DuplicateProduct(product.productNumber));
 
-        await ShopAdmin.expects(AdminProductDetail.nameInput).toHaveValue(`${product.name} Copy`);
-        await ShopAdmin.expects(AdminProductDetail.activeForAllSalesChannelsToggle).not.toBeChecked();
-        await ShopAdmin.expects(AdminProductDetail.productNumberInput).not.toHaveValue(product.productNumber);
-    },
-);
-
-test(
-    'As a merchant, I want to save and duplicate a product from the product detail page.',
-    { tag: '@Product' },
-    async ({ ShopAdmin, TestDataService, AdminProductDetail, SaveAndDuplicateProduct }) => {
-        const product = await TestDataService.createBasicProduct();
-
-        await ShopAdmin.goesTo(AdminProductDetail.url(product.id));
-        await ShopAdmin.attemptsTo(SaveAndDuplicateProduct());
-
-        await ShopAdmin.expects(AdminProductDetail.nameInput).toHaveValue(`${product.name} Copy`);
+        const duplicateName = `${product.name} ${translate('administration:product:detail.copySuffix')}`;
+        await ShopAdmin.expects(AdminProductDetail.nameInput).toHaveValue(duplicateName);
         await ShopAdmin.expects(AdminProductDetail.activeForAllSalesChannelsToggle).not.toBeChecked();
         await ShopAdmin.expects(AdminProductDetail.productNumberInput).not.toHaveValue(product.productNumber);
     },

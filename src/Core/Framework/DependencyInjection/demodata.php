@@ -17,7 +17,6 @@ use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition;
 use Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater;
@@ -37,7 +36,7 @@ use Shopware\Core\Framework\Demodata\Generator\MailTemplateGenerator;
 use Shopware\Core\Framework\Demodata\Generator\MediaGenerator;
 use Shopware\Core\Framework\Demodata\Generator\NewsletterRecipientGenerator;
 use Shopware\Core\Framework\Demodata\Generator\OrderGenerator;
-use Shopware\Core\Framework\Demodata\Generator\ProductDocumentGenerator;
+use Shopware\Core\Framework\Demodata\Generator\ProductDocumentFileProvider;
 use Shopware\Core\Framework\Demodata\Generator\ProductGenerator;
 use Shopware\Core\Framework\Demodata\Generator\ProductManufacturerGenerator;
 use Shopware\Core\Framework\Demodata\Generator\ProductReviewGenerator;
@@ -140,18 +139,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('shopware.demodata_generator', ['option-name' => 'reviews', 'option-default' => 20, 'option_name' => 'reviews', 'option_default' => 20]);
 
-    $services->set(ProductDocumentGenerator::class)
+    $services->set(ProductDocumentFileProvider::class)
         ->args([
             service(EntityWriter::class),
-            service(ProductDocumentDefinition::class),
             service(MediaDefinition::class),
             service(FileSaver::class),
             service(FileNameProvider::class),
             service(Filesystem::class),
-            service(InheritanceUpdater::class),
             service(Connection::class),
-        ])
-        ->tag('shopware.demodata_generator', ['option-name' => 'product-documents', 'option-default' => 100, 'option_name' => 'product-documents', 'option_default' => 100]);
+        ]);
 
     $services->set(ProductGenerator::class)
         ->args([
@@ -159,6 +155,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DefinitionInstanceRegistry::class),
             service(InheritanceUpdater::class),
             service(StatesUpdater::class)->nullOnInvalid(),
+            service(ProductDocumentFileProvider::class),
         ])
         ->tag('shopware.demodata_generator', ['option-name' => 'products', 'option-default' => 1000, 'option_name' => 'products', 'option_default' => 1000]);
 

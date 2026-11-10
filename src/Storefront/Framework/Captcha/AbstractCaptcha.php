@@ -56,7 +56,7 @@ abstract class AbstractCaptcha
     /**
      * isValid returns true, when the captcha contained in the request is valid.
      *
-     * @deprecated tag:v6.8.0 - reason:becomes-unused - Will be removed, implement validate() instead
+     * @deprecated tag:v6.8.0 - Will be removed, implement validate() instead
      *
      * @param array<string, mixed> $captchaConfig
      */
@@ -94,7 +94,7 @@ abstract class AbstractCaptcha
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:becomes-unused - Will be removed, use validate() instead
+     * @deprecated tag:v6.8.0 - Will be removed, use validate() instead
      */
     public function getViolations(): ConstraintViolationList
     {

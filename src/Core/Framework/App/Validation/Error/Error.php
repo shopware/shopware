@@ -8,7 +8,14 @@ use Shopware\Core\Framework\Log\Package;
  * @internal only for use by the app-system
  */
 #[Package('framework')]
-abstract class Error extends \Exception
+interface Error
 {
-    abstract public function getMessageKey(): string;
+    public function getMessage(): string;
+
+    public function getErrorCode(): string;
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getParameters(): array;
 }

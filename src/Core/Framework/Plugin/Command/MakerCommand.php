@@ -30,37 +30,7 @@ class MakerCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        $this
-            ->addArgument('plugin-name', InputArgument::OPTIONAL, 'Plugin name (PascalCase)');
-
-        $option = $this->generator->getCommandOption();
-
-        if ($option !== null) {
-            $this->getDefinition()->addOption($option);
-        }
-    }
-
-    protected function interact(InputInterface $input, OutputInterface $output): void
-    {
-        $io = new SymfonyStyle($input, $output);
-
-        foreach ($this->getDefinition()->getArguments() as $argument) {
-            if ($input->getArgument($argument->getName())) {
-                continue;
-            }
-
-            $question = new Question($argument->getDescription());
-            $question->setValidator(Validation::createCallable(new NotBlank()));
-
-            $value = $io->askQuestion($question);
-
-            $input->setArgument($argument->getName(), $value);
-        }
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    public function __invoke(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
 
@@ -93,7 +63,7 @@ class MakerCommand extends Command
                 $directory
             );
 
-            $this->generator->addScaffoldConfig($configuration, $input, $io);
+            $this->generator->addScaffoldConfig($configuration, $input, $output);
 
             $stubCollection = $this->scaffoldingCollector->collect($configuration, $this->generator);
 
@@ -106,6 +76,36 @@ class MakerCommand extends Command
             $io->error($exception->getMessage());
 
             return self::FAILURE;
+        }
+    }
+
+    protected function configure(): void
+    {
+        $this
+            ->addArgument('plugin-name', InputArgument::OPTIONAL, 'Plugin name (PascalCase)');
+
+        $option = $this->generator->getCommandOption();
+
+        if ($option !== null) {
+            $this->getDefinition()->addOption($option);
+        }
+    }
+
+    protected function interact(InputInterface $input, OutputInterface $output): void
+    {
+        $io = new SymfonyStyle($input, $output);
+
+        foreach ($this->getDefinition()->getArguments() as $argument) {
+            if ($input->getArgument($argument->getName())) {
+                continue;
+            }
+
+            $question = new Question($argument->getDescription());
+            $question->setValidator(Validation::createCallable(new NotBlank()));
+
+            $value = $io->askQuestion($question);
+
+            $input->setArgument($argument->getName(), $value);
         }
     }
 }

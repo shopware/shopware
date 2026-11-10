@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle;
 
-use Composer\Semver\VersionParser;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Asset\AssetService;
@@ -27,6 +26,7 @@ use Shopware\Core\Framework\App\Event\Hooks\AppInstalledHook;
 use Shopware\Core\Framework\App\Event\Hooks\AppUpdatedHook;
 use Shopware\Core\Framework\App\Event\PostAppDeletedEvent;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
+use Shopware\Core\Framework\App\Exception\AppUrlFailedVerificationException;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppActivationContext;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppRemovalContext;
@@ -38,6 +38,7 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\App\Validation\AppRequirementsValidator;
+use Shopware\Core\Framework\App\Validation\CompatibilityValidator;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -85,7 +86,7 @@ class AppManager
         private readonly ScriptExecutor $scriptExecutor,
         private readonly string $projectDir,
         private readonly CustomEntityLifecycleService $customEntityLifecycleService,
-        private readonly string $shopwareVersion,
+        private readonly CompatibilityValidator $compatibilityValidator,
         private readonly AppFeatureValidator $appFeatureValidator,
         private readonly SourceResolver $sourceResolver,
         private readonly ConfigReader $configReader,
@@ -371,9 +372,9 @@ class AppManager
 
     private function ensureIsCompatible(Manifest $manifest): void
     {
-        $versionParser = new VersionParser();
-        if (!$manifest->getMetadata()->getCompatibility()->matches($versionParser->parseConstraints($this->shopwareVersion))) {
-            throw AppException::notCompatible($manifest->getMetadata()->getName());
+        $error = $this->compatibilityValidator->validate($manifest, null)[0] ?? null;
+        if ($error !== null) {
+            throw AppException::validationFailedFromError($error);
         }
     }
 
@@ -426,7 +427,7 @@ class AppManager
         if ((!$app->getAppSecret() || $install) && $manifest->getSetup()) {
             try {
                 $this->registrationService->registerApp($manifest, $id, $secretAccessKey, $context);
-            } catch (AppRegistrationException $e) {
+            } catch (AppRegistrationException|AppUrlFailedVerificationException $e) {
                 // An ambiguous failure leaves an unconfirmed secret the app may already hold, so deleting
                 // the app would lose it — keep the half-installed app for a later installation repair.
                 if ($this->loadApp($id, $context)->getUnconfirmedAppSecrets() === null) {
@@ -738,7 +739,7 @@ class AppManager
             return false;
         }
 
-        $configError = $this->configValidator->validate($manifest, null)->first();
+        $configError = $this->configValidator->validate($manifest, null)[0] ?? null;
         if ($configError) {
             // only one error can be in the returned collection
             throw AppException::invalidConfiguration($manifest->getMetadata()->getName(), $configError);
@@ -783,9 +784,9 @@ class AppManager
 
     private function ensureMeetsRequirements(Manifest $manifest): void
     {
-        $violations = $this->requirementsValidator->validate($manifest);
-        if ($violations !== []) {
-            throw AppException::requirementsNotMet(...$violations);
+        $error = $this->requirementsValidator->validate($manifest, null)[0] ?? null;
+        if ($error !== null) {
+            throw AppException::validationFailedFromError($error);
         }
     }
 }

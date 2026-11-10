@@ -193,10 +193,10 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
         $finder = (new Finder())
             ->files()
             ->in($componentPath)
-            ->name('/\.(js|ts|scss|css)$/')
+            ->name('/\.(js|ts|scss|css)$/D')
             ->notPath('#(^|/)node_modules/#')
             ->notPath('/\.stories\./')
-            ->notPath('/\.test\.(js|ts)$/');
+            ->notPath('/\.test\.(js|ts)$/D');
 
         foreach ($finder as $file) {
             if ($file->isFile()) {

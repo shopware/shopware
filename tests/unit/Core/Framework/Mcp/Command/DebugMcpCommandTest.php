@@ -31,7 +31,6 @@ use Symfony\Component\Console\Tester\CommandTester;
  */
 #[Package('framework')]
 #[CoversClass(DebugMcpCommand::class)]
-#[CoversClass(McpCapabilityCatalog::class)]
 class DebugMcpCommandTest extends TestCase
 {
     /**
@@ -344,7 +343,7 @@ class DebugMcpCommandTest extends TestCase
         static::assertSame(0, $tester->getStatusCode());
     }
 
-    public function testIntegrationOptionWithNullAllowlistShowsAllToolsAndNote(): void
+    public function testIntegrationOptionWithNullToolListShowsNoTools(): void
     {
         $registry = new Registry();
         $registry->registerTool(new Tool('tool-a', null, self::inputSchema(), null, null), 'Acme\\ToolA');
@@ -357,9 +356,10 @@ class DebugMcpCommandTest extends TestCase
         $tester->execute(['--integration' => 'SWIA-test-key']);
 
         $output = $tester->getDisplay();
-        static::assertStringContainsString('no tool restriction', $output);
-        static::assertStringContainsString('tool-a', $output);
-        static::assertStringContainsString('tool-b', $output);
+        static::assertStringContainsString('no tools allowed', $output);
+        static::assertStringNotContainsString('no tool restriction', $output);
+        static::assertStringNotContainsString('tool-a', $output);
+        static::assertStringNotContainsString('tool-b', $output);
         static::assertSame(0, $tester->getStatusCode());
     }
 

@@ -142,7 +142,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
     private function shouldDefinitionBeIncluded(EntityDefinition $definition): bool
     {
-        if (preg_match('/_translation$/', $definition->getEntityName())) {
+        if (preg_match('/_translation$/D', $definition->getEntityName())) {
             return false;
         }
 
@@ -583,7 +583,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
             $ref = $operation['responses']['200']['$ref'];
             // Extract entity name from response reference like "ProductListResponse" -> "product"
             // Match pattern: components/responses/{Entity}[List|Detail]Response
-            if (\is_string($ref) && preg_match('#/([^/]+?)(?:List|Detail)?Response$#', $ref, $matches)) {
+            if (\is_string($ref) && preg_match('#/([^/]+?)(?:List|Detail)?Response$#D', $ref, $matches)) {
                 $converted = preg_replace('/(?<!^)[A-Z]/', '_$0', $matches[1]);
                 if (!\is_string($converted)) {
                     return null;
@@ -664,7 +664,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         // EntitySearchResult -> generic, skip
 
         // Extract schema name from reference
-        if (!preg_match('#/([^/]+)Result$#', $ref, $matches)) {
+        if (!preg_match('#/([^/]+)Result$#D', $ref, $matches)) {
             return null;
         }
 
@@ -677,7 +677,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
         // Handle patterns like "ProductListing" -> "product"
         // Remove common suffixes before converting
-        $schemaName = preg_replace('/(?:Listing|Search|Collection)$/', '', $schemaName);
+        $schemaName = preg_replace('/(?:Listing|Search|Collection)$/D', '', $schemaName);
         if (!\is_string($schemaName)) {
             return null;
         }
@@ -698,7 +698,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     private function extractEntityFromRouteResponseRef(string $ref): ?string
     {
         // Extract schema name from reference
-        if (!preg_match('#/([^/]+)RouteResponse$#', $ref, $matches)) {
+        if (!preg_match('#/([^/]+)RouteResponse$#D', $ref, $matches)) {
             return null;
         }
 
@@ -720,7 +720,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     private function extractEntityFromDetailResponseRef(string $ref): ?string
     {
         // Extract schema name from reference
-        if (!preg_match('#/([^/]+)DetailResponse$#', $ref, $matches)) {
+        if (!preg_match('#/([^/]+)DetailResponse$#D', $ref, $matches)) {
             return null;
         }
 
@@ -742,7 +742,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     private function extractEntityNameFromRef(string $ref): ?string
     {
         // Extract schema name from reference
-        if (!preg_match('#/([^/]+)$#', $ref, $matches)) {
+        if (!preg_match('#/([^/]+)$#D', $ref, $matches)) {
             return null;
         }
 

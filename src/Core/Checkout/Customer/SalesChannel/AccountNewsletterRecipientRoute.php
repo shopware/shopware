@@ -50,11 +50,11 @@ class AccountNewsletterRecipientRoute extends AbstractAccountNewsletterRecipient
         return $this->extensions->publish(
             name: AccountNewsletterRecipientRouteExtension::NAME,
             extension: new AccountNewsletterRecipientRouteExtension($request, $context, $criteria, $customer),
-            function: $this->_load(...),
+            function: fn (Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): AccountNewsletterRecipientRouteResponse => $this->_load($context, $criteria, $customer),
         );
     }
 
-    private function _load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): AccountNewsletterRecipientRouteResponse
+    private function _load(SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): AccountNewsletterRecipientRouteResponse
     {
         $criteria->addFilter(new EqualsFilter('email', $customer->getEmail()));
 

@@ -48,19 +48,19 @@ class CurrencyRoute extends AbstractCurrencyRoute
     #[Route(
         path: '/store-api/currency',
         name: 'store-api.currency',
-        methods: [Request::METHOD_GET, Request::METHOD_POST],
         defaults: [PlatformRequest::ATTRIBUTE_ENTITY => CurrencyDefinition::ENTITY_NAME, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+        methods: [Request::METHOD_GET, Request::METHOD_POST],
     )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): CurrencyRouteResponse
     {
         return $this->extensions->publish(
             name: CurrencyRouteExtension::NAME,
             extension: new CurrencyRouteExtension($request, $context, $criteria),
-            function: $this->_load(...),
+            function: fn (Request $request, SalesChannelContext $context, Criteria $criteria): CurrencyRouteResponse => $this->_load($context, $criteria),
         );
     }
 
-    private function _load(Request $request, SalesChannelContext $context, Criteria $criteria): CurrencyRouteResponse
+    private function _load(SalesChannelContext $context, Criteria $criteria): CurrencyRouteResponse
     {
         $this->cacheTagCollector->addTag(self::buildName($context->getSalesChannelId()), self::ALL_TAG);
 

@@ -1,0 +1,3 @@
+src/Core/Migration/V6_7/Migration1791537247AddIsSystemToProductSorting.php
+src/Core/Migration/V6_7/Migration1791537318RemoveLockedFromProductSorting.php
+tests/migration/Core/V6_7/Migration1791537247AddIsSystemToProductSortingTest.php

@@ -6,6 +6,8 @@ import type { ErrorPayload, Plugin } from 'vite';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createRequire } from 'node:module';
+import { createHash } from 'node:crypto';
+import { parse, type SFCBlock } from '@vue/compiler-sfc';
 import type {
     ShopwareSetupTransformError,
     transformShopwareSetupSfc as transformShopwareSetupSfcRuntime,
@@ -24,10 +26,51 @@ type ShopwareSetupTransformResult = NonNullable<ReturnType<typeof transformShopw
 
 type Options = {
     administrationRoot: string;
+    /** Hot updates the scripts of setup SFCs, see `shopware-setup-hmr`. */
+    scriptHmr?: boolean;
 };
 
 function withoutQuery(id: string): string {
     return id.split('?')[0];
+}
+
+/**
+ * @private
+ * Module meta of a setup SFC, read by `shopware-setup-hmr`.
+ */
+export type ShopwareSetupHmrMeta = Pick<ShopwareSetupTransformResult, 'componentName' | 'mode'> & {
+    /** The authored file, which `@vitejs/plugin-vue` reports as changed when it is saved. */
+    file: string;
+    /**
+     * Hash of the generated scripts, not of the authored ones: an override's generated script also depends on
+     * which script locals its template reads. A template edit keeps it.
+     */
+    version: string;
+    /**
+     * Hash of what the Administration reads once at boot: the block names, and the plain `<script>` that
+     * registers the extension targets before Twig templates resolve.
+     */
+    structure: string;
+};
+
+function hash(value: unknown): string {
+    return createHash('sha256').update(JSON.stringify(value)).digest('hex');
+}
+
+function scripts(code: string, file: string): Array<[string, SFCBlock['attrs']] | null> {
+    const { descriptor } = parse(code, { filename: file, sourceMap: false });
+
+    return [descriptor.script, descriptor.scriptSetup].map((block) => block && [block.content, block.attrs]);
+}
+
+function describeForHmr(source: string, file: string, result: ShopwareSetupTransformResult): ShopwareSetupHmrMeta {
+    return {
+        componentName: result.componentName,
+        mode: result.mode,
+        file,
+        version: hash(scripts(result.code, file)),
+        structure: hash([result.ownedBlockNames, result.extendedBlockNames, scripts(source, file)[0]]),
+    };
 }
 
 /**
@@ -48,7 +91,7 @@ function isDependencyFile(fileName: string): boolean {
  * by default; if the transform is statically imported there, its `require()` calls are
  * inlined into an ESM config bundle and fail at runtime.
  */
-// eslint-disable-next-line @typescript-eslint/require-await
+// eslint-disable-next-line @typescript-eslint/require-await -- the caller caches this promise, so a failed require() must reject
 async function importShopwareSetupTransform(administrationRoot: string): Promise<typeof transformShopwareSetupSfcRuntime> {
     // `require`, not `import()`: extension builds resolve this plugin as CommonJS, which cannot load the
     // file: URL that `import()` needs on Windows. A plain path works in both.
@@ -175,6 +218,7 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
     let isDevServer = false;
     // caveat: also rejections are cached
     let transformPromise: Promise<typeof transformShopwareSetupSfcRuntime> | null = null;
+    const transformOptions = { hotUpdates: options.scriptHmr };
 
     function loadShopwareSetupTransform(): Promise<typeof transformShopwareSetupSfcRuntime> {
         transformPromise ??= importShopwareSetupTransform(options.administrationRoot);
@@ -204,7 +248,7 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
         const transformShopwareSetupSfc = await loadShopwareSetupTransform();
 
         try {
-            return transformShopwareSetupSfc(code, fileName);
+            return transformShopwareSetupSfc(code, fileName, transformOptions);
         } catch (error) {
             throw isDevServer ? asReportedTransformError(error, code) : error;
         }
@@ -350,6 +394,7 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
             return {
                 code: result.code,
                 map: result.map,
+                meta: options.scriptHmr ? { shopwareSetupHmr: describeForHmr(source, originalFileName, result) } : undefined,
             };
         },
 

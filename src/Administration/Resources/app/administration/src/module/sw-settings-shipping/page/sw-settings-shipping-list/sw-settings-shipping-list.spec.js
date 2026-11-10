@@ -79,12 +79,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
-    it('should be a vue js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have all fields disabled', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({ total: 2 });
@@ -143,7 +137,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
         await wrapper.setData({
             term: 'foo',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -163,7 +157,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
 
     it('should not get search ranking fields when term is null', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -187,7 +181,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
             term: 'foo',
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -210,7 +204,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
         await wrapper.setData({
             term: 'foo',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
             return {};
         });

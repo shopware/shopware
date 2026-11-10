@@ -7,8 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\GitignoreGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
-use Shopware\Core\Framework\Plugin\Command\Scaffolding\Stub;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @internal
@@ -21,7 +22,24 @@ class GitignoreGeneratorTest extends TestCase
     {
         $generator = new GitignoreGenerator();
 
-        static::assertNull($generator->getCommandOption());
+        static::assertFalse($generator->hasCommandOption());
+        static::assertSame('', $generator->getCommandOptionName());
+        static::assertSame('', $generator->getCommandOptionDescription());
+        static::assertSame('', $generator->getCommandOptionTitle());
+        static::assertSame('', $generator->getCommandOptionDescriptionLong());
+    }
+
+    public function testAddScaffoldConfigDoesNothing(): void
+    {
+        $configuration = new PluginScaffoldConfiguration('TestPlugin', 'My\\Namespace', '/path/to/directory');
+
+        (new GitignoreGenerator())->addScaffoldConfig(
+            $configuration,
+            static::createStub(InputInterface::class),
+            static::createStub(OutputInterface::class),
+        );
+
+        static::assertSame([], $configuration->options);
     }
 
     public function testGenerateStubs(): void
@@ -35,7 +53,6 @@ class GitignoreGeneratorTest extends TestCase
         static::assertCount(1, $stubCollection);
         static::assertTrue($stubCollection->has('.gitignore'));
 
-        /** @var Stub $stub */
         $stub = $stubCollection->get('.gitignore');
 
         $expectedContent = <<<'GITIGNORE'

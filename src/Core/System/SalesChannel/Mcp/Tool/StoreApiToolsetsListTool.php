@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Mcp\Tool\ToolsetsListTool;
  * the service id (= class). It is wired with the store-api toolset registry + session storage.
  */
 #[Package('framework')]
-#[McpTool(name: McpToolsetRegistry::LIST_TOOLSETS_TOOL, title: 'List Toolsets', description: 'List MCP toolsets that can be enabled for the current session. Use this when no advertised tool fits the task: a toolset\'s tools become available once you enable it.')]
+#[McpTool(name: McpToolsetRegistry::LIST_TOOLSETS_TOOL, title: 'List Toolsets', description: 'List the MCP toolsets and whether each is enabled for the current session, either in the connect URL or with shopware-toolset-enable. Use this when no advertised tool fits the task: a toolset\'s tools become available once you enable it.')]
 #[McpToolGroup('discovery')]
 class StoreApiToolsetsListTool extends ToolsetsListTool
 {

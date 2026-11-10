@@ -8,6 +8,7 @@ import path from 'node:path';
 import { createRequire } from 'node:module';
 import type { SourceMap } from 'rollup';
 import shopwareSetupPlugin from '../index';
+import type { ShopwareSetupHmrMeta } from '../index';
 
 /**
  * The plugin's hooks as the spec drives them: plain callables.
@@ -15,7 +16,7 @@ import shopwareSetupPlugin from '../index';
  * Vite types every hook as an optional `ObjectHook` - a union of function and `{ handler }` - so hooks
  * are not directly callable through `Plugin`. Narrowing once here keeps the assertion out of each test.
  */
-type LoadedModule = { code: string; map: SourceMap };
+type LoadedModule = { code: string; map: SourceMap; meta?: { shopwareSetupHmr?: ShopwareSetupHmrMeta } };
 type HotUpdateModule = { id: string };
 type HotUpdateOptions = {
     file: string;
@@ -43,10 +44,13 @@ type ViteCommand = 'serve' | 'build';
  * it the plugin runs as in a toolchain that calls its hooks directly.
  */
 function createPlugin({
-    administrationRoot = process.cwd(),
     command,
-}: { administrationRoot?: string; command?: ViteCommand } = {}): CallableSetupPlugin {
-    const plugin = shopwareSetupPlugin({ administrationRoot }) as unknown as CallableSetupPlugin;
+    ...options
+}: Partial<Parameters<typeof shopwareSetupPlugin>[0]> & { command?: ViteCommand } = {}): CallableSetupPlugin {
+    const plugin = shopwareSetupPlugin({
+        administrationRoot: process.cwd(),
+        ...options,
+    }) as unknown as CallableSetupPlugin;
 
     if (command) {
         plugin.configResolved({ command });

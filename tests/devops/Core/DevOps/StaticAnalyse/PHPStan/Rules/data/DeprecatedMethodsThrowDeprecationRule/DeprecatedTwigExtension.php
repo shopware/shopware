@@ -13,7 +13,7 @@ class DeprecatedTwigExtension extends AbstractExtension
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('category_url', static fn () => null),
+            new TwigFunction('sw_breadcrumb_full', static fn () => null),
             new TwigFunction('missing_function', static fn () => null),
         ];
     }

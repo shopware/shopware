@@ -37,7 +37,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\ManyToManyAs
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\ManyToOneAssociationFieldResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\OneToManyAssociationFieldResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\TranslationFieldResolver;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ForeignKeyConstraintViolationExceptionHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinGroupBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\RowLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\SchemaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
@@ -128,18 +130,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\Version\Cleanup\CleanupVersionT
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Cleanup\CleanupVersionTaskHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\ClonePayloadBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteResultFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\LockValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ParentRelationValidator;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\Migration\IndexerQueuer;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Script\AppContextCreator;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfigProvider;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
+use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\Language\LanguageLoader;
@@ -421,7 +426,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(ExceptionHandlerRegistry::class),
             service(DefinitionInstanceRegistry::class),
+            service(RowLoader::class),
         ]);
+
+    $services->set(RowLoader::class)
+        ->args([service(Connection::class)]);
+
+    $services->set(WriteOutcome::class)
+        ->args([service(RowLoader::class)]);
 
     $services->set(ConstraintBuilder::class);
 
@@ -530,6 +542,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(VersionCommitDataDefinition::class),
             service(VersionDefinition::class),
             service('lock.factory'),
+            service(ClockInterface::class),
+            service(ClonePayloadBuilder::class),
+        ]);
+
+    $services->set(ClonePayloadBuilder::class)
+        ->args([
             service(ClockInterface::class),
         ]);
 
@@ -881,7 +899,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(SyncMetricsInstrumentor::class)
         ->args([
-            service(Meter::class),
+            service(Telemetry::class),
             service(EntityGroupResolver::class),
         ]);
 
@@ -897,6 +915,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     $services->set(TechnicalNameExceptionHandler::class)
+        ->tag('shopware.dal.exception_handler');
+
+    $services->set(ForeignKeyConstraintViolationExceptionHandler::class)
+        ->args([
+            service(DefinitionInstanceRegistry::class),
+        ])
         ->tag('shopware.dal.exception_handler');
 
     $services->set(EntityProtectionValidator::class)
@@ -917,7 +941,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(IndexerMetricsInstrumentor::class)
         ->args([
-            service(Meter::class),
+            service(Telemetry::class),
         ]);
 
     $services->set(EntityIndexingSubscriber::class)

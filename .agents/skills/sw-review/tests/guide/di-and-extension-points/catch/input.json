@@ -1,0 +1,38 @@
+{
+  "persona": "architecture",
+  "tier": "balanced",
+  "pr": {
+    "number": null,
+    "head_sha": "synthetic-di-and-extension-points-catch",
+    "title": "feat(core): add EntitySearchCriteriaEvent and round absolute discount totals",
+    "body": "Adds `EntitySearchCriteriaEvent`, dispatched by the DAL entity searcher before every search, so extensions can add filters to all searches. Absolute price calculation now rounds the total with the new `PriceRoundingHelper` before building tax rules.",
+    "labels": [],
+    "author": "synthetic",
+    "author_association": "MEMBER",
+    "base_ref_name": "trunk",
+    "head_ref_name": "synthetic/di-and-extension-points-catch",
+    "additions": 67,
+    "deletions": 2,
+    "changed_files": 5
+  },
+  "diff_path": "diff.patch",
+  "files": [
+    "src/Core/Checkout/Cart/Price/AbsolutePriceCalculator.php",
+    "src/Core/Checkout/Cart/Price/PriceRoundingHelper.php",
+    "src/Core/Framework/DataAbstractionLayer/Dbal/EntitySearcher.php",
+    "src/Core/Framework/DataAbstractionLayer/Event/EntitySearchCriteriaEvent.php",
+    "src/Core/Framework/DependencyInjection/data-abstraction-layer.php"
+  ],
+  "guides": [
+    "guides/di-and-extension-points.md"
+  ],
+  "change_profile": {
+    "signals": [
+      "extension_point",
+      "php_src"
+    ],
+    "guides": [
+      "di-and-extension-points"
+    ]
+  }
+}

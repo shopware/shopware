@@ -3,10 +3,14 @@
 namespace Shopware\Tests\Unit\Core\System\SystemConfig;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\UtilException;
+use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
+use Shopware\Tests\Unit\Core\System\SystemConfig\Service\_fixtures\ValidConfigPlugin\ValidConfigPlugin;
 
 /**
  * @internal
@@ -29,6 +33,15 @@ class ConfigReaderTest extends TestCase
         static::assertSame($this->getExpectedConfig(), $actualConfig);
     }
 
+    public function testConfigReaderIgnoresACommentBeforeTheRootElement(): void
+    {
+        $config = $this->configReader->read(__DIR__ . '/_fixtures/config_with_leading_comment.xml');
+
+        static::assertCount(1, $config);
+        static::assertSame(['en-GB' => 'Basic configuration'], $config[0]['cards'][0]['title']);
+        static::assertSame('email', $config[0]['cards'][0]['elements'][0]['name']);
+    }
+
     public function testConfigReaderWithInvalidPath(): void
     {
         $this->expectException(UtilException::class);
@@ -41,6 +54,45 @@ class ConfigReaderTest extends TestCase
         $this->expectException(UtilException::class);
 
         $this->configReader->read(__DIR__ . '/_fixtures/invalid_config.xml');
+    }
+
+    #[TestDox('Resolves a bundle config name with or without the xml suffix, and the default without a name')]
+    #[DataProvider('bundleConfigNameProvider')]
+    public function testGetConfigFromBundleResolvesTheConfigName(?string $bundleConfigName): void
+    {
+        $bundle = $this->validConfigPlugin();
+
+        $config = $this->configReader->getConfigFromBundle($bundle, $bundleConfigName);
+
+        static::assertSame($this->configReader->read($bundle->getPath() . '/Resources/config/config.xml'), $config);
+    }
+
+    public static function bundleConfigNameProvider(): \Generator
+    {
+        yield 'default config without a name' => [null];
+        yield 'name without the suffix' => ['config'];
+        yield 'name with the suffix' => ['config.xml'];
+        yield 'name with the suffix in upper case' => ['config.XML'];
+    }
+
+    public function testGetConfigFromBundleThrowsForAnUnknownConfigName(): void
+    {
+        $this->expectExceptionObject(SystemConfigException::bundleConfigNotFound('Resources/config/missing.xml', 'ValidConfigPlugin'));
+
+        $this->configReader->getConfigFromBundle($this->validConfigPlugin(), 'missing');
+    }
+
+    public function testGetConfigFromBundleKeepsTheSuffixOfANameWithATrailingNewline(): void
+    {
+        // the suffix is only stripped at the very end of the name, so the newline keeps it and the file is not found
+        $this->expectExceptionObject(SystemConfigException::bundleConfigNotFound("Resources/config/config.xml\n.xml", 'ValidConfigPlugin'));
+
+        $this->configReader->getConfigFromBundle($this->validConfigPlugin(), "config.xml\n");
+    }
+
+    private function validConfigPlugin(): ValidConfigPlugin
+    {
+        return new ValidConfigPlugin(active: true, basePath: __DIR__ . '/Service/_fixtures/ValidConfigPlugin');
     }
 
     /**

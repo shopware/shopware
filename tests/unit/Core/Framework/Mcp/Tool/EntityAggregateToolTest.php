@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
+use Shopware\Core\Framework\Mcp\Result\McpToolError;
 use Shopware\Core\Framework\Mcp\Tool\EntityAggregateTool;
 
 /**
@@ -222,6 +223,7 @@ class EntityAggregateToolTest extends TestCase
 
         static::assertFalse($data['success']);
         static::assertStringContainsString('unknown_entity', $data['error']);
+        static::assertSame(McpToolError::INVALID_ARGUMENTS, $data['code']);
     }
 
     public function testReturnsErrorForNonListAggregations(): void

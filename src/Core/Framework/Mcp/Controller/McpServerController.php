@@ -20,7 +20,6 @@ use Shopware\Core\Framework\Mcp\McpJsonRpcResponse;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
-use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -70,7 +69,6 @@ class McpServerController
         private readonly ?McpAllowlistProvider $allowlistProvider = null,
         private readonly ?LoggerInterface $logger = null,
         private readonly McpAllowlistFilter $allowlistFilter = new McpAllowlistFilter(),
-        private readonly ?McpSessionRegistry $sessionRegistry = null,
         private readonly ?McpListChangedNotifier $listChangedNotifier = null,
     ) {
     }
@@ -112,7 +110,7 @@ class McpServerController
         }
 
         $psrResponse = $this->server->run($this->transportFactory->createTransport($request));
-        $this->registerSession($psrResponse);
+        $this->syncListVersions($request, $psrResponse);
         $this->flushPendingToolsListChanged($request);
 
         if ($request->getMethod() === 'POST') {
@@ -149,18 +147,19 @@ class McpServerController
         );
     }
 
-    private function registerSession(PsrResponseInterface $psrResponse): void
+    /**
+     * Queues list_changed when an app changed the lists since this session last looked. Runs after
+     * {@see Server::run()} for the same reason as flushPendingToolsListChanged(). A new session has no
+     * id on the request; its id is only on the response.
+     */
+    private function syncListVersions(Request $request, PsrResponseInterface $psrResponse): void
     {
-        if ($this->sessionRegistry === null) {
-            return;
-        }
+        $requestSessionId = $request->headers->get(PlatformRequest::HEADER_MCP_SESSION_ID) ?? '';
+        $sessionId = $requestSessionId ?: $psrResponse->getHeaderLine(PlatformRequest::HEADER_MCP_SESSION_ID);
 
-        $sessionId = $psrResponse->getHeaderLine(PlatformRequest::HEADER_MCP_SESSION_ID);
-        if ($sessionId === '') {
-            return;
+        if ($sessionId !== '') {
+            $this->listChangedNotifier?->syncSession($sessionId, isNewSession: $requestSessionId === '');
         }
-
-        $this->sessionRegistry->register($sessionId);
     }
 
     private function checkAllowlistEarlyReject(Request $request, McpAllowlist $allowlist): ?Response

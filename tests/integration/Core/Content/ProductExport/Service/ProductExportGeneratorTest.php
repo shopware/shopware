@@ -44,6 +44,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -122,7 +123,7 @@ class ProductExportGeneratorTest extends TestCase
         ): void {
             $productExportProductCriteriaEventDispatched = true;
         };
-        $eventDispatcher->addListener(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             ProductExportProductCriteriaEvent::class,
             $productExportProductCriteriaCallback
         );
@@ -133,7 +134,7 @@ class ProductExportGeneratorTest extends TestCase
         ): void {
             $productExportRenderBodyContextEventDispatched = true;
         };
-        $eventDispatcher->addListener(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             ProductExportRenderBodyContextEvent::class,
             $productExportRenderBodyContextCallback
         );
@@ -144,7 +145,7 @@ class ProductExportGeneratorTest extends TestCase
         ): void {
             $productExportChangeEncodingEventDispatched = true;
         };
-        $eventDispatcher->addListener(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             ProductExportChangeEncodingEvent::class,
             $productExportChangeEncodingCallback
         );
@@ -173,10 +174,6 @@ class ProductExportGeneratorTest extends TestCase
         static::assertTrue($productExportProductCriteriaEventDispatched, 'ProductExportProductCriteriaEvent was not dispatched');
         static::assertTrue($productExportRenderBodyContextEventDispatched, 'ProductExportRenderBodyContextEvent was not dispatched');
         static::assertTrue($productExportChangeEncodingEventDispatched, 'ProductExportChangeEncodingEvent was not dispatched');
-
-        $eventDispatcher->removeListener(ProductExportProductCriteriaEvent::class, $productExportProductCriteriaCallback);
-        $eventDispatcher->removeListener(ProductExportRenderBodyContextEvent::class, $productExportRenderBodyContextCallback);
-        $eventDispatcher->removeListener(ProductExportChangeEncodingEvent::class, $productExportChangeEncodingCallback);
     }
 
     public function testEmptyProductExportGenerationEvents(): void
@@ -201,7 +198,7 @@ class ProductExportGeneratorTest extends TestCase
             $event->getCriteria()->addFilter(new EqualsFilter('active', true));
             $event->getCriteria()->addFilter(new EqualsFilter('active', false));
         };
-        $eventDispatcher->addListener(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             ProductExportProductCriteriaEvent::class,
             $productExportProductCriteriaCallback
         );
@@ -212,7 +209,7 @@ class ProductExportGeneratorTest extends TestCase
         ): void {
             $productExportLoggingEventDispatched = true;
         };
-        $eventDispatcher->addListener(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             ProductExportLoggingEvent::class,
             $productExportLoggingCallback
         );
@@ -243,9 +240,6 @@ class ProductExportGeneratorTest extends TestCase
 
         static::assertTrue($productExportProductCriteriaEventDispatched, 'ProductExportProductCriteriaEvent was not dispatched');
         static::assertTrue($productExportLoggingEventDispatched, 'ProductExportLoggingEvent was not dispatched');
-
-        $eventDispatcher->removeListener(ProductExportLoggingEvent::class, $productExportLoggingCallback);
-        $eventDispatcher->removeListener(ProductExportProductCriteriaEvent::class, $productExportProductCriteriaCallback);
     }
 
     public function testExportWithNestedAssociations(): void

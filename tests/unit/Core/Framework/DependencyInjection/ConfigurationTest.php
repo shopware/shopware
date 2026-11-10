@@ -33,6 +33,19 @@ class ConfigurationTest extends TestCase
         static::assertSame('shopware', $tree->buildTree()->getName());
     }
 
+    public function testUserRecoveryIsEnabledByDefaultAndCanBeDisabled(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [['api' => []]]);
+
+        static::assertTrue($config['api']['user_recovery']['enabled']);
+
+        $config = (new Processor())->processConfiguration(new Configuration(), [[
+            'api' => ['user_recovery' => ['enabled' => false]],
+        ]]);
+
+        static::assertFalse($config['api']['user_recovery']['enabled']);
+    }
+
     public function testFeatureToggleConfigTreeNode(): void
     {
         $configuration = new Configuration();
@@ -91,6 +104,7 @@ class ConfigurationTest extends TestCase
         yield 'incomplete version' => ['v6.8.0'];
         yield 'patch version' => ['v6.8.1.0'];
         yield 'environment variable name' => ['V6_8_0_0'];
+        yield 'trailing newline' => ["v6.8.0.0\n"];
     }
 
     #[DataProvider('invalidParentMajorDataProvider')]
@@ -517,6 +531,22 @@ class ConfigurationTest extends TestCase
                     'allowed_private_ip_addresses' => ['not-an-ip'],
                 ],
             ],
+        ]);
+    }
+
+    public function testMediaAllowedProtocolsDefaultToAllSupportedProtocols(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [['media' => []]]);
+
+        static::assertSame(['http', 'https', 'ftp'], $config['media']['allowed_protocols']);
+    }
+
+    public function testMediaAllowedProtocolsRejectUnsupportedProtocol(): void
+    {
+        $this->expectExceptionObject(new InvalidConfigurationException('The value "gopher" is not allowed for path "shopware.media.allowed_protocols.1". Permissible values: "http", "https", "ftp".'));
+
+        (new Processor())->processConfiguration(new Configuration(), [
+            ['media' => ['allowed_protocols' => ['https', 'gopher']]],
         ]);
     }
 

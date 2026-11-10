@@ -205,7 +205,7 @@ describe('components/base/sw-property-search', () => {
         const groupElement = wrapper.find('.group_grid__column-name');
         await groupElement.trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const optionElement = wrapper.find('.sw-property-search__tree-selection__option_grid .sw-grid__row--0');
 
@@ -222,7 +222,7 @@ describe('components/base/sw-property-search', () => {
         const groupElement = wrapper.find('.group_grid__column-name');
         await groupElement.trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const paginationElement = wrapper.find('.sw-property-search__tree-selection__option_grid .sw-pagination');
         expect(paginationElement.exists()).toBe(true);
@@ -238,7 +238,7 @@ describe('components/base/sw-property-search', () => {
         const groupElement = wrapper.find('.group_grid__column-name');
         await groupElement.trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const amountOfOptionPages = wrapper.findAll(
             '.sw-property-search__tree-selection__option_grid .sw-pagination .sw-pagination__list-button',
@@ -257,7 +257,7 @@ describe('components/base/sw-property-search', () => {
         const groupElement = wrapper.find('.group_grid__column-name');
         await groupElement.trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.optionPage).toBe(1);
 
@@ -295,7 +295,7 @@ describe('components/base/sw-property-search', () => {
         const groupElement = wrapper.find('.group_grid__column-name');
         await groupElement.trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         let groupOptions = wrapper.findAll('.sw-property-search__tree-selection__option_grid--option-value').length;
 
@@ -307,7 +307,7 @@ describe('components/base/sw-property-search', () => {
         );
         await nextPageButton.trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         groupOptions = wrapper.findAll('.sw-property-search__tree-selection__option_grid--option-value').length;
 
@@ -325,7 +325,7 @@ describe('components/base/sw-property-search', () => {
         const groupElement = wrapper.find('.group_grid__column-name');
         await groupElement.trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const groupOptionElement = wrapper.find('.sw-property-search__tree-selection__option_grid--option-value');
 

@@ -13,12 +13,16 @@ use Shopware\Core\Content\Cookie\Service\CookieProvider;
 use Shopware\Core\Content\Cookie\Struct\CookieEntry;
 use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Feature\Triggerer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
+use Shopware\Storefront\Framework\Cookie\AppCookieProvider;
 use Shopware\Storefront\Framework\Cookie\CookieProvider as LegacyCookieProvider;
 use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -30,8 +34,82 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  */
 #[Package('discovery')]
 #[CoversClass(CookieProvider::class)]
+#[DisabledFeatures(['v6.9.0.0'])]
 class CookieProviderTest extends TestCase
 {
+    use EnvTestBehaviour;
+
+    private ?Triggerer $triggererBackup;
+
+    protected function setUp(): void
+    {
+        $this->triggererBackup = Feature::$triggerer;
+    }
+
+    protected function tearDown(): void
+    {
+        Feature::$triggerer = $this->triggererBackup;
+        parent::tearDown();
+    }
+
+    public function testLegacyDecoratorAndNewEventCoexistWithTheMajorFlagActive(): void
+    {
+        static::assertTrue(Feature::isActive('v6.8.0.0'));
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(CookieGroupCollectEvent::class, static function (CookieGroupCollectEvent $event): void {
+            $group = new CookieGroup('event.group');
+            $group->setEntries(new CookieEntryCollection([new CookieEntry('event-cookie')]));
+            $event->cookieGroupCollection->add($group);
+        });
+        $translator = static::createStub(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(static fn (string $key): string => 'Translated: ' . $key);
+        $legacy = new CompatibilityCookieDecorator(new AppCookieProvider(new LegacyCookieProvider(['name' => 'custom-session'])));
+        $provider = new CookieProvider($dispatcher, $translator, static::createStub(ScriptExecutor::class), ['name' => 'custom-session'], $legacy);
+
+        $groups = $provider->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
+
+        $legacyGroup = $groups->get('legacy.group');
+        static::assertNotNull($legacyGroup);
+        static::assertSame('Translated: legacy.group', $legacyGroup->name);
+        static::assertSame('Translated: legacy.description', $legacyGroup->description);
+        $entries = $legacyGroup->getEntries();
+        static::assertNotNull($entries);
+        static::assertCount(1, $entries);
+        $cookie = $entries->get('legacy-cookie');
+        static::assertNotNull($cookie);
+        static::assertSame('Translated: legacy.entry', $cookie->name);
+        static::assertSame('1', $cookie->value);
+        static::assertSame(30, $cookie->expiration);
+        static::assertFalse($cookie->hidden);
+        $eventGroup = $groups->get('event.group');
+        static::assertNotNull($eventGroup);
+        static::assertNotNull($eventGroup->getEntries()?->get('event-cookie'));
+        $required = $groups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
+        static::assertNotNull($required);
+        static::assertNotNull($required->getEntries()?->get('custom-session'));
+    }
+
+    /**
+     * @deprecated tag:v6.9.0 - Remove with the legacy provider conversion.
+     */
+    public function testLegacyProviderIsNotCalledWithThe69FlagActive(): void
+    {
+        Feature::registerFeature('v6.9.0.0', ['default' => false]);
+        $this->setEnvVars(['V6_9_0_0' => '1']);
+        $legacy = $this->createMock(CookieProviderInterface::class);
+        $legacy->expects($this->never())->method('getCookieGroups');
+        $translator = static::createStub(TranslatorInterface::class);
+        $translator->method('trans')->willReturnArgument(0);
+        $provider = new CookieProvider(new EventDispatcher(), $translator, static::createStub(ScriptExecutor::class), ['name' => 'modern-session'], $legacy);
+
+        $groups = $provider->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
+
+        static::assertTrue(Feature::isActive('v6.9.0.0'));
+        $required = $groups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
+        static::assertNotNull($required);
+        static::assertNotNull($required->getEntries()?->get('modern-session'));
+    }
+
     public function testGetCookieGroups(): void
     {
         $eventDispatcher = new CollectingEventDispatcher();
@@ -155,7 +233,6 @@ class CookieProviderTest extends TestCase
         static::assertInstanceOf(CookieGroup::class, $testGroup);
     }
 
-    #[DisabledFeatures(['v6.8.0.0'])]
     public function testLegacyCookieConverting(): void
     {
         $translator = static::createStub(TranslatorInterface::class);
@@ -213,7 +290,6 @@ class CookieProviderTest extends TestCase
         static::assertSame('1', $testGroup2Entry3->value);
     }
 
-    #[DisabledFeatures(['v6.8.0.0'])]
     public function testLegacyCookieConvertingMissingSnippetNameInGroup(): void
     {
         $invalidGroup = [
@@ -225,7 +301,11 @@ class CookieProviderTest extends TestCase
         $legacyCookieProvider = new LegacyCookieProviderForTesting(['name' => 'test-session-name-']);
         $legacyCookieProvider->setTestCookieGroups([$invalidGroup]);
 
-        $this->expectExceptionObject(CookieException::invalidLegacyCookieGroupProvided($invalidGroup));
+        $this->expectExceptionObject(Feature::silent('v6.9.0.0', static fn () => CookieException::invalidLegacyCookieGroupProvided($invalidGroup)));
+        $this->setEnvVars(['TESTS_RUNNING' => false]);
+        $triggerer = $this->createMock(Triggerer::class);
+        $triggerer->expects($this->never())->method('deprecation');
+        Feature::$triggerer = $triggerer;
         (new CookieProvider(
             new EventDispatcher(),
             $translator,
@@ -235,7 +315,6 @@ class CookieProviderTest extends TestCase
         ))->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
     }
 
-    #[DisabledFeatures(['v6.8.0.0'])]
     public function testLegacyCookieConvertingSnippetNameInGroupWithWrongType(): void
     {
         $invalidGroup = [
@@ -249,7 +328,7 @@ class CookieProviderTest extends TestCase
         /** @phpstan-ignore argument.type (Intentionally test not allowed values on purpose) */
         $legacyCookieProvider->setTestCookieGroups([$invalidGroup]);
 
-        $this->expectExceptionObject(CookieException::invalidLegacyCookieGroupProvided($invalidGroup));
+        $this->expectExceptionObject(Feature::silent('v6.9.0.0', static fn () => CookieException::invalidLegacyCookieGroupProvided($invalidGroup)));
         (new CookieProvider(
             new EventDispatcher(),
             $translator,
@@ -259,7 +338,6 @@ class CookieProviderTest extends TestCase
         ))->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
     }
 
-    #[DisabledFeatures(['v6.8.0.0'])]
     public function testLegacyCookieConvertingMissingCookieInEntry(): void
     {
         $invalidEntry = [
@@ -276,7 +354,11 @@ class CookieProviderTest extends TestCase
             ],
         ]);
 
-        $this->expectExceptionObject(CookieException::invalidLegacyCookieEntryProvided($invalidEntry));
+        $this->expectExceptionObject(Feature::silent('v6.9.0.0', static fn () => CookieException::invalidLegacyCookieEntryProvided($invalidEntry)));
+        $this->setEnvVars(['TESTS_RUNNING' => false]);
+        $triggerer = $this->createMock(Triggerer::class);
+        $triggerer->expects($this->never())->method('deprecation');
+        Feature::$triggerer = $triggerer;
         (new CookieProvider(
             new EventDispatcher(),
             $translator,
@@ -286,7 +368,6 @@ class CookieProviderTest extends TestCase
         ))->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
     }
 
-    #[DisabledFeatures(['v6.8.0.0'])]
     public function testLegacyCookieConvertingCookieInEntryWithWrongType(): void
     {
         $invalidEntry = [
@@ -305,7 +386,7 @@ class CookieProviderTest extends TestCase
             ],
         ]);
 
-        $this->expectExceptionObject(CookieException::invalidLegacyCookieEntryProvided($invalidEntry));
+        $this->expectExceptionObject(Feature::silent('v6.9.0.0', static fn () => CookieException::invalidLegacyCookieEntryProvided($invalidEntry)));
         (new CookieProvider(
             new EventDispatcher(),
             $translator,
@@ -320,8 +401,6 @@ class CookieProviderTest extends TestCase
  * @internal
  *
  * @phpstan-import-type CookieGroupArray from CookieProviderInterface
- *
- * @deprecated tag:v6.8.0 - Can be removed
  */
 class LegacyCookieProviderForTesting extends LegacyCookieProvider
 {
@@ -377,5 +456,35 @@ class LegacyCookieProviderForTesting extends LegacyCookieProvider
     public function setTestCookieGroups(array $testCookieGroups): void
     {
         $this->testCookieGroups = $testCookieGroups;
+    }
+}
+
+/**
+ * @internal
+ *
+ * @phpstan-import-type CookieGroupArray from CookieProviderInterface
+ */
+class CompatibilityCookieDecorator implements CookieProviderInterface
+{
+    public function __construct(private readonly CookieProviderInterface $inner)
+    {
+    }
+
+    public function getCookieGroups(): array
+    {
+        $groups = $this->inner->getCookieGroups();
+        $groups[] = [
+            'snippet_name' => 'legacy.group',
+            'snippet_description' => 'legacy.description',
+            'entries' => [[
+                'cookie' => 'legacy-cookie',
+                'snippet_name' => 'legacy.entry',
+                'value' => '1',
+                'expiration' => '30',
+                'hidden' => false,
+            ]],
+        ];
+
+        return $groups;
     }
 }

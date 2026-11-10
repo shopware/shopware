@@ -36,7 +36,7 @@ class ConfigReader extends XmlReader
         if ($bundleConfigName === null) {
             $bundleConfigName = 'Resources/config/config.xml';
         } else {
-            $bundleConfigName = 'Resources/config/' . preg_replace('/\\.xml$/i', '', $bundleConfigName) . '.xml';
+            $bundleConfigName = 'Resources/config/' . preg_replace('/\\.xml$/Di', '', $bundleConfigName) . '.xml';
         }
         $configPath = $bundle->getPath() . '/' . ltrim($bundleConfigName, '/');
 
@@ -52,9 +52,9 @@ class ConfigReader extends XmlReader
      */
     protected function parseFile(\DOMDocument $xml): array
     {
-        \assert($xml->firstChild instanceof \DOMElement);
+        \assert($xml->documentElement instanceof \DOMElement);
 
-        return $this->getTabDefinitions($xml->firstChild);
+        return $this->getTabDefinitions($xml->documentElement);
     }
 
     /**

@@ -128,7 +128,7 @@ export default {
             type: String,
             required: false,
             default() {
-                return Shopware.Snippet.tc('global.sw-single-select.labelEntity');
+                return Shopware.Snippet.t('global.sw-single-select.labelEntity');
             },
         },
         advancedSelectionComponent: {

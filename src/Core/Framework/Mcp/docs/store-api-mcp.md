@@ -153,6 +153,7 @@ multi-worker or multi-server deployments, configure a `session` store per server
 | Name | Type | Description |
 |------|------|-------------|
 | `shopware-store-api-context` | Tool | Returns the current session metadata: sales channel ID, context token, language, currency, and customer authentication state |
+| `tool-result` (`shopware://tool-result/{id}`) | Resource template | Reads a tool result larger than 100 KB that a previous call stored and linked with `resource_link`. The link is signed for the sales channel and the `sw-context-token` of the call, and expires after an hour. A call without `sw-context-token` gets its result inline, because a token minted for that one request could never read it back |
 
 ## Known Limitations
 

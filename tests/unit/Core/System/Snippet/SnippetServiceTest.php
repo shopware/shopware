@@ -33,7 +33,7 @@ use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\SnippetService;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
-use Shopware\Tests\Unit\Administration\Snippet\SnippetFileTrait;
+use Shopware\Tests\Unit\Administration\Snippet\SnippetFixture;
 use Shopware\Tests\Unit\Core\System\Snippet\Mock\MockSnippetFile;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Filesystem\Filesystem;
@@ -46,8 +46,6 @@ use Symfony\Component\Translation\MessageCatalogue;
 #[CoversClass(SnippetService::class)]
 class SnippetServiceTest extends TestCase
 {
-    use SnippetFileTrait;
-
     private SnippetFileCollection $snippetCollection;
 
     private Connection&MockObject $connection;
@@ -172,7 +170,7 @@ class SnippetServiceTest extends TestCase
         );
 
         $loader = $this->getTranslationLoader($config);
-        $this->createSnippetFixtures($this->flysystem, $loader);
+        SnippetFixture::createSnippetFixtures($this->flysystem, $loader);
 
         $this->connection->expects($this->once())
             ->method('fetchOne')->willReturn('es-ES');
@@ -525,21 +523,14 @@ class SnippetServiceTest extends TestCase
         ?SnippetFilterFactory $snippetFilterFactory = null,
         ?ExtensionDispatcher $extensionDispatcher = null
     ): SnippetService {
-        if ($snippetRepository === null) {
-            $snippetRepository = new StaticEntityRepository([]);
-        }
-
-        if ($snippetSetRepository === null) {
-            $snippetSetRepository = new StaticEntityRepository([]);
-        }
+        $snippetRepository ??= StaticEntityRepository::of(SnippetCollection::class);
+        $snippetSetRepository ??= StaticEntityRepository::of(SnippetSetCollection::class);
 
         $snippetFileCollection = $snippetFileCollection ?? $this->snippetCollection;
         $connection = $connection ?? $this->connection;
         $snippetFilterFactory = $snippetFilterFactory ?? static::createStub(SnippetFilterFactory::class);
         $extensionDispatcher = $extensionDispatcher ?? new ExtensionDispatcher(new EventDispatcher());
 
-        /** @var EntityRepository<SnippetCollection> $snippetRepository */
-        /** @var EntityRepository<SnippetSetCollection> $snippetSetRepository */
         return new SnippetService(
             $connection,
             $snippetFileCollection,

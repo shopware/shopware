@@ -72,14 +72,17 @@ class StorybookService
     }
 
     /**
-     * Parses story parameters from the request and resolves any entity sentinels
+     * Parses request parameters or explicit Storybook props and resolves entity sentinels
      * (e.g. "product", "media") to their actual DAL entities.
+     * When provided, explicit Storybook props replace request query parameters.
+     *
+     * @param array<string, mixed>|null $storybookParameters
      *
      * @return array<string, mixed>
      */
-    public function resolveComponentProps(Request $request, SalesChannelContext $context): array
+    public function resolveComponentProps(Request $request, SalesChannelContext $context, ?array $storybookParameters = null): array
     {
-        $properties = $this->getPropertiesFromStoryParameters($request);
+        $properties = $this->getPropertiesFromStoryParameters($request, $storybookParameters);
 
         return $this->resolveEntityProperties($properties, $context);
     }
@@ -102,15 +105,17 @@ class StorybookService
     }
 
     /**
+     * @param array<string, mixed>|null $storybookParameters
+     *
      * @return array<string, mixed>
      */
-    private function getPropertiesFromStoryParameters(Request $request): array
+    private function getPropertiesFromStoryParameters(Request $request, ?array $storybookParameters): array
     {
         $parameters = [];
 
-        foreach ($request->query->all() as $key => $value) {
+        foreach ($storybookParameters ?? $request->query->all() as $key => $value) {
             // Only allow alphanumeric keys starting with a letter or underscore
-            if (!\is_string($key) || !preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $key)) {
+            if (!\is_string($key) || !preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/D', $key)) {
                 continue;
             }
 

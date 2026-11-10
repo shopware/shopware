@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Core\DevOps\Docs\Script;
 
@@ -14,42 +12,19 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
+ *
+ * @see \Shopware\Tests\Integration\Core\DevOps\Docs\Script\ScriptReferenceGeneratorCommandTest for the generated files
  */
 #[Package('framework')]
 #[CoversClass(ScriptReferenceGeneratorCommand::class)]
 class ScriptReferenceGeneratorCommandTest extends TestCase
 {
-    private string $testFile;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $fixtureDir = __DIR__ . '/../../../../_fixtures';
-        if (!is_dir($fixtureDir)) {
-            mkdir($fixtureDir, 0777, true);
-        }
-        $this->testFile = $fixtureDir . '/script-reference-test.md';
-        if (is_file($this->testFile)) {
-            unlink($this->testFile);
-        }
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-        if (is_file($this->testFile)) {
-            unlink($this->testFile);
-        }
-    }
-
-    public function testExecuteWritesFilesAndReturnsSuccess(): void
+    public function testExecuteRunsGeneratorsAndReturnsSuccess(): void
     {
         $generator = $this->createMock(ServiceReferenceGenerator::class);
         $generator->expects($this->once())
             ->method('generate')
-            ->willReturn([
-                $this->testFile => 'test content',
-            ]);
+            ->willReturn([]);
 
         $command = new ScriptReferenceGeneratorCommand([$generator]);
         $tester = new CommandTester($command);
@@ -57,8 +32,7 @@ class ScriptReferenceGeneratorCommandTest extends TestCase
         $exitCode = $tester->execute([]);
 
         static::assertSame(Command::SUCCESS, $exitCode);
-        static::assertFileExists($this->testFile);
-        static::assertSame('test content', file_get_contents($this->testFile));
+        static::assertStringContainsString('Generating reference documentation for the app scripts feature.', $tester->getDisplay());
         static::assertStringContainsString('Reference documentation was generated successfully', $tester->getDisplay());
     }
 }

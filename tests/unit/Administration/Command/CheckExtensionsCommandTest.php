@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Command\CheckExtensionsCommand;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\HttpKernel\KernelInterface;
 
@@ -21,16 +22,25 @@ class CheckExtensionsCommandTest extends TestCase
 {
     public function testCheckCommandRunsTheCheckEntryScript(): void
     {
-        $administrationRoot = ExtensionToolingFixture::createAdministrationRoot(withToolingStub: true);
+        $command = new class($this->kernel(), __DIR__ . '/_fixtures/administration-root') extends CheckExtensionsCommand {
+            /**
+             * @var list<string>|null
+             */
+            public ?array $spawned = null;
 
-        $tester = new CommandTester(new CheckExtensionsCommand($this->kernel(), $administrationRoot));
-        $tester->execute(['tooling-args' => ['--only=MyPlugin']]);
+            protected function runTooling(array $command, string $cwd, array $env, OutputInterface $output): int
+            {
+                $this->spawned = $command;
 
-        $capture = ExtensionToolingFixture::readToolingCapture($administrationRoot);
-        static::assertStringEndsWith('scripts/extensionTooling/check.ts', $capture['argv'][1]);
-        static::assertContains('--only=MyPlugin', $capture['argv']);
+                return self::SUCCESS;
+            }
+        };
 
-        ExtensionToolingFixture::removeAdministrationRoot($administrationRoot);
+        (new CommandTester($command))->execute(['tooling-args' => ['--only=MyPlugin']]);
+
+        static::assertNotNull($command->spawned);
+        static::assertStringEndsWith('scripts/extensionTooling/check.ts', $command->spawned[2]);
+        static::assertContains('--only=MyPlugin', $command->spawned);
     }
 
     private function kernel(): KernelInterface

@@ -166,20 +166,7 @@ class CustomerGroupRegistrationSeoUrlSubscriber implements EventSubscriberInterf
             return;
         }
 
-        $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('registrationActive', true))
-            ->addFilter(new EqualsAnyFilter('registrationSalesChannels.id', $salesChannelIds));
-
-        /** @var list<string> $groupIds */
-        $groupIds = $this->customerGroupRepository->searchIds($criteria, $event->getContext())->getIds();
-
-        if ($groupIds === []) {
-            $this->removeObsoleteSeoUrls([], $event->getContext(), $salesChannelIds);
-
-            return;
-        }
-
-        $this->updateSeoUrls($groupIds, $event->getContext(), $salesChannelIds);
+        $this->updateSeoUrls(null, $event->getContext(), $salesChannelIds);
     }
 
     /**
@@ -191,6 +178,10 @@ class CustomerGroupRegistrationSeoUrlSubscriber implements EventSubscriberInterf
         $criteria = ($ids === null ? new Criteria() : new Criteria($ids))
             ->addFilter(new EqualsFilter('registrationActive', true))
             ->addAssociations(['registrationSalesChannels.languages', 'registrationSalesChannels.domains', 'translations']);
+
+        if ($salesChannelIds !== null) {
+            $criteria->addFilter(new EqualsAnyFilter('registrationSalesChannels.id', $salesChannelIds));
+        }
 
         $groups = $this->customerGroupRepository->search($criteria, $context)->getEntities();
         $buildUrls = [];
@@ -275,7 +266,7 @@ class CustomerGroupRegistrationSeoUrlSubscriber implements EventSubscriberInterf
             );
         }
 
-        if ($ids === null || $salesChannelIds !== null) {
+        if ($ids === null) {
             $this->removeObsoleteSeoUrls($buildUrls, $context, $salesChannelIds);
         }
     }

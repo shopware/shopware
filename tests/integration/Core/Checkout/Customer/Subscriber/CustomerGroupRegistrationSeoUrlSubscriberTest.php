@@ -88,16 +88,42 @@ class CustomerGroupRegistrationSeoUrlSubscriberTest extends TestCase
     public function testUrlsAreRemovedWhenTheExternalStorefrontDomainIsDeleted(): void
     {
         $salesChannelId = $this->createHeadlessSalesChannel(isExternalStorefront: true);
-        $groupId = $this->createRegistrationCustomerGroup($salesChannelId);
+        $otherSalesChannelId = $this->createHeadlessSalesChannel(isExternalStorefront: true);
+        $groupId = $this->createRegistrationCustomerGroup($salesChannelId, $otherSalesChannelId);
 
-        static::assertCount(1, $this->getHeadlessSeoUrls($groupId));
+        $this->renameSeoUrlOfSalesChannel($groupId, $otherSalesChannelId, 'untouched');
 
         static::getContainer()->get('sales_channel_domain.repository')->delete(
             [['id' => $this->getDomainId($salesChannelId)]],
             Context::createDefaultContext()
         );
 
-        static::assertCount(0, $this->getHeadlessSeoUrls($groupId));
+        $urls = $this->getHeadlessSeoUrls($groupId);
+        static::assertCount(0, $urls->filterBySalesChannelId($salesChannelId));
+
+        $otherUrls = $urls->filterBySalesChannelId($otherSalesChannelId);
+        static::assertCount(1, $otherUrls);
+        static::assertSame('untouched', $otherUrls->first()?->getSeoPathInfo());
+    }
+
+    public function testUrlsMoveWithTheExternalStorefrontDomainToAnotherSalesChannel(): void
+    {
+        $previousSalesChannelId = $this->createHeadlessSalesChannel(isExternalStorefront: true);
+        $newSalesChannelId = $this->createHeadlessSalesChannel(isExternalStorefront: false);
+        $groupId = $this->createRegistrationCustomerGroup($previousSalesChannelId, $newSalesChannelId);
+
+        static::assertCount(1, $this->getHeadlessSeoUrls($groupId)->filterBySalesChannelId($previousSalesChannelId));
+
+        static::getContainer()->get('sales_channel_domain.repository')->update([
+            [
+                'id' => $this->getDomainId($previousSalesChannelId),
+                'salesChannelId' => $newSalesChannelId,
+            ],
+        ], Context::createDefaultContext());
+
+        $urls = $this->getHeadlessSeoUrls($groupId);
+        static::assertCount(0, $urls->filterBySalesChannelId($previousSalesChannelId));
+        static::assertCount(1, $urls->filterBySalesChannelId($newSalesChannelId));
     }
 
     public function testADomainWriteLeavesTheUrlsOfOtherSalesChannelsUntouched(): void
@@ -184,6 +210,16 @@ class CustomerGroupRegistrationSeoUrlSubscriberTest extends TestCase
         static::assertNotNull($domainId);
 
         return $domainId;
+    }
+
+    private function renameSeoUrlOfSalesChannel(string $groupId, string $salesChannelId, string $seoPathInfo): void
+    {
+        $url = $this->getHeadlessSeoUrls($groupId)->filterBySalesChannelId($salesChannelId)->first();
+        static::assertNotNull($url);
+
+        $this->seoUrlRepository->update([
+            ['id' => $url->getId(), 'seoPathInfo' => $seoPathInfo],
+        ], Context::createDefaultContext());
     }
 
     private function getHeadlessSeoUrls(string $foreignKey): SeoUrlCollection

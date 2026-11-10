@@ -79,13 +79,6 @@ new RuleTester({ languageOptions: { parser: require('vue-eslint-parser'), ecmaVe
             errors: [{ message: BACKGROUND_TODO }, { message: ROUNDED }],
         },
         {
-            name: 'reports a marked background-style without a fix',
-            filename: 'test.html.twig',
-            code: template(`    ${twigTodo}`, '    <sw-order-state-select-v2 state-type="order" :background-style="myStyle" />'),
-            output: null,
-            errors: [{ message: BACKGROUND_TODO }],
-        },
-        {
             name: 'marks unknown helper arguments in .vue files',
             filename: 'test.vue',
             code: template('    <sw-order-state-select-v2 :state-type="type" :background-style="backgroundStyle(type)" />'),

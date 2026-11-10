@@ -22,17 +22,26 @@ const scriptTodo = (message) => `// TODO Codemod(6.8, removed-form-components): 
 const twigTodo = (message) => `{# TODO Codemod(6.8, removed-form-components): ${message} #}`;
 const template = (...lines) => ['<template>', ...lines, '</template>'].join('\n');
 
-function manualSelectCase(name, reason, ...lines) {
-    const [first, ...rest] = lines;
-
-    return {
-        name,
-        filename: 'test.html.twig',
-        code: template(...lines),
-        output: template(`    ${twigTodo(selectManual(reason))}`, first, ...rest),
-        errors: [{ message: selectManual(reason) }],
-    };
-}
+/**
+ * sw-select-number-field the rule does not convert, as `[reason, ...elements]`: it only writes a codemod comment with the reason
+ * above each element.
+ */
+const UNCONVERTIBLE_SELECTS = [
+    ['option names as locale objects', `<sw-select-number-field :options="[{ id: 1, name: { 'en-GB': 'One' } }]" />`],
+    ['aside, which mt-select has no replacement for', '<sw-select-number-field aside :options="columnOptions" />'],
+    ['static options', '<sw-select-number-field options="2,3" />'],
+    ['missing options', '<sw-select-number-field v-model:value="columns" />'],
+    ['options and option children together', '<sw-select-number-field :options="columnOptions"><option value="1">1</option></sw-select-number-field>'],
+    ['v-slot on sw-select-number-field', '<sw-select-number-field v-slot="{ value }" :options="columnOptions" />'],
+    ['the #label slot', '<sw-select-number-field :options="columnOptions"><template #label>Columns</template></sw-select-number-field>'],
+    ['Twig or comments in the options', '<sw-select-number-field><!-- two --><option value="2">2</option></sw-select-number-field>'],
+    [
+        'an option value that is not a number',
+        '<sw-select-number-field><option value="small">Small</option></sw-select-number-field>',
+        '<sw-select-number-field><option :value="count">{{ count }}</option></sw-select-number-field>',
+    ],
+    ['the v-for attribute on option', '<sw-select-number-field><option v-for="count in counts" :key="count" :value="count">{{ count }}</option></sw-select-number-field>'],
+];
 
 new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } }).run('no-removed-form-components (script)', rule, {
     valid: [
@@ -53,12 +62,6 @@ new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } })
                 "Shopware.Component.extend('acme-select', 'sw-entity-many-to-many-select', {});",
             ].join('\n'),
             errors: [{ message: HELP_SIDEBAR_OVERRIDE }, { message: MANY_TO_MANY_OVERRIDE }],
-        },
-        {
-            name: 'reports a marked override without a fix',
-            code: [scriptTodo(HELP_SIDEBAR_OVERRIDE), "Component.override('sw-help-sidebar', {});"].join('\n'),
-            output: null,
-            errors: [{ message: HELP_SIDEBAR_OVERRIDE }],
         },
     ],
 });
@@ -117,59 +120,13 @@ new RuleTester({ languageOptions: { parser: require('vue-eslint-parser'), ecmaVe
             output: template('    <mt-select :model-value="2" :options="[{ id: 1, name: \'One\' }, { id: 2, name: \'Two\' }]" label-property="name" value-property="id" />'),
             errors: [{ message: SELECT }],
         },
-        manualSelectCase(
-            'does not convert option names as locale objects',
-            'option names as locale objects',
-            "    <sw-select-number-field :options=\"[{ id: 1, name: { 'en-GB': 'One' } }]\" />",
-        ),
-        manualSelectCase(
-            'does not convert aside',
-            'aside, which mt-select has no replacement for',
-            '    <sw-select-number-field aside :options="columnOptions" />',
-        ),
-        manualSelectCase(
-            'does not convert options that are not numbers',
-            'an option value that is not a number',
-            '    <sw-select-number-field>',
-            '        <option value="small">Small</option>',
-            '    </sw-select-number-field>',
-        ),
-        manualSelectCase(
-            'does not convert the label slot',
-            'the #label slot',
-            '    <sw-select-number-field :options="columnOptions">',
-            '        <template #label>Columns</template>',
-            '    </sw-select-number-field>',
-        ),
-        manualSelectCase(
-            'does not convert option lists',
-            'the v-for attribute on option',
-            '    <sw-select-number-field>',
-            '        <option v-for="count in counts" :key="count" :value="count">{{ count }}</option>',
-            '    </sw-select-number-field>',
-        ),
-        manualSelectCase(
-            'does not convert bound option values',
-            'an option value that is not a number',
-            '    <sw-select-number-field>',
-            '        <option :value="count">{{ count }}</option>',
-            '    </sw-select-number-field>',
-        ),
-        manualSelectCase(
-            'does not convert a field without options',
-            'missing options',
-            '    <sw-select-number-field v-model:value="columns" />',
-        ),
-        {
-            name: 'reports a marked sw-select-number-field without a fix',
+        ...UNCONVERTIBLE_SELECTS.map(([reason, ...elements]) => ({
+            name: `marks sw-select-number-field it does not convert because of ${reason}`,
             filename: 'test.html.twig',
-            code: template(
-                `    ${twigTodo(selectManual('missing options'))}`,
-                '    <sw-select-number-field v-model:value="columns" />',
-            ),
-            output: null,
-            errors: [{ message: selectManual('missing options') }],
-        },
+            code: template(...elements.map((element) => `    ${element}`)),
+            output: template(...elements.flatMap((element) => [`    ${twigTodo(selectManual(reason))}`, `    ${element}`])),
+            errors: elements.map(() => ({ message: selectManual(reason) })),
+        })),
         {
             name: 'converts sw-entity-many-to-many-select in local mode',
             filename: 'test.html.twig',
@@ -210,13 +167,6 @@ new RuleTester({ languageOptions: { parser: require('vue-eslint-parser'), ecmaVe
                 `    <!-- TODO Codemod(6.8, removed-form-components): ${HELP_SIDEBAR} -->`,
                 '    <sw-help-sidebar selector="body" />',
             ),
-            errors: [{ message: HELP_SIDEBAR }],
-        },
-        {
-            name: 'reports a marked sw-help-sidebar without a fix',
-            filename: 'test.html.twig',
-            code: template(`    ${twigTodo(HELP_SIDEBAR)}`, '    <sw-help-sidebar />'),
-            output: null,
             errors: [{ message: HELP_SIDEBAR }],
         },
     ],

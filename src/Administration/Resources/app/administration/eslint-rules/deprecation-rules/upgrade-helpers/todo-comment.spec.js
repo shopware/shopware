@@ -69,6 +69,12 @@ new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } })
             output: null,
             errors: [{ message: MESSAGE }],
         },
+        {
+            name: 'does not split a multi-line block comment',
+            code: '/* start\n */ oldApi();',
+            output: null,
+            errors: [{ message: MESSAGE }],
+        },
     ],
 });
 

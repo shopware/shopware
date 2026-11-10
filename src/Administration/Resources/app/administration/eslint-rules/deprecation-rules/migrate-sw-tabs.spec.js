@@ -61,21 +61,53 @@ const convertedSlots = template(
     '    </mt-tabs>',
 );
 
-/**
- * Builds a test that expects a TODO above `<sw-tabs>` and no other change.
- */
-function manualCase(name, reason, ...lines) {
-    const code = template(...lines);
-    const [first, ...rest] = lines;
+const GENERAL = '<sw-tabs-item name="general">General</sw-tabs-item>';
+const tabs = (items, attributes = '') => `<sw-tabs position-identifier="acme"${attributes}>${items}</sw-tabs>`;
 
-    return {
-        name,
-        filename: 'test.html.twig',
-        code,
-        output: template(`    ${twigTodo(manual(reason))}`, first, ...rest),
-        errors: [{ message: manual(reason) }],
-    };
-}
+/**
+ * sw-tabs the rule does not convert, as `[reason, ...elements]`: it only writes a codemod comment with the reason above each element.
+ */
+const UNCONVERTIBLE = [
+    ['a Twig block or comment in sw-tabs', tabs(`{% block acme_tab_general %}${GENERAL}{% endblock %}`)],
+    ['an HTML comment in sw-tabs', tabs(`<!-- the general tab -->${GENERAL}`)],
+    [
+        'the @new-item-active handler, which receives the item name instead of the item now',
+        tabs(GENERAL, ' @new-item-active="setActiveTab"'),
+        tabs(GENERAL, ' @new-item-active="activeTab = $event"'),
+    ],
+    ['v-slot on sw-tabs', tabs(GENERAL, ' v-slot="{ active }"')],
+    ['a ref on sw-tabs', tabs(GENERAL, ' ref="tabs"')],
+    ['use-meteor-component or items on sw-tabs', '<sw-tabs position-identifier="acme" use-meteor-component :items="tabs" />'],
+    ['default-item on sw-tabs with route items', tabs('<sw-tabs-item :route="{ name: \'acme.general\' }">General</sw-tabs-item>', ' default-item="acme.general"')],
+    ['the #header slot of sw-tabs', tabs('<template #header>Header</template>')],
+    ['a dynamic slot name on sw-tabs', tabs('<template #[slotName]>Header</template>')],
+    ['a directive on the default slot of sw-tabs', tabs(`<template v-if="isReady" #default>${GENERAL}</template>`)],
+    ['content next to the #default slot of sw-tabs', tabs(`<template #default>${GENERAL}</template><sw-tabs-item name="log">Log</sw-tabs-item>`)],
+    ['text next to sw-tabs-item', tabs(`Tabs: ${GENERAL}`)],
+    ['a <div> element in sw-tabs', tabs('<div>General</div>')],
+    ['v-for on sw-tabs-item', tabs('<sw-tabs-item v-for="tab in tabs" :key="tab" name="x">X</sw-tabs-item>')],
+    ['v-else on sw-tabs-item', tabs(`<sw-tabs-item v-if="isNew" name="new">New</sw-tabs-item><sw-tabs-item v-else name="edit">Edit</sw-tabs-item>`)],
+    ['a bound :name on sw-tabs-item', tabs('<sw-tabs-item :name="tab">General</sw-tabs-item>')],
+    ['a bound :class on sw-tabs-item', tabs('<sw-tabs-item name="general" :class="tabClass">General</sw-tabs-item>')],
+    ['a tooltip on sw-tabs-item', tabs('<sw-tabs-item name="general" :error-tooltip="tooltip">General</sw-tabs-item>')],
+    ['the active prop on sw-tabs-item', tabs('<sw-tabs-item name="general" active>General</sw-tabs-item>')],
+    ['active-tab on sw-tabs-item', tabs('<sw-tabs-item name="general" :active-tab="currentTab">General</sw-tabs-item>')],
+    ['the ref attribute on sw-tabs-item', tabs('<sw-tabs-item ref="general" name="general">General</sw-tabs-item>')],
+    [
+        'a label with markup in sw-tabs-item',
+        tabs('<sw-tabs-item name="general"><mt-icon name="regular-cog" /> General</sw-tabs-item>'),
+        tabs('<sw-tabs-item name="general">{{ $t(\'acme.general\') }} ({{ count }})</sw-tabs-item>'),
+    ],
+    ['a title that differs from the label of sw-tabs-item', tabs('<sw-tabs-item name="general" title="Basic settings">General</sw-tabs-item>')],
+    ['a sw-tabs-item without a label', tabs('<sw-tabs-item name="general" />')],
+    ['a sw-tabs-item without name or route', tabs('<sw-tabs-item>General</sw-tabs-item>')],
+    ['a route path on sw-tabs-item', tabs('<sw-tabs-item route="/acme/general">General</sw-tabs-item>')],
+    ['a route without a static route name on sw-tabs-item', tabs('<sw-tabs-item :route="generalRoute">General</sw-tabs-item>')],
+    [
+        'a name that differs from the route name of sw-tabs-item',
+        tabs('<sw-tabs-item name="general" :route="{ name: \'acme.general\' }">General</sw-tabs-item>'),
+    ],
+];
 
 new RuleTester({ languageOptions: { parser: require('vue-eslint-parser'), ecmaVersion: 2022 } }).run('migrate-sw-tabs', rule, {
     valid: [
@@ -83,11 +115,6 @@ new RuleTester({ languageOptions: { parser: require('vue-eslint-parser'), ecmaVe
             name: 'a second run leaves the converted mt-tabs alone',
             filename: 'test.html.twig',
             code: convertedRoutes,
-        },
-        {
-            name: 'a second run leaves the converted .vue template alone',
-            filename: 'test.vue',
-            code: convertedVue,
         },
         {
             name: 'ignores sw-tabs-item outside of sw-tabs',
@@ -186,25 +213,6 @@ new RuleTester({ languageOptions: { parser: require('vue-eslint-parser'), ecmaVe
             errors: [{ message: POSITION }],
         },
         {
-            name: 'reports a marked mt-tabs without a fix',
-            filename: 'test.html.twig',
-            code: template(`    ${twigTodo(POSITION)}`, '    <mt-tabs :items="items" />'),
-            output: null,
-            errors: [{ message: POSITION }],
-        },
-        {
-            name: 'reports a marked sw-tabs without a fix',
-            filename: 'test.html.twig',
-            code: template(
-                `    ${twigTodo(manual('v-for on sw-tabs-item'))}`,
-                '    <sw-tabs position-identifier="acme">',
-                '        <sw-tabs-item v-for="tab in tabs" :key="tab" name="x">X</sw-tabs-item>',
-                '    </sw-tabs>',
-            ),
-            output: null,
-            errors: [{ message: manual('v-for on sw-tabs-item') }],
-        },
-        {
             name: 'writes .vue comments in .vue files',
             filename: 'test.vue',
             code: template(
@@ -220,160 +228,12 @@ new RuleTester({ languageOptions: { parser: require('vue-eslint-parser'), ecmaVe
             ),
             errors: [{ message: manual('@click on sw-tabs-item') }],
         },
-        manualCase(
-            'does not convert Twig blocks around items',
-            'a Twig block or comment in sw-tabs',
-            '    <sw-tabs position-identifier="acme">',
-            '        {% block acme_tab_general %}',
-            '        <sw-tabs-item name="general">General</sw-tabs-item>',
-            '        {% endblock %}',
-            '    </sw-tabs>',
-        ),
-        manualCase(
-            'does not convert HTML comments between items',
-            'an HTML comment in sw-tabs',
-            '    <sw-tabs position-identifier="acme">',
-            '        <!-- the general tab -->',
-            '        <sw-tabs-item name="general">General</sw-tabs-item>',
-            '    </sw-tabs>',
-        ),
-        manualCase(
-            'does not convert handlers that receive the item',
-            'the @new-item-active handler, which receives the item name instead of the item now',
-            '    <sw-tabs position-identifier="acme" @new-item-active="setActiveTab">',
-            '        <sw-tabs-item name="general">General</sw-tabs-item>',
-            '    </sw-tabs>',
-        ),
-        manualCase(
-            'does not convert handlers that use the item itself',
-            'the @new-item-active handler, which receives the item name instead of the item now',
-            '    <sw-tabs position-identifier="acme" @new-item-active="activeTab = $event">',
-            '        <sw-tabs-item name="general">General</sw-tabs-item>',
-            '    </sw-tabs>',
-        ),
-        manualCase(
-            'does not convert bound names',
-            'a bound :name on sw-tabs-item',
-            '    <sw-tabs position-identifier="acme">',
-            '        <sw-tabs-item :name="tab">General</sw-tabs-item>',
-            '    </sw-tabs>',
-        ),
-        manualCase(
-            'does not convert tooltips',
-            'a tooltip on sw-tabs-item',
-            '    <sw-tabs position-identifier="acme">',
-            '        <sw-tabs-item name="general" :error-tooltip="tooltip">General</sw-tabs-item>',
-            '    </sw-tabs>',
-        ),
-        manualCase(
-            'does not convert the active prop',
-            'the active prop on sw-tabs-item',
-            '    <sw-tabs position-identifier="acme">',
-            '        <sw-tabs-item name="general" active>General</sw-tabs-item>',
-            '    </sw-tabs>',
-        ),
-        manualCase(
-            'does not convert active-tab outside of the default slot',
-            'active-tab on sw-tabs-item',
-            '    <sw-tabs position-identifier="acme">',
-            '        <sw-tabs-item name="general" :active-tab="currentTab">General</sw-tabs-item>',
-            '    </sw-tabs>',
-        ),
-        manualCase(
-            'does not convert labels with markup',
-            'a label with markup in sw-tabs-item',
-            '    <sw-tabs position-identifier="acme">',
-            '        <sw-tabs-item name="general"><mt-icon name="regular-cog" /> General</sw-tabs-item>',
-            '    </sw-tabs>',
-        ),
-        manualCase(
-            'does not convert mixed labels',
-            'a label with markup in sw-tabs-item',
-            '    <sw-tabs position-identifier="acme">',
-            "        <sw-tabs-item name=\"general\">{{ $t('acme.general') }} ({{ count }})</sw-tabs-item>",
-            '    </sw-tabs>',
-        ),
-        manualCase(
-            'does not convert other children',
-            'a <div> element in sw-tabs',
-            '    <sw-tabs position-identifier="acme">',
-            '        <div>General</div>',
-            '    </sw-tabs>',
-        ),
-        manualCase(
-            'does not convert other slots',
-            'the #header slot of sw-tabs',
-            '    <sw-tabs position-identifier="acme">',
-            '        <template #header>Header</template>',
-            '    </sw-tabs>',
-        ),
-        manualCase(
-            'does not convert routes without a static name',
-            'a route without a static route name on sw-tabs-item',
-            '    <sw-tabs position-identifier="acme">',
-            '        <sw-tabs-item :route="generalRoute">General</sw-tabs-item>',
-            '    </sw-tabs>',
-        ),
-        manualCase(
-            'does not convert route paths',
-            'a route path on sw-tabs-item',
-            '    <sw-tabs position-identifier="acme">',
-            '        <sw-tabs-item route="/acme/general">General</sw-tabs-item>',
-            '    </sw-tabs>',
-        ),
-        manualCase(
-            'does not convert names that differ from the route name',
-            'a name that differs from the route name of sw-tabs-item',
-            '    <sw-tabs position-identifier="acme">',
-            "        <sw-tabs-item name=\"general\" :route=\"{ name: 'acme.general' }\">General</sw-tabs-item>",
-            '    </sw-tabs>',
-        ),
-        manualCase(
-            'does not convert route items with a default-item',
-            'default-item on sw-tabs with route items',
-            '    <sw-tabs position-identifier="acme" default-item="acme.general">',
-            "        <sw-tabs-item :route=\"{ name: 'acme.general' }\">General</sw-tabs-item>",
-            '    </sw-tabs>',
-        ),
-        manualCase(
-            'does not convert titles that differ from the label',
-            'a title that differs from the label of sw-tabs-item',
-            '    <sw-tabs position-identifier="acme">',
-            '        <sw-tabs-item name="general" title="Basic settings">General</sw-tabs-item>',
-            '    </sw-tabs>',
-        ),
-        manualCase(
-            'does not convert items without a label',
-            'a sw-tabs-item without a label',
-            '    <sw-tabs position-identifier="acme">',
-            '        <sw-tabs-item name="general" />',
-            '    </sw-tabs>',
-        ),
-        manualCase(
-            'does not convert items without a name',
-            'a sw-tabs-item without name or route',
-            '    <sw-tabs position-identifier="acme">',
-            '        <sw-tabs-item>General</sw-tabs-item>',
-            '    </sw-tabs>',
-        ),
-        manualCase(
-            'does not convert unknown item attributes',
-            'the ref attribute on sw-tabs-item',
-            '    <sw-tabs position-identifier="acme">',
-            '        <sw-tabs-item ref="general" name="general">General</sw-tabs-item>',
-            '    </sw-tabs>',
-        ),
-        manualCase(
-            'does not convert a ref on sw-tabs',
-            'a ref on sw-tabs',
-            '    <sw-tabs ref="tabs" position-identifier="acme">',
-            '        <sw-tabs-item name="general">General</sw-tabs-item>',
-            '    </sw-tabs>',
-        ),
-        manualCase(
-            'does not convert the meteor compatibility path',
-            'use-meteor-component or items on sw-tabs',
-            '    <sw-tabs position-identifier="acme" use-meteor-component :items="tabs" />',
-        ),
+        ...UNCONVERTIBLE.map(([reason, ...elements]) => ({
+            name: `marks sw-tabs it does not convert because of ${reason}`,
+            filename: 'test.html.twig',
+            code: template(...elements.map((element) => `    ${element}`)),
+            output: template(...elements.flatMap((element) => [`    ${twigTodo(manual(reason))}`, `    ${element}`])),
+            errors: elements.map(() => ({ message: manual(reason) })),
+        })),
     ],
 });

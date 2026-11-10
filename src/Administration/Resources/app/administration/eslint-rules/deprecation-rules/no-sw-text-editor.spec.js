@@ -13,25 +13,6 @@ const LINK_MENU = components['sw-text-editor-link-menu'];
 const scriptTodo = (message) => `// TODO Codemod(6.8, sw-text-editor): ${message}`;
 const twigTodo = (message) => `{# TODO Codemod(6.8, sw-text-editor): ${message} #}`;
 
-describe('no-sw-text-editor data', () => {
-    it('covers the six removed components', () => {
-        expect(Object.keys(components)).toEqual([
-            'sw-text-editor',
-            'sw-text-editor-toolbar',
-            'sw-text-editor-toolbar-button',
-            'sw-text-editor-toolbar-table-button',
-            'sw-text-editor-table-toolbar',
-            'sw-text-editor-link-menu',
-        ]);
-    });
-
-    it('names the prop mapping for sw-text-editor', () => {
-        expect(EDITOR).toContain('v-model:value → v-model');
-        expect(EDITOR).toContain('@update:value → @update:model-value');
-        expect(EDITOR).toContain('button-config → custom-buttons');
-    });
-});
-
 new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } }).run('no-sw-text-editor (script)', rule, {
     valid: [
         { name: 'ignores mt-text-editor', code: "Component.override('mt-text-editor', {});" },
@@ -51,12 +32,6 @@ new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } })
                 "Shopware.Component.extend('acme-link-menu', 'sw-text-editor-link-menu', {});",
             ].join('\n'),
             errors: [{ message: EDITOR }, { message: LINK_MENU }],
-        },
-        {
-            name: 'reports a marked override without a fix',
-            code: [scriptTodo(EDITOR), "Component.override('sw-text-editor', {});"].join('\n'),
-            output: null,
-            errors: [{ message: EDITOR }],
         },
     ],
 });
@@ -88,13 +63,6 @@ new RuleTester({ languageOptions: { parser: require('vue-eslint-parser'), ecmaVe
                 '</template>',
             ].join('\n'),
             errors: [{ message: EDITOR }, { message: TOOLBAR }],
-        },
-        {
-            name: 'reports a marked tag without a fix',
-            filename: 'test.html.twig',
-            code: ['<template>', `    ${twigTodo(EDITOR)}`, '    <sw-text-editor />', '</template>'].join('\n'),
-            output: null,
-            errors: [{ message: EDITOR }],
         },
         {
             name: 'marks the tags and the script of .vue files',

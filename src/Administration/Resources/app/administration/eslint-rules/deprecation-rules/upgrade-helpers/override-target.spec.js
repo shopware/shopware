@@ -32,15 +32,10 @@ new RuleTester({
             errors: [{ message: 'file:sw-order-list' }, { message: 'at:sw-order-list' }],
         },
         {
-            name: 'uses the base of an extension',
-            code: "Component.extend('acme-list', 'sw-order-list', { methods: { a() { this.probe(); } } });",
-            errors: [{ message: 'file:sw-order-list' }, { message: 'at:sw-order-list' }],
-        },
-        {
-            name: 'tells several overrides in one file apart',
+            name: 'tells several overrides and extensions in one file apart',
             code: [
                 "Component.override('sw-a', { methods: { a() { this.probe(); } } });",
-                "Component.override('sw-b', { methods: { b() { this.probe(); } } });",
+                "Component.extend('acme-b', 'sw-b', { methods: { b() { this.probe(); } } });",
             ].join('\n'),
             errors: [{ message: 'file:sw-a,sw-b' }, { message: 'at:sw-a' }, { message: 'at:sw-b' }],
         },

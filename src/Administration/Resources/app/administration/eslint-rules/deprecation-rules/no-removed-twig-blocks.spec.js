@@ -21,6 +21,31 @@ const PLUGIN = '/plugin/src/extension';
 const SHARED_NAME = 'Block name is used by several core components. Check which one you override.';
 const NAME_FIELD = 'Block sw_media_modal_folder_settings_name_field is removed with the legacy sw-tabs branch. Override sw_media_modal_folder_settings_mt_name_field instead.';
 
+/** What the codemod comment names instead of a removed block, as `[what, block, message]`. */
+const MESSAGES = [
+    [
+        'the computed that takes a legacy tab item',
+        'sw_product_detail_content_tabs_additional',
+        'Block sw_product_detail_content_tabs_additional is removed with the legacy sw-tabs branch. Add the tab to the productDetailTabs computed instead.',
+    ],
+    ['no replacement', 'sw_integration_list_introduction', 'Block sw_integration_list_introduction is removed without replacement.'],
+    [
+        'a replacement in another component',
+        'sw_product_packaging_form_width_field',
+        'Block sw_product_packaging_form_width_field is removed. Override sw_product_measurement_form_width_field in sw-product-measurement-form instead.',
+    ],
+    [
+        'a hint of its own',
+        'sw_settings_user_list_delete_modal_input__confirm_password',
+        'Block sw_settings_user_list_delete_modal_input__confirm_password is removed. Extend the sw-verify-user-modal component instead.',
+    ],
+    [
+        'the removed component',
+        'sw_order_user_card_avatar',
+        'Block sw_order_user_card_avatar is removed with the sw-order-user-card component without replacement.',
+    ],
+];
+
 // Templates without a core component name take the override target from the script next to them.
 const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'sw-removed-twig-blocks-'));
 const flowIndexOverride = path.join(directory, 'flow/acme-flow.html.twig');
@@ -100,53 +125,13 @@ describe('no-removed-twig-blocks', () => {
                 ].join('\n')),
                 errors: 2,
             },
-            {
-                name: 'names the tabs computed for a legacy tab item',
-                filename: `${PLUGIN}/sw-product-detail/sw-product-detail.html.twig`,
-                code: template('{% block sw_product_detail_content_tabs_additional %}{% endblock %}'),
-                output: marked(
-                    'Block sw_product_detail_content_tabs_additional is removed with the legacy sw-tabs branch. Add the tab to the productDetailTabs computed instead.',
-                    '{% block sw_product_detail_content_tabs_additional %}{% endblock %}',
-                ),
-                errors: 1,
-            },
-            {
-                name: 'says when a block is removed without replacement',
+            ...MESSAGES.map(([what, block, message]) => ({
+                name: `names ${what}`,
                 filename: `${PLUGIN}/acme/acme.html.twig`,
-                code: template('{% block sw_integration_list_introduction %}{% endblock %}'),
-                output: marked('Block sw_integration_list_introduction is removed without replacement.', '{% block sw_integration_list_introduction %}{% endblock %}'),
-                errors: 1,
-            },
-            {
-                name: 'names the component of a replacement in another component',
-                filename: `${PLUGIN}/acme/acme.html.twig`,
-                code: template('{% block sw_product_packaging_form_width_field %}{% endblock %}'),
-                output: marked(
-                    'Block sw_product_packaging_form_width_field is removed. Override sw_product_measurement_form_width_field in sw-product-measurement-form instead.',
-                    '{% block sw_product_packaging_form_width_field %}{% endblock %}',
-                ),
-                errors: 1,
-            },
-            {
-                name: 'writes a hint of its own',
-                filename: `${PLUGIN}/acme/acme.html.twig`,
-                code: template('{% block sw_settings_user_list_delete_modal_input__confirm_password %}{% endblock %}'),
-                output: marked(
-                    'Block sw_settings_user_list_delete_modal_input__confirm_password is removed. Extend the sw-verify-user-modal component instead.',
-                    '{% block sw_settings_user_list_delete_modal_input__confirm_password %}{% endblock %}',
-                ),
-                errors: 1,
-            },
-            {
-                name: 'names a removed component',
-                filename: `${PLUGIN}/acme/acme.html.twig`,
-                code: template('{% block sw_order_user_card_avatar %}{% endblock %}'),
-                output: marked(
-                    'Block sw_order_user_card_avatar is removed with the sw-order-user-card component without replacement.',
-                    '{% block sw_order_user_card_avatar %}{% endblock %}',
-                ),
-                errors: 1,
-            },
+                code: template(`{% block ${block} %}{% endblock %}`),
+                output: marked(message, `{% block ${block} %}{% endblock %}`),
+                errors: [{ message }],
+            })),
             {
                 name: 'names the component of a shared name when the file name is the core component',
                 filename: `${PLUGIN}/sw-cms-el-config-image-gallery/sw-cms-el-config-image-gallery.html.twig`,

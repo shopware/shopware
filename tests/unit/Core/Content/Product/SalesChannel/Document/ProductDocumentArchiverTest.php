@@ -3,7 +3,9 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Document;
 
 use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemOperator;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
+use League\Flysystem\UnableToMoveFile;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -212,6 +214,39 @@ class ProductDocumentArchiverTest extends TestCase
         static::assertStringStartsWith(ProductDocumentArchiver::DIRECTORY . '/' . $parentId . '/', $archive->path);
     }
 
+    public function testRemovesTheUploadWhenItCannotBeMovedIntoPlace(): void
+    {
+        $manual = $this->createFile('manual', 'manual content');
+        $failure = UnableToMoveFile::fromLocationTo('upload', 'archive');
+        $uploadPath = null;
+
+        $privateFilesystem = $this->createMock(FilesystemOperator::class);
+        $privateFilesystem->method('fileExists')->willReturn(false);
+        $privateFilesystem->expects($this->once())
+            ->method('writeStream')
+            ->willReturnCallback(static function (string $location) use (&$uploadPath): void {
+                $uploadPath = $location;
+            });
+        $privateFilesystem->expects($this->once())
+            ->method('move')
+            ->willReturnCallback(static function (string $source, string $destination) use (&$uploadPath, $failure): void {
+                static::assertSame($uploadPath, $source);
+                static::assertNotSame($destination, $source);
+
+                throw $failure;
+            });
+        $privateFilesystem->expects($this->once())
+            ->method('delete')
+            ->willReturnCallback(static function (string $location) use (&$uploadPath): void {
+                static::assertSame($uploadPath, $location);
+            });
+
+        $this->expectExceptionObject($failure);
+
+        $this->createArchiver([$this->createDocument($manual)], [$manual], privateFilesystem: $privateFilesystem)
+            ->archive($this->createProduct('Cordless drill'), $this->context);
+    }
+
     public function testTagsNameTheProductTheirArchivesBelongTo(): void
     {
         static::assertSame($this->productId, ProductDocumentArchiver::extractProductId(ProductDocumentArchiver::buildTag($this->productId)));
@@ -225,8 +260,13 @@ class ProductDocumentArchiverTest extends TestCase
      * @param list<list<int>>|null $documentsPerCall
      * @param list<MediaCollection>|null $mediaPerCall
      */
-    private function createArchiver(array $documents, array $files, ?array $documentsPerCall = null, ?array $mediaPerCall = null): ProductDocumentArchiver
-    {
+    private function createArchiver(
+        array $documents,
+        array $files,
+        ?array $documentsPerCall = null,
+        ?array $mediaPerCall = null,
+        ?FilesystemOperator $privateFilesystem = null,
+    ): ProductDocumentArchiver {
         $documentsPerCall ??= [array_keys($documents)];
         $mediaPerCall ??= [new MediaCollection($files)];
 
@@ -237,7 +277,7 @@ class ProductDocumentArchiverTest extends TestCase
             )),
             new StaticEntityRepository($mediaPerCall),
             $this->publicFilesystem,
-            $this->privateFilesystem,
+            $privateFilesystem ?? $this->privateFilesystem,
             new LocalFilesystem(),
             new Psr17Factory(),
         );

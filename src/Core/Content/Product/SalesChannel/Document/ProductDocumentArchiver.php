@@ -208,8 +208,15 @@ class ProductDocumentArchiver
                 throw ProductException::documentArchiveFailed('the ZIP file could not be read');
             }
 
+            $uploadPath = $path . '.' . Uuid::randomHex();
+
             try {
-                $this->privateFilesystem->writeStream($path, $stream);
+                $this->privateFilesystem->writeStream($uploadPath, $stream);
+                $this->privateFilesystem->move($uploadPath, $path);
+            } catch (\Throwable $exception) {
+                $this->privateFilesystem->delete($uploadPath);
+
+                throw $exception;
             } finally {
                 fclose($stream);
             }

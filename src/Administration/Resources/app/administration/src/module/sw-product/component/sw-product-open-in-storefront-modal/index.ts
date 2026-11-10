@@ -281,6 +281,7 @@ export default Shopware.Component.wrapComponentConfig({
         async isSoldOutClearanceSale(): Promise<boolean> {
             if ((this.product.childCount ?? 0) > 0) {
                 const criteria = new Criteria(1, 1);
+                criteria.setTotalCountMode(0);
                 criteria.addFilter(Criteria.equals('parentId', this.product.id));
                 criteria.addFilter(
                     Criteria.not('AND', [
@@ -294,7 +295,7 @@ export default Shopware.Component.wrapComponentConfig({
                     inheritance: true,
                 });
 
-                return availableVariants.total === 0;
+                return availableVariants.data.length === 0;
             }
 
             const isCloseout = this.product.isCloseout ?? this.parentProduct?.isCloseout;

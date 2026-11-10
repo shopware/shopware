@@ -45,7 +45,10 @@ async function createWrapper({
 } = {}) {
     productStorefrontUrlApiService.fetchProductUrls = jest.fn().mockResolvedValue(loadedSalesChannel);
     const repository = {
-        searchIds: jest.fn().mockResolvedValue({ total: availableVariants, data: [] }),
+        searchIds: jest.fn().mockResolvedValue({
+            total: availableVariants,
+            data: Array.from({ length: availableVariants }, (_, index) => `variant-${index}`),
+        }),
         search: jest.fn(() => languageSearch),
     };
     const systemConfigApiService = {
@@ -250,6 +253,13 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
         const link = wrapper.find('a.sw-product-open-in-storefront-modal__domain');
         expect(link.find('.sw-product-open-in-storefront-modal__domain-header').exists()).toBe(false);
         expect(link.find('.sw-product-open-in-storefront-modal__domain-url').text()).toBe('https://shop.test/Shirt/SW10000');
+    });
+
+    it('looks for one available variant without counting all of them', async () => {
+        const { repository } = await createWrapper({ ...unreachable, product: { childCount: 2 } });
+
+        const [criteria] = repository.searchIds.mock.calls[0] as [{ parse: () => Record<string, unknown> }];
+        expect(criteria.parse()).toEqual(expect.objectContaining({ limit: 1, 'total-count-mode': 0 }));
     });
 
     it('does not check the stock when the Storefront shows the product', async () => {

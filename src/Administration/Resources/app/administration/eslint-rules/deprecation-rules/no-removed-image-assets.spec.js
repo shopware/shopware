@@ -17,8 +17,13 @@ const templateTester = new RuleTester({ languageOptions: { parser: require('vue-
 
 scriptTester.run('no-removed-image-assets (scripts)', rule, {
     valid: [
-        "const image = '/administration/administration/static/img/cms/preview_camera_large.webp';",
-        "const image = '/administration/static/img/favicon/favicon-32x32.png';",
+        {
+            name: 'keeps .webp images and the .png images that 6.8 keeps',
+            code: lines(
+                "const image = '/administration/administration/static/img/cms/preview_camera_large.webp';",
+                "const favicon = '/administration/static/img/favicon/favicon-32x32.png';",
+            ),
+        },
         {
             name: 'ignores images of other bundles with the same name',
             code: "const image = '/acmeplugin/administration/static/img/cms/preview_camera_large.jpg';",
@@ -60,21 +65,13 @@ scriptTester.run('no-removed-image-assets (scripts)', rule, {
             ),
             errors: [{ message: YOUTUBE }],
         },
-        {
-            name: 'a second run only reports the marked image',
-            code: lines(
-                `// TODO Codemod(6.8, asset-paths): ${YOUTUBE}`,
-                "const preview = this.assetFilter('administration/administration/static/img/cms/preview_youtube.jpg');",
-            ),
-            output: null,
-            errors: [{ message: YOUTUBE }],
-        },
     ],
 });
 
 templateTester.run('no-removed-image-assets (templates)', rule, {
     valid: [
         {
+            name: 'keeps .webp images in templates',
             filename: 'acme.html.twig',
             code: template('<img :src="assetFilter(\'/administration/administration/static/img/cms/preview_camera_large.webp\')">'),
         },

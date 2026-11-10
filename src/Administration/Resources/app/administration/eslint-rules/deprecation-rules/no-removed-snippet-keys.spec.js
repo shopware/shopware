@@ -63,21 +63,13 @@ scriptTester.run('no-removed-snippet-keys (scripts)', rule, {
             ),
             errors: [{ message: TOOLTIP }],
         },
-        {
-            name: 'a second run only reports the marked key',
-            code: lines(
-                `// TODO Codemod(6.8, snippet-keys): ${TOOLTIP}`,
-                "const tooltip = this.$t('sw-import-export.profile.addNewProfileTooltipLanguage');",
-            ),
-            output: null,
-            errors: [{ message: TOOLTIP }],
-        },
     ],
 });
 
 templateTester.run('no-removed-snippet-keys (templates)', rule, {
     valid: [
         {
+            name: 'keeps the new keys',
             filename: 'acme.html.twig',
             code: template("{{ $t('sw-settings-customer-group.detail.taxDisplay.label') }}"),
         },

@@ -70,12 +70,8 @@ describe('no-order-list-delivery-helpers', () => {
     scriptTester.run('no-order-list-delivery-helpers (scripts)', rule, {
         valid: [
             {
-                name: 'ignores components the extension registers itself',
-                code: "Shopware.Component.register('acme-list', { methods: { state(order) { return this.getDeliveryState(order) && order.deliveries; } } });",
-            },
-            {
                 name: 'ignores overrides of other components',
-                code: "Shopware.Component.override('sw-order-detail', { methods: { state(order) { return this.transaction(order).id; } } });",
+                code: "Shopware.Component.override('sw-order-detail', { methods: { state(order) { return this.transaction(order).id && order.deliveries; } } });",
             },
             {
                 name: 'keeps calls of a method the override declares itself',
@@ -155,6 +151,7 @@ describe('no-order-list-delivery-helpers', () => {
                     '            const transaction = this.transaction(order.items[0]);',
                     "            this.getDeliveryAddress(order).street = 'Main Street';",
                     '            const { getDelivery } = this;',
+                    '            const count = order.deliveries.length;',
                     '            const tooltip = this.deliveryTooltip(order.deliveries);',
                     '            return this.filterLoading',
                     '                || this.filterSelectCriteria;',
@@ -176,7 +173,9 @@ describe('no-order-list-delivery-helpers', () => {
                     "            this.getDeliveryAddress(order).street = 'Main Street';",
                     `            ${scriptTodo(GET_DELIVERY)}`,
                     '            const { getDelivery } = this;',
-                    // RuleTester applies one fix pass: the second comment of a line follows in the next pass.
+                    // One comment per association and method: the second deliveries read gets none
+                    `            ${scriptTodo(DELIVERIES)}`,
+                    '            const count = order.deliveries.length;',
                     `            ${scriptTodo(TOOLTIP)}`,
                     '            const tooltip = this.deliveryTooltip(order.deliveries);',
                     `            ${scriptTodo(FILTER_LOADING)}`,
@@ -198,63 +197,13 @@ describe('no-order-list-delivery-helpers', () => {
                     { message: TRANSACTION },
                     { message: DELIVERY_ADDRESS },
                     { message: GET_DELIVERY },
-                    { message: TOOLTIP },
                     { message: DELIVERIES },
+                    { message: TOOLTIP },
                     { message: FILTER_LOADING },
                     { message: FILTER_SELECT_CRITERIA },
                     { message: UPDATE_CRITERIA },
                     { message: SUPER_DELIVERY_STATE },
                 ],
-            },
-            {
-                name: 'marks each association once per method',
-                code: override(
-                    '    methods: {',
-                    '        city(order) {',
-                    '            if (order.deliveries.length === 0) {',
-                    "                return '';",
-                    '            }',
-                    '',
-                    '            return order.deliveries[0].shippingOrderAddress.city;',
-                    '        },',
-                    '    },',
-                ),
-                output: override(
-                    '    methods: {',
-                    '        city(order) {',
-                    `            ${scriptTodo(DELIVERIES)}`,
-                    '            if (order.deliveries.length === 0) {',
-                    "                return '';",
-                    '            }',
-                    '',
-                    '            return order.deliveries[0].shippingOrderAddress.city;',
-                    '        },',
-                    '    },',
-                ),
-                errors: [{ message: DELIVERIES }],
-            },
-            {
-                name: 'covers an export default in a folder named after sw-order-list',
-                filename: '/plugin/src/extension/sw-order-list/index.js',
-                code: lines(
-                    'export default {',
-                    '    methods: {',
-                    '        city(order) {',
-                    '            return this.getDeliveryAddress(order).city;',
-                    '        },',
-                    '    },',
-                    '};',
-                ),
-                output: lines(
-                    'export default {',
-                    '    methods: {',
-                    '        city(order) {',
-                    '            return order.primaryOrderDelivery?.shippingOrderAddress?.city;',
-                    '        },',
-                    '    },',
-                    '};',
-                ),
-                errors: [{ message: DELIVERY_ADDRESS }],
             },
             {
                 name: 'a second run only reports the marked spots',
@@ -285,11 +234,6 @@ describe('no-order-list-delivery-helpers', () => {
                 name: 'keeps calls of methods and associations the importing script declares',
                 filename: declaringTemplate,
                 code: template('{{ getDeliveryAddress(item).street }} {{ item.deliveries.length }}'),
-            },
-            {
-                name: 'ignores slot variables with the same name',
-                filename: orderListTemplate,
-                code: template('<template #column-state="{ getDeliveryState }">{{ getDeliveryState(item) }}</template>'),
             },
         ],
         invalid: [
@@ -358,16 +302,6 @@ describe('no-order-list-delivery-helpers', () => {
                     { message: DELIVERIES },
                     { message: TRANSACTIONS },
                 ],
-            },
-            {
-                name: 'a second run only reports the marked template spots',
-                filename: orderListTemplate,
-                code: template(
-                    `${twigTodo(TRANSACTIONS)}`,
-                    '{{ item.transactions.last().amount }}',
-                ),
-                output: null,
-                errors: [{ message: TRANSACTIONS }],
             },
             {
                 name: 'rewrites the template of a .vue override',

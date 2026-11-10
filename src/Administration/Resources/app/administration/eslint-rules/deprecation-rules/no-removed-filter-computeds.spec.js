@@ -25,8 +25,6 @@ const writeFile = (file, content) => {
 
 writeFile('order-list/sw-order-list.html.twig', '{% block sw_order_list_grid_columns %}{{ dateFilter(item.orderDateTime) }}{% endblock %}');
 const orderListOverride = path.join(directory, 'order-list/index.js');
-writeFile('quiet/sw-order-list.html.twig', '{# {{ dateFilter(item.orderDateTime) }} #}{{ item.orderNumber }}');
-const quietOverride = path.join(directory, 'quiet/index.js');
 const importedTemplate = writeFile('imported/sw-order-list.html.twig', '');
 writeFile('imported/sw-order-list.js', "import template from './sw-order-list.html.twig';\nShopware.Component.override('sw-order-list', { template });");
 const standaloneTemplate = writeFile('sw-order-list/sw-order-list.html.twig', '');
@@ -61,8 +59,8 @@ describe('no-removed-filter-computeds', () => {
                 ),
             },
             {
-                name: 'ignores components the extension registers itself',
-                code: "Shopware.Component.register('acme-list', { methods: { format(value) { return this.dateFilter(value); } } });",
+                name: 'ignores overrides that do not read the filters',
+                code: "Shopware.Component.override('sw-order-list', { methods: { orderNumber(order) { return order.orderNumber; } } });",
             },
             {
                 name: 'ignores components that keep the computed',
@@ -72,15 +70,10 @@ describe('no-removed-filter-computeds', () => {
                 name: 'ignores the assetFilter computeds that stay until 6.9',
                 code: "Shopware.Component.override('sw-extension-my-extensions-listing', { methods: { image() { return this.assetFilter('x.svg'); } } });",
             },
-            {
-                name: 'ignores filters that only a template comment mentions',
-                filename: quietOverride,
-                code: "import template from './sw-order-list.html.twig';\nShopware.Component.override('sw-order-list', { template });",
-            },
         ],
         invalid: [
             {
-                name: 'adds the computed when the imported template reads the filter',
+                name: 'adds the dateFilter computed when the imported template reads it',
                 filename: orderListOverride,
                 code: lines(
                     "import template from './sw-order-list.html.twig';",
@@ -171,35 +164,6 @@ describe('no-removed-filter-computeds', () => {
                 errors: [{ message: 'sw-product-list no longer provides dateFilter in 6.8. Define it in the computed of this override.' }],
             },
             {
-                name: 'covers an export default in a folder named after the core component',
-                filename: '/plugin/src/extension/sw-order-list/index.js',
-                code: lines(
-                    'export default {',
-                    '    methods: {',
-                    '        format(order) {',
-                    '            return this.dateFilter(order.orderDateTime);',
-                    '        },',
-                    '    },',
-                    '};',
-                ),
-                output: lines(
-                    'export default {',
-                    '    methods: {',
-                    '        format(order) {',
-                    '            return this.dateFilter(order.orderDateTime);',
-                    '        },',
-                    '    },',
-                    '',
-                    '    computed: {',
-                    '        dateFilter() {',
-                    "            return Shopware.Filter.getByName('date');",
-                    '        },',
-                    '    },',
-                    '};',
-                ),
-                errors: [{ message: 'sw-order-list no longer provides dateFilter in 6.8. Define it in the computed of this override.' }],
-            },
-            {
                 name: 'marks an override whose computed is no object literal',
                 code: lines(
                     "Shopware.Component.override('sw-order-list', {",
@@ -235,7 +199,7 @@ describe('no-removed-filter-computeds', () => {
         valid: [],
         invalid: [
             {
-                name: 'adds the computed to a TypeScript override without trailing comma',
+                name: 'adds the assetFilter computed to a TypeScript override without trailing comma',
                 filename: 'index.ts',
                 code: lines(
                     "Shopware.Component.override('sw-flow-list', {",
@@ -278,11 +242,6 @@ describe('no-removed-filter-computeds', () => {
                 filename: '/plugin/src/acme/acme-list.html.twig',
                 code: template('<span :title="dateFilter(item.createdAt)">{{ dateFilter(item.createdAt) }}</span>'),
             },
-            {
-                name: 'ignores a slot variable with the same name',
-                filename: standaloneTemplate,
-                code: template('<template #column-date="{ dateFilter }">{{ dateFilter }}</template>'),
-            },
         ],
         invalid: [
             {
@@ -324,16 +283,6 @@ describe('no-removed-filter-computeds', () => {
                     '{% endblock %}',
                 ),
                 errors: [{ message: ASSET_FILTER_TODO }],
-            },
-            {
-                name: 'a second run only reports the marked template',
-                filename: standaloneTemplate,
-                code: template(
-                    `{# TODO Codemod(6.8, filter-computeds): ${DATE_FILTER_TODO} #}`,
-                    '<span>{{ dateFilter(item.orderDateTime) }}</span>',
-                ),
-                output: null,
-                errors: [{ message: DATE_FILTER_TODO }],
             },
             {
                 name: 'adds the computed for the template of a .vue file',

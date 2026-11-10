@@ -233,6 +233,31 @@ For user interfaces that display only one delivery & transaction, there is now a
 If an extension modifies or adds new deliveries or transactions, this should be taken into account.
 To partly comply with old behaviour, primary deliveries are ordered first and primary transactions are ordered last wherever appropriate.
 
+### Administration order list and detail page
+
+The order list `sw-order-list` no longer loads the `addresses`, `deliveries` and `transactions` associations, nor `primaryOrderTransaction.paymentMethod`, `primaryOrderDelivery.shippingMethod` and `primaryOrderDelivery.shippingOrderAddress.country`.
+The order detail page `sw-order-detail` no longer loads `deliveries.shippingMethod`, `deliveries.shippingOrderAddress` and `transactions.paymentMethod`.
+Read the primary delivery and transaction instead, or add the associations you need to the criteria in your override.
+
+The delivery and transaction helpers of `sw-order-list` were removed.
+Use the order properties instead, which the list already loads in 6.7:
+
+| Removed method | Replacement |
+|---|---|
+| `transaction(order)` | `order.primaryOrderTransaction` |
+| `getDelivery(order)` | `order.primaryOrderDelivery` |
+| `getDeliveryAddress(order)` | `order.primaryOrderDelivery?.shippingOrderAddress` |
+| `getDeliveryState(order)` | `order.primaryOrderDelivery?.stateMachineState` |
+| `getTransactionState(order)` | `order.primaryOrderTransaction?.stateMachineState` |
+| `getBillingAddress(order)` | `order.billingAddress` |
+| `deliveryTooltip(deliveries)` | No replacement, format `order.primaryOrderDelivery?.shippingOrderAddress` yourself |
+
+The data property `filterLoading` and the computed property `filterSelectCriteria` of `sw-order-list` were removed without replacement.
+Its `updateCriteria()` method was removed as well; the `listing` mixin still provides it, so only `this.$super('updateCriteria')` in an override stops working.
+
+The codemod `order-list-helpers` of `administration:upgrade-extensions` replaces the six accessors in scripts and templates of `sw-order-list` overrides.
+It writes a TODO for `deliveryTooltip()`, `filterLoading`, `filterSelectCriteria`, `this.$super()` calls of removed members and reads of `order.deliveries`, `order.transactions` and `order.addresses`.
+
 ## Flow Builder executions run after the main business process
 
 Flows triggered during an HTTP request, Messenger message, or console command are now buffered and executed after the current unit of work has finished.
@@ -2006,13 +2031,42 @@ The codemod `twig-block-removals` of `administration:upgrade-extensions` writes 
 
 ## Removed the `assetFilter` computed of the empty state components
 
-The `assetFilter` computed became unused when the Administration empty states moved to `mt-empty-state`, and was removed from `sw-cms-layout-assignment-modal`, `sw-flow-list`, `sw-mail-header-footer-list`, `sw-mail-template-list`, `sw-order-customer-grid`, `sw-promotion-v2-individual-codes-behavior`, `sw-sales-channel-products-assignment-dynamic-product-groups`, `sw-settings-listing-option-criteria-grid`, `sw-settings-listing`, `sw-settings-product-feature-sets-values-card` and `sw-tax-rule-card`.
+The `assetFilter` computed became unused when the Administration empty states moved to `mt-empty-state`, and was removed from `sw-cms-layout-assignment-modal`, `sw-flow-list`, `sw-mail-header-footer-list`, `sw-mail-template-list`, `sw-order-customer-grid`, `sw-product-detail-context-prices`, `sw-product-detail-cross-selling`, `sw-promotion-v2-individual-codes-behavior`, `sw-sales-channel-products-assignment-dynamic-product-groups`, `sw-settings-listing-option-criteria-grid`, `sw-settings-listing`, `sw-settings-product-feature-sets-values-card` and `sw-tax-rule-card`.
 
 An override that read it resolves the filter directly instead:
 
 ```js
 Shopware.Filter.getByName('asset');
 ```
+
+Templates cannot reach `Shopware`, so an override whose template still calls `assetFilter(…)` defines the computed itself:
+
+```js
+computed: {
+    assetFilter() {
+        return Shopware.Filter.getByName('asset');
+    },
+},
+```
+
+The codemod `filter-computeds` of `administration:upgrade-extensions` adds this computed to overrides that read the filter in their script or in the template they import.
+An `.html.twig` override that no script in its folder imports gets a TODO instead.
+
+## Removed unused `dateFilter` computeds
+
+The `dateFilter` computed became unused when the Administration templates switched to `sw-time-ago` for past dates, and was removed from `sw-advanced-selection-rule`, `sw-cms-layout-modal`, `sw-cms-list`, `sw-dashboard-statistics`, `sw-extension-card-base`, `sw-import-export-activity`, `sw-import-export-activity-log-info-modal`, `sw-import-export-activity-result-modal`, `sw-media-folder-item`, `sw-media-media-item`, `sw-newsletter-recipient-list`, `sw-order-document-card`, `sw-order-general-info`, `sw-order-list`, `sw-order-send-document-modal`, `sw-order-state-history-card-entry`, `sw-product-detail-reviews`, `sw-product-list`, `sw-product-stream-list`, `sw-promotion-v2-individual-codes-behavior`, `sw-review-detail`, `sw-review-list`, `sw-sales-channel-detail-base`, `sw-sales-channel-list`, `sw-settings-logging-list`, `sw-settings-rule-list` and `sw-settings-snippet-set-list`.
+
+An override that still calls `dateFilter(…)`, in its script or in its template, defines the computed itself:
+
+```js
+computed: {
+    dateFilter() {
+        return Shopware.Filter.getByName('date');
+    },
+},
+```
+
+The codemod `filter-computeds` of `administration:upgrade-extensions` adds this computed in the same way as for `assetFilter`.
 
 ## `sw-loader`, `sw-skeleton-bar` and `sw-progress-bar` are replaced by `mt-*`
 
@@ -2827,13 +2881,77 @@ Use `Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader` ins
 `Shopware\Core\Framework\Plugin\Util\AssetService` was removed.
 The canonical `Shopware\Core\Framework\Adapter\Asset\AssetService` is now internal and must not be used as an extension dependency.
 
+## The `snippets` property of `Shopware.Module.register()` is removed
+
+`Shopware.Module.register()` no longer accepts a `snippets` property.
+With the `v6.8.0.0` feature flag, registering a module that still passes it throws an error.
+
+The server already loads the Administration snippets of an active plugin in 6.7, so remove the property and the imports only it used.
+It finds JSON files named after the language (`de.json`) or the locale (`de-DE.json`) in any folder below `Resources/app/administration/src` and `Resources/app/meteor-app`, except `node_modules` and hidden folders.
+
+Before:
+
+```js
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
+
+Shopware.Module.register('acme-example', {
+    type: 'plugin',
+    snippets: {
+        'de-DE': deDE,
+        'en-GB': enGB,
+    },
+});
+```
+
+After:
+
+```js
+Shopware.Module.register('acme-example', {
+    type: 'plugin',
+});
+```
+
+The snippets go missing after removing the property when they are:
+
+- inline objects, JS modules or files with other names, such as `de_DE.json` or `messages.de-DE.json`,
+- files registered for another locale than their name, such as `'de-CH': deDE`,
+- files outside of these folders, such as `Resources/app/administration/snippet/de-DE.json`.
+
+Move such snippets into files the server finds first.
+Before the login, the server only returns the `global` and `sw-login` snippets.
+
+The codemod `module-snippets` of `administration:upgrade-extensions` removes the property and its imports when every value is imported from a JSON file that the server loads for that key.
+Otherwise, it writes a TODO.
+
 ## Removal of snippets
 
-The following snippet keys have been removed:
-* `global.sw-condition.condition.cartTaxDisplay`
-* `global.sw-condition.condition.lineItemOfTypeRule`
-* `global.sw-condition.condition.promotionCodeOfTypeRule`
-* `global.sw-condition.condition.dayOfWeekRule`
+The following option snippets of the rule builder were removed.
+Use the keys of `global.sw-condition-generic` instead, which exist since 6.7.0.0:
+
+| Removed key | Replacement |
+|---|---|
+| `global.sw-condition.condition.cartTaxDisplay.gross` | `global.sw-condition-generic.cartTaxDisplay.taxDisplay.options.gross` |
+| `global.sw-condition.condition.cartTaxDisplay.net` | `global.sw-condition-generic.cartTaxDisplay.taxDisplay.options.net` |
+| `global.sw-condition.condition.lineItemOfTypeRule.product` | `global.sw-condition-generic.cartLineItemOfType.lineItemType.options.product` |
+| `global.sw-condition.condition.lineItemOfTypeRule.discount_surcharge` | `global.sw-condition-generic.cartLineItemOfType.lineItemType.options.promotion` |
+| `global.sw-condition.condition.promotionCodeOfTypeRule.global` | `global.sw-condition-generic.promotionCodeOfType.promotionCodeType.options.global` |
+| `global.sw-condition.condition.promotionCodeOfTypeRule.fixed` | `global.sw-condition-generic.promotionCodeOfType.promotionCodeType.options.fixed` |
+| `global.sw-condition.condition.promotionCodeOfTypeRule.individual` | `global.sw-condition-generic.promotionCodeOfType.promotionCodeType.options.individual` |
+
+`global.sw-condition.condition.cartTaxDisplay.label`, `global.sw-condition.condition.lineItemOfTypeRule.label` and `global.sw-condition.condition.dayOfWeekRule` stay, because the rule builder still uses them.
+
+The following keys were removed in 6.7.17.0 already:
+
+| Removed key | Replacement |
+|---|---|
+| `sw-settings-customer-group.detail.fieldDisplayGrossLabel` | `sw-settings-customer-group.detail.taxDisplay.label` |
+| `sw-ui-shell-update-2026-modal.pages.darkMode.profileSettingsLink` | `sw-ui-shell-update-2026-modal.profileSettingsLink` |
+| `sw-app.component.sw-app-wrong-app-url-modal.explanationHeader` | No replacement |
+| `sw-app.component.sw-app-wrong-app-url-modal.textDetails` | No replacement |
+
+The codemod `snippet-keys` of `administration:upgrade-extensions` replaces these keys in strings that are exactly the key, such as the argument of `$t()`.
+For keys without replacement, including `sw-import-export.profile.addNewProfileTooltipLanguage`, it writes a TODO.
 
 ## The following template blocks of the newsletter recipient filter have been removed
 * `sw_newsletter_recipient_list_sidebar_filter_status_not_set`
@@ -2925,8 +3043,22 @@ In favor of WebP the following images have been removed:
 -   `administration/src/module/sw-login/page/index/assets/sw-login-background.png`
 -   `administration/src/module/sw-settings-usage-data/component/sw-usage-data-consent-banner/assets/data-consent-background.png`
 
-Update image references to their `.webp` equivalents.
-For example instead of `administration/static/img/sw-login-background.png` use `administration/static/img/sw-login-background.webp`
+Update image references to their `.webp` equivalents, which exist since 6.7.6.0.
+For example instead of `administration/static/img/sw-login-background.png` use `administration/static/img/sw-login-background.webp`.
+At runtime, these images are served below `administration/administration/static/`, which is the path `assetFilter` expects, for example `assetFilter('/administration/administration/static/img/cms/preview_mountain_large.webp')`.
+
+Some of the listed images are gone in 6.7 already:
+
+- `cms/youtube-icon.png` and `cms/vimeo-icon.png` were removed in 6.7.8.0.
+  Use `cms/youtube-icon.webp` and `cms/vimeo-icon.webp`.
+- `cms/preview_youtube.jpg` and `cms/preview_vimeo.jpg` were removed in 6.7.8.0 and have no `.webp` version.
+  Use `cms/youtube-icon.webp` and `cms/vimeo-icon.webp` instead.
+- `sw-usage-data-consent-banner/assets/data-consent-background.png` was removed with its component in 6.7.10.0.
+  Use `administration/static/img/data-consent-background.webp`.
+
+The codemod `asset-paths` of `administration:upgrade-extensions` replaces the extension in scripts and templates that reference these images in the Administration bundle.
+It writes a TODO for `cms/preview_youtube.jpg` and `cms/preview_vimeo.jpg`.
+It does not check SCSS files, so update `url()` references in your styles yourself.
 
 ## Mail template component changes
 

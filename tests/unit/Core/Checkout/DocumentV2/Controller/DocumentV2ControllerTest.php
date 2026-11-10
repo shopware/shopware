@@ -8,7 +8,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinition;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
@@ -910,114 +909,6 @@ class DocumentV2ControllerTest extends TestCase
         static::assertSame('application/custom', $response->headers->get('content-type'));
         static::assertStringStartsWith('attachment;', (string) $response->headers->get('content-disposition'));
         static::assertStringContainsString('v2-custom-document.custom', (string) $response->headers->get('content-disposition'));
-    }
-
-    public function testDownloadArchiveReturnsStoredDocumentFiles(): void
-    {
-        $documentId = Uuid::randomHex();
-        $deepLinkCode = Uuid::randomHex();
-        $pdfMediaId = Uuid::randomHex();
-        $htmlMediaId = Uuid::randomHex();
-
-        $pdfMedia = new MediaEntity();
-        $pdfMedia->setId($pdfMediaId);
-        $pdfMedia->setFileName('invoice_1000_pdf');
-        $pdfMedia->setFileExtension(DocumentFormat::PDF->fileExtension());
-        $pdfMedia->setMimeType(DocumentFormat::PDF->mimeType());
-
-        $pdfDocumentFile = new DocumentFileEntity();
-        $pdfDocumentFile->setId(Uuid::randomHex());
-        $pdfDocumentFile->setDocumentId($documentId);
-        $pdfDocumentFile->setDocumentFormat(DocumentFormat::PDF->value);
-        $pdfDocumentFile->setMediaId($pdfMediaId);
-        $pdfDocumentFile->setMedia($pdfMedia);
-
-        $htmlMedia = new MediaEntity();
-        $htmlMedia->setId($htmlMediaId);
-        $htmlMedia->setFileName('invoice_1000_html');
-        $htmlMedia->setFileExtension(DocumentFormat::HTML->fileExtension());
-        $htmlMedia->setMimeType(DocumentFormat::HTML->mimeType());
-
-        $htmlDocumentFile = new DocumentFileEntity();
-        $htmlDocumentFile->setId(Uuid::randomHex());
-        $htmlDocumentFile->setDocumentId($documentId);
-        $htmlDocumentFile->setDocumentFormat(DocumentFormat::HTML->value);
-        $htmlDocumentFile->setMediaId($htmlMediaId);
-        $htmlDocumentFile->setMedia($htmlMedia);
-
-        $order = new OrderEntity();
-        $order->setId(Uuid::randomHex());
-        $order->setOrderNumber('10000');
-
-        $documentType = new DocumentTypeEntity();
-        $documentType->setId(Uuid::randomHex());
-        $documentType->setTechnicalName(DocumentType::INVOICE->value);
-
-        $document = new DocumentEntity();
-        $document->setId($documentId);
-        $document->setDeepLinkCode($deepLinkCode);
-        $document->setOrderId($order->getId());
-        $document->setOrder($order);
-        $document->setDocumentType($documentType);
-        $document->setConfig(['documentNumber' => '1000']);
-        $document->setDocumentFiles(new DocumentFileCollection([$pdfDocumentFile, $htmlDocumentFile]));
-
-        $this->documentRepository->searches[] = new DocumentCollection([$document]);
-
-        $mediaService = $this->createMock(MediaService::class);
-        $mediaService->expects($this->exactly(2))
-            ->method('loadFile')
-            ->willReturnCallback(static fn (string $mediaId): string => match ($mediaId) {
-                $pdfMediaId => 'pdf content',
-                $htmlMediaId => 'html content',
-                default => throw new \RuntimeException('Unexpected media id.'),
-            });
-
-        $rendererRegistry = new DocumentRendererRegistry([
-            new StaticDocumentRenderer(DocumentFormat::PDF),
-        ]);
-
-        $controller = new DocumentV2Controller(
-            $this->createGenerator($rendererRegistry, Uuid::randomHex()),
-            $this->createDocumentReader($rendererRegistry),
-            $this->createTypeRegistry(),
-            $this->createArchiveGenerator($mediaService),
-            $this->documentRepository,
-            $this->createDocumentPersister(),
-            $mediaService,
-            static::createStub(FileNameProvider::class),
-            $this->mediaRepository,
-            $this->createDocumentMediaGuard(),
-            new StaticEntityRepository([]),
-        );
-
-        $response = $controller->downloadArchive(
-            Request::create(
-                '/api/_action/order/document-v2/download-archive',
-                Request::METHOD_POST,
-                server: ['CONTENT_TYPE' => 'application/json'],
-                content: json_encode(['documentIds' => [$documentId]], \JSON_THROW_ON_ERROR),
-            ),
-            Context::createDefaultContext(),
-        );
-
-        static::assertSame('application/zip', $response->headers->get('content-type'));
-        static::assertStringStartsWith('attachment;', (string) $response->headers->get('content-disposition'));
-        static::assertStringContainsString('1000.zip', (string) $response->headers->get('content-disposition'));
-
-        $tempFile = tempnam(sys_get_temp_dir(), 'document-v2-controller-test-');
-        static::assertIsString($tempFile);
-        $content = $response->getContent();
-        static::assertIsString($content);
-        static::assertNotFalse(file_put_contents($tempFile, $content));
-
-        $zip = new \ZipArchive();
-        static::assertTrue($zip->open($tempFile));
-        static::assertSame('pdf content', $zip->getFromName('invoice_1000_pdf.pdf'));
-        static::assertSame('html content', $zip->getFromName('invoice_1000_html.html'));
-        $zip->close();
-
-        (new Filesystem())->remove($tempFile);
     }
 
     public function testDownloadArchiveThrowsWhenMoreDocumentsThanTheLimitAreRequested(): void

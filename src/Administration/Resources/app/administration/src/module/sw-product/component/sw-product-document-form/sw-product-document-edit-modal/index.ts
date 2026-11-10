@@ -13,18 +13,22 @@ export default Shopware.Component.wrapComponentConfig({
     props: {
         allowFallback: {
             type: Boolean,
+            required: false,
             default: false,
         },
         languageName: {
             type: String,
+            required: false,
             default: '',
         },
         isAddingLanguageVersion: {
             type: Boolean,
+            required: false,
             default: false,
         },
         documentTitlePlaceholder: {
             type: String,
+            required: false,
             default: '',
         },
         documentId: {

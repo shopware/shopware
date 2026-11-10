@@ -15,6 +15,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
         languageName: {
             type: String,
+            required: false,
             default: '',
         },
         canEdit: {

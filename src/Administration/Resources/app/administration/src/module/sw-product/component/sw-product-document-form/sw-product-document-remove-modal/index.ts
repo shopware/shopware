@@ -21,11 +21,13 @@ export default Shopware.Component.wrapComponentConfig({
 
         canEdit: {
             type: Boolean,
+            required: false,
             default: false,
         },
 
         isRemovingDocument: {
             type: Boolean,
+            required: false,
             default: false,
         },
     },

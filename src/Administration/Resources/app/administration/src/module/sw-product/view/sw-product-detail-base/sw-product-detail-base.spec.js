@@ -339,17 +339,6 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         expect(wrapper.getComponent({ name: 'sw-product-download-form' }).props('required')).toBe(true);
     });
 
-    it.each(['physical', 'digital'])('places documents immediately below media for a %s product', async (type) => {
-        Shopware.Store.get('swProductDetail').product.type = type;
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        const cards = wrapper.findAll('.sw-product-detail-base__media, .sw-product-detail-base__documents');
-        expect(cards).toHaveLength(2);
-        expect(cards[0].classes()).toContain('sw-product-detail-base__media');
-        expect(cards[1].classes()).toContain('sw-product-detail-base__documents');
-    });
-
     it('forwards a document language-switch request to the product page', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

@@ -69,7 +69,7 @@
                     >
                         <sw-product-document-empty-state
                             :can-add-documents="!isInherited && canAddDocuments"
-                            @add-documents="showUploadModal = true"
+                            @documents-add="showUploadModal = true"
                             @change-language="$emit('change-language', $event)"
                         />
                     </div>
@@ -265,8 +265,8 @@
                 @close="closeDocumentEditor"
                 @save="applyDocumentEdit"
                 @upload="successfulUpload($event, editingDocument)"
-                @remove-file="removeEditingFile"
-                @select-media="showMediaModal = true"
+                @file-remove="removeEditingFile"
+                @media-select="showMediaModal = true"
             />
         {% endblock %}
 

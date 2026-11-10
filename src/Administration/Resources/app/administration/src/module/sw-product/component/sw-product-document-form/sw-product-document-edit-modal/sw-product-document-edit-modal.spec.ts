@@ -76,7 +76,7 @@ describe('sw-product-document-edit-modal', () => {
         wrapper.getComponent<ComponentPublicInstance>('.sw-media-upload-v2').vm.$emit('media-upload-sidebar-open');
 
         expect(wrapper.emitted('upload')).toEqual([[upload]]);
-        expect(wrapper.emitted('select-media')).toHaveLength(1);
+        expect(wrapper.emitted('media-select')).toHaveLength(1);
     });
 
     it('shows the selected file and emits removal without deleting media', async () => {
@@ -89,7 +89,7 @@ describe('sw-product-document-edit-modal', () => {
 
         await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
 
-        expect(wrapper.emitted('remove-file')).toHaveLength(1);
+        expect(wrapper.emitted('file-remove')).toHaveLength(1);
         expect(media.fileName).toBe('manual');
     });
 

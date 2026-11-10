@@ -36,8 +36,7 @@ describe('sw-product-document-empty-state', () => {
         const get = jest.fn();
         wrapper = await createWrapper(true, get);
         await wrapper.get('button').trigger('click');
-
-        expect(wrapper.emitted('add-documents')).toEqual([[]]);
+        expect(wrapper.emitted('documents-add')).toEqual([[]]);
         expect(wrapper.find('.mt-link').exists()).toBe(false);
         expect(get).not.toHaveBeenCalled();
     });
@@ -59,7 +58,7 @@ describe('sw-product-document-empty-state', () => {
         expect(link.text()).toBe("'Français'");
         await link.trigger('click');
         expect(wrapper.emitted('change-language')).toEqual([[Shopware.Context.api.systemLanguageId]]);
-        expect(wrapper.emitted('add-documents')).toBeUndefined();
+        expect(wrapper.emitted('documents-add')).toBeUndefined();
     });
 
     it('keeps language switching available if the language name cannot be loaded', async () => {
@@ -81,6 +80,6 @@ describe('sw-product-document-empty-state', () => {
 
         expect(wrapper.find('.mt-link').exists()).toBe(false);
         await wrapper.get('button').trigger('click');
-        expect(wrapper.emitted('add-documents')).toEqual([[]]);
+        expect(wrapper.emitted('documents-add')).toEqual([[]]);
     });
 });

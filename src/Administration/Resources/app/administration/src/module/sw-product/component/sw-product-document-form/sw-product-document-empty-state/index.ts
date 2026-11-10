@@ -8,16 +8,27 @@ import './sw-product-document-empty-state.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    emits: ['add-documents', 'change-language'],
+    emits: ['documents-add'],
 
     props: {
         canAddDocuments: {
             type: Boolean,
+            required: false,
             default: false,
         },
     },
 
     computed: {
-        isDefaultLanguage: () => Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId,
+        languageId() {
+            return Shopware.Store.get('context').api.languageId;
+        },
+
+        systemLanguageId() {
+            return Shopware.Store.get('context').api.systemLanguageId;
+        },
+
+        isDefaultLanguage(): boolean {
+            return this.languageId === this.systemLanguageId;
+        },
     },
 });

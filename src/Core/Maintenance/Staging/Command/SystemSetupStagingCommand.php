@@ -46,6 +46,7 @@ class SystemSetupStagingCommand extends Command
     protected function configure(): void
     {
         $this->addOption('force', 'f', InputOption::VALUE_NONE, 'Force setup of staging system');
+        $this->addOption('reinstall-apps', null, InputOption::VALUE_NONE, 'Register the installed apps again under a new shop ID instead of uninstalling them');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -64,6 +65,7 @@ class SystemSetupStagingCommand extends Command
             $this->domainMappings,
             $this->extensionsToDisable,
             $this->systemConfigOverrides,
+            (bool) $input->getOption('reinstall-apps'),
         );
         $this->eventDispatcher->dispatch($event);
 

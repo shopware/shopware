@@ -10,6 +10,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
 use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
+use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentConfig;
+use Shopware\Core\Content\Product\Events\ProductDocumentAllowedExtensionsEvent;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Event\AdminInfoConfigEvent;
@@ -34,10 +37,16 @@ use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Migration\MigrationInfo;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Framework\Update\Services\VersionHistory;
+use Shopware\Core\Framework\Update\Services\VersionHistoryEntryType;
+use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Shopware\Tests\Unit\Common\Stubs\IniMock;
 use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -61,9 +70,19 @@ class InfoControllerTest extends TestCase
 
     private EventDispatcher $eventDispatcher;
 
+    private VersionHistory $versionHistory;
+
+    public static function setUpBeforeClass(): void
+    {
+        // register before the first ini_get(), or the ini mocks of later tests stop working
+        IniMock::register(MemorySizeCalculator::class);
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
+        $this->versionHistory = new VersionHistory(new ArrayKeyValueStorage(), new MockClock('2026-11-04T10:00:00+00:00'), '6.6.9999999-dev');
+        $this->versionHistory->record(VersionHistoryEntryType::INSTALL);
         $this->shopIdProvider = $this->createMock(ShopIdProvider::class);
         $this->statsService = static::createStub(StatsService::class);
         $this->migrationInfo = static::createStub(MigrationInfo::class);
@@ -137,6 +156,11 @@ class InfoControllerTest extends TestCase
         static::assertSame(2, $settings['minSearchTermLength']);
         static::assertArrayHasKey('hideUpdateModule', $settings);
         static::assertFalse($settings['hideUpdateModule']);
+        static::assertArrayHasKey('productDocuments', $settings);
+        $productDocuments = $settings['productDocuments'];
+        static::assertSame(['pdf', 'docx'], $productDocuments['allowedExtensions']);
+        static::assertContains('application/pdf', $productDocuments['allowedMimeTypesByExtension']['pdf']);
+        static::assertSame(1024, $productDocuments['maxFileSize']);
 
         static::assertArrayHasKey('inAppPurchases', $data);
         $inAppPurchases = $data['inAppPurchases'];
@@ -144,6 +168,48 @@ class InfoControllerTest extends TestCase
         static::assertCount(1, $inAppPurchases);
         static::assertArrayHasKey('SwagApp', $inAppPurchases);
         static::assertSame(['SwagApp_premium'], $inAppPurchases['SwagApp']);
+
+        static::assertSame([
+            ['version' => '6.6.9999999-dev', 'recordedAt' => '2026-11-04T10:00:00+00:00', 'type' => 'install'],
+        ], $data['versionHistory']);
+    }
+
+    public static function productDocumentUploadLimitProvider(): iterable
+    {
+        yield 'uploads through PHP are lowered by upload_max_filesize' => [false, 512];
+        yield 'presigned uploads go past PHP' => [true, 1024];
+    }
+
+    #[DataProvider('productDocumentUploadLimitProvider')]
+    public function testConfigGivesTheProductDocumentUploadLimit(bool $presignedUploadAvailable, int $expected): void
+    {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+        IniMock::withIniMock(['upload_max_filesize' => '512', 'post_max_size' => '2048']);
+        $presignedMediaUploadService = static::createStub(PresignedMediaUploadService::class);
+        $presignedMediaUploadService->method('isAvailable')->willReturn($presignedUploadAvailable);
+
+        $response = $this->createController(presignedMediaUploadService: $presignedMediaUploadService)->config(Context::createDefaultContext(), Request::create('http://localhost'));
+        IniMock::withIniMock([]);
+
+        $data = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
+        static::assertSame($expected, $data['settings']['productDocuments']['maxFileSize']);
+    }
+
+    public function testConfigDispatchesTheProductDocumentFileTypesEventOnlyOnce(): void
+    {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+        $dispatchCount = 0;
+        $this->eventDispatcher->addListener(ProductDocumentAllowedExtensionsEvent::class, static function (ProductDocumentAllowedExtensionsEvent $event) use (&$dispatchCount): void {
+            ++$dispatchCount;
+            $event->setAllowedExtensions(['pdf']);
+        });
+
+        $response = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'));
+
+        $data = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
+        static::assertSame(1, $dispatchCount);
+        static::assertSame(['pdf'], $data['settings']['productDocuments']['allowedExtensions']);
+        static::assertSame(['pdf'], array_keys($data['settings']['productDocuments']['allowedMimeTypesByExtension']));
     }
 
     public function testReturnsCurrentShopIdIfShopIdFingerprintsHaveChanged(): void
@@ -372,7 +438,7 @@ class InfoControllerTest extends TestCase
     /**
      * @param list<string> $adminWorkerTransports
      */
-    private function createController(array $adminWorkerTransports = ['slow'], bool $hideUpdateModule = false): InfoController
+    private function createController(array $adminWorkerTransports = ['slow'], bool $hideUpdateModule = false, ?PresignedMediaUploadService $presignedMediaUploadService = null): InfoController
     {
         $parameterBag = new ParameterBag([
             'shopware.html_sanitizer.enabled' => true,
@@ -405,8 +471,10 @@ class InfoControllerTest extends TestCase
             $this->shopIdProvider,
             $this->statsService,
             $this->eventDispatcher,
-            null,
+            $presignedMediaUploadService,
             new MediaFileExtensionListProvider($this->eventDispatcher, [], ['pdf', 'epub']),
+            $this->versionHistory,
+            new ProductDocumentConfig($this->eventDispatcher, ['pdf', 'docx'], maxFileSize: 1024),
         );
     }
 }

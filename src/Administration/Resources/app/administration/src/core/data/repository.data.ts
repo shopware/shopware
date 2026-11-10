@@ -486,7 +486,7 @@ export default class Repository<EntityName extends keyof EntitySchema.EntityKeys
         if (criteria.getLimit() === null) {
             criteria.setLimit(50);
         }
-        criteria.setTotalCountMode(1);
+        criteria.setTotalCountMode(0);
 
         return this.searchIds(criteria, context).then((response) => {
             const ids = response.data;

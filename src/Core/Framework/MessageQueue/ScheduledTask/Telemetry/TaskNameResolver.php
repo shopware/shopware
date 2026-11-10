@@ -40,6 +40,7 @@ class TaskNameResolver
         'log_entry.cleanup' => true,
         'media.cleanup_corrupted_media' => true,
         'payment_token.cleanup' => true,
+        'product_document.media.cleanup' => true,
         'product_download.media.cleanup' => true,
         'product_export_generate_task' => true,
         'product_keyword_dictionary.cleanup' => true,

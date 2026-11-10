@@ -52,6 +52,9 @@ export async function createWrapper(
             },
             directives: { droppable: {} },
             provide: {
+                mediaDefaultFolderService: {
+                    getDefaultFolderId: jest.fn().mockResolvedValue(null),
+                },
                 mediaService: {
                     addListener: jest.fn(),
                     removeListener: jest.fn(),

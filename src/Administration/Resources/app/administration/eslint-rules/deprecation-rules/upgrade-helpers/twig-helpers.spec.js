@@ -53,6 +53,14 @@ describe('twig-target', () => {
         expect(isImportedBySiblingScript(contextFor('acme/acme.html.twig'))).toBe(true);
     });
 
+    it('reads every script of the folder, not only index.js, and ignores specs', () => {
+        write('acme/sw-order-list.js', "import template from './sw-order-list.html.twig';\nComponent.override('sw-order-list', { template });");
+        write('acme/sw-order-list.spec.js', "Component.override('sw-product-list', {});");
+
+        expect(twigTargets(contextFor('acme/sw-order-list.html.twig'))).toEqual(['sw-order-list']);
+        expect(isImportedBySiblingScript(contextFor('acme/sw-order-list.html.twig'))).toBe(true);
+    });
+
     it('uses the base of an extension', () => {
         write('acme/index.ts', "Component.extend('acme-list', 'sw-order-list', {});");
 

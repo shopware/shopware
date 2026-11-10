@@ -20,7 +20,8 @@
  *
  * - `components` match template tags and `Component.override/extend/build` calls with that name or base.
  * - `members` match declared option keys and `this.<name>` inside an override or extension of `component`
- *   (a string or a list), and free identifiers in templates that override it. With `unique: true` the name
+ *   (a string or a list), and free identifiers in templates that override it, `{{ … }}` of `.html.twig` included
+ *   (see twig-interpolations.js). With `unique: true` the name
  *   matches anywhere. `kinds` limits the match to option kinds such as `['methods']`.
  * - `calls` match `this.<service>.<method>()`, `Shopware.Service('<service>').<method>()` and `<service>.<method>()`.
  * - `globals` match member chains that start with `path`, also through `const { X } = Shopware`.
@@ -35,6 +36,7 @@ const { findOverrides, targetAt, fileTargets } = require('./override-target');
 const { declaredMembers, thisMemberName, destructuredThisMembers, templateMemberReferences } = require('./member-usage');
 const { shopwareAliases, memberPath, serviceCall } = require('./global-calls');
 const { twigTargets } = require('./twig-target');
+const { twigInterpolations } = require('./twig-interpolations');
 
 const asList = (value) => (Array.isArray(value) ? value : [value]);
 
@@ -291,6 +293,22 @@ function createTodoRule(spec) {
 
                         if (entry) {
                             todo(identifier, entry.message, 'template');
+                        }
+                    }
+                },
+                // In `.html.twig` files the parser keeps `{{ … }}` as text, so interpolations are read separately.
+                VText(node) {
+                    if (members.length === 0 || !isTwigFile(context)) {
+                        return;
+                    }
+
+                    for (const { references } of twigInterpolations(context.sourceCode, node)) {
+                        for (const identifier of references) {
+                            const entry = memberEntry(targetsOfTemplate(), identifier.name);
+
+                            if (entry) {
+                                todo(identifier, entry.message, 'template');
+                            }
                         }
                     }
                 },

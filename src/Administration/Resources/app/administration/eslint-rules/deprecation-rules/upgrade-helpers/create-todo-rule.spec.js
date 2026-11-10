@@ -147,5 +147,27 @@ new RuleTester({ languageOptions: { parser: require('vue-eslint-parser'), ecmaVe
                 { message: 'isLoading is removed. Use loading.order.' },
             ],
         },
+        {
+            name: 'reads {{ … }} interpolations of .html.twig templates, which the parser keeps as text',
+            filename: '/plugin/src/sw-order-detail/sw-order-detail.html.twig',
+            code: [
+                '<template>',
+                '{% block sw_order_detail_content %}',
+                '    <span v-for="isLoading in items">{{ isLoading }}</span>',
+                '    <span>{{ isLoading ? 1 : 0 }}</span>',
+                '{% endblock %}',
+                '</template>',
+            ].join('\n'),
+            output: [
+                '<template>',
+                '{% block sw_order_detail_content %}',
+                '    <span v-for="isLoading in items">{{ isLoading }}</span>',
+                '    {# TODO Codemod(6.8, sample): isLoading is removed. Use loading.order. #}',
+                '    <span>{{ isLoading ? 1 : 0 }}</span>',
+                '{% endblock %}',
+                '</template>',
+            ].join('\n'),
+            errors: [{ message: 'isLoading is removed. Use loading.order.' }],
+        },
     ],
 });

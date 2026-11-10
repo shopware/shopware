@@ -30,10 +30,12 @@ export default Shopware.Component.wrapComponentConfig({
         },
         hasVariants: {
             type: Boolean,
+            required: false,
             default: false,
         },
         removeFromVariants: {
             type: Boolean,
+            required: false,
             default: false,
         },
     },

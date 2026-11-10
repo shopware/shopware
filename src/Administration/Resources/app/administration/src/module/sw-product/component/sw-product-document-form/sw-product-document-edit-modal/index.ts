@@ -82,10 +82,12 @@ export default Shopware.Component.wrapComponentConfig({
         },
         hasVariants: {
             type: Boolean,
+            required: false,
             default: false,
         },
         applyToVariants: {
             type: Boolean,
+            required: false,
             default: false,
         },
     },

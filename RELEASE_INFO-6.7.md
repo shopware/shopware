@@ -721,6 +721,11 @@ The verification stores its token in the `cache.app_url_verification` cache pool
 
 `bin/console system:check` and the `recurrent` system health check now include an `AppUrlVerification` check.
 
+### Admin product search index contains product documents
+
+With `ENABLE_OPENSEARCH_FOR_ADMIN_API`, the admin product search index has a new `documents` field, so the "Documents" filter of the product list runs on OpenSearch.
+Run `bin/console es:admin:index` after the update.
+
 ### Elasticsearch errors no longer fail `system:update:finish`
 
 `system:update:finish` no longer fails when the Elasticsearch mapping update or the scheduling of a reindex fails.

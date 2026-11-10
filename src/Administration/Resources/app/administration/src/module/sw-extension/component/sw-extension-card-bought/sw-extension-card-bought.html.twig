@@ -5,6 +5,7 @@
     v-if="showDeactivationModal"
     :extension-name="extension.label"
     :is-licensed="!!extension.storeLicense"
+    :has-deletable-files="hasDeletableFiles"
     :is-loading="isLoading"
     @modal-close="closeDeactivationModal"
     @extension-deactivate="closeModalAndDeactivateExtension"

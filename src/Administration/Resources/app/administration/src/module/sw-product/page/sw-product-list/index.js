@@ -3,6 +3,7 @@
  */
 
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
+import existenceFilterOptions from './existence-filter-options';
 import template from './sw-product-list.html.twig';
 import './sw-product-list.scss';
 
@@ -52,6 +53,7 @@ export default {
                 'product-number-filter',
                 'active-filter',
                 'product-without-images-filter',
+                'product-documents-filter',
                 'release-date-filter',
                 'stock-filter',
                 'price-filter',
@@ -176,13 +178,8 @@ export default {
                     fromPlaceholder: this.$t('sw-product.filters.fromPlaceholder'),
                     toPlaceholder: this.$t('sw-product.filters.toPlaceholder'),
                 },
-                'product-without-images-filter': {
-                    property: 'media',
-                    label: this.$t('sw-product.filters.imagesFilter.label'),
-                    placeholder: this.$t('sw-product.filters.imagesFilter.placeholder'),
-                    optionHasCriteria: this.$t('sw-product.filters.imagesFilter.textHasCriteria'),
-                    optionNoCriteria: this.$t('sw-product.filters.imagesFilter.textNoCriteria'),
-                },
+                'product-without-images-filter': existenceFilterOptions(this.$t, 'media', 'imagesFilter'),
+                'product-documents-filter': existenceFilterOptions(this.$t, 'documents', 'documentsFilter'),
                 'manufacturer-filter': {
                     property: 'manufacturer',
                     label: this.$t('sw-product.filters.manufacturerFilter.label'),

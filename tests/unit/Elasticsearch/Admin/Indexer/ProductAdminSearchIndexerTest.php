@@ -132,6 +132,10 @@ class ProductAdminSearchIndexerTest extends TestCase
         static::assertIsArray($document['media']);
         static::assertCount(1, $document['media']);
         static::assertSame('aabb11223344556677889900aabbccdd', $document['media'][0]['id']);
+        static::assertSame([
+            ['id' => 'c1c2c3c4c5c6c7c8c9c0c1c2c3c4c5c6', '_count' => 1],
+            ['id' => 'd1d2d3d4d5d6d7d8d9d0d1d2d3d4d5d6', '_count' => 1],
+        ], $document['documents']);
         static::assertIsArray($document['price']);
         static::assertArrayHasKey('c_b7d2554b0ce847cd82f3ac9bd1c0dfca', $document['price']);
         static::assertSame(100.0, $document['price']['c_b7d2554b0ce847cd82f3ac9bd1c0dfca']['gross']);
@@ -161,6 +165,51 @@ class ProductAdminSearchIndexerTest extends TestCase
         );
 
         static::assertSame([$productId], $indexer->getUpdatedIds($event));
+    }
+
+    public function testMappingSupportsTheDocumentsFilter(): void
+    {
+        $mapping = $this->searchIndexer->mapping([]);
+
+        static::assertSame('nested', $mapping['properties']['documents']['type'] ?? null);
+        static::assertContains('documents.id', $this->searchIndexer->getSupportedSearchFields());
+    }
+
+    public function testGetUpdatedIdsContainsTheProductsOfAddedDocuments(): void
+    {
+        $productId = Uuid::randomHex();
+
+        $event = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent('product_document', [
+                    new EntityWriteResult(Uuid::randomHex(), ['productId' => $productId], 'product_document', EntityWriteResult::OPERATION_INSERT),
+                ], Context::createDefaultContext()),
+            ]),
+            []
+        );
+
+        static::assertSame([$productId], $this->searchIndexer->getUpdatedIds($event));
+    }
+
+    public function testGetUpdatedIdsContainsTheProductsOfDeletedDocuments(): void
+    {
+        $productId = Uuid::randomHex();
+
+        $event = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent('product_document', [
+                    new EntityWriteResult(Uuid::randomHex(), [], 'product_document', EntityWriteResult::OPERATION_DELETE),
+                ], Context::createDefaultContext()),
+                new EntityWrittenEvent('product', [
+                    new EntityWriteResult($productId, [], 'product', EntityWriteResult::OPERATION_UPDATE),
+                ], Context::createDefaultContext()),
+            ]),
+            []
+        );
+
+        static::assertSame([$productId], $this->searchIndexer->getUpdatedIds($event));
     }
 
     public function testGlobalCriteria(): void
@@ -288,6 +337,8 @@ class ProductAdminSearchIndexerTest extends TestCase
                     'manufacturerId' => 'aabbccdd11223344556677889900aabb',
                     'categoryIds' => null,
                     'mediaId' => 'aabb11223344556677889900aabbccdd',
+                    'documentsId' => '809c1844f4734243b6aa04aba860cd45',
+                    'documentIds' => 'c1c2c3c4c5c6c7c8c9c0c1c2c3c4c5c6 d1d2d3d4d5d6d7d8d9d0d1d2d3d4d5d6',
                     'visibilities' => null,
                     'createdAt' => '2024-01-01 00:00:00.000',
                     'updatedAt' => null,

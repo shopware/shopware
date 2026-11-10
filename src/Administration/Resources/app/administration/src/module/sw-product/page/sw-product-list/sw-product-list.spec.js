@@ -219,6 +219,8 @@ function getCurrencyData() {
     ];
 }
 
+const filterFactoryCreate = jest.fn(() => []);
+
 async function createWrapper() {
     // delete global $router and $routes mocks
     delete config.global.mocks.$router;
@@ -294,7 +296,7 @@ async function createWrapper() {
                         },
                     },
                     filterFactory: {
-                        create: () => [],
+                        create: filterFactoryCreate,
                     },
                     acl: {
                         can: () => true,
@@ -302,7 +304,7 @@ async function createWrapper() {
                 },
                 stubs: {
                     'sw-page': {
-                        template: '<div><slot name="content"></slot></div>',
+                        template: '<div><slot name="content"></slot><slot name="sidebar"></slot></div>',
                     },
                     'sw-entity-listing': await wrapTestComponent('sw-entity-listing', { sync: true }),
                     'sw-context-button': {
@@ -318,7 +320,7 @@ async function createWrapper() {
                         template: '<div></div>',
                     },
                     'sw-sidebar': {
-                        template: '<div></div>',
+                        template: '<div><slot></slot></div>',
                     },
                     'sw-sidebar-item': {
                         template: '<div></div>',
@@ -716,6 +718,22 @@ describe('module/sw-product/page/sw-product-list', () => {
             expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
         }
         expect(wrapper.vm.stockColorVariantFilter).toEqual(expect.any(Function));
+    });
+
+    it('should offer a documents filter', async () => {
+        expect(filterFactoryCreate).toHaveBeenCalledWith(
+            'product',
+            expect.objectContaining({
+                'product-documents-filter': {
+                    property: 'documents',
+                    label: 'sw-product.filters.documentsFilter.label',
+                    placeholder: 'sw-product.filters.documentsFilter.placeholder',
+                    optionHasCriteria: 'sw-product.filters.documentsFilter.textHasCriteria',
+                    optionNoCriteria: 'sw-product.filters.documentsFilter.textNoCriteria',
+                },
+            }),
+        );
+        expect(wrapper.find('sw-sidebar-filter-panel-stub').attributes('defaults')).toContain('product-documents-filter');
     });
 
     it('should not have media and configuratorSettings association when loading product list', async () => {

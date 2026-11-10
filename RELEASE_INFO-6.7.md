@@ -816,6 +816,7 @@ bin/console seo:repair:link-category-takeover --apply --no-interaction <category
 
 The categories get their SEO URLs back, and their fallback URLs redirect to them.
 The command is deprecated and will be removed in 6.9.0.0.
+
 ### Enabling maintenance mode again no longer traps visitors in a redirect loop
 
 When maintenance mode was switched off, the redirect from the maintenance page into the shop was stored in the HTTP cache.

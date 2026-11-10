@@ -409,6 +409,7 @@ If an app ships both, the file takes precedence, the inline definition is ignore
 ### Product list filters by product documents
 
 The product list has a new "Documents" filter, registered as `product-documents-filter`. It finds the products with or without product documents; variants count the documents they inherit from their parent.
+With `ENABLE_OPENSEARCH_FOR_ADMIN_API`, run `bin/console es:admin:index` after the update.
 
 ### Deprecated the `customFieldSetRepository` computed property of `sw-product-stream-detail`
 
@@ -648,6 +649,7 @@ The CMS layout selection modal (`sw-cms-layout-modal`) uses them instead of chec
 ### Dynamic product groups filter by product documents
 
 Dynamic product groups have a new "Has documents" condition with the values "Yes" and "No". It stores a filter on `documents.id` being null or not null; variants count the documents they inherit from their parent.
+With Elasticsearch, run `bin/console es:index` after the update; until then the condition gives wrong results.
 
 ### Meteor Component Library updated to 5.10.0
 
@@ -932,11 +934,6 @@ The verification stores its token in the `cache.app_url_verification` cache pool
 
 `bin/console system:check` and the `recurrent` system health check now include an `AppUrlVerification` check.
 
-### Admin product search index contains product documents
-
-With `ENABLE_OPENSEARCH_FOR_ADMIN_API`, the admin product search index has a new `documents` field, so the "Documents" filter of the product list runs on OpenSearch.
-Run `bin/console es:admin:index` after the update.
-
 ### Elasticsearch errors no longer fail `system:update:finish`
 
 `system:update:finish` no longer fails when the Elasticsearch mapping update or the scheduling of a reindex fails.
@@ -955,12 +952,6 @@ The other indices stay as they are.
 
 `bin/console es:index --only=<entities>` now creates new indices only for the given entities.
 It no longer leaves an empty index for every other entity, and it keeps the pending alias switches of other entities.
-
-### Product search index contains product documents
-
-The Elasticsearch product index has a new `documents` field, so dynamic product groups can filter products by whether they have documents.
-Run `bin/console es:index` after the update.
-Until then, the "Has documents" condition gives wrong results in Elasticsearch: "Yes" finds no products and "No" finds all products, including products with documents.
 
 ### Configurable last-modified version strategy for theme assets
 

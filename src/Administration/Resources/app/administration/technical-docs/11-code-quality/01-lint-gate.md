@@ -41,6 +41,9 @@ It also fails when a baseline still holds entries of a file that no longer exist
 Those entries would let a new violation of the same rule pass in another file.
 `npm run lint:fix` removes them.
 
+The job checks `fallow-baseline.json` the same way, with totals per finding category instead of per rule, see [Unused code](02-unused-code.md).
+It skips the check for deleted files there, because `npm run lint:fallow` already fails on entries that match nothing.
+
 ## How a new rule joins
 
 A pull request that turns on a rule with existing violations adds them to the baseline with `npm run lint -- --suppress-rule <rule>`.

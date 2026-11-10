@@ -61,6 +61,11 @@
         margin-right: 8px;
     }
 
+    .sw-license-violation__removal-hint {
+        margin-top: 8px;
+        color: var(--color-text-secondary-default);
+    }
+
     .sw-modal__footer {
         grid-auto-columns: auto;
 

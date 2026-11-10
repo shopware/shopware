@@ -35,6 +35,14 @@ class Criteria extends Struct implements \Stringable
      */
     final public const STATE_SCORE_RANKED_GROUPING = 'scoreRankedGrouping';
 
+    /**
+     * Grouped results are represented by the entity that decides the position of its group, instead of an arbitrary
+     * entity of the group, and the groups are ordered by the values of that entity.
+     * Entities with a variant listing config prefer their configured main variant.
+     * Only applied by the DBAL searcher; queries with a score are always ranked by score.
+     */
+    final public const STATE_SORT_RANKED_GROUPING = 'sortRankedGrouping';
+
     final public const SCORE_FIELD = '_score';
 
     /**

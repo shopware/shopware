@@ -9,205 +9,22 @@
  * @sw-package framework
  */
 
-import type { UserConfig } from 'vite';
 import path from 'path';
-import fs from 'fs';
 import colors from 'picocolors';
-import svgLoader from 'vite-svg-loader';
-import debug from 'debug';
-
-// Shopware imports
-import TwigPlugin from './vite-plugins/twigjs-plugin';
-import AssetPlugin from './vite-plugins/asset-plugin';
-import AssetPathPlugin from './vite-plugins/asset-path-plugin';
-import ExternalsPlugin from './vite-plugins/externals-plugin';
-import AssetCssPostprocessPlugin from './vite-plugins/asset-css-postprocess-plugin';
-import OverrideComponentRegisterPlugin from './vite-plugins/override-component-register';
-import ShopwareSetupPlugin from './vite-plugins/shopware-setup';
-import ShopwareSetupHmrPlugin from './vite-plugins/shopware-setup-hmr';
-import VirtualShopwareModulesPlugin from './vite-plugins/virtual-shopware-modules';
 import {
-    createPluginDevJson,
     loadExtensions,
     getExtensionBasePath,
     getViteServerPorts,
-    isInsideDockerContainer,
     runForEachExtension,
+    writePluginDevJson,
 } from './vite-plugins/utils';
-import type { ExtensionDefinition } from './vite-plugins/utils';
-import injectHtml from './vite-plugins/inject-html';
-import ExtglobCompatPlugin from './vite-plugins/extglob-compat';
+import { getExtensionBuildConfig, getExtensionDevConfig } from './vite-plugins/extension-config';
 import { isBundledDevActive, loadViteToolchain } from './vite-plugins/vite-toolchain';
-import type { ViteToolchain } from './vite-plugins/vite-toolchain';
 
 const VITE_MODE = process.env.VITE_MODE || 'development';
 const isDev = VITE_MODE === 'development';
-const adminSrcPath = process.env.ADMIN_ROOT
-    ? path.join(process.env.ADMIN_ROOT, 'Resources', 'app', 'administration', 'src')
-    : path.join(path.dirname(__dirname), 'src');
-const host = process.env.VITE_HOST || 'localhost';
 
 const extensionEntries = loadExtensions();
-
-// Common configuration shared between dev and build
-const getBaseConfig = (
-    toolchain: ViteToolchain,
-    extension: ExtensionDefinition,
-    isProd: boolean,
-    useBundledDev = false,
-): UserConfig => {
-    const extensionInfoDebug = debug(`vite:${extension.isPlugin ? 'plugin' : 'app'}:${extension.technicalName}`);
-    const configInfoDebug = debug('vite:config');
-    // On Vite 6 an extension runs on its own dev server behind `/_internal_ext/`, and the Vue HMR record of an
-    // override there does not hold the definition the Administration mounted, so a script edit leaves the page stale.
-    const scriptHmr = toolchain.isVite8 && !isProd && !useBundledDev;
-    const useSourceMap =
-        (!isProd && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1') ||
-        (isProd && process.env.GENERATE_SOURCEMAPS === 'true');
-
-    const logger = toolchain.vite.createLogger();
-
-    logger.info = (msg) => {
-        if (msg.includes('vite:config')) {
-            configInfoDebug(msg);
-            return;
-        }
-
-        extensionInfoDebug(msg);
-    };
-
-    return {
-        root: extension.path,
-
-        logLevel: isProd ? 'warn' : 'info',
-
-        customLogger: logger,
-
-        cacheDir: path.resolve(extension.path, '..', '.tmp/vite'),
-
-        plugins: [
-            TwigPlugin(),
-            AssetPlugin(!isDev, path.resolve(extension.basePath, 'Resources/app/administration')),
-            AssetPathPlugin(extension.technicalFolderName),
-            AssetCssPostprocessPlugin(`/bundles/${extension.technicalFolderName}/administration/assets/`),
-            svgLoader(),
-            OverrideComponentRegisterPlugin({
-                root: extension.path,
-                pluginEntryFile: extension.filePath,
-            }),
-            ShopwareSetupPlugin({
-                administrationRoot: path.dirname(__dirname),
-                scriptHmr,
-            }),
-            VirtualShopwareModulesPlugin({
-                administrationRoot: path.dirname(__dirname),
-                consumer: 'extension',
-            }),
-            toolchain.vue({
-                template: {
-                    compilerOptions: {
-                        compatConfig: {
-                            MODE: 2,
-                        },
-                    },
-                },
-                // Ids are the HMR keys, the same file path in two extensions must not share one.
-                ...(scriptHmr
-                    ? {
-                          features: {
-                              componentIdGenerator: (filePath, _source, _isProduction, getHash) =>
-                                  `${extension.technicalName}-${getHash(filePath)}`,
-                          },
-                      }
-                    : {}),
-            }),
-            ...(scriptHmr ? [ShopwareSetupHmrPlugin()] : []),
-            ...(toolchain.isVite8 ? [ExtglobCompatPlugin({ warnOnRewrite: true })] : []),
-            ExternalsPlugin(),
-
-            // Prod plugins
-            ...(isDev ? [] : [toolchain.symfonyPlugin()]),
-        ],
-
-        resolve: {
-            alias: [
-                {
-                    find: /^src\//,
-                    replacement: '/src/',
-                },
-                {
-                    find: /^~scss\/(.*)/,
-                    replacement: `${adminSrcPath}/app/assets/scss/$1.scss`,
-                },
-                {
-                    find: /^~(.*)$/,
-                    replacement: '$1',
-                },
-            ],
-            preserveSymlinks: true,
-        },
-
-        ...(isDev
-            ? {}
-            : {
-                  base: `/bundles/${extension.technicalFolderName}/administration/`,
-                  optimizeDeps: {
-                      include: [
-                          'vue-router',
-                          'vuex',
-                          'vue-i18n',
-                          'flatpickr',
-                          'flatpickr/**/*',
-                          'date-fns-tz',
-                      ],
-                      holdUntilCrawlEnd: true,
-                      ...(toolchain.isVite8
-                          ? {
-                                rolldownOptions: {
-                                    transform: {
-                                        define: {
-                                            global: 'globalThis',
-                                        },
-                                    },
-                                },
-                            }
-                          : {
-                                esbuildOptions: {
-                                    define: {
-                                        global: 'globalThis',
-                                    },
-                                },
-                            }),
-                  },
-              }),
-
-        css: {
-            lightningcss: {
-                errorRecovery: true,
-            },
-        },
-
-        // Typed with Vite 6, which does not know the bundled dev mode
-        ...(useBundledDev ? { experimental: { bundledDev: true } as UserConfig['experimental'] } : {}),
-
-        build: {
-            outDir: path.resolve(extension.basePath, 'Resources/public/administration'),
-            emptyOutDir: true,
-            manifest: true,
-            sourcemap: useSourceMap,
-            rollupOptions: {
-                input: {
-                    [extension.technicalName]: extension.filePath,
-                },
-                output: {
-                    entryFileNames: 'assets/[name]-[hash].js',
-                },
-                // Rolldown requests lazy chunks from the absolute `/@vite/lazy` URL, which ignores `base` and hits the main admin server
-                ...(useBundledDev ? { experimental: { devMode: { lazy: false } } } : {}),
-            },
-        },
-    };
-};
 
 // Main function to handle both dev and build modes
 const main = async () => {
@@ -221,37 +38,20 @@ const main = async () => {
             console.log(colors.yellow('# Experimental bundled dev mode activated for plugins'));
         }
 
-        // Write outside of public/administration on purpose: a parallel production
-        // build empties that directory (emptyOutDir), which would delete this file
-        // out from under the running watcher.
-        fs.writeFileSync(
-            path.resolve(__dirname, '../../../sw-plugin-dev.json'),
-            JSON.stringify(createPluginDevJson(extensionEntries, useBundledDev)),
-        );
+        writePluginDevJson(path.dirname(__dirname), extensionEntries, useBundledDev);
 
         await runForEachExtension(extensionEntries, 'start', async (extension) => {
-            const base = getExtensionBasePath(extension);
-            const serverConfig = { host: '127.0.0.1', port: extensionPorts[base], strictPort: true, cors: true };
-            let server;
+            const server = await toolchain.vite.createServer({
+                ...getExtensionDevConfig(toolchain, extension, useBundledDev),
+                server: {
+                    host: '127.0.0.1',
+                    port: extensionPorts[getExtensionBasePath(extension)],
+                    strictPort: true,
+                    cors: true,
+                },
+            });
 
-            if (extension.isApp) {
-                server = await toolchain.vite.createServer({
-                    root: extension.path,
-                    base,
-                    server: serverConfig,
-                    plugins: toolchain.isVite8 ? [ExtglobCompatPlugin({ warnOnRewrite: true })] : [],
-                });
-
-                console.log(colors.green(`# App "${extension.name}": Injected successfully`));
-            } else {
-                server = await toolchain.vite.createServer({
-                    ...getBaseConfig(toolchain, extension, false, useBundledDev),
-                    base,
-                    server: serverConfig,
-                });
-
-                console.log(colors.green(`# Plugin "${extension.name}": Injected successfully`));
-            }
+            console.log(colors.green(`# ${extension.isApp ? 'App' : 'Plugin'} "${extension.name}": Injected successfully`));
 
             await server.listen();
             server.printUrls();
@@ -261,31 +61,8 @@ const main = async () => {
     }
 
     const hasFailedBuilds = await runForEachExtension(extensionEntries, 'build', async (extension) => {
-        if (extension.isApp) {
-            console.log(colors.green(`# Building app "${extension.name}"`));
-            await toolchain.vite.build({
-                root: extension.path,
-                base: '',
-                build: {
-                    outDir: path.resolve(extension.basePath, 'Resources/public/meteor-app'),
-                },
-                plugins: [
-                    injectHtml([
-                        {
-                            tag: 'base',
-                            attrs: {
-                                href: '__$ASSET_BASE_PATH$__',
-                            },
-                            injectTo: 'head-prepend',
-                        },
-                    ]),
-                    ...(toolchain.isVite8 ? [ExtglobCompatPlugin({ warnOnRewrite: true })] : []),
-                ],
-            });
-        } else {
-            console.log(colors.green(`# Building plugin "${extension.name}"`));
-            await toolchain.vite.build(getBaseConfig(toolchain, extension, true));
-        }
+        console.log(colors.green(`# Building ${extension.isApp ? 'app' : 'plugin'} "${extension.name}"`));
+        await toolchain.vite.build(getExtensionBuildConfig(toolchain, extension));
     });
 
     if (hasFailedBuilds) {

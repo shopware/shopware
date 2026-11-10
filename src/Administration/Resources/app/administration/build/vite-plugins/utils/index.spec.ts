@@ -10,6 +10,7 @@ import {
     getDevServerHttpsConfig,
     getMainViteServerConfig,
     getViteServerPorts,
+    loadExtensions,
     readFeatureFlags,
     runForEachExtension,
 } from './index';
@@ -111,7 +112,7 @@ describe('build/vite-plugins/utils', () => {
         });
 
         it('gives a plugin and its meteor-app separate servers', async () => {
-            await exportViteServerMapping();
+            await exportViteServerMapping(loadExtensions());
 
             const ports = getViteServerPorts();
             const pluginPort = ports['/_internal_ext/swag-example/'];
@@ -125,6 +126,13 @@ describe('build/vite-plugins/utils', () => {
 
             expect(proxy['/_internal_app/swag-example/'].target).toBe(`http://127.0.0.1:${appPort}`);
             expect(proxy['/_internal_ext/swag-example/'].target).toBe(`http://127.0.0.1:${pluginPort}`);
+        });
+
+        it('only reserves the port of the Administration without separate extension servers', async () => {
+            await exportViteServerMapping([]);
+
+            expect(getViteServerPorts()).toEqual({});
+            expect(getMainViteServerConfig().proxy).toEqual({});
         });
     });
 

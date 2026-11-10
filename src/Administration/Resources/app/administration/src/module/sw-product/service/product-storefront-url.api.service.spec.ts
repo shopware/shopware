@@ -3,7 +3,8 @@
  */
 import type { HttpClient } from 'src/core/factory/http-client.types';
 import type { LoginService } from 'src/core/service/login.service';
-import type StoreContextService from 'src/core/service/api/store-context.api.service';
+import type RepositoryFactory from 'src/core/data/repository-factory.data';
+import type CriteriaType from 'src/core/data/criteria.data';
 import ProductStorefrontUrlApiService from './product-storefront-url.api.service';
 
 const GERMAN_LANGUAGE_ID = 'german-language-id';
@@ -30,16 +31,20 @@ function createService({
             product(config.headers['sw-language-id']),
         ),
     };
-    const contextStoreService = {
-        getSalesChannelContext: jest.fn().mockResolvedValue({ data: { salesChannel: { domains } } }),
+    const domainRepository = {
+        search: jest.fn((criteria: CriteriaType) => {
+            void criteria;
+            return Promise.resolve(domains);
+        }),
     };
+    const repositoryFactory = { create: jest.fn(() => domainRepository) };
     const service = new ProductStorefrontUrlApiService(
         httpClient as unknown as HttpClient,
         { getToken: () => 'token' } as unknown as LoginService,
-        contextStoreService as unknown as StoreContextService,
+        repositoryFactory as unknown as RepositoryFactory,
     );
 
-    return { service, httpClient };
+    return { service, httpClient, domainRepository, repositoryFactory };
 }
 
 function notFound(): Error {
@@ -98,6 +103,22 @@ describe('module/sw-product/service/product-storefront-url.api.service', () => {
                 },
             ],
         });
+    });
+
+    it('loads the domains of the sales channel through the Admin API', async () => {
+        const { service, domainRepository, repositoryFactory } = createService({
+            domains: [{ id: 'domain-en', url: 'https://shop.test', languageId: ENGLISH_LANGUAGE_ID }],
+        });
+
+        await service.fetchProductUrls('product-id', 'sales-channel-id');
+
+        expect(repositoryFactory.create).toHaveBeenCalledWith('sales_channel_domain');
+        const [criteria] = domainRepository.search.mock.calls[0];
+        expect(criteria.parse()).toEqual(
+            expect.objectContaining({
+                filter: [{ type: 'equals', field: 'salesChannelId', value: 'sales-channel-id' }],
+            }),
+        );
     });
 
     it('asks the Storefront for all domain languages at the same time', async () => {

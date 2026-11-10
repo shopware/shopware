@@ -121,7 +121,7 @@ Shopware.Service().register('productStorefrontUrlApiService', () => {
     return new ProductStorefrontUrlApiService(
         Shopware.Application.getContainer('init').httpClient,
         Shopware.Service().get('loginService'),
-        Shopware.Service().get('contextStoreService'),
+        Shopware.Service().get('repositoryFactory'),
     );
 });
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */

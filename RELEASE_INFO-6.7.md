@@ -402,6 +402,8 @@ It opens a modal to select one of the Storefront sales channels the product is a
 For the selected sales channel it shows the product URLs, or the reason why the sales channel cannot show the product, for example an inactive sales channel or product, a missing domain, or a sold-out clearance sale product.
 Sales channels in maintenance mode get a hint.
 If the IP address of the Administration user is not on the maintenance allowlist, the modal explains that it cannot load the product URLs.
+The `product.viewer` role now includes the `sales_channel_domain:read` privilege, which the modal needs to load the domains; a migration adds it to existing roles.
+
 ## App System
 
 ### Inline `<custom-fields>` in `manifest.xml` stay supported

@@ -6,7 +6,9 @@ import type { HttpClient } from 'src/core/factory/http-client.types';
 
 import ApiService from 'src/core/service/api.service';
 import type { LoginService } from 'src/core/service/login.service';
-import type StoreContextService from 'src/core/service/api/store-context.api.service';
+import type RepositoryFactory from 'src/core/data/repository-factory.data';
+
+const { Criteria } = Shopware.Data;
 
 /**
  * @private
@@ -41,18 +43,18 @@ type StoreApiProduct = {
  * @private
  */
 export default class ProductStorefrontUrlApiService extends ApiService {
-    private readonly contextStoreService: StoreContextService;
+    private readonly repositoryFactory: RepositoryFactory;
 
     constructor(
         httpClient: HttpClient,
         loginService: LoginService,
-        contextStoreService: StoreContextService,
+        repositoryFactory: RepositoryFactory,
         apiEndpoint = '_proxy/store-api',
     ) {
         super(httpClient, loginService, apiEndpoint);
 
         this.name = 'productStorefrontUrlApiService';
-        this.contextStoreService = contextStoreService;
+        this.repositoryFactory = repositoryFactory;
     }
 
     /**
@@ -93,13 +95,12 @@ export default class ProductStorefrontUrlApiService extends ApiService {
     }
 
     private async fetchDomains(salesChannelId: string): Promise<SalesChannelDomain[]> {
-        const response = await this.contextStoreService.getSalesChannelContext(
-            salesChannelId as EntityKey<'sales_channel'>,
-            null,
-        );
-        const context = response.data as { salesChannel?: { domains?: SalesChannelDomain[] } };
+        const criteria = new Criteria(1, null);
+        criteria.addFilter(Criteria.equals('salesChannelId', salesChannelId));
 
-        return (context.salesChannel?.domains ?? [])
+        const domains = await this.repositoryFactory.create('sales_channel_domain').search(criteria);
+
+        return Array.from(domains)
             .map(({ id, url, languageId }) => ({ id, url, languageId }))
             .sort((a, b) => a.url.localeCompare(b.url));
     }

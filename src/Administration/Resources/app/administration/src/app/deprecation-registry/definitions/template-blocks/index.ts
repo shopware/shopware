@@ -1,16 +1,16 @@
 /**
  * @sw-package framework
+ *
+ * The Twig block migrations of 6.8, read from `eslint-rules/deprecation-rules/data/v6.8/template-blocks.json`.
  */
 
-import importExportProfileLabel from './import-export-profile-label';
-import mailTemplatePreviewFooter from './mail-template-preview-footer';
-import newsletterRecipientFilter from './newsletter-recipient-filter';
-import renamedAdminBlocks from './renamed-admin-blocks';
-import type { TemplateBlockMigration } from '../helpers';
+import templateBlockData from '../../../../../eslint-rules/deprecation-rules/data/v6.8/template-blocks.json';
+import { migrationsFromData, removeTemplateBlock, renameTemplateBlock, templateBlockMigration } from '../helpers';
+import type { MigrationData, RemoveTemplateBlockStep, RenameTemplateBlockStep } from '../helpers';
 
-export default [
-    importExportProfileLabel,
-    mailTemplatePreviewFooter,
-    newsletterRecipientFilter,
-    renamedAdminBlocks,
-] satisfies TemplateBlockMigration[];
+type TemplateBlockStep = RemoveTemplateBlockStep | RenameTemplateBlockStep;
+
+export default migrationsFromData(templateBlockData as MigrationData<TemplateBlockStep>[], {
+    'remove-template-block': removeTemplateBlock,
+    'rename-template-block': renameTemplateBlock,
+}).map((migration) => templateBlockMigration(migration));

@@ -33,3 +33,5 @@ export {
     templateAttribute,
     moduleSnippets,
 } from './steps/api-usage';
+export { migrationsFromData } from './from-data';
+export type { MigrationData } from './from-data';

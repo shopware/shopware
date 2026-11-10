@@ -89,7 +89,7 @@ class ProductDocumentArchiveRoute
 
         $response = new StreamedResponse(static function () use ($stream): void {
             while (!$stream->eof()) {
-                echo $stream->read(64 * 1024);
+                echo $stream->read(16 * 1024); // like Symfony's BinaryFileResponse
             }
 
             $stream->close();

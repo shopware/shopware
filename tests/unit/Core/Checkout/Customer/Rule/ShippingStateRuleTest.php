@@ -17,6 +17,8 @@ use Shopware\Core\Checkout\Cart\Rule\DeliveryRuleScope;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\ShippingStateRule;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Log\Package;
@@ -127,6 +129,24 @@ class ShippingStateRuleTest extends TestCase
 
         static::assertTrue($this->rule->match(new CartRuleScope(new Cart('test'), $context)));
         static::assertFalse($this->rule->match(new DeliveryRuleScope($delivery, new Cart('test'), $context)));
+    }
+
+    public function testDeliveryScopeDoesNotFallBackToTheCustomerAddress(): void
+    {
+        $this->rule->assign(['stateIds' => ['context-state'], 'operator' => Rule::OPERATOR_EQ]);
+
+        $address = new CustomerAddressEntity();
+        $address->setCountryState($this->createState('context-state'));
+        $customer = new CustomerEntity();
+        $customer->setActiveShippingAddress($address);
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn($customer);
+        $context->method('getShippingLocation')->willReturn(ShippingLocation::createFromCountry(new CountryEntity()));
+
+        $delivery = $this->createDelivery(ShippingLocation::createFromCountry(new CountryEntity()));
+
+        static::assertTrue($this->rule->match(new CartRuleScope(new Cart('test'), $context)), 'The cart scope falls back to the customer address.');
+        static::assertFalse($this->rule->match(new DeliveryRuleScope($delivery, new Cart('test'), $context)), 'The delivery scope reads only the delivery location.');
     }
 
     private function createState(string $id): CountryStateEntity

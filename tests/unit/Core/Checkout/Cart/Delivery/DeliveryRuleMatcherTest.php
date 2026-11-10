@@ -155,6 +155,26 @@ class DeliveryRuleMatcherTest extends TestCase
         static::assertSame([$this->ids->get('france-only')], $frenchDelivery->getRuleIds());
     }
 
+    public function testEveryDeliveryOfAMultiDeliveryCartIsMatchedEvenWhenItEqualsTheContext(): void
+    {
+        $shippingMethod = $this->createShippingMethod('context-method', availabilityRuleId: $this->ids->get('germany-only'));
+        $location = ShippingLocation::createFromCountry($this->germany);
+        $context = $this->createContext($shippingMethod, $location, [$this->ids->get('germany-only'), $this->ids->get('unreferenced')]);
+
+        $first = $this->createDelivery($shippingMethod, $location);
+        $second = $this->createDelivery($shippingMethod, $location);
+
+        $rules = new RuleCollection([
+            $this->createRule('unreferenced', new AlwaysValidRule()),
+            $this->createRule('germany-only', $this->createCountryRule($this->germany)),
+        ]);
+
+        (new DeliveryRuleMatcher($this->createRuleLoader($rules)))->match(new CartDataCollection(), new Cart('test'), new DeliveryCollection([$first, $second]), $context);
+
+        static::assertSame([$this->ids->get('germany-only')], $first->getRuleIds());
+        static::assertSame([$this->ids->get('germany-only')], $second->getRuleIds());
+    }
+
     public function testShippingMethodOfTheDeliveryIsUsedWhenTheCartDataHasNone(): void
     {
         $context = $this->createContext($this->createShippingMethod('context-method'), ShippingLocation::createFromCountry($this->germany), []);

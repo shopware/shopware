@@ -29,6 +29,8 @@ A delivery carries the effective shipping method and location, and from now on a
 Rules that are about the cart keep working unchanged, because a delivery scope is a cart scope.
 Only the rules that read the shipping location (country, state, zip code, street, city), the shipping method, or the delivered goods (cart weight, volume, free delivery items) get a branch: in a delivery scope they read the delivery, everywhere else they read the context as before.
 The existing scopes stay as they are.
+In a delivery scope the address rules read only the delivery's location.
+The fallback to the customer's active shipping address, which the cart scope keeps for a location without an address, does not apply there, because that address can belong to another delivery.
 Rule authors can adopt the same branch in their own rules; a rule without it evaluates the context default for every delivery, which is the behaviour of today.
 
 ### Rule ids live on the delivery
@@ -47,10 +49,11 @@ A delivery is not matched against the whole rule set but only against the rules 
 Nothing else can change its price or availability.
 The matcher walks the loaded `RuleCollection` in its priority order, so the order of ids a delivery carries is the order the calculator relies on when it picks the first matching price row.
 
-When a delivery's shipping method and location equal the context's, which is every delivery of a single delivery cart, the matcher copies `$context->getRuleIds()` and evaluates nothing.
+When a cart has exactly one delivery and its shipping method and location equal the context's, which is every cart core builds today, the matcher copies `$context->getRuleIds()` and evaluates nothing.
 This keeps the result of the single delivery case identical to today, including the priority order, and costs no rule evaluation.
+A cart with several deliveries matches each of them, also the ones to the context's address with the context's shipping method, so a weight, volume or free delivery item condition is decided per delivery for every delivery of that cart.
 Rules are loaded through the same `AbstractRuleLoader` the `CartRuleLoader` uses, lazily and memoized per request.
-A cart whose deliveries all equal the context never loads them in the matcher, a cart with a divergent delivery reads the rule cache once more per request.
+A single delivery cart that equals the context never loads them in the matcher, a cart with several deliveries reads the rule cache once more per request.
 The memo is cleared on `kernel.reset` and whenever a rule is written.
 
 ### What stays cart scoped
@@ -59,6 +62,8 @@ The tax state, the customer and customer group, the currency, the payment method
 The shipping costs of a delivery are not known yet when its rules are matched.
 A price row with the condition "cart amount from 100" still means the whole cart.
 Per delivery thresholds by value, weight, quantity or volume belong to the price matrix, which already works per delivery.
+Line item conditions such as the dimensions, the weight or the longest side and girth of an item keep walking the whole cart's line items in a delivery scope, so one bulky item still blocks or surcharges every delivery.
+Evaluating them against the positions of the delivery is a follow-up.
 
 The recalculation path of order editing (`SKIP_DELIVERY_PRICE_RECALCULATION`) keeps the original deliveries and does not re-match them, so it behaves as before.
 
@@ -68,6 +73,6 @@ The recalculation path of order editing (`SKIP_DELIVERY_PRICE_RECALCULATION`) ke
 - With the flag active a single delivery cart yields the same prices and errors as today, because its delivery equals the context and reuses the context rule ids.
 - A cart with deliveries that differ from the context in address or shipping method gets price rows and availability decided per delivery, with the error naming the blocked shipping method of that delivery.
 - Custom rules that read `getShippingLocation()` or `getShippingMethod()` from the context should handle `DeliveryRuleScope`; until they do they decide by the context default for every delivery, documented in `UPGRADE-6.8.md`.
-- Several deliveries to the context's address with the context's shipping method share the cart-wide result, so their weight, volume and free delivery item conditions are decided for the whole cart.
+- In a cart with several deliveries every delivery is matched on its own, also those to the context's address with the context's shipping method, so weight, volume and free delivery item conditions are decided per delivery for all of them.
 - Deliveries have to be built or regrouped while `DeliveryProcessor` builds them to get per delivery rule ids; deliveries a later cart processor creates carry none and keep the context ids.
 - The additional cost is bounded by the number of referenced rules per divergent delivery and one more rule cache read per request; carts of today pay nothing.

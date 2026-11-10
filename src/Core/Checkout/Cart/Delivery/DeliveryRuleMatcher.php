@@ -42,6 +42,13 @@ class DeliveryRuleMatcher implements ResetInterface, EventSubscriberInterface
 
     public function match(CartDataCollection $data, Cart $cart, DeliveryCollection $deliveries, SalesChannelContext $context): void
     {
+        $only = $deliveries->count() === 1 ? $deliveries->first() : null;
+        if ($only !== null && $this->equalsContext($only, $context)) {
+            $only->setRuleIds(array_values($context->getRuleIds()));
+
+            return;
+        }
+
         foreach ($deliveries as $delivery) {
             $delivery->setRuleIds($this->matchDelivery($data, $cart, $delivery, $context));
         }
@@ -57,10 +64,6 @@ class DeliveryRuleMatcher implements ResetInterface, EventSubscriberInterface
      */
     private function matchDelivery(CartDataCollection $data, Cart $cart, Delivery $delivery, SalesChannelContext $context): array
     {
-        if ($this->equalsContext($delivery, $context)) {
-            return array_values($context->getRuleIds());
-        }
-
         $referenced = $this->getReferencedRuleIds($this->getShippingMethod($data, $delivery));
         if ($referenced === []) {
             return [];

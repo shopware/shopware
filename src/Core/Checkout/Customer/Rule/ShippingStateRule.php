@@ -42,12 +42,12 @@ class ShippingStateRule extends Rule
             return false;
         }
 
-        $location = $scope instanceof DeliveryRuleScope
-            ? $scope->getDelivery()->getLocation()
-            : $scope->getSalesChannelContext()->getShippingLocation();
-
-        $state = $location->getState()
-            ?? $scope->getCustomer()?->getActiveShippingAddress()?->getCountryState();
+        if ($scope instanceof DeliveryRuleScope) {
+            $state = $scope->getDelivery()->getLocation()->getState();
+        } else {
+            $state = $scope->getSalesChannelContext()->getShippingLocation()->getState()
+                ?? $scope->getCustomer()?->getActiveShippingAddress()?->getCountryState();
+        }
 
         if (!$state) {
             return RuleComparison::isNegativeOperator($this->operator);

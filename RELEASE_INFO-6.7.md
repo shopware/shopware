@@ -18,6 +18,7 @@ Every other scope behaves as before.
 With the `v6.8.0.0` feature flag active, the `DeliveryProcessor` matches the rules a delivery's shipping method references (availability rule, price row rules, calculation rules) against each delivery and stores the matching ids on the delivery, available through `Delivery::getRuleIds()`.
 `DeliveryCalculator` and `DeliveryValidator` then select rule based price rows and check the availability rule per delivery.
 A cart with a single delivery gets the same result as before, and a delivery without matched rule ids keeps using the rule ids of the sales channel context.
+In a `DeliveryRuleScope` the shipping address rules read only the delivery's address and do not fall back to the customer's active shipping address.
 
 Custom rules that read `getShippingLocation()` or `getShippingMethod()` from the sales channel context should read them from `$scope->getDelivery()` when the scope is a `DeliveryRuleScope`, otherwise they decide by the context for every delivery.
 See `UPGRADE-6.8.md` for an example.

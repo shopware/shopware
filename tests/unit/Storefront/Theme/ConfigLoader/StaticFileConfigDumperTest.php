@@ -53,7 +53,7 @@ class StaticFileConfigDumperTest extends TestCase
         static::assertSame('{"test":"test"}', $privateFileSystem->read($location));
     }
 
-    public function testDumpConfigLoadsAndWritesEachThemeOnlyOnce(): void
+    public function testDumpConfigLoadsEachThemeOnlyOnce(): void
     {
         $sharedThemeId = Uuid::randomHex();
         $otherThemeId = Uuid::randomHex();

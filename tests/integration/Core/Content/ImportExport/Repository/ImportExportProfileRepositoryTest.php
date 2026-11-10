@@ -157,8 +157,8 @@ class ImportExportProfileRepositoryTest extends TestCase
             static::assertCount(\count($requiredProperties), $e->getExceptions());
             $foundViolations = [];
 
-            /** @var WriteConstraintViolationException $violations */
             foreach ($e->getExceptions() as $violations) {
+                static::assertInstanceOf(WriteConstraintViolationException::class, $violations);
                 foreach ($violations->getViolations() as $violation) {
                     $foundViolations[] = $violation->getPropertyPath();
                 }
@@ -180,8 +180,8 @@ class ImportExportProfileRepositoryTest extends TestCase
         foreach ($data as $expect) {
             $id = $expect['id'];
 
-            /** @var ImportExportProfileEntity $importExportProfile */
             $importExportProfile = $this->repository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
+            static::assertInstanceOf(ImportExportProfileEntity::class, $importExportProfile);
 
             if (!Feature::isActive('v6.8.0.0')) {
                 static::assertSame($expect['label'], $importExportProfile->getLabel());

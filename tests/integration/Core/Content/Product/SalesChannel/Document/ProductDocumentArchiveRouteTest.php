@@ -86,7 +86,7 @@ class ProductDocumentArchiveRouteTest extends TestCase
     }
 
     /**
-     * @return array<string, string> the file names in the downloaded ZIP with their content
+     * @return array<string, string>
      */
     private function download(KernelBrowser $browser, string $productId): array
     {

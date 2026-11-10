@@ -23,9 +23,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Invalidates the archive tag of a product when its documents or their files change,
- * and deletes the product's stored archives when that tag is purged.
- *
  * @internal
  */
 #[Package('inventory')]
@@ -90,13 +87,13 @@ class ProductDocumentArchiveSubscriber implements EventSubscriberInterface
 
     public function invalidateDeletedProducts(EntityDeletedEvent $event): void
     {
-        $this->invalidate($this->ids($event->getIds()));
+        $this->invalidate($this->extractIds($event->getIds()));
     }
 
     public function deleteArchives(InvalidateCacheEvent $event): void
     {
         foreach ($event->getKeys() as $tag) {
-            $productId = ProductDocumentArchiver::productIdOfTag($tag);
+            $productId = ProductDocumentArchiver::extractProductId($tag);
             if ($productId === null) {
                 continue;
             }
@@ -119,7 +116,7 @@ class ProductDocumentArchiveSubscriber implements EventSubscriberInterface
      */
     private function fetchProductIds(array $primaryKeys): array
     {
-        $documentIds = $this->ids($primaryKeys);
+        $documentIds = $this->extractIds($primaryKeys);
         if ($documentIds === []) {
             return [];
         }
@@ -135,13 +132,11 @@ class ProductDocumentArchiveSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * Takes the document or product id from primary keys, which are arrays for entities with a composite key.
-     *
      * @param array<mixed> $primaryKeys
      *
      * @return list<string>
      */
-    private function ids(array $primaryKeys): array
+    private function extractIds(array $primaryKeys): array
     {
         $ids = [];
         foreach ($primaryKeys as $primaryKey) {

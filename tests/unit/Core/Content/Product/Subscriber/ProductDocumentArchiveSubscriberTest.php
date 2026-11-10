@@ -62,7 +62,7 @@ class ProductDocumentArchiveSubscriberTest extends TestCase
             ->method('invalidate')
             ->with([ProductDocumentArchiver::buildTag($this->productId)]);
 
-        $this->createSubscriber()->invalidateWrittenDocuments($this->writtenEvent([
+        $this->createSubscriber()->invalidateWrittenDocuments($this->createWrittenEvent([
             ProductDocumentDefinition::ENTITY_NAME => [['id' => Uuid::randomHex(), 'versionId' => Defaults::LIVE_VERSION]],
             ProductDocumentTranslationDefinition::ENTITY_NAME => [[
                 'productDocumentId' => Uuid::randomHex(),
@@ -77,7 +77,7 @@ class ProductDocumentArchiveSubscriberTest extends TestCase
         $this->connection->method('fetchFirstColumn')->willReturn([$this->productId]);
         $this->cacheInvalidator->expects($this->never())->method('invalidate');
 
-        $this->createSubscriber()->invalidateWrittenDocuments($this->writtenEvent([
+        $this->createSubscriber()->invalidateWrittenDocuments($this->createWrittenEvent([
             ProductDefinition::ENTITY_NAME => [Uuid::randomHex()],
         ]));
     }
@@ -165,7 +165,7 @@ class ProductDocumentArchiveSubscriberTest extends TestCase
     /**
      * @param array<string, list<string|array<string, string>>> $primaryKeys
      */
-    private function writtenEvent(array $primaryKeys): EntityWrittenContainerEvent
+    private function createWrittenEvent(array $primaryKeys): EntityWrittenContainerEvent
     {
         $context = Context::createDefaultContext();
         $events = [];

@@ -281,7 +281,7 @@ class ProductController extends StorefrontController
         name: 'frontend.product.documents.archive',
         methods: [Request::METHOD_GET]
     )]
-    public function documentArchive(string $productId, Request $request, SalesChannelContext $context): Response
+    public function downloadDocuments(string $productId, Request $request, SalesChannelContext $context): Response
     {
         return $this->productDocumentArchiveRoute->load($productId, $request, $context);
     }

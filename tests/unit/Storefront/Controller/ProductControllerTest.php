@@ -393,11 +393,11 @@ class ProductControllerTest extends TestCase
         static::assertSame(['garanLabel' => null], $this->controller->recorder()->renderStorefrontParameters);
     }
 
-    public function testDocumentArchiveSendsTheResponseOfTheStoreApiRoute(): void
+    public function testDownloadDocumentsSendsTheResponseOfTheStoreApiRoute(): void
     {
         $response = new Response('zip');
         $this->productDocumentArchiveRouteMock->method('load')->willReturn($response);
 
-        static::assertSame($response, $this->controller->documentArchive(Uuid::randomHex(), new Request(), static::createStub(SalesChannelContext::class)));
+        static::assertSame($response, $this->controller->downloadDocuments(Uuid::randomHex(), new Request(), static::createStub(SalesChannelContext::class)));
     }
 }

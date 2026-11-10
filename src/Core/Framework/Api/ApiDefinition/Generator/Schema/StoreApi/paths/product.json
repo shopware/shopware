@@ -922,7 +922,7 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/404",
-                        "description": "The product is not visible in the sales channel, or none of its documents has a public file."
+                        "description": "No product exists for the given `productId` in this sales channel, or none of its documents has a public file."
                     },
                     "429": {
                         "$ref": "#/components/responses/429",

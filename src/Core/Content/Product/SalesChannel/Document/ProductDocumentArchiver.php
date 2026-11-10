@@ -21,8 +21,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Keeps one ZIP file per set of documents in the private filesystem and reuses it until the documents change.
- *
  * @internal
  */
 #[Package('inventory')]
@@ -50,7 +48,7 @@ class ProductDocumentArchiver
         return self::TAG_PREFIX . $productId;
     }
 
-    public static function productIdOfTag(string $tag): ?string
+    public static function extractProductId(string $tag): ?string
     {
         if (!str_starts_with($tag, self::TAG_PREFIX)) {
             return null;
@@ -61,27 +59,27 @@ class ProductDocumentArchiver
         return Uuid::isValid($productId) ? $productId : null;
     }
 
-    /**
-     * Returns the stored archive of the documents the product shows, and builds it first when it is missing.
-     */
     public function archive(SalesChannelProductEntity $product, SalesChannelContext $context): ?ProductDocumentArchive
     {
         $documents = $this->loadDocuments($product->getId(), $context);
-        $files = $this->collectFiles($documents, $context);
-
         $owner = $documents->first();
-        if ($files->count() === 0 || $owner === null) {
+        if ($owner === null) {
+            return null;
+        }
+
+        $files = $this->collectFiles($documents, $context);
+        if ($files->count() === 0) {
             return null;
         }
 
         // the documents belong to the product itself, or to its parent when a variant has none of its own
-        $path = \sprintf('%s/%s/%s.zip', self::DIRECTORY, $owner->getProductId(), $this->fingerprint($files));
+        $path = \sprintf('%s/%s/%s.zip', self::DIRECTORY, $owner->getProductId(), $this->hashFiles($files));
 
         if (!$this->privateFilesystem->fileExists($path)) {
             $this->build($path, $files);
         }
 
-        return new ProductDocumentArchive($path, $this->fileName($product), $this->privateFilesystem->fileSize($path));
+        return new ProductDocumentArchive($path, $this->createFileName($product), $this->privateFilesystem->fileSize($path));
     }
 
     /**
@@ -96,7 +94,7 @@ class ProductDocumentArchiver
     {
         $criteria = new Criteria();
         $criteria->setTitle('product-document-archiver::documents');
-        // `product.id` follows the inheritance of the documents, so a variant without documents of its own gets those of its parent
+        // inherited, unlike `productId`
         $criteria->addFilter(new EqualsFilter('product.id', $productId));
         $criteria->addSorting(new FieldSorting('position'));
 
@@ -130,9 +128,9 @@ class ProductDocumentArchiver
     }
 
     /**
-     * @param array<string, true> $names the entry names already taken, in lower case
+     * @param array<string, true> $names
      */
-    private function entryName(MediaEntity $media, array $names): string
+    private function createEntryName(MediaEntity $media, array $names): string
     {
         // file names are validated on upload, so they are safe entry names
         $base = (string) $media->getFileName();
@@ -151,13 +149,13 @@ class ProductDocumentArchiver
         return $name;
     }
 
-    private function clean(string $name): string
+    private function cleanFileName(string $name): string
     {
         // a download name can't contain `/` or `\`
         return trim(str_replace(['/', '\\'], '-', PathHelper::stripControlAndFormatChars($name)));
     }
 
-    private function fingerprint(MediaCollection $files): string
+    private function hashFiles(MediaCollection $files): string
     {
         return Hasher::hash($files->map(static fn (MediaEntity $file): array => [
             $file->getId(),
@@ -169,12 +167,12 @@ class ProductDocumentArchiver
         ]));
     }
 
-    private function fileName(SalesChannelProductEntity $product): string
+    private function createFileName(SalesChannelProductEntity $product): string
     {
         $name = $product->getTranslation('name');
-        $name = $this->clean(\is_string($name) ? $name : '');
+        $name = $this->cleanFileName(\is_string($name) ? $name : '');
 
-        return ($name !== '' ? $name : $this->clean($product->getProductNumber())) . '.zip';
+        return ($name !== '' ? $name : $this->cleanFileName($product->getProductNumber())) . '.zip';
     }
 
     private function build(string $path, MediaCollection $files): void
@@ -191,7 +189,7 @@ class ProductDocumentArchiver
 
             $names = [];
             foreach ($files as $file) {
-                $name = $this->entryName($file, $names);
+                $name = $this->createEntryName($file, $names);
                 $names[mb_strtolower($name)] = true;
 
                 $copy = $temporaryFiles[] = $this->filesystem->tempnam(sys_get_temp_dir(), 'product-document-');

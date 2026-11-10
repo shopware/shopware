@@ -69,20 +69,6 @@ function twigTargets(context) {
     return [...targets];
 }
 
-/**
- * Whether a script in the same folder imports the linted template, so a script rule can handle it.
- *
- * @param {import('eslint').Rule.RuleContext} context
- * @returns {boolean}
- */
-function isImportedBySiblingScript(context) {
-    const filename = physicalFilename(context);
-    const base = path.basename(filename);
-
-    return readSiblingScripts(path.dirname(filename)).some((source) => source.includes(`./${base}`));
-}
-
 module.exports = {
     twigTargets,
-    isImportedBySiblingScript,
 };

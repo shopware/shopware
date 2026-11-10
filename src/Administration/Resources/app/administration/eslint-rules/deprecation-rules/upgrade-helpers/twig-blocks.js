@@ -6,7 +6,6 @@
  */
 
 const BLOCK = /\{%-?\s*block\s+([A-Za-z0-9_]+)\s*-?%\}/g;
-const END_BLOCK = /\{%-?\s*endblock(?:\s+([A-Za-z0-9_]+))?\s*-?%\}/g;
 
 /**
  * Every `{% block name %}` with the range of the tag and of the name.
@@ -26,23 +25,6 @@ function findBlocks(text) {
     });
 }
 
-/**
- * Every named `{% endblock name %}` with the range of the name.
- *
- * @param {string} text
- * @returns {Array<{ name: string, nameRange: [number, number] }>}
- */
-function findNamedEndBlocks(text) {
-    return [...text.matchAll(END_BLOCK)]
-        .filter((match) => match[1])
-        .map((match) => {
-            const nameStart = match.index + match[0].lastIndexOf(match[1]);
-
-            return { name: match[1], nameRange: [nameStart, nameStart + match[1].length] };
-        });
-}
-
 module.exports = {
     findBlocks,
-    findNamedEndBlocks,
 };

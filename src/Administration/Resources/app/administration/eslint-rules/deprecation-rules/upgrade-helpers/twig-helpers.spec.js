@@ -7,8 +7,8 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { findBlocks, findNamedEndBlocks } = require('./twig-blocks');
-const { twigTargets, isImportedBySiblingScript } = require('./twig-target');
+const { findBlocks } = require('./twig-blocks');
+const { twigTargets } = require('./twig-target');
 
 describe('twig-blocks', () => {
     it('finds blocks with the range of their name, also with extra whitespace and trim markers', () => {
@@ -17,14 +17,6 @@ describe('twig-blocks', () => {
 
         expect(blocks.map(({ name }) => name)).toEqual(['sw_a', 'sw_b', 'sw_c']);
         blocks.forEach(({ name, nameRange }) => expect(text.slice(...nameRange)).toBe(name));
-    });
-
-    it('finds named endblock tags only', () => {
-        const text = '{% block sw_c %}{% endblock sw_c %}{% endblock %}';
-        const endBlocks = findNamedEndBlocks(text);
-
-        expect(endBlocks).toHaveLength(1);
-        expect(text.slice(...endBlocks[0].nameRange)).toBe('sw_c');
     });
 });
 
@@ -50,7 +42,6 @@ describe('twig-target', () => {
         write('acme/acme.html.twig', '');
 
         expect(twigTargets(contextFor('acme/acme.html.twig'))).toEqual(['sw-order-list']);
-        expect(isImportedBySiblingScript(contextFor('acme/acme.html.twig'))).toBe(true);
     });
 
     it('reads every script of the folder, not only index.js, and ignores specs', () => {
@@ -58,7 +49,6 @@ describe('twig-target', () => {
         write('acme/sw-order-list.spec.js', "Component.override('sw-product-list', {});");
 
         expect(twigTargets(contextFor('acme/sw-order-list.html.twig'))).toEqual(['sw-order-list']);
-        expect(isImportedBySiblingScript(contextFor('acme/sw-order-list.html.twig'))).toBe(true);
     });
 
     it('uses the base of an extension', () => {
@@ -73,6 +63,5 @@ describe('twig-target', () => {
             'sw-product-detail',
         ]);
         expect(twigTargets(contextFor('acme/acme-list.html.twig'))).toEqual([]);
-        expect(isImportedBySiblingScript(contextFor('acme/acme-list.html.twig'))).toBe(false);
     });
 });

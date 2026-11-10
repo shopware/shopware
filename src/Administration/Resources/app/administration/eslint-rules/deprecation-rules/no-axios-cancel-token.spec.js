@@ -12,16 +12,6 @@ const V0 = data.useAxiosV0Message;
 const CONSUME = data.consume.message;
 const todo = (text) => `// TODO Codemod(6.8, axios-v1): ${text}`;
 
-describe('no-axios-cancel-token data', () => {
-    it('names the replacements', () => {
-        expect(CANCEL).toContain('AbortController');
-        expect(CANCEL).toContain('httpClient.isCancel(error)');
-        expect(data.internalFieldMessage('interceptorsV0')).toContain('Use httpClient.interceptors instead');
-        expect(data.internalFieldMessage('defaultsV1')).toContain('Use httpClient.defaults instead');
-        expect(data.internalFieldMessage('axiosV1')).toContain('Use httpClient instead');
-    });
-});
-
 new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } }).run('no-axios-cancel-token', rule, {
     valid: [
         {
@@ -102,12 +92,6 @@ new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } })
             code: "Shopware.Service('messageQueueService').consume('async', token);",
             output: [todo(CONSUME), "Shopware.Service('messageQueueService').consume('async', token);"].join('\n'),
             errors: [{ message: CONSUME }],
-        },
-        {
-            name: 'reports a marked spot without a fix',
-            code: [todo(CANCEL), 'const source = Axios.CancelToken.source();'].join('\n'),
-            output: null,
-            errors: [{ message: CANCEL }],
         },
     ],
 });

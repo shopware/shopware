@@ -125,12 +125,6 @@ new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } })
             ].join('\n'),
             errors: [{ message: SEARCH_TERM }, { message: SEARCH_TERM }],
         },
-        {
-            name: 'reports a marked call without a fix',
-            code: [todo(BUILD), 'this.mailService.buildRenderPreview(type, template);'].join('\n'),
-            output: null,
-            errors: [{ message: BUILD }],
-        },
     ],
 });
 

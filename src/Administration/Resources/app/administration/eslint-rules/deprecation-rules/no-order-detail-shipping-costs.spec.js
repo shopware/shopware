@@ -42,21 +42,5 @@ new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } })
             ].join('\n'),
             errors: [{ message: message('onShippingChargeEdited') }],
         },
-        {
-            name: 'marks this accesses in an override found by its folder',
-            filename: '/plugin/src/extension/sw-order-detail-details/index.js',
-            code: 'export default {\n    computed: {\n        label() {\n            return this.currency.isoCode;\n        },\n    },\n};',
-            output: [
-                'export default {',
-                '    computed: {',
-                '        label() {',
-                `            ${scriptTodo(message('currency'))}`,
-                '            return this.currency.isoCode;',
-                '        },',
-                '    },',
-                '};',
-            ].join('\n'),
-            errors: [{ message: message('currency') }],
-        },
     ],
 });

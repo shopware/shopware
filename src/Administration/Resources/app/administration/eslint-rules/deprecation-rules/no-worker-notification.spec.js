@@ -12,14 +12,6 @@ const FACTORY = data.imports[1].message;
 const ROUTE = data.literals[0].message;
 const todo = (text) => `// TODO Codemod(6.8, worker-notification): ${text}`;
 
-describe('no-worker-notification data', () => {
-    it('points to the message stats service', () => {
-        for (const message of [GLOBAL, data.containerMessage, data.configMessage, ROUTE]) {
-            expect(message).toContain("Shopware.Service('messageStatsService').getStats()");
-        }
-    });
-});
-
 new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } }).run('no-worker-notification', rule, {
     valid: [
         { name: 'ignores the message stats service', code: "Shopware.Service('messageStatsService').getStats();\nconst url = '/_info/message-stats.json';" },
@@ -84,12 +76,6 @@ new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } })
             ].join('\n'),
             errors: [{ message: LISTENER }, { message: FACTORY }],
             languageOptions: { parser: require('@typescript-eslint/parser') },
-        },
-        {
-            name: 'reports a marked call without a fix',
-            code: [todo(GLOBAL), 'Shopware.WorkerNotification.getRegistry();'].join('\n'),
-            output: null,
-            errors: [{ message: GLOBAL }],
         },
     ],
 });

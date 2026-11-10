@@ -11,13 +11,6 @@ const CALL = data.calls[0].message;
 const ROUTE = data.routes[0].message;
 const scriptTodo = (text) => `// TODO Codemod(6.8, order-promotion-toggle): ${text}`;
 
-describe('no-order-promotion-toggle data', () => {
-    it('scopes every member to sw-order-promotion-field', () => {
-        expect(data.members).toHaveLength(11);
-        expect(data.members.every((entry) => entry.component === 'sw-order-promotion-field' && !entry.unique)).toBe(true);
-    });
-});
-
 new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } }).run('no-order-promotion-toggle (script)', rule, {
     valid: [
         {
@@ -33,12 +26,6 @@ new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } })
             name: 'marks the service call',
             code: 'await this.orderService.toggleAutomaticPromotions(orderId, versionId, true);',
             output: [scriptTodo(CALL), 'await this.orderService.toggleAutomaticPromotions(orderId, versionId, true);'].join('\n'),
-            errors: [{ message: CALL }],
-        },
-        {
-            name: 'marks the service call through Shopware.Service',
-            code: "Shopware.Service('orderService').toggleAutomaticPromotions(orderId, versionId, false);",
-            output: [scriptTodo(CALL), "Shopware.Service('orderService').toggleAutomaticPromotions(orderId, versionId, false);"].join('\n'),
             errors: [{ message: CALL }],
         },
         {

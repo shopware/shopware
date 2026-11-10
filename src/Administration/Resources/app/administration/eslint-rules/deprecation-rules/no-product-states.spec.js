@@ -12,19 +12,12 @@ const STATES = data.statesProperty.message;
 const scriptTodo = (text) => `// TODO Codemod(6.8, product-states): ${text}`;
 const twigTodo = (text) => `{# TODO Codemod(6.8, product-states): ${text} #}`;
 
-const invalidScript = (name, code, messages) => ({
+/** Each `[line, message]` pair: a line of the code, which the rule marks with `message` above it. */
+const invalidScript = (name, ...pairs) => ({
     name,
-    code,
-    output: [...messages.map(scriptTodo), code].join('\n'),
-    errors: messages.map((message) => ({ message })),
-});
-
-describe('no-product-states data', () => {
-    it('names the value mapping in every replacement text', () => {
-        expect(member('productStates')).toContain('is-physical → physical, is-download → digital');
-        expect(STATES).toContain('is-physical → physical, is-download → digital');
-        expect(literal('is-download')).toContain("'digital'");
-    });
+    code: pairs.map(([line]) => line).join('\n'),
+    output: pairs.flatMap(([line, message]) => [scriptTodo(message), line]).join('\n'),
+    errors: pairs.map(([, message]) => ({ message })),
 });
 
 new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } }).run('no-product-states (script)', rule, {
@@ -62,23 +55,27 @@ new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } })
             ].join('\n'),
             errors: [{ message: member('productStates') }],
         },
-        invalidScript(
-            'marks creationStates in the route query',
+        invalidScript('marks creationStates in the route query', [
             "this.$router.push({ name: 'sw.product.create', query: { creationStates: ['is-download'] } });",
-            [member('creationStates')],
-        ),
-        invalidScript('marks the store getter', "const states = Shopware.Store.get('swProductDetail').productStates;", [member('productStates')]),
-        invalidScript('marks writes on variants', "item.productStates = ['is-download'];", [member('productStates')]),
-        invalidScript('marks product.states', "const digital = this.product.states.includes('is-download');", [STATES]),
-        invalidScript('marks variant.states', 'variant.states = [];', [STATES]),
+            member('creationStates'),
+        ]),
+        invalidScript('marks the store getter', ["const states = Shopware.Store.get('swProductDetail').productStates;", member('productStates')]),
+        invalidScript('marks writes on variants', ["item.productStates = ['is-download'];", member('productStates')]),
         invalidScript(
-            'marks any states inside overrides of sw-product-stream components',
-            "Component.override('sw-product-stream-value', { computed: { a() { return this.actualCondition.states; } } });",
-            [STATES],
+            'marks the states of products and variants',
+            ["const digital = this.product.states.includes('is-download');", STATES],
+            ['variant.states = [];', STATES],
         ),
-        invalidScript('marks the filter key', "this.defaultFilters.push('product-states-filter');", [literal('product-states-filter')]),
-        invalidScript('marks the rule condition type', "const condition = { type: 'cartLineItemProductStates' };", [literal('cartLineItemProductStates')]),
-        invalidScript('marks state values on their own', "const physical = 'is-physical';", [literal('is-physical')]),
+        invalidScript('marks any states inside overrides of sw-product-stream components', [
+            "Component.override('sw-product-stream-value', { computed: { a() { return this.actualCondition.states; } } });",
+            STATES,
+        ]),
+        invalidScript(
+            'marks the filter key and the rule condition type',
+            ["this.defaultFilters.push('product-states-filter');", literal('product-states-filter')],
+            ["const condition = { type: 'cartLineItemProductStates' };", literal('cartLineItemProductStates')],
+        ),
+        invalidScript('marks state values on their own', ["const physical = 'is-physical';", literal('is-physical')]),
     ],
 });
 

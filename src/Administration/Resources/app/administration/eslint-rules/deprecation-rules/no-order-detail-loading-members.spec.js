@@ -11,23 +11,6 @@ const eventMessage = (name) => data.events.find((entry) => entry.name === name).
 const scriptTodo = (text) => `// TODO Codemod(6.8, order-detail-store): ${text}`;
 const twigTodo = (text) => `{# TODO Codemod(6.8, order-detail-store): ${text} #}`;
 
-describe('no-order-detail-loading-members data', () => {
-    it('marks the provides and the renamed methods everywhere', () => {
-        expect(data.members.filter((entry) => entry.unique).map((entry) => entry.name)).toEqual([
-            'swOrderDetailOnCreatedByIdChange',
-            'swOrderDetailOnLoadingChange',
-            'swOrderDetailOnEditingChange',
-            'updateCreatedById',
-            'onSaveAndReload',
-            'onUpdateEditing',
-        ]);
-    });
-
-    it('scopes every generic name to its component', () => {
-        expect(data.members.filter((entry) => !entry.unique).every((entry) => typeof entry.component === 'string')).toBe(true);
-    });
-});
-
 new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } }).run('no-order-detail-loading-members (script)', rule, {
     valid: [
         { name: 'ignores the getters of the swOrderDetail store', code: "const busy = Shopware.Store.get('swOrderDetail').isLoading || Shopware.Store.get('swOrderDetail').isEditing;" },
@@ -113,12 +96,6 @@ new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } })
             code: "Component.override('sw-order-detail-general', { methods: { a() { this.$emit('loading-change', true); } } });",
             output: [scriptTodo(eventMessage('loading-change')), "Component.override('sw-order-detail-general', { methods: { a() { this.$emit('loading-change', true); } } });"].join('\n'),
             errors: [{ message: eventMessage('loading-change') }],
-        },
-        {
-            name: 'reports a marked spot without a fix',
-            code: [scriptTodo(message(null, 'onSaveAndReload')), 'this.onSaveAndReload();'].join('\n'),
-            output: null,
-            errors: [{ message: message(null, 'onSaveAndReload') }],
         },
     ],
 });

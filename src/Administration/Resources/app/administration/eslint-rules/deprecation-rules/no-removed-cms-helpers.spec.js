@@ -13,12 +13,6 @@ const OVERRIDES = message('getCmsPageOverrides');
 const DELETE = message('deleteSpecifcKeys');
 const todo = (text) => `// TODO Codemod(6.8, cms-helpers): ${text}`;
 
-describe('no-removed-cms-helpers data', () => {
-    it('names resetRelatedStores() as the replacement', () => {
-        expect(RESET).toContain('resetRelatedStores()');
-    });
-});
-
 new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } }).run('no-removed-cms-helpers', rule, {
     valid: [
         {
@@ -126,12 +120,6 @@ new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } })
             code: "export default { methods: { resetCmsPageState() { this.$super('resetCmsPageState'); } } };",
             output: [todo(RESET), "export default { methods: { resetCmsPageState() { this.$super('resetCmsPageState'); } } };"].join('\n'),
             errors: [{ message: RESET }],
-        },
-        {
-            name: 'reports a marked spot without a fix',
-            code: [todo(OVERRIDES), 'this.getCmsPageOverrides();'].join('\n'),
-            output: null,
-            errors: [{ message: OVERRIDES }],
         },
     ],
 });

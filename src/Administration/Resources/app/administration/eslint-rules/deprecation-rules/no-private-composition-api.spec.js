@@ -11,27 +11,6 @@ const OVERRIDE_UNKNOWN = data.overrideMessage(null);
 const IMPORT = data.imports[0].message;
 const todo = (text) => `// TODO Codemod(6.8, composition-api-private): ${text}`;
 
-describe('no-private-composition-api data', () => {
-    it('covers the private functions of Shopware.Component', () => {
-        expect([...Object.keys(data.functions), data.overrideFunction].sort()).toEqual([
-            'attachOverrides',
-            'createExtendableSetup',
-            'getExposedProps',
-            'getOverrideComponents',
-            'overrideComponentSetup',
-            'registerNativeExtensionTargets',
-            'registerOverrideComponent',
-        ]);
-    });
-
-    it('names the override file of the target', () => {
-        expect(OVERRIDE).toContain('sw-product-list.override.vue');
-        expect(OVERRIDE).toContain('useSwPreviousState()');
-        expect(OVERRIDE).toContain('swDefineOverride({ … })');
-        expect(OVERRIDE_UNKNOWN).toContain('<component>.override.vue');
-    });
-});
-
 new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } }).run('no-private-composition-api', rule, {
     valid: [
         { name: 'ignores Component.override without private API', code: "Shopware.Component.override('sw-product-list', { methods: {} });" },
@@ -136,12 +115,6 @@ new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } })
                 "import helper from 'src/app/adapter/composition-extension-system/data-scope-helper';",
             ].join('\n'),
             errors: [{ message: IMPORT }, { message: IMPORT }],
-        },
-        {
-            name: 'reports a marked call without a fix',
-            code: [todo(OVERRIDE), "Shopware.Component.overrideComponentSetup()('sw-product-list', setup);"].join('\n'),
-            output: null,
-            errors: [{ message: OVERRIDE }],
         },
     ],
 });

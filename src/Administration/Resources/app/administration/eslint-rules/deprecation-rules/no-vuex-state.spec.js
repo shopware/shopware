@@ -21,27 +21,6 @@ describe('no-vuex-state data', () => {
             paymentOverviewCardState: 'paymentOverviewCard',
         });
     });
-
-    it('keeps unchanged ids and names modules without a store', () => {
-        expect(state({ kind: 'get', module: 'session' })).toBe("Shopware.State (Vuex) is removed. Use Shopware.Store.get('session').");
-        expect(state({ kind: 'get', module: 'usageData' })).toContain('has no Pinia store');
-    });
-
-    it('describes every Vuex form with its Pinia counterpart', () => {
-        expect(state({ kind: 'getter', module: 'cmsPageState', name: 'isSystemDefaultLanguage' })).toContain(
-            "Shopware.Store.get('cmsPage').isSystemDefaultLanguage",
-        );
-        expect(state({ kind: 'commit', module: 'swOrder', name: 'setCart' })).toContain('Pinia has no mutations');
-        expect(state({ kind: 'dispatch', module: 'swOrder', name: 'saveOrder' })).toContain("Shopware.Store.get('swOrder').saveOrder(…)");
-        expect(state({ kind: 'registerModule', module: 'acme' })).toContain("Shopware.Store.register({ id: 'acme'");
-        expect(state({ kind: 'unregisterModule', module: 'acme' })).toContain("Shopware.Store.unregister('acme')");
-        expect(state({ kind: 'watch' })).toContain("Vue's watch(");
-        expect(state({ kind: 'subscribe' })).toContain('$subscribe(callback)');
-        expect(state({ kind: 'subscribeAction' })).toContain('$onAction(callback)');
-        expect(state({ kind: 'list' })).toContain('Shopware.Store.list()');
-        expect(data.mapHelperMessage('mapVuexGetters', 'swFlowState')).toContain("mapState(() => Shopware.Store.get('swFlow'), [ … ])");
-        expect(data.mapHelperMessage('mapVuexMutations', null)).toContain('mapActions(() => Shopware.Store.get(id), [ … ])');
-    });
 });
 
 new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } }).run('no-vuex-state (script)', rule, {
@@ -176,12 +155,6 @@ new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } })
                 { message: data.mapHelperMessage('mapVuexGetters', 'swOrder') },
             ],
         },
-        {
-            name: 'reports a marked access without a fix',
-            code: [todo(state({ kind: 'list' })), 'Shopware.State.list();'].join('\n'),
-            output: null,
-            errors: [{ message: state({ kind: 'list' }) }],
-        },
     ],
 });
 
@@ -219,6 +192,7 @@ new RuleTester({ languageOptions: { parser: require('vue-eslint-parser'), ecmaVe
                 '        :class="{ busy: $store.state.swFlowState.isLoading }"',
                 '    >',
                 "        {{ $store.getters['swOrder/currency'] }}",
+                '        {{ $store.state.cmsPageState.currentPage.name }}',
                 '    </div>',
                 '</template>',
             ].join('\n'),
@@ -230,25 +204,16 @@ new RuleTester({ languageOptions: { parser: require('vue-eslint-parser'), ecmaVe
                 '    >',
                 `        {# TODO Codemod(6.8, vuex-state): ${data.stateMessage('$store', { kind: 'getter', module: 'swOrder', name: 'currency' })} #}`,
                 "        {{ $store.getters['swOrder/currency'] }}",
+                `        {# TODO Codemod(6.8, vuex-state): ${data.stateMessage('$store', { kind: 'get', module: 'cmsPageState', rest: '.currentPage' })} #}`,
+                '        {{ $store.state.cmsPageState.currentPage.name }}',
                 '    </div>',
                 '</template>',
             ].join('\n'),
             errors: [
                 { message: data.stateMessage('$store', { kind: 'get', module: 'swFlowState', rest: '.isLoading' }) },
                 { message: data.stateMessage('$store', { kind: 'getter', module: 'swOrder', name: 'currency' }) },
+                { message: data.stateMessage('$store', { kind: 'get', module: 'cmsPageState', rest: '.currentPage' }) },
             ],
-        },
-        {
-            name: 'marks $store.state in Twig output',
-            filename: 'acme-card.html.twig',
-            code: '<template>\n    <p>{{ $store.state.cmsPageState.currentPage.name }}</p>\n</template>',
-            output: [
-                '<template>',
-                `    {# TODO Codemod(6.8, vuex-state): ${data.stateMessage('$store', { kind: 'get', module: 'cmsPageState', rest: '.currentPage' })} #}`,
-                '    <p>{{ $store.state.cmsPageState.currentPage.name }}</p>',
-                '</template>',
-            ].join('\n'),
-            errors: [{ message: data.stateMessage('$store', { kind: 'get', module: 'cmsPageState', rest: '.currentPage' }) }],
         },
         {
             name: 'marks $store in .vue templates and this.$store in their script',

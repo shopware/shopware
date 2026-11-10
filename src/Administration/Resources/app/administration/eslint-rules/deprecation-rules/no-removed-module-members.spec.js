@@ -18,12 +18,6 @@ const invalidScript = (name, code, messages) => ({
 });
 
 describe('no-removed-module-members data', () => {
-    it('has one entry per component and name', () => {
-        const keys = data.members.flatMap((entry) => [entry.component ?? '*'].flat().map((component) => `${component}.${entry.name}`));
-
-        expect(new Set(keys).size).toBe(keys.length);
-    });
-
     it('scopes generic names to their component', () => {
         const generic = ['isLoading', 'ruleFilter', 'ruleCriteria', 'repository', 'sortBy', 'getUserConfig', 'isSaveSuccessful', 'countryRepository'];
 

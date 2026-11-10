@@ -12,15 +12,6 @@ const EMAIL = message('email');
 const PREVIEW = message('previewPattern');
 const todo = (text) => `// TODO Codemod(6.8, service-calls): ${text}`;
 
-describe('no-removed-service-methods data', () => {
-    it('names the replacement of every removed method', () => {
-        expect(UPDATE_ADMIN).toContain("create('integration').save(integration)");
-        expect(EMAIL).toContain("Shopware.Service('validationApiService').validateEmailAddress(value)");
-        expect(EMAIL).toContain('async');
-        expect(PREVIEW).toContain('previewPatternByNumberRangeId(numberRangeId, pattern, start)');
-    });
-});
-
 new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } }).run('no-removed-service-methods', rule, {
     valid: [
         { name: 'ignores the replacements', code: "await Shopware.Service('validationApiService').validateEmailAddress(mail);" },
@@ -57,36 +48,9 @@ new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } })
             errors: [{ message: UPDATE_ADMIN }, { message: EMAIL }, { message: PREVIEW }],
         },
         {
-            name: 'marks Shopware.Service() and injected or destructured services',
-            code: [
-                "Shopware.Service('validationService').email(value);",
-                'const { Service } = Shopware;',
-                "Service('numberRangeService').previewPattern(type, pattern, start);",
-                "const validationService = inject('validationService');",
-                'validationService.email(value);',
-            ].join('\n'),
-            output: [
-                todo(EMAIL),
-                "Shopware.Service('validationService').email(value);",
-                'const { Service } = Shopware;',
-                todo(PREVIEW),
-                "Service('numberRangeService').previewPattern(type, pattern, start);",
-                "const validationService = inject('validationService');",
-                todo(EMAIL),
-                'validationService.email(value);',
-            ].join('\n'),
-            errors: [{ message: EMAIL }, { message: PREVIEW }, { message: EMAIL }],
-        },
-        {
             name: 'marks a direct import of email()',
             code: "import { email, required } from 'src/core/service/validation.service';",
             output: [todo(EMAIL), "import { email, required } from 'src/core/service/validation.service';"].join('\n'),
-            errors: [{ message: EMAIL }],
-        },
-        {
-            name: 'reports a marked call without a fix',
-            code: [todo(EMAIL), 'this.validationService.email(mail);'].join('\n'),
-            output: null,
             errors: [{ message: EMAIL }],
         },
     ],

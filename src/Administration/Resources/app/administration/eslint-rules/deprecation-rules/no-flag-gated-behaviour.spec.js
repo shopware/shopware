@@ -11,11 +11,12 @@ const ENCODE = data.encodeThumbnailUrl.message;
 const SEND = data.sendMailTemplate.message;
 const scriptTodo = (text) => `// TODO Codemod(6.8, flag-gated-behaviour): ${text}`;
 
-const invalidScript = (name, code, messages) => ({
+/** Each `[line, message]` pair: a line of the code, which the rule marks with `message` above it. */
+const invalidScript = (name, ...pairs) => ({
     name,
-    code,
-    output: [...messages.map(scriptTodo), code].join('\n'),
-    errors: messages.map((message) => ({ message })),
+    code: pairs.map(([line]) => line).join('\n'),
+    output: pairs.flatMap(([line, message]) => [scriptTodo(message), line]).join('\n'),
+    errors: pairs.map(([, message]) => ({ message })),
 });
 
 new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } }).run('no-flag-gated-behaviour', rule, {
@@ -58,27 +59,24 @@ new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } })
             ].join('\n'),
             errors: [{ message: declaration('sw-media-library', 'sorting') }, { message: declaration('sw-media-library', 'nextMediaCriteria') }],
         },
-        invalidScript(
-            'marks overrides of buildSourceSet',
+        invalidScript('marks overrides of buildSourceSet', [
             "Component.override('sw-media-preview-v2', { methods: { buildSourceSet(media) { return ''; } } });",
-            [declaration('sw-media-preview-v2', 'buildSourceSet')],
-        ),
-        invalidScript(
-            'marks overrides of onMailTemplateChange',
+            declaration('sw-media-preview-v2', 'buildSourceSet'),
+        ]),
+        invalidScript('marks overrides of onMailTemplateChange', [
             "Component.override('sw-order-send-document-modal', { methods: { onMailTemplateChange(id, template) {} } });",
-            [declaration('sw-order-send-document-modal', 'onMailTemplateChange')],
-        ),
-        invalidScript('marks encodeURI of thumbnail URLs', 'const url = encodeURI(thumbnail.url);', [ENCODE]),
-        invalidScript('marks encodeURI of nested thumbnail URLs', 'const url = window.encodeURI(media.thumbnails[0].url);', [ENCODE]),
+            declaration('sw-order-send-document-modal', 'onMailTemplateChange'),
+        ]),
         invalidScript(
-            'marks sendMailTemplate without templateData',
-            'await this.mailService.sendMailTemplate(recipient, name, mailTemplate, media, salesChannelId);',
-            [SEND],
+            'marks encodeURI of thumbnail URLs, also nested',
+            ['const url = encodeURI(thumbnail.url);', ENCODE],
+            ['const first = window.encodeURI(media.thumbnails[0].url);', ENCODE],
         ),
         invalidScript(
-            'marks sendMailTemplate with null templateData',
-            "Shopware.Service('mailService').sendMailTemplate(mail, name, template, media, salesChannelId, false, [], null, typeId);",
-            [SEND],
+            'marks sendMailTemplate with missing, null or undefined templateData',
+            ['await this.mailService.sendMailTemplate(recipient, name, mailTemplate, media, salesChannelId);', SEND],
+            ["Shopware.Service('mailService').sendMailTemplate(mail, name, template, media, salesChannelId, false, [], null, typeId);", SEND],
+            ['this.mailService.sendMailTemplate(mail, name, template, media, salesChannelId, false, [], undefined);', SEND],
         ),
     ],
 });

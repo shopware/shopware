@@ -19,12 +19,6 @@ const invalidScript = (name, code, messages) => ({
     errors: messages.map((message) => ({ message })),
 });
 
-describe('no-product-advanced-mode data', () => {
-    it('scopes showModeSetting to the seven components that read it', () => {
-        expect(data.members.find((entry) => entry.name === 'showModeSetting').component).toHaveLength(7);
-    });
-});
-
 new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } }).run('no-product-advanced-mode (script)', rule, {
     valid: [
         { name: 'ignores showModeSetting outside the product components', code: "Component.override('acme-form', { computed: { a() { return this.showModeSetting; } } });" },

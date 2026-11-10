@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
-use Composer\InstalledVersions;
-use Composer\IO\NullIO;
-use Composer\Semver\Comparator;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
@@ -16,12 +13,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Core\Framework\Plugin;
-use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
@@ -45,7 +42,6 @@ use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackException;
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
-use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\CustomField\CustomFieldSetPersister;
@@ -66,6 +62,8 @@ class PluginLifecycleService
 {
     final public const STATE_SKIP_ASSET_BUILDING = 'skip-asset-building';
     final public const PLUGIN_LIFECYCLE_METHOD_ACTIVATE = 'activate';
+
+    final public const STATE_SEPARATE_COMPOSER_STEP = 'separate-composer-step';
 
     /**
      * @var array{plugin: PluginEntity, context: Context}|null
@@ -91,15 +89,13 @@ class PluginLifecycleService
         private ContainerInterface $container,
         private readonly MigrationCollectionLoader $migrationLoader,
         private readonly AssetService $assetInstaller,
-        private readonly CommandExecutor $executor,
+        private readonly PluginComposerDependencyService $composerDependencyService,
         private readonly RequirementsValidator $requirementValidator,
         private readonly CacheItemPoolInterface $restartSignalCachePool,
         private readonly string $shopwareVersion,
         private readonly SystemConfigService $systemConfigService,
         private readonly CustomEntityPersister $customEntityPersister,
         private readonly CustomEntitySchemaUpdater $customEntitySchemaUpdater,
-        private readonly PluginService $pluginService,
-        private readonly VersionSanitizer $versionSanitizer,
         private readonly DefinitionInstanceRegistry $definitionRegistry,
         private readonly RequestStack $requestStack,
         private readonly CustomFieldSetPersister $customFieldSetPersister,
@@ -129,10 +125,10 @@ class PluginLifecycleService
             return $installContext;
         }
 
-        $didRunComposerRequire = false;
+        $hasRunComposerRequire = false;
 
         if ($pluginBaseClass->executeComposerCommands()) {
-            $didRunComposerRequire = $this->executeComposerRequireWhenNeeded($plugin, $pluginBaseClass, $pluginVersion, $shopwareContext);
+            $hasRunComposerRequire = $this->runComposerRequireIfNeeded($plugin, $plugin->getUpgradeVersion() ?? $pluginVersion, $shopwareContext);
         } else {
             $this->requirementValidator->validateRequirements($plugin, $shopwareContext, 'install');
         }
@@ -173,8 +169,8 @@ class PluginLifecycleService
             $this->eventDispatcher->dispatch(new PluginPostInstallEvent($plugin, $installContext));
         } catch (\Throwable $e) {
             try {
-                if ($didRunComposerRequire && $plugin->getComposerName() && !$this->container->getParameter('shopware.deployment.cluster_setup')) {
-                    $this->executor->remove($plugin->getComposerName(), $plugin->getName());
+                if ($hasRunComposerRequire) {
+                    $this->composerDependencyService->removePackage($plugin, $shopwareContext);
                 }
             } finally {
                 if ($plugin->getInstalledAt()) {
@@ -250,7 +246,7 @@ class PluginLifecycleService
         $plugin->setActive(false);
         $plugin->setInstalledAt(null);
 
-        if ($pluginBaseClass->executeComposerCommands()) {
+        if ($pluginBaseClass->executeComposerCommands() && $this->shouldRunComposerInline($shopwareContext)) {
             $this->executeComposerRemoveCommand($plugin, $shopwareContext);
         }
 
@@ -281,9 +277,9 @@ class PluginLifecycleService
         );
 
         if ($pluginBaseClass->executeComposerCommands()) {
-            $this->executeComposerRequireWhenNeeded($plugin, $pluginBaseClass, $updateContext->getUpdatePluginVersion(), $shopwareContext);
+            $this->runComposerRequireIfNeeded($plugin, $updateContext->getUpdatePluginVersion(), $shopwareContext);
         } else {
-            if ($plugin->getManagedByComposer() && $plugin->isLocatedInCustomDirectory()) {
+            if ($plugin->getManagedByComposer() && $plugin->isLocatedInCustomDirectory() && $this->shouldRunComposerInline($shopwareContext)) {
                 // If the plugin was previously managed by composer, but should no longer due to the update, we need to remove the composer dependency
                 $this->executeComposerRemoveCommand($plugin, $shopwareContext);
             }
@@ -548,22 +544,25 @@ class PluginLifecycleService
 
     private function removePluginComposerDependency(PluginEntity $plugin, Context $context): void
     {
-        if ($this->container->getParameter('shopware.deployment.cluster_setup')) {
-            return;
-        }
+        $this->composerDependencyService->removePackage($plugin, $context);
+    }
 
-        $pluginComposerName = $plugin->getComposerName();
-        if ($pluginComposerName === null) {
-            throw PluginException::composerJsonInvalid(
-                $plugin->getPath() . '/composer.json',
-                ['No name defined in composer.json']
-            );
-        }
+    private function shouldRunComposerInline(Context $context): bool
+    {
+        return !$context->hasState(self::STATE_SEPARATE_COMPOSER_STEP) && !Feature::isActive('v6.8.0.0');
+    }
 
-        $this->executor->remove($pluginComposerName, $plugin->getName());
-
-        // running composer require may have consequences for other plugins, when they are required by the plugin being uninstalled
-        $this->pluginService->refreshPlugins($context, new NullIO());
+    private function triggerInlineComposerDeprecation(PluginEntity $plugin, string $command): void
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            \sprintf(
+                'The plugin lifecycle ran "composer %s" for plugin "%s". From v6.8.0.0 it no longer runs Composer. Call %s in a request of its own instead.',
+                $command,
+                $plugin->getName(),
+                $command === 'require' ? 'PluginComposerDependencyService::requireDependency() before the install or update' : 'PluginComposerDependencyService::removeDependency() after the uninstall or update',
+            )
+        );
     }
 
     private function syncPluginCustomFields(Plugin $pluginBaseClass, Context $context, bool $deleteMissingXml): void
@@ -756,46 +755,25 @@ class PluginLifecycleService
         );
     }
 
-    private function executeComposerRequireWhenNeeded(PluginEntity $plugin, Plugin $pluginBaseClass, string $pluginVersion, Context $shopwareContext): bool
+    private function runComposerRequireIfNeeded(PluginEntity $plugin, string $pluginVersion, Context $shopwareContext): bool
     {
-        if ($this->container->getParameter('shopware.deployment.cluster_setup')) {
+        if (!$this->composerDependencyService->isRequireNeeded($plugin, $pluginVersion)) {
             return false;
         }
 
-        $pluginComposerName = $plugin->getComposerName();
-        if ($pluginComposerName === null) {
-            throw PluginException::composerJsonInvalid(
-                $pluginBaseClass->getPath() . '/composer.json',
-                ['No name defined in composer.json']
-            );
+        if (!$this->shouldRunComposerInline($shopwareContext)) {
+            throw PluginException::pluginComposerDependencyMissing($plugin->getName());
         }
 
-        try {
-            $installedVersion = InstalledVersions::getVersion($pluginComposerName);
-        } catch (\OutOfBoundsException) {
-            // plugin is not installed using composer yet
-            $installedVersion = null;
-        }
+        $this->triggerInlineComposerDeprecation($plugin, 'require');
 
-        if ($installedVersion !== null) {
-            $sanitizedVersion = $this->versionSanitizer->sanitizePluginVersion($installedVersion);
-
-            if (Comparator::equalTo($sanitizedVersion, $pluginVersion)) {
-                // plugin was already required at build time, no need to do so again at runtime
-                return false;
-            }
-        }
-
-        $this->executor->require($pluginComposerName . ':' . $pluginVersion, $plugin->getName());
-
-        // running composer require may have consequences for other plugins, when they are required by the plugin being installed
-        $this->pluginService->refreshPlugins($shopwareContext, new NullIO());
-
-        return true;
+        return $this->composerDependencyService->requirePackage($plugin, $pluginVersion, $shopwareContext);
     }
 
     private function executeComposerRemoveCommand(PluginEntity $plugin, Context $shopwareContext): void
     {
+        $this->triggerInlineComposerDeprecation($plugin, 'remove');
+
         if ($this->isCLI()) {
             // only remove the plugin composer dependency directly when running in CLI
             // otherwise do it async in kernel.response

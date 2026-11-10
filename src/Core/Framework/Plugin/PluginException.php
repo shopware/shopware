@@ -42,6 +42,10 @@ class PluginException extends HttpException
     public const COULD_NOT_DETECT_COMPOSER_VERSION = 'FRAMEWORK__PLUGIN_COULD_NOT_DETECT_COMPOSER_VERSION';
     public const PLUGIN_COMPOSER_REQUIRE = 'FRAMEWORK__PLUGIN_COMPOSER_REQUIRE';
     public const PLUGIN_COMPOSER_REMOVE = 'FRAMEWORK__PLUGIN_COMPOSER_REMOVE';
+    public const PLUGIN_COMPOSER_DEPENDENCY_MISSING = 'FRAMEWORK__PLUGIN_COMPOSER_DEPENDENCY_MISSING';
+    public const COMPOSER_OPERATION_IN_PROGRESS = 'FRAMEWORK__PLUGIN_COMPOSER_OPERATION_IN_PROGRESS';
+    public const COMPOSER_WORKING_COPY_NOT_POSSIBLE = 'FRAMEWORK__PLUGIN_COMPOSER_WORKING_COPY_NOT_POSSIBLE';
+    public const COMPOSER_WORKING_COPY_INTERRUPTED = 'FRAMEWORK__PLUGIN_COMPOSER_WORKING_COPY_INTERRUPTED';
     /**
      * @deprecated tag:v6.8.0 - Will be removed with the next major, as it is unused
      */
@@ -312,6 +316,45 @@ class PluginException extends HttpException
             [
                 'reason' => $reason,
             ]
+        );
+    }
+
+    public static function pluginComposerDependencyMissing(string $pluginName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PLUGIN_COMPOSER_DEPENDENCY_MISSING,
+            'Plugin "{{ pluginName }}" needs its Composer dependencies. Require them with "POST /api/_action/extension/composer-require/plugin/{{ pluginName }}" first.',
+            ['pluginName' => $pluginName]
+        );
+    }
+
+    public static function composerOperationInProgress(): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::COMPOSER_OPERATION_IN_PROGRESS,
+            'Another Composer operation for plugins is running. Try again once it has finished.'
+        );
+    }
+
+    public static function composerWorkingCopyNotPossible(string $reason): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::COMPOSER_WORKING_COPY_NOT_POSSIBLE,
+            'Composer cannot run for plugins, because the vendor directory cannot be replaced: {{ reason }}',
+            ['reason' => $reason]
+        );
+    }
+
+    public static function composerWorkingCopyInterrupted(string $markerFile): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::COMPOSER_WORKING_COPY_INTERRUPTED,
+            'An earlier Composer operation for plugins stopped while it replaced the vendor directory, composer.json or composer.lock. Check that they match, then delete "{{ markerFile }}".',
+            ['markerFile' => $markerFile]
         );
     }
 

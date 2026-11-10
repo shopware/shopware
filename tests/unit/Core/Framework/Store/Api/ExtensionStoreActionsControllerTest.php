@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Store\Api\ExtensionStoreActionsController;
@@ -203,7 +204,66 @@ class ExtensionStoreActionsControllerTest extends TestCase
 
         static::assertSame(
             Response::HTTP_NO_CONTENT,
-            $controller->installExtension('plugin', 'test', Context::createDefaultContext())->getStatusCode()
+            $controller->installExtension('plugin', 'test', new Request(), Context::createDefaultContext())->getStatusCode()
+        );
+    }
+
+    public function testInstallExtensionLeavesComposerToTheSeparateStepWhenAsked(): void
+    {
+        $controller = new ExtensionStoreActionsController(
+            $lifecycle = $this->createMock(ExtensionLifecycleService::class),
+            static::createStub(ExtensionDownloader::class),
+            static::createStub(PluginService::class),
+            static::createStub(PluginManagementService::class),
+            $this->createFileSystemMock(),
+            true
+        );
+
+        $separateComposerStep = null;
+        $lifecycle->expects($this->once())->method('install')->willReturnCallback(static function (string $type, string $technicalName, Context $context) use (&$separateComposerStep): void {
+            $separateComposerStep = $context->hasState(PluginLifecycleService::STATE_SEPARATE_COMPOSER_STEP);
+        });
+
+        $controller->installExtension('plugin', 'test', new Request(request: ['separateComposerStep' => true]), Context::createDefaultContext());
+
+        static::assertTrue($separateComposerStep);
+    }
+
+    public function testComposerRequireExtension(): void
+    {
+        $controller = new ExtensionStoreActionsController(
+            $lifecycle = $this->createMock(ExtensionLifecycleService::class),
+            static::createStub(ExtensionDownloader::class),
+            static::createStub(PluginService::class),
+            static::createStub(PluginManagementService::class),
+            $this->createFileSystemMock(),
+            true
+        );
+
+        $lifecycle->expects($this->once())->method('composerRequire')->with('plugin', 'test');
+
+        static::assertSame(
+            Response::HTTP_NO_CONTENT,
+            $controller->composerRequireExtension('plugin', 'test', Context::createDefaultContext())->getStatusCode()
+        );
+    }
+
+    public function testComposerRemoveExtension(): void
+    {
+        $controller = new ExtensionStoreActionsController(
+            $lifecycle = $this->createMock(ExtensionLifecycleService::class),
+            static::createStub(ExtensionDownloader::class),
+            static::createStub(PluginService::class),
+            static::createStub(PluginManagementService::class),
+            $this->createFileSystemMock(),
+            true
+        );
+
+        $lifecycle->expects($this->once())->method('composerRemove')->with('plugin', 'test');
+
+        static::assertSame(
+            Response::HTTP_NO_CONTENT,
+            $controller->composerRemoveExtension('plugin', 'test', Context::createDefaultContext())->getStatusCode()
         );
     }
 
@@ -357,7 +417,19 @@ class ExtensionStoreActionsControllerTest extends TestCase
         }
 
         try {
-            $controller->installExtension('plugin', 'test', $context);
+            $controller->installExtension('plugin', 'test', new Request(), $context);
+        } catch (StoreException $e) {
+            static::assertSame(StoreException::EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED, $e->getErrorCode());
+        }
+
+        try {
+            $controller->composerRequireExtension('plugin', 'test', $context);
+        } catch (StoreException $e) {
+            static::assertSame(StoreException::EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED, $e->getErrorCode());
+        }
+
+        try {
+            $controller->composerRemoveExtension('plugin', 'test', $context);
         } catch (StoreException $e) {
             static::assertSame(StoreException::EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED, $e->getErrorCode());
         }

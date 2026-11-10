@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
+use Shopware\Core\Framework\Plugin\PluginComposerDependencyService;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
@@ -38,9 +39,27 @@ abstract class AbstractPluginLifecycleCommand extends Command
     public function __construct(
         protected PluginLifecycleService $pluginLifecycleService,
         private readonly EntityRepository $pluginRepo,
-        protected CacheClearer $cacheClearer
+        protected CacheClearer $cacheClearer,
+        private readonly ?PluginComposerDependencyService $composerDependencyService = null,
     ) {
         parent::__construct();
+    }
+
+    protected function useSeparateComposerStep(Context $context): void
+    {
+        if ($this->composerDependencyService !== null) {
+            $context->addState(PluginLifecycleService::STATE_SEPARATE_COMPOSER_STEP);
+        }
+    }
+
+    protected function requireComposerDependency(PluginEntity $plugin, Context $context): void
+    {
+        $this->composerDependencyService?->requireDependency($plugin, $context);
+    }
+
+    protected function removeComposerDependency(PluginEntity $plugin, Context $context): void
+    {
+        $this->composerDependencyService?->removeDependency($plugin, $context);
     }
 
     protected function configureCommand(string $lifecycleMethod): void

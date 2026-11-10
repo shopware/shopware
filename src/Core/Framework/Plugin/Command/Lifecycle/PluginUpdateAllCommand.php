@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
+use Shopware\Core\Framework\Plugin\PluginComposerDependencyService;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -29,7 +30,8 @@ class PluginUpdateAllCommand extends Command
     public function __construct(
         private readonly PluginService $pluginService,
         private readonly EntityRepository $pluginRepository,
-        private readonly PluginLifecycleService $pluginLifecycleService
+        private readonly PluginLifecycleService $pluginLifecycleService,
+        private readonly ?PluginComposerDependencyService $composerDependencyService = null,
     ) {
         parent::__construct();
     }
@@ -52,6 +54,9 @@ class PluginUpdateAllCommand extends Command
         \assert($helperSet instanceof HelperSet);
 
         $context = Context::createCLIContext();
+        if ($this->composerDependencyService !== null) {
+            $context->addState(PluginLifecycleService::STATE_SEPARATE_COMPOSER_STEP);
+        }
 
         if ($input->getOption('skip-asset-build')) {
             $context->addState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
@@ -67,7 +72,9 @@ class PluginUpdateAllCommand extends Command
             }
 
             $currentVersion = $plugin->getVersion();
+            $this->composerDependencyService?->requireDependency($plugin, $context);
             $this->pluginLifecycleService->updatePlugin($plugin, $context);
+            $this->composerDependencyService?->removeDependency($plugin, $context);
             $output->writeln(\sprintf('Updated plugin %s from version %s to version %s', $plugin->getName(), $currentVersion, $plugin->getVersion()));
         }
 

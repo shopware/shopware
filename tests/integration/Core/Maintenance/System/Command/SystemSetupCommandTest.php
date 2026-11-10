@@ -1,30 +1,38 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Maintenance\System\Command;
+namespace Shopware\Tests\Integration\Core\Maintenance\System\Command;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\System\Command\SystemSetupCommand;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\ApplicationTester;
 use Symfony\Component\Dotenv\Command\DotenvDumpCommand;
 use Symfony\Component\Dotenv\Dotenv;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(SystemSetupCommand::class)]
 class SystemSetupCommandTest extends TestCase
 {
+    private Filesystem $filesystem;
+
+    private string $projectDir;
+
+    protected function setUp(): void
+    {
+        $this->filesystem = new Filesystem();
+        $this->projectDir = sys_get_temp_dir() . '/' . uniqid('shopware-system-setup-test', true);
+        $this->filesystem->mkdir($this->projectDir);
+    }
+
     protected function tearDown(): void
     {
-        @unlink(__DIR__ . '/.env');
-        @unlink(__DIR__ . '/symfony.lock');
-        @unlink(__DIR__ . '/.env.local.php');
+        $this->filesystem->remove($this->projectDir);
     }
 
     public function testEnvFileGeneration(): void
@@ -46,7 +54,7 @@ class SystemSetupCommandTest extends TestCase
             '--cdn-strategy' => 'id',
             '--blue-green' => '1',
             '--mailer-url' => 'smtp://localhost:25',
-            '--composer-home' => __DIR__,
+            '--composer-home' => $this->projectDir,
         ];
 
         $tester = $this->getApplicationTester();
@@ -55,17 +63,15 @@ class SystemSetupCommandTest extends TestCase
 
         $tester->assertCommandIsSuccessful();
 
-        static::assertFileExists(__DIR__ . '/.env');
-        static::assertFileDoesNotExist(__DIR__ . '/.env.local.php');
+        static::assertFileExists($this->projectDir . '/.env');
+        static::assertFileDoesNotExist($this->projectDir . '/.env.local.php');
 
-        $envContent = file_get_contents(__DIR__ . '/.env');
-        static::assertIsString($envContent);
-        $env = (new Dotenv())->parse($envContent);
+        $env = (new Dotenv())->parse($this->filesystem->readFile($this->projectDir . '/.env'));
 
         static::assertArrayHasKey('APP_SECRET', $env);
         static::assertArrayHasKey('INSTANCE_ID', $env);
         unset($env['APP_SECRET'], $env['INSTANCE_ID'], $env['DATABASE_SSL_DONT_VERIFY_SERVER_CERT']);
-        static::assertSame([
+        $expected = [
             'APP_ENV' => 'test',
             'APP_URL' => 'https://example.com',
             'DATABASE_URL' => 'mysql://localhost:3306/shopware',
@@ -81,16 +87,21 @@ class SystemSetupCommandTest extends TestCase
             'SHOPWARE_CDN_STRATEGY_DEFAULT' => 'id',
             'BLUE_GREEN_DEPLOYMENT' => '1',
             'MAILER_DSN' => 'smtp://localhost:25',
-            'COMPOSER_HOME' => __DIR__,
-        ], $env);
+            'COMPOSER_HOME' => $this->projectDir,
+        ];
+        if (!Feature::isActive('v6.8.0.0')) {
+            $expected['SHOPWARE_HTTP_DEFAULT_TTL'] = '7200';
+        }
+        static::assertSame($expected, $env);
     }
 
     /**
      * @deprecated tag:v6.8.0 - Will be removed without replacement
      */
-    #[DisabledFeatures(['v6.8.0.0'])]
     public function testEnvFileGenerationWithHttpDefaultTtl(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $args = [
             'command' => 'system:setup',
             '--http-cache-ttl' => '7201',
@@ -102,11 +113,9 @@ class SystemSetupCommandTest extends TestCase
 
         $tester->assertCommandIsSuccessful();
 
-        static::assertFileExists(__DIR__ . '/.env');
+        static::assertFileExists($this->projectDir . '/.env');
 
-        $envContent = file_get_contents(__DIR__ . '/.env');
-        static::assertIsString($envContent);
-        $env = (new Dotenv())->parse($envContent);
+        $env = (new Dotenv())->parse($this->filesystem->readFile($this->projectDir . '/.env'));
 
         static::assertArrayHasKey('SHOPWARE_HTTP_DEFAULT_TTL', $env);
         static::assertSame('7201', $env['SHOPWARE_HTTP_DEFAULT_TTL']);
@@ -131,7 +140,7 @@ class SystemSetupCommandTest extends TestCase
             '--cdn-strategy' => 'id',
             '--blue-green' => '1',
             '--mailer-url' => 'smtp://localhost:25',
-            '--composer-home' => __DIR__,
+            '--composer-home' => $this->projectDir,
             '--dump-env' => true,
         ];
 
@@ -141,15 +150,12 @@ class SystemSetupCommandTest extends TestCase
 
         $tester->assertCommandIsSuccessful();
 
-        static::assertFileExists(__DIR__ . '/.env');
-        static::assertFileExists(__DIR__ . '/.env.local.php');
+        static::assertFileExists($this->projectDir . '/.env');
+        static::assertFileExists($this->projectDir . '/.env.local.php');
 
-        $envContent = file_get_contents(__DIR__ . '/.env');
-        static::assertIsString($envContent);
-        $env = (new Dotenv())->parse($envContent);
+        $env = (new Dotenv())->parse($this->filesystem->readFile($this->projectDir . '/.env'));
 
-        /** @phpstan-ignore require.fileNotFound (Although the existence of the file is checked above, PHPStan will only consider files, that always exist. See https://github.com/phpstan/phpstan/issues/12417) */
-        $envLocal = require __DIR__ . '/.env.local.php';
+        $envLocal = require $this->projectDir . '/.env.local.php';
         static::assertSame($env, $envLocal);
     }
 
@@ -169,10 +175,10 @@ class SystemSetupCommandTest extends TestCase
             '--cdn-strategy' => 'id',
             '--blue-green' => '1',
             '--mailer-url' => 'smtp://localhost:25',
-            '--composer-home' => __DIR__,
+            '--composer-home' => $this->projectDir,
         ];
 
-        touch(__DIR__ . '/symfony.lock');
+        $this->filesystem->touch($this->projectDir . '/symfony.lock');
 
         $tester = $this->getApplicationTester();
 
@@ -185,11 +191,11 @@ class SystemSetupCommandTest extends TestCase
 
     private function getApplicationTester(): ApplicationTester
     {
-        $dumpCommand = new DotenvDumpCommand(__DIR__);
+        $dumpCommand = new DotenvDumpCommand($this->projectDir);
 
         $application = new Application();
         $application->setAutoExit(false);
-        $application->addCommand(new SystemSetupCommand(__DIR__, $dumpCommand));
+        $application->addCommand(new SystemSetupCommand($this->projectDir, $dumpCommand));
 
         $application->addCommand($dumpCommand);
 

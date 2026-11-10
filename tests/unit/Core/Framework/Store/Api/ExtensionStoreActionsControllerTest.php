@@ -24,6 +24,8 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(ExtensionStoreActionsController::class)]
 class ExtensionStoreActionsControllerTest extends TestCase
 {
+    private const UPLOADED_FILE = '/uploads/extension.zip';
+
     public function testRefreshExtensions(): void
     {
         $controller = new ExtensionStoreActionsController(
@@ -70,7 +72,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
         $request = new Request();
         $file = static::createStub(UploadedFile::class);
         $file->method('getMimeType')->willReturn('foo');
-        $file->method('getPathname')->willReturn(tempnam(sys_get_temp_dir(), __METHOD__));
+        $file->method('getPathname')->willReturn(self::UPLOADED_FILE);
         $request->files->set('file', $file);
 
         static::expectExceptionObject(StoreException::pluginNotAZipFile('foo'));
@@ -97,7 +99,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
         $request = new Request();
         $file = static::createStub(UploadedFile::class);
         $file->method('getMimeType')->willReturn('foo');
-        $file->method('getPathname')->willReturn(tempnam(sys_get_temp_dir(), __METHOD__));
+        $file->method('getPathname')->willReturn(self::UPLOADED_FILE);
         $request->files->set('file', $file);
 
         static::expectExceptionObject(StoreException::pluginNotAZipFile('foo'));
@@ -120,7 +122,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
         $request = new Request();
         $file = static::createStub(UploadedFile::class);
         $file->method('getMimeType')->willReturn('application/zip');
-        $file->method('getPathname')->willReturn(tempnam(sys_get_temp_dir(), __METHOD__));
+        $file->method('getPathname')->willReturn(self::UPLOADED_FILE);
         $request->files->set('file', $file);
 
         static::expectException(\RuntimeException::class);
@@ -141,7 +143,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
         $request = new Request();
         $file = static::createStub(UploadedFile::class);
         $file->method('getMimeType')->willReturn('application/zip');
-        $file->method('getPathname')->willReturn(tempnam(sys_get_temp_dir(), __METHOD__));
+        $file->method('getPathname')->willReturn(self::UPLOADED_FILE);
         $request->files->set('file', $file);
 
         $response = $controller->uploadExtensions($request, Context::createDefaultContext());
@@ -368,7 +370,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
         $fileSystem = $this->createMock(Filesystem::class);
 
         if ($expectCallRemove) {
-            $fileSystem->expects($this->once())->method('remove');
+            $fileSystem->expects($this->once())->method('remove')->with(self::UPLOADED_FILE);
         } else {
             $fileSystem->expects($this->never())->method('remove');
         }

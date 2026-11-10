@@ -120,7 +120,6 @@
             <file>src/Core/Test/Stub/Doctrine/TestExceptionFactory.php</file>
             <file>src/Core/Test/Stub/EventDispatcher/AssertingEventDispatcher.php</file>
             <file>src/Core/Test/Stub/Framework/BundleFixture.php</file>
-            <file>src/Core/Test/Stub/Framework/Util/InMemoryUtilFilesystem.php</file>
             <file>src/Core/Test/Stub/Framework/Util/NullRawDefinitionHtmlPurifierConfig.php</file>
             <file>src/Core/Test/Stub/Framework/Util/StaticHtmlPurifierConfigProvider.php</file>
             <file>src/Core/Test/AppSystemTestBehaviour.php</file>
@@ -218,6 +217,7 @@
             <directory>tests/integration/Core/Framework/Telemetry</directory>
             <directory>tests/integration/Core/Framework/TestCaseBase</directory>
             <directory>tests/integration/Core/Framework/Translation</directory>
+            <directory>tests/integration/Core/Framework/Update</directory>
             <directory>tests/integration/Core/Framework/Util</directory>
             <directory>tests/integration/Core/Framework/Webhook</directory>
         </testsuite>

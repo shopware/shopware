@@ -6,9 +6,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\System\Command\SyncComposerVersionCommand;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Stub\Framework\Util\InMemoryUtilFilesystem;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -17,29 +17,17 @@ use Symfony\Component\Filesystem\Filesystem;
 #[CoversClass(SyncComposerVersionCommand::class)]
 class SyncComposerVersionCommandTest extends TestCase
 {
-    private string $projectDir = '';
-
-    private Filesystem $fs;
-
-    protected function setUp(): void
-    {
-        $this->projectDir = sys_get_temp_dir() . '/' . uniqid('shopware-sync-composer-version-test', true);
-        $this->fs = new Filesystem();
-    }
-
-    protected function tearDown(): void
-    {
-        $this->fs->remove($this->projectDir);
-    }
+    private const FIXTURE_DIR = __DIR__ . '/_fixtures/sync-composer-version';
 
     public function testSync(): void
     {
-        $this->copyProjectFixture('sync');
+        $projectDir = self::FIXTURE_DIR . '/sync';
+        $fs = $this->createProjectFilesystem($projectDir);
 
-        $tester = new CommandTester(new SyncComposerVersionCommand($this->projectDir, $this->fs));
+        $tester = new CommandTester(new SyncComposerVersionCommand($projectDir, $fs));
         $tester->execute([]);
 
-        $bundle1Json = json_decode($this->fs->readFile($this->projectDir . '/src/Bundle1/composer.json'), true, 512, \JSON_THROW_ON_ERROR);
+        $bundle1Json = json_decode($fs->readFile($projectDir . '/src/Bundle1/composer.json'), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame('5.3.0', $bundle1Json['require']['symfony/symfony']);
 
         static::assertSame(Command::SUCCESS, $tester->getStatusCode());
@@ -51,9 +39,9 @@ class SyncComposerVersionCommandTest extends TestCase
 
     public function testAlreadySynced(): void
     {
-        $this->copyProjectFixture('already-synced');
+        $projectDir = self::FIXTURE_DIR . '/already-synced';
 
-        $tester = new CommandTester(new SyncComposerVersionCommand($this->projectDir, $this->fs));
+        $tester = new CommandTester(new SyncComposerVersionCommand($projectDir, $this->createProjectFilesystem($projectDir)));
         $tester->execute([]);
 
         static::assertSame(Command::SUCCESS, $tester->getStatusCode());
@@ -63,13 +51,14 @@ class SyncComposerVersionCommandTest extends TestCase
 
     public function testDryRun(): void
     {
-        $this->copyProjectFixture('dry-run');
-        $command = new SyncComposerVersionCommand($this->projectDir, $this->fs);
+        $projectDir = self::FIXTURE_DIR . '/dry-run';
+        $fs = $this->createProjectFilesystem($projectDir);
+        $command = new SyncComposerVersionCommand($projectDir, $fs);
 
         $tester = new CommandTester($command);
         $tester->execute(['--dry-run' => true]);
 
-        $bundle1Json = json_decode($this->fs->readFile($this->projectDir . '/src/Bundle1/composer.json'), true, 512, \JSON_THROW_ON_ERROR);
+        $bundle1Json = json_decode($fs->readFile($projectDir . '/src/Bundle1/composer.json'), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('5.2.0', $bundle1Json['require']['symfony/symfony']);
         static::assertSame(Command::FAILURE, $tester->getStatusCode());
@@ -81,9 +70,9 @@ class SyncComposerVersionCommandTest extends TestCase
 
     public function testPackageInRootButNotInBundle(): void
     {
-        $this->copyProjectFixture('package-in-root-but-not-in-bundle');
+        $projectDir = self::FIXTURE_DIR . '/package-in-root-but-not-in-bundle';
 
-        $tester = new CommandTester(new SyncComposerVersionCommand($this->projectDir, $this->fs));
+        $tester = new CommandTester(new SyncComposerVersionCommand($projectDir, $this->createProjectFilesystem($projectDir)));
         $tester->execute([]);
 
         static::assertSame(Command::FAILURE, $tester->getStatusCode());
@@ -96,9 +85,9 @@ class SyncComposerVersionCommandTest extends TestCase
 
     public function testPackageInBundleButNotInRoot(): void
     {
-        $this->copyProjectFixture('package-in-bundle-but-not-in-root');
+        $projectDir = self::FIXTURE_DIR . '/package-in-bundle-but-not-in-root';
 
-        $tester = new CommandTester(new SyncComposerVersionCommand($this->projectDir, $this->fs));
+        $tester = new CommandTester(new SyncComposerVersionCommand($projectDir, $this->createProjectFilesystem($projectDir)));
         $tester->execute([]);
 
         static::assertSame(Command::FAILURE, $tester->getStatusCode());
@@ -115,8 +104,16 @@ class SyncComposerVersionCommandTest extends TestCase
         return $output;
     }
 
-    private function copyProjectFixture(string $fixture): void
+    /**
+     * The command globs the bundle composer.json files on disk, so the in-memory filesystem is seeded with the fixture paths.
+     */
+    private function createProjectFilesystem(string $projectDir): InMemoryUtilFilesystem
     {
-        $this->fs->mirror(__DIR__ . '/_fixtures/sync-composer-version/' . $fixture, $this->projectDir);
+        $files = [];
+        foreach ([$projectDir . '/composer.json', ...(glob($projectDir . '/src/*/composer.json') ?: [])] as $path) {
+            $files[$path] = (string) file_get_contents($path);
+        }
+
+        return new InMemoryUtilFilesystem($files);
     }
 }

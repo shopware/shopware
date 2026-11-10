@@ -16,58 +16,51 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
+ *
+ * The conversion spawn is intercepted through the `convertEntitySchema()` seam;
+ * the real process boundary is covered by the integration test.
  */
 #[Package('framework')]
 #[CoversClass(GenerateEntitySchemaTypesCommand::class)]
 class GenerateEntitySchemaTypesCommandTest extends TestCase
 {
+    private const ADMINISTRATION_ROOT = __DIR__ . '/_fixtures/administration-root';
+
+    private const ADMINISTRATION_ROOT_WITHOUT_DEPENDENCIES = __DIR__ . '/_fixtures/administration-root-without-dependencies';
+
     public function testStopsWhenTheSchemaDumpFailsWithoutConverting(): void
     {
-        $administrationRoot = ExtensionToolingFixture::createAdministrationRoot(withToolingStub: true);
-        $command = $this->commandInApplication($administrationRoot, dumpExitCode: 3);
+        $command = $this->recordingCommand(self::ADMINISTRATION_ROOT, convertExitCode: Command::SUCCESS);
+        $this->registerInApplication($command, dumpExitCode: 3);
 
         $exitCode = (new CommandTester($command))->execute([]);
 
         static::assertSame(3, $exitCode, 'a failed dump short-circuits and propagates its exit code');
-        static::assertFileDoesNotExist(
-            $administrationRoot . '/.tooling-capture.json',
-            'conversion must not run when the dump failed',
-        );
-
-        ExtensionToolingFixture::removeAdministrationRoot($administrationRoot);
+        static::assertNull($command->convertedRoot, 'conversion must not run when the dump failed');
     }
 
     public function testFailsWithNpmCiGuidanceWhenNodeDependenciesAreMissing(): void
     {
-        $administrationRoot = ExtensionToolingFixture::createAdministrationRoot(withToolingStub: false);
-        $command = $this->commandInApplication($administrationRoot, dumpExitCode: Command::SUCCESS);
+        $command = $this->recordingCommand(self::ADMINISTRATION_ROOT_WITHOUT_DEPENDENCIES, convertExitCode: Command::SUCCESS);
+        $this->registerInApplication($command, dumpExitCode: Command::SUCCESS);
 
         $tester = new CommandTester($command);
         $exitCode = $tester->execute([]);
 
         static::assertSame(Command::FAILURE, $exitCode);
         static::assertStringContainsString('npm ci', $tester->getDisplay(true));
-        static::assertFileDoesNotExist(
-            $administrationRoot . '/.tooling-capture.json',
-            'conversion must not run without the Node dependencies',
-        );
-
-        ExtensionToolingFixture::removeAdministrationRoot($administrationRoot);
+        static::assertNull($command->convertedRoot, 'conversion must not run without the Node dependencies');
     }
 
     public function testConvertsAfterASuccessfulDumpAndPropagatesTheExitCode(): void
     {
-        $administrationRoot = ExtensionToolingFixture::createAdministrationRoot(withToolingStub: true, stubExitCode: 3);
-        $command = $this->commandInApplication($administrationRoot, dumpExitCode: Command::SUCCESS);
+        $command = $this->recordingCommand(self::ADMINISTRATION_ROOT, convertExitCode: 3);
+        $this->registerInApplication($command, dumpExitCode: Command::SUCCESS);
 
         $exitCode = (new CommandTester($command))->execute([]);
 
         static::assertSame(3, $exitCode, 'the converter exit code is propagated');
-
-        $capture = ExtensionToolingFixture::readToolingCapture($administrationRoot);
-        static::assertStringEndsWith('scripts/entitySchemaConverter/convert-schema.ts', $capture['argv'][1]);
-
-        ExtensionToolingFixture::removeAdministrationRoot($administrationRoot);
+        static::assertSame(self::ADMINISTRATION_ROOT, $command->convertedRoot);
     }
 
     public function testAdministrationRootResolvesToTheBundleResourcesPathByDefault(): void
@@ -137,14 +130,33 @@ class GenerateEntitySchemaTypesCommandTest extends TestCase
     }
 
     /**
-     * Registers the real command in an Application alongside a fake `framework:schema`,
-     * so `execute()` runs end-to-end on the real class (the schema dump delegates to
-     * the fake, the conversion spawns the injected root's `ts-node` stub).
+     * @return GenerateEntitySchemaTypesCommand&object{convertedRoot: string|null}
      */
-    private function commandInApplication(string $administrationRoot, int $dumpExitCode): GenerateEntitySchemaTypesCommand
+    private function recordingCommand(string $administrationRoot, int $convertExitCode): GenerateEntitySchemaTypesCommand
     {
-        $command = new GenerateEntitySchemaTypesCommand($administrationRoot);
+        return new class($administrationRoot, $convertExitCode) extends GenerateEntitySchemaTypesCommand {
+            public ?string $convertedRoot = null;
 
+            public function __construct(string $administrationRoot, private readonly int $convertExitCode)
+            {
+                parent::__construct($administrationRoot);
+            }
+
+            protected function convertEntitySchema(string $administrationRoot, OutputInterface $output): int
+            {
+                $this->convertedRoot = $administrationRoot;
+
+                return $this->convertExitCode;
+            }
+        };
+    }
+
+    /**
+     * Registers the command in an Application alongside a fake `framework:schema`,
+     * so `execute()` runs end-to-end (the schema dump delegates to the fake).
+     */
+    private function registerInApplication(GenerateEntitySchemaTypesCommand $command, int $dumpExitCode): void
+    {
         $schemaCommand = new class($dumpExitCode) extends Command {
             public function __construct(private readonly int $dumpExitCode)
             {
@@ -165,8 +177,6 @@ class GenerateEntitySchemaTypesCommandTest extends TestCase
 
         $application = new Application();
         $application->addCommand($schemaCommand);
-        $application->addCommand($command);
-
-        return $command;
+        $command->setApplication($application);
     }
 }

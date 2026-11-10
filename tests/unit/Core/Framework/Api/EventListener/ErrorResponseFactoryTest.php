@@ -317,11 +317,11 @@ class ErrorResponseFactoryTest extends TestCase
     {
         $fileResource = false;
         try {
-            $closedFileResource = \tmpfile();
+            $closedFileResource = fopen('php://memory', 'r+');
             static::assertTrue(\is_resource($closedFileResource));
             fclose($closedFileResource);
 
-            $fileResource = \tmpfile();
+            $fileResource = fopen('php://memory', 'r+');
             static::assertTrue(\is_resource($fileResource));
 
             $exception = new SimpleShopwareHttpException([

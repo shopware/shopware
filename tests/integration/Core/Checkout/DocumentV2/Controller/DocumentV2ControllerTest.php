@@ -590,6 +590,36 @@ class DocumentV2ControllerTest extends TestCase
         $this->assertMediaNotAllowed($this->getBrowser()->getResponse());
     }
 
+    public function testDownloadArchiveReturnsStoredDocumentFiles(): void
+    {
+        $content = 'stored invoice';
+        $documentId = $this->createDocumentThroughApi(documentFileMediaId: $this->createDocumentMedia($content));
+
+        $this->getBrowser()->jsonRequest(
+            'POST',
+            '/api/_action/order/document-v2/download-archive',
+            ['documentIds' => [$documentId]],
+        );
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame('application/zip', $response->headers->get('content-type'));
+        static::assertStringStartsWith('attachment;', (string) $response->headers->get('content-disposition'));
+
+        $tempFile = tempnam(sys_get_temp_dir(), 'document-v2-test-');
+        static::assertIsString($tempFile);
+        (new Filesystem())->dumpFile($tempFile, (string) $response->getContent());
+
+        $zip = new \ZipArchive();
+        static::assertTrue($zip->open($tempFile));
+        static::assertSame(1, $zip->numFiles);
+        static::assertStringEndsWith('.pdf', (string) $zip->getNameIndex(0));
+        static::assertSame($content, $zip->getFromIndex(0));
+        $zip->close();
+
+        (new Filesystem())->remove($tempFile);
+    }
+
     public function testDownloadServesDocumentLinkedToPublicLibraryMedia(): void
     {
         $content = 'library content';

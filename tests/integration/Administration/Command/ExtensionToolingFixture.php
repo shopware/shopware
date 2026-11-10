@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Administration\Command;
+namespace Shopware\Tests\Integration\Administration\Command;
 
 use PHPUnit\Framework\Assert;
 use Shopware\Core\Framework\Log\Package;
@@ -10,9 +10,7 @@ use Symfony\Component\Filesystem\Filesystem;
  * @internal
  *
  * Builds a disposable Administration app root with a fake `ts-node` executable so
- * the commands can be driven end-to-end on their real class (which is what makes
- * `execute()`/`configure()` coverage attributable — an anonymous subclass driven
- * through the console runner records none). The stub records how it was invoked
+ * the commands can really spawn their tooling. The stub records how it was invoked
  * and exits with a chosen code, standing in for the real toolchain.
  */
 #[Package('framework')]

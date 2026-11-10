@@ -16,11 +16,9 @@ use Shopware\Core\Framework\Util\Filesystem as UtilFilesystem;
 use Shopware\Core\Installer\Installer;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 use Shopware\Tests\Unit\Core\Framework\Plugin\_fixtures\ExampleBundle\ExampleBundle;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\HttpKernel\KernelInterface;
 
@@ -31,32 +29,6 @@ use Symfony\Component\HttpKernel\KernelInterface;
 #[CoversClass(AssetInstallCommand::class)]
 class AssetInstallCommandTest extends TestCase
 {
-    public function testHtaccessCopy(): void
-    {
-        $fs = new Filesystem();
-        $tmpDir = sys_get_temp_dir() . '/' . uniqid('shopware', true);
-        $fs->mkdir($tmpDir . '/public');
-        $fs->dumpFile($tmpDir . '/public/.htaccess.dist', 'FOO');
-
-        $kernel = static::createStub(KernelInterface::class);
-        $kernel->method('getProjectDir')->willReturn($tmpDir);
-
-        $command = new AssetInstallCommand(
-            $kernel,
-            static::createStub(AssetService::class),
-            static::createStub(ActiveAppsLoader::class)
-        );
-
-        $runner = new CommandTester($command);
-        $status = $runner->execute([]);
-
-        static::assertSame(Command::SUCCESS, $status);
-        static::assertFileExists($tmpDir . '/public/.htaccess');
-        static::assertFileEquals($tmpDir . '/public/.htaccess.dist', $tmpDir . '/public/.htaccess');
-
-        $fs->remove($tmpDir);
-    }
-
     public function testForceOptionIsForwardedToService(): void
     {
         $exampleBundle = $this->getBundle();

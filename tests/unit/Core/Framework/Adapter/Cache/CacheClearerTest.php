@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGatew
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\PruneableInterface;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\CacheClearer\CacheClearerInterface;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\SharedLockInterface;
@@ -30,6 +29,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 #[CoversClass(CacheClearer::class)]
 class CacheClearerTest extends TestCase
 {
+    private const FIXTURES = __DIR__ . '/_fixtures';
+
     private CacheClearer $cacheClearer;
 
     /**
@@ -47,7 +48,14 @@ class CacheClearerTest extends TestCase
 
     private CacheInvalidator&MockObject $invalidator;
 
-    private Filesystem $filesystem;
+    private Filesystem&Stub $filesystem;
+
+    /**
+     * Every Filesystem::remove() call, each one as a sorted list of paths
+     *
+     * @var list<list<string>>
+     */
+    private array $removed = [];
 
     private MessageBusInterface&Stub $messageBus;
 
@@ -68,7 +76,13 @@ class CacheClearerTest extends TestCase
         $this->symfonyCache = $this->createMock(CacheClearerInterface::class);
         $this->reverseProxyCache = $this->createMock(AbstractReverseProxyGateway::class);
         $this->invalidator = $this->createMock(CacheInvalidator::class);
-        $this->filesystem = new Filesystem(); // Use real filesystem
+        $this->filesystem = static::createStub(Filesystem::class);
+        $this->filesystem->method('remove')
+            ->willReturnCallback(function (string|iterable $files): void {
+                $files = \is_string($files) ? [$files] : array_values([...$files]);
+                sort($files);
+                $this->removed[] = $files;
+            });
         $this->messageBus = static::createStub(MessageBusInterface::class);
         $this->logger = static::createStub(LoggerInterface::class);
 
@@ -78,14 +92,8 @@ class CacheClearerTest extends TestCase
         $this->lock->method('createLock')
             ->willReturn($lock);
 
-        // Create a nested directory structure to avoid scanning system temp directories
-        $testBase = sys_get_temp_dir() . '/shopware_test_' . uniqid();
-        $this->cacheDir = $testBase . '/cache/test_cache_' . uniqid();
-
-        // Create the cache directory for tests
-        if (!is_dir($this->cacheDir)) {
-            mkdir($this->cacheDir, 0777, true);
-        }
+        // Checked-in cache tree with a twig directory and the URL generator files, the Finder only reads it
+        $this->cacheDir = self::FIXTURES . '/clear/test';
 
         $this->cacheClearer = new CacheClearer(
             $this->adapters,
@@ -103,28 +111,8 @@ class CacheClearerTest extends TestCase
         );
     }
 
-    protected function tearDown(): void
-    {
-        // Clean up the entire test base directory (includes all nested test directories)
-        $testBase = \dirname($this->cacheDir, 2); // Go up two levels to shopware_test_* directory
-        if (is_dir($testBase) && str_starts_with(basename($testBase), 'shopware_test_')) {
-            $this->filesystem->remove($testBase);
-        }
-
-        parent::tearDown();
-    }
-
     public function testClearWithHttpCache(): void
     {
-        // Create twig cache directory and files
-        $twigDir = $this->cacheDir . '/twig';
-        mkdir($twigDir, 0777, true);
-        file_put_contents($twigDir . '/test.cache', 'test content');
-
-        // Create URL generator cache files
-        file_put_contents($this->cacheDir . '/UrlGenerator.php', '<?php // test');
-        file_put_contents($this->cacheDir . '/UrlGenerator.php.meta', 'meta content');
-
         $this->appAdapter->expects($this->once())->method('clear');
         $this->httpAdapter->expects($this->once())->method('clear');
 
@@ -134,19 +122,12 @@ class CacheClearerTest extends TestCase
 
         $this->cacheClearer->clear(true);
 
-        // Verify twig directory was removed
-        static::assertDirectoryDoesNotExist($twigDir);
-        // Verify URL generator files were removed
-        static::assertFileDoesNotExist($this->cacheDir . '/UrlGenerator.php');
-        static::assertFileDoesNotExist($this->cacheDir . '/UrlGenerator.php.meta');
+        // Verify twig directory and URL generator files were removed
+        static::assertSame($this->expectedClearRemovals(), $this->removed);
     }
 
     public function testClearWithoutHttpCache(): void
     {
-        // Create twig cache directory
-        $twigDir = $this->cacheDir . '/twig';
-        mkdir($twigDir, 0777, true);
-
         $this->appAdapter->expects($this->once())->method('clear');
         $this->httpAdapter->expects($this->once())->method('clear');
 
@@ -157,15 +138,11 @@ class CacheClearerTest extends TestCase
         $this->cacheClearer->clear(false);
 
         // Verify twig directory was removed
-        static::assertDirectoryDoesNotExist($twigDir);
+        static::assertSame($this->expectedClearRemovals(), $this->removed);
     }
 
     public function testClearWithInvalidatorException(): void
     {
-        // Create twig cache directory
-        $twigDir = $this->cacheDir . '/twig';
-        mkdir($twigDir, 0777, true);
-
         $this->appAdapter->expects($this->once())->method('clear');
         $this->httpAdapter->expects($this->once())->method('clear');
 
@@ -200,7 +177,7 @@ class CacheClearerTest extends TestCase
         $cacheClearer->clear();
 
         // Verify twig directory was removed despite the exception
-        static::assertDirectoryDoesNotExist($twigDir);
+        static::assertSame($this->expectedClearRemovals(), $this->removed);
     }
 
     public function testClearWithUnwritableCacheDir(): void
@@ -234,11 +211,6 @@ class CacheClearerTest extends TestCase
 
     public function testClearInClusterMode(): void
     {
-        // Create twig cache directory that should NOT be deleted in cluster mode
-        $twigDir = $this->cacheDir . '/twig';
-        mkdir($twigDir, 0777, true);
-        file_put_contents($twigDir . '/test.cache', 'test content');
-
         $cacheClearer = new CacheClearer(
             $this->adapters,
             $this->symfonyCache,
@@ -264,16 +236,11 @@ class CacheClearerTest extends TestCase
         $cacheClearer->clear();
 
         // In cluster mode, filesystem operations should not be performed
-        static::assertDirectoryExists($twigDir);
-        static::assertFileExists($twigDir . '/test.cache');
+        static::assertSame([], $this->removed);
     }
 
     public function testClearWithoutReverseProxyCache(): void
     {
-        // Create twig cache directory
-        $twigDir = $this->cacheDir . '/twig';
-        mkdir($twigDir, 0777, true);
-
         $cacheClearer = new CacheClearer(
             $this->adapters,
             $this->symfonyCache,
@@ -299,21 +266,27 @@ class CacheClearerTest extends TestCase
         $cacheClearer->clear();
 
         // Verify twig directory was removed
-        static::assertDirectoryDoesNotExist($twigDir);
+        static::assertSame($this->expectedClearRemovals(), $this->removed);
     }
 
     public function testClearContainerCache(): void
     {
-        // Create container cache files to be found by Finder
-        $containerFile1 = $this->cacheDir . '/TestContainer.php';
-        $containerFile2 = $this->cacheDir . '/CachedContainer.php';
-        $containerDir = $this->cacheDir . '/ContainerXYZ';
-        $nonContainerFile = $this->cacheDir . '/other.php';
-
-        touch($containerFile1);
-        touch($containerFile2);
-        mkdir($containerDir, 0777, true);
-        touch($nonContainerFile);
+        // Checked-in cache tree with container files, a container directory and an unrelated file
+        $cacheDir = self::FIXTURES . '/container/test';
+        $cacheClearer = new CacheClearer(
+            $this->adapters,
+            $this->symfonyCache,
+            $this->reverseProxyCache,
+            $this->invalidator,
+            $this->filesystem,
+            $cacheDir,
+            'test',
+            false,
+            true,
+            $this->messageBus,
+            $this->logger,
+            $this->lock
+        );
 
         $this->appAdapter->expects($this->never())->method('clear');
         $this->httpAdapter->expects($this->never())->method('clear');
@@ -321,29 +294,25 @@ class CacheClearerTest extends TestCase
         $this->invalidator->expects($this->never())->method('invalidateExpired');
         $this->symfonyCache->expects($this->never())->method('clear');
 
-        $this->cacheClearer->clearContainerCache();
+        $cacheClearer->clearContainerCache();
 
-        // Verify container files/dirs were removed
-        static::assertFileDoesNotExist($containerFile1);
-        static::assertFileDoesNotExist($containerFile2);
-        static::assertDirectoryDoesNotExist($containerDir);
-        // Verify non-container file was not removed
-        static::assertFileExists($nonContainerFile);
+        // Verify container files/dirs were removed and the non-container file was kept
+        static::assertSame([[
+            $cacheDir . '/CachedContainer.php',
+            $cacheDir . '/ContainerXYZ',
+            $cacheDir . '/TestContainer.php',
+        ]], $this->removed);
     }
 
     public function testClearContainerCacheInClusterMode(): void
     {
-        // Create container cache files that should NOT be deleted in cluster mode
-        $containerFile = $this->cacheDir . '/TestContainer.php';
-        touch($containerFile);
-
         $cacheClearer = new CacheClearer(
             $this->adapters,
             $this->symfonyCache,
             $this->reverseProxyCache,
             $this->invalidator,
             $this->filesystem,
-            $this->cacheDir,
+            self::FIXTURES . '/container/test',
             'test',
             true, // cluster mode enabled
             true,
@@ -361,7 +330,7 @@ class CacheClearerTest extends TestCase
         $cacheClearer->clearContainerCache();
 
         // In cluster mode, files should not be deleted
-        static::assertFileExists($containerFile);
+        static::assertSame([], $this->removed);
     }
 
     public function testScheduleCacheFolderCleanup(): void
@@ -451,15 +420,23 @@ class CacheClearerTest extends TestCase
 
     public function testCleanupOldContainerCacheDirectories(): void
     {
-        // Create old cache directories in the parent directory (within our test structure)
-        $parentDir = \dirname($this->cacheDir);
-        $oldCacheDir1 = $parentDir . '/test_old_cache_1';
-        $oldCacheDir2 = $parentDir . '/test_another_cache';
-        $currentEnvDir = $parentDir . '/test_different'; // same env prefix
-
-        mkdir($oldCacheDir1, 0777, true);
-        mkdir($oldCacheDir2, 0777, true);
-        mkdir($currentEnvDir, 0777, true);
+        // Checked-in cache tree whose parent holds other directories with the same environment prefix
+        $parentDir = self::FIXTURES . '/old-dirs';
+        $cacheDir = $parentDir . '/test';
+        $cacheClearer = new CacheClearer(
+            $this->adapters,
+            $this->symfonyCache,
+            $this->reverseProxyCache,
+            $this->invalidator,
+            $this->filesystem,
+            $cacheDir,
+            'test',
+            false,
+            true,
+            $this->messageBus,
+            $this->logger,
+            $this->lock
+        );
 
         $this->appAdapter->expects($this->never())->method('clear');
         $this->httpAdapter->expects($this->never())->method('clear');
@@ -467,30 +444,25 @@ class CacheClearerTest extends TestCase
         $this->invalidator->expects($this->never())->method('invalidateExpired');
         $this->symfonyCache->expects($this->never())->method('clear');
 
-        $this->cacheClearer->cleanupOldContainerCacheDirectories();
+        $cacheClearer->cleanupOldContainerCacheDirectories();
 
-        // Old cache directories with matching environment prefix should be removed
-        static::assertDirectoryDoesNotExist($oldCacheDir1);
-        static::assertDirectoryDoesNotExist($oldCacheDir2);
-        static::assertDirectoryDoesNotExist($currentEnvDir);
-        // Current cache directory should still exist
-        static::assertDirectoryExists($this->cacheDir);
+        // Old cache directories with matching environment prefix are removed, the current one is kept
+        static::assertSame([[
+            $parentDir . '/test_another_cache',
+            $parentDir . '/test_different',
+            $parentDir . '/test_old_cache_1',
+        ]], $this->removed);
     }
 
     public function testCleanupOldContainerCacheDirectoriesInClusterMode(): void
     {
-        // Create old cache directory that should NOT be deleted in cluster mode
-        $parentDir = \dirname($this->cacheDir);
-        $oldCacheDir = $parentDir . '/test_old_cache';
-        mkdir($oldCacheDir, 0777, true);
-
         $cacheClearer = new CacheClearer(
             $this->adapters,
             $this->symfonyCache,
             $this->reverseProxyCache,
             $this->invalidator,
             $this->filesystem,
-            $this->cacheDir,
+            self::FIXTURES . '/old-dirs/test',
             'test',
             true, // cluster mode enabled
             true,
@@ -508,7 +480,7 @@ class CacheClearerTest extends TestCase
         $cacheClearer->cleanupOldContainerCacheDirectories();
 
         // In cluster mode, directories should not be deleted
-        static::assertDirectoryExists($oldCacheDir);
+        static::assertSame([], $this->removed);
     }
 
     public function testClearHttpCacheWithReverseProxy(): void
@@ -579,10 +551,6 @@ class CacheClearerTest extends TestCase
 
     public function testClearWithReverseHttpCacheDisabled(): void
     {
-        // Create twig cache directory
-        $twigDir = $this->cacheDir . '/twig';
-        mkdir($twigDir, 0777, true);
-
         $cacheClearer = new CacheClearer(
             $this->adapters,
             $this->symfonyCache,
@@ -608,6 +576,19 @@ class CacheClearerTest extends TestCase
         $cacheClearer->clear(true);
 
         // Verify twig directory was removed
-        static::assertDirectoryDoesNotExist($twigDir);
+        static::assertSame($this->expectedClearRemovals(), $this->removed);
+    }
+
+    /**
+     * clear() removes the twig directory first and then the URL generator files it found
+     *
+     * @return list<list<string>>
+     */
+    private function expectedClearRemovals(): array
+    {
+        return [
+            [$this->cacheDir . '/twig'],
+            [$this->cacheDir . '/UrlGenerator.php', $this->cacheDir . '/UrlGenerator.php.meta'],
+        ];
     }
 }

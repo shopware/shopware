@@ -1,0 +1,382 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Integration\Core\Content\Media\File;
+
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\File\FileFetcher;
+use Shopware\Core\Content\Media\File\FileService;
+use Shopware\Core\Content\Media\File\FileUrlValidatorInterface;
+use Shopware\Core\Content\Media\File\TrustedUrlResolver;
+use Shopware\Core\Content\Media\MediaException;
+use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
+use Symfony\Component\HttpFoundation\HeaderBag;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Process\PhpExecutableFinder;
+use Symfony\Component\Process\Process;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+
+/**
+ * The fetcher writes the downloaded file to disk and detects its mime type from there, so the successful
+ * fetches need a real destination. The guards that reject a fetch are covered by the unit test.
+ *
+ * @internal
+ */
+#[Package('discovery')]
+class FileFetcherTest extends TestCase
+{
+    private const IMAGE_URL_WITHOUT_EXTENSION = __DIR__ . '/_fixtures/image1x1';
+    private const IMAGE_URL_WITH_EXTENSION = __DIR__ . '/_fixtures/image1x1.png';
+    private const BINARY_FILE_URL_WITHOUT_EXTENSION = __DIR__ . '/_fixtures/binary';
+    private const IMAGE_FILE_SIZE = 95;
+    private const IMAGE_EXTENSION = 'png';
+    private const IMAGE_MIME_TYPE = 'image/png';
+    private const MIME_TYPE_FOR_UNDETECTED_FORMATS = 'application/octet-stream';
+    private const EXTENSION_FOR_UNDETECTED_FORMATS = 'bin';
+
+    private string $tempDir;
+
+    private string $tempFile;
+
+    private ?Process $server = null;
+
+    protected function setUp(): void
+    {
+        $this->tempDir = sys_get_temp_dir() . '/' . uniqid('file-fetcher-test-', true);
+        $this->tempFile = $this->tempDir . '/expected';
+        (new Filesystem())->mkdir($this->tempDir);
+    }
+
+    protected function tearDown(): void
+    {
+        $this->server?->stop(0);
+        (new Filesystem())->remove($this->tempDir);
+    }
+
+    public function testFetchRequestData(): void
+    {
+        $fileFetcher = $this->createFileFetcher();
+
+        $content = fopen(self::IMAGE_URL_WITHOUT_EXTENSION, 'r');
+        static::assertIsResource($content);
+
+        $request = new Request([], [], [], [], [], [], $content);
+        $request->query->set('extension', self::IMAGE_EXTENSION);
+        $request->headers = new HeaderBag();
+        $request->headers->set('content-length', (string) self::IMAGE_FILE_SIZE);
+
+        $media = $fileFetcher->fetchRequestData($request, $this->tempFile);
+
+        static::assertSame(self::IMAGE_MIME_TYPE, $media->getMimeType());
+        static::assertSame(self::IMAGE_EXTENSION, $media->getFileExtension());
+    }
+
+    #[DataProvider('fetchFileFromUrlDataProvider')]
+    public function testFetchFileFromURL(
+        string $file,
+        string $providedExtension,
+        string $expectedMimeType,
+        string $expectedExtension
+    ): void {
+        $fileFetcher = $this->createFileFetcher(httpClient: $this->mockResponseFor($file));
+
+        $request = new Request();
+        $request->query->set('extension', $providedExtension);
+        $request->request->set('url', 'https://example.com/download');
+
+        $media = $fileFetcher->fetchFileFromURL($request, $this->tempFile);
+
+        static::assertSame($expectedMimeType, $media->getMimeType());
+        static::assertSame($expectedExtension, $media->getFileExtension());
+    }
+
+    public static function fetchFileFromUrlDataProvider(): \Generator
+    {
+        yield 'image resource without an extension' => [
+            'file' => self::IMAGE_URL_WITHOUT_EXTENSION,
+            'providedExtension' => self::IMAGE_EXTENSION,
+            'expectedMimeType' => self::IMAGE_MIME_TYPE,
+            'expectedExtension' => self::IMAGE_EXTENSION,
+        ];
+        yield 'image resource with extension' => [
+            'file' => self::IMAGE_URL_WITH_EXTENSION,
+            'providedExtension' => '',
+            'expectedMimeType' => self::IMAGE_MIME_TYPE,
+            'expectedExtension' => self::IMAGE_EXTENSION,
+        ];
+        yield 'binary file without extension' => [
+            'file' => self::BINARY_FILE_URL_WITHOUT_EXTENSION,
+            'providedExtension' => '',
+            'expectedMimeType' => self::MIME_TYPE_FOR_UNDETECTED_FORMATS,
+            'expectedExtension' => self::EXTENSION_FOR_UNDETECTED_FORMATS,
+        ];
+    }
+
+    public function testFetchFileFromURLAppliesConfiguredTimeout(): void
+    {
+        $capturedOptions = [];
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use (&$capturedOptions): MockResponse {
+            $capturedOptions = $options;
+
+            return new MockResponse((string) file_get_contents(self::IMAGE_URL_WITH_EXTENSION));
+        });
+
+        $fileFetcher = $this->createFileFetcher(httpClient: $httpClient, urlUploadTimeout: 1.5);
+
+        $fileFetcher->fetchFromURL('https://example.com/image.jpg', $this->tempFile, self::IMAGE_EXTENSION);
+
+        static::assertSame(1.5, $capturedOptions['max_duration']);
+    }
+
+    public function testFetchFileFromURLDoesNotApplyTimeoutByDefault(): void
+    {
+        $capturedOptions = [];
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use (&$capturedOptions): MockResponse {
+            $capturedOptions = $options;
+
+            return new MockResponse((string) file_get_contents(self::IMAGE_URL_WITH_EXTENSION));
+        });
+
+        $fileFetcher = $this->createFileFetcher(httpClient: $httpClient);
+
+        $fileFetcher->fetchFromURL('https://example.com/image.jpg', $this->tempFile, self::IMAGE_EXTENSION);
+
+        static::assertTrue(!isset($capturedOptions['max_duration']) || $capturedOptions['max_duration'] <= 0);
+    }
+
+    public function testFetchFromURLPinsValidatedIpOntoConnection(): void
+    {
+        $capturedOptions = [];
+        $body = (string) file_get_contents(self::IMAGE_URL_WITH_EXTENSION);
+
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use (&$capturedOptions, $body): MockResponse {
+            $capturedOptions = $options;
+
+            return new MockResponse($body);
+        });
+
+        $resolver = new TrustedUrlResolver(static fn (string $host): array => ['93.184.216.34']);
+
+        $fileFetcher = $this->createFileFetcher(resolver: $resolver, httpClient: $httpClient);
+
+        $fileFetcher->fetchFromURL('https://media.example.com/image.png', $this->tempFile, self::IMAGE_EXTENSION);
+
+        static::assertSame(0, $capturedOptions['max_redirects'] ?? null);
+        static::assertArrayHasKey('resolve', $capturedOptions);
+        static::assertContains('93.184.216.34', $capturedOptions['resolve']);
+    }
+
+    public function testFetchFromURLPinsEvenWhenValidationIsDisabled(): void
+    {
+        $capturedOptions = [];
+        $body = (string) file_get_contents(self::IMAGE_URL_WITH_EXTENSION);
+
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use (&$capturedOptions, $body): MockResponse {
+            $capturedOptions = $options;
+
+            return new MockResponse($body);
+        });
+
+        $resolver = new TrustedUrlResolver(
+            static fn (string $host): array => ['127.0.0.1'],
+            rejectPrivateRanges: false,
+        );
+
+        $fileFetcher = $this->createFileFetcher(
+            resolver: $resolver,
+            httpClient: $httpClient,
+            enableValidation: false,
+        );
+
+        $fileFetcher->fetchFromURL('http://localhost:8000/image.png', $this->tempFile, self::IMAGE_EXTENSION);
+
+        static::assertArrayHasKey('resolve', $capturedOptions);
+        static::assertContains('127.0.0.1', $capturedOptions['resolve']);
+    }
+
+    public function testFetchBlobCreatesTemporaryFileAndCleanUpDeletesIt(): void
+    {
+        $fileFetcher = $this->createFileFetcher();
+
+        $media = $fileFetcher->fetchBlob('myBlob', self::IMAGE_EXTENSION, self::IMAGE_MIME_TYPE);
+
+        try {
+            static::assertFileExists($media->getFileName());
+            static::assertSame('myBlob', (string) file_get_contents($media->getFileName()));
+            static::assertSame(self::IMAGE_EXTENSION, $media->getFileExtension());
+            static::assertSame(self::IMAGE_MIME_TYPE, $media->getMimeType());
+        } finally {
+            if (\is_file($media->getFileName())) {
+                $fileFetcher->cleanUpTempFile($media);
+            }
+        }
+
+        static::assertFileDoesNotExist($media->getFileName());
+    }
+
+    public function testFetchFileFromURLWithLimitInRange(): void
+    {
+        $fileFetcher = $this->createFileFetcher(
+            httpClient: $this->mockResponseFor(self::IMAGE_URL_WITH_EXTENSION),
+            maxFileSize: self::IMAGE_FILE_SIZE + 1,
+        );
+
+        $media = $fileFetcher->fetchFromURL('https://example.com/image.png', $this->tempFile, self::IMAGE_EXTENSION);
+
+        static::assertSame(self::IMAGE_FILE_SIZE, $media->getFileSize());
+        static::assertSame(self::IMAGE_MIME_TYPE, $media->getMimeType());
+        static::assertSame(self::IMAGE_EXTENSION, $media->getFileExtension());
+    }
+
+    public function testUrlUploadLimitDoesNotAffectRequestUpload(): void
+    {
+        $fileFetcher = $this->createFileFetcher(maxFileSize: 10);
+
+        $content = fopen(self::IMAGE_URL_WITHOUT_EXTENSION, 'r');
+        static::assertIsResource($content);
+
+        $request = new Request([], [], [], [], [], [], $content);
+        $request->query->set('extension', self::IMAGE_EXTENSION);
+        $request->headers = new HeaderBag();
+        $request->headers->set('content-length', (string) self::IMAGE_FILE_SIZE);
+
+        $media = $fileFetcher->fetchRequestData($request, $this->tempFile);
+
+        static::assertSame(self::IMAGE_FILE_SIZE, $media->getFileSize());
+        static::assertFileExists($this->tempFile);
+    }
+
+    public function testFetchFromURLDownloadsFromFtpServer(): void
+    {
+        $port = $this->startFtpServer(pasvAddress: '127.0.0.1', epsv: true);
+
+        $media = $this->createFileFetcher(resolver: $this->createLoopbackResolver())
+            ->fetchFromURL('ftp://ftp.example.com:' . $port . '/image1x1.png', $this->tempFile);
+
+        static::assertSame(self::IMAGE_MIME_TYPE, $media->getMimeType());
+        static::assertFileEquals(self::IMAGE_URL_WITH_EXTENSION, $this->tempFile);
+    }
+
+    public function testFetchFromURLIgnoresPrivateAddressInPasvReply(): void
+    {
+        $port = $this->startFtpServer(pasvAddress: '10.255.255.1', epsv: false);
+
+        $this->createFileFetcher(resolver: $this->createLoopbackResolver(), urlUploadTimeout: 5.0)
+            ->fetchFromURL('ftp://ftp.example.com:' . $port . '/image1x1.png', $this->tempFile);
+
+        static::assertFileEquals(self::IMAGE_URL_WITH_EXTENSION, $this->tempFile);
+    }
+
+    public function testFetchFromURLRejectsFtpHostResolvingToPrivateAddress(): void
+    {
+        $port = $this->startFtpServer(pasvAddress: '127.0.0.1', epsv: true);
+        $url = 'ftp://ftp.example.com:' . $port . '/image1x1.png';
+
+        $this->expectExceptionObject(MediaException::illegalUrl($url));
+
+        $this->createFileFetcher(resolver: $this->createLoopbackResolver(allowedPrivateIps: []))->fetchFromURL($url, $this->tempFile);
+    }
+
+    public function testFetchFromURLRejectsFtpFileExceedingTheSizeLimit(): void
+    {
+        $port = $this->startFtpServer(pasvAddress: '127.0.0.1', epsv: true);
+
+        $this->expectExceptionObject(MediaException::fileSizeLimitExceeded());
+
+        $this->createFileFetcher(resolver: $this->createLoopbackResolver(), maxFileSize: 50)
+            ->fetchFromURL('ftp://ftp.example.com:' . $port . '/image1x1.png', $this->tempFile);
+    }
+
+    public function testFetchFromURLAbortsStalledFtpTransfer(): void
+    {
+        $port = $this->startFtpServer(pasvAddress: '127.0.0.1', epsv: true, stall: true);
+        $url = 'ftp://ftp.example.com:' . $port . '/image1x1.png';
+        $socketTimeout = (string) \ini_get('default_socket_timeout');
+        ini_set('default_socket_timeout', '1');
+
+        $start = microtime(true);
+
+        try {
+            $this->createFileFetcher(resolver: $this->createLoopbackResolver())->fetchFromURL($url, $this->tempFile);
+            static::fail('The stalled transfer should be aborted.');
+        } catch (MediaException $exception) {
+            static::assertEquals(MediaException::cannotOpenSourceStreamToRead($url), $exception);
+        } finally {
+            ini_set('default_socket_timeout', $socketTimeout);
+        }
+
+        static::assertLessThan(10, microtime(true) - $start);
+    }
+
+    public function testFetchFromURLIgnoresProxyFromEnvironmentForFtp(): void
+    {
+        $port = $this->startFtpServer(pasvAddress: '127.0.0.1', epsv: true);
+        putenv('all_proxy=http://127.0.0.1:9');
+
+        try {
+            $this->createFileFetcher(resolver: $this->createLoopbackResolver())
+                ->fetchFromURL('ftp://ftp.example.com:' . $port . '/image1x1.png', $this->tempFile);
+        } finally {
+            putenv('all_proxy');
+        }
+
+        static::assertFileEquals(self::IMAGE_URL_WITH_EXTENSION, $this->tempFile);
+    }
+
+    private function startFtpServer(string $pasvAddress, bool $epsv, bool $stall = false): int
+    {
+        $this->server = new Process([
+            (string) (new PhpExecutableFinder())->find(),
+            __DIR__ . '/_fixtures/ftp-server.php',
+            self::IMAGE_URL_WITH_EXTENSION,
+            $pasvAddress,
+            $epsv ? '1' : '0',
+            $stall ? '1' : '0',
+        ]);
+        $this->server->start();
+        $this->server->waitUntil(static fn (string $type, string $output): bool => str_contains($output, \PHP_EOL));
+
+        return (int) trim($this->server->getOutput());
+    }
+
+    /**
+     * @param list<string> $allowedPrivateIps
+     */
+    private function createLoopbackResolver(array $allowedPrivateIps = ['127.0.0.1']): TrustedUrlResolver
+    {
+        return new TrustedUrlResolver(static fn (string $host): array => ['127.0.0.1'], allowedPrivateIps: $allowedPrivateIps, allowedSchemes: ['ftp']);
+    }
+
+    private function createFileFetcher(
+        ?TrustedUrlResolver $resolver = null,
+        ?HttpClientInterface $httpClient = null,
+        bool $enableValidation = true,
+        int $maxFileSize = 0,
+        float $urlUploadTimeout = 0.0,
+    ): FileFetcher {
+        $validator = static::createStub(FileUrlValidatorInterface::class);
+        $validator->method('isValid')->willReturn(true);
+
+        $fileService = static::createStub(FileService::class);
+        $fileService->method('isUrl')->willReturn(true);
+
+        return new FileFetcher(
+            $validator,
+            $fileService,
+            $resolver ?? new TrustedUrlResolver(static fn (string $host): array => ['93.184.216.34']),
+            $httpClient ?? new MockHttpClient(),
+            true,
+            $enableValidation,
+            $maxFileSize,
+            $urlUploadTimeout,
+        );
+    }
+
+    private function mockResponseFor(string $fixture): MockHttpClient
+    {
+        return new MockHttpClient(new MockResponse((string) file_get_contents($fixture)));
+    }
+}

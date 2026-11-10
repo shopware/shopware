@@ -13,7 +13,6 @@ use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
-use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorage;
 
 /**
  * @internal
@@ -223,8 +222,16 @@ class SessionContextTokenAccessorTest extends TestCase
 
     public function testRotateCanDestroyTheOldSessionRecord(): void
     {
-        $directory = sys_get_temp_dir() . '/' . uniqid('sw-session-', true);
-        $storage = new MockFileSessionStorage($directory);
+        $storage = new class extends MockArraySessionStorage {
+            public bool $destroyed = false;
+
+            public function regenerate(bool $destroy = false, ?int $lifetime = null): bool
+            {
+                $this->destroyed = $destroy;
+
+                return parent::regenerate($destroy, $lifetime);
+            }
+        };
         $storage->setId('before');
         $session = new Session($storage);
         $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, 'before-rotation');
@@ -233,18 +240,10 @@ class SessionContextTokenAccessorTest extends TestCase
         $request = $this->storefrontRequest();
         $request->setSession($session);
 
-        try {
-            $this->accessor()->rotate($request, self::SALES_CHANNEL, 'rotated', true);
+        $this->accessor()->rotate($request, self::SALES_CHANNEL, 'rotated', true);
 
-            static::assertNotSame('before', $session->getId());
-            static::assertSame([], glob($directory . '/before.mocksess') ?: []);
-        } finally {
-            if ($session->isStarted()) {
-                $session->save();
-            }
-            array_map('unlink', glob($directory . '/*') ?: []);
-            @rmdir($directory);
-        }
+        static::assertNotSame('before', $session->getId());
+        static::assertTrue($storage->destroyed);
     }
 
     /**

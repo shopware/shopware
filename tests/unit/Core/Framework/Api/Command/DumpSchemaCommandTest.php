@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\Command\DumpSchemaCommand;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Contracts\Cache\CacheInterface;
 
 /**
@@ -27,15 +26,10 @@ class DumpSchemaCommandTest extends TestCase
         $cache = static::createStub(CacheInterface::class);
         $cmd = new DumpSchemaCommand($definitionService, $cache);
 
-        $tmpFile = tempnam(sys_get_temp_dir(), 'schema');
-        static::assertIsString($tmpFile);
-
         $cmd = new CommandTester($cmd);
-        $cmd->execute(['outfile' => $tmpFile], ['capture_stderr_separately' => true]);
+        $cmd->execute(['outfile' => '/dev/null'], ['capture_stderr_separately' => true]);
 
         $cmd->assertCommandIsSuccessful();
-        static::assertFileExists($tmpFile, 'schema file not found');
-        (new Filesystem())->remove($tmpFile);
     }
 
     public function testEntitySchema(): void

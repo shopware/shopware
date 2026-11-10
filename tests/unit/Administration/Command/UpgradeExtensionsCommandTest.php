@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Command\UpgradeExtensionsCommand;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\HttpKernel\KernelInterface;
 
@@ -21,17 +22,26 @@ class UpgradeExtensionsCommandTest extends TestCase
 {
     public function testUpgradeCommandRunsTheUpgradeEntryScript(): void
     {
-        $administrationRoot = ExtensionToolingFixture::createAdministrationRoot(withToolingStub: true);
+        $command = new class($this->kernel(), __DIR__ . '/_fixtures/administration-root') extends UpgradeExtensionsCommand {
+            /**
+             * @var list<string>|null
+             */
+            public ?array $spawned = null;
 
-        $tester = new CommandTester(new UpgradeExtensionsCommand($this->kernel(), $administrationRoot));
-        $tester->execute(['tooling-args' => ['--only=MyPlugin', '--write']]);
+            protected function runTooling(array $command, string $cwd, array $env, OutputInterface $output): int
+            {
+                $this->spawned = $command;
 
-        $capture = ExtensionToolingFixture::readToolingCapture($administrationRoot);
-        static::assertStringEndsWith('scripts/extensionTooling/upgrade.ts', $capture['argv'][1]);
-        static::assertContains('--only=MyPlugin', $capture['argv']);
-        static::assertContains('--write', $capture['argv']);
+                return self::SUCCESS;
+            }
+        };
 
-        ExtensionToolingFixture::removeAdministrationRoot($administrationRoot);
+        (new CommandTester($command))->execute(['tooling-args' => ['--only=MyPlugin', '--write']]);
+
+        static::assertNotNull($command->spawned);
+        static::assertStringEndsWith('scripts/extensionTooling/upgrade.ts', $command->spawned[2]);
+        static::assertContains('--only=MyPlugin', $command->spawned);
+        static::assertContains('--write', $command->spawned);
     }
 
     private function kernel(): KernelInterface

@@ -11,7 +11,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AsyncAwsS3WriteBatchAdapter;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -20,13 +19,11 @@ use Symfony\Component\Filesystem\Filesystem;
 #[CoversClass(AsyncAwsS3WriteBatchAdapter::class)]
 class AsyncAwsS3WriteBatchAdapterTest extends TestCase
 {
+    private const SOURCE_FILE = __DIR__ . '/fixtures/test.txt';
+
     public function testS3(): void
     {
-        $fs = new Filesystem();
-        $tmpFile = $fs->tempnam(sys_get_temp_dir(), 'test');
-        $fs->dumpFile($tmpFile, 'test');
-
-        $sourceFile = fopen($tmpFile, 'rb');
+        $sourceFile = fopen(self::SOURCE_FILE, 'rb');
         static::assertIsResource($sourceFile);
 
         $s3Client = $this->createMock(S3Client::class);
@@ -53,10 +50,6 @@ class AsyncAwsS3WriteBatchAdapterTest extends TestCase
 
     public function testS3UsingPath(): void
     {
-        $fs = new Filesystem();
-        $tmpFile = $fs->tempnam(sys_get_temp_dir(), 'test');
-        $fs->dumpFile($tmpFile, 'test');
-
         $s3Client = static::createStub(S3Client::class);
 
         $result = ResultMockFactory::create(PutObjectOutput::class);
@@ -73,7 +66,7 @@ class AsyncAwsS3WriteBatchAdapterTest extends TestCase
 
         $adapter = new AsyncAwsS3WriteBatchAdapter($s3Client, 'test', '', new PortableVisibilityConverter());
 
-        $adapter->writeBatch(new CopyBatchInput($tmpFile, ['test.txt']));
+        $adapter->writeBatch(new CopyBatchInput(self::SOURCE_FILE, ['test.txt']));
     }
 
     public function testS3InvalidFile(): void
@@ -90,10 +83,6 @@ class AsyncAwsS3WriteBatchAdapterTest extends TestCase
 
     public function testConfigurableBatchSize(): void
     {
-        $fs = new Filesystem();
-        $tmpFile = $fs->tempnam(sys_get_temp_dir(), 'test');
-        $fs->dumpFile($tmpFile, 'test');
-
         $s3Client = $this->createMock(S3Client::class);
         $result = ResultMockFactory::create(PutObjectOutput::class);
 
@@ -102,7 +91,7 @@ class AsyncAwsS3WriteBatchAdapterTest extends TestCase
 
         $files = [];
         for ($i = 0; $i < 5; ++$i) {
-            $files[] = new CopyBatchInput($tmpFile, ["test{$i}.txt"]);
+            $files[] = new CopyBatchInput(self::SOURCE_FILE, ["test{$i}.txt"]);
         }
 
         $s3Client

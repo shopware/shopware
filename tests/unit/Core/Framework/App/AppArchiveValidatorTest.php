@@ -7,8 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppArchiveValidator;
 use Shopware\Core\Framework\App\Exception\AppArchiveValidationFailure;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -17,24 +15,9 @@ use Symfony\Component\Filesystem\Filesystem;
 #[CoversClass(AppArchiveValidator::class)]
 class AppArchiveValidatorTest extends TestCase
 {
-    private string $temporaryFilePath;
-
-    protected function setUp(): void
-    {
-        $this->temporaryFilePath = realpath(sys_get_temp_dir()) . '/' . Uuid::randomHex() . '.zip';
-    }
-
-    protected function tearDown(): void
-    {
-        (new Filesystem())->remove($this->temporaryFilePath);
-    }
-
     public function testExceptionIsThrownWhenManifestIsMissing(): void
     {
-        $this->createZip(__DIR__ . '/_fixtures/AppWithoutManifestFile');
-
-        $archive = new \ZipArchive();
-        $archive->open($this->temporaryFilePath);
+        $archive = $this->openArchive('AppWithoutManifestFile.zip');
 
         $validator = new AppArchiveValidator();
 
@@ -45,10 +28,7 @@ class AppArchiveValidatorTest extends TestCase
 
     public function testExceptionIsThrownWhenAppNameDoesNotMatch(): void
     {
-        $this->createZip(__DIR__ . '/_fixtures/App');
-
-        $archive = new \ZipArchive();
-        $archive->open($this->temporaryFilePath);
+        $archive = $this->openArchive('App.zip');
 
         $validator = new AppArchiveValidator();
 
@@ -59,10 +39,7 @@ class AppArchiveValidatorTest extends TestCase
 
     public function testExceptionIsThrownWhenArchiveHasInvalidPrefix(): void
     {
-        $this->createZip(__DIR__ . '/_fixtures/AppInvalidPrefix');
-
-        $archive = new \ZipArchive();
-        $archive->open($this->temporaryFilePath);
+        $archive = $this->openArchive('AppInvalidPrefix.zip');
 
         $validator = new AppArchiveValidator();
 
@@ -73,10 +50,7 @@ class AppArchiveValidatorTest extends TestCase
 
     public function testExceptionIsThrownWhenArchiveHasNoTopLevelFolder(): void
     {
-        $this->createZip(__DIR__ . '/_fixtures/AppNoTobLevelFolder');
-
-        $archive = new \ZipArchive();
-        $archive->open($this->temporaryFilePath);
+        $archive = $this->openArchive('AppNoTobLevelFolder.zip');
 
         $validator = new AppArchiveValidator();
 
@@ -87,10 +61,7 @@ class AppArchiveValidatorTest extends TestCase
 
     public function testExceptionIsThrownOnDirectoryTraversal(): void
     {
-        \copy(__DIR__ . '/_fixtures/FileTraversal.zip', $this->temporaryFilePath);
-
-        $archive = new \ZipArchive();
-        $archive->open($this->temporaryFilePath);
+        $archive = $this->openArchive('FileTraversal.zip');
 
         $validator = new AppArchiveValidator();
 
@@ -101,10 +72,7 @@ class AppArchiveValidatorTest extends TestCase
 
     public function testWithValidArchive(): void
     {
-        $this->createZip(__DIR__ . '/_fixtures/App');
-
-        $archive = new \ZipArchive();
-        $archive->open($this->temporaryFilePath);
+        $archive = $this->openArchive('App.zip');
         $validator = new AppArchiveValidator();
 
         $this->expectNotToPerformAssertions();
@@ -114,10 +82,7 @@ class AppArchiveValidatorTest extends TestCase
 
     public function testWithValidArchiveWithoutExpectedName(): void
     {
-        $this->createZip(__DIR__ . '/_fixtures/App');
-
-        $archive = new \ZipArchive();
-        $archive->open($this->temporaryFilePath);
+        $archive = $this->openArchive('App.zip');
         $validator = new AppArchiveValidator();
 
         $this->expectNotToPerformAssertions();
@@ -125,34 +90,11 @@ class AppArchiveValidatorTest extends TestCase
         $validator->validate($archive);
     }
 
-    private function createZip(string $appDirectory): void
+    private function openArchive(string $fixture): \ZipArchive
     {
-        $appDirectory = (string) realpath($appDirectory);
+        $archive = new \ZipArchive();
+        $archive->open(__DIR__ . '/_fixtures/' . $fixture, \ZipArchive::RDONLY);
 
-        $zip = new \ZipArchive();
-        $zip->open($this->temporaryFilePath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
-
-        $files = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($appDirectory),
-            \RecursiveIteratorIterator::LEAVES_ONLY
-        );
-
-        foreach ($files as $file) {
-            if (!$file instanceof \SplFileInfo) {
-                continue;
-            }
-            if ($file->isDir()) {
-                continue;
-            }
-
-            // Get real and relative path for current file
-            $filePath = $file->getRealPath();
-            $relativePath = substr($filePath, \strlen($appDirectory) + 1);
-
-            // Add current file to archive
-            $zip->addFile($filePath, $relativePath);
-        }
-
-        $zip->close();
+        return $archive;
     }
 }

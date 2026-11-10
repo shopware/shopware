@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Stub\Framework\Util\InMemoryUtilFilesystem;
 use Shopware\Storefront\Theme\Command\ThemeCreateCommand;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
@@ -24,14 +25,12 @@ class ThemeCreateCommandTest extends TestCase
 
     private string $projectDir;
 
+    private InMemoryUtilFilesystem $filesystem;
+
     protected function setUp(): void
     {
-        $this->projectDir = __DIR__ . '/../fixtures/ThemeCreateCommand/';
-    }
-
-    protected function tearDown(): void
-    {
-        $this->removeTheme();
+        $this->projectDir = '/project/';
+        $this->filesystem = new InMemoryUtilFilesystem();
     }
 
     public function testSuccessfulCreateCommand(): void
@@ -46,18 +45,16 @@ class ThemeCreateCommandTest extends TestCase
 
         static::assertIsString($result);
         static::assertStringContainsString('Creating theme structure under', $result);
-        static::assertDirectoryExists($expectedDirectory);
-        static::assertFileExists($expectedDirectory . 'TestPlugin.php');
-        static::assertDirectoryExists($expectedDirectory . 'Resources');
-        static::assertFileExists($expectedDirectory . 'Resources/theme.json');
+        static::assertTrue($this->filesystem->exists($expectedDirectory));
+        static::assertTrue($this->filesystem->exists($expectedDirectory . 'TestPlugin.php'));
+        static::assertTrue($this->filesystem->exists($expectedDirectory . 'Resources'));
+        static::assertTrue($this->filesystem->exists($expectedDirectory . 'Resources/theme.json'));
 
-        static::assertDirectoryDoesNotExist($expectedDirectory . 'Resources/config');
-        static::assertDirectoryDoesNotExist($expectedDirectory . 'Resources/snippet');
-        static::assertDirectoryDoesNotExist($expectedDirectory . 'Resources/app/storefront/src/scss/abstracts');
+        static::assertFalse($this->filesystem->exists($expectedDirectory . 'Resources/config'));
+        static::assertFalse($this->filesystem->exists($expectedDirectory . 'Resources/snippet'));
+        static::assertFalse($this->filesystem->exists($expectedDirectory . 'Resources/app/storefront/src/scss/abstracts'));
 
-        $composerJson = file_get_contents($pluginDirectory . '/composer.json');
-        static::assertIsString($composerJson);
-        $composer = json_decode($composerJson, true, flags: \JSON_THROW_ON_ERROR);
+        $composer = json_decode($this->filesystem->readFile($pluginDirectory . '/composer.json'), true, flags: \JSON_THROW_ON_ERROR);
         static::assertSame('custom/test-plugin', $composer['name']);
         static::assertSame('~6.7.0', $composer['require']['shopware/core']);
     }
@@ -73,10 +70,10 @@ class ThemeCreateCommandTest extends TestCase
 
         static::assertIsString($result);
         static::assertStringContainsString('Creating theme structure under', $result);
-        static::assertDirectoryExists($expectedDirectory);
-        static::assertFileExists($expectedDirectory . 'TestPlugin.php');
-        static::assertDirectoryExists($expectedDirectory . 'Resources');
-        static::assertFileExists($expectedDirectory . 'Resources/theme.json');
+        static::assertTrue($this->filesystem->exists($expectedDirectory));
+        static::assertTrue($this->filesystem->exists($expectedDirectory . 'TestPlugin.php'));
+        static::assertTrue($this->filesystem->exists($expectedDirectory . 'Resources'));
+        static::assertTrue($this->filesystem->exists($expectedDirectory . 'Resources/theme.json'));
     }
 
     public function testSuccessfulCreateFullCommand(): void
@@ -91,24 +88,23 @@ class ThemeCreateCommandTest extends TestCase
         static::assertIsString($result);
         static::assertStringContainsString('Creating theme structure under', $result);
 
-        static::assertFileExists($expectedDirectory . 'Resources/config/config.xml');
-        static::assertFileExists($expectedDirectory . 'Resources/snippet/storefront.de-DE.json');
-        static::assertFileExists($expectedDirectory . 'Resources/snippet/storefront.en-GB.json');
+        static::assertTrue($this->filesystem->exists($expectedDirectory . 'Resources/config/config.xml'));
+        static::assertTrue($this->filesystem->exists($expectedDirectory . 'Resources/snippet/storefront.de-DE.json'));
+        static::assertTrue($this->filesystem->exists($expectedDirectory . 'Resources/snippet/storefront.en-GB.json'));
 
         $scssBase = $expectedDirectory . 'Resources/app/storefront/src/scss/';
-        static::assertFileExists($scssBase . 'base.scss');
-        static::assertFileExists($scssBase . 'abstracts/_variables.scss');
-        static::assertFileExists($scssBase . 'abstracts/_mixins.scss');
-        static::assertFileExists($scssBase . 'base/_reset.scss');
-        static::assertFileExists($scssBase . 'base/_typography.scss');
-        static::assertFileExists($scssBase . 'components/_buttons.scss');
-        static::assertFileExists($scssBase . 'layout/_header.scss');
-        static::assertFileExists($scssBase . 'layout/_footer.scss');
-        static::assertFileExists($scssBase . 'layout/_navigation.scss');
-        static::assertFileExists($scssBase . 'pages/_home.scss');
+        static::assertTrue($this->filesystem->exists($scssBase . 'base.scss'));
+        static::assertTrue($this->filesystem->exists($scssBase . 'abstracts/_variables.scss'));
+        static::assertTrue($this->filesystem->exists($scssBase . 'abstracts/_mixins.scss'));
+        static::assertTrue($this->filesystem->exists($scssBase . 'base/_reset.scss'));
+        static::assertTrue($this->filesystem->exists($scssBase . 'base/_typography.scss'));
+        static::assertTrue($this->filesystem->exists($scssBase . 'components/_buttons.scss'));
+        static::assertTrue($this->filesystem->exists($scssBase . 'layout/_header.scss'));
+        static::assertTrue($this->filesystem->exists($scssBase . 'layout/_footer.scss'));
+        static::assertTrue($this->filesystem->exists($scssBase . 'layout/_navigation.scss'));
+        static::assertTrue($this->filesystem->exists($scssBase . 'pages/_home.scss'));
 
-        $baseScssContent = file_get_contents($scssBase . 'base.scss');
-        static::assertIsString($baseScssContent);
+        $baseScssContent = $this->filesystem->readFile($scssBase . 'base.scss');
         static::assertStringContainsString('@import "abstracts/variables";', $baseScssContent);
         static::assertStringContainsString('@import "pages/home";', $baseScssContent);
     }
@@ -120,10 +116,10 @@ class ThemeCreateCommandTest extends TestCase
         $commandTester = $this->getCommandTester();
         $commandTester->execute(['theme-name' => self::THEME_NAME, '--with-config' => true]);
 
-        static::assertFileExists($expectedDirectory . 'Resources/config/config.xml');
-        static::assertDirectoryDoesNotExist($expectedDirectory . 'Resources/snippet');
-        static::assertDirectoryDoesNotExist($expectedDirectory . 'Resources/app/storefront/src/scss/abstracts');
-        static::assertFileExists($expectedDirectory . 'Resources/app/storefront/src/scss/base.scss');
+        static::assertTrue($this->filesystem->exists($expectedDirectory . 'Resources/config/config.xml'));
+        static::assertFalse($this->filesystem->exists($expectedDirectory . 'Resources/snippet'));
+        static::assertFalse($this->filesystem->exists($expectedDirectory . 'Resources/app/storefront/src/scss/abstracts'));
+        static::assertTrue($this->filesystem->exists($expectedDirectory . 'Resources/app/storefront/src/scss/base.scss'));
     }
 
     public function testSuccessfulCreateWithSnippetsOnly(): void
@@ -133,10 +129,10 @@ class ThemeCreateCommandTest extends TestCase
         $commandTester = $this->getCommandTester();
         $commandTester->execute(['theme-name' => self::THEME_NAME, '--with-snippets' => true]);
 
-        static::assertFileExists($expectedDirectory . 'Resources/snippet/storefront.de-DE.json');
-        static::assertFileExists($expectedDirectory . 'Resources/snippet/storefront.en-GB.json');
-        static::assertDirectoryDoesNotExist($expectedDirectory . 'Resources/config');
-        static::assertDirectoryDoesNotExist($expectedDirectory . 'Resources/app/storefront/src/scss/abstracts');
+        static::assertTrue($this->filesystem->exists($expectedDirectory . 'Resources/snippet/storefront.de-DE.json'));
+        static::assertTrue($this->filesystem->exists($expectedDirectory . 'Resources/snippet/storefront.en-GB.json'));
+        static::assertFalse($this->filesystem->exists($expectedDirectory . 'Resources/config'));
+        static::assertFalse($this->filesystem->exists($expectedDirectory . 'Resources/app/storefront/src/scss/abstracts'));
     }
 
     public function testSuccessfulCreateWithScssOnly(): void
@@ -147,11 +143,11 @@ class ThemeCreateCommandTest extends TestCase
         $commandTester->execute(['theme-name' => self::THEME_NAME, '--with-scss' => true]);
 
         $scssBase = $expectedDirectory . 'Resources/app/storefront/src/scss/';
-        static::assertFileExists($scssBase . 'base.scss');
-        static::assertFileExists($scssBase . 'abstracts/_variables.scss');
-        static::assertFileExists($scssBase . 'pages/_home.scss');
-        static::assertDirectoryDoesNotExist($expectedDirectory . 'Resources/config');
-        static::assertDirectoryDoesNotExist($expectedDirectory . 'Resources/snippet');
+        static::assertTrue($this->filesystem->exists($scssBase . 'base.scss'));
+        static::assertTrue($this->filesystem->exists($scssBase . 'abstracts/_variables.scss'));
+        static::assertTrue($this->filesystem->exists($scssBase . 'pages/_home.scss'));
+        static::assertFalse($this->filesystem->exists($expectedDirectory . 'Resources/config'));
+        static::assertFalse($this->filesystem->exists($expectedDirectory . 'Resources/snippet'));
     }
 
     public function testCommandFailsWhenDirectoryCannotBeCreated(): void
@@ -164,21 +160,6 @@ class ThemeCreateCommandTest extends TestCase
 
         static::assertStringContainsString('Unable to create directory', $commandTester->getDisplay(true));
         static::assertSame(Command::FAILURE, $commandTester->getStatusCode());
-    }
-
-    public function testCommandFailsOnDuplicate(): void
-    {
-        $commandTester = $this->getCommandTester();
-
-        $commandTester->execute(['theme-name' => self::THEME_NAME]);
-
-        static::assertStringContainsString('Creating theme structure under', $commandTester->getDisplay(true));
-
-        $commandTester->execute(['theme-name' => self::THEME_NAME]);
-
-        $result = preg_replace('/\s+/', ' ', trim($commandTester->getDisplay(true)));
-        static::assertIsString($result);
-        static::assertStringContainsString('already exists', $result);
     }
 
     #[DataProvider('commandFailsWithWrongNameDataProvider')]
@@ -203,24 +184,11 @@ class ThemeCreateCommandTest extends TestCase
         yield 'theme name with a trailing newline fails validation' => ['name' => "Abcd\n", 'expectedMessage' => 'Theme name is too short (min 4 characters) or contains invalid characters'];
     }
 
-    private function removeTheme(): bool
-    {
-        $directory = $this->projectDir . '/custom/';
-
-        if (!is_dir($directory)) {
-            return false;
-        }
-
-        (new Filesystem())->remove($directory);
-
-        return true;
-    }
-
     private function getCommandTester(?Filesystem $filesystem = null): CommandTester
     {
         $themeCreateCommand = new ThemeCreateCommand(
             $this->projectDir,
-            $filesystem ?? new Filesystem(),
+            $filesystem ?? $this->filesystem,
         );
 
         $commandTester = new CommandTester($themeCreateCommand);

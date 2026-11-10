@@ -14,8 +14,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Core\Test\Stub\Framework\Util\InMemoryUtilFilesystem;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -25,25 +25,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(CreateHydratorCommand::class)]
 class CreateHydratorCommandTest extends TestCase
 {
-    private string $rootDir;
+    private const ROOT_DIR = '/app';
 
-    private Filesystem $filesystem;
-
-    protected function setUp(): void
-    {
-        $this->rootDir = sys_get_temp_dir() . '/' . uniqid('create-hydrator-command-test', true);
-        $this->filesystem = new Filesystem();
-
-        // the command reads the definition source files to add getHydratorClass() when missing
-        $fixtureDir = $this->rootDir . '/src/Tests/Unit/Core/Framework/DataAbstractionLayer/Command';
-        $this->filesystem->dumpFile($fixtureDir . '/HydratorCommandTestDefinition.php', '<?php // contains getHydratorClass already');
-        $this->filesystem->dumpFile($fixtureDir . '/AaaHydratorCommandTestDefinition.php', '<?php // contains getHydratorClass already');
-    }
-
-    protected function tearDown(): void
-    {
-        $this->filesystem->remove($this->rootDir);
-    }
+    private const COMMAND_DIR = self::ROOT_DIR . '/src/Tests/Unit/Core/Framework/DataAbstractionLayer/Command';
 
     public function testExecuteGeneratesPhpServiceDefinitionFile(): void
     {
@@ -53,15 +37,28 @@ class CreateHydratorCommandTest extends TestCase
             static::createStub(EntityWriteGatewayInterface::class)
         );
 
-        $command = new CreateHydratorCommand($registry, $this->filesystem, $this->rootDir);
+        // the command reads the definition source files to add getHydratorClass() when missing
+        $filesystem = new InMemoryUtilFilesystem([
+            self::COMMAND_DIR . '/HydratorCommandTestDefinition.php' => '<?php // contains getHydratorClass already',
+            self::COMMAND_DIR . '/AaaHydratorCommandTestDefinition.php' => '<?php // contains getHydratorClass already',
+        ]);
+
+        $command = new CreateHydratorCommand($registry, $filesystem, self::ROOT_DIR);
 
         $commandTester = new CommandTester($command);
         $commandTester->execute(['whitelist' => ['hydrator_command_test', 'aaa_hydrator_command_test']]);
 
         $commandTester->assertCommandIsSuccessful();
 
-        static::assertFileExists($this->rootDir . '/src/Tests/Unit/Core/Framework/DataAbstractionLayer/Command/HydratorCommandTestHydrator.php');
-        static::assertFileDoesNotExist($this->rootDir . '/src/Core/Framework/DependencyInjection/hydrator.xml');
+        $written = $filesystem->dumpedFiles();
+        static::assertSame([
+            self::COMMAND_DIR . '/HydratorCommandTestDefinition.php',
+            self::COMMAND_DIR . '/AaaHydratorCommandTestDefinition.php',
+            self::COMMAND_DIR . '/HydratorCommandTestHydrator.php',
+            self::COMMAND_DIR . '/AaaHydratorCommandTestHydrator.php',
+            self::ROOT_DIR . '/src/Core/Framework/DependencyInjection/hydrator.php',
+        ], array_keys($written));
+        static::assertSame('<?php // contains getHydratorClass already', $written[self::COMMAND_DIR . '/HydratorCommandTestDefinition.php']);
 
         $expected = <<<'EOF'
 <?php declare(strict_types=1);
@@ -92,7 +89,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
 EOF;
 
-        static::assertStringEqualsFile($this->rootDir . '/src/Core/Framework/DependencyInjection/hydrator.php', $expected);
+        static::assertSame($expected, $written[self::ROOT_DIR . '/src/Core/Framework/DependencyInjection/hydrator.php'] ?? null);
     }
 }
 

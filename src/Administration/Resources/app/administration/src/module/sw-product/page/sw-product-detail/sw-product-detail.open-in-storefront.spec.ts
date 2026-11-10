@@ -17,10 +17,15 @@ async function createWrapper({
     productId = 'product-a' as string | null,
     hasChanges = false,
     visibilities = [visibility('sales-channel-id')] as ReturnType<typeof visibility>[],
+    draftVisibilities = null as ReturnType<typeof visibility>[] | null,
     parentVisibilities = [] as ReturnType<typeof visibility>[],
 } = {}) {
     const component = await wrapTestComponent('sw-product-detail', { sync: true });
-    const product = { id: productId, visibilities };
+    const product = {
+        id: productId,
+        visibilities: draftVisibilities ?? visibilities,
+        getOrigin: () => ({ id: productId, visibilities }),
+    };
     const repository = { hasChanges: jest.fn().mockReturnValue(hasChanges) };
 
     const wrapper = shallowMount(component, {
@@ -57,7 +62,11 @@ async function createWrapper({
 
     Object.assign(Shopware.Store.get('swProductDetail'), {
         product,
-        parentProduct: { id: 'parent', visibilities: parentVisibilities },
+        parentProduct: {
+            id: 'parent',
+            visibilities: [],
+            getOrigin: () => ({ id: 'parent', visibilities: parentVisibilities }),
+        },
     });
     await flushPromises();
 
@@ -120,6 +129,15 @@ describe('module/sw-product/page/sw-product-detail open in Storefront', () => {
         wrapper = await createWrapper({ visibilities, parentVisibilities });
 
         expect(await openedSalesChannelIds(wrapper)).toEqual(expected);
+    });
+
+    it('passes the saved Storefront sales channels, not unsaved visibility changes', async () => {
+        wrapper = await createWrapper({
+            visibilities: [visibility('saved')],
+            draftVisibilities: [visibility('unsaved')],
+        });
+
+        expect(await openedSalesChannelIds(wrapper)).toEqual(['saved']);
     });
 
     it('closes the modal when another product is opened', async () => {

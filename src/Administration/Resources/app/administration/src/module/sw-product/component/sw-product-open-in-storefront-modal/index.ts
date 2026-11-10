@@ -127,8 +127,16 @@ export default Shopware.Component.wrapComponentConfig({
             return this.salesChannels.find(({ id }) => id === this.selectedSalesChannelId) ?? null;
         },
 
+        persistedProduct(): EntitySchema.Entities['product'] {
+            return this.product.getOrigin();
+        },
+
+        persistedParentProduct(): EntitySchema.Entities['product'] | null {
+            return this.parentProduct?.id ? this.parentProduct.getOrigin() : null;
+        },
+
         isProductActive(): boolean {
-            return this.product.active ?? this.parentProduct?.active ?? false;
+            return this.persistedProduct.active ?? this.persistedParentProduct?.active ?? false;
         },
 
         result(): SalesChannelResult | null {
@@ -279,7 +287,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async isSoldOutClearanceSale(): Promise<boolean> {
-            if ((this.product.childCount ?? 0) > 0) {
+            if ((this.persistedProduct.childCount ?? 0) > 0) {
                 const criteria = new Criteria(1, 1);
                 criteria.setTotalCountMode(0);
                 criteria.addFilter(Criteria.equals('parentId', this.product.id));
@@ -298,9 +306,9 @@ export default Shopware.Component.wrapComponentConfig({
                 return availableVariants.data.length === 0;
             }
 
-            const isCloseout = this.product.isCloseout ?? this.parentProduct?.isCloseout;
+            const isCloseout = this.persistedProduct.isCloseout ?? this.persistedParentProduct?.isCloseout;
 
-            return !!isCloseout && this.product.available === false;
+            return !!isCloseout && this.persistedProduct.available === false;
         },
 
         getFailingReasons(productUrls: ProductStorefrontUrls | null, stockReason: StockReason | null): FailingReason[] {

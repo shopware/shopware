@@ -340,9 +340,9 @@ export default {
         },
 
         visibleStorefrontSalesChannels() {
-            const visibilities = this.product?.visibilities?.length
-                ? this.product.visibilities
-                : (this.parentProduct?.visibilities ?? []);
+            const product = this.product?.id ? this.product.getOrigin() : null;
+            const parentProduct = this.parentProduct?.id ? this.parentProduct.getOrigin() : null;
+            const visibilities = product?.visibilities?.length ? product.visibilities : (parentProduct?.visibilities ?? []);
 
             return Array.from(visibilities)
                 .map((visibility) => visibility.salesChannel)

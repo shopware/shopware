@@ -32,11 +32,17 @@ function storefrontSalesChannel(overrides: Partial<ProductStorefrontUrls> = {}):
     };
 }
 
+function entity(origin: Record<string, unknown>, draft: Record<string, unknown> = {}): Entity<'product'> {
+    return { ...origin, ...draft, getOrigin: () => origin } as unknown as Entity<'product'>;
+}
+
 async function createWrapper({
     salesChannels = [salesChannel()],
     loadedSalesChannel = storefrontSalesChannel() as ProductStorefrontUrls | null,
     product = {} as Record<string, unknown>,
+    productDraft = {} as Record<string, unknown>,
     parentProduct = null as Record<string, unknown> | null,
+    parentProductDraft = {} as Record<string, unknown>,
     canReadConfig = true,
     hideCloseoutProducts = true,
     availableVariants = 0,
@@ -57,8 +63,8 @@ async function createWrapper({
 
     const wrapper = mount(await wrapTestComponent('sw-product-open-in-storefront-modal', { sync: true }), {
         props: {
-            product: { id: 'product-id', active: true, childCount: 0, ...product },
-            parentProduct,
+            product: entity({ id: 'product-id', active: true, childCount: 0, ...product }, productDraft),
+            parentProduct: parentProduct && entity({ id: 'parent-id', ...parentProduct }, parentProductDraft),
             productName: 'Shirt',
             salesChannels,
             hasUnsavedChanges,
@@ -211,6 +217,26 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
             'an inactive product, also when a variant inherits it',
             { ...unreachable, product: { active: null }, parentProduct: { active: false } },
             'productActive',
+        ],
+        [
+            'a saved inactive product with unsaved activation',
+            { ...unreachable, product: { active: false }, productDraft: { active: true } },
+            'productActive',
+        ],
+        [
+            'the general reason for a saved active product with unsaved deactivation',
+            { ...unreachable, productDraft: { active: false } },
+            'storefrontShowsProduct',
+        ],
+        [
+            'a saved sold-out clearance sale product with an unsaved change of clearance sale',
+            {
+                ...unreachable,
+                product: { isCloseout: null, available: false },
+                parentProduct: { isCloseout: true },
+                parentProductDraft: { isCloseout: false },
+            },
+            'inStock',
         ],
         [
             'a sold-out clearance sale product hidden by the sales channel',

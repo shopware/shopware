@@ -69,7 +69,7 @@ class Migration1792998292AddProductDocumentMediaFolder extends MigrationStep
             $connection->insert('media_folder', [
                 'id' => Uuid::randomBytes(),
                 'default_folder_id' => $defaultFolderId,
-                'name' => 'Product documents',
+                'name' => 'Product Document Media',
                 'media_folder_configuration_id' => $configurationId,
                 'use_parent_configuration' => 0,
                 'created_at' => $createdAt,

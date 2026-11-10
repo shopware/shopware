@@ -2,8 +2,6 @@
  * @sw-package framework
  */
 
-/* eslint-disable max-len */
-
 const nodeContainsLeadingBlockComment = (node) => {
     const comments = findComments(node);
 
@@ -13,7 +11,15 @@ const nodeContainsLeadingBlockComment = (node) => {
         return false;
     }
 
-    return leadingComment.type === 'Block' && (leadingComment.value.includes('@private') || leadingComment.value.includes('@deprecated tag:'));
+    if (leadingComment.type !== 'Block') {
+        return false;
+    }
+
+    const isJsDoc = leadingComment.value.startsWith('*');
+
+    return leadingComment.value.includes('@private') ||
+        leadingComment.value.includes('@deprecated tag:') ||
+        (isJsDoc && leadingComment.value.includes('@public'));
 };
 
 function findComments(node) {
@@ -25,7 +31,8 @@ function findComments(node) {
 }
 
 /**
- * This rule validates that new features are either private or deprecated to be private in the future.
+ * This rule validates that new features are either private, deprecated to be private in the future
+ * or explicitly marked as public API with a JSDoc `@public` tag.
  *
  * Invalid:
  * class Example {}
@@ -76,6 +83,16 @@ function findComments(node) {
  *  * @deprecated tag:v6.X.0 - Will be @private
  *  *\
  * export default foo;
+ *
+ * \**
+ *  * @public
+ *  *\
+ * export const foo = 'foo';
+ *
+ * \**
+ *  * @public
+ *  *\
+ * Component.register('foo', {});
  */
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {

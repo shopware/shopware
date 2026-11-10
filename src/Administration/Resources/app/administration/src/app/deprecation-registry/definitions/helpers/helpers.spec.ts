@@ -3,8 +3,20 @@
  */
 import {
     addPropWhenMissing,
+    apiUsageMigration,
+    componentMember,
+    importSource,
+    injectKey,
+    memberUsage,
+    moduleSnippets,
+    objectKey,
+    removedComponent,
     renameSnippetKey,
     replaceAsset,
+    replaceComponentMember,
+    replaceComponentMethodCall,
+    stringLiteral,
+    templateAttribute,
     booleanPropToPropValue,
     childElementsToArrayProp,
     componentMigration,
@@ -83,8 +95,39 @@ describe('src/app/deprecation-registry/definitions/helpers', () => {
         ['rename-package', 'auto', renamePackage({ from: '@a/a', to: '@a/b' })],
         ['replace-asset', 'auto', replaceAsset({ to: '/static/img/a.webp' })],
         ['rename-snippet-key', 'auto', renameSnippetKey({ from: 'a.b', to: 'a.c' })],
+        ['member-usage', 'manual', memberUsage({ object: 'Shopware', properties: ['State'] })],
+        ['component-member', 'manual', componentMember({ components: ['sw-a'], names: ['a'] })],
+        [
+            'replace-component-member',
+            'auto',
+            replaceComponentMember({ components: ['sw-a'], name: 'a', with: 'b', templateMessage: 'Use b.' }),
+        ],
+        [
+            'replace-component-method-call',
+            'auto',
+            replaceComponentMethodCall({ components: ['sw-a'], name: 'a', with: '{0}.b' }),
+        ],
+        ['inject-key', 'manual', injectKey({ names: ['a'] })],
+        ['removed-component', 'manual', removedComponent({ names: ['sw-a'] })],
+        ['import-source', 'manual', importSource({ sources: ['vuex'] })],
+        ['string-literal', 'manual', stringLiteral({ values: ['a'] })],
+        ['object-key', 'manual', objectKey({ names: ['a'] })],
+        ['template-attribute', 'manual', templateAttribute({ names: ['a'] })],
+        ['module-snippets', 'auto', moduleSnippets()],
     ])('builds a plain %s step with fix level %s', (kind, fix, step) => {
         expect(step).toEqual(expect.objectContaining({ kind, fix }));
+    });
+
+    it('builds an API usage migration as it is given', () => {
+        const migration = {
+            id: 'api.a',
+            deprecatedIn: '6.7.0',
+            removedIn: '6.8.0',
+            description: 'A',
+            usage: [memberUsage({ object: 'Shopware', properties: ['State'] })],
+        };
+
+        expect(apiUsageMigration(migration)).toBe(migration);
     });
 
     it('keeps a configured fix level and message', () => {

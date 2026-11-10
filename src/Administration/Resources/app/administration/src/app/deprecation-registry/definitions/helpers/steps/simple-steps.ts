@@ -116,15 +116,18 @@ export function removeAsset(config: StepConfig<RemoveAssetStep> = {}): RemoveAss
 }
 
 /**
- * Reports overrides of a Twig block that was removed without replacement.
+ * Reports overrides of a removed Twig block. `to` names the block the override moves to, `component`
+ * limits the step to overrides of that component's template, for names other components still use.
  *
  * @example
  * removeTemplateBlock({ from: 'sw_mail_template_detail_preview_modal_footer' });
+ * removeTemplateBlock({ from: 'sw_x_title', to: 'sw_x_header', component: 'sw-x' });
  */
 export const removeTemplateBlock = simpleStep<RemoveTemplateBlockStep>('remove-template-block', 'manual');
 
 /**
- * Renames overrides of a renamed Twig block.
+ * Renames overrides of a renamed Twig block. `component` limits the step to overrides of that
+ * component's template, for names that more than one component defines.
  *
  * @example
  * renameTemplateBlock({ from: 'sw_condiiton_date_range_field_to_date', to: 'sw_condition_date_range_field_to_date' });

@@ -11,6 +11,7 @@ module.exports = {
         'no-deprecated-template-blocks': require('./no-deprecated-template-blocks'),
         'no-deprecated-snippet-keys': require('./no-deprecated-snippet-keys'),
         'no-deprecated-js-api': require('./no-deprecated-js-api'),
+        'no-deprecated-api-usage': require('./no-deprecated-api-usage'),
         'no-deprecated-assets': require('./no-deprecated-assets'),
         'no-deprecated-component-option-usage': require('./no-deprecated-component-option-usage'),
         'require-deprecation-codemod': require('./require-deprecation-codemod'),

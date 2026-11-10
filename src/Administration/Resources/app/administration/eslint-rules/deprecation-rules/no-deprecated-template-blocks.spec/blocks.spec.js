@@ -1,12 +1,8 @@
-const RuleTester = require('eslint').RuleTester;
-const rule = require('./no-deprecated-template-blocks');
+/**
+ * @sw-package framework
+ */
 
-const tester = new RuleTester({
-    languageOptions: {
-        parser: require('vue-eslint-parser'),
-        ecmaVersion: 2015,
-    },
-});
+const { rule, tester } = require('./tester');
 
 tester.run('no-deprecated-template-blocks', rule, {
     valid: [

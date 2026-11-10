@@ -23,6 +23,7 @@ const scriptDeprecationRules = {
     'sw-core-rules/no-tc-translation': 'error',
     'sw-deprecation-rules/no-deprecated-snippet-keys': 'error',
     'sw-deprecation-rules/no-deprecated-js-api': 'error',
+    'sw-deprecation-rules/no-deprecated-api-usage': 'error',
     'sw-deprecation-rules/no-deprecated-assets': 'error',
 };
 

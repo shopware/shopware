@@ -82,6 +82,34 @@ Give every usage step the most automatic fix level that is still correct:
 
 A migration is only as automatic as its least automatic step.
 
+A removed or changed API that extensions use outside of a template element goes into `definitions/api-usage` with `apiUsageMigration()`.
+Its steps say where the usage is and what replaces it, `sw-deprecation-rules/no-deprecated-api-usage` finds and fixes it:
+
+- `componentMember()`: a member a component lost, used by an override or extension of that component.
+- `replaceComponentMember()` and `replaceComponentMethodCall()`: the same, rewritten to an expression.
+- `memberUsage()`: a member of a global, a service or a Pinia store, e.g. `Shopware.State`.
+- `injectKey()`, `removedComponent()`, `importSource()`, `stringLiteral()`, `objectKey()` and `templateAttribute()` for the other places.
+
+```ts
+export default apiUsageMigration({
+    id: 'api.sw-order-detail.loading-and-editing',
+    deprecatedIn: '6.7.0',
+    removedIn: '6.8.0',
+    description: 'The order detail page reads its loading state from the swOrderDetail store.',
+    references: [upgradeGuide('UPGRADE-6.8.md#order-detail-loading-and-editing-moved-to-the-sworderdetail-store')],
+    usage: [
+        componentMember({
+            components: ['sw-order-detail'],
+            names: ['isLoading'],
+            message: "Use loading.order of Shopware.Store.get('swOrderDetail').",
+        }),
+    ],
+});
+```
+
+A step limited to `components` only matches in `Component.override()` and `Component.extend()` of them, in `<component>.override.vue`, and in the templates such an override uses.
+The `message` of a `manual` step becomes the review comment, so name the replacement in it.
+
 The `sw-deprecation-rules/require-deprecation-codemod` rule reports a `deprecated` option on a component or prop without a matching migration.
 If no codemod is possible, disable the rule for that line and give the reason:
 

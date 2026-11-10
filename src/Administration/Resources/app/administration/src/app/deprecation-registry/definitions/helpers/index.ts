@@ -20,3 +20,16 @@ export { propFromSource } from './steps/prop-from-source';
 export { fromSlot, fromProp, firstFoundOf, fromText, fromAttribute } from './steps/sources';
 export { renameEvent, removeEvent } from './steps/events';
 export { renameVModelArgument } from './steps/rename-v-model-argument';
+export {
+    memberUsage,
+    componentMember,
+    replaceComponentMember,
+    replaceComponentMethodCall,
+    injectKey,
+    removedComponent,
+    importSource,
+    stringLiteral,
+    objectKey,
+    templateAttribute,
+    moduleSnippets,
+} from './steps/api-usage';

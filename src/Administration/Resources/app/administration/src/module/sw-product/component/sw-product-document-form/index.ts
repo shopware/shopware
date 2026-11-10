@@ -52,7 +52,6 @@ export default Shopware.Component.wrapComponentConfig({
             isRemovingDocument: false,
             removeModalVersion: 0,
             documentTitle: '',
-            documentMedia: {} as Record<string, Entity<'media'>>,
             documentEditSession: 0,
             replacementMedia: null as Entity<'media'> | null,
             documentFileRemoved: false,
@@ -186,7 +185,6 @@ export default Shopware.Component.wrapComponentConfig({
             this.showUploadModal = false;
             this.closeDocumentEditor();
             this.closeRemoveDocumentModal();
-            this.documentMedia = {};
         },
     },
 
@@ -217,7 +215,8 @@ export default Shopware.Component.wrapComponentConfig({
             const mediaId = document?.mediaId || document?.translated?.mediaId;
 
             return mediaId
-                ? this.documentMedia[mediaId] || document?.translations?.find((item) => item.mediaId === mediaId)?.media
+                ? Shopware.Store.get('swProductDetail').getDocumentMedia(mediaId) ||
+                      document?.translations?.find((item) => item.mediaId === mediaId)?.media
                 : undefined;
         },
 
@@ -311,7 +310,7 @@ export default Shopware.Component.wrapComponentConfig({
                 document.mediaId = media.id;
                 document.title = media.fileName;
                 document.position = this.documents.length;
-                this.documentMedia[media.id] = media;
+                Shopware.Store.get('swProductDetail').cacheDocumentMedia(media);
                 this.documents.add(document);
             }
             this.showMediaModal = false;
@@ -374,7 +373,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             try {
                 if (replacementMedia) {
-                    this.documentMedia[replacementMedia.id] = replacementMedia;
+                    Shopware.Store.get('swProductDetail').cacheDocumentMedia(replacementMedia);
                 }
                 let updatedVariantIds: string[] = [];
                 if (matchingMediaId) {

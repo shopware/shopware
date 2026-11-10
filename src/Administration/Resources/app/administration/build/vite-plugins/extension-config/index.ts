@@ -12,6 +12,7 @@ import ExternalsPlugin from '../externals-plugin';
 import AssetCssPostprocessPlugin from '../asset-css-postprocess-plugin';
 import OverrideComponentRegisterPlugin from '../override-component-register';
 import ShopwareSetupPlugin from '../shopware-setup';
+import ShopwareSetupHmrPlugin from '../shopware-setup-hmr';
 import VirtualShopwareModulesPlugin from '../virtual-shopware-modules';
 import ExtglobCompatPlugin from '../extglob-compat';
 import injectHtml from '../inject-html';
@@ -32,6 +33,9 @@ function getExtensionConfig(
 ): UserConfig {
     const extensionInfoDebug = debug(`vite:${extension.isPlugin ? 'plugin' : 'app'}:${extension.technicalName}`);
     const configInfoDebug = debug('vite:config');
+    // On Vite 6 an extension runs on its own dev server behind `/_internal_ext/`, and the Vue HMR record of an
+    // override there does not hold the definition the Administration mounted, so a script edit leaves the page stale.
+    const scriptHmr = toolchain.isVite8 && !isProd && !useBundledDev;
     const useSourceMap =
         (!isProd && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1') ||
         (isProd && process.env.GENERATE_SOURCEMAPS === 'true');
@@ -68,6 +72,7 @@ function getExtensionConfig(
             }),
             ShopwareSetupPlugin({
                 administrationRoot,
+                scriptHmr,
             }),
             VirtualShopwareModulesPlugin({
                 administrationRoot,
@@ -81,7 +86,17 @@ function getExtensionConfig(
                         },
                     },
                 },
+                // Ids are the HMR keys, the same file path in two extensions must not share one.
+                ...(scriptHmr
+                    ? {
+                          features: {
+                              componentIdGenerator: (filePath, _source, _isProduction, getHash) =>
+                                  `${extension.technicalName}-${getHash(filePath)}`,
+                          },
+                      }
+                    : {}),
             }),
+            ...(scriptHmr ? [ShopwareSetupHmrPlugin()] : []),
             ...getCompatPlugins(toolchain),
             ExternalsPlugin(),
 

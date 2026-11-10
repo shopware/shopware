@@ -409,6 +409,7 @@ If an app ships both, the file takes precedence, the inline definition is ignore
 ### Product list filters by product documents
 
 The product list has a new "Documents" filter, registered as `product-documents-filter`. It finds the products with or without product documents; variants count the documents they inherit from their parent.
+With `ENABLE_OPENSEARCH_FOR_ADMIN_API`, run `bin/console es:admin:index` after the update.
 
 ### Deprecated the `customFieldSetRepository` computed property of `sw-product-stream-detail`
 
@@ -644,6 +645,11 @@ The CMS layout selection modal (`sw-cms-layout-modal`) uses them instead of chec
 ### Bulk order status handler results
 
 `bulkEditStatus()` waits for every selected status field and loads at most 100 order IDs per request, with at most five orders transitioning concurrently. Successful responses are returned in ID-batch order, repository-result order within each batch, then selected status-field order. Failures identify the order and status field and distinguish unavailable orders, loading failures, and transition failures; failed HTTP transitions are not automatically replayed. When a status change fails, `bulkEditStatus()` rejects with a `BulkEditOrderStatusError` instead of the api error: its `failures` list every failed order and status field, with the api error in `failures[].error`, and its `response` is the response of the first failed request.
+
+### Dynamic product groups filter by product documents
+
+Dynamic product groups have a new "Has documents" condition with the values "Yes" and "No". It stores a filter on `documents.id` being null or not null; variants count the documents they inherit from their parent.
+With Elasticsearch, run `bin/console es:index` after the update; until then the condition gives wrong results.
 
 ### Meteor Component Library updated to 5.10.0
 
@@ -927,11 +933,6 @@ Shopware now verifies that `APP_URL` reaches this installation before it registe
 The verification stores its token in the `cache.app_url_verification` cache pool, which uses `cache.app` by default. With several app servers, this pool must be shared between them, for example on Redis.
 
 `bin/console system:check` and the `recurrent` system health check now include an `AppUrlVerification` check.
-
-### Admin product search index contains product documents
-
-With `ENABLE_OPENSEARCH_FOR_ADMIN_API`, the admin product search index has a new `documents` field, so the "Documents" filter of the product list runs on OpenSearch.
-Run `bin/console es:admin:index` after the update.
 
 ### Elasticsearch errors no longer fail `system:update:finish`
 

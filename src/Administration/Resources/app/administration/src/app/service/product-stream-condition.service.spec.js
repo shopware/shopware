@@ -49,6 +49,21 @@ describe('app/service/product-stream-condition.service.js', () => {
         expect(service.isPropertyInAllowList('product', 'name')).toBe(false);
     });
 
+    it('should allow filtering products by the existence of documents', async () => {
+        expect(service.isPropertyInAllowList('product', 'documents')).toBe(true);
+        expect(service.isPropertyInAllowList('product_document', 'id')).toBe(true);
+        expect(service.isPropertyInAllowList('product_document', 'productId')).toBe(false);
+    });
+
+    it.each([
+        ['product_document', true],
+        ['category', false],
+        ['product', false],
+        [null, false],
+    ])('should report whether %s is an existence-only entity', async (entity, expected) => {
+        expect(service.isExistenceOnlyEntity(entity)).toBe(expected);
+    });
+
     it('should be able to check via isNegatedType', async () => {
         expect(service.isNegatedType('notEqualsAll')).toBe(true);
         expect(service.isNegatedType('equals')).toBe(false);

@@ -214,31 +214,31 @@ class ProductDocumentArchiverTest extends TestCase
         static::assertStringStartsWith(ProductDocumentArchiver::DIRECTORY . '/' . $parentId . '/', $archive->path);
     }
 
-    public function testRemovesTheUploadWhenItCannotBeMovedIntoPlace(): void
+    public function testRemovesTheTemporaryFileWhenItCannotBeMovedIntoPlace(): void
     {
         $manual = $this->createFile('manual', 'manual content');
-        $failure = UnableToMoveFile::fromLocationTo('upload', 'archive');
-        $uploadPath = null;
+        $failure = UnableToMoveFile::fromLocationTo('temporary', 'final');
+        $temporaryPath = null;
 
         $privateFilesystem = $this->createMock(FilesystemOperator::class);
         $privateFilesystem->method('fileExists')->willReturn(false);
         $privateFilesystem->expects($this->once())
             ->method('writeStream')
-            ->willReturnCallback(static function (string $location) use (&$uploadPath): void {
-                $uploadPath = $location;
+            ->willReturnCallback(static function (string $location) use (&$temporaryPath): void {
+                $temporaryPath = $location;
             });
         $privateFilesystem->expects($this->once())
             ->method('move')
-            ->willReturnCallback(static function (string $source, string $destination) use (&$uploadPath, $failure): void {
-                static::assertSame($uploadPath, $source);
+            ->willReturnCallback(static function (string $source, string $destination) use (&$temporaryPath, $failure): void {
+                static::assertSame($temporaryPath, $source);
                 static::assertNotSame($destination, $source);
 
                 throw $failure;
             });
         $privateFilesystem->expects($this->once())
             ->method('delete')
-            ->willReturnCallback(static function (string $location) use (&$uploadPath): void {
-                static::assertSame($uploadPath, $location);
+            ->willReturnCallback(static function (string $location) use (&$temporaryPath): void {
+                static::assertSame($temporaryPath, $location);
             });
 
         $this->expectExceptionObject($failure);

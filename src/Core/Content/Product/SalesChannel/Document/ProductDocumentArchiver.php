@@ -75,6 +75,7 @@ class ProductDocumentArchiver
             return null;
         }
 
+        // named after its files, so changed files get a new ZIP before the delayed tag purge
         $path = \sprintf('%s/%s/%s.zip', self::DIRECTORY, $document->getProductId(), $this->hashFiles($files));
 
         if (!$this->privateFilesystem->fileExists($path)) {
@@ -173,15 +174,15 @@ class ProductDocumentArchiver
         return ($name !== '' ? $name : $this->cleanFileName($product->getProductNumber())) . '.zip';
     }
 
-    private function build(string $path, MediaCollection $files): void
+    private function build(string $finalPath, MediaCollection $files): void
     {
-        $temporaryFiles = [];
+        $localFiles = [];
 
         try {
-            $archivePath = $temporaryFiles[] = $this->filesystem->tempnam(sys_get_temp_dir(), 'product-documents-', '.zip');
+            $localZipPath = $localFiles[] = $this->filesystem->tempnam(sys_get_temp_dir(), 'product-documents-', '.zip');
 
             $zip = new \ZipArchive();
-            if ($zip->open($archivePath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
+            if ($zip->open($localZipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
                 throw ProductException::documentArchiveFailed('the ZIP file could not be created');
             }
 
@@ -190,11 +191,11 @@ class ProductDocumentArchiver
                 $name = $this->createEntryName($file, $names);
                 $names[mb_strtolower($name)] = true;
 
-                $copy = $temporaryFiles[] = $this->filesystem->tempnam(sys_get_temp_dir(), 'product-document-');
-                $this->filesystem->dumpFile($copy, $this->publicFilesystem->readStream($file->getPath()));
+                $localCopy = $localFiles[] = $this->filesystem->tempnam(sys_get_temp_dir(), 'product-document-');
+                $this->filesystem->dumpFile($localCopy, $this->publicFilesystem->readStream($file->getPath()));
 
                 // documents are compressed formats already, so they are stored as they are
-                if (!$zip->addFile($copy, $name) || !$zip->setCompressionName($name, \ZipArchive::CM_STORE)) {
+                if (!$zip->addFile($localCopy, $name) || !$zip->setCompressionName($name, \ZipArchive::CM_STORE)) {
                     throw ProductException::documentArchiveFailed(\sprintf('"%s" could not be added', $name));
                 }
             }
@@ -203,25 +204,25 @@ class ProductDocumentArchiver
                 throw ProductException::documentArchiveFailed('the ZIP file could not be written');
             }
 
-            $stream = fopen($archivePath, 'r');
+            $stream = fopen($localZipPath, 'r');
             if ($stream === false) {
                 throw ProductException::documentArchiveFailed('the ZIP file could not be read');
             }
 
-            $uploadPath = $path . '.' . Uuid::randomHex();
+            $temporaryPath = $finalPath . '.' . Uuid::randomHex();
 
             try {
-                $this->privateFilesystem->writeStream($uploadPath, $stream);
-                $this->privateFilesystem->move($uploadPath, $path);
+                $this->privateFilesystem->writeStream($temporaryPath, $stream);
+                $this->privateFilesystem->move($temporaryPath, $finalPath);
             } catch (\Throwable $exception) {
-                $this->privateFilesystem->delete($uploadPath);
+                $this->privateFilesystem->delete($temporaryPath);
 
                 throw $exception;
             } finally {
                 fclose($stream);
             }
         } finally {
-            $this->filesystem->remove($temporaryFiles);
+            $this->filesystem->remove($localFiles);
         }
     }
 }

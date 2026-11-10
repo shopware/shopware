@@ -1,6 +1,7 @@
 /**
  * @sw-package discovery
  */
+import type { ComponentPublicInstance } from 'vue';
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
@@ -9,7 +10,7 @@ const PAGE_ID = 'layout-id';
 
 // In "all sales channels" (null) the layout is the contact and the newsletter page,
 // in the storefront channel it is the contact page.
-const storedConfig = {
+const storedConfig: Record<string, Record<string, string>> = {
     null: {
         'core.basicInformation.contactPage': PAGE_ID,
         'core.basicInformation.newsletterPage': PAGE_ID,
@@ -19,17 +20,18 @@ const storedConfig = {
     },
 };
 
-async function createWrapper(batchSave) {
-    const emptyCollection = () => new EntityCollection(null, null, Shopware.Context.api, new Criteria(1, 25), []);
-    const origin = { categories: emptyCollection() };
+async function createWrapper(batchSave: jest.Mock) {
+    const emptyCollection = (entity: 'category' | 'product' | 'landing_page') =>
+        new EntityCollection(`/${entity}`, entity, Shopware.Context.api, new Criteria(1, 25), []);
+    const origin = { categories: emptyCollection('category') };
 
     return mount(await wrapTestComponent('sw-cms-layout-assignment-modal', { sync: true }), {
         attachTo: document.body,
         props: {
             page: {
-                categories: emptyCollection(),
-                products: emptyCollection(),
-                landingPages: emptyCollection(),
+                categories: emptyCollection('category'),
+                products: emptyCollection('product'),
+                landingPages: emptyCollection('landing_page'),
                 type: 'page',
                 id: PAGE_ID,
                 getOrigin: () => origin,
@@ -82,7 +84,7 @@ async function createWrapper(batchSave) {
             },
             provide: {
                 systemConfigApiService: {
-                    getValues: jest.fn((domain, salesChannelId) => {
+                    getValues: jest.fn((domain: string, salesChannelId: string) => {
                         return Promise.resolve({ ...(storedConfig[salesChannelId] ?? {}) });
                     }),
                     batchSave,
@@ -96,28 +98,33 @@ async function createWrapper(batchSave) {
     });
 }
 
-async function openShopPagesTab(wrapper) {
-    await wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'shop_pages');
+type Wrapper = Awaited<ReturnType<typeof createWrapper>>;
+
+async function openShopPagesTab(wrapper: Wrapper) {
+    wrapper.getComponent<ComponentPublicInstance>({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'shop_pages');
     await flushPromises();
 }
 
-async function selectSalesChannelScope(wrapper, salesChannelId) {
-    await wrapper.getComponent({ name: 'sw-entity-single-select' }).vm.$emit('update:value', salesChannelId);
+async function selectSalesChannelScope(wrapper: Wrapper, salesChannelId: string) {
+    wrapper
+        .getComponent<ComponentPublicInstance>({ name: 'sw-entity-single-select' })
+        .vm.$emit('update:value', salesChannelId);
     await flushPromises();
 }
 
-async function chooseShopPages(wrapper, shopPages) {
-    await wrapper.getComponent({ name: 'sw-multi-select' }).vm.$emit('update:value', shopPages);
+async function chooseShopPages(wrapper: Wrapper, shopPages: string[]) {
+    wrapper.getComponent<ComponentPublicInstance>({ name: 'sw-multi-select' }).vm.$emit('update:value', shopPages);
     await flushPromises();
 }
 
-async function clickSave(wrapper) {
+async function clickSave(wrapper: Wrapper) {
     await wrapper.find('.sw-cms-layout-assignment-modal__action-confirm').trigger('click');
     await flushPromises();
 }
 
 describe('src/module/sw-cms/component/sw-cms-layout-assignment-modal/shop-page-scopes', () => {
     beforeEach(() => {
+        // @ts-expect-error - activeAclRoles is an untyped test global
         global.activeAclRoles = ['system.system_config'];
     });
 

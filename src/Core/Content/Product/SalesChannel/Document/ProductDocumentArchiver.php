@@ -214,7 +214,7 @@ class ProductDocumentArchiver
     private function deleteOutdatedArchives(string $folder, string $currentPath): void
     {
         foreach ($this->privateFilesystem->listContents($folder) as $item) {
-            // temporary uploads end with a random suffix, not `.zip`
+            // keeps other requests' uploads in progress, named `<hash>.zip.<random>`
             if ($item->isFile() && str_ends_with($item->path(), '.zip') && $item->path() !== $currentPath) {
                 $this->privateFilesystem->delete($item->path());
             }

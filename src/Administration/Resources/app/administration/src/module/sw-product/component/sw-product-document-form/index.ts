@@ -49,7 +49,6 @@ export default Shopware.Component.wrapComponentConfig({
             editingDocument: null as Entity<'product_document'> | null,
             removingDocument: null as Entity<'product_document'> | null,
             documentTitle: '',
-            documentMedia: {} as Record<string, Entity<'media'>>,
             documentEditSession: 0,
             replacementMedia: null as Entity<'media'> | null,
             documentFileRemoved: false,
@@ -173,7 +172,6 @@ export default Shopware.Component.wrapComponentConfig({
             this.showUploadModal = false;
             this.closeDocumentEditor();
             this.closeRemoveDocumentModal();
-            this.documentMedia = {};
         },
     },
 
@@ -204,7 +202,8 @@ export default Shopware.Component.wrapComponentConfig({
             const mediaId = document?.mediaId || document?.translated?.mediaId;
 
             return mediaId
-                ? this.documentMedia[mediaId] || document?.translations?.find((item) => item.mediaId === mediaId)?.media
+                ? Shopware.Store.get('swProductDetail').getDocumentMedia(mediaId) ||
+                      document?.translations?.find((item) => item.mediaId === mediaId)?.media
                 : undefined;
         },
 
@@ -298,7 +297,7 @@ export default Shopware.Component.wrapComponentConfig({
                 document.mediaId = media.id;
                 document.title = media.fileName;
                 document.position = this.documents.length;
-                this.documentMedia[media.id] = media;
+                Shopware.Store.get('swProductDetail').cacheDocumentMedia(media);
                 this.documents.add(document);
             }
             this.showMediaModal = false;
@@ -341,7 +340,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.documentValidationSubmitted = true;
             if (!this.canChangeDocuments() || !this.editingDocument || !this.canSaveDocument) return;
             const document = this.editingDocument;
-            if (this.replacementMedia) this.documentMedia[this.replacementMedia.id] = this.replacementMedia;
+            if (this.replacementMedia) Shopware.Store.get('swProductDetail').cacheDocumentMedia(this.replacementMedia);
             const { changes } = getEditChanges(document, this, this.getTitle(document), this.documentContext);
             this.applyDocumentChanges(document, changes);
             this.closeDocumentEditor();

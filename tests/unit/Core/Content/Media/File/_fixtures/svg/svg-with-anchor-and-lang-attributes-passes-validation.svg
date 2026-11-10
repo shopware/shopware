@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" lang="en" xml:lang="en" viewBox="0 0 20 20">
+    <defs>
+        <symbol id="dot"><circle cx="1" cy="1" r="1"/></symbol>
+    </defs>
+    <a href="#dot"><rect width="10" height="10"/></a>
+    <a xlink:href="#dot"><circle cx="15" cy="5" r="3"/></a>
+</svg>

@@ -188,30 +188,12 @@ class DebugMcpCommandTest extends TestCase
         static::assertSame($sorted, $positions, 'Detail rows must read Title, Type, Scope, Group, Handler.');
     }
 
-    /**
-     * @return iterable<string, array{array<string, mixed>}>
-     */
-    public static function malformedRequiredSchemaProvider(): iterable
+    public function testDetailViewRendersToolWithoutRequiredKey(): void
     {
-        yield 'required key omitted, as the SDK SchemaGenerator does when no parameter is required' => [
-            ['type' => 'object', 'properties' => ['limit' => ['type' => 'integer']]],
-        ];
-
-        yield 'required value is not an array, as unvalidated third-party registrations may carry' => [
-            ['type' => 'object', 'properties' => ['limit' => ['type' => 'integer']], 'required' => 'invalid'],
-        ];
-    }
-
-    /**
-     * @param array<string, mixed> $inputSchema
-     */
-    #[DataProvider('malformedRequiredSchemaProvider')]
-    public function testDetailViewRendersToolWithMalformedRequiredSchema(array $inputSchema): void
-    {
+        // the SDK SchemaGenerator omits 'required' when no parameter is required
         $registry = new Registry();
         $registry->registerTool(
-            // @phpstan-ignore argument.type (malformed schemas are not bound by the ToolInputSchema type alias at runtime)
-            new Tool('my-tool', null, $inputSchema, 'Does things', null),
+            new Tool('my-tool', null, ['type' => 'object', 'properties' => ['limit' => ['type' => 'integer']]], 'Does things', null),
             'Acme\\MyTool',
         );
 

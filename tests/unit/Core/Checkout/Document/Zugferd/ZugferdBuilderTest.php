@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Document\Zugferd;
 
 use horstoeko\zugferd\codelists\ZugferdInvoiceType;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
@@ -144,6 +145,119 @@ class ZugferdBuilderTest extends TestCase
         static::assertStringContainsString('TypeCode>' . ZugferdInvoiceType::INVOICE . '<', $invoiceXml);
         static::assertStringContainsString("Reason>$creditLabel<", $invoiceXml);
         static::assertStringNotContainsString("Name>$creditLabel<", $invoiceXml);
+    }
+
+    #[DataProvider('discountLineItemProvider')]
+    public function testDiscountLineItemIsAddedAsAllowanceOrCharge(
+        float $discountGross,
+        string $expectedChargeIndicator,
+        string $expectedAllowanceTotal,
+        string $expectedChargeTotal,
+        string $expectedTaxBasisTotal,
+        string $expectedGrandTotal,
+    ): void {
+        $discountLabel = 'discount-item-label-' . Uuid::randomHex();
+        $order = $this->buildOrderWithDiscountLineItem($discountLabel, $discountGross);
+
+        $xmlContent = $this->createZugferdBuilder()->buildDocument(
+            $order,
+            $this->buildDocumentConfig(),
+            Context::createDefaultContext()
+        );
+
+        static::assertStringContainsString("Reason>$discountLabel<", $xmlContent);
+        static::assertStringNotContainsString("Name>$discountLabel<", $xmlContent);
+        static::assertStringContainsString("Indicator>$expectedChargeIndicator<", $xmlContent);
+        static::assertStringContainsString('LineTotalAmount>100.00<', $xmlContent);
+        static::assertStringContainsString("AllowanceTotalAmount>$expectedAllowanceTotal<", $xmlContent);
+        static::assertStringContainsString("ChargeTotalAmount>$expectedChargeTotal<", $xmlContent);
+        static::assertStringContainsString("TaxBasisTotalAmount>$expectedTaxBasisTotal<", $xmlContent);
+        static::assertStringContainsString("GrandTotalAmount>$expectedGrandTotal<", $xmlContent);
+    }
+
+    public static function discountLineItemProvider(): \Generator
+    {
+        yield 'negative discount item reduces the tax basis as allowance' => [
+            'discountGross' => -11.90,
+            'expectedChargeIndicator' => 'false',
+            'expectedAllowanceTotal' => '10.00',
+            'expectedChargeTotal' => '0.00',
+            'expectedTaxBasisTotal' => '90.00',
+            'expectedGrandTotal' => '107.10',
+        ];
+
+        yield 'positive discount item (surcharge) increases the tax basis as charge' => [
+            'discountGross' => 11.90,
+            'expectedChargeIndicator' => 'true',
+            'expectedAllowanceTotal' => '0.00',
+            'expectedChargeTotal' => '10.00',
+            'expectedTaxBasisTotal' => '110.00',
+            'expectedGrandTotal' => '130.90',
+        ];
+    }
+
+    private function buildOrderWithDiscountLineItem(string $discountLabel, float $discountGross): OrderEntity
+    {
+        $product = $this->buildOrderLineItemEntity(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $product->setUnitPrice(119.0);
+        $product->setTotalPrice(119.0);
+        $product->setPrice(new CalculatedPrice(
+            119.0,
+            119.0,
+            new CalculatedTaxCollection([new CalculatedTax(19.0, 19, 119.0)]),
+            new TaxRuleCollection()
+        ));
+
+        $discountTax = round($discountGross - $discountGross / 1.19, 2);
+        $discount = $this->buildOrderLineItemEntity(Uuid::randomHex(), LineItem::DISCOUNT_LINE_ITEM);
+        $discount->setLabel($discountLabel);
+        $discount->setUnitPrice($discountGross);
+        $discount->setTotalPrice($discountGross);
+        $discount->setPrice(new CalculatedPrice(
+            $discountGross,
+            $discountGross,
+            new CalculatedTaxCollection([new CalculatedTax($discountTax, 19, $discountGross)]),
+            new TaxRuleCollection()
+        ));
+
+        $totalGross = 119.0 + $discountGross;
+        $totalTax = 19.0 + $discountTax;
+
+        $currency = new CurrencyEntity();
+        $currency->setIsoCode('EUR');
+
+        $address = $this->getOrderAddress();
+        $order = new OrderEntity();
+        $order->setTaxStatus('gross');
+        $order->setLineItems(new OrderLineItemCollection([$product, $discount]));
+        $order->setOrderCustomer($this->getOrderCustomer());
+        $order->setBillingAddressId($address->getId());
+        $order->setAddresses(new OrderAddressCollection([$address]));
+        $order->setSalesChannelId(Uuid::randomHex());
+        $order->setAmountTotal($totalGross);
+        $order->setAmountNet($totalGross - $totalTax);
+        $order->setCurrency($currency);
+        $order->setPrice(new CartPrice(
+            $totalGross - $totalTax,
+            $totalGross,
+            $totalGross,
+            new CalculatedTaxCollection([new CalculatedTax($totalTax, 19, $totalGross)]),
+            new TaxRuleCollection(),
+            'gross'
+        ));
+
+        $delivery = new OrderDeliveryEntity();
+        $delivery->setId(Uuid::randomHex());
+        $delivery->setShippingDateLatest(new \DateTimeImmutable());
+        $delivery->setShippingCosts(new CalculatedPrice(
+            0.0,
+            0.0,
+            new CalculatedTaxCollection(),
+            new TaxRuleCollection()
+        ));
+        $order->setDeliveries(new OrderDeliveryCollection([$delivery]));
+
+        return $order;
     }
 
     private function buildOrderWithCreditLineItem(string $creditLabel): OrderEntity

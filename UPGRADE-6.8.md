@@ -1587,6 +1587,13 @@ The unused property was removed.
 
 # Administration
 
+## Sales channel lists removed from `sw-settings-search-live-search` and `sw-newsletter-recipient-list`
+
+The `salesChannels` data property, the `salesChannelRepository` computed property and the `fetchSalesChannels()` method of `sw-settings-search-live-search` were removed without replacement.
+The `salesChannelFilters` data property of `sw-newsletter-recipient-list` was removed without replacement.
+Both components no longer load sales channels when they are created, because their sales channel selects load their options themselves.
+Extensions that read these properties must load the sales channels themselves, for example with `repositoryFactory.create('sales_channel')`.
+
 ## Custom field set lookup removed from `sw-settings-listing-option-criteria-grid`
 
 The `sw-settings-listing-option-criteria-grid` component filters custom fields by `customFieldSet.relations.entityName` directly.
@@ -1625,6 +1632,22 @@ The deprecated custom-field set loader computed properties were removed from the
 These components switched to a shared loader to remove their duplicate custom-field queries and reuse cached results across them. Extensions that used the removed properties to load renderable custom-field sets must use `Shopware.Service('customFieldDataProviderService').getCustomFieldSets(entityName)` instead.
 
 `sw-customer-detail-base` no longer injects `repositoryFactory`, which was retained only for its removed `customFieldSetRepository` property. Extensions that still need `repositoryFactory` must inject it themselves.
+
+## Media default folder lookup computed properties removed
+
+The deprecated computed properties that loaded the media default folder were removed from these Administration components:
+
+| Component | Removed computed properties |
+|---|---|
+| `sw-product-detail-base` | `mediaDefaultFolderRepository`, `mediaDefaultFolderCriteria` |
+| `sw-bulk-edit-product-media` | `mediaDefaultFolderRepository`, `mediaDefaultFolderCriteria` |
+
+Use `mediaDefaultFolderService.getDefaultFolderId(entityName)` to get the id of an entity's default media folder.
+
+## `customFieldSetRepository` computed property removed from `sw-product-stream-detail`
+
+The deprecated computed property `customFieldSetRepository` was removed from `sw-product-stream-detail`.
+The component loads the product custom fields with the new `customFieldRepository` computed property instead.
 
 ## Deprecated password verification members in `sw-users-permissions-user-listing`
 

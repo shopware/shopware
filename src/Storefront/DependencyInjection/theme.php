@@ -516,7 +516,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service(Connection::class),
-        ]);
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(ThemeExceptionHandler::class)
         ->tag('shopware.dal.exception_handler');

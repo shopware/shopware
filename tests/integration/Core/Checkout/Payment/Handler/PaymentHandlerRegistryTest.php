@@ -88,7 +88,6 @@ class PaymentHandlerRegistryTest extends TestCase
         $criteria->addFilter(new EqualsFilter('handlerIdentifier', $handler));
         $criteria->addAssociation('app');
 
-        /** @var PaymentMethodEntity|null $method */
         $method = $this->paymentMethodRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         if (!$method) {
@@ -109,7 +108,6 @@ class PaymentHandlerRegistryTest extends TestCase
             $criteria->addFilter(new EqualsFilter('handlerIdentifier', $handler));
             $criteria->addAssociation('app');
 
-            /** @var PaymentMethodEntity|null $method */
             $method = $this->paymentMethodRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         }
 

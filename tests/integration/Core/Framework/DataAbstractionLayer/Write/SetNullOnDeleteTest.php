@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
@@ -176,7 +175,6 @@ class SetNullOnDeleteTest extends TestCase
         static::assertArrayHasKey(SetNullOnDeleteChildDefinition::ENTITY_NAME, $updated);
 
         static::assertCount(1, $updated[SetNullOnDeleteChildDefinition::ENTITY_NAME]);
-        /** @var EntityWriteResult $updateResult */
         $updateResult = $updated[SetNullOnDeleteChildDefinition::ENTITY_NAME][0];
         static::assertSame($ids->get('child'), $updateResult->getPrimaryKey());
         static::assertSame([
@@ -244,7 +242,6 @@ class SetNullOnDeleteTest extends TestCase
         static::assertArrayHasKey(SetNullOnDeleteParentDefinition::ENTITY_NAME, $updated);
 
         static::assertCount(1, $updated[SetNullOnDeleteParentDefinition::ENTITY_NAME]);
-        /** @var EntityWriteResult $updateResult */
         $updateResult = $updated[SetNullOnDeleteParentDefinition::ENTITY_NAME][0];
         static::assertSame($id, $updateResult->getPrimaryKey());
         static::assertEquals([

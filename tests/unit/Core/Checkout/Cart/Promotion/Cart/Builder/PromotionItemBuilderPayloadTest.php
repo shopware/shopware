@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Cart\Builder;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -91,7 +92,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'discountId' => 'D5',
             'code' => 'my-Code-123',
             'discountType' => 'absolute',
-            'value' => '50',
+            'value' => '15',
             'maxValue' => '',
             'discountScope' => 'cart',
             'setGroups' => [],
@@ -374,6 +375,54 @@ class PromotionItemBuilderPayloadTest extends TestCase
         $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, $currency->getId(), $currencyFactor);
 
         static::assertSame('20', $item->getPayload()['maxValue']);
+    }
+
+    /**
+     * This test verifies that we have our value from
+     * the currency in our payload and not the one from
+     * our discount entity.
+     *
+     * @throws CartException
+     * @throws PromotionException
+     */
+    #[DataProvider('getAmountDiscountTypeDataProvider')]
+    #[Group('promotions')]
+    public function testPayloadValueWithAdvancedPrices(string $type): void
+    {
+        $currencyFactor = random_int(0, mt_getrandmax()) / mt_getrandmax();
+
+        $discount = new PromotionDiscountEntity();
+        $discount->setId('D5');
+        $discount->setType($type);
+        $discount->setValue(110.99);
+        $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
+        $discount->setConsiderAdvancedRules(false);
+
+        $currency = new CurrencyEntity();
+        $currency->setId('currency');
+
+        $advancedPrice = new PromotionDiscountPriceEntity();
+        $advancedPrice->setUniqueIdentifier(Uuid::randomHex());
+        $advancedPrice->setCurrency($currency);
+        $advancedPrice->setCurrencyId($currency->getId());
+        $advancedPrice->setPrice(150);
+        $discount->setPromotionDiscountPrices(new PromotionDiscountPriceCollection([$advancedPrice]));
+
+        $builder = new PromotionItemBuilder();
+
+        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, $currency->getId(), $currencyFactor);
+
+        static::assertSame('150', $item->getPayload()['value']);
+    }
+
+    /**
+     * @return iterable<string, array{0: string}>
+     */
+    public static function getAmountDiscountTypeDataProvider(): iterable
+    {
+        yield 'absolute' => [PromotionDiscountEntity::TYPE_ABSOLUTE];
+        yield 'fixed' => [PromotionDiscountEntity::TYPE_FIXED];
+        yield 'fixed_unit' => [PromotionDiscountEntity::TYPE_FIXED_UNIT];
     }
 
     /**

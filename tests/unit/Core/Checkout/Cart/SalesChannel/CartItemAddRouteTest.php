@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartLocker;
+use Shopware\Core\Checkout\Cart\Event\BeforeLineItemAddedEvent;
+use Shopware\Core\Checkout\Cart\Event\LineItemsAddedBeforeCalculationEvent;
 use Shopware\Core\Checkout\Cart\Extension\CartItemAddRouteExtension;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
@@ -22,6 +24,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -310,6 +313,55 @@ class CartItemAddRouteTest extends TestCase
         ]);
     }
 
+    public function testLineItemsAddedBeforeCalculationEventIsDispatchedOnceAllLineItemsAreInTheCart(): void
+    {
+        $cart = new Cart('test');
+        $items = [
+            new LineItem('first', LineItem::PRODUCT_LINE_ITEM_TYPE, 'first-product'),
+            new LineItem('second', LineItem::PRODUCT_LINE_ITEM_TYPE, 'second-product'),
+        ];
+        $eventDispatcher = new CollectingEventDispatcher();
+        $dispatchedBeforeCalculation = [];
+        $cartCalculator = static::createStub(CartCalculator::class);
+        $cartCalculator->method('calculate')->willReturnCallback(
+            static function (Cart $cart) use ($eventDispatcher, &$dispatchedBeforeCalculation): Cart {
+                $dispatchedBeforeCalculation = array_map(static fn (object $event): string => $event::class, $eventDispatcher->getEvents());
+
+                return $cart;
+            }
+        );
+        $route = $this->createRoute(static::createStub(RateLimiter::class), new RequestStack(), eventDispatcher: $eventDispatcher, cartCalculator: $cartCalculator);
+
+        $route->add(new Request(), $cart, $this->createSalesChannelContext(), $items);
+
+        static::assertSame(
+            [BeforeLineItemAddedEvent::class, BeforeLineItemAddedEvent::class, LineItemsAddedBeforeCalculationEvent::class],
+            $dispatchedBeforeCalculation,
+        );
+        $events = $eventDispatcher->getEventsOfClass(LineItemsAddedBeforeCalculationEvent::class);
+        static::assertCount(1, $events);
+        static::assertSame($items, $events[0]->getLineItems());
+        static::assertSame($cart, $events[0]->getCart());
+    }
+
+    public function testLineItemsAddedBeforeCalculationEventIsNotDispatchedWhenTheAddFails(): void
+    {
+        $exception = RateLimiterException::limitExceeded(time() + 30);
+        $rateLimiter = static::createStub(RateLimiter::class);
+        $rateLimiter->method('ensureAccepted')->willThrowException($exception);
+        $eventDispatcher = new CollectingEventDispatcher();
+        $route = $this->createRoute($rateLimiter, new RequestStack(), eventDispatcher: $eventDispatcher);
+
+        $this->expectExceptionObject($exception);
+        try {
+            $route->add(Request::create('/', server: ['REMOTE_ADDR' => '127.0.0.1']), new Cart('test'), $this->createSalesChannelContext(), [
+                new LineItem('product', LineItem::PRODUCT_LINE_ITEM_TYPE, 'product-id'),
+            ]);
+        } finally {
+            static::assertSame([], $eventDispatcher->getEventsOfClass(LineItemsAddedBeforeCalculationEvent::class));
+        }
+    }
+
     private function createCartItemAddRoute(?string $expectedCacheKey, ?CartLocker $cartLocker = null): CartItemAddRoute
     {
         $rateLimiter = $this->createMock(RateLimiter::class);
@@ -325,8 +377,13 @@ class CartItemAddRouteTest extends TestCase
         return $this->createRoute($rateLimiter, new RequestStack(), $cartLocker);
     }
 
-    private function createRoute(RateLimiter $rateLimiter, RequestStack $requestStack, ?CartLocker $cartLocker = null): CartItemAddRoute
-    {
+    private function createRoute(
+        RateLimiter $rateLimiter,
+        RequestStack $requestStack,
+        ?CartLocker $cartLocker = null,
+        ?EventDispatcherInterface $eventDispatcher = null,
+        ?CartCalculator $cartCalculator = null,
+    ): CartItemAddRoute {
         $lineItemFactory = static::createStub(LineItemFactoryRegistry::class);
         $lineItemFactory
             ->method('create')
@@ -340,9 +397,9 @@ class CartItemAddRouteTest extends TestCase
         }
 
         return new CartItemAddRoute(
-            static::createStub(CartCalculator::class),
+            $cartCalculator ?? static::createStub(CartCalculator::class),
             static::createStub(AbstractCartPersister::class),
-            static::createStub(EventDispatcherInterface::class),
+            $eventDispatcher ?? static::createStub(EventDispatcherInterface::class),
             $lineItemFactory,
             $rateLimiter,
             $cartLocker,

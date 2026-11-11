@@ -10,6 +10,7 @@ use Shopware\Core\Content\Category\Event\CategoryLevelLoaderCacheKeyEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -45,6 +46,7 @@ class CachedDefaultCategoryLevelLoader implements DefaultCategoryLevelLoaderInte
         return [
             CategoryEvents::CATEGORY_WRITTEN_EVENT => 'onCategoryWritten',
             CategoryEvents::CATEGORY_TRANSLATION_WRITTEN_EVENT => 'onCategoryTranslationWritten',
+            CategoryEvents::CATEGORY_TRANSLATION_DELETED_EVENT => 'onCategoryTranslationDeleted',
             CategoryEvents::CATEGORY_DELETED_EVENT => 'invalidateCache',
         ];
     }
@@ -116,6 +118,11 @@ class CachedDefaultCategoryLevelLoader implements DefaultCategoryLevelLoaderInte
         }
 
         $this->invalidateTrees($categoryIds);
+    }
+
+    public function onCategoryTranslationDeleted(EntityDeletedEvent $event): void
+    {
+        $this->onCategoryTranslationWritten($event);
     }
 
     private function cached(

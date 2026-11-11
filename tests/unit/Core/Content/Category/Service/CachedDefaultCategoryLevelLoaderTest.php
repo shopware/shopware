@@ -13,6 +13,7 @@ use Shopware\Core\Content\Category\Service\CachedDefaultCategoryLevelLoader;
 use Shopware\Core\Content\Category\Service\DefaultCategoryLevelLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -65,6 +66,9 @@ class CachedDefaultCategoryLevelLoaderTest extends TestCase
 
         static::assertArrayHasKey(CategoryEvents::CATEGORY_TRANSLATION_WRITTEN_EVENT, $events);
         static::assertSame('onCategoryTranslationWritten', $events[CategoryEvents::CATEGORY_TRANSLATION_WRITTEN_EVENT]);
+
+        static::assertArrayHasKey(CategoryEvents::CATEGORY_TRANSLATION_DELETED_EVENT, $events);
+        static::assertSame('onCategoryTranslationDeleted', $events[CategoryEvents::CATEGORY_TRANSLATION_DELETED_EVENT]);
 
         static::assertArrayHasKey(CategoryEvents::CATEGORY_DELETED_EVENT, $events);
         static::assertSame('invalidateCache', $events[CategoryEvents::CATEGORY_DELETED_EVENT]);
@@ -419,6 +423,37 @@ class CachedDefaultCategoryLevelLoaderTest extends TestCase
                 EntityWriteResult::OPERATION_UPDATE
             ),
         ], Context::createDefaultContext()));
+
+        static::assertFalse($cache->hasItem($this->cacheKey(self::ROOT_A)));
+        static::assertTrue($cache->hasItem($this->cacheKey(self::ROOT_B)));
+    }
+
+    public function testCategoryTranslationDeletionInvalidatesOnlyTheNavigationTreeContainingIt(): void
+    {
+        $cache = new TagAwareAdapter(new ArrayAdapter());
+        $loader = $this->createLoader(cache: $cache, connection: $this->connectionWithPaths([
+            self::SHIRTS => '|' . self::ROOT_A . '|' . self::CLOTHING . '|',
+        ]));
+
+        $this->loadLevels($loader, self::ROOT_A);
+        $this->loadLevels($loader, self::ROOT_B);
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addSubscriber($loader);
+        $deleted = new EntityDeletedEvent('category_translation', [
+            new EntityWriteResult(
+                ['categoryId' => self::SHIRTS, 'languageId' => self::LANGUAGE],
+                [],
+                'category_translation',
+                EntityWriteResult::OPERATION_DELETE,
+            ),
+        ], Context::createDefaultContext());
+        $dispatcher->dispatch($deleted, $deleted->getName());
+
+        $parentWritten = $this->categoryWritten(
+            new EntityWriteResult(self::SHIRTS, [], 'category', EntityWriteResult::OPERATION_UPDATE),
+        );
+        $dispatcher->dispatch($parentWritten, $parentWritten->getName());
 
         static::assertFalse($cache->hasItem($this->cacheKey(self::ROOT_A)));
         static::assertTrue($cache->hasItem($this->cacheKey(self::ROOT_B)));

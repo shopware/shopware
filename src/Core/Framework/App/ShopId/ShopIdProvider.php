@@ -5,8 +5,6 @@ namespace Shopware\Core\Framework\App\ShopId;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
-use Shopware\Core\Framework\App\ShopId\Fingerprint\SalesChannelDomainUrls;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -55,10 +53,6 @@ class ShopIdProvider implements ResetInterface
             // if the shop does not have any apps we can update the existing shop id value
             // with the new APP_URL as no app knows the shop id
             return $this->regenerateAndSetShopId($shopId->id);
-        }
-
-        if (!Feature::isActive('v6.8.0.0')) {
-            $shopId = $this->storeChangedStampsOfMatchingFingerprints($shopId, $fingerprintsComparison);
         }
 
         return $this->shopId = $shopId;
@@ -110,26 +104,6 @@ class ShopIdProvider implements ResetInterface
         }
 
         $this->shopId = $shopId;
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - Remove with the migration of legacy fingerprint stamps
-     */
-    private function storeChangedStampsOfMatchingFingerprints(ShopId $shopId, FingerprintComparisonResult $comparison): ShopId
-    {
-        $match = $comparison->matchingFingerprints[SalesChannelDomainUrls::IDENTIFIER] ?? null;
-
-        if ($match === null || $shopId->getFingerprint(SalesChannelDomainUrls::IDENTIFIER) === $match->storedStamp) {
-            return $shopId;
-        }
-
-        $updatedShopId = ShopId::v2($shopId->id, [
-            ...$shopId->fingerprints,
-            SalesChannelDomainUrls::IDENTIFIER => $match->storedStamp,
-        ]);
-        $this->setShopId($updatedShopId);
-
-        return $updatedShopId;
     }
 
     private function hasAppsRegisteredAtAppServers(): bool

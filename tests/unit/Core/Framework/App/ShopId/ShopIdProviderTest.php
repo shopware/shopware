@@ -4,15 +4,11 @@ namespace Shopware\Tests\Unit\Core\Framework\App\ShopId;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
-use Shopware\Core\Framework\App\ShopId\Fingerprint\InstallationPath;
-use Shopware\Core\Framework\App\ShopId\Fingerprint\SalesChannelDomainUrls;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\FingerprintGenerator;
-use Shopware\Core\Framework\App\ShopId\FingerprintMatch;
 use Shopware\Core\Framework\App\ShopId\FingerprintMismatch;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdChangedEvent;
@@ -20,7 +16,6 @@ use Shopware\Core\Framework\App\ShopId\ShopIdDeletedEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 
 /**
@@ -254,148 +249,6 @@ class ShopIdProviderTest extends TestCase
         static::assertSame($shopId->id, $provider->getShopId()->id);
         // Fingerprints changed but the id is reused, so this is not a shop identity change.
         static::assertCount(0, $eventDispatcher->getEvents());
-    }
-
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testStoresOnlyTheNewDomainStamp(): void
-    {
-        $shopId = ShopId::v2('1234567890', [
-            AppUrl::IDENTIFIER => 'https://shop.example',
-            SalesChannelDomainUrls::IDENTIFIER => 'stamp-taken-before-sorting',
-            InstallationPath::IDENTIFIER => '/var/www/html',
-            'custom-fingerprint' => 'original-custom-stamp',
-        ]);
-
-        $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->expects($this->exactly(2))
-            ->method('get')
-            ->with(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2)
-            ->willReturn((array) $shopId);
-        $systemConfigService->expects($this->once())
-            ->method('set')
-            ->with(
-                ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2,
-                ShopId::v2('1234567890', [
-                    AppUrl::IDENTIFIER => 'https://shop.example',
-                    SalesChannelDomainUrls::IDENTIFIER => 'sorted-stamp',
-                    InstallationPath::IDENTIFIER => '/var/www/html',
-                    'custom-fingerprint' => 'original-custom-stamp',
-                ])->toArray(),
-                null,
-                false,
-            );
-
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->never())->method('fetchOne');
-
-        $fingerprintGenerator = $this->createMock(FingerprintGenerator::class);
-        $fingerprintGenerator->expects($this->once())
-            ->method('matchFingerprints')
-            ->willReturn(new FingerprintComparisonResult(
-                [
-                    AppUrl::IDENTIFIER => new FingerprintMatch(AppUrl::IDENTIFIER, 'https://shop.example', 100),
-                    SalesChannelDomainUrls::IDENTIFIER => new FingerprintMatch(SalesChannelDomainUrls::IDENTIFIER, 'sorted-stamp', 25),
-                    'custom-fingerprint' => new FingerprintMatch('custom-fingerprint', 'updated-custom-stamp', 25),
-                ],
-                [
-                    InstallationPath::IDENTIFIER => new FingerprintMismatch(InstallationPath::IDENTIFIER, '/var/www/html', '/srv/www/html', 33),
-                ],
-                75,
-            ));
-        $fingerprintGenerator->expects($this->never())->method('takeFingerprints');
-
-        $provider = new ShopIdProvider(
-            $systemConfigService,
-            $eventDispatcher = new CollectingEventDispatcher(),
-            $connection,
-            $fingerprintGenerator,
-        );
-
-        static::assertSame('1234567890', $provider->getShopId()->id);
-        static::assertCount(0, $eventDispatcher->getEvents());
-    }
-
-    public function testDoesNotStoreChangedMatchingStampsFromV68(): void
-    {
-        $shopId = ShopId::v2('1234567890', [
-            SalesChannelDomainUrls::IDENTIFIER => 'stamp-taken-before-sorting',
-        ]);
-
-        $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->expects($this->once())
-            ->method('get')
-            ->with(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2)
-            ->willReturn($shopId->toArray());
-        $systemConfigService->expects($this->never())->method('set');
-
-        $fingerprintGenerator = static::createStub(FingerprintGenerator::class);
-        $fingerprintGenerator->method('matchFingerprints')
-            ->willReturn(new FingerprintComparisonResult(
-                [SalesChannelDomainUrls::IDENTIFIER => new FingerprintMatch(SalesChannelDomainUrls::IDENTIFIER, 'sorted-stamp', 25)],
-                [],
-                75,
-            ));
-
-        $provider = new ShopIdProvider(
-            $systemConfigService,
-            $eventDispatcher = new CollectingEventDispatcher(),
-            static::createStub(Connection::class),
-            $fingerprintGenerator,
-        );
-
-        static::assertSame($shopId->toArray(), $provider->getShopId()->toArray());
-        static::assertCount(0, $eventDispatcher->getEvents());
-    }
-
-    #[DisabledFeatures(['v6.8.0.0'])]
-    #[DataProvider('domainStampMatches')]
-    public function testDoesNotStoreOtherMatchingStamps(bool $domainMatches): void
-    {
-        $shopId = ShopId::v2('1234567890', [
-            SalesChannelDomainUrls::IDENTIFIER => 'domain-stamp',
-            'custom-fingerprint' => 'original-custom-stamp',
-        ]);
-
-        $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->expects($this->once())
-            ->method('get')
-            ->with(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2)
-            ->willReturn((array) $shopId);
-        $systemConfigService->expects($this->never())->method('set');
-
-        $fingerprintGenerator = static::createStub(FingerprintGenerator::class);
-        $matchingFingerprints = [
-            'custom-fingerprint' => new FingerprintMatch('custom-fingerprint', 'updated-custom-stamp', 25),
-        ];
-        if ($domainMatches) {
-            $matchingFingerprints[SalesChannelDomainUrls::IDENTIFIER] = new FingerprintMatch(SalesChannelDomainUrls::IDENTIFIER, 'domain-stamp', 25);
-        }
-        $fingerprintGenerator->method('matchFingerprints')
-            ->willReturn(new FingerprintComparisonResult(
-                $matchingFingerprints,
-                $domainMatches ? [] : [SalesChannelDomainUrls::IDENTIFIER => new FingerprintMismatch(SalesChannelDomainUrls::IDENTIFIER, 'domain-stamp', 'different-domain-stamp', 25)],
-                75,
-            ));
-
-        $provider = new ShopIdProvider(
-            $systemConfigService,
-            new CollectingEventDispatcher(),
-            static::createStub(Connection::class),
-            $fingerprintGenerator,
-        );
-
-        $actual = $provider->getShopId();
-        static::assertSame('1234567890', $actual->id);
-        static::assertSame($actual, $provider->getShopId());
-    }
-
-    /**
-     * @return \Generator<string, array{bool}>
-     */
-    public static function domainStampMatches(): \Generator
-    {
-        yield 'domain stamp matches and is unchanged' => [true];
-        yield 'domain stamp does not match' => [false];
     }
 
     public function testDeletesShopId(): void

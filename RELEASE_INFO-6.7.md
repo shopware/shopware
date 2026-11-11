@@ -453,10 +453,10 @@ Invalid JSON, malformed messages or resource contents, and `{"success":false,"er
 ### The smart bar back button names its target
 
 The back button of `sw-page` shows the title of the module its parent route belongs to, e.g. "Products" on a product detail page.
-Without a resolvable title it stays the icon-only "Go back" button.
+Without a resolvable title it shows only the icon, labelled "Go back".
 Pages whose route hierarchy does not lead back to where users expect can pass the new optional `backRoute` and `backLabel` props of `sw-page`.
 The variant detail page uses them to lead back to its main product,
-so the "Go back to variant overview" link inside the `sw_product_detail_content_top` block was removed and the block is empty.
+so the `sw_product_detail_content_top` block no longer renders the "Go back to variant overview" link.
 
 ### Deprecated the `customFieldSetRepository` computed property of `sw-product-stream-detail`
 

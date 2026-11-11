@@ -106,7 +106,11 @@
     <template #content>
         <sw-card-view v-if="!isProductNotFound">
 
-            {% block sw_product_detail_content_top %}{% endblock %}
+            {% block sw_product_detail_content_top %}
+            <template v-if="!isLoading && isChild">
+                <!-- Keeps the v-if chain intact for overrides that continue it with v-else -->
+            </template>
+            {% endblock %}
 
             {% block sw_product_detail_content_language_info %}
             <sw-language-info

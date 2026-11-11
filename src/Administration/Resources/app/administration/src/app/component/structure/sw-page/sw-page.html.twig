@@ -71,7 +71,7 @@
                             is="a"
                             class="smart-bar__back-btn"
                             :class="{ 'smart-bar__back-btn--labeled': backTitle }"
-                            :variant="backTitle ? 'tertiary' : 'secondary'"
+                            variant="tertiary"
                             size="default"
                             :square="!backTitle"
                             :href="href"
@@ -80,13 +80,7 @@
                             @click="navigate"
                         >
                             <mt-icon
-                                v-if="backTitle"
                                 name="regular-chevron-left-xs"
-                                size="12px"
-                            />
-                            <mt-icon
-                                v-else
-                                name="solid-long-arrow-left"
                                 size="12px"
                             />
                             <span

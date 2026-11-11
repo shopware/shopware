@@ -401,6 +401,7 @@ describe('src/app/component/structure/sw-page', () => {
             const backButton = wrapper.get('.smart-bar__back-btn');
 
             expect(backButton.text()).toBe('');
+            expect(backButton.classes()).toContain('mt-button--tertiary');
             expect(backButton.classes()).not.toContain('smart-bar__back-btn--labeled');
             expect(backButton.attributes('aria-label')).toBe('global.sw-page.backButton');
             expect(backButton.attributes('href')).toContain('/sw/product/list');

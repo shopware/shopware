@@ -9911,7 +9911,7 @@
   },
   "src/module/sw-product/page/sw-product-detail/sw-product-detail.analytics.spec.ts": {
     "sw-test-rules/no-vm-access": {
-      "count": 12
+      "count": 1
     }
   },
   "src/module/sw-product/page/sw-product-detail/sw-product-detail.spec.js": {

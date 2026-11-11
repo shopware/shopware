@@ -4,7 +4,11 @@ namespace Shopware\Core\System\Snippet\Service;
 
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Pool;
+use GuzzleHttp\Promise\Create;
+use GuzzleHttp\Promise\PromiseInterface;
 use League\Flysystem\FilesystemOperator;
+use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -44,6 +48,8 @@ class TranslationLoader extends AbstractTranslationLoader implements ResetInterf
         'Storefront',
         'Administration',
     ];
+
+    private const CONCURRENT_DOWNLOADS = 10;
 
     /**
      * @var ArrayStruct<list<string>>|null
@@ -102,8 +108,7 @@ class TranslationLoader extends AbstractTranslationLoader implements ResetInterf
     }
 
     /**
-     * A directory on its own proves nothing: fetchFile() creates it before downloading and files the
-     * repository does not offer are skipped, so an empty or aborted download leaves the tree behind.
+     * An empty or aborted download leaves the locale directories behind, so only a file counts.
      * Any file counts, because a legitimate load() can produce a partial set.
      */
     public function hasTranslationFiles(string $locale): bool
@@ -129,8 +134,10 @@ class TranslationLoader extends AbstractTranslationLoader implements ResetInterf
             throw SnippetException::languageDoesNotExist($locale);
         }
 
-        $this->fetchPlatformSnippets($locale);
-        $this->fetchPluginSnippets($locale);
+        $this->downloadFiles([
+            ...$this->preparePlatformSnippets($locale),
+            ...$this->preparePluginSnippets($locale),
+        ]);
 
         // New plugin translation directories may have been written, invalidate the memoized lookup.
         $this->reset();
@@ -217,26 +224,45 @@ class TranslationLoader extends AbstractTranslationLoader implements ResetInterf
         $this->existingPluginLocaleTranslations = $pluginLocales;
     }
 
-    private function fetchPluginSnippets(string $locale): void
+    /**
+     * @return array<string, string>
+     */
+    private function preparePluginSnippets(string $locale): array
     {
+        $destinationByUrl = [];
+
         foreach ($this->config->plugins as $plugin) {
             foreach (self::PLUGIN_BUNDLES as $bundle) {
                 $fileName = strtolower($bundle) . '.json';
                 $scope = 'Plugins/' . $plugin;
 
-                $this->fetchFile($bundle, $locale, $fileName, $scope);
+                [$url, $destination] = $this->prepareFile($bundle, $locale, $fileName, $scope);
+                $destinationByUrl[$url] = $destination;
             }
         }
+
+        return $destinationByUrl;
     }
 
-    private function fetchPlatformSnippets(string $locale): void
+    /**
+     * @return array<string, string>
+     */
+    private function preparePlatformSnippets(string $locale): array
     {
+        $destinationByUrl = [];
+
         foreach (self::PLATFORM_BUNDLES as $bundle => $fileName) {
-            $this->fetchFile($bundle, $locale, $fileName, 'Platform');
+            [$url, $destination] = $this->prepareFile($bundle, $locale, $fileName, 'Platform');
+            $destinationByUrl[$url] = $destination;
         }
+
+        return $destinationByUrl;
     }
 
-    private function fetchFile(string $bundle, string $locale, string $fileName, string $scope): void
+    /**
+     * @return array{string, string}
+     */
+    private function prepareFile(string $bundle, string $locale, string $fileName, string $scope): array
     {
         $destinationPath = Path::join($this->getLocalePath($locale), $scope);
 
@@ -261,24 +287,39 @@ class TranslationLoader extends AbstractTranslationLoader implements ResetInterf
             $destinationFileName = strtolower($bundle) . '.json';
         }
 
-        $destination = Path::join($destinationPath, $destinationFileName);
-
-        $this->downloadFile($downloadUrl, $destination);
+        return [$downloadUrl, Path::join($destinationPath, $destinationFileName)];
     }
 
-    private function downloadFile(string $url, string $destination): void
+    /**
+     * @param array<string, string> $destinationByUrl
+     */
+    private function downloadFiles(array $destinationByUrl): void
     {
-        try {
-            $response = $this->client->request('GET', $url);
+        $downloadFailure = null;
 
-            $this->translationWriter->write($destination, $response->getBody()->getContents());
-        } catch (GuzzleException $e) {
-            if ($e->getCode() === 404) {
-                // If the file does not exist, we can skip it
-                return;
+        $requests = function () use ($destinationByUrl): \Generator {
+            foreach ($destinationByUrl as $url => $destination) {
+                yield fn (): PromiseInterface => $this->client->requestAsync('GET', $url)->then(
+                    fn (ResponseInterface $response) => $this->translationWriter->write($destination, $response->getBody()->getContents())
+                );
             }
+        };
 
-            throw $e;
+        $pool = new Pool($this->client, $requests(), [
+            'concurrency' => self::CONCURRENT_DOWNLOADS,
+            'rejected' => static function (mixed $reason) use (&$downloadFailure): void {
+                if ($reason instanceof GuzzleException && $reason->getCode() === 404) {
+                    return;
+                }
+
+                $downloadFailure ??= Create::exceptionFor($reason);
+            },
+        ]);
+
+        $pool->promise()->wait();
+
+        if ($downloadFailure instanceof \Throwable) {
+            throw $downloadFailure;
         }
     }
 

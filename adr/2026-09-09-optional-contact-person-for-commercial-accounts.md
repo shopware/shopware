@@ -28,7 +28,7 @@ To achieve this we touch the following scopes.
 
 `firstName` and `lastName` on `customer`, `customer_address`, `order_customer` and `order_address` get `AllowEmptyString` beside `Required`. `StringFieldSerializer::getConstraints()` then yields `NotNull` instead of `NotBlank`, so an empty string becomes legal while `null` stays rejected. The columns stay `NOT NULL`.
 
-The relaxation cannot depend on the sales channel settings, because a field definition sees neither the row nor the configuration, and the Admin API, the Sync API and direct repository writes carry no sales channel. One rule needs none of that and holds on every path through a `PreWriteValidationEvent` subscriber, `CustomerContactPersonSubscriber`: a customer or an address may not end up naming nobody. Both names may be empty only for a commercial account with a company, or for an address that carries a company. A private account keeps needing a contact person everywhere, and the store API routes add the finer, setting driven rule on top.
+The relaxation cannot depend on the sales channel settings, because a field definition sees neither the row nor the configuration, and the Admin API, the Sync API and direct repository writes carry no sales channel. One rule needs none of that and holds on every path through a `PreWriteValidationEvent` subscriber, `CustomerContactPersonSubscriber`: a customer, an address or an order snapshot may not end up naming nobody. Both names may be empty only for a commercial account with a company, for an address of such an account that carries a company, or for an `order_customer` or `order_address` that carries a company, because an order snapshot has no account type to check. A private account keeps needing a contact person everywhere, and the store API routes add the finer, setting driven rule on top.
 
 ```php
 // the same change in all four definitions, the existing flags stay
@@ -87,6 +87,9 @@ $definition->set($property, ...array_filter(
 ```
 
 `RegisterRoute`, `ChangeCustomerProfileRoute` and `UpsertAddressRoute` call it. `requireCompany` follows the path: a registration and a profile update demand one, an address demands one only while it is being created, and the confirm page demands none. `UpsertAddressRoute` also requires the customer to be a commercial one, because a private customer cannot make the names of an address optional when the checkout later judges it by the account. `CheckoutConfirmPageLoader` makes the names optional but does not require a company, so an address stored before the setting was switched on cannot block checkout.
+
+On an update with optional names, `UpsertAddressRoute` takes an omitted `firstName`, `lastName` or `company` from the stored address, so a request that sends only some fields cannot clear the name of a company address by accident.
+Without optional names nothing changes, and an omitted company is stored as `null` as before.
 
 ### Orders and documents
 
@@ -185,7 +188,7 @@ this._fields.forEach((field) => {
 
 ### Administration
 
-The two name fields become optional only when both settings allow it. One API service, `companyAccountNameFieldsService`, mirrors `areRequired()` for the sales channel of the customer, and only the three pages that save a customer call it: the create page, the detail page and the order customer modal. The base form and the card receive the answer as a prop and stay strict until it arrives. The company field is required for every commercial account there, whether or not the contact person is, because a commercial account in the Administration is created by a merchant who knows the company. Every read only place, the customer list, the order list, the search bar, the dashboard and the tag assignments, reads `displayName` from the API response instead of resolving the rule again in JavaScript.
+The two name fields become optional only when both settings allow it. One API service, `companyAccountNameFieldsService`, mirrors `areRequired()` for the sales channel of the customer through the internal action route `GET /api/_action/customer/company-account-name-fields`, and only the three pages that save a customer call it: the create page, the detail page and the order customer modal. The base form and the card receive the answer as a prop and stay strict until it arrives. The company field is required for every commercial account there, whether or not the contact person is, because a commercial account in the Administration is created by a merchant who knows the company. Every read only place, the customer list, the order list, the search bar, the dashboard and the tag assignments, reads `displayName` from the API response instead of resolving the rule again in JavaScript.
 
 The detail card already edits the account level company; the create page did not, so a customer created there carried the company on the billing address only. `Customers > New customer` gains the field in the account section for the commercial type, so the company is persisted on the customer from the start. This is a requirement of its own in the issue, not a side effect of the name change. A migration copies the company from the default billing address into accounts the Administration created without one.
 
@@ -207,8 +210,17 @@ contactPersonRequired() {
 
 What the API accepts after this change:
 
-* An empty string on `firstName` and `lastName` for `customer`, `customer_address`, `order_customer` and `order_address`, on every write path, `null` still rejected. `CustomerContactPersonSubscriber` keeps the one rule that needs no configuration: both names may only be empty for a commercial account with a company, or for an address with a company. A private account without a contact person is rejected on the Admin API and the Sync API as well.
-* `customer.displayName` and `orderCustomer.displayName` in store API and Admin API responses. They are runtime fields, so they cannot be sorted or searched by. The Administration customer list keeps sorting on `lastName,firstName`, which means a commercial account without a contact person displays as its company but sorts as an empty name. Search still finds it through `company`.
+* An empty string on `firstName` and `lastName` for `customer`, `customer_address`, `order_customer` and `order_address`, on every write path, `null` still rejected. `CustomerContactPersonSubscriber` keeps the one rule that needs no configuration: both names may only be empty for a commercial account with a company, for an address of such an account with a company, or for an order snapshot with a company. A private account without a contact person is rejected on the Admin API and the Sync API as well.
+* `customer.displayName` and `orderCustomer.displayName` in store API and Admin API responses. They are runtime fields, so they cannot be sorted or searched by. The Administration customer list sorts the name column on `lastName,firstName,company`, so commercial accounts without a contact person come first and are ordered by their company. Search finds them through `company`.
 * Two new system config keys, both defaulting to on, and no gate on the account type selection. A logged in commercial customer can have an optional contact person while the selection is off.
 * A migration that copies the company of the default billing address into the account of a commercial customer that has none.
-* The Administration needs [#20173](https://github.com/shopware/shopware/pull/20173) before it can save an empty name at all.
+
+What extensions have to do, as the commercial plugin did:
+
+* An entity that copies the names of a customer or an address, such as a subscription or an approval snapshot, needs `AllowEmptyString` on its own `firstName` and `lastName`.
+  Without it, saving such a copy for a company account without a contact person fails.
+* Code that builds its own address validation from `AddressValidationFactory`, for example a copy of the confirm page loader, does not get optional names for free.
+  `CompanyAccountNameFields` is internal, so only first party code can call it.
+  Third party code has to remove the blank check for company accounts itself, or keeps blocking those accounts.
+* A `MailAware` event that names the recipient should use `getDisplayName()` instead of joining the two names, like the core events above.
+* A template override that copies a core greeting or name output should call `parent()` or read `displayName`, so it follows the core rule instead of printing two empty names.

@@ -2,9 +2,9 @@
  * @sw-package framework
  *
  * Acceptance spec of the comment-only 6.8 codemods. A plugin with one realistic extension file per codemod is upgraded
- * once with `--write`. Each case lists its files as the upgrade must leave them, with the codemod comments written out
- * word for word; the plugin starts with the same files without those comment lines. A second run changes nothing and
- * keeps listing the spots as manual work.
+ * once with `--write`. Like `codemods.spec.ts`, it checks per codemod the count and the spots it marks, each with a
+ * codemod comment of its id. The rule specs pin the exact comments. A second run changes nothing and keeps listing
+ * the spots as manual work.
  */
 
 import fs from 'fs';
@@ -18,7 +18,6 @@ import { TODO_CODEMOD_CASES as CASES } from './codemods-6-8-todos.fixture';
 jest.setTimeout(120_000);
 
 const ADMINISTRATION = `${PLUGIN}/src/Resources/app/administration`;
-const MARKER = 'TODO Codemod(6.8, ';
 
 const FILES = CASES.flatMap((upgradeCase) => Object.keys(upgradeCase.files));
 
@@ -30,6 +29,13 @@ function report(extension: ExtensionUpgrade, id: string) {
     }
 
     return found;
+}
+
+/** The spots the report lists as manual work, as `<file below the administration folder>:<line>`, sorted. */
+function manualSpots(extension: ExtensionUpgrade, id: string): string[] {
+    return report(extension, id)
+        .manual.map(({ file, line }) => `${file.replace('src/Resources/app/administration/', '')}:${line}`)
+        .sort();
 }
 
 describe('scripts/extensionTooling/upgrade 6.8 comment-only codemods', () => {
@@ -44,10 +50,7 @@ describe('scripts/extensionTooling/upgrade 6.8 comment-only codemods', () => {
 
         for (const { files } of CASES) {
             for (const [file, lines] of Object.entries(files)) {
-                writeFile(
-                    path.join(projectRoot, ADMINISTRATION, file),
-                    lines.filter((line) => !line.includes(MARKER)),
-                );
+                writeFile(path.join(projectRoot, ADMINISTRATION, file), lines);
             }
         }
 
@@ -63,10 +66,18 @@ describe('scripts/extensionTooling/upgrade 6.8 comment-only codemods', () => {
         cleanupTempProject(projectRoot);
     });
 
-    it.each(CASES)('$id: $behaviour', ({ files }) => {
-        for (const [file, lines] of Object.entries(files)) {
-            expect(read(file)).toBe(`${lines.join('\n')}\n`);
-        }
+    it.each(CASES)('$id: $behaviour', ({ id, spots }) => {
+        expect(report(firstRun, id).changes).toBe(spots.length);
+        expect(manualSpots(firstRun, id)).toEqual(spots);
+
+        spots.forEach((spot) => {
+            const [file, line] = spot.split(':');
+            const marked = read(file)
+                .split('\n')
+                .slice(Math.max(Number(line) - 2, 0), Number(line));
+
+            expect(marked.join('\n')).toContain(`TODO Codemod(6.8, ${id}): `);
+        });
     });
 
     it('a second run changes no file, reports no changes and keeps the spots as manual work', async () => {
@@ -76,13 +87,11 @@ describe('scripts/extensionTooling/upgrade 6.8 comment-only codemods', () => {
         const [secondRun] = (await upgradeExtensions({ projectRoot, administrationRoot, write: true })).extensions;
 
         expect(FILES.map(read)).toEqual(before);
-
-        for (const { id } of CASES) {
-            expect({ id, changes: report(secondRun, id).changes, manual: report(secondRun, id).manual.length }).toEqual({
-                id,
-                changes: 0,
-                manual: report(firstRun, id).changes,
-            });
-        }
+        expect(Object.fromEntries(CASES.map(({ id }) => [id, report(secondRun, id).changes]))).toEqual(
+            Object.fromEntries(CASES.map(({ id }) => [id, 0])),
+        );
+        expect(Object.fromEntries(CASES.map(({ id }) => [id, manualSpots(secondRun, id)]))).toEqual(
+            Object.fromEntries(CASES.map(({ id, spots }) => [id, spots])),
+        );
     });
 });

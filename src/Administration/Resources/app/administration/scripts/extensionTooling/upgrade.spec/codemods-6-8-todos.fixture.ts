@@ -1,8 +1,8 @@
 /**
  * @sw-package framework
  *
- * The cases of `codemods-6-8-todos.spec.ts`: for every comment-only 6.8 codemod, realistic extension files as the
- * upgrade must leave them, with the codemod comments written out word for word.
+ * The cases of `codemods-6-8-todos.spec.ts`: for every comment-only 6.8 codemod, realistic extension files and the
+ * spots the upgrade marks in them.
  *
  * Not a spec file: no `.spec.ts` suffix, so Jest does not execute it.
  */
@@ -11,8 +11,13 @@ export interface UpgradeCase {
     /** Registry id of the codemod. */
     id: string;
     behaviour: string;
-    /** The upgraded files by path below the administration folder of the plugin. */
+    /** The extension files by path below the administration folder of the plugin. */
     files: Record<string, string[]>;
+    /**
+     * The spots the report lists as manual work, as `<file>:<line>` after the upgrade, sorted.
+     * Scripts report the marked line, templates the line of the codemod comment above it.
+     */
+    spots: string[];
 }
 
 export const TODO_CODEMOD_CASES: UpgradeCase[] = [
@@ -29,22 +34,24 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
                 '    }',
                 '',
                 '    async grantAdminAccess(integration) {',
-                "        // TODO Codemod(6.8, service-calls): integrationService.updateAdmin() is removed. Set `integration.admin` on the entity and save it with `Shopware.Service('repositoryFactory').create('integration').save(integration)`.",
                 "        await Service('integrationService').updateAdmin(integration.id, true);",
                 '    }',
                 '',
                 '    isValidContactEmail(email) {',
-                "        // TODO Codemod(6.8, service-calls): validationService.email() is removed. Use `await Shopware.Service('validationApiService').validateEmailAddress(value)`; it is async and validates on the server.",
                 "        return Service('validationService').email(email);",
                 '    }',
                 '',
                 '    previewOrderNumber(pattern) {',
-                '        // TODO Codemod(6.8, service-calls): numberRangeService.previewPattern() is removed with the type-based preview route. Use `previewPatternByNumberRangeId(numberRangeId, pattern, start)` with the id of a saved number range.',
                 "        return this.numberRangeService.previewPattern('order', pattern, 1);",
                 '    }',
                 '}',
             ],
         },
+        spots: [
+            'src/service/acme-integration.service.js:10',
+            'src/service/acme-integration.service.js:15',
+            'src/service/acme-integration.service.js:20',
+        ],
     },
     {
         id: 'composition-api-private',
@@ -53,7 +60,6 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
             'src/extension/sw-product-list/index.js': [
                 "import { computed } from 'vue';",
                 '',
-                '// TODO Codemod(6.8, composition-api-private): The Composition API extension system is private in 6.8. Move this override to sw-product-list.override.vue (<script setup>, useSwPreviousState(), swDefineOverride({ … })).',
                 "Shopware.Component.overrideComponentSetup()('sw-product-list', (previousState) => {",
                 '    const productColumns = computed(() => [',
                 '        ...previousState.productColumns.value,',
@@ -64,6 +70,9 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
                 '});',
             ],
         },
+        spots: [
+            'src/extension/sw-product-list/index.js:4',
+        ],
     },
     {
         id: 'vuex-state',
@@ -73,25 +82,27 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
                 'export default {',
                 '    computed: {',
                 '        flow() {',
-                "            // TODO Codemod(6.8, vuex-state): Shopware.State (Vuex) is removed. Use Shopware.Store.get('swFlow').flow (Pinia id, the Vuex id was swFlowState).",
                 "            return Shopware.State.get('swFlowState').flow;",
                 '        },',
                 '',
                 '        isConsentGiven() {',
-                '            // TODO Codemod(6.8, vuex-state): Shopware.State (Vuex) is removed. The Vuex module usageData has no Pinia store; remove this access.',
                 "            return Shopware.State.get('usageData').isConsentGiven;",
                 '        },',
                 '    },',
                 '',
                 '    methods: {',
                 '        setTriggerActions(actions) {',
-                "            // TODO Codemod(6.8, vuex-state): Shopware.State (Vuex) is removed. Pinia has no mutations: call an action or assign the state on Shopware.Store.get('swFlow') (Pinia id, the Vuex id was swFlowState).",
                 "            Shopware.State.commit('swFlowState/setTriggerActions', actions);",
                 '        },',
                 '    },',
                 '};',
             ],
         },
+        spots: [
+            'src/component/acme-flow-panel/index.js:10',
+            'src/component/acme-flow-panel/index.js:17',
+            'src/component/acme-flow-panel/index.js:5',
+        ],
     },
     {
         id: 'axios-v1',
@@ -107,25 +118,26 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
                 '    }',
                 '',
                 '    sync(payload) {',
-                '        // TODO Codemod(6.8, axios-v1): axios v1 is the default HTTP client in 6.8 and deprecates CancelToken. Replace it with an AbortController (`signal: controller.signal`, `controller.abort()`) and detect cancellation with httpClient.isCancel(error).',
                 '        this.cancelSource = this.httpClient.CancelToken.source();',
                 '',
                 "        return this.httpClient.post('/_action/acme-sync', payload, {",
                 '            headers: this.getBasicHeaders(),',
-                '            // TODO Codemod(6.8, axios-v1): axios v1 is the default HTTP client in 6.8 and deprecates CancelToken. Replace it with an AbortController (`signal: controller.signal`, `controller.abort()`) and detect cancellation with httpClient.isCancel(error).',
                 '            cancelToken: this.cancelSource.token,',
                 '        });',
                 '    }',
                 '}',
             ],
         },
+        spots: [
+            'src/service/api/acme-sync.api.service.js:11',
+            'src/service/api/acme-sync.api.service.js:16',
+        ],
     },
     {
         id: 'vite-8',
         behaviour: 'marks the own Vite config at its top and default imports of CommonJS-only packages',
         files: {
             'vite.config.mts': [
-                '// TODO Codemod(6.8, vite-8): Shopware 6.8 builds Administration code with Vite 8 (Rolldown and Oxc instead of Rollup and esbuild). If this config or its plugins take part in that build, migrate them per the Vite 7 and Vite 8 migration guides (https://v7.vite.dev/guide/migration, https://vite.dev/guide/migration) and test them with ADMIN_VITE_8=1 on 6.7. Vite 8 needs Node.js ^20.19.0 || >=22.12.0.',
                 "import { defineConfig } from 'vite';",
                 '',
                 'export default defineConfig({',
@@ -135,7 +147,6 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
                 '});',
             ],
             'src/component/acme-search/index.js': [
-                '// TODO Codemod(6.8, vite-8): Vite 8 changes the default import of CommonJS modules: it is module.exports if the importer is .mjs/.mts, its package.json sets "type": "module" or the module does not set __esModule, otherwise module.exports.default. Check this import.',
                 "import debounce from 'lodash/debounce';",
                 '',
                 'export default {',
@@ -151,6 +162,10 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
                 '};',
             ],
         },
+        spots: [
+            'src/component/acme-search/index.js:2',
+            'vite.config.mts:2',
+        ],
     },
     {
         id: 'worker-notification',
@@ -159,9 +174,7 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
             'src/init/acme-indexing-notification.init.js': [
                 'const { WorkerNotification } = Shopware;',
                 '',
-                "// TODO Codemod(6.8, worker-notification): adminWorker.enableQueueStatsWorker is removed with the increment-based queue notifications. Remove this check; for queue statistics use Shopware.Service('messageStatsService').getStats().",
                 'if (Shopware.Context.app.config.adminWorker?.enableQueueStatsWorker) {',
-                "    // TODO Codemod(6.8, worker-notification): Shopware.WorkerNotification is removed without replacement. Remove this middleware; for queue statistics use Shopware.Service('messageStatsService').getStats().",
                 "    WorkerNotification.register('AcmeIndexingMessage', {",
                 "        name: 'Acme\\\\IndexingMessage',",
                 '        fn: (next) => next(),',
@@ -169,6 +182,10 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
                 '}',
             ],
         },
+        spots: [
+            'src/init/acme-indexing-notification.init.js:4',
+            'src/init/acme-indexing-notification.init.js:6',
+        ],
     },
     {
         id: 'mail-template-api',
@@ -177,7 +194,6 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
             'src/extension/sw-mail-template-detail/index.js': [
                 "Shopware.Component.override('sw-mail-template-detail', {",
                 '    computed: {',
-                '        // TODO Codemod(6.8, mail-template-api): sw-mail-template-detail.hasTemplateData is removed without replacement, together with the stored mail_template_type.template_data.',
                 '        hasTemplateData() {',
                 "            return this.$super('hasTemplateData') || this.acmeHasTemplateData;",
                 '        },',
@@ -185,7 +201,6 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
                 '',
                 '    methods: {',
                 '        async onSendAcmeTestMail() {',
-                '            // TODO Codemod(6.8, mail-template-api): mailService.testMailTemplate() is removed. Use sendMailTemplate(recipient, recipient, mailTemplate, mailTemplateMedia, salesChannelId, true, documentIds, {}, mailTemplateTypeId, mailTemplateId) and pass the template data instead of {} where the template needs it; 6.8 no longer falls back to mailTemplate.mailTemplateType.templateData.',
                 '            await this.mailService.testMailTemplate(',
                 '                this.testerMail,',
                 '                this.mailTemplate,',
@@ -197,6 +212,10 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
                 '});',
             ],
         },
+        spots: [
+            'src/extension/sw-mail-template-detail/index.js:12',
+            'src/extension/sw-mail-template-detail/index.js:4',
+        ],
     },
     {
         id: 'cms-helpers',
@@ -205,7 +224,6 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
             'src/extension/sw-cms-detail/index.js': [
                 "Shopware.Component.override('sw-cms-detail', {",
                 '    methods: {',
-                '        // TODO Codemod(6.8, cms-helpers): sw-cms-detail.resetCmsPageState() is removed. Override or call resetRelatedStores() instead; it resets the cmsPage, swCategoryDetail and swProductDetail stores.',
                 '        resetCmsPageState() {',
                 "            this.$super('resetCmsPageState');",
                 "            Shopware.Store.get('acmeCmsExtras').$reset();",
@@ -214,6 +232,9 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
                 '});',
             ],
         },
+        spots: [
+            'src/extension/sw-cms-detail/index.js:4',
+        ],
     },
     {
         id: 'order-detail-store',
@@ -221,21 +242,23 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
         files: {
             'src/extension/sw-order-detail-general/index.js': [
                 "Shopware.Component.override('sw-order-detail-general', {",
-                "    // TODO Codemod(6.8, order-detail-store): The swOrderDetailOnLoadingChange provide of sw-order-detail is removed. Use Shopware.Store.get('swOrderDetail').setLoading(['order', value]).",
                 "    inject: ['swOrderDetailOnLoadingChange', 'acmeRecalculationService'],",
                 '',
                 '    methods: {',
                 '        async onAcmeRecalculate() {',
-                "            // TODO Codemod(6.8, order-detail-store): The swOrderDetailOnLoadingChange provide of sw-order-detail is removed. Use Shopware.Store.get('swOrderDetail').setLoading(['order', value]).",
                 '            this.swOrderDetailOnLoadingChange(true);',
                 '            await this.acmeRecalculationService.recalculate(this.order.id);',
-                "            // TODO Codemod(6.8, order-detail-store): The swOrderDetailOnLoadingChange provide of sw-order-detail is removed. Use Shopware.Store.get('swOrderDetail').setLoading(['order', value]).",
                 '            this.swOrderDetailOnLoadingChange(false);',
                 '        },',
                 '    },',
                 '});',
             ],
         },
+        spots: [
+            'src/extension/sw-order-detail-general/index.js:11',
+            'src/extension/sw-order-detail-general/index.js:3',
+            'src/extension/sw-order-detail-general/index.js:8',
+        ],
     },
     {
         id: 'order-promotion-toggle',
@@ -250,7 +273,6 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
             ],
             'src/extension/sw-order-promotion-field/sw-order-promotion-field.html.twig': [
                 '{% block sw_order_promotion_field_switch %}',
-                '{# TODO Codemod(6.8, order-promotion-toggle): sw-order-promotion-field.disabledAutoPromotions is removed without replacement. The field applies automatic promotions with applyAutomaticPromotions() now. #}',
                 '<mt-switch',
                 '    v-model="disabledAutoPromotions"',
                 '    class="acme-promotion-field__switch"',
@@ -260,13 +282,15 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
                 '{% endblock %}',
             ],
         },
+        spots: [
+            'src/extension/sw-order-promotion-field/sw-order-promotion-field.html.twig:2',
+        ],
     },
     {
         id: 'order-unused-components',
         behaviour: 'marks an override of a removed order component',
         files: {
             'src/extension/sw-order-user-card/index.js': [
-                '// TODO Codemod(6.8, order-unused-components): sw-order-user-card is removed without replacement. The order detail page shows the customer in sw-order-general-info and sw-order-detail-details.',
                 "Shopware.Component.override('sw-order-user-card', {",
                 '    computed: {',
                 '        hasDifferentBillingAndShippingAddress() {',
@@ -276,6 +300,9 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
                 '});',
             ],
         },
+        spots: [
+            'src/extension/sw-order-user-card/index.js:2',
+        ],
     },
     {
         id: 'order-shipping-costs',
@@ -284,7 +311,6 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
             'src/extension/sw-order-detail-details/index.js': [
                 "Shopware.Component.override('sw-order-detail-details', {",
                 '    methods: {',
-                '        // TODO Codemod(6.8, order-shipping-costs): Shipping costs are no longer edited in sw-order-detail-details. Override onShippingChargeEdited() in sw-order-detail-general instead; it takes no argument and reads this.shippingCosts.',
                 '        onShippingChargeEdited(amount) {',
                 "            this.$super('onShippingChargeEdited', amount);",
                 '            this.acmeShippingTracker.track(this.order.id, amount);',
@@ -293,6 +319,9 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
                 '});',
             ],
         },
+        spots: [
+            'src/extension/sw-order-detail-details/index.js:4',
+        ],
     },
     {
         id: 'product-states',
@@ -302,13 +331,15 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
                 "Shopware.Component.override('sw-product-detail-base', {",
                 '    computed: {',
                 '        showAcmeLicenseCard() {',
-                "            // TODO Codemod(6.8, product-states): productStates is removed. Use productType, one type instead of a list: this.productType === 'digital' (is-physical → physical, is-download → digital).",
                 "            return this.productStates.includes('is-download');",
                 '        },',
                 '    },',
                 '});',
             ],
         },
+        spots: [
+            'src/extension/sw-product-detail-base/index.js:5',
+        ],
     },
     {
         id: 'system-config-schema',
@@ -320,7 +351,6 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
                 "Shopware.Application.addServiceProviderDecorator('systemConfigApiService', (service) => {",
                 '    const getConfig = service.getConfig.bind(service);',
                 '',
-                '    // TODO Codemod(6.8, system-config-schema): sw-system-config no longer merges cards from a decorated systemConfigApiService.getConfig(). Decorate getSchema(domain) instead and return tabs [{ name, title, cards }].',
                 '    service.getConfig = async (domain, ...args) => {',
                 '        const cards = await getConfig(domain, ...args);',
                 '',
@@ -331,6 +361,9 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
                 '});',
             ],
         },
+        spots: [
+            'src/init/acme-system-config.init.js:7',
+        ],
     },
     {
         id: 'product-advanced-mode',
@@ -339,7 +372,6 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
             'src/extension/sw-product-detail/index.js': [
                 "Shopware.Component.override('sw-product-detail', {",
                 '    computed: {',
-                '        // TODO Codemod(6.8, product-advanced-mode): sw-product-detail.getModeSettingGeneralTab is removed with the product detail advanced mode, without replacement. All tabs and cards of the product detail page are always visible.',
                 '        getModeSettingGeneralTab() {',
                 '            return [',
                 "                ...this.$super('getModeSettingGeneralTab'),",
@@ -350,6 +382,9 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
                 '});',
             ],
         },
+        spots: [
+            'src/extension/sw-product-detail/index.js:4',
+        ],
     },
     {
         id: 'custom-field-set-loaders',
@@ -358,7 +393,6 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
             'src/extension/sw-manufacturer-detail/index.js': [
                 "Shopware.Component.override('sw-manufacturer-detail', {",
                 '    computed: {',
-                "        // TODO Codemod(6.8, custom-field-set-loaders): sw-manufacturer-detail.customFieldSetCriteria is removed. Use Shopware.Service('customFieldDataProviderService').getCustomFieldSets('product_manufacturer').",
                 '        customFieldSetCriteria() {',
                 "            const criteria = this.$super('customFieldSetCriteria');",
                 '',
@@ -370,6 +404,9 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
                 '});',
             ],
         },
+        spots: [
+            'src/extension/sw-manufacturer-detail/index.js:4',
+        ],
     },
     {
         id: 'rule-condition-components',
@@ -378,7 +415,6 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
             'src/init/acme-rule-conditions.init.js': [
                 "Shopware.Application.addServiceProviderDecorator('ruleConditionDataProviderService', (ruleConditionService) => {",
                 "    ruleConditionService.addCondition('acmeLineItemNet', {",
-                "        // TODO Codemod(6.8, rule-condition-components): sw-condition-is-net-select is removed. The purchase price condition stores type ('gross' or 'net') instead of isNet. Use sw-condition-generic-line-item for line item conditions or sw-condition-generic otherwise, and configure the fields in Rule::getConfig().",
                 "        component: 'sw-condition-is-net-select',",
                 "        label: 'acme.rule.lineItemNet',",
                 "        scopes: ['lineItem'],",
@@ -389,6 +425,9 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
                 '});',
             ],
         },
+        spots: [
+            'src/init/acme-rule-conditions.init.js:4',
+        ],
     },
     {
         id: 'agentic-commerce-ui',
@@ -405,7 +444,6 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
                 '{% block sw_sales_channel_detail_agentic_commerce_tracking %}',
                 '{% parent %}',
                 '',
-                '{# TODO Codemod(6.8, agentic-commerce-ui): isAgenticCommerce is removed from the core, because the Agentic Commerce Administration UI moved to SwagAgenticCommerce. Install it and remove this code. #}',
                 '<mt-card',
                 '    v-if="isAgenticCommerce"',
                 '    position-identifier="acme-agentic-commerce-feed"',
@@ -416,6 +454,9 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
                 '{% endblock %}',
             ],
         },
+        spots: [
+            'src/extension/sw-sales-channel-detail-base/sw-sales-channel-detail-base.html.twig:4',
+        ],
     },
     {
         id: 'media-grid-deselect',
@@ -440,7 +481,6 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
             ],
             'src/component/acme-media-picker/acme-media-picker.html.twig': [
                 '{% block acme_media_picker %}',
-                '{# TODO Codemod(6.8, media-grid-deselect): sw-media-grid no longer clears the selection on an outside click. Listen to media-item-selection-clear from the media sidebar instead. #}',
                 '<sw-media-grid',
                 '    class="acme-media-picker"',
                 '    presentation="medium-preview"',
@@ -451,6 +491,9 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
                 '{% endblock %}',
             ],
         },
+        spots: [
+            'src/component/acme-media-picker/acme-media-picker.html.twig:2',
+        ],
     },
     {
         id: 'settings-product-promotion-members',
@@ -465,7 +508,6 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
             ],
             'src/extension/sw-promotion-v2-cart-condition-form/sw-promotion-v2-cart-condition-form.html.twig': [
                 '{% block sw_promotion_v2_cart_condition_form_rules_field %}',
-                '{# TODO Codemod(6.8, settings-product-promotion-members): This ruleFilter computed is removed. It equals the default ruleFilter of sw-select-rule-create; drop the :rule-filter binding. #}',
                 '<sw-select-rule-create',
                 '    v-if="promotion"',
                 '    v-model:rules="promotion.cartRules"',
@@ -478,6 +520,9 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
                 '{% endblock %}',
             ],
         },
+        spots: [
+            'src/extension/sw-promotion-v2-cart-condition-form/sw-promotion-v2-cart-condition-form.html.twig:2',
+        ],
     },
     {
         id: 'flag-gated-behaviour',
@@ -487,7 +532,6 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
                 "Shopware.Component.override('sw-media-library', {",
                 '    data() {',
                 '        return {',
-                '            // TODO Codemod(6.8, flag-gated-behaviour): The default sorting of sw-media-library changes from fileName asc to createdAt desc in 6.8. Set sorting explicitly if this override relies on the old order.',
                 '            sorting: {',
                 "                sortBy: 'fileName',",
                 "                sortDirection: 'asc',",
@@ -497,7 +541,6 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
                 '    },',
                 '',
                 '    computed: {',
-                '        // TODO Codemod(6.8, flag-gated-behaviour): The default sorting of sw-media-library changes from fileName asc to createdAt desc in 6.8. Set sorting explicitly if this override relies on the old order.',
                 '        nextMediaCriteria() {',
                 "            const criteria = this.$super('nextMediaCriteria');",
                 '',
@@ -511,5 +554,9 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
                 '});',
             ],
         },
+        spots: [
+            'src/extension/sw-media-library/index.js:15',
+            'src/extension/sw-media-library/index.js:5',
+        ],
     },
 ];

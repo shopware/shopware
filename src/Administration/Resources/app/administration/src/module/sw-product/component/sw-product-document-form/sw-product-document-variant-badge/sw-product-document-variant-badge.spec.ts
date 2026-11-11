@@ -160,6 +160,7 @@ describe('sw-product-document-form variant badges', () => {
         expect(wrapper.find('.sw-product-document-variant-badge').exists()).toBe(true);
 
         await wrapper.get('.sw-inheritance-switch--is-not-inherited .mt-icon').trigger('click');
+        await wrapper.get('.sw-product-document-form__confirm-restore-inheritance').trigger('click');
         await wrapper.get('.sw-inheritance-switch--is-inherited .mt-icon').trigger('click');
 
         expect(getDocuments()).toHaveLength(1);

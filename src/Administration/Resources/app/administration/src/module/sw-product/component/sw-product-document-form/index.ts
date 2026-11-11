@@ -12,11 +12,12 @@ import {
 } from './document-translation.utils';
 import { loadDocumentVariants, getDocumentVariantCandidates } from './document-variant.helper';
 import { copyInheritedDocuments } from './document-inheritance.helper';
+import { updateDocumentPositions } from './document-position.helper';
 import { getHintParams, getFileAccept, isInvalidDocumentFile } from './document-upload.helper';
 import template from './sw-product-document-form.html.twig';
 import './sw-product-document-form.scss';
 
-type DocumentInheritance = { isInherited: boolean; forceInheritanceRemove: boolean };
+type DocumentInheritance = { isInherited: boolean; forceInheritanceRemove: boolean; restoreInheritance: () => void };
 
 /**
  * @private
@@ -35,17 +36,14 @@ export default Shopware.Component.wrapComponentConfig({
     ],
 
     props: {
-        disabled: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
+        disabled: { type: Boolean, required: false, default: false },
     },
 
     data() {
         return {
             showUploadModal: false,
             showMediaModal: false,
+            showRestoreInheritanceModal: false,
             mediaFolderId: undefined as string | null | undefined,
             editingDocument: null as Entity<'product_document'> | null,
             removingDocument: null as Entity<'product_document'> | null,
@@ -107,8 +105,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         canEdit(): boolean {
-            const language = this.documentContext.language;
-            const languageLoaded = this.isDefaultLanguage || language?.id === this.languageId;
+            const languageLoaded = this.isDefaultLanguage || this.documentContext.language?.id === this.languageId;
             return !this.disabled && this.acl.can('product.editor') && languageLoaded;
         },
 
@@ -183,6 +180,7 @@ export default Shopware.Component.wrapComponentConfig({
     watch: {
         product() {
             this.showUploadModal = false;
+            this.onCloseRestoreInheritanceModal();
             this.closeDocumentEditor();
             this.closeRemoveDocumentModal();
         },
@@ -324,7 +322,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             this.documents.moveItem(oldIndex, newIndex);
-            this.updatePositions();
+            updateDocumentPositions(this.documents);
         },
 
         openDocumentEditor(document: Entity<'product_document'>): void {
@@ -451,7 +449,7 @@ export default Shopware.Component.wrapComponentConfig({
                 }
                 if (this.isDefaultLanguage) {
                     this.documents.remove(document.id);
-                    this.updatePositions();
+                    updateDocumentPositions(this.documents);
                 } else {
                     this.resetDocumentLanguageVersion(document);
                 }
@@ -538,9 +536,7 @@ export default Shopware.Component.wrapComponentConfig({
                 }
                 if (this.isDefaultLanguage) {
                     matching.forEach((copy) => documents.remove(copy.id));
-                    documents.forEach((copy, index) => {
-                        copy.position = index;
-                    });
+                    updateDocumentPositions(documents);
                 } else {
                     matching.forEach((copy) => this.resetDocumentLanguageVersion(copy));
                 }
@@ -562,17 +558,22 @@ export default Shopware.Component.wrapComponentConfig({
                 this.product.id,
                 this.documentRepository,
                 this.entityFactory as EntityFactory,
-            ).forEach((document) => {
-                this.documents.add(document);
-            });
+            ).forEach((document) => this.documents.add(document));
 
             return this.documents;
         },
 
-        updatePositions(): void {
-            this.documents.forEach((document, index) => {
-                document.position = index;
-            });
+        onShowRestoreInheritanceModal(): void {
+            this.showRestoreInheritanceModal = true;
+        },
+
+        onCloseRestoreInheritanceModal(): void {
+            this.showRestoreInheritanceModal = false;
+        },
+
+        onConfirmRestoreInheritance(): void {
+            this.onCloseRestoreInheritanceModal();
+            (this.$refs.documentInheritance as DocumentInheritance).restoreInheritance();
         },
     },
 });

@@ -258,31 +258,25 @@ class CriteriaQueryBuilder
     }
 
     /**
-     * A grouped price sorting positions a group by its cheapest entity. With {@see Criteria::STATE_MAIN_VARIANT_GROUP_SORTING},
-     * a group which contains its configured main variant is positioned by the price of that main variant instead,
-     * because that is the variant a product listing displays for the group.
+     * Prefers the price of the main variant, because that is the variant a product listing displays for the group.
      */
-    private function getGroupedCheapestPriceAccessor(EntityDefinition $definition, Criteria $criteria, Context $context, string $accessor): string
+    private function getGroupedCheapestPriceAccessor(EntityDefinition $definition, Criteria $criteria, Context $context, string $cheapestPrice): string
     {
-        $cheapest = 'MIN(' . $accessor . ')';
-
         if (!$criteria->hasState(Criteria::STATE_MAIN_VARIANT_GROUP_SORTING)
             || $criteria->getGroupFields() === []
             || !$definition->getField('variantListingConfig') instanceof VariantListingConfigField
         ) {
-            return $cheapest;
+            return 'MIN(' . $cheapestPrice . ')';
         }
 
         $root = $definition->getEntityName();
+        $id = EntityDefinitionQueryHelper::escape($root) . '.`id`';
+        $mainVariantId = $this->helper->getFieldAccessor('variantListingConfig.mainVariantId', $definition, $root, $context);
+        $displayParent = $this->helper->getFieldAccessor('variantListingConfig.displayParent', $definition, $root, $context);
 
-        $isMainVariant = \sprintf(
-            '%s = LOWER(HEX(%s.`id`)) AND IFNULL(%s, "0") NOT IN ("1", "true")',
-            $this->helper->getFieldAccessor('variantListingConfig.mainVariantId', $definition, $root, $context),
-            EntityDefinitionQueryHelper::escape($root),
-            $this->helper->getFieldAccessor('variantListingConfig.displayParent', $definition, $root, $context)
-        );
+        $isMainVariant = $mainVariantId . ' = LOWER(HEX(' . $id . ')) AND IFNULL(' . $displayParent . ', 0) = 0';
 
-        return \sprintf('COALESCE(MIN(IF(%s, %s, NULL)), %s)', $isMainVariant, $accessor, $cheapest);
+        return 'COALESCE(MIN(IF(' . $isMainVariant . ', ' . $cheapestPrice . ', NULL)), MIN(' . $cheapestPrice . '))';
     }
 
     private function hasGroupBy(Criteria $criteria, QueryBuilder $query): bool

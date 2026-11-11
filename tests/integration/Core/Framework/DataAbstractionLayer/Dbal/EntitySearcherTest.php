@@ -451,7 +451,6 @@ class EntitySearcherTest extends TestCase
 
     public static function mainVariantSortingProvider(): \Generator
     {
-        // the group is positioned by its main variant (100) instead of its cheapest variant (10)
         yield 'ascending' => [FieldSorting::ASCENDING, ['single', 'parent']];
         yield 'descending' => [FieldSorting::DESCENDING, ['parent', 'single']];
     }
@@ -467,7 +466,6 @@ class EntitySearcherTest extends TestCase
 
         $result = $this->searchByMainVariant($ids, new FieldSorting('cheapestPrice', FieldSorting::ASCENDING), $productKeys);
 
-        // the group is positioned by its cheapest variant (10)
         static::assertSame(['parent', 'single'], $this->getGroups($ids, $result));
     }
 
@@ -623,7 +621,6 @@ class EntitySearcherTest extends TestCase
 
     private static function createInheritanceContext(): Context
     {
-        // listings consider inheritance, which is what makes the variants read the listing config of their parent
         $context = Context::createDefaultContext();
         $context->setConsiderInheritance(true);
 

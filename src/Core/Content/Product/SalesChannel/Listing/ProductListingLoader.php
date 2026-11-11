@@ -369,7 +369,6 @@ class ProductListingLoader
 
         if ($displayAsGroup) {
             $this->addGrouping($criteria);
-            // position every variant group by its main variant, which is the variant the listing displays for it
             $criteria->addState(Criteria::STATE_MAIN_VARIANT_GROUP_SORTING);
         }
 

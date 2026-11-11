@@ -11,10 +11,10 @@ const { md5 } = Shopware.Utils.format;
 
 // Indexing is queued so the requests stay short for products with many variants.
 // The server reads it only from the headers.
-const SYNC_HEADERS = { 'single-operation': 1, 'indexing-behavior': 'use-queue-indexing' };
+const SYNC_HEADERS = { 'indexing-behavior': 'use-queue-indexing' };
 
 // Nothing indexed or shown in the storefront depends on the variant restrictions
-const RESTRICTIONS_SYNC_HEADERS = { 'single-operation': 1, 'indexing-behavior': 'disable-indexing' };
+const RESTRICTIONS_SYNC_HEADERS = { 'indexing-behavior': 'disable-indexing' };
 
 // Every chunk queues a re-index of the parent with all its variants, so fewer and bigger chunks mean less work
 const CHUNK_SIZE = 100;
@@ -32,11 +32,9 @@ export default class VariantsGenerator extends EventEmitter {
         super();
 
         this.product = null;
-        this.productIds = [];
 
         // set dependencies
         this.syncService = Shopware.Service('syncService');
-        this.cacheService = Shopware.Service('cacheApiService');
         this.httpClient = this.syncService.httpClient;
 
         // local data
@@ -192,22 +190,18 @@ export default class VariantsGenerator extends EventEmitter {
 
             // send api calls for delete
             this.processQueue('delete', mapped, 0, CHUNK_SIZE, resolveDelete, rejectDelete);
-        })
-            .then(() => {
-                // notify view to refresh progress
-                this.emit('progress-max', {
-                    type: 'upsert',
-                    progress: queues.createQueue.length,
-                });
-
-                return new Promise((resolve, reject) => {
-                    // send api calls for create
-                    this.processQueue('upsert', queues.createQueue, 0, CHUNK_SIZE, resolve, reject);
-                });
-            })
-            .then(() => {
-                this.indexProducts(this.productIds);
+        }).then(() => {
+            // notify view to refresh progress
+            this.emit('progress-max', {
+                type: 'upsert',
+                progress: queues.createQueue.length,
             });
+
+            return new Promise((resolve, reject) => {
+                // send api calls for create
+                this.processQueue('upsert', queues.createQueue, 0, CHUNK_SIZE, resolve, reject);
+            });
+        });
     }
 
     generateVariants(currencies, product, isAddOnly = false) {
@@ -606,18 +600,9 @@ export default class VariantsGenerator extends EventEmitter {
             undefined,
             isRetryable,
         )
-            .then((response) => {
-                this.productIds.concat(response.data?.product ?? []).concat(response.data?.deleted?.product ?? []);
+            .then(() => {
                 this.processQueue(type, queue, offset + limit, limit, resolve, reject);
             })
             .catch(reject);
-    }
-
-    indexProducts(productIds) {
-        if (productIds.length <= 0) {
-            return;
-        }
-
-        this.cacheService.indexProducts(productIds);
     }
 }

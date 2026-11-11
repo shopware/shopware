@@ -207,6 +207,36 @@ New sales channel contexts now decide tax-free delivery like the cart (`TaxDetec
 commercial customers only get "Tax-free (B2B)", all other customers only "Tax-free (B2C)".
 Cart and order taxes stay the same, but Rule Builder conditions like "Cart amount" can match differently than before for customers who only met the other setting.
 
+### MCP servers run on `mcp/sdk` 0.9 and `symfony/mcp-bundle` 0.15
+
+Shopware now requires `mcp/sdk` 0.9 and `symfony/mcp-bundle` 0.15.
+Plugins and bundles that register MCP tools are affected in these points:
+
+* A tool that declares an `outputSchema` has its `structuredContent` validated against it.
+  A result that does not match is sent as an error result with `isError: true`.
+  Return `new \stdClass()` for an empty object, since `[]` is sent as an array.
+* A tool whose `inputSchema` has a `properties` member that is not an object, or a `required` member that is not a list, is rejected when it is registered.
+* `#[CompletionProvider]` no longer takes `providerClass`; pass the class to `provider` instead.
+
+The SDK classes for an OAuth proxy, client registration and OIDC discovery were removed, see the [mcp/sdk 0.9.0 changelog](https://github.com/modelcontextprotocol/php-sdk/blob/v0.9.0/CHANGELOG.md).
+The MCP endpoints match the `Origin` header of browser clients exactly, including scheme and port.
+They accept the origins of `APP_URL` and of every sales channel domain.
+A loopback origin, for example the MCP Inspector on `http://localhost:6274`, is accepted only for a shop on a loopback host such as `localhost` or `*.localhost`.
+Clients without an `Origin` header, such as CLI clients and desktop apps, are not affected.
+Allow further origins with `shopware.mcp.allowed_origins`.
+An entry is an exact origin, an origin with `:*` for any port, or `*` for any origin:
+
+```yaml
+shopware:
+    mcp:
+        allowed_origins:
+            - 'https://chat.example.com'
+            - 'http://localhost:*'
+```
+
+The list can also come from an environment variable, for example `allowed_origins: '%env(csv:MCP_ALLOWED_ORIGINS)%'`.
+A rejected origin is logged as a warning in the `mcp` channel.
+
 ### ZUGFeRD e-invoices send the real unit code
 
 Product line items now store the `uneceCode` and the `purchaseUnit` of the product in their payload (`payload.uneceCode`, `payload.purchaseUnit`) when they are added to the cart, so orders keep the values the product had when the order was placed. Variants without their own unit store the parent's values.
@@ -273,6 +303,11 @@ A `0` is no longer replaced by the mapping's default value and satisfies a requi
 Empty cells behave as before.
 Check import files that relied on `0` being ignored.
 
+### Event once all line items of an add are in the cart
+
+`CartItemAddRoute` dispatches the new `Shopware\Core\Checkout\Cart\Event\LineItemsAddedBeforeCalculationEvent` once per add, after `BeforeLineItemAddedEvent` was dispatched for each line item and before the cart is calculated.
+Listeners that need every line item of an add, for example of a reorder, can use it to run once per add instead of once per line item.
+
 ### Collection class for import/export files
 
 `import_export_file` entities are now loaded into an `ImportExportFileCollection` instead of a generic `EntityCollection`.
@@ -281,6 +316,18 @@ Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations
 ### Deprecated `PluginZipImportCommand::$cacheClearer`
 
 The property is unused and will be removed in 6.8.
+
+### SEO URL routes can restrict the associations of the template
+
+`SeoUrlGenerator` now calls `SeoUrlRouteInterface::prepareCriteria()` after it added the associations the SEO URL template uses.
+A route can restrict these associations, for example with `$criteria->getAssociation('mainCategories')->addFilter(...)` when `$criteria->hasAssociation('mainCategories')`.
+`ProductPageSeoUrlRoute` uses this to load only the main category of the sales channel the URLs are generated for.
+
+### Promotion line items store the discount value in the cart currency
+
+`payload.value` of promotion line items with an absolute, fixed or fixed unit discount now contains the value in the cart currency, using the advanced price of the currency or the currency factor.
+Orders placed before this change still contain the default currency value.
+Extensions and headless frontends that convert `payload.value` into the cart currency themselves must remove that conversion.
 
 ## API
 
@@ -404,7 +451,20 @@ Apps no longer trigger a deprecation when they install or update with inline cus
 `Resources/config/custom-fields.xml` stays the preferred format for new apps.
 If an app ships both, the file takes precedence, the inline definition is ignored, and Shopware logs a warning.
 
+### App MCP prompt and resource responses
+
+App MCP prompt responses are now decoded as JSON arrays of messages with a `user` or `assistant` role and `content`, for example `[{"role":"user","content":"Hello"}]`.
+App MCP resource responses must be JSON objects containing a `text` string or a base64-encoded `blob` string, for example `{"uri":"my-app://status","mimeType":"application/json","text":"{\"ok\":true}"}`.
+Plain-text resource responses are no longer accepted; wrap the content in a JSON object.
+Resources use the URI declared in `mcp.xml`; a non-empty `mimeType` in the response takes precedence over the configured MIME type.
+Invalid JSON, malformed messages or resource contents, and `{"success":false,"error":"..."}` responses produce MCP errors with details for the client.
+
 ## Administration
+
+### Deprecated the `defaultFolderRepository` computed property of `sw-cms-detail` and `sw-cms-list`
+
+The `defaultFolderRepository` computed property of `sw-cms-detail` and `sw-cms-list` is deprecated and will be removed.
+Use `mediaDefaultFolderService.getDefaultFolderId(entityName)` instead.
 
 ### Deprecated the `customFieldSetRepository` computed property of `sw-product-stream-detail`
 
@@ -687,6 +747,14 @@ The link targets the new `id="product-listing"` on `.cms-element-product-listing
 Themes that override the `product_listing` block in `storefront/component/product/listing.html.twig` without `parent()` must keep `id="product-listing"` on their wrapper, otherwise the link has no target.
 `storefront/component/skip-to-content.html.twig` has a new `productListing` parameter (default `null`) and the new block `component_skip_to_content_product_listing`.
 
+### AI usage preferences in robots.txt
+
+The robots.txt rules accept the `Content-Usage` directive of the [IETF AI preferences drafts](https://datatracker.ietf.org/doc/draft-ietf-aipref-attach/) and the `Content-Signal` directive of [Content Signals](https://contentsignals.org/).
+Both are rendered inside their `User-agent` block with the value unchanged, for example `Content-signal: search=yes, ai-train=no`.
+A path in front of the `Content-Usage` preference gets the domain path like `Allow` and `Disallow`, for example `Content-usage: /de/blog/ train-ai=n`.
+`RobotsDirectiveType` has the new cases `CONTENT_USAGE` and `CONTENT_SIGNAL`;
+extensions that handled these lines through `RobotsUnknownDirectiveEvent` no longer receive that event for them.
+
 ### Cookie provider removal postponed to 6.9
 
 The deprecated cookie-provider API and the `snippet_name` and `snippet_description` cookie template fields remain available throughout 6.8.
@@ -914,7 +982,25 @@ bin/console seo:repair:link-category-takeover --apply --no-interaction <category
 The categories get their SEO URLs back, and their fallback URLs redirect to them.
 The command is deprecated and will be removed in 6.9.0.0.
 
+### `ThemeConfigChangedEvent` is dispatched after the theme is saved
+
+`ThemeService::updateTheme()` now dispatches `ThemeConfigChangedEvent` after the new theme configuration is written to the database.
+Before, it was dispatched before the write, so with the static theme config loader a theme save dumped and compiled the `theme.json` defaults instead of the saved values.
+Subscribers that load the theme while handling the event now get the saved configuration instead of the previous one.
+
+### Enabling maintenance mode again no longer traps visitors in a redirect loop
+
+When maintenance mode was switched off, the redirect from the maintenance page into the shop was stored in the HTTP cache.
+Switching maintenance mode on again then sent every visitor not on the IP allowlist back and forth between the shop and that cached redirect (`ERR_TOO_MANY_REDIRECTS`) until the entry expired.
+The redirect is no longer cached. A shop that is already in this state gets out of it by running `bin/console cache:clear:http`.
+
 ## Hosting & Configuration
+
+### Sitemaps skip inactive sales channels and `sitemap:generate` continues after a failure
+
+The scheduled sitemap task and `bin/console sitemap:generate` no longer generate sitemaps for inactive sales channels.
+`sitemap:generate` now continues with the other sales channels and languages when the generation of one fails, prints the error and exits with a failure code at the end.
+A sitemap generation that is locked by another process is still reported without failing the command.
 
 ### Readiness checks isolate their virtual requests
 

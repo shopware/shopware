@@ -133,6 +133,23 @@ describe('dev/twig-hmr with components of the component system', () => {
         expect(document.getElementById(NOTICE_ID)).toBeNull();
     });
 
+    it('replaces a changed component element with an id and keeps the id', async () => {
+        const counterWithId = (label) => `<div class="counter" id="cart-counter" data-component="Sw:Counter"><button type="button">${label}</button></div>`;
+        await load(`<h1>Version 1</h1>${counterWithId('Add')}`);
+        const element = document.getElementById('cart-counter');
+        const oldInstance = counterInstance();
+        pages['http://localhost/'] = page(`<h1>Version 2</h1>${counterWithId('Add to cart')}`);
+
+        await refreshAndSettle(['components/counter.html.twig']);
+
+        const replaced = document.getElementById('cart-counter');
+        expect(replaced).not.toBe(element);
+        expect(replaced.querySelector('button').textContent).toBe('Add to cart');
+        expect(counterInstance()).not.toBe(oldInstance);
+        expect(CounterComponent.destroyed).toEqual([oldInstance]);
+        expect(document.getElementById(NOTICE_ID)).toBeNull();
+    });
+
     it('creates a component that the template adds and destroys one that it removes', async () => {
         await load('<main><h1>Version 1</h1></main>');
         pages['http://localhost/'] = page(`<main><h1>Version 2</h1>${counter('Add')}</main>`);

@@ -33,4 +33,20 @@ describe('src/dev/hot-mode/missing-extension-scripts', () => {
 
         expect(console.warn).not.toHaveBeenCalled();
     });
+
+    test('checks the entries that the hot mode defines when the module loads', () => {
+        // The webpack DefinePlugin replaces the global in hot mode.
+        global.__SW_HOT_MODE_EXTENSION_ENTRIES__ = ['advanced-search', 'quick-order'];
+
+        try {
+            jest.isolateModules(() => {
+                require('src/dev/hot-mode/missing-extension-scripts');
+            });
+        } finally {
+            delete global.__SW_HOT_MODE_EXTENSION_ENTRIES__;
+        }
+
+        expect(console.warn).toHaveBeenCalledTimes(1);
+        expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('quick-order.'));
+    });
 });

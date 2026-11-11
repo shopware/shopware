@@ -251,13 +251,17 @@ describe('dev/twig-hmr', () => {
         expect(form.elements.token.value).toBe('3');
     });
 
-    it('restores the value of an edited control that the template replaced', async () => {
-        setup('<form id="register"><div class="field"><input type="email" name="email"></div></form>');
+    it.each([
+        ['with an id', '<form id="register">'],
+        ['with an action', '<form action="/account/register">'],
+        ['without an id or action', '<form>'],
+    ])('restores the value of an edited control in a form %s that the template replaced', async (name, form) => {
+        setup(`${form}<div class="field"><input type="email" name="email"></div></form>`);
         const input = document.querySelector('[name="email"]');
         input.value = 'mail@example.com';
         userInput(input);
         pages['http://localhost/'] = {
-            html: page('<form id="register"><section class="field"><input type="email" name="email" class="form-control"></section></form>'),
+            html: page(`${form}<section class="field"><input type="email" name="email" class="form-control"></section></form>`),
         };
 
         await refresh(['register.html.twig']);
@@ -266,6 +270,23 @@ describe('dev/twig-hmr', () => {
         expect(replaced).not.toBe(input);
         expect(replaced.classList.contains('form-control')).toBe(true);
         expect(replaced.value).toBe('mail@example.com');
+    });
+
+    it.each([
+        ['renders two matching controls', '<input type="email" name="email"><input type="email" name="email">'],
+        ['renames the control', '<input type="email" name="mail">'],
+    ])('leaves a replaced edited control to the template when the template %s', async (name, controls) => {
+        setup('<form id="register"><div class="field"><input type="email" name="email"></div></form>');
+        const input = document.querySelector('[name="email"]');
+        input.value = 'mail@example.com';
+        userInput(input);
+        pages['http://localhost/'] = { html: page(`<form id="register"><section class="field">${controls}</section></form>`) };
+
+        await refresh(['register.html.twig']);
+
+        const controlsAfter = [...document.querySelectorAll('input')];
+        expect(controlsAfter).not.toContain(input);
+        expect(controlsAfter.map((control) => control.value)).toEqual(controlsAfter.map(() => ''));
     });
 
     it.each([
@@ -360,6 +381,66 @@ describe('dev/twig-hmr', () => {
         expect(toggle.classList.contains('show')).toBe(true);
         expect(toggle.getAttribute('aria-expanded')).toBe('true');
         expect(document.getElementById('language')).toBeNull();
+    });
+
+    it('keeps the state of a collapse toggle that targets the collapse element by its href', async () => {
+        const markup = (tag) => `
+            <a class="collapsed" data-bs-toggle="collapse" href="#filter" aria-expanded="false">Filter</a>
+            <${tag} class="collapse" id="filter">Filter</${tag}>
+        `;
+        setup(markup('div'));
+        const collapse = document.getElementById('filter');
+        collapse.classList.add('show');
+        collapse.dispatchEvent(new Event('shown.bs.collapse', { bubbles: true }));
+        pages['http://localhost/'] = { html: page(markup('section')) };
+
+        await refresh(['filter.html.twig']);
+
+        const toggle = document.querySelector('[href="#filter"]');
+        expect(document.getElementById('filter').localName).toBe('section');
+        expect(document.getElementById('filter').classList.contains('show')).toBe(true);
+        expect(toggle.classList.contains('collapsed')).toBe(false);
+        expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    });
+
+    it('keeps the tab that the user activated in a container without a tab list role', async () => {
+        const tabs = (version) => `
+            <div class="tab-triggers">
+                <button class="active" data-bs-toggle="tab" data-bs-target="#one">One</button>
+                <button data-bs-toggle="tab" data-bs-target="#two">Two</button>
+            </div>
+            <div class="tab-content"><div class="tab-pane active" id="one">One</div><div class="tab-pane" id="two">Two ${version}</div></div>
+        `;
+        setup(tabs(1));
+        const [first, second] = document.querySelectorAll('[data-bs-toggle="tab"]');
+        first.classList.remove('active');
+        second.classList.add('active');
+        second.dispatchEvent(new Event('shown.bs.tab', { bubbles: true }));
+        pages['http://localhost/'] = { html: page(tabs(2)) };
+
+        await refresh(['tabs.html.twig']);
+
+        expect(document.getElementById('two').textContent).toBe('Two 2');
+        expect(second.classList.contains('active')).toBe(true);
+        expect(second.getAttribute('aria-selected')).toBe('true');
+        expect(first.classList.contains('active')).toBe(false);
+        expect(first.getAttribute('tabindex')).toBe('-1');
+        expect(document.getElementById('two').classList.contains('active')).toBe(true);
+        expect(document.getElementById('one').classList.contains('active')).toBe(false);
+    });
+
+    it('keeps an open dropdown menu without a toggle', async () => {
+        const menu = (item) => `<div class="actions"><ul class="dropdown-menu"><li>${item}</li></ul></div>`;
+        setup(menu('Item 1'));
+        // A script opens the menu without a Bootstrap toggle.
+        document.querySelector('.dropdown-menu').classList.add('show');
+        pages['http://localhost/'] = { html: page(menu('Item 2')) };
+
+        await refresh(['actions.html.twig']);
+
+        const dropdownMenu = document.querySelector('.dropdown-menu');
+        expect(dropdownMenu.textContent).toBe('Item 2');
+        expect(dropdownMenu.classList.contains('show')).toBe(true);
     });
 
     it('activates the replaced trigger of a tab that the user activated', async () => {
@@ -567,6 +648,7 @@ describe('dev/twig-hmr', () => {
     it('ignores plugin registrations without a usable selector', async () => {
         window.PluginManager.getPluginList = jest.fn(() => ({
             WithoutRegistrations: new Map(),
+            NoPluginEntry: { registrations: new Map([['id', { selector: '.text' }]]) },
             InvalidSelector: new Map([['registrations', new Map([['id', { selector: '[data-broken' }]])]]),
         }));
         setup('<main><p class="text">Version 1</p></main>');
@@ -759,14 +841,17 @@ describe('dev/twig-hmr', () => {
         expect(console.error).toHaveBeenCalledWith('[sw-twig-hmr] http://localhost/ redirected to http://localhost/account/login');
     });
 
-    it('rejects a response that is no HTML', async () => {
+    it.each([
+        ['another content type', 'application/json', 'application/json'],
+        ['no content type', null, 'an unknown content type'],
+    ])('rejects a response with %s', async (name, contentType, described) => {
         setup('<main><p class="text">Version 1</p></main>');
-        pages['http://localhost/'] = { html: '{}', contentType: 'application/json' };
+        pages['http://localhost/'] = { html: '{}', contentType };
 
         await refresh(['page.html.twig']);
 
         expect(document.querySelector('.text').textContent).toBe('Version 1');
-        expect(console.error).toHaveBeenCalledWith('[sw-twig-hmr] http://localhost/ answered with application/json instead of HTML');
+        expect(console.error).toHaveBeenCalledWith(`[sw-twig-hmr] http://localhost/ answered with ${described} instead of HTML`);
     });
 
     it.each([
@@ -916,6 +1001,29 @@ describe('dev/twig-hmr', () => {
         });
     });
 
+    it('fetches the baseline of an open fragment once per source URL', async () => {
+        setup('<main>Page</main>');
+        pages['/widgets/cms/abc'] = { html: '<p class="part">Version 1</p>' };
+        openAjaxModal('/widgets/cms/abc', '<div class="js-pseudo-modal-template-content-element"><p class="part">Version 1</p></div>');
+        await new Promise(process.nextTick);
+        // A script sets the same source URL again.
+        document.querySelector('.js-pseudo-modal .modal').dataset.swSourceUrl = '/widgets/cms/abc';
+        await new Promise(process.nextTick);
+
+        expect(global.fetch.mock.calls.map(([url]) => url)).toEqual(['/widgets/cms/abc']);
+    });
+
+    it('stops tracking on reset and allows a second reset', async () => {
+        setup('<main>Page</main>');
+
+        reset();
+        reset();
+        openAjaxModal('/widgets/cms/abc', '<div class="js-pseudo-modal-template-content-element"><p class="part">Version 1</p></div>');
+        await new Promise(process.nextTick);
+
+        expect(global.fetch).not.toHaveBeenCalled();
+    });
+
     it('shows a render error until the next update succeeds', async () => {
         setup('<main><p class="text">Version 1</p></main>');
         pages['http://localhost/'] = {
@@ -1003,12 +1111,12 @@ describe('dev/twig-hmr', () => {
             </div>
         `;
 
-        async function openMenu(intro, links) {
+        async function openMenu(intro, links, slot = '.navigation-offcanvas-container') {
             pages['/widgets/menu/offcanvas'] = { html: links };
             document.body.insertAdjacentHTML('beforeend', `
                 <div class="offcanvas offcanvas-start js-offcanvas-singleton show"
                      data-sw-source-shell=".js-navigation-offcanvas-initial-content"
-                     data-sw-source-slot=".navigation-offcanvas-container"
+                     ${slot ? `data-sw-source-slot="${slot}"` : ''}
                      data-sw-source-url="/widgets/menu/offcanvas">
                     <div class="offcanvas-body"><p class="intro">${intro}</p><div class="navigation-offcanvas-container">${links}</div></div>
                 </div>
@@ -1041,6 +1149,18 @@ describe('dev/twig-hmr', () => {
 
             expect(document.querySelector('.js-offcanvas-singleton .link').textContent).toBe('Link 1');
             expect(notice()).not.toBeNull();
+        });
+
+        it('asks for a reload when the offcanvas names no slot for the response', async () => {
+            setup(shell('Intro 1'));
+            await openMenu('Intro 1', '<a class="link">Link 1</a>', null);
+            pages['http://localhost/'] = { html: page(shell('Intro 2')) };
+            pages['/widgets/menu/offcanvas'] = { html: '<a class="link">Link 2</a>' };
+
+            await refresh(['navigation.html.twig']);
+
+            expect(document.querySelector('.js-offcanvas-singleton .link').textContent).toBe('Link 1');
+            expect(notice().textContent).toContain('The offcanvas of /widgets/menu/offcanvas no longer has the expected structure.');
         });
     });
 

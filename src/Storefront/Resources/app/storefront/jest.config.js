@@ -42,6 +42,8 @@ module.exports = {
         'src/**',
         'src/**/*.js',
         '!src/main.js',
+        // Vite entry files read `import.meta.hot`, which Jest cannot load.
+        '!src/**/*.vite.js',
         '!src/scss/**',
         '!src/vendor/**',
     ],

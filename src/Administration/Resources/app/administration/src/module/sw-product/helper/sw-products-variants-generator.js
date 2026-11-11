@@ -9,6 +9,10 @@ import RetryHelper from '../../../core/helper/retry.helper';
 const { deepCopyObject, hasOwnProperty } = Shopware.Utils.object;
 const { md5 } = Shopware.Utils.format;
 
+// Indexing is queued so the requests stay short for products with many variants.
+// The server reads it only from the headers.
+const SYNC_HEADERS = { 'single-operation': 1, 'indexing-behavior': 'use-queue-indexing' };
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class VariantsGenerator extends EventEmitter {
     constructor() {
@@ -78,7 +82,7 @@ export default class VariantsGenerator extends EventEmitter {
                 },
             ],
             {},
-            { 'single-operation': 1 },
+            SYNC_HEADERS,
         );
     }
 
@@ -105,7 +109,7 @@ export default class VariantsGenerator extends EventEmitter {
                 },
             ],
             {},
-            { 'single-operation': 1 },
+            SYNC_HEADERS,
         );
     }
 
@@ -145,7 +149,7 @@ export default class VariantsGenerator extends EventEmitter {
                 },
             ],
             {},
-            { 'single-operation': 1 },
+            SYNC_HEADERS,
         );
     }
 
@@ -579,11 +583,8 @@ export default class VariantsGenerator extends EventEmitter {
             },
         ];
 
-        // Send the payload to the server
-        const header = { 'single-operation': 1 };
-
         RetryHelper.retry(() => {
-            return this.syncService.sync(payload, { 'indexing-behavior': 'disable-indexing' }, header);
+            return this.syncService.sync(payload, {}, SYNC_HEADERS);
         }).then((response) => {
             this.productIds.concat(response.data?.product ?? []).concat(response.data?.deleted?.product ?? []);
             this.processQueue(type, queue, offset + limit, limit, resolve);

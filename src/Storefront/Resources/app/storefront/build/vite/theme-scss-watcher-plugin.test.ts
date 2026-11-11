@@ -184,7 +184,7 @@ describe('themeScssWatcherPlugin', () => {
         expect((await requestCss(server)).body).toContain('.b');
     });
 
-    it('passes requests for other urls to the next middleware', () => {
+    it('passes requests for other urls and without a url to the next middleware', () => {
         const projectRoot = path.join(fixtureRoot, 'other-url-project');
         writeThemeFiles(projectRoot, 'theme', [styleEntry(writeFile(path.join(projectRoot, 'a.scss'), '.a { color: red; }'))]);
 
@@ -194,6 +194,11 @@ describe('themeScssWatcherPlugin', () => {
         server.__middlewares[0]?.({ url: '/theme-scss/other.css' }, response, next);
 
         expect(next).toHaveBeenCalledOnce();
+        expect(response.body).toBe('');
+
+        server.__middlewares[0]?.({}, response, next);
+
+        expect(next).toHaveBeenCalledTimes(2);
         expect(response.body).toBe('');
     });
 
@@ -464,6 +469,47 @@ describe('themeScssWatcherPlugin', () => {
         });
         await new Promise(resolve => { setTimeout(resolve, 50); });
         expect(server.ws.send).toHaveBeenCalledOnce();
+    });
+
+    it('shows compile failures that are not Error instances in the error overlay', async () => {
+        const projectRoot = path.join(fixtureRoot, 'change-non-error-project');
+        const entry = writeFile(path.join(projectRoot, 'entry.scss'), '.a { color: red; }');
+        writeThemeFiles(projectRoot, 'theme', [styleEntry(entry)]);
+        vi.mocked(SassEmbedded.compileStringAsync).mockRejectedValueOnce('compiler crashed');
+
+        const server = startPlugin(projectRoot);
+        server.watcher.emit('change', entry);
+
+        await vi.waitFor(() => {
+            expect(server.ws.send).toHaveBeenCalledOnce();
+        });
+        expect(server.ws.send).toHaveBeenCalledWith({
+            type: 'error',
+            err: { message: 'compiler crashed', stack: '', id: entry, plugin: 'sw-theme-scss' },
+        });
+        expect(server.config.logger.error).toHaveBeenCalledWith(
+            '[sw-theme-scss] Compile error: compiler crashed',
+            { timestamp: true },
+        );
+    });
+
+    it('ignores the compile error of a change that a newer change superseded', async () => {
+        const projectRoot = path.join(fixtureRoot, 'change-stale-error-project');
+        const entry = writeFile(path.join(projectRoot, 'entry.scss'), '.a { color: red; }');
+        writeThemeFiles(projectRoot, 'theme', [styleEntry(entry)]);
+        vi.mocked(SassEmbedded.compileStringAsync).mockRejectedValueOnce(new Error('stale compile failed'));
+
+        const server = startPlugin(projectRoot);
+        server.watcher.emit('change', entry);
+        server.watcher.emit('change', entry);
+
+        await vi.waitFor(() => {
+            expect(server.ws.send).toHaveBeenCalledOnce();
+        });
+        await new Promise(resolve => { setTimeout(resolve, 50); });
+        expect(server.ws.send).toHaveBeenCalledOnce();
+        expect(server.ws.send).toHaveBeenCalledWith({ type: 'full-reload' });
+        expect(server.config.logger.error).not.toHaveBeenCalled();
     });
 
     it('keeps the current entries when theme-files.json becomes malformed', async () => {

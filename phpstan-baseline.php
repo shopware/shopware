@@ -16,18 +16,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
     'identifier' => 'empty.notAllowed',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductCrossSellingSerializer.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 6,
-    'path' => __DIR__ . '/src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductSerializer.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
     'count' => 3,
     'path' => __DIR__ . '/src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/PromotionIndividualCodeSerializer.php',
 ];

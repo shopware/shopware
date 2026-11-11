@@ -22,6 +22,7 @@
     // vue/src from node_modules and baseUrl, not through the preset mappings.
     "paths": {
       "src": ["src"],
+      "src/*": ["src/*"],
       "@shopware-ag/dive/quickview": ["./node_modules/@shopware-ag/dive/build/plugins/quickview/index.d.ts"],
       "@shopware-ag/dive/toolbox": ["./node_modules/@shopware-ag/dive/build/plugins/toolbox/index.d.ts"],
       "@shopware-ag/dive/orbitcontroller": ["./node_modules/@shopware-ag/dive/build/plugins/orbitcontroller/index.d.ts"],

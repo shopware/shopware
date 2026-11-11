@@ -391,6 +391,100 @@ class PriceSerializerTest extends TestCase
         ];
     }
 
+    public function testTheCurrencyOfAPriceIsLookedUpOnce(): void
+    {
+        $currency = new CurrencyCollection([
+            (new CurrencyEntity())->assign(['id' => Defaults::CURRENCY, 'isoCode' => 'EUR']),
+        ]);
+
+        // one result per serialize call, so an uncached lookup is counted rather than running the queue dry
+        $currencyRepository = $this->getCurrencyRepository([$currency, $currency, $currency]);
+
+        $priceSerializer = new PriceSerializer($currencyRepository);
+        $config = new Config([], [], []);
+        $field = new PriceField('price', 'price');
+
+        $price = [Defaults::CURRENCY => ['net' => 1.0, 'gross' => 2.0, 'currencyId' => Defaults::CURRENCY, 'linked' => false]];
+
+        foreach ([1, 2, 3] as $_) {
+            \iterator_to_array($priceSerializer->serialize($config, $field, $price));
+        }
+
+        static::assertCount(1, $currencyRepository->searchedCriteria);
+    }
+
+    public function testTheCurrencyIsLookedUpAgainAfterAReset(): void
+    {
+        $currency = new CurrencyCollection([
+            (new CurrencyEntity())->assign(['id' => Defaults::CURRENCY, 'isoCode' => 'EUR']),
+        ]);
+
+        $currencyRepository = $this->getCurrencyRepository([$currency, $currency, $currency]);
+
+        $priceSerializer = new PriceSerializer($currencyRepository);
+        $config = new Config([], [], []);
+        $field = new PriceField('price', 'price');
+
+        $price = [Defaults::CURRENCY => ['net' => 1.0, 'gross' => 2.0, 'currencyId' => Defaults::CURRENCY, 'linked' => false]];
+
+        \iterator_to_array($priceSerializer->serialize($config, $field, $price));
+        $priceSerializer->reset();
+        \iterator_to_array($priceSerializer->serialize($config, $field, $price));
+
+        static::assertCount(2, $currencyRepository->searchedCriteria);
+    }
+
+    public function testTheIdOfACurrencyIsLookedUpOnce(): void
+    {
+        $currencyRepository = $this->getCurrencyRepository([[Defaults::CURRENCY], [Defaults::CURRENCY], [Defaults::CURRENCY]]);
+
+        $priceSerializer = new PriceSerializer($currencyRepository);
+        $config = new Config([], [], []);
+        $field = new PriceField('price', 'price');
+
+        $record = ['EUR' => ['net' => '1.0', 'gross' => '2.0', 'linked' => '0']];
+
+        foreach ([1, 2, 3] as $_) {
+            $priceSerializer->deserialize($config, $field, $record);
+        }
+
+        static::assertCount(1, $currencyRepository->searchedCriteria);
+    }
+
+    public function testTheIdOfAnUnknownCurrencyIsLookedUpOnce(): void
+    {
+        $currencyRepository = $this->getCurrencyRepository([[], [], []]);
+
+        $priceSerializer = new PriceSerializer($currencyRepository);
+        $config = new Config([], [], []);
+        $field = new PriceField('price', 'price');
+
+        $record = ['XYZ' => ['net' => '1.0', 'gross' => '2.0', 'linked' => '0']];
+
+        foreach ([1, 2, 3] as $_) {
+            $priceSerializer->deserialize($config, $field, $record);
+        }
+
+        static::assertCount(1, $currencyRepository->searchedCriteria);
+    }
+
+    public function testTheIdOfACurrencyIsLookedUpAgainAfterAReset(): void
+    {
+        $currencyRepository = $this->getCurrencyRepository([[Defaults::CURRENCY], [Defaults::CURRENCY], [Defaults::CURRENCY]]);
+
+        $priceSerializer = new PriceSerializer($currencyRepository);
+        $config = new Config([], [], []);
+        $field = new PriceField('price', 'price');
+
+        $record = ['EUR' => ['net' => '1.0', 'gross' => '2.0', 'linked' => '0']];
+
+        $priceSerializer->deserialize($config, $field, $record);
+        $priceSerializer->reset();
+        $priceSerializer->deserialize($config, $field, $record);
+
+        static::assertCount(2, $currencyRepository->searchedCriteria);
+    }
+
     /**
      * @param array<CurrencyCollection<CurrencyEntity>|array<string>> $results
      *

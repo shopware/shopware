@@ -224,7 +224,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('customer_group.repository'),
             service('seo_url.repository'),
-            service('language.repository'),
             service(SeoUrlPersister::class),
             service('slugify'),
         ])

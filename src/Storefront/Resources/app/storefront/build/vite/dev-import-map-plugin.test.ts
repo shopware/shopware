@@ -170,9 +170,11 @@ describe('devImportMapPlugin', () => {
         });
 
         // No Storefront module uses import.meta.hot, so the Vite client must be loaded explicitly and first.
+        // The Twig hot reload must run before main.js.
         const { scripts } = JSON.parse(fs.readFileSync(flagFile, 'utf-8')) as { scripts: string[] };
-        expect(scripts.slice(0, 2)).toEqual([
+        expect(scripts.slice(0, 3)).toEqual([
             'http://localhost:5181/@vite/client',
+            'http://localhost:5181/src/dev/twig-hmr/twig-hmr.vite.js',
             'http://localhost:5181/src/main.js',
         ]);
 
@@ -238,9 +240,13 @@ describe('devImportMapPlugin', () => {
     });
 
     it.each([
-        { devUpdate: 'reload' as const, clientLoaded: true, sent: [{ type: 'full-reload' }] },
-        { devUpdate: 'manual' as const, clientLoaded: false, sent: [] },
-    ])('lists the Vite client and sends $sent.length message(s) on a style change in $devUpdate mode', async ({ devUpdate, clientLoaded, sent }) => {
+        {
+            devUpdate: 'reload' as const,
+            clients: ['http://localhost:5182/@vite/client', 'http://localhost:5182/src/dev/twig-hmr/twig-reload.vite.js'],
+            sent: [{ type: 'full-reload' }],
+        },
+        { devUpdate: 'manual' as const, clients: [], sent: [] },
+    ])('lists the clients and sends $sent.length message(s) on a style change in $devUpdate mode', async ({ devUpdate, clients, sent }) => {
         const pluginRoot = path.join(fixtureRoot, `${devUpdate}-project`);
         const viteRoot = path.join(pluginRoot, 'src/Storefront/Resources/app/storefront');
         const compRoot = path.join(pluginRoot, 'custom/plugins/TestPlugin/Resources/views/components/Foo');
@@ -269,8 +275,7 @@ describe('devImportMapPlugin', () => {
         });
 
         const { scripts } = JSON.parse(fs.readFileSync(flagFile, 'utf-8')) as { scripts: string[] };
-        expect(scripts.includes('http://localhost:5182/@vite/client')).toBe(clientLoaded);
-        expect(scripts).toContain('http://localhost:5182/src/main.js');
+        expect(scripts.slice(0, scripts.indexOf('http://localhost:5182/src/main.js'))).toEqual(clients);
 
         server.watcher.emit('change', path.join(compRoot, 'Bar.css'));
         expect(server.ws.send.mock.calls.map(call => call[0] as unknown)).toEqual(sent);

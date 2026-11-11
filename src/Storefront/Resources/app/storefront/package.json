@@ -88,6 +88,7 @@
     "globals": "17.3.0",
     "happy-dom": "21.0.4",
     "http-proxy-middleware": "3.0.7",
+    "idiomorph": "0.8.0",
     "jest": "30.1.3",
     "jest-environment-jsdom": "30.2.0",
     "jest-junit": "17.0.0",

@@ -198,10 +198,25 @@ export default class OffCanvasCartPlugin extends Plugin {
     _onOffCanvasOpened(callback, response) {
         if (typeof callback === 'function') callback(response);
 
+        this._setSourceUrl();
         this.$emitter.publish('offCanvasOpened', { response });
 
         this._fetchCartWidgets();
         this._registerEvents();
+    }
+
+    /**
+     * Requests that change the cart, like adding a product, render the cart offcanvas as their response.
+     * The offcanvas only knows the URL of a GET request, so the cart URL tells the Twig hot reload what to render again.
+     *
+     * @private
+     */
+    _setSourceUrl() {
+        const offCanvas = OffCanvas.getOffCanvas()[0];
+
+        if (offCanvas && !offCanvas.dataset.swSourceUrl) {
+            offCanvas.dataset.swSourceUrl = window.router['frontend.cart.offcanvas'];
+        }
     }
 
     /**

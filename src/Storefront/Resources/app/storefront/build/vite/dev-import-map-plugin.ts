@@ -60,10 +60,12 @@ function fileToTag(relPath: string, namespace: string | undefined): string {
  *              modules. The first entry is the Vite client (/@vite/client),
  *              which connects to the dev server and applies reloads and CSS
  *              updates. No Storefront module uses import.meta.hot, so Vite
- *              would not load it on its own. In manual mode
- *              (SHOPWARE_STOREFRONT_DEV_UPDATE=manual) the client is left out,
- *              because nothing is sent to the page. The core
- *              storefront main.js follows, then any plugin bundles with a
+ *              would not load it on its own. The Twig client follows:
+ *              twig-hmr.vite.js applies Twig changes in place in hmr mode,
+ *              twig-reload.vite.js reloads the page in reload mode. In manual
+ *              mode (SHOPWARE_STOREFRONT_DEV_UPDATE=manual) both the Vite and
+ *              the Twig client are left out, because nothing is sent to the
+ *              page. The core storefront main.js follows, then any plugin bundles with a
  *              storefront entryFilePath in plugins.json order. Present only
  *              when var/plugins.json exists.
  *
@@ -425,9 +427,14 @@ export function devImportMapPlugin(
                 // 'storefront' is the core entry, not a plugin.
                 const scripts: string[] = [];
                 if (fs.existsSync(pluginsJsonPath)) {
-                    // The Vite client is first, then the core storefront entry.
-                    if (devUpdate !== 'manual') {
+                    // The Vite client is first, then the Twig client, which must see
+                    // the server markup before main.js runs, then the core entry.
+                    if (devUpdate === 'hmr') {
                         scripts.push(`${origin}/@vite/client`);
+                        scripts.push(`${origin}/src/dev/twig-hmr/twig-hmr.vite.js`);
+                    } else if (devUpdate === 'reload') {
+                        scripts.push(`${origin}/@vite/client`);
+                        scripts.push(`${origin}/src/dev/twig-hmr/twig-reload.vite.js`);
                     }
                     scripts.push(`${origin}/src/main.js`);
 

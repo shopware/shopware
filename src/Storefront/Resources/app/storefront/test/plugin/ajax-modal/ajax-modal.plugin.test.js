@@ -157,6 +157,20 @@ describe('AjaxModalPlugin tests', () => {
         expect(element.classList).toContain('text-center');
     });
 
+    test('_loadModalContent stores the content URL on the modal for the Twig hot reload', () => {
+        const pseudoModalUtil = new PseudoModalUtil();
+
+        const element = document.createElement('div');
+        element.setAttribute('data-url', '/widgets/cms/foo');
+
+        ajaxModalPlugin.el = element;
+        global.fetch = jest.fn(() => new Promise(() => {}));
+
+        ajaxModalPlugin._loadModalContent(pseudoModalUtil, element);
+
+        expect(pseudoModalUtil.getModal().dataset.swSourceUrl).toBe('/widgets/cms/foo');
+    });
+
     test('_processResponse will remove the loading indicator, remove loading classes and update the modal content', () => {
         const response = new XMLHttpRequest();
 

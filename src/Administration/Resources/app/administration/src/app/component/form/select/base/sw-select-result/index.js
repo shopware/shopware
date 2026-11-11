@@ -147,6 +147,10 @@ Component.register('sw-select-result', {
         },
 
         onMouseEnter() {
+            if (this.active) {
+                return;
+            }
+
             this.setActiveItemIndex(this.index);
         },
     },

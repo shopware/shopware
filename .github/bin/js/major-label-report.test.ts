@@ -21,7 +21,7 @@ test('windowStart goes back the given number of days and rejects nonsense', () =
     }
 });
 
-test('searchTimestamp drops the milliseconds GitHub search rejects', () => {
+test('searchTimestamp shows whole seconds', () => {
     assert.equal(searchTimestamp(SINCE), '2026-11-10T06:00:00Z');
 });
 

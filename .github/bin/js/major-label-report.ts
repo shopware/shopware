@@ -62,7 +62,6 @@ export function windowStart(now: Date, days: number): Date {
     return new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
 }
 
-/** GitHub search takes seconds precision; anything finer is rejected as an invalid query. */
 export function searchTimestamp(date: Date): string {
     return date.toISOString().replace(/\.\d{3}Z$/, 'Z');
 }

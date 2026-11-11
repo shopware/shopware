@@ -132,6 +132,12 @@ describe('parseMarkers', () => {
         expect(errorsOf(` * ${line}`)).toContain(error);
     });
 
+    it('reports a missing kind, not a missing version, when the marker starts with the version', () => {
+        expect(errorsOf(' @bc-change version:v6.8.0 parameter:itemIndex')).toEqual([
+            `@bc-change needs a kind, one of: ${Object.keys(BC_CHANGE_KINDS).join(', ')}.`,
+        ]);
+    });
+
     it('reports every problem of one marker', () => {
         expect(errorsOf(' @bc-change ParameterRemoval version:6.8 variable:item')).toEqual([
             '"6.8" is not a version of the form vX.Y.Z, for example v6.8.0.',

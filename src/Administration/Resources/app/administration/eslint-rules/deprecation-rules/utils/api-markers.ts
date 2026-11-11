@@ -50,10 +50,10 @@ export type Marker =
 export type MarkerMatch = { offset: number; length: number } & ({ marker: Marker } | { errors: string[] });
 
 // The name has to end at a space, so `@change="onChange"` in commented-out markup is not a tag.
-const TAG_LINE = /^[ \t*]*@([\w-]+)(?=[ \t]|$)[ \t]*(.*?)[ \t]*$/gm;
-const TEMPLATE_COMMENT = /\{#-?([\s\S]*?)-?#\}|<!--([\s\S]*?)-->/g;
+const TAG_LINE = /^[ \t*]*@(?<name>[\w-]+)(?=[ \t]|$)[ \t]*(?<rest>.*?)[ \t]*$/gm;
+const TEMPLATE_COMMENT = /\{#-?(?<twig>[\s\S]*?)-?#\}|<!--(?<html>[\s\S]*?)-->/dg;
 const VERSION = /^v\d+\.\d+\.\d+$/;
-const KEY_VALUE = /^([A-Za-z]+):(.+)$/;
+const KEY_VALUE = /^(?<key>[A-Za-z]+):(?<value>.+)$/;
 // One edit catches `@deprecate` and `@bc-chnage`, two would already report `@change` as a typo of `@bc-change`.
 const MAX_TYPO_DISTANCE = 1;
 
@@ -122,11 +122,7 @@ function readKeyValues(words: string[]): { entries: Record<string, string>; erro
     const errors: string[] = [];
 
     words.forEach((word) => {
-        const [
-            ,
-            key,
-            value,
-        ] = KEY_VALUE.exec(word) ?? [];
+        const { key, value } = KEY_VALUE.exec(word)?.groups ?? {};
 
         if (key === undefined) {
             errors.push(`"${word}" is not of the form key:value. Free text starts on the line after the marker.`);
@@ -140,40 +136,37 @@ function readKeyValues(words: string[]): { entries: Record<string, string>; erro
     return { entries, errors };
 }
 
-function parseBcChange(rest: string): Marker | string[] {
-    const [
-        kind,
-        ...words
-    ] = rest.split(/\s+/).filter(Boolean);
+function kindError(kind: string | undefined): string {
     const kindNames = Object.keys(BC_CHANGE_KINDS);
 
     if (kind === undefined) {
-        return [`@bc-change needs a kind, one of: ${kindNames.join(', ')}.`];
+        return `@bc-change needs a kind, one of: ${kindNames.join(', ')}.`;
     }
 
+    const suggestion = nearMiss(kind, kindNames);
+    const hint = suggestion ? `did you mean "${suggestion}"?` : `use one of: ${kindNames.join(', ')}.`;
+
+    return `"${kind}" is not a @bc-change kind, ${hint}`;
+}
+
+function parseBcChange(rest: string): Marker | string[] {
+    const words = rest.split(/\s+/).filter(Boolean);
+    // A first word of the form key:value means the kind was left out, so it is read as a key.
+    const kind = words.length > 0 && !KEY_VALUE.test(words[0]) ? words[0] : undefined;
     const {
         entries: { version, ...parameters },
-        errors: keyValueErrors,
-    } = readKeyValues(words);
-    const formatErrors = [
-        ...keyValueErrors,
-        ...(version === undefined ? ['@bc-change needs "version:vX.Y.Z".'] : versionErrors(version)),
-    ];
+        errors,
+    } = readKeyValues(kind === undefined ? words : words.slice(1));
+    errors.push(...(version === undefined ? ['@bc-change needs "version:vX.Y.Z".'] : versionErrors(version)));
 
-    if (!isBcChangeKind(kind)) {
-        const suggestion = nearMiss(kind, kindNames);
-        const hint = suggestion ? `did you mean "${suggestion}"?` : `use one of: ${kindNames.join(', ')}.`;
-
+    if (kind === undefined || !isBcChangeKind(kind)) {
         return [
-            `"${kind}" is not a @bc-change kind, ${hint}`,
-            ...formatErrors,
+            kindError(kind),
+            ...errors,
         ];
     }
 
-    const errors = [
-        ...formatErrors,
-        ...parameterErrors(kind, parameters),
-    ];
+    errors.push(...parameterErrors(kind, parameters));
 
     return errors.length > 0 || version === undefined ? errors : { tag: 'bc-change', kind, version, parameters };
 }
@@ -202,17 +195,14 @@ function parseTagLine(name: string, rest: string): Marker | string[] | null {
  */
 export function parseMarkers(comment: string): MarkerMatch[] {
     return [...comment.matchAll(TAG_LINE)].flatMap((match) => {
-        const [
-            line,
-            name,
-            rest,
-        ] = match;
+        const { name = '', rest = '' } = match.groups ?? {};
         const result = parseTagLine(name, rest);
 
         if (result === null) {
             return [];
         }
 
+        const line = match[0];
         const start = line.indexOf('@');
         const position = { offset: match.index + start, length: line.trimEnd().length - start };
 
@@ -227,8 +217,9 @@ export function parseMarkers(comment: string): MarkerMatch[] {
  */
 export function parseTemplateMarkers(template: string): MarkerMatch[] {
     return [...template.matchAll(TEMPLATE_COMMENT)].flatMap((match) => {
-        const content = match[1] ?? match[2];
-        const contentStart = match.index + match[0].indexOf(content);
+        const group = match.groups?.twig === undefined ? 'html' : 'twig';
+        const content = match.groups?.[group] ?? '';
+        const contentStart = match.indices?.groups?.[group]?.[0] ?? match.index;
 
         return parseMarkers(content).map((marker) => ({ ...marker, offset: marker.offset + contentStart }));
     });

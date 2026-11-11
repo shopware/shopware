@@ -289,7 +289,7 @@ describe('devImportMapPlugin', () => {
         server.httpServer.emit('close');
     });
 
-    it('rejects path traversal attempts in component css middleware', () => {
+    it('passes path traversal attempts and requests without a url to the next middleware', () => {
         const pluginRoot = path.join(fixtureRoot, 'third-project');
         const viteRoot = path.join(pluginRoot, 'src/Storefront/Resources/app/storefront');
         const namespacedCompRoot = path.join(pluginRoot, 'custom/plugins/TestPlugin/Resources/views/components/Foo');
@@ -338,6 +338,53 @@ describe('devImportMapPlugin', () => {
         expect(next).toHaveBeenCalledOnce();
         expect(res.headers['Content-Type']).toBeUndefined();
         expect(res.body).toBe('');
+
+        cssMiddleware!.handler({}, res, next);
+
+        expect(next).toHaveBeenCalledTimes(2);
+        expect(res.headers['Content-Type']).toBeUndefined();
+        expect(res.body).toBe('');
+    });
+
+    it('lists only the styles of bundles that have a components directory', async () => {
+        const pluginRoot = path.join(fixtureRoot, 'no-components-project');
+        const viteRoot = path.join(pluginRoot, 'src/Storefront/Resources/app/storefront');
+        const componentsRoot = path.join(pluginRoot, 'src/Storefront/Resources/views/components');
+        fs.mkdirSync(path.join(viteRoot, 'src'), { recursive: true });
+        fs.mkdirSync(path.join(componentsRoot, 'Sw/Header'), { recursive: true });
+        fs.mkdirSync(path.join(pluginRoot, 'custom/plugins/NoComponentsPlugin'), { recursive: true });
+        fs.mkdirSync(path.join(pluginRoot, 'var'), { recursive: true });
+
+        fs.writeFileSync(path.join(viteRoot, 'src/shopware.ts'), 'export const test = true;');
+        fs.writeFileSync(path.join(componentsRoot, 'Sw/Header/Navbar.css'), '.navbar { color: red; }');
+        fs.writeFileSync(path.join(pluginRoot, 'var/plugins.json'), JSON.stringify({
+            Storefront: {
+                basePath: 'src/Storefront',
+                technicalName: 'storefront',
+            },
+            NoComponentsPlugin: {
+                basePath: 'custom/plugins/NoComponentsPlugin',
+                technicalName: 'no-components-plugin',
+            },
+        }));
+
+        const plugin = devImportMapPlugin(pluginRoot);
+        const server = createMockServer(5184);
+        (resolveHook(plugin.configResolved) as ((...args: unknown[]) => unknown) | undefined)?.call({}, { root: viteRoot } as never);
+        (resolveHook(plugin.configureServer) as ((...args: unknown[]) => unknown) | undefined)?.call({}, server);
+        server.httpServer.emit('listening');
+
+        const flagFile = path.join(pluginRoot, 'var/cache/storefront_components.dev.json');
+        await waitUntil(() => {
+            expect(fs.existsSync(flagFile)).toBe(true);
+        });
+
+        const { styles } = JSON.parse(fs.readFileSync(flagFile, 'utf-8')) as { styles: string[] };
+        expect(styles.filter(style => style.includes('/__sw-comp-css/'))).toEqual([
+            'http://localhost:5184/__sw-comp-css/Sw/Header/Navbar.css',
+        ]);
+
+        server.httpServer.emit('close');
     });
 
     it('prefers configured Vite origin for dev map URLs', async () => {

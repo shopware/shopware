@@ -7,17 +7,14 @@ use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductDescriptionReviewsStruct;
-use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Symfony\Component\HttpFoundation\Request;
 
 #[Package('discovery')]
 class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailCmsElementResolver
@@ -71,12 +68,7 @@ class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailC
 
         $data->setProduct($product);
 
-        try {
-            $data->setDocuments(
-                $this->productDocumentRoute->load($product->getId(), new Request(), $resolverContext->getSalesChannelContext(), new Criteria())->getDocuments()
-            );
-        } catch (ProductNotFoundException) {
-        }
+        $data->setDocuments($this->productDocumentRoute->loadForProduct($product, $resolverContext->getSalesChannelContext())->getDocuments());
 
         if ($this->systemConfigService->getBool('core.listing.showReview', $resolverContext->getSalesChannelContext()->getSalesChannelId())) {
             $reviews = $this->productReviewLoader->load($request, $resolverContext->getSalesChannelContext(), $product->getId(), $product->getParentId());

@@ -15,12 +15,14 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentRoute;
 use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentRouteResponse;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\Bucket;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
@@ -89,7 +91,7 @@ class ProductDocumentRouteTest extends TestCase
 
         $documentCriteria = $this->documentCriteria[0];
         static::assertEquals([new EqualsFilter('product.id', $variantId), new EqualsAnyFilter('mediaId', ['media-1'])], $documentCriteria->getFilters());
-        static::assertEquals([new FieldSorting('position')], $documentCriteria->getSorting());
+        static::assertEquals([new FieldSorting('position'), new FieldSorting('id')], $documentCriteria->getSorting());
     }
 
     public function testLoadKeepsTheRequestedSorting(): void
@@ -129,20 +131,57 @@ class ProductDocumentRouteTest extends TestCase
         static::assertSame($firstMedia, $sharingTheFile->getMedia());
     }
 
-    public function testLoadReturnsNothingWhenNoFileIsPublic(): void
+    public function testLoadMatchesNoDocumentWhenNoFileIsPublic(): void
     {
         $productId = Uuid::randomHex();
-        $documentRepository = $this->createDocumentRepository(['media-1'], []);
+        $criteria = new Criteria();
+        $criteria->addAggregation(new CountAggregation('count', 'id'));
+
+        $this->createRoute(
+            [[self::createProduct($productId, null)]],
+            $this->createDocumentRepository(['media-1'], [new ProductDocumentCollection()]),
+            new StaticEntityRepository([new MediaCollection()]),
+        )->load($productId, new Request(), Generator::generateSalesChannelContext(), $criteria);
+
+        $documentCriteria = $this->documentCriteria[0];
+        static::assertEquals([new EqualsFilter('product.id', $productId), new EqualsAnyFilter('mediaId', [])], $documentCriteria->getFilters());
+        static::assertNotNull($documentCriteria->getAggregation('count'));
+    }
+
+    public function testLoadDropsTranslationsWithAPrivateFile(): void
+    {
+        $productId = Uuid::randomHex();
+        $criteria = new Criteria();
+        $criteria->addAssociation('translations.media');
+
+        $this->createRoute(
+            [[self::createProduct($productId, null)]],
+            $this->createDocumentRepository(['media-1'], [new ProductDocumentCollection()]),
+            new StaticEntityRepository([new MediaCollection([$this->createMedia('media-1')])]),
+        )->load($productId, new Request(), Generator::generateSalesChannelContext(), $criteria);
+
+        static::assertEquals(
+            [new EqualsFilter('media.private', false)],
+            $this->documentCriteria[0]->getAssociation('translations')->getFilters()
+        );
+    }
+
+    public function testLoadForProductUsesTheResolvedProduct(): void
+    {
+        $variant = new SalesChannelProductEntity();
+        $variant->setId(Uuid::randomHex());
+        $variant->setParentId(Uuid::randomHex());
+        $productRepository = [];
 
         $result = $this->createRoute(
-            [[self::createProduct($productId, null)]],
-            $documentRepository,
-            new StaticEntityRepository([new MediaCollection()]),
-        )->load($productId, new Request(), Generator::generateSalesChannelContext(), new Criteria())->getResult();
+            $productRepository,
+            $this->createDocumentRepository(['media-1'], [new ProductDocumentCollection([$this->createDocument('media-1')])]),
+            new StaticEntityRepository([new MediaCollection([$this->createMedia('media-1')])]),
+        )->loadForProduct($variant, Generator::generateSalesChannelContext())->getDocuments();
 
-        static::assertSame(0, $result->getTotal());
-        static::assertCount(0, $result->getEntities());
-        static::assertSame([], $this->documentCriteria);
+        static::assertCount(1, $result);
+        static::assertEquals(new EqualsFilter('product.id', $variant->getId()), $this->documentCriteria[0]->getFilters()[0]);
+        static::assertSame([ProductDetailRoute::buildName((string) $variant->getParentId())], $this->tags);
     }
 
     public function testLoadSkipsTheMediaSearchWithoutDocuments(): void

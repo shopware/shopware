@@ -9,13 +9,13 @@ use Shopware\Core\Content\Product\Extension\ProductDocumentRouteExtension;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -60,25 +60,27 @@ class ProductDocumentRoute
         return $this->extensions->publish(
             name: ProductDocumentRouteExtension::NAME,
             extension: new ProductDocumentRouteExtension($productId, $request, $context, $criteria),
-            function: fn (string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductDocumentRouteResponse => $this->_load($productId, $context, $criteria),
+            function: fn (string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductDocumentRouteResponse => $this->_load($productId, $this->getVisibleParentId($productId, $context), $context, $criteria),
         );
     }
 
-    private function _load(string $productId, SalesChannelContext $context, Criteria $criteria): ProductDocumentRouteResponse
+    /**
+     * @internal
+     */
+    public function loadForProduct(SalesChannelProductEntity $product, SalesChannelContext $context): ProductDocumentRouteResponse
     {
-        $this->cacheTagCollector->addTag(ProductDetailRoute::buildName($this->getParentId($productId, $context)));
+        return $this->extensions->publish(
+            name: ProductDocumentRouteExtension::NAME,
+            extension: new ProductDocumentRouteExtension($product->getId(), new Request(), $context, new Criteria()),
+            function: fn (string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductDocumentRouteResponse => $this->_load($productId, $product->getParentId() ?? $product->getId(), $context, $criteria),
+        );
+    }
+
+    private function _load(string $productId, string $parentId, SalesChannelContext $context, Criteria $criteria): ProductDocumentRouteResponse
+    {
+        $this->cacheTagCollector->addTag(ProductDetailRoute::buildName($parentId));
 
         $media = $this->loadPublicMedia($productId, $context->getContext());
-        if ($media->count() === 0) {
-            return new ProductDocumentRouteResponse(new EntitySearchResult(
-                ProductDocumentDefinition::ENTITY_NAME,
-                0,
-                new ProductDocumentCollection(),
-                null,
-                $criteria,
-                $context->getContext(),
-            ));
-        }
 
         $criteria->setTitle('product-document-route');
         $criteria->addFilter(
@@ -86,7 +88,10 @@ class ProductDocumentRoute
             new EqualsAnyFilter('mediaId', array_values($media->getIds())),
         );
         if ($criteria->getSorting() === []) {
-            $criteria->addSorting(new FieldSorting('position'));
+            $criteria->addSorting(new FieldSorting('position'), new FieldSorting('id'));
+        }
+        if ($criteria->hasAssociation('translations')) {
+            $criteria->getAssociation('translations')->addFilter(new EqualsFilter('media.private', false));
         }
 
         $result = $this->productDocumentRepository->search($criteria, $context->getContext());
@@ -99,7 +104,7 @@ class ProductDocumentRoute
         return new ProductDocumentRouteResponse($result);
     }
 
-    private function getParentId(string $productId, SalesChannelContext $context): string
+    private function getVisibleParentId(string $productId, SalesChannelContext $context): string
     {
         if (!Uuid::isValid($productId)) {
             throw ProductException::productNotFound($productId);

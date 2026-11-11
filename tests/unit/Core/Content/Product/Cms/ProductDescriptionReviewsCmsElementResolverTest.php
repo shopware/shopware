@@ -25,9 +25,7 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\Bucket;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
@@ -278,36 +276,12 @@ class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
         $media = new MediaEntity();
         $media->setId('media-1');
 
-        $searchedProductIds = [];
-        $route = $this->createDocumentRoute(
-            static function (Criteria $criteria) use (&$searchedProductIds, $variantId): array {
-                $searchedProductIds = $criteria->getIds();
-                $product = new PartialEntity();
-                $product->set('id', $variantId);
-                $product->set('parentId', null);
-
-                return [$product];
-            },
-            new ProductDocumentCollection([$document]),
-            new MediaCollection([$media]),
-        );
+        $route = $this->createDocumentRoute(new ProductDocumentCollection([$document]), new MediaCollection([$media]));
 
         $data = $this->enrichWithProduct($this->createProduct($variantId, Uuid::randomHex()), $route);
 
-        static::assertSame([$variantId], $searchedProductIds);
         static::assertSame([$document], array_values($data->getDocuments()?->getElements() ?? []));
         static::assertSame($media, $document->getMedia());
-    }
-
-    public function testEnrichLeavesTheDocumentsEmptyWhenTheRouteCannotFindTheProduct(): void
-    {
-        $productId = Uuid::randomHex();
-        $route = $this->createDocumentRoute(new EntityCollection(), new ProductDocumentCollection(), new MediaCollection());
-
-        $data = $this->enrichWithProduct($this->createProduct($productId, null), $route);
-
-        static::assertNull($data->getDocuments());
-        static::assertSame($productId, $data->getProduct()?->getId());
     }
 
     private function enrichWithProduct(
@@ -340,12 +314,12 @@ class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
         return $data;
     }
 
-    private function createDocumentRoute(mixed $productSearch, ProductDocumentCollection $documents, MediaCollection $media): ProductDocumentRoute
+    private function createDocumentRoute(ProductDocumentCollection $documents, MediaCollection $media): ProductDocumentRoute
     {
         $dispatcher = new EventDispatcher();
 
         /** @var StaticSalesChannelRepository<ProductCollection> $productRepository */
-        $productRepository = new StaticSalesChannelRepository([$productSearch]);
+        $productRepository = new StaticSalesChannelRepository([]);
 
         return new ProductDocumentRoute(
             $productRepository,
@@ -400,7 +374,7 @@ class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
             $productReviewLoader,
             $scriptExecutor,
             $this->systemConfigService,
-            $documentRoute ?? $this->createDocumentRoute(new EntityCollection(), new ProductDocumentCollection(), new MediaCollection()),
+            $documentRoute ?? $this->createDocumentRoute(new ProductDocumentCollection(), new MediaCollection()),
         );
     }
 }

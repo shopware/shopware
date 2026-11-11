@@ -58,6 +58,20 @@ class ProductDocumentRouteTest extends TestCase
         static::assertSame([$this->ids->get('manual-document')], array_column($response['elements'], 'id'));
     }
 
+    public function testLoadLeavesOutPrivateFilesOfOtherLanguagesInTheTranslations(): void
+    {
+        $this->browser->request('POST', '/store-api/product/' . $this->ids->get('saw') . '/documents', [
+            'associations' => ['translations' => ['associations' => ['media' => []]]],
+        ]);
+
+        $response = $this->decode();
+        static::assertSame(1, $response['total']);
+
+        $translations = $response['elements'][0]['translations'];
+        static::assertSame([$this->ids->get('datasheet')], array_column(array_column($translations, 'media'), 'id'));
+        static::assertStringNotContainsString($this->ids->get('datenblatt'), (string) $this->browser->getResponse()->getContent());
+    }
+
     public function testLoadReturnsTheDocumentsAVariantInheritsFromItsParent(): void
     {
         $response = $this->fetch('drill-red');
@@ -128,6 +142,8 @@ class ProductDocumentRouteTest extends TestCase
             ['id' => $this->ids->create('handbuch'), 'private' => false],
             ['id' => $this->ids->create('certificate'), 'private' => false],
             ['id' => $this->ids->create('blue-sheet'), 'private' => false],
+            ['id' => $this->ids->create('datasheet'), 'private' => false],
+            ['id' => $this->ids->create('datenblatt'), 'private' => false],
         ], $context);
 
         $blue = (new ProductBuilder($this->ids, 'drill-blue'))->build();
@@ -151,12 +167,21 @@ class ProductDocumentRouteTest extends TestCase
             ['position' => 1, 'title' => 'Certificate', 'mediaId' => $this->ids->get('certificate')],
         ];
 
+        $saw = (new ProductBuilder($this->ids, 'saw'))->price(10)->visibility($this->ids->get('sales-channel'))->build();
+        $saw['documents'] = [[
+            'translations' => [
+                Defaults::LANGUAGE_SYSTEM => ['title' => 'Datasheet', 'mediaId' => $this->ids->get('datasheet')],
+                $this->getDeDeLanguageId() => ['title' => 'Datenblatt', 'mediaId' => $this->ids->get('datenblatt')],
+            ],
+        ]];
+
         $hidden = (new ProductBuilder($this->ids, 'hidden'))->price(10)->build();
 
-        static::getContainer()->get('product.repository')->create([$drill, $hidden], $context);
+        static::getContainer()->get('product.repository')->create([$drill, $saw, $hidden], $context);
 
         static::getContainer()->get('media.repository')->update([
             ['id' => $this->ids->get('certificate'), 'private' => true],
+            ['id' => $this->ids->get('datenblatt'), 'private' => true],
         ], $context);
     }
 }

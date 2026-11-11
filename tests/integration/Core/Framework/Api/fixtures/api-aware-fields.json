@@ -110,7 +110,6 @@
     "main_category.categoryId",
     "main_category.categoryVersionId",
     "main_category.salesChannelId",
-    "main_category.category",
     "main_category.createdAt",
     "main_category.updatedAt",
     "webhook.createdAt",

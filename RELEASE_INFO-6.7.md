@@ -14,8 +14,6 @@ In 6.7, non-visible associations in the `associations` parameter are ignored, in
 Starting with 6.8, these requests fail with HTTP 400 and `FRAMEWORK__ACCESSOR_NOT_ALLOWED`; remove non-visible associations from Store API requests and app scripts before upgrading.
 App permissions do not grant additional access to protected associations through `services.store`.
 
-The `mainCategories.category` association is now exposed through the Store API and `services.store`.
-
 ### ExtensionAPI repository operations no longer expose Administration access tokens
 
 Fixed an ExtensionAPI vulnerability that could expose the signed-in Administration user's access token to an app.

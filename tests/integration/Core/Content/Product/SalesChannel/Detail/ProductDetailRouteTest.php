@@ -91,39 +91,6 @@ class ProductDetailRouteTest extends TestCase
         static::assertArrayNotHasKey('searchKeywords', $response['product']);
     }
 
-    public function testStoreApiCanLoadMainCategoryAssociation(): void
-    {
-        $product = (new ProductBuilder($this->ids, 'main-category-product'))
-            ->price(10)
-            ->category('main-category')
-            ->mainCategory($this->ids->get('sales-channel'), 'main-category')
-            ->visibility($this->ids->get('sales-channel'))
-            ->build();
-
-        static::getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
-
-        $this->browser->request('POST', $this->getUrl($this->ids->get('main-category-product')), [
-            'associations' => [
-                'mainCategories' => [
-                    'associations' => ['category' => []],
-                ],
-            ],
-        ]);
-
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), print_r($response, true));
-        static::assertCount(1, $response['product']['mainCategories']);
-
-        $mainCategory = $response['product']['mainCategories'][0];
-
-        static::assertArrayHasKey('category', $mainCategory);
-        static::assertSame($this->ids->get('main-category'), $mainCategory['category']['id']);
-        static::assertSame('main-category', $mainCategory['category']['translated']['name']);
-        static::assertArrayNotHasKey('product', $mainCategory);
-        static::assertArrayNotHasKey('salesChannel', $mainCategory);
-    }
-
     public function testLoadProductWithMeasurementSystem(): void
     {
         $product = (new ProductBuilder($this->ids, 'measurement-system-product'))

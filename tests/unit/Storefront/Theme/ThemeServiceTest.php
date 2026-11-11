@@ -10,6 +10,7 @@ use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -485,6 +486,32 @@ class ThemeServiceTest extends TestCase
         $this->systemConfigMock->method('get')->willReturn(true);
 
         $this->getThemeService(themeCompiler: $themeCompiler, messageBus: $messageBus)->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
+    }
+
+    public function testCompileThemeAsyncNotifiesTheStartOncePerRequest(): void
+    {
+        $themeId = Uuid::randomHex();
+        $context = new Context(new AdminApiSource(null));
+
+        $messageBus = static::createStub(MessageBus::class);
+        $messageBus->method('dispatch')->willReturnCallback(static fn (CompileThemeMessage $message): Envelope => new Envelope($message));
+
+        $notificationService = $this->createMock(NotificationService::class);
+        $notificationService->expects($this->exactly(2))->method('createNotification')->with(
+            static::callback(static fn (array $data): bool => $data['message'] === 'sw-theme-manager.detail.asyncCompilation.started'),
+            $context
+        );
+
+        $this->systemConfigMock->method('get')->willReturn(true);
+
+        $themeService = $this->getThemeService(messageBus: $messageBus, notificationService: $notificationService);
+
+        $themeService->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $context);
+        $themeService->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $context);
+
+        $themeService->reset();
+
+        $themeService->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $context);
     }
 
     public function testCompileThemeGivenConf(): void

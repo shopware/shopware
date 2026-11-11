@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Page\Robots\Parser;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -242,6 +243,51 @@ TXT;
         $types = array_map(static fn (RobotsDirective $d) => $d->type, $block->directives);
         static::assertContains(RobotsDirectiveType::DISALLOW, $types);
         static::assertContains(RobotsDirectiveType::CRAWL_DELAY, $types);
+    }
+
+    #[DataProvider('provideAiUsagePreferenceDirectives')]
+    public function testParseAiUsagePreferenceDirectives(string $line, RobotsDirectiveType $expectedType, string $expectedRender): void
+    {
+        $text = "User-agent: *\n" . $line . "\nDisallow: /admin/";
+
+        $result = $this->parser->parse($text, Context::createDefaultContext());
+
+        static::assertCount(0, $result->issues);
+        static::assertCount(1, $result->userAgentBlocks);
+        $block = $result->userAgentBlocks[0];
+        static::assertCount(2, $block->directives);
+        static::assertSame($expectedType, $block->directives[0]->type);
+        static::assertSame($expectedRender, $block->directives[0]->render());
+    }
+
+    /**
+     * @return iterable<string, array{string, RobotsDirectiveType, string}>
+     */
+    public static function provideAiUsagePreferenceDirectives(): iterable
+    {
+        yield 'content usage' => [
+            'Content-Usage: train-ai=n, search=y',
+            RobotsDirectiveType::CONTENT_USAGE,
+            'Content-usage: train-ai=n, search=y',
+        ];
+
+        yield 'content usage with path' => [
+            'Content-Usage: /blog/ train-ai=n',
+            RobotsDirectiveType::CONTENT_USAGE,
+            'Content-usage: /blog/ train-ai=n',
+        ];
+
+        yield 'content signal' => [
+            'Content-Signal: search=yes, ai-train=no',
+            RobotsDirectiveType::CONTENT_SIGNAL,
+            'Content-signal: search=yes, ai-train=no',
+        ];
+
+        yield 'lowercase content signal' => [
+            'content-signal: search=yes, ai-train=no',
+            RobotsDirectiveType::CONTENT_SIGNAL,
+            'Content-signal: search=yes, ai-train=no',
+        ];
     }
 
     public function testParseTrimsWhitespace(): void

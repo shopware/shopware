@@ -6,6 +6,7 @@ import { test } from 'node:test';
 import {
     COMMENT_MARKER,
     buildComment,
+    decorateHeadings,
     buildEndUserDocs,
     collectAgentInput,
     dispatchDocsChecks,
@@ -166,6 +167,17 @@ test('buildComment writes a neutral note without any mention', () => {
     assert.ok(comment.includes('`@someone`'));
     assert.ok(comment.includes('`@shopware/po-docs`'));
     assert.equal(/(^|[^`])@[\w/-]+/.test(comment.replace(/`@[^`]+`/g, '')), false);
+});
+
+test('buildComment marks the note as automated with a warning icon', () => {
+    assert.ok(buildComment('x').includes('_⚠️ Automated note: this change may be worth mentioning in the documentation. No action required._'));
+});
+
+test('decorateHeadings puts an icon before each audience heading only', () => {
+    assert.equal(
+        decorateHeadings('**End-user docs**\n- **Adjust** x\n\n**Developer docs** \n- see **End-user docs** above'),
+        '**🛍️ End-user docs**\n- **Adjust** x\n\n**🛠️ Developer docs**\n- see **End-user docs** above',
+    );
 });
 
 test('buildComment truncates an oversized summary', () => {
@@ -552,4 +564,11 @@ test('warnIfEndUserDocsMissing warns in the log and the run summary only when th
         assert.equal(messages.filter((m) => m.startsWith('warning: End-user documentation is unavailable')).length, expected);
         assert.equal(written.length, expected);
     }
+});
+
+test('the workflow lets the docs domains through output sanitization', () => {
+    const workflow = readFileSync(new URL('../../workflows/sw-docs-impact.md', import.meta.url), 'utf8');
+    const domains = workflow.match(/^ {2}allowed-domains: \[(.*)\]$/m)?.[1].split(',').map((domain) => domain.trim());
+
+    assert.deepEqual(domains, ['docs.shopware.com', 'developer.shopware.com']);
 });

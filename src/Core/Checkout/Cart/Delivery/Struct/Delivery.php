@@ -16,6 +16,11 @@ class Delivery extends Struct
     protected array $payload = [];
 
     /**
+     * @var list<string>|null
+     */
+    private ?array $ruleIds = null;
+
+    /**
      * @var array<string, bool>
      */
     private array $payloadProtection = [];
@@ -62,6 +67,24 @@ class Delivery extends Struct
     public function setShippingCosts(CalculatedPrice $shippingCosts): void
     {
         $this->shippingCosts = $shippingCosts;
+    }
+
+    /**
+     * Ids of the rules that match this delivery, null while the delivery has not been matched
+     *
+     * @return list<string>|null
+     */
+    public function getRuleIds(): ?array
+    {
+        return $this->ruleIds;
+    }
+
+    /**
+     * @param list<string>|null $ruleIds
+     */
+    public function setRuleIds(?array $ruleIds): void
+    {
+        $this->ruleIds = $ruleIds;
     }
 
     /**

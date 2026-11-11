@@ -54,7 +54,7 @@ Environment overrides:
   (useful in Docker/WSL/remote setups, e.g. `http://host.docker.internal:5175`)
 - `SHOPWARE_STOREFRONT_DEV_UPDATE` - how a source change reaches the open page
   - `reload` (default) - the page reloads
-  - `hmr` - the change is applied to the open page in place, Twig changes included
+  - `hmr` - the change is applied to the open page in place, Twig changes and component scripts included
   - `manual` - nothing is sent to the page, you reload it yourself
 
 `SHOPWARE_STOREFRONT_DEV_UPDATE` is read from the shell first, then from the `.env.local` and `.env` of the project root.
@@ -142,6 +142,11 @@ When the dev server stops, Shopware falls back to production assets/import map.
   - dev-only plugin for Twig templates, not registered in `manual` mode
   - watches the Storefront view directories of every bundle and sends `sw:twig-update`
   - see `src/dev/twig-hmr/README.md`
+
+- `vite/component-hmr-plugin.ts`
+  - dev-only plugin, registered only in `hmr` mode
+  - appends an HMR handler to component scripts, so a changed class is swapped in place
+  - without it, Vite reloads the page for a changed component script
 
 - `vite/storefront-dev-update.ts`
   - reads `SHOPWARE_STOREFRONT_DEV_UPDATE` and falls back to `reload` for an unset or unknown value

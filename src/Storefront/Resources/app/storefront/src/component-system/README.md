@@ -115,6 +115,9 @@ composer storefront:dev-server
 
 When the dev server is running, Shopware serves component JS/CSS from the Vite server. When it is stopped, Shopware falls back to published production assets.
 
+A changed component script is swapped on the open page without a reload.
+The instances of the component are destroyed and created again with the new class, so their state is reset.
+
 ## Component Configuration
 
 ### Data Attributes
@@ -394,3 +397,4 @@ class ReactiveComponent extends ShopwareComponent {
 | `intercept(eventName, callback, priority)` | Intercept an interception event |
 | `emitInterception(eventName, ...args)` | Emit an interceptable event |
 | `callMethod(name, methodName, ...args)` | Call a method on all instances of a component |
+| `replaceComponent(name, componentClass)` | Destroy all instances of a component and create them again with a new class, used by the hot update of the dev server |

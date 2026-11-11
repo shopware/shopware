@@ -25,7 +25,7 @@ SHOPWARE_STOREFRONT_DEV_UPDATE=hmr composer storefront:dev-server
 | Value | Twig change in the Vite dev server |
 |---|---|
 | `reload` (default) | `twig-reload.vite.js` reloads the page |
-| `hmr` | `twig-hmr.vite.js` applies the change in place |
+| `hmr` | `twig-hmr.vite.js` applies the change in place and swaps changed component scripts |
 | `manual` | Nothing happens, the views are not watched |
 
 The variable is read from the shell first, then from the `.env.local` and `.env` of the project root, so put it into `.env.local` to keep it.
@@ -103,6 +103,7 @@ So the client sees the server markup of the page and every element that scripts 
 | `plugin-policy.js`     | Which plugin and component elements changed between the previous and the new render |
 | `interaction-state.js` | Edited controls and the Bootstrap state that a user created           |
 | `notice.js`            | The "reload required" notice                                          |
+| `component-hmr.js`     | Swaps the class of a changed component script in the Vite dev server  |
 
 **Prepare.**
 The client fetches the page and the source URL of every open AJAX modal and offcanvas in parallel.
@@ -166,6 +167,23 @@ The previous render of the page is a copy of the body taken by `init()`.
 The previous render of a fragment is fetched when the fragment opens.
 Without a previous render, every plugin and component element counts as changed.
 
+**Component scripts.**
+With `SHOPWARE_STOREFRONT_DEV_UPDATE=hmr`, a changed component script does not reload the page either.
+In `reload` mode Vite reloads the page, and in `manual` mode nothing happens.
+`build/vite/component-hmr-plugin.ts` appends an HMR handler to every script under `Resources/views/components/`.
+Helper modules that a component imports pass their updates up to it.
+The handler calls `window.swComponentHmr.replace()` of `component-hmr.js` with the module URL and the new class.
+It finds the component name of the URL in the import map and calls `window.Shopware.replaceComponent()`.
+That destroys every instance of the component and creates a new one with the new class on the same element.
+Elements added later get the new class as well.
+The page reloads instead in these cases:
+
+- The module URL is in no import map, or the module exports no class.
+- The new class throws while it starts.
+- `src/shopware.ts` or a module it imports changed, because a second copy of `window.Shopware` would lose all instances.
+
+The webpack watcher never serves component scripts, so it is not affected.
+
 **Interaction state.**
 Only state that a user created is kept:
 
@@ -223,6 +241,7 @@ These are covered by the tests in `test/dev/twig-hmr`:
 - `build/vite/twig-hmr-plugin.test.ts` covers the Vite watcher, `test/build` the shared watch paths, the debounce and the webpack watcher.
 - `twig-hmr.plugins.test.js` runs the real `PluginManager` with `QuantitySelectorPlugin` and a plugin that wraps its children like a slider.
 - `twig-hmr.components.test.js` runs the real component system with a component that caches its button.
+- `component-hmr.test.js` swaps the class of a component, `build/vite/component-hmr-plugin.test.ts` covers the Vite side.
 
 `AGENTS.md` next to this file holds the browser and proxy matrix for manual verification.
 
@@ -252,6 +271,8 @@ These are covered by the tests in `test/dev/twig-hmr`:
   CSP nonces are ignored, because they change on every request.
   Until the first refresh, the baseline is the live head, which can hold elements that scripts added.
   So the first refresh only detects added or changed head elements, not removed ones.
+- **Component scripts** lose the state of their instances when they are swapped.
+  Listeners on `document` or `window` that `destroy()` does not remove are registered twice.
 - **Duplicate ids** in the page make idiomorph match the wrong nodes.
 - **Pages reached by POST** show the result of a GET request after a refresh.
 - **URLs changed with `history.pushState`** are fetched as they are.

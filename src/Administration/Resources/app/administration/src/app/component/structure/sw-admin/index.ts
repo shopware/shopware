@@ -37,8 +37,9 @@ export default Shopware.Component.wrapComponentConfig({
         /**
          * @private
          *
-         * Generated override components, rendered once in a hidden container so their setup bodies run and
-         * register their override callbacks. Internal to the composition extension system.
+         * Generated override components, rendered in a hidden container so their setup bodies run and
+         * register their override callbacks. Not rendered with `v-once`, because a hot reload of an
+         * edited override has to remount it. Internal to the composition extension system.
          */
         overrideComponents() {
             return Component.getOverrideComponents();

@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Content\Media;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent;
 use Shopware\Core\Content\Media\Event\UnusedMediaSearchStartEvent;
@@ -1729,8 +1728,7 @@ class UnusedMediaPurgerTest extends TestCase
     }
 
     /**
-     * `StaticEntityRepository` has no `aggregate()` and is `@final`, so the count queries cannot go
-     * through its search queue. Only that one method is overridden; the queue still drives the rest.
+     * The purger counts the media before it searches, so the counts go first in the queue.
      *
      * Like the real repository, a count is only returned when the criteria asks for the
      * `media-count` aggregation; `null` stands for a result without it.
@@ -1738,29 +1736,18 @@ class UnusedMediaPurgerTest extends TestCase
      * @param array<mixed> $searches
      * @param list<int|null> $counts
      *
-     * @return StaticEntityRepository<MediaCollection>&MockObject
+     * @return StaticEntityRepository<MediaCollection>
      */
     private function repositoryWithCounts(array $searches, EntityDefinition $definition, array $counts): StaticEntityRepository
     {
-        $repository = $this->getMockBuilder(StaticEntityRepository::class)
-            ->setConstructorArgs([$searches, $definition])
-            ->onlyMethods(['aggregate'])
-            ->getMock();
+        $aggregations = array_map(
+            static fn (?int $count) => static fn (Criteria $criteria): AggregationResultCollection => new AggregationResultCollection(
+                $count === null || $criteria->getAggregation('media-count') === null ? [] : [new CountResult('media-count', $count)]
+            ),
+            $counts,
+        );
 
-        $repository
-            ->expects($this->exactly(\count($counts)))
-            ->method('aggregate')
-            ->willReturnCallback(static function (Criteria $criteria) use (&$counts): AggregationResultCollection {
-                $count = array_shift($counts);
-
-                if ($count === null || $criteria->getAggregation('media-count') === null) {
-                    return new AggregationResultCollection();
-                }
-
-                return new AggregationResultCollection([new CountResult('media-count', $count)]);
-            });
-
-        return $repository;
+        return StaticEntityRepository::of(MediaCollection::class, [...$aggregations, ...$searches], $definition);
     }
 
     private function createMedia(string $id): MediaEntity

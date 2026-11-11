@@ -186,6 +186,23 @@ class TranslationLoaderTest extends TestCase
         static::assertSame($expectedFiles, $writtenFiles);
     }
 
+    public function testDownloadRequestsEachFileFromItsPathInTheRepository(): void
+    {
+        $this->getTranslationLoader()->download('es-ES');
+
+        $expectedUrls = [
+            'http://localhost:8000/es-ES/Platform/Administration/administration.json',
+            'http://localhost:8000/es-ES/Platform/Core/messages.json',
+            'http://localhost:8000/es-ES/Platform/Storefront/storefront.json',
+            'http://localhost:8000/es-ES/Plugins/SwagPublisher/Administration/administration.json',
+            'http://localhost:8000/es-ES/Plugins/SwagPublisher/Storefront/storefront.json',
+        ];
+        $requestedUrls = $this->requestedUrls;
+        sort($requestedUrls);
+
+        static::assertSame($expectedUrls, $requestedUrls);
+    }
+
     public function testDownloadKeepsAtMostTenRequestsInFlight(): void
     {
         $this->config = new TranslationConfig(

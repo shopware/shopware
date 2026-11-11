@@ -168,9 +168,9 @@ class RemoteZipTest extends TestCase
             ->expects($this->once())
             ->method('extract')
             ->with(
-                'TestApp',
                 $dirFactory->path() . '/TestApp.zip',
-                $dirFactory->path() . '/TestApp'
+                $dirFactory->path(),
+                'TestApp'
             );
 
         $fs->method('exists')

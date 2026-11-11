@@ -62,4 +62,19 @@ describe('copy-proxy-response-head', () => {
 
         expect(res.headers).toEqual({ 'content-type': 'text/html' });
     });
+
+    test('skips the Content Security Policy, which would block the assets of the live reload server', () => {
+        const res = createResponse();
+
+        copyProxyResponseHead({
+            statusCode: 200,
+            headers: {
+                'content-security-policy': 'script-src \'self\'',
+                'content-security-policy-report-only': 'default-src \'self\'',
+                'content-type': 'text/html',
+            },
+        }, res, rewriteUrl);
+
+        expect(res.headers).toEqual({ 'content-type': 'text/html' });
+    });
 });

@@ -414,6 +414,32 @@ Decorating `CartRestorer` just to copy an extension over is no longer needed.
 `payload.value` of promotion line items with an absolute, fixed or fixed unit discount now contains the value in the cart currency, using the advanced price of the currency or the currency factor.
 Orders placed before this change still contain the default currency value.
 Extensions and headless frontends that convert `payload.value` into the cart currency themselves must remove that conversion.
+### Replacing a media file invalidates every cached page showing it
+
+Changing a media file used to invalidate only the product detail pages of products that use the media as product media.
+It now also invalidates the listings and dynamic product groups containing those products,
+categories using the media as category image,
+layouts using it as section or block background or in an image, image slider, image gallery or video element,
+and categories, products and landing pages using it in their layout overrides.
+Replaced images show up on these pages without clearing the HTTP cache.
+
+The media of layouts are mapped in the new table `cms_page_media_usage`,
+the media of layout overrides in `category_translation_media_usage`, `product_translation_media_usage` and `landing_page_translation_media_usage`,
+so replacing a file does not have to search the JSON of the content.
+After the update, the indexers of the same names with the suffix `.indexer` fill the tables for the existing content.
+
+The media of an element are returned by its media provider, a service implementing the new `CmsElementMediaProviderInterface`.
+The core registers providers for the image, image slider, image gallery, video, YouTube and Vimeo elements.
+Elements showing media should register a provider as well, so replacing those media invalidates the pages showing them.
+Several providers can be registered for the same element type.
+The `CmsElementMediaFieldProvider` reads the media by a path into the config, which starts with the config field.
+`*` stands for every entry of a list, so `sliderItems.*.mediaId` reads the `mediaId` of every slider item:
+
+```php
+$services->set('my_plugin.cms.element_media_provider.my-gallery', CmsElementMediaFieldProvider::class)
+    ->args(['my-gallery', 'slides.*.picture.media.*.id'])
+    ->tag('shopware.cms.element_media_provider');
+```
 
 ### Split cart delivery positions by quantity
 

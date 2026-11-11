@@ -98,7 +98,7 @@ class CacheInvalidationSubscriberTest extends TestCase
 
     public function testInvalidateMediaWithoutVariantsWillInvalidateOnlyProducts(): void
     {
-        $productId = '123';
+        $productId = Uuid::randomHex();
         $mediaId = Uuid::randomHex();
         $event = new MediaIndexerEvent([$mediaId], Context::createDefaultContext(), []);
 
@@ -122,8 +122,8 @@ class CacheInvalidationSubscriberTest extends TestCase
 
     public function testInvalidateMediaWithVariantsWillInvalidateProductsAndVariants(): void
     {
-        $productId = '123';
-        $variants = ['456', '789'];
+        $productId = Uuid::randomHex();
+        $variants = [Uuid::randomHex(), Uuid::randomHex()];
         $mediaId = Uuid::randomHex();
         $event = new MediaIndexerEvent([$mediaId], Context::createDefaultContext(), []);
 

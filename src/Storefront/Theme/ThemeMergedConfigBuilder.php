@@ -45,10 +45,91 @@ class ThemeMergedConfigBuilder
             $translate = \func_num_args() === 3 ? func_get_arg(2) : false;
         }
 
+        $this->loadThemes($context);
+
+        return $this->buildPlainThemeConfiguration($themeId, $isLegacy && $translate);
+    }
+
+    /**
+     * Loads all themes only once, however many configurations are built.
+     *
+     * @param list<string> $themeIds
+     *
+     * @throws InvalidThemeConfigException
+     * @throws ThemeException
+     * @throws InconsistentCriteriaIdsException
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    public function getPlainThemeConfigurations(array $themeIds, Context $context): array
+    {
+        $this->loadThemes($context);
+
+        $configurations = [];
+        foreach ($themeIds as $themeId) {
+            $configurations[$themeId] = $this->buildPlainThemeConfiguration($themeId, false);
+        }
+
+        return $configurations;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getThemeConfigurationFieldStructure(string $themeId, Context $context): array
+    {
+        $isLegacy = !Feature::isActive('v6.8.0.0');
+        if ($isLegacy) {
+            $translate = \func_num_args() === 3 ? func_get_arg(2) : false;
+            $themeConfig = $this->getPlainThemeConfiguration($themeId, $context, $translate);
+        } else {
+            $themeConfig = $this->getPlainThemeConfiguration($themeId, $context);
+        }
+
+        $themeTechnicalName = (string) $themeConfig['themeTechnicalName'];
+        $mergedFieldConfig = $themeConfig['fields'];
+
+        $translations = [];
+        if ($isLegacy && $translate) {
+            $translations = Feature::silent('v6.8.0.0', fn (): array => $this->getTranslations($themeId, $context));
+            $mergedFieldConfig = $this->translateLabels($mergedFieldConfig, $translations);
+        }
+
+        $outputStructure = [];
+
+        foreach ($mergedFieldConfig as $fieldName => $fieldConfig) {
+            $tab = ThemeConfigStructure::getTab($fieldConfig);
+            $block = ThemeConfigStructure::getBlock($fieldConfig);
+            $section = ThemeConfigStructure::getSection($fieldConfig);
+
+            $outputStructure = $this->addTranslations($outputStructure, $tab, $block, $section, $translations);
+
+            $custom = $this->buildCustom($fieldConfig['custom'], $tab, $block, $section, $fieldName);
+
+            $outputStructure['tabs'][$tab]['blocks'][$block]['sections'][$section]['fields'][$fieldName] =
+                $this->buildField($fieldConfig, $custom, $tab, $block, $section, $fieldName);
+        }
+
+        $outputStructure['themeTechnicalName'] = $themeTechnicalName;
+        $outputStructure['configInheritance'] = $themeConfig['configInheritance'];
+
+        return $outputStructure;
+    }
+
+    private function loadThemes(Context $context): void
+    {
         $criteria = (new Criteria())
             ->setTitle('theme-service::load-config');
 
         $this->themes = $this->themeRepository->search($criteria, $context)->getEntities();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildPlainThemeConfiguration(string $themeId, bool $translate): array
+    {
+        $isLegacy = !Feature::isActive('v6.8.0.0');
 
         $theme = $this->themes->get($themeId);
         if (!$theme instanceof ThemeEntity) {
@@ -169,49 +250,6 @@ class ThemeMergedConfigBuilder
         }
 
         return $themeConfig;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function getThemeConfigurationFieldStructure(string $themeId, Context $context): array
-    {
-        $isLegacy = !Feature::isActive('v6.8.0.0');
-        if ($isLegacy) {
-            $translate = \func_num_args() === 3 ? func_get_arg(2) : false;
-            $themeConfig = $this->getPlainThemeConfiguration($themeId, $context, $translate);
-        } else {
-            $themeConfig = $this->getPlainThemeConfiguration($themeId, $context);
-        }
-
-        $themeTechnicalName = (string) $themeConfig['themeTechnicalName'];
-        $mergedFieldConfig = $themeConfig['fields'];
-
-        $translations = [];
-        if ($isLegacy && $translate) {
-            $translations = Feature::silent('v6.8.0.0', fn (): array => $this->getTranslations($themeId, $context));
-            $mergedFieldConfig = $this->translateLabels($mergedFieldConfig, $translations);
-        }
-
-        $outputStructure = [];
-
-        foreach ($mergedFieldConfig as $fieldName => $fieldConfig) {
-            $tab = ThemeConfigStructure::getTab($fieldConfig);
-            $block = ThemeConfigStructure::getBlock($fieldConfig);
-            $section = ThemeConfigStructure::getSection($fieldConfig);
-
-            $outputStructure = $this->addTranslations($outputStructure, $tab, $block, $section, $translations);
-
-            $custom = $this->buildCustom($fieldConfig['custom'], $tab, $block, $section, $fieldName);
-
-            $outputStructure['tabs'][$tab]['blocks'][$block]['sections'][$section]['fields'][$fieldName] =
-                $this->buildField($fieldConfig, $custom, $tab, $block, $section, $fieldName);
-        }
-
-        $outputStructure['themeTechnicalName'] = $themeTechnicalName;
-        $outputStructure['configInheritance'] = $themeConfig['configInheritance'];
-
-        return $outputStructure;
     }
 
     /**

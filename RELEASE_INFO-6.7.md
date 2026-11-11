@@ -749,6 +749,7 @@ The webpack hot proxy (`composer watch:storefront`) does not use it.
 ```bash
 SHOPWARE_STOREFRONT_DEV_UPDATE=hmr composer storefront:dev-server
 ```
+
 ### Skip link for listing filters
 
 Category, landing and search pages with a filtered product listing now offer a "Skip to products" link in the skip-to-content bar, so keyboard users can jump past the filters to the products.

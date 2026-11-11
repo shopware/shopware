@@ -37,7 +37,11 @@ export function createContentLayoutRepository(repository: Repository<'content_la
         },
 
         async get(id: string, context: apiContext, criteria: CriteriaType): Promise<ContentLayoutEntity | null> {
-            const entity = (await repository.get(id, context, criteria)) as ContentLayoutEntity | null;
+            const entity = (await repository.get(
+                id as EntityKey<'content_layout'>,
+                context,
+                criteria,
+            )) as ContentLayoutEntity | null;
 
             if (entity && entity.layout !== undefined && entity.layout !== null && !Array.isArray(entity.layout)) {
                 throw new Error(

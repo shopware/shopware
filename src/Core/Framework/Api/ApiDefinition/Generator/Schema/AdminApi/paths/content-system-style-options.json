@@ -62,7 +62,7 @@
                                                     },
                                                     "adminUI": {
                                                         "type": ["object", "null"],
-                                                        "description": "Opaque admin UI hints passed through verbatim."
+                                                        "description": "Admin UI hints passed through verbatim. labelSnippet and descriptionSnippet are optional snippet keys; props.options entries may carry labelSnippet and descriptionSnippet."
                                                     },
                                                     "breakpointAware": {
                                                         "type": "boolean",

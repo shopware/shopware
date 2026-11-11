@@ -128,6 +128,723 @@
         "panels": {
           "general": "General"
         }
+      },
+      "content-text": {
+        "label": "Text",
+        "text": {
+          "title": "Text"
+        }
+      },
+      "filter-panel": {
+        "label": "Filter Panel",
+        "productListing": {
+          "title": "Product Listing"
+        },
+        "displayType": {
+          "title": "Display Type",
+          "helpText": "Use vertical when the panel sits in a narrow column, so the filters sit one below another and expand in place instead of opening floating menus.",
+          "options": {
+            "inline": {
+              "label": "Inline"
+            },
+            "vertical": {
+              "label": "Vertical"
+            }
+          }
+        },
+        "visibleFilterCount": {
+          "title": "Visible Filter Count"
+        },
+        "showPriceFilter": {
+          "title": "Filter by Price"
+        },
+        "showRatingFilter": {
+          "title": "Filter by Rating"
+        },
+        "showManufacturerFilter": {
+          "title": "Filter by Manufacturer"
+        },
+        "showShippingFreeFilter": {
+          "title": "Filter for Free Shipping"
+        },
+        "showPropertyFilter": {
+          "title": "Filter by Properties"
+        },
+        "propertyAllowList": {
+          "title": "Filterable Properties",
+          "helpText": "Restrict the property filters to the groups that matter on this page, for example only colour and size."
+        }
+      },
+      "grid-container": {
+        "label": "Grid Container",
+        "mode": {
+          "title": "Mode",
+          "options": {
+            "auto-fit": {
+              "label": "Auto fit",
+              "description": "Automatically fits as many columns as possible."
+            },
+            "max-content": {
+              "label": "Max content",
+              "description": "Size columns based on their maximum content size."
+            },
+            "explicit": {
+              "label": "Explicit",
+              "description": "Use explicit columns and rows configuration."
+            }
+          }
+        },
+        "itemMinWidth": {
+          "title": "Item Min Width"
+        },
+        "columns": {
+          "title": "Columns",
+          "xs": {
+            "title": "Columns (XS)"
+          },
+          "sm": {
+            "title": "Columns (SM)"
+          },
+          "md": {
+            "title": "Columns (MD)"
+          },
+          "lg": {
+            "title": "Columns (LG)"
+          },
+          "xl": {
+            "title": "Columns (XL)"
+          }
+        },
+        "rows": {
+          "title": "Rows",
+          "xs": {
+            "title": "Rows (XS)"
+          },
+          "sm": {
+            "title": "Rows (SM)"
+          },
+          "md": {
+            "title": "Rows (MD)"
+          },
+          "lg": {
+            "title": "Rows (LG)"
+          },
+          "xl": {
+            "title": "Rows (XL)"
+          }
+        },
+        "fullWidth": {
+          "title": "Full Width"
+        },
+        "gap": {
+          "title": "Gap"
+        },
+        "maxWidth": {
+          "title": "Max Width"
+        },
+        "padding": {
+          "title": "Padding",
+          "xs": {
+            "title": "Padding (XS)"
+          },
+          "sm": {
+            "title": "Padding (SM)"
+          },
+          "md": {
+            "title": "Padding (MD)"
+          },
+          "lg": {
+            "title": "Padding (LG)"
+          },
+          "xl": {
+            "title": "Padding (XL)"
+          },
+          "xxl": {
+            "title": "Padding (XXL)"
+          }
+        },
+        "margin": {
+          "title": "Margin",
+          "xs": {
+            "title": "Margin (XS)"
+          },
+          "sm": {
+            "title": "Margin (SM)"
+          },
+          "md": {
+            "title": "Margin (MD)"
+          },
+          "lg": {
+            "title": "Margin (LG)"
+          },
+          "xl": {
+            "title": "Margin (XL)"
+          },
+          "xxl": {
+            "title": "Margin (XXL)"
+          }
+        },
+        "align": {
+          "title": "Align Items",
+          "options": {
+            "normal": {
+              "label": "Normal"
+            },
+            "start": {
+              "label": "Start"
+            },
+            "center": {
+              "label": "Center"
+            },
+            "end": {
+              "label": "End"
+            },
+            "stretch": {
+              "label": "Stretch"
+            }
+          }
+        },
+        "alignContent": {
+          "title": "Align Content",
+          "options": {
+            "normal": {
+              "label": "Normal"
+            },
+            "start": {
+              "label": "Start"
+            },
+            "center": {
+              "label": "Center"
+            },
+            "end": {
+              "label": "End"
+            },
+            "stretch": {
+              "label": "Stretch"
+            },
+            "spaceAround": {
+              "label": "Space around"
+            },
+            "spaceBetween": {
+              "label": "Space between"
+            },
+            "spaceEvenly": {
+              "label": "Space evenly"
+            }
+          }
+        },
+        "justify": {
+          "title": "Justify Items",
+          "options": {
+            "normal": {
+              "label": "Normal"
+            },
+            "start": {
+              "label": "Start"
+            },
+            "center": {
+              "label": "Center"
+            },
+            "end": {
+              "label": "End"
+            },
+            "stretch": {
+              "label": "Stretch"
+            }
+          }
+        },
+        "justifyContent": {
+          "title": "Justify Content",
+          "options": {
+            "normal": {
+              "label": "Normal"
+            },
+            "start": {
+              "label": "Start"
+            },
+            "center": {
+              "label": "Center"
+            },
+            "end": {
+              "label": "End"
+            },
+            "stretch": {
+              "label": "Stretch"
+            },
+            "spaceAround": {
+              "label": "Space around"
+            },
+            "spaceBetween": {
+              "label": "Space between"
+            },
+            "spaceEvenly": {
+              "label": "Space evenly"
+            }
+          }
+        },
+        "border": {
+          "title": "Border",
+          "options": {
+            "all": {
+              "label": "All sides"
+            },
+            "top": {
+              "label": "Top"
+            },
+            "end": {
+              "label": "End"
+            },
+            "bottom": {
+              "label": "Bottom"
+            },
+            "start": {
+              "label": "Start"
+            }
+          }
+        },
+        "borderVariant": {
+          "title": "Border Variant",
+          "options": {
+            "primary": {
+              "label": "Primary"
+            },
+            "secondary": {
+              "label": "Secondary"
+            },
+            "secondarySubtle": {
+              "label": "Secondary subtle"
+            }
+          }
+        },
+        "borderFullWidth": {
+          "title": "Full Width Border"
+        },
+        "borderRadius": {
+          "title": "Rounded Corners",
+          "options": {
+            "0": {
+              "label": "Square"
+            },
+            "4px": {
+              "label": "Small"
+            },
+            "8px": {
+              "label": "Medium"
+            },
+            "16px": {
+              "label": "Large"
+            },
+            "50": {
+              "label": "Round"
+            }
+          }
+        },
+        "backgroundColor": {
+          "title": "Background Color"
+        },
+        "backgroundOpacity": {
+          "title": "Background Opacity"
+        },
+        "backgroundImage": {
+          "title": "Background Image"
+        },
+        "backgroundImageMode": {
+          "title": "Background Image Mode",
+          "options": {
+            "auto": {
+              "label": "Automatic"
+            },
+            "cover": {
+              "label": "Cover"
+            },
+            "contain": {
+              "label": "Contain"
+            }
+          }
+        },
+        "backgroundFullWidth": {
+          "title": "Full Width Background"
+        },
+        "shadowOffsetX": {
+          "title": "Shift Right"
+        },
+        "shadowOffsetY": {
+          "title": "Shift Down"
+        },
+        "shadowSpread": {
+          "title": "Spread"
+        },
+        "shadowBlur": {
+          "title": "Blur"
+        },
+        "shadowOpacity": {
+          "title": "Opacity"
+        },
+        "shadowInset": {
+          "title": "Inset"
+        },
+        "shadowColor": {
+          "title": "Color"
+        }
+      },
+      "media-gallery": {
+        "label": "Gallery",
+        "mediaItems": {
+          "title": "Media"
+        },
+        "displayMode": {
+          "title": "Display Mode",
+          "options": {
+            "auto": {
+              "label": "Automatic"
+            },
+            "fixedHeight": {
+              "label": "Fixed height"
+            }
+          }
+        },
+        "maxHeight": {
+          "title": "Max Height"
+        },
+        "showThumbnailNav": {
+          "title": "Show Thumbnail Navigation"
+        },
+        "thumbnailSize": {
+          "title": "Thumbnail Size"
+        },
+        "thumbnailNavigationPosition": {
+          "title": "Position",
+          "options": {
+            "left": {
+              "label": "Left"
+            },
+            "bottom": {
+              "label": "Bottom"
+            }
+          }
+        },
+        "thumbnailNavShowsMediaOnHover": {
+          "title": "Navigate on hover",
+          "helpText": "Accessibility: when active, the gallery switches media on hover alone, without any click. This could be triggered by accident."
+        },
+        "showNavigationArrows": {
+          "title": "Show Navigation Arrows"
+        },
+        "showMagnifier": {
+          "title": "Show Magnifier"
+        },
+        "showFullScreenGallery": {
+          "title": "Show Fullscreen Gallery"
+        },
+        "autoplayVideos": {
+          "title": "Autoplay Videos"
+        }
+      },
+      "media-image": {
+        "label": "Image",
+        "media": {
+          "title": "Media"
+        },
+        "height": {
+          "title": "Height"
+        },
+        "maxImageWidth": {
+          "title": "Max Image Width"
+        },
+        "loading": {
+          "title": "Loading",
+          "options": {
+            "lazy": {
+              "label": "Lazy"
+            },
+            "eager": {
+              "label": "Eager"
+            }
+          }
+        },
+        "fetchpriority": {
+          "title": "Fetch Priority",
+          "options": {
+            "auto": {
+              "label": "Automatic"
+            },
+            "high": {
+              "label": "High"
+            },
+            "low": {
+              "label": "Low"
+            }
+          }
+        }
+      },
+      "media-vimeo": {
+        "label": "Vimeo Video",
+        "videoId": {
+          "title": "Video ID or URL"
+        },
+        "videoTitle": {
+          "title": "Video Title"
+        },
+        "autoplay": {
+          "title": "Autoplay"
+        },
+        "loop": {
+          "title": "Loop"
+        },
+        "showControls": {
+          "title": "Show Controls"
+        },
+        "doNotTrack": {
+          "title": "Do Not Track"
+        },
+        "needsConfirmation": {
+          "title": "Load After Confirmation"
+        },
+        "showByline": {
+          "title": "Show Byline"
+        },
+        "showTitle": {
+          "title": "Show Title"
+        },
+        "showPortrait": {
+          "title": "Show Portrait"
+        },
+        "color": {
+          "title": "Accent Color"
+        },
+        "previewMedia": {
+          "title": "Preview Image"
+        }
+      },
+      "media-youtube": {
+        "label": "YouTube Video",
+        "videoId": {
+          "title": "Video ID or URL"
+        },
+        "videoTitle": {
+          "title": "Video Title"
+        },
+        "autoplay": {
+          "title": "Autoplay"
+        },
+        "loop": {
+          "title": "Loop"
+        },
+        "showControls": {
+          "title": "Show Controls"
+        },
+        "advancedPrivacyMode": {
+          "title": "Advanced Privacy Mode"
+        },
+        "needsConfirmation": {
+          "title": "Load After Confirmation"
+        },
+        "start": {
+          "title": "Start Time"
+        },
+        "end": {
+          "title": "End Time"
+        },
+        "previewMedia": {
+          "title": "Preview Image"
+        }
+      },
+      "navigation-breadcrumb": {
+        "label": "Breadcrumb",
+        "breadcrumb": {
+          "title": "Breadcrumb"
+        },
+        "showHome": {
+          "title": "Show home link"
+        }
+      },
+      "navigation-tree": {
+        "label": "Navigation Tree",
+        "navigationTree": {
+          "title": "Navigation Tree"
+        },
+        "activeId": {
+          "title": "Active category ID",
+          "helpText": "Filled automatically on a category page — leave this as it is."
+        },
+        "displayType": {
+          "title": "Display type",
+          "helpText": "'Static' renders the tree as it is. 'Collapse' adds a plus button to every category whose sub-levels are rendered, so shoppers can open them. That mode renders the whole tree down to the navigation depth of the sales channel, which makes every page carrying the element heavier on a deep catalogue.",
+          "options": {
+            "static": {
+              "label": "Static"
+            },
+            "collapse": {
+              "label": "Collapsible"
+            }
+          }
+        },
+        "expandAll": {
+          "title": "Expand all",
+          "helpText": "When off, only the branch leading to the current category is expanded. When on, the tree expands to the navigation depth configured on the sales channel. In collapse mode this sets which branches start open."
+        },
+        "ariaLabel": {
+          "title": "Accessible label",
+          "helpText": "Helps screen reader users tell this navigation apart from others on the page."
+        }
+      },
+      "product-listing": {
+        "label": "Product Listing",
+        "listing": {
+          "title": "Listing"
+        },
+        "limit": {
+          "title": "Limit"
+        },
+        "page": {
+          "title": "Page"
+        },
+        "showSorting": {
+          "title": "Show Sorting"
+        },
+        "showLayoutSwitch": {
+          "title": "Show Layout Switch"
+        }
+      },
+      "product-manufacturer": {
+        "label": "Product Manufacturer",
+        "product": {
+          "title": "Product"
+        },
+        "newTab": {
+          "title": "Open Link in New Tab"
+        }
+      },
+      "product-price-display": {
+        "label": "Product Price",
+        "product": {
+          "title": "Product"
+        },
+        "showTaxInfo": {
+          "title": "Show tax info"
+        }
+      },
+      "product-quantity-selector": {
+        "label": "Product Quantity Selector",
+        "product": {
+          "title": "Product"
+        }
+      },
+      "product-review-filters": {
+        "label": "Product Review Filters",
+        "reviews": {
+          "title": "Reviews"
+        }
+      },
+      "product-review-form": {
+        "label": "Product Review Form",
+        "reviews": {
+          "title": "Reviews"
+        }
+      },
+      "product-review-summary": {
+        "label": "Product Review Summary",
+        "reviews": {
+          "title": "Reviews"
+        }
+      },
+      "product-reviews": {
+        "label": "Product Reviews",
+        "reviews": {
+          "title": "Reviews"
+        }
+      },
+      "product-slider": {
+        "label": "Product Slider",
+        "products": {
+          "title": "Products"
+        },
+        "title": {
+          "title": "Title"
+        },
+        "itemSizing": {
+          "title": "Item Sizing",
+          "helpText": "Fixed keeps a fixed product card width and allows overlapping cards. Fit sizes the cards so a whole number of columns fills the available width.",
+          "options": {
+            "fixed": {
+              "label": "Fixed"
+            },
+            "fit": {
+              "label": "Fit"
+            }
+          }
+        },
+        "scrollBehaviour": {
+          "title": "Scroll Behaviour",
+          "helpText": "Snap locks the slider to the start of a product card. Natural stops the slider wherever scrolling ends.",
+          "options": {
+            "snap": {
+              "label": "Snap"
+            },
+            "natural": {
+              "label": "Natural"
+            }
+          }
+        },
+        "showNavigationArrows": {
+          "title": "Show Navigation Arrows"
+        },
+        "showScrollbar": {
+          "title": "Show Scrollbar"
+        }
+      },
+      "product-variant-selection": {
+        "label": "Product Variant Selection",
+        "product": {
+          "title": "Product"
+        },
+        "configuratorSettings": {
+          "title": "Configurator groups"
+        }
+      },
+      "tabs-panel": {
+        "label": "Tab Panel",
+        "variant": {
+          "title": "Variant",
+          "options": {
+            "tabs": {
+              "label": "Tabs"
+            },
+            "pills": {
+              "label": "Pills"
+            },
+            "underline": {
+              "label": "Underline"
+            }
+          }
+        },
+        "alignment": {
+          "title": "Alignment",
+          "helpText": "Fill gives every tab the space its title needs, justified gives every tab the same width.",
+          "options": {
+            "start": {
+              "label": "Start"
+            },
+            "center": {
+              "label": "Center"
+            },
+            "end": {
+              "label": "End"
+            },
+            "fill": {
+              "label": "Fill"
+            },
+            "justified": {
+              "label": "Justified"
+            }
+          }
+        }
+      },
+      "tabs-tab": {
+        "label": "Tab",
+        "title": {
+          "title": "Title"
+        }
       }
     },
     "list": {
@@ -289,6 +1006,91 @@
       "messageSaveErrorDetail": "The content layout could not be saved: {detail}",
       "messageReloadError": "The content layout was saved but could not be reloaded.",
       "messageDiagnoseError": "The layout could not be checked. Diagnostic results are unavailable."
+    },
+    "presets": {
+      "category-page": {
+        "name": "Category page",
+        "description": "Collection of components that make up the category page."
+      },
+      "image-slider": {
+        "name": "Image slider",
+        "description": "A media gallery configured as an image slider, without thumbnail navigation, magnifier, or fullscreen view."
+      },
+      "media-and-text": {
+        "name": "Media & Text",
+        "description": "An image next to a rich-text block inside a grid container."
+      },
+      "product-detail-page": {
+        "name": "Product detail page",
+        "description": "Collection of components that make up the product detail page."
+      },
+      "product-reviews": {
+        "name": "Product reviews",
+        "description": "Rating summary, review list, sort and language filters and the submission form for a product, arranged in a grid."
+      },
+      "tab-panel": {
+        "name": "Tab panel",
+        "description": "A tab panel with two ready-made tabs, each holding a rich-text block."
+      }
+    },
+    "styles": {
+      "align-self": {
+        "label": "Align Self",
+        "description": "Cross-axis alignment of the element within its parent.",
+        "options": {
+          "auto": {
+            "label": "Auto"
+          },
+          "start": {
+            "label": "Start"
+          },
+          "center": {
+            "label": "Center"
+          },
+          "end": {
+            "label": "End"
+          },
+          "stretch": {
+            "label": "Stretch"
+          },
+          "baseline": {
+            "label": "Baseline"
+          }
+        }
+      },
+      "col-span": {
+        "label": "Column Span",
+        "description": "How many grid columns the element spans."
+      },
+      "display": {
+        "label": "Display",
+        "description": "Whether the element is rendered at this breakpoint."
+      },
+      "justify-self": {
+        "label": "Justify Self",
+        "description": "Main-axis alignment of the element within its parent.",
+        "options": {
+          "auto": {
+            "label": "Auto"
+          },
+          "start": {
+            "label": "Start"
+          },
+          "center": {
+            "label": "Center"
+          },
+          "end": {
+            "label": "End"
+          },
+          "stretch": {
+            "label": "Stretch"
+          }
+        }
+      },
+      "row-span": {
+        "label": "Row Span",
+        "description": "How many grid rows the element spans."
+      }
     }
   }
 }

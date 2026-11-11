@@ -128,6 +128,723 @@
         "panels": {
           "general": "Allgemein"
         }
+      },
+      "content-text": {
+        "label": "Text",
+        "text": {
+          "title": "Text"
+        }
+      },
+      "filter-panel": {
+        "label": "Filterbereich",
+        "productListing": {
+          "title": "Produktliste"
+        },
+        "displayType": {
+          "title": "Anzeigeart",
+          "helpText": "Verwende die vertikale Ausrichtung in einer schmalen Spalte. Die Filter stehen dann untereinander und werden direkt aufgeklappt, statt schwebende Menüs zu öffnen.",
+          "options": {
+            "inline": {
+              "label": "Nebeneinander"
+            },
+            "vertical": {
+              "label": "Untereinander"
+            }
+          }
+        },
+        "visibleFilterCount": {
+          "title": "Anzahl sichtbarer Filter"
+        },
+        "showPriceFilter": {
+          "title": "Nach Preis filtern"
+        },
+        "showRatingFilter": {
+          "title": "Nach Bewertung filtern"
+        },
+        "showManufacturerFilter": {
+          "title": "Nach Hersteller filtern"
+        },
+        "showShippingFreeFilter": {
+          "title": "Nach kostenlosem Versand filtern"
+        },
+        "showPropertyFilter": {
+          "title": "Nach Eigenschaften filtern"
+        },
+        "propertyAllowList": {
+          "title": "Filterbare Eigenschaften",
+          "helpText": "Beschränke die Eigenschaftsfilter auf die Gruppen, die für diese Seite wichtig sind, zum Beispiel Farbe und Größe."
+        }
+      },
+      "grid-container": {
+        "label": "Grid-Container",
+        "mode": {
+          "title": "Modus",
+          "options": {
+            "auto-fit": {
+              "label": "Automatisch einpassen",
+              "description": "Passt automatisch so viele Spalten wie möglich ein."
+            },
+            "max-content": {
+              "label": "Maximaler Inhalt",
+              "description": "Richtet die Spaltenbreite nach ihrer maximalen Inhaltsgröße aus."
+            },
+            "explicit": {
+              "label": "Festgelegt",
+              "description": "Verwendet eine festgelegte Spalten- und Zeilenkonfiguration."
+            }
+          }
+        },
+        "itemMinWidth": {
+          "title": "Mindestbreite der Elemente"
+        },
+        "columns": {
+          "title": "Spalten",
+          "xs": {
+            "title": "Spalten (XS)"
+          },
+          "sm": {
+            "title": "Spalten (SM)"
+          },
+          "md": {
+            "title": "Spalten (MD)"
+          },
+          "lg": {
+            "title": "Spalten (LG)"
+          },
+          "xl": {
+            "title": "Spalten (XL)"
+          }
+        },
+        "rows": {
+          "title": "Zeilen",
+          "xs": {
+            "title": "Zeilen (XS)"
+          },
+          "sm": {
+            "title": "Zeilen (SM)"
+          },
+          "md": {
+            "title": "Zeilen (MD)"
+          },
+          "lg": {
+            "title": "Zeilen (LG)"
+          },
+          "xl": {
+            "title": "Zeilen (XL)"
+          }
+        },
+        "fullWidth": {
+          "title": "Volle Breite"
+        },
+        "gap": {
+          "title": "Abstand"
+        },
+        "maxWidth": {
+          "title": "Maximale Breite"
+        },
+        "padding": {
+          "title": "Innenabstand",
+          "xs": {
+            "title": "Innenabstand (XS)"
+          },
+          "sm": {
+            "title": "Innenabstand (SM)"
+          },
+          "md": {
+            "title": "Innenabstand (MD)"
+          },
+          "lg": {
+            "title": "Innenabstand (LG)"
+          },
+          "xl": {
+            "title": "Innenabstand (XL)"
+          },
+          "xxl": {
+            "title": "Innenabstand (XXL)"
+          }
+        },
+        "margin": {
+          "title": "Außenabstand",
+          "xs": {
+            "title": "Außenabstand (XS)"
+          },
+          "sm": {
+            "title": "Außenabstand (SM)"
+          },
+          "md": {
+            "title": "Außenabstand (MD)"
+          },
+          "lg": {
+            "title": "Außenabstand (LG)"
+          },
+          "xl": {
+            "title": "Außenabstand (XL)"
+          },
+          "xxl": {
+            "title": "Außenabstand (XXL)"
+          }
+        },
+        "align": {
+          "title": "Elemente ausrichten",
+          "options": {
+            "normal": {
+              "label": "Normal"
+            },
+            "start": {
+              "label": "Anfang"
+            },
+            "center": {
+              "label": "Mitte"
+            },
+            "end": {
+              "label": "Ende"
+            },
+            "stretch": {
+              "label": "Strecken"
+            }
+          }
+        },
+        "alignContent": {
+          "title": "Inhalt ausrichten",
+          "options": {
+            "normal": {
+              "label": "Normal"
+            },
+            "start": {
+              "label": "Anfang"
+            },
+            "center": {
+              "label": "Mitte"
+            },
+            "end": {
+              "label": "Ende"
+            },
+            "stretch": {
+              "label": "Strecken"
+            },
+            "spaceAround": {
+              "label": "Abstand um Elemente"
+            },
+            "spaceBetween": {
+              "label": "Abstand zwischen Elementen"
+            },
+            "spaceEvenly": {
+              "label": "Gleichmäßige Abstände"
+            }
+          }
+        },
+        "justify": {
+          "title": "Elemente verteilen",
+          "options": {
+            "normal": {
+              "label": "Normal"
+            },
+            "start": {
+              "label": "Anfang"
+            },
+            "center": {
+              "label": "Mitte"
+            },
+            "end": {
+              "label": "Ende"
+            },
+            "stretch": {
+              "label": "Strecken"
+            }
+          }
+        },
+        "justifyContent": {
+          "title": "Inhalt verteilen",
+          "options": {
+            "normal": {
+              "label": "Normal"
+            },
+            "start": {
+              "label": "Anfang"
+            },
+            "center": {
+              "label": "Mitte"
+            },
+            "end": {
+              "label": "Ende"
+            },
+            "stretch": {
+              "label": "Strecken"
+            },
+            "spaceAround": {
+              "label": "Abstand um Elemente"
+            },
+            "spaceBetween": {
+              "label": "Abstand zwischen Elementen"
+            },
+            "spaceEvenly": {
+              "label": "Gleichmäßige Abstände"
+            }
+          }
+        },
+        "border": {
+          "title": "Rahmen",
+          "options": {
+            "all": {
+              "label": "Alle Seiten"
+            },
+            "top": {
+              "label": "Oben"
+            },
+            "end": {
+              "label": "Ende"
+            },
+            "bottom": {
+              "label": "Unten"
+            },
+            "start": {
+              "label": "Anfang"
+            }
+          }
+        },
+        "borderVariant": {
+          "title": "Rahmenvariante",
+          "options": {
+            "primary": {
+              "label": "Primär"
+            },
+            "secondary": {
+              "label": "Sekundär"
+            },
+            "secondarySubtle": {
+              "label": "Sekundär dezent"
+            }
+          }
+        },
+        "borderFullWidth": {
+          "title": "Rahmen über volle Breite"
+        },
+        "borderRadius": {
+          "title": "Abgerundete Ecken",
+          "options": {
+            "0": {
+              "label": "Quadratisch"
+            },
+            "4px": {
+              "label": "Klein"
+            },
+            "8px": {
+              "label": "Mittel"
+            },
+            "16px": {
+              "label": "Groß"
+            },
+            "50": {
+              "label": "Rund"
+            }
+          }
+        },
+        "backgroundColor": {
+          "title": "Hintergrundfarbe"
+        },
+        "backgroundOpacity": {
+          "title": "Hintergrunddeckkraft"
+        },
+        "backgroundImage": {
+          "title": "Hintergrundbild"
+        },
+        "backgroundImageMode": {
+          "title": "Hintergrundbildmodus",
+          "options": {
+            "auto": {
+              "label": "Automatisch"
+            },
+            "cover": {
+              "label": "Ausfüllen"
+            },
+            "contain": {
+              "label": "Einpassen"
+            }
+          }
+        },
+        "backgroundFullWidth": {
+          "title": "Hintergrund über volle Breite"
+        },
+        "shadowOffsetX": {
+          "title": "Nach rechts verschieben"
+        },
+        "shadowOffsetY": {
+          "title": "Nach unten verschieben"
+        },
+        "shadowSpread": {
+          "title": "Ausdehnung"
+        },
+        "shadowBlur": {
+          "title": "Unschärfe"
+        },
+        "shadowOpacity": {
+          "title": "Deckkraft"
+        },
+        "shadowInset": {
+          "title": "Innenliegend"
+        },
+        "shadowColor": {
+          "title": "Farbe"
+        }
+      },
+      "media-gallery": {
+        "label": "Galerie",
+        "mediaItems": {
+          "title": "Medien"
+        },
+        "displayMode": {
+          "title": "Anzeigemodus",
+          "options": {
+            "auto": {
+              "label": "Automatisch"
+            },
+            "fixedHeight": {
+              "label": "Feste Höhe"
+            }
+          }
+        },
+        "maxHeight": {
+          "title": "Maximale Höhe"
+        },
+        "showThumbnailNav": {
+          "title": "Vorschaubildnavigation anzeigen"
+        },
+        "thumbnailSize": {
+          "title": "Größe der Vorschaubilder"
+        },
+        "thumbnailNavigationPosition": {
+          "title": "Position",
+          "options": {
+            "left": {
+              "label": "Links"
+            },
+            "bottom": {
+              "label": "Unten"
+            }
+          }
+        },
+        "thumbnailNavShowsMediaOnHover": {
+          "title": "Beim Darüberfahren navigieren",
+          "helpText": "Barrierefreiheit: Ist diese Option aktiv, wechselt die Galerie bereits beim Darüberfahren das Medium, ohne Klick. Dies kann versehentlich ausgelöst werden."
+        },
+        "showNavigationArrows": {
+          "title": "Navigationspfeile anzeigen"
+        },
+        "showMagnifier": {
+          "title": "Lupe anzeigen"
+        },
+        "showFullScreenGallery": {
+          "title": "Vollbildgalerie anzeigen"
+        },
+        "autoplayVideos": {
+          "title": "Videos automatisch abspielen"
+        }
+      },
+      "media-image": {
+        "label": "Bild",
+        "media": {
+          "title": "Medien"
+        },
+        "height": {
+          "title": "Höhe"
+        },
+        "maxImageWidth": {
+          "title": "Maximale Bildbreite"
+        },
+        "loading": {
+          "title": "Laden",
+          "options": {
+            "lazy": {
+              "label": "Verzögert"
+            },
+            "eager": {
+              "label": "Sofort"
+            }
+          }
+        },
+        "fetchpriority": {
+          "title": "Abrufpriorität",
+          "options": {
+            "auto": {
+              "label": "Automatisch"
+            },
+            "high": {
+              "label": "Hoch"
+            },
+            "low": {
+              "label": "Niedrig"
+            }
+          }
+        }
+      },
+      "media-vimeo": {
+        "label": "Vimeo-Video",
+        "videoId": {
+          "title": "Video-ID oder URL"
+        },
+        "videoTitle": {
+          "title": "Videotitel"
+        },
+        "autoplay": {
+          "title": "Automatische Wiedergabe"
+        },
+        "loop": {
+          "title": "Wiederholen"
+        },
+        "showControls": {
+          "title": "Steuerelemente anzeigen"
+        },
+        "doNotTrack": {
+          "title": "Do Not Track"
+        },
+        "needsConfirmation": {
+          "title": "Nach Bestätigung laden"
+        },
+        "showByline": {
+          "title": "Autorenzeile anzeigen"
+        },
+        "showTitle": {
+          "title": "Titel anzeigen"
+        },
+        "showPortrait": {
+          "title": "Porträt anzeigen"
+        },
+        "color": {
+          "title": "Akzentfarbe"
+        },
+        "previewMedia": {
+          "title": "Vorschaubild"
+        }
+      },
+      "media-youtube": {
+        "label": "YouTube-Video",
+        "videoId": {
+          "title": "Video-ID oder URL"
+        },
+        "videoTitle": {
+          "title": "Videotitel"
+        },
+        "autoplay": {
+          "title": "Automatische Wiedergabe"
+        },
+        "loop": {
+          "title": "Wiederholen"
+        },
+        "showControls": {
+          "title": "Steuerelemente anzeigen"
+        },
+        "advancedPrivacyMode": {
+          "title": "Erweiterter Datenschutzmodus"
+        },
+        "needsConfirmation": {
+          "title": "Nach Bestätigung laden"
+        },
+        "start": {
+          "title": "Startzeit"
+        },
+        "end": {
+          "title": "Endzeit"
+        },
+        "previewMedia": {
+          "title": "Vorschaubild"
+        }
+      },
+      "navigation-breadcrumb": {
+        "label": "Brotkrumen-Navigation",
+        "breadcrumb": {
+          "title": "Brotkrumen-Navigation"
+        },
+        "showHome": {
+          "title": "Startseitenlink anzeigen"
+        }
+      },
+      "navigation-tree": {
+        "label": "Navigationsbaum",
+        "navigationTree": {
+          "title": "Navigationsbaum"
+        },
+        "activeId": {
+          "title": "ID der aktiven Kategorie",
+          "helpText": "Wird auf einer Kategorieseite automatisch ausgefüllt. Lass diesen Wert unverändert."
+        },
+        "displayType": {
+          "title": "Anzeigeart",
+          "helpText": "„Statisch“ zeigt den Baum unverändert an. „Einklappen“ ergänzt bei jeder Kategorie mit angezeigten Unterkategorien eine Plus-Schaltfläche, über die Kunden sie öffnen können. Dieser Modus zeigt den gesamten Baum bis zur Navigationstiefe des Verkaufskanals an und erhöht bei tiefen Katalogen die Ladezeit jeder Seite mit diesem Element.",
+          "options": {
+            "static": {
+              "label": "Statisch"
+            },
+            "collapse": {
+              "label": "Aufklappbar"
+            }
+          }
+        },
+        "expandAll": {
+          "title": "Alle aufklappen",
+          "helpText": "Ist diese Option deaktiviert, wird nur der Pfad zur aktuellen Kategorie aufgeklappt. Ist sie aktiviert, wird der Baum bis zur Navigationstiefe des Verkaufskanals aufgeklappt. Im Einklappmodus legt sie fest, welche Zweige anfangs geöffnet sind."
+        },
+        "ariaLabel": {
+          "title": "Barrierefreie Beschriftung",
+          "helpText": "Hilft Nutzern von Screenreadern, diese Navigation von anderen auf der Seite zu unterscheiden."
+        }
+      },
+      "product-listing": {
+        "label": "Produktliste",
+        "listing": {
+          "title": "Produktliste"
+        },
+        "limit": {
+          "title": "Begrenzung"
+        },
+        "page": {
+          "title": "Seite"
+        },
+        "showSorting": {
+          "title": "Sortierung anzeigen"
+        },
+        "showLayoutSwitch": {
+          "title": "Layoutwechsel anzeigen"
+        }
+      },
+      "product-manufacturer": {
+        "label": "Produkthersteller",
+        "product": {
+          "title": "Produkt"
+        },
+        "newTab": {
+          "title": "Link in neuem Tab öffnen"
+        }
+      },
+      "product-price-display": {
+        "label": "Preis",
+        "product": {
+          "title": "Produkt"
+        },
+        "showTaxInfo": {
+          "title": "Steuerinformationen anzeigen"
+        }
+      },
+      "product-quantity-selector": {
+        "label": "Mengenauswahl",
+        "product": {
+          "title": "Produkt"
+        }
+      },
+      "product-review-filters": {
+        "label": "Bewertungsfilter",
+        "reviews": {
+          "title": "Bewertungen"
+        }
+      },
+      "product-review-form": {
+        "label": "Bewertungsformular",
+        "reviews": {
+          "title": "Bewertungen"
+        }
+      },
+      "product-review-summary": {
+        "label": "Bewertungsübersicht",
+        "reviews": {
+          "title": "Bewertungen"
+        }
+      },
+      "product-reviews": {
+        "label": "Produktbewertungen",
+        "reviews": {
+          "title": "Bewertungen"
+        }
+      },
+      "product-slider": {
+        "label": "Produkt-Slider",
+        "products": {
+          "title": "Produkte"
+        },
+        "title": {
+          "title": "Titel"
+        },
+        "itemSizing": {
+          "title": "Elementgröße",
+          "helpText": "„Fest“ verwendet eine feste Breite für Produktkarten und erlaubt überlappende Karten. „Einpassen“ passt die Karten so an, dass eine ganze Anzahl von Spalten die verfügbare Breite ausfüllt.",
+          "options": {
+            "fixed": {
+              "label": "Fest"
+            },
+            "fit": {
+              "label": "Anpassen"
+            }
+          }
+        },
+        "scrollBehaviour": {
+          "title": "Scrollverhalten",
+          "helpText": "„Einrasten“ richtet den Slider am Anfang einer Produktkarte aus. „Natürlich“ stoppt den Slider dort, wo das Scrollen endet.",
+          "options": {
+            "snap": {
+              "label": "Einrasten"
+            },
+            "natural": {
+              "label": "Natürlich"
+            }
+          }
+        },
+        "showNavigationArrows": {
+          "title": "Navigationspfeile anzeigen"
+        },
+        "showScrollbar": {
+          "title": "Scrollleiste anzeigen"
+        }
+      },
+      "product-variant-selection": {
+        "label": "Variantenauswahl",
+        "product": {
+          "title": "Produkt"
+        },
+        "configuratorSettings": {
+          "title": "Konfiguratorgruppen"
+        }
+      },
+      "tabs-panel": {
+        "label": "Tab-Bereich",
+        "variant": {
+          "title": "Variante",
+          "options": {
+            "tabs": {
+              "label": "Tabs"
+            },
+            "pills": {
+              "label": "Pillen"
+            },
+            "underline": {
+              "label": "Unterstrichen"
+            }
+          }
+        },
+        "alignment": {
+          "title": "Ausrichtung",
+          "helpText": "„Ausfüllen“ gibt jedem Tab den Platz, den sein Titel benötigt. „Gleichmäßig“ gibt allen Tabs dieselbe Breite.",
+          "options": {
+            "start": {
+              "label": "Anfang"
+            },
+            "center": {
+              "label": "Mitte"
+            },
+            "end": {
+              "label": "Ende"
+            },
+            "fill": {
+              "label": "Ausfüllen"
+            },
+            "justified": {
+              "label": "Gleichmäßig"
+            }
+          }
+        }
+      },
+      "tabs-tab": {
+        "label": "Tab",
+        "title": {
+          "title": "Titel"
+        }
       }
     },
     "list": {
@@ -289,6 +1006,91 @@
       "messageSaveErrorDetail": "Das Inhaltslayout konnte nicht gespeichert werden: {detail}",
       "messageReloadError": "Das Inhaltslayout wurde gespeichert, konnte aber nicht neu geladen werden.",
       "messageDiagnoseError": "Das Layout konnte nicht überprüft werden. Diagnoseergebnisse sind nicht verfügbar."
+    },
+    "presets": {
+      "category-page": {
+        "name": "Kategorieseite",
+        "description": "Zusammenstellung der Komponenten einer Kategorieseite."
+      },
+      "image-slider": {
+        "name": "Bild-Slider",
+        "description": "Eine Mediengalerie als Bild-Slider ohne Vorschaubilder, Lupe oder Vollbildansicht."
+      },
+      "media-and-text": {
+        "name": "Medien & Text",
+        "description": "Ein Bild neben einem Textblock in einem Rastercontainer."
+      },
+      "product-detail-page": {
+        "name": "Produktdetailseite",
+        "description": "Zusammenstellung der Komponenten einer Produktdetailseite."
+      },
+      "product-reviews": {
+        "name": "Produktbewertungen",
+        "description": "Bewertungsübersicht, Bewertungsliste, Sortier- und Sprachfilter sowie das Bewertungsformular für ein Produkt, in einem Raster angeordnet."
+      },
+      "tab-panel": {
+        "name": "Tab-Bereich",
+        "description": "Ein Tab-Bereich mit zwei vorbereiteten Tabs, die jeweils einen Textblock enthalten."
+      }
+    },
+    "styles": {
+      "align-self": {
+        "label": "Element ausrichten",
+        "description": "Ausrichtung des Elements an der Querachse innerhalb seines übergeordneten Elements.",
+        "options": {
+          "auto": {
+            "label": "Automatisch"
+          },
+          "start": {
+            "label": "Anfang"
+          },
+          "center": {
+            "label": "Mitte"
+          },
+          "end": {
+            "label": "Ende"
+          },
+          "stretch": {
+            "label": "Strecken"
+          },
+          "baseline": {
+            "label": "Grundlinie"
+          }
+        }
+      },
+      "col-span": {
+        "label": "Spaltenbreite",
+        "description": "Über wie viele Rasterspalten sich das Element erstreckt."
+      },
+      "display": {
+        "label": "Anzeige",
+        "description": "Legt fest, ob das Element bei diesem Breakpoint angezeigt wird."
+      },
+      "justify-self": {
+        "label": "Element verteilen",
+        "description": "Ausrichtung des Elements an der Hauptachse innerhalb seines übergeordneten Elements.",
+        "options": {
+          "auto": {
+            "label": "Automatisch"
+          },
+          "start": {
+            "label": "Anfang"
+          },
+          "center": {
+            "label": "Mitte"
+          },
+          "end": {
+            "label": "Ende"
+          },
+          "stretch": {
+            "label": "Strecken"
+          }
+        }
+      },
+      "row-span": {
+        "label": "Zeilenhöhe",
+        "description": "Über wie viele Rasterzeilen sich das Element erstreckt."
+      }
     }
   }
 }

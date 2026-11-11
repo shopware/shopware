@@ -1,5 +1,6 @@
 meta:
   label: "Tab"
+  labelSnippet: "sw-experience-studio.elements.tabs-tab.label"
   description: "A single tab of a tab panel. Its title becomes the navigation item, its content slot becomes the tab pane."
   icon: "regular-folder"
   illustration: "tabs-tab"
@@ -16,6 +17,7 @@ properties:
     type: string
     translatable: true
     title: "Title"
+    titleSnippet: "sw-experience-studio.elements.tabs-tab.title.title"
     description: "Label of the navigation item belonging to this tab."
     default: "Tab"
     adminUI:

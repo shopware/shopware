@@ -148,6 +148,8 @@ export function styleOptionToElementProperty(
         inlineMappable: false,
         defaultMapping: null,
         title: typeof adminUI.label === 'string' && adminUI.label.length > 0 ? adminUI.label : key,
+        titleSnippet: typeof adminUI.labelSnippet === 'string' ? adminUI.labelSnippet : undefined,
+        descriptionSnippet: typeof adminUI.descriptionSnippet === 'string' ? adminUI.descriptionSnippet : undefined,
         description: typeof adminUI.description === 'string' ? adminUI.description : '',
         adminUI: {
             ...adminUI,

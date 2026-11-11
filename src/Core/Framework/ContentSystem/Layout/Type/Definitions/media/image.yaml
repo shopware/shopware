@@ -1,5 +1,6 @@
 meta:
   label: "Image"
+  labelSnippet: "sw-experience-studio.elements.media-image.label"
   description: "Responsive image element with media source and loading behavior."
   icon: "regular-image"
   illustration: "media-image"
@@ -17,6 +18,7 @@ properties:
     required: true
     mappable: true
     title: "Media"
+    titleSnippet: "sw-experience-studio.elements.media-image.media.title"
     description: "The image to be shown."
     resolvedBy: mediaId
     adminUI:
@@ -25,12 +27,14 @@ properties:
   height:
     type: string
     title: "Height"
+    titleSnippet: "sw-experience-studio.elements.media-image.height.title"
     description: "Image height attribute."
     default: "auto"
 
   maxImageWidth:
     type: integer
     title: "Max Image Width"
+    titleSnippet: "sw-experience-studio.elements.media-image.maxImageWidth.title"
     description: "Maximum image width used for default sizes."
     default: 1360
     adminUI:
@@ -39,6 +43,7 @@ properties:
   loading:
     type: string
     title: "Loading"
+    titleSnippet: "sw-experience-studio.elements.media-image.loading.title"
     description: "Image loading strategy."
     default: "lazy"
     enum:
@@ -46,10 +51,19 @@ properties:
       - "eager"
     adminUI:
       component: "select"
+      props:
+        options:
+          - value: "lazy"
+            label: "Lazy"
+            labelSnippet: "sw-experience-studio.elements.media-image.loading.options.lazy.label"
+          - value: "eager"
+            label: "Eager"
+            labelSnippet: "sw-experience-studio.elements.media-image.loading.options.eager.label"
 
   fetchpriority:
     type: string
     title: "Fetch Priority"
+    titleSnippet: "sw-experience-studio.elements.media-image.fetchpriority.title"
     description: "Browser fetch priority hint."
     default: "auto"
     enum:
@@ -58,3 +72,14 @@ properties:
       - "low"
     adminUI:
       component: "select"
+      props:
+        options:
+          - value: "auto"
+            label: "Automatic"
+            labelSnippet: "sw-experience-studio.elements.media-image.fetchpriority.options.auto.label"
+          - value: "high"
+            label: "High"
+            labelSnippet: "sw-experience-studio.elements.media-image.fetchpriority.options.high.label"
+          - value: "low"
+            label: "Low"
+            labelSnippet: "sw-experience-studio.elements.media-image.fetchpriority.options.low.label"

@@ -17,6 +17,8 @@ use Shopware\Core\Framework\Log\Package;
  *     mappable: bool,
  *     inlineMappable: bool,
  *     title: string,
+ *     titleSnippet?: string,
+ *     descriptionSnippet?: string,
  *     description: string,
  *     adminUI: array<string, mixed>|null,
  *     defaultMapping: array{type: string, id: string, config?: array<string, mixed>, path?: string}|null
@@ -38,6 +40,8 @@ final readonly class PropertySpecification
         private bool $mappable = false,
         private bool $inlineMappable = false,
         private ?MappingSourceReference $defaultMapping = null,
+        private ?string $titleSnippet = null,
+        private ?string $descriptionSnippet = null,
     ) {
     }
 
@@ -94,6 +98,8 @@ final readonly class PropertySpecification
             'mappable' => $this->mappable,
             'inlineMappable' => $this->inlineMappable,
             'title' => $this->title,
+            ...($this->titleSnippet !== null ? ['titleSnippet' => $this->titleSnippet] : []),
+            ...($this->descriptionSnippet !== null ? ['descriptionSnippet' => $this->descriptionSnippet] : []),
             'description' => $this->description,
             'adminUI' => $this->adminUI,
             'defaultMapping' => $this->defaultMapping?->jsonSerialize(),

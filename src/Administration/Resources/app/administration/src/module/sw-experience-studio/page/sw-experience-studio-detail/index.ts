@@ -38,6 +38,7 @@ import 'src/module/sw-experience-studio/store/experience-studio-element-type.sto
 import 'src/module/sw-experience-studio/store/experience-studio-layout-preset.store';
 import 'src/module/sw-experience-studio/store/experience-studio-mapping-candidate.store';
 import 'src/module/sw-experience-studio/store/experience-studio-style-option.store';
+import { translateContentSystemText } from '../../util/content-system-translation.util';
 import template from './sw-experience-studio-detail.html.twig';
 import './sw-experience-studio-detail.scss';
 
@@ -244,8 +245,8 @@ export default Shopware.Component.wrapComponentConfig({
             return new Criteria(1, 1);
         },
 
-        layoutId(): string {
-            return this.$route.params.id as string;
+        layoutId(): EntityKey<'content_layout'> {
+            return this.$route.params.id as EntityKey<'content_layout'>;
         },
 
         layoutRootSource(): string | null {
@@ -369,7 +370,12 @@ export default Shopware.Component.wrapComponentConfig({
 
             const elementItems: ElementPickerItem[] = availableTypes.map((typeSpecification) => ({
                 name: typeSpecification.name,
-                label: typeSpecification.label,
+                label: translateContentSystemText(
+                    typeSpecification.labelSnippet,
+                    typeSpecification.label,
+                    this.$te,
+                    this.$t,
+                ),
                 icon: typeSpecification.icon,
                 illustration: typeSpecification.illustration,
                 category: typeSpecification.category,
@@ -387,14 +393,17 @@ export default Shopware.Component.wrapComponentConfig({
                 .filter((preset) => this.isPresetAllowedForPayload(preset, payload, allowedComponents))
                 .map((preset) => ({
                     name: preset.id,
-                    label: preset.name,
+                    label: translateContentSystemText(preset.nameSnippet, preset.name, this.$te, this.$t),
                     icon: preset.icon,
                     illustration: preset.illustration,
                     category: preset.category,
                     priority: preset.priority,
                     kind: 'preset',
                     id: preset.id,
-                    description: preset.description,
+                    description:
+                        preset.description === null
+                            ? null
+                            : translateContentSystemText(preset.descriptionSnippet, preset.description, this.$te, this.$t),
                 }));
 
             return [
@@ -627,7 +636,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             try {
-                const repository = this.repositoryFactory.create(previewEntityType as keyof EntitySchema.Entities);
+                const repository = this.repositoryFactory.create(previewEntityType as keyof EntitySchema.EntityKeys);
                 const entities = await repository.search(this.defaultPreviewEntityCriteria, Shopware.Context.api);
                 const firstEntity = entities.first();
 

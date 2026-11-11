@@ -1,5 +1,6 @@
 meta:
   label: "Filter Panel"
+  labelSnippet: "sw-experience-studio.elements.filter-panel.label"
   description: "Product listing filter panel."
   icon: "regular-filter-s"
   illustration: "filter-panel"
@@ -18,11 +19,13 @@ properties:
     type: Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult
     required: false
     title: "Product Listing"
+    titleSnippet: "sw-experience-studio.elements.filter-panel.productListing.title"
     description: "Hydrated listing result the panel reads its aggregations from. Received as root-scoped context from the page, which loads it once, so a panel and a product listing beside it share one load."
 
   displayType:
     type: string
     title: "Display Type"
+    titleSnippet: "sw-experience-studio.elements.filter-panel.displayType.title"
     description: "How the filters are arranged. `inline` lays them out as a row of buttons opening floating menus; `vertical` gives each its own full-width row that expands in place."
     default: "inline"
     enum:
@@ -30,11 +33,21 @@ properties:
       - "vertical"
     adminUI:
       component: "select"
+      props:
+        options:
+          - value: "inline"
+            label: "Inline"
+            labelSnippet: "sw-experience-studio.elements.filter-panel.displayType.options.inline.label"
+          - value: "vertical"
+            label: "Vertical"
+            labelSnippet: "sw-experience-studio.elements.filter-panel.displayType.options.vertical.label"
       helpText: "Use vertical when the panel sits in a narrow column, so the filters sit one below another and expand in place instead of opening floating menus."
+      helpTextSnippet: "sw-experience-studio.elements.filter-panel.displayType.helpText"
 
   visibleFilterCount:
     type: integer
     title: "Visible Filter Count"
+    titleSnippet: "sw-experience-studio.elements.filter-panel.visibleFilterCount.title"
     description: "Number of visible filters before collapsing into 'more'."
     default: 3
     adminUI:
@@ -43,42 +56,49 @@ properties:
   showPriceFilter:
     type: boolean
     title: "Filter by Price"
+    titleSnippet: "sw-experience-studio.elements.filter-panel.showPriceFilter.title"
     description: "Whether the price range filter is offered."
     default: true
 
   showRatingFilter:
     type: boolean
     title: "Filter by Rating"
+    titleSnippet: "sw-experience-studio.elements.filter-panel.showRatingFilter.title"
     description: "Whether the minimum rating filter is offered."
     default: true
 
   showManufacturerFilter:
     type: boolean
     title: "Filter by Manufacturer"
+    titleSnippet: "sw-experience-studio.elements.filter-panel.showManufacturerFilter.title"
     description: "Whether the manufacturer filter is offered."
     default: true
 
   showShippingFreeFilter:
     type: boolean
     title: "Filter for Free Shipping"
+    titleSnippet: "sw-experience-studio.elements.filter-panel.showShippingFreeFilter.title"
     description: "Whether the free shipping filter is offered."
     default: true
 
   showPropertyFilter:
     type: boolean
     title: "Filter by Properties"
+    titleSnippet: "sw-experience-studio.elements.filter-panel.showPropertyFilter.title"
     description: "Whether the property group filters are offered."
     default: true
 
   propertyAllowList:
     type: string
     title: "Filterable Properties"
+    titleSnippet: "sw-experience-studio.elements.filter-panel.propertyAllowList.title"
     description: "Comma-separated property_group ids whose filters the panel offers. Empty offers every filterable group of the matching products."
     required: false
     adminUI:
       component: "entity-multi"
       entity: "property_group"
       helpText: "Restrict the property filters to the groups that matter on this page, for example only colour and size."
+      helpTextSnippet: "sw-experience-studio.elements.filter-panel.propertyAllowList.helpText"
       visibleWhen:
         field: "showPropertyFilter"
         equals: true

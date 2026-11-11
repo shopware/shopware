@@ -1,5 +1,6 @@
 meta:
   label: "Product Listing"
+  labelSnippet: "sw-experience-studio.elements.product-listing.label"
   description: "Displays a category product listing with grid and pagination slots."
   icon: "regular-products"
   illustration: "product-listing"
@@ -16,11 +17,13 @@ properties:
   listing:
     type: Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult
     title: "Listing"
+    titleSnippet: "sw-experience-studio.elements.product-listing.listing.title"
     description: "Hydrated listing result containing products, sorting, and aggregations. Received as root-scoped context from the page, which loads it once, so a listing and a filter panel beside it share one load."
 
   limit:
     type: integer
     title: "Limit"
+    titleSnippet: "sw-experience-studio.elements.product-listing.limit.title"
     description: "Requested number of products per page."
     default: 24
     adminUI:
@@ -29,6 +32,7 @@ properties:
   page:
     type: integer
     title: "Page"
+    titleSnippet: "sw-experience-studio.elements.product-listing.page.title"
     description: "Requested page number."
     default: 1
     adminUI:
@@ -37,6 +41,7 @@ properties:
   showSorting:
     type: boolean
     title: "Show Sorting"
+    titleSnippet: "sw-experience-studio.elements.product-listing.showSorting.title"
     description: "Whether the sorting select is offered."
     default: true
     adminUI:
@@ -45,6 +50,7 @@ properties:
   showLayoutSwitch:
     type: boolean
     title: "Show Layout Switch"
+    titleSnippet: "sw-experience-studio.elements.product-listing.showLayoutSwitch.title"
     description: "Whether to show listing layout toggle actions."
     default: true
     adminUI:

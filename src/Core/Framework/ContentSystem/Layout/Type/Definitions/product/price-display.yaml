@@ -1,5 +1,6 @@
 meta:
   label: "Product Price"
+  labelSnippet: "sw-experience-studio.elements.product-price-display.label"
   description: "Displays a product's price — including list, regulation, reference and graduated (tiered) prices — on the product detail page."
   icon: "regular-tag"
   illustration: "product-price"
@@ -15,6 +16,7 @@ properties:
     type: Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity
     required: false
     title: "Product"
+    titleSnippet: "sw-experience-studio.elements.product-price-display.product.title"
     description: "Hydrated product whose price is shown."
     resolvedBy: productId
     mappable: true
@@ -28,6 +30,7 @@ properties:
   showTaxInfo:
     type: boolean
     title: "Show tax info"
+    titleSnippet: "sw-experience-studio.elements.product-price-display.showTaxInfo.title"
     description: "Render the tax/shipping information link below the price."
     default: true
     adminUI:

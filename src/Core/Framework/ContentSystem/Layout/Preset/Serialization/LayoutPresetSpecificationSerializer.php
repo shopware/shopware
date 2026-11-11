@@ -32,6 +32,8 @@ class LayoutPresetSpecificationSerializer
             category: $data['category'] ?? null,
             priority: \array_key_exists('priority', $data) ? $data['priority'] : 0,
             illustration: $data['illustration'] ?? null,
+            nameSnippet: $data['nameSnippet'] ?? null,
+            descriptionSnippet: $data['descriptionSnippet'] ?? null,
         );
     }
 
@@ -47,6 +49,12 @@ class LayoutPresetSpecificationSerializer
             'layout' => $dto->layout,
         ];
 
+        if ($dto->nameSnippet !== null) {
+            $data['nameSnippet'] = $dto->nameSnippet;
+        }
+        if ($dto->descriptionSnippet !== null) {
+            $data['descriptionSnippet'] = $dto->descriptionSnippet;
+        }
         if ($dto->illustration !== null) {
             $data['illustration'] = $dto->illustration;
         }

@@ -9,9 +9,11 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentEntity;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Content\Product\Extension\ProductDocumentRouteExtension;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentRoute;
+use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
@@ -147,6 +149,35 @@ class ProductDocumentRouteTest extends TestCase
 
         static::assertCount(0, $result);
         static::assertSame([], $mediaRepository->searchedCriteria);
+    }
+
+    public function testLoadPublishesTheExtension(): void
+    {
+        $productId = Uuid::randomHex();
+        $request = new Request();
+        $context = Generator::generateSalesChannelContext();
+        $criteria = new Criteria();
+        $response = static::createStub(ProductDocumentRouteResponse::class);
+        $productRepository = new StaticSalesChannelRepository([]);
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(ProductDocumentRouteExtension::onPre(), static function (ProductDocumentRouteExtension $extension) use ($productId, $request, $context, $criteria, $response): void {
+            static::assertSame(['productId' => $productId, 'request' => $request, 'context' => $context, 'criteria' => $criteria], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        /** @var StaticSalesChannelRepository<ProductCollection> $productRepository */
+        $route = new ProductDocumentRoute(
+            $productRepository,
+            new StaticEntityRepository([]),
+            new StaticEntityRepository([]),
+            new CacheTagCollector(new RequestStack(), $dispatcher),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->load($productId, $request, $context, $criteria));
     }
 
     /**

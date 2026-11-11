@@ -153,6 +153,31 @@ class ProductDocumentArchiverTest extends TestCase
         );
     }
 
+    public function testKeepsEntriesInsideTheArchiveFolder(): void
+    {
+        // names the API can save, unlike uploads
+        $parents = $this->createFile('parents', 'parents content');
+        $parents->setFileName('../../outside/payload');
+        $backslashes = $this->createFile('backslashes', 'backslashes content');
+        $backslashes->setFileName('..\\..\\outside\\other');
+        $dots = $this->createFile('dots', 'dots content');
+        $dots->setFileName('..');
+        $dots->setFileExtension('');
+        $extension = $this->createFile('extension', 'extension content');
+        $extension->setFileExtension('pdf/../../x');
+
+        $archive = $this->createArchiver(
+            [$this->createDocument($parents), $this->createDocument($backslashes), $this->createDocument($dots), $this->createDocument($extension)],
+            [$parents, $backslashes, $dots, $extension],
+        )->archive($this->createProduct('Cordless drill'), $this->context);
+
+        static::assertNotNull($archive);
+        static::assertSame(
+            ['..-..-outside-payload.pdf', '..-..-outside-other.pdf', $dots->getId(), 'extension.pdf-..-..-x'],
+            array_column($this->readEntries($archive), 'name')
+        );
+    }
+
     public function testAddsAFileOnceWhenSeveralDocumentsUseIt(): void
     {
         $manual = $this->createFile('manual', 'manual content');

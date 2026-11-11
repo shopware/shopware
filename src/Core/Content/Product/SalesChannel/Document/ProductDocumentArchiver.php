@@ -118,12 +118,13 @@ class ProductDocumentArchiver
      */
     private function createEntryName(MediaEntity $media, array $names): string
     {
-        $base = (string) $media->getFileName();
-        if ($base === '') {
+        // the API can save names that uploads reject
+        $base = $this->cleanFileName((string) $media->getFileName());
+        if (trim($base, '.') === '') {
             $base = $media->getId();
         }
 
-        $extension = (string) $media->getFileExtension();
+        $extension = $this->cleanFileName((string) $media->getFileExtension());
         $extension = $extension !== '' ? '.' . $extension : '';
 
         $name = $base . $extension;
@@ -138,7 +139,7 @@ class ProductDocumentArchiver
 
     private function cleanFileName(string $name): string
     {
-        // a download name can't contain `/` or `\`
+        // file names can't contain `/` or `\`
         return trim(str_replace(['/', '\\'], '-', PathHelper::stripControlAndFormatChars($name)));
     }
 

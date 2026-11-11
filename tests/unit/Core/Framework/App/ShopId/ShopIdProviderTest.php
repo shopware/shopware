@@ -19,6 +19,7 @@ use Shopware\Core\Framework\App\ShopId\ShopIdDeletedEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 
 /**
@@ -214,6 +215,7 @@ class ShopIdProviderTest extends TestCase
         static::assertCount(0, $eventDispatcher->getEvents());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testStoresTheNewStampsOfMatchingFingerprints(): void
     {
         $shopId = ShopId::v2('1234567890', [
@@ -269,6 +271,39 @@ class ShopIdProviderTest extends TestCase
         static::assertCount(0, $eventDispatcher->getEvents());
     }
 
+    public function testDoesNotStoreChangedMatchingStampsFromV68(): void
+    {
+        $shopId = ShopId::v2('1234567890', [
+            SalesChannelDomainUrls::IDENTIFIER => 'stamp-taken-before-sorting',
+        ]);
+
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->expects($this->once())
+            ->method('get')
+            ->with(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2)
+            ->willReturn($shopId->toArray());
+        $systemConfigService->expects($this->never())->method('set');
+
+        $fingerprintGenerator = static::createStub(FingerprintGenerator::class);
+        $fingerprintGenerator->method('matchFingerprints')
+            ->willReturn(new FingerprintComparisonResult(
+                [SalesChannelDomainUrls::IDENTIFIER => new FingerprintMatch(SalesChannelDomainUrls::IDENTIFIER, 'sorted-stamp', 25)],
+                [],
+                75,
+            ));
+
+        $provider = new ShopIdProvider(
+            $systemConfigService,
+            $eventDispatcher = new CollectingEventDispatcher(),
+            static::createStub(Connection::class),
+            $fingerprintGenerator,
+        );
+
+        static::assertSame($shopId->toArray(), $provider->getShopId()->toArray());
+        static::assertCount(0, $eventDispatcher->getEvents());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testDoesNotStoreTheShopIdIfAllMatchingStampsAreUnchanged(): void
     {
         $shopId = ShopId::v2('1234567890', [

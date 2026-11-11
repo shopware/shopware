@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App\ShopId;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -57,7 +58,11 @@ class ShopIdProvider implements ResetInterface
             return $this->shopId;
         }
 
-        return $this->storeChangedStampsOfMatchingFingerprints($this->shopId, $fingerprintsComparison);
+        if (!Feature::isActive('v6.8.0.0')) {
+            return $this->storeChangedStampsOfMatchingFingerprints($this->shopId, $fingerprintsComparison);
+        }
+
+        return $this->shopId;
     }
 
     public function regenerateAndSetShopId(?string $existingShopId = null): ShopId
@@ -108,6 +113,9 @@ class ShopIdProvider implements ResetInterface
         $this->shopId = $shopId;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the migration of legacy fingerprint stamps
+     */
     private function storeChangedStampsOfMatchingFingerprints(ShopId $shopId, FingerprintComparisonResult $comparison): ShopId
     {
         $changedStamps = [];

@@ -52,8 +52,8 @@ class ProductStreamFilterRepositoryTest extends TestCase
             ['id' => $id, 'type' => 'equals', 'value' => 'awesome', 'field' => 'product.name', 'productStreamId' => $this->streamId],
         ], $this->context);
 
-        /** @var ProductStreamEntity $entity */
         $entity = $this->productStreamRepository->search(new Criteria([$this->streamId]), $this->context)->getEntities()->get($this->streamId);
+        static::assertInstanceOf(ProductStreamEntity::class, $entity);
         static::assertSame([['type' => 'equals', 'field' => 'product.name', 'value' => 'awesome']], $entity->getApiFilter());
     }
 
@@ -67,8 +67,8 @@ class ProductStreamFilterRepositoryTest extends TestCase
             ['id' => $id, 'type' => 'range', 'field' => 'product.weight', 'parameters' => [RangeFilter::GT => 0.5, RangeFilter::LT => 100], 'productStreamId' => $this->streamId],
         ], $this->context);
 
-        /** @var ProductStreamEntity $entity */
         $entity = $this->productStreamRepository->search(new Criteria([$this->streamId]), $this->context)->getEntities()->get($this->streamId);
+        static::assertInstanceOf(ProductStreamEntity::class, $entity);
         static::assertSame([['type' => 'range', 'field' => 'product.weight', 'parameters' => [RangeFilter::GT => 0.5, RangeFilter::LT => 100]]], $entity->getApiFilter());
     }
 
@@ -79,8 +79,8 @@ class ProductStreamFilterRepositoryTest extends TestCase
             ['id' => $id, 'type' => 'range', 'parameters' => [RangeFilter::GT => 0.5, RangeFilter::LT => 100], 'field' => 'product.weight', 'productStreamId' => $this->streamId],
         ], $this->context);
 
-        /** @var ProductStreamEntity $entity */
         $entity = $this->productStreamRepository->search(new Criteria([$this->streamId]), $this->context)->getEntities()->get($this->streamId);
+        static::assertInstanceOf(ProductStreamEntity::class, $entity);
         static::assertSame([['type' => 'range', 'field' => 'product.weight', 'parameters' => [RangeFilter::GT => 0.5, RangeFilter::LT => 100]]], $entity->getApiFilter());
     }
 }

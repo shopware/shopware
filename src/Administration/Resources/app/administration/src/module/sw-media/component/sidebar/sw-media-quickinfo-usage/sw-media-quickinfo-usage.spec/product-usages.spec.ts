@@ -53,7 +53,7 @@ describe('sw-media-quickinfo-usage products', () => {
     async function createWrapper(
         item: ReturnType<typeof createMedia>,
         slotProducts: (typeof product)[] = [],
-        inheritedProducts: Record<string, unknown>[] = [],
+        inheritedProducts: Record<string, unknown>[] | (() => Promise<Record<string, unknown>[]>) = [],
     ) {
         wrapper = mount(await wrapTestComponent('sw-media-quickinfo-usage', { sync: true }), {
             props: { item },
@@ -66,16 +66,19 @@ describe('sw-media-quickinfo-usage products', () => {
                 provide: {
                     repositoryFactory: {
                         create: (entity: string) => ({
-                            search: (criteria: { parse: () => { ids?: string[] } }, context?: { inheritance?: boolean }) =>
-                                Promise.resolve(
-                                    entity === 'product'
-                                        ? context?.inheritance
-                                            ? inheritedProducts.filter(({ id }) =>
-                                                  criteria.parse().ids?.includes(id as string),
-                                              )
-                                            : slotProducts
-                                        : [],
-                                ),
+                            search: (criteria: { parse: () => { ids?: string[] } }, context?: { inheritance?: boolean }) => {
+                                if (entity !== 'product') {
+                                    return Promise.resolve([]);
+                                }
+                                if (!context?.inheritance) {
+                                    return Promise.resolve(slotProducts);
+                                }
+                                return typeof inheritedProducts === 'function'
+                                    ? inheritedProducts()
+                                    : Promise.resolve(
+                                          inheritedProducts.filter(({ id }) => criteria.parse().ids?.includes(id as string)),
+                                      );
+                            },
                         }),
                     },
                 },
@@ -227,6 +230,49 @@ describe('sw-media-quickinfo-usage products', () => {
         await flushPromises();
         expect(wrapper.findAllComponents(RouterLinkStub)).toHaveLength(0);
         expect(wrapper.text()).not.toContain(product.translated.name);
+    });
+
+    it('keeps direct usages when loading product details fails', async () => {
+        await createWrapper(createMedia({ productDocumentTranslations: [documentUsage] }), [], () =>
+            Promise.reject(new Error('Product details unavailable')),
+        );
+
+        expect(wrapper.findAllComponents(RouterLinkStub)).toHaveLength(1);
+        expect(wrapper.text()).toContain(product.translated.name);
+        expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
+    });
+
+    it('preserves CMS usages when product details finish loading later', async () => {
+        const cmsProduct = { id: 'cms-product', translated: { name: 'CMS product' } };
+        let resolveProducts!: (products: Record<string, unknown>[]) => void;
+        const pending = new Promise<Record<string, unknown>[]>((resolve) => {
+            resolveProducts = resolve;
+        });
+        await createWrapper(createMedia({ productDocumentTranslations: [documentUsage] }), [cmsProduct], () => pending);
+
+        resolveProducts([{ ...product, translated: { name: 'Loaded product' } }]);
+        await flushPromises();
+
+        const links = wrapper.findAllComponents(RouterLinkStub);
+        expect(links).toHaveLength(2);
+        expect(links[0].text()).toBe('Loaded product');
+        expect(links[1].text()).toBe('CMS product');
+    });
+
+    it('ignores product details for a previously selected media file', async () => {
+        let resolveProducts!: (products: Record<string, unknown>[]) => void;
+        const pending = new Promise<Record<string, unknown>[]>((resolve) => {
+            resolveProducts = resolve;
+        });
+        await createWrapper(createMedia({ productDocumentTranslations: [documentUsage] }), [], () => pending);
+        await wrapper.setProps({ item: createMedia({ id: 'unused-media' }) });
+        await flushPromises();
+
+        resolveProducts([product]);
+        await flushPromises();
+
+        expect(wrapper.findAllComponents(RouterLinkStub)).toHaveLength(0);
+        expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
     });
 
     it('preserves image usages when document associations were not loaded', async () => {

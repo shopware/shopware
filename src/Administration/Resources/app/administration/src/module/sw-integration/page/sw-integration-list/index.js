@@ -132,6 +132,7 @@ export default {
                 .save(integration)
                 .then(() => {
                     this.createSavedSuccessNotification();
+                    this.getList();
                     this.onCloseDetailModal();
                 })
                 .catch(() => {
@@ -233,7 +234,7 @@ export default {
             this.integrationService
                 .saveMcpAllowlist(this.mcpIntegration.id, this.pendingMcpAllowlist)
                 .then(() => {
-                    this.mcpIntegration.mcpAllowlist = this.pendingMcpAllowlist;
+                    this.getList();
                     this.createSavedSuccessNotification();
                     this.onCloseMcpModal();
                 })

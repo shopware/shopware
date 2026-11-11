@@ -207,6 +207,36 @@ New sales channel contexts now decide tax-free delivery like the cart (`TaxDetec
 commercial customers only get "Tax-free (B2B)", all other customers only "Tax-free (B2C)".
 Cart and order taxes stay the same, but Rule Builder conditions like "Cart amount" can match differently than before for customers who only met the other setting.
 
+### MCP servers run on `mcp/sdk` 0.9 and `symfony/mcp-bundle` 0.15
+
+Shopware now requires `mcp/sdk` 0.9 and `symfony/mcp-bundle` 0.15.
+Plugins and bundles that register MCP tools are affected in these points:
+
+* A tool that declares an `outputSchema` has its `structuredContent` validated against it.
+  A result that does not match is sent as an error result with `isError: true`.
+  Return `new \stdClass()` for an empty object, since `[]` is sent as an array.
+* A tool whose `inputSchema` has a `properties` member that is not an object, or a `required` member that is not a list, is rejected when it is registered.
+* `#[CompletionProvider]` no longer takes `providerClass`; pass the class to `provider` instead.
+
+The SDK classes for an OAuth proxy, client registration and OIDC discovery were removed, see the [mcp/sdk 0.9.0 changelog](https://github.com/modelcontextprotocol/php-sdk/blob/v0.9.0/CHANGELOG.md).
+The MCP endpoints match the `Origin` header of browser clients exactly, including scheme and port.
+They accept the origins of `APP_URL` and of every sales channel domain.
+A loopback origin, for example the MCP Inspector on `http://localhost:6274`, is accepted only for a shop on a loopback host such as `localhost` or `*.localhost`.
+Clients without an `Origin` header, such as CLI clients and desktop apps, are not affected.
+Allow further origins with `shopware.mcp.allowed_origins`.
+An entry is an exact origin, an origin with `:*` for any port, or `*` for any origin:
+
+```yaml
+shopware:
+    mcp:
+        allowed_origins:
+            - 'https://chat.example.com'
+            - 'http://localhost:*'
+```
+
+The list can also come from an environment variable, for example `allowed_origins: '%env(csv:MCP_ALLOWED_ORIGINS)%'`.
+A rejected origin is logged as a warning in the `mcp` channel.
+
 ### ZUGFeRD e-invoices send the real unit code
 
 Product line items now store the `uneceCode` and the `purchaseUnit` of the product in their payload (`payload.uneceCode`, `payload.purchaseUnit`) when they are added to the cart, so orders keep the values the product had when the order was placed. Variants without their own unit store the parent's values.
@@ -286,6 +316,12 @@ Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations
 ### Deprecated `PluginZipImportCommand::$cacheClearer`
 
 The property is unused and will be removed in 6.8.
+
+### Promotion line items store the discount value in the cart currency
+
+`payload.value` of promotion line items with an absolute, fixed or fixed unit discount now contains the value in the cart currency, using the advanced price of the currency or the currency factor.
+Orders placed before this change still contain the default currency value.
+Extensions and headless frontends that convert `payload.value` into the cart currency themselves must remove that conversion.
 
 ## API
 
@@ -409,6 +445,14 @@ Apps no longer trigger a deprecation when they install or update with inline cus
 `Resources/config/custom-fields.xml` stays the preferred format for new apps.
 If an app ships both, the file takes precedence, the inline definition is ignored, and Shopware logs a warning.
 
+### App MCP prompt and resource responses
+
+App MCP prompt responses are now decoded as JSON arrays of messages with a `user` or `assistant` role and `content`, for example `[{"role":"user","content":"Hello"}]`.
+App MCP resource responses must be JSON objects containing a `text` string or a base64-encoded `blob` string, for example `{"uri":"my-app://status","mimeType":"application/json","text":"{\"ok\":true}"}`.
+Plain-text resource responses are no longer accepted; wrap the content in a JSON object.
+Resources use the URI declared in `mcp.xml`; a non-empty `mimeType` in the response takes precedence over the configured MIME type.
+Invalid JSON, malformed messages or resource contents, and `{"success":false,"error":"..."}` responses produce MCP errors with details for the client.
+
 ## Administration
 
 ### Deprecated the `customFieldSetRepository` computed property of `sw-product-stream-detail`
@@ -498,6 +542,13 @@ bin/console administration:check-extensions -- --only=MyPlugin --fix
 
 To keep a rule off, set it to `'off'` in the `eslint.config.mjs` of your extension, or record the current findings with `--update-baseline`.
 
+### Meteor apps get their own path in the Administration watcher
+
+An extension that ships an Administration entry and a `meteor-app` used to get both dev servers under `/_internal_ext/<technical-name>/`.
+Both servers shared one proxy path, so the Administration only reached one of them.
+The watcher now serves meteor-apps under `/_internal_app/<technical-name>/`, also for extensions without an Administration entry.
+The Administration reads the new URL from `sw-plugin-dev.json`, so you only need to adjust tooling that calls the old URL of a meteor-app directly.
+
 ### The Administration watcher applies template edits without a page reload
 
 While `composer watch:admin` runs, saving the Twig template of a component or of a component override updates that component on the page and keeps its state.
@@ -531,6 +582,11 @@ Browsers only use HTTP/2 over HTTPS, so put HTTPS in front of the watcher:
 * Run `shopware-cli project proxy up` and open `https://admin-watch.<project>.shopware.local`.
 * Or set `SHOPWARE_ADMIN_HTTPS_CERTIFICATE_FILE` and `SHOPWARE_ADMIN_HTTPS_KEY_FILE` to a certificate and its key, for example created with [mkcert](https://github.com/FiloSottile/mkcert).
   Relative paths are resolved from the project root.
+
+With the flag, the watcher serves the Administration code and the meteor-apps of extensions through its own port.
+The separate `Extensions` process and the port per extension are gone.
+The `vite.config` of an extension can no longer change the address of its dev server.
+The watcher ignores `server.port`, `server.host`, `server.ws` and the connection options of `server.hmr` (`protocol`, `host`, `port`, `clientPort`, `path` and `server`) there.
 
 ### Customer group registration SEO URLs for headless sales channels
 

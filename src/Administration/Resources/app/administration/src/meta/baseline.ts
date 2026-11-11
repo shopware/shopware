@@ -318,7 +318,6 @@ const missingTests = [
     'src/module/sw-extension/mixin/sw-extension-error.mixin.js',
     'src/module/sw-extension/page/sw-extension-my-extensions-recommendation/index.js',
     'src/module/sw-extension/service/extension-error-handler.service.ts',
-    'src/module/sw-extension/service/extension-error.service.js',
     'src/module/sw-extension/service/extension-store-action.service.ts',
     'src/module/sw-extension/service/index.ts',
     'src/module/sw-extension/store/extensions.store.ts',

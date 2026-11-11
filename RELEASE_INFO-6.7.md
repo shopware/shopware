@@ -312,13 +312,6 @@ Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations
 
 The property is unused and will be removed in 6.8.
 
-### Guest cart extensions are kept on login
-
-When a guest logs in and their cart is merged into the customer's saved cart, the extensions of the guest cart are carried over.
-If both carts have an extension with the same name, the customer cart keeps its own value.
-To keep an extension out of the customer cart, remove it from the guest cart in a `BeforeCartMergeEvent` listener; to let the guest's value win, set it on the customer cart there.
-Decorating `CartRestorer` just to copy an extension over is no longer needed.
-
 ### Promotion line items store the discount value in the cart currency
 
 `payload.value` of promotion line items with an absolute, fixed or fixed unit discount now contains the value in the cart currency, using the advanced price of the currency or the currency factor.

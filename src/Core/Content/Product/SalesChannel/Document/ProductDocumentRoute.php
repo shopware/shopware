@@ -9,7 +9,6 @@ use Shopware\Core\Content\Product\Extension\ProductDocumentRouteExtension;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -60,25 +59,13 @@ class ProductDocumentRoute
         return $this->extensions->publish(
             name: ProductDocumentRouteExtension::NAME,
             extension: new ProductDocumentRouteExtension($productId, $request, $context, $criteria),
-            function: fn (string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductDocumentRouteResponse => $this->_load($productId, $this->getVisibleParentId($productId, $context), $context, $criteria),
+            function: fn (string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductDocumentRouteResponse => $this->_load($productId, $context, $criteria),
         );
     }
 
-    /**
-     * @internal
-     */
-    public function loadForProduct(SalesChannelProductEntity $product, SalesChannelContext $context): ProductDocumentRouteResponse
+    private function _load(string $productId, SalesChannelContext $context, Criteria $criteria): ProductDocumentRouteResponse
     {
-        return $this->extensions->publish(
-            name: ProductDocumentRouteExtension::NAME,
-            extension: new ProductDocumentRouteExtension($product->getId(), new Request(), $context, new Criteria()),
-            function: fn (string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductDocumentRouteResponse => $this->_load($productId, $product->getParentId() ?? $product->getId(), $context, $criteria),
-        );
-    }
-
-    private function _load(string $productId, string $parentId, SalesChannelContext $context, Criteria $criteria): ProductDocumentRouteResponse
-    {
-        $this->cacheTagCollector->addTag(ProductDetailRoute::buildName($parentId));
+        $this->cacheTagCollector->addTag(ProductDetailRoute::buildName($this->getVisibleParentId($productId, $context)));
 
         $media = $this->loadPublicMedia($productId, $context->getContext());
 

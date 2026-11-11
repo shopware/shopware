@@ -91,7 +91,7 @@ class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
             'success' => true,
         ]));
 
-        $productId = 'product-1';
+        $productId = Uuid::randomHex();
         $config = new FieldConfigCollection([
             new FieldConfig('product', FieldConfig::SOURCE_STATIC, $productId),
         ]);
@@ -136,7 +136,7 @@ class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
             'success' => true,
         ]));
 
-        $productId = 'product-1';
+        $productId = Uuid::randomHex();
         $config = new FieldConfigCollection([
             new FieldConfig('product', FieldConfig::SOURCE_STATIC, $productId),
         ]);
@@ -176,7 +176,7 @@ class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
             'success' => true,
         ]));
 
-        $productId = 'product-1';
+        $productId = Uuid::randomHex();
         $config = new FieldConfigCollection([
             new FieldConfig('product', FieldConfig::SOURCE_STATIC, $productId),
         ]);
@@ -220,7 +220,7 @@ class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
         // but disabled for current sales channel
         $this->systemConfigService->set('core.listing.showReview', false, $salesChannelId);
 
-        $productId = 'product-1';
+        $productId = Uuid::randomHex();
         $config = new FieldConfigCollection([
             new FieldConfig('product', FieldConfig::SOURCE_STATIC, $productId),
         ]);
@@ -319,7 +319,14 @@ class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
         $dispatcher = new EventDispatcher();
 
         /** @var StaticSalesChannelRepository<ProductCollection> $productRepository */
-        $productRepository = new StaticSalesChannelRepository([]);
+        $productRepository = new StaticSalesChannelRepository([
+            static fn (Criteria $criteria): array => array_map(static function (string $id): SalesChannelProductEntity {
+                $product = new SalesChannelProductEntity();
+                $product->setId($id);
+
+                return $product;
+            }, $criteria->getIds()),
+        ]);
 
         return new ProductDocumentRoute(
             $productRepository,

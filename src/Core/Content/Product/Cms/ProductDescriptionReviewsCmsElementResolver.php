@@ -12,9 +12,11 @@ use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoade
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\HttpFoundation\Request;
 
 #[Package('discovery')]
 class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailCmsElementResolver
@@ -68,7 +70,7 @@ class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailC
 
         $data->setProduct($product);
 
-        $data->setDocuments($this->productDocumentRoute->loadForProduct($product, $resolverContext->getSalesChannelContext())->getDocuments());
+        $data->setDocuments($this->productDocumentRoute->load($product->getId(), new Request(), $resolverContext->getSalesChannelContext(), new Criteria())->getDocuments());
 
         if ($this->systemConfigService->getBool('core.listing.showReview', $resolverContext->getSalesChannelContext()->getSalesChannelId())) {
             $reviews = $this->productReviewLoader->load($request, $resolverContext->getSalesChannelContext(), $product->getId(), $product->getParentId());

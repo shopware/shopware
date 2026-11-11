@@ -15,7 +15,6 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentRoute;
 use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentRouteResponse;
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
 use Shopware\Core\Framework\Context;
@@ -164,24 +163,6 @@ class ProductDocumentRouteTest extends TestCase
             [new EqualsFilter('media.private', false)],
             $this->documentCriteria[0]->getAssociation('translations')->getFilters()
         );
-    }
-
-    public function testLoadForProductUsesTheResolvedProduct(): void
-    {
-        $variant = new SalesChannelProductEntity();
-        $variant->setId(Uuid::randomHex());
-        $variant->setParentId(Uuid::randomHex());
-        $productRepository = [];
-
-        $result = $this->createRoute(
-            $productRepository,
-            $this->createDocumentRepository(['media-1'], [new ProductDocumentCollection([$this->createDocument('media-1')])]),
-            new StaticEntityRepository([new MediaCollection([$this->createMedia('media-1')])]),
-        )->loadForProduct($variant, Generator::generateSalesChannelContext())->getDocuments();
-
-        static::assertCount(1, $result);
-        static::assertEquals(new EqualsFilter('product.id', $variant->getId()), $this->documentCriteria[0]->getFilters()[0]);
-        static::assertSame([ProductDetailRoute::buildName((string) $variant->getParentId())], $this->tags);
     }
 
     public function testLoadSkipsTheMediaSearchWithoutDocuments(): void

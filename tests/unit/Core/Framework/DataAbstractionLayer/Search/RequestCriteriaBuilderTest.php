@@ -661,6 +661,11 @@ class RequestCriteriaBuilderTest extends TestCase
             'hidden',
         ];
 
+        yield 'association restricted to the admin api in fields' => [
+            ['fields' => ['adminOnly.id']],
+            'adminOnly',
+        ];
+
         yield 'nested association without ApiAware in fields' => [
             ['fields' => ['exposed.hidden.id']],
             'hidden',
@@ -767,11 +772,57 @@ class RequestCriteriaBuilderTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
-    public function testNonVisibleAssociationInFieldsIsStillRejectedBeforeNextMajor(): void
+    public function testNonVisibleAssociationsInFieldsAreIgnoredBeforeNextMajor(): void
     {
-        $this->expectExceptionObject(DataAbstractionLayerException::accessorNotAllowedInApiScope('hidden'));
+        $criteria = (new Criteria())->addFields(['exposed.id', 'hidden.id']);
 
-        $this->requestCriteriaBuilder->fromArray(['fields' => ['exposed.hidden.id']], new Criteria(), $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
+        $result = $this->requestCriteriaBuilder->fromArray([
+            'fields' => ['id', 'hidden.id', 'adminOnly.id', 'exposed.hidden.id', 'exposed.exposed.id'],
+            'associations' => ['exposed' => ['fields' => ['id', 'hidden.id']]],
+        ], $criteria, $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
+
+        static::assertSame($criteria, $result);
+        static::assertSame(['exposed.id', 'hidden.id', 'id', 'exposed.exposed.id'], $result->getFields());
+        static::assertSame(['id'], $result->getAssociation('exposed')->getFields());
+        static::assertFalse($result->hasAssociation('hidden'));
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testOnlyNonVisibleAssociationFieldsAreIgnoredBeforeNextMajor(): void
+    {
+        $criteria = $this->requestCriteriaBuilder->fromArray([
+            'fields' => ['hidden.id'],
+        ], new Criteria(), $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
+
+        static::assertSame([], $criteria->getFields());
+        static::assertFalse($criteria->hasAssociation('hidden'));
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testIgnoredFieldSelectionEmitsDeprecationBeforeNextMajor(): void
+    {
+        $triggerer = $this->createMock(Triggerer::class);
+        $triggerer->expects($this->once())->method('deprecation')->with(
+            '',
+            '',
+            'Requesting the field "api_aware_association_test.exposed.hidden.id" is deprecated because it traverses an association that is not available in the current API scope. It is ignored in 6.7 and will be rejected with HTTP 400 and FRAMEWORK__ACCESSOR_NOT_ALLOWED in 6.8. Remove it from the requested fields.',
+        );
+        $previousTriggerer = Feature::$triggerer;
+        $previousEmitDeprecations = Feature::$emitDeprecations;
+        $this->setEnvVars(['TESTS_RUNNING' => false]);
+        Feature::$triggerer = $triggerer;
+        Feature::$emitDeprecations = true;
+
+        try {
+            $criteria = $this->requestCriteriaBuilder->fromArray([
+                'fields' => ['exposed.hidden.id'],
+            ], new Criteria(), $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
+
+            static::assertSame([], $criteria->getFields());
+        } finally {
+            Feature::$triggerer = $previousTriggerer;
+            Feature::$emitDeprecations = $previousEmitDeprecations;
+        }
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]

@@ -12,8 +12,11 @@ Entity aggregations in the Admin API and in app scripts now also require the rea
 Association visibility is checked against the API scope of the caller.
 This applies to Admin API and Store API requests, as well as app scripts using `services.repository` or `services.store`.
 In 6.7, associations in the `associations` parameter that are not visible in that scope are ignored, including their nested criteria.
-With debug mode enabled, these requests emit a deprecation notice identifying the ignored association.
-Starting with 6.8, these requests fail with HTTP 400 and `FRAMEWORK__ACCESSOR_NOT_ALLOWED`; remove associations that are not visible in the relevant API scope from requests and app scripts before upgrading.
+Selections in the `fields` parameter that traverse a non-visible association are also ignored; valid selections and fields added by server code are preserved.
+If no field selections remain, the normal read behavior applies, with API response visibility still enforced.
+With debug mode enabled, these requests emit a deprecation notice identifying the ignored association or field selection.
+Starting with 6.8, these requests fail with HTTP 400 and `FRAMEWORK__ACCESSOR_NOT_ALLOWED`; remove non-visible associations and field selections that traverse them from requests and app scripts before upgrading.
+Filters, sorting and aggregations retain their existing validation.
 App permissions do not grant additional access to protected associations through `services.store`.
 
 ### ExtensionAPI repository operations no longer expose Administration access tokens

@@ -69,10 +69,21 @@ class ProductDetailRouteTest extends TestCase
         static::assertArrayHasKey('product', $response);
     }
 
-    public function testStoreApiReadIgnoresNonVisibleAssociations(): void
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function nonVisibleAssociationPayloadProvider(): iterable
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
+        yield 'requested association' => [['associations' => ['searchKeywords' => []]]];
+        yield 'partial field selection' => [['fields' => ['searchKeywords.keyword']]];
+    }
 
+    /**
+     * @param array<string, mixed> $payload
+     */
+    #[DataProvider('nonVisibleAssociationPayloadProvider')]
+    public function testStoreApiReadWithNonVisibleAssociations(array $payload): void
+    {
         $url = $this->getUrl($this->ids->get('product'));
         $this->browser->request('POST', $url);
 
@@ -80,11 +91,17 @@ class ProductDetailRouteTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), print_r($baseline, true));
 
-        $this->browser->request('POST', $url, [
-            'associations' => ['searchKeywords' => []],
-        ]);
+        $this->browser->request('POST', $url, $payload);
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        if (Feature::isActive('v6.8.0.0')) {
+            static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
+            static::assertSame('FRAMEWORK__ACCESSOR_NOT_ALLOWED', $response['errors'][0]['code']);
+            static::assertArrayNotHasKey('product', $response);
+
+            return;
+        }
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), print_r($response, true));
         static::assertSame($baseline['product'], $response['product']);

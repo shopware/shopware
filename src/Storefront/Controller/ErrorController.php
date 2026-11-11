@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
@@ -100,8 +101,20 @@ class ErrorController extends StorefrontController
             $errorRoute = (string) $request->request->get('errorRoute');
             $route = $errorRoute !== '' ? $errorRoute : (($fallback = $request->attributes->getString('_route')) !== '' ? $fallback : 'frontend.home.page');
 
-            // Error routes with required parameters (e.g. {customerGroupId}) need them to be carried over.
-            return $this->forwardToRoute($route, ['formViolations' => $formViolations], $this->decodeParam($request, 'errorParameters'));
+            try {
+                // Error routes with required parameters (e.g. {customerGroupId}) need them to be carried over.
+                return $this->forwardToRoute($route, ['formViolations' => $formViolations], $this->decodeParam($request, 'errorParameters'));
+            } catch (MethodNotAllowedException) {
+                // POST-only routes (e.g. the _route fallback of a form submit) cannot be forwarded to with GET.
+                // The home page has no form, so field violations are flashed as well.
+                foreach ($violations as $violation) {
+                    if ($violation->getPropertyPath() !== '') {
+                        $this->addFlash(self::DANGER, $this->trans('error.' . $violation->getCode()));
+                    }
+                }
+
+                return $this->forwardToRoute('frontend.home.page', ['formViolations' => $formViolations]);
+            }
         }
 
         $response = [];

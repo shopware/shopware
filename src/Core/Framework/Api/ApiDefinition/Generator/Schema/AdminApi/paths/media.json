@@ -219,11 +219,13 @@
                                     },
                                     "title": {
                                         "type": "string",
-                                        "description": "Title of the media"
+                                        "maxLength": 255,
+                                        "description": "Title of the new media, at most 255 characters; a longer value is rejected with a 400 error. It is stored in the language of the `sw-language-id` header. Without a value in the system language, the media reads back without a title in every language. With `deduplicate`, an existing media with the same file hash is returned unchanged and this value is not applied."
                                     },
                                     "alt": {
                                         "type": "string",
-                                        "description": "Alternative text of the media"
+                                        "maxLength": 255,
+                                        "description": "Alternative text of the new media, at most 255 characters; a longer value is rejected with a 400 error. It is stored in the language of the `sw-language-id` header. Without a value in the system language, the media reads back without an alternative text in every language. With `deduplicate`, an existing media with the same file hash is returned unchanged and this value is not applied."
                                     }
                                 },
                                 "required": ["file"]
@@ -248,6 +250,9 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "description": "The request is invalid, for example because `title` or `alt` is longer than 255 characters."
                     }
                 }
             }
@@ -298,11 +303,13 @@
                                     },
                                     "title": {
                                         "type": "string",
-                                        "description": "Title of the media"
+                                        "maxLength": 255,
+                                        "description": "Title of the new media, at most 255 characters; a longer value is rejected with a 400 error. It is stored in the language of the `sw-language-id` header. Without a value in the system language, the media reads back without a title in every language. With `deduplicate`, an existing media with the same file hash is returned unchanged and this value is not applied."
                                     },
                                     "alt": {
                                         "type": "string",
-                                        "description": "Alternative text of the media"
+                                        "maxLength": 255,
+                                        "description": "Alternative text of the new media, at most 255 characters; a longer value is rejected with a 400 error. It is stored in the language of the `sw-language-id` header. Without a value in the system language, the media reads back without an alternative text in every language. With `deduplicate`, an existing media with the same file hash is returned unchanged and this value is not applied."
                                     }
                                 },
                                 "required": ["url"]
@@ -327,6 +334,9 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "description": "The request is invalid, for example because `title` or `alt` is longer than 255 characters."
                     }
                 }
             }
@@ -377,11 +387,13 @@
                                     },
                                     "title": {
                                         "type": "string",
-                                        "description": "Title of the media"
+                                        "maxLength": 255,
+                                        "description": "Title of the new media, at most 255 characters; a longer value is rejected with a 400 error. It is stored in the language of the `sw-language-id` header. Without a value in the system language, the media reads back without a title in every language. With `deduplicate`, an existing media with the same URL is returned unchanged and this value is not applied."
                                     },
                                     "alt": {
                                         "type": "string",
-                                        "description": "Alternative text of the media"
+                                        "maxLength": 255,
+                                        "description": "Alternative text of the new media, at most 255 characters; a longer value is rejected with a 400 error. It is stored in the language of the `sw-language-id` header. Without a value in the system language, the media reads back without an alternative text in every language. With `deduplicate`, an existing media with the same URL is returned unchanged and this value is not applied."
                                     },
                                     "thumbnails": {
                                         "type": "array",
@@ -413,6 +425,9 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "description": "The request is invalid, for example because `title` or `alt` is longer than 255 characters."
                     }
                 }
             }

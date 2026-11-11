@@ -58,6 +58,41 @@ describe('build/vite/twig-hmr-plugin', () => {
         expect(server.watcher.add).toHaveBeenCalledWith([viewRoot]);
     });
 
+    describe('with extensions in var/plugins.json', () => {
+        let extensionViewRoot: string;
+
+        beforeEach(() => {
+            extensionViewRoot = path.join(projectRoot, 'custom/plugins/SwagTheme/src/Resources/views');
+            fs.mkdirSync(path.join(extensionViewRoot, 'storefront'), { recursive: true });
+            // Core bundles have view directories with mail or document templates only.
+            fs.mkdirSync(path.join(projectRoot, 'src/Core/Framework/Resources/views/documents'), { recursive: true });
+            fs.writeFileSync(path.join(projectRoot, 'var/plugins.json'), JSON.stringify({
+                Framework: { technicalName: 'framework', basePath: 'src/Core/Framework/', views: ['Resources/views'] },
+                Storefront: { technicalName: 'storefront', basePath: 'src/Storefront/', views: ['Resources/views'] },
+                SwagTheme: { technicalName: 'swag-theme', basePath: 'custom/plugins/SwagTheme/src/', views: ['Resources/views'] },
+                SwagWithoutViews: { technicalName: 'swag-without-views', basePath: 'custom/plugins/SwagWithoutViews/src/' },
+            }));
+        });
+
+        afterEach(() => {
+            vi.unstubAllEnvs();
+        });
+
+        it('watches every view directory with Storefront templates', () => {
+            const server = startPlugin();
+
+            expect(server.watcher.add).toHaveBeenCalledWith([viewRoot, extensionViewRoot]);
+        });
+
+        it('watches only the Storefront views with SHOPWARE_STOREFRONT_SKIP_EXTENSION_TWIG_WATCH=1', () => {
+            vi.stubEnv('SHOPWARE_STOREFRONT_SKIP_EXTENSION_TWIG_WATCH', '1');
+
+            const server = startPlugin();
+
+            expect(server.watcher.add).toHaveBeenCalledWith([viewRoot]);
+        });
+    });
+
     it('sends the Twig changes of the debounce window as one event, relative to the project root', () => {
         const server = startPlugin();
 
@@ -73,6 +108,26 @@ describe('build/vite/twig-hmr-plugin', () => {
             ],
             structural: true,
         });
+        expect(server.config.logger.info).toHaveBeenCalledWith(
+            '[sw-twig-hmr] src/Storefront/Resources/views/storefront/base.html.twig, src/Storefront/Resources/views/storefront/new.html.twig (added or removed)',
+            { timestamp: true },
+        );
+    });
+
+    it('logs a change of existing files without the note about added or removed files', () => {
+        const server = startPlugin();
+
+        server.watcher.emit('all', 'change', path.join(viewRoot, 'storefront/base.html.twig'));
+        vi.advanceTimersByTime(50);
+
+        expect(server.ws.send).toHaveBeenCalledWith('sw:twig-update', {
+            files: ['src/Storefront/Resources/views/storefront/base.html.twig'],
+            structural: false,
+        });
+        expect(server.config.logger.info).toHaveBeenCalledWith(
+            '[sw-twig-hmr] src/Storefront/Resources/views/storefront/base.html.twig',
+            { timestamp: true },
+        );
     });
 
     it('ignores files outside the views and files that are no templates', () => {

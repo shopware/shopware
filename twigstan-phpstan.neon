@@ -7,3 +7,7 @@ parameters:
         containerXmlPath: var/cache/static_phpstan_dev/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml
     parallel:
         maximumNumberOfProcesses: 2
+services:
+    -
+        class: Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\RenderEventData
+        factory: Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\RenderEventData::fromFile(@PHPStan\PhpDoc\TypeStringResolver, %currentWorkingDirectory%/var/cache/twigstan-listeners/context.json)

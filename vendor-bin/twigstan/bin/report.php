@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
 use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\AnalysisCompletionGuard;
+use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\RenderEventDataPreparation;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -16,6 +17,7 @@ $directory = $root . '/var/twigstan-report';
 $filesystem->mkdir($directory);
 
 try {
+    RenderEventDataPreparation::prepare($root, $output);
     $container = ContainerFactory::fromFile($root, $root . '/twigstan.php')->create();
     $result = $container->getByType(AnalyzeCommand::class)->analyze([], $output, $output->getErrorOutput(), false, false, null);
     $failures = $result->fileSpecificErrors;
@@ -90,6 +92,7 @@ try {
     ));
     $filesystem->copy(dirname(__DIR__) . '/phpstan-build.json', $directory . '/phpstan-build.json', true);
     $filesystem->copy(dirname(__DIR__) . '/composer.lock', $directory . '/composer.lock', true);
+    $filesystem->copy($root . '/var/cache/twigstan-listeners/context.json', $directory . '/listener-context.json', true);
     echo json_encode($report, \JSON_PRETTY_PRINT | \JSON_THROW_ON_ERROR), \PHP_EOL;
     AnalysisCompletionGuard::check($report);
 } catch (Throwable $exception) {

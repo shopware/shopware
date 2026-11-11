@@ -4,6 +4,7 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan;
 
 use PhpParser\Node;
 use PHPStan\Analyser\ArgumentsNormalizer;
+use PHPStan\Analyser\DependencyTracker;
 use PHPStan\Analyser\Scope;
 use PHPStan\PhpDocParser\Printer\Printer;
 use PHPStan\Reflection\ParametersAcceptorSelector;
@@ -36,8 +37,10 @@ use TwigStan\Twig\SourceLocation;
 #[Package('framework')]
 final class StorefrontRenderContextCollector implements TemplateContextCollector
 {
-    public function __construct(private readonly string $viewsDirectory = __DIR__ . '/../../../src/Storefront/Resources/views')
-    {
+    public function __construct(
+        private readonly string $viewsDirectory = __DIR__ . '/../../../src/Storefront/Resources/views',
+        private readonly ?RenderEventData $renderEventData = null,
+    ) {
     }
 
     public function getNodeType(): string
@@ -45,6 +48,9 @@ final class StorefrontRenderContextCollector implements TemplateContextCollector
         return Node\Expr\MethodCall::class;
     }
 
+    /**
+     * @param Scope&DependencyTracker $scope
+     */
     public function processNode(Node $node, Scope $scope): ?array
     {
         if (!$node->var instanceof Node\Expr\Variable
@@ -80,10 +86,13 @@ final class StorefrontRenderContextCollector implements TemplateContextCollector
 
         $result = [];
         foreach ($templates as $template) {
+            $renderContext = $node->name->name === 'renderStorefront' && $this->renderEventData !== null
+                ? $this->renderEventData->applyToRender($context, $template->getValue(), $scope)
+                : $context;
             $result[] = [
                 'sourceLocation' => new SourceLocation($scope->getFile(), $node->getStartLine()),
                 'template' => $template->getValue(),
-                'context' => (new Printer())->print($context->toPhpDocNode()),
+                'context' => (new Printer())->print($renderContext->toPhpDocNode()),
             ];
         }
 

@@ -435,5 +435,19 @@ export default Shopware.Component.wrapComponentConfig({
                 document.position = index;
             });
         },
+
+        getEditActionLabel(document: Entity<'product_document'>): string {
+            if (!this.isDefaultLanguage && !document.title && !document.mediaId) {
+                return this.$t('sw-product.documentForm.addLanguageVersion', { language: this.contentLanguageName });
+            }
+
+            return this.$t('global.default.edit');
+        },
+
+        getRemoveActionLabel(): string {
+            return this.isDefaultLanguage
+                ? this.$t('global.default.remove')
+                : this.$t('sw-product.documentForm.removeLanguageVersion', { language: this.contentLanguageName });
+        },
     },
 });

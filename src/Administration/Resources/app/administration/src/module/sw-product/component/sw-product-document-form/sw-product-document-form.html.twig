@@ -152,7 +152,7 @@
                                 :disabled="!canEdit || isInherited"
                                 @click="openDocumentEditor(item)"
                             >
-                                {{ !isDefaultLanguage && !item.title && !item.mediaId ? $t('sw-product.documentForm.addLanguageVersion', { language: contentLanguageName }) : $t('global.default.edit') }}
+                                {{ getEditActionLabel(item) }}
                             </sw-context-menu-item>
                             {% block sw_product_document_form_action_download %}
                             <sw-product-document-download :media="getMedia(item)" />
@@ -164,7 +164,7 @@
                                 :disabled="!canEdit || isInherited"
                                 @click="openRemoveDocumentModal(item)"
                             >
-                                {{ isDefaultLanguage ? $t('global.default.remove') : $t('sw-product.documentForm.removeLanguageVersion', { language: contentLanguageName }) }}
+                                {{ getRemoveActionLabel() }}
                             </sw-context-menu-item>
                             {% endblock %}
                         </template>

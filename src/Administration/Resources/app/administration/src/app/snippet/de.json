@@ -1250,7 +1250,8 @@
       }
     },
     "sw-page": {
-      "backButton": "Zurückgehen"
+      "backButton": "Zurückgehen",
+      "backButtonTo": "Zurück zu {title}"
     }
   },
   "mt-text-editor-toolbar-button-link": {

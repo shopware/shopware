@@ -1250,7 +1250,8 @@
       }
     },
     "sw-page": {
-      "backButton": "Go back"
+      "backButton": "Go back",
+      "backButtonTo": "Back to {title}"
     }
   },
   "sw-text-editor-toolbar": {

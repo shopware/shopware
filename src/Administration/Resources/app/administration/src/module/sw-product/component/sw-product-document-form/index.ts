@@ -176,7 +176,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         getTitle(document: Entity<'product_document'>): string {
-            return document.translated?.title || document.title || this.getMedia(document)?.fileName || '';
+            return document.title || document.translated?.title || this.getMedia(document)?.fileName || '';
         },
 
         getFileSize(document: Entity<'product_document'>): string {

@@ -8,9 +8,12 @@ use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Event\OrderDeliveryStateMachineStateChangeEvent;
+use Shopware\Core\Checkout\Order\Event\OrderTransactionStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Flow\Dispatching\Aware\OrderDeliveryAware;
+use Shopware\Core\Content\Flow\Dispatching\Aware\OrderTransactionAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
 use Shopware\Core\Defaults;
@@ -476,13 +479,54 @@ class InfoControllerTest extends TestCase
                         'type' => 'entity',
                         'entityClass' => OrderDeliveryDefinition::class,
                         'entityName' => 'order_delivery',
-                        // @deprecated tag:v6.8.0 - Remove the spread, the delivery is then part of the webhook payload
-                        ...(Feature::isActive('v6.8.0.0') ? [] : ['hiddenFromWebhook' => true]),
+                        'hiddenFromWebhook' => true,
+                    ],
+                    'orderDeliveryId' => [
+                        'type' => 'string',
                     ],
                 ],
                 'aware' => [
                     OrderDeliveryAware::class,
                     lcfirst((new \ReflectionClass(OrderDeliveryAware::class))->getShortName()),
+                    ScalarValuesAware::class,
+                    lcfirst((new \ReflectionClass(ScalarValuesAware::class))->getShortName()),
+                    MailAware::class,
+                    lcfirst((new \ReflectionClass(MailAware::class))->getShortName()),
+                    SalesChannelAware::class,
+                    lcfirst((new \ReflectionClass(SalesChannelAware::class))->getShortName()),
+                    OrderAware::class,
+                    lcfirst((new \ReflectionClass(OrderAware::class))->getShortName()),
+                    CustomerAware::class,
+                    lcfirst((new \ReflectionClass(CustomerAware::class))->getShortName()),
+                    A11yRenderedDocumentAware::class,
+                    lcfirst((new \ReflectionClass(A11yRenderedDocumentAware::class))->getShortName()),
+                ],
+            ],
+            [
+                'extensions' => [],
+                'name' => 'state_enter.order_transaction.state.paid',
+                'class' => OrderTransactionStateMachineStateChangeEvent::class,
+                'data' => [
+                    'order' => [
+                        'type' => 'entity',
+                        'entityClass' => OrderDefinition::class,
+                        'entityName' => 'order',
+                    ],
+                    'orderTransaction' => [
+                        'type' => 'entity',
+                        'entityClass' => OrderTransactionDefinition::class,
+                        'entityName' => 'order_transaction',
+                        'hiddenFromWebhook' => true,
+                    ],
+                    'orderTransactionId' => [
+                        'type' => 'string',
+                    ],
+                ],
+                'aware' => [
+                    OrderTransactionAware::class,
+                    lcfirst((new \ReflectionClass(OrderTransactionAware::class))->getShortName()),
+                    ScalarValuesAware::class,
+                    lcfirst((new \ReflectionClass(ScalarValuesAware::class))->getShortName()),
                     MailAware::class,
                     lcfirst((new \ReflectionClass(MailAware::class))->getShortName()),
                     SalesChannelAware::class,

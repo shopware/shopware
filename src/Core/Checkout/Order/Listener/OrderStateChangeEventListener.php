@@ -5,9 +5,11 @@ namespace Shopware\Core\Checkout\Order\Listener;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\Event\OrderDeliveryStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\Event\OrderStateChangeCriteriaEvent;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
+use Shopware\Core\Checkout\Order\Event\OrderTransactionStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
@@ -115,7 +117,15 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         $context = $this->getContext($orderTransaction->getOrderId(), $event->getContext());
         $order = $this->getOrder($orderTransaction->getOrderId(), $context);
 
-        $this->dispatchEvent($event->getStateEventName(), $order, $context);
+        $changedTransaction = $order->getTransactions()?->get($orderTransactionId);
+        if (!$changedTransaction) {
+            throw OrderException::orderTransactionNotFound($orderTransactionId);
+        }
+
+        $this->eventDispatcher->dispatch(
+            new OrderTransactionStateMachineStateChangeEvent($event->getStateEventName(), $order, $changedTransaction, $context),
+            $event->getStateEventName()
+        );
     }
 
     /**
@@ -192,9 +202,11 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
                 continue;
             }
 
-            $eventClass = $machine->getTechnicalName() === OrderDeliveryStates::STATE_MACHINE
-                ? OrderDeliveryStateMachineStateChangeEvent::class
-                : OrderStateMachineStateChangeEvent::class;
+            $eventClass = match ($machine->getTechnicalName()) {
+                OrderDeliveryStates::STATE_MACHINE => OrderDeliveryStateMachineStateChangeEvent::class,
+                OrderTransactionStates::STATE_MACHINE => OrderTransactionStateMachineStateChangeEvent::class,
+                default => OrderStateMachineStateChangeEvent::class,
+            };
 
             foreach ($sides as $side) {
                 $name = implode('.', [

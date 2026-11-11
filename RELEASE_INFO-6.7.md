@@ -317,15 +317,18 @@ Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations
 
 The property is unused and will be removed in 6.8.
 
-### Delivery state flows know which delivery changed
+### Delivery and transaction state flows know what changed
 
-The `state_enter.order_delivery.state.*` and `state_leave.order_delivery.state.*` triggers now carry the delivery whose state changed.
-Flows and mail templates of these triggers get an `orderDelivery` variable with its positions and their line items, shipping method, state and shipping address, and flow actions find its id in the flow store under `orderDeliveryId`.
-Add associations to it through `mail-flow.data.order_delivery.criteria.event`.
+The `state_enter.order_delivery.state.*` and `state_leave.order_delivery.state.*` triggers now carry the delivery whose state changed, the `order_transaction` ones the transaction.
+Flows and mail templates of these triggers get an `orderDelivery` variable with its positions and their line items, shipping method, state and shipping address, or an `orderTransaction` variable, and the id as `orderDeliveryId` or `orderTransactionId`.
+Add associations to the delivery through `mail-flow.data.order_delivery.criteria.event`.
 Events can expose a delivery to flows by implementing `Shopware\Core\Content\Flow\Dispatching\Aware\OrderDeliveryAware`.
 
-The listener dispatches the new `OrderDeliveryStateMachineStateChangeEvent` for delivery transitions.
-It extends `OrderStateMachineStateChangeEvent`, so existing subscribers keep working, and adds `getOrderDelivery()` and `getOrderDeliveryId()`.
+Webhooks of these triggers only add the id, so apps find the changed delivery or transaction in `order.deliveries` or `order.transactions` of the payload, without a new permission.
+On delivery transitions, `order.deliveries` now also contains the state and positions of each delivery.
+
+The listener dispatches the new `OrderDeliveryStateMachineStateChangeEvent` and `OrderTransactionStateMachineStateChangeEvent` for these transitions.
+They extend `OrderStateMachineStateChangeEvent`, so existing subscribers keep working, and add `getOrderDelivery()` and `getOrderTransaction()` with their id getters.
 
 ### SEO URL routes can restrict the associations of the template
 

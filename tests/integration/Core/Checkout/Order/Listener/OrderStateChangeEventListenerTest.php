@@ -15,14 +15,18 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundDefinition;
 use Shopware\Core\Checkout\Order\Event\OrderDeliveryStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
+use Shopware\Core\Checkout\Order\Event\OrderTransactionStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Content\Flow\Dispatching\Aware\OrderDeliveryAware;
+use Shopware\Core\Content\Flow\Dispatching\Aware\OrderTransactionAware;
 use Shopware\Core\Content\Flow\Dispatching\BufferedFlowExecutor;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
@@ -36,6 +40,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
@@ -226,13 +231,89 @@ class OrderStateChangeEventListenerTest extends TestCase
         static::assertInstanceOf(OrderDeliveryStateMachineStateChangeEvent::class, $stateEvent);
         $this->assertShippedDelivery($stateEvent->getOrderDelivery(), $ids->get($deliveryKey), $ids->get($lineItemKey));
 
+        $payload = static::getContainer()->get(BusinessEventEncoder::class)->encode($stateEvent);
+        static::assertSame($ids->get($deliveryKey), $payload[OrderDeliveryAware::ORDER_DELIVERY_ID] ?? null);
+        static::assertArrayNotHasKey(OrderDeliveryAware::ORDER_DELIVERY, $payload);
+
         $flow = $flows['state_enter.order_delivery.state.shipped'] ?? null;
         static::assertInstanceOf(StorableFlow::class, $flow, 'The default flow for shipped deliveries did not send its mail');
         static::assertSame($ids->get($deliveryKey), $flow->getStore(OrderDeliveryAware::ORDER_DELIVERY_ID));
+        static::assertSame($ids->get($deliveryKey), $flow->getData(OrderDeliveryAware::ORDER_DELIVERY_ID));
 
         $delivery = $flow->data()[OrderDeliveryAware::ORDER_DELIVERY] ?? null;
         static::assertInstanceOf(OrderDeliveryEntity::class, $delivery);
         $this->assertShippedDelivery($delivery, $ids->get($deliveryKey), $ids->get($lineItemKey));
+    }
+
+    #[DataProvider('transactionOfTheOrderProvider')]
+    public function testTransactionStateChangeCarriesTheChangedTransaction(string $transactionKey): void
+    {
+        $ids = new IdsCollection();
+
+        $this->createCustomer($ids);
+        $this->createOrder($ids);
+        static::getContainer()->get('order_transaction.repository')->create([[
+            'id' => $ids->create('second-transaction'),
+            'orderId' => $ids->get('order'),
+            'paymentMethodId' => $this->getPrePaymentMethodId(),
+            'stateId' => $this->getStateId('open', 'order_transaction.state'),
+            'amount' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+        ]], Context::createDefaultContext());
+
+        $stateEvent = null;
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
+            'state_enter.order_transaction.state.paid',
+            static function (OrderTransactionStateMachineStateChangeEvent $event) use (&$stateEvent): void {
+                $stateEvent = $event;
+            }
+        );
+
+        $flows = [];
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
+            FlowSendMailActionEvent::class,
+            static function (FlowSendMailActionEvent $event) use (&$flows): void {
+                $flows[$event->getStorableFlow()->getName()] = $event->getStorableFlow();
+            }
+        );
+
+        static::getContainer()
+            ->get(StateMachineRegistry::class)
+            ->transition(
+                new Transition(
+                    OrderTransactionDefinition::ENTITY_NAME,
+                    $ids->get($transactionKey),
+                    StateMachineTransitionActions::ACTION_PAID,
+                    'stateId'
+                ),
+                Context::createDefaultContext()
+            );
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
+
+        static::assertInstanceOf(OrderTransactionStateMachineStateChangeEvent::class, $stateEvent);
+        $this->assertPaidTransaction($stateEvent->getOrderTransaction(), $ids->get($transactionKey));
+
+        $payload = static::getContainer()->get(BusinessEventEncoder::class)->encode($stateEvent);
+        static::assertSame($ids->get($transactionKey), $payload[OrderTransactionAware::ORDER_TRANSACTION_ID] ?? null);
+        static::assertArrayNotHasKey(OrderTransactionAware::ORDER_TRANSACTION, $payload);
+
+        $flow = $flows['state_enter.order_transaction.state.paid'] ?? null;
+        static::assertInstanceOf(StorableFlow::class, $flow, 'The default flow for paid transactions did not send its mail');
+        static::assertSame($ids->get($transactionKey), $flow->getStore(OrderTransactionAware::ORDER_TRANSACTION_ID));
+        static::assertSame($ids->get($transactionKey), $flow->getData(OrderTransactionAware::ORDER_TRANSACTION_ID));
+
+        $transaction = $flow->data()[OrderTransactionAware::ORDER_TRANSACTION] ?? null;
+        static::assertInstanceOf(OrderTransactionEntity::class, $transaction);
+        static::assertSame($ids->get($transactionKey), $transaction->getId());
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function transactionOfTheOrderProvider(): iterable
+    {
+        yield 'the transaction written first' => ['transaction'];
+
+        yield 'the transaction written second' => ['second-transaction'];
     }
 
     /**
@@ -243,6 +324,13 @@ class OrderStateChangeEventListenerTest extends TestCase
         yield 'the delivery written first' => ['delivery', 'line-item'];
 
         yield 'the delivery written second' => ['second-delivery', 'second-line-item'];
+    }
+
+    private function assertPaidTransaction(OrderTransactionEntity $transaction, string $transactionId): void
+    {
+        static::assertSame($transactionId, $transaction->getId());
+        static::assertSame(OrderTransactionStates::STATE_PAID, $transaction->getStateMachineState()?->getTechnicalName());
+        static::assertNotNull($transaction->getPaymentMethod());
     }
 
     private function assertShippedDelivery(OrderDeliveryEntity $delivery, string $deliveryId, string $lineItemId): void

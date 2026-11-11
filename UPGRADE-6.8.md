@@ -323,11 +323,11 @@ After a customer logs out, the storefront session now holds the context token th
 
 <details>
 
-## Non-visible Store API associations are rejected
+## Non-visible API associations are rejected
 
-Store API requests and app scripts using `services.store` now reject non-visible associations in the `associations` parameter with HTTP 400 and `FRAMEWORK__ACCESSOR_NOT_ALLOWED`.
+Admin API and Store API requests, as well as app scripts using `services.repository` or `services.store`, now reject associations in the `associations` parameter that are not visible in the caller's API scope with HTTP 400 and `FRAMEWORK__ACCESSOR_NOT_ALLOWED`.
 In 6.7, these requested associations and their nested criteria were ignored.
-Remove associations that are not exposed through the Store API from your criteria before upgrading.
+Remove associations that are not exposed in the relevant API scope from your criteria before upgrading.
 App permissions do not change association visibility through `services.store`.
 
 ## Product reviews require a rating

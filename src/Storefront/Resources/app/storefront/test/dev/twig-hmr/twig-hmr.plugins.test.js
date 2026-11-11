@@ -218,6 +218,94 @@ describe('dev/twig-hmr with real plugins', () => {
         expect(document.getElementById(NOTICE_ID)).toBeNull();
     });
 
+    it('keeps an unchanged plugin element with an id', async () => {
+        const body = (version) => `<main><h1>Version ${version}</h1><div class="slider" id="gallery" data-track><div class="slide">A</div></div></main>`;
+        await load(body(1));
+        const sliderElement = document.getElementById('gallery');
+        const instance = PluginManager.getPluginInstanceFromElement(sliderElement, 'Track');
+        pages['http://localhost/'] = page(body(2));
+
+        await refresh(['heading.html.twig']);
+
+        expect(document.querySelector('h1').textContent).toBe('Version 2');
+        expect(document.getElementById('gallery')).toBe(sliderElement);
+        expect(PluginManager.getPluginInstanceFromElement(sliderElement, 'Track')).toBe(instance);
+        expect(document.getElementById(NOTICE_ID)).toBeNull();
+    });
+
+    it('keeps the remaining plugin element after a script removed another one with the same selector', async () => {
+        const body = (version) => `<main><h1>Version ${version}</h1>${slider()}${slider()}</main>`;
+        await load(body(1));
+        const [kept, removed] = document.querySelectorAll('[data-track]');
+        const instance = PluginManager.getPluginInstanceFromElement(kept, 'Track');
+        removed.remove();
+        pages['http://localhost/'] = page(body(2));
+
+        await refresh(['heading.html.twig']);
+
+        expect(document.querySelector('h1').textContent).toBe('Version 2');
+        expect(document.querySelector('[data-track]')).toBe(kept);
+        expect(PluginManager.getPluginInstanceFromElement(kept, 'Track')).toBe(instance);
+        expect(document.getElementById(NOTICE_ID)).toBeNull();
+    });
+
+    it('treats every plugin element as changed without a baseline of the server markup', async () => {
+        document.body.innerHTML = `<main><h1>Version 1</h1>${slider()}</main>`;
+        // Without `init()` before the plugins, the hot reload never saw the server markup.
+        await PluginManager.initializePlugins();
+        const sliderElement = document.querySelector('[data-track]');
+        pages['http://localhost/'] = page(`<main><h1>Version 2</h1>${slider()}</main>`);
+
+        await refresh(['heading.html.twig']);
+
+        expect(document.querySelector('h1').textContent).toBe('Version 2');
+        expect(document.querySelector('[data-track]')).toBe(sliderElement);
+        expect(document.getElementById(NOTICE_ID).textContent).toContain('The markup of <div.slider> changed. Plugins: Track.');
+    });
+
+    it('keeps a plugin element in the inert background of an open offcanvas', async () => {
+        const body = (version) => `<header class="header" data-track>Logo</header><main><h1>Version ${version}</h1></main>`;
+        await load(body(1));
+        const header = document.querySelector('header');
+        // The offcanvas plugin appends the offcanvas and disables the background.
+        document.body.insertAdjacentHTML('beforeend', '<div class="offcanvas offcanvas-end js-offcanvas-singleton show">Cart</div>');
+        ['header', 'main'].forEach((selector) => {
+            document.querySelector(selector).setAttribute('inert', '');
+        });
+        pages['http://localhost/'] = page(body(2));
+
+        await refresh(['heading.html.twig']);
+
+        expect(document.querySelector('h1').textContent).toBe('Version 2');
+        expect(document.querySelector('header')).toBe(header);
+        expect(header.hasAttribute('inert')).toBe(true);
+        expect(document.getElementById(NOTICE_ID)).toBeNull();
+    });
+
+    it('keeps a plugin element inside an open AJAX offcanvas while the focus is outside of it', async () => {
+        const content = (version) => `<p class="part">Cart ${version}</p>${slider()}`;
+        await load('<main><button class="btn">Cart</button></main>');
+        pages['/checkout/offcanvas'] = content(1);
+        document.body.insertAdjacentHTML('beforeend', `
+            <div class="offcanvas js-offcanvas-singleton show" data-sw-source-url="/checkout/offcanvas">${content(1)}</div>
+        `);
+        await PluginManager.initializePlugins();
+        await new Promise(process.nextTick);
+        const sliderElement = document.querySelector('.js-offcanvas-singleton [data-track]');
+        const instance = PluginManager.getPluginInstanceFromElement(sliderElement, 'Track');
+        document.querySelector('main .btn').focus();
+        pages['http://localhost/'] = page('<main><button class="btn">Cart</button></main>');
+        pages['/checkout/offcanvas'] = content(2);
+
+        await refresh(['offcanvas-cart.html.twig']);
+
+        expect(document.querySelector('.js-offcanvas-singleton .part').textContent).toBe('Cart 2');
+        expect(document.querySelector('.js-offcanvas-singleton [data-track]')).toBe(sliderElement);
+        expect(PluginManager.getPluginInstanceFromElement(sliderElement, 'Track')).toBe(instance);
+        expect(document.activeElement).toBe(document.querySelector('main .btn'));
+        expect(document.getElementById(NOTICE_ID)).toBeNull();
+    });
+
     it('initializes a plugin that the template added', async () => {
         await load('<h1>Version 1</h1>');
         pages['http://localhost/'] = page(`<h1>Version 2</h1>${slider()}`);

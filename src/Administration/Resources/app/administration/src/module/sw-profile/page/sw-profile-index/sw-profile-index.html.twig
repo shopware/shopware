@@ -113,13 +113,7 @@
             {% endblock %}
         </sw-card-view>
 
-        {% block sw_profile_index_content_confirm_password_modal %}
-        <sw-verify-user-modal
-            v-if="confirmPasswordModal"
-            @verified="onVerifyPasswordFinished"
-            @close="onCloseConfirmPasswordModal"
-        />
-        {% endblock %}
+        {% block sw_profile_index_content_confirm_password_modal %}{% endblock %}
 
         {% block sw_profile_index_media_upload_actions_media_modal %}
         <sw-media-modal-v2

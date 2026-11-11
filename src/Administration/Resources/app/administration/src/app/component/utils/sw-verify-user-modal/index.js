@@ -7,21 +7,43 @@ import template from './sw-verify-user-modal.html.twig';
 const { Mixin } = Shopware;
 
 /**
+ * Verifies the user and emits the API context carrying the verified token. A password session confirms
+ * its password; an SSO session signs in again at the identity provider, which the modal also offers
+ * next to the password when the shop has one.
+ * Request a verification through `userVerificationService.verify()` instead of rendering this modal.
+ *
  * @private
  */
 export default {
     template,
 
-    inject: ['loginService'],
+    inject: [
+        'loginService',
+        'userVerificationService',
+    ],
 
-    emits: ['verified', 'close'],
+    emits: [
+        'verified',
+        'close',
+    ],
 
     mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
             confirmPassword: '',
+            isLoading: true,
+            ssoSession: false,
+            ssoLoginUrl: '',
         };
+    },
+
+    computed: {
+        title() {
+            return this.ssoSession
+                ? this.$t('global.sw-verify-user-modal.titleVerifyWithSso')
+                : this.$t('sw-users-permissions.users.user-detail.passwordConfirmation.titleConfirmPasswordModal');
+        },
     },
 
     created() {
@@ -29,7 +51,18 @@ export default {
     },
 
     methods: {
-        createdComponent() {},
+        createdComponent() {
+            // loaded up front, so the SSO button opens the identity provider's window without awaiting a request
+            return this.userVerificationService
+                .getSsoOptions()
+                .then(({ ssoSession, loginUrl }) => {
+                    this.ssoSession = ssoSession;
+                    this.ssoLoginUrl = loginUrl;
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
+        },
 
         onSubmitConfirmPassword() {
             return this.loginService
@@ -57,6 +90,29 @@ export default {
                 .finally(() => {
                     this.confirmPassword = '';
                     this.$emit('close');
+                });
+        },
+
+        onVerifyWithSso() {
+            // a second click would reuse the open window and resolve the verification twice
+            if (this.isLoading) {
+                return Promise.resolve();
+            }
+
+            this.confirmPassword = '';
+            this.isLoading = true;
+
+            return this.userVerificationService
+                .verifyWithSso(this.ssoLoginUrl)
+                .then((context) => {
+                    this.$emit('verified', context);
+                    this.$emit('close');
+                })
+                .catch(() => {
+                    // the service already told the user; the modal stays open for another try
+                })
+                .finally(() => {
+                    this.isLoading = false;
                 });
         },
 

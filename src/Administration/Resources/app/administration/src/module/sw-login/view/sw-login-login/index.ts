@@ -55,6 +55,7 @@ export default Component.wrapComponentConfig({
     },
 
     created(): void {
+        this.showLogoutReason();
         void this.createdComponent();
     },
 
@@ -66,6 +67,14 @@ export default Component.wrapComponentConfig({
 
         _navigateTo(url: string) {
             window.location.href = url;
+        },
+
+        // a logout that has to tell the user why leaves the snippet key of its reason behind until the next login
+        showLogoutReason(): void {
+            const reason = sessionStorage.getItem('sw-login-alert');
+            if (reason) {
+                this.loginAlertMessage = this.$t(reason);
+            }
         },
 
         async createdComponent() {
@@ -84,7 +93,8 @@ export default Component.wrapComponentConfig({
 
             this.$emit('config-loaded', this.loginConfig);
 
-            if (!this.loginConfig.useDefault && this.loginConfig.url) {
+            // the user reads the logout reason first and starts the SSO login with the button
+            if (!this.loginConfig.useDefault && this.loginConfig.url && !this.loginAlertMessage) {
                 this.doSsoForwarding();
             }
 
@@ -97,6 +107,7 @@ export default Component.wrapComponentConfig({
             }
 
             this.ssoLoading = true;
+            window.sessionStorage.removeItem('sw-login-alert');
             window.sessionStorage.setItem('redirectFromLogin', 'true');
             window.sessionStorage.setItem('sw-sso-session', 'true');
             this._navigateTo(this.loginConfig.url);
@@ -124,6 +135,7 @@ export default Component.wrapComponentConfig({
 
         handleLoginSuccess() {
             this.password = '';
+            sessionStorage.removeItem('sw-login-alert');
 
             this.$emit('login-success');
 

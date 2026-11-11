@@ -359,14 +359,7 @@
                 {% endblock %}
             </div>
 
-            <!-- Outside the cards container: its layout containment would trap the fixed-position modal. -->
-            {% block sw_settings_user_detail_content_confirm_password_modal %}
-            <sw-verify-user-modal
-                v-if="confirmPasswordModal"
-                @verified="saveUser"
-                @close="onCloseConfirmPasswordModal"
-            />
-            {% endblock %}
+            {% block sw_settings_user_detail_content_confirm_password_modal %}{% endblock %}
             {% endblock %}
         </sw-card-view>
 

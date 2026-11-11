@@ -23,6 +23,7 @@ export default {
         'repositoryFactory',
         'integrationService',
         'userService',
+        'userVerificationService',
     ],
 
     mixins: [Mixin.getByName('notification'), Mixin.getByName('salutation')],
@@ -187,10 +188,18 @@ export default {
             this.$router.push({ name: 'sw.users.permissions.index' });
         },
 
-        onSave() {
+        async onSave() {
+            let context;
+
+            try {
+                context = await this.userVerificationService.verify();
+            } catch {
+                return undefined;
+            }
+
             this.isLoading = true;
             return this.userRepository
-                .save(this.user, { ...Shopware.Context.api })
+                .save(this.user, context)
                 .then(() => {
                     if (this.isCurrentUser) {
                         return this.saveUserTheme();

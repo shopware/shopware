@@ -157,6 +157,7 @@ export default {
             }
 
             const criteria = new Criteria(1, 1);
+            criteria.setTotalCountMode(0);
             criteria.addFilter(
                 Criteria.multi('AND', [
                     Criteria.equals('type', 'cartLineItemCustomField'),
@@ -164,8 +165,8 @@ export default {
                 ]),
             );
 
-            this.ruleConditionRepository.search(criteria, Context.api).then((searchResult) => {
-                this.disableCartExpose = searchResult.length > 0;
+            this.ruleConditionRepository.searchIds(criteria, Context.api).then((searchResult) => {
+                this.disableCartExpose = searchResult.data.length > 0;
             });
         },
 

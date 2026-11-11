@@ -30,6 +30,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Filesystem\Filesystem as LocalFilesystem;
+use Symfony\Component\Lock\Key;
+use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Lock\PersistingStoreInterface;
+use Symfony\Component\Lock\Store\InMemoryStore;
 
 /**
  * @internal
@@ -115,6 +119,7 @@ class ProductDocumentArchiverTest extends TestCase
             $this->privateFilesystem,
             new LocalFilesystem(),
             new Psr17Factory(),
+            new LockFactory(new InMemoryStore()),
         );
 
         static::assertNull($archiver->archive($this->createProduct('Cordless drill'), $this->context));
@@ -246,6 +251,46 @@ class ProductDocumentArchiverTest extends TestCase
         static::assertTrue($this->privateFilesystem->fileExists($upload));
     }
 
+    public function testReusesTheArchiveAnotherRequestBuiltWhileItWaited(): void
+    {
+        $manual = $this->createFile('manual', 'manual content');
+        $path = $this->createArchiver([$this->createDocument($manual)], [$manual])
+            ->archive($this->createProduct('Cordless drill'), $this->context)?->path;
+        static::assertIsString($path);
+        $this->privateFilesystem->delete($path);
+
+        // the other request stores the archive while this one waits for the lock
+        $lockStore = new class(fn () => $this->privateFilesystem->write($path, 'built by another request')) implements PersistingStoreInterface {
+            public function __construct(private readonly \Closure $onWait)
+            {
+            }
+
+            public function save(Key $key): void
+            {
+                ($this->onWait)();
+            }
+
+            public function delete(Key $key): void
+            {
+            }
+
+            public function exists(Key $key): bool
+            {
+                return false;
+            }
+
+            public function putOffExpiration(Key $key, float $ttl): void
+            {
+            }
+        };
+
+        $archive = $this->createArchiver([$this->createDocument($manual)], [$manual], lockFactory: new LockFactory($lockStore))
+            ->archive($this->createProduct('Cordless drill'), $this->context);
+
+        static::assertSame($path, $archive?->path);
+        static::assertSame('built by another request', $this->privateFilesystem->read($path));
+    }
+
     public function testRemovesTheTemporaryFileWhenItCannotBeMovedIntoPlace(): void
     {
         $manual = $this->createFile('manual', 'manual content');
@@ -291,6 +336,7 @@ class ProductDocumentArchiverTest extends TestCase
         ?array $documentsPerCall = null,
         ?array $mediaPerCall = null,
         ?FilesystemOperator $privateFilesystem = null,
+        ?LockFactory $lockFactory = null,
     ): ProductDocumentArchiver {
         $documentsPerCall ??= [array_keys($documents)];
         $mediaPerCall ??= [new MediaCollection($files)];
@@ -305,6 +351,7 @@ class ProductDocumentArchiverTest extends TestCase
             $privateFilesystem ?? $this->privateFilesystem,
             new LocalFilesystem(),
             new Psr17Factory(),
+            $lockFactory ?? new LockFactory(new InMemoryStore()),
         );
     }
 

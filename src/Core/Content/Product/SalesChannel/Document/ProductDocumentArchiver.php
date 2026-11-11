@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Lock\LockFactory;
 
 /**
  * @internal
@@ -29,6 +30,8 @@ use Symfony\Component\Filesystem\Filesystem;
 class ProductDocumentArchiver
 {
     public const DIRECTORY = 'product-documents/archives';
+
+    private const LOCK_TTL = 60;
 
     /**
      * @param EntityRepository<ProductDocumentCollection> $productDocumentRepository
@@ -41,6 +44,7 @@ class ProductDocumentArchiver
         private readonly FilesystemOperator $privateFilesystem,
         private readonly Filesystem $filesystem,
         private readonly StreamFactoryInterface $streamFactory,
+        private readonly LockFactory $lockFactory,
     ) {
     }
 
@@ -63,8 +67,7 @@ class ProductDocumentArchiver
         $path = \sprintf('%s/%s.zip', $folder, $this->hashFiles($files));
 
         if (!$this->privateFilesystem->fileExists($path)) {
-            $this->build($path, $files);
-            $this->deleteOutdatedArchives($folder, $path);
+            $this->buildOnce($folder, $path, $files);
         }
 
         return new ProductDocumentArchive($path, $this->createFileName($product), $this->privateFilesystem->fileSize($path));
@@ -157,6 +160,25 @@ class ProductDocumentArchiver
         $name = $this->cleanFileName(\is_string($name) ? $name : '');
 
         return ($name !== '' ? $name : $this->cleanFileName($product->getProductNumber())) . '.zip';
+    }
+
+    private function buildOnce(string $folder, string $path, MediaCollection $files): void
+    {
+        // parallel requests for the same product and language wait for one build
+        $lock = $this->lockFactory->createLock('product-document-archive::' . $folder, self::LOCK_TTL);
+        $lock->acquire(blocking: true);
+
+        try {
+            // built while this request waited
+            if ($this->privateFilesystem->fileExists($path)) {
+                return;
+            }
+
+            $this->build($path, $files);
+            $this->deleteOutdatedArchives($folder, $path);
+        } finally {
+            $lock->release();
+        }
     }
 
     private function build(string $finalPath, MediaCollection $files): void

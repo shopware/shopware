@@ -828,6 +828,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shopware.filesystem.private'),
             service(Filesystem::class),
             service(Psr17Factory::class),
+            service('lock.factory'),
         ]);
 
     $services->set(ProductPurchaseLimitRoute::class)

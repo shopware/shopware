@@ -1,4 +1,5 @@
 import template from './sw-media-quickinfo-usage.html.twig';
+import { collectProductUsageOwners } from './product-usage.helper';
 import './sw-media-quickinfo-usage.scss';
 
 const { Application } = Shopware;
@@ -214,33 +215,16 @@ export default {
 
         async loadProductAssociations() {
             const item = this.item;
-            const assignments = [
-                ...item.productMedia.map(({ productId, product }) => ({ productId, product })),
-                ...(item.productDocumentTranslations ?? []).map(({ productDocument }) => ({
-                    productId: productDocument?.productId,
-                    product: productDocument?.product,
-                })),
-            ];
-            const productIds = new Set();
-            const directProducts = new Map();
-            assignments.forEach(({ productId, product }) => {
-                if (!productId) {
-                    return;
-                }
+            const productsById = collectProductUsageOwners(item);
+            this.products = [...productsById.values()].filter(Boolean).map((product) => ({ product }));
 
-                productIds.add(productId);
-                if (product?.id === productId) {
-                    directProducts.set(productId, product);
-                }
-            });
-            this.products = [...directProducts.values()].map((product) => ({ product }));
-
-            if (productIds.size === 0) {
+            if (productsById.size === 0) {
                 return;
             }
 
-            const criteria = new Criteria(1, productIds.size);
-            criteria.setIds([...productIds]);
+            const criteria = new Criteria(1, productsById.size);
+            criteria.setTotalCountMode(0);
+            criteria.setIds([...productsById.keys()]);
             criteria.addAssociation('options.group');
 
             try {
@@ -252,12 +236,13 @@ export default {
                     return;
                 }
 
-                const productsById = new Map(products.map((product) => [product.id, product]));
-                const usages = [...productIds]
-                    .map((productId) => productsById.get(productId) ?? directProducts.get(productId))
-                    .filter(Boolean)
-                    .map((product) => ({ product }));
-                this.products = [...usages, ...this.products.filter(({ product }) => !productIds.has(product.id))];
+                products.forEach((product) => productsById.set(product.id, product));
+                this.products.forEach(({ product }) => {
+                    if (!productsById.has(product.id)) {
+                        productsById.set(product.id, product);
+                    }
+                });
+                this.products = [...productsById.values()].filter(Boolean).map((product) => ({ product }));
             } catch {
                 // Keep the directly loaded assignments if variant details are unavailable.
             }

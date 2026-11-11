@@ -86,6 +86,7 @@ export type PullRequestFile = {
 export type IssueEvent = {
     event: string;
     label?: { name: string };
+    actor?: { type?: string } | null;
 };
 
 type ListFilesOptions = {
@@ -205,6 +206,23 @@ export function parseMajorPaths(mapYaml: string): string[] {
     return globs;
 }
 
+/**
+ * Tests, specs, prose and agent tooling name flags and deprecation tags to exercise or
+ * describe them, never to change what a major does: `#[DisabledFeatures(['v6.8.0.0'])]` in a
+ * test labelled every pull request that touched one. UPGRADE files still count by path.
+ */
+export function isIgnoredPath(path: string): boolean {
+    return (
+        path.startsWith(EXCLUDED_PATH_PREFIX) ||
+        path.startsWith('.agents/') ||
+        path.startsWith('tests/') ||
+        /\.(spec|test)\.[cm]?[jt]sx?$/.test(path) ||
+        /\/Resources\/app\/(administration|storefront)\/test\//.test(path) ||
+        path.includes('/__tests__/') ||
+        /\.md$/i.test(path)
+    );
+}
+
 function escapeRegExp(value: string): string {
     return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
@@ -320,14 +338,17 @@ export function evaluateMajorLabels(options: {
     isNextMajor: boolean;
 }): MajorLabels {
     const { diff, flags, targetMajor, majorPaths, isNextMajor } = options;
-    const files = splitDiffByFile(diff).filter(({ path }) => path && !path.startsWith(EXCLUDED_PATH_PREFIX));
+    const allFiles = splitDiffByFile(diff);
+    const files = allFiles.filter(({ path }) => path && !isIgnoredPath(path));
+    const touchesUpgradeGuide = allFiles.some(({ path }) => path === `UPGRADE-${targetMajor}.md`);
 
-    if (files.length === 0) {
+    if (files.length === 0 && !touchesUpgradeGuide) {
         return { behaviour: false, cleanup: false };
     }
 
     const version = escapeRegExp(targetMajor);
-    const versionFlag = escapeRegExp(`v${targetMajor}.0.0`);
+    // The Administration spells the same flag `V6_8_0_0`
+    const versionFlag = [`v${targetMajor}.0.0`, `V${targetMajor.replace('.', '_')}_0_0`].map(escapeRegExp).join('|');
     const relatedFlags = flags
         .filter((flag) => flag.major === `v${targetMajor}.0.0`)
         .filter((flag) => !/^v\d+\.\d+\.\d+\.\d+$/i.test(flag.name))
@@ -347,12 +368,12 @@ export function evaluateMajorLabels(options: {
         { kind: 'cleanup', pattern: new RegExp(`tag:v${version}\\.0(?!\\d)`, 'g') },
     ];
 
-    const behaviourPath = files.some(
-        ({ path }) =>
-            path === `UPGRADE-${targetMajor}.md` ||
-            (isNextMajor && path === FEATURE_REGISTRY_PATH) ||
-            pathMatchers.some((matcher) => matcher.test(path)),
-    );
+    const behaviourPath =
+        touchesUpgradeGuide ||
+        files.some(
+            ({ path }) =>
+                (isNextMajor && path === FEATURE_REGISTRY_PATH) || pathMatchers.some((matcher) => matcher.test(path)),
+        );
 
     const labels: MajorLabels = { behaviour: behaviourPath, cleanup: false };
 
@@ -426,10 +447,16 @@ export function missingLabels(context: PullRequestContext, wanted: string[]): st
     return wanted.filter((label) => !present.has(label));
 }
 
-/** Labels are only ever added: whoever removed one has overruled the detection for good. */
+/**
+ * Labels are only ever added: whoever removed one has overruled the detection for good.
+ * A bot never has: `srvaroa/labeler` rewrites the whole label set from a snapshot taken
+ * before this workflow added its label, and that removal shows up as `github-actions[bot]`.
+ */
 export function withoutRemovedLabels(labels: string[], events: IssueEvent[]): string[] {
     const removed = new Set(
-        events.filter(({ event }) => event === 'unlabeled').map(({ label }) => label?.name),
+        events
+            .filter(({ event, actor }) => event === 'unlabeled' && actor?.type !== 'Bot')
+            .map(({ label }) => label?.name),
     );
 
     return labels.filter((label) => !removed.has(label));

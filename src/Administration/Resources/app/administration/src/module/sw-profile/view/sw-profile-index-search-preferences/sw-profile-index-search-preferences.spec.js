@@ -203,6 +203,7 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
             'sw-field-error': true,
             'sw-help-text': true,
             'sw-icon': true,
+            'sw-inheritance-switch': true,
         });
         await flushPromises();
 

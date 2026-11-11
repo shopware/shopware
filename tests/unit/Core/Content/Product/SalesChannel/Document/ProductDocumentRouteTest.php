@@ -147,24 +147,6 @@ class ProductDocumentRouteTest extends TestCase
         static::assertNotNull($documentCriteria->getAggregation('count'));
     }
 
-    public function testLoadDropsTranslationsWithAPrivateFile(): void
-    {
-        $productId = Uuid::randomHex();
-        $criteria = new Criteria();
-        $criteria->addAssociation('translations.media');
-
-        $this->createRoute(
-            [[self::createProduct($productId, null)]],
-            $this->createDocumentRepository(['media-1'], [new ProductDocumentCollection()]),
-            new StaticEntityRepository([new MediaCollection([$this->createMedia('media-1')])]),
-        )->load($productId, new Request(), Generator::generateSalesChannelContext(), $criteria);
-
-        static::assertEquals(
-            [new EqualsFilter('media.private', false)],
-            $this->documentCriteria[0]->getAssociation('translations')->getFilters()
-        );
-    }
-
     public function testLoadSkipsTheMediaSearchWithoutDocuments(): void
     {
         $productId = Uuid::randomHex();

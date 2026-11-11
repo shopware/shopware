@@ -58,7 +58,7 @@ class ProductDocumentRouteTest extends TestCase
         static::assertSame([$this->ids->get('manual-document')], array_column($response['elements'], 'id'));
     }
 
-    public function testLoadLeavesOutPrivateFilesOfOtherLanguagesInTheTranslations(): void
+    public function testLoadReturnsNoUrlForPrivateFilesOfOtherLanguagesInTheTranslations(): void
     {
         $this->browser->request('POST', '/store-api/product/' . $this->ids->get('saw') . '/documents', [
             'associations' => ['translations' => ['associations' => ['media' => []]]],
@@ -67,9 +67,10 @@ class ProductDocumentRouteTest extends TestCase
         $response = $this->decode();
         static::assertSame(1, $response['total']);
 
-        $translations = $response['elements'][0]['translations'];
-        static::assertSame([$this->ids->get('datasheet')], array_column(array_column($translations, 'media'), 'id'));
-        static::assertStringNotContainsString($this->ids->get('datenblatt'), (string) $this->browser->getResponse()->getContent());
+        $urls = array_column(array_column($response['elements'][0]['translations'], 'media'), 'url', 'id');
+        static::assertCount(2, $urls);
+        static::assertStringContainsString('/media/datasheet.pdf', $urls[$this->ids->get('datasheet')]);
+        static::assertSame('', $urls[$this->ids->get('datenblatt')]);
     }
 
     public function testLoadReturnsTheDocumentsAVariantInheritsFromItsParent(): void
@@ -144,6 +145,7 @@ class ProductDocumentRouteTest extends TestCase
             'fileExtension' => 'pdf',
             'mimeType' => 'application/pdf',
             'fileSize' => 1024,
+            'path' => 'media/' . $name . '.pdf',
         ], ['manual', 'handbuch', 'certificate', 'blue-sheet', 'datasheet', 'datenblatt']), $context);
 
         $blue = (new ProductBuilder($this->ids, 'drill-blue'))->build();

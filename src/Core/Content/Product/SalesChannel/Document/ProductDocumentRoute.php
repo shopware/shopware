@@ -77,9 +77,6 @@ class ProductDocumentRoute
         if ($criteria->getSorting() === []) {
             $criteria->addSorting(new FieldSorting('position'), new FieldSorting('id'));
         }
-        if ($criteria->hasAssociation('translations')) {
-            $criteria->getAssociation('translations')->addFilter(new EqualsFilter('media.private', false));
-        }
 
         $result = $this->productDocumentRepository->search($criteria, $context->getContext());
 

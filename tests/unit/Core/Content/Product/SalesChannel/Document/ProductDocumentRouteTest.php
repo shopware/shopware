@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Document;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -14,12 +15,18 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentRoute;
 use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentRouteResponse;
-use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\Bucket;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
@@ -44,11 +51,22 @@ class ProductDocumentRouteTest extends TestCase
      */
     private array $tags = [];
 
-    public function testLoadSearchesTheDocumentsOfTheVisibleProduct(): void
+    /**
+     * @var list<Criteria>
+     */
+    private array $aggregatedCriteria = [];
+
+    /**
+     * @var list<Criteria>
+     */
+    private array $documentCriteria = [];
+
+    public function testLoadSearchesTheDocumentsWithAPublicFile(): void
     {
         $variantId = Uuid::randomHex();
         $productCriteria = null;
-        $documentRepository = new StaticEntityRepository([new ProductDocumentCollection()]);
+        $documentRepository = $this->createDocumentRepository(['media-1', 'media-2'], [new ProductDocumentCollection()]);
+        $mediaRepository = new StaticEntityRepository([new MediaCollection([$this->createMedia('media-1')])]);
 
         $this->createRoute(
             [static function (Criteria $criteria) use (&$productCriteria, $variantId): array {
@@ -57,27 +75,89 @@ class ProductDocumentRouteTest extends TestCase
                 return [self::createProduct($variantId, null)];
             }],
             $documentRepository,
+            $mediaRepository,
         )->load($variantId, new Request(), Generator::generateSalesChannelContext(), new Criteria());
 
         static::assertInstanceOf(Criteria::class, $productCriteria);
         static::assertSame([$variantId], $productCriteria->getIds());
-        static::assertInstanceOf(ProductAvailableFilter::class, $productCriteria->getFilters()[0] ?? null);
+        static::assertSame(['parentId'], $productCriteria->getFields());
 
-        $documentCriteria = $documentRepository->searchedCriteria[0];
-        static::assertEquals([new EqualsFilter('product.id', $variantId)], $documentCriteria->getFilters());
+        static::assertEquals([new EqualsFilter('product.id', $variantId)], $this->aggregatedCriteria[0]->getFilters());
+
+        static::assertSame(['media-1', 'media-2'], $mediaRepository->searchedCriteria[0]->getIds());
+        static::assertEquals([new EqualsFilter('private', false)], $mediaRepository->searchedCriteria[0]->getFilters());
+
+        $documentCriteria = $this->documentCriteria[0];
+        static::assertEquals([new EqualsFilter('product.id', $variantId), new EqualsAnyFilter('mediaId', ['media-1'])], $documentCriteria->getFilters());
         static::assertEquals([new FieldSorting('position')], $documentCriteria->getSorting());
     }
 
     public function testLoadKeepsTheRequestedSorting(): void
     {
         $productId = Uuid::randomHex();
-        $documentRepository = new StaticEntityRepository([new ProductDocumentCollection()]);
+        $documentRepository = $this->createDocumentRepository(['media-1'], [new ProductDocumentCollection()]);
         $criteria = (new Criteria())->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
 
-        $this->createRoute([[self::createProduct($productId, null)]], $documentRepository)
-            ->load($productId, new Request(), Generator::generateSalesChannelContext(), $criteria);
+        $this->createRoute(
+            [[self::createProduct($productId, null)]],
+            $documentRepository,
+            new StaticEntityRepository([new MediaCollection([$this->createMedia('media-1')])]),
+        )->load($productId, new Request(), Generator::generateSalesChannelContext(), $criteria);
 
-        static::assertEquals([new FieldSorting('createdAt', FieldSorting::DESCENDING)], $documentRepository->searchedCriteria[0]->getSorting());
+        static::assertEquals([new FieldSorting('createdAt', FieldSorting::DESCENDING)], $this->documentCriteria[0]->getSorting());
+    }
+
+    public function testLoadAssignsTheFilesToTheDocuments(): void
+    {
+        $productId = Uuid::randomHex();
+        $first = $this->createDocument('media-1');
+        $second = $this->createDocument('media-2');
+        $sharingTheFile = $this->createDocument('media-1');
+        $firstMedia = $this->createMedia('media-1');
+        $secondMedia = $this->createMedia('media-2');
+
+        $result = $this->createRoute(
+            [[self::createProduct($productId, null)]],
+            $this->createDocumentRepository(['media-1', 'media-2'], [new ProductDocumentCollection([$first, $second, $sharingTheFile])]),
+            new StaticEntityRepository([new MediaCollection([$firstMedia, $secondMedia])]),
+        )->load($productId, new Request(), Generator::generateSalesChannelContext(), new Criteria())->getResult();
+
+        static::assertSame([$first, $second, $sharingTheFile], array_values($result->getEntities()->getElements()));
+        static::assertSame(3, $result->getTotal());
+        static::assertSame($firstMedia, $first->getMedia());
+        static::assertSame($secondMedia, $second->getMedia());
+        static::assertSame($firstMedia, $sharingTheFile->getMedia());
+    }
+
+    public function testLoadReturnsNothingWhenNoFileIsPublic(): void
+    {
+        $productId = Uuid::randomHex();
+        $documentRepository = $this->createDocumentRepository(['media-1'], []);
+
+        $result = $this->createRoute(
+            [[self::createProduct($productId, null)]],
+            $documentRepository,
+            new StaticEntityRepository([new MediaCollection()]),
+        )->load($productId, new Request(), Generator::generateSalesChannelContext(), new Criteria())->getResult();
+
+        static::assertSame(0, $result->getTotal());
+        static::assertCount(0, $result->getEntities());
+        static::assertSame([], $this->documentCriteria);
+    }
+
+    public function testLoadSkipsTheMediaSearchWithoutDocuments(): void
+    {
+        $productId = Uuid::randomHex();
+        $mediaRepository = new StaticEntityRepository([]);
+
+        $result = $this->createRoute(
+            [[self::createProduct($productId, null)]],
+            $this->createDocumentRepository([], []),
+            $mediaRepository,
+        )->load($productId, new Request(), Generator::generateSalesChannelContext(), new Criteria())->getDocuments();
+
+        static::assertCount(0, $result);
+        static::assertSame([], $mediaRepository->searchedCriteria);
     }
 
     public function testLoadTagsTheResponseWithTheParentProduct(): void
@@ -106,51 +186,6 @@ class ProductDocumentRouteTest extends TestCase
         $this->createRoute()->load('not-a-uuid', new Request(), Generator::generateSalesChannelContext(), new Criteria());
     }
 
-    public function testLoadAssignsThePublicFilesAndDropsTheOthers(): void
-    {
-        $productId = Uuid::randomHex();
-        $first = $this->createDocument('media-1');
-        $second = $this->createDocument('media-2');
-        $sharingTheFile = $this->createDocument('media-1');
-        $private = $this->createDocument('media-3');
-
-        $firstMedia = $this->createMedia('media-1');
-        $secondMedia = $this->createMedia('media-2');
-        $mediaRepository = new StaticEntityRepository([new MediaCollection([$firstMedia, $secondMedia])]);
-
-        $result = $this->createRoute(
-            [[self::createProduct($productId, null)]],
-            new StaticEntityRepository([new ProductDocumentCollection([$first, $second, $sharingTheFile, $private])]),
-            $mediaRepository,
-        )->load($productId, new Request(), Generator::generateSalesChannelContext(), new Criteria())->getResult();
-
-        static::assertSame([$first, $second, $sharingTheFile], array_values($result->getEntities()->getElements()));
-        static::assertSame(3, $result->getTotal());
-        static::assertSame($firstMedia, $first->getMedia());
-        static::assertSame($secondMedia, $second->getMedia());
-        static::assertSame($firstMedia, $sharingTheFile->getMedia());
-        static::assertNull($private->getMedia());
-
-        $mediaCriteria = $mediaRepository->searchedCriteria[0];
-        static::assertSame(['media-1', 'media-2', 'media-3'], $mediaCriteria->getIds());
-        static::assertEquals([new EqualsFilter('private', false)], $mediaCriteria->getFilters());
-    }
-
-    public function testLoadSkipsTheMediaSearchWithoutDocuments(): void
-    {
-        $productId = Uuid::randomHex();
-        $mediaRepository = new StaticEntityRepository([]);
-
-        $result = $this->createRoute(
-            [[self::createProduct($productId, null)]],
-            new StaticEntityRepository([new ProductDocumentCollection()]),
-            $mediaRepository,
-        )->load($productId, new Request(), Generator::generateSalesChannelContext(), new Criteria())->getDocuments();
-
-        static::assertCount(0, $result);
-        static::assertSame([], $mediaRepository->searchedCriteria);
-    }
-
     public function testLoadPublishesTheExtension(): void
     {
         $productId = Uuid::randomHex();
@@ -158,7 +193,6 @@ class ProductDocumentRouteTest extends TestCase
         $context = Generator::generateSalesChannelContext();
         $criteria = new Criteria();
         $response = static::createStub(ProductDocumentRouteResponse::class);
-        $productRepository = new StaticSalesChannelRepository([]);
 
         $dispatcher = new EventDispatcher();
         $dispatcher->addListener(ProductDocumentRouteExtension::onPre(), static function (ProductDocumentRouteExtension $extension) use ($productId, $request, $context, $criteria, $response): void {
@@ -168,29 +202,20 @@ class ProductDocumentRouteTest extends TestCase
             $extension->stopPropagation();
         });
 
-        /** @var StaticSalesChannelRepository<ProductCollection> $productRepository */
-        $route = new ProductDocumentRoute(
-            $productRepository,
-            new StaticEntityRepository([]),
-            new StaticEntityRepository([]),
-            new CacheTagCollector(new RequestStack(), $dispatcher),
-            new ExtensionDispatcher($dispatcher),
-        );
-
-        static::assertSame($response, $route->load($productId, $request, $context, $criteria));
+        static::assertSame($response, $this->createRoute(dispatcher: $dispatcher)->load($productId, $request, $context, $criteria));
     }
 
     /**
      * @param array<mixed> $productSearches
-     * @param StaticEntityRepository<ProductDocumentCollection>|null $documentRepository
+     * @param EntityRepository<ProductDocumentCollection>|null $documentRepository
      * @param StaticEntityRepository<MediaCollection>|null $mediaRepository
      */
     private function createRoute(
         array $productSearches = [],
-        ?StaticEntityRepository $documentRepository = null,
+        ?EntityRepository $documentRepository = null,
         ?StaticEntityRepository $mediaRepository = null,
+        EventDispatcher $dispatcher = new EventDispatcher(),
     ): ProductDocumentRoute {
-        $dispatcher = new EventDispatcher();
         $dispatcher->addListener(AddCacheTagEvent::class, function (AddCacheTagEvent $event): void {
             $this->tags = [...$this->tags, ...array_values($event->tags)];
         });
@@ -200,11 +225,38 @@ class ProductDocumentRouteTest extends TestCase
 
         return new ProductDocumentRoute(
             $productRepository,
-            $documentRepository ?? new StaticEntityRepository([new ProductDocumentCollection()]),
+            $documentRepository ?? $this->createDocumentRepository([], []),
             $mediaRepository ?? new StaticEntityRepository([]),
             new CacheTagCollector(new RequestStack(), $dispatcher),
             new ExtensionDispatcher($dispatcher),
         );
+    }
+
+    /**
+     * @param list<string> $mediaIds
+     * @param list<ProductDocumentCollection> $searches
+     *
+     * @return EntityRepository<ProductDocumentCollection>
+     */
+    private function createDocumentRepository(array $mediaIds, array $searches): EntityRepository
+    {
+        $aggregation = new TermsResult('media-ids', array_map(static fn (string $id): Bucket => new Bucket($id, 1, null), $mediaIds));
+
+        /** @var EntityRepository<ProductDocumentCollection>&Stub $repository */
+        $repository = static::createStub(EntityRepository::class);
+        $repository->method('aggregate')->willReturnCallback(function (Criteria $criteria) use ($aggregation): AggregationResultCollection {
+            $this->aggregatedCriteria[] = clone $criteria;
+
+            return new AggregationResultCollection([$aggregation]);
+        });
+        $repository->method('search')->willReturnCallback(function (Criteria $criteria, Context $context) use (&$searches): EntitySearchResult {
+            $this->documentCriteria[] = clone $criteria;
+            $documents = array_shift($searches) ?? new ProductDocumentCollection();
+
+            return new EntitySearchResult('product_document', $documents->count(), $documents, null, $criteria, $context);
+        });
+
+        return $repository;
     }
 
     private static function createProduct(string $id, ?string $parentId): PartialEntity

@@ -49,6 +49,15 @@ class ProductDocumentRouteTest extends TestCase
         static::assertSame($this->ids->get('manual'), $response['elements'][0]['media']['id']);
     }
 
+    public function testLoadCountsOnlyTheDocumentsWithAPublicFileAcrossPages(): void
+    {
+        $this->browser->request('POST', '/store-api/product/' . $this->ids->get('drill') . '/documents', ['limit' => 1, 'page' => 1, 'total-count-mode' => 'exact']);
+
+        $response = $this->decode();
+        static::assertSame(1, $response['total']);
+        static::assertSame([$this->ids->get('manual-document')], array_column($response['elements'], 'id'));
+    }
+
     public function testLoadReturnsTheDocumentsAVariantInheritsFromItsParent(): void
     {
         $response = $this->fetch('drill-red');

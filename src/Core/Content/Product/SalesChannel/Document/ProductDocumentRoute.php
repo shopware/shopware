@@ -5,18 +5,18 @@ namespace Shopware\Core\Content\Product\SalesChannel\Document;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentEntity;
-use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Extension\ProductDocumentRouteExtension;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
-use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
@@ -68,15 +68,35 @@ class ProductDocumentRoute
     {
         $this->cacheTagCollector->addTag(ProductDetailRoute::buildName($this->getParentId($productId, $context)));
 
+        $media = $this->loadPublicMedia($productId, $context->getContext());
+        if ($media->count() === 0) {
+            return new ProductDocumentRouteResponse(new EntitySearchResult(
+                ProductDocumentDefinition::ENTITY_NAME,
+                0,
+                new ProductDocumentCollection(),
+                null,
+                $criteria,
+                $context->getContext(),
+            ));
+        }
+
         $criteria->setTitle('product-document-route');
-        $criteria->addFilter(new EqualsFilter('product.id', $productId));
+        $criteria->addFilter(
+            new EqualsFilter('product.id', $productId),
+            new EqualsAnyFilter('mediaId', array_values($media->getIds())),
+        );
         if ($criteria->getSorting() === []) {
             $criteria->addSorting(new FieldSorting('position'));
         }
 
         $result = $this->productDocumentRepository->search($criteria, $context->getContext());
 
-        return new ProductDocumentRouteResponse($this->withPublicFiles($result, $context->getContext()));
+        foreach ($result->getEntities() as $document) {
+            $mediaId = $document->getTranslation('mediaId');
+            $document->setMedia(\is_string($mediaId) ? $media->get($mediaId) : null);
+        }
+
+        return new ProductDocumentRouteResponse($result);
     }
 
     private function getParentId(string $productId, SalesChannelContext $context): string
@@ -88,7 +108,6 @@ class ProductDocumentRoute
         $criteria = new Criteria([$productId]);
         $criteria->setTitle('product-document-route::product');
         $criteria->addFields(['parentId']);
-        $criteria->addFilter(new ProductAvailableFilter($context->getSalesChannelId(), ProductVisibilityDefinition::VISIBILITY_LINK));
 
         $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
         if ($product === null) {
@@ -100,42 +119,22 @@ class ProductDocumentRoute
         return \is_string($parentId) ? $parentId : $productId;
     }
 
-    /**
-     * @param EntitySearchResult<ProductDocumentCollection> $result
-     *
-     * @return EntitySearchResult<ProductDocumentCollection>
-     */
-    private function withPublicFiles(EntitySearchResult $result, Context $context): EntitySearchResult
+    private function loadPublicMedia(string $productId, Context $context): MediaCollection
     {
-        $documents = $result->getEntities();
+        $criteria = new Criteria();
+        $criteria->setTitle('product-document-route::media-ids');
+        $criteria->addFilter(new EqualsFilter('product.id', $productId));
+        $criteria->addAggregation(new TermsAggregation('media-ids', 'mediaId'));
 
-        $mediaIds = array_filter(
-            $documents->map(static fn (ProductDocumentEntity $document): mixed => $document->getTranslation('mediaId')),
-            \is_string(...)
-        );
-
-        $media = new MediaCollection();
-        if ($mediaIds !== []) {
-            $mediaCriteria = new Criteria(array_values(array_unique($mediaIds)));
-            $mediaCriteria->setTitle('product-document-route::media');
-            $mediaCriteria->addFilter(new EqualsFilter('private', false));
-
-            $media = $this->mediaRepository->search($mediaCriteria, $context)->getEntities();
+        $mediaIds = $this->productDocumentRepository->aggregate($criteria, $context)->get('media-ids');
+        if (!$mediaIds instanceof TermsResult || $mediaIds->getKeys() === []) {
+            return new MediaCollection();
         }
 
-        foreach ($documents as $document) {
-            $document->setMedia($media->get($mediaIds[$document->getId()] ?? ''));
-        }
+        $mediaCriteria = new Criteria($mediaIds->getKeys());
+        $mediaCriteria->setTitle('product-document-route::media');
+        $mediaCriteria->addFilter(new EqualsFilter('private', false));
 
-        $withFiles = $documents->filter(static fn (ProductDocumentEntity $document): bool => $document->getMedia() !== null);
-
-        return new EntitySearchResult(
-            ProductDocumentDefinition::ENTITY_NAME,
-            $result->getTotal() - ($documents->count() - $withFiles->count()),
-            $withFiles,
-            $result->getAggregations(),
-            $result->getCriteria(),
-            $context,
-        );
+        return $this->mediaRepository->search($mediaCriteria, $context)->getEntities();
     }
 }

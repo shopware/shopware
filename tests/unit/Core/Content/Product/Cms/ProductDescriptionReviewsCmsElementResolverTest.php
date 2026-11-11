@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\Cms;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
@@ -23,8 +24,13 @@ use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\Bucket;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
@@ -343,11 +349,32 @@ class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
 
         return new ProductDocumentRoute(
             $productRepository,
-            new StaticEntityRepository([$documents]),
+            $this->createDocumentRepository($documents),
             new StaticEntityRepository([$media]),
             new CacheTagCollector(new RequestStack(), $dispatcher),
             new ExtensionDispatcher($dispatcher),
         );
+    }
+
+    /**
+     * @return EntityRepository<ProductDocumentCollection>
+     */
+    private function createDocumentRepository(ProductDocumentCollection $documents): EntityRepository
+    {
+        $mediaIds = array_values(array_filter(
+            $documents->map(static fn (ProductDocumentEntity $document): mixed => $document->getTranslation('mediaId')),
+            \is_string(...)
+        ));
+        $aggregation = new TermsResult('media-ids', array_map(static fn (string $id): Bucket => new Bucket($id, 1, null), $mediaIds));
+
+        /** @var EntityRepository<ProductDocumentCollection>&Stub $repository */
+        $repository = static::createStub(EntityRepository::class);
+        $repository->method('aggregate')->willReturn(new AggregationResultCollection([$aggregation]));
+        $repository->method('search')->willReturnCallback(
+            static fn (Criteria $criteria, Context $context): EntitySearchResult => new EntitySearchResult('product_document', $documents->count(), $documents, null, $criteria, $context)
+        );
+
+        return $repository;
     }
 
     private function createProduct(string $id, ?string $parentId): SalesChannelProductEntity

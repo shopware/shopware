@@ -303,6 +303,11 @@ A `0` is no longer replaced by the mapping's default value and satisfies a requi
 Empty cells behave as before.
 Check import files that relied on `0` being ignored.
 
+### Event once all line items of an add are in the cart
+
+`CartItemAddRoute` dispatches the new `Shopware\Core\Checkout\Cart\Event\LineItemsAddedBeforeCalculationEvent` once per add, after `BeforeLineItemAddedEvent` was dispatched for each line item and before the cart is calculated.
+Listeners that need every line item of an add, for example of a reorder, can use it to run once per add instead of once per line item.
+
 ### Collection class for import/export files
 
 `import_export_file` entities are now loaded into an `ImportExportFileCollection` instead of a generic `EntityCollection`.
@@ -459,6 +464,11 @@ Resources use the URI declared in `mcp.xml`; a non-empty `mimeType` in the respo
 Invalid JSON, malformed messages or resource contents, and `{"success":false,"error":"..."}` responses produce MCP errors with details for the client.
 
 ## Administration
+
+### Deprecated the `defaultFolderRepository` computed property of `sw-cms-detail` and `sw-cms-list`
+
+The `defaultFolderRepository` computed property of `sw-cms-detail` and `sw-cms-list` is deprecated and will be removed.
+Use `mediaDefaultFolderService.getDefaultFolderId(entityName)` instead.
 
 ### Deprecated the `customFieldSetRepository` computed property of `sw-product-stream-detail`
 
@@ -969,6 +979,12 @@ The categories get their SEO URLs back, and their fallback URLs redirect to them
 The command is deprecated and will be removed in 6.9.0.0.
 
 ## Hosting & Configuration
+
+### Sitemaps skip inactive sales channels and `sitemap:generate` continues after a failure
+
+The scheduled sitemap task and `bin/console sitemap:generate` no longer generate sitemaps for inactive sales channels.
+`sitemap:generate` now continues with the other sales channels and languages when the generation of one fails, prints the error and exits with a failure code at the end.
+A sitemap generation that is locked by another process is still reported without failing the command.
 
 ### Readiness checks isolate their virtual requests
 

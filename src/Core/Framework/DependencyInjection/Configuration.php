@@ -63,6 +63,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createProductExportSection())
                 ->append($this->createSsoLoginSection())
                 ->append($this->createProductTypesSection())
+                ->append($this->createProductDocumentsSection())
                 ->append($this->createMcpSection())
                 ->append($this->createAppSystemSection())
                 ->append($this->createWebhookSection())
@@ -1065,6 +1066,28 @@ class Configuration implements ConfigurationInterface
         return $rootNode;
     }
 
+    private function createProductDocumentsSection(): ArrayNodeDefinition
+    {
+        $rootNode = (new TreeBuilder('product_documents'))->getRootNode();
+        $rootNode
+            ->info('Settings for product documents, such as manuals or datasheets. They are checked when a document is saved.')
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->arrayNode('allowed_extensions')
+                    ->info('File types a document can have. A list in your own configuration replaces the core list.')
+                    ->performNoDeepMerging()
+                    ->prototype('scalar')->end()
+                ->end()
+                ->integerNode('max_file_size')
+                    ->info('Largest file of a document, in bytes. Default: 20 MB.')
+                    ->min(1)
+                    ->defaultValue(20 * 1024 * 1024)
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
     private function createHtmlSanitizerSection(): ArrayNodeDefinition
     {
         $treeBuilder = new TreeBuilder('html_sanitizer');
@@ -1718,6 +1741,11 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->arrayNode('allowed_tools')
                     ->info('Restrict which MCP tools are exposed. Empty array means all tools are allowed.')
+                    ->scalarPrototype()->end()
+                    ->defaultValue([])
+                ->end()
+                ->arrayNode('allowed_origins')
+                    ->info('Additional Origin values accepted by the MCP endpoints, on top of the shop\'s own origins. An entry is an exact origin (https://chat.example), an origin with any port (http://localhost:*) or * for any origin. Accepts %env(csv:MCP_ALLOWED_ORIGINS)%.')
                     ->scalarPrototype()->end()
                     ->defaultValue([])
                 ->end()

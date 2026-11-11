@@ -52,7 +52,7 @@ class Migration1792998292AddProductDocumentMediaFolderTest extends TestCase
         );
 
         static::assertSame([[
-            'name' => 'Product documents',
+            'name' => 'Product Document Media',
             'use_parent_configuration' => '0',
             'private' => '0',
             'create_thumbnails' => '0',
@@ -72,7 +72,7 @@ class Migration1792998292AddProductDocumentMediaFolderTest extends TestCase
         $this->migration->update($this->connection);
 
         static::assertSame(
-            ['Product documents'],
+            ['Product Document Media'],
             $this->connection->fetchFirstColumn('SELECT `name` FROM `media_folder` WHERE `default_folder_id` = :id', ['id' => $defaultFolderId])
         );
     }

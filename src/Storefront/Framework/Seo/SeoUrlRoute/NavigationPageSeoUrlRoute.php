@@ -68,6 +68,9 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
         $error = null;
         if (!$rootId) {
             $error = 'Category is not available for sales channel';
+        } elseif ($category->getType() === CategoryDefinition::TYPE_LINK) {
+            // keeps existing SEO URLs, a new one would take over the URL of a same-named target
+            $error = 'Link categories redirect to their target and do not get new SEO URLs';
         }
 
         return new SeoUrlMapping(

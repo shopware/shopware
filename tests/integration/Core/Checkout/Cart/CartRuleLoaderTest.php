@@ -42,7 +42,6 @@ class CartRuleLoaderTest extends TestCase
     #[DataProvider('taxConfigProvider')]
     public function testTaxFreeConfig(string $accountType, bool $taxCustomerConfig, bool $taxBusinessConfig, string $expectedTaxConfig): void
     {
-        /** @var CartRuleLoader $cartRuleLoader */
         $cartRuleLoader = static::getContainer()->get(CartRuleLoader::class);
 
         $customerGroup = new CustomerGroupEntity();
@@ -221,7 +220,6 @@ class CartRuleLoaderTest extends TestCase
 
     public function testExistingCartLoadDoesNotRecreateDeletedCart(): void
     {
-        /** @var CartRuleLoader $cartRuleLoader */
         $cartRuleLoader = static::getContainer()->get(CartRuleLoader::class);
         $cartPersister = static::getContainer()->get(CartPersister::class);
 

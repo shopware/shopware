@@ -30,9 +30,14 @@ export async function loadDocumentVariants(
 }
 
 /** @private */
-export function getMatchingVariantDocuments(variant: Entity<'product'>, mediaId: string) {
+export function getMatchingVariantDocuments(variant: Entity<'product'>, original: Entity<'product_document'>) {
+    const mediaId = original.mediaId || original.translated?.mediaId;
+    const title = original.title || original.translated?.title || '';
     return variant.documents?.filter(
-        (document) => document.productId === variant.id && (document.mediaId || document.translated?.mediaId) === mediaId,
+        (document) =>
+            document.productId === variant.id &&
+            (document.mediaId || document.translated?.mediaId) === mediaId &&
+            (document.title || document.translated?.title || '') === title,
     );
 }
 
@@ -40,13 +45,13 @@ export function getMatchingVariantDocuments(variant: Entity<'product'>, mediaId:
 export function getDocumentVariantCandidates(
     variants: Entity<'product'>[],
     children: EntityCollection<'product'>,
-    mediaId: string,
+    original: Entity<'product_document'>,
 ) {
     const candidates = new Map(variants.map((variant) => [variant.id, variant]));
     children.forEach((variant) => candidates.set(variant.id, variant));
     return Array.from(candidates.values()).flatMap((variant) => {
         const documents = variant.documents;
-        const matching = getMatchingVariantDocuments(variant, mediaId);
+        const matching = getMatchingVariantDocuments(variant, original);
         return documents && matching?.length ? [{ variant, documents, matching }] : [];
     });
 }

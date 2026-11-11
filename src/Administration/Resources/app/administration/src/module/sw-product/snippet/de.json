@@ -628,6 +628,7 @@
       "removeTitle": "„{name}“ entfernen?",
       "removeDescription": "Das Dokument wird in allen Sprachen vom Produkt entfernt. Die Datei bleibt im Medienmodul.",
       "removeFromVariants": "Auch aus Varianten entfernen, bei denen die Dokumentvererbung aufgehoben wurde",
+      "removeFromVariantsHelp": "Varianten, die die Dokumente des übergeordneten Produkts erben, verlieren es automatisch. Dies entfernt es auch aus Varianten, bei denen die Vererbung aufgehoben wurde, solange ihre Kopie dieses Dokuments noch denselben Namen und dieselbe Datei hat.",
       "errorLoadMedia": "Die hochgeladene Datei konnte nicht geladen werden. Bitte versuche es erneut.",
       "errorPrivateMedia": "Produktdokumente müssen öffentliche Mediendateien verwenden.",
       "errorDocumentLimit": "Du kannst bis zu {count} Dokumente pro Produkt hinzufügen.",

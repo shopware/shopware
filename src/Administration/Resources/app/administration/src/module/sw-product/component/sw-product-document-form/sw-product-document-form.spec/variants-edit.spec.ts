@@ -38,10 +38,10 @@ describe('sw-product-document-form variant editing', () => {
             const variant = createProduct();
             variant.parentId = Shopware.Store.get('swProductDetail').product.id;
             const document = repositoryFactory.create('product_document').create();
-            Object.assign(document, { productId: variant.id, title: 'Variant title', mediaId: media.id, position: 3 });
+            Object.assign(document, { productId: variant.id, title: media.fileName, mediaId: media.id, position: 3 });
             Object.assign(document.getOrigin(), {
                 productId: variant.id,
-                title: 'Variant title',
+                title: media.fileName,
                 mediaId: media.id,
                 position: 3,
             });
@@ -54,17 +54,23 @@ describe('sw-product-document-form variant editing', () => {
 
         it('stages matching copies for two variants in the product payload without saving immediately', async () => {
             const store = Shopware.Store.get('swProductDetail');
-            store.product.childCount = 4;
+            store.product.childCount = 5;
             const original = createMedia();
             const replacement = createMedia('replacement');
             const first = createVariant(original);
             const second = createVariant(original);
             const custom = createVariant(createMedia('custom'));
+            custom.documents![0].title = 'manual';
+            custom.documents![0].getOrigin().title = 'manual';
+            const renamed = createVariant(original);
+            renamed.documents![0].title = 'Customized name';
+            renamed.documents![0].getOrigin().title = 'Customized name';
             const inherited = createProduct();
             const variants = new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api, null, [
                 first,
                 second,
                 custom,
+                renamed,
                 inherited,
             ]);
             const productRepository = repositoryFactory.create('product');
@@ -90,7 +96,11 @@ describe('sw-product-document-form variant editing', () => {
                 position: 3,
             });
             expect(second.documents?.[0].mediaId).toBe(replacement.id);
-            expect(custom.documents?.[0].title).toBe('Variant title');
+            expect(custom.documents?.[0]).toMatchObject({
+                title: 'manual',
+                mediaId: custom.documents![0].getOrigin().mediaId,
+            });
+            expect(renamed.documents?.[0]).toMatchObject({ title: 'Customized name', mediaId: original.id });
             expect(inherited.documents).toHaveLength(0);
             expect(store.product.children).toHaveLength(2);
             const payload = new ChangesetGenerator().generate(store.product);
@@ -185,7 +195,7 @@ describe('sw-product-document-form variant editing', () => {
             await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
             await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
             await selectMedia(wrapper, [createMedia('replacement')]);
-            wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', 'Variant title');
+            wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', 'manual');
             wrapper
                 .getComponent<ComponentPublicInstance>('.sw-product-document-form__apply-to-variants')
                 .vm.$emit('update:checked', true);
@@ -278,7 +288,7 @@ describe('sw-product-document-form variant editing', () => {
             await flushPromises();
 
             expect(getDocuments()![0].title).toBe('manual');
-            expect(variant.documents![0].title).toBe('Variant title');
+            expect(variant.documents![0].title).toBe('manual');
             expect(store.product.children).toHaveLength(0);
             expect(store.documentSaveNotifications).toHaveLength(0);
             expect(wrapper.find('.sw-product-document-form__save-document').exists()).toBe(true);

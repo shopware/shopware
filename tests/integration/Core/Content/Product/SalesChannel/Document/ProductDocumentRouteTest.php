@@ -137,14 +137,14 @@ class ProductDocumentRouteTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        static::getContainer()->get('media.repository')->create([
-            ['id' => $this->ids->create('manual'), 'private' => false],
-            ['id' => $this->ids->create('handbuch'), 'private' => false],
-            ['id' => $this->ids->create('certificate'), 'private' => false],
-            ['id' => $this->ids->create('blue-sheet'), 'private' => false],
-            ['id' => $this->ids->create('datasheet'), 'private' => false],
-            ['id' => $this->ids->create('datenblatt'), 'private' => false],
-        ], $context);
+        static::getContainer()->get('media.repository')->create(array_map(fn (string $name): array => [
+            'id' => $this->ids->create($name),
+            'private' => false,
+            'fileName' => $name,
+            'fileExtension' => 'pdf',
+            'mimeType' => 'application/pdf',
+            'fileSize' => 1024,
+        ], ['manual', 'handbuch', 'certificate', 'blue-sheet', 'datasheet', 'datenblatt']), $context);
 
         $blue = (new ProductBuilder($this->ids, 'drill-blue'))->build();
         $blue['documents'] = [['title' => 'Blue sheet', 'mediaId' => $this->ids->get('blue-sheet')]];

@@ -79,6 +79,7 @@ class QueryParameterAllowList
                 '/store-api/product' => ['@criteria'],
                 '/store-api/product/{productId}' => ['skipConfigurator', 'skipCmsPage', '@criteria'],
                 '/store-api/product/{productId}/find-variant' => ['options[]'],
+                '/store-api/product/{productId}/documents' => ['@criteria'],
                 '/store-api/product/{productId}/reviews' => ['@criteria'],
                 '/store-api/shipping-cost/product/{productId}' => ['@criteria'],
                 '/store-api/product/purchase-limit' => ['ids[]'],

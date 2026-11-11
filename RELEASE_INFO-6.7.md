@@ -455,8 +455,10 @@ Invalid JSON, malformed messages or resource contents, and `{"success":false,"er
 The back button of `sw-page` shows the title of the module its parent route belongs to, e.g. "Products" on a product detail page.
 Without a resolvable title it shows only the icon, labelled "Go back".
 Pages whose route hierarchy does not lead back to where users expect can pass the new optional `backRoute` and `backLabel` props of `sw-page`.
-The variant detail page uses them to lead back to its main product,
-so the `sw_product_detail_content_top` block no longer renders the "Go back to variant overview" link.
+The variant detail page and the variant bulk edit use them to lead back to the main product:
+
+* The `sw_product_detail_content_top` block no longer renders the "Go back to variant overview" link.
+* The `sw_bulk_edit_product_smart_bar_back` block no longer replaces the back button of variant bulk edits.
 
 ### Deprecated the `customFieldSetRepository` computed property of `sw-product-stream-detail`
 

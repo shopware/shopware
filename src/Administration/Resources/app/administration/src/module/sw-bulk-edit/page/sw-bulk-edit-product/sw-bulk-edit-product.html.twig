@@ -4,6 +4,8 @@
         'sw-bulk-edit-product': true,
         'is--variant': isChild,
     }"
+    :back-route="parentProductRoute"
+    :back-label="parentProductRoute ? $t('sw-product.general.backToMainProduct') : ''"
 >
     {% block sw_bulk_edit_product_search_bar %}
     <template #search-bar>
@@ -11,34 +13,7 @@
     </template>
     {% endblock %}
 
-    {% block sw_bulk_edit_product_smart_bar_back %}
-    <template #smart-bar-back>
-        <router-link
-            v-if="isChild"
-            v-slot="{ href, navigate }"
-            :to="{ name: 'sw.product.detail.variants', params: { id: $route.params.parentId } }"
-            custom
-        >
-            <!-- Rendered as a real link so open-in-new-tab and middle click keep working. -->
-            <mt-button
-                is="a"
-                class="smart-bar__back-btn"
-                variant="secondary"
-                size="default"
-                square
-                :href="href"
-                :aria-label="$t('global.sw-page.backButton')"
-                :title="$t('global.sw-page.backButton')"
-                @click="navigate"
-            >
-                <mt-icon
-                    name="solid-long-arrow-left"
-                    size="12px"
-                />
-            </mt-button>
-        </router-link>
-    </template>
-    {% endblock %}
+    {% block sw_bulk_edit_product_smart_bar_back %}{% endblock %}
 
     {% block sw_bulk_edit_product_smart_bar_header %}
     <template #smart-bar-header>

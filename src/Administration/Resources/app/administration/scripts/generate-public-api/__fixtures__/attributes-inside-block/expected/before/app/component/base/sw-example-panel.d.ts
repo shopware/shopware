@@ -13,29 +13,17 @@ declare namespace AdminApi {
                 visibilitySource: 'default';
                 extends: null;
             };
-            props: {
-                isLoading: Prop<boolean, false, 'literal'>;
-                title: Prop<string, true, 'none'>;
-            };
-            emits: {
-                'item-select': readonly AdminApi.Untyped[];
-            };
+            props: {};
+            emits: {};
             slots: {
                 actions: Slot<{}>;
             };
             mixins: readonly [];
             inject: {};
             provide: {};
-            data: {
-                items: AdminApi.Untyped;
-                selectedId: AdminApi.Untyped;
-            };
-            computed: {
-                hasItems: AdminApi.Untyped;
-            };
-            methods: {
-                onSelectItem(item: AdminApi.Untyped): AdminApi.Untyped;
-            };
+            data: {};
+            computed: {};
+            methods: {};
             blocks: {
                 sw_example_panel: Block<null>;
                 sw_example_panel_actions: Block<'sw_example_panel_header'>;

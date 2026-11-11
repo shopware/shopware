@@ -13,31 +13,17 @@ declare namespace AdminApi {
                 visibilitySource: 'default';
                 extends: null;
             };
-            props: {
-                entityName: Prop<string, true, 'none'>;
-            };
-            emits: {
-                'tab-change': readonly AdminApi.Untyped[];
-            };
+            props: {};
+            emits: {};
             slots: {};
             mixins: readonly [];
             inject: {
                 feature: 'feature';
-                repositoryFactory: 'repositoryFactory';
             };
             provide: {};
-            data: {
-                activeTab: AdminApi.Untyped;
-                fieldSets: AdminApi.Untyped;
-            };
-            computed: {
-                customFieldSetRepository: AdminApi.Untyped;
-                tabItems: AdminApi.Untyped;
-            };
-            methods: {
-                createdComponent(): Promise<AdminApi.Untyped>;
-                onChangeTab(tabName: AdminApi.Untyped): AdminApi.Untyped;
-            };
+            data: {};
+            computed: {};
+            methods: {};
             blocks: {
                 sw_example_field_set: Block<null>;
                 sw_example_field_set_content: Block<'sw_example_field_set'>;

@@ -7,18 +7,21 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import ts from 'typescript';
 import type { ClassifyChanges } from './break-check';
+import { elementKind } from './findings';
+import type { Finding } from './findings';
 import type { GenerateSnapshot } from './snapshot';
 
 /**
  * @private
  *
- * What one case produces: the files of both snapshots and the summary of the break check.
+ * What one case produces: the files of both snapshots and the findings of the break check.
  */
 export interface CaseOutput {
     before: Record<string, string>;
     after: Record<string, string>;
-    findings: string;
+    findings: Finding[];
 }
 
 /** @private */
@@ -34,14 +37,45 @@ export interface FixtureCase {
 /**
  * @private
  *
- * One comparison of one case: `actual()` has to equal `expected`. `name` is `<case>/<unit kind>` or
- * `<case>/complete`, the form the expected-fail list uses.
+ * A case as read from its folder, with `findings.txt`, which prints `expected.findings`.
+ */
+export interface LoadedFixtureCase extends FixtureCase {
+    expectedSummary: string;
+}
+
+/**
+ * @private
+ *
+ * One comparison of one case: `actual()` has to equal `expected`. `view` is a unit kind or `complete`,
+ * and `name` is `<case>/<view>`, the form the expected-fail list uses.
  */
 export interface FixtureTest {
     name: string;
+    view: string;
     expectedToFail: boolean;
     actual: () => unknown;
     expected: unknown;
+}
+
+/**
+ * @private
+ *
+ * The comparisons that cannot pass yet. A view is listed while no case passes it. Once some cases pass,
+ * the view leaves the list and the cases that still fail it are listed as single comparisons.
+ */
+export interface ExpectedFailures {
+    views: readonly string[];
+    comparisons: readonly string[];
+}
+
+/**
+ * @private
+ *
+ * The generator and the break check that the comparisons run.
+ */
+export interface PublicApiTools {
+    generateSnapshot: GenerateSnapshot;
+    classifyChanges: ClassifyChanges;
 }
 
 interface UnitKind {
@@ -51,7 +85,7 @@ interface UnitKind {
     contractMembers: readonly string[];
     /** Keys of a component entry in `index.json`. */
     indexKeys: readonly string[];
-    /** Element kinds of a finding, the `block` in `component:sw-card/block:sw_card_header`. */
+    /** Kinds of the elements a finding is about, the `block` in `component:sw-card/block:sw_card_header`. */
     elementKinds: readonly string[];
 }
 
@@ -73,20 +107,10 @@ const UNIT_KINDS: Record<string, UnitKind> = {
     },
 };
 
-// Members of a registry entry sit three levels deep: namespace, interface, entry.
-const CONTRACT_MEMBER_INDENT = ' '.repeat(12);
-const CONTRACT_MEMBER = new RegExp(`^${CONTRACT_MEMBER_INDENT}(\\S+): `);
 const REPORT_OUTLINE = /```text\n([\s\S]*?)```/;
-const FINDING_GROUP = /^([A-Z][a-z]+) \(\d+\)$/;
-const FINDING_LINE = /^ {2}\S/;
-const FINDING_DETAIL_LINE = /^ {4}\S/;
-const FINDING_ELEMENT_KIND = /^ {2}\S+ {2}[^/\s]+\/([a-z-]+):/;
 
 function reportSections(report: string, sections: readonly string[]): string {
-    const [
-        ,
-        outline = '',
-    ] = REPORT_OUTLINE.exec(report) ?? [];
+    const outline = REPORT_OUTLINE.exec(report)?.[1] ?? '';
 
     return outline
         .split('\n\n')
@@ -94,29 +118,34 @@ function reportSections(report: string, sections: readonly string[]): string {
         .join('\n\n');
 }
 
-function contractMembers(contract: string, members: readonly string[]): string {
-    const lines: string[] = [];
-    let closingLine: string | null = null;
+function interfacesIn(node: ts.Node): ts.InterfaceDeclaration[] {
+    if (ts.isInterfaceDeclaration(node)) {
+        return [node];
+    }
 
-    contract.split('\n').forEach((line) => {
-        if (closingLine !== null) {
-            lines.push(line);
-            closingLine = line === closingLine ? null : closingLine;
-            return;
-        }
-
-        if (!members.includes(CONTRACT_MEMBER.exec(line)?.[1] ?? '')) {
-            return;
-        }
-
-        lines.push(line);
-
-        if (!line.endsWith(';')) {
-            closingLine = `${CONTRACT_MEMBER_INDENT}${line.endsWith('[') ? ']' : '}'};`;
-        }
+    const found: ts.InterfaceDeclaration[] = [];
+    ts.forEachChild(node, (child) => {
+        found.push(...interfacesIn(child));
     });
 
-    return lines.join('\n');
+    return found;
+}
+
+/**
+ * The members of the registry entries in a contract, for example `blocks` in
+ * `interface Components { 'sw-card': { blocks: {...} } }`.
+ */
+function contractMembers(contract: string, members: readonly string[]): string {
+    const source = ts.createSourceFile('contract.d.ts', contract, ts.ScriptTarget.Latest, true);
+
+    return interfacesIn(source)
+        .flatMap((registry) => [...registry.members])
+        .flatMap((entry) =>
+            ts.isPropertySignature(entry) && entry.type && ts.isTypeLiteralNode(entry.type) ? [...entry.type.members] : [],
+        )
+        .filter((member) => member.name !== undefined && members.includes(member.name.getText(source)))
+        .map((member) => member.getText(source))
+        .join('\n');
 }
 
 function indexEntries(index: string, keys: readonly string[]): string {
@@ -151,45 +180,21 @@ function sliceSnapshot(files: Record<string, string>, kind: UnitKind): Record<st
     );
 }
 
-/**
- * The findings of a summary, each as its group, its line and its detail lines.
- */
-function parseFindings(summary: string): string[][] {
-    const findings: string[][] = [];
-    let group = '';
-
-    summary.split('\n').forEach((line) => {
-        group = FINDING_GROUP.exec(line)?.[1] ?? group;
-
-        if (FINDING_LINE.test(line)) {
-            findings.push([
-                group,
-                line,
-            ]);
-        } else if (FINDING_DETAIL_LINE.test(line)) {
-            findings.at(-1)?.push(line);
-        }
-    });
-
-    return findings;
+function sliceFindings(findings: Finding[], kind: UnitKind): Finding[] {
+    return findings.filter((finding) => kind.elementKinds.includes(elementKind(finding) ?? ''));
 }
 
-function sliceFindings(summary: string, kind: UnitKind): string[][] {
-    return parseFindings(summary).filter(([, line]) =>
-        kind.elementKinds.includes(FINDING_ELEMENT_KIND.exec(line)?.[1] ?? ''),
-    );
+function sliceCase(output: CaseOutput, kind: UnitKind): CaseOutput {
+    return {
+        before: sliceSnapshot(output.before, kind),
+        after: sliceSnapshot(output.after, kind),
+        findings: sliceFindings(output.findings, kind),
+    };
 }
 
-const VIEWS: Record<string, (output: CaseOutput) => unknown> = {
+const VIEWS: Record<string, (output: CaseOutput) => CaseOutput> = {
     ...Object.fromEntries(
-        Object.entries(UNIT_KINDS).map(([name, kind]) => [
-            name,
-            (output: CaseOutput) => ({
-                before: sliceSnapshot(output.before, kind),
-                after: sliceSnapshot(output.after, kind),
-                findings: sliceFindings(output.findings, kind),
-            }),
-        ]),
+        Object.entries(UNIT_KINDS).map(([name, kind]) => [name, (output: CaseOutput) => sliceCase(output, kind)]),
     ),
     complete: (output) => output,
 };
@@ -204,22 +209,25 @@ function readTree(root: string): Record<string, string> {
     );
 }
 
+function readJson<Content>(file: string): Content {
+    return JSON.parse(fs.readFileSync(file, 'utf8')) as Content;
+}
+
 /**
  * @private
  *
  * Reads every folder below `fixturesRoot` that has a `case.json`.
  */
-export function loadFixtureCases(fixturesRoot: string): FixtureCase[] {
+export function loadFixtureCases(fixturesRoot: string): LoadedFixtureCase[] {
     return fs
         .readdirSync(fixturesRoot)
         .filter((name) => fs.existsSync(path.join(fixturesRoot, name, 'case.json')))
         .sort()
         .map((name) => {
             const caseRoot = path.join(fixturesRoot, name);
-            const { headVersion, majorFlags } = JSON.parse(fs.readFileSync(path.join(caseRoot, 'case.json'), 'utf8')) as {
-                headVersion: string;
-                majorFlags: string[];
-            };
+            const { headVersion, majorFlags } = readJson<{ headVersion: string; majorFlags: string[] }>(
+                path.join(caseRoot, 'case.json'),
+            );
 
             return {
                 name,
@@ -230,20 +238,11 @@ export function loadFixtureCases(fixturesRoot: string): FixtureCase[] {
                 expected: {
                     before: readTree(path.join(caseRoot, 'expected/before')),
                     after: readTree(path.join(caseRoot, 'expected/after')),
-                    findings: fs.readFileSync(path.join(caseRoot, 'expected/findings.txt'), 'utf8'),
+                    findings: readJson<Finding[]>(path.join(caseRoot, 'expected/findings.json')),
                 },
+                expectedSummary: fs.readFileSync(path.join(caseRoot, 'expected/findings.txt'), 'utf8'),
             };
         });
-}
-
-/**
- * @private
- *
- * The generator and the break check that the comparisons run.
- */
-export interface PublicApiTools {
-    generateSnapshot: GenerateSnapshot;
-    classifyChanges: ClassifyChanges;
 }
 
 function runCase(fixture: FixtureCase, tools: PublicApiTools): CaseOutput {
@@ -268,53 +267,87 @@ function once<Result>(compute: () => Result): () => Result {
 }
 
 /**
- * The unit kinds whose sections, members and keys occur in no expected snapshot. Such a kind would compare
- * two empty slices and pass, for example after a typo in `UNIT_KINDS` or a change of the file format.
+ * Parts of a unit kind that occur in no expected output. Such a part would compare two empty slices and pass,
+ * for example after a typo in `UNIT_KINDS` or a change of a file format or of the element ids.
  */
-function unitKindsWithoutExpectedOutput(cases: FixtureCase[]): string[] {
-    return Object.entries(UNIT_KINDS)
-        .filter(([, kind]) =>
-            cases.every(({ expected }) =>
-                [
-                    expected.before,
-                    expected.after,
-                ].every((files) => Object.keys(sliceSnapshot(files, kind)).length === 0),
-            ),
-        )
-        .map(([name]) => name);
+function unitKindProblems(cases: FixtureCase[]): string[] {
+    return Object.entries(UNIT_KINDS).flatMap(([name, kind]) => {
+        const slices = cases.map(({ expected }) => sliceCase(expected, kind));
+        const covered = {
+            'snapshot files': slices.some(({ before, after }) => Object.keys({ ...before, ...after }).length > 0),
+            findings: slices.some(({ findings }) => findings.length > 0),
+        };
+
+        return Object.entries(covered)
+            .filter(([, isCovered]) => !isCovered)
+            .map(([part]) => `No fixture case has expected ${part} for the unit kind ${name}.`);
+    });
+}
+
+function problem(message: string, entries: readonly string[]): string[] {
+    return entries.length > 0 ? [`${message}: ${entries.join(', ')}.`] : [];
+}
+
+/**
+ * Entries of the expected-fail list that no longer mean anything.
+ */
+function expectedFailureProblems(expectedFailures: ExpectedFailures, tests: FixtureTest[]): string[] {
+    const comparisons = expectedFailures.comparisons.map((name) => ({
+        name,
+        test: tests.find((test) => test.name === name),
+    }));
+
+    return [
+        ...problem(
+            'The expected-fail list names views that do not exist',
+            expectedFailures.views.filter((view) => !Object.hasOwn(VIEWS, view)),
+        ),
+        ...problem(
+            'The expected-fail list names comparisons that do not exist',
+            comparisons.filter(({ test }) => test === undefined).map(({ name }) => name),
+        ),
+        ...problem(
+            'The expected-fail list names comparisons whose view it lists already',
+            comparisons
+                .filter(({ test }) => test !== undefined && expectedFailures.views.includes(test.view))
+                .map(({ name }) => name),
+        ),
+    ];
 }
 
 /**
  * @private
  *
- * The comparisons of every case: one per unit kind and one of the complete output. A comparison named in
- * `expectedFailures` is marked, and the caller asserts it with `it.failing`. A name that matches no comparison
- * is an error, so the list cannot keep entries of a case or kind that is gone.
+ * The comparisons of every case: one per unit kind and one of the complete output. A comparison on the
+ * expected-fail list is marked, and the caller asserts it with `it.failing`.
  */
 export function fixtureTests(
     cases: FixtureCase[],
-    expectedFailures: readonly string[],
+    expectedFailures: ExpectedFailures,
     tools: PublicApiTools,
 ): FixtureTest[] {
     const tests = cases.flatMap((fixture) => {
         const output = once(() => runCase(fixture, tools));
 
-        return Object.entries(VIEWS).map(([viewName, view]) => ({
-            name: `${fixture.name}/${viewName}`,
-            expectedToFail: expectedFailures.includes(`${fixture.name}/${viewName}`),
-            actual: () => view(output()),
-            expected: view(fixture.expected),
-        }));
+        return Object.entries(VIEWS).map(([view, slice]) => {
+            const name = `${fixture.name}/${view}`;
+
+            return {
+                name,
+                view,
+                expectedToFail: expectedFailures.views.includes(view) || expectedFailures.comparisons.includes(name),
+                actual: () => slice(output()),
+                expected: slice(fixture.expected),
+            };
+        });
     });
-    const stale = expectedFailures.filter((name) => !tests.some((test) => test.name === name));
-    const unmatched = unitKindsWithoutExpectedOutput(cases);
+    const problems = [
+        ...expectedFailureProblems(expectedFailures, tests),
+        ...unitKindProblems(cases),
+    ];
 
-    if (stale.length > 0) {
-        throw new Error(`The expected-fail list names comparisons that do not exist: ${stale.join(', ')}`);
-    }
-
-    if (unmatched.length > 0) {
-        throw new Error(`No fixture case has expected output for the unit kind: ${unmatched.join(', ')}`);
+    if (problems.length > 0) {
+        throw new Error(problems.join('\n'));
     }
 
     return tests;

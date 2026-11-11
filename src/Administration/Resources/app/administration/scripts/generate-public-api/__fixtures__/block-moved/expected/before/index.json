@@ -1,19 +1,19 @@
 {
     "components": {
-        "sw-order-details-state-card": {
-            "file": "module/sw-order/component/sw-order-details-state-card",
+        "sw-example-state-card": {
+            "file": "app/component/base/sw-example-state-card",
             "visibility": "public",
             "extends": null,
             "blocks": [
-                "sw_order_detail_state_card",
-                "sw_order_detail_state_card_state",
-                "sw_order_detail_state_card_state_history_button",
-                "sw_order_detail_state_card_state_history_text",
-                "sw_order_detail_state_card_state_history_text_internal_comment",
-                "sw_order_detail_state_card_state_history_text_label",
-                "sw_order_detail_state_card_state_select",
-                "sw_order_state_change_card_content",
-                "sw_order_state_change_card_divider"
+                "sw_example_state_card",
+                "sw_example_state_card_content",
+                "sw_example_state_card_divider",
+                "sw_example_state_card_state",
+                "sw_example_state_card_state_history_button",
+                "sw_example_state_card_state_history_text",
+                "sw_example_state_card_state_history_text_internal_comment",
+                "sw_example_state_card_state_history_text_label",
+                "sw_example_state_card_state_select"
             ]
         }
     },

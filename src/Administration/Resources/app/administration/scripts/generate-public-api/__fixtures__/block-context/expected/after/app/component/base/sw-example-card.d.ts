@@ -13,21 +13,14 @@ declare namespace AdminApi {
                 visibilitySource: 'default';
                 extends: null;
             };
-            props: {
-                isManual: Prop<boolean, false, 'literal'>;
-                title: Prop<string, false, 'literal'>;
-            };
+            props: {};
             emits: {};
             slots: {};
             mixins: readonly [];
             inject: {};
             provide: {};
-            data: {
-                items: AdminApi.Untyped;
-            };
-            computed: {
-                columns: AdminApi.Untyped;
-            };
+            data: {};
+            computed: {};
             methods: {};
             blocks: {
                 sw_example_card: Block<null>;

@@ -4,6 +4,7 @@
 import path from 'node:path';
 import { classifyChanges } from './break-check';
 import { EXPECTED_FAILURES } from './expected-failures';
+import { formatFindings } from './findings';
 import { fixtureTests, loadFixtureCases } from './fixture-runner';
 import { generateSnapshot } from './snapshot';
 
@@ -20,5 +21,9 @@ describe('public API fixtures', () => {
                 expect(test.actual()).toEqual(test.expected);
             });
         }
+    });
+
+    it.each(cases)('$name prints the findings of findings.json as findings.txt', ({ expected, expectedSummary }) => {
+        expect(formatFindings(expected.findings)).toBe(expectedSummary);
     });
 });

@@ -13,25 +13,6 @@ component sw-example-field-set  public  js
 
 inject
   feature
-  repositoryFactory
-
-props
-  entityName: string
-
-emits
-  tab-change(...args: any[])
-
-data
-  activeTab: any
-  fieldSets: any
-
-computed
-  customFieldSetRepository: any
-  tabItems: any
-
-methods
-  createdComponent(): Promise<any>
-  onChangeTab(tabName: any): any
 
 blocks
   sw_example_field_set

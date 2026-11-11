@@ -11,25 +11,8 @@ component sw-example-panel  public  js
   source src/app/component/base/sw-example-panel/index.js
   template src/app/component/base/sw-example-panel/sw-example-panel.html.twig
 
-props
-  isLoading?: boolean  default=literal
-  title: string
-
-emits
-  item-select(...args: any[])
-
 slots
   actions  {}  block=sw_example_panel_actions
-
-data
-  items: any
-  selectedId: any
-
-computed
-  hasItems: any
-
-methods
-  onSelectItem(item: any): any
 
 blocks
   sw_example_panel

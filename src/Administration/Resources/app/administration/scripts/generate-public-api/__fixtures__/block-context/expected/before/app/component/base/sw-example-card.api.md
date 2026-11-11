@@ -11,16 +11,6 @@ component sw-example-card  public  js
   source src/app/component/base/sw-example-card/index.js
   template src/app/component/base/sw-example-card/sw-example-card.html.twig
 
-props
-  isManual?: boolean  default=literal
-  title?: string  default=literal
-
-data
-  items: any
-
-computed
-  columns: any
-
 blocks
   sw_example_card
     sw_example_card_header

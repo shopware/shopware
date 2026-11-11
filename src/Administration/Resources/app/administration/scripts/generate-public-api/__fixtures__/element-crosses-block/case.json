@@ -1,6 +1,5 @@
 {
-    "row": "HTML element opened in one block and closed in another (#20959)",
+    "description": "HTML element opened in one block and closed in another (#20959)",
     "headVersion": "6.7",
-    "majorFlags": ["v6.8.0.0"],
-    "acceptedBreaks": null
+    "majorFlags": ["v6.8.0.0"]
 }

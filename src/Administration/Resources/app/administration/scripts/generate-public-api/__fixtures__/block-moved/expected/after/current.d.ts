@@ -2,7 +2,7 @@
 // Entry point of the current flag state (v6.8.0.0 off). Every snapshot file, sorted by path.
 
 /// <reference path="./_base/admin-api.d.ts" />
-/// <reference path="./module/sw-order/component/sw-order-details-state-card.d.ts" />
+/// <reference path="./app/component/base/sw-example-state-card.d.ts" />
 
 declare namespace AdminApi {
     type _CheckComponents = Conforms<Components, ComponentShape>;

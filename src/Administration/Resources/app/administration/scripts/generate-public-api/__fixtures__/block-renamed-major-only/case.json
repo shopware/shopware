@@ -1,6 +1,5 @@
 {
-    "row": "Block renamed only with the major flag on",
+    "description": "Block renamed only with the major flag on",
     "headVersion": "6.7",
-    "majorFlags": ["v6.8.0.0"],
-    "acceptedBreaks": null
+    "majorFlags": ["v6.8.0.0"]
 }

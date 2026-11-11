@@ -3,7 +3,7 @@
 // Takes `<name>.major.d.ts` where it exists and `<name>.d.ts` otherwise.
 
 /// <reference path="./_base/admin-api.d.ts" />
-/// <reference path="./module/sw-order/component/sw-order-details-state-card.d.ts" />
+/// <reference path="./app/component/base/sw-example-state-card.d.ts" />
 
 declare namespace AdminApi {
     type _CheckComponents = Conforms<Components, ComponentShape>;

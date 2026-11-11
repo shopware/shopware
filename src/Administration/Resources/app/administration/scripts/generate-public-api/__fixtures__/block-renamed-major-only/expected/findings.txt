@@ -12,6 +12,3 @@ Addition (1)
     A new public block that plugins can rely on from now on.
     Fix: mark it @private if it is not meant for plugins.
     At: src/app/component/form/sw-example-field-set/sw-example-field-set.html.twig:4
-
-Change patterns: technical-docs/11-code-quality/03-public-api-snapshot.md#change-patterns
-Breaking this on purpose? See "Intended breaks" in technical-docs/11-code-quality/03-public-api-snapshot.md.

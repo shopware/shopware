@@ -50,6 +50,30 @@ class TransactionTest extends TestCase
         static::assertSame(['psp' => 'ref-1'], $transaction->jsonSerialize()['payload']);
     }
 
+    public function testProtectedPayloadValuesStayOutOfTheSerializedStruct(): void
+    {
+        $transaction = $this->createTransaction();
+        $transaction->setPayload(['installments' => 3, 'psp' => 'ref-1'], ['psp' => true]);
+        $transaction->setPayloadValue('riskScore', 42, protected: true);
+        $transaction->setPayloadValue('psp', 'ref-2');
+
+        static::assertSame(['installments' => 3, 'psp' => 'ref-2', 'riskScore' => 42], $transaction->getPayload());
+        static::assertSame(['installments' => 3], $transaction->jsonSerialize()['payload']);
+    }
+
+    public function testPayloadProtectionCanBeLiftedAndEndsWithTheValue(): void
+    {
+        $transaction = $this->createTransaction();
+        $transaction->setPayloadValue('psp', 'ref-1', protected: true);
+        $transaction->setPayloadValue('riskScore', 42, protected: true);
+
+        $transaction->setPayloadValue('psp', 'ref-1', protected: false);
+        $transaction->removePayloadValue('riskScore');
+        $transaction->setPayloadValue('riskScore', 7);
+
+        static::assertSame(['psp' => 'ref-1', 'riskScore' => 7], $transaction->jsonSerialize()['payload']);
+    }
+
     private function createTransaction(): Transaction
     {
         return new Transaction(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()), 'payment-method-id');

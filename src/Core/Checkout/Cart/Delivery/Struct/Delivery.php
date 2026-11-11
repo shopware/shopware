@@ -15,6 +15,11 @@ class Delivery extends Struct
      */
     protected array $payload = [];
 
+    /**
+     * @var array<string, bool>
+     */
+    private array $payloadProtection = [];
+
     public function __construct(
         protected DeliveryPositionCollection $positions,
         protected DeliveryDate $deliveryDate,
@@ -69,10 +74,12 @@ class Delivery extends Struct
 
     /**
      * @param array<string, scalar|array<array-key, mixed>|null> $payload
+     * @param array<string, bool> $protection
      */
-    public function setPayload(array $payload): void
+    public function setPayload(array $payload, array $protection = []): void
     {
         $this->payload = $payload;
+        $this->addPayloadProtection($protection);
     }
 
     public function getPayloadValue(string $key): mixed
@@ -88,14 +95,34 @@ class Delivery extends Struct
     /**
      * @param scalar|array<array-key, mixed>|null $value
      */
-    public function setPayloadValue(string $key, string|int|float|bool|array|null $value): void
+    public function setPayloadValue(string $key, string|int|float|bool|array|null $value, ?bool $protected = null): void
     {
         $this->payload[$key] = $value;
+
+        if ($protected !== null) {
+            $this->addPayloadProtection([$key => $protected]);
+        }
     }
 
     public function removePayloadValue(string $key): void
     {
-        unset($this->payload[$key]);
+        unset($this->payload[$key], $this->payloadProtection[$key]);
+    }
+
+    /**
+     * @param array<string, bool> $protection
+     */
+    public function addPayloadProtection(array $protection): void
+    {
+        $this->payloadProtection = \array_replace($this->payloadProtection, $protection);
+    }
+
+    public function jsonSerialize(): array
+    {
+        $data = parent::jsonSerialize();
+        $data['payload'] = \array_diff_key($this->payload, \array_filter($this->payloadProtection));
+
+        return $data;
     }
 
     public function getApiAlias(): string

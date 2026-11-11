@@ -55,6 +55,30 @@ class DeliveryTest extends TestCase
         static::assertSame(['group' => 'now'], $delivery->jsonSerialize()['payload']);
     }
 
+    public function testProtectedPayloadValuesStayOutOfTheSerializedStruct(): void
+    {
+        $delivery = $this->createDelivery();
+        $delivery->setPayload(['group' => 'now', 'warehouseId' => 'wh-1'], ['warehouseId' => true]);
+        $delivery->setPayloadValue('carrierContract', 'c-1', protected: true);
+        $delivery->setPayloadValue('warehouseId', 'wh-2');
+
+        static::assertSame(['group' => 'now', 'warehouseId' => 'wh-2', 'carrierContract' => 'c-1'], $delivery->getPayload());
+        static::assertSame(['group' => 'now'], $delivery->jsonSerialize()['payload']);
+    }
+
+    public function testPayloadProtectionCanBeLiftedAndEndsWithTheValue(): void
+    {
+        $delivery = $this->createDelivery();
+        $delivery->setPayloadValue('warehouseId', 'wh-1', protected: true);
+        $delivery->setPayloadValue('carrierContract', 'c-1', protected: true);
+
+        $delivery->setPayloadValue('warehouseId', 'wh-1', protected: false);
+        $delivery->removePayloadValue('carrierContract');
+        $delivery->setPayloadValue('carrierContract', 'c-2');
+
+        static::assertSame(['warehouseId' => 'wh-1', 'carrierContract' => 'c-2'], $delivery->jsonSerialize()['payload']);
+    }
+
     private function createDelivery(): Delivery
     {
         $shippingMethod = new ShippingMethodEntity();

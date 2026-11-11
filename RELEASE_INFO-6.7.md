@@ -12,6 +12,7 @@ Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED` while ano
 ### Cart deliveries and transactions carry a payload into the order
 
 Cart deliveries and transactions have a `payload`, which the order stores in the new `payload` field of `order_delivery` and `order_transaction` and keeps through order edits.
+Like on line items, `setPayloadValue($key, $value, protected: true)` keeps a key out of the Store API cart response, but Store API order responses still contain it.
 Unlike a line item payload, it does not survive the next cart calculation.
 Keep your state on line items or in a cart extension, and write the delivery payload in a cart processor after the `DeliveryProcessor`.
 At checkout, a payment handler can set the transaction payload in its `validate()` method, which receives the calculated cart right before the order is written.

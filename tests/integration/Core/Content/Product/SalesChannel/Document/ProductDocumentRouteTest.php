@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Document;
 
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -111,7 +112,7 @@ class ProductDocumentRouteTest extends TestCase
         $this->browser->request('POST', '/store-api/product/' . $this->ids->get('hidden') . '/documents');
 
         static::assertSame(404, $this->browser->getResponse()->getStatusCode());
-        static::assertSame('CONTENT__PRODUCT_NOT_FOUND', $this->decode()['errors'][0]['code']);
+        static::assertSame(ProductException::productNotFound($this->ids->get('hidden'))->getErrorCode(), $this->decode()['errors'][0]['code']);
     }
 
     /**

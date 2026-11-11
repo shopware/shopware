@@ -672,6 +672,8 @@ Shops that sell goods to consumers in the EU should enable "Show legal guarantee
 Pages opened with the `affiliateCode` or `campaignCode` URL parameter are served from the HTTP cache now.
 The `CartWidget` JavaScript plugin forwards both parameters with its request to `frontend.checkout.info`, which stores them in the session.
 Themes that replace the `fetch()` method of the `CartWidget` plugin should request the URL returned by `getInfoUrl()`, otherwise the codes are only stored for pages that are not cached.
+The same applies to themes that remove the cart widget from the header, as the `CartWidget` plugin then does not run.
+Reverse proxies that strip both parameters from the URL, like the Shopware Varnish configuration, have to keep them for `/widgets/checkout/info`.
 
 ## Hosting & Configuration
 

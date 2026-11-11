@@ -66,6 +66,7 @@
 
     .sw-notification-center-item__message {
         font-size: $font-size-xxs;
+        overflow-wrap: anywhere;
     }
 
     .sw-notification-center-item__loader {

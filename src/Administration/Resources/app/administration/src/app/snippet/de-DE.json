@@ -1166,6 +1166,11 @@
       "placeholderProduct": "Produkt auswählen ...",
       "placeholderCategory": "Kategorie auswählen ..."
     },
+    "childSearch": {
+      "label": "Einträge durchsuchen",
+      "placeholder": "Suchen ...",
+      "noResults": "Keine Ergebnisse gefunden."
+    },
     "table": {
       "addHeading": "Tabellenkopf hinzufügen",
       "cols": "Spalten",

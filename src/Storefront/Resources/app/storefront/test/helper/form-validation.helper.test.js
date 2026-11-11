@@ -10,6 +10,7 @@ describe('form-validation', () => {
             email: 'Invalid email address.',
             confirmation: 'Confirmation field does not match.',
             minLength: 'Input is too short.',
+            grecaptchaToken: 'The reCAPTCHA verification could not be completed. Please try again.',
         };
 
         formValidation = new FormValidation();
@@ -50,6 +51,7 @@ describe('form-validation', () => {
         expect(formValidation.validators.get('email')).toBeDefined();
         expect(formValidation.validators.get('confirmation')).toBeDefined();
         expect(formValidation.validators.get('minLength')).toBeDefined();
+        expect(formValidation.validators.get('grecaptcha')).toBeDefined();
     });
 
     test('should add validator', () => {
@@ -378,5 +380,68 @@ describe('form-validation', () => {
         invalidFields = formValidation.validateForm(form);
 
         expect(invalidFields.length).toBe(0);
+    });
+
+    test.each([
+        ['_grecaptcha_v3', 'grecaptcha-v3-feedback'],
+        ['_grecaptcha_v2', 'grecaptcha-v2-feedback'],
+    ])('should show the reCAPTCHA message while the %s field has no token', (fieldName, feedbackId) => {
+        document.body.innerHTML = `
+            <form id="testForm">
+                <input type="hidden"
+                       name="${fieldName}"
+                       data-validation="grecaptcha"
+                       data-validate-hidden="true"
+                       aria-describedby="${feedbackId}">
+                <div id="${feedbackId}" class="form-field-feedback"></div>
+            </form>
+        `;
+
+        const form = document.getElementById('testForm');
+        const field = form.querySelector('input');
+        const feedback = document.getElementById(feedbackId);
+
+        let invalidFields = formValidation.validateForm(form);
+
+        expect(invalidFields).toEqual([field]);
+        expect(feedback.textContent).toContain('The reCAPTCHA verification could not be completed. Please try again.');
+        expect(feedback.textContent).not.toContain('Input should not be empty.');
+
+        field.value = 'recaptcha-token';
+
+        invalidFields = formValidation.validateForm(form);
+
+        expect(invalidFields.length).toBe(0);
+        expect(feedback.textContent.trim()).toBe('');
+    });
+
+    test('should fall back to the required message when no reCAPTCHA message is configured', () => {
+        delete window.validationMessages.grecaptchaToken;
+        formValidation = new FormValidation();
+
+        expect(formValidation.errorMessages.get('grecaptcha')).toBe('Input should not be empty.');
+    });
+
+    test('should accept the pending value the reCAPTCHA v3 plugin sets while it fetches the token', () => {
+        const field = document.createElement('input');
+        field.setAttribute('name', '_grecaptcha_v3');
+
+        expect(formValidation.validateGrecaptcha('recaptcha-pending', field)).toBe(true);
+    });
+
+    test('should ignore the grecaptcha rule on fields that are no reCAPTCHA field', () => {
+        const field = document.createElement('input');
+        field.setAttribute('name', 'firstName');
+
+        expect(formValidation.validateGrecaptcha('', field)).toBe(true);
+    });
+
+    test('should not block the form when the grecaptcha rule gets no field', () => {
+        const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+        expect(formValidation.validateGrecaptcha('', null)).toBe(true);
+        expect(consoleError).toHaveBeenCalledWith('[FormValidation]: Missing or invalid required parameter "field".');
+
+        consoleError.mockRestore();
     });
 });

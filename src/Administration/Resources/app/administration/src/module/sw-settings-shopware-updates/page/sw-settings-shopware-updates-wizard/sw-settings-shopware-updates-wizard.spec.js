@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
+import { createI18n } from 'vue-i18n';
 
 describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-wizard', () => {
     let wrapper;
@@ -215,7 +216,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
     it('should show the correct error message, when theme deactivation fails', async () => {
         const stopUpdateProcessSpy = jest.spyOn(wrapper.vm, 'stopUpdateProcess');
         const createNotificationWarningSpy = jest.spyOn(wrapper.vm, 'createNotificationWarning');
-        const translationSpy = jest.spyOn(wrapper.vm, '$tc');
+        const translationSpy = jest.spyOn(wrapper.vm, '$t');
 
         wrapper.vm.deactivatePlugins(0);
         await flushPromises();
@@ -224,14 +225,51 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         expect(createNotificationWarningSpy).toHaveBeenCalled();
         expect(translationSpy).toHaveBeenCalledWith(
             'sw-extension.errors.messageDeactivationFailedThemeAssignment',
-            null,
-            null,
             {
                 assignments: 'afe95e1e-cc8e-487b-863a-94c5c4e51fa6',
                 themeName: '7305fd18-09ee-4d2c-afd4-b9fb90ad8508',
             },
         );
     });
+
+    it.each([
+        {
+            code: 'THEME__THEME_ASSIGNMENT',
+            snippet: 'messageDeactivationFailedThemeAssignment',
+            message: 'Theme "{themeName}" is assigned to: {assignments}',
+            parameters: { themeName: 'Summer theme', assignments: 'Storefront' },
+            expected: 'Theme "Summer theme" is assigned to: Storefront',
+        },
+        {
+            code: 'FRAMEWORK__PLUGIN_HAS_DEPENDANTS',
+            snippet: 'messageDeactivationFailedDependencies',
+            message: '"{dependency}" is required by: {dependantNames}',
+            parameters: { dependency: 'SwagBase', dependantNames: 'SwagAddon' },
+            expected: '"SwagBase" is required by: SwagAddon',
+        },
+    ])(
+        'should fill the parameters into the warning when deactivation fails with $code',
+        async ({ code, snippet, message, parameters, expected }) => {
+            const i18n = createI18n({
+                legacy: false,
+                locale: 'en',
+                messages: { en: { 'sw-extension': { errors: { [snippet]: message } } } },
+            });
+            jest.spyOn(wrapper.vm, '$t').mockImplementation((...args) => i18n.global.t(...args));
+            wrapper.vm.updateService.deactivatePlugins = () => {
+                const error = new Error();
+                error.response = { data: { errors: [{ code, meta: { parameters } }] } };
+
+                return Promise.reject(error);
+            };
+            const createNotificationWarningSpy = jest.spyOn(wrapper.vm, 'createNotificationWarning');
+
+            wrapper.vm.deactivatePlugins(0);
+            await flushPromises();
+
+            expect(createNotificationWarningSpy).toHaveBeenCalledWith({ message: expected });
+        },
+    );
 
     it('deactivate plugins success', async () => {
         wrapper.vm.updateService.deactivatePlugins = () => {

@@ -346,6 +346,44 @@ class ZugferdDocumentTest extends TestCase
         $this->assertAllowanceChargeTotalsReconcile($dom);
     }
 
+    public function testWithDiscountItemAddsChargeWithoutAllowanceReasonCodeForPositivePrice(): void
+    {
+        $order = new OrderEntity();
+        $order->setTaxStatus(CartPrice::TAX_STATE_FREE);
+        $order->setAmountTotal(0.0);
+        $order->setAmountNet(0.0);
+        $order->setItemRounding(new CashRoundingConfig(2, .01, false));
+        $order->setTotalRounding(new CashRoundingConfig(2, .01, false));
+
+        $discount = new OrderLineItemEntity();
+        $discount->setId(Uuid::randomHex());
+        $discount->setLabel('Summer sale');
+        $discount->setQuantity(1);
+        $discount->setPosition(1);
+        $discount->setPayload(['value' => 10.0]);
+        $discount->setUnitPrice(10.0);
+        $discount->setTotalPrice(10.0);
+        $discount->setPrice(new CalculatedPrice(
+            10.0,
+            10.0,
+            new CalculatedTaxCollection([]),
+            new TaxRuleCollection(),
+        ));
+
+        $document = new ZugferdDocumentMock(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), false);
+        $document->withDiscountItem($discount);
+
+        $calculator = new AmountCalculator(new CashRounding(), new PercentageTaxRuleBuilder(), new TaxCalculator());
+        $dom = $document->getDomContent($order, $calculator);
+
+        $allowanceCharge = $dom->getElementsByTagName('SpecifiedTradeAllowanceCharge')->item(0);
+        static::assertNotNull($allowanceCharge);
+
+        static::assertSame('true', $allowanceCharge->getElementsByTagName('Indicator')->item(0)?->nodeValue);
+        static::assertSame(0, $allowanceCharge->getElementsByTagName('ReasonCode')->length);
+        static::assertSame('Summer sale', $allowanceCharge->getElementsByTagName('Reason')->item(0)?->nodeValue);
+    }
+
     public function testWithDiscountItemSkipsZeroAmountAllowanceCharge(): void
     {
         $order = new OrderEntity();

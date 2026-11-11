@@ -120,6 +120,7 @@ Events are opted out of webhook delivery with the `#[Shopware\Core\Framework\Web
 
 The payload of the `state_enter.order_delivery.state.*` and `state_leave.order_delivery.state.*` webhooks contains the delivery whose state changed as `orderDelivery`.
 Subscribing to these webhooks requires `order_delivery:read` in addition to `order:read`, and a manifest without it is rejected with a `MissingPermissionError`.
+Installed apps without it silently stop receiving these webhooks, since each one is only recorded as not permitted.
 Add the permission to your app's `manifest.xml`:
 
 ```xml

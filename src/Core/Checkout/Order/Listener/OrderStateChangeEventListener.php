@@ -76,15 +76,19 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         }
 
         $context = $this->getContext($orderDelivery->getOrderId(), $event->getContext());
-        $order = $this->getOrder($orderDelivery->getOrderId(), $context);
+        $order = $this->getOrder(
+            $orderDelivery->getOrderId(),
+            $context,
+            ['deliveries.stateMachineState', 'deliveries.positions.orderLineItem']
+        );
+
+        $changedDelivery = $order->getDeliveries()?->get($orderDeliveryId);
+        if (!$changedDelivery) {
+            throw OrderException::orderDeliveryNotFound($orderDeliveryId);
+        }
 
         $this->eventDispatcher->dispatch(
-            new OrderDeliveryStateMachineStateChangeEvent(
-                $event->getStateEventName(),
-                $order,
-                $order->getDeliveries()?->get($orderDeliveryId) ?? $orderDelivery,
-                $context
-            ),
+            new OrderDeliveryStateMachineStateChangeEvent($event->getStateEventName(), $order, $changedDelivery, $context),
             $event->getStateEventName()
         );
     }
@@ -250,11 +254,13 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
     }
 
     /**
+     * @param list<string> $associations
+     *
      * @throws OrderException
      */
-    private function getOrder(string $orderId, Context $context): OrderEntity
+    private function getOrder(string $orderId, Context $context, array $associations = []): OrderEntity
     {
-        $orderCriteria = $this->getOrderCriteria($orderId, $context);
+        $orderCriteria = $this->getOrderCriteria($orderId, $context, $associations);
 
         $order = $this->orderRepository->search($orderCriteria, $context)->getEntities()->first();
         if (!$order) {
@@ -264,7 +270,10 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         return $order;
     }
 
-    private function getOrderCriteria(string $orderId, Context $context): Criteria
+    /**
+     * @param list<string> $associations
+     */
+    private function getOrderCriteria(string $orderId, Context $context, array $associations): Criteria
     {
         $criteria = (new Criteria([$orderId]))
             ->addAssociations([
@@ -285,6 +294,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
                 'addresses.country',
                 'addresses.countryState',
                 'tags',
+                ...$associations,
             ]);
 
         $this->eventDispatcher->dispatch(new OrderStateChangeCriteriaEvent($orderId, $criteria, $context));

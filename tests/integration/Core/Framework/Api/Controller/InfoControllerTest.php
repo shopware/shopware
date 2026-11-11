@@ -476,6 +476,7 @@ class InfoControllerTest extends TestCase
                         'type' => 'entity',
                         'entityClass' => OrderDeliveryDefinition::class,
                         'entityName' => 'order_delivery',
+                        // @deprecated tag:v6.8.0 - Remove the spread, the delivery is then part of the webhook payload
                         ...(Feature::isActive('v6.8.0.0') ? [] : ['hiddenFromWebhook' => true]),
                     ],
                 ],

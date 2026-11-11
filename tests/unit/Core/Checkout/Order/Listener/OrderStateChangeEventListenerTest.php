@@ -57,8 +57,7 @@ class OrderStateChangeEventListenerTest extends TestCase
         static::assertSame($expected, OrderStateChangeEventListener::getSubscribedEvents());
     }
 
-    #[DataProvider('orderDeliveryStateChangeProvider')]
-    public function testOnOrderDeliveryStateChange(bool $orderHoldsDelivery): void
+    public function testOnOrderDeliveryStateChange(): void
     {
         $stateMachine = new StateMachineEntity();
         $stateMachine->setTechnicalName('order_delivery');
@@ -93,9 +92,11 @@ class OrderStateChangeEventListenerTest extends TestCase
         $delivery->setOrderId('order_id');
         $delivery->setOrder($order);
 
-        $deliveryOfOrder = new OrderDeliveryEntity();
-        $deliveryOfOrder->setId('order_delivery_id');
-        $order->setDeliveries(new OrderDeliveryCollection($orderHoldsDelivery ? [$deliveryOfOrder] : []));
+        $otherDelivery = new OrderDeliveryEntity();
+        $otherDelivery->setId('other_order_delivery_id');
+        $changedDelivery = new OrderDeliveryEntity();
+        $changedDelivery->setId('order_delivery_id');
+        $order->setDeliveries(new OrderDeliveryCollection([$otherDelivery, $changedDelivery]));
 
         $result = new EntitySearchResult(
             'order_delivery',
@@ -113,11 +114,16 @@ class OrderStateChangeEventListenerTest extends TestCase
             ->with(static::equalTo($expectedCriteria), $context)
             ->willReturn($result);
 
+        $orderCriteria = [];
         $orderRepo = $this->createMock(EntityRepository::class);
         $orderRepo
             ->expects($this->exactly(2))
             ->method('search')
-            ->willReturn(new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(['order_id']), $context));
+            ->willReturnCallback(static function (Criteria $criteria) use (&$orderCriteria, $order, $context): EntitySearchResult {
+                $orderCriteria[] = $criteria;
+
+                return new EntitySearchResult('order', 1, new OrderCollection([$order]), null, $criteria, $context);
+            });
 
         $dispatched = [];
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
@@ -144,18 +150,50 @@ class OrderStateChangeEventListenerTest extends TestCase
         $stateEvent = $dispatched[$event->getStateEventName()] ?? null;
         static::assertInstanceOf(OrderDeliveryStateMachineStateChangeEvent::class, $stateEvent);
         static::assertSame($order, $stateEvent->getOrder());
-        static::assertSame($orderHoldsDelivery ? $deliveryOfOrder : $delivery, $stateEvent->getOrderDelivery());
+        static::assertSame($changedDelivery, $stateEvent->getOrderDelivery());
         static::assertSame('order_delivery_id', $stateEvent->getOrderDeliveryId());
+
+        $loadedOrderCriteria = $orderCriteria[1] ?? null;
+        static::assertInstanceOf(Criteria::class, $loadedOrderCriteria);
+        static::assertTrue($loadedOrderCriteria->hasAssociation('deliveries'));
+        $deliveryCriteria = $loadedOrderCriteria->getAssociation('deliveries');
+        static::assertTrue($deliveryCriteria->hasAssociation('stateMachineState'));
+        static::assertTrue($deliveryCriteria->hasAssociation('positions'));
+        static::assertTrue($deliveryCriteria->getAssociation('positions')->hasAssociation('orderLineItem'));
     }
 
-    /**
-     * @return iterable<string, array{bool}>
-     */
-    public static function orderDeliveryStateChangeProvider(): iterable
+    public function testOnOrderDeliveryStateChangeThrowsWhenTheOrderCriteriaLeavesTheDeliveryOut(): void
     {
-        yield 'the delivery is taken from the order loaded for the flow' => [true];
+        $order = new OrderEntity();
+        $order->setId('order_id');
+        $order->setItemRounding(new CashRoundingConfig(2, 0.01, true));
+        $order->setCurrencyId('currency_id');
+        $order->setLanguageId('language_id');
+        $order->setCurrencyFactor(1.0);
+        $order->setTaxStatus('free');
+        $order->setDeliveries(new OrderDeliveryCollection());
 
-        yield 'the delivery loaded by id is used when the order criteria leaves it out' => [false];
+        $delivery = new OrderDeliveryEntity();
+        $delivery->setId('order_delivery_id');
+        $delivery->setOrderId('order_id');
+        $delivery->setOrder($order);
+
+        $listener = new OrderStateChangeEventListener(
+            new StaticEntityRepository([new OrderCollection([$order]), new OrderCollection([$order])]),
+            static::createStub(EntityRepository::class),
+            new StaticEntityRepository([new OrderDeliveryCollection([$delivery])]),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(BusinessEventCollector::class),
+            static::createStub(EntityRepository::class)
+        );
+
+        $this->expectExceptionObject(OrderException::orderDeliveryNotFound('order_delivery_id'));
+
+        $listener->onOrderDeliveryStateChange($this->createEnterStateEvent(
+            new Transition('order_delivery', 'order_delivery_id', 'transition_name', 'state_field_name'),
+            'order_delivery',
+            'next_state'
+        ));
     }
 
     public function testOnOrderDeliveryStateChangeNotFound(): void

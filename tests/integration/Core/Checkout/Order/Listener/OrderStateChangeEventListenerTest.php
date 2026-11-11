@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Order\Listener;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -16,6 +17,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundDefinition;
+use Shopware\Core\Checkout\Order\Event\OrderDeliveryStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
@@ -184,12 +186,21 @@ class OrderStateChangeEventListenerTest extends TestCase
             );
     }
 
-    public function testFlowOfADeliveryStateChangeReadsTheChangedDelivery(): void
+    #[DataProvider('deliveryOfTheOrderProvider')]
+    public function testDeliveryStateChangeCarriesTheChangedDelivery(string $deliveryKey, string $lineItemKey): void
     {
         $ids = new IdsCollection();
 
         $this->createCustomer($ids);
         $this->createOrder($ids);
+
+        $stateEvent = null;
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
+            'state_enter.order_delivery.state.shipped',
+            static function (OrderDeliveryStateMachineStateChangeEvent $event) use (&$stateEvent): void {
+                $stateEvent = $event;
+            }
+        );
 
         $flows = [];
         EventHookDispatcher::fromContainer(static::getContainer())->on(
@@ -204,7 +215,7 @@ class OrderStateChangeEventListenerTest extends TestCase
             ->transition(
                 new Transition(
                     OrderDeliveryDefinition::ENTITY_NAME,
-                    $ids->get('delivery'),
+                    $ids->get($deliveryKey),
                     StateMachineTransitionActions::ACTION_SHIP,
                     'stateId'
                 ),
@@ -212,15 +223,33 @@ class OrderStateChangeEventListenerTest extends TestCase
             );
         static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
+        static::assertInstanceOf(OrderDeliveryStateMachineStateChangeEvent::class, $stateEvent);
+        $this->assertShippedDelivery($stateEvent->getOrderDelivery(), $ids->get($deliveryKey), $ids->get($lineItemKey));
+
         $flow = $flows['state_enter.order_delivery.state.shipped'] ?? null;
         static::assertInstanceOf(StorableFlow::class, $flow, 'The default flow for shipped deliveries did not send its mail');
-        static::assertSame($ids->get('delivery'), $flow->getStore(OrderDeliveryAware::ORDER_DELIVERY_ID));
+        static::assertSame($ids->get($deliveryKey), $flow->getStore(OrderDeliveryAware::ORDER_DELIVERY_ID));
 
         $delivery = $flow->data()[OrderDeliveryAware::ORDER_DELIVERY] ?? null;
         static::assertInstanceOf(OrderDeliveryEntity::class, $delivery);
-        static::assertSame($ids->get('delivery'), $delivery->getId());
+        $this->assertShippedDelivery($delivery, $ids->get($deliveryKey), $ids->get($lineItemKey));
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function deliveryOfTheOrderProvider(): iterable
+    {
+        yield 'the delivery written first' => ['delivery', 'line-item'];
+
+        yield 'the delivery written second' => ['second-delivery', 'second-line-item'];
+    }
+
+    private function assertShippedDelivery(OrderDeliveryEntity $delivery, string $deliveryId, string $lineItemId): void
+    {
+        static::assertSame($deliveryId, $delivery->getId());
         static::assertSame(OrderDeliveryStates::STATE_SHIPPED, $delivery->getStateMachineState()?->getTechnicalName());
-        static::assertSame($ids->get('line-item'), $delivery->getPositions()?->first()?->getOrderLineItem()?->getId());
+        static::assertSame($lineItemId, $delivery->getPositions()?->first()?->getOrderLineItem()?->getId());
         static::assertNotNull($delivery->getShippingMethod());
         static::assertNotNull($delivery->getShippingOrderAddress()?->getCountry());
     }
@@ -290,6 +319,15 @@ class OrderStateChangeEventListenerTest extends TestCase
                     'price' => new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
                     'priceDefinition' => new QuantityPriceDefinition(200, new TaxRuleCollection(), 2),
                 ],
+                [
+                    'id' => $ids->create('second-line-item'),
+                    'identifier' => $ids->create('second-line-item'),
+                    'quantity' => 1,
+                    'label' => 'second label',
+                    'type' => LineItem::CUSTOM_LINE_ITEM_TYPE,
+                    'price' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                    'priceDefinition' => new QuantityPriceDefinition(0, new TaxRuleCollection(), 2),
+                ],
             ],
             'deliveries' => [
                 [
@@ -306,6 +344,23 @@ class OrderStateChangeEventListenerTest extends TestCase
                             'id' => $ids->create('position'),
                             'orderLineItemId' => $ids->create('line-item'),
                             'price' => new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                        ],
+                    ],
+                ],
+                [
+                    'id' => $ids->create('second-delivery'),
+                    'shippingOrderAddressId' => $ids->create('shipping-address'),
+                    'shippingMethodId' => $this->getAvailableShippingMethod()->getId(),
+                    'stateId' => $this->getStateId('open', 'order_delivery.state'),
+                    'trackingCodes' => [],
+                    'shippingDateEarliest' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'shippingDateLatest' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'shippingCosts' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                    'positions' => [
+                        [
+                            'id' => $ids->create('second-position'),
+                            'orderLineItemId' => $ids->create('second-line-item'),
+                            'price' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
                         ],
                     ],
                 ],

@@ -106,6 +106,27 @@ class CustomerGroupRegistrationSeoUrlSubscriberTest extends TestCase
         static::assertSame('untouched', $otherUrls->first()?->getSeoPathInfo());
     }
 
+    public function testDeletingASalesChannelLeavesTheUrlsOfOtherSalesChannelsUntouched(): void
+    {
+        $deletedSalesChannelId = $this->createHeadlessSalesChannel(isExternalStorefront: true);
+        $otherSalesChannelId = $this->createHeadlessSalesChannel(isExternalStorefront: true);
+        $groupId = $this->createRegistrationCustomerGroup($deletedSalesChannelId, $otherSalesChannelId);
+
+        $this->renameSeoUrlOfSalesChannel($groupId, $otherSalesChannelId, 'untouched');
+
+        static::getContainer()->get('sales_channel.repository')->delete(
+            [['id' => $deletedSalesChannelId]],
+            Context::createDefaultContext()
+        );
+
+        $urls = $this->getHeadlessSeoUrls($groupId);
+        static::assertCount(0, $urls->filterBySalesChannelId($deletedSalesChannelId));
+
+        $otherUrls = $urls->filterBySalesChannelId($otherSalesChannelId);
+        static::assertCount(1, $otherUrls);
+        static::assertSame('untouched', $otherUrls->first()?->getSeoPathInfo());
+    }
+
     public function testUrlsMoveWithTheExternalStorefrontDomainToAnotherSalesChannel(): void
     {
         $previousSalesChannelId = $this->createHeadlessSalesChannel(isExternalStorefront: true);

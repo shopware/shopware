@@ -181,6 +181,7 @@ class CustomerGroupRegistrationSeoUrlSubscriber implements EventSubscriberInterf
 
         if ($salesChannelIds !== null) {
             $criteria->addFilter(new EqualsAnyFilter('registrationSalesChannels.id', $salesChannelIds));
+            $criteria->getAssociation('registrationSalesChannels')->addFilter(new EqualsAnyFilter('id', $salesChannelIds));
         }
 
         $groups = $this->customerGroupRepository->search($criteria, $context)->getEntities();
@@ -193,10 +194,6 @@ class CustomerGroupRegistrationSeoUrlSubscriber implements EventSubscriberInterf
 
             foreach ($group->getRegistrationSalesChannels() as $registrationSalesChannel) {
                 if ($registrationSalesChannel->getTypeId() !== Defaults::SALES_CHANNEL_TYPE_API) {
-                    continue;
-                }
-
-                if ($salesChannelIds !== null && !\in_array($registrationSalesChannel->getId(), $salesChannelIds, true)) {
                     continue;
                 }
 

@@ -317,6 +317,12 @@ Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations
 
 The property is unused and will be removed in 6.8.
 
+### SEO URL routes can restrict the associations of the template
+
+`SeoUrlGenerator` now calls `SeoUrlRouteInterface::prepareCriteria()` after it added the associations the SEO URL template uses.
+A route can restrict these associations, for example with `$criteria->getAssociation('mainCategories')->addFilter(...)` when `$criteria->hasAssociation('mainCategories')`.
+`ProductPageSeoUrlRoute` uses this to load only the main category of the sales channel the URLs are generated for.
+
 ### Promotion line items store the discount value in the cart currency
 
 `payload.value` of promotion line items with an absolute, fixed or fixed unit discount now contains the value in the cart currency, using the advanced price of the currency or the currency factor.

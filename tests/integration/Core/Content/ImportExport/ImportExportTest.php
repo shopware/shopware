@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEnt
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountDefinition;
@@ -1633,6 +1634,64 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
 
         static::assertTrue($progress->isFinished());
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
+    }
+
+    #[DataProvider('orderCustomerIdColumnProvider')]
+    public function testOrderImportUpdatesExistingOrderCustomerWithoutItsId(bool $withOrderCustomerIdColumn): void
+    {
+        $context = Context::createDefaultContext();
+        $orderId = Uuid::randomHex();
+        $testOrder = $this->getOrderData($orderId, $context)[0];
+        static::getContainer()->get('order.repository')->create([$testOrder], $context);
+
+        $profile = $this->cloneDefaultProfile(OrderDefinition::ENTITY_NAME);
+        static::getContainer()->get('import_export_profile.repository')->update([
+            ['id' => $profile->getId(), 'type' => ImportExportProfileEntity::TYPE_IMPORT_EXPORT],
+        ], $context);
+        $mapping = [['key' => 'id', 'mappedKey' => 'id']];
+        if ($withOrderCustomerIdColumn) {
+            $mapping[] = ['key' => 'orderCustomer.id', 'mappedKey' => 'customer_id'];
+        }
+        $mapping[] = ['key' => 'orderCustomer.email', 'mappedKey' => 'customer_email'];
+        $this->updateProfileMapping($profile->getId(), $mapping);
+
+        // the first row has an id the field serializer rejects, it must fail on its own without aborting the import
+        $rows = [['id', 'customer_id', 'customer_email'], ['SW1|SW2', '', 'broken@example.com'], [$orderId, '', 'updated@example.com']];
+        if (!$withOrderCustomerIdColumn) {
+            $rows = array_map(static fn (array $row) => [$row[0], $row[2]], $rows);
+        }
+
+        $filesystem = new Filesystem();
+        $csvPath = $filesystem->tempnam(sys_get_temp_dir(), 'order_import_', '.csv');
+        $filesystem->dumpFile($csvPath, implode("\n", array_map(static fn (array $row) => implode(';', $row), $rows)) . "\n");
+
+        try {
+            $progress = $this->import($context, OrderDefinition::ENTITY_NAME, $csvPath, 'orders.csv', $profile->getId(), absolutePath: true);
+        } finally {
+            $filesystem->remove($csvPath);
+        }
+
+        static::assertTrue($progress->isFinished());
+        static::assertImportExportFailed($progress);
+        $invalidRecords = $this->getInvalidLogContent($progress->getInvalidRecordsLogId());
+        static::assertCount(1, $invalidRecords);
+        static::assertSame('SW1|SW2', array_values($invalidRecords)[0]['id'] ?? null);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('orderId', $orderId));
+        $orderCustomers = static::getContainer()->get('order_customer.repository')->search($criteria, $context)->getEntities();
+
+        static::assertCount(1, $orderCustomers, 'The import must not create a second order customer');
+        $orderCustomer = $orderCustomers->first();
+        static::assertInstanceOf(OrderCustomerEntity::class, $orderCustomer);
+        static::assertSame($testOrder['orderCustomer']['id'], $orderCustomer->getId());
+        static::assertSame('updated@example.com', $orderCustomer->getEmail());
+    }
+
+    public static function orderCustomerIdColumnProvider(): \Generator
+    {
+        yield 'exported file with a blank order customer id column' => [true];
+        yield 'file without an order customer id column' => [false];
     }
 
     public function testExportProductsWithDeliveryTimeTranslation(): void

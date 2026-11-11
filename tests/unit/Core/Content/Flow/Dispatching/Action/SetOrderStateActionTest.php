@@ -7,13 +7,16 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
+use Shopware\Core\Content\Flow\Dispatching\Aware\OrderTransactionAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
@@ -150,6 +153,64 @@ class SetOrderStateActionTest extends TestCase
         $this->createAction(orderService: $orderService)->handleFlow($flow);
     }
 
+    #[DataProvider('orderTransactionProvider')]
+    public function testOrderTransactionTransitionTarget(?string $flowOrderTransactionOrder, ?string $primaryOrderTransaction, string $expectedOrderTransaction): void
+    {
+        $this->assertOrderTransactionTransitionTarget($flowOrderTransactionOrder, $primaryOrderTransaction, $expectedOrderTransaction);
+    }
+
+    #[DataProvider('orderTransactionProvider')]
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testOrderTransactionTransitionTargetWithoutMajorFlag(?string $flowOrderTransactionOrder, ?string $primaryOrderTransaction, string $expectedOrderTransaction): void
+    {
+        $this->assertOrderTransactionTransitionTarget($flowOrderTransactionOrder, $primaryOrderTransaction, $expectedOrderTransaction);
+    }
+
+    public function testOrderTransactionOfTheFlowIsOnlyLoadedForATransactionTransition(): void
+    {
+        $flow = new StorableFlow('foo', Context::createDefaultContext(), [], [
+            OrderAware::ORDER_ID => Uuid::randomHex(),
+        ]);
+        $flow->setConfig(['order' => 'cancelled']);
+        $flow->lazy(OrderTransactionAware::ORDER_TRANSACTION, static fn () => static::fail('The order transaction of the flow was loaded'));
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchOne')->willReturn('cancel');
+
+        $orderService = $this->createMock(OrderService::class);
+        $orderService->expects($this->once())
+            ->method('orderStateTransition');
+
+        $this->createAction($connection, $orderService)->handleFlow($flow);
+    }
+
+    public static function orderTransactionProvider(): \Generator
+    {
+        yield 'order transaction of the flow' => [
+            'order',
+            'primaryOrderTransaction',
+            'flowOrderTransaction',
+        ];
+
+        yield 'order transaction of the flow from another order' => [
+            'otherOrder',
+            'primaryOrderTransaction',
+            'primaryOrderTransaction',
+        ];
+
+        yield 'primary order transaction' => [
+            null,
+            'primaryOrderTransaction',
+            'primaryOrderTransaction',
+        ];
+
+        yield 'newest order transaction without primary order transaction' => [
+            null,
+            null,
+            'newestOrderTransaction',
+        ];
+    }
+
     public static function actionProvider(): \Generator
     {
         yield 'Test aware with config three states success' => [
@@ -268,5 +329,44 @@ class SetOrderStateActionTest extends TestCase
             $connection ?? $this->connection,
             $orderService ?? $this->orderService,
         );
+    }
+
+    private function assertOrderTransactionTransitionTarget(?string $flowOrderTransactionOrder, ?string $primaryOrderTransaction, string $expectedOrderTransaction): void
+    {
+        $ids = new IdsCollection();
+
+        $flow = new StorableFlow('foo', Context::createDefaultContext(), [], [
+            OrderAware::ORDER_ID => $ids->get('order'),
+        ]);
+        $flow->setConfig(['order_transaction' => 'cancelled']);
+
+        if ($flowOrderTransactionOrder !== null) {
+            $flowOrderTransaction = new OrderTransactionEntity();
+            $flowOrderTransaction->setId($ids->get('flowOrderTransaction'));
+            $flowOrderTransaction->setOrderId($ids->get($flowOrderTransactionOrder));
+            $flow->setData(OrderTransactionAware::ORDER_TRANSACTION, $flowOrderTransaction);
+        }
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchOne')->willReturnCallback(
+            static function (string $sql) use ($ids, $primaryOrderTransaction): string|false {
+                if (str_contains($sql, 'primary_order_transaction_id')) {
+                    return $primaryOrderTransaction !== null ? $ids->get($primaryOrderTransaction) : false;
+                }
+
+                if (str_contains($sql, 'created_at')) {
+                    return $ids->get('newestOrderTransaction');
+                }
+
+                return 'cancel';
+            }
+        );
+
+        $orderService = $this->createMock(OrderService::class);
+        $orderService->expects($this->once())
+            ->method('orderTransactionStateTransition')
+            ->with($ids->get($expectedOrderTransaction), 'cancel', new ParameterBag());
+
+        $this->createAction($connection, $orderService)->handleFlow($flow);
     }
 }

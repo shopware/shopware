@@ -11,10 +11,14 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
+use Shopware\Core\Content\Flow\Dispatching\BufferedFlowExecutor;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Content\Flow\FlowCollection;
 use Shopware\Core\Content\Test\Flow\OrderActionTrait;
@@ -24,7 +28,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
+use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\StateMachine\Transition;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
@@ -47,6 +54,11 @@ class SetOrderStateActionTest extends TestCase
     private EntityRepository $orderDeliveryRepository;
 
     /**
+     * @var EntityRepository<OrderTransactionCollection>
+     */
+    private EntityRepository $orderTransactionRepository;
+
+    /**
      * @var EntityRepository<FlowCollection>
      */
     private EntityRepository $flowRepository;
@@ -61,6 +73,7 @@ class SetOrderStateActionTest extends TestCase
 
         $this->customerRepository = static::getContainer()->get('customer.repository');
         $this->orderDeliveryRepository = static::getContainer()->get('order_delivery.repository');
+        $this->orderTransactionRepository = static::getContainer()->get('order_transaction.repository');
 
         $this->ids = new IdsCollection();
 
@@ -146,6 +159,63 @@ class SetOrderStateActionTest extends TestCase
 
         $orderTransactionStateAfterAction = $this->getOrderTransactionState($orderId);
         static::assertNotSame($orderTransactionState, $orderTransactionStateAfterAction);
+    }
+
+    public function testTransactionStateFlowSetsTheStateOfTheTransactionItWasTriggeredFor(): void
+    {
+        $this->flowRepository->create([[
+            'name' => 'Pay authorized transactions',
+            'eventName' => 'state_enter.order_transaction.state.authorized',
+            'active' => true,
+            'sequences' => [
+                [
+                    'actionName' => SetOrderStateAction::getName(),
+                    'config' => ['order_transaction' => OrderTransactionStates::STATE_PAID],
+                ],
+            ],
+        ]], Context::createDefaultContext());
+
+        $this->createCustomerAndLogin();
+
+        $triggeringTransactionId = $this->ids->get('triggering-transaction');
+        $primaryTransactionId = $this->ids->get('primary-transaction');
+
+        $this->createOrder($this->ids->get('customer'), [
+            'primaryOrderTransactionId' => $primaryTransactionId,
+            'transactions' => [
+                [
+                    'id' => $triggeringTransactionId,
+                    'paymentMethodId' => $this->getValidPaymentMethodId(),
+                    'stateId' => $this->getStateId(OrderTransactionStates::STATE_OPEN, OrderTransactionStates::STATE_MACHINE),
+                    'amount' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                    'createdAt' => (new \DateTimeImmutable('-1 day'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                ],
+                [
+                    'id' => $primaryTransactionId,
+                    'paymentMethodId' => $this->getValidPaymentMethodId(),
+                    'stateId' => $this->getStateId(OrderTransactionStates::STATE_OPEN, OrderTransactionStates::STATE_MACHINE),
+                    'amount' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                ],
+            ],
+        ]);
+
+        static::getContainer()->get(StateMachineRegistry::class)->transition(
+            new Transition(
+                OrderTransactionDefinition::ENTITY_NAME,
+                $triggeringTransactionId,
+                StateMachineTransitionActions::ACTION_AUTHORIZE,
+                'stateId',
+            ),
+            Context::createDefaultContext(),
+        );
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
+
+        $criteria = new Criteria([$triggeringTransactionId, $primaryTransactionId]);
+        $criteria->addAssociation('stateMachineState');
+        $transactions = $this->orderTransactionRepository->search($criteria, Context::createDefaultContext())->getEntities();
+
+        static::assertSame(OrderTransactionStates::STATE_PAID, $transactions->get($triggeringTransactionId)?->getStateMachineState()?->getTechnicalName());
+        static::assertSame(OrderTransactionStates::STATE_OPEN, $transactions->get($primaryTransactionId)?->getStateMachineState()?->getTechnicalName());
     }
 
     public function testSetStateOnOrderDeliveryWithDiscountOnDelivery(): void

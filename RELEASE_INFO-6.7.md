@@ -330,6 +330,13 @@ On delivery transitions, `order.deliveries` now also contains the state and posi
 The listener dispatches the new `OrderDeliveryStateMachineStateChangeEvent` and `OrderTransactionStateMachineStateChangeEvent` for these transitions.
 They extend `OrderStateMachineStateChangeEvent`, so existing subscribers keep working, and add `getOrderDelivery()` and `getOrderTransaction()` with their id getters.
 
+### "Assign status" flow action picks the transaction of the flow
+
+The payment status of the Flow Builder action "Assign status" (`action.set.order.state`) now changes the transaction the flow carries as `orderTransaction` data, if that transaction belongs to the order.
+In transaction state flows, that is the transaction whose state changed.
+Otherwise it changes the primary transaction of the order (`primaryOrderTransactionId`), and only for orders without one the newest transaction, as before.
+Orders placed through the checkout make their newest transaction the primary one, so only flows triggered by an older transaction change a different transaction than before.
+
 ### SEO URL routes can restrict the associations of the template
 
 `SeoUrlGenerator` now calls `SeoUrlRouteInterface::prepareCriteria()` after it added the associations the SEO URL template uses.

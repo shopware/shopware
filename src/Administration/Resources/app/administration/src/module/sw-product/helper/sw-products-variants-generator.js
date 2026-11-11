@@ -19,6 +19,13 @@ const RESTRICTIONS_SYNC_HEADERS = { 'single-operation': 1, 'indexing-behavior': 
 // Every chunk queues a re-index of the parent with all its variants, so fewer and bigger chunks mean less work
 const CHUNK_SIZE = 100;
 
+// Validation errors fail again, so only connection problems, timeouts and server errors get another try
+function isRetryable(error) {
+    const status = error?.response?.status;
+
+    return status === undefined || status === 429 || status >= 500;
+}
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class VariantsGenerator extends EventEmitter {
     constructor() {
@@ -591,9 +598,14 @@ export default class VariantsGenerator extends EventEmitter {
             },
         ];
 
-        RetryHelper.retry(() => {
-            return this.syncService.sync(payload, {}, SYNC_HEADERS);
-        })
+        RetryHelper.retry(
+            () => {
+                return this.syncService.sync(payload, {}, SYNC_HEADERS);
+            },
+            undefined,
+            undefined,
+            isRetryable,
+        )
             .then((response) => {
                 this.productIds.concat(response.data?.product ?? []).concat(response.data?.deleted?.product ?? []);
                 this.processQueue(type, queue, offset + limit, limit, resolve, reject);

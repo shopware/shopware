@@ -39,6 +39,19 @@ describe('src/module/sw-product/helper/sw-products-variants-generator saveVarian
         expect(sync).toHaveBeenCalledTimes(4);
     });
 
+    it('should reject without retrying when the server rejects a chunk as invalid', async () => {
+        const error = Object.assign(new Error('Request failed with status code 400'), {
+            response: { status: 400, data: { errors: [{ code: 'CONTENT__DUPLICATE_PRODUCT_NUMBER' }] } },
+        });
+        const generator = new VariantsGenerator();
+        const sync = jest.fn(() => Promise.reject(error));
+        generator.syncService = { sync };
+
+        await expect(generator.saveVariants({ deleteQueue: [], createQueue: createVariants(150) })).rejects.toBe(error);
+
+        expect(sync).toHaveBeenCalledTimes(1);
+    });
+
     it('should send chunks of 100 variants and queue their indexing with the indexing-behavior header', async () => {
         const generator = new VariantsGenerator();
         const sync = jest.fn(() => Promise.resolve({ data: {}, deleted: {} }));

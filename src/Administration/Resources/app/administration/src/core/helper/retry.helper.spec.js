@@ -17,4 +17,15 @@ describe('core/helper/retry.helper.js', () => {
 
         expect(innerFunction).toHaveBeenCalledTimes(2);
     });
+
+    it('stops retrying when shouldRetry rejects the error', async () => {
+        const error = new Error('validation failed');
+        const innerFunction = jest.fn(() => {
+            throw error;
+        });
+
+        await expect(retryHelper.retry(innerFunction, 3, 1, () => false)).rejects.toBe(error);
+
+        expect(innerFunction).toHaveBeenCalledTimes(1);
+    });
 });

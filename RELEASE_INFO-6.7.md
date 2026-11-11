@@ -973,6 +973,7 @@ The command is deprecated and will be removed in 6.9.0.0.
 `ThemeService::updateTheme()` now dispatches `ThemeConfigChangedEvent` after the new theme configuration is written to the database.
 Before, it was dispatched before the write, so with the static theme config loader a theme save dumped and compiled the `theme.json` defaults instead of the saved values.
 Subscribers that load the theme while handling the event now get the saved configuration instead of the previous one.
+
 ### Enabling maintenance mode again no longer traps visitors in a redirect loop
 
 When maintenance mode was switched off, the redirect from the maintenance page into the shop was stored in the HTTP cache.

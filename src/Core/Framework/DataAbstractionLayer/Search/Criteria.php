@@ -35,6 +35,14 @@ class Criteria extends Struct implements \Stringable
      */
     final public const STATE_SCORE_RANKED_GROUPING = 'scoreRankedGrouping';
 
+    /**
+     * Grouped `cheapestPrice` sortings position a group by the price of its configured main variant
+     * (`variantListingConfig.mainVariantId`), instead of by the cheapest entity of the group.
+     * Groups without their main variant are still positioned by the cheapest entity.
+     * Only applied by the DBAL searcher.
+     */
+    final public const STATE_MAIN_VARIANT_GROUP_SORTING = 'mainVariantGroupSorting';
+
     final public const SCORE_FIELD = '_score';
 
     /**

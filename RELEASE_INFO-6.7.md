@@ -9,6 +9,15 @@ Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED` while ano
 
 ## Core
 
+### Product listings sorted by the price of the main variant
+
+Without Elasticsearch, a product listing that groups variants (`displayGroup`) and is sorted by price now positions products with a configured main variant by the price of that main variant, instead of by the price of the cheapest variant.
+Products without a main variant, or whose main variant is filtered out, are still positioned by their cheapest variant.
+Other sortings are not affected.
+Listings searched with Elasticsearch or OpenSearch are not affected yet.
+
+The new `Criteria::STATE_MAIN_VARIANT_GROUP_SORTING` state enables this for any grouped DAL search.
+
 ### Rule Builder: new "Item with longest side and girth" condition
 
 A new line item rule condition `LineItemDimensionLongestAndGirthRule` (`cartLineItemDimensionLongestAndGirth`) was added. It matches the cart against the longest side plus girth of each individual line item. It is calculated as `longest side + 2 * (shortest side + second shortest side)`. This condition allows for more precise shipping rules based on the dimensions of the items in the cart.

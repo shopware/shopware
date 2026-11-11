@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\CriteriaPartResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\VariantListingConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
@@ -147,7 +148,7 @@ class CriteriaQueryBuilder
                     $accessor = 'MAX(' . $accessor . ')';
                 }
             } else {
-                $accessor = 'MIN(' . $accessor . ')';
+                $accessor = $this->getGroupedCheapestPriceAccessor($definition, $criteria, $context, $accessor);
             }
             $query->addOrderBy($accessor, $sorting->getDirection());
         }
@@ -254,6 +255,28 @@ class CriteriaQueryBuilder
 
         $wheres = implode(' OR ', $conditions);
         $query->andWhere($wheres);
+    }
+
+    /**
+     * Prefers the price of the main variant, because that is the variant a product listing displays for the group.
+     */
+    private function getGroupedCheapestPriceAccessor(EntityDefinition $definition, Criteria $criteria, Context $context, string $cheapestPrice): string
+    {
+        if (!$criteria->hasState(Criteria::STATE_MAIN_VARIANT_GROUP_SORTING)
+            || $criteria->getGroupFields() === []
+            || !$definition->getField('variantListingConfig') instanceof VariantListingConfigField
+        ) {
+            return 'MIN(' . $cheapestPrice . ')';
+        }
+
+        $root = $definition->getEntityName();
+        $id = EntityDefinitionQueryHelper::escape($root) . '.`id`';
+        $mainVariantId = $this->helper->getFieldAccessor('variantListingConfig.mainVariantId', $definition, $root, $context);
+        $displayParent = $this->helper->getFieldAccessor('variantListingConfig.displayParent', $definition, $root, $context);
+
+        $isMainVariant = $mainVariantId . ' = LOWER(HEX(' . $id . ')) AND IFNULL(' . $displayParent . ', 0) = 0';
+
+        return 'COALESCE(MIN(IF(' . $isMainVariant . ', ' . $cheapestPrice . ', NULL)), MIN(' . $cheapestPrice . '))';
     }
 
     private function hasGroupBy(Criteria $criteria, QueryBuilder $query): bool

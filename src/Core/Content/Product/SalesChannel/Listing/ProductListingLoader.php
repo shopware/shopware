@@ -369,6 +369,7 @@ class ProductListingLoader
 
         if ($displayAsGroup) {
             $this->addGrouping($criteria);
+            $criteria->addState(Criteria::STATE_MAIN_VARIANT_GROUP_SORTING);
         }
 
         $isSearchRoute = $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);

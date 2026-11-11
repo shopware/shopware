@@ -79,6 +79,7 @@ class ProductListingLoaderTest extends TestCase
 
         $searchIds = function (Criteria $criteria): IdSearchResult {
             static::assertCount(1, $criteria->getGroupFields());
+            static::assertTrue($criteria->hasState(Criteria::STATE_MAIN_VARIANT_GROUP_SORTING));
             static::assertTrue(array_filter(
                 $criteria->getFilters(),
                 static fn ($filter): bool => $filter instanceof NotEqualsFilter && $filter->getField() === 'displayGroup'
@@ -133,6 +134,7 @@ class ProductListingLoaderTest extends TestCase
 
         $searchIds = function (Criteria $criteria): IdSearchResult {
             static::assertCount(0, $criteria->getGroupFields());
+            static::assertFalse($criteria->hasState(Criteria::STATE_MAIN_VARIANT_GROUP_SORTING));
             static::assertFalse(array_filter(
                 $criteria->getFilters(),
                 static fn ($filter): bool => $filter instanceof NotEqualsFilter && $filter->getField() === 'displayGroup'
@@ -319,6 +321,7 @@ class ProductListingLoaderTest extends TestCase
         $expected->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
         $expected->addGroupField(new FieldGrouping('displayGroup'));
         $expected->addFilter(new NotEqualsFilter('displayGroup', null));
+        $expected->addState(Criteria::STATE_MAIN_VARIANT_GROUP_SORTING);
         $expected->addState(Criteria::STATE_SCORE_RANKED_GROUPING);
         $expected->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
             new EqualsFilter('childCount', 0),

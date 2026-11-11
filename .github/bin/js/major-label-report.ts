@@ -73,7 +73,7 @@ export function wasLabelledSince(events: LabelEvent[], label: string, since: Dat
 }
 
 function escapeTableCell(value: string): string {
-    return value.replace(/\|/g, '\\|').replace(/\r?\n/g, ' ');
+    return value.replace(/[\\|]/g, '\\$&').replace(/\r?\n/g, ' ');
 }
 
 export function renderReport(options: { major: string; since: Date; entries: ReportEntry[] }): string {

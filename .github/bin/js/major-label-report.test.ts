@@ -65,6 +65,16 @@ test('renderReport lists pull requests without an upgrade guide change first', (
     assert.match(rows[2], /\| yes \|$/);
 });
 
+test('renderReport keeps a backslash in a title from undoing the pipe escape', () => {
+    const report = renderReport({
+        major: '6.8',
+        since: SINCE,
+        entries: [{ number: 1, title: 'a\\| b', url: 'u1', author: 'c', state: 'open', touchesUpgradeGuide: false }],
+    });
+    const row = report.split('\n').find((line) => line.startsWith('| ['));
+    assert.match(String(row), /\| a\\\\\\\| b \|/);
+});
+
 test('renderReport says so when nothing happened', () => {
     assert.match(renderReport({ major: '6.8', since: SINCE, entries: [] }), /No pull request was merged/);
 });

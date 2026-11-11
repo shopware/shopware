@@ -1,0 +1,11 @@
+{% block sw_condition_value_before_content %}
+<sw-single-select
+    v-if="allowAppliesTo"
+    v-model:value="appliesTo"
+    name="sw-field--appliesTo"
+    class="sw-condition-generic-delivery__applies-to"
+    :options="appliesToOptions"
+    :disabled="isDisabled || undefined"
+    required
+/>
+{% endblock %}

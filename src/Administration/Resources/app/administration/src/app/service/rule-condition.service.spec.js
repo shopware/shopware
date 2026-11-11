@@ -422,6 +422,14 @@ describe('src/app/service/rule-condition.service.js', () => {
         expect(ruleConditionService.getOperatorSet('datetime')).toEqual(expected);
     });
 
+    it('should render a delivery container with the delivery container component', () => {
+        const ruleConditionService = new RuleConditionService();
+
+        expect(ruleConditionService.getComponentByCondition({ type: 'deliveryContainer' })).toBe(
+            'sw-condition-delivery-container',
+        );
+    });
+
     it('should get the restrictedConditions', () => {
         const ruleConditionService = new RuleConditionService();
 

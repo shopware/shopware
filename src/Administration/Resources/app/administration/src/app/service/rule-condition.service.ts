@@ -527,6 +527,10 @@ export default class RuleConditionService {
         return condition.type === 'allLineItemsContainer';
     }
 
+    isDeliveryContainer(condition: Condition) {
+        return condition.type === 'deliveryContainer';
+    }
+
     getComponentByCondition(condition: Condition) {
         if (this.isAndContainer(condition)) {
             return 'sw-condition-and-container';
@@ -538,6 +542,10 @@ export default class RuleConditionService {
 
         if (this.isAllLineItemsContainer(condition)) {
             return 'sw-condition-all-line-items-container';
+        }
+
+        if (this.isDeliveryContainer(condition)) {
+            return 'sw-condition-delivery-container';
         }
 
         if (!condition.type) {

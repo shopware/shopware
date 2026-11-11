@@ -317,6 +317,12 @@ Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations
 
 The property is unused and will be removed in 6.8.
 
+### SEO URL routes can restrict the associations of the template
+
+`SeoUrlGenerator` now calls `SeoUrlRouteInterface::prepareCriteria()` after it added the associations the SEO URL template uses.
+A route can restrict these associations, for example with `$criteria->getAssociation('mainCategories')->addFilter(...)` when `$criteria->hasAssociation('mainCategories')`.
+`ProductPageSeoUrlRoute` uses this to load only the main category of the sales channel the URLs are generated for.
+
 ### Promotion line items store the discount value in the cart currency
 
 `payload.value` of promotion line items with an absolute, fixed or fixed unit discount now contains the value in the cart currency, using the advanced price of the currency or the currency factor.
@@ -968,7 +974,25 @@ bin/console seo:repair:link-category-takeover --apply --no-interaction <category
 The categories get their SEO URLs back, and their fallback URLs redirect to them.
 The command is deprecated and will be removed in 6.9.0.0.
 
+### `ThemeConfigChangedEvent` is dispatched after the theme is saved
+
+`ThemeService::updateTheme()` now dispatches `ThemeConfigChangedEvent` after the new theme configuration is written to the database.
+Before, it was dispatched before the write, so with the static theme config loader a theme save dumped and compiled the `theme.json` defaults instead of the saved values.
+Subscribers that load the theme while handling the event now get the saved configuration instead of the previous one.
+
+### Enabling maintenance mode again no longer traps visitors in a redirect loop
+
+When maintenance mode was switched off, the redirect from the maintenance page into the shop was stored in the HTTP cache.
+Switching maintenance mode on again then sent every visitor not on the IP allowlist back and forth between the shop and that cached redirect (`ERR_TOO_MANY_REDIRECTS`) until the entry expired.
+The redirect is no longer cached. A shop that is already in this state gets out of it by running `bin/console cache:clear:http`.
+
 ## Hosting & Configuration
+
+### Sitemaps skip inactive sales channels and `sitemap:generate` continues after a failure
+
+The scheduled sitemap task and `bin/console sitemap:generate` no longer generate sitemaps for inactive sales channels.
+`sitemap:generate` now continues with the other sales channels and languages when the generation of one fails, prints the error and exits with a failure code at the end.
+A sitemap generation that is locked by another process is still reported without failing the command.
 
 ### Readiness checks isolate their virtual requests
 

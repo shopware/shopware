@@ -106,6 +106,13 @@ class ErrorController extends StorefrontController
                 return $this->forwardToRoute($route, ['formViolations' => $formViolations], $this->decodeParam($request, 'errorParameters'));
             } catch (MethodNotAllowedException) {
                 // POST-only routes (e.g. the _route fallback of a form submit) cannot be forwarded to with GET.
+                // The home page has no form, so field violations are flashed as well.
+                foreach ($violations as $violation) {
+                    if ($violation->getPropertyPath() !== '') {
+                        $this->addFlash(self::DANGER, $this->trans('error.' . $violation->getCode()));
+                    }
+                }
+
                 return $this->forwardToRoute('frontend.home.page', ['formViolations' => $formViolations]);
             }
         }

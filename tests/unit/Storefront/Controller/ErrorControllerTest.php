@@ -176,6 +176,7 @@ class ErrorControllerTest extends TestCase
         static::assertSame('frontend.home.page', $controller->recorder()->forwardToRoute);
         static::assertArrayHasKey('formViolations', $controller->recorder()->forwardToRouteAttributes);
         static::assertSame([], $controller->recorder()->forwardToRouteParameters);
+        static::assertSame(['danger' => ['error.captcha-invalid']], $controller->recorder()->flashBag);
     }
 
     public function testOnCaptchaFailureWithXmlHttpRequest(): void

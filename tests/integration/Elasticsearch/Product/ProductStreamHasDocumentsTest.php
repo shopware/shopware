@@ -102,6 +102,7 @@ class ProductStreamHasDocumentsTest extends TestCase
             'fileName' => 'manual-' . $this->ids->get('file'),
             'fileExtension' => 'pdf',
             'mimeType' => 'application/pdf',
+            'fileSize' => 1024,
         ]], $this->context);
 
         static::getContainer()->get('product.repository')->create([

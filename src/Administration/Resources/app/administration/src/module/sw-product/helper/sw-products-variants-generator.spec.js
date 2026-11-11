@@ -655,6 +655,22 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
             syncSpy.mockRestore();
         });
 
+        it('should send the id of new settings, so saving them again updates the same rows', async () => {
+            const syncSpy = jest.spyOn(variantsGenerator.syncService, 'sync').mockResolvedValue({});
+            variantsGenerator.product = { id: 'product-123' };
+
+            const setting = entityFactory.create('product_configurator_setting', 'new-setting-id');
+            setting.optionId = 'option-1';
+
+            await variantsGenerator.saveConfiguratorSettings([setting], [{ options: [{ id: 'option-1' }] }]);
+
+            expect(syncSpy.mock.calls[0][0][0].payload[0]).toEqual(
+                expect.objectContaining({ id: 'new-setting-id', optionId: 'option-1', productId: 'product-123' }),
+            );
+
+            syncSpy.mockRestore();
+        });
+
         it('should always include existing settings (isNew returns false) regardless of createQueue', async () => {
             const syncSpy = jest.spyOn(variantsGenerator.syncService, 'sync').mockResolvedValue({});
 

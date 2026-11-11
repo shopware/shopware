@@ -831,6 +831,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
             },
         });
 
+        const saveVariants = jest.spyOn(wrapper.vm.variantsGenerator, 'saveVariants');
+
         await wrapper.vm.generateVariants();
         await flushPromises();
 
@@ -838,7 +840,11 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         expect(wrapper.emitted('variations-finish-generate')).toHaveLength(1);
 
         // should generate digital variants with max purchase 1
-        expect(wrapper.vm.variantGenerationQueue.createQueue[0].maxPurchase).toBe(1);
+        expect(saveVariants).toHaveBeenCalledWith(
+            expect.objectContaining({
+                createQueue: [expect.objectContaining({ maxPurchase: 1, downloads: [{ mediaId: 'random-id' }] })],
+            }),
+        );
     });
 
     it('should generate variants', async () => {
@@ -1273,6 +1279,9 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 deleteQueue: [],
             },
             variantsGenerator: {
+                saveConfiguratorSettings: () => Promise.resolve(),
+                saveVariantRestrictions: () => Promise.resolve(),
+                saveVariantListingConfig: () => Promise.resolve(),
                 saveVariants: () => Promise.reject(new Error('Save failed')),
             },
         });

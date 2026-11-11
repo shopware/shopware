@@ -15,6 +15,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFa
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\SumResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -31,6 +33,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('framework')]
 class SalesChannelRepositoryFacadeTest extends TestCase
 {
     use AppSystemTestBehaviour;
@@ -306,9 +309,11 @@ class SalesChannelRepositoryFacadeTest extends TestCase
 
     public function testSearchCannotLoadReviewCustomersThroughStoreFacade(): void
     {
-        $this->expectExceptionObject(DataAbstractionLayerException::accessorNotAllowedInApiScope('customer'));
+        if (Feature::isActive('v6.8.0.0')) {
+            $this->expectExceptionObject(DataAbstractionLayerException::accessorNotAllowedInApiScope('customer'));
+        }
 
-        $this->createFacade()->search('product', [
+        $result = $this->createFacade()->search('product', [
             'ids' => [$this->ids->get('p1')],
             'associations' => [
                 'productReviews' => [
@@ -316,6 +321,8 @@ class SalesChannelRepositoryFacadeTest extends TestCase
                 ],
             ],
         ]);
+
+        static::assertFalse($result->getCriteria()->getAssociation('productReviews')->hasAssociation('customer'));
     }
 
     private function createProducts(): void

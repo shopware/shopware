@@ -30,13 +30,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaArrayConverter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -46,8 +51,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @internal
  */
 #[CoversClass(RequestCriteriaBuilder::class)]
+#[Package('framework')]
 class RequestCriteriaBuilderTest extends TestCase
 {
+    use EnvTestBehaviour;
+
     private RequestCriteriaBuilder $requestCriteriaBuilder;
 
     private StaticDefinitionInstanceRegistry $staticDefinitionRegistry;
@@ -592,6 +600,11 @@ class RequestCriteriaBuilderTest extends TestCase
             'hidden',
         ];
 
+        yield 'association restricted to the admin api in fields' => [
+            ['fields' => ['adminOnly.id']],
+            'adminOnly',
+        ];
+
         yield 'nested association without ApiAware in fields' => [
             ['fields' => ['exposed.hidden.id']],
             'hidden',
@@ -600,6 +613,8 @@ class RequestCriteriaBuilderTest extends TestCase
 
     /**
      * @param array<string, mixed> $payload
+     *
+     * @deprecated tag:v6.8.0 - Remove with the compatibility feature flag.
      */
     #[DataProvider('protectedAssociationPayloadProvider')]
     public function testProtectedAssociationIsRejectedForStoreApi(array $payload, string $expectedAccessor): void
@@ -607,6 +622,147 @@ class RequestCriteriaBuilderTest extends TestCase
         $this->expectExceptionObject(DataAbstractionLayerException::accessorNotAllowedInApiScope($expectedAccessor));
 
         $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, string}>
+     */
+    public static function ignoredSelectionProvider(): iterable
+    {
+        yield 'association' => [['associations' => ['hidden' => []]], 'api_aware_association_test.hidden'];
+        yield 'field selection' => [['fields' => ['exposed.hidden.id']], 'api_aware_association_test.exposed.hidden.id'];
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    #[DataProvider('ignoredSelectionProvider')]
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testIgnoredSelectionEmitsDeprecationBeforeNextMajor(array $payload, string $accessor): void
+    {
+        $messages = [];
+        $previousEmitDeprecations = Feature::$emitDeprecations;
+        $this->setEnvVars(['TESTS_RUNNING' => false]);
+        Feature::$emitDeprecations = true;
+        set_error_handler(static function (int $severity, string $message) use (&$messages): bool {
+            if ($severity !== \E_USER_DEPRECATED) {
+                return false;
+            }
+
+            $messages[] = $message;
+
+            return true;
+        });
+
+        try {
+            $criteria = $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
+        } finally {
+            restore_error_handler();
+            Feature::$emitDeprecations = $previousEmitDeprecations;
+        }
+
+        static::assertFalse($criteria->hasAssociation('hidden'));
+        static::assertSame([], $criteria->getFields());
+        static::assertCount(1, $messages);
+        static::assertStringContainsString($accessor, $messages[0]);
+        static::assertStringContainsString('ignored in 6.6', $messages[0]);
+        static::assertStringContainsString('HTTP 400 and FRAMEWORK__ACCESSOR_NOT_ALLOWED in 6.8', $messages[0]);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testNonVisibleRequestedAssociationsAreIgnoredBeforeNextMajor(): void
+    {
+        $criteria = new Criteria();
+        $payload = [
+            'associations' => [
+                'hidden' => ['associations' => ['doesNotExist' => []]],
+                'adminOnly' => [],
+                'exposed' => [
+                    'associations' => [
+                        'hidden' => ['associations' => ['doesNotExist' => []]],
+                        'exposed' => [],
+                    ],
+                ],
+            ],
+        ];
+
+        $criteria = $this->requestCriteriaBuilder->fromArray($payload, $criteria, $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
+
+        static::assertFalse($criteria->hasAssociation('hidden'));
+        static::assertFalse($criteria->hasAssociation('adminOnly'));
+        static::assertFalse($criteria->getAssociation('exposed')->hasAssociation('hidden'));
+        static::assertTrue($criteria->getAssociation('exposed')->hasAssociation('exposed'));
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testClientCannotRemoveOrModifyServerAddedAssociationsBeforeNextMajor(): void
+    {
+        $criteria = (new Criteria())->addAssociations(['hidden.exposed', 'adminOnly', 'exposed.hidden.exposed']);
+        $hidden = $criteria->getAssociation('hidden')->setLimit(7);
+        $filter = new EqualsFilter('id', Uuid::randomHex());
+        $hidden->addFilter($filter);
+        $nestedHidden = $criteria->getAssociation('exposed')->getAssociation('hidden')->setLimit(9);
+        $request = Request::create('/', Request::METHOD_POST, [
+            'associations' => [
+                'hidden' => [
+                    'limit' => 1,
+                    'associations' => ['doesNotExist' => []],
+                    'filter' => [['type' => 'invalid']],
+                ],
+                'adminOnly' => [],
+                'exposed' => ['associations' => ['hidden' => ['limit' => 1, 'fields' => ['doesNotExist']]]],
+            ],
+        ]);
+
+        $result = $this->requestCriteriaBuilder->handleRequest($request, $criteria, $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
+
+        static::assertSame($criteria, $result);
+        static::assertSame($hidden, $result->getAssociation('hidden'));
+        static::assertSame(7, $hidden->getLimit());
+        static::assertSame([$filter], $hidden->getFilters());
+        static::assertTrue($hidden->hasAssociation('exposed'));
+        static::assertFalse($hidden->hasAssociation('doesNotExist'));
+        static::assertTrue($result->hasAssociation('adminOnly'));
+        static::assertSame($nestedHidden, $result->getAssociation('exposed')->getAssociation('hidden'));
+        static::assertSame(9, $nestedHidden->getLimit());
+        static::assertTrue($nestedHidden->hasAssociation('exposed'));
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testNonVisibleAssociationsInFieldsAreIgnoredBeforeNextMajor(): void
+    {
+        $criteria = (new Criteria())->addFields(['exposed.id', 'hidden.id']);
+
+        $result = $this->requestCriteriaBuilder->fromArray([
+            'fields' => ['id', 'hidden.id', 'adminOnly.id', 'exposed.hidden.id', 'exposed.exposed.id'],
+            'associations' => ['exposed' => ['fields' => ['id', 'hidden.id']]],
+        ], $criteria, $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
+
+        static::assertSame($criteria, $result);
+        static::assertSame(['exposed.id', 'hidden.id', 'id', 'exposed.exposed.id'], $result->getFields());
+        static::assertSame(['id'], $result->getAssociation('exposed')->getFields());
+        static::assertFalse($result->hasAssociation('hidden'));
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testOnlyNonVisibleAssociationFieldsAreIgnoredBeforeNextMajor(): void
+    {
+        $criteria = $this->requestCriteriaBuilder->fromArray([
+            'fields' => ['hidden.id'],
+        ], new Criteria(), $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
+
+        static::assertSame([], $criteria->getFields());
+        static::assertFalse($criteria->hasAssociation('hidden'));
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testNonVisibleAssociationFilterIsStillRejectedBeforeNextMajor(): void
+    {
+        $this->expectExceptionObject(DataAbstractionLayerException::accessorNotAllowedInApiScope('api_aware_association_test.hidden.exposedId'));
+
+        $this->requestCriteriaBuilder->fromArray([
+            'filter' => [['type' => 'equals', 'field' => 'hidden.exposedId', 'value' => Uuid::randomHex()]],
+        ], new Criteria(), $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
     }
 
     public function testApiAwareAssociationIsAcceptedForStoreApi(): void

@@ -6,6 +6,14 @@
 
 <details>
 
+## Non-visible API associations are rejected
+
+Admin API and Store API requests, as well as app scripts using `services.repository` or `services.store`, now reject associations in the `associations` parameter that are not visible in the caller's API scope with HTTP 400 and `FRAMEWORK__ACCESSOR_NOT_ALLOWED`.
+Selections in `fields` that traverse a non-visible association are also rejected.
+In 6.6 and 6.7, these requested associations and their nested criteria, and these field selections, were ignored with a deprecation notice in debug mode.
+Remove associations that are not exposed in the relevant API scope and field selections that traverse them from your criteria before upgrading.
+App permissions do not change association visibility through `services.store`.
+
 ## Changed returned status code for `/store-api/document/download/` when no documents are found
 
 The Store API route `/store-api/document/download` returns now a standard Shopware domain exception with status code `404` and the code `DOCUMENT_FILETYPE_UNAVAILABLE` when the document has no generated document with the requested mime type, instead of returning a `204` status code.

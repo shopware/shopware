@@ -6,7 +6,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Content\Media\Cms\AbstractDefaultMediaResolver;
 use Shopware\Core\Content\Media\Cms\CmsElementMediaFieldProvider;
+use Shopware\Core\Content\Media\Cms\ImageCmsElementResolver;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -22,7 +24,7 @@ class CmsElementMediaFieldProviderTest extends TestCase
 
     public function testIsRegisteredForItsElementType(): void
     {
-        static::assertSame('image', (new CmsElementMediaFieldProvider('image', 'media'))->getType());
+        static::assertSame('image', $this->createProvider('media')->getType());
     }
 
     /**
@@ -34,7 +36,7 @@ class CmsElementMediaFieldProviderTest extends TestCase
     {
         $config = array_map(static fn (mixed $value) => ['source' => 'static', 'value' => $value], $values);
 
-        static::assertSame($expected, (new CmsElementMediaFieldProvider('image', $path))->getMediaIds($this->createSlot($config)));
+        static::assertSame($expected, $this->createProvider($path)->getMediaIds($this->createSlot($config)));
     }
 
     /**
@@ -71,18 +73,33 @@ class CmsElementMediaFieldProviderTest extends TestCase
         yield 'values which are no ids, like URLs' => ['media.*', ['media' => ['https://example.com/image.png', 'not-an-id', 42]], []];
     }
 
+    public function testReadsTheMediaOfEveryPath(): void
+    {
+        $slot = $this->createSlot([
+            'media' => ['source' => 'static', 'value' => self::MEDIA_ID],
+            'previewMedia' => ['source' => 'static', 'value' => self::OTHER_MEDIA_ID],
+        ]);
+
+        static::assertSame([self::MEDIA_ID, self::OTHER_MEDIA_ID], $this->createProvider('media', 'previewMedia')->getMediaIds($slot));
+    }
+
     public function testIgnoresMappedValues(): void
     {
         $slot = $this->createSlot(['media' => ['source' => 'mapped', 'value' => 'category.media']]);
 
-        static::assertSame([], (new CmsElementMediaFieldProvider('image', 'media'))->getMediaIds($slot));
+        static::assertSame([], $this->createProvider('media')->getMediaIds($slot));
     }
 
     public function testIgnoresOtherFields(): void
     {
         $slot = $this->createSlot(['previewMedia' => ['source' => 'static', 'value' => self::MEDIA_ID]]);
 
-        static::assertSame([], (new CmsElementMediaFieldProvider('image', 'media'))->getMediaIds($slot));
+        static::assertSame([], $this->createProvider('media')->getMediaIds($slot));
+    }
+
+    private function createProvider(string ...$paths): CmsElementMediaFieldProvider
+    {
+        return new CmsElementMediaFieldProvider(new ImageCmsElementResolver(static::createStub(AbstractDefaultMediaResolver::class)), array_values($paths));
     }
 
     /**

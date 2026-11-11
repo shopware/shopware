@@ -99,14 +99,14 @@ class CmsPageMediaUsageIndexer extends AbstractMediaUsageIndexer
 
         $rows = [];
         foreach ($backgrounds as $background) {
-            $rows[] = self::row($background, (string) $background['media_id']);
+            $rows[] = $this->row($background, (string) $background['media_id']);
         }
 
         foreach ($slots as $slot) {
             $config = json_decode((string) $slot['config'], true) ?? [];
 
             foreach ($this->mediaIdResolver->getMediaIds((string) $slot['type'], \is_array($config) ? $config : []) as $mediaId) {
-                $rows[] = self::row($slot, Uuid::fromHexToBytes($mediaId));
+                $rows[] = $this->row($slot, Uuid::fromHexToBytes($mediaId));
             }
         }
 
@@ -133,7 +133,7 @@ class CmsPageMediaUsageIndexer extends AbstractMediaUsageIndexer
      *
      * @return array<string, string>
      */
-    private static function row(array $page, string $mediaId): array
+    private function row(array $page, string $mediaId): array
     {
         return [
             'cms_page_id' => (string) $page['cms_page_id'],

@@ -4,7 +4,9 @@ namespace Shopware\Tests\Unit\Core\Content\Media\DataAbstractionLayer\MediaUsage
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Cms\AbstractDefaultMediaResolver;
 use Shopware\Core\Content\Media\Cms\CmsElementMediaFieldProvider;
+use Shopware\Core\Content\Media\Cms\ImageCmsElementResolver;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\CmsSlotMediaIdResolver;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -20,7 +22,7 @@ class CmsSlotMediaIdResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->resolver = new CmsSlotMediaIdResolver([new CmsElementMediaFieldProvider('image', 'media')]);
+        $this->resolver = new CmsSlotMediaIdResolver([new CmsElementMediaFieldProvider(new ImageCmsElementResolver(static::createStub(AbstractDefaultMediaResolver::class)), ['media'])]);
     }
 
     public function testAsksTheProviderOfTheElementForItsMedia(): void
@@ -37,8 +39,8 @@ class CmsSlotMediaIdResolverTest extends TestCase
         $mediaId = Uuid::randomHex();
         $previewId = Uuid::randomHex();
         $resolver = new CmsSlotMediaIdResolver([
-            new CmsElementMediaFieldProvider('image', 'media'),
-            new CmsElementMediaFieldProvider('image', 'previewMedia'),
+            new CmsElementMediaFieldProvider(new ImageCmsElementResolver(static::createStub(AbstractDefaultMediaResolver::class)), ['media']),
+            new CmsElementMediaFieldProvider(new ImageCmsElementResolver(static::createStub(AbstractDefaultMediaResolver::class)), ['previewMedia']),
         ]);
 
         $mediaIds = $resolver->getMediaIds('image', [

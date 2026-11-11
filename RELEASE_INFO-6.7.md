@@ -450,14 +450,6 @@ Apps no longer trigger a deprecation when they install or update with inline cus
 `Resources/config/custom-fields.xml` stays the preferred format for new apps.
 If an app ships both, the file takes precedence, the inline definition is ignored, and Shopware logs a warning.
 
-### Delivery state webhooks need `order_delivery:read` in 6.8
-
-The changed delivery stays out of the `state_enter.order_delivery.state.*` and `state_leave.order_delivery.state.*` webhooks until 6.8.
-From 6.8 on, their payload contains it as `orderDelivery`, and subscribing to them requires `order_delivery:read`.
-Apps subscribed to these webhooks should request `<read>order_delivery</read>` now, otherwise 6.8 rejects their manifest.
-
-Entity data an event marks as `hiddenFromWebhook` no longer counts towards the permissions a webhook subscription needs, which matches the check when the webhook is sent.
-
 ### App MCP prompt and resource responses
 
 App MCP prompt responses are now decoded as JSON arrays of messages with a `user` or `assistant` role and `content`, for example `[{"role":"user","content":"Hello"}]`.

@@ -4,7 +4,9 @@ namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
+use Shopware\Core\Content\Flow\Dispatching\Aware\OrderTransactionAware;
 use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\TransactionalAction;
@@ -113,15 +115,17 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
             if ($machine === self::ORDER) {
                 $machineId = $orderId;
             } elseif ($machine === self::ORDER_DELIVERY) {
-                $machineId = $this->getMachineIdFromOrderDelivery($flow, $orderId, $context);
+                $machineId = $this->getFlowOrPrimaryOrderDeliveryId($flow, $orderId, $context) ?? $this->getMachineIdFromOrderDelivery($orderId, $context);
+            } elseif ($machine === self::ORDER_TRANSACTION) {
+                $machineId = $this->getFlowOrPrimaryOrderTransactionId($flow, $orderId, $context) ?? $this->getMachineId($machine, $orderId);
             } else {
                 $machineId = $this->getMachineId($machine, $orderId);
             }
         } else {
             $machineId = match ($machine) {
                 self::ORDER => $orderId,
-                self::ORDER_DELIVERY => $this->getMachineIdFromOrderDelivery($flow, $orderId, $context),
-                self::ORDER_TRANSACTION => $this->getMachineIdFromOrderTransaction($orderId, $context),
+                self::ORDER_DELIVERY => $this->getFlowOrPrimaryOrderDeliveryId($flow, $orderId, $context) ?? $this->getMachineIdFromOrderDelivery($orderId, $context),
+                self::ORDER_TRANSACTION => $this->getFlowOrPrimaryOrderTransactionId($flow, $orderId, $context) ?? $this->getMachineIdFromOrderTransaction($orderId, $context),
                 default => $this->getMachineId($machine, $orderId),
             };
         }
@@ -164,34 +168,34 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
         ) ?: null;
     }
 
-    private function getMachineIdFromOrderDelivery(StorableFlow $flow, string $orderId, Context $context): ?string
+    private function getFlowOrPrimaryOrderDeliveryId(StorableFlow $flow, string $orderId, Context $context): ?string
     {
         $flowOrderDelivery = $flow->getData(self::FLOW_ORDER_DELIVERY);
         if ($flowOrderDelivery instanceof OrderDeliveryEntity && $flowOrderDelivery->getOrderId() === $orderId) {
             return $flowOrderDelivery->getId();
         }
 
-        $params = [
-            'id' => Uuid::fromHexToBytes($orderId),
-            'version' => Uuid::fromHexToBytes($context->getVersionId()),
-        ];
-
-        $primaryOrderDeliveryId = $this->connection->fetchOne(
+        return $this->connection->fetchOne(
             'SELECT LOWER(HEX(order_delivery.id)) FROM `order`
             INNER JOIN order_delivery ON order_delivery.id = `order`.primary_order_delivery_id
                 AND order_delivery.order_id = `order`.id
                 AND order_delivery.version_id = `order`.version_id
             WHERE `order`.id = :id AND `order`.version_id = :version',
-            $params,
-        );
+            [
+                'id' => Uuid::fromHexToBytes($orderId),
+                'version' => Uuid::fromHexToBytes($context->getVersionId()),
+            ],
+        ) ?: null;
+    }
 
-        if ($primaryOrderDeliveryId) {
-            return $primaryOrderDeliveryId;
-        }
-
+    private function getMachineIdFromOrderDelivery(string $orderId, Context $context): ?string
+    {
         return $this->connection->fetchOne(
             'SELECT LOWER(HEX(id)) FROM ' . self::ORDER_DELIVERY . ' WHERE order_id = :id AND version_id = :version ORDER BY JSON_EXTRACT(shipping_costs, \'$.totalPrice\') DESC',
-            $params,
+            [
+                'id' => Uuid::fromHexToBytes($orderId),
+                'version' => Uuid::fromHexToBytes($context->getVersionId()),
+            ],
         ) ?: null;
     }
 
@@ -245,6 +249,26 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
         );
 
         return $id ?: null;
+    }
+
+    private function getFlowOrPrimaryOrderTransactionId(StorableFlow $flow, string $orderId, Context $context): ?string
+    {
+        $flowOrderTransaction = $flow->getData(OrderTransactionAware::ORDER_TRANSACTION);
+        if ($flowOrderTransaction instanceof OrderTransactionEntity && $flowOrderTransaction->getOrderId() === $orderId) {
+            return $flowOrderTransaction->getId();
+        }
+
+        return $this->connection->fetchOne(
+            'SELECT LOWER(HEX(order_transaction.id)) FROM `order`
+            INNER JOIN order_transaction ON order_transaction.id = `order`.primary_order_transaction_id
+                AND order_transaction.order_id = `order`.id
+                AND order_transaction.version_id = `order`.version_id
+            WHERE `order`.id = :id AND `order`.version_id = :version',
+            [
+                'id' => Uuid::fromHexToBytes($orderId),
+                'version' => Uuid::fromHexToBytes($context->getVersionId()),
+            ],
+        ) ?: null;
     }
 
     private function getMachineIdFromOrderTransaction(string $orderId, Context $context): ?string

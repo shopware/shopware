@@ -367,6 +367,11 @@ On delivery transitions, `order.deliveries` now also contains the state and posi
 
 The listener dispatches the new `OrderDeliveryStateMachineStateChangeEvent` and `OrderTransactionStateMachineStateChangeEvent` for these transitions.
 They extend `OrderStateMachineStateChangeEvent`, so existing subscribers keep working, and add `getOrderDelivery()` and `getOrderTransaction()` with their id getters.
+### "Assign status" flow action picks the delivery and transaction of the flow
+
+The Flow Builder action "Assign status" (`action.set.order.state`) now changes the delivery and the transaction the flow carries as `orderDelivery` and `orderTransaction` data, if they belong to the order.
+Otherwise it changes the primary delivery and the primary transaction of the order (`primaryOrderDeliveryId`, `primaryOrderTransactionId`), and only for orders without them the delivery with the highest shipping costs and the newest transaction, as before.
+Orders placed through the checkout get the same delivery and transaction as before, because their primary delivery has the highest shipping costs and their primary transaction is the newest one.
 
 ### Orders with several deliveries keep their shipping costs and addresses
 
@@ -388,11 +393,6 @@ A route can restrict these associations, for example with `$criteria->getAssocia
 `payload.value` of promotion line items with an absolute, fixed or fixed unit discount now contains the value in the cart currency, using the advanced price of the currency or the currency factor.
 Orders placed before this change still contain the default currency value.
 Extensions and headless frontends that convert `payload.value` into the cart currency themselves must remove that conversion.
-### "Assign status" flow action picks the delivery of the flow
-
-The delivery status of the Flow Builder action "Assign status" (`action.set.order.state`) now changes the delivery the flow carries as `orderDelivery` data, if that delivery belongs to the order.
-Otherwise it changes the primary delivery of the order (`primaryOrderDeliveryId`), and only for orders without one the delivery with the highest shipping costs, as before.
-Orders placed through the checkout behave as before, because their primary delivery is the one with the highest shipping costs.
 
 ## API
 

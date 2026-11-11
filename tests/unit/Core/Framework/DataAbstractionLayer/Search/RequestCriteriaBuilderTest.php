@@ -36,9 +36,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -54,8 +52,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[Package('framework')]
 class RequestCriteriaBuilderTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     private RequestCriteriaBuilder $requestCriteriaBuilder;
 
     private StaticDefinitionInstanceRegistry $staticDefinitionRegistry;
@@ -622,51 +618,6 @@ class RequestCriteriaBuilderTest extends TestCase
         $this->expectExceptionObject(DataAbstractionLayerException::accessorNotAllowedInApiScope($expectedAccessor));
 
         $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
-    }
-
-    /**
-     * @return iterable<string, array{array<string, mixed>, string}>
-     */
-    public static function ignoredSelectionProvider(): iterable
-    {
-        yield 'association' => [['associations' => ['hidden' => []]], 'api_aware_association_test.hidden'];
-        yield 'field selection' => [['fields' => ['exposed.hidden.id']], 'api_aware_association_test.exposed.hidden.id'];
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    #[DataProvider('ignoredSelectionProvider')]
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testIgnoredSelectionEmitsDeprecationBeforeNextMajor(array $payload, string $accessor): void
-    {
-        $messages = [];
-        $previousEmitDeprecations = Feature::$emitDeprecations;
-        $this->setEnvVars(['TESTS_RUNNING' => false]);
-        Feature::$emitDeprecations = true;
-        set_error_handler(static function (int $severity, string $message) use (&$messages): bool {
-            if ($severity !== \E_USER_DEPRECATED) {
-                return false;
-            }
-
-            $messages[] = $message;
-
-            return true;
-        });
-
-        try {
-            $criteria = $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
-        } finally {
-            restore_error_handler();
-            Feature::$emitDeprecations = $previousEmitDeprecations;
-        }
-
-        static::assertFalse($criteria->hasAssociation('hidden'));
-        static::assertSame([], $criteria->getFields());
-        static::assertCount(1, $messages);
-        static::assertStringContainsString($accessor, $messages[0]);
-        static::assertStringContainsString('ignored in 6.6', $messages[0]);
-        static::assertStringContainsString('HTTP 400 and FRAMEWORK__ACCESSOR_NOT_ALLOWED in 6.8', $messages[0]);
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]

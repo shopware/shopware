@@ -6,7 +6,7 @@ title: Validate Store API associations and includes against ApiAware
 
 * Changed API responses and Store API searches to consistently respect field visibility restrictions.
   Validation errors with code `FRAMEWORK__ACCESSOR_NOT_ALLOWED` now use HTTP status 400 instead of 500.
-* Changed requests to ignore associations not visible in the caller's API scope and `fields` selections that traverse them, with a deprecation notice in debug mode.
+* Changed requests to silently ignore associations not visible in the caller's API scope and `fields` selections that traverse them.
   Associations and fields added by server code are preserved.
   Remove these non-visible selections before upgrading to 6.8, which rejects them with HTTP 400 and `FRAMEWORK__ACCESSOR_NOT_ALLOWED`.
 * Changed `services.store` in extensions and app scripts to only load associated entities exposed through the Store API.

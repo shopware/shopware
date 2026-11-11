@@ -10,7 +10,8 @@
 
 Admin API and Store API requests, as well as app scripts using `services.repository` or `services.store`, now reject associations in the `associations` parameter that are not visible in the caller's API scope with HTTP 400 and `FRAMEWORK__ACCESSOR_NOT_ALLOWED`.
 Selections in `fields` that traverse a non-visible association are also rejected.
-In 6.6 and 6.7, these requested associations and their nested criteria, and these field selections, were ignored with a deprecation notice in debug mode.
+In 6.6, these requested associations and their nested criteria, and these field selections, were ignored silently.
+In 6.7, they were ignored with a deprecation notice in debug mode.
 Remove associations that are not exposed in the relevant API scope and field selections that traverse them from your criteria before upgrading.
 App permissions do not change association visibility through `services.store`.
 

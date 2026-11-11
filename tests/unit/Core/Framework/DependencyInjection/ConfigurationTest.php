@@ -264,6 +264,7 @@ class ConfigurationTest extends TestCase
         static::assertSame([
             'repository_url' => null,
             'metadata_url' => null,
+            'archive_manifest_url' => null,
             'community_translations_url' => null,
             'documentation_url_snippet_key' => null,
             'completeness_threshold' => null,

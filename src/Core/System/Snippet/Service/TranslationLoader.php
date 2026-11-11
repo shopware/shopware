@@ -38,17 +38,6 @@ use Symfony\Contracts\Service\ResetInterface;
 #[Package('discovery')]
 class TranslationLoader extends AbstractTranslationLoader implements ResetInterface
 {
-    private const PLATFORM_BUNDLES = [
-        'Administration' => 'administration.json',
-        'Core' => 'messages.json',
-        'Storefront' => 'storefront.json',
-    ];
-
-    private const PLUGIN_BUNDLES = [
-        'Storefront',
-        'Administration',
-    ];
-
     private const CONCURRENT_DOWNLOADS = 10;
 
     /**
@@ -134,10 +123,7 @@ class TranslationLoader extends AbstractTranslationLoader implements ResetInterf
             throw SnippetException::languageDoesNotExist($locale);
         }
 
-        $this->downloadFiles([
-            ...$this->preparePlatformSnippets($locale),
-            ...$this->preparePluginSnippets($locale),
-        ]);
+        $this->downloadFiles($this->prepareDownloads($locale));
 
         // New plugin translation directories may have been written, invalidate the memoized lookup.
         $this->reset();
@@ -227,67 +213,21 @@ class TranslationLoader extends AbstractTranslationLoader implements ResetInterf
     /**
      * @return array<string, string>
      */
-    private function preparePluginSnippets(string $locale): array
+    private function prepareDownloads(string $locale): array
     {
         $destinationByUrl = [];
 
-        foreach ($this->config->plugins as $plugin) {
-            foreach (self::PLUGIN_BUNDLES as $bundle) {
-                $fileName = strtolower($bundle) . '.json';
-                $scope = 'Plugins/' . $plugin;
+        foreach (TranslationFileMap::forLocale($this->config, $locale, $this->getLocalePath($locale)) as $remotePath => $destination) {
+            $destinationDirectory = Path::getDirectory($destination);
 
-                [$url, $destination] = $this->prepareFile($bundle, $locale, $fileName, $scope);
-                $destinationByUrl[$url] = $destination;
+            if (!$this->translationWriter->directoryExists($destinationDirectory)) {
+                $this->translationWriter->createDirectory($destinationDirectory);
             }
+
+            $destinationByUrl[$this->config->repositoryUrl . '/' . $remotePath] = $destination;
         }
 
         return $destinationByUrl;
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function preparePlatformSnippets(string $locale): array
-    {
-        $destinationByUrl = [];
-
-        foreach (self::PLATFORM_BUNDLES as $bundle => $fileName) {
-            [$url, $destination] = $this->prepareFile($bundle, $locale, $fileName, 'Platform');
-            $destinationByUrl[$url] = $destination;
-        }
-
-        return $destinationByUrl;
-    }
-
-    /**
-     * @return array{string, string}
-     */
-    private function prepareFile(string $bundle, string $locale, string $fileName, string $scope): array
-    {
-        $destinationPath = Path::join($this->getLocalePath($locale), $scope);
-
-        if (!$this->translationWriter->directoryExists($destinationPath)) {
-            $this->translationWriter->createDirectory($destinationPath);
-        }
-
-        $downloadUrl = \sprintf(
-            '%s/%s/%s/%s/%s',
-            $this->config->repositoryUrl,
-            $locale,
-            $scope,
-            $bundle,
-            $fileName
-        );
-
-        if ($bundle === 'Core') {
-            // For the core bundle, we use a specific symfony messages name pattern: messages.{locale}.base.json
-            $destinationFileName = 'messages.' . $locale . '.base.json';
-        } else {
-            // For all other bundles, we use the bundle name e.g. administration.json
-            $destinationFileName = strtolower($bundle) . '.json';
-        }
-
-        return [$downloadUrl, Path::join($destinationPath, $destinationFileName)];
     }
 
     /**

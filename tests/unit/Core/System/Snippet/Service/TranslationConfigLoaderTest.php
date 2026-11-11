@@ -131,6 +131,58 @@ class TranslationConfigLoaderTest extends TestCase
         static::assertSame('https://example.com/repo', $loader->load()->repositoryUrl->__toString());
     }
 
+    public function testLoadsTheArchiveManifestUrl(): void
+    {
+        static::assertSame(
+            'https://github.com/shopware/translations/releases/latest/download/manifest.json',
+            (string) $this->translationConfigLoader->load()->archiveManifestUrl,
+        );
+    }
+
+    public function testOverridingTheRepositoryUrlDropsTheShippedArchive(): void
+    {
+        $loader = new TestableTranslationConfigLoader(new Filesystem(), ['repository_url' => 'https://example.com/repo']);
+
+        static::assertNull($loader->load()->archiveManifestUrl);
+    }
+
+    public function testOverridingTheRepositoryUrlKeepsAnOverriddenArchive(): void
+    {
+        $loader = new TestableTranslationConfigLoader(new Filesystem(), [
+            'repository_url' => 'https://example.com/repo',
+            'archive_manifest_url' => 'https://example.com/manifest.json',
+        ]);
+
+        static::assertSame('https://example.com/manifest.json', (string) $loader->load()->archiveManifestUrl);
+    }
+
+    public function testFalseSwitchesTheShippedArchiveOff(): void
+    {
+        $loader = new TestableTranslationConfigLoader(new Filesystem(), ['archive_manifest_url' => false]);
+
+        static::assertNull($loader->load()->archiveManifestUrl);
+    }
+
+    public function testFalseSwitchesAnOverriddenArchiveOff(): void
+    {
+        $loader = new TestableTranslationConfigLoader(new Filesystem(), [
+            'repository_url' => 'https://example.com/repo',
+            'archive_manifest_url' => false,
+        ]);
+
+        $config = $loader->load();
+
+        static::assertNull($config->archiveManifestUrl);
+        static::assertSame('https://example.com/repo', (string) $config->repositoryUrl);
+    }
+
+    public function testConfigWithoutArchiveManifestUrlHasNoArchive(): void
+    {
+        $this->translationConfigLoader->setConfigFileName('translation_without_archive.yaml');
+
+        static::assertNull($this->translationConfigLoader->load()->archiveManifestUrl);
+    }
+
     public function testOverrideMetadataUrl(): void
     {
         $loader = new TestableTranslationConfigLoader(new Filesystem(), ['metadata_url' => 'https://example.com/metadata.json']);

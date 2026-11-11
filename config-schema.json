@@ -1625,6 +1625,21 @@
                     "type": "boolean",
                     "default": false
                 },
+                "archive_manifest_url": {
+                    "description": "Manifest of the archive with all translations. Overriding `repository_url` without it downloads every file from that repository. `false` always downloads every file.",
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "const": false
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
                 "scheduled_task": {
                     "type": "object",
                     "additionalProperties": false,

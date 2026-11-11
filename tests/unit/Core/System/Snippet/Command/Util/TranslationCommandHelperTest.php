@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Command\Util\TranslationCommandHelper;
+use Shopware\Core\System\Snippet\SnippetException;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 /**
@@ -75,6 +76,34 @@ class TranslationCommandHelperTest extends TestCase
 
         $content = $output->fetch();
         static::assertStringContainsString('An error occurred while fetching metadata: "Test exception"', $content);
+    }
+
+    public function testPrintArchiveUnavailableNamesTheCauseOfTheReason(): void
+    {
+        $output = new BufferedOutput();
+        $exception = SnippetException::translationArchiveUnavailable(
+            '"https://example.com/translations.zip" cannot be downloaded',
+            new \RuntimeException("Client error: 404 Not Found <html>\n"),
+        );
+
+        TranslationCommandHelper::printArchiveUnavailable($output, $exception);
+
+        static::assertSame(
+            'The translation archive cannot be used: "https://example.com/translations.zip" cannot be downloaded (Client error: 404 Not Found <html>). Downloading the translation files one by one.' . \PHP_EOL,
+            $output->fetch(),
+        );
+    }
+
+    public function testPrintArchiveUnavailableWithoutACause(): void
+    {
+        $output = new BufferedOutput();
+
+        TranslationCommandHelper::printArchiveUnavailable($output, SnippetException::translationArchiveUnavailable('the archive is no zip file'));
+
+        static::assertSame(
+            'The translation archive cannot be used: the archive is no zip file. Downloading the translation files one by one.' . \PHP_EOL,
+            $output->fetch(),
+        );
     }
 
     public function testPrintNoTranslationsToUpdate(): void

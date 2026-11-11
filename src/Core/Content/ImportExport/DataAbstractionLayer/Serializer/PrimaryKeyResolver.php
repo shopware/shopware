@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageDefinition;
 
 #[Package('fundamentals@after-sales')]
@@ -53,7 +54,7 @@ class PrimaryKeyResolver
             $context
         );
 
-        return $this->resolveReverseOneToOnePrimaryKeys($definition, $record, $context);
+        return $this->resolveReverseOneToOnePrimaryKeys($config, $definition, $record, $context);
     }
 
     /**
@@ -133,13 +134,20 @@ class PrimaryKeyResolver
      * be updated if the record carries the referenced entity's primary key. Without it, the DAL generates a new id and
      * tries to insert a second referenced entity. Look the existing one up by its foreign key to the imported entity.
      *
+     * The record still holds the raw import values here, so ids are deserialized before they are used in a search.
+     * Errors are reported through `_error`, because this runs outside the per-row error handling of the import.
+     *
      * @param iterable<string, mixed> $record
      *
      * @return iterable<string, mixed>
      */
-    private function resolveReverseOneToOnePrimaryKeys(EntityDefinition $definition, iterable $record, Context $context): iterable
+    private function resolveReverseOneToOnePrimaryKeys(Config $config, EntityDefinition $definition, iterable $record, Context $context): iterable
     {
         $record = \is_array($record) ? $record : iterator_to_array($record);
+
+        if (isset($record['_error']) || $this->isCreateOnly($config)) {
+            return $record;
+        }
 
         foreach ($definition->getFields() as $field) {
             if (!$field instanceof OneToOneAssociationField) {
@@ -156,8 +164,15 @@ class PrimaryKeyResolver
                 continue;
             }
 
-            $parentId = $record[$localField->getPropertyName()] ?? null;
-            if (!\is_string($parentId) || $parentId === '') {
+            try {
+                $parentId = $this->fieldSerializer->deserialize($config, $localField, $record[$localField->getPropertyName()] ?? null);
+            } catch (\Throwable $exception) {
+                $record['_error'] = $exception;
+
+                return $record;
+            }
+
+            if (!\is_string($parentId) || !Uuid::isValid($parentId)) {
                 continue;
             }
 
@@ -170,12 +185,14 @@ class PrimaryKeyResolver
                 continue;
             }
 
-            if (isset($association[$referenceIdField->getPropertyName()])) {
+            // an exported file always contains the id column, which stays blank for associations that should be resolved
+            $associationId = $association[$referenceIdField->getPropertyName()] ?? null;
+            if (\is_string($associationId) ? trim($associationId) !== '' : $associationId !== null) {
                 continue;
             }
 
             $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter($referenceFkField->getPropertyName(), strtolower($parentId)));
+            $criteria->addFilter(new EqualsFilter($referenceFkField->getPropertyName(), $parentId));
             $criteria->setLimit(1);
 
             $id = $this->definitionInstanceRegistry
@@ -190,6 +207,15 @@ class PrimaryKeyResolver
         }
 
         return $record;
+    }
+
+    /**
+     * A create-only import fails for existing entities anyway, so there is nothing to resolve.
+     */
+    private function isCreateOnly(Config $config): bool
+    {
+        return ($config->get('createEntities') ?? true) === true
+            && ($config->get('updateEntities') ?? true) === false;
     }
 
     /**

@@ -3,9 +3,11 @@
 namespace Shopware\Tests\Unit\Core\Content\ImportExport\DataAbstractionLayer\Serializer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\AbstractFieldSerializer;
+use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\FieldSerializer;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\PrimaryKeyResolver;
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -95,19 +97,101 @@ class PrimaryKeyResolverTest extends TestCase
         static::assertSame([], $childRepository->searchedCriteria);
     }
 
+    #[DataProvider('blankAssociationIdProvider')]
+    public function testResolvesIdWhenTheAssociationIdIsBlank(string $blankId): void
+    {
+        $parentId = Uuid::randomHex();
+        $childId = Uuid::randomHex();
+
+        $record = $this->resolve(new StaticEntityRepository([[$childId]]), [
+            'id' => $parentId,
+            'child' => ['id' => $blankId, 'value' => 5],
+        ]);
+
+        static::assertSame(['id' => $parentId, 'child' => ['id' => $childId, 'value' => 5]], $record);
+    }
+
+    public static function blankAssociationIdProvider(): \Generator
+    {
+        yield 'empty id column of an exported file' => [''];
+        yield 'id column containing only whitespace' => ['  '];
+    }
+
+    #[DataProvider('parentIdNormalizationProvider')]
+    public function testSearchesWithTheParentIdThatIsWritten(string $rawParentId, string $expectedParentId): void
+    {
+        $childRepository = new StaticEntityRepository([[Uuid::randomHex()]]);
+
+        $record = $this->resolve($childRepository, [
+            'id' => $rawParentId,
+            'child' => ['value' => 5],
+        ]);
+
+        $criteria = $childRepository->searchedCriteria[0] ?? null;
+        static::assertNotNull($criteria);
+        static::assertEquals([new EqualsFilter('parentId', $expectedParentId)], $criteria->getFilters());
+        static::assertSame($rawParentId, $record['id'], 'The record keeps the raw value for the regular deserialization');
+    }
+
+    public static function parentIdNormalizationProvider(): \Generator
+    {
+        yield 'uuid is trimmed and lowercased' => ['  0190A5B4C3D2E1F0A9B8C7D6E5F4A3B2 ', '0190a5b4c3d2e1f0a9b8c7d6e5f4a3b2'];
+        yield 'non-uuid identifier is hashed like on write' => ['SW10000', Uuid::fromStringToHex('sw10000')];
+    }
+
+    public function testReportsAnInvalidParentIdAsRecordError(): void
+    {
+        $childRepository = new StaticEntityRepository([]);
+
+        $record = $this->resolve($childRepository, [
+            'id' => 'SW1|SW2',
+            'child' => ['value' => 5],
+        ]);
+
+        static::assertEquals(ImportExportException::deserializationFailed('id', 'SW1|SW2', 'uuid'), $record['_error'] ?? null);
+        static::assertSame([], $childRepository->searchedCriteria);
+    }
+
+    public function testSkipsLookupForRecordWithError(): void
+    {
+        $childRepository = new StaticEntityRepository([]);
+        $input = [
+            'id' => Uuid::randomHex(),
+            'child' => ['value' => 5],
+            '_error' => new \RuntimeException('previous error'),
+        ];
+
+        static::assertSame($input, $this->resolve($childRepository, $input));
+        static::assertSame([], $childRepository->searchedCriteria);
+    }
+
+    public function testSkipsLookupForCreateOnlyImport(): void
+    {
+        $childRepository = new StaticEntityRepository([]);
+        $input = [
+            'id' => Uuid::randomHex(),
+            'child' => ['value' => 5],
+        ];
+
+        $record = $this->resolve($childRepository, $input, new Config([], ['createEntities' => true, 'updateEntities' => false], []));
+
+        static::assertSame($input, $record);
+        static::assertSame([], $childRepository->searchedCriteria);
+    }
+
     /**
      * @param StaticEntityRepository<*> $childRepository
      * @param array<string, mixed> $record
      *
      * @return array<string, mixed>
      */
-    private function resolve(StaticEntityRepository $childRepository, array $record): array
+    private function resolve(StaticEntityRepository $childRepository, array $record, ?Config $config = null): array
     {
         $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('getRepository')->willReturnMap([[ChildDefinition::ENTITY_NAME, $childRepository]]);
 
-        $resolver = new PrimaryKeyResolver($registry, static::createStub(AbstractFieldSerializer::class));
-        $result = $resolver->resolvePrimaryKeyFromUpdatedBy(new Config([], [], []), $this->parentDefinition, $record);
+        $resolver = new PrimaryKeyResolver($registry, new FieldSerializer());
+        $result = $resolver->resolvePrimaryKeyFromUpdatedBy($config ?? new Config([], [], []), $this->parentDefinition, $record);
 
         return \is_array($result) ? $result : iterator_to_array($result);
     }

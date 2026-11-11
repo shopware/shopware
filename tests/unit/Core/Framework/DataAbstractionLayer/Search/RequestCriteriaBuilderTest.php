@@ -35,6 +35,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaArrayConverter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
@@ -675,9 +676,9 @@ class RequestCriteriaBuilderTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
-    public function testNonVisibleRequestedAssociationsAreRemovedBeforeNextMajor(): void
+    public function testNonVisibleRequestedAssociationsAreIgnoredBeforeNextMajor(): void
     {
-        $criteria = (new Criteria())->addAssociations(['hidden.exposed', 'adminOnly', 'exposed.hidden.exposed']);
+        $criteria = new Criteria();
         $payload = [
             'associations' => [
                 'hidden' => ['associations' => ['doesNotExist' => []]],
@@ -697,6 +698,40 @@ class RequestCriteriaBuilderTest extends TestCase
         static::assertFalse($criteria->hasAssociation('adminOnly'));
         static::assertFalse($criteria->getAssociation('exposed')->hasAssociation('hidden'));
         static::assertTrue($criteria->getAssociation('exposed')->hasAssociation('exposed'));
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testClientCannotRemoveOrModifyServerAddedAssociationsBeforeNextMajor(): void
+    {
+        $criteria = (new Criteria())->addAssociations(['hidden.exposed', 'adminOnly', 'exposed.hidden.exposed']);
+        $hidden = $criteria->getAssociation('hidden')->setLimit(7);
+        $filter = new EqualsFilter('id', Uuid::randomHex());
+        $hidden->addFilter($filter);
+        $nestedHidden = $criteria->getAssociation('exposed')->getAssociation('hidden')->setLimit(9);
+        $request = Request::create('/', Request::METHOD_POST, [
+            'associations' => [
+                'hidden' => [
+                    'limit' => 1,
+                    'associations' => ['doesNotExist' => []],
+                    'filter' => [['type' => 'invalid']],
+                ],
+                'adminOnly' => [],
+                'exposed' => ['associations' => ['hidden' => ['limit' => 1, 'fields' => ['doesNotExist']]]],
+            ],
+        ]);
+
+        $result = $this->requestCriteriaBuilder->handleRequest($request, $criteria, $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
+
+        static::assertSame($criteria, $result);
+        static::assertSame($hidden, $result->getAssociation('hidden'));
+        static::assertSame(7, $hidden->getLimit());
+        static::assertSame([$filter], $hidden->getFilters());
+        static::assertTrue($hidden->hasAssociation('exposed'));
+        static::assertFalse($hidden->hasAssociation('doesNotExist'));
+        static::assertTrue($result->hasAssociation('adminOnly'));
+        static::assertSame($nestedHidden, $result->getAssociation('exposed')->getAssociation('hidden'));
+        static::assertSame(9, $nestedHidden->getLimit());
+        static::assertTrue($nestedHidden->hasAssociation('exposed'));
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]

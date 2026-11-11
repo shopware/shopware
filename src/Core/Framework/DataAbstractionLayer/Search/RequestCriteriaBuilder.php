@@ -270,8 +270,6 @@ class RequestCriteriaBuilder
                         throw $exception;
                     }
 
-                    $criteria->removeAssociation($propertyName);
-
                     continue;
                 }
 

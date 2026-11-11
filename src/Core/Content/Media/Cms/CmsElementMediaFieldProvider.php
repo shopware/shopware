@@ -3,16 +3,17 @@
 namespace Shopware\Core\Content\Media\Cms;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Content\Cms\DataResolver\Element\CmsElementResolverInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * Reads the media of a CMS element from its config by a path, which starts with the config field and continues into its static value.
+ * Reads the media of a CMS element from its config by paths, each starts with the config field and continues into its static value.
  * Segments are separated by dots, `*` stands for every entry of a list, for example:
  *  - `media` reads the media id of the `media` field
  *  - `sliderItems.*.mediaId` reads the `mediaId` of every item of the `sliderItems` field
  *  - `slider.*.item.media.*.id` reads the `id` of every media of the item of every slider entry
- * The path has to end at a media id or a list of media ids.
+ * Each path has to end at a media id or a list of media ids.
  *
  * @final
  */
@@ -22,23 +23,36 @@ class CmsElementMediaFieldProvider implements CmsElementMediaProviderInterface
     private const WILDCARD = '*';
 
     /**
-     * @param string $type type of the CMS element, like `image-slider`
-     * @param string $path path to the media ids in the config, like `sliderItems.*.mediaId`
+     * @param CmsElementResolverInterface $resolver resolver of the CMS element, its type is the type of the provider
+     * @param list<string> $paths paths to the media ids in the config, like `sliderItems.*.mediaId`
      */
     public function __construct(
-        private readonly string $type,
-        private readonly string $path,
+        private readonly CmsElementResolverInterface $resolver,
+        private readonly array $paths,
     ) {
     }
 
     public function getType(): string
     {
-        return $this->type;
+        return $this->resolver->getType();
     }
 
     public function getMediaIds(CmsSlotEntity $slot): array
     {
-        $segments = explode('.', $this->path);
+        $mediaIds = [];
+        foreach ($this->paths as $path) {
+            array_push($mediaIds, ...$this->getMediaIdsByPath($slot, $path));
+        }
+
+        return $mediaIds;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getMediaIdsByPath(CmsSlotEntity $slot, string $path): array
+    {
+        $segments = explode('.', $path);
         $config = $slot->getFieldConfig()->get((string) array_shift($segments));
         if ($config === null || !$config->isStatic()) {
             return [];
@@ -46,7 +60,7 @@ class CmsElementMediaFieldProvider implements CmsElementMediaProviderInterface
 
         $values = [$config->getValue()];
         foreach ($segments as $segment) {
-            $values = self::walk($values, $segment);
+            $values = $this->walk($values, $segment);
         }
 
         $mediaIds = [];
@@ -66,7 +80,7 @@ class CmsElementMediaFieldProvider implements CmsElementMediaProviderInterface
      *
      * @return list<mixed>
      */
-    private static function walk(array $values, string $segment): array
+    private function walk(array $values, string $segment): array
     {
         $next = [];
         foreach ($values as $value) {

@@ -602,27 +602,27 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     $services->set('shopware.cms.element_media_provider.image', CmsElementMediaFieldProvider::class)
-        ->args(['image', 'media'])
+        ->args([service(ImageCmsElementResolver::class), ['media']])
         ->tag('shopware.cms.element_media_provider');
 
     $services->set('shopware.cms.element_media_provider.image-slider', CmsElementMediaFieldProvider::class)
-        ->args(['image-slider', 'sliderItems.*.mediaId'])
+        ->args([service(ImageSliderTypeDataResolver::class), ['sliderItems.*.mediaId']])
         ->tag('shopware.cms.element_media_provider');
 
     $services->set('shopware.cms.element_media_provider.image-gallery', CmsElementMediaFieldProvider::class)
-        ->args(['image-gallery', 'sliderItems.*.mediaId'])
+        ->args([service(ImageGalleryTypeDataResolver::class), ['sliderItems.*.mediaId']])
         ->tag('shopware.cms.element_media_provider');
 
     $services->set('shopware.cms.element_media_provider.video', CmsElementMediaFieldProvider::class)
-        ->args(['video', 'media'])
+        ->args([service(VideoCmsElementResolver::class), ['media']])
         ->tag('shopware.cms.element_media_provider');
 
     $services->set('shopware.cms.element_media_provider.youtube-video', CmsElementMediaFieldProvider::class)
-        ->args(['youtube-video', 'previewMedia'])
+        ->args([service(YoutubeVideoCmsElementResolver::class), ['previewMedia']])
         ->tag('shopware.cms.element_media_provider');
 
     $services->set('shopware.cms.element_media_provider.vimeo-video', CmsElementMediaFieldProvider::class)
-        ->args(['vimeo-video', 'previewMedia'])
+        ->args([service(VimeoVideoCmsElementResolver::class), ['previewMedia']])
         ->tag('shopware.cms.element_media_provider');
 
     $services->set(CmsSlotMediaIdResolver::class)

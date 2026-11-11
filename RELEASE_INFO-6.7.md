@@ -432,12 +432,12 @@ The media of an element are returned by its media provider, a service implementi
 The core registers providers for the image, image slider, image gallery, video, YouTube and Vimeo elements.
 Elements showing media should register a provider as well, so replacing those media invalidates the pages showing them.
 Several providers can be registered for the same element type.
-The `CmsElementMediaFieldProvider` reads the media by a path into the config, which starts with the config field.
-`*` stands for every entry of a list, so `sliderItems.*.mediaId` reads the `mediaId` of every slider item:
+The `CmsElementMediaFieldProvider` takes the resolver of the element, which names the element type, and the paths to the media in the config.
+A path starts with the config field, `*` stands for every entry of a list, so `sliderItems.*.mediaId` reads the `mediaId` of every slider item:
 
 ```php
 $services->set('my_plugin.cms.element_media_provider.my-gallery', CmsElementMediaFieldProvider::class)
-    ->args(['my-gallery', 'slides.*.picture.media.*.id'])
+    ->args([service(MyGalleryCmsElementResolver::class), ['slides.*.picture.media.*.id', 'background.mediaId']])
     ->tag('shopware.cms.element_media_provider');
 ```
 

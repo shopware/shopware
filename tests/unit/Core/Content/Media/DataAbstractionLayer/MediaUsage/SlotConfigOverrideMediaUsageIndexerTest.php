@@ -8,7 +8,9 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Media\Cms\AbstractDefaultMediaResolver;
 use Shopware\Core\Content\Media\Cms\CmsElementMediaFieldProvider;
+use Shopware\Core\Content\Media\Cms\ImageCmsElementResolver;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\CmsSlotMediaIdResolver;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\SlotConfigOverrideMediaUsageIndexer;
 use Shopware\Core\Framework\Context;
@@ -109,7 +111,7 @@ class SlotConfigOverrideMediaUsageIndexerTest extends TestCase
         return new SlotConfigOverrideMediaUsageIndexer(
             static::createStub(IteratorFactory::class),
             $this->connection,
-            new CmsSlotMediaIdResolver([new CmsElementMediaFieldProvider('image', 'media')]),
+            new CmsSlotMediaIdResolver([new CmsElementMediaFieldProvider(new ImageCmsElementResolver(static::createStub(AbstractDefaultMediaResolver::class)), ['media'])]),
             $registry->get($definition),
         );
     }

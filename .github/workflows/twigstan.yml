@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  # Runs in both Shopware repositories and contributor forks using public dependency forks.
+  # Runs in both Shopware repositories and contributor forks using public dependencies.
   twigstan:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
@@ -36,7 +36,6 @@ jobs:
           set -euo pipefail
           composer update twig/twig --with twig/twig:3.30.0 --no-interaction --no-progress
           composer install --working-dir=vendor-bin/twigstan --no-interaction --no-progress
-          sha256sum --check vendor-bin/twigstan/phpstan.phar.sha256
 
       - name: Test the collectors and analysis completion guard
         run: php vendor-bin/twigstan/vendor/bin/phpunit --configuration vendor-bin/twigstan/phpunit.xml

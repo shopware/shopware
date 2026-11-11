@@ -11,7 +11,6 @@ Use the worktree's Docker web container for these commands.
 
 ```sh
 composer install --working-dir=vendor-bin/twigstan
-sha256sum --check vendor-bin/twigstan/phpstan.phar.sha256
 composer lint:twigstan
 ```
 
@@ -24,7 +23,7 @@ php vendor-bin/twigstan/bin/report.php
 ```
 
 The report is written to `var/twigstan-report/`.
-It includes diagnostics, collected contexts, source-template coverage, timing, the dependency lock file and PHAR provenance.
+It includes diagnostics, collected contexts, source-template coverage, timing and the dependency lock file.
 The launchers first discover registered render listeners from the analysis container and infer their `setParameter()` value types with PHPStan.
 Conditional writes contribute optional fields, and listener priorities determine which writes replace earlier values.
 Controller route and scope listeners are applied at the render-event bridge, including constant template restrictions inferred from listener guards.
@@ -36,24 +35,17 @@ These methods are never registered as routes or executed.
 
 Coverage describes which source templates reach analysis.
 The two address-manager contexts inherited from `Struct::getVars()` still use a generic array type and have weaker member checks.
-Recursive include ancestry is bounded for convergence, with the immediate parent retained precisely.
+TwigStan 0.2.4 keeps unused loop-parent snapshots outside the context array to avoid exponential context growth.
 Findings require triage before becoming blocking checks.
 
-## Public dependency forks
+## Analyzer versions
 
-- [TwigStan experiment](https://github.com/keulinho/twigstan/tree/12069ced366b597928acd80fe2111e5850d1b550): context preservation, recursive convergence and separate resolver memoization.
-  The exact revision is pinned in `composer.lock` through the fork's `0.2.x-dev` branch alias.
-- [PHPStan experiment](https://github.com/keulinho/phpstan-src/tree/25f0ab3d8aefc6b5968bef28126507d0be282716): persistent array-shape preservation and the independent identical-array fast path.
-  Their PHP implementation is backported to the committed PHPStan 2.3.5 PHAR.
-  `patches/phpstan-2.3.5-phar.patch` records the exact archive-source changes.
+- [TwigStan 0.2.4](https://github.com/twigstan/twigstan/releases/tag/0.2.4) is installed from upstream and pinned in `composer.lock`.
+  It includes the loop-context fix for [issue #317](https://github.com/twigstan/twigstan/issues/317).
+- PHPStan 2.3.5 is installed from the official Composer package and pinned in `composer.lock`.
 
-The committed PHAR runs independently of Composer's PHPStan executable.
-The launcher forwards the tool's autoloader to parallel workers.
-Turbo is disabled until a matching native implementation is packaged.
-PHPDoc parser 2.4.1 matches the parser bundled in the PHAR.
-The MIT license is included in `PHPSTAN_LICENSE`.
-
-Terminal-template reuse remains deferred.
+The launcher runs the isolated Composer installation's PHPStan and forwards the tool's autoloader to parallel workers.
+PHPDoc parser 2.4.1 matches the parser bundled in PHPStan.
 
 ## Temporary draft dependencies
 

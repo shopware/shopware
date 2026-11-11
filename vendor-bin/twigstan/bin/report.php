@@ -90,7 +90,6 @@ try {
         count($report['failures']),
         $report['seconds'],
     ));
-    $filesystem->copy(dirname(__DIR__) . '/phpstan-build.json', $directory . '/phpstan-build.json', true);
     $filesystem->copy(dirname(__DIR__) . '/composer.lock', $directory . '/composer.lock', true);
     $filesystem->copy($root . '/var/cache/twigstan-listeners/context.json', $directory . '/listener-context.json', true);
     echo json_encode($report, \JSON_PRETTY_PRINT | \JSON_THROW_ON_ERROR), \PHP_EOL;

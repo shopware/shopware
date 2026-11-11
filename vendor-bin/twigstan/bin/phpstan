@@ -2,6 +2,6 @@
 <?php declare(strict_types=1);
 
 // PHPStan forwards this option to parallel workers and loads it before creating their container.
-$_SERVER['argv'][0] = dirname(__DIR__) . '/phpstan.phar';
+$_SERVER['argv'][0] = dirname(__DIR__) . '/vendor/phpstan/phpstan/phpstan.phar';
 array_splice($_SERVER['argv'], 1, 0, ['--verbose', '--autoload-file=' . dirname(__DIR__) . '/bootstrap.php']);
-require dirname(__DIR__) . '/phpstan.phar';
+require dirname(__DIR__) . '/vendor/phpstan/phpstan/phpstan.phar';

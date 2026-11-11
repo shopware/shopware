@@ -2,12 +2,6 @@
     "name": "shopware/twigstan-experiment",
     "description": "Isolated experimental Storefront template analysis",
     "license": "MIT",
-    "repositories": [
-        {
-            "type": "git",
-            "url": "https://github.com/keulinho/twigstan"
-        }
-    ],
     "require": {
         "php": "~8.4.0",
         "phpstan/extension-installer": "^1.4.3",
@@ -22,7 +16,7 @@
         "symfony/process": "~7.4.0",
         "symfony/string": "~7.4.0",
         "twig/twig": "^3.30.0",
-        "twigstan/twigstan": "^0.2.3@dev"
+        "twigstan/twigstan": "^0.2.4"
     },
     "require-dev": {
         "phpstan/phpstan-phpunit": "2.1.1",

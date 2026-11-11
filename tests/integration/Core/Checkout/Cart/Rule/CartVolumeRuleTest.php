@@ -107,7 +107,7 @@ class CartVolumeRuleTest extends TestCase
             'match / operator greater than equals / higher volume' => [Rule::OPERATOR_GTE, 100, true],
             // OPERATOR_LT
             'match / operator lower than / lower volume' => [Rule::OPERATOR_LT, 400, true],
-            'no match / operator lower  than / same volume' => [Rule::OPERATOR_LT, 360, false],
+            'no match / operator lower than / same volume' => [Rule::OPERATOR_LT, 360, false],
             'no match / operator lower than / higher volume' => [Rule::OPERATOR_LT, 100, false],
             // OPERATOR_LTE
             'match / operator lower than equals / lower volume' => [Rule::OPERATOR_LTE, 400, true],

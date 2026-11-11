@@ -144,8 +144,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
                 },
                 stubs: {
                     'sw-page': {
-                        name: 'sw-page',
-                        props: ['backRoute', 'backLabel'],
                         template: `<div class="sw-page">
                             <slot name="smart-bar-actions"></slot>
                             <slot name="content">
@@ -473,40 +471,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
         ]);
         expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
         expect(wrapper.find('.sw-product-detail__tab-general').exists()).toBe(false);
-    });
-
-    it.each([
-        { advancedMode: true, routeName: 'sw.product.detail.variants' },
-        { advancedMode: false, routeName: 'sw.product.detail.base' },
-    ])(
-        'should lead the back button of a variant to its main product, advanced mode $advancedMode',
-        async ({ advancedMode, routeName }) => {
-            await flushPromises();
-
-            Shopware.Store.get('swProductDetail').product = { parentId: 'parent-id' };
-            Shopware.Store.get('swProductDetail').advancedModeSetting = {
-                value: {
-                    ...advancedModeSettings.value,
-                    advancedMode: { enabled: advancedMode },
-                },
-            };
-            await nextTick();
-
-            const page = wrapper.getComponent({ name: 'sw-page' });
-            expect(page.props('backRoute')).toEqual({ name: routeName, params: { id: 'parent-id' } });
-            expect(page.props('backLabel')).toBe('sw-product.general.backToMainProduct');
-        },
-    );
-
-    it('should keep the default back button for a main product', async () => {
-        await flushPromises();
-
-        Shopware.Store.get('swProductDetail').product = { parentId: null };
-        await nextTick();
-
-        const page = wrapper.getComponent({ name: 'sw-page' });
-        expect(page.props('backRoute')).toBeNull();
-        expect(page.props('backLabel')).toBe('');
     });
 
     it('should show the layout meteor tab for variant products', async () => {

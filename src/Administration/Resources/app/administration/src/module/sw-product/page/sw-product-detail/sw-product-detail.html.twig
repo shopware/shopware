@@ -1,9 +1,5 @@
 {% block sw_product_detail %}
-<sw-page
-    class="sw-product-detail"
-    :back-route="parentProductRoute"
-    :back-label="parentProductRoute ? $t('sw-product.general.backToMainProduct') : ''"
->
+<sw-page class="sw-product-detail">
 
     {% block sw_product_detail_header %}
     <template #smart-bar-header>
@@ -108,7 +104,29 @@
 
             {% block sw_product_detail_content_top %}
             <template v-if="!isLoading && isChild">
-                <!-- Keeps the v-if chain intact for overrides that continue it with v-else -->
+                <router-link
+                    v-if="advanceModeEnabled"
+                    class="sw-card__back-link"
+                    :to="{ name: 'sw.product.detail.variants', params: { id: product.parentId } }"
+                >
+                    <mt-icon
+                        name="regular-long-arrow-left"
+                        size="var(--scale-size-16)"
+                    />
+                    {{ $t('sw-product.general.backToParent') }}
+                </router-link>
+
+                <router-link
+                    v-else
+                    class="sw-card__back-link"
+                    :to="{ name: 'sw.product.detail.base', params: { id: product.parentId } }"
+                >
+                    <mt-icon
+                        name="regular-long-arrow-left"
+                        size="var(--scale-size-16)"
+                    />
+                    {{ $t('sw-product.general.backToGeneralOverview') }}
+                </router-link>
             </template>
             {% endblock %}
 

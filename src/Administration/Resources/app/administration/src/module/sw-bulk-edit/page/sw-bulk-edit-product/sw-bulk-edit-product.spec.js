@@ -1753,26 +1753,4 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
             },
         });
     });
-
-    it('should lead the back button of a variant bulk edit to the main product', async () => {
-        const wrapper = await createWrapper(undefined, {
-            name: 'sw.bulk.edit.product',
-            params: { parentId: 'productId', includesDigital: '0' },
-        });
-        await flushPromises();
-
-        const backButton = wrapper.get('.smart-bar__back-btn');
-        expect(backButton.text()).toBe('sw-product.general.backToMainProduct');
-        expect(backButton.attributes('href')).toContain('/productId/variants');
-    });
-
-    it('should not lead the back button of a main product bulk edit to a main product', async () => {
-        const wrapper = await createWrapper(undefined, {
-            name: 'sw.bulk.edit.product',
-            params: { parentId: 'null', includesDigital: '0' },
-        });
-        await flushPromises();
-
-        expect(wrapper.find('.smart-bar__back-btn').exists()).toBe(false);
-    });
 });

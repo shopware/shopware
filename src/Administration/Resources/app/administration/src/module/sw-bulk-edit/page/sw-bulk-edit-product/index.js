@@ -170,17 +170,6 @@ export default {
             return this.$route.params.parentId !== 'null';
         },
 
-        /**
-         * Variants are bulk edited from their main product, so the smart bar back button leads back there.
-         */
-        parentProductRoute() {
-            if (!this.isChild) {
-                return null;
-            }
-
-            return { name: 'sw.product.detail.variants', params: { id: this.$route.params.parentId } };
-        },
-
         restrictedFields() {
             let restrictedFields = [];
             const includesDigital = this.$route.params.includesDigital;

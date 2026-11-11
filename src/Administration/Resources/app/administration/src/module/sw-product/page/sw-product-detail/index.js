@@ -140,20 +140,6 @@ export default {
             return Shopware.Store.get('swProductDetail').advanceModeEnabled;
         },
 
-        /**
-         * A variant has no route of its own above it, so the smart bar back button leads to its main product.
-         */
-        parentProductRoute() {
-            if (!this.isChild) {
-                return null;
-            }
-
-            return {
-                name: this.advanceModeEnabled ? 'sw.product.detail.variants' : 'sw.product.detail.base',
-                params: { id: this.product.parentId },
-            };
-        },
-
         productDetailTabs() {
             const createRouteTab = (label, routeName, additionalProperties = {}) => {
                 const route = {

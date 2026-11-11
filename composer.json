@@ -42,6 +42,13 @@
         "audit": {
             "abandoned": "report"
         },
+        "policy": {
+            "advisories": {
+                "ignore-id": {
+                    "PKSA-s52d-n7sx-trsg": "Affects only the SDK OAuth middleware, which Shopware does not use. Remove once mcp/sdk is bumped to 0.9 (#22000)."
+                }
+            }
+        },
         "sort-packages": true,
         "process-timeout": 7200,
         "allow-plugins": {

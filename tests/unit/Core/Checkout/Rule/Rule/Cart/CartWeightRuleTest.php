@@ -5,25 +5,11 @@ namespace Shopware\Tests\Unit\Core\Checkout\Rule\Rule\Cart;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\CartWeightRule;
-use Shopware\Core\Checkout\Cart\Rule\DeliveryRuleScope;
-use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
-use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 
@@ -197,47 +183,5 @@ class CartWeightRuleTest extends TestCase
 
         static::assertIsArray($result['operatorSet']['operators']);
         static::assertSame('weight', $result['fields']['weight']['config']['unit']);
-    }
-
-    public function testDeliveryScopeReadsTheWeightOfTheDelivery(): void
-    {
-        $rule = new CartWeightRule(Rule::OPERATOR_EQ, 3.0);
-
-        $cart = Generator::createCartWithDelivery();
-        $delivery = $this->createDeliveryWithWeight($cart, 3.0);
-
-        static::assertTrue($rule->match(new DeliveryRuleScope($delivery, $cart, static::createStub(SalesChannelContext::class))));
-    }
-
-    public function testCartScopeStillReadsTheWeightOfTheCartGoods(): void
-    {
-        $rule = new CartWeightRule(Rule::OPERATOR_EQ, 270.0);
-
-        $cart = Generator::createCartWithDelivery();
-        $delivery = $this->createDeliveryWithWeight($cart, 3.0);
-
-        static::assertTrue($rule->match(new CartRuleScope($cart, static::createStub(SalesChannelContext::class))));
-        static::assertFalse($rule->match(new DeliveryRuleScope($delivery, $cart, static::createStub(SalesChannelContext::class))));
-    }
-
-    private function createDeliveryWithWeight(Cart $cart, float $weight): Delivery
-    {
-        $lineItem = new LineItem('heavy', 'product', 'heavy', 1);
-        $lineItem->setDeliveryInformation(new DeliveryInformation(1, $weight, false));
-        $price = new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection());
-        $lineItem->setPrice($price);
-
-        $delivery = new Delivery(
-            new DeliveryPositionCollection([
-                new DeliveryPosition('heavy', $lineItem, 1, $price, new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable())),
-            ]),
-            new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
-            new ShippingMethodEntity(),
-            new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
-        );
-        $cart->getDeliveries()->add($delivery);
-
-        return $delivery;
     }
 }

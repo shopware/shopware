@@ -12,7 +12,7 @@ Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED` while ano
 ### Rules can be evaluated per cart delivery
 
 The new scope `Shopware\Core\Checkout\Cart\Rule\DeliveryRuleScope` extends `CartRuleScope` and carries the cart delivery a rule is evaluated for.
-The shipping address rules (`ShippingCountryRule`, `ShippingStateRule`, `ShippingZipCodeRule`, `ShippingStreetRule`, `ShippingCityRule`), `ShippingMethodRule`, `CartVolumeRule`, `CartWeightRule` and `CartHasDeliveryFreeItemRule` read the delivery instead of the sales channel context or the whole cart when they are matched in that scope.
+The shipping address rules (`ShippingCountryRule`, `ShippingStateRule`, `ShippingZipCodeRule`, `ShippingStreetRule`, `ShippingCityRule`) and `ShippingMethodRule` read the delivery instead of the sales channel context when they are matched in that scope.
 Every other scope behaves as before.
 
 With the `v6.8.0.0` feature flag active, the `DeliveryProcessor` matches the rules a delivery's shipping method references (availability rule, price row rules, calculation rules) against each delivery and stores the matching ids on the delivery, available through `Delivery::getRuleIds()`.

@@ -36,11 +36,7 @@ class CartHasDeliveryFreeItemRule extends Rule
             return false;
         }
 
-        $lineItems = $scope instanceof DeliveryRuleScope
-            ? $scope->getDelivery()->getPositions()->getLineItems()
-            : $scope->getCart()->getLineItems();
-
-        $hasFreeDeliveryItems = $this->hasFreeDeliveryItems($lineItems);
+        $hasFreeDeliveryItems = $this->hasFreeDeliveryItems($scope->getCart()->getLineItems());
 
         return $hasFreeDeliveryItems === $this->allowed;
     }

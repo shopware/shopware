@@ -6,27 +6,15 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Rule\CartHasDeliveryFreeItemRule;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
-use Shopware\Core\Checkout\Cart\Rule\DeliveryRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
-use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
-use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -123,25 +111,6 @@ class CartHasDeliveryFreeItemRuleTest extends TestCase
         yield 'no delivery information' => [null];
     }
 
-    public function testDeliveryScopeOnlyLooksAtTheItemsOfTheDelivery(): void
-    {
-        $freeItem = $this->getLineItem(true);
-        $paidItem = $this->getLineItem(false);
-
-        $cart = new Cart(Uuid::randomHex());
-        $cart->addLineItems(new LineItemCollection([$freeItem, $paidItem]));
-        $freeDelivery = $this->createDelivery($freeItem);
-        $paidDelivery = $this->createDelivery($paidItem);
-        $cart->addDeliveries(new DeliveryCollection([$freeDelivery, $paidDelivery]));
-        $context = static::createStub(SalesChannelContext::class);
-
-        $rule = new CartHasDeliveryFreeItemRule(true);
-
-        static::assertTrue($rule->match(new DeliveryRuleScope($freeDelivery, $cart, $context)));
-        static::assertFalse($rule->match(new DeliveryRuleScope($paidDelivery, $cart, $context)));
-        static::assertTrue($rule->match(new CartRuleScope($cart, $context)));
-    }
-
     private function getLineItem(?bool $freeDelivery = null): LineItem
     {
         $lineItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE);
@@ -151,20 +120,5 @@ class CartHasDeliveryFreeItemRuleTest extends TestCase
         }
 
         return $lineItem;
-    }
-
-    private function createDelivery(LineItem $lineItem): Delivery
-    {
-        $price = new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection());
-
-        return new Delivery(
-            new DeliveryPositionCollection([
-                new DeliveryPosition($lineItem->getId(), $lineItem, 1, $price, new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable())),
-            ]),
-            new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
-            new ShippingMethodEntity(),
-            new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
-        );
     }
 }

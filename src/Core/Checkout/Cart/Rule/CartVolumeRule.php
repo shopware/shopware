@@ -45,11 +45,7 @@ class CartVolumeRule extends Rule
             throw CartException::unsupportedValue(\gettype($this->volume), self::class);
         }
 
-        $volume = $scope instanceof DeliveryRuleScope
-            ? $scope->getDelivery()->getPositions()->getVolume()
-            : $this->calculateCartVolume($scope->getCart());
-
-        return RuleComparison::numeric($volume, $this->volume * self::VOLUME_FACTOR, $this->operator);
+        return RuleComparison::numeric($this->calculateCartVolume($scope->getCart()), $this->volume * self::VOLUME_FACTOR, $this->operator);
     }
 
     public function getConstraints(): array

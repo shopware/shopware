@@ -134,7 +134,8 @@ class Uuid
 
     public static function isValid(string $id): bool
     {
-        if (!preg_match('/' . self::VALID_PATTERN . '/', $id)) {
+        // D: $ must not match before a trailing newline
+        if (!preg_match('/' . self::VALID_PATTERN . '/D', $id)) {
             return false;
         }
 

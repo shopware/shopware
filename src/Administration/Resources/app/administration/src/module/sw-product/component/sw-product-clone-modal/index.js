@@ -88,6 +88,7 @@ export default {
                     name: `${this.product.name} ${this.$tc('global.default.copy')}`,
                     active: false,
                     mainVariantId: null,
+                    canonicalProductId: null,
                     variantListingConfig: variantListingConfigOverwrite,
                 },
             };
@@ -136,6 +137,7 @@ export default {
                 overwrites: {
                     parentId: duplicate.id,
                     productNumber: `${duplicate.productNumber}.${this.cloneProgress}`,
+                    canonicalProductId: null,
                 },
                 cloneChildren: false,
             };

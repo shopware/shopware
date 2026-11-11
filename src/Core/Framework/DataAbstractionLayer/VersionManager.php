@@ -16,9 +16,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\NoConstraint;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ResetOnClone;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -40,6 +42,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneIdMap;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
@@ -259,8 +262,13 @@ class VersionManager
 
         $keepIds = $newId === $id;
 
-        $data = $this->filterPropertiesForClone($definition, $data, $keepIds, $id, $definition, $context->getContext());
+        $clonedIds = new CloneIdMap();
+        $data = $this->filterPropertiesForClone($definition, $data, $keepIds, $id, $definition, $context->getContext(), $clonedIds);
         $data['id'] = $newId;
+
+        if (!$clonedIds->isEmpty()) {
+            $data = $this->remapForeignKeys($definition, $data, $clonedIds);
+        }
 
         $createdAtField = $definition->getField('createdAt');
         $updatedAtField = $definition->getField('updatedAt');
@@ -332,12 +340,19 @@ class VersionManager
     }
 
     /**
-     * @param array<string, array<string, mixed|null>|null> $data
+     * @param array<string, mixed> $data
      *
-     * @return array<string, array<string, mixed|null>|string|null>
+     * @return array<string, mixed>
      */
-    private function filterPropertiesForClone(EntityDefinition $definition, array $data, bool $keepIds, string $cloneId, EntityDefinition $cloneDefinition, Context $context): array
-    {
+    private function filterPropertiesForClone(
+        EntityDefinition $definition,
+        array $data,
+        bool $keepIds,
+        string $cloneId,
+        EntityDefinition $cloneDefinition,
+        Context $context,
+        CloneIdMap $clonedIds
+    ): array {
         $extensions = [];
         $payload = [];
 
@@ -423,10 +438,10 @@ class VersionManager
 
                 $nested = [];
                 foreach ($value as $item) {
-                    $nestedItem = $this->filterPropertiesForClone($reference, $item, $keepIds, $cloneId, $cloneDefinition, $context);
+                    $nestedItem = $this->filterPropertiesForClone($reference, $item, $keepIds, $cloneId, $cloneDefinition, $context, $clonedIds);
 
                     if (!$keepIds) {
-                        $nestedItem = $this->removePrimaryKey($field, $nestedItem);
+                        $nestedItem = $this->replacePrimaryKey($field, $nestedItem, $clonedIds);
                     }
 
                     $nested[] = $nestedItem;
@@ -461,10 +476,10 @@ class VersionManager
             if ($field instanceof OneToOneAssociationField && $value) {
                 $reference = $field->getReferenceDefinition();
 
-                $nestedItem = $this->filterPropertiesForClone($reference, $value, $keepIds, $cloneId, $cloneDefinition, $context);
+                $nestedItem = $this->filterPropertiesForClone($reference, $value, $keepIds, $cloneId, $cloneDefinition, $context, $clonedIds);
 
                 if (!$keepIds) {
-                    $nestedItem = $this->removePrimaryKey($field, $nestedItem);
+                    $nestedItem = $this->replacePrimaryKey($field, $nestedItem, $clonedIds);
                 }
 
                 $payloadCursor[$field->getPropertyName()] = $nestedItem;
@@ -611,15 +626,18 @@ class VersionManager
     }
 
     /**
-     * @param array<string, array<string, mixed>|string|null> $nestedItem
+     * Gives a cloned nested row a new id and records it, so references to the row can be rewritten once the whole
+     * payload is built. Primary keys that are not an id are removed and set by the parent.
      *
-     * @return array<string, array<string, mixed>|string|null>
+     * @param array<string, mixed> $nestedItem
+     *
+     * @return array<string, mixed>
      */
-    private function removePrimaryKey(AssociationField $field, array $nestedItem): array
+    private function replacePrimaryKey(AssociationField $field, array $nestedItem, CloneIdMap $clonedIds): array
     {
-        $pkFields = $field->getReferenceDefinition()->getPrimaryKeys();
+        $reference = $field->getReferenceDefinition();
 
-        foreach ($pkFields as $pkField) {
+        foreach ($reference->getPrimaryKeys() as $pkField) {
             /*
              * `EntityTranslationDefinition`s dont have an `id`, they use a composite primary key consisting of the
              * entity id and the `languageId`. When cloning the entity we want to copy the `languageId`. The entity id
@@ -633,12 +651,117 @@ class VersionManager
                 continue;
             }
 
-            if (\array_key_exists($pkField->getPropertyName(), $nestedItem)) {
-                unset($nestedItem[$pkField->getPropertyName()]);
+            $property = $pkField->getPropertyName();
+            if (!\array_key_exists($property, $nestedItem)) {
+                continue;
             }
+
+            $sourceId = $nestedItem[$property];
+            if ($pkField instanceof IdField && \is_string($sourceId)) {
+                $nestedItem[$property] = $clonedIds->cloneIdFor($reference->getEntityName(), $sourceId);
+
+                continue;
+            }
+
+            unset($nestedItem[$property]);
         }
 
         return $nestedItem;
+    }
+
+    /**
+     * Points every foreign key that referenced a cloned row at the clone of that row. The source order's
+     * delivery, for example, references the source order's address; the cloned delivery has to reference the
+     * cloned address.
+     *
+     * A constrained reference to a row nested below the referring row keeps the source's row: both rows would wait
+     * for each other on insert, like a state machine and its initial state.
+     *
+     * @param array<string, mixed> $payload
+     * @param array<string, array<string, true>>|null $nestedIds ids of the rows nested below this row, by entity name
+     *
+     * @return array<string, mixed>
+     */
+    private function remapForeignKeys(EntityDefinition $definition, array $payload, CloneIdMap $clonedIds, ?array $nestedIds = null): array
+    {
+        $nestedIds ??= $this->collectNestedIds($definition, $payload);
+
+        foreach ($definition->getFields() as $field) {
+            $property = $field->getPropertyName();
+            if (!\array_key_exists($property, $payload)) {
+                continue;
+            }
+
+            $value = $payload[$property];
+
+            if ($field instanceof FkField && !$field instanceof ReferenceVersionField) {
+                $entityName = $field->getReferenceDefinition()->getEntityName();
+                $clonedId = \is_string($value) ? $clonedIds->findCloneId($entityName, $value) : null;
+                if ($clonedId !== null && ($field->is(NoConstraint::class) || !isset($nestedIds[$entityName][$clonedId]))) {
+                    $payload[$property] = $clonedId;
+                }
+
+                continue;
+            }
+
+            if (!\is_array($value)) {
+                continue;
+            }
+
+            if ($field instanceof OneToManyAssociationField) {
+                $payload[$property] = array_map(
+                    fn (array $item): array => $this->remapForeignKeys($field->getReferenceDefinition(), $item, $clonedIds),
+                    array_filter($value, \is_array(...))
+                );
+
+                continue;
+            }
+
+            if ($field instanceof OneToOneAssociationField) {
+                $payload[$property] = $this->remapForeignKeys($field->getReferenceDefinition(), $value, $clonedIds);
+            }
+        }
+
+        // Extension associations sit one level down, under the same property names.
+        if (isset($payload['extensions']) && \is_array($payload['extensions'])) {
+            $payload['extensions'] = $this->remapForeignKeys($definition, $payload['extensions'], $clonedIds, $nestedIds);
+        }
+
+        return $payload;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     *
+     * @return array<string, array<string, true>>
+     */
+    private function collectNestedIds(EntityDefinition $definition, array $payload): array
+    {
+        $nestedIds = [];
+
+        foreach ($definition->getFields() as $field) {
+            if (!$field instanceof OneToManyAssociationField && !$field instanceof OneToOneAssociationField) {
+                continue;
+            }
+
+            $value = $field->is(Extension::class)
+                ? ($payload['extensions'][$field->getPropertyName()] ?? null)
+                : ($payload[$field->getPropertyName()] ?? null);
+            if (!\is_array($value)) {
+                continue;
+            }
+
+            $reference = $field->getReferenceDefinition();
+            foreach (array_filter($field instanceof OneToOneAssociationField ? [$value] : $value, \is_array(...)) as $item) {
+                if (\is_string($item['id'] ?? null)) {
+                    $nestedIds[$reference->getEntityName()][$item['id']] = true;
+                }
+
+                $nestedIds = array_replace_recursive($nestedIds, $this->collectNestedIds($reference, $item));
+            }
+        }
+
+        return $nestedIds;
     }
 
     private function addCloneAssociations(

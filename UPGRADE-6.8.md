@@ -1587,6 +1587,13 @@ The unused property was removed.
 
 # Administration
 
+## Sales channel lists removed from `sw-settings-search-live-search` and `sw-newsletter-recipient-list`
+
+The `salesChannels` data property, the `salesChannelRepository` computed property and the `fetchSalesChannels()` method of `sw-settings-search-live-search` were removed without replacement.
+The `salesChannelFilters` data property of `sw-newsletter-recipient-list` was removed without replacement.
+Both components no longer load sales channels when they are created, because their sales channel selects load their options themselves.
+Extensions that read these properties must load the sales channels themselves, for example with `repositoryFactory.create('sales_channel')`.
+
 ## Custom field set lookup removed from `sw-settings-listing-option-criteria-grid`
 
 The `sw-settings-listing-option-criteria-grid` component filters custom fields by `customFieldSet.relations.entityName` directly.
@@ -1632,6 +1639,8 @@ The deprecated computed properties that loaded the media default folder were rem
 
 | Component | Removed computed properties |
 |---|---|
+| `sw-cms-detail` | `defaultFolderRepository` |
+| `sw-cms-list` | `defaultFolderRepository` |
 | `sw-product-detail-base` | `mediaDefaultFolderRepository`, `mediaDefaultFolderCriteria` |
 | `sw-bulk-edit-product-media` | `mediaDefaultFolderRepository`, `mediaDefaultFolderCriteria` |
 

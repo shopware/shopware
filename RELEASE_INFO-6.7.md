@@ -27,7 +27,7 @@ See `UPGRADE-6.8.md` for an example.
 
 The new container condition `deliveryContainer` (`Shopware\Core\Checkout\Cart\Rule\DeliveryContainerRule`) matches its conditions against the delivery of a `DeliveryRuleScope`.
 Inside it, the cart holds only the delivery's line items and the delivery itself, while the price and the cart data stay those of the whole cart.
-In any other scope its conditions read the whole cart.
+Core only matches rules for a single delivery with the `v6.8.0.0` feature flag active; until then, and in every other scope, its conditions read the whole cart.
 Custom conditions that read the cart's line items or deliveries work inside the container without changes.
 
 With the `v6.8.0.0` feature flag active, the rule builder offers "Whole cart" or "This delivery" on the cart weight, cart volume and free shipping item conditions.

@@ -61,27 +61,40 @@
                 <slot name="smart-bar-back">
                     {% block sw_page_slot_smart_bar_back %}
                     <router-link
-                        v-if="parentRoute"
+                        v-if="backTarget"
                         v-slot="{ href, navigate }"
-                        :to="routerBack"
+                        :to="backTarget"
                         custom
                     >
                         <!-- Rendered as a real link so open-in-new-tab and middle click keep working. -->
                         <mt-button
                             is="a"
                             class="smart-bar__back-btn"
-                            variant="secondary"
+                            :class="{ 'smart-bar__back-btn--labeled': backTitle }"
+                            :variant="backTitle ? 'tertiary' : 'secondary'"
                             size="default"
-                            square
+                            :square="!backTitle"
                             :href="href"
-                            :aria-label="$t('global.sw-page.backButton')"
-                            :title="$t('global.sw-page.backButton')"
+                            :aria-label="backButtonLabel"
+                            :title="backButtonLabel"
                             @click="navigate"
                         >
                             <mt-icon
+                                v-if="backTitle"
+                                name="regular-chevron-left-xs"
+                                size="12px"
+                            />
+                            <mt-icon
+                                v-else
                                 name="solid-long-arrow-left"
                                 size="12px"
                             />
+                            <span
+                                v-if="backTitle"
+                                class="smart-bar__back-btn-label"
+                            >
+                                {{ backTitle }}
+                            </span>
                         </mt-button>
                     </router-link>
                     {% endblock %}

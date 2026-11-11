@@ -1,5 +1,9 @@
 {% block sw_product_detail %}
-<sw-page class="sw-product-detail">
+<sw-page
+    class="sw-product-detail"
+    :back-route="parentProductRoute"
+    :back-label="parentProductRoute ? $t('sw-product.general.backToMainProduct') : ''"
+>
 
     {% block sw_product_detail_header %}
     <template #smart-bar-header>
@@ -102,33 +106,7 @@
     <template #content>
         <sw-card-view v-if="!isProductNotFound">
 
-            {% block sw_product_detail_content_top %}
-            <template v-if="!isLoading && isChild">
-                <router-link
-                    v-if="advanceModeEnabled"
-                    class="sw-card__back-link"
-                    :to="{ name: 'sw.product.detail.variants', params: { id: product.parentId } }"
-                >
-                    <mt-icon
-                        name="regular-long-arrow-left"
-                        size="var(--scale-size-16)"
-                    />
-                    {{ $t('sw-product.general.backToParent') }}
-                </router-link>
-
-                <router-link
-                    v-else
-                    class="sw-card__back-link"
-                    :to="{ name: 'sw.product.detail.base', params: { id: product.parentId } }"
-                >
-                    <mt-icon
-                        name="regular-long-arrow-left"
-                        size="var(--scale-size-16)"
-                    />
-                    {{ $t('sw-product.general.backToGeneralOverview') }}
-                </router-link>
-            </template>
-            {% endblock %}
+            {% block sw_product_detail_content_top %}{% endblock %}
 
             {% block sw_product_detail_content_language_info %}
             <sw-language-info

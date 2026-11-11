@@ -9,10 +9,3 @@
         font-weight: var(--font-weight-semibold);
     }
 }
-
-.sw-card__back-link {
-    display: flow-root;
-    max-width: $content-width;
-    margin: var(--scale-size-4) auto var(--scale-size-26);
-    text-decoration: none;
-}

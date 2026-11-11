@@ -58,6 +58,25 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
 
     .sw-page__back-btn-container {
         grid-column: back-btn-start / back-btn-end;
+        min-width: 0;
+    }
+
+    // Lets a long label shrink to its column and truncate, instead of pushing the heading aside.
+    .smart-bar__back-btn.smart-bar__back-btn--labeled {
+        max-width: 100%;
+        grid-template-columns: minmax(0, auto);
+        font-size: var(--font-size-m);
+        font-weight: var(--font-weight-regular);
+
+        .mt-button__content {
+            grid-template-columns: auto minmax(0, auto);
+        }
+    }
+
+    .smart-bar__back-btn-label {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .smart-bar__content {
@@ -223,6 +242,11 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
             display: none;
         }
 
+        .sw-page__back-btn-container {
+            flex: 0 1 auto;
+            max-width: 25%;
+        }
+
         .sw-page__search-bar,
         .smart-bar__content {
             flex: 1;
@@ -254,6 +278,22 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
             .sw-page__top-bar {
                 justify-content: flex-end;
             }
+        }
+    }
+
+    // Too narrow for a label next to the heading: back to the square icon button.
+    @container sw-page (max-width: 960px) {
+        .smart-bar__back-btn.smart-bar__back-btn--labeled {
+            width: var(--scale-size-40);
+            padding-inline: 0;
+
+            .mt-button__content {
+                grid-template-columns: auto;
+            }
+        }
+
+        .smart-bar__back-btn-label {
+            display: none;
         }
     }
 }

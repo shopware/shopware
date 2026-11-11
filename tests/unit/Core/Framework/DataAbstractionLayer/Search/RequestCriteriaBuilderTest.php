@@ -46,6 +46,7 @@ use Shopware\Core\Framework\Util\Base64;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -662,6 +663,8 @@ class RequestCriteriaBuilderTest extends TestCase
 
     /**
      * @param array<string, mixed> $payload
+     *
+     * @deprecated tag:v6.8.0 - Remove with the compatibility feature flag.
      */
     #[DataProvider('protectedAssociationPayloadProvider')]
     public function testProtectedAssociationIsRejectedForStoreApi(array $payload, string $expectedAccessor): void
@@ -669,6 +672,49 @@ class RequestCriteriaBuilderTest extends TestCase
         $this->expectExceptionObject(DataAbstractionLayerException::accessorNotAllowedInApiScope($expectedAccessor));
 
         $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testNonVisibleRequestedAssociationsAreRemovedBeforeNextMajor(): void
+    {
+        $criteria = (new Criteria())->addAssociations(['hidden.exposed', 'adminOnly', 'exposed.hidden.exposed']);
+        $payload = [
+            'associations' => [
+                'hidden' => ['associations' => ['doesNotExist' => []]],
+                'adminOnly' => [],
+                'exposed' => [
+                    'associations' => [
+                        'hidden' => ['associations' => ['doesNotExist' => []]],
+                        'exposed' => [],
+                    ],
+                ],
+            ],
+        ];
+
+        $criteria = $this->requestCriteriaBuilder->fromArray($payload, $criteria, $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
+
+        static::assertFalse($criteria->hasAssociation('hidden'));
+        static::assertFalse($criteria->hasAssociation('adminOnly'));
+        static::assertFalse($criteria->getAssociation('exposed')->hasAssociation('hidden'));
+        static::assertTrue($criteria->getAssociation('exposed')->hasAssociation('exposed'));
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testNonVisibleAssociationInFieldsIsStillRejectedBeforeNextMajor(): void
+    {
+        $this->expectExceptionObject(DataAbstractionLayerException::accessorNotAllowedInApiScope('hidden'));
+
+        $this->requestCriteriaBuilder->fromArray(['fields' => ['exposed.hidden.id']], new Criteria(), $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testNonVisibleAssociationFilterIsStillRejectedBeforeNextMajor(): void
+    {
+        $this->expectExceptionObject(DataAbstractionLayerException::accessorNotAllowedInApiScope('api_aware_association_test.hidden.exposedId'));
+
+        $this->requestCriteriaBuilder->fromArray([
+            'filter' => [['type' => 'equals', 'field' => 'hidden.exposedId', 'value' => Uuid::randomHex()]],
+        ], new Criteria(), $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
     }
 
     public function testApiAwareAssociationIsAcceptedForStoreApi(): void

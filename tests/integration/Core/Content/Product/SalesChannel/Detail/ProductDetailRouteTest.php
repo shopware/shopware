@@ -12,6 +12,7 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -66,6 +67,61 @@ class ProductDetailRouteTest extends TestCase
 
         static::assertSame('product_detail', $response['apiAlias']);
         static::assertArrayHasKey('product', $response);
+    }
+
+    public function testStoreApiReadIgnoresNonVisibleAssociations(): void
+    {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
+        $url = $this->getUrl($this->ids->get('product'));
+        $this->browser->request('POST', $url);
+
+        $baseline = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), print_r($baseline, true));
+
+        $this->browser->request('POST', $url, [
+            'associations' => ['searchKeywords' => []],
+        ]);
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), print_r($response, true));
+        static::assertSame($baseline['product'], $response['product']);
+        static::assertArrayNotHasKey('searchKeywords', $response['product']);
+    }
+
+    public function testStoreApiCanLoadMainCategoryAssociation(): void
+    {
+        $product = (new ProductBuilder($this->ids, 'main-category-product'))
+            ->price(10)
+            ->category('main-category')
+            ->mainCategory($this->ids->get('sales-channel'), 'main-category')
+            ->visibility($this->ids->get('sales-channel'))
+            ->build();
+
+        static::getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
+
+        $this->browser->request('POST', $this->getUrl($this->ids->get('main-category-product')), [
+            'associations' => [
+                'mainCategories' => [
+                    'associations' => ['category' => []],
+                ],
+            ],
+        ]);
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), print_r($response, true));
+        static::assertCount(1, $response['product']['mainCategories']);
+
+        $mainCategory = $response['product']['mainCategories'][0];
+
+        static::assertArrayHasKey('category', $mainCategory);
+        static::assertSame($this->ids->get('main-category'), $mainCategory['category']['id']);
+        static::assertSame('main-category', $mainCategory['category']['translated']['name']);
+        static::assertArrayNotHasKey('product', $mainCategory);
+        static::assertArrayNotHasKey('salesChannel', $mainCategory);
     }
 
     public function testLoadProductWithMeasurementSystem(): void
@@ -381,9 +437,18 @@ class ProductDetailRouteTest extends TestCase
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
-        static::assertArrayNotHasKey('product', $response);
-        static::assertSame('FRAMEWORK__ACCESSOR_NOT_ALLOWED', $response['errors'][0]['code']);
+        if (Feature::isActive('v6.8.0.0')) {
+            static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
+            static::assertArrayNotHasKey('product', $response);
+            static::assertSame('FRAMEWORK__ACCESSOR_NOT_ALLOWED', $response['errors'][0]['code']);
+
+            return;
+        }
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+        foreach ($response['product']['productReviews'] as $review) {
+            static::assertArrayNotHasKey('customer', $review);
+        }
     }
 
     public function testIncludeForCustomFields(): void

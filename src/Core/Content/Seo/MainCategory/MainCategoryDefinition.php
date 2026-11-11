@@ -66,7 +66,7 @@ class MainCategoryDefinition extends EntityDefinition
             (new ReferenceVersionField(CategoryDefinition::class))->addFlags(new ApiAware(), new Required()),
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new ApiAware(), new Required())->setDescription('Unique identity of the sales channel.'),
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class),
-            new ManyToOneAssociationField('category', 'category_id', CategoryDefinition::class),
+            (new ManyToOneAssociationField('category', 'category_id', CategoryDefinition::class))->addFlags(new ApiAware()),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class),
         ]);
     }

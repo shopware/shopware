@@ -323,6 +323,13 @@ After a customer logs out, the storefront session now holds the context token th
 
 <details>
 
+## Non-visible Store API associations are rejected
+
+Store API requests and app scripts using `services.store` now reject non-visible associations in the `associations` parameter with HTTP 400 and `FRAMEWORK__ACCESSOR_NOT_ALLOWED`.
+In 6.7, these requested associations and their nested criteria were ignored.
+Remove associations that are not exposed through the Store API from your criteria before upgrading.
+App permissions do not change association visibility through `services.store`.
+
 ## Product reviews require a rating
 
 `POST /store-api/product/{productId}/review` rejects a request without `points`, or with `"points": null`, with `400` and a `VIOLATION::IS_BLANK_ERROR` on `/points`. Before, such a review was saved without a rating. Headless frontends that let customers skip the rating have to send `points` between 1 and 5.

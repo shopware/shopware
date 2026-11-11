@@ -9,8 +9,12 @@ API responses and Store API searches now consistently respect field visibility r
 Validation errors with code `FRAMEWORK__ACCESSOR_NOT_ALLOWED` now use HTTP status 400 instead of 500.
 Entity aggregations in the Admin API and in app scripts now also require the read privilege of the aggregated entity.
 
-Extensions and app scripts using `services.store` can only request associated entities exposed through the Store API.
+Store API visibility restrictions also apply to associations requested by app scripts using `services.store`.
+In 6.7, non-visible associations in the `associations` parameter are ignored, including their nested criteria.
+Starting with 6.8, these requests fail with HTTP 400 and `FRAMEWORK__ACCESSOR_NOT_ALLOWED`; remove non-visible associations from Store API requests and app scripts before upgrading.
 App permissions do not grant additional access to protected associations through `services.store`.
+
+The `mainCategories.category` association is now exposed through the Store API and `services.store`.
 
 ### ExtensionAPI repository operations no longer expose Administration access tokens
 

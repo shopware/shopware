@@ -740,6 +740,7 @@ Category, landing and search pages with a filtered product listing now offer a "
 The link targets the new `id="product-listing"` on `.cms-element-product-listing-wrapper` and is only shown from the `lg` breakpoint, where the filters are not collapsed into the off-canvas button.
 Themes that override the `product_listing` block in `storefront/component/product/listing.html.twig` without `parent()` must keep `id="product-listing"` on their wrapper, otherwise the link has no target.
 `storefront/component/skip-to-content.html.twig` has a new `productListing` parameter (default `null`) and the new block `component_skip_to_content_product_listing`.
+
 ### AI usage preferences in robots.txt
 
 The robots.txt rules accept the `Content-Usage` directive of the [IETF AI preferences drafts](https://datatracker.ietf.org/doc/draft-ietf-aipref-attach/) and the `Content-Signal` directive of [Content Signals](https://contentsignals.org/).
@@ -1504,7 +1505,7 @@ The product detail page links the terms below the GARAN label, in the new block 
 - Default metrics prefix was changed from `io.opentelemetry.contrib.php.shopware` to `shopware.platform`.
 - `http.server.request.duration` now shows client-facing latency without post-response processing.
 - `cart.calculation.duration` records failed calculations (added `result=success|failed` label).
-- `Telemetry::instrument()` now collects duration metrics also for failed callbacks. 
+- `Telemetry::instrument()` now collects duration metrics also for failed callbacks.
 - Added support for lazy labels calculation in `DurationMetric` and `ConfiguredMetric` (see instrumentors for usage examples).
 - New methods `Telemetry::isMetricEnabled()` / `Meter::isEnabled()` saying if a metric would be emitted, so expensive calculations may be skipped for disabled metrics.
 - Metrics are flushed after all other terminate tasks.

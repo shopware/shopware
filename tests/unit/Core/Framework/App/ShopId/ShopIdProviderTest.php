@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\ShopId;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
@@ -216,12 +217,13 @@ class ShopIdProviderTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
-    public function testStoresTheNewStampsOfMatchingFingerprints(): void
+    public function testStoresOnlyTheNewDomainStamp(): void
     {
         $shopId = ShopId::v2('1234567890', [
             AppUrl::IDENTIFIER => 'https://shop.example',
             SalesChannelDomainUrls::IDENTIFIER => 'stamp-taken-before-sorting',
             InstallationPath::IDENTIFIER => '/var/www/html',
+            'custom-fingerprint' => 'original-custom-stamp',
         ]);
 
         $systemConfigService = $this->createMock(SystemConfigService::class);
@@ -237,6 +239,7 @@ class ShopIdProviderTest extends TestCase
                     AppUrl::IDENTIFIER => 'https://shop.example',
                     SalesChannelDomainUrls::IDENTIFIER => 'sorted-stamp',
                     InstallationPath::IDENTIFIER => '/var/www/html',
+                    'custom-fingerprint' => 'original-custom-stamp',
                 ])->toArray(),
                 null,
                 false,
@@ -252,6 +255,7 @@ class ShopIdProviderTest extends TestCase
                 [
                     AppUrl::IDENTIFIER => new FingerprintMatch(AppUrl::IDENTIFIER, 'https://shop.example', 100),
                     SalesChannelDomainUrls::IDENTIFIER => new FingerprintMatch(SalesChannelDomainUrls::IDENTIFIER, 'sorted-stamp', 25),
+                    'custom-fingerprint' => new FingerprintMatch('custom-fingerprint', 'updated-custom-stamp', 25),
                 ],
                 [
                     InstallationPath::IDENTIFIER => new FingerprintMismatch(InstallationPath::IDENTIFIER, '/var/www/html', '/srv/www/html', 33),
@@ -304,10 +308,12 @@ class ShopIdProviderTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
-    public function testDoesNotStoreTheShopIdIfAllMatchingStampsAreUnchanged(): void
+    #[DataProvider('domainStampMatches')]
+    public function testDoesNotStoreOtherMatchingStamps(bool $domainMatches): void
     {
         $shopId = ShopId::v2('1234567890', [
-            AppUrl::IDENTIFIER => 'https://shop.example',
+            SalesChannelDomainUrls::IDENTIFIER => 'domain-stamp',
+            'custom-fingerprint' => 'original-custom-stamp',
         ]);
 
         $systemConfigService = $this->createMock(SystemConfigService::class);
@@ -318,10 +324,16 @@ class ShopIdProviderTest extends TestCase
         $systemConfigService->expects($this->never())->method('set');
 
         $fingerprintGenerator = static::createStub(FingerprintGenerator::class);
+        $matchingFingerprints = [
+            'custom-fingerprint' => new FingerprintMatch('custom-fingerprint', 'updated-custom-stamp', 25),
+        ];
+        if ($domainMatches) {
+            $matchingFingerprints[SalesChannelDomainUrls::IDENTIFIER] = new FingerprintMatch(SalesChannelDomainUrls::IDENTIFIER, 'domain-stamp', 25);
+        }
         $fingerprintGenerator->method('matchFingerprints')
             ->willReturn(new FingerprintComparisonResult(
-                [AppUrl::IDENTIFIER => new FingerprintMatch(AppUrl::IDENTIFIER, 'https://shop.example', 100)],
-                [],
+                $matchingFingerprints,
+                $domainMatches ? [] : [SalesChannelDomainUrls::IDENTIFIER => new FingerprintMismatch(SalesChannelDomainUrls::IDENTIFIER, 'domain-stamp', 'different-domain-stamp', 25)],
                 75,
             ));
 
@@ -333,6 +345,15 @@ class ShopIdProviderTest extends TestCase
         );
 
         static::assertSame('1234567890', $provider->getShopId()->id);
+    }
+
+    /**
+     * @return \Generator<string, array{bool}>
+     */
+    public static function domainStampMatches(): \Generator
+    {
+        yield 'domain stamp matches and is unchanged' => [true];
+        yield 'domain stamp does not match' => [false];
     }
 
     public function testDeletesShopId(): void

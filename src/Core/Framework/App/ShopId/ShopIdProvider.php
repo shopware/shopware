@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App\ShopId;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
+use Shopware\Core\Framework\App\ShopId\Fingerprint\SalesChannelDomainUrls;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
@@ -118,19 +119,16 @@ class ShopIdProvider implements ResetInterface
      */
     private function storeChangedStampsOfMatchingFingerprints(ShopId $shopId, FingerprintComparisonResult $comparison): ShopId
     {
-        $changedStamps = [];
+        $match = $comparison->matchingFingerprints[SalesChannelDomainUrls::IDENTIFIER] ?? null;
 
-        foreach ($comparison->matchingFingerprints as $identifier => $match) {
-            if ($shopId->getFingerprint($identifier) !== $match->storedStamp) {
-                $changedStamps[$identifier] = $match->storedStamp;
-            }
-        }
-
-        if ($changedStamps === []) {
+        if ($match === null || $shopId->getFingerprint(SalesChannelDomainUrls::IDENTIFIER) === $match->storedStamp) {
             return $shopId;
         }
 
-        $updatedShopId = ShopId::v2($shopId->id, [...$shopId->fingerprints, ...$changedStamps]);
+        $updatedShopId = ShopId::v2($shopId->id, [
+            ...$shopId->fingerprints,
+            SalesChannelDomainUrls::IDENTIFIER => $match->storedStamp,
+        ]);
         $this->setShopId($updatedShopId);
 
         return $updatedShopId;

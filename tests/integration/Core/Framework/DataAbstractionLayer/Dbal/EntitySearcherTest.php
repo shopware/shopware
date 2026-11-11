@@ -437,74 +437,73 @@ class EntitySearcherTest extends TestCase
     }
 
     /**
-     * @param list<string> $expectedKeys
+     * @param list<string> $expectedGroups
      */
-    #[DataProvider('sortRankingProvider')]
-    public function testSortRankingRepresentsEveryGroupByTheRowThatPositionsIt(FieldSorting $sorting, array $expectedKeys): void
+    #[DataProvider('mainVariantSortingProvider')]
+    public function testMainVariantSortingPositionsTheGroupByItsMainVariant(string $direction, array $expectedGroups): void
     {
-        $ids = $this->createPricedVariantGroup();
+        $ids = $this->createPricedVariantGroup(['mainVariantId' => 'expensive']);
 
-        $result = $this->searchSortRanked($ids, $sorting);
+        $result = $this->searchByMainVariant($ids, new FieldSorting('cheapestPrice', $direction));
 
-        static::assertSame(array_values($ids->getList($expectedKeys)), array_values($result->getIds()));
+        static::assertSame($expectedGroups, $this->getGroups($ids, $result));
     }
 
-    public static function sortRankingProvider(): \Generator
+    public static function mainVariantSortingProvider(): \Generator
     {
-        // groups are positioned by their cheapest row in both directions, so the cheapest row represents the group
-        yield 'cheapest price ascending' => [new FieldSorting('cheapestPrice', FieldSorting::ASCENDING), ['cheap', 'single']];
-        yield 'cheapest price descending' => [new FieldSorting('cheapestPrice', FieldSorting::DESCENDING), ['single', 'cheap']];
-        // other fields are positioned by MIN() ascending and MAX() descending
-        yield 'product number ascending' => [new FieldSorting('productNumber', FieldSorting::ASCENDING), ['cheap', 'single']];
-        yield 'product number descending' => [new FieldSorting('productNumber', FieldSorting::DESCENDING), ['single', 'mid']];
+        // the group is positioned by its main variant (100) instead of its cheapest variant (10)
+        yield 'ascending' => [FieldSorting::ASCENDING, ['single', 'parent']];
+        yield 'descending' => [FieldSorting::DESCENDING, ['parent', 'single']];
     }
 
     /**
-     * @param list<string> $expectedKeys
+     * @param array{mainVariantId?: string, displayParent?: bool} $listingConfig
+     * @param list<string> $productKeys
      */
-    #[DataProvider('mainVariantRankingProvider')]
-    public function testSortRankingPositionsTheGroupByItsMainVariant(string $direction, array $expectedKeys): void
+    #[DataProvider('mainVariantSortingFallbackProvider')]
+    public function testMainVariantSortingFallsBackToTheAggregatedValue(array $listingConfig, array $productKeys): void
     {
-        $ids = $this->createPricedVariantGroup(['mainVariantId' => 'expensive']);
+        $ids = $this->createPricedVariantGroup($listingConfig);
 
-        $result = $this->searchSortRanked($ids, new FieldSorting('cheapestPrice', $direction));
+        $result = $this->searchByMainVariant($ids, new FieldSorting('cheapestPrice', FieldSorting::ASCENDING), $productKeys);
 
-        static::assertSame(array_values($ids->getList($expectedKeys)), array_values($result->getIds()));
+        // the group is positioned by its cheapest variant (10)
+        static::assertSame(['parent', 'single'], $this->getGroups($ids, $result));
     }
 
-    public static function mainVariantRankingProvider(): \Generator
+    public static function mainVariantSortingFallbackProvider(): \Generator
     {
-        yield 'ascending' => [FieldSorting::ASCENDING, ['single', 'expensive']];
-        yield 'descending' => [FieldSorting::DESCENDING, ['expensive', 'single']];
+        $all = ['cheap', 'mid', 'expensive', 'single'];
+
+        yield 'without main variant' => [[], $all];
+        yield 'main variant is filtered out' => [['mainVariantId' => 'expensive'], ['cheap', 'mid', 'single']];
+        yield 'parent is displayed' => [['mainVariantId' => 'expensive', 'displayParent' => true], $all];
     }
 
-    public function testSortRankingFallsBackToTheSortingIfTheMainVariantDoesNotMatch(): void
+    public function testMainVariantSortingDoesNotApplyToOtherSortings(): void
     {
-        $ids = $this->createPricedVariantGroup(['mainVariantId' => 'expensive']);
+        $ids = $this->createPricedVariantGroup(['mainVariantId' => 'cheap']);
 
-        $result = $this->searchSortRanked(
-            $ids,
-            new FieldSorting('cheapestPrice', FieldSorting::ASCENDING),
-            ['cheap', 'mid', 'single'],
+        static::getContainer()->get('product.repository')->create(
+            [(new ProductBuilder($ids, 'hat'))->price(50)->build()],
+            Context::createDefaultContext(),
         );
 
-        static::assertSame(array_values($ids->getList(['cheap', 'single'])), array_values($result->getIds()));
+        // MAX(productNumber) positions the group by `mid` before `hat`, while its main variant `cheap` would be after it
+        $result = $this->searchByMainVariant(
+            $ids,
+            new FieldSorting('productNumber', FieldSorting::DESCENDING),
+            ['cheap', 'mid', 'expensive', 'hat'],
+        );
+
+        static::assertSame(['parent', 'single'], $this->getGroups($ids, $result));
     }
 
-    public function testSortRankingIgnoresTheMainVariantIfTheParentIsDisplayed(): void
-    {
-        $ids = $this->createPricedVariantGroup(['mainVariantId' => 'expensive', 'displayParent' => true]);
-
-        $result = $this->searchSortRanked($ids, new FieldSorting('cheapestPrice', FieldSorting::ASCENDING));
-
-        static::assertSame(array_values($ids->getList(['cheap', 'single'])), array_values($result->getIds()));
-    }
-
-    public function testSortRankingCountsGroupsAndDoesNotLeakItsHelperColumnsIntoTheResult(): void
+    public function testMainVariantSortingCountsGroups(): void
     {
         $ids = $this->createPricedVariantGroup(['mainVariantId' => 'expensive']);
 
-        $criteria = $this->createSortRankedCriteria($ids, new FieldSorting('cheapestPrice', FieldSorting::ASCENDING));
+        $criteria = $this->createMainVariantSortingCriteria($ids, new FieldSorting('cheapestPrice', FieldSorting::ASCENDING));
         $criteria->setLimit(1);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
@@ -516,14 +515,6 @@ class EntitySearcherTest extends TestCase
 
         static::assertSame(2, $result->getTotal());
         static::assertSame([$ids->get('single')], array_values($result->getIds()));
-
-        $data = $result->getDataOfId($ids->get('single'));
-        static::assertIsArray($data);
-        static::assertArrayNotHasKey('_rn', $data);
-        static::assertArrayNotHasKey('_group_0', $data);
-        static::assertArrayNotHasKey('_sort_0', $data);
-        static::assertArrayNotHasKey('_main_variant', $data);
-        static::assertArrayNotHasKey(Criteria::SCORE_FIELD, $data);
     }
 
     private function createSportProducts(): IdsCollection
@@ -557,8 +548,7 @@ class EntitySearcherTest extends TestCase
     }
 
     /**
-     * Creates a variant group (10, 60, 100) next to a single product (50). The ids are ordered against the prices, so
-     * that an arbitrary row of the group would most likely be the expensive one.
+     * Creates a variant group (10, 60, 100) next to a single product (50).
      *
      * @param array{mainVariantId?: string, displayParent?: bool} $listingConfig keys of the main variant
      */
@@ -593,11 +583,11 @@ class EntitySearcherTest extends TestCase
     /**
      * @param list<string> $productKeys
      */
-    private function searchSortRanked(IdsCollection $ids, FieldSorting $sorting, array $productKeys = ['cheap', 'mid', 'expensive', 'single']): IdSearchResult
+    private function searchByMainVariant(IdsCollection $ids, FieldSorting $sorting, array $productKeys = ['cheap', 'mid', 'expensive', 'single']): IdSearchResult
     {
         return $this->entitySearcher->search(
             static::getContainer()->get(SalesChannelProductDefinition::class),
-            $this->createSortRankedCriteria($ids, $sorting, $productKeys),
+            $this->createMainVariantSortingCriteria($ids, $sorting, $productKeys),
             self::createInheritanceContext(),
         );
     }
@@ -605,15 +595,30 @@ class EntitySearcherTest extends TestCase
     /**
      * @param list<string> $productKeys
      */
-    private function createSortRankedCriteria(IdsCollection $ids, FieldSorting $sorting, array $productKeys = ['cheap', 'mid', 'expensive', 'single']): Criteria
+    private function createMainVariantSortingCriteria(IdsCollection $ids, FieldSorting $sorting, array $productKeys = ['cheap', 'mid', 'expensive', 'single']): Criteria
     {
         $criteria = new Criteria();
-        $criteria->addState(Criteria::STATE_SORT_RANKED_GROUPING);
+        $criteria->addState(Criteria::STATE_MAIN_VARIANT_GROUP_SORTING);
         $criteria->addGroupField(new FieldGrouping('displayGroup'));
         $criteria->addFilter(new EqualsAnyFilter('id', $ids->getList($productKeys)));
         $criteria->addSorting($sorting);
 
         return $criteria;
+    }
+
+    /**
+     * Maps the found ids to their group, because any variant of a group may represent it.
+     *
+     * @return list<string>
+     */
+    private function getGroups(IdsCollection $ids, IdSearchResult $result): array
+    {
+        $variants = $ids->getList(['cheap', 'mid', 'expensive']);
+
+        return array_map(
+            static fn (string $id): string => \in_array($id, $variants, true) ? 'parent' : 'single',
+            array_values($result->getIds()),
+        );
     }
 
     private static function createInheritanceContext(): Context

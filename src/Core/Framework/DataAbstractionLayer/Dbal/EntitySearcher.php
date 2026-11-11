@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\VariantListingConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
@@ -82,9 +81,7 @@ class EntitySearcher implements EntitySearcherInterface
         }
 
         if ($query->hasState(Criteria::SCORE_FIELD) && $criteria->getGroupFields() !== []) {
-            $query = $this->buildRankedGroupingQuery($query, $definition, $criteria, $context, $table, $fields, rankByScore: true);
-        } elseif ($criteria->hasState(Criteria::STATE_SORT_RANKED_GROUPING) && $criteria->getGroupFields() !== []) {
-            $query = $this->buildRankedGroupingQuery($query, $definition, $criteria, $context, $table, $fields, rankByScore: false);
+            $query = $this->buildScoreRankedQuery($query, $definition, $criteria, $context, $table, $fields);
         } else {
             $this->queryHelper->addGroupBy($definition, $criteria, $context, $query, $table);
         }
@@ -158,30 +155,24 @@ class EntitySearcher implements EntitySearcherInterface
     }
 
     /**
-     * Wraps a grouped query with ROW_NUMBER() OVER(PARTITION BY <group fields> ORDER BY ...), so that every group is
-     * represented by exactly one deterministic row and the groups are ordered by the values of that row.
+     * Wraps a scored query with ROW_NUMBER() OVER(PARTITION BY ... ORDER BY _score DESC)
+     * to guarantee the highest-scoring row is selected for each group.
      *
-     * Score ranked (`$rankByScore`): the highest-scoring row represents the group.
      * Grouping the scored query directly would aggregate the score over all entities of a group instead, so that
      * a group would score higher the more entities it contains - product variants grouped by `displayGroup` for
      * example, where a product with three variants scored three times as high as a comparable single product.
      *
-     * Sort ranked ({@see Criteria::STATE_SORT_RANKED_GROUPING}): the row that decides the position of its group
-     * represents the group, so `MIN()` sortings pick the row with the lowest value and `MAX()` sortings the row with the
-     * highest one. Entities with a variant listing config prefer their configured main variant, which is the row a
-     * product listing displays for that group.
-     *
      * @param array<string, Field> $fields keyed by storage name
      */
-    private function buildRankedGroupingQuery(QueryBuilder $query, EntityDefinition $definition, Criteria $criteria, Context $context, string $table, array $fields, bool $rankByScore): QueryBuilder
+    private function buildScoreRankedQuery(QueryBuilder $query, EntityDefinition $definition, Criteria $criteria, Context $context, string $table, array $fields): QueryBuilder
     {
-        $primaryKeyOrder = [];
+        $rankingOrder = [];
         foreach ($fields as $storageName => $field) {
             if (!$field->is(PrimaryKey::class)) {
                 continue;
             }
 
-            $primaryKeyOrder[] = 'inner_q.' . EntityDefinitionQueryHelper::escape($storageName) . ' ASC';
+            $rankingOrder[] = 'inner_q.' . EntityDefinitionQueryHelper::escape($storageName) . ' ASC';
             $query->addGroupBy(
                 EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape($storageName)
             );
@@ -195,17 +186,6 @@ class EntitySearcher implements EntitySearcherInterface
             $partitionColumns[] = 'inner_q.`' . $alias . '`';
         }
 
-        $rankingOrder = [];
-        if ($rankByScore) {
-            $rankingOrder[] = 'inner_q._score DESC';
-        } else {
-            $mainVariantCondition = $this->buildMainVariantCondition($definition, $table, $context);
-            if ($mainVariantCondition !== null) {
-                $query->addSelect('IFNULL(' . $mainVariantCondition . ', 0) as `_main_variant`');
-                $rankingOrder[] = 'inner_q.`_main_variant` DESC';
-            }
-        }
-
         $outer = new QueryBuilder($this->connection);
 
         foreach ($query->getOrderByPairs() as $i => [$expression, $direction]) {
@@ -217,76 +197,26 @@ class EntitySearcher implements EntitySearcherInterface
             }
 
             $outer->addOrderBy('ranked.' . EntityDefinitionQueryHelper::escape($alias), $direction);
-
-            if (!$rankByScore) {
-                array_push($rankingOrder, ...$this->getRankingOrder($expression, $direction, 'inner_q.' . EntityDefinitionQueryHelper::escape($alias)));
-            }
         }
 
         $query->resetOrderBy();
 
         $innerSql = $query->getSQL();
 
-        $columns = array_keys($fields);
-        if ($rankByScore) {
-            $columns[] = Criteria::SCORE_FIELD;
-        }
-
-        foreach ($columns as $column) {
+        foreach ([...array_keys($fields), Criteria::SCORE_FIELD] as $column) {
             $outer->addSelect('ranked.' . EntityDefinitionQueryHelper::escape($column));
         }
 
         $outer->from(\sprintf(
-            '(SELECT inner_q.*, ROW_NUMBER() OVER(PARTITION BY %s ORDER BY %s) as _rn FROM (%s) inner_q)',
+            '(SELECT inner_q.*, ROW_NUMBER() OVER(PARTITION BY %s ORDER BY inner_q._score DESC, %s) as _rn FROM (%s) inner_q)',
             implode(', ', $partitionColumns),
-            implode(', ', [...$rankingOrder, ...$primaryKeyOrder]),
+            implode(', ', $rankingOrder),
             $innerSql
         ), 'ranked')->andWhere('ranked._rn = 1');
 
         $outer->setParameters($query->getParameters(), $query->getParameterTypes());
 
         return $outer;
-    }
-
-    /**
-     * Ranks the rows of a group the same way the grouped sorting aggregates them: a `MIN()` sorting positions a group
-     * by its lowest value, so the row with the lowest value ranks first - regardless of the sorting direction.
-     *
-     * @return list<string>
-     */
-    private function getRankingOrder(string $expression, string $direction, string $column): array
-    {
-        if (str_starts_with($expression, 'MIN(')) {
-            // MIN() ignores NULL values, while an ascending ORDER BY would rank them first
-            return [$column . ' IS NULL ASC', $column . ' ASC'];
-        }
-
-        if (str_starts_with($expression, 'MAX(')) {
-            return [$column . ' DESC'];
-        }
-
-        return [$column . ' ' . $direction];
-    }
-
-    /**
-     * Builds a condition which is true for the configured main variant (`variantListingConfig.mainVariantId`) of an
-     * entity, unless the parent itself is displayed instead (`variantListingConfig.displayParent`).
-     */
-    private function buildMainVariantCondition(EntityDefinition $definition, string $table, Context $context): ?string
-    {
-        if (!$definition->isInheritanceAware() || !$definition->getField('variantListingConfig') instanceof VariantListingConfigField) {
-            return null;
-        }
-
-        $mainVariantId = $this->queryHelper->getFieldAccessor('variantListingConfig.mainVariantId', $definition, $table, $context);
-        $displayParent = $this->queryHelper->getFieldAccessor('variantListingConfig.displayParent', $definition, $table, $context);
-
-        return \sprintf(
-            '(%s = LOWER(HEX(%s.`id`)) AND IFNULL(%s, "0") NOT IN ("1", "true"))',
-            $mainVariantId,
-            EntityDefinitionQueryHelper::escape($table),
-            $displayParent
-        );
     }
 
     private function addTotalCountMode(Criteria $criteria, QueryBuilder $query): void

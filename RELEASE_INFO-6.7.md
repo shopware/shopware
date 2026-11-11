@@ -9,13 +9,14 @@ Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED` while ano
 
 ## Core
 
-### Product listings sorted by the displayed variant
+### Product listings sorted by the price of the main variant
 
-Without Elasticsearch, a product listing that groups variants (`displayGroup`) is now ordered by the variant it displays for each group.
-Products with a configured main variant are positioned by the main variant, for example by its price, instead of by the cheapest variant.
-Products without a main variant show the variant that decides their position, instead of an arbitrary one.
+Without Elasticsearch, a product listing that groups variants (`displayGroup`) and is sorted by price now positions products with a configured main variant by the price of that main variant, instead of by the price of the cheapest variant.
+Products without a main variant, or whose main variant is filtered out, are still positioned by their cheapest variant.
+Other sortings are not affected.
+Listings searched with Elasticsearch or OpenSearch are not affected yet.
 
-The new `Criteria::STATE_SORT_RANKED_GROUPING` state enables this for any grouped DAL search.
+The new `Criteria::STATE_MAIN_VARIANT_GROUP_SORTING` state enables this for any grouped DAL search.
 
 ### Rule Builder: new "Item with longest side and girth" condition
 

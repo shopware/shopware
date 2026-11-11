@@ -369,8 +369,8 @@ class ProductListingLoader
 
         if ($displayAsGroup) {
             $this->addGrouping($criteria);
-            // order every variant group by the variant that is displayed for it, instead of an arbitrary one
-            $criteria->addState(Criteria::STATE_SORT_RANKED_GROUPING);
+            // position every variant group by its main variant, which is the variant the listing displays for it
+            $criteria->addState(Criteria::STATE_MAIN_VARIANT_GROUP_SORTING);
         }
 
         $isSearchRoute = $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);

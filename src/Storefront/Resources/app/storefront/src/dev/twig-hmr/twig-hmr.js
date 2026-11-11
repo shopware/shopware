@@ -16,7 +16,7 @@
  */
 import { Idiomorph } from 'idiomorph';
 import { createOwnership, removeServerPreserved, CLIENT_OWNED_SELECTOR, PRESERVE_ATTRIBUTE } from './ownership';
-import { planPluginElements, describeElement, TEMPORARY_ID_PREFIX } from './plugin-policy';
+import { planPluginElements, describeElement, cloneWithoutTemporaryIds, TEMPORARY_ID_PREFIX } from './plugin-policy';
 import { createInteractionState, findInertBackground, OVERLAY_SELECTOR } from './interaction-state';
 import { addReloadReasons, setRenderError, resetNotice } from './notice';
 
@@ -477,11 +477,7 @@ function createMorphCallbacks(target, plan, reasons, dryRun = null, replacements
             // The component system creates a component again for a new element, so a changed component element is replaced.
             if (entry.pluginNames.length === 0) {
                 if (!dryRun && (entry.changed || !matchesExpectedMarkup(entry, newNode))) {
-                    const next = newNode.cloneNode(true);
-                    if (entry.temporaryId !== null && next.id === entry.temporaryId) {
-                        next.removeAttribute('id');
-                    }
-                    replacements.push({ element: oldNode, next });
+                    replacements.push({ element: oldNode, next: cloneWithoutTemporaryIds(newNode) });
                 }
 
                 return false;
@@ -519,7 +515,7 @@ function matchesExpectedMarkup(entry, newNode) {
         return newNode.id === entry.temporaryId;
     }
 
-    return entry.expectedMarkup === null || newNode.outerHTML === entry.expectedMarkup;
+    return entry.expectedMarkup === null || cloneWithoutTemporaryIds(newNode).outerHTML === entry.expectedMarkup;
 }
 
 let temporaryIdCounter = 0;

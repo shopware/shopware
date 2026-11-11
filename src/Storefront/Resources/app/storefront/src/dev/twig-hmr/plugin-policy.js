@@ -162,3 +162,21 @@ export function describeElement(element) {
 
     return `<${element.localName}${id}${classes}>`;
 }
+
+/**
+ * The new markup still holds the temporary ids during the morph, also on plugin elements inside of the element.
+ *
+ * @param {Element} element
+ * @returns {Element} a deep clone of the element without temporary ids
+ */
+export function cloneWithoutTemporaryIds(element) {
+    const clone = element.cloneNode(true);
+
+    [clone, ...clone.querySelectorAll(`[id^="${TEMPORARY_ID_PREFIX}"]`)].forEach((node) => {
+        if (TEMPORARY_ID_PATTERN.test(node.id)) {
+            node.removeAttribute('id');
+        }
+    });
+
+    return clone;
+}

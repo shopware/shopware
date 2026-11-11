@@ -60,6 +60,7 @@ describe('dev/twig-hmr with real plugins', () => {
         global.CSS ??= { escape: (value) => value };
         PluginManager.register('QuantitySelector', QuantitySelectorPlugin, '[data-quantity-selector]');
         PluginManager.register('Track', TrackPlugin, '[data-track]');
+        PluginManager.register('Listing', class extends Plugin { init() {} }, '[data-listing]');
     });
 
     beforeEach(() => {
@@ -120,6 +121,20 @@ describe('dev/twig-hmr with real plugins', () => {
         expect(document.querySelector('.slider')).toBe(sliderElement);
         expect(sliderElement.hasAttribute('id')).toBe(false);
         expect(PluginManager.getPluginInstanceFromElement(sliderElement, 'Track')).toBe(instance);
+        expect(document.getElementById(NOTICE_ID)).toBeNull();
+    });
+
+    it('keeps an unchanged plugin element with a plugin element without an id inside without a notice', async () => {
+        const body = (heading) => `<main><h1>${heading}</h1><div id="listing" data-listing>${slider()}</div></main>`;
+        await load(body('Version 1'));
+        const listing = document.getElementById('listing');
+        pages['http://localhost/'] = page(body('Version 2'));
+
+        await refresh(['listing.html.twig']);
+
+        expect(document.querySelector('h1').textContent).toBe('Version 2');
+        expect(document.getElementById('listing')).toBe(listing);
+        expect(document.querySelector('.slider').hasAttribute('id')).toBe(false);
         expect(document.getElementById(NOTICE_ID)).toBeNull();
     });
 

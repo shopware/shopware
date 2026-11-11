@@ -150,6 +150,20 @@ describe('dev/twig-hmr with components of the component system', () => {
         expect(document.getElementById(NOTICE_ID)).toBeNull();
     });
 
+    it('replaces a changed component element without the temporary ids of the components inside', async () => {
+        await load(`<h1>Version 1</h1>${counter('Add', counter('Inner'))}`);
+        pages['http://localhost/'] = page(`<h1>Version 2</h1>${counter('Add to cart', counter('Inner'))}`);
+
+        await refreshAndSettle(['components/counter.html.twig']);
+
+        expect(document.querySelector('.counter button').textContent).toBe('Add to cart');
+        expect(document.querySelectorAll('.counter')).toHaveLength(2);
+        document.querySelectorAll('.counter').forEach((element) => {
+            expect(element.hasAttribute('id')).toBe(false);
+        });
+        expect(document.getElementById(NOTICE_ID)).toBeNull();
+    });
+
     it('creates a component that the template adds and destroys one that it removes', async () => {
         await load('<main><h1>Version 1</h1></main>');
         pages['http://localhost/'] = page(`<main><h1>Version 2</h1>${counter('Add')}</main>`);

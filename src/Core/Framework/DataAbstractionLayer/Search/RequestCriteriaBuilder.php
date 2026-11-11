@@ -270,6 +270,12 @@ class RequestCriteriaBuilder
                         throw $exception;
                     }
 
+                    Feature::triggerDeprecationOrThrow('v6.8.0.0', \sprintf(
+                        'Requesting the association "%s.%s" is deprecated because it is not available in the current API scope. It is ignored in 6.7 and will be rejected with HTTP 400 and FRAMEWORK__ACCESSOR_NOT_ALLOWED in 6.8. Remove it from the requested associations.',
+                        $definition->getEntityName(),
+                        $propertyName,
+                    ));
+
                     continue;
                 }
 

@@ -41,8 +41,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Feature\Triggerer;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Util\Base64;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -60,6 +63,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(RequestCriteriaBuilder::class)]
 class RequestCriteriaBuilderTest extends TestCase
 {
+    use EnvTestBehaviour;
+
     private RequestCriteriaBuilder $requestCriteriaBuilder;
 
     private StaticDefinitionInstanceRegistry $staticDefinitionRegistry;
@@ -673,6 +678,33 @@ class RequestCriteriaBuilderTest extends TestCase
         $this->expectExceptionObject(DataAbstractionLayerException::accessorNotAllowedInApiScope($expectedAccessor));
 
         $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testIgnoredAssociationEmitsDeprecationBeforeNextMajor(): void
+    {
+        $triggerer = $this->createMock(Triggerer::class);
+        $triggerer->expects($this->once())->method('deprecation')->with(
+            '',
+            '',
+            'Requesting the association "api_aware_association_test.hidden" is deprecated because it is not available in the current API scope. It is ignored in 6.7 and will be rejected with HTTP 400 and FRAMEWORK__ACCESSOR_NOT_ALLOWED in 6.8. Remove it from the requested associations.',
+        );
+        $previousTriggerer = Feature::$triggerer;
+        $previousEmitDeprecations = Feature::$emitDeprecations;
+        $this->setEnvVars(['TESTS_RUNNING' => false]);
+        Feature::$triggerer = $triggerer;
+        Feature::$emitDeprecations = true;
+
+        try {
+            $criteria = $this->requestCriteriaBuilder->fromArray([
+                'associations' => ['hidden' => []],
+            ], new Criteria(), $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
+
+            static::assertFalse($criteria->hasAssociation('hidden'));
+        } finally {
+            Feature::$triggerer = $previousTriggerer;
+            Feature::$emitDeprecations = $previousEmitDeprecations;
+        }
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]

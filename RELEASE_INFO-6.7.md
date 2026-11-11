@@ -11,6 +11,7 @@ Entity aggregations in the Admin API and in app scripts now also require the rea
 
 Store API visibility restrictions also apply to associations requested by app scripts using `services.store`.
 In 6.7, non-visible associations in the `associations` parameter are ignored, including their nested criteria.
+With debug mode enabled, these requests emit a deprecation notice identifying the ignored association.
 Starting with 6.8, these requests fail with HTTP 400 and `FRAMEWORK__ACCESSOR_NOT_ALLOWED`; remove non-visible associations from Store API requests and app scripts before upgrading.
 App permissions do not grant additional access to protected associations through `services.store`.
 

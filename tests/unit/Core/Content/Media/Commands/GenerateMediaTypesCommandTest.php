@@ -98,7 +98,7 @@ class GenerateMediaTypesCommandTest extends TestCase
     {
         // first search returns the total count, second search the first (and only) batch
         $repository = new StaticEntityRepository([
-            new MediaCollection([$media]),
+            [$media->getId()],
             new MediaCollection([$media]),
         ]);
 

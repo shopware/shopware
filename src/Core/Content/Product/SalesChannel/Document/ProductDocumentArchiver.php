@@ -84,7 +84,7 @@ class ProductDocumentArchiver
         $criteria->setTitle('product-document-archiver::documents');
         // inherited, unlike `productId`
         $criteria->addFilter(new EqualsFilter('product.id', $productId));
-        $criteria->addSorting(new FieldSorting('position'));
+        $criteria->addSorting(new FieldSorting('position'), new FieldSorting('id'));
 
         return $this->productDocumentRepository->search($criteria, $context->getContext())->getEntities();
     }

@@ -98,7 +98,7 @@ class ProductDocumentArchiverTest extends TestCase
             new StaticEntityRepository([
                 function (Criteria $criteria) use ($manual, $sheet): ProductDocumentCollection {
                     static::assertEquals([new EqualsFilter('product.id', $this->productId)], $criteria->getFilters());
-                    static::assertEquals([new FieldSorting('position')], $criteria->getSorting());
+                    static::assertEquals([new FieldSorting('position'), new FieldSorting('id')], $criteria->getSorting());
 
                     return new ProductDocumentCollection([$this->createDocument($manual), $this->createDocument($sheet), $this->createDocument($manual)]);
                 },

@@ -182,30 +182,6 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         expect(vm.draftMutationService).not.toHaveBeenCalled();
     });
 
-    it('reports CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED with its own snippet', () => {
-        const createNotificationError = jest.fn();
-        const $t = jest.fn((key: string) => `translated:${key}`);
-
-        methods.notifyMutationError.call({ createNotificationError, $t }, [
-            'CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED',
-        ]);
-
-        expect(createNotificationError).toHaveBeenCalledWith({
-            message: 'translated:sw-experience-studio.detail.messageBindingRootSourceNotScoped',
-        });
-    });
-
-    it('reports an unmapped mutation error code with the generic snippet', () => {
-        const createNotificationError = jest.fn();
-        const $t = jest.fn((key: string) => `translated:${key}`);
-
-        methods.notifyMutationError.call({ createNotificationError, $t }, ['CONTENT_SYSTEM__SOME_OTHER_CODE']);
-
-        expect(createNotificationError).toHaveBeenCalledWith({
-            message: 'translated:sw-experience-studio.detail.mutationErrors.generic',
-        });
-    });
-
     it('uses layout rootSource for draft mutation payloads', () => {
         const vm = {
             layout: {

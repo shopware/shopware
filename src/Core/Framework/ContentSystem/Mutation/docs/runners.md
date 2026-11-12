@@ -61,7 +61,7 @@ values.
 
 ### Interim limitations
 
-Two known limitations are deferred to the planned layout draft/versioning system that will supersede this
+Three known limitations are deferred to the planned layout draft/versioning system that will supersede this
 `expectedVersion`/lock mechanism:
 
 1. The per-layout lock has a fixed `5.0`s TTL, so a critical section that runs longer could let the lock expire
@@ -70,6 +70,8 @@ Two known limitations are deferred to the planned layout draft/versioning system
 2. `diagnose()` runs after `update()` has already committed, so if it throws the caller sees an error even though
    the write landed. The committed tree is the source of truth, and a retry re-reads the bumped `updatedAt` and gets
    a `409` `layoutVersionConflict`.
+3. A layout write through the DAL takes neither the lock nor the `expectedVersion` token, so it overwrites a
+   persisted mutation that committed after the writer loaded the layout, and neither side gets an error.
 
 ## MutationResult assembly
 

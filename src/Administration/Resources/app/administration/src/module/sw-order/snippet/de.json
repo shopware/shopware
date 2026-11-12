@@ -605,8 +605,8 @@
         "placeholder": "Bestellnummer eingeben ..."
       },
       "customerNumberFilter": {
-        "label": "Kundenummer",
-        "placeholder": "Kundenummer eingeben ..."
+        "label": "Kundennummer",
+        "placeholder": "Kundennummer eingeben ..."
       },
       "billingCountryFilter": {
         "label": "Rechnungsland",

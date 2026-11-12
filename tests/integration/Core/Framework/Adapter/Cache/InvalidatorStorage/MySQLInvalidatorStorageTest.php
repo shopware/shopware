@@ -2,9 +2,9 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Adapter\Cache\InvalidatorStorage;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\RetryableException;
-use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\MySQLInvalidatorSto
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
@@ -124,6 +125,26 @@ class MySQLInvalidatorStorageTest extends TestCase
         static::assertSame(['tag4', 'tag5', 'tag6'], $result);
     }
 
+    public function testLoadAndDeleteKeepsUnreadTagsWithinTheReadIdRange(): void
+    {
+        $storage = new MySQLInvalidatorStorage(
+            $this->connection,
+            $this->logger,
+            fn () => $this->connection->insert('invalidation_tags', ['id' => Uuid::fromHexToBytes('0190000000007000800000000000000b'), 'tag' => 'tag2']),
+        );
+
+        $this->connection->insert('invalidation_tags', ['id' => Uuid::fromHexToBytes('0190000000007000800000000000000a'), 'tag' => 'tag1']);
+        $this->connection->insert('invalidation_tags', ['id' => Uuid::fromHexToBytes('0190000000007000800000000000000c'), 'tag' => 'tag3']);
+
+        $tags = $storage->loadAndDelete();
+
+        static::assertSame(['tag1', 'tag3'], $tags);
+
+        $result = $this->connection->fetchFirstColumn('SELECT tag FROM invalidation_tags');
+
+        static::assertSame(['tag2'], $result);
+    }
+
     public function testLoadAndDeleteWithParallelDelete(): void
     {
         // create a separate connection to simulate parallel request
@@ -179,18 +200,12 @@ class MySQLInvalidatorStorageTest extends TestCase
             ->method('fetchAllAssociative')
             ->willReturn([['id' => 'id1', 'tag1'], ['id' => 'id2', 'tag2']]);
 
-        $statement = static::createStub(Statement::class);
-
         $e = new class('Deadlock') extends \Exception implements RetryableException {};
 
-        $statement
+        $connection->expects($this->atLeastOnce())
             ->method('executeStatement')
+            ->with('DELETE FROM invalidation_tags WHERE id IN (:ids)', ['ids' => ['id1', 'id2']], ['ids' => ArrayParameterType::BINARY])
             ->willThrowException($e);
-
-        $connection->expects($this->once())
-            ->method('prepare')
-            ->with('DELETE FROM invalidation_tags WHERE id BETWEEN :firstTagId AND :lastTagId')
-            ->willReturn($statement);
 
         $connection->expects($this->once())
             ->method('transactional')

@@ -15,10 +15,8 @@ function isString(node) {
 }
 
 /**
- * @param {import('eslint').Rule.RuleContext} context
- * @param {(node: object, value: string, scope: 'script'|'template') => void} handle gets a `Literal`, `TemplateElement`
- *     or `VLiteral` and its value
- * @returns {import('eslint').Rule.RuleListener}
+ * The visitors: `handle(node, value, scope)` gets every string node (`Literal`, `TemplateElement` or `VLiteral`),
+ * its value, and `'script'` or `'template'`.
  */
 function defineStringVisitors(context, handle) {
     const sourceCode = context.sourceCode;

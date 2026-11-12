@@ -7,10 +7,6 @@
 
 const OPTION_KINDS = ['computed', 'methods', 'watch', 'props', 'inject', 'provide', 'data', 'emits'];
 
-/**
- * @param {object} property Property
- * @returns {string|null}
- */
 function propertyName(property) {
     if (!property || property.type !== 'Property') {
         return null;
@@ -29,9 +25,6 @@ function propertyName(property) {
 
 /**
  * The object a `data()`/`provide()` function returns at its top level.
- *
- * @param {object} node function or object
- * @returns {object|null} ObjectExpression
  */
 function returnedObject(node) {
     if (!node) {
@@ -62,10 +55,7 @@ function returnedObject(node) {
 }
 
 /**
- * The members an options object declares.
- *
- * @param {object} options ObjectExpression
- * @returns {Array<{ kind: string, name: string, node: object }>} `node` is the declaring Property or array element
+ * The members an options object declares, each with its `kind`, `name` and the declaring property or array element.
  */
 function declaredMembers(options) {
     const members = [];
@@ -105,9 +95,6 @@ function declaredMembers(options) {
 
 /**
  * The member name of `this.<name>` or `this['<name>']`.
- *
- * @param {object} node MemberExpression
- * @returns {string|null}
  */
 function thisMemberName(node) {
     if (node.type !== 'MemberExpression' || node.object.type !== 'ThisExpression') {
@@ -127,9 +114,6 @@ function thisMemberName(node) {
 
 /**
  * The names a `const { a, b } = this` declaration reads.
- *
- * @param {object} node VariableDeclarator
- * @returns {Array<{ name: string, node: object }>}
  */
 function destructuredThisMembers(node) {
     if (node.type !== 'VariableDeclarator' || node.init?.type !== 'ThisExpression' || node.id.type !== 'ObjectPattern') {
@@ -143,9 +127,6 @@ function destructuredThisMembers(node) {
 
 /**
  * The identifiers a template expression reads from the component instance, without `v-for` and slot variables.
- *
- * @param {object} container VExpressionContainer
- * @returns {object[]} Identifier nodes
  */
 function templateMemberReferences(container) {
     return (container.references ?? []).filter((reference) => !reference.variable).map((reference) => reference.id);

@@ -385,7 +385,7 @@ On the stateless revision there is no MCP session:
   `shopware-toolset-enable` and `shopware-toolsets-list` are not listed in `tools/list`; called directly, they answer with an error that points to `?toolsets=`.
   The server instructions and `shopware-tool-search` point to `?toolsets=` as well, and each search match names its toolset.
 * List changes on the Admin API endpoint reach clients through `subscriptions/listen` within about a second.
-  They are raised by app installs, updates, activations and removals, and by edits of the MCP allowlist of an integration or a user, through any API.
+  They are raised by app installs, updates, activations and removals, by edits of the MCP allowlist of an integration or a user, and by a change of a user's `admin` flag, through any API.
   The stream reads the list versions from the database, so changes made on the CLI, in queue workers or on another host arrive as well.
   Each host reads them at most once a second, through a `cache.app` entry.
   The Store API endpoint does not announce list changes on the stateless revision, because its lists only change per session there.

@@ -21,14 +21,24 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * `PATCH /api/user/{id}`, the Sync API and direct repository writes.
  *
  * Only updates count, and only for the lists whose entry changed. A new integration or user has no
- * connected client yet, and a deleted one loses its access altogether.
+ * connected client yet, and a deleted one loses its access altogether. A changed `admin` flag of a user
+ * changes all lists, because McpAllowlistProvider gives an administrator every capability whatever the
+ * allowlist says.
  */
 #[Package('framework')]
 class McpAllowlistChangeSubscriber implements EventSubscriberInterface
 {
     private const FIELD = 'mcp_allowlist';
 
-    private const ENTITIES = [IntegrationDefinition::ENTITY_NAME, UserDefinition::ENTITY_NAME];
+    private const ADMIN_FIELD = 'admin';
+
+    /**
+     * The watched fields per entity.
+     */
+    private const ENTITIES = [
+        IntegrationDefinition::ENTITY_NAME => [self::FIELD],
+        UserDefinition::ENTITY_NAME => [self::FIELD, self::ADMIN_FIELD],
+    ];
 
     public function __construct(private readonly McpListChangedNotifier $notifier)
     {
@@ -42,11 +52,19 @@ class McpAllowlistChangeSubscriber implements EventSubscriberInterface
     public function onWrite(EntityWriteEvent $event): void
     {
         $commands = [];
-        foreach (self::ENTITIES as $entity) {
+        foreach (self::ENTITIES as $entity => $fields) {
             foreach ($event->getCommandsForEntity($entity) as $command) {
-                if ($command instanceof UpdateCommand && $command->hasField(self::FIELD)) {
-                    $command->requestChangeSet();
-                    $commands[] = $command;
+                if (!$command instanceof UpdateCommand) {
+                    continue;
+                }
+
+                foreach ($fields as $field) {
+                    if ($command->hasField($field)) {
+                        $command->requestChangeSet();
+                        $commands[] = $command;
+
+                        break;
+                    }
                 }
             }
         }
@@ -60,6 +78,12 @@ class McpAllowlistChangeSubscriber implements EventSubscriberInterface
 
             foreach ($commands as $command) {
                 $changeSet = $command->getChangeSet();
+                if ($changeSet !== null && $changeSet->hasChanged(self::ADMIN_FIELD)) {
+                    $changes = $changes->merge(new McpListChangedNotificationSet(tools: true, resources: true, prompts: true));
+
+                    continue;
+                }
+
                 // The change set drops an unchanged column, so `after` is null both for an identical write
                 // and for a removed allowlist. Only the latter is a change.
                 if ($changeSet === null || !$changeSet->hasChanged(self::FIELD)) {

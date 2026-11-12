@@ -81,6 +81,31 @@ class McpAllowlistChangeSubscriberTest extends TestCase
         $event->success();
     }
 
+    public function testPromotingOrDemotingAUserRaisesAllLists(): void
+    {
+        $command = self::command(UpdateCommand::class, UserDefinition::class, ['admin' => 1]);
+        $command->setChangeSet(new ChangeSet(['admin' => 0], ['admin' => 1], false));
+        $notifier = $this->expectNotification(tools: true, resources: true, prompts: true);
+
+        $event = $this->write($command);
+        (new McpAllowlistChangeSubscriber($notifier))->onWrite($event);
+
+        static::assertTrue($command->requiresChangeSet());
+
+        $event->success();
+    }
+
+    public function testAnUnchangedAdminFlagIsNoChange(): void
+    {
+        $command = self::command(UpdateCommand::class, UserDefinition::class, ['admin' => 1]);
+        $command->setChangeSet(new ChangeSet(['admin' => 1], [], false));
+        $notifier = $this->expectNotification(tools: false, resources: false, prompts: false);
+
+        $event = $this->write($command);
+        (new McpAllowlistChangeSubscriber($notifier))->onWrite($event);
+        $event->success();
+    }
+
     public function testNothingIsAnnouncedBeforeTheWriteSucceeded(): void
     {
         $command = $this->update(IntegrationDefinition::class, self::BEFORE, null);
@@ -155,6 +180,7 @@ class McpAllowlistChangeSubscriberTest extends TestCase
     {
         yield 'update without the allowlist' => [self::command(UpdateCommand::class, IntegrationDefinition::class, ['label' => 'renamed'])];
         yield 'insert with an allowlist' => [self::command(InsertCommand::class, IntegrationDefinition::class, [self::FIELD => self::BEFORE])];
+        yield 'admin flag of an integration' => [self::command(UpdateCommand::class, IntegrationDefinition::class, ['admin' => 1])];
         yield 'update of another entity' => [self::command(UpdateCommand::class, SalesChannelDefinition::class, [self::FIELD => self::BEFORE])];
     }
 

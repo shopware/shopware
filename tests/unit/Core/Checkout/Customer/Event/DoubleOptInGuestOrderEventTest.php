@@ -37,5 +37,6 @@ class DoubleOptInGuestOrderEventTest extends TestCase
 
         static::assertArrayHasKey('confirmUrl', $flow->data());
         static::assertSame('my-confirm-url', $flow->data()['confirmUrl']);
+        static::assertTrue($flow->getData('sensitive'));
     }
 }

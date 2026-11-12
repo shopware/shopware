@@ -250,8 +250,7 @@ class RecalculationServiceTest extends TestCase
         $productEntity->setId(Uuid::randomHex());
 
         // We check product existence by searchIds
-        /** @var StaticEntityRepository<ProductCollection> */
-        $productRepository = new StaticEntityRepository([
+        $productRepository = StaticEntityRepository::of(ProductCollection::class, [
             [$productEntity->getId()],
         ]);
 
@@ -339,8 +338,7 @@ class RecalculationServiceTest extends TestCase
         $productEntity->setId(Uuid::randomHex());
 
         // We check product existence by searchIds
-        /** @var StaticEntityRepository<ProductCollection> */
-        $productRepository = new StaticEntityRepository([
+        $productRepository = StaticEntityRepository::of(ProductCollection::class, [
             [$productEntity->getId()],
         ]);
 
@@ -453,8 +451,7 @@ class RecalculationServiceTest extends TestCase
 
         $productId = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<ProductCollection> */
-        $productRepository = new StaticEntityRepository([[$productId]]);
+        $productRepository = StaticEntityRepository::of(ProductCollection::class, [[$productId]]);
 
         // a factory decorator may return a completely different line item type for a product
         $factory = $this->createMock(LineItemFactoryInterface::class);
@@ -530,8 +527,7 @@ class RecalculationServiceTest extends TestCase
 
         $productId = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<ProductCollection> */
-        $productRepository = new StaticEntityRepository([[$productId]]);
+        $productRepository = StaticEntityRepository::of(ProductCollection::class, [[$productId]]);
 
         $factory = $this->createMock(LineItemFactoryInterface::class);
         $factory->method('supports')->willReturn(true);

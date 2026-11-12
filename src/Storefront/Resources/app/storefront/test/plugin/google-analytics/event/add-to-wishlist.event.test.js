@@ -35,6 +35,9 @@ describe('plugin/google-analytics/events/add-to-wishlist.event', () => {
             <div itemprop="brand"><meta itemprop="name" content="Test Brand"></div>
             <meta property="product:price:currency" content="EUR">
             <meta property="product:price:amount" content="99.99">
+            <script type="application/ld+json">
+                {"@type":"Product","sku":"product-123","name":"Test Product","brand":{"name":"Test Brand"},"offers":{"priceCurrency":"EUR","price":"99.99"}}
+            </script>
         `;
 
         await addToWishlistEvent._onProductAdded({
@@ -128,6 +131,9 @@ describe('plugin/google-analytics/events/add-to-wishlist.event', () => {
             <div itemprop="brand"><meta itemprop="name" content="Product Page Brand"></div>
             <meta property="product:price:currency" content="EUR">
             <meta property="product:price:amount" content="79.99">
+            <script type="application/ld+json">
+                {"@type":"Product","sku":"product-789","name":"Product Page Name","brand":{"name":"Product Page Brand"},"offers":{"priceCurrency":"EUR","price":"79.99"}}
+            </script>
             <div class="hidden-line-items-information" data-currency="USD" data-value="100.00">
                 <span class="hidden-line-item"
                     data-id="product-789"

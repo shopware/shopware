@@ -1,6 +1,15 @@
 ---
 name: shopware-change-scope
-description: Scope Shopware bug fixes, cleanups, and behavioral changes. Use when fixing an issue, applying review feedback, deciding whether to broaden a cleanup, or checking that the change addresses the root cause instead of one symptom.
+description: >
+  Scope Shopware bug fixes, cleanups, and behavioral changes. Use when the user says
+  "fix #12345", "fix this issue", "fix this bug", "resolve the GitHub issue", "address
+  the review comments", "apply the reviewer's feedback", "should I clean up the rest of
+  this file too?", "while I'm here", "boyscouting", "is this a workaround or the root
+  cause?", "are other callers affected?", "same bug elsewhere?", "keep the diff small",
+  or "don't refactor". Covers fixing a GitHub issue, applying PR review feedback,
+  deciding how far a cleanup goes, checking siblings and callers of shared code, and
+  stopping a focused fix from growing into an unrelated refactor. Not for PR text,
+  release notes, or tests.
 license: MIT
 ---
 

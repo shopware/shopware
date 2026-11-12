@@ -9,6 +9,11 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Content\Product\Util\VariantCombinationLoaderTest
+ */
 #[Package('inventory')]
 class VariantCombinationLoader
 {

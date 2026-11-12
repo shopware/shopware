@@ -370,6 +370,14 @@ jobs:
           PLAYWRIGHT_HTML_OUTPUT_DIR: post-update-results/playwright-report
         run: npx playwright test --project=PostUpdate --trace=on --output=post-update-results/test-results
 
+      # diagnostics only: the shop log and the home page response show why the shop stopped answering
+      - name: Show the shop log after a failure
+        if: failure()
+        working-directory: old-shopware
+        run: |
+          curl -sS -o /dev/null -w 'Storefront home page: %{http_code} after %{time_total}s\n' --max-time 120 "${APP_URL}" || true
+          tail -n 200 var/log/*.log || true
+
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
@@ -377,6 +385,7 @@ jobs:
           path: |
             new-shopware/tests/acceptance/test-results/
             new-shopware/tests/acceptance/post-update-results/
+            old-shopware/var/log/
           retention-days: 3
 
       - name: Check if this run should attempt AWS operations

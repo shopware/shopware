@@ -24,6 +24,11 @@ export default Shopware.Component.wrapComponentConfig({
         void this.workspaceStore.load();
     },
     methods: {
+        onModalRootChange(isOpen: boolean): void {
+            if (!isOpen) {
+                this.$emit('close');
+            }
+        },
         onSearch(term: string): void {
             this.term = term;
             this.page = 1;

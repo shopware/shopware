@@ -11,6 +11,8 @@ Keep general Administration structure, tech stack, docs links, and scripts in `s
 ## Code
 
 - Use TypeScript for new code.
+- Prefer Meteor components (`mt-*`) for new interfaces when they support the required behavior.
+  Check the installed component's props, slots, and events before replacing a legacy component.
 - Do not introduce public API breaks without prior discussion.
 - Model new code on the reference implementations listed in `src/Administration/Resources/app/administration/AGENTS.md`, not on the code next to it.
 - For Admin UI that reads or persists DAL entities or associations, update matching ACL privilege mapping and migrations for existing roles when needed.

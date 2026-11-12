@@ -1,4 +1,6 @@
 import { mount } from '@vue/test-utils';
+import MtModal from '@shopware-ag/meteor-component-library/dist/esm/MtModal';
+import MtModalRoot from '@shopware-ag/meteor-component-library/dist/esm/MtModalRoot';
 import '../../store/experience-studio-workspace.store';
 import type { ExperienceStudioWorkspaceStore } from '../../store/experience-studio-workspace.store';
 import type { ContentWorkspace } from '../../types/workspace.types';
@@ -17,7 +19,7 @@ describe('Experience Studio workspace dialogs', () => {
             methods: Record<string, (...args: unknown[]) => unknown>;
         };
 
-        return mount(
+        const page = mount(
             {
                 template: component.template,
                 data() {
@@ -49,11 +51,17 @@ describe('Experience Studio workspace dialogs', () => {
                             { sync: true },
                         ),
                         'sw-modal': await wrapTestComponent('sw-modal', { sync: true }),
+                        'mt-modal': MtModal,
+                        'mt-modal-root': MtModalRoot,
                         'sw-avatar': true,
                     },
                 },
             },
         );
+        await flushPromises();
+        await jest.advanceTimersByTimeAsync(0);
+
+        return page;
     }
 
     beforeEach(() => {
@@ -77,7 +85,7 @@ describe('Experience Studio workspace dialogs', () => {
         wrapper = await createWrapper();
         await flushPromises();
 
-        const modal = document.body.querySelector<HTMLElement>('.sw-modal')!;
+        const modal = document.body.querySelector<HTMLElement>('.mt-modal')!;
         const trigger = modal.querySelector<HTMLButtonElement>('.sw-experience-studio-workspace-picker__actions')!;
         trigger.click();
         await flushPromises();
@@ -100,19 +108,20 @@ describe('Experience Studio workspace dialogs', () => {
         wrapper = await createWrapper();
         await flushPromises();
 
-        const modal = document.body.querySelector<HTMLElement>('.sw-modal')!;
+        const modal = document.body.querySelector<HTMLElement>('.mt-modal')!;
         const trigger = modal.querySelector<HTMLButtonElement>('.sw-experience-studio-workspace-picker__actions')!;
         trigger.click();
         await flushPromises();
         await jest.advanceTimersByTimeAsync(0);
 
         expect(document.body.style.pointerEvents).not.toBe('none');
-        modal.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }));
-        modal.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+        const backdrop = document.body.querySelector<HTMLElement>('[data-testid="modal-backdrop"]')!;
+        backdrop.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }));
+        backdrop.click();
         await flushPromises();
         await jest.advanceTimersByTimeAsync(400);
 
-        expect(document.body.querySelector('.sw-modal')).toBeNull();
+        expect(document.body.querySelector('.mt-modal')).toBeNull();
         expect(document.body.querySelector('.mt-action-menu')).toBeNull();
         expect(document.body.style.pointerEvents).not.toBe('none');
     });
@@ -162,7 +171,7 @@ describe('Experience Studio workspace dialogs', () => {
             await flushPromises();
             await jest.advanceTimersByTimeAsync(400);
 
-            expect(document.body.querySelector('.sw-modal__title')?.textContent?.trim()).toBe(
+            expect(document.body.querySelector('.mt-modal__title')?.textContent?.trim()).toBe(
                 'sw-experience-studio.workspace.manager.manage',
             );
             expect(document.body.querySelector('.sw-experience-studio-workspace-picker__item')?.textContent).toContain(

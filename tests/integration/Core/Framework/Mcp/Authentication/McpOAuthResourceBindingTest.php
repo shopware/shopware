@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Mcp\Authentication;
 
 use Lcobucci\JWT\UnencryptedToken;
+use League\OAuth2\Server\Exception\OAuthServerException;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\OAuthResource;
 use Shopware\Core\Framework\Log\Package;
@@ -179,6 +180,17 @@ class McpOAuthResourceBindingTest extends TestCase
         $grantedWithoutResource = $this->exchangeCode($this->authorize(null), self::RESOURCE);
         $this->assertInvalidTarget($grantedWithoutResource);
         static::assertStringContainsString('granted without a resource', (string) ($grantedWithoutResource['errors'][0]['detail'] ?? ''));
+    }
+
+    public function testRedeemedCodeIsAnInvalidGrantEvenWithAResource(): void
+    {
+        $code = $this->authorize(self::RESOURCE);
+        static::assertArrayHasKey('access_token', $this->exchangeCode($code, self::RESOURCE));
+
+        $replayed = $this->exchangeCode($code, self::RESOURCE);
+
+        static::assertArrayNotHasKey('access_token', $replayed);
+        static::assertSame((string) OAuthServerException::invalidGrant()->getCode(), $replayed['errors'][0]['code'] ?? null, json_encode($replayed, \JSON_THROW_ON_ERROR));
     }
 
     public function testTokenRequestWithoutResourceStillGetsTheGrantedResource(): void

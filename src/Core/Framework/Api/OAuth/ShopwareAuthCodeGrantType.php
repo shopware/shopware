@@ -37,6 +37,8 @@ class ShopwareAuthCodeGrantType extends AuthCodeGrant
 
     private ?string $resource = null;
 
+    private ?string $requestedResource = null;
+
     public function __construct(
         AuthCodeRepositoryInterface $authCodeRepository,
         RefreshTokenRepositoryInterface $refreshTokenRepository,
@@ -77,24 +79,14 @@ class ShopwareAuthCodeGrantType extends AuthCodeGrant
         \DateInterval $accessTokenTTL
     ): ResponseTypeInterface {
         $this->resource = $this->getGrantedResource($request);
-
         $requested = $this->getRequestParameter(OAuthResource::PARAMETER, $request);
-        if (\is_string($requested) && $this->resource === null) {
-            throw ApiException::oauthInvalidTarget(
-                'The authorization was granted without a resource. The consent page did not forward it, for example because the Administration was built before resource support and has to be rebuilt.'
-            );
-        }
-
-        if (\is_string($requested) && OAuthResource::normalize($requested) !== $this->resource) {
-            $this->resource = null;
-
-            throw ApiException::oauthInvalidTarget('The resource does not match the authorization request.');
-        }
+        $this->requestedResource = \is_string($requested) ? $requested : null;
 
         try {
             return parent::respondToAccessTokenRequest($request, $responseType, $accessTokenTTL);
         } finally {
             $this->resource = null;
+            $this->requestedResource = null;
         }
     }
 
@@ -125,6 +117,8 @@ class ShopwareAuthCodeGrantType extends AuthCodeGrant
         ?string $userIdentifier,
         array $scopes = []
     ): AccessTokenEntityInterface {
+        $this->assertRequestedResourceIsGranted();
+
         $accessToken = parent::issueAccessToken($accessTokenTTL, $client, $userIdentifier, $scopes);
 
         if ($this->resource !== null && $accessToken instanceof AccessToken) {
@@ -151,6 +145,28 @@ class ShopwareAuthCodeGrantType extends AuthCodeGrant
     /**
      * Reads the resource stored for the authorization code. The code itself is validated by the library afterwards.
      */
+    /**
+     * Runs from issueAccessToken(), after the library validated the client, the code and its PKCE verifier,
+     * so a code that was already redeemed or revoked fails with `invalid_grant` before its missing
+     * resource is reported.
+     */
+    private function assertRequestedResourceIsGranted(): void
+    {
+        if ($this->requestedResource === null) {
+            return;
+        }
+
+        if ($this->resource === null) {
+            throw ApiException::oauthInvalidTarget(
+                'The authorization was granted without a resource. The consent page did not forward it, for example because the Administration was built before resource support and has to be rebuilt.'
+            );
+        }
+
+        if (OAuthResource::normalize($this->requestedResource) !== $this->resource) {
+            throw ApiException::oauthInvalidTarget('The resource does not match the authorization request.');
+        }
+    }
+
     private function getGrantedResource(ServerRequestInterface $request): ?string
     {
         $encryptedAuthCode = $this->getRequestParameter('code', $request);

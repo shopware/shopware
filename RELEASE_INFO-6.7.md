@@ -9,6 +9,33 @@ Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED` while ano
 
 ## Core
 
+### Attribute entities can generate the reverse side of a many-to-many association
+
+`Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToMany` now accepts `reversedBy`, `reverseApi` and `reverseOnDelete`:
+
+```php
+#[ManyToMany(entity: 'product', onDelete: OnDelete::CASCADE, api: true, reversedBy: 'attributeEntities', reverseApi: ['admin-api' => true, 'store-api' => false], reverseOnDelete: OnDelete::CASCADE)]
+public array $products = [];
+```
+
+When `reversedBy` is set, the target entity (`product` in the example) gains a reverse many-to-many association with that property name over the same mapping table, added as an entity extension and therefore available on the target struct through its extensions for loading and filtering.
+`reverseApi` and `reverseOnDelete` control the reverse association's API visibility and delete behaviour independently; when omitted, they mirror the forward association's `api` and `onDelete`.
+Without `reversedBy`, the relation stays one-sided as before.
+
+### Rules can be evaluated per cart delivery
+
+The new scope `Shopware\Core\Checkout\Cart\Rule\DeliveryRuleScope` extends `CartRuleScope` and carries the cart delivery a rule is evaluated for.
+The shipping address rules (`ShippingCountryRule`, `ShippingStateRule`, `ShippingZipCodeRule`, `ShippingStreetRule`, `ShippingCityRule`) and `ShippingMethodRule` read the delivery instead of the sales channel context when they are matched in that scope.
+Every other scope behaves as before.
+
+With the `v6.8.0.0` feature flag active, the `DeliveryProcessor` matches the rules a delivery's shipping method references (availability rule, price row rules, calculation rules) against each delivery and stores the matching ids on the delivery, available through `Delivery::getRuleIds()`.
+`DeliveryCalculator` and `DeliveryValidator` then select rule based price rows and check the availability rule per delivery.
+A cart with a single delivery gets the same result as before, and a delivery without matched rule ids keeps using the rule ids of the sales channel context.
+In a `DeliveryRuleScope` the shipping address rules read only the delivery's address and do not fall back to the customer's active shipping address.
+
+Custom rules that read `getShippingLocation()` or `getShippingMethod()` from the sales channel context should read them from `$scope->getDelivery()` when the scope is a `DeliveryRuleScope`, otherwise they decide by the context for every delivery.
+See `UPGRADE-6.8.md` for an example.
+
 ### Rule Builder: new "Item with longest side and girth" condition
 
 A new line item rule condition `LineItemDimensionLongestAndGirthRule` (`cartLineItemDimensionLongestAndGirth`) was added. It matches the cart against the longest side plus girth of each individual line item. It is calculated as `longest side + 2 * (shortest side + second shortest side)`. This condition allows for more precise shipping rules based on the dimensions of the items in the cart.
@@ -356,6 +383,15 @@ HTML forms can continue to use POST with an override for PUT, PATCH and DELETE a
 
 A criteria that filters, sorts, queries or aggregates by a field the API does not expose (`FRAMEWORK__ACCESSOR_NOT_ALLOWED`) or by a runtime field (`FRAMEWORK__RUNTIME_FIELD_IN_CRITERIA`) is now answered with `400 Bad Request` instead of `500 Internal Server Error`.
 
+### Sales channel files in the Store API
+
+The new `GET /store-api/sales-channel-file/{fileName}` route returns a sales channel file that is enabled for the sales channel of the `sw-access-key`, for example `llms.txt`, `AGENTS.md` or `.well-known/ai-catalog.json`, with the content type of the file.
+Headless frontends can serve the responses under the same public paths, e.g. proxy `/llms.txt` to `/store-api/sales-channel-file/llms.txt`.
+Proxy all enabled files, as `llms.txt` links to `/robots.txt` and `/AGENTS.md`.
+For headless sales channels, the Store API links in `llms.txt` point to `APP_URL`.
+`.well-known/ai-catalog.json` lists the Store API MCP server for every sales channel type, with its URL pointing to `APP_URL`.
+Extensions can adjust or replace the response through the `SalesChannelFileRouteExtension`.
+
 ### Assign products to a sales channel by product group or category
 
 `POST /api/_action/sales-channel/{salesChannelId}/product-assignment` makes products visible in a sales channel.
@@ -460,6 +496,17 @@ Resources use the URI declared in `mcp.xml`; a non-empty `mimeType` in the respo
 Invalid JSON, malformed messages or resource contents, and `{"success":false,"error":"..."}` responses produce MCP errors with details for the client.
 
 ## Administration
+
+### Deprecated the unused visibilities and sales channels in the sales channel detail
+
+Some sales channel detail components load the visibilities or sales channels of their products and currencies, although they only need one of them or none.
+With 6.8 they load less:
+
+- The *Currency* select of `sw-sales-channel-detail-base` loads the currencies without their `salesChannels`.
+- `sw-sales-channel-detail-products` loads only the visibility of the current sales channel, without its `salesChannel`.
+- `sw-sales-channel-products-assignment-single-products` loads the products without their `visibilities`.
+
+Extensions that read this data in these components should load it with their own request; see `UPGRADE-6.8.md`.
 
 ### Deprecated the `defaultFolderRepository` computed property of `sw-cms-detail` and `sw-cms-list`
 

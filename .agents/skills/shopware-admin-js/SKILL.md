@@ -29,6 +29,7 @@ Keep general Administration structure, tech stack, docs links, and scripts in `s
 - For snippet-only changes or new translations using an existing error-rendering path, run snippet linting instead of adding tests that only assert translated text.
 - Keep tests next to the code under test with `.spec.ts` when adding new TypeScript tests.
 - Split very large specs into a `.spec/` directory by behavior group.
+- Tag your tests with `@regression`, `@behavior` or `@characterization`; The first two need `@see` with a link to the bug issue or decision source. Read `src/Administration/Resources/app/administration/technical-docs/11-code-quality/03-test-annotations.md` before tagging.
 
 ## Detailed Guidelines
 

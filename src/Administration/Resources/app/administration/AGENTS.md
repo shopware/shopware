@@ -56,6 +56,7 @@ Jest                # Testing framework
   - Composable with spec: `src/app/composables/use-theme.ts`
   - Pinia store with spec: `src/app/store/tabs.store.ts`
 - Use the provided linting and formatting scripts (see below)
+- Every new Jest test gets a doc comment tagged `@regression`, `@behavior` or `@characterization`, see `technical-docs/11-code-quality/03-test-annotations.md`
 - Existing ESLint violations live in `eslint-suppressions.json`, which may only shrink: fix every violation your change adds, see `technical-docs/11-code-quality/01-lint-gate.md`
 - `npm run lint:fallow` reports unused files, exports and dependencies.
   Tag reported exports that extensions use with `@public`, see `technical-docs/11-code-quality/02-unused-code.md`

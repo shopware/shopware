@@ -1,6 +1,7 @@
 /**
- * Fails when the per-rule totals of an ESLint baseline (eslint-suppressions.json) or the per-category totals of a
- * Fallow baseline (fallow-baseline.json) grow compared with the base commit.
+ * Fails when the per-rule totals of an ESLint baseline (eslint-suppressions.json), the per-category totals of a
+ * Fallow baseline (fallow-baseline.json) or the per-test counts of the test annotation baseline
+ * (test-annotation-baseline.json) grow compared with the base commit.
  * See src/Administration/Resources/app/administration/technical-docs/11-code-quality/01-lint-gate.md.
  */
 
@@ -13,19 +14,24 @@ type Suppressions = Record<string, Record<string, { count: number }>>;
 type Baseline = Record<string, unknown>;
 
 const isFallow = (path: string): boolean => path.endsWith('fallow-baseline.json');
+const isTestAnnotations = (path: string): boolean => path.endsWith('test-annotation-baseline.json');
+const UNSUPPRESSIBLE = new Set(['sw-test-rules/test-annotation']);
 
 const git = (...args: string[]): string =>
     execFileSync('git', args, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] });
 
-const readFromBase = (base: string, path: string): Baseline => {
+const existsAtBase = (base: string, path: string): boolean => {
     try {
         git('cat-file', '-e', `${base}:${path}`);
     } catch {
-        return {};
+        return false;
     }
 
-    return JSON.parse(git('show', `${base}:${path}`)) as Baseline;
+    return true;
 };
+
+const readFromBase = (base: string, path: string): Baseline =>
+    existsAtBase(base, path) ? (JSON.parse(git('show', `${base}:${path}`)) as Baseline) : {};
 
 const totals = (path: string, baseline: Baseline): Record<string, number> => {
     const result: Record<string, number> = {};
@@ -34,6 +40,17 @@ const totals = (path: string, baseline: Baseline): Record<string, number> => {
         for (const [category, entries] of Object.entries(baseline)) {
             if (Array.isArray(entries) && entries.length > 0) {
                 result[category] = entries.length;
+            }
+        }
+
+        return result;
+    }
+
+    if (isTestAnnotations(path)) {
+        // Counted per test identity across files, so a moved spec keeps its untagged tests but a new test cannot join
+        for (const identities of Object.values(baseline as Record<string, Record<string, number>>)) {
+            for (const [identity, count] of Object.entries(identities)) {
+                result[identity] = (result[identity] ?? 0) + count;
             }
         }
 
@@ -69,16 +86,36 @@ for (const path of paths) {
     const baseTotals = totals(path, readFromBase(base, path));
     const headTotals = totals(path, head);
 
+    // Thousands of test identities: list only the ones that grew
+    const verbose = !isTestAnnotations(path);
+    // A config change must not let new untagged tests in, only the pull request that creates the baseline may
+    const introduced = isTestAnnotations(path) && !existsAtBase(base, path);
+    const accepts = (rule: string, before: number): boolean => {
+        if (isTestAnnotations(path)) {
+            return introduced;
+        }
+
+        // Untagged tests belong in test-annotation-baseline.json, which counts them per test
+        return !UNSUPPRESSIBLE.has(rule) && before === 0 && configChanged;
+    };
+    const fix = isTestAnnotations(path) ? 'Tag the new tests instead.' : 'Fix the new violations instead.';
+
     console.log(path);
     for (const rule of [...new Set([...Object.keys(baseTotals), ...Object.keys(headTotals)])].sort()) {
         const before = baseTotals[rule] ?? 0;
         const after = headTotals[rule] ?? 0;
-        const grew = after > before && !(before === 0 && configChanged);
+        const grew = after > before && !accepts(rule, before);
 
-        console.log(`  ${rule}: ${before} -> ${after}${grew ? '  <-- grew' : ''}`);
-        if (grew) {
-            failures.push(`${path}: ${rule} grew from ${before} to ${after}. Fix the new violations instead.`);
+        if (verbose || grew) {
+            console.log(`  ${rule}: ${before} -> ${after}${grew ? '  <-- grew' : ''}`);
         }
+        if (grew) {
+            failures.push(`${path}: ${rule} grew from ${before} to ${after}. ${fix}`);
+        }
+    }
+    if (!verbose) {
+        const sum = (counts: Record<string, number>): number => Object.values(counts).reduce((total, count) => total + count, 0);
+        console.log(`  untagged tests: ${sum(baseTotals)} -> ${sum(headTotals)}`);
     }
 
     // Entries of a deleted file would let a new violation of the same rule pass elsewhere.

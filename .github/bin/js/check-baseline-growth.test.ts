@@ -129,3 +129,66 @@ test('fails when a Fallow finding category grows', () => {
     assert.equal(result.status, 1);
     assert.match(result.output, /unused_files: 0 -> 1 {2}<-- grew/);
 });
+
+const TEST_BASELINE = 'admin/test-annotation-baseline.json';
+
+const commitTestBaseline = (identities: Record<string, Record<string, number>>): void => {
+    write('admin/src/a.spec.js', '');
+    write('admin/src/b.spec.js', '');
+    write(TEST_BASELINE, JSON.stringify(identities));
+    git('add', '.');
+    git('commit', '--quiet', '-m', 'test baseline');
+    baseSha = git('rev-parse', 'HEAD');
+};
+
+test('passes when a spec moves with its untagged tests', () => {
+    commitTestBaseline({ 'src/a.spec.js': { 'sw-a > should render': 1 } });
+    write(TEST_BASELINE, JSON.stringify({ 'src/b.spec.js': { 'sw-a > should render': 1 } }));
+
+    const result = check(TEST_BASELINE);
+
+    assert.equal(result.status, 0);
+    assert.match(result.output, /untagged tests: 1 -> 1\n/);
+});
+
+test('fails when an untagged test replaces another one', () => {
+    commitTestBaseline({ 'src/a.spec.js': { 'sw-a > should render': 1 } });
+    write(TEST_BASELINE, JSON.stringify({ 'src/a.spec.js': { 'sw-a > should save': 1 } }));
+
+    const result = check(TEST_BASELINE);
+
+    assert.equal(result.status, 1);
+    assert.match(result.output, /sw-a > should save: 0 -> 1 {2}<-- grew/);
+    assert.match(result.output, /Tag the new tests instead/);
+});
+
+test('fails on a new untagged test even when the config changes', () => {
+    commitTestBaseline({ 'src/a.spec.js': { 'sw-a > should render': 1 } });
+    write(CONFIG, 'export default [{ rules: { "max-params": "error" } }];');
+    write(TEST_BASELINE, JSON.stringify({ 'src/a.spec.js': { 'sw-a > should render': 2 } }));
+
+    const result = check(TEST_BASELINE);
+
+    assert.equal(result.status, 1);
+    assert.match(result.output, /sw-a > should render: 1 -> 2 {2}<-- grew/);
+});
+
+test('passes the pull request that creates the test baseline', () => {
+    write('admin/src/a.spec.js', '');
+    write(TEST_BASELINE, JSON.stringify({ 'src/a.spec.js': { 'sw-a > should render': 1 } }));
+
+    const result = check(TEST_BASELINE);
+
+    assert.equal(result.status, 0);
+    assert.match(result.output, /untagged tests: 0 -> 1\n/);
+});
+
+test('fails when test annotations land in the ESLint baseline, even with a config change', () => {
+    write(CONFIG, 'export default [{ rules: { "sw-test-rules/test-annotation": "error" } }];');
+    writeBaseline({ 'src/a.js': { complexity: 2, 'sw-test-rules/test-annotation': 1 }, 'src/b.js': { complexity: 1 } });
+
+    const result = check();
+
+    assert.equal(result.status, 1);
+    assert.match(result.output, /sw-test-rules\/test-annotation: 0 -> 1 {2}<-- grew/);
+});

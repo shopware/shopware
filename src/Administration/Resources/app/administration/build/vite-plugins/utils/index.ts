@@ -5,6 +5,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import * as net from 'net';
+import colors from 'picocolors';
 
 function isPortFree(port: number): Promise<boolean | Error> {
     return new Promise((resolve) => {
@@ -208,7 +209,7 @@ export function loadExtensions(): ExtensionDefinition[] {
 /**
  * @private
  */
-export async function findAvailablePorts(startPort = 5173, requiredPorts = 1): Promise<number[]> {
+async function findAvailablePorts(startPort = 5173, requiredPorts = 1): Promise<number[]> {
     const ports = [];
     let currentPort = startPort;
     const maxPort = 65535;
@@ -237,18 +238,14 @@ type ViteServerMapping = {
 /**
  * @private
  */
-export async function exportViteServerMapping(): Promise<void> {
-    const extensions = loadExtensions();
-
+export async function exportViteServerMapping(extensions: ExtensionDefinition[]): Promise<void> {
     const mapping = new Map<string, ViteServerMapping>();
     const ports = await findAvailablePorts(Number(process.env.ADMIN_PORT) || 5173, extensions.length + 1);
     let counter = 1;
 
     for (const extension of extensions) {
-        mapping.set(extension.technicalName, {
-            basePath: `/_internal_ext/${extension.technicalName}/`,
-            port: ports[counter],
-        });
+        const basePath = getExtensionBasePath(extension);
+        mapping.set(basePath, { basePath, port: ports[counter] });
         counter += 1;
     }
 
@@ -261,24 +258,36 @@ export async function exportViteServerMapping(): Promise<void> {
 
 /**
  * @private
+ *
+ * A bundle can ship an Administration entry and a meteor-app, which run as two servers under the same technical name.
+ * Sibling roots keep the two paths from being prefixes of each other.
  */
-export function getViteServerPorts(): Record<string, number> {
+export function getExtensionBasePath(extension: ExtensionDefinition): string {
+    return `/${extension.isApp ? '_internal_app' : '_internal_ext'}/${extension.technicalName}/`;
+}
+
+function readViteServerMapping(): { vitePort: number; extensions: ViteServerMapping[] } {
     const mappingPath = path.join(__dirname, 'vite-server-mapping.json');
 
     if (!fs.existsSync(mappingPath)) {
         throw new Error(`Cannot find Vite server mapping for ${mappingPath}`);
     }
 
-    const rawData = fs.readFileSync(mappingPath, 'utf-8');
-    const parsedData = JSON.parse(rawData) as { vitePort: number; extensions: Record<string, ViteServerMapping> };
+    const parsedData = JSON.parse(fs.readFileSync(mappingPath, 'utf-8')) as {
+        vitePort: number;
+        extensions: Record<string, ViteServerMapping>;
+    };
 
-    const ports: Record<string, number> = {};
+    return { vitePort: parsedData.vitePort, extensions: Object.values(parsedData.extensions) };
+}
 
-    for (const [key, value] of Object.entries(parsedData.extensions)) {
-        ports[key] = value.port;
-    }
-
-    return ports;
+/**
+ * @private
+ *
+ * Returns the port of each extension server by its base path.
+ */
+export function getViteServerPorts(): Record<string, number> {
+    return Object.fromEntries(readViteServerMapping().extensions.map(({ basePath, port }) => [basePath, port]));
 }
 
 /**
@@ -288,20 +297,13 @@ export function getMainViteServerConfig(): {
     proxy: Record<string, { target: string; changeOrigin: boolean; ws: boolean; rewriteWsOrigin: boolean }>;
     port: number;
 } {
-    const mappingPath = path.join(__dirname, 'vite-server-mapping.json');
-
-    if (!fs.existsSync(mappingPath)) {
-        throw new Error(`Cannot find Vite server mapping for ${mappingPath}`);
-    }
-
-    const rawData = fs.readFileSync(mappingPath, 'utf-8');
-    const parsedData = JSON.parse(rawData) as { vitePort: number; extensions: Record<string, ViteServerMapping> };
-
+    const { vitePort, extensions } = readViteServerMapping();
     const proxyConfig: Record<string, { target: string; changeOrigin: boolean; ws: true; rewriteWsOrigin: true }> = {};
 
-    for (const [key, value] of Object.entries(parsedData.extensions)) {
+    for (const value of extensions) {
         proxyConfig[value.basePath] = {
-            target: `http://localhost:${value.port}`,
+            // Extension servers bind to IPv4. localhost can resolve to the main server on IPv6 and proxy back to itself.
+            target: `http://127.0.0.1:${value.port}`,
             changeOrigin: true,
             ws: true,
             rewriteWsOrigin: true,
@@ -310,7 +312,7 @@ export function getMainViteServerConfig(): {
 
     return {
         proxy: proxyConfig,
-        port: parsedData.vitePort,
+        port: vitePort,
     };
 }
 
@@ -322,3 +324,117 @@ export const isInsideDockerContainer = (): boolean => {
     // Resolve root path
     return fs.existsSync('/.dockerenv');
 };
+
+/**
+ * @private
+ *
+ * Without both files the dev server serves plain HTTP, which TLS-terminating proxies like the one of shopware-cli expect.
+ */
+export function getDevServerHttpsConfig(env: NodeJS.ProcessEnv = process.env): { cert: string; key: string } | undefined {
+    const cert = env.SHOPWARE_ADMIN_HTTPS_CERTIFICATE_FILE;
+    const key = env.SHOPWARE_ADMIN_HTTPS_KEY_FILE;
+
+    if (!cert || !key) {
+        return undefined;
+    }
+
+    // The watcher runs in the Administration directory, but the variables usually come from the .env of the project.
+    // Vite uses a path it cannot read as the PEM content itself, which only fails later with a TLS error.
+    const root = env.PROJECT_ROOT ?? process.cwd();
+
+    return { cert: path.resolve(root, cert), key: path.resolve(root, key) };
+}
+
+/**
+ * @private
+ */
+export function readFeatureFlags(): Record<string, boolean> {
+    const flagsPath = path.resolve(process.env.PROJECT_ROOT as string, 'var/config_js_features.json');
+
+    if (!fs.existsSync(flagsPath)) {
+        return {};
+    }
+
+    return JSON.parse(fs.readFileSync(flagsPath, 'utf-8')) as Record<string, boolean>;
+}
+
+/**
+ * @private
+ */
+export type PluginDevJson = { metadata: 'shopware' } & Record<string, { js?: string; hmrSrc?: string; html?: string }>;
+
+/**
+ * @private
+ *
+ * Builds the content of the sw-plugin-dev.json, which tells the Administration where to load the extensions from.
+ */
+export function createPluginDevJson(extensions: ExtensionDefinition[], useBundledDev: boolean): PluginDevJson {
+    const pluginDevJson = { metadata: 'shopware' } as PluginDevJson;
+
+    extensions.forEach((extension) => {
+        const base = getExtensionBasePath(extension);
+        const entry: PluginDevJson[string] = {};
+
+        if (extension.isApp) {
+            entry.html = `${base}index.html`;
+        }
+
+        if (extension.isPlugin) {
+            // The bundled dev mode of Vite forces `assets/[name].js` as the name of the entry files.
+            entry.js = useBundledDev
+                ? `${base}assets/${extension.technicalName}.js`
+                : `${base}${path.basename(extension.filePath)}`;
+            entry.hmrSrc = useBundledDev ? `${base}bundledDevClient.mjs` : `${base}@vite/client`;
+        }
+
+        // A bundle with an Administration entry and a meteor-app comes as one plugin and one app definition
+        pluginDevJson[extension.technicalName] = { ...pluginDevJson[extension.technicalName], ...entry };
+    });
+
+    return pluginDevJson;
+}
+
+/**
+ * @private
+ */
+export function writePluginDevJson(
+    administrationRoot: string,
+    extensions: ExtensionDefinition[],
+    useBundledDev: boolean,
+): void {
+    // Outside of public/administration on purpose: a parallel production build empties that directory
+    fs.writeFileSync(
+        path.resolve(administrationRoot, '../../sw-plugin-dev.json'),
+        JSON.stringify(createPluginDevJson(extensions, useBundledDev)),
+    );
+}
+
+/**
+ * @private
+ *
+ * Runs the action for every extension and logs failures instead of stopping, so one broken
+ * extension neither stops the other extensions nor the watcher of the Administration.
+ * Returns whether the action failed for any extension.
+ */
+export async function runForEachExtension(
+    extensions: ExtensionDefinition[],
+    verb: string,
+    action: (extension: ExtensionDefinition) => Promise<void>,
+): Promise<boolean> {
+    let hasFailed = false;
+
+    for (const extension of extensions) {
+        try {
+            await action(extension);
+        } catch (error) {
+            hasFailed = true;
+            const message = error instanceof Error ? error.message : String(error);
+
+            console.error(
+                colors.red(`# Failed to ${verb} ${extension.isPlugin ? 'plugin' : 'app'} "${extension.name}": ${message}`),
+            );
+        }
+    }
+
+    return hasFailed;
+}

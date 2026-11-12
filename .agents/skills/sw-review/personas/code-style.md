@@ -32,7 +32,7 @@ rules, SCSS property order, generated snapshots, anonymous TODOs, or
 
 - Security → `security`;
 - Layering/performance/tests → `architecture`;
-- Release docs → `open-source`;
+- Release docs → `maintainer`;
 - UX/a11y/copy → `ux`.
 
 ## Severity Anchors

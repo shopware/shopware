@@ -115,6 +115,13 @@ Snippet files are named by language, not locale: `en.json` / `de.json` in the Ad
 Locale-specific names such as `en-GB.json` or `storefront.de-DE.json` are the legacy scheme;
 do not create them, and do not use them in tests, fixtures, or examples unless the test deliberately covers the legacy loader.
 
+Pluralized snippets use two forms, `singular | plural`, when the zero case reads the same as the plural case.
+Only add the explicit three-form `zero | singular | plural` variant when the zero case needs its own wording (for example "No products").
+
+```json
+"buttonAddProducts": "Add {count} product | Add {count} products"
+```
+
 ## File Linting
 
 **MANDATORY**: All code must be linted according to the following table.
@@ -129,4 +136,5 @@ do not create them, and do not use them in tests, fixtures, or examples unless t
 | **Twig** (Storefront)  | `composer ludtwig:storefront` | `composer ludtwig:storefront:fix`            |
 | **Snippets**           | `composer translation:lint`   | Manual fix required                          |
 | **Prettier** (Admin)   | `composer format:admin`       | `composer format:admin:fix`                  |
+| **Dead code** (Admin)  | `composer fallow:admin`       | N/A - remove the unused code                 |
 | **GitHub Actions**     | `composer lint:actions`       | `composer lint:actions:fix`                  |

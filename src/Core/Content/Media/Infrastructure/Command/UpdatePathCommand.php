@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Media\Infrastructure\Command;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Media\Core\Application\MediaPathUpdater;
+use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -41,7 +42,9 @@ class UpdatePathCommand extends Command
         $output->writeln('Updating media paths...');
 
         if ($input->getOption('force')) {
-            $ids = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM media');
+            $ids = $this->withoutExternalPaths(
+                $this->connection->fetchAllKeyValue('SELECT LOWER(HEX(id)), path FROM media')
+            );
         } else {
             $ids = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM media WHERE path IS NULL');
         }
@@ -62,7 +65,9 @@ class UpdatePathCommand extends Command
         $output->writeln('');
 
         if ($input->getOption('force')) {
-            $ids = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM media_thumbnail');
+            $ids = $this->withoutExternalPaths(
+                $this->connection->fetchAllKeyValue('SELECT LOWER(HEX(id)), path FROM media_thumbnail')
+            );
         } else {
             $ids = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM media_thumbnail WHERE path IS NULL');
         }
@@ -78,5 +83,24 @@ class UpdatePathCommand extends Command
         $progressBar->finish();
 
         return 0;
+    }
+
+    /**
+     * External media keep their URL as path, a generated local path would break them.
+     *
+     * @param array<string, string|null> $paths
+     *
+     * @return list<string>
+     */
+    private function withoutExternalPaths(array $paths): array
+    {
+        $ids = [];
+        foreach ($paths as $id => $path) {
+            if ($path === null || !MediaUploadService::isExternalUrl($path)) {
+                $ids[] = (string) $id;
+            }
+        }
+
+        return $ids;
     }
 }

@@ -90,8 +90,8 @@ class SetCustomerCustomFieldActionTest extends TestCase
         $this->login($email, 'shopware');
 
         static::assertNotNull($this->customerRepository);
-        /** @var CustomerEntity $customer */
         $customer = $this->customerRepository->search(new Criteria([$this->ids->get('customer')]), Context::createDefaultContext())->getEntities()->first();
+        static::assertInstanceOf(CustomerEntity::class, $customer);
 
         $expect = $option === 'clear' ? null : [$customFieldName => $expectData];
         static::assertSame($customer->getCustomFields(), $expect);

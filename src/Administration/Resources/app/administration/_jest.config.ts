@@ -15,6 +15,7 @@ import type { Config } from 'jest';
 import { existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isMajorRun, loadFeatureConfig } from './test/_helper_/majorFeatureFlags';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -54,6 +55,15 @@ if (isCi) {
     console.info('Run Jest in local mode');
 }
 
+// The reporter checks and rewrites only the deprecation baseline's markings for this run.
+const deprecationBaselineReporter: [string, Record<string, unknown>] = [
+    '<rootDir>/test/_helper_/deprecationBaselineReporter.js',
+    {
+        baselinePath: join(__dirname, 'src/core/deprecation-baseline.json'),
+        run: isMajorRun(loadFeatureConfig(), process.env) ? 'major' : 'default',
+    },
+];
+
 const config: Config = {
     roots: [
         '<rootDir>',
@@ -64,8 +74,6 @@ const config: Config = {
         adminPath: process.env.ADMIN_PATH,
         projectRoot: process.env.PROJECT_ROOT,
     },
-
-    globalTeardown: '<rootDir>test/globalTeardown.js',
 
     resolver: '<rootDir>/test/_helper_/jest-resolver.js',
 
@@ -218,10 +226,12 @@ const config: Config = {
                       outputName: 'administration.junit.xml',
                   },
               ],
+              deprecationBaselineReporter,
           ]
         : [
               'default',
               '<rootDir>/test/_helper_/failedSpecFileReporter.js',
+              deprecationBaselineReporter,
           ],
 
     testMatch: [

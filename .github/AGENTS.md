@@ -21,7 +21,7 @@ nightlies and the release gate. Change one and you change all three contexts.
 | `php.yml` | lint, phpstan, rector, bc-checker, openapi-lint, PHPUnit `unit` and `migration` suites, license-check, composer-audit, composer-prefer-lowest |
 | `integration.yml` | PHPUnit integration shards, dynamic matrix |
 | `integration-major.yml` | the same, plus Jest, with the upcoming major flag enabled (`V6_8_0_0=1`) |
-| `admin.yml` | ESLint, Stylelint and Jest for the Administration |
+| `admin.yml` | ESLint, Stylelint and Jest for the Administration, and its build with Vite 8 (`ADMIN_VITE_8`) |
 | `storefront.yml` | ESLint, Stylelint, snippet and Twig lints, Jest and Vitest |
 | `acceptance.yml` | Playwright acceptance runs, reused by the label-triggered `acceptance-major.yml` PR entry point |
 | `lint-actions.yml` | actionlint, yamlfmt, zizmor, and the `.github/bin/js` tests |
@@ -71,7 +71,7 @@ its own timing in the job UI: `phpunit-prepare` (PHP, database, webserver, test
 install) → `phpunit-run` (the suite) → `phpunit-upload` (Codecov, called with
 `if: !cancelled()`).
 
-The agentic workflows (`sw-triage`, `sw-review`, `sw-bugfixer`) are
+The agentic workflows (`sw-triage`, `sw-review`, `sw-bugfixer`, `sw-docs-impact`) are
 [gh aw](https://github.com/githubnext/gh-aw) sources: edit `<name>.md`, never the
 generated `<name>.lock.yml`, and run `gh aw compile`. Setup and the version pin
 live in [`.github/aw/README.md`](aw/README.md).

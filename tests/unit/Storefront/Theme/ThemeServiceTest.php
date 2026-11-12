@@ -743,6 +743,56 @@ class ThemeServiceTest extends TestCase
         ], $parameters);
     }
 
+    public function testCompileThemeByIdAsyncNotifiesCompletionOnlyForTheLastCompilation(): void
+    {
+        $themeId = Uuid::randomHex();
+        $dependentThemeId = Uuid::randomHex();
+
+        $this->connectionMock->method('fetchAllAssociative')->willReturn(
+            [
+                [
+                    'id' => $themeId,
+                    'saleschannelId' => TestDefaults::SALES_CHANNEL,
+                ],
+                [
+                    'id' => $dependentThemeId,
+                    'saleschannelId' => TestDefaults::SALES_CHANNEL,
+                ],
+            ]
+        );
+
+        $this->systemConfigMock->method('get')->willReturn(true);
+
+        $messages = [];
+        $messageBus = $this->createMock(MessageBus::class);
+        $messageBus->expects($this->exactly(4))->method('dispatch')
+            ->willReturnCallback(static function (CompileThemeMessage $message) use (&$messages): Envelope {
+                $messages[] = $message;
+
+                return new Envelope($message);
+            });
+
+        $themeService = $this->getThemeService(messageBus: $messageBus);
+        $themeService->compileThemeById($themeId, $this->context);
+
+        static::assertSame(
+            [[$themeId, false], [$dependentThemeId, true]],
+            array_map(static fn (CompileThemeMessage $message) => [$message->getThemeId(), $message->isNotifyOnCompletion()], $messages)
+        );
+
+        $messages = [];
+        $themeService->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
+
+        static::assertCount(1, $messages);
+        static::assertTrue($messages[0]->isNotifyOnCompletion());
+
+        $messages = [];
+        $themeService->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context, null, true, false);
+
+        static::assertCount(1, $messages);
+        static::assertFalse($messages[0]->isNotifyOnCompletion());
+    }
+
     public function testUpdateTheme(): void
     {
         $themeId = Uuid::randomHex();
@@ -943,6 +993,64 @@ class ThemeServiceTest extends TestCase
         $this->getThemeService(themeCompiler: $themeCompiler, eventDispatcher: $eventDispatcher)->updateTheme($themeId, $config, $parentThemeId, $this->context);
     }
 
+    public function testUpdateThemeDispatchesConfigChangedEventAfterThePersist(): void
+    {
+        $themeId = Uuid::randomHex();
+
+        $this->connectionMock->method('fetchAllAssociative')->willReturn([
+            ['id' => $themeId, 'saleschannelId' => TestDefaults::SALES_CHANNEL],
+        ]);
+
+        $searchResult = new EntitySearchResult(
+            'theme',
+            1,
+            new ThemeCollection([
+                (new ThemeEntity())->assign([
+                    '_uniqueIdentifier' => $themeId,
+                    'salesChannels' => new SalesChannelCollection(),
+                    // Null config mirrors the admin reset=1 save that triggers the bug.
+                    'configValues' => null,
+                    'baseConfig' => [
+                        'fields' => [
+                            'sw-color-brand-primary' => ['type' => 'color', 'value' => '#0042a0'],
+                        ],
+                    ],
+                ]),
+            ]),
+            null,
+            new Criteria(),
+            $this->context
+        );
+
+        $this->mergedConfigBuilderMock->method('getPlainThemeConfiguration')->willReturn([
+            'fields' => [
+                'sw-color-brand-primary' => ['type' => 'color', 'value' => '#0042a0'],
+            ],
+        ]);
+
+        $themeRepository = new StaticEntityRepository([$searchResult]);
+        $updatesAtDispatch = 0;
+
+        $eventDispatcher = $this->createMock(EventDispatcher::class);
+        $eventDispatcher->expects($this->once())->method('dispatch')->willReturnCallback(
+            function (object $event) use ($themeRepository, &$updatesAtDispatch): object {
+                static::assertInstanceOf(ThemeConfigChangedEvent::class, $event);
+                $updatesAtDispatch = \count($themeRepository->updates);
+
+                return $event;
+            }
+        );
+
+        $this->getThemeService(
+            themeRepository: $themeRepository,
+            eventDispatcher: $eventDispatcher,
+        )->updateTheme($themeId, ['sw-color-brand-primary' => ['value' => '#ff00ff']], null, $this->context);
+
+        // The StaticFileConfigDumper listener re-reads the DB on this event, so the write must come first.
+        static::assertSame(1, $updatesAtDispatch);
+        static::assertCount(1, $themeRepository->updates);
+    }
+
     public function testUpdateThemeNoSalesChannelAssigned(): void
     {
         $themeId = Uuid::randomHex();
@@ -1008,81 +1116,33 @@ class ThemeServiceTest extends TestCase
     {
         $themeId = Uuid::randomHex();
 
-        $this->themeRepositoryMock->method('search')->willReturn(
-            new EntitySearchResult(
-                'theme',
-                1,
-                new ThemeCollection([]),
-                null,
-                new Criteria(),
-                $this->context
-            )
-        );
-
         $this->expectExceptionObject(ThemeException::couldNotFindThemeById($themeId));
 
-        $this->getThemeService()->updateTheme($themeId, null, null, $this->context);
+        $this->getThemeService(themeRepository: StaticEntityRepository::of(ThemeCollection::class, [[]]))->updateTheme($themeId, null, null, $this->context);
     }
 
     public function testResetTheme(): void
     {
         $themeId = Uuid::randomHex();
 
-        $themeRepository = $this->createMock(EntityRepository::class);
-        $themeRepository->method('search')->willReturn(
-            new EntitySearchResult(
-                'theme',
-                1,
-                new ThemeCollection(
-                    [
-                        (new ThemeEntity())->assign(
-                            [
-                                '_uniqueIdentifier' => $themeId,
-                            ]
-                        ),
-                    ]
-                ),
-                null,
-                new Criteria(),
-                $this->context
-            )
-        );
+        $themeRepository = StaticEntityRepository::of(ThemeCollection::class, [[$themeId]]);
 
         $eventDispatcher = $this->createMock(EventDispatcher::class);
         $eventDispatcher->expects($this->once())->method('dispatch')->with(
             new ThemeConfigResetEvent($themeId, $this->context)
         );
 
-        $themeRepository->expects($this->once())->method('update')->with(
-            [
-                [
-                    'id' => $themeId,
-                    'configValues' => null,
-                ],
-            ],
-            $this->context
-        );
-
         $this->getThemeService(themeRepository: $themeRepository, eventDispatcher: $eventDispatcher)->resetTheme($themeId, $this->context);
+
+        static::assertSame([[['id' => $themeId, 'configValues' => null]]], $themeRepository->updates);
     }
 
     public function testResetThemeNoTheme(): void
     {
         $themeId = Uuid::randomHex();
 
-        $this->themeRepositoryMock->method('search')->willReturn(
-            new EntitySearchResult(
-                'theme',
-                1,
-                new ThemeCollection([]),
-                null,
-                new Criteria(),
-                $this->context
-            )
-        );
-
         $this->expectExceptionObject(ThemeException::couldNotFindThemeById($themeId));
-        $this->getThemeService()->resetTheme($themeId, $this->context);
+        $this->getThemeService(themeRepository: StaticEntityRepository::of(ThemeCollection::class, [[]]))->resetTheme($themeId, $this->context);
     }
 
     public function testAsyncCompilationIsSkippedWhenUsingStaticConfigLoader(): void

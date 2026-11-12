@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartLocker;
+use Shopware\Core\Checkout\Cart\Event\BeforeLineItemAddedEvent;
+use Shopware\Core\Checkout\Cart\Event\LineItemsAddedBeforeCalculationEvent;
 use Shopware\Core\Checkout\Cart\Extension\CartItemAddRouteExtension;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
@@ -17,13 +19,16 @@ use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\RateLimiter\RateLimiterException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
@@ -45,7 +50,8 @@ class CartItemAddRouteTest extends TestCase
             static::createStub(LineItemFactoryRegistry::class),
             static::createStub(RateLimiter::class),
             static::createStub(CartLocker::class),
-            new ExtensionDispatcher(new EventDispatcher())
+            new ExtensionDispatcher(new EventDispatcher()),
+            new RequestStack(),
         ))->getDecorated();
     }
 
@@ -177,9 +183,183 @@ class CartItemAddRouteTest extends TestCase
             static::createStub(RateLimiter::class),
             static::createStub(CartLocker::class),
             new ExtensionDispatcher($dispatcher),
+            new RequestStack(),
         );
 
         static::assertSame($response, $route->add($request, $cart, $context, $items));
+    }
+
+    public function testStorefrontPromotionCodesShareRateLimit(): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push(Request::create('/', server: ['REMOTE_ADDR' => '127.0.0.1']));
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->exactly(2))->method('ensureAccepted')
+            ->with(RateLimiter::PROMOTION_CODE, '127.0.0.1-' . self::SALES_CHANNEL_ID);
+        $route = $this->createRoute($rateLimiter, $requestStack);
+
+        $route->add(new Request(), new Cart('test'), $this->createSalesChannelContext(), [
+            new LineItem('first', LineItem::PROMOTION_LINE_ITEM_TYPE, 'first-code'),
+            new LineItem('second', LineItem::PROMOTION_LINE_ITEM_TYPE, 'second-code'),
+        ]);
+    }
+
+    public function testStorefrontProductsAreNotRateLimited(): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push(Request::create('/', server: ['REMOTE_ADDR' => '127.0.0.1']));
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->never())->method('ensureAccepted');
+        $route = $this->createRoute($rateLimiter, $requestStack);
+
+        $route->add(new Request(), new Cart('test'), $this->createSalesChannelContext(), [
+            new LineItem('product', LineItem::PRODUCT_LINE_ITEM_TYPE, 'product-id'),
+        ]);
+    }
+
+    public function testStoreApiProductsUsePassedRequestIp(): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push(Request::create('/', server: ['REMOTE_ADDR' => '127.0.0.2']));
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->once())->method('ensureAccepted')
+            ->with(RateLimiter::CART_ADD_LINE_ITEM, 'product-id-127.0.0.1-' . self::SALES_CHANNEL_ID, self::SALES_CHANNEL_ID);
+        $route = $this->createRoute($rateLimiter, $requestStack);
+
+        $route->add(Request::create('/', server: ['REMOTE_ADDR' => '127.0.0.1']), new Cart('test'), $this->createSalesChannelContext(), [
+            new LineItem('product', LineItem::PRODUCT_LINE_ITEM_TYPE, 'product-id'),
+        ]);
+    }
+
+    public function testProductIpv6AddressesSharePerItemPrefixAllowance(): void
+    {
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->exactly(2))->method('ensureAccepted')
+            ->with(RateLimiter::CART_ADD_LINE_ITEM, 'product-id-2001:db8:1234:5678::-' . self::SALES_CHANNEL_ID, self::SALES_CHANNEL_ID);
+        $route = $this->createRoute($rateLimiter, new RequestStack());
+
+        foreach (['2001:db8:1234:5678::1', '2001:db8:1234:5678::2'] as $ip) {
+            $route->add(Request::create('/', server: ['REMOTE_ADDR' => $ip]), new Cart('test'), $this->createSalesChannelContext(), [
+                new LineItem('product', LineItem::PRODUCT_LINE_ITEM_TYPE, 'product-id'),
+            ]);
+        }
+    }
+
+    public function testPromotionIpv6AddressesSharePrefixAllowance(): void
+    {
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->exactly(2))->method('ensureAccepted')
+            ->with(RateLimiter::PROMOTION_CODE, '2001:db8:1234:5678::-' . self::SALES_CHANNEL_ID);
+        $route = $this->createRoute($rateLimiter, new RequestStack());
+
+        foreach (['2001:db8:1234:5678::1', '2001:db8:1234:5678::2'] as $ip) {
+            $route->add(Request::create('/', server: ['REMOTE_ADDR' => $ip]), new Cart('test'), $this->createSalesChannelContext(), [
+                new LineItem('promotion', LineItem::PROMOTION_LINE_ITEM_TYPE, 'example-code'),
+            ]);
+        }
+    }
+
+    public function testPromotionIpv4AddressesKeepSeparateAllowances(): void
+    {
+        $keys = [];
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->exactly(2))->method('ensureAccepted')
+            ->willReturnCallback(static function (string $route, string $key) use (&$keys): void {
+                $keys[] = $key;
+            });
+        $route = $this->createRoute($rateLimiter, new RequestStack());
+
+        foreach (['192.0.2.1', '192.0.2.2'] as $ip) {
+            $route->add(Request::create('/', server: ['REMOTE_ADDR' => $ip]), new Cart('test'), $this->createSalesChannelContext(), [
+                new LineItem('promotion', LineItem::PROMOTION_LINE_ITEM_TYPE, 'example-code'),
+            ]);
+        }
+
+        static::assertSame(['192.0.2.1-' . self::SALES_CHANNEL_ID, '192.0.2.2-' . self::SALES_CHANNEL_ID], $keys);
+    }
+
+    public function testStoreApiPromotionRateLimitRejectsBeforeAddingItem(): void
+    {
+        $exception = RateLimiterException::limitExceeded(time() + 30);
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->once())->method('ensureAccepted')
+            ->with(RateLimiter::PROMOTION_CODE, '127.0.0.1-' . self::SALES_CHANNEL_ID)
+            ->willThrowException($exception);
+        $route = $this->createRoute($rateLimiter, new RequestStack());
+        $cart = new Cart('test');
+        $request = $this->createRequest([
+            'id' => 'promotion',
+            'type' => LineItem::PROMOTION_LINE_ITEM_TYPE,
+            'referencedId' => 'example-code',
+            'quantity' => 1,
+        ]);
+
+        $this->expectExceptionObject($exception);
+        try {
+            $route->add($request, $cart, $this->createSalesChannelContext(), null);
+        } finally {
+            static::assertCount(0, $cart->getLineItems());
+        }
+    }
+
+    public function testPromotionWithoutClientIpIsNotRateLimited(): void
+    {
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->never())->method('ensureAccepted');
+        $route = $this->createRoute($rateLimiter, new RequestStack());
+
+        $route->add(new Request(), new Cart('test'), $this->createSalesChannelContext(), [
+            new LineItem('promotion', LineItem::PROMOTION_LINE_ITEM_TYPE, 'example-code'),
+        ]);
+    }
+
+    public function testLineItemsAddedBeforeCalculationEventIsDispatchedOnceAllLineItemsAreInTheCart(): void
+    {
+        $cart = new Cart('test');
+        $items = [
+            new LineItem('first', LineItem::PRODUCT_LINE_ITEM_TYPE, 'first-product'),
+            new LineItem('second', LineItem::PRODUCT_LINE_ITEM_TYPE, 'second-product'),
+        ];
+        $eventDispatcher = new CollectingEventDispatcher();
+        $dispatchedBeforeCalculation = [];
+        $cartCalculator = static::createStub(CartCalculator::class);
+        $cartCalculator->method('calculate')->willReturnCallback(
+            static function (Cart $cart) use ($eventDispatcher, &$dispatchedBeforeCalculation): Cart {
+                $dispatchedBeforeCalculation = array_map(static fn (object $event): string => $event::class, $eventDispatcher->getEvents());
+
+                return $cart;
+            }
+        );
+        $route = $this->createRoute(static::createStub(RateLimiter::class), new RequestStack(), eventDispatcher: $eventDispatcher, cartCalculator: $cartCalculator);
+
+        $route->add(new Request(), $cart, $this->createSalesChannelContext(), $items);
+
+        static::assertSame(
+            [BeforeLineItemAddedEvent::class, BeforeLineItemAddedEvent::class, LineItemsAddedBeforeCalculationEvent::class],
+            $dispatchedBeforeCalculation,
+        );
+        $events = $eventDispatcher->getEventsOfClass(LineItemsAddedBeforeCalculationEvent::class);
+        static::assertCount(1, $events);
+        static::assertSame($items, $events[0]->getLineItems());
+        static::assertSame($cart, $events[0]->getCart());
+    }
+
+    public function testLineItemsAddedBeforeCalculationEventIsNotDispatchedWhenTheAddFails(): void
+    {
+        $exception = RateLimiterException::limitExceeded(time() + 30);
+        $rateLimiter = static::createStub(RateLimiter::class);
+        $rateLimiter->method('ensureAccepted')->willThrowException($exception);
+        $eventDispatcher = new CollectingEventDispatcher();
+        $route = $this->createRoute($rateLimiter, new RequestStack(), eventDispatcher: $eventDispatcher);
+
+        $this->expectExceptionObject($exception);
+        try {
+            $route->add(Request::create('/', server: ['REMOTE_ADDR' => '127.0.0.1']), new Cart('test'), $this->createSalesChannelContext(), [
+                new LineItem('product', LineItem::PRODUCT_LINE_ITEM_TYPE, 'product-id'),
+            ]);
+        } finally {
+            static::assertSame([], $eventDispatcher->getEventsOfClass(LineItemsAddedBeforeCalculationEvent::class));
+        }
     }
 
     private function createCartItemAddRoute(?string $expectedCacheKey, ?CartLocker $cartLocker = null): CartItemAddRoute
@@ -194,9 +374,18 @@ class CartItemAddRouteTest extends TestCase
                 static::assertSame(self::SALES_CHANNEL_ID, $salesChannelId);
             });
 
-        $lineItemFactory = $this->createMock(LineItemFactoryRegistry::class);
+        return $this->createRoute($rateLimiter, new RequestStack(), $cartLocker);
+    }
+
+    private function createRoute(
+        RateLimiter $rateLimiter,
+        RequestStack $requestStack,
+        ?CartLocker $cartLocker = null,
+        ?EventDispatcherInterface $eventDispatcher = null,
+        ?CartCalculator $cartCalculator = null,
+    ): CartItemAddRoute {
+        $lineItemFactory = static::createStub(LineItemFactoryRegistry::class);
         $lineItemFactory
-            ->expects($this->atLeastOnce())
             ->method('create')
             ->willReturnCallback(
                 static fn ($dataBag): LineItem => new LineItem($dataBag['id'], $dataBag['type'], $dataBag['referencedId'] ?? null, $dataBag['quantity'])
@@ -208,13 +397,14 @@ class CartItemAddRouteTest extends TestCase
         }
 
         return new CartItemAddRoute(
-            static::createStub(CartCalculator::class),
+            $cartCalculator ?? static::createStub(CartCalculator::class),
             static::createStub(AbstractCartPersister::class),
-            static::createStub(EventDispatcherInterface::class),
+            $eventDispatcher ?? static::createStub(EventDispatcherInterface::class),
             $lineItemFactory,
             $rateLimiter,
             $cartLocker,
-            new ExtensionDispatcher(new EventDispatcher())
+            new ExtensionDispatcher(new EventDispatcher()),
+            $requestStack,
         );
     }
 

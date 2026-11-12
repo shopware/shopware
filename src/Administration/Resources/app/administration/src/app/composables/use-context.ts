@@ -34,6 +34,7 @@ export interface ContextState {
             };
             settings?: {
                 appUrlReachable: boolean;
+                appUrlStatusCode?: number | null;
                 appsRequireAppUrl: boolean;
                 disableExtensionManagement: boolean;
                 firstMigrationDate?: string | null;
@@ -43,6 +44,11 @@ export interface ContextState {
             version: null | string;
             versionRevision: null | string;
             inAppPurchases: Record<string, string[]>;
+            versionHistory?: {
+                version: string;
+                recordedAt: string;
+                type: 'install' | 'update';
+            }[];
             shopId: null | string;
             appUrl: null | string;
         };

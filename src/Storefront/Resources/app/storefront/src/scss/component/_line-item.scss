@@ -59,6 +59,7 @@ $infoItemRemoveMdSpace: 1;
 .line-item-quantity-label {
     @include make-col-ready();
     @include make-col(6);
+    flex-grow: 1;
     @include media-breakpoint-up(sm) {
         @include make-col(12);
     }
@@ -67,6 +68,7 @@ $infoItemRemoveMdSpace: 1;
 .line-item-quantity-select-wrapper {
     @include make-col-ready();
     @include make-col(6);
+    min-width: min-content;
     @include media-breakpoint-up(sm) {
         @include make-col(12);
     }

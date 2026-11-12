@@ -10,6 +10,11 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class Delivery extends Struct
 {
+    /**
+     * @var list<string>|null
+     */
+    private ?array $ruleIds = null;
+
     public function __construct(
         protected DeliveryPositionCollection $positions,
         protected DeliveryDate $deliveryDate,
@@ -52,6 +57,24 @@ class Delivery extends Struct
     public function setShippingCosts(CalculatedPrice $shippingCosts): void
     {
         $this->shippingCosts = $shippingCosts;
+    }
+
+    /**
+     * Ids of the rules that match this delivery, null while the delivery has not been matched
+     *
+     * @return list<string>|null
+     */
+    public function getRuleIds(): ?array
+    {
+        return $this->ruleIds;
+    }
+
+    /**
+     * @param list<string>|null $ruleIds
+     */
+    public function setRuleIds(?array $ruleIds): void
+    {
+        $this->ruleIds = $ruleIds;
     }
 
     public function getApiAlias(): string

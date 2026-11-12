@@ -282,11 +282,6 @@
         "targetNotFound": "The selected element is no longer available. Select an existing element before editing it.",
         "unknownElementType": "This element type is no longer available. Choose an available element type.",
         "invalidStructure": "This change is not valid for the current layout structure. Review the selected elements and their positions.",
-        "propertyUnknown": "This element type has no such property. Reload the layout before editing it.",
-        "propertyConflict": "A property was set and removed in the same change. Review your change.",
-        "propertyValueRejected": "This value does not match the property type. Enter a valid value.",
-        "propertyLanguageKeyInvalid": "This value contains an invalid language entry. Reload the layout and try again.",
-        "propertyNotTranslatable": "This property cannot be translated.",
         "generic": "The layout edit could not be applied. Review your changes or contact your administrator."
       },
       "messageSaved": "Content layout saved successfully.",

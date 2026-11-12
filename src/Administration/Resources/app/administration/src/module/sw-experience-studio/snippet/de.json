@@ -282,11 +282,6 @@
         "targetNotFound": "Das gewählte Element ist nicht mehr verfügbar. Wähle ein vorhandenes Element, bevor Du es bearbeitest.",
         "unknownElementType": "Dieser Elementtyp ist nicht mehr verfügbar. Wähle einen verfügbaren Elementtyp.",
         "invalidStructure": "Diese Änderung ist für die aktuelle Layout-Struktur nicht gültig. Prüfe die gewählten Elemente und ihre Positionen.",
-        "propertyUnknown": "Dieser Elementtyp hat keine solche Eigenschaft. Lade das Layout neu, bevor Du es bearbeitest.",
-        "propertyConflict": "Eine Eigenschaft wurde in derselben Änderung gesetzt und entfernt. Prüfe Deine Änderung.",
-        "propertyValueRejected": "Dieser Wert passt nicht zum Typ der Eigenschaft. Gib einen gültigen Wert ein.",
-        "propertyLanguageKeyInvalid": "Dieser Wert enthält einen ungültigen Spracheintrag. Lade das Layout neu und versuche es erneut.",
-        "propertyNotTranslatable": "Diese Eigenschaft kann nicht übersetzt werden.",
         "generic": "Die Layout-Änderung konnte nicht angewendet werden. Prüfe Deine Änderungen oder wende Dich an Deine Administration."
       },
       "messageSaved": "Inhaltslayout erfolgreich gespeichert.",

@@ -2,7 +2,7 @@ import type { ContentElementNode } from 'src/core/service/content-element.types'
 import type { ContentLayoutDraftMutationResponse } from 'src/core/service/api/content-system-layout-draft-mutation.api.service';
 import detailComponent from './index';
 
-const ANCHOR_LANGUAGE_ID = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
+const SYSTEM_LANGUAGE_ID = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
 const GERMAN_LANGUAGE_ID = 'a1b2c3d4e5f60718293a4b5c6d7e8f90';
 
 describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
@@ -17,7 +17,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         expect(computed.canManageAssignments.call({ isCreateMode: false, layoutRootSource: null })).toBe(false);
     });
 
-    const elementTypeStoreFor = (translatable: boolean, propertyKey = 'text') => ({
+    const elementTypeStoreFor = (translatable: boolean, propertyKey: string) => ({
         getByName: () => ({
             properties: {
                 [propertyKey]: {
@@ -44,314 +44,123 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         droppedProperties: {},
     });
 
-    const draftMutationVm = (element: ContentElementNode, requestDraftMutation: jest.Mock, propertyKey = 'text') => ({
+    const propertyWriteVm = (element: ContentElementNode, propertyKey: string, translatable: boolean) => ({
         layout: {
             layout: [element],
         },
         allowSave: true,
-        mutationQueue: Promise.resolve(),
-        pendingMutationCount: 0,
-        isLoading: false,
         selectedElementId: 'element-1' as string | null,
         showDiagnostics: false,
-        diagnoseRequestSequence: 0,
-        latestDiagnoseRequestId: 0,
-        diagnostics: [] as unknown[],
         editorStore: {
             pushToHistory: jest.fn(),
         },
-        elementTypeStore: elementTypeStoreFor(true, propertyKey),
+        elementTypeStore: elementTypeStoreFor(translatable, propertyKey),
         isTranslatableProperty: methods.isTranslatableProperty,
         findElementById: () => element,
         writeElementPropertyValue: methods.writeElementPropertyValue,
-        executeStructuralDraftMutation: methods.executeStructuralDraftMutation,
-        requestDraftMutation,
-        notifyMutationError: jest.fn(),
-        extractMutationErrorCodes: jest.fn().mockReturnValue([]),
+        applyLayoutMutation: methods.applyLayoutMutation,
+        scheduleDiagnoseLayout: jest.fn(),
+        draftMutationService: jest.fn(),
+        notifyMutationError: methods.notifyMutationError,
+        createNotificationError: jest.fn(),
+        $t: (snippet: string) => `translated:${snippet}`,
     });
 
-    const translatableTextElement = (): ContentElementNode => ({
+    const textElement = (properties?: Record<string, unknown>): ContentElementNode => ({
         id: 'element-1',
         component: 'Sw:Content:Text',
-        properties: {
+        ...(properties === undefined ? {} : { properties }),
+    });
+
+    it.each([
+        ['a string', 'Hello'],
+        ['a number', 2],
+        ['a boolean', false],
+    ])(
+        'writes %s settings value of a translatable property into the local layout as the system-language entry without a request',
+        (_label, value) => {
+            const vm = propertyWriteVm(textElement(), 'text', true);
+
+            methods.onElementSettingsChange.call(vm, {
+                elementId: 'element-1',
+                propertyKey: 'text',
+                value,
+            });
+
+            expect(vm.layout.layout[0].properties).toEqual({
+                text: {
+                    [SYSTEM_LANGUAGE_ID]: value,
+                },
+            });
+            expect(vm.draftMutationService).not.toHaveBeenCalled();
+        },
+    );
+
+    it('keeps the other language entries of a translatable property on a settings change', () => {
+        const vm = propertyWriteVm(
+            textElement({
+                text: {
+                    [SYSTEM_LANGUAGE_ID]: 'Hello',
+                    [GERMAN_LANGUAGE_ID]: 'Hallo',
+                },
+            }),
+            'text',
+            true,
+        );
+
+        methods.onElementSettingsChange.call(vm, {
+            elementId: 'element-1',
+            propertyKey: 'text',
+            value: 'Hello again',
+        });
+
+        expect(vm.layout.layout[0].properties).toEqual({
             text: {
-                [ANCHOR_LANGUAGE_ID]: 'Hello',
+                [SYSTEM_LANGUAGE_ID]: 'Hello again',
                 [GERMAN_LANGUAGE_ID]: 'Hallo',
             },
+        });
+    });
+
+    it('records a translatable settings change in the undo history', () => {
+        const vm = propertyWriteVm(textElement({ text: { [SYSTEM_LANGUAGE_ID]: 'Hello' } }), 'text', true);
+        const previousLayout = vm.layout.layout;
+
+        methods.onElementSettingsChange.call(vm, {
+            elementId: 'element-1',
+            propertyKey: 'text',
+            value: 'Hello again',
+        });
+
+        expect(vm.editorStore.pushToHistory).toHaveBeenCalledWith(previousLayout, 'element-1');
+        expect(previousLayout[0].properties).toEqual({ text: { [SYSTEM_LANGUAGE_ID]: 'Hello' } });
+    });
+
+    it.each([
+        ['an object', { text: 'Hello again' }],
+        ['null', null],
+    ])(
+        'notifies the generic mutation error and keeps the layout for %s settings value of a translatable property',
+        (_label, value) => {
+            const vm = propertyWriteVm(textElement({ text: { [SYSTEM_LANGUAGE_ID]: 'Hello' } }), 'text', true);
+            const previousLayout = vm.layout.layout;
+
+            methods.onElementSettingsChange.call(vm, {
+                elementId: 'element-1',
+                propertyKey: 'text',
+                value,
+            });
+
+            expect(vm.createNotificationError).toHaveBeenCalledWith({
+                message: 'translated:sw-experience-studio.detail.mutationErrors.generic',
+            });
+            expect(vm.layout.layout).toBe(previousLayout);
+            expect(vm.editorStore.pushToHistory).not.toHaveBeenCalled();
         },
-    });
+    );
 
-    it('builds a queued translatable settings change from the tree the previous queued change produced', async () => {
-        const element = translatableTextElement();
-        const firstResponseElement: ContentElementNode = {
-            id: 'element-1',
-            component: 'Sw:Content:Text',
-            properties: {
-                text: {
-                    [ANCHOR_LANGUAGE_ID]: 'First edit',
-                    [GERMAN_LANGUAGE_ID]: 'Hallo zusammen',
-                },
-            },
-        };
-        let resolveFirstRequest!: (response: ContentLayoutDraftMutationResponse) => void;
-        const requestDraftMutation = jest
-            .fn()
-            .mockImplementationOnce(
-                () =>
-                    new Promise((resolve: (response: ContentLayoutDraftMutationResponse) => void) => {
-                        resolveFirstRequest = resolve;
-                    }),
-            )
-            .mockResolvedValueOnce(mutationResponse([firstResponseElement]));
-        const vm = draftMutationVm(element, requestDraftMutation);
-
-        const firstEdit = methods.onElementSettingsChange.call(vm, {
-            elementId: 'element-1',
-            propertyKey: 'text',
-            value: 'First edit',
-        });
-        const secondEdit = methods.onElementSettingsChange.call(vm, {
-            elementId: 'element-1',
-            propertyKey: 'text',
-            value: 'Second edit',
-        });
-        await flushPromises();
-        resolveFirstRequest(mutationResponse([firstResponseElement]));
-        await Promise.all([
-            firstEdit,
-            secondEdit,
-        ]);
-
-        expect(requestDraftMutation).toHaveBeenNthCalledWith(1, 'update-properties', [element], {
-            elementId: 'element-1',
-            values: {
-                text: {
-                    [ANCHOR_LANGUAGE_ID]: 'First edit',
-                    [GERMAN_LANGUAGE_ID]: 'Hallo',
-                },
-            },
-        });
-        expect(requestDraftMutation).toHaveBeenNthCalledWith(2, 'update-properties', [firstResponseElement], {
-            elementId: 'element-1',
-            values: {
-                text: {
-                    [ANCHOR_LANGUAGE_ID]: 'Second edit',
-                    [GERMAN_LANGUAGE_ID]: 'Hallo zusammen',
-                },
-            },
-        });
-    });
-
-    it('sends a settings change of a translatable property as an update-properties mutation carrying the anchor map', async () => {
-        const element: ContentElementNode = {
-            id: 'element-1',
-            component: 'Sw:Media:Image',
-            properties: {
-                caption: {
-                    [ANCHOR_LANGUAGE_ID]: 'Caption',
-                    [GERMAN_LANGUAGE_ID]: 'Bildunterschrift',
-                },
-            },
-        };
-        const requestDraftMutation = jest.fn().mockResolvedValue(mutationResponse([element]));
-        const vm = draftMutationVm(element, requestDraftMutation, 'caption');
-
-        await methods.onElementSettingsChange.call(vm, {
-            elementId: 'element-1',
-            propertyKey: 'caption',
-            value: 'Caption updated',
-        });
-
-        expect(requestDraftMutation).toHaveBeenCalledWith('update-properties', [element], {
-            elementId: 'element-1',
-            values: {
-                caption: {
-                    [ANCHOR_LANGUAGE_ID]: 'Caption updated',
-                    [GERMAN_LANGUAGE_ID]: 'Bildunterschrift',
-                },
-            },
-        });
-    });
-
-    it('keeps the changed element selected after a settings change', async () => {
-        const element: ContentElementNode = {
-            id: 'element-1',
-            component: 'Sw:Media:Image',
-            properties: {
-                caption: {
-                    [ANCHOR_LANGUAGE_ID]: 'Caption',
-                },
-            },
-        };
-        const vm = draftMutationVm(element, jest.fn().mockResolvedValue(mutationResponse([element])), 'caption');
-        vm.selectedElementId = null;
-
-        await methods.onElementSettingsChange.call(vm, {
-            elementId: 'element-1',
-            propertyKey: 'caption',
-            value: 'Caption updated',
-        });
-
-        expect(vm.selectedElementId).toBe('element-1');
-    });
-
-    it('sends a boolean settings value of a translatable property as an update-properties mutation carrying the anchor map', async () => {
-        const element: ContentElementNode = {
-            id: 'element-1',
-            component: 'Sw:Content:Headline',
-            properties: {
-                showTitle: {
-                    [ANCHOR_LANGUAGE_ID]: true,
-                    [GERMAN_LANGUAGE_ID]: true,
-                },
-            },
-        };
-        const requestDraftMutation = jest.fn().mockResolvedValue(mutationResponse([element]));
-        const vm = draftMutationVm(element, requestDraftMutation, 'showTitle');
-
-        await methods.onElementSettingsChange.call(vm, {
-            elementId: 'element-1',
-            propertyKey: 'showTitle',
-            value: false,
-        });
-
-        expect(requestDraftMutation).toHaveBeenCalledWith('update-properties', [element], {
-            elementId: 'element-1',
-            values: {
-                showTitle: {
-                    [ANCHOR_LANGUAGE_ID]: false,
-                    [GERMAN_LANGUAGE_ID]: true,
-                },
-            },
-        });
-    });
-
-    it('sends a number settings value of a translatable property as an update-properties mutation carrying the anchor map', async () => {
-        const element: ContentElementNode = {
-            id: 'element-1',
-            component: 'Sw:Product:Slider',
-            properties: {
-                columns: {
-                    [ANCHOR_LANGUAGE_ID]: 4,
-                },
-            },
-        };
-        const requestDraftMutation = jest.fn().mockResolvedValue(mutationResponse([element]));
-        const vm = draftMutationVm(element, requestDraftMutation, 'columns');
-
-        await methods.onElementSettingsChange.call(vm, {
-            elementId: 'element-1',
-            propertyKey: 'columns',
-            value: 2,
-        });
-
-        expect(requestDraftMutation).toHaveBeenCalledWith('update-properties', [element], {
-            elementId: 'element-1',
-            values: {
-                columns: {
-                    [ANCHOR_LANGUAGE_ID]: 2,
-                },
-            },
-        });
-    });
-
-    it('notifies the generic mutation error for an object settings value of a translatable property without sending a request', async () => {
-        const element: ContentElementNode = {
-            id: 'element-1',
-            component: 'Sw:Media:Image',
-            properties: {
-                caption: {
-                    [ANCHOR_LANGUAGE_ID]: 'Caption',
-                },
-            },
-        };
-        const requestDraftMutation = jest.fn().mockResolvedValueOnce(mutationResponse([element]));
-        const createNotificationError = jest.fn();
-        const vm = {
-            ...draftMutationVm(element, requestDraftMutation, 'caption'),
-            createNotificationError,
-            $t: (snippet: string) => `translated:${snippet}`,
-            notifyMutationError: methods.notifyMutationError,
-            extractMutationErrorCodes: methods.extractMutationErrorCodes,
-        };
-
-        await methods.onElementSettingsChange.call(vm, {
-            elementId: 'element-1',
-            propertyKey: 'caption',
-            value: { text: 'Caption updated' },
-        });
-
-        expect(requestDraftMutation).not.toHaveBeenCalled();
-        expect(createNotificationError).toHaveBeenCalledTimes(1);
-        expect(createNotificationError).toHaveBeenCalledWith({
-            message: 'translated:sw-experience-studio.detail.mutationErrors.generic',
-        });
-        expect(vm.pendingMutationCount).toBe(0);
-
-        await methods.onElementSettingsChange.call(vm, {
-            elementId: 'element-1',
-            propertyKey: 'caption',
-            value: 'After object',
-        });
-
-        expect(requestDraftMutation).toHaveBeenCalledTimes(1);
-        expect(requestDraftMutation).toHaveBeenCalledWith('update-properties', [element], {
-            elementId: 'element-1',
-            values: {
-                caption: {
-                    [ANCHOR_LANGUAGE_ID]: 'After object',
-                },
-            },
-        });
-        expect(createNotificationError).toHaveBeenCalledTimes(1);
-    });
-
-    it('notifies the generic mutation error for a null settings value of a translatable property without sending a request', async () => {
-        const element = translatableTextElement();
-        const requestDraftMutation = jest.fn().mockResolvedValueOnce(mutationResponse([element]));
-        const createNotificationError = jest.fn();
-        const vm = {
-            ...draftMutationVm(element, requestDraftMutation),
-            createNotificationError,
-            $t: (snippet: string) => `translated:${snippet}`,
-            notifyMutationError: methods.notifyMutationError,
-            extractMutationErrorCodes: methods.extractMutationErrorCodes,
-        };
-
-        await methods.onElementSettingsChange.call(vm, {
-            elementId: 'element-1',
-            propertyKey: 'text',
-            value: null,
-        });
-
-        expect(requestDraftMutation).not.toHaveBeenCalled();
-        expect(createNotificationError).toHaveBeenCalledTimes(1);
-        expect(createNotificationError).toHaveBeenCalledWith({
-            message: 'translated:sw-experience-studio.detail.mutationErrors.generic',
-        });
-        expect(vm.pendingMutationCount).toBe(0);
-
-        await methods.onElementSettingsChange.call(vm, {
-            elementId: 'element-1',
-            propertyKey: 'text',
-            value: 'After null',
-        });
-
-        expect(requestDraftMutation).toHaveBeenCalledTimes(1);
-        expect(requestDraftMutation).toHaveBeenCalledWith('update-properties', [element], {
-            elementId: 'element-1',
-            values: {
-                text: {
-                    [ANCHOR_LANGUAGE_ID]: 'After null',
-                    [GERMAN_LANGUAGE_ID]: 'Hallo',
-                },
-            },
-        });
-        expect(createNotificationError).toHaveBeenCalledTimes(1);
-    });
-
-    it('applies a settings change of a non-translatable property to the local layout', async () => {
-        const workingLayout: ContentElementNode[] = [
+    it('writes a settings change of a non-translatable property into the local layout as the plain value', () => {
+        const vm = propertyWriteVm(
             {
                 id: 'element-1',
                 component: 'Sw:Content:Headline',
@@ -359,51 +168,30 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
                     headline: 'Hello',
                 },
             },
-        ];
-        const vm = {
-            elementTypeStore: elementTypeStoreFor(false, 'headline'),
-            isTranslatableProperty: methods.isTranslatableProperty,
-            findElementById: () => workingLayout[0],
-            writeElementPropertyValue: methods.writeElementPropertyValue,
-            applyLayoutMutation: (mutator: (layout: ContentElementNode[]) => unknown) => mutator(workingLayout),
-        };
+            'headline',
+            false,
+        );
 
-        await methods.onElementSettingsChange.call(vm, {
+        methods.onElementSettingsChange.call(vm, {
             elementId: 'element-1',
             propertyKey: 'headline',
             value: 'Hello again',
         });
 
-        expect(workingLayout[0].properties).toEqual({ headline: 'Hello again' });
+        expect(vm.layout.layout[0].properties).toEqual({ headline: 'Hello again' });
+        expect(vm.draftMutationService).not.toHaveBeenCalled();
     });
 
-    it.each([
-        ['CONTENT_SYSTEM__MUTATION_PROPERTY_UNKNOWN', 'sw-experience-studio.detail.mutationErrors.propertyUnknown'],
-        ['CONTENT_SYSTEM__MUTATION_PROPERTY_CONFLICT', 'sw-experience-studio.detail.mutationErrors.propertyConflict'],
-        [
-            'CONTENT_SYSTEM__MUTATION_PROPERTY_VALUE_REJECTED',
-            'sw-experience-studio.detail.mutationErrors.propertyValueRejected',
-        ],
-        [
-            'CONTENT_SYSTEM__MUTATION_PROPERTY_LANGUAGE_KEY_INVALID',
-            'sw-experience-studio.detail.mutationErrors.propertyLanguageKeyInvalid',
-        ],
-        [
-            'CONTENT_SYSTEM__MUTATION_PROPERTY_NOT_TRANSLATABLE',
-            'sw-experience-studio.detail.mutationErrors.propertyNotTranslatable',
-        ],
-        [
-            'CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED',
-            'sw-experience-studio.detail.messageBindingRootSourceNotScoped',
-        ],
-    ])('reports %s with its own snippet', (code, snippet) => {
+    it('reports CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED with its own snippet', () => {
         const createNotificationError = jest.fn();
         const $t = jest.fn((key: string) => `translated:${key}`);
 
-        methods.notifyMutationError.call({ createNotificationError, $t }, [code]);
+        methods.notifyMutationError.call({ createNotificationError, $t }, [
+            'CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED',
+        ]);
 
         expect(createNotificationError).toHaveBeenCalledWith({
-            message: `translated:${snippet}`,
+            message: 'translated:sw-experience-studio.detail.messageBindingRootSourceNotScoped',
         });
     });
 
@@ -415,41 +203,6 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
 
         expect(createNotificationError).toHaveBeenCalledWith({
             message: 'translated:sw-experience-studio.detail.mutationErrors.generic',
-        });
-    });
-
-    it('sends the update-properties mutation with the layout envelope', async () => {
-        const element: ContentElementNode = {
-            id: 'element-1',
-            component: 'Sw:Content:Text',
-        };
-        const updateElementProperties = jest.fn().mockResolvedValue(mutationResponse([element]));
-        const vm = {
-            draftMutationService: () => ({
-                updateElementProperties,
-            }),
-            createDraftMutationPayload: methods.createDraftMutationPayload,
-            resolveMutationRootSource: () => 'product',
-        };
-
-        await methods.requestDraftMutation.call(vm, 'update-properties', [element], {
-            elementId: 'element-1',
-            values: {
-                text: {
-                    [ANCHOR_LANGUAGE_ID]: 'Hello again',
-                },
-            },
-        });
-
-        expect(updateElementProperties).toHaveBeenCalledWith({
-            layout: [element],
-            rootSource: 'product',
-            elementId: 'element-1',
-            values: {
-                text: {
-                    [ANCHOR_LANGUAGE_ID]: 'Hello again',
-                },
-            },
         });
     });
 

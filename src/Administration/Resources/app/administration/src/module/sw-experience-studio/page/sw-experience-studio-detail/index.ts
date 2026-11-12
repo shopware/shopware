@@ -11,7 +11,6 @@ import type {
     ContentLayoutDraftMutationResponse,
     ContentLayoutDraftRemovePayload,
     ContentLayoutDraftUnmapPropertyPayload,
-    ContentLayoutDraftUpdatePropertiesPayload,
     ContentSystemViolation,
 } from 'src/core/service/api/content-system-layout-draft-mutation.api.service';
 import type { ContentSystemLayoutPreset } from 'src/core/service/api/content-system-layout-preset.api.service';
@@ -63,12 +62,6 @@ const MUTATION_ERROR_SNIPPETS: Record<string, string> = {
     CONTENT_SYSTEM__MUTATION_SLOT_REQUIRED: 'sw-experience-studio.detail.mutationErrors.invalidStructure',
     CONTENT_SYSTEM__MUTATION_INVALID_WRAP_TARGETS: 'sw-experience-studio.detail.mutationErrors.invalidStructure',
     CONTENT_SYSTEM__INVALID_LAYOUT_STRUCTURE: 'sw-experience-studio.detail.mutationErrors.invalidStructure',
-    CONTENT_SYSTEM__MUTATION_PROPERTY_UNKNOWN: 'sw-experience-studio.detail.mutationErrors.propertyUnknown',
-    CONTENT_SYSTEM__MUTATION_PROPERTY_CONFLICT: 'sw-experience-studio.detail.mutationErrors.propertyConflict',
-    CONTENT_SYSTEM__MUTATION_PROPERTY_VALUE_REJECTED: 'sw-experience-studio.detail.mutationErrors.propertyValueRejected',
-    CONTENT_SYSTEM__MUTATION_PROPERTY_LANGUAGE_KEY_INVALID:
-        'sw-experience-studio.detail.mutationErrors.propertyLanguageKeyInvalid',
-    CONTENT_SYSTEM__MUTATION_PROPERTY_NOT_TRANSLATABLE: 'sw-experience-studio.detail.mutationErrors.propertyNotTranslatable',
     CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED: 'sw-experience-studio.detail.messageBindingRootSourceNotScoped',
 };
 
@@ -122,7 +115,6 @@ type DraftMutationOperation =
     | 'remove'
     | 'duplicate'
     | 'move'
-    | 'update-properties'
     | 'insert-preset'
     | 'map-property'
     | 'unmap-property';
@@ -132,9 +124,6 @@ type ContentSystemLayoutDraftMutationService = {
     removeElement: (payload: ContentLayoutDraftRemovePayload) => Promise<ContentLayoutDraftMutationResponse>;
     duplicateElement: (payload: ContentLayoutDraftDuplicatePayload) => Promise<ContentLayoutDraftMutationResponse>;
     moveElement: (payload: ContentLayoutDraftMovePayload) => Promise<ContentLayoutDraftMutationResponse>;
-    updateElementProperties: (
-        payload: ContentLayoutDraftUpdatePropertiesPayload,
-    ) => Promise<ContentLayoutDraftMutationResponse>;
     insertPreset: (payload: ContentLayoutDraftInsertPresetPayload) => Promise<ContentLayoutDraftMutationResponse>;
     mapProperty: (payload: ContentLayoutDraftMapPropertyPayload) => Promise<ContentLayoutDraftMutationResponse>;
     unmapProperty: (payload: ContentLayoutDraftUnmapPropertyPayload) => Promise<ContentLayoutDraftMutationResponse>;
@@ -1102,51 +1091,46 @@ export default Shopware.Component.wrapComponentConfig({
             );
         },
 
-        async onElementSettingsChange(payload: { elementId: string; propertyKey: string; value: unknown }): Promise<void> {
+        onElementSettingsChange(payload: { elementId: string; propertyKey: string; value: unknown }): void {
             const element = this.findElementById(payload.elementId);
 
             if (!element) {
                 return;
             }
 
-            await this.writeElementPropertyValue(element, payload.propertyKey, payload.value);
+            this.writeElementPropertyValue(element, payload.propertyKey, payload.value);
         },
 
-        async writeElementPropertyValue(element: ContentElementNode, propertyKey: string, value: unknown): Promise<void> {
-            if (this.isTranslatableProperty(element.component, propertyKey)) {
-                await this.executeStructuralDraftMutation(
-                    'update-properties',
-                    (layout) => {
-                        // A translatable property takes a string, number or boolean; null has no mutation that removes
-                        // one entry. Throwing here lands in the queued step's catch: the generic notification, no request.
-                        if (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean') {
-                            throw new Error(
-                                `The translatable property "${propertyKey}" takes a string, number or boolean value, received ${value === null ? 'null' : typeof value}.`,
-                            );
-                        }
-
-                        const location = findElementLocation(layout, element.id);
-
-                        // A target the previous step removed is sent as is; the server rejects it as not found.
-                        return {
-                            elementId: element.id,
-                            values: {
-                                [propertyKey]: withLanguageEntry(
-                                    location?.elements[location.index]?.properties?.[propertyKey],
-                                    editingLanguageChain()[0],
-                                    value,
-                                ),
-                            },
-                        };
-                    },
-                    () => element.id,
-                );
+        writeElementPropertyValue(element: ContentElementNode, propertyKey: string, value: unknown): void {
+            if (!this.isTranslatableProperty(element.component, propertyKey)) {
+                this.applyLayoutMutation((layout) => {
+                    return updateElementPropertiesInLayout(layout, element.id, { [propertyKey]: value }) ? {} : false;
+                });
 
                 return;
             }
 
             this.applyLayoutMutation((layout) => {
-                return updateElementPropertiesInLayout(layout, element.id, { [propertyKey]: value }) ? {} : false;
+                const location = findElementLocation(layout, element.id);
+
+                if (!location) {
+                    return false;
+                }
+
+                // A translatable property takes a string, number or boolean; null would remove the entry.
+                if (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean') {
+                    this.notifyMutationError([]);
+
+                    return false;
+                }
+
+                const languageMap = withLanguageEntry(
+                    location.elements[location.index].properties?.[propertyKey],
+                    editingLanguageChain()[0],
+                    value,
+                );
+
+                return updateElementPropertiesInLayout(layout, element.id, { [propertyKey]: languageMap }) ? {} : false;
             });
         },
 
@@ -1305,10 +1289,6 @@ export default Shopware.Component.wrapComponentConfig({
                 return service.moveElement(payload as ContentLayoutDraftMovePayload);
             }
 
-            if (operation === 'update-properties') {
-                return service.updateElementProperties(payload as ContentLayoutDraftUpdatePropertiesPayload);
-            }
-
             if (operation === 'insert-preset') {
                 return service.insertPreset(payload as ContentLayoutDraftInsertPresetPayload);
             }
@@ -1326,7 +1306,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         async executeStructuralDraftMutation(
             operation: DraftMutationOperation,
-            operationPayload: Record<string, unknown> | ((layout: ContentElementNode[]) => Record<string, unknown>),
+            operationPayload: Record<string, unknown>,
             resolveSelectedElementId: (response: ContentLayoutDraftMutationResponse) => string | null,
         ): Promise<void> {
             if (!this.layout || !this.allowSave) {
@@ -1345,10 +1325,7 @@ export default Shopware.Component.wrapComponentConfig({
                 const previousSelectedElementId = this.selectedElementId;
 
                 try {
-                    // A payload derived from the tree is built here, from the tree the previous queued step produced.
-                    const payload =
-                        typeof operationPayload === 'function' ? operationPayload(currentLayout) : operationPayload;
-                    const response = await this.requestDraftMutation(operation, currentLayout, payload);
+                    const response = await this.requestDraftMutation(operation, currentLayout, operationPayload);
 
                     this.editorStore.pushToHistory(currentLayout, previousSelectedElementId);
                     this.layout.layout = response.layout;

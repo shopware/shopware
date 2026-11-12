@@ -28,9 +28,12 @@ function inComponent(componentName: string | undefined): string {
     return componentName ? ` in component "${componentName}"` : '';
 }
 
-// The messages contain the API, component and snippet key, so `triggerDeprecationOrThrow` reports every call site once.
+/**
+ * The messages contain the API, component and snippet key, so `triggerDeprecationOrThrow` reports every call site once.
+ *
+ * @deprecated tag:v6.9.0 - Will be removed with the vue-i18n 8 argument order and $tc().
+ */
 function reportDeprecation(message: string): void {
-    // eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- reports the deprecated call shapes the callers detect
     Feature.triggerDeprecationOrThrow('V6_9_0_0', message);
 }
 

@@ -1472,7 +1472,8 @@ The new method receives the exact locale being loaded, so the check can be scope
 Returning the `{"success": …}` JSON string from an MCP tool was deprecated, whether it was built with `McpToolResponse::success()`, `::error()` and the other string helpers or by hand.
 The string can't carry a summary or error details, and a PHP tool that returns it fails.
 The string helpers `success()`, `error()`, `requirePrivilege()`, `missingPrivilegesError()`, `invalidCriteriaError()`, `decodeJsonOrError()` and `executeWithDryRun()` of `McpToolResponse` are removed.
-Return a `Shopware\Core\Framework\Mcp\Result\McpToolResult` instead, built with the helper of the same name plus `Result`:
+Return a `Shopware\Core\Framework\Mcp\Result\McpToolResult` instead, built with the helper of the same name plus `Result`.
+Two helpers drop their `Error` suffix: `invalidCriteriaError()` becomes `invalidCriteriaResult()` and `missingPrivilegesError()` becomes `missingPrivilegesResult()`.
 
 ```php
 // Before

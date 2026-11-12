@@ -309,7 +309,7 @@ Tool results of `/api/_mcp` and `/store-api/_mcp` now take their format from the
 * **Clients on 2024-11-05 and 2025-03-26** keep the `{"success": …}` envelope as the only text block, unchanged.
   This legacy envelope is deprecated as a wire format.
   It is kept for these clients and is not removed in 6.8.0.
-  Tools that still return the `{"success": …}` string keep working; see the next entry for the result object.
+  Tools that still return the `{"success": …}` string keep working; see "MCP tools return `McpToolResult`; the legacy string is deprecated" for the result object.
 
 ### Large MCP results in the result envelope are stored and linked for every tool
 

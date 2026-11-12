@@ -45,32 +45,28 @@ class DeliveryValidatorTest extends TestCase
         static::assertCount(0, $errors, 'A delivery without a valid availability rule id should be valid but an error is thrown.');
     }
 
-    public function testBlockedErrorsReferenceThePositionOfTheirDelivery(): void
+    public function testBlockedErrorsReferenceTheirDelivery(): void
     {
         $firstBlockedDelivery = $this->generateDeliveryDummy('');
         $firstBlockedDelivery->getShippingMethod()->setId('first-blocked-shipping-method-id');
         $firstBlockedDelivery->getShippingMethod()->setTranslated(['name' => 'First blocked']);
-        $firstBlockedDelivery->setPosition(3);
-        $validDelivery = $this->generateDeliveryDummy(null);
-        $validDelivery->setPosition(1);
         $lastBlockedDelivery = $this->generateDeliveryDummy('');
         $lastBlockedDelivery->getShippingMethod()->setId('last-blocked-shipping-method-id');
         $lastBlockedDelivery->getShippingMethod()->setTranslated(['name' => 'Last blocked']);
-        $lastBlockedDelivery->setPosition(2);
 
         $cart = new Cart('test');
-        $cart->setDeliveries(new DeliveryCollection([$firstBlockedDelivery, $validDelivery, $lastBlockedDelivery]));
+        $cart->setDeliveries(new DeliveryCollection([$firstBlockedDelivery, $this->generateDeliveryDummy(null), $lastBlockedDelivery]));
 
         $errors = new ErrorCollection();
         (new DeliveryValidator())->validate($cart, $errors, static::createStub(SalesChannelContext::class));
 
-        $deliveryPositions = [];
+        $deliveryIndexes = [];
         foreach ($errors as $error) {
             static::assertInstanceOf(ShippingMethodBlockedError::class, $error);
-            $deliveryPositions[$error->getName()] = $error->getDeliveryPosition();
+            $deliveryIndexes[$error->getName()] = $error->getDeliveryIndex();
         }
 
-        static::assertSame(['First blocked' => 3, 'Last blocked' => 2], $deliveryPositions);
+        static::assertSame(['First blocked' => 0, 'Last blocked' => 2], $deliveryIndexes);
     }
 
     public function testValidateDeliveryShippingMethodWithNoAvailabilityRuleShallBeValid(): void

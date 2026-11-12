@@ -15,7 +15,7 @@ class PaymentMethodValidator implements CartValidatorInterface
     public function validate(Cart $cart, ErrorCollection $errors, SalesChannelContext $context): void
     {
         $paymentMethod = $context->getPaymentMethod();
-        $transactionPosition = $this->findTransactionPosition($cart, $paymentMethod->getId());
+        $transactionIndex = $this->findTransactionIndex($cart, $paymentMethod->getId());
 
         if (!$paymentMethod->getActive()) {
             $errors->add(
@@ -23,7 +23,7 @@ class PaymentMethodValidator implements CartValidatorInterface
                     id: $paymentMethod->getId(),
                     name: (string) $paymentMethod->getTranslation('name'),
                     reason: 'inactive',
-                    transactionPosition: $transactionPosition,
+                    transactionIndex: $transactionIndex,
                 )
             );
         }
@@ -36,7 +36,7 @@ class PaymentMethodValidator implements CartValidatorInterface
                     id: $paymentMethod->getId(),
                     name: (string) $paymentMethod->getTranslation('name'),
                     reason: 'rule not matching',
-                    transactionPosition: $transactionPosition,
+                    transactionIndex: $transactionIndex,
                 )
             );
         }
@@ -47,17 +47,17 @@ class PaymentMethodValidator implements CartValidatorInterface
                     id: $paymentMethod->getId(),
                     name: (string) $paymentMethod->getTranslation('name'),
                     reason: 'not allowed',
-                    transactionPosition: $transactionPosition,
+                    transactionIndex: $transactionIndex,
                 )
             );
         }
     }
 
-    private function findTransactionPosition(Cart $cart, string $paymentMethodId): ?int
+    private function findTransactionIndex(Cart $cart, string $paymentMethodId): ?int
     {
-        foreach (array_values($cart->getTransactions()->getElements()) as $index => $transaction) {
+        foreach (array_values($cart->getTransactions()->getElements()) as $transactionIndex => $transaction) {
             if ($transaction->getPaymentMethodId() === $paymentMethodId) {
-                return $index + 1;
+                return $transactionIndex;
             }
         }
 

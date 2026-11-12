@@ -43,8 +43,6 @@ class OrderDeliveryEntity extends Entity
 
     protected CalculatedPrice $shippingCosts;
 
-    protected int $position = 0;
-
     protected ?OrderAddressEntity $shippingOrderAddress = null;
 
     protected string $stateId;
@@ -133,16 +131,6 @@ class OrderDeliveryEntity extends Entity
     public function setShippingCosts(CalculatedPrice $shippingCosts): void
     {
         $this->shippingCosts = $shippingCosts;
-    }
-
-    public function getPosition(): int
-    {
-        return $this->position;
-    }
-
-    public function setPosition(int $position): void
-    {
-        $this->position = $position;
     }
 
     public function getShippingOrderAddress(): ?OrderAddressEntity

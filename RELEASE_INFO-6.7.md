@@ -355,25 +355,6 @@ Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations
 
 The property is unused and will be removed in 6.8.
 
-### Blocked shipping and payment method errors reference their delivery and transaction
-
-`ShippingMethodBlockedError` now carries the `position` of the cart delivery it was raised for, the same number the delivery keeps in the order.
-`PaymentMethodBlockedError` carries the position of the cart transaction, counted from 1 in `Cart::getTransactions()`.
-Read them with `getDeliveryPosition()` and `getTransactionPosition()`, or as `deliveryPosition` and `transactionPosition` in the error parameters of the Store API cart.
-They are `null` when the error is not tied to one delivery or transaction.
-Payment errors from `PaymentMethodValidator` carry `null` during the cart calculation, because the validator runs before the transactions are built; the checkout gateway sets it.
-Pass `deliveryPosition` or `transactionPosition` when your extension raises these errors for a single delivery or transaction.
-The error id stays per method, so two deliveries blocked for the same shipping method still share one error.
-
-### Order deliveries keep the order of the cart deliveries
-
-Cart deliveries and order deliveries have a new `position`, starting at 1, so a cart delivery and the order delivery it becomes share one number.
-The delivery processor numbers the cart deliveries in cart order and keeps a position that is already set, for example by an extension's delivery builder that orders deliveries by priority or release date.
-Such extensions no longer need to persist that order themselves.
-Sort order deliveries by `position` to show them in that order; the primary delivery is still the one with the highest shipping costs.
-Recalculating an order keeps the stored positions, and deliveries added by the recalculation, such as shipping discounts, get the next free number.
-Deliveries of orders placed before this release have position `0` until the order is recalculated, which numbers them in cart order.
-
 ### Delivery and transaction state flows know what changed
 
 The `state_enter.order_delivery.state.*` and `state_leave.order_delivery.state.*` triggers now carry the delivery whose state changed, the `order_transaction` ones the transaction.
@@ -386,6 +367,16 @@ On delivery transitions, `order.deliveries` now also contains the state and posi
 
 The listener dispatches the new `OrderDeliveryStateMachineStateChangeEvent` and `OrderTransactionStateMachineStateChangeEvent` for these transitions.
 They extend `OrderStateMachineStateChangeEvent`, so existing subscribers keep working, and add `getOrderDelivery()` and `getOrderTransaction()` with their id getters.
+
+### Blocked shipping and payment method errors reference their delivery and transaction
+
+`ShippingMethodBlockedError` now carries the position of the cart delivery it was raised for, `PaymentMethodBlockedError` the position of the cart transaction.
+Read it with `getDeliveryIndex()` and `getTransactionIndex()`, or as `deliveryIndex` and `transactionIndex` in the error parameters of the Store API cart.
+The position matches `Cart::getDeliveries()->getAt()` and `Cart::getTransactions()->getAt()`, and the `deliveries` and `transactions` lists of the Store API cart, and is only valid for the calculation that raised the error.
+It is `null` when the error is not tied to one delivery or transaction.
+Payment errors from `PaymentMethodValidator` carry `null` during the cart calculation, because the validator runs before the transactions are built; the checkout gateway sets it.
+Pass `deliveryIndex` or `transactionIndex` when your extension raises these errors for a single delivery or transaction.
+The error id stays per method, so two deliveries blocked for the same shipping method still share one error.
 
 ### Orders with several deliveries keep their shipping costs and addresses
 
@@ -499,11 +490,6 @@ To remove such an app, uninstall it and remove its package with Composer.
 
 The experimental `/store-api/cookie-groups` route now also returns `cookieHashes`, which maps each cookie name to a hash of its configuration, including the data of every group that lists it.
 Clients can compare these hashes to find out which cookies were added or changed when the configuration `hash` changes.
-
-### Cart and order deliveries have a `position` field
-
-Cart deliveries in the Store API and order deliveries in the Admin API and Store API have a new integer `position` field with the order of the deliveries in the cart, starting at 1.
-Deliveries of orders placed before this release have position `0` until the order is recalculated.
 
 ## Features
 

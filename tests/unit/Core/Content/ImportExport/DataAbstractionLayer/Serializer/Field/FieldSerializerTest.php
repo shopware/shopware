@@ -92,7 +92,6 @@ class FieldSerializerTest extends TestCase
             '_uniqueIdentifier' => $deliveryId,
             'versionId' => null,
             'translated' => [],
-            'position' => '0',
             'customFields' => null,
             'id' => $deliveryId,
         ], $this->first($fieldSerializer->serialize($config, $field, $deliveries)));

@@ -766,46 +766,6 @@ class PromotionDeliveryCalculatorTest extends TestCase
         static::assertSame(['rule-id-1', 'rule-id-2'], $error->getRuleIds());
     }
 
-    public function testDiscountDeliveryGetsTheNextFreePosition(): void
-    {
-        $this->quantityPriceCalculator
-            ->method('calculate')
-            ->willReturnCallback(static function (QuantityPriceDefinition $definition) {
-                return new CalculatedPrice($definition->getPrice(), $definition->getPrice(), new CalculatedTaxCollection(), new TaxRuleCollection());
-            });
-
-        $product = new LineItem($this->ids->get('product-1'), LineItem::PRODUCT_LINE_ITEM_TYPE);
-        $product->setPrice(new CalculatedPrice(150.0, 150.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
-
-        $cart = new Cart('promotion-test');
-        $cart->addLineItems(new LineItemCollection([$product]));
-        $cart->setDeliveries(new DeliveryCollection([$this->createDeliveryAtPosition(2), $this->createDeliveryAtPosition(1)]));
-
-        $this->promotionDeliveryCalculator->calculate(
-            new LineItemCollection([$this->getDiscountItem(self::DELIVERY_PROMOTION)->setPayloadValue('code', 'SHIP10')]),
-            $cart,
-            $cart,
-            static::createStub(SalesChannelContext::class)
-        );
-
-        static::assertSame(-10.0, $cart->getDeliveries()->last()?->getShippingCosts()->getTotalPrice());
-        static::assertSame([2, 1, 3], array_values($cart->getDeliveries()->map(static fn (Delivery $delivery) => $delivery->getPosition())));
-    }
-
-    private function createDeliveryAtPosition(int $position): Delivery
-    {
-        $delivery = new Delivery(
-            new DeliveryPositionCollection(),
-            new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
-            new ShippingMethodEntity(),
-            new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(10.0, 10.0, new CalculatedTaxCollection(), new TaxRuleCollection())
-        );
-        $delivery->setPosition($position);
-
-        return $delivery;
-    }
-
     private function getDiscountItem(string $promotionId): LineItem
     {
         $discountItemToBeExcluded = new LineItem($promotionId, PromotionProcessor::LINE_ITEM_TYPE);

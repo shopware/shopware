@@ -113,8 +113,8 @@ class PaymentMethodValidatorTest extends TestCase
     /**
      * @param list<string> $transactionPaymentMethodIds
      */
-    #[DataProvider('transactionPositionProvider')]
-    public function testBlockedErrorReferencesThePositionOfTheTransactionOfThePaymentMethod(array $transactionPaymentMethodIds, ?int $expectedTransactionPosition): void
+    #[DataProvider('transactionIndexProvider')]
+    public function testBlockedErrorReferencesTheTransactionOfThePaymentMethod(array $transactionPaymentMethodIds, ?int $expectedTransactionIndex): void
     {
         $amount = new CalculatedPrice(10.0, 10.0, new CalculatedTaxCollection(), new TaxRuleCollection());
         $this->cart->setTransactions(new TransactionCollection(array_map(
@@ -131,13 +131,13 @@ class PaymentMethodValidatorTest extends TestCase
 
         $error = $errors->get('payment-method-blocked-1');
         static::assertInstanceOf(PaymentMethodBlockedError::class, $error);
-        static::assertSame($expectedTransactionPosition, $error->getTransactionPosition());
+        static::assertSame($expectedTransactionIndex, $error->getTransactionIndex());
     }
 
-    public static function transactionPositionProvider(): \Generator
+    public static function transactionIndexProvider(): \Generator
     {
         yield 'cart without transactions, as during the cart calculation, references none' => [[], null];
-        yield 'first transaction paid with the blocked method is referenced, counted from 1' => [['other', '1', '1'], 2];
+        yield 'first transaction paid with the blocked method is referenced' => [['other', '1', '1'], 1];
         yield 'transactions paid with other methods are not referenced' => [['other'], null];
     }
 

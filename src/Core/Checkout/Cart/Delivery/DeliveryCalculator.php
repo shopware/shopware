@@ -52,12 +52,12 @@ class DeliveryCalculator
 
     public function calculate(CartDataCollection $data, Cart $cart, DeliveryCollection $deliveries, SalesChannelContext $context): void
     {
-        foreach ($deliveries as $delivery) {
-            $this->calculateDelivery($data, $cart, $delivery, $context);
+        foreach (array_values($deliveries->getElements()) as $deliveryIndex => $delivery) {
+            $this->calculateDelivery($data, $cart, $delivery, $context, $deliveryIndex);
         }
     }
 
-    private function calculateDelivery(CartDataCollection $data, Cart $cart, Delivery $delivery, SalesChannelContext $context): void
+    private function calculateDelivery(CartDataCollection $data, Cart $cart, Delivery $delivery, SalesChannelContext $context, int $deliveryIndex): void
     {
         if ($cart->getBehavior()?->hasPermission(CheckoutPermissions::SKIP_DELIVERY_PRICE_RECALCULATION)) {
             $delivery->setShippingCosts($this->calculateShippingCosts(
@@ -133,7 +133,7 @@ class DeliveryCalculator
                     id: $shippingMethod->getId(),
                     name: (string) $shippingMethod->getTranslation('name'),
                     reason: 'no shipping costs found',
-                    deliveryPosition: $delivery->getPosition(),
+                    deliveryIndex: $deliveryIndex,
                 )
             );
 

@@ -127,11 +127,6 @@
                         },
                         "type": "object"
                     },
-                    "position": {
-                        "description": "Position of the delivery in the cart the order was placed from, starting at 1.",
-                        "type": "integer",
-                        "format": "int64"
-                    },
                     "customFields": {
                         "type": "object"
                     },

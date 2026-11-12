@@ -102,20 +102,6 @@ class DeliveryCollection extends Collection
         return $delivery ?? $this->filter(static fn (Delivery $delivery) => $delivery->getShippingCosts()->getTotalPrice() >= 0)->first();
     }
 
-    /**
-     * Gives every delivery without a position the next free one, in collection order
-     */
-    public function numberDeliveries(): void
-    {
-        $next = max([0, ...$this->map(static fn (Delivery $delivery) => $delivery->getPosition() ?? 0)]) + 1;
-
-        foreach ($this->elements as $delivery) {
-            if ($delivery->getPosition() === null) {
-                $delivery->setPosition($next++);
-            }
-        }
-    }
-
     public function getApiAlias(): string
     {
         return 'cart_delivery_collection';

@@ -249,37 +249,35 @@ class DeliveryCalculatorTest extends TestCase
             'id' => $shippingMethodId,
             'name' => 'Test shipping',
             'reason' => 'no shipping costs found',
-            'deliveryPosition' => null,
+            'deliveryIndex' => 0,
         ], $error->getParameters());
     }
 
-    public function testBlockedShippingMethodErrorsReferenceThePositionOfTheirDelivery(): void
+    public function testBlockedShippingMethodErrorsReferenceTheirDelivery(): void
     {
         $data = new CartDataCollection();
         $deliveries = new DeliveryCollection();
 
-        foreach (['First shipping' => 2, 'Second shipping' => 1] as $name => $position) {
+        foreach (['First shipping', 'Second shipping'] as $name) {
             $shippingMethod = new ShippingMethodEntity();
             $shippingMethod->setId(Uuid::randomHex());
             $shippingMethod->setTranslated(['name' => $name]);
             $shippingMethod->setPrices(new ShippingMethodPriceCollection());
 
             $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-            $delivery = $this->createDeliveryWithCartTotal($shippingMethod, 10.0);
-            $delivery->setPosition($position);
-            $deliveries->add($delivery);
+            $deliveries->add($this->createDeliveryWithCartTotal($shippingMethod, 10.0));
         }
 
         $cart = new Cart('test');
         $this->createRealDeliveryCalculator()->calculate($data, $cart, $deliveries, static::createStub(SalesChannelContext::class));
 
-        $deliveryPositions = [];
+        $deliveryIndexes = [];
         foreach ($cart->getErrors() as $error) {
             static::assertInstanceOf(ShippingMethodBlockedError::class, $error);
-            $deliveryPositions[$error->getName()] = $error->getDeliveryPosition();
+            $deliveryIndexes[$error->getName()] = $error->getDeliveryIndex();
         }
 
-        static::assertSame(['First shipping' => 2, 'Second shipping' => 1], $deliveryPositions);
+        static::assertSame(['First shipping' => 0, 'Second shipping' => 1], $deliveryIndexes);
     }
 
     public function testCalculateManualShippingCost(): void

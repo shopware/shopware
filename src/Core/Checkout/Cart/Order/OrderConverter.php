@@ -560,10 +560,6 @@ class OrderConverter
             $cartDelivery->addExtension(self::ORIGINAL_ADDRESS_ID, new IdStruct($orderDelivery->getShippingOrderAddressId()));
             $cartDelivery->addExtension(self::ORIGINAL_ADDRESS_VERSION_ID, new IdStruct($orderDelivery->getShippingOrderAddressVersionId()));
 
-            if ($orderDelivery->getPosition() > 0) {
-                $cartDelivery->setPosition($orderDelivery->getPosition());
-            }
-
             $cartDeliveries->add($cartDelivery);
         }
 

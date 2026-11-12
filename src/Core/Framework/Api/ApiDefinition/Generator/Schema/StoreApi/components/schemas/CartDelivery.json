@@ -39,10 +39,6 @@
                             }
                         }
                     },
-                    "position": {
-                        "description": "Position of the delivery in the cart, starting at 1.",
-                        "type": "integer"
-                    },
                     "positions": {
                         "type": "array",
                         "items": {

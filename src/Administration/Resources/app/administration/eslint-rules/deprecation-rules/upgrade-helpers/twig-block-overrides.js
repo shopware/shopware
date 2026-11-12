@@ -7,9 +7,9 @@
 
 const fs = require('fs');
 const path = require('path');
-const { findBlocks } = require('../upgrade-helpers/twig-blocks');
-const { twigTargets } = require('../upgrade-helpers/twig-target');
-const { isTwigFile } = require('../upgrade-helpers/todo-comment');
+const { findBlocks } = require('./twig-blocks');
+const { twigTargets } = require('./twig-target');
+const { isTwigFile } = require('./todo-comment');
 
 const SHARED_NAME_MESSAGE = 'Block name is used by several core components. Check which one you override.';
 

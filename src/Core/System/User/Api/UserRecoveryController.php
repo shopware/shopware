@@ -36,11 +36,13 @@ class UserRecoveryController extends AbstractController
         }
 
         $email = (string) $request->request->get('email');
+        $emailKey = mb_strtolower(mb_trim($email));
+        $clientIpKey = (string) $request->getClientIp();
 
-        $this->rateLimiter->ensureAccepted(
-            RateLimiter::USER_RECOVERY,
-            strtolower($email) . '-' . $request->getClientIp()
-        );
+        $this->rateLimiter->ensureAccepted(RateLimiter::USER_RECOVERY_CLIENT, $clientIpKey);
+        $this->rateLimiter->ensureAccepted(RateLimiter::USER_RECOVERY, $emailKey . '-' . $clientIpKey);
+        // last, so a request blocked by an IP limit does not use up the limit of the email owner
+        $this->rateLimiter->ensureAcceptedIfConfigured(RateLimiter::USER_RECOVERY_USER, $emailKey);
 
         $this->userRecoveryService->generateUserRecovery($email, $context);
 
@@ -91,7 +93,10 @@ class UserRecoveryController extends AbstractController
         $this->rateLimiter->reset(RateLimiter::OAUTH, $usernameKey . '-' . $request->getClientIp());
         $this->rateLimiter->resetIfConfigured(RateLimiter::OAUTH_USER, $usernameKey);
         $this->rateLimiter->resetIfConfigured(RateLimiter::OAUTH_CLIENT, (string) $request->getClientIp());
-        $this->rateLimiter->reset(RateLimiter::USER_RECOVERY, strtolower($user->getEmail()) . '-' . $request->getClientIp());
+        $emailKey = mb_strtolower(mb_trim($user->getEmail()));
+        $this->rateLimiter->reset(RateLimiter::USER_RECOVERY, $emailKey . '-' . $request->getClientIp());
+        $this->rateLimiter->resetIfConfigured(RateLimiter::USER_RECOVERY_USER, $emailKey);
+        // USER_RECOVERY_CLIENT is kept, otherwise resetting an own account refills the IP limit for recovery mails
 
         return new Response();
     }

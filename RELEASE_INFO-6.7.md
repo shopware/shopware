@@ -1034,6 +1034,10 @@ The redirect is no longer cached. A shop that is already in this state gets out 
 
 ## Hosting & Configuration
 
+### Password recovery is rate limited per IP
+
+Customer and admin password recovery requests are now also limited per client IP (`reset_password_client`, `user_recovery_client`), so setups behind a proxy or a headless frontend must configure trusted proxies to keep the real client IP
+
 ### Sitemaps skip inactive sales channels and `sitemap:generate` continues after a failure
 
 The scheduled sitemap task and `bin/console sitemap:generate` no longer generate sitemaps for inactive sales channels.

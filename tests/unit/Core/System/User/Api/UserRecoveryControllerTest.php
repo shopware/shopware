@@ -23,9 +23,10 @@ class UserRecoveryControllerTest extends TestCase
     public function testUpdateUserPasswordResetsAllRateLimiters(): void
     {
         $username = " \u{00A0}Admin\u{3000}  ";
-        $email = 'admin@example.com';
+        $email = " \u{00A0}Admin@Example.com\u{3000}  ";
         $ip = '10.0.0.1';
         $expectedUsernameKey = 'admin';
+        $expectedEmailKey = 'admin@example.com';
 
         $user = new UserEntity();
         $user->setUsername($username);
@@ -44,7 +45,7 @@ class UserRecoveryControllerTest extends TestCase
             ->willReturnCallback(function (string $route, string $key) use (&$resetCalls): void {
                 $resetCalls[] = [$route, $key];
             });
-        $rateLimiter->expects($this->exactly(2))
+        $rateLimiter->expects($this->exactly(3))
             ->method('resetIfConfigured')
             ->willReturnCallback(function (string $route, string $key) use (&$resetIfConfiguredCalls): void {
                 $resetIfConfiguredCalls[] = [$route, $key];
@@ -63,13 +64,45 @@ class UserRecoveryControllerTest extends TestCase
 
         static::assertSame([
             [RateLimiter::OAUTH, $expectedUsernameKey . '-' . $ip],
-            [RateLimiter::USER_RECOVERY, strtolower($email) . '-' . $ip],
+            [RateLimiter::USER_RECOVERY, $expectedEmailKey . '-' . $ip],
         ], $resetCalls);
 
         static::assertSame([
             [RateLimiter::OAUTH_USER, $expectedUsernameKey],
             [RateLimiter::OAUTH_CLIENT, $ip],
+            [RateLimiter::USER_RECOVERY_USER, $expectedEmailKey],
         ], $resetIfConfiguredCalls);
+    }
+
+    public function testCreateUserRecoveryRateLimitersAreCalledWithCorrectKeys(): void
+    {
+        $ip = '10.0.0.1';
+
+        $calls = [];
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->exactly(2))
+            ->method('ensureAccepted')
+            ->willReturnCallback(function (string $route, string $key) use (&$calls): void {
+                $calls[] = [$route, $key];
+            });
+        $rateLimiter->expects($this->once())
+            ->method('ensureAcceptedIfConfigured')
+            ->willReturnCallback(function (string $route, string $key) use (&$calls): void {
+                $calls[] = [$route, $key];
+            });
+
+        $controller = new UserRecoveryController(static::createStub(UserRecoveryService::class), $rateLimiter);
+
+        $request = new Request(server: ['REMOTE_ADDR' => $ip]);
+        $request->request->set('email', " \u{00A0}Admin@Example.com\u{3000}  ");
+
+        $controller->createUserRecovery($request, Context::createDefaultContext());
+
+        static::assertSame([
+            [RateLimiter::USER_RECOVERY_CLIENT, $ip],
+            [RateLimiter::USER_RECOVERY, 'admin@example.com-' . $ip],
+            [RateLimiter::USER_RECOVERY_USER, 'admin@example.com'],
+        ], $calls);
     }
 
     public function testCreateUserRecoveryIsSilentNoOpWhenDisabled(): void
@@ -79,6 +112,7 @@ class UserRecoveryControllerTest extends TestCase
 
         $rateLimiter = $this->createMock(RateLimiter::class);
         $rateLimiter->expects($this->never())->method('ensureAccepted');
+        $rateLimiter->expects($this->never())->method('ensureAcceptedIfConfigured');
 
         $controller = new UserRecoveryController($userRecoveryService, $rateLimiter, false);
 

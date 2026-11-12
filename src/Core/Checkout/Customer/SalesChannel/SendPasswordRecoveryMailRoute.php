@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\Event\PasswordRecoveryUrlEvent;
 use Shopware\Core\Checkout\Customer\Extension\SendPasswordRecoveryMailRouteExtension;
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
+use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -86,8 +87,17 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
         $this->validateRecoverEmail($data, $context, $validateStorefrontUrl);
 
         if (($request = $this->requestStack->getMainRequest()) !== null) {
-            $key = mb_strtolower(mb_trim((string) $data->get('email'))) . '-' . $request->getClientIp();
-            $this->rateLimiter->ensureAccepted(RateLimiter::RESET_PASSWORD, $key);
+            $emailKey = mb_strtolower(mb_trim((string) $data->get('email')));
+            $clientIpKey = (string) $request->getClientIp();
+
+            // one admin sends mails for many customers from one IP, e.g. when converting guests
+            if (!$context->getContext()->getSource() instanceof AdminSalesChannelApiSource) {
+                $this->rateLimiter->ensureAccepted(RateLimiter::RESET_PASSWORD_CLIENT, $clientIpKey);
+            }
+
+            $this->rateLimiter->ensureAccepted(RateLimiter::RESET_PASSWORD, $emailKey . '-' . $clientIpKey);
+            // last, so a request blocked by an IP limit does not use up the limit of the email owner
+            $this->rateLimiter->ensureAcceptedIfConfigured(RateLimiter::RESET_PASSWORD_USER, $emailKey);
         }
 
         try {

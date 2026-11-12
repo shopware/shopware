@@ -161,12 +161,21 @@
         {% block sw_extension_card_base_context_menu_actions_additional %}{% endblock %}
 
         <sw-context-menu-item
-            v-if="!extensionManagementDisabled && hasActiveSubscription"
+            v-if="!extensionManagementDisabled && hasActiveSubscription && hasDeletableFiles"
             class="sw-extension-card-base__cancel-and-remove-link"
             variant="danger"
             @click="openRemovalModal"
         >
             {{ $t('sw-extension-store.component.sw-extension-card-base.contextMenu.cancelAndRemoveLabel') }}
+        </sw-context-menu-item>
+
+        <sw-context-menu-item
+            v-else-if="!extensionManagementDisabled && hasActiveSubscription"
+            class="sw-extension-card-base__cancel-subscription-link"
+            variant="danger"
+            @click="openRemovalModal"
+        >
+            {{ $t('sw-extension-store.component.sw-extension-card-base.contextMenu.cancelSubscriptionLabel') }}
         </sw-context-menu-item>
 
         <sw-context-menu-item
@@ -202,6 +211,7 @@
         v-if="showRemovalModal"
         :extension-name="extension.label"
         :is-licensed="hasActiveSubscription"
+        :has-deletable-files="hasDeletableFiles"
         :is-loading="isLoading"
         @modal-close="closeRemovalModal"
         @remove-extension="closeModalAndRemoveExtension"

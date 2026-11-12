@@ -64,6 +64,7 @@ class MailTemplateSendServiceTest extends TestCase
                     static::assertSame('order-id', $data['attachmentsConfig']->getOrderId());
                     static::assertSame(['document-id'], $data['attachmentsConfig']->getExtension()->getDocumentIds());
                     static::assertSame(['media-id'], $data['attachmentsConfig']->getExtension()->getMediaIds());
+                    static::assertArrayNotHasKey('mediaIds', $data);
 
                     return true;
                 }),

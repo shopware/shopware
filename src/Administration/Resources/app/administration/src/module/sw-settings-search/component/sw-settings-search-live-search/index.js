@@ -59,6 +59,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, the sales channel select loads its options itself
          */
         salesChannelRepository() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-search-live-search.salesChannelRepository is deprecated. Will be removed, the sales channel select loads its options itself.',
+            );
+
             return this.repositoryFactory.create('sales_channel');
         },
 
@@ -117,7 +122,9 @@ export default {
     methods: {
         createdComponent() {
             if (!Shopware.Feature.isActive('V6_8_0_0')) {
-                this.fetchSalesChannels();
+                Shopware.Feature.silence('V6_8_0_0', () => {
+                    this.fetchSalesChannels();
+                });
             }
             this.fetchProductSortings();
             this.liveSearchTerm = this.searchTerms;
@@ -160,8 +167,15 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, the sales channel select loads its options itself
          */
         fetchSalesChannels() {
-            this.salesChannelRepository.search(new Criteria(1, 25)).then((response) => {
-                this.salesChannels = response;
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-search-live-search.fetchSalesChannels() is deprecated. Will be removed, the sales channel select loads its options itself.',
+            );
+
+            Shopware.Feature.silence('V6_8_0_0', () => {
+                this.salesChannelRepository.search(new Criteria(1, 25)).then((response) => {
+                    this.salesChannels = response;
+                });
             });
         },
 

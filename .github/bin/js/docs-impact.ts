@@ -14,6 +14,15 @@ export const DOCS_CANDIDATE_LABELS: Record<Audience, string> = {
 
 const MAX_SUMMARY_LENGTH = 20000;
 
+const AUDIENCE_HEADINGS: Record<string, string> = {
+    'End-user docs': '🛍️ End-user docs',
+    'Developer docs': '🛠️ Developer docs',
+};
+
+export function decorateHeadings(summary: string): string {
+    return summary.replace(/^\*\*(End-user docs|Developer docs)\*\*[ \t]*$/gm, (_heading, name: string) => `**${AUDIENCE_HEADINGS[name]}**`);
+}
+
 const SKIPPED_COMMIT_TYPES = /^(test|ci|chore|docs|refactor)(\([^)]*\))?:/;
 
 export const MAX_DISPATCHED_PULL_REQUESTS = 20;
@@ -104,7 +113,7 @@ export function neutraliseMentions(text: string): string {
 }
 
 export function buildComment(summary: string): string {
-    let body = neutraliseMentions(summary.trim());
+    let body = decorateHeadings(neutraliseMentions(summary.trim()));
     if (body.length > MAX_SUMMARY_LENGTH) {
         body = `${body.slice(0, MAX_SUMMARY_LENGTH)}\n\n_(truncated)_`;
     }
@@ -113,7 +122,7 @@ export function buildComment(summary: string): string {
         COMMENT_MARKER,
         '### Docs candidate',
         '',
-        '_Automated note: this change may be worth mentioning in the documentation. No action required._',
+        '_⚠️ Automated note: this change may be worth mentioning in the documentation. No action required._',
         '',
         body,
     ].join('\n');

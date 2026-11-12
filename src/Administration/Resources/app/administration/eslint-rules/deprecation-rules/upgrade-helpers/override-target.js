@@ -131,7 +131,6 @@ function fileTargets(context) {
 }
 
 module.exports = {
-    folderTarget,
     targetAt,
     fileTargets,
 };

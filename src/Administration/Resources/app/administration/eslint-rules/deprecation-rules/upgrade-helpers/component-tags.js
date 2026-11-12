@@ -10,7 +10,7 @@ const COMPONENT_METHODS = ['override', 'extend', 'register', 'build', 'wrapCompo
 /**
  * Whether `node` is `Component` or `Shopware.Component`.
  *
- * @param {import('estree').Node} node
+ * @param {object} node
  */
 function isComponentFactory(node) {
     if (node.type === 'Identifier') {
@@ -50,8 +50,8 @@ function stringValue(node) {
  * - `extend('acme-x', 'sw-x', options)`: `name` is `acme-x`, `target` is `sw-x`.
  * - `register('acme-x', options)` and `build('sw-x')`: `name` and `target` are the first argument.
  *
- * @param {import('estree').CallExpression} node
- * @returns {{ method: string, name: string|null, target: string|null, options: import('estree').Node|null, call: import('estree').CallExpression }|null}
+ * @param {object} node CallExpression
+ * @returns {{ method: string, name: string|null, target: string|null, options: object|null, call: object }|null}
  */
 function readComponentCall(node) {
     if (node.type !== 'CallExpression' || node.callee.type !== 'MemberExpression' || node.callee.computed) {
@@ -197,7 +197,6 @@ function walk(root, visit) {
 
 module.exports = {
     walk,
-    isComponentFactory,
     readComponentCall,
     elementName,
     attributeName,

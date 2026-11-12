@@ -225,7 +225,6 @@ function removalMessage({ name, component, shared, why = '', replacement, flag }
 
 module.exports = {
     findBlocks,
-    SHARED_NAME_MESSAGE,
     indexByName,
     forEachBlockOverride,
     namedEndBlockRange,

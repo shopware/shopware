@@ -1,0 +1,25 @@
+{
+    "components": {
+        "sw-example-card": {
+            "file": "app/component/base/sw-example-card",
+            "visibility": "public",
+            "extends": null,
+            "blocks": [
+                "sw_example_card",
+                "sw_example_card_header",
+                "sw_example_card_header_label_default",
+                "sw_example_card_header_label_manual",
+                "sw_example_card_header_title",
+                "sw_example_card_list",
+                "sw_example_card_list_item"
+            ]
+        }
+    },
+    "mixins": {},
+    "modules": {},
+    "positionIdentifiers": {},
+    "dynamicPositionIdentifiers": {},
+    "dataSets": {},
+    "virtualModules": {},
+    "announcements": []
+}

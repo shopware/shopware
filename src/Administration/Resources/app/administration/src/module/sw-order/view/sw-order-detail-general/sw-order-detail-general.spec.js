@@ -72,6 +72,14 @@ const orderMock = {
 
 orderMock.primaryOrderDelivery = orderMock.deliveries[0];
 
+function createShipment(id, shippingMethodName, totalPrice, calculatedTaxes = []) {
+    return {
+        id,
+        shippingMethod: { translated: { name: shippingMethodName } },
+        shippingCosts: { calculatedTaxes, totalPrice, unitPrice: totalPrice },
+    };
+}
+
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-order-detail-general', { sync: true }), {
         global: {
@@ -141,6 +149,10 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         Shopware.Store.get('swOrderDetail').order = orderMock;
     });
 
+    afterEach(() => {
+        Shopware.Store.get('swOrderDetail').order = orderMock;
+    });
+
     it('should tax description correctly for shipping cost if taxStatus is not tax-free', async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();
@@ -177,6 +189,116 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
 
         store.order = orderMock;
     });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should recognise a discount delivery by its negative shipping costs', async () => {
+        global.activeAclRoles = [];
+        const store = Shopware.Store.get('swOrderDetail');
+        const shipment = createShipment('shipment', 'DHL', 10);
+        store.order = {
+            ...orderMock,
+            primaryOrderDeliveryId: 'shipment',
+            primaryOrderDelivery: shipment,
+            deliveries: [
+                { id: 'discount-delivery', shippingCosts: { calculatedTaxes: [], totalPrice: -5 } },
+                shipment,
+            ],
+        };
+        wrapper = await createWrapper();
+
+        const rows = wrapper.findAll('.sw-order-detail-general__summary-row');
+
+        expect(rows[1].find('span').text()).toBe('sw-order.detailBase.summaryLabelShippingCosts');
+        expect(rows[1].find('div[role="button"]').text()).toBe('€10.00');
+        expect(rows[2].findAll('span').map((span) => span.text())).toEqual([
+            'sw-order.detailBase.discountLabelShippingCosts',
+            '-€5.00',
+        ]);
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should show one editable shipping cost row per shipment, labelled by its shipping method',
+        async () => {
+            global.activeAclRoles = ['order.editor'];
+            const store = Shopware.Store.get('swOrderDetail');
+            const dhlShipment = createShipment('dhl-shipment', 'DHL', 4.99, [{ tax: 0.8, taxRate: 19 }]);
+            const upsShipment = createShipment('ups-shipment', 'UPS', 6.99, [{ tax: 0.46, taxRate: 7 }]);
+            store.order = {
+                ...orderMock,
+                primaryOrderDeliveryId: 'ups-shipment',
+                primaryOrderDelivery: upsShipment,
+                deliveries: [
+                    dhlShipment,
+                    upsShipment,
+                    { id: 'discount-delivery', shippingCosts: { calculatedTaxes: [], totalPrice: -5 } },
+                ],
+            };
+            wrapper = await createWrapper();
+
+            const rows = wrapper.findAll('.sw-order-detail-general__summary-row');
+
+            expect(rows.slice(0, 4).map((row) => row.find('span').text())).toEqual([
+                'sw-order.detailBase.summaryLabelAmount',
+                'sw-order.detailBase.summaryLabelShipmentShippingCosts{"count":1,"shippingMethod":"UPS"}',
+                'sw-order.detailBase.summaryLabelShipmentShippingCosts{"count":2,"shippingMethod":"DHL"}',
+                'sw-order.detailBase.discountLabelShippingCosts',
+            ]);
+
+            const dhlField = rows[2].find('div[role="button"]');
+
+            expect(dhlField.text()).toBe('€4.99');
+            expect(dhlField.attributes()['tooltip-message']).toBe(
+                'sw-order.detailBase.tax<br>sw-order.detailBase.shippingCostsTax{"taxRate":19,"tax":"€0.80"}',
+            );
+
+            await dhlField.trigger('click');
+            await flushPromises();
+
+            const dhlInput = rows[2].find('input');
+            await dhlInput.setValue(20);
+            await dhlInput.trigger('input');
+            await wrapper.findByAriaLabel('button', 'global.default.save').trigger('click');
+
+            expect(dhlShipment.shippingCosts).toEqual(expect.objectContaining({ unitPrice: 20, totalPrice: 20 }));
+            expect(upsShipment.shippingCosts.totalPrice).toBe(6.99);
+            expect(wrapper.emitted('save-and-recalculate')).toBeTruthy();
+        },
+    );
+
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should keep the shipping costs of a shipment confirmed without an edit',
+        async () => {
+            global.activeAclRoles = ['order.editor'];
+            const store = Shopware.Store.get('swOrderDetail');
+            const dhlShipment = createShipment('dhl-shipment', 'DHL', 4.99);
+            const upsShipment = createShipment('ups-shipment', 'UPS', 6.99);
+            store.order = {
+                ...orderMock,
+                primaryOrderDeliveryId: 'ups-shipment',
+                primaryOrderDelivery: upsShipment,
+                deliveries: [
+                    upsShipment,
+                    dhlShipment,
+                ],
+            };
+            wrapper = await createWrapper();
+
+            const dhlRow = wrapper.findAll('.sw-order-detail-general__summary-row')[2];
+            await dhlRow.find('div[role="button"]').trigger('click');
+            await flushPromises();
+            await dhlRow.find('input').setValue(20);
+            await dhlRow.find('input').trigger('input');
+            await wrapper.findByAriaLabel('button', 'global.default.save').trigger('click');
+            await flushPromises();
+
+            const upsRow = wrapper.findAll('.sw-order-detail-general__summary-row')[1];
+            await upsRow.find('div[role="button"]').trigger('click');
+            await flushPromises();
+            await wrapper.findByAriaLabel('button', 'global.default.save').trigger('click');
+
+            expect(dhlShipment.shippingCosts.totalPrice).toBe(20);
+            expect(upsShipment.shippingCosts.totalPrice).toBe(6.99);
+        },
+    );
 
     it('should tax description correctly if taxStatus is not tax-free', async () => {
         global.activeAclRoles = [];

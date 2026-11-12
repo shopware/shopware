@@ -319,7 +319,7 @@ Tool results of `/api/_mcp` and `/store-api/_mcp` now take their format from the
 * **Clients on 2024-11-05 and 2025-03-26** keep the `{"success": …}` envelope as the only text block, unchanged.
   This legacy envelope is deprecated as a wire format.
   It is kept for these clients and is not removed in 6.8.0.
-  Tools that still return the `{"success": …}` string keep working; see the next entry for the result object.
+  Tools that still return the `{"success": …}` string keep working; see "MCP tools return `McpToolResult`; the legacy string is deprecated" for the result object.
 
 ### Large MCP results in the result envelope are stored and linked for every tool
 
@@ -332,6 +332,7 @@ The model reads stored results with `resources/read`.
 `McpToolResponse::success()` itself no longer stores anything and always returns the full data, so a tool called outside of an MCP request gets its complete result.
 The limit applies to the rendered result, the text plus `structuredContent`, and is set so that the offload point stays at about 100 KB of data.
 The linked response keeps the tool's summary, its own links, and its metadata up to 10 KB; larger metadata values are named in `_meta.omittedMeta`.
+On 2025-06-18 and later these values cannot be fetched, because the stored result holds only the data, so tools should put large values into the data instead.
 For clients on protocol revision 2025-06-18 or later, `resources/read` of a stored result returns the plain data instead of the `{"success": true, "data": …}` envelope.
 Its metadata, such as `total`, comes with the link in the tool result.
 Clients on 2024-11-05 and 2025-03-26 keep reading the envelope.
@@ -427,7 +428,7 @@ On the stateless revision there is no MCP session:
   The server instructions and `shopware-tool-search` point to `?toolsets=` as well, and each search match names its toolset.
 * List changes on the Admin API endpoint, for example after an app install, reach clients through `subscriptions/listen`.
   The notifications go through `cache.app`, so setups with several hosts need a shared `cache.app`, for example Redis.
-* Each open `subscriptions/listen` stream occupies a PHP worker for up to 30 seconds before the client reconnects.
+* Each open `subscriptions/listen` stream occupies a PHP worker for up to 25 seconds before the client reconnects.
   Account for it in `pm.max_children`.
 
 ### Event once all line items of an add are in the cart

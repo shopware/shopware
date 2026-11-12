@@ -319,6 +319,7 @@ abstract class McpToolResponse
 
     /**
      * The legacy envelope as success() and error() built it before they were based on {@see McpToolResult}.
+     * Only the deprecated string helpers use it, so it is removed with them in v6.8.0.
      */
     private function legacyEnvelope(McpToolResult $result): string
     {

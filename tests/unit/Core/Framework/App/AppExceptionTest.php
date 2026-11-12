@@ -45,7 +45,7 @@ class AppExceptionTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
         static::assertSame(AppException::VALIDATION_FAILED, $e->getErrorCode());
         static::assertSame(
-            "App IncompatibleApp is not compatible with this Shopware version\nThe following permissions are missing:\n- order:read",
+            "App IncompatibleApp is not compatible with this Shopware version\nMissing permissions: order:read",
             $e->getMessage()
         );
         static::assertSame(
@@ -57,7 +57,7 @@ class AppExceptionTest extends TestCase
                 ],
                 [
                     'code' => AppException::VALIDATION_FAILED,
-                    'message' => "The following permissions are missing:\n- order:read",
+                    'message' => 'Missing permissions: order:read',
                     'parameters' => [],
                 ],
             ]],

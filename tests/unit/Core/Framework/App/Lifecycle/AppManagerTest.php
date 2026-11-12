@@ -28,7 +28,6 @@ use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
-use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\App\Url\VerificationState;
 use Shopware\Core\Framework\App\Url\VerificationStatus;
@@ -136,7 +135,7 @@ class AppManagerTest extends TestCase
         $appValidator = static::createStub(AppValidator::class);
         $appValidator->method('validate')->willReturn(Result::failed([
             new IncompatibleAppError('test'),
-            new MissingTranslationError(Metadata::class, ['label' => ['de-DE']]),
+            new MissingTranslationError(['de-DE']),
             new MissingPermissionError(['order:read']),
         ]));
         $this->appValidator = $appValidator;

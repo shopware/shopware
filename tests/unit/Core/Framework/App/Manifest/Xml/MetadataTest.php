@@ -78,8 +78,7 @@ class MetadataTest extends TestCase
         $error = $manifest->getMetadata()->validateTranslations();
 
         static::assertInstanceOf(MissingTranslationError::class, $error);
-        static::assertSame('Missing translations for "Metadata":
-- label: de-DE, fr-FR', $error->getMessage());
+        static::assertSame('Missing label translations: de-DE, fr-FR', $error->getMessage());
     }
 
     public function testValidateTranslationsReturnsNull(): void

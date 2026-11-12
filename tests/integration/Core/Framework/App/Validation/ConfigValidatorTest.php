@@ -40,7 +40,6 @@ class ConfigValidatorTest extends TestCase
 
         static::assertCount(1, $violations);
         static::assertInstanceOf(ConfigurationError::class, $violations[0]);
-        static::assertStringContainsString('The following custom components are not allowed to be used in app configuration:', $violations[0]->getMessage());
-        static::assertStringContainsString('- test', $violations[0]->getMessage());
+        static::assertSame('Custom components not allowed in app configuration: test', $violations[0]->getMessage());
     }
 }

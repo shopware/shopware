@@ -304,7 +304,7 @@ class RefreshAppCommandTest extends TestCase
 
         // ... while `validationFailures` is missing permissions its webhooks require.
         static::assertStringContainsString('Incomplete installations', $display);
-        static::assertStringContainsString('The following permissions are missing:', $display);
+        static::assertStringContainsString('Missing permissions:', $display);
     }
 
     public function testRefreshWithLimitation(): void

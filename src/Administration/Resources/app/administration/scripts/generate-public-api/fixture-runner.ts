@@ -89,17 +89,43 @@ interface UnitKind {
     elementKinds: readonly string[];
 }
 
+const NO_PARTS: UnitKind = { reportSections: [], contractMembers: [], indexKeys: [], elementKinds: [] };
+
+const PART_LABELS: Record<keyof UnitKind, (value: string) => string> = {
+    reportSections: (section) => `report section ${section}`,
+    contractMembers: (member) => `contract member ${member}`,
+    indexKeys: (key) => `index key ${key}`,
+    elementKinds: (kind) => `findings on ${kind} elements`,
+};
+
+/*
+ * The markers of a block line other than its flag state, such as `[after v-if]` and `[scope: item]`, belong to
+ * the block structure, not to the tree. The comparison moves them out of the `blocks` section and member into
+ * parts of their own, which exist only here and not in the snapshot files.
+ */
+const BLOCK_CONTEXT = { reportSection: 'block-context', contractMember: 'blockContext' } as const;
+
+// The block tree, the block structure and the findings on blocks are built in separate steps.
 const UNIT_KINDS: Record<string, UnitKind> = {
-    blocks: {
+    'block-tree': {
+        ...NO_PARTS,
+        reportSections: ['blocks'],
+        contractMembers: ['blocks'],
+        indexKeys: ['blocks'],
+    },
+    'block-structure': {
+        ...NO_PARTS,
         reportSections: [
-            'blocks',
+            BLOCK_CONTEXT.reportSection,
             'crossings',
         ],
         contractMembers: [
-            'blocks',
+            BLOCK_CONTEXT.contractMember,
             'crossings',
         ],
-        indexKeys: ['blocks'],
+    },
+    'block-findings': {
+        ...NO_PARTS,
         elementKinds: [
             'block',
             'crossing',
@@ -109,12 +135,55 @@ const UNIT_KINDS: Record<string, UnitKind> = {
 
 const REPORT_OUTLINE = /```text\n([\s\S]*?)```/;
 
+const LINE_MARKERS = /\s+\[[^\]]+\]/g;
+
+const FLAG_STATE_MARKER = /^\s+\[(?:from|until) v/;
+
+function sectionName(section: string): string {
+    return section.trimStart().split(/\s/, 1)[0];
+}
+
+function isContextMarker(marker: string): boolean {
+    return !FLAG_STATE_MARKER.test(marker);
+}
+
+/**
+ * Splits `sw_card_title  [until v6.8.0]  [scope: item]` into `sw_card_title  [until v6.8.0]` for the tree and
+ * `sw_card_title  [scope: item]` for the structure.
+ */
+function splitBlockContextSection(section: string): string[] {
+    const [heading, ...lines] = section.split('\n');
+    const treeLines = [heading];
+    const contextLines = [];
+
+    for (const line of lines) {
+        treeLines.push(line.replace(LINE_MARKERS, (marker) => (isContextMarker(marker) ? '' : marker)));
+
+        const contextMarkers = line.match(LINE_MARKERS)?.filter(isContextMarker) ?? [];
+        if (contextMarkers.length > 0) {
+            contextLines.push(`  ${sectionName(line)}${contextMarkers.join('')}`);
+        }
+    }
+
+    const tree = treeLines.join('\n');
+    if (contextLines.length === 0) {
+        return [tree];
+    }
+
+    return [tree, [BLOCK_CONTEXT.reportSection, ...contextLines].join('\n')];
+}
+
+const REPORT_SECTION_SPLITS: Partial<Record<string, (section: string) => string[]>> = {
+    blocks: splitBlockContextSection,
+};
+
 function reportSections(report: string, sections: readonly string[]): string {
     const outline = REPORT_OUTLINE.exec(report)?.[1] ?? '';
 
     return outline
         .split('\n\n')
-        .filter((section) => sections.includes(section.trimStart().split(/\s/, 1)[0]))
+        .flatMap((section) => REPORT_SECTION_SPLITS[sectionName(section)]?.(section) ?? [section])
+        .filter((section) => sections.includes(sectionName(section)))
         .join('\n\n');
 }
 
@@ -131,6 +200,58 @@ function interfacesIn(node: ts.Node): ts.InterfaceDeclaration[] {
     return found;
 }
 
+interface ContractMember {
+    name: string;
+    text: string;
+}
+
+function typeLiteralMembers(member: ts.TypeElement): ts.TypeElement[] {
+    return ts.isPropertySignature(member) && member.type && ts.isTypeLiteralNode(member.type)
+        ? [...member.type.members]
+        : [];
+}
+
+function blockTypeArguments(block: ts.TypeElement, source: ts.SourceFile): string[] {
+    if (!ts.isPropertySignature(block) || !block.type || !ts.isTypeReferenceNode(block.type)) {
+        return [];
+    }
+
+    return block.type.typeArguments?.map((argument) => argument.getText(source)) ?? [];
+}
+
+/**
+ * Splits `sw_card_title: Block<'sw_card', 'afterIf'>` into `sw_card_title: Block<'sw_card'>` for the tree and
+ * `sw_card_title: 'afterIf'` for the structure.
+ */
+function splitBlockContextMember(blocks: ts.TypeElement, source: ts.SourceFile): ContractMember[] {
+    const treeLines = ['blocks: {'];
+    const contextLines = [];
+
+    for (const block of typeLiteralMembers(blocks)) {
+        const name = block.name?.getText(source);
+        const [parent, ...context] = blockTypeArguments(block, source);
+
+        treeLines.push(parent === undefined ? block.getText(source) : `${name}: Block<${parent}>;`);
+        if (context.length > 0) {
+            contextLines.push(`${name}: ${context.join(', ')};`);
+        }
+    }
+
+    const tree = { name: 'blocks', text: [...treeLines, '};'].join('\n') };
+    if (contextLines.length === 0) {
+        return [tree];
+    }
+
+    const { contractMember } = BLOCK_CONTEXT;
+
+    return [tree, { name: contractMember, text: [`${contractMember}: {`, ...contextLines, '};'].join('\n') }];
+}
+
+const CONTRACT_MEMBER_SPLITS: Partial<Record<string, (member: ts.TypeElement, source: ts.SourceFile) => ContractMember[]>> =
+    {
+        blocks: splitBlockContextMember,
+    };
+
 /**
  * The members of the registry entries in a contract, for example `blocks` in
  * `interface Components { 'sw-card': { blocks: {...} } }`.
@@ -140,11 +261,18 @@ function contractMembers(contract: string, members: readonly string[]): string {
 
     return interfacesIn(source)
         .flatMap((registry) => [...registry.members])
-        .flatMap((entry) =>
-            ts.isPropertySignature(entry) && entry.type && ts.isTypeLiteralNode(entry.type) ? [...entry.type.members] : [],
-        )
-        .filter((member) => member.name !== undefined && members.includes(member.name.getText(source)))
-        .map((member) => member.getText(source))
+        .flatMap(typeLiteralMembers)
+        .flatMap((member): ContractMember[] => {
+            const name = member.name?.getText(source);
+
+            if (name === undefined) {
+                return [];
+            }
+
+            return CONTRACT_MEMBER_SPLITS[name]?.(member, source) ?? [{ name, text: member.getText(source) }];
+        })
+        .filter(({ name }) => members.includes(name))
+        .map(({ text }) => text)
         .join('\n');
 }
 
@@ -266,22 +394,26 @@ function once<Result>(compute: () => Result): () => Result {
     };
 }
 
+function unitKindParts(kind: UnitKind): { label: string; part: UnitKind }[] {
+    return (Object.keys(PART_LABELS) as (keyof UnitKind)[]).flatMap((field) =>
+        kind[field].map((value) => ({ label: PART_LABELS[field](value), part: { ...NO_PARTS, [field]: [value] } })),
+    );
+}
+
+function isEmpty({ before, after, findings }: CaseOutput): boolean {
+    return Object.keys({ ...before, ...after }).length === 0 && findings.length === 0;
+}
+
 /**
  * Parts of a unit kind that occur in no expected output. Such a part would compare two empty slices and pass,
  * for example after a typo in `UNIT_KINDS` or a change of a file format or of the element ids.
  */
 function unitKindProblems(cases: FixtureCase[]): string[] {
-    return Object.entries(UNIT_KINDS).flatMap(([name, kind]) => {
-        const slices = cases.map(({ expected }) => sliceCase(expected, kind));
-        const covered = {
-            'snapshot files': slices.some(({ before, after }) => Object.keys({ ...before, ...after }).length > 0),
-            findings: slices.some(({ findings }) => findings.length > 0),
-        };
-
-        return Object.entries(covered)
-            .filter(([, isCovered]) => !isCovered)
-            .map(([part]) => `No fixture case has expected ${part} for the unit kind ${name}.`);
-    });
+    return Object.entries(UNIT_KINDS).flatMap(([name, kind]) =>
+        unitKindParts(kind)
+            .filter(({ part }) => cases.every(({ expected }) => isEmpty(sliceCase(expected, part))))
+            .map(({ label }) => `No fixture case has expected ${label} for the unit kind ${name}.`),
+    );
 }
 
 function problem(message: string, entries: readonly string[]): string[] {

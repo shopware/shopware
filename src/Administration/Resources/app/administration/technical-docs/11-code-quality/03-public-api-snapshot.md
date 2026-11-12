@@ -126,17 +126,27 @@ The expected snapshots hold whole files with every unit kind, while the generato
 
 - Once per unit kind.
   The comparison takes the kind's sections of the `.api.md` reports, its members of the `.d.ts` contracts, its keys in `index.json` and the findings on its elements, and ignores the rest.
-  `blocks` is the only kind so far, and it covers the block tree and the crossings.
 - Once as `complete`, which compares every file and all findings.
+
+The blocks have three unit kinds, because they are built in three steps:
+
+| Unit kind | Compares |
+|---|---|
+| `block-tree` | The block names, their parents and their flag states |
+| `block-structure` | The crossings, and the `v-if` chain and scope markers of the blocks |
+| `block-findings` | The findings on blocks and crossings |
+
+The markers of a block line other than its flag state, such as `[after v-if]` and `[scope: item]`, and the type arguments of `Block<>` after the parent belong to `block-structure`.
+The comparison moves them out of the block tree into a section `block-context` and a member `blockContext`, which exist only in the comparison.
 
 `expected-failures.ts` lists what cannot pass yet, in two lists:
 
 - `views` names a unit kind, or `complete`, that no case passes yet.
-- `comparisons` names single comparisons such as `block-moved/blocks`, for a view that other cases pass already.
+- `comparisons` names single comparisons such as `block-moved/block-findings`, for a view that other cases pass already.
 
 The spec runs every listed comparison with `it.failing`, so the run is green while they fail and turns red as soon as one of them passes.
 An entry that names no view or comparison is an error, and so is a comparison whose view is listed already.
-So is a unit kind that occurs in no expected snapshot, because it would compare nothing.
+So is a section, member, key or element kind of a unit kind that occurs in no expected output, because it would compare nothing.
 
 To build the next part:
 

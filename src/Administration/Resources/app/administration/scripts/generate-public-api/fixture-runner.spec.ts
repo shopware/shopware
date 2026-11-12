@@ -18,7 +18,7 @@ const REPORT = [
     '',
     'blocks',
     '  sw_example_card',
-    '    sw_example_card_title',
+    '    sw_example_card_title  [until v6.8.0]  [scope: item]',
     '',
     'crossings',
     '  div  sw_example_card -> sw_example_card_title',
@@ -36,7 +36,7 @@ const CONTRACT = [
     '            emits: {};',
     '            blocks: {',
     '                sw_example_card: Block<null>;',
-    "                sw_example_card_title: Block<'sw_example_card'>;",
+    "                sw_example_card_title: Block<'sw_example_card', 'scope:item'>;",
     '            };',
     '            crossings: readonly [',
     "                readonly ['div', 'sw_example_card', 'sw_example_card_title'],",
@@ -67,6 +67,14 @@ const BLOCK_FINDING: Finding = {
     at: 'src/app/component/base/sw-example-card/sw-example-card.html.twig:4',
 };
 
+const CROSSING_FINDING: Finding = {
+    group: 'Break',
+    rule: 'element_crosses_block',
+    element: 'component:sw-example-card/crossing:div@sw_example_card>sw_example_card_title',
+    states: ['current', 'major'],
+    explanation: 'The div opens in block sw_example_card and closes in block sw_example_card_title.',
+};
+
 const CLASS_FINDING: Finding = {
     group: 'Info',
     rule: 'class_missing',
@@ -77,6 +85,7 @@ const CLASS_FINDING: Finding = {
 
 const FINDINGS = [
     BLOCK_FINDING,
+    CROSSING_FINDING,
     CLASS_FINDING,
 ];
 
@@ -120,10 +129,21 @@ function comparison(name: string, output: CaseOutput, expectedFailures = NO_FAIL
     return test;
 }
 
+const VIEWS = [
+    'block-tree',
+    'block-structure',
+    'block-findings',
+    'complete',
+];
+
 function matches(name: string, output: CaseOutput): boolean {
     const { actual, expected } = comparison(name, output);
 
     return isDeepStrictEqual(actual(), expected);
+}
+
+function failingViews(output: CaseOutput): string[] {
+    return VIEWS.filter((view) => !matches(`example/${view}`, output));
 }
 
 function withFile(file: keyof typeof FILES, search: string, replacement: string): CaseOutput {
@@ -136,8 +156,19 @@ function withFile(file: keyof typeof FILES, search: string, replacement: string)
     return { ...EXPECTED, after };
 }
 
+function withFinding(finding: Finding, changes: Partial<Finding>): CaseOutput {
+    return {
+        ...EXPECTED,
+        findings: FINDINGS.map((candidate) => (candidate === finding ? { ...candidate, ...changes } : candidate)),
+    };
+}
+
 function withBlockFinding(changes: Partial<Finding>): CaseOutput {
-    return { ...EXPECTED, findings: [{ ...BLOCK_FINDING, ...changes }, CLASS_FINDING] };
+    return withFinding(BLOCK_FINDING, changes);
+}
+
+function inBothSnapshots(output: CaseOutput): CaseOutput {
+    return { ...output, before: output.after };
 }
 
 describe('fixtureTests', () => {
@@ -147,29 +178,66 @@ describe('fixtureTests', () => {
             classifyChanges: () => [],
         }).map((test) => test.name);
 
-        expect(names).toEqual(['example/blocks', 'example/complete']);
+        expect(names).toEqual(VIEWS.map((view) => `example/${view}`));
     });
 
-    it('passes a unit kind and the complete output that match', () => {
-        expect(matches('example/blocks', EXPECTED)).toBe(true);
-        expect(matches('example/complete', EXPECTED)).toBe(true);
+    it('passes every unit kind and the complete output when they match', () => {
+        expect(failingViews(EXPECTED)).toEqual([]);
     });
 
     it.each([
         [
-            'the report',
+            'the nesting in the report',
             withFile('app/component/base/sw-example-card.api.md', '    sw_example_card_title', '  sw_example_card_title'),
+            ['block-tree', 'complete'],
+        ],
+        [
+            'a flag state marker in the report',
+            withFile('app/component/base/sw-example-card.api.md', '[until v6.8.0]', '[from v6.8.0]'),
+            ['block-tree', 'complete'],
+        ],
+        [
+            'the parent in the contract',
+            withFile('app/component/base/sw-example-card.d.ts', "Block<'sw_example_card', ", 'Block<null, '),
+            ['block-tree', 'complete'],
+        ],
+        [
+            'the index',
+            withFile('index.json', '"sw_example_card_title"', '"sw_example_card_headline"'),
+            ['block-tree', 'complete'],
+        ],
+        [
+            'a scope marker in the report',
+            withFile('app/component/base/sw-example-card.api.md', '[scope: item]', '[after v-if]'),
+            ['block-structure', 'complete'],
+        ],
+        [
+            'another kind of block context in the report',
+            withFile('app/component/base/sw-example-card.api.md', '[scope: item]', '[scope: item]  [slot: default]'),
+            ['block-structure', 'complete'],
+        ],
+        [
+            'a scope in the contract',
+            withFile('app/component/base/sw-example-card.d.ts', "'scope:item'", "'afterIf'"),
+            ['block-structure', 'complete'],
         ],
         [
             'a crossing in the report',
             withFile('app/component/base/sw-example-card.api.md', 'div  sw_example_card', 'span  sw_example_card'),
+            ['block-structure', 'complete'],
         ],
-        ['the contract', withFile('app/component/base/sw-example-card.d.ts', "Block<'sw_example_card'>", 'Block<null>')],
-        ['a crossing in the contract', withFile('app/component/base/sw-example-card.d.ts', "'div'", "'span'")],
-        ['the index', withFile('index.json', '"sw_example_card_title"', '"sw_example_card_headline"')],
-        ['the rule of a finding', withBlockFinding({ rule: 'block_missing' })],
-        ['the group of a finding', withBlockFinding({ group: 'Info' })],
-        ['the details of a finding', withBlockFinding({ at: 'sw-example-card.html.twig:9' })],
+        [
+            'a crossing in the contract',
+            withFile('app/component/base/sw-example-card.d.ts', "'div'", "'span'"),
+            ['block-structure', 'complete'],
+        ],
+        ['the rule of a finding', withBlockFinding({ rule: 'block_missing' }), ['block-findings', 'complete']],
+        ['the group of a finding', withBlockFinding({ group: 'Info' }), ['block-findings', 'complete']],
+        [
+            'the details of a finding',
+            withBlockFinding({ at: 'sw-example-card.html.twig:9' }),
+            ['block-findings', 'complete'],
+        ],
         [
             'a finding on a block scope',
             {
@@ -179,42 +247,45 @@ describe('fixtureTests', () => {
                     { ...BLOCK_FINDING, element: `${BLOCK_FINDING.element}/scope:item`, rule: 'block_scope_missing' },
                 ],
             },
+            ['block-findings', 'complete'],
         ],
-        ['a missing snapshot', { ...EXPECTED, before: {} }],
-    ])('fails a unit kind that differs in %s', (_, output) => {
-        expect(matches('example/blocks', output)).toBe(false);
-        expect(matches('example/complete', output)).toBe(false);
-    });
-
-    it.each([
-        ['the report', withFile('app/component/base/sw-example-card.api.md', 'title?: string', 'title: string')],
-        ['the contract', withFile('app/component/base/sw-example-card.d.ts', 'emits: {};', 'emits: { change: [] };')],
-        ['the index', withFile('index.json', '"public"', '"private"')],
-        ['the findings', { ...EXPECTED, findings: [BLOCK_FINDING, { ...CLASS_FINDING, rule: 'class_added' }] }],
-        ['an entry point', withFile('current.d.ts', 'sw-example-card.d.ts', 'sw-example-panel.d.ts')],
-    ])('passes a unit kind while another part of %s differs', (_, output) => {
-        expect(matches('example/blocks', output)).toBe(true);
-        expect(matches('example/complete', output)).toBe(false);
+        ['a missing snapshot', { ...EXPECTED, before: {} }, ['block-tree', 'block-structure', 'complete']],
+        [
+            'the props in the report',
+            withFile('app/component/base/sw-example-card.api.md', 'title?: string', 'title: string'),
+            ['complete'],
+        ],
+        [
+            'the emits in the contract',
+            withFile('app/component/base/sw-example-card.d.ts', 'emits: {};', 'emits: { change: [] };'),
+            ['complete'],
+        ],
+        ['the visibility in the index', withFile('index.json', '"public"', '"private"'), ['complete']],
+        ['a finding on a class', withFinding(CLASS_FINDING, { rule: 'class_added' }), ['complete']],
+        ['an entry point', withFile('current.d.ts', 'sw-example-card.d.ts', 'sw-example-panel.d.ts'), ['complete']],
+    ])('fails only the views that cover a difference in %s', (_, output, expectedFailingViews) => {
+        expect(failingViews(output)).toEqual(expectedFailingViews);
     });
 
     it('marks every comparison of a view on the expected-fail list', () => {
-        const expectedFailures = { views: ['blocks'], comparisons: [] };
+        const expectedFailures = { views: ['block-tree'], comparisons: [] };
 
-        expect(comparison('example/blocks', EXPECTED, expectedFailures).expectedToFail).toBe(true);
+        expect(comparison('example/block-tree', EXPECTED, expectedFailures).expectedToFail).toBe(true);
+        expect(comparison('example/block-structure', EXPECTED, expectedFailures).expectedToFail).toBe(false);
         expect(comparison('example/complete', EXPECTED, expectedFailures).expectedToFail).toBe(false);
     });
 
     it('marks a single comparison on the expected-fail list', () => {
         const expectedFailures = { views: [], comparisons: ['example/complete'] };
 
-        expect(comparison('example/blocks', EXPECTED, expectedFailures).expectedToFail).toBe(false);
+        expect(comparison('example/block-tree', EXPECTED, expectedFailures).expectedToFail).toBe(false);
         expect(comparison('example/complete', EXPECTED, expectedFailures).expectedToFail).toBe(true);
     });
 
     it('keeps an expected failure marked once its output matches, which it.failing reports as a failure', () => {
-        const { expectedToFail, actual, expected } = comparison('example/blocks', EXPECTED, {
+        const { expectedToFail, actual, expected } = comparison('example/block-tree', EXPECTED, {
             views: [],
-            comparisons: ['example/blocks'],
+            comparisons: ['example/block-tree'],
         });
 
         expect(expectedToFail).toBe(true);
@@ -239,21 +310,36 @@ describe('fixtureTests', () => {
 
     it.each([
         [
-            'snapshot files',
-            {
-                ...EXPECTED,
-                before: { 'current.d.ts': FILES['current.d.ts'] },
-                after: { 'current.d.ts': FILES['current.d.ts'] },
-            },
+            'report section blocks for the unit kind block-tree',
+            inBothSnapshots(withFile('app/component/base/sw-example-card.api.md', 'blocks\n', 'slots\n')),
         ],
-        ['findings', { ...EXPECTED, findings: [CLASS_FINDING] }],
-    ])('rejects a unit kind whose %s occur in no expected output, which would compare nothing', (part, expected) => {
+        [
+            'index key blocks for the unit kind block-tree',
+            inBothSnapshots(withFile('index.json', '"blocks"', '"slots"')),
+        ],
+        [
+            'report section block-context for the unit kind block-structure',
+            inBothSnapshots(withFile('app/component/base/sw-example-card.api.md', '  [scope: item]', '')),
+        ],
+        [
+            'contract member blockContext for the unit kind block-structure',
+            inBothSnapshots(withFile('app/component/base/sw-example-card.d.ts', ", 'scope:item'", '')),
+        ],
+        [
+            'contract member crossings for the unit kind block-structure',
+            inBothSnapshots(withFile('app/component/base/sw-example-card.d.ts', 'crossings:', 'refs:')),
+        ],
+        [
+            'findings on crossing elements for the unit kind block-findings',
+            { ...EXPECTED, findings: [BLOCK_FINDING, CLASS_FINDING] },
+        ],
+    ])('rejects a part that occurs in no expected output, which would compare nothing: %s', (part, expected) => {
         expect(() =>
             fixtureTests([{ ...FIXTURE, expected }], NO_FAILURES, {
                 generateSnapshot: () => ({ files: {} }),
                 classifyChanges: () => [],
             }),
-        ).toThrow(`No fixture case has expected ${part} for the unit kind blocks.`);
+        ).toThrow(`No fixture case has expected ${part}.`);
     });
 
     it.each([
@@ -264,20 +350,20 @@ describe('fixtureTests', () => {
         ],
         [
             'a comparison of a removed case',
-            { views: [], comparisons: ['removed-case/blocks'] },
-            'The expected-fail list names comparisons that do not exist: removed-case/blocks.',
+            { views: [], comparisons: ['removed-case/block-tree'] },
+            'The expected-fail list names comparisons that do not exist: removed-case/block-tree.',
         ],
         [
             'a comparison of an unknown view',
-            { views: [], comparisons: ['example/removed-kind'] },
-            'The expected-fail list names comparisons that do not exist: example/removed-kind.',
+            { views: [], comparisons: ['example/blocks'] },
+            'The expected-fail list names comparisons that do not exist: example/blocks.',
         ],
         [
             'a comparison whose view is listed',
-            { views: ['blocks'], comparisons: ['example/blocks'] },
-            'The expected-fail list names comparisons whose view it lists already: example/blocks.',
+            { views: ['block-tree'], comparisons: ['example/block-tree'] },
+            'The expected-fail list names comparisons whose view it lists already: example/block-tree.',
         ],
     ])('rejects %s on the expected-fail list', (_, expectedFailures, message) => {
-        expect(() => comparison('example/blocks', EXPECTED, expectedFailures)).toThrow(message);
+        expect(() => comparison('example/block-tree', EXPECTED, expectedFailures)).toThrow(message);
     });
 });

@@ -13,8 +13,14 @@ import type { ExpectedFailures } from './fixture-runner';
  */
 export const EXPECTED_FAILURES: ExpectedFailures = {
     views: [
-        'blocks',
+        'block-tree',
+        'block-structure',
         'complete',
     ],
-    comparisons: [],
+    comparisons: [
+        'block-context/block-findings',
+        'block-moved/block-findings',
+        'block-renamed-major-only/block-findings',
+        'element-crosses-block/block-findings',
+    ],
 };

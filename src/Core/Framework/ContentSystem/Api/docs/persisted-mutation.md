@@ -4,7 +4,7 @@
 
 The persisted mutation actions, their request envelope, and their response. Their error model is described in [persisted-mutation-errors.md](persisted-mutation-errors.md).
 
-Served by `Api/ContentLayoutMutationController` under the path prefix `/api/_action/content-system/layout/{layoutId}/`. Every route carries the ACL `content_layout:update` except `translate-element`, which carries `content_layout:translate`. `Mutation/PersistedLayoutMutator` checks that privilege and commits the edit in system scope, so the entity ACL does not also demand `content_layout:update` ([translate-element.md](../../Mutation/docs/translate-element.md)).
+Served by `Api/ContentLayoutMutationController` under the path prefix `/api/_action/content-system/layout/{layoutId}/`. Every route carries the ACL `content_layout:update` except `translate-element`, which carries `content_layout:read` and `content_layout:translate`, because its response contains the whole layout tree. `Mutation/PersistedLayoutMutator` checks the translate privilege and commits the edit in system scope, so the entity ACL does not also demand `content_layout:update` ([translate-element.md](../../Mutation/docs/translate-element.md)).
 
 The persisted counterpart to the stateless mutation endpoints ([mutation.md](mutation.md)), for agents and automation operating on a **stored** layout. Each applies exactly one layout edit to the `content_layout` named in the path and **commits** the result, returning the same re-resolved layout plus diagnostics. The committing write runs the resolvability gates, so a persisted edit that breaks resolvability for a bound source is rejected and nothing is written. Route names follow `api.action.content_system.layout.persisted_<op>`.
 

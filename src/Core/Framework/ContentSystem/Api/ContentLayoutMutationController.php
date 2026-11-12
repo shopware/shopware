@@ -182,7 +182,7 @@ class ContentLayoutMutationController
         return $this->respond($layoutId, $payload->expectedVersion, $mutation, $context);
     }
 
-    #[Route(path: '/api/_action/content-system/layout/{layoutId}/translate-element', name: 'api.action.content_system.layout.persisted_translate_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:translate']], methods: [Request::METHOD_POST])]
+    #[Route(path: '/api/_action/content-system/layout/{layoutId}/translate-element', name: 'api.action.content_system.layout.persisted_translate_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read', 'content_layout:translate']], methods: [Request::METHOD_POST])]
     public function translate(
         string $layoutId,
         #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]

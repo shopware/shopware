@@ -30,8 +30,8 @@ writing the map without that entry, and removing a property key stays with `Upda
 `affected = [elementId]`; `created`, `orphaned`, `droppedWiring` and `droppedProperties` stay empty.
 
 `writePrivilege()` returns `content_layout:translate`. The persisted route checks it first and writes in system scope,
-so it needs `content_layout:translate` and not `content_layout:update`
-([runners.md](runners.md#persistedlayoutmutator)). A caller holding `content_layout:translate` may add, remove or
+so it needs `content_layout:translate` and not `content_layout:update`. The route also declares `content_layout:read`,
+because its response contains the whole layout tree ([runners.md](runners.md#persistedlayoutmutator)). A caller holding `content_layout:translate` may add, remove or
 retarget `{{map:...}}` tokens in a translated entry of an `inlineMappable` property.
 
 Listeners running inside that write (`EntityWriteEvent`, `PreWriteValidationEvent`, `PostWriteValidationEvent`) see

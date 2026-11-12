@@ -687,12 +687,52 @@ class ContentLayoutMutationControllerTest extends TestCase
         static::assertEquals($map, $stored->jsonSerialize());
     }
 
-    #[TestDox('commits a translation for a user holding the translate privilege alone and echoes the committed layout tree, since the layout load is an ungated repository search')]
-    public function testTranslateCommitsForAUserHoldingOnlyTheTranslatePrivilege(): void
+    #[TestDox('refuses the persisted translate-element route to a user holding only the translate privilege, naming the missing read privilege, without writing')]
+    public function testTranslateIsForbiddenWithoutTheReadPrivilege(): void
+    {
+        $map = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale'];
+        $layoutId = $this->createLayout([$this->translatableElement('block-a', $map)]);
+        $this->actAs(['content_layout:translate']);
+
+        $this->request('translate-element', $layoutId, [
+            'elementId' => 'block-a',
+            'values' => ['label' => [Defaults::LANGUAGE_SYSTEM => 'Winter sale']],
+            'expectedVersion' => null,
+        ]);
+
+        $this->assertMissingPrivilege('content_layout:read');
+
+        $stored = $this->reload($layoutId)->getLayout()[0]->property('label');
+        static::assertNotNull($stored);
+        static::assertEquals($map, $stored->jsonSerialize());
+    }
+
+    #[TestDox('refuses the persisted translate-element route to a user holding only the read privilege, naming the missing translate privilege, without writing')]
+    public function testTranslateIsForbiddenToAReadOnlyUser(): void
+    {
+        $map = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale'];
+        $layoutId = $this->createLayout([$this->translatableElement('block-a', $map)]);
+        $this->actAs(['content_layout:read']);
+
+        $this->request('translate-element', $layoutId, [
+            'elementId' => 'block-a',
+            'values' => ['label' => [Defaults::LANGUAGE_SYSTEM => 'Winter sale']],
+            'expectedVersion' => null,
+        ]);
+
+        $this->assertMissingPrivilege('content_layout:translate');
+
+        $stored = $this->reload($layoutId)->getLayout()[0]->property('label');
+        static::assertNotNull($stored);
+        static::assertEquals($map, $stored->jsonSerialize());
+    }
+
+    #[TestDox('commits a translation for a user holding the read and translate privileges without the update privilege and echoes the committed layout tree')]
+    public function testTranslateCommitsForAUserHoldingTheReadAndTranslatePrivileges(): void
     {
         $layoutId = $this->createLayout([$this->translatableElement('block-a', [Defaults::LANGUAGE_SYSTEM => 'Autumn sale'])]);
         $map = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale', $this->secondLanguageId() => 'Herbstschlussverkauf'];
-        $this->actAs(['content_layout:translate']);
+        $this->actAs(['content_layout:read', 'content_layout:translate']);
 
         $body = $this->mutate('translate-element', $layoutId, [
             'elementId' => 'block-a',

@@ -41,6 +41,6 @@ class EntityListResource
             'uri' => 'shopware://entities',
             'mimeType' => 'application/json',
             'text' => Json::encode($entities),
-        ], $requestContext, McpResourceCacheHint::DEPLOYMENT_TTL_MS);
+        ], $requestContext, McpResourceCacheHint::SHOP_CONFIGURATION_TTL_MS);
     }
 }

@@ -409,7 +409,8 @@ The property is unused and will be removed in 6.8.
 On the stateless 2026-07-28 revision, both MCP endpoints now tell clients how long they may reuse an answer (`ttlMs` and `cacheScope`, SEP-2549).
 Every hint is `private`, because the allowlist and `?toolsets=` make the answers differ per caller.
 `server/discover`, `tools/list`, `prompts/list`, `resources/list` and `resources/templates/list` stay fresh for 60 seconds, so an allowlist change reaches a client within a minute, even if it does not listen for `list_changed`.
-The reference resources stay fresh for one hour (`shopware://entities`, `shopware://state-machines`, `shopware://business-events`, `shopware://flow-actions`) or 60 seconds (`shopware://currencies`, `shopware://languages`, `shopware://sales-channels`).
+The reference resources stay fresh for one hour (`shopware://state-machines`) or 60 seconds (`shopware://entities`, `shopware://business-events`, `shopware://flow-actions`, `shopware://currencies`, `shopware://languages`, `shopware://sales-channels`).
+Entities, business events and flow actions can change when an app is installed, so they get the shorter time.
 Everything else, including stored tool results and app resources, is not cached.
 Answers on the handshake revisions carry no hints and are unchanged.
 

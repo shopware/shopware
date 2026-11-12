@@ -229,10 +229,10 @@ class McpDualEraConformanceTest extends TestCase
      */
     public static function referenceResourceProvider(): iterable
     {
-        yield 'shopware://entities' => ['shopware://entities', McpResourceCacheHint::DEPLOYMENT_TTL_MS];
+        yield 'shopware://entities' => ['shopware://entities', McpResourceCacheHint::SHOP_CONFIGURATION_TTL_MS];
         yield 'shopware://state-machines' => ['shopware://state-machines', McpResourceCacheHint::DEPLOYMENT_TTL_MS];
-        yield 'shopware://business-events' => ['shopware://business-events', McpResourceCacheHint::DEPLOYMENT_TTL_MS];
-        yield 'shopware://flow-actions' => ['shopware://flow-actions', McpResourceCacheHint::DEPLOYMENT_TTL_MS];
+        yield 'shopware://business-events' => ['shopware://business-events', McpResourceCacheHint::SHOP_CONFIGURATION_TTL_MS];
+        yield 'shopware://flow-actions' => ['shopware://flow-actions', McpResourceCacheHint::SHOP_CONFIGURATION_TTL_MS];
         yield 'shopware://currencies' => ['shopware://currencies', McpResourceCacheHint::SHOP_CONFIGURATION_TTL_MS];
         yield 'shopware://languages' => ['shopware://languages', McpResourceCacheHint::SHOP_CONFIGURATION_TTL_MS];
         yield 'shopware://sales-channels' => ['shopware://sales-channels', McpResourceCacheHint::SHOP_CONFIGURATION_TTL_MS];
@@ -260,7 +260,7 @@ class McpDualEraConformanceTest extends TestCase
     }
 
     #[DataProvider('referenceResourceProvider')]
-    #[TestDox('The reference resource $_dataName names its own TTL on the stateless era, because it rarely changes')]
+    #[TestDox('The reference resource $_dataName names its own TTL on the stateless era')]
     public function testStatelessReferenceResourcesCarryTheirOwnTtl(string $uri, int $ttlMs): void
     {
         $read = $this->client(self::ADMIN, McpEra::Stateless)->result('resources/read', ['uri' => $uri]);

@@ -23,13 +23,15 @@ use Shopware\Core\Framework\Log\Package;
 final class McpResourceCacheHint
 {
     /**
-     * For data that only changes with a deployment or an extension lifecycle change, such as entity
-     * definitions, state machines, business events and flow actions.
+     * For data that only changes with a deployment or a plugin lifecycle change, such as the state machines.
+     * Data an app can change, such as flow actions, business events and custom entities, takes
+     * SHOP_CONFIGURATION_TTL_MS: an app is installed at runtime, without a deployment.
      */
     public const DEPLOYMENT_TTL_MS = 3_600_000;
 
     /**
-     * For shop configuration an admin can edit at any time, such as currencies, languages and sales channels.
+     * For data an admin or an app can change at any time: shop configuration such as currencies, languages
+     * and sales channels, and the flow actions, business events and entities apps add.
      * Matches the 60 seconds of the list methods, so an edit reaches a client within a minute.
      */
     public const SHOP_CONFIGURATION_TTL_MS = 60_000;

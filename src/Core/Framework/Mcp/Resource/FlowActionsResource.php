@@ -50,6 +50,6 @@ class FlowActionsResource
             'uri' => 'shopware://flow-actions',
             'mimeType' => 'application/json',
             'text' => Json::encode($actions),
-        ], $requestContext, McpResourceCacheHint::DEPLOYMENT_TTL_MS);
+        ], $requestContext, McpResourceCacheHint::SHOP_CONFIGURATION_TTL_MS);
     }
 }

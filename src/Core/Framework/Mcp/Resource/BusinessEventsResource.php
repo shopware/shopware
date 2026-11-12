@@ -48,6 +48,6 @@ class BusinessEventsResource
             'uri' => 'shopware://business-events',
             'mimeType' => 'application/json',
             'text' => Json::encode($events),
-        ], $requestContext, McpResourceCacheHint::DEPLOYMENT_TTL_MS);
+        ], $requestContext, McpResourceCacheHint::SHOP_CONFIGURATION_TTL_MS);
     }
 }

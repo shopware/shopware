@@ -372,6 +372,22 @@ class LayoutPresetPayloadCompilerTest extends TestCase
         );
     }
 
+    #[TestDox('keys a translatable value of an element in an expanded nested preset under the system language exactly once')]
+    public function testCompileWrapsATranslatableValueInAnExpandedNestedPresetOnce(): void
+    {
+        $captured = [];
+        $compiler = $this->createCompiler($this->capturingDecoder($captured), $this->textRegistry());
+
+        $compiler->compile([['preset' => 'Sw:Inner']], [
+            'Sw:Inner' => $this->preset([['component' => 'Sw:Content:Text', 'properties' => ['text' => '<p>hi</p>']]]),
+        ]);
+
+        static::assertSame(
+            [Defaults::LANGUAGE_SYSTEM => '<p>hi</p>'],
+            $captured[0]['properties']['text'],
+        );
+    }
+
     #[TestDox('throws with the reference chain when a preset reaches itself again')]
     public function testCompileThrowsOnCircularReference(): void
     {

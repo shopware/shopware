@@ -2,9 +2,9 @@
  * @package admin
  * @private
  *
- * Which files carry extension SDK public API, and how the identifiers are read out of them. Every
- * `scripts/generate-*` list generator and the `src/meta/meta.spec.js` guard share what is exported
- * here, so the two cannot disagree.
+ * Which files carry extension SDK public API, and how the identifiers are read out of them. The
+ * `scripts/generate-*` generators and the `src/meta/meta.spec.js` guard share what is exported
+ * here, so they cannot disagree.
  */
 
 // Fixture components under `_mocks_`/`__fixtures__` and inside split `*.spec/` directories are test
@@ -12,8 +12,10 @@
 // silently becomes tracked API that the guard then defends forever.
 const FIXTURE_PATH_REGEX = /(\/(?:_mocks_|__fixtures__)\/|\.spec\/)/;
 
+export const isFixturePath = (filePath: string) => FIXTURE_PATH_REGEX.test(filePath);
+
 const isSourceFile = (extensionRegex: RegExp) => (filePath: string) =>
-    extensionRegex.test(filePath) && !FIXTURE_PATH_REGEX.test(filePath);
+    extensionRegex.test(filePath) && !isFixturePath(filePath);
 
 /**
  * A native setup SFC declares its blocks as `<sw-block name="...">` and keeps its markup in the

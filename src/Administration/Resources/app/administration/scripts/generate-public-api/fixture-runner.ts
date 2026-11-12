@@ -133,7 +133,8 @@ const UNIT_KINDS: Record<string, UnitKind> = {
     },
 };
 
-const REPORT_OUTLINE = /```text\n([\s\S]*?)```/;
+// Without the line break before the closing fence, which would otherwise belong to whatever section comes last.
+const REPORT_OUTLINE = /```text\n([\s\S]*?)\n?```/;
 
 const LINE_MARKERS = /\s+\[[^\]]+\]/g;
 

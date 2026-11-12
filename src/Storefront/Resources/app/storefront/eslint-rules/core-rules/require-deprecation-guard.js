@@ -73,9 +73,13 @@ module.exports = {
             ':function'(node) {
                 const declaration = getDeclaration(node);
                 let flag = declaration && getDeprecation(declaration);
-                if (!flag && node.parent.type === 'MethodDefinition' && node.parent.key.name === 'init') {
+                if (!flag && node.parent.type === 'MethodDefinition' &&
+                    node.parent.key.type === 'Identifier' && node.parent.key.name === 'init') {
                     const classNode = node.parent.parent.parent;
-                    flag = getDeprecation(classNode) || getDeprecation(classNode.parent);
+                    flag = getDeprecation(classNode);
+                    if (!flag && ['ExportDefaultDeclaration', 'ExportNamedDeclaration'].includes(classNode.parent.type)) {
+                        flag = getDeprecation(classNode.parent);
+                    }
                 }
                 functions.push({ node, flag, guarded: false });
             },

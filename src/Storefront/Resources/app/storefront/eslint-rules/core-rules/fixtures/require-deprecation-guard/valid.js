@@ -1,6 +1,8 @@
 /**
+ * @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead.
  * @sw-package framework
  */
+import HttpClient from 'src/service/http-client.service';
 import Feature from 'src/helper/feature.helper';
 import Flags from './helper/feature.helper.js';
 
@@ -136,3 +138,14 @@ function callbackFactory() {
         window.Feature.triggerDeprecationOrThrow('v6.8.0.0', 'Use the replacement.');
     };
 }
+
+/** @deprecated tag:v6.8.0 - Use the replacement. */
+class DeprecatedPluginWithPrivateInit extends Plugin {
+    #init() {}
+}
+
+class LocalHelperPlugin extends Plugin {
+    init() {}
+}
+
+export { LocalHelperPlugin };

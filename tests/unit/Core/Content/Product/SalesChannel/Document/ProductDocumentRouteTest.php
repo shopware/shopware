@@ -97,6 +97,25 @@ class ProductDocumentRouteTest extends TestCase
         static::assertEquals([new FieldSorting('position'), new FieldSorting('id')], $documentCriteria->getSorting());
     }
 
+    public function testLoadDropsTheProductAndTheFilesOfTheTranslations(): void
+    {
+        $productId = Uuid::randomHex();
+        $criteria = new Criteria();
+        $criteria->addAssociation('product.productReviews');
+        $criteria->addAssociation('translations.media');
+
+        $this->createRoute(
+            [static fn (): array => [self::createProduct($productId, null)]],
+            $this->createDocumentRepository(['media-1'], [new ProductDocumentCollection()]),
+            new StaticEntityRepository([new MediaCollection([$this->createMedia('media-1')])]),
+        )->load($productId, new Request(), Generator::generateSalesChannelContext(), $criteria);
+
+        $documentCriteria = $this->documentCriteria[0];
+        static::assertFalse($documentCriteria->hasAssociation('product'));
+        static::assertTrue($documentCriteria->hasAssociation('translations'));
+        static::assertFalse($documentCriteria->getAssociation('translations')->hasAssociation('media'));
+    }
+
     public function testLoadKeepsTheRequestedSorting(): void
     {
         $productId = Uuid::randomHex();

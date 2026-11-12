@@ -60,7 +60,7 @@
                     },
                     "media": {
                         "$ref": "#/components/schemas/Media",
-                        "description": "File of the document in the current language, set where the documents are shown in the storefront."
+                        "description": "File of the document in the current language. Only set by the product documents route and the CMS slot; `null` when documents are loaded as an association."
                     }
                 },
                 "type": "object"

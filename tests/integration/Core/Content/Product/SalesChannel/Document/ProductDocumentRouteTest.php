@@ -59,7 +59,7 @@ class ProductDocumentRouteTest extends TestCase
         static::assertSame([$this->ids->get('manual-document')], array_column($response['elements'], 'id'));
     }
 
-    public function testLoadReturnsNoUrlForPrivateFilesOfOtherLanguagesInTheTranslations(): void
+    public function testLoadLeavesOutTheFilesOfTheTranslations(): void
     {
         $this->browser->request('POST', '/store-api/product/' . $this->ids->get('saw') . '/documents', [
             'associations' => ['translations' => ['associations' => ['media' => []]]],
@@ -67,11 +67,9 @@ class ProductDocumentRouteTest extends TestCase
 
         $response = $this->decode();
         static::assertSame(1, $response['total']);
-
-        $urls = array_column(array_column($response['elements'][0]['translations'], 'media'), 'url', 'id');
-        static::assertCount(2, $urls);
-        static::assertStringContainsString('/media/datasheet.pdf', $urls[$this->ids->get('datasheet')]);
-        static::assertSame('', $urls[$this->ids->get('datenblatt')]);
+        static::assertSame($this->ids->get('datasheet'), $response['elements'][0]['media']['id']);
+        static::assertCount(2, $response['elements'][0]['translations']);
+        static::assertSame([null, null], array_column($response['elements'][0]['translations'], 'media'));
     }
 
     public function testLoadLeavesOutTheProductOfTheDocuments(): void

@@ -74,7 +74,7 @@ class ProductDocumentDefinition extends EntityDefinition
 
             (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id'))->addFlags(new ApiAware(AdminApiSource::class), new ReverseInherited('documents')),
             (new TranslationsAssociationField(ProductDocumentTranslationDefinition::class, 'product_document_id'))->addFlags(new ApiAware(), new Required()),
-            (new OneToOneAssociationField('media', 'media', 'id', MediaDefinition::class))->addFlags(new ApiAware(), new Runtime())->setDescription('File of the document in the current language, set where the documents are shown in the storefront.'),
+            (new OneToOneAssociationField('media', 'media', 'id', MediaDefinition::class))->addFlags(new ApiAware(), new Runtime())->setDescription('File of the document in the current language. Only set by the product documents route and the CMS slot; `null` when documents are loaded as an association.'),
         ]);
     }
 }

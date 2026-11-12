@@ -582,7 +582,7 @@
                     "Endpoints supporting Criteria "
                 ],
                 "summary": "Fetch the documents of a product",
-                "description": "Lists the documents of a product, such as manuals, datasheets or certificates, with their file in the requested language. A variant without documents of its own returns the documents of its parent product. Documents with a private file are left out.",
+                "description": "Lists the documents of a product, such as manuals, datasheets or certificates, with their file in the requested language. A variant without documents of its own returns the documents of its parent product. For a product with variants, pass the product id of the `/product/{productId}` response, which is the resolved variant. Documents with a private file are left out.",
                 "operationId": "readProductDocuments",
                 "parameters": [
                     {
@@ -673,7 +673,7 @@
                     "Endpoints supporting Criteria "
                 ],
                 "summary": "Fetch the documents of a product",
-                "description": "Lists the documents of a product, such as manuals, datasheets or certificates, with their file in the requested language. A variant without documents of its own returns the documents of its parent product. Documents with a private file are left out.",
+                "description": "Lists the documents of a product, such as manuals, datasheets or certificates, with their file in the requested language. A variant without documents of its own returns the documents of its parent product. For a product with variants, pass the product id of the `/product/{productId}` response, which is the resolved variant. Documents with a private file are left out.",
                 "operationId": "readProductDocumentsGet",
                 "parameters": [
                     {

@@ -18,6 +18,11 @@ Unlike a line item payload, it does not survive the next cart calculation.
 Keep your state on line items or in a cart extension, and write the delivery payload in a cart processor after the `DeliveryProcessor`.
 At checkout, a payment handler can set the transaction payload in its `validate()` method, which receives the calculated cart right before the order is written.
 Any other extension sets it on the converted order data in the `CartConvertedEvent`.
+### Composer keeps locked packages when it adds or removes a plugin
+
+Installing, updating or uninstalling a plugin whose `executeComposerCommands()` returns `true` runs Composer with `--minimal-changes`.
+Packages in `composer.lock` keep their locked version, unless the plugin's constraints or a security advisory require another one.
+Before, Composer also updated the shared dependencies of the plugin, such as Symfony packages, to the newest allowed version.
 
 ### Attribute entities can generate the reverse side of a many-to-many association
 

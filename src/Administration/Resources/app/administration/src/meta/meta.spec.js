@@ -7,8 +7,6 @@ import * as path from 'path';
 import { globSync } from 'glob';
 import { missingTests, positionIdentifiers, dataSetIds } from './baseline';
 import packageJson from '../../package.json';
-import blocksList from '../../blocks-list.json';
-import { extractBlocks } from '../../scripts/generate-block-list/extract-blocks';
 import { extractPositionIdentifiers } from '../../scripts/generate-position-identifier-list/extract-position-identifiers';
 import { extractDataSetIds } from '../../scripts/generate-data-set-list/extract-data-set-ids';
 import { isTemplateSourceFile, isDataSetSourceFile } from '../../scripts/public-api-source-files';
@@ -193,26 +191,6 @@ describe('Administration meta tests', () => {
                 result,
                 'Seems like you added new data sets. You need to run "composer run admin:generate-data-set-list" to update the position identifier list :)!',
             ).toHaveLength(dataSetIds.length);
-        });
-
-        it('should not remove existing blocks', () => {
-            const blocks = scan(templateFiles, extractBlocks);
-            const removedBlocks = blocksList.filter((block) => !blocks.includes(block));
-
-            expect(
-                removedBlocks,
-                `Breaking change detected! Previously registered blocks are missing: \n${removedBlocks.join(', ')}`,
-            ).toHaveLength(0);
-        });
-
-        it('should have new blocks in the blocks list', () => {
-            const blocks = scan(templateFiles, extractBlocks);
-            const newBlocks = blocks.filter((block) => !blocksList.includes(block));
-
-            expect(
-                newBlocks,
-                `New blocks have been added. Please run 'composer admin:generate-blocks-list' script to add them to the blocks list: \n${newBlocks.join(', ')}`,
-            ).toHaveLength(0);
         });
     });
 

@@ -4,8 +4,95 @@
 
 The Administration gets a generated snapshot of its public API and a check that blocks unannounced breaks, see [#22591](https://github.com/shopware/shopware/issues/22591).
 Both are built in steps.
-Three parts exist so far: the markers that announce a change, the summary the break check prints, and the fixtures that the generator and the break check have to satisfy.
+Four parts exist so far: the snapshot of the components with the blocks of their templates, the markers that announce a change, the summary the break check prints, and the fixtures that the generator and the break check have to satisfy.
 The grammar of the markers is in `eslint-rules/deprecation-rules/utils/api-markers.ts`, the code of the generator in `scripts/generate-public-api/`.
+
+## Snapshot
+
+The snapshot is committed in `public-api/`.
+It lists every component that core registers, with the blocks of its template and their nesting.
+A pull request that adds, renames, moves or removes a block therefore shows that change in its diff.
+
+Regenerate it after such a change and commit the result:
+
+```bash
+composer admin:generate-public-api
+```
+
+`scripts/generate-public-api/committed-snapshot.spec.ts` fails while the committed files differ from the sources.
+Regenerating the snapshot makes that test pass, because it compares files and judges no change.
+The break check that blocks an unannounced break is not built yet.
+
+### Files
+
+A component has two files, named after the component and placed beside its folder, without the leading `src/`.
+`src/module/sw-order/page/sw-order-detail/index.js` gives `public-api/module/sw-order/page/sw-order-detail.d.ts` and `.api.md`.
+
+| File | Content |
+|---|---|
+| `<name>.d.ts` | The contract in the current flag state |
+| `<name>.major.d.ts` | The contract in the major flag state, only when it differs |
+| `<name>.api.md` | The report for reviewers, which merges both flag states |
+| `index.json` | The components with their file, visibility, parent and block names, for tools such as ESLint rules |
+
+All of them are marked as generated, so GitHub collapses them in a diff.
+Names and lines are sorted by code point, and the files contain no line numbers, so a change to a template only changes the lines of the blocks it touches.
+
+```text
+component sw-example-field-set  public  js
+  registered src/app/component/index.ts
+  source src/app/component/form/sw-example-field-set/index.js
+  template src/app/component/form/sw-example-field-set/sw-example-field-set.html.twig
+
+blocks
+  sw_example_field_set
+    sw_example_field_set_content
+    sw_example_field_set_mt_tabs  [from v6.8.0]
+    sw_example_field_set_tabs  [until v6.8.0]
+```
+
+```ts
+blocks: {
+    sw_example_field_set: Block<null>;
+    sw_example_field_set_content: Block<'sw_example_field_set'>;
+    sw_example_field_set_tabs: Block<'sw_example_field_set'>;
+};
+```
+
+- The report shows the blocks as a tree, two spaces per level, with the blocks of one parent sorted by name.
+- The contract maps every block to the block that directly encloses it, `null` at the top level.
+  A moved block is one changed line.
+- A block that the template declares under several parents is listed under each of them, and its contract entry names all of them: `Block<'sw_review_list' | 'sw_review_list_content'>`.
+- Twig blocks and `<sw-block name="...">` elements share one tree.
+  A `.vue` component is found through the file that re-exports it, or through a registration that imports the `.vue` file directly.
+  A bound `:name` has no literal name and is left out.
+
+### Flag states
+
+The snapshot covers two flag states: `current`, with the next major flag off, and `major`, with that flag and every flag that names it as its `major` in `feature.yaml` on.
+A break behind the major flag would be invisible in a single state.
+
+- A block inside a `v-if`, `v-else-if` or `v-else` branch that only one state renders exists in that state only.
+  The report marks it `[until v6.8.0]` or `[from v6.8.0]`.
+  The marker names the release, so it stays readable in old commits.
+- Only `feature.isActive('<flag>')` with `!`, `&&` and `||` is evaluated, in both spellings of a flag, `v6.8.0.0` and `V6_8_0_0`.
+  Any other condition can be true in both states.
+- A component that is registered inside `if (!Shopware.Feature.isActive('v6.8.0.0'))` has its blocks in the current state only.
+
+### Visibility
+
+Everything without `@private` is public.
+A component is private when the comment directly above its `export default`, or directly above its registration, has an `@private` tag.
+A private component stays in the snapshot: its report marks every line `[private]`, and its contract entry carries `/** @private */`.
+
+### Not covered yet
+
+- An extend child lists the blocks of its own template.
+  The blocks it inherits from its parent follow with the extend chains.
+- A core `Component.override` adds no entry.
+- The other parts of a component, such as props, methods and slots, and the entry points `current.d.ts` and `major.d.ts` are missing, so the contracts cannot be type-checked yet.
+
+The generator stops with an error in three cases: a block in a template that no registered component uses, a block tag in a place the HTML parser cannot see, and a registration whose component name or import it cannot read.
 
 ## Markers
 
@@ -153,6 +240,7 @@ To build the next part:
 1. Add its fixture cases, and its unit kind to `UNIT_KINDS` in `fixture-runner.ts` when it is a new one.
    A new unit kind goes into `views` of `expected-failures.ts`.
 2. Implement it behind `generateSnapshot` in `snapshot.ts` and `classifyChanges` in `break-check.ts`.
+   The generator reads the sources into the model of `model.ts`, and the printers turn the model into files, so a new part adds to the model and to each printer.
 3. Once some cases pass the kind, remove it from `views` and list the cases that still fail in `comparisons`.
    The part is done when its entries are gone.
 

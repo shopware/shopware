@@ -98,10 +98,6 @@ function findOverrides(context) {
 
 /**
  * The component whose override contains `node`, or `null`.
- *
- * @param {import('eslint').Rule.RuleContext} context
- * @param {object} node
- * @returns {string|null}
  */
 function targetAt(context, node) {
     const match = findOverrides(context).find(

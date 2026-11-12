@@ -30,9 +30,6 @@ function escapeRegExp(text) {
 
 /**
  * The scripts in the folder of the linted template that import it.
- *
- * @param {import('eslint').Rule.RuleContext} context
- * @returns {Array<{ file: string, source: string }>}
  */
 function importingScripts(context) {
     const filename = physicalFilename(context);
@@ -68,9 +65,6 @@ function importingScripts(context) {
  * script that registers its own component, and the core component name of the file or folder for an
  * `export default {…}` that is passed to an override elsewhere. Without an importing script it falls back to
  * `twigTargets()`.
- *
- * @param {import('eslint').Rule.RuleContext} context
- * @returns {string[]}
  */
 function templateTargets(context) {
     const scripts = importingScripts(context);
@@ -99,10 +93,6 @@ function templateTargets(context) {
 
 /**
  * Whether one of the scripts declares a method, computed or data entry `name` itself.
- *
- * @param {Array<{ source: string }>} scripts
- * @param {string} name
- * @returns {boolean}
  */
 function scriptsDeclare(scripts, name) {
     const escaped = escapeRegExp(name);
@@ -115,10 +105,6 @@ function scriptsDeclare(scripts, name) {
 /**
  * The text of the template an override passes as `template`: an imported `.twig`/`.html` file next to the
  * script or an inline string.
- *
- * @param {import('eslint').Rule.RuleContext} context
- * @param {object} options ObjectExpression of the override
- * @returns {string|null}
  */
 function overrideTemplateText(context, options) {
     const property = options.properties.find(
@@ -162,10 +148,6 @@ function overrideTemplateText(context, options) {
 
 /**
  * Whether a template reads `name` outside of comments.
- *
- * @param {string} text
- * @param {string} name
- * @returns {boolean}
  */
 function templateReads(text, name) {
     return new RegExp(`(?<![\\w$.])${escapeRegExp(name)}\\b`).test(text.replace(TEMPLATE_COMMENTS, ''));
@@ -182,12 +164,7 @@ function indentationOfLine(text, index) {
 /**
  * Adds a member at the end of an object literal, with the indentation of its members and a trailing comma.
  * The member is given as lines relative to its own indentation; `indent` in the lines stands for one level.
- *
- * @param {import('eslint').SourceCode} sourceCode
- * @param {object} object ObjectExpression
- * @param {(indent: string) => string[]} memberLines
- * @param {{ blankLine?: boolean }} [options] separate the member from the previous one with a blank line
- * @returns {(fixer: import('eslint').Rule.RuleFixer) => import('eslint').Rule.Fix}
+ * `blankLine` separates it from the previous member. Returns the `fix` function for `context.report()`.
  */
 function appendMember(sourceCode, object, memberLines, { blankLine = false } = {}) {
     const text = sourceCode.text;

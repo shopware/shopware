@@ -19,9 +19,6 @@ const TWIG_COMMENT = /\{#[\s\S]*?#\}/g;
 
 /**
  * The names that `v-for` and slot scopes of the enclosing elements define.
- *
- * @param {object} node a template node
- * @returns {Set<string>}
  */
 function scopeVariables(node) {
     const names = new Set();
@@ -34,10 +31,8 @@ function scopeVariables(node) {
 }
 
 /**
- * @param {import('eslint').SourceCode} sourceCode
- * @param {object} textNode VText of an `.html.twig` template
- * @returns {Array<{ container: object, expression: object, references: object[] }>} `references` are the
- *     identifiers the expression reads from the component instance
+ * The interpolations of a `VText` node, each with its `container`, `expression` and the identifiers it reads from
+ * the component instance (`references`).
  */
 function twigInterpolations(sourceCode, textNode) {
     const text = sourceCode.text.slice(textNode.range[0], textNode.range[1]);
@@ -82,9 +77,6 @@ function twigInterpolations(sourceCode, textNode) {
 
 /**
  * The location of a node from its range, also for nodes of `twigInterpolations()`.
- *
- * @param {import('eslint').SourceCode} sourceCode
- * @param {object} node
  */
 function locOf(sourceCode, node) {
     return { start: sourceCode.getLocFromIndex(node.range[0]), end: sourceCode.getLocFromIndex(node.range[1]) };

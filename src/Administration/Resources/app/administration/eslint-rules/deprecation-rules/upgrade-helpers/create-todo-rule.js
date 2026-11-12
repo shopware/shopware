@@ -48,9 +48,6 @@ function matches(pattern, value) {
 /**
  * Where a template TODO goes: above the element for an expression in an attribute (a comment may not sit inside
  * a start tag), above the expression for interpolations in text.
- *
- * @param {object} node a template node
- * @returns {object}
  */
 function templateAnchor(node) {
     for (let current = node; current; current = current.parent) {

@@ -10,10 +10,8 @@ const { walk, stringValue } = require('./component-tags');
 const cache = new WeakMap();
 
 /**
- * Local names bound to the `Shopware` global: `const { State, Service } = Shopware` and `const State = Shopware.State`.
- *
- * @param {object} ast Program
- * @returns {Map<string, string>} local name → `Shopware.<path>`
+ * Local names bound to the `Shopware` global, mapped to their `Shopware.<path>`: `const { State, Service } = Shopware`
+ * and `const State = Shopware.State`.
  */
 function shopwareAliases(ast) {
     if (cache.has(ast)) {
@@ -58,10 +56,6 @@ function shopwareAliases(ast) {
  * - `State.get` with `const { State } = Shopware` → `Shopware.State.get`
  * - `this.mailService.send` → `this.mailService.send`
  * - `Shopware.Service('mailService').send` → `Service(mailService).send`
- *
- * @param {object} node
- * @param {Map<string, string>} aliases
- * @returns {string|null}
  */
 function memberPath(node, aliases) {
     if (node.type === 'Identifier') {
@@ -109,10 +103,6 @@ function memberPath(node, aliases) {
 /**
  * The service and method of a call like `this.mailService.send()`, `Shopware.Service('mailService').send()` or
  * `mailService.send()`.
- *
- * @param {object} node CallExpression
- * @param {Map<string, string>} aliases
- * @returns {{ service: string, method: string }|null}
  */
 function serviceCall(node, aliases) {
     if (node.type !== 'CallExpression') {

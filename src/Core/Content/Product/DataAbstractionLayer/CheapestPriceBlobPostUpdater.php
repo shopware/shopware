@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
@@ -46,7 +45,8 @@ class CheapestPriceBlobPostUpdater extends SynchronousPostUpdateIndexer
             IndexerQueuer::registerIndexer($this->connection, self::NAME);
         }
 
-        $iterator = $this->getIterator($offset);
+        $iterator = $this->iteratorFactory->createIterator('product', $offset);
+        $iterator->getQuery()->andWhere($this->getCondition());
         $ids = $iterator->fetch();
 
         if ($ids === []) {
@@ -86,23 +86,13 @@ class CheapestPriceBlobPostUpdater extends SynchronousPostUpdateIndexer
 
     public function getTotal(): int
     {
-        return $this->getIterator(null)->fetchCount();
+        // An exact count scans serialized payloads; use unknown progress for this one-off repair.
+        return 0;
     }
 
     public function getDecorated(): EntityIndexer
     {
         throw new DecorationPatternException(self::class);
-    }
-
-    /**
-     * @param array{offset: int|null}|null $offset
-     */
-    private function getIterator(?array $offset): IterableQuery
-    {
-        $iterator = $this->iteratorFactory->createIterator('product', $offset);
-        $iterator->getQuery()->andWhere($this->getCondition());
-
-        return $iterator;
     }
 
     private function getCondition(): string

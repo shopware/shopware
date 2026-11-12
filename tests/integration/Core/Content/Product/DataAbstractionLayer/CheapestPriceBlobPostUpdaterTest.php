@@ -34,7 +34,6 @@ class CheapestPriceBlobPostUpdaterTest extends TestCase
         $context = Context::createDefaultContext();
         $ids = new IdsCollection();
         $updater = $this->getUpdater();
-        $initialTotal = $updater->getTotal();
         $products = [];
         foreach (['missing', 'different', 'matching'] as $name) {
             $products[] = (new ProductBuilder($ids, $name))->price(100)->build();
@@ -50,7 +49,7 @@ class CheapestPriceBlobPostUpdaterTest extends TestCase
         // Simulate a legacy writer changing only the text column after a blob was populated.
         $connection->executeStatement('UPDATE product SET cheapest_price = :price WHERE id = :id', ['price' => 'legacy-write', 'id' => $ids->getBytes('different')]);
 
-        static::assertSame($initialTotal + 2, $updater->getTotal());
+        static::assertSame(0, $updater->getTotal());
         $iteratedIds = [];
         $offset = null;
         while ($message = $updater->iterate($offset)) {

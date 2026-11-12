@@ -50,6 +50,7 @@ async function createWrapper(salesChannel, productExport) {
                 repositoryFactory: {
                     create: () => ({
                         search: () => Promise.resolve([]),
+                        searchIds: () => Promise.resolve({ total: 0, data: [] }),
                         get: () => Promise.resolve(),
                     }),
                 },

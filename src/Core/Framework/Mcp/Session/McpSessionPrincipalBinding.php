@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Mcp\Session;
 
+use Mcp\Exception\SessionStoreException;
 use Mcp\Server\Session\SessionStoreInterface;
 use Mcp\Server\Wire\InboundClassifier;
 use Shopware\Core\Framework\Log\Package;
@@ -52,8 +53,14 @@ class McpSessionPrincipalBinding
         }
 
         $uuid = Uuid::fromString($sessionId);
-        if (!$this->sessionStore->exists($uuid)) {
-            return true;
+        try {
+            if (!$this->sessionStore->exists($uuid)) {
+                return true;
+            }
+        } catch (SessionStoreException) {
+            // The SDK answers other requests with a 503 so the client retries. A DELETE is answered
+            // without a store lookup, so it is rejected here to keep McpSessionCleanupSubscriber away.
+            return $request->isMethod(Request::METHOD_DELETE);
         }
 
         $stored = $this->readSession($uuid)[self::SESSION_PRINCIPAL] ?? null;
@@ -74,7 +81,12 @@ class McpSessionPrincipalBinding
 
         $principal = $this->principalResolver->resolve($request);
         $uuid = Uuid::fromString($sessionId);
-        if ($principal === null || !$this->sessionStore->exists($uuid)) {
+        try {
+            if ($principal === null || !$this->sessionStore->exists($uuid)) {
+                return;
+            }
+        } catch (SessionStoreException) {
+            // The session stays unbound, so its next request is rejected and the client initializes again.
             return;
         }
 

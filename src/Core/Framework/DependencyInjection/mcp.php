@@ -265,6 +265,7 @@ return static function (ContainerConfigurator $container): void {
             service(McpSessionIdValidator::class),
             service('logger'),
             service('mcp.store_api.list_changed_notifier'),
+            service('mcp.server.store_api.session.store')->nullOnInvalid(),
         ])
         ->tag('controller.service_arguments')
         ->tag('monolog.logger', ['channel' => 'mcp']);

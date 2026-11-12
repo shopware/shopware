@@ -4,6 +4,7 @@
  * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
+import { MtSearch } from '@shopware-ag/meteor-component-library';
 
 async function createWrapper(
     privileges = [
@@ -134,9 +135,7 @@ async function createWrapper(
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                     'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
                     'sw-settings-item': await wrapTestComponent('sw-settings-item'),
-                    'mt-search': {
-                        template: '<div class="mt-search"><slot></slot></div>',
-                    },
+                    'mt-search': MtSearch,
                     'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                     'router-link': {
                         template: '<a><slot></slot></a>',
@@ -532,6 +531,74 @@ describe('module/sw-settings/page/sw-settings-index', () => {
 
             const emptyState = wrapper.findComponent({ name: 'mt-empty-state' });
             expect(emptyState.exists()).toBe(true);
+        });
+    });
+
+    describe('new badge', () => {
+        const originalConfig = { ...Shopware.Context.app.config };
+
+        beforeEach(() => {
+            Shopware.Store.get('whatsNew').$reset();
+            Shopware.Context.app.config.version = '6.7.17.0';
+            Shopware.Context.app.config.versionHistory = undefined;
+            Shopware.Store.get('settingsItems').addItem({
+                group: 'shop',
+                to: 'sw.settings.new.index',
+                icon: 'regular-cog',
+                id: 'sw-settings-new',
+                name: 'settings-new',
+                label: 'New setting',
+                since: '6.7.17.0',
+            });
+        });
+
+        afterEach(() => {
+            Shopware.Context.app.config.version = originalConfig.version;
+            Shopware.Context.app.config.versionHistory = originalConfig.versionHistory;
+        });
+
+        it('shows the new badge next to the new settings item once the version history arrived and remembers that the user saw it', async () => {
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            expect(wrapper.find('.sw-settings-item__new-badge').exists()).toBe(false);
+            expect(Shopware.Service('userConfigService').upsert).not.toHaveBeenCalled();
+
+            Shopware.Context.app.config.versionHistory = [
+                { version: '6.7.16.0', recordedAt: new Date(Date.now() - 86400000 * 60).toISOString(), type: 'install' },
+                { version: '6.7.17.0', recordedAt: new Date().toISOString(), type: 'update' },
+            ];
+            await flushPromises();
+
+            expect(wrapper.findAll('.sw-settings-item__new-badge')).toHaveLength(1);
+            expect(wrapper.find('#sw-settings-new .sw-settings-item__new-badge').exists()).toBe(true);
+            expect(Shopware.Service('userConfigService').upsert).toHaveBeenCalledWith({
+                'core.whatsNew': {
+                    'settings.settings-new': {
+                        since: '6.7.17.0',
+                        seenAt: expect.any(Number),
+                    },
+                },
+            });
+        });
+
+        it('does not mark badges as seen again while the user searches', async () => {
+            Shopware.Context.app.config.versionHistory = [
+                { version: '6.7.16.0', recordedAt: new Date(Date.now() - 86400000 * 60).toISOString(), type: 'install' },
+                { version: '6.7.17.0', recordedAt: new Date().toISOString(), type: 'update' },
+            ];
+            const markSeenSpy = jest.spyOn(Shopware.Store.get('whatsNew'), 'markSeen');
+            const wrapper = await createWrapper();
+            await flushPromises();
+            const markSeenCalls = markSeenSpy.mock.calls.length;
+
+            await wrapper.find('.sw-settings__content-header-search input').setValue('New');
+            await flushPromises();
+            await wrapper.find('.sw-settings__content-header-search input').setValue('New set');
+            await flushPromises();
+
+            expect(markSeenSpy).toHaveBeenCalledTimes(markSeenCalls);
+            expect(wrapper.find('#sw-settings-new .sw-settings-item__new-badge').exists()).toBe(true);
         });
     });
 });

@@ -4,7 +4,7 @@
 import { mount } from '@vue/test-utils';
 import 'src/app/mixin/notification.mixin';
 
-async function createWrapper() {
+async function createWrapper(repositoryOverrides = {}, stubs = {}) {
     return mount(
         await wrapTestComponent('sw-settings-custom-field-set-create', {
             sync: true,
@@ -36,6 +36,7 @@ async function createWrapper() {
                                         length: 0,
                                     });
                                 },
+                                ...repositoryOverrides,
                             };
                         },
                     },
@@ -47,6 +48,7 @@ async function createWrapper() {
                     'sw-button-process': true,
                     'sw-card-view': true,
                     'sw-skeleton': true,
+                    ...stubs,
                 },
             },
         },
@@ -111,5 +113,32 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
         expect(wrapper.vm.technicalNameError).toBeTruthy();
         expect(wrapper.vm.technicalNameError.hasOwnProperty('detail')).toBeTruthy();
         expect(wrapper.vm.technicalNameError.detail).toBe('translation');
+    });
+
+    it('should not save a set whose name is already taken', async () => {
+        const searchIds = jest.fn(() => Promise.resolve({ total: 1, data: ['existing-set-id'] }));
+
+        wrapper = await createWrapper(
+            { searchIds },
+            {
+                'sw-page': {
+                    template: '<div><slot name="smart-bar-actions"></slot></div>',
+                },
+                'sw-button-process': {
+                    props: ['disabled'],
+                    emits: ['click'],
+                    template: '<button class="sw-button-process" @click="$emit(\'click\', $event)"><slot></slot></button>',
+                },
+            },
+        );
+        await flushPromises();
+
+        await wrapper.find('.sw-settings-set-detail__save-action').trigger('click');
+        await flushPromises();
+
+        expect(searchIds).toHaveBeenCalledTimes(1);
+        expect(searchIds.mock.calls[0][0].filters).toEqual([
+            expect.objectContaining({ type: 'equals', field: 'name', value: 'custom_' }),
+        ]);
     });
 });

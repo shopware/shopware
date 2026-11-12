@@ -9,6 +9,33 @@ Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED` while ano
 
 ## Core
 
+### Attribute entities can generate the reverse side of a many-to-many association
+
+`Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToMany` now accepts `reversedBy`, `reverseApi` and `reverseOnDelete`:
+
+```php
+#[ManyToMany(entity: 'product', onDelete: OnDelete::CASCADE, api: true, reversedBy: 'attributeEntities', reverseApi: ['admin-api' => true, 'store-api' => false], reverseOnDelete: OnDelete::CASCADE)]
+public array $products = [];
+```
+
+When `reversedBy` is set, the target entity (`product` in the example) gains a reverse many-to-many association with that property name over the same mapping table, added as an entity extension and therefore available on the target struct through its extensions for loading and filtering.
+`reverseApi` and `reverseOnDelete` control the reverse association's API visibility and delete behaviour independently; when omitted, they mirror the forward association's `api` and `onDelete`.
+Without `reversedBy`, the relation stays one-sided as before.
+
+### Rules can be evaluated per cart delivery
+
+The new scope `Shopware\Core\Checkout\Cart\Rule\DeliveryRuleScope` extends `CartRuleScope` and carries the cart delivery a rule is evaluated for.
+The shipping address rules (`ShippingCountryRule`, `ShippingStateRule`, `ShippingZipCodeRule`, `ShippingStreetRule`, `ShippingCityRule`) and `ShippingMethodRule` read the delivery instead of the sales channel context when they are matched in that scope.
+Every other scope behaves as before.
+
+With the `v6.8.0.0` feature flag active, the `DeliveryProcessor` matches the rules a delivery's shipping method references (availability rule, price row rules, calculation rules) against each delivery and stores the matching ids on the delivery, available through `Delivery::getRuleIds()`.
+`DeliveryCalculator` and `DeliveryValidator` then select rule based price rows and check the availability rule per delivery.
+A cart with a single delivery gets the same result as before, and a delivery without matched rule ids keeps using the rule ids of the sales channel context.
+In a `DeliveryRuleScope` the shipping address rules read only the delivery's address and do not fall back to the customer's active shipping address.
+
+Custom rules that read `getShippingLocation()` or `getShippingMethod()` from the sales channel context should read them from `$scope->getDelivery()` when the scope is a `DeliveryRuleScope`, otherwise they decide by the context for every delivery.
+See `UPGRADE-6.8.md` for an example.
+
 ### Rule Builder: new "Item with longest side and girth" condition
 
 A new line item rule condition `LineItemDimensionLongestAndGirthRule` (`cartLineItemDimensionLongestAndGirth`) was added. It matches the cart against the longest side plus girth of each individual line item. It is calculated as `longest side + 2 * (shortest side + second shortest side)`. This condition allows for more precise shipping rules based on the dimensions of the items in the cart.
@@ -303,6 +330,11 @@ A `0` is no longer replaced by the mapping's default value and satisfies a requi
 Empty cells behave as before.
 Check import files that relied on `0` being ignored.
 
+### Event once all line items of an add are in the cart
+
+`CartItemAddRoute` dispatches the new `Shopware\Core\Checkout\Cart\Event\LineItemsAddedBeforeCalculationEvent` once per add, after `BeforeLineItemAddedEvent` was dispatched for each line item and before the cart is calculated.
+Listeners that need every line item of an add, for example of a reorder, can use it to run once per add instead of once per line item.
+
 ### Collection class for import/export files
 
 `import_export_file` entities are now loaded into an `ImportExportFileCollection` instead of a generic `EntityCollection`.
@@ -323,6 +355,12 @@ A delivery of another order fails the operation with `DOCUMENT__ORDER_DELIVERY_N
 Without the id, the note lists the whole order as before.
 
 Templates extending `@Framework/documents/delivery_note.html.twig` find the delivery in `orderDelivery` and the printed quantity of each listed line item, keyed by its id, in `deliveryLineItemQuantities`, which is `null` for a note of the whole order.
+
+### SEO URL routes can restrict the associations of the template
+
+`SeoUrlGenerator` now calls `SeoUrlRouteInterface::prepareCriteria()` after it added the associations the SEO URL template uses.
+A route can restrict these associations, for example with `$criteria->getAssociation('mainCategories')->addFilter(...)` when `$criteria->hasAssociation('mainCategories')`.
+`ProductPageSeoUrlRoute` uses this to load only the main category of the sales channel the URLs are generated for.
 
 ### Promotion line items store the discount value in the cart currency
 
@@ -356,6 +394,15 @@ HTML forms can continue to use POST with an override for PUT, PATCH and DELETE a
 ### Criteria on fields the API does not expose is a bad request
 
 A criteria that filters, sorts, queries or aggregates by a field the API does not expose (`FRAMEWORK__ACCESSOR_NOT_ALLOWED`) or by a runtime field (`FRAMEWORK__RUNTIME_FIELD_IN_CRITERIA`) is now answered with `400 Bad Request` instead of `500 Internal Server Error`.
+
+### Sales channel files in the Store API
+
+The new `GET /store-api/sales-channel-file/{fileName}` route returns a sales channel file that is enabled for the sales channel of the `sw-access-key`, for example `llms.txt`, `AGENTS.md` or `.well-known/ai-catalog.json`, with the content type of the file.
+Headless frontends can serve the responses under the same public paths, e.g. proxy `/llms.txt` to `/store-api/sales-channel-file/llms.txt`.
+Proxy all enabled files, as `llms.txt` links to `/robots.txt` and `/AGENTS.md`.
+For headless sales channels, the Store API links in `llms.txt` point to `APP_URL`.
+`.well-known/ai-catalog.json` lists the Store API MCP server for every sales channel type, with its URL pointing to `APP_URL`.
+Extensions can adjust or replace the response through the `SalesChannelFileRouteExtension`.
 
 ### Assign products to a sales channel by product group or category
 
@@ -461,6 +508,22 @@ Resources use the URI declared in `mcp.xml`; a non-empty `mimeType` in the respo
 Invalid JSON, malformed messages or resource contents, and `{"success":false,"error":"..."}` responses produce MCP errors with details for the client.
 
 ## Administration
+
+### Deprecated the unused visibilities and sales channels in the sales channel detail
+
+Some sales channel detail components load the visibilities or sales channels of their products and currencies, although they only need one of them or none.
+With 6.8 they load less:
+
+- The *Currency* select of `sw-sales-channel-detail-base` loads the currencies without their `salesChannels`.
+- `sw-sales-channel-detail-products` loads only the visibility of the current sales channel, without its `salesChannel`.
+- `sw-sales-channel-products-assignment-single-products` loads the products without their `visibilities`.
+
+Extensions that read this data in these components should load it with their own request; see `UPGRADE-6.8.md`.
+
+### Deprecated the `defaultFolderRepository` computed property of `sw-cms-detail` and `sw-cms-list`
+
+The `defaultFolderRepository` computed property of `sw-cms-detail` and `sw-cms-list` is deprecated and will be removed.
+Use `mediaDefaultFolderService.getDefaultFolderId(entityName)` instead.
 
 ### Deprecated the `customFieldSetRepository` computed property of `sw-product-stream-detail`
 
@@ -743,6 +806,14 @@ The link targets the new `id="product-listing"` on `.cms-element-product-listing
 Themes that override the `product_listing` block in `storefront/component/product/listing.html.twig` without `parent()` must keep `id="product-listing"` on their wrapper, otherwise the link has no target.
 `storefront/component/skip-to-content.html.twig` has a new `productListing` parameter (default `null`) and the new block `component_skip_to_content_product_listing`.
 
+### AI usage preferences in robots.txt
+
+The robots.txt rules accept the `Content-Usage` directive of the [IETF AI preferences drafts](https://datatracker.ietf.org/doc/draft-ietf-aipref-attach/) and the `Content-Signal` directive of [Content Signals](https://contentsignals.org/).
+Both are rendered inside their `User-agent` block with the value unchanged, for example `Content-signal: search=yes, ai-train=no`.
+A path in front of the `Content-Usage` preference gets the domain path like `Allow` and `Disallow`, for example `Content-usage: /de/blog/ train-ai=n`.
+`RobotsDirectiveType` has the new cases `CONTENT_USAGE` and `CONTENT_SIGNAL`;
+extensions that handled these lines through `RobotsUnknownDirectiveEvent` no longer receive that event for them.
+
 ### Cookie provider removal postponed to 6.9
 
 The deprecated cookie-provider API and the `snippet_name` and `snippet_description` cookie template fields remain available throughout 6.8.
@@ -970,7 +1041,25 @@ bin/console seo:repair:link-category-takeover --apply --no-interaction <category
 The categories get their SEO URLs back, and their fallback URLs redirect to them.
 The command is deprecated and will be removed in 6.9.0.0.
 
+### `ThemeConfigChangedEvent` is dispatched after the theme is saved
+
+`ThemeService::updateTheme()` now dispatches `ThemeConfigChangedEvent` after the new theme configuration is written to the database.
+Before, it was dispatched before the write, so with the static theme config loader a theme save dumped and compiled the `theme.json` defaults instead of the saved values.
+Subscribers that load the theme while handling the event now get the saved configuration instead of the previous one.
+
+### Enabling maintenance mode again no longer traps visitors in a redirect loop
+
+When maintenance mode was switched off, the redirect from the maintenance page into the shop was stored in the HTTP cache.
+Switching maintenance mode on again then sent every visitor not on the IP allowlist back and forth between the shop and that cached redirect (`ERR_TOO_MANY_REDIRECTS`) until the entry expired.
+The redirect is no longer cached. A shop that is already in this state gets out of it by running `bin/console cache:clear:http`.
+
 ## Hosting & Configuration
+
+### Sitemaps skip inactive sales channels and `sitemap:generate` continues after a failure
+
+The scheduled sitemap task and `bin/console sitemap:generate` no longer generate sitemaps for inactive sales channels.
+`sitemap:generate` now continues with the other sales channels and languages when the generation of one fails, prints the error and exits with a failure code at the end.
+A sitemap generation that is locked by another process is still reported without failing the command.
 
 ### Readiness checks isolate their virtual requests
 

@@ -12,7 +12,7 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
  * Enforces the two declaration rules for `inlineMappable`.
  *
  * The type rule mirrors {@see TranslatableTypeValidator}: token interpolation writes a string back into a string,
- * so the property must be declared exactly `string`.
+ * so the property must be declared as the lone type `string`; a union, `[string]` included, is rejected.
  *
  * Reject declarations carrying both `mappable` and `inlineMappable`, because they would offer two mapping
  * mechanisms for one value.
@@ -36,7 +36,7 @@ final class InlineMappableTypeValidator extends ConstraintValidator
             return;
         }
 
-        if ($this->normalizeTypes($value->type) !== ['string']) {
+        if ($value->type !== 'string') {
             $this->context->buildViolation($constraint->message)
                 ->atPath('inlineMappable')
                 ->addViolation();
@@ -47,19 +47,5 @@ final class InlineMappableTypeValidator extends ConstraintValidator
                 ->atPath('inlineMappable')
                 ->addViolation();
         }
-    }
-
-    /**
-     * @param string|list<string> $type
-     *
-     * @return list<string>
-     */
-    private function normalizeTypes(string|array $type): array
-    {
-        if (\is_string($type)) {
-            return [$type];
-        }
-
-        return array_values($type);
     }
 }

@@ -34,5 +34,16 @@ final class TranslatableTypeValidator extends ConstraintValidator
                 ->atPath('translatable')
                 ->addViolation();
         }
+
+        // The nested members are validated through the cascade on `properties`, so this check sees each member
+        // exactly once, from its direct parent. A top-level property has no parent specification, so it is not
+        // subject to it.
+        foreach ($value->properties ?? [] as $key => $member) {
+            if ($member->translatable) {
+                $this->context->buildViolation($constraint->nestedMessage)
+                    ->atPath(\sprintf('properties[%s].translatable', $key))
+                    ->addViolation();
+            }
+        }
     }
 }

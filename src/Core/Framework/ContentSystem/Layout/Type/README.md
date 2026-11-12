@@ -21,4 +21,4 @@ A type YAML file may carry a top-level `bindings:` key that the binding system r
 - **Serialization/** - ElementTypeSpecificationSerializer (YAML ↔ DTO conversion)
 - **Specification/** - Value objects (ContentSystemElementTypeSpecification, PropertySpecification, SlotSpecification, CopilotSpecification)
 - **Specification/Dto/** - Validation DTOs with Symfony constraint attributes
-- **Validation/** - `ElementTypeCollisionDetector` (validates proposed names against registry + inactive app types), `TranslatableType` (translatable requires a lone primitive type, never a union), `TypedEnum` (enum type/list/values), `TypedDefault` (default type/value)
+- **Validation/** - `ElementTypeCollisionDetector` (validates proposed names against registry + inactive app types), `TranslatableType` (translatable requires a top-level property of a lone primitive type, never a union and never a nested member; see [translation.md](../../docs/principles/translation.md#translatable-is-valid-only-on-a-lone-primitive-type)), `TypedEnum` (enum type/list/values), `TypedDefault` (default type/value)

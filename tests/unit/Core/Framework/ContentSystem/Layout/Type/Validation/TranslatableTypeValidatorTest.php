@@ -52,6 +52,12 @@ class TranslatableTypeValidatorTest extends TestCase
             new PropertySpecificationDto('ratio', 'number', false, true, 'Ratio', 'A ratio.', null, null, null),
         ];
 
+        yield 'object property with an untranslatable nested member' => [
+            new PropertySpecificationDto('link', 'object', false, false, 'Link', 'A link.', null, null, null, [
+                'label' => new PropertySpecificationDto('label', 'string', false, false, 'Label', 'A label.', null, null, null),
+            ]),
+        ];
+
         yield 'non-translatable on integer type' => [
             new PropertySpecificationDto('count', 'integer', false, false, 'Count', 'A count.', null, null, null),
         ];
@@ -92,6 +98,23 @@ class TranslatableTypeValidatorTest extends TestCase
         yield 'translatable on a single-member list of string' => [
             new PropertySpecificationDto('text', ['string'], false, true, 'Text', 'Text content.', null, null, null),
             'translatable',
+        ];
+
+        // The member is a lone primitive, so only its position makes the flag invalid.
+        yield 'translatable on a member nested inside an object property' => [
+            new PropertySpecificationDto('link', 'object', false, false, 'Link', 'A link.', null, null, null, [
+                'label' => new PropertySpecificationDto('label', 'string', false, true, 'Label', 'A label.', null, null, null),
+            ]),
+            'properties[label].translatable',
+        ];
+
+        yield 'translatable on a member nested two object levels deep' => [
+            new PropertySpecificationDto('link', 'object', false, false, 'Link', 'A link.', null, null, null, [
+                'target' => new PropertySpecificationDto('target', 'object', false, false, 'Target', 'A target.', null, null, null, [
+                    'label' => new PropertySpecificationDto('label', 'string', false, true, 'Label', 'A label.', null, null, null),
+                ]),
+            ]),
+            'properties[target].properties[label].translatable',
         ];
     }
 

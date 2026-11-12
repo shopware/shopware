@@ -92,6 +92,12 @@ class InlineMappableTypeValidatorTest extends TestCase
             $typeMessage,
         ];
 
+        // A one-member list still declares a union, so only the bare `string` declaration is accepted.
+        yield 'inlineMappable on a single-member list of string' => [
+            self::dto('text', ['string'], inlineMappable: true),
+            $typeMessage,
+        ];
+
         yield 'both flags on one string property' => [
             self::dto('text', 'string', mappable: true, inlineMappable: true),
             $exclusiveMessage,

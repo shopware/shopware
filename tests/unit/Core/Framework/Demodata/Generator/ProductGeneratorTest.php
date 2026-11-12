@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxEntity;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -98,9 +99,6 @@ class ProductGeneratorTest extends TestCase
         $inheritanceUpdater = $this->createMock(InheritanceUpdater::class);
         $inheritanceUpdater->expects($this->exactly(3))->method('update');
 
-        $statesUpdater = $this->createMock(StatesUpdater::class);
-        $statesUpdater->expects($this->exactly(3))->method('update');
-
         $io = $this->createMock(SymfonyStyle::class);
         $io->expects($this->once())->method('progressStart')->with($productCount);
         $io->expects($this->exactly((int) ($productCount / 20)))->method('progressAdvance');
@@ -113,7 +111,6 @@ class ProductGeneratorTest extends TestCase
             downloadMediaIds: $mediaProductDownloadIds,
             optionIds: array_column($properties, 'id'),
             inheritanceUpdater: $inheritanceUpdater,
-            statesUpdater: $statesUpdater,
             io: $io,
         );
 
@@ -257,6 +254,23 @@ class ProductGeneratorTest extends TestCase
                 static::assertSame($instantDeliveryId, $product['deliveryTimeId']);
             }
         }
+    }
+
+    public function testSkipsProductStatesWithTheV68Flag(): void
+    {
+        $statesUpdater = $this->createMock(StatesUpdater::class);
+        $statesUpdater->expects($this->never())->method('update');
+
+        $this->generateProducts(41, statesUpdater: $statesUpdater);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testUpdatesProductStatesPerBatchWithoutTheV68Flag(): void
+    {
+        $statesUpdater = $this->createMock(StatesUpdater::class);
+        $statesUpdater->expects($this->exactly(3))->method('update');
+
+        $this->generateProducts(41, statesUpdater: $statesUpdater);
     }
 
     public function testAssignsProductsToTheLeastUsedLeafCategories(): void

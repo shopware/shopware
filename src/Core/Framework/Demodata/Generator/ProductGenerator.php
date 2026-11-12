@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataException;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Demodata\DemodataService;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -261,7 +262,12 @@ class ProductGenerator implements DemodataGeneratorInterface
 
         $this->connection->transactional(function () use ($all, $context): void {
             $this->updater->update(ProductDefinition::ENTITY_NAME, $all, $context);
-            $this->statesUpdater?->update($all, $context);
+
+            if (!Feature::isActive('v6.8.0.0')) {
+                Feature::silent('v6.8.0.0', function () use ($all, $context): void {
+                    $this->statesUpdater?->update($all, $context);
+                });
+            }
         });
 
         $context->removeState(EntityIndexerRegistry::DISABLE_INDEXING);

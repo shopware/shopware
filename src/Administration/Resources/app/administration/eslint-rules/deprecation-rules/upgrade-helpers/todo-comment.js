@@ -12,19 +12,10 @@
 
 const TODO_PREFIX = 'TODO Codemod';
 
-/**
- * @param {string} id
- * @param {string} [version]
- * @returns {string}
- */
 function todoTag(id, version = '6.8') {
     return `${TODO_PREFIX}(${version}, ${id})`;
 }
 
-/**
- * @param {import('eslint').Rule.RuleContext} context
- * @returns {boolean}
- */
 function isTwigFile(context) {
     const filename = context.physicalFilename ?? context.filename ?? '';
 
@@ -41,10 +32,6 @@ function indentationAt(text, lineStart) {
 
 /**
  * The indentation of the line that contains `index`.
- *
- * @param {string} text
- * @param {number} index
- * @returns {string}
  */
 function lineIndentation(text, index) {
     return indentationAt(text, lineStartIndex(text, index));
@@ -72,11 +59,6 @@ function commentLinesAbove(text, index) {
     return lines;
 }
 
-/**
- * @param {'script'|'twig'|'vue'} syntax
- * @param {string} text
- * @returns {string}
- */
 function wrapComment(syntax, text) {
     if (syntax === 'script') {
         return `// ${text.replace(/\r?\n/g, ' ')}`;
@@ -91,9 +73,6 @@ function wrapComment(syntax, text) {
 
 /**
  * Whether inserting a line at `lineStart` would land inside a multi-line string, template literal or comment.
- *
- * @param {import('eslint').SourceCode} sourceCode
- * @param {number} lineStart
  */
 function splitsScriptToken(sourceCode, lineStart) {
     if (lineStart === 0 || typeof sourceCode.getNodeByRangeIndex !== 'function') {
@@ -113,15 +92,8 @@ function splitsScriptToken(sourceCode, lineStart) {
 
 /**
  * Reports a finding and fixes it by writing a TODO comment above it.
- *
- * @param {import('eslint').Rule.RuleContext} context
- * @param {object} options
- * @param {string} options.id Registry id of the codemod, part of the TODO tag.
- * @param {string} options.message The text of the report and of the TODO.
- * @param {[number, number]} options.range Range of the finding in the linted source.
- * @param {'script'|'template'} options.scope Where the finding is: script code or a template.
- * @param {string} [options.version]
- * @param {Set<string>} [options.seen] Findings already reported in this file, to report one TODO per line and text.
+ * `id` is the registry id of the codemod and part of the TODO tag, `scope` is `'script'` or `'template'`.
+ * `seen` collects the findings of the file, so a line gets each TODO text once.
  */
 function reportTodo(context, { id, message, range, scope, version = '6.8', seen }) {
     const sourceCode = context.sourceCode;

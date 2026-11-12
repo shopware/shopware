@@ -17,10 +17,6 @@
 const { reportTodo } = require('./todo-comment');
 const { readComponentCall, elementName } = require('./component-tags');
 
-/**
- * @param {object} spec see the file comment
- * @returns {import('eslint').Rule.RuleModule}
- */
 function createTodoRule(spec) {
     const components = new Map(Object.entries(spec.components ?? {}));
 

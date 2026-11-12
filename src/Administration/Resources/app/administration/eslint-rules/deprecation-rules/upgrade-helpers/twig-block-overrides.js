@@ -15,16 +15,8 @@ const BLOCK = /\{%-?\s*block\s+([A-Za-z0-9_]+)\s*-?%\}/g;
 const TAG = /\{%-?\s*(?:block\s+[A-Za-z0-9_]+|endblock(?:\s+([A-Za-z0-9_]+))?)\s*-?%\}/g;
 
 /**
- * @typedef {object} BlockEntry
- * @property {string} name the block name of the core component
- * @property {string} component the core component
- * @property {string[]} components the core component and the core components that inherit the block from it
- * @property {boolean} shared whether other core components use the name as well
- */
-
-/**
- * @param {BlockEntry[]} entries
- * @returns {Map<string, BlockEntry[]>}
+ * Indexes the data entries by block name. An entry names the block (`name`) of a core component (`component`),
+ * the core components that inherit it (`components`), and whether other core components use the name (`shared`).
  */
 function indexByName(entries) {
     const index = new Map();
@@ -39,9 +31,6 @@ function indexByName(entries) {
 /**
  * Every `{% block name %}` with the range of the tag and of the name. The `twig-vue` processor hands `.html.twig`
  * files to the Vue parser, so `{% block %}` tags are plain text there and have to be read from the source.
- *
- * @param {string} text
- * @returns {Array<{ name: string, range: [number, number], nameRange: [number, number] }>}
  */
 function findBlocks(text) {
     return [...text.matchAll(BLOCK)].map((match) => {
@@ -67,10 +56,6 @@ function isInside(ranges, index) {
  * The entry that applies to an override of `entries[0].name`: the one for an override target of the template,
  * any entry of a name only one core component uses, `'unknown'` when several do and the target is unknown,
  * otherwise `null`.
- *
- * @param {BlockEntry[]} entries
- * @param {string[]} targets
- * @returns {BlockEntry|'unknown'|null}
  */
 function entryFor(entries, targets) {
     const matching = entries.find((entry) => entry.components.some((component) => targets.includes(component)));
@@ -87,12 +72,8 @@ function entryFor(entries, targets) {
 }
 
 /**
- * The name range of the `{% endblock name %}` that closes the block starting at `from`, if it repeats the name.
- *
- * @param {string} text
- * @param {number} from the end of the `{% block %}` tag
- * @param {Array<[number, number]>} comments
- * @returns {[number, number]|null}
+ * The name range of the `{% endblock name %}` that closes the block whose `{% block %}` tag ends at `from`,
+ * if it repeats the name.
  */
 function namedEndBlockRange(text, from, comments) {
     let depth = 0;
@@ -130,12 +111,8 @@ function namedEndBlockRange(text, from, comments) {
 /**
  * Calls `onOverride` for every block of the linted `.html.twig` file that an entry covers. Blocks in Twig comments
  * and templates of components the extension registers itself are skipped. A name that several core components use
- * is only matched when the override target is known; otherwise the block is reported without a fix.
- *
- * @param {import('eslint').Rule.RuleContext} context
- * @param {Map<string, BlockEntry[]>} entriesByName
- * @param {(block: { name: string, range: [number, number], nameRange: [number, number] }, entry: BlockEntry, file: { text: string, comments: Array<[number, number]>, names: Set<string> }) => void} onOverride
- * @param {{ reportSharedName?: (name: string) => boolean }} [options]
+ * is only matched when the override target is known; otherwise the block is reported without a fix,
+ * unless `reportSharedName(name)` returns false.
  */
 function forEachBlockOverride(context, entriesByName, onOverride, { reportSharedName = () => true } = {}) {
     if (!isTwigFile(context)) {
@@ -188,16 +165,9 @@ function forEachBlockOverride(context, entriesByName, onOverride, { reportShared
 }
 
 /**
- * "Block <name> is removed …" with what to use instead.
- *
- * @param {object} options
- * @param {string} options.name
- * @param {string} options.component
- * @param {boolean} options.shared names the component when other core components use the name as well
- * @param {string} [options.why] appended to "is removed", e.g. " with the legacy sw-tabs branch"
- * @param {string|null|{ use?: string, in?: string, extend?: string, tab?: string, hint?: string }} options.replacement
- * @param {string} [options.flag] the 6.7 version from which the replacement renders with the `v6.8.0.0` flag
- * @returns {string}
+ * "Block <name> is removed …" with what to use instead. `why` is appended to "is removed", `shared` adds the
+ * component when other core components use the name as well, and `flag` is the 6.7 version from which the
+ * replacement renders with the `v6.8.0.0` flag.
  */
 function removalMessage({ name, component, shared, why = '', replacement, flag }) {
     const subject = `Block ${name}${shared ? ` of ${component}` : ''} is removed${why}`;

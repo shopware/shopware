@@ -9,8 +9,6 @@ const COMPONENT_METHODS = ['override', 'extend', 'register', 'build', 'wrapCompo
 
 /**
  * Whether `node` is `Component` or `Shopware.Component`.
- *
- * @param {object} node
  */
 function isComponentFactory(node) {
     if (node.type === 'Identifier') {
@@ -49,9 +47,6 @@ function stringValue(node) {
  * - `override('sw-x', options)`: `name` and `target` are `sw-x`.
  * - `extend('acme-x', 'sw-x', options)`: `name` is `acme-x`, `target` is `sw-x`.
  * - `register('acme-x', options)` and `build('sw-x')`: `name` and `target` are the first argument.
- *
- * @param {object} node CallExpression
- * @returns {{ method: string, name: string|null, target: string|null, options: object|null, call: object }|null}
  */
 function readComponentCall(node) {
     if (node.type !== 'CallExpression' || node.callee.type !== 'MemberExpression' || node.callee.computed) {
@@ -80,8 +75,6 @@ function readComponentCall(node) {
 
 /**
  * The name of a template element as written, lowercased (`<sw-tabs>`, `<SwTabs>` → `sw-tabs`).
- *
- * @param {object} element VElement
  */
 function elementName(element) {
     return String(element.rawName ?? element.name)
@@ -91,9 +84,6 @@ function elementName(element) {
 
 /**
  * The key of an attribute or directive without `:`/`v-bind:` (`:resize-width` → `resize-width`).
- *
- * @param {object} attribute VAttribute
- * @returns {string|null}
  */
 function attributeName(attribute) {
     if (!attribute.directive) {
@@ -109,9 +99,6 @@ function attributeName(attribute) {
 
 /**
  * A prop or attribute name without dashes and case, so `resize-width`, `resizeWidth` and `resizewidth` compare equal.
- *
- * @param {string} name
- * @returns {string}
  */
 function normalizedName(name) {
     return name.replace(/-/g, '').toLowerCase();
@@ -119,9 +106,6 @@ function normalizedName(name) {
 
 /**
  * The normalized key of a static attribute or `v-bind`, or null for other directives.
- *
- * @param {object} attribute VAttribute
- * @returns {string|null}
  */
 function attributeKey(attribute) {
     const name = attributeName(attribute);
@@ -131,9 +115,6 @@ function attributeKey(attribute) {
 
 /**
  * Finds a static attribute or `v-bind` of an element by its name in any case style.
- *
- * @param {object} element VElement
- * @param {string} name
  */
 function findAttribute(element, name) {
     const key = normalizedName(name);
@@ -143,10 +124,6 @@ function findAttribute(element, name) {
 
 /**
  * The range of an attribute including the whitespace before it, for removing it cleanly.
- *
- * @param {import('eslint').SourceCode} sourceCode
- * @param {object} attribute VAttribute
- * @returns {[number, number]}
  */
 function attributeRemovalRange(sourceCode, attribute) {
     const text = sourceCode.text;
@@ -161,9 +138,6 @@ function attributeRemovalRange(sourceCode, attribute) {
 
 /**
  * Visits every node below `root` depth-first. Skips `parent` links and token/comment arrays.
- *
- * @param {object} root
- * @param {(node: object) => void} visit
  */
 function walk(root, visit) {
     const stack = [root];

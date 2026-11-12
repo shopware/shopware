@@ -29,8 +29,10 @@ const prices = [
     },
 ];
 
+let wrapper;
+
 async function createWrapper(propOverrides = {}) {
-    return mount(await wrapTestComponent('sw-maintain-currencies-modal', { sync: true }), {
+    wrapper = mount(await wrapTestComponent('sw-maintain-currencies-modal', { sync: true }), {
         global: {
             stubs: {
                 'sw-data-grid': await wrapTestComponent('sw-data-grid', {
@@ -51,7 +53,7 @@ async function createWrapper(propOverrides = {}) {
         },
         props: {
             currencies: currencies,
-            prices: prices,
+            prices: structuredClone(prices),
             defaultPrice: {
                 gross: 0,
                 linked: true,
@@ -62,9 +64,16 @@ async function createWrapper(propOverrides = {}) {
             ...propOverrides,
         },
     });
+
+    return wrapper;
 }
 
 describe('src/app/component/form/sw-maintain-currencies-modal', () => {
+    afterEach(() => {
+        wrapper?.unmount();
+        jest.restoreAllMocks();
+    });
+
     it('should load all currencies when none are passed in', async () => {
         const search = jest.fn(() => Promise.resolve([]));
         const createSpy = jest.spyOn(Shopware.Service('repositoryFactory'), 'create').mockImplementation(() => ({ search }));
@@ -101,7 +110,12 @@ describe('src/app/component/form/sw-maintain-currencies-modal', () => {
     });
 
     it('should be able to restore inheritance', async () => {
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper({
+            prices: [
+                ...prices,
+                { currencyId: '124' },
+            ],
+        });
         await flushPromises();
 
         const inheritanceSwitch = wrapper.find('.sw-inheritance-switch');
@@ -117,5 +131,13 @@ describe('src/app/component/form/sw-maintain-currencies-modal', () => {
         await icon.trigger('click');
         await flushPromises();
         expect(wrapper.emitted('update-prices')).toBeTruthy();
+    });
+
+    it('should disable the inheritance switch', async () => {
+        const wrapper = await createWrapper({ disabled: true });
+        await flushPromises();
+
+        const inheritanceSwitch = wrapper.find('.sw-inheritance-switch');
+        expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--disabled');
     });
 });

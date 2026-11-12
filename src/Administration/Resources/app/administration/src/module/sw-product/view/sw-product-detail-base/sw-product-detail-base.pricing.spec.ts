@@ -1,0 +1,73 @@
+/**
+ * @sw-package inventory
+ */
+import type { VueWrapper } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
+
+const routerPush = jest.fn();
+const productIsNew = jest.fn();
+
+async function createWrapper() {
+    return shallowMount(await wrapTestComponent('sw-product-detail-base', { sync: true }), {
+        global: {
+            stubs: {
+                'mt-card': {
+                    template: '<div><slot name="headerRight" /></div>',
+                },
+            },
+            mocks: {
+                $router: { push: routerPush },
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => Promise.resolve({ first: () => ({ folder: {} }) }),
+                    }),
+                },
+                mediaDefaultFolderService: {
+                    getDefaultFolderId: () => Promise.resolve(null),
+                },
+            },
+        },
+    });
+}
+
+describe('sw-product-detail-base pricing', () => {
+    let wrapper: VueWrapper;
+
+    beforeEach(() => {
+        routerPush.mockClear();
+        productIsNew.mockReset().mockReturnValue(false);
+        const store = Shopware.Store.get('swProductDetail');
+        store.$reset();
+        store.product.id = 'productId' as typeof store.product.id;
+        store.product.isNew = productIsNew;
+        store.creationType = 'physical';
+        store.modeSettings = ['prices'];
+    });
+
+    afterEach(() => {
+        wrapper?.unmount();
+    });
+
+    it('should navigate to advanced pricing for a saved product', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.get('.sw-product-detail-base__advanced-prices').trigger('click');
+
+        expect(routerPush).toHaveBeenCalledWith({
+            name: 'sw.product.detail.prices',
+            params: { id: 'productId' },
+        });
+    });
+
+    it('should hide advanced pricing for a new product', async () => {
+        productIsNew.mockReturnValue(true);
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-product-detail-base__advanced-prices').exists()).toBe(false);
+    });
+});

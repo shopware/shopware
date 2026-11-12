@@ -23,6 +23,7 @@
             <sw-inheritance-switch
                 v-if="!item.isSystemDefault"
                 class="sw-price-form__inherited-icon"
+                :disabled="disabled"
                 :is-inherited="isCurrencyInherited(item)"
                 @inheritance-restore="onInheritanceRestore(item.id)"
                 @inheritance-remove="onInheritanceRemove(item)"
@@ -70,7 +71,6 @@
                 :disable-suffix="true"
                 :hide-list-prices="hideListPrices"
                 :hide-regulation-prices="hideRegulationPrices"
-                hide-purchase-prices
                 :disabled="disabled"
                 enable-inheritance
                 :currency="item"

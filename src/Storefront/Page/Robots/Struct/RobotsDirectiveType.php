@@ -18,6 +18,8 @@ enum RobotsDirectiveType: string
     case VISIT_TIME = 'Visit-time';
     case HOST = 'Host';
     case USER_AGENT = 'User-agent';
+    case CONTENT_USAGE = 'Content-usage';
+    case CONTENT_SIGNAL = 'Content-signal';
 
     /**
      * Returns whether this directive type is path-based (requires domain prefix).

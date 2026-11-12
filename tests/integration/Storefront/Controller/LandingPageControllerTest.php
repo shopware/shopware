@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Page\LandingPage\LandingPageLoadedHook;
@@ -82,6 +84,66 @@ class LandingPageControllerTest extends TestCase
         yield 'global assignment without a legacy CMS page' => [false, false];
         yield 'content layout takes precedence over legacy CMS' => [true, false];
         yield 'sales channel assignment without a legacy CMS page' => [false, true];
+    }
+
+    #[DataProvider('contentRouteParametersProvider')]
+    public function testCmsLandingPageIgnoresContentRouteParameters(string $parameter, mixed $value): void
+    {
+        $response = $this->request('GET', '/myUrl', [$parameter => $value]);
+        $content = (string) $response->getContent();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
+        static::assertStringContainsString('class="cms-page"', $content);
+    }
+
+    #[DataProvider('contentRouteParametersProvider')]
+    public function testContentLandingPageIgnoresContentRouteParameters(string $parameter, mixed $value): void
+    {
+        $this->assignContentLayout(salesChannelAssignment: false);
+
+        $response = $this->request('GET', '/myUrl', [$parameter => $value]);
+        $content = (string) $response->getContent();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
+        static::assertStringContainsString('data-element-id="' . $this->ids->get('content-root') . '"', $content);
+        static::assertStringContainsString('data-element-id="' . $this->ids->get('content-text') . '"', $content);
+    }
+
+    /**
+     * @return \Generator<string, array{string, string|array<string, string>}>
+     */
+    public static function contentRouteParametersProvider(): \Generator
+    {
+        yield 'scalar includes does not reject the page' => ['includes', '1'];
+        yield 'array includes does not reject the page' => ['includes', ['x' => 'y']];
+        yield 'array excludes does not reject the page' => ['excludes', ['x' => '1']];
+        yield 'unknown element does not reject the page' => ['elementId', 'unknown'];
+    }
+
+    public function testContentLandingPageDoesNotRenderOnlyTheRequestedElement(): void
+    {
+        $this->assignContentLayout(salesChannelAssignment: false);
+
+        $response = $this->request('GET', '/myUrl', ['elementId' => $this->ids->get('content-text')]);
+        $content = (string) $response->getContent();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
+        static::assertStringContainsString('data-element-id="' . $this->ids->get('content-root') . '"', $content);
+        static::assertStringContainsString('data-element-id="' . $this->ids->get('content-text') . '"', $content);
+    }
+
+    public function testBrokenContentLayoutFallsBackToCmsPage(): void
+    {
+        $this->assignContentLayout(salesChannelAssignment: false);
+        static::getContainer()->get(Connection::class)->update('content_layout', [
+            'layout' => '[{}]',
+        ], ['id' => Uuid::fromHexToBytes($this->ids->get('content-layout'))]);
+
+        $response = $this->request('GET', '/myUrl', []);
+        $content = (string) $response->getContent();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
+        static::assertStringContainsString('class="cms-page"', $content);
     }
 
     public function testLandingPageWithoutAnyLayoutIsNotFound(): void

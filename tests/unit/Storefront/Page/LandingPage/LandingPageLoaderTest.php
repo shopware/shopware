@@ -27,6 +27,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
@@ -91,7 +92,13 @@ class LandingPageLoaderTest extends TestCase
     public function testLoadsAssignedContentLayout(bool $withCmsPage): void
     {
         $landingPageId = Uuid::randomHex();
-        $request = new Request([], [], ['landingPageId' => $landingPageId]);
+        $parameters = [
+            'includes' => ['x' => 'y'],
+            'excludes' => ['x' => '1'],
+            'elementId' => Uuid::randomHex(),
+            'search' => 'campaign',
+        ];
+        $request = new Request($parameters, $parameters, ['landingPageId' => $landingPageId, ...$parameters]);
         $context = $this->getSalesChannelContext();
         $landingPage = new LandingPageEntity();
         $landingPage->setId($landingPageId);
@@ -106,8 +113,17 @@ class LandingPageLoaderTest extends TestCase
         ));
         $contentRoute = $this->createMock(AbstractContentRoute::class);
         $contentRoute->expects($this->once())->method('load')
-            ->with('/landing-page/' . $landingPageId, $request, $context)
-            ->willReturn($response);
+            ->willReturnCallback(static function (string $path, Request $contentRequest, SalesChannelContext $contentContext) use ($request, $landingPageId, $context, $response): ContentRouteResponse {
+                static::assertSame('/landing-page/' . $landingPageId, $path);
+                static::assertSame($context, $contentContext);
+                static::assertNotSame($request, $contentRequest);
+                static::assertSame(['search' => 'campaign'], $contentRequest->query->all());
+                static::assertSame(['search' => 'campaign'], $contentRequest->request->all());
+                static::assertSame(['landingPageId' => $landingPageId, 'search' => 'campaign'], $contentRequest->attributes->all());
+                $contentRequest->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, false);
+
+                return $response;
+            });
         $loader = new LandingPageLoader(
             static::createStub(GenericPageLoader::class),
             $this->createLandingPageRoute($landingPage, $request, $context),
@@ -121,6 +137,13 @@ class LandingPageLoaderTest extends TestCase
         static::assertSame($landingPage, $page->getLandingPage());
         static::assertSame($landingPageId, $page->getNavigationId());
         static::assertSame('Campaign title', $page->getMetaInformation()?->getMetaTitle());
+        static::assertSame($parameters, $request->query->all());
+        static::assertSame($parameters, $request->request->all());
+        static::assertSame([
+            'landingPageId' => $landingPageId,
+            ...$parameters,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => false,
+        ], $request->attributes->all());
     }
 
     /**
@@ -132,7 +155,8 @@ class LandingPageLoaderTest extends TestCase
         yield 'content layout takes precedence over legacy CMS' => [true];
     }
 
-    public function testFallsBackToCmsWhenNoContentLayoutIsAssigned(): void
+    #[DataProvider('contentLayoutFailureProvider')]
+    public function testFallsBackToCmsWhenContentLayoutLoadingFails(\Exception $exception): void
     {
         $landingPageId = Uuid::randomHex();
         $request = new Request([], [], ['landingPageId' => $landingPageId]);
@@ -141,9 +165,7 @@ class LandingPageLoaderTest extends TestCase
         $landingPage->setId($landingPageId);
         $landingPage->setCmsPage(new CmsPageEntity());
         $contentRoute = static::createStub(AbstractContentRoute::class);
-        $contentRoute->method('load')->willThrowException(
-            ContentSystemException::layoutAssignmentNotFound('landing_page', $landingPageId, $context->getSalesChannelId())
-        );
+        $contentRoute->method('load')->willThrowException($exception);
         $loader = new LandingPageLoader(
             static::createStub(GenericPageLoader::class),
             $this->createLandingPageRoute($landingPage, $request, $context),
@@ -157,7 +179,17 @@ class LandingPageLoaderTest extends TestCase
         static::assertFalse($page->hasExtension('contentPage'));
     }
 
-    public function testDoesNotHideContentLayoutRenderingErrors(): void
+    /**
+     * @return \Generator<string, array{\Exception}>
+     */
+    public static function contentLayoutFailureProvider(): \Generator
+    {
+        yield 'no layout assignment' => [ContentSystemException::layoutAssignmentNotFound('landing_page', Uuid::randomHex(), Uuid::randomHex())];
+        yield 'assigned layout cannot be loaded' => [ContentSystemException::layoutNotFound(Uuid::randomHex())];
+        yield 'rendering fails' => [new \RuntimeException('Rendering failed')];
+    }
+
+    public function testContentLayoutRenderingFailureWithoutCmsIsNotFound(): void
     {
         $landingPageId = Uuid::randomHex();
         $request = new Request([], [], ['landingPageId' => $landingPageId]);
@@ -174,7 +206,14 @@ class LandingPageLoaderTest extends TestCase
             $contentRoute,
         );
 
-        $this->expectExceptionObject($exception);
+        $expectedException = LandingPageException::notFound($landingPageId);
+
+        // @deprecated tag:v6.8.0 - remove this if block
+        if (!Feature::isActive('v6.8.0.0')) {
+            $expectedException = new PageNotFoundException($landingPageId);
+        }
+
+        $this->expectExceptionObject($expectedException);
 
         $loader->load($request, $context);
     }

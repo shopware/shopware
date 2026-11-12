@@ -5,13 +5,13 @@ namespace Shopware\Storefront\Page\LandingPage;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\LandingPage\LandingPageException;
 use Shopware\Core\Content\LandingPage\SalesChannel\AbstractLandingPageRoute;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\AbstractContentRoute;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentRouteResponse;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Shopware\Storefront\Page\MetaInformation;
@@ -88,14 +88,22 @@ class LandingPageLoader
             return null;
         }
 
-        try {
-            $response = $this->contentRoute->load('/landing-page/' . $landingPageId, $request, $context);
-        } catch (ContentSystemException $exception) {
-            if ($exception->getErrorCode() === ContentSystemException::LAYOUT_ASSIGNMENT_NOT_FOUND) {
-                return null;
-            }
+        $contentRequest = $request->duplicate();
+        foreach (['includes', 'excludes', 'elementId'] as $parameter) {
+            $contentRequest->attributes->remove($parameter);
+            $contentRequest->query->remove($parameter);
+            $contentRequest->request->remove($parameter);
+        }
 
-            throw $exception;
+        try {
+            $response = $this->contentRoute->load('/landing-page/' . $landingPageId, $contentRequest, $context);
+        } catch (\Exception) {
+            return null;
+        } finally {
+            // Content rendering can disable HTTP caching on the request it receives.
+            if ($contentRequest->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE) === false) {
+                $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, false);
+            }
         }
 
         return $response instanceof ContentRouteResponse ? $response->getContentPage() : null;

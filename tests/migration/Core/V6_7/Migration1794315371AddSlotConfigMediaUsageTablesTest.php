@@ -59,6 +59,7 @@ class Migration1794315371AddSlotConfigMediaUsageTablesTest extends TestCase
         }
 
         static::assertTrue(TableHelper::foreignKeyExists($this->connection, 'cms_page_media_usage', 'fk.cms_page_media_usage.cms_page_id'));
+        static::assertTrue(TableHelper::foreignKeyExists($this->connection, 'cms_page_media_usage', 'fk.cms_page_media_usage.cms_slot_id'));
         static::assertTrue(TableHelper::foreignKeyExists($this->connection, 'product_translation_media_usage', 'fk.product_translation_media_usage.translation'));
     }
 

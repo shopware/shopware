@@ -58,6 +58,10 @@ const lazyOwnComponent = path.join(directory, 'acme-element/config/sw-cms-el-con
 fs.mkdirSync(path.dirname(lazyOwnComponent), { recursive: true });
 fs.writeFileSync(path.join(directory, 'acme-element/config/index.js'), 'export default { template };');
 fs.writeFileSync(path.join(directory, 'acme-element/index.js'), "Shopware.Component.register('sw-cms-el-config-acme-slider', () => import('./config'));");
+const ownComponentInNamedScript = path.join(directory, 'acme-copy/acme-copy.html.twig');
+fs.mkdirSync(path.dirname(ownComponentInNamedScript), { recursive: true });
+fs.writeFileSync(path.join(directory, 'acme-copy/index.js'), "import './acme-copy';");
+fs.writeFileSync(path.join(directory, 'acme-copy/acme-copy.js'), "Shopware.Component.register('acme-copy', { template });");
 
 describe('no-removed-twig-blocks', () => {
     afterAll(() => {
@@ -85,6 +89,11 @@ describe('no-removed-twig-blocks', () => {
                 name: 'ignores templates of components the extension registers itself, also with copied core block names',
                 filename: ownComponent,
                 code: template('{% block sw_cms_el_text_config_tab_options %}{% endblock %}'),
+            },
+            {
+                name: 'ignores templates of components the extension registers in a script named after them',
+                filename: ownComponentInNamedScript,
+                code: template('{% block sw_integration_list_introduction %}{% endblock %}'),
             },
             {
                 name: 'ignores templates of components the extension registers lazily one folder up',

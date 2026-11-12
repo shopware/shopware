@@ -13,10 +13,9 @@
  * - Any other `background-style` stays and gets a TODO.
  */
 
-const { reportTodo, isTwigFile } = require('./upgrade-helpers/todo-comment');
-const { elementName, attributeName, attributeRemovalRange } = require('./upgrade-helpers/component-tags');
-const { twigTargets } = require('./upgrade-helpers/twig-target');
-const { fileTargets } = require('./upgrade-helpers/override-target');
+const { reportTodo } = require('./upgrade-helpers/todo-comment');
+const { elementName, attributeKey, attributeRemovalRange } = require('./upgrade-helpers/component-tags');
+const { targetsOfTemplate } = require('./upgrade-helpers/twig-target');
 
 const ID = 'order-state-select-props';
 
@@ -33,10 +32,6 @@ const GENERAL_INFO_ENTITIES = {
     order_delivery: 'delivery',
     order: 'order',
 };
-
-function normalize(name) {
-    return (name ?? '').replace(/-/g, '').toLowerCase();
-}
 
 /**
  * The entity whose state a core helper call in `background-style` styles, or null.
@@ -96,7 +91,7 @@ module.exports = {
 
         let templateTargets = null;
         const targets = () => {
-            templateTargets ??= isTwigFile(context) ? twigTargets(context) : fileTargets(context);
+            templateTargets ??= targetsOfTemplate(context);
 
             return templateTargets;
         };
@@ -108,7 +103,7 @@ module.exports = {
                 }
 
                 const attributes = node.startTag.attributes;
-                const find = (name) => attributes.find((attribute) => normalize(attributeName(attribute)) === name);
+                const find = (name) => attributes.find((attribute) => attributeKey(attribute) === name);
                 const roundedStyle = find('roundedstyle');
                 const backgroundStyle = find('backgroundstyle');
                 const hasStateName = Boolean(find('statename'));

@@ -5,15 +5,13 @@
  * overrides of an `.html.twig` file that a data entry covers, and words what to use instead.
  */
 
-const fs = require('fs');
-const path = require('path');
-const { findBlocks } = require('./twig-blocks');
-const { twigTargets } = require('./twig-target');
+const { templateOwner } = require('./twig-target');
 const { isTwigFile } = require('./todo-comment');
 
 const SHARED_NAME_MESSAGE = 'Block name is used by several core components. Check which one you override.';
 
 const COMMENT = /\{#[\s\S]*?#\}/g;
+const BLOCK = /\{%-?\s*block\s+([A-Za-z0-9_]+)\s*-?%\}/g;
 const TAG = /\{%-?\s*(?:block\s+[A-Za-z0-9_]+|endblock(?:\s+([A-Za-z0-9_]+))?)\s*-?%\}/g;
 
 /**
@@ -38,42 +36,23 @@ function indexByName(entries) {
     return index;
 }
 
-function readScripts(directory) {
-    return ['index.js', 'index.ts'].map((name) => {
-        try {
-            return fs.readFileSync(path.join(directory, name), 'utf8');
-        } catch {
-            return '';
-        }
-    }).join('\n');
-}
-
 /**
- * Whether the template belongs to a component the extension registers itself: the script next to it registers a
- * component and overrides or extends none, or the script one folder up registers the template's component lazily,
- * as in `Component.register('sw-cms-el-config-acme', () => import('./config'))`. Such a template defines its own
- * blocks, even when it copies the names of core blocks, so nothing is removed or renamed there.
+ * Every `{% block name %}` with the range of the tag and of the name. The `twig-vue` processor hands `.html.twig`
+ * files to the Vue parser, so `{% block %}` tags are plain text there and have to be read from the source.
  *
- * @param {import('eslint').Rule.RuleContext} context
- * @returns {boolean}
+ * @param {string} text
+ * @returns {Array<{ name: string, range: [number, number], nameRange: [number, number] }>}
  */
-function registersOwnComponent(context) {
-    const filename = context.physicalFilename ?? context.filename ?? '';
-    const directory = path.dirname(filename);
-    const sibling = readScripts(directory);
+function findBlocks(text) {
+    return [...text.matchAll(BLOCK)].map((match) => {
+        const nameStart = match.index + match[0].indexOf(match[1], match[0].indexOf('block') + 5);
 
-    if (/Component\s*\.\s*(override|extend)\(/.test(sibling)) {
-        return false;
-    }
-
-    if (/Component\s*\.\s*register\(/.test(sibling)) {
-        return true;
-    }
-
-    const names = [path.basename(filename).replace(/(\.html)?\.twig$/, ''), path.basename(directory)];
-    const registered = [...readScripts(path.dirname(directory)).matchAll(/Component\s*\.\s*register\(\s*(['"`])([\w-]+)\1/g)];
-
-    return registered.some((match) => names.includes(match[2]));
+        return {
+            name: match[1],
+            range: [match.index, match.index + match[0].length],
+            nameRange: [nameStart, nameStart + match[1].length],
+        };
+    });
 }
 
 function commentRanges(text) {
@@ -176,11 +155,16 @@ function forEachBlockOverride(context, entriesByName, onOverride, { reportShared
             continue;
         }
 
-        if (targets === null && registersOwnComponent(context)) {
-            return;
+        if (targets === null) {
+            const owner = templateOwner(context);
+
+            if (owner.ownComponent) {
+                return;
+            }
+
+            targets = owner.targets;
         }
 
-        targets ??= twigTargets(context);
         const entry = entryFor(entries, targets);
 
         if (entry === 'unknown') {
@@ -240,6 +224,7 @@ function removalMessage({ name, component, shared, why = '', replacement, flag }
 }
 
 module.exports = {
+    findBlocks,
     SHARED_NAME_MESSAGE,
     indexByName,
     forEachBlockOverride,

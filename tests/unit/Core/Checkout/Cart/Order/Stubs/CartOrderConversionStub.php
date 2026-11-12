@@ -69,6 +69,7 @@ final class CartOrderConversionStub
             'errors' => [],
             'deliveries' => [
                 [
+                    'position' => null,
                     'positions' => [
                         [
                             'lineItem' => [
@@ -416,6 +417,7 @@ final class CartOrderConversionStub
                         'zipcode' => 'billing-address-zipcode',
                     ],
                     'stateId' => '',
+                    'position' => 1,
                 ]],
                 'customerComment' => null,
                 'affiliateCode' => null,
@@ -569,6 +571,7 @@ final class CartOrderConversionStub
                     'zipcode' => 'billing-address-zipcode',
                 ],
                 'stateId' => '',
+                'position' => 1,
             ]],
             'customerComment' => null,
             'affiliateCode' => null,

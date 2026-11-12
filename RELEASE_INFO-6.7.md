@@ -365,6 +365,28 @@ Payment errors from `PaymentMethodValidator` carry `null` during the cart calcul
 Pass `deliveryIndex` or `transactionIndex` when your extension raises these errors for a single delivery or transaction.
 The error id stays per method, so two deliveries blocked for the same shipping method still share one error.
 
+### Order deliveries keep the order of the cart deliveries
+
+Cart deliveries and order deliveries have a new `position`, starting at 1, so a cart delivery and the order delivery it becomes share one number.
+The delivery processor numbers the cart deliveries in cart order and keeps a position that is already set, for example by an extension's delivery builder that orders deliveries by priority or release date.
+Such extensions no longer need to persist that order themselves.
+Sort order deliveries by `position` to show them in that order; the primary delivery is still the one with the highest shipping costs.
+Recalculating an order keeps the stored positions, and deliveries added by the recalculation, such as shipping discounts, get the next free number.
+Deliveries of orders placed before this release have position `0` until the order is recalculated, which numbers them in cart order.
+
+### Delivery and transaction state flows know what changed
+
+The `state_enter.order_delivery.state.*` and `state_leave.order_delivery.state.*` triggers now carry the delivery whose state changed, the `order_transaction` ones the transaction.
+Flows and mail templates of these triggers get an `orderDelivery` variable with its positions and their line items, shipping method, state and shipping address, or an `orderTransaction` variable, and the id as `orderDeliveryId` or `orderTransactionId`.
+Add associations to the delivery through `mail-flow.data.order_delivery.criteria.event`.
+Events can expose a delivery to flows by implementing `Shopware\Core\Content\Flow\Dispatching\Aware\OrderDeliveryAware`.
+
+Webhooks of these triggers only add the id, so apps find the changed delivery or transaction in `order.deliveries` or `order.transactions` of the payload, without a new permission.
+On delivery transitions, `order.deliveries` now also contains the state and positions of each delivery.
+
+The listener dispatches the new `OrderDeliveryStateMachineStateChangeEvent` and `OrderTransactionStateMachineStateChangeEvent` for these transitions.
+They extend `OrderStateMachineStateChangeEvent`, so existing subscribers keep working, and add `getOrderDelivery()` and `getOrderTransaction()` with their id getters.
+
 ### Orders with several deliveries keep their shipping costs and addresses
 
 When the Administration recalculated an order with several deliveries, every delivery got the shipping costs of the primary delivery.
@@ -477,6 +499,11 @@ To remove such an app, uninstall it and remove its package with Composer.
 
 The experimental `/store-api/cookie-groups` route now also returns `cookieHashes`, which maps each cookie name to a hash of its configuration, including the data of every group that lists it.
 Clients can compare these hashes to find out which cookies were added or changed when the configuration `hash` changes.
+
+### Cart and order deliveries have a `position` field
+
+Cart deliveries in the Store API and order deliveries in the Admin API and Store API have a new integer `position` field with the order of the deliveries in the cart, starting at 1.
+Deliveries of orders placed before this release have position `0` until the order is recalculated.
 
 ## Features
 

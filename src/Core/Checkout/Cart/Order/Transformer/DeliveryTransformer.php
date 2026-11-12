@@ -30,7 +30,8 @@ use Shopware\Core\Framework\Struct\Struct;
  *         orderLineItemId: string,
  *         orderLineItemVersionId: string
  *     }>,
- *     stateId: string
+ *     stateId: string,
+ *     position?: int
  * }
  */
 #[Package('checkout')]
@@ -51,7 +52,9 @@ class DeliveryTransformer
     ): array {
         $output = [];
         foreach ($deliveries as $delivery) {
-            $output[] = self::transform($delivery, $lineItems, $stateId, $context, $addresses);
+            $deliveryData = self::transform($delivery, $lineItems, $stateId, $context, $addresses);
+            $deliveryData['position'] ??= \count($output) + 1;
+            $output[] = $deliveryData;
         }
 
         return $output;
@@ -98,6 +101,7 @@ class DeliveryTransformer
             'shippingCosts' => $delivery->getShippingCosts(),
             'positions' => [],
             'stateId' => $stateId,
+            'position' => $delivery->getPosition(),
         ];
 
         if ($originalAddressId !== null && $originalAddressVersionId !== null) {

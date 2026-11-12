@@ -55,7 +55,7 @@ export interface FullState extends State {
     unregisterModule: Store<VuexRootState>['unregisterModule'];
 }
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations, sw-deprecation-rules/require-deprecation-guard -- the boot sequence runs it until Vuex is removed
 export default function stateFactory(): FullState {
     // force the additional properties (added in "state.init")
     return new State() as FullState;

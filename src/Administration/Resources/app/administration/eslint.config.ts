@@ -927,6 +927,23 @@ export default [
         },
     },
 
+    // Runtime side of the deprecation lifecycle, see
+    // adr/2026-08-10-administration-javascript-deprecation-guards.md
+    {
+        files: [
+            'src/**/*.js',
+            'src/**/*.ts',
+        ],
+        ignores: [
+            'src/**/*.spec.js',
+            'src/**/*.spec.ts',
+            'src/**/*.spec/**',
+        ],
+        rules: {
+            'sw-deprecation-rules/require-deprecation-guard': 'error',
+        },
+    },
+
     // Source files only, tests may cast mocks and swallow errors
     {
         files: [

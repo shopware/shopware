@@ -28,7 +28,11 @@ function inComponent(componentName: string | undefined): string {
     return componentName ? ` in component "${componentName}"` : '';
 }
 
-// The messages contain the API, component and snippet key, so `triggerDeprecationOrThrow` reports every call site once.
+/**
+ * The messages contain the API, component and snippet key, so `triggerDeprecationOrThrow` reports every call site once.
+ *
+ * @deprecated tag:v6.9.0 - Will be removed with the vue-i18n 8 argument order and $tc().
+ */
 function reportDeprecation(message: string): void {
     Feature.triggerDeprecationOrThrow('V6_9_0_0', message);
 }
@@ -52,6 +56,7 @@ function isLegacyPluralCall(args: unknown[]): boolean {
  *
  * @deprecated tag:v6.9.0 - Support for the vue-i18n 8 argument order will be removed.
  */
+// eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- runs for every translation, a legacy argument order triggers the deprecation itself
 function normalizeLegacyArguments(instance: ComponentInstance, args: unknown[], apiName: string): unknown[] {
     if (!isLegacyPluralCall(args)) {
         return args;

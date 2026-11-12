@@ -50,6 +50,6 @@ class UnmetRequirementError implements Error
 
     public function getSeverity(): Severity
     {
-        return Severity::Notice;
+        return Severity::Fail;
     }
 }

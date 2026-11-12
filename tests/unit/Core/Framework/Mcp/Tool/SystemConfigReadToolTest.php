@@ -36,10 +36,9 @@ class SystemConfigReadToolTest extends TestCase
         $tool = new SystemConfigReadTool($configService, $contextProvider);
         $output = ($tool)('core.listing.defaultSorting');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertTrue($data['success']);
-        static::assertSame('core.listing.defaultSorting', $data['data']['key']);
-        static::assertSame('name-asc', $data['data']['value']);
+        static::assertFalse($output->isError());
+        static::assertSame('core.listing.defaultSorting', $output->data['key']);
+        static::assertSame('name-asc', $output->data['value']);
     }
 
     public function testReadDomain(): void
@@ -62,10 +61,9 @@ class SystemConfigReadToolTest extends TestCase
         $tool = new SystemConfigReadTool($configService, $contextProvider);
         $output = ($tool)('core.listing');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertTrue($data['success']);
-        static::assertSame('core.listing', $data['data']['domain']);
-        static::assertCount(2, $data['data']['values']);
+        static::assertFalse($output->isError());
+        static::assertSame('core.listing', $output->data['domain']);
+        static::assertCount(2, $output->data['values']);
     }
 
     public function testReadWithSalesChannelId(): void
@@ -86,9 +84,8 @@ class SystemConfigReadToolTest extends TestCase
         $tool = new SystemConfigReadTool($configService, $contextProvider);
         $output = ($tool)('core.listing.defaultSorting', $salesChannelId);
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertTrue($data['success']);
-        static::assertSame('price-asc', $data['data']['value']);
+        static::assertFalse($output->isError());
+        static::assertSame('price-asc', $output->data['value']);
     }
 
     public function testNoDotTreatedAsDomain(): void
@@ -106,10 +103,9 @@ class SystemConfigReadToolTest extends TestCase
         $tool = new SystemConfigReadTool($configService, $contextProvider);
         $output = ($tool)('core');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertTrue($data['success']);
-        static::assertSame('core', $data['data']['domain']);
-        static::assertCount(1, $data['data']['values']);
+        static::assertFalse($output->isError());
+        static::assertSame('core', $output->data['domain']);
+        static::assertCount(1, $output->data['values']);
     }
 
     public function testAclDenied(): void
@@ -128,9 +124,8 @@ class SystemConfigReadToolTest extends TestCase
         $tool = new SystemConfigReadTool($configService, $contextProvider);
         $output = ($tool)('core.listing.defaultSorting');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertFalse($data['success']);
-        static::assertArrayHasKey('error', $data);
-        static::assertStringContainsString('system_config:read', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertNotNull($output->error);
+        static::assertStringContainsString('system_config:read', $output->error->message);
     }
 }

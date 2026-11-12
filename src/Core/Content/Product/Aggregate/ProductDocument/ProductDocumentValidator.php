@@ -9,7 +9,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDo
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\OutcomeRow;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
@@ -56,10 +55,6 @@ final class ProductDocumentValidator implements EventSubscriberInterface
 
     public function validate(PreWriteValidationEvent $event): void
     {
-        if ($event->getWriteContext()->hasState(VersionManager::CLONE_SCOPE, VersionManager::MERGE_SCOPE)) {
-            return;
-        }
-
         $translations = $this->writeOutcome->resultingRows(
             $event->getCommandsForEntity(ProductDocumentTranslationDefinition::ENTITY_NAME),
             ['media_id'],

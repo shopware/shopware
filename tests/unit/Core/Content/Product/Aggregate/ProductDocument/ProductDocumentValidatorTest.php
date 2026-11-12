@@ -13,7 +13,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\OutcomeRow;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
@@ -104,21 +103,6 @@ class ProductDocumentValidatorTest extends TestCase
         static::assertSame([], $this->validate());
     }
 
-    public static function copyScopeProvider(): iterable
-    {
-        yield 'a clone or a new version copies the files as they are' => [VersionManager::CLONE_SCOPE];
-        yield 'a merged version copies the files as they are' => [VersionManager::MERGE_SCOPE];
-    }
-
-    #[DataProvider('copyScopeProvider')]
-    public function testCopiedDocumentsAreNotChecked(string $state): void
-    {
-        $this->storeFile(self::file(extension: 'xlsx', size: 1025));
-        $this->translations = [$this->translation('manual', self::GERMAN, '/0/translations/' . self::GERMAN, file: 'manual-file')];
-
-        static::assertSame([], $this->validate($state));
-    }
-
     private static function file(?string $extension = 'pdf', ?int $size = 1024, bool $private = false, ?string $path = 'media/manual.pdf'): MediaEntity
     {
         $file = new MediaEntity();
@@ -143,15 +127,11 @@ class ProductDocumentValidatorTest extends TestCase
     /**
      * @return list<array{code: mixed, pointer: mixed}>
      */
-    private function validate(?string $state = null): array
+    private function validate(): array
     {
         // an Admin API request runs in the user scope, where the media repository hides private files
         $context = Context::createDefaultContext(new AdminApiSource(null));
-        $writeContext = WriteContext::createFromContext($context);
-        if ($state !== null) {
-            $writeContext->addState($state);
-        }
-        $event = new PreWriteValidationEvent($writeContext, []);
+        $event = new PreWriteValidationEvent(WriteContext::createFromContext($context), []);
 
         $this->validator()->validate($event);
 

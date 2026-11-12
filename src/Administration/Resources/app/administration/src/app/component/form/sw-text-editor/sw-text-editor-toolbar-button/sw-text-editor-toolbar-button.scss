@@ -67,6 +67,18 @@
         overflow: auto;
     }
 
+    &-search {
+        display: block;
+        padding: 8px 8px 4px;
+        max-width: 300px;
+    }
+
+    &-empty {
+        margin: 4px;
+        padding: 8px;
+        color: var(--color-text-secondary-default);
+    }
+
     &.is--left {
         left: unset;
         right: -10px;

@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass;
 use Shopware\Core\Framework\Log\Package;
@@ -40,7 +39,6 @@ class TwigLoaderConfigCompilerPassTest extends TestCase
 
     public function testDevModeNoPluginsButApps(): void
     {
-        /** @var ContainerBuilder&MockObject $container */
         $container = new ContainerBuilder();
         $container->setParameter('kernel.bundles_metadata', []);
         $container->setParameter('kernel.environment', 'dev');
@@ -74,10 +72,8 @@ class TwigLoaderConfigCompilerPassTest extends TestCase
 
     public function testDevModeNoPluginsAndApps(): void
     {
-        /** @var ContainerBuilder&MockObject $container */
         $container = new ContainerBuilder();
 
-        /** @var Definition&MockObject $filesystemLoader */
         $filesystemLoader = new Definition(FilesystemLoader::class);
 
         $container->setParameter(

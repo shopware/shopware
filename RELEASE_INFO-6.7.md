@@ -18,6 +18,19 @@ Keep your state on line items or in a cart extension, and write the delivery pay
 At checkout, a payment handler can set the transaction payload in its `validate()` method, which receives the calculated cart right before the order is written.
 Any other extension sets it on the converted order data in the `CartConvertedEvent`.
 
+### Attribute entities can generate the reverse side of a many-to-many association
+
+`Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToMany` now accepts `reversedBy`, `reverseApi` and `reverseOnDelete`:
+
+```php
+#[ManyToMany(entity: 'product', onDelete: OnDelete::CASCADE, api: true, reversedBy: 'attributeEntities', reverseApi: ['admin-api' => true, 'store-api' => false], reverseOnDelete: OnDelete::CASCADE)]
+public array $products = [];
+```
+
+When `reversedBy` is set, the target entity (`product` in the example) gains a reverse many-to-many association with that property name over the same mapping table, added as an entity extension and therefore available on the target struct through its extensions for loading and filtering.
+`reverseApi` and `reverseOnDelete` control the reverse association's API visibility and delete behaviour independently; when omitted, they mirror the forward association's `api` and `onDelete`.
+Without `reversedBy`, the relation stays one-sided as before.
+
 ### Rules can be evaluated per cart delivery
 
 The new scope `Shopware\Core\Checkout\Cart\Rule\DeliveryRuleScope` extends `CartRuleScope` and carries the cart delivery a rule is evaluated for.
@@ -384,6 +397,15 @@ HTML forms can continue to use POST with an override for PUT, PATCH and DELETE a
 
 A criteria that filters, sorts, queries or aggregates by a field the API does not expose (`FRAMEWORK__ACCESSOR_NOT_ALLOWED`) or by a runtime field (`FRAMEWORK__RUNTIME_FIELD_IN_CRITERIA`) is now answered with `400 Bad Request` instead of `500 Internal Server Error`.
 
+### Sales channel files in the Store API
+
+The new `GET /store-api/sales-channel-file/{fileName}` route returns a sales channel file that is enabled for the sales channel of the `sw-access-key`, for example `llms.txt`, `AGENTS.md` or `.well-known/ai-catalog.json`, with the content type of the file.
+Headless frontends can serve the responses under the same public paths, e.g. proxy `/llms.txt` to `/store-api/sales-channel-file/llms.txt`.
+Proxy all enabled files, as `llms.txt` links to `/robots.txt` and `/AGENTS.md`.
+For headless sales channels, the Store API links in `llms.txt` point to `APP_URL`.
+`.well-known/ai-catalog.json` lists the Store API MCP server for every sales channel type, with its URL pointing to `APP_URL`.
+Extensions can adjust or replace the response through the `SalesChannelFileRouteExtension`.
+
 ### Assign products to a sales channel by product group or category
 
 `POST /api/_action/sales-channel/{salesChannelId}/product-assignment` makes products visible in a sales channel.
@@ -488,6 +510,17 @@ Resources use the URI declared in `mcp.xml`; a non-empty `mimeType` in the respo
 Invalid JSON, malformed messages or resource contents, and `{"success":false,"error":"..."}` responses produce MCP errors with details for the client.
 
 ## Administration
+
+### Deprecated the unused visibilities and sales channels in the sales channel detail
+
+Some sales channel detail components load the visibilities or sales channels of their products and currencies, although they only need one of them or none.
+With 6.8 they load less:
+
+- The *Currency* select of `sw-sales-channel-detail-base` loads the currencies without their `salesChannels`.
+- `sw-sales-channel-detail-products` loads only the visibility of the current sales channel, without its `salesChannel`.
+- `sw-sales-channel-products-assignment-single-products` loads the products without their `visibilities`.
+
+Extensions that read this data in these components should load it with their own request; see `UPGRADE-6.8.md`.
 
 ### Deprecated the `defaultFolderRepository` computed property of `sw-cms-detail` and `sw-cms-list`
 

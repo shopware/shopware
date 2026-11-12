@@ -563,6 +563,60 @@ class DeliveryCalculatorTest extends TestCase
         static::assertSame(20.0, $delivery->getShippingCosts()->getUnitPrice());
     }
 
+    public function testEveryDeliveryKeepsItsShippingCostsWhenDeliveryPricesAreNotRecalculated(): void
+    {
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_FIXED);
+        $shippingMethod->setTaxId(Uuid::randomHex());
+
+        $primaryDelivery = $this->createDeliveryWithCartTotal($shippingMethod, 100.0);
+        $primaryDelivery->setShippingCosts(new CalculatedPrice(7.0, 7.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+        $secondDelivery = $this->createDeliveryWithCartTotal($shippingMethod, 50.0);
+        $secondDelivery->setShippingCosts(new CalculatedPrice(4.99, 4.99, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $cart = new Cart('test');
+        $cart->setBehavior(new CartBehavior([CheckoutPermissions::SKIP_DELIVERY_PRICE_RECALCULATION => true]));
+        $cart->addExtension(
+            DeliveryProcessor::MANUAL_SHIPPING_COSTS,
+            new CalculatedPrice(7.0, 7.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
+
+        $this->createRealDeliveryCalculator()->calculate(
+            new CartDataCollection(),
+            $cart,
+            new DeliveryCollection([$primaryDelivery, $secondDelivery]),
+            $this->createPriceBasisContext(null)
+        );
+
+        static::assertSame(7.0, $primaryDelivery->getShippingCosts()->getUnitPrice());
+        static::assertSame(4.99, $secondDelivery->getShippingCosts()->getUnitPrice());
+        static::assertSame(0.8, $secondDelivery->getShippingCosts()->getCalculatedTaxes()->getAmount());
+    }
+
+    public function testKeptShippingCostsAreNotConvertedToTheContextCurrencyAgain(): void
+    {
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_FIXED);
+        $shippingMethod->setTaxId(Uuid::randomHex());
+
+        $delivery = $this->createDeliveryWithCartTotal($shippingMethod, 100.0);
+        $delivery->setShippingCosts(new CalculatedPrice(4.99, 4.99, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $cart = new Cart('test');
+        $cart->setBehavior(new CartBehavior([CheckoutPermissions::SKIP_DELIVERY_PRICE_RECALCULATION => true]));
+
+        $this->createRealDeliveryCalculator()->calculate(
+            new CartDataCollection(),
+            $cart,
+            new DeliveryCollection([$delivery]),
+            $this->createPriceBasisContext(null, currencyId: Uuid::randomHex(), currencyFactor: 1.5)
+        );
+
+        static::assertSame(4.99, $delivery->getShippingCosts()->getUnitPrice());
+    }
+
     public function testRuleBasedPriceAppliesOnlyToTheDeliveryWhoseRuleIdsContainTheRule(): void
     {
         $ruleId = Uuid::randomHex();

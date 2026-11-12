@@ -22,7 +22,7 @@ const { findOverrides, fileTargets } = require('./upgrade-helpers/override-targe
 const { walk, stringValue } = require('./upgrade-helpers/component-tags');
 const { templateAnchor } = require('./upgrade-helpers/create-todo-rule');
 const { declaredMembers, thisMemberName, destructuredThisMembers, templateMemberReferences } = require('./upgrade-helpers/member-usage');
-const { importingScripts, templateTargets, scriptsDeclare } = require('./utils/override-templates');
+const { importingScripts, templateTargets, scriptsDeclare } = require('./upgrade-helpers/override-templates');
 const { twigInterpolations, locOf } = require('./upgrade-helpers/twig-interpolations');
 const { component: COMPONENT, accessors: ACCESSORS, removed: REMOVED, superOnly: SUPER_ONLY, associations: ASSOCIATIONS } = require('./no-order-list-delivery-helpers.data');
 

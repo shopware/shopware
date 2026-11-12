@@ -24,7 +24,7 @@ const {
     destructuredThisMembers,
     templateMemberReferences,
 } = require('./upgrade-helpers/member-usage');
-const { importingScripts, templateTargets, overrideTemplateText, templateReads, appendMember } = require('./utils/override-templates');
+const { importingScripts, templateTargets, overrideTemplateText, templateReads, appendMember } = require('./upgrade-helpers/override-templates');
 const { twigInterpolations } = require('./upgrade-helpers/twig-interpolations');
 const FILTERS = require('./no-removed-filter-computeds.data');
 

@@ -13,7 +13,7 @@
 
 const { reportTodo } = require('./upgrade-helpers/todo-comment');
 const { templateAnchor } = require('./upgrade-helpers/create-todo-rule');
-const { defineStringVisitors } = require('./utils/string-literals');
+const { defineStringVisitors } = require('./upgrade-helpers/string-literals');
 const { locOf } = require('./upgrade-helpers/twig-interpolations');
 const { webp: WEBP, replaced: REPLACED } = require('./no-removed-image-assets.data');
 

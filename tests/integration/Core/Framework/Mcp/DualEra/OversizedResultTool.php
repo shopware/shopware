@@ -6,10 +6,11 @@ use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\Tool;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Result\McpToolResult;
+use Shopware\Core\Framework\Mcp\Result\McpToolResultRenderer;
 use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
 
 /**
- * A Store API tool whose result is above the inline limit of {@see McpToolResponse}. No shipped Store API
+ * A Store API tool whose result is above the inline limits of {@see McpToolResultRenderer}. No shipped Store API
  * tool returns that much, so the large-result path of that endpoint needs its own.
  *
  * @internal
@@ -25,7 +26,8 @@ final class OversizedResultTool extends McpToolResponse
     }
 
     /**
-     * 1000 rows of 120 characters, so the result is above the inline limit of 100 KB.
+     * 1000 rows of 120 characters, so the result is above {@see McpToolResultRenderer::MAX_INLINE_SIZE} and
+     * {@see McpToolResultRenderer::MAX_INLINE_SIZE_TEXT_ONLY} in every protocol revision.
      *
      * @return list<array{text: string}>
      */

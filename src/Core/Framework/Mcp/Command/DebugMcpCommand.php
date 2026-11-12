@@ -173,14 +173,6 @@ class DebugMcpCommand extends Command
         return self::SUCCESS;
     }
 
-    /**
-     * Capabilities the MCP bundle collected but that no server exposes, because no `registry`
-     * pattern in packages/mcp.php claims them and no compiler pass assigned them.
-     *
-     * This is how a capability silently disappears now that discovery no longer scans directories,
-     * so it is reported here rather than only by the bundle's own command: a developer whose tool is
-     * missing should not have to know a second command exists to find out why.
-     */
     private function describeProtocolEra(string $scopeId): string
     {
         $server = $scopeId === ApiRouteScope::ID ? 'admin' : 'store_api';
@@ -191,6 +183,14 @@ class DebugMcpCommand extends Command
             : \sprintf('Protocol era: %s (handshake revisions up to 2025-11-25)', $era);
     }
 
+    /**
+     * Capabilities the MCP bundle collected but that no server exposes, because no `registry`
+     * pattern in packages/mcp.php claims them and no compiler pass assigned them.
+     *
+     * This is how a capability silently disappears now that discovery no longer scans directories,
+     * so it is reported here rather than only by the bundle's own command: a developer whose tool is
+     * missing should not have to know a second command exists to find out why.
+     */
     private function renderUnassigned(SymfonyStyle $io): void
     {
         $unassigned = array_filter($this->unassigned);

@@ -322,6 +322,7 @@ The model reads stored results with `resources/read`.
 `McpToolResponse::success()` itself no longer stores anything and always returns the full data, so a tool called outside of an MCP request gets its complete result.
 The limit applies to the rendered result, the text plus `structuredContent`, and is set so that the offload point stays at about 100 KB of data.
 The linked response keeps the tool's summary, its own links, and its metadata up to 10 KB; larger metadata values are named in `_meta.omittedMeta`.
+On 2025-06-18 and later these values cannot be fetched, because the stored result holds only the data, so tools should put large values into the data instead.
 For clients on protocol revision 2025-06-18 or later, `resources/read` of a stored result returns the plain data instead of the `{"success": true, "data": …}` envelope.
 Its metadata, such as `total`, comes with the link in the tool result.
 Clients on 2024-11-05 and 2025-03-26 keep reading the envelope.

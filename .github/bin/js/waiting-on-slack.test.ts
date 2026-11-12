@@ -5,8 +5,6 @@ import {
     calendarDaysSince,
     escapeSlack,
     isReminderDue,
-    newPullRequestChannels,
-    notifyNewExternalPullRequest,
     parseChannels,
     planReminders,
     postSlackMessage,
@@ -39,21 +37,6 @@ test('parseChannels treats a missing variable as no team and rejects anything bu
     assert.equal(parseChannels('').size, 0);
     assert.throws(() => parseChannels('["C1"]'), /JSON object/);
     assert.throws(() => parseChannels('{"domain/checkout": 1}'), /JSON object/);
-});
-
-test('the new-PR message fires when the team label completes an external pull request', () => {
-    assert.deepEqual(newPullRequestChannels(['external-contribution', AFTER_SALES], AFTER_SALES, channels), ['C_AFTER_SALES']);
-});
-
-test('the new-PR message also fires when the external label arrives second', () => {
-    assert.deepEqual(newPullRequestChannels([AFTER_SALES, 'external-contribution'], 'external-contribution', channels), ['C_AFTER_SALES']);
-});
-
-test('no new-PR message for internal pull requests, other teams or unrelated labels', () => {
-    assert.deepEqual(newPullRequestChannels([AFTER_SALES], AFTER_SALES, channels), []);
-    assert.deepEqual(newPullRequestChannels(['external-contribution', 'domain/checkout'], 'domain/checkout', channels), []);
-    // Adding an unrelated label to an already announced pull request must not announce it again.
-    assert.deepEqual(newPullRequestChannels(['external-contribution', AFTER_SALES, 'priority/high'], 'priority/high', channels), []);
 });
 
 test('calendarDaysSince counts UTC dates, so a late schedule neither skips nor repeats a day', () => {
@@ -115,37 +98,4 @@ test('postSlackMessage without a token logs instead of sending', async () => {
     await postSlackMessage({ fetch: fakeFetch }, { info: (message) => logged.push(message) }, 'C1', 'hi');
 
     assert.match(logged[0], /would post to C1/);
-});
-
-test('notifyNewExternalPullRequest posts the pull request to the team channel', async () => {
-    const sent: { channel: string; text: string }[] = [];
-    const fakeFetch = (async (_url: string, init: RequestInit) => {
-        sent.push(JSON.parse(init.body as string));
-
-        return new Response(JSON.stringify({ ok: true }));
-    }) as typeof fetch;
-
-    await notifyNewExternalPullRequest(
-        {
-            core: quiet,
-            context: {
-                payload: {
-                    label: { name: AFTER_SALES },
-                    pull_request: {
-                        number: 7,
-                        title: 'Fix the order export',
-                        html_url: 'https://github.com/shopware/shopware/pull/7',
-                        user: { login: 'contributor' },
-                        labels: [{ name: 'external-contribution' }, { name: AFTER_SALES }],
-                    },
-                },
-            },
-        },
-        { token: 'xoxb', fetch: fakeFetch },
-        JSON.stringify({ [AFTER_SALES]: 'C_AFTER_SALES' }),
-    );
-
-    assert.equal(sent.length, 1);
-    assert.equal(sent[0].channel, 'C_AFTER_SALES');
-    assert.match(sent[0].text, /<https:\/\/github.com\/shopware\/shopware\/pull\/7\|#7 Fix the order export> by contributor/);
 });

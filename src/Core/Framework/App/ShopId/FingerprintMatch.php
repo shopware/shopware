@@ -19,11 +19,11 @@ readonly class FingerprintMatch
     ) {
     }
 
-    public static function fromFingerprint(Fingerprint $fingerprint): self
+    public static function fromFingerprint(Fingerprint $fingerprint, string $stamp): self
     {
         return new self(
             $fingerprint->getIdentifier(),
-            $fingerprint->getStamp(),
+            $stamp,
             $fingerprint->getScore()
         );
     }

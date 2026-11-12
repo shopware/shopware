@@ -1607,6 +1607,14 @@ The unused property was removed.
 
 # Administration
 
+## Sales channel detail components load fewer visibilities and sales channels
+
+- `sw-sales-channel-detail-base`: the currencies of the *Currency* select are loaded without `salesChannels`.
+- `sw-sales-channel-detail-products`: the products contain only the visibility of the current sales channel, without its `salesChannel`.
+- `sw-sales-channel-products-assignment-single-products`: the products are loaded without `visibilities`.
+
+Extensions that read other sales channel or visibility data in these components must load it with their own `sales_channel` or `product_visibility` request.
+
 ## Sales channel lists removed from `sw-settings-search-live-search` and `sw-newsletter-recipient-list`
 
 The `salesChannels` data property, the `salesChannelRepository` computed property and the `fetchSalesChannels()` method of `sw-settings-search-live-search` were removed without replacement.

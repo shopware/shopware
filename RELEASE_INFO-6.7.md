@@ -475,6 +475,17 @@ Invalid JSON, malformed messages or resource contents, and `{"success":false,"er
 
 ## Administration
 
+### Deprecated the unused visibilities and sales channels in the sales channel detail
+
+Some sales channel detail components load the visibilities or sales channels of their products and currencies, although they only need one of them or none.
+With 6.8 they load less:
+
+- The *Currency* select of `sw-sales-channel-detail-base` loads the currencies without their `salesChannels`.
+- `sw-sales-channel-detail-products` loads only the visibility of the current sales channel, without its `salesChannel`.
+- `sw-sales-channel-products-assignment-single-products` loads the products without their `visibilities`.
+
+Extensions that read this data in these components should load it with their own request; see `UPGRADE-6.8.md`.
+
 ### Deprecated the `defaultFolderRepository` computed property of `sw-cms-detail` and `sw-cms-list`
 
 The `defaultFolderRepository` computed property of `sw-cms-detail` and `sw-cms-list` is deprecated and will be removed.

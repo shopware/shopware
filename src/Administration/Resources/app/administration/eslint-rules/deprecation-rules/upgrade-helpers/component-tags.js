@@ -180,6 +180,7 @@ function walk(root, visit) {
 module.exports = {
     walk,
     isComponentFactory,
+    stringValue,
     readComponentCall,
     elementName,
     attributeName,

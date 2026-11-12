@@ -1,0 +1,25 @@
+Public API check failed: 3 unannounced breaks.
+
+Break (3)
+  prop_missing  component:sw-example-entity-select/prop:placeholder  current, major
+    The prop is gone, so a value that plugin templates pass as placeholder falls through as an HTML attribute, and plugin overrides that read this.placeholder get undefined.
+    Fix: pattern "Removal". Keep the prop and give it deprecated: { version: 'v6.8.0.0', comment: '...' }.
+    Possible rename: placeholderText.
+    At: src/app/component/form/sw-example-entity-select/index.js:16
+  prop_missing  component:sw-example-entity-select/prop:showClearableButton  current, major
+    The prop is gone, so a value that plugin templates pass as showClearableButton falls through as an HTML attribute, and plugin overrides that read this.showClearableButton get undefined.
+    Fix: pattern "Removal". Keep the prop and give it deprecated: { version: 'v6.8.0.0', comment: '...' }.
+    At: src/app/component/form/sw-example-entity-select/index.js:16
+  prop_now_required  component:sw-example-entity-select/prop:entity  current, major
+    The prop is now required, so plugin templates that render sw-example-entity-select without entity fail prop validation.
+    Fix: pattern "Prop becomes required". Keep entity optional, call triggerDeprecationOrThrow when it is missing, and mark it @bc-change PropBecomesRequired version:v6.8.0.
+    At: src/app/component/form/sw-example-entity-select/index.js:23
+
+Addition (1)
+  prop_added  component:sw-example-entity-select/prop:placeholderText  current, major
+    A new public prop that plugins can rely on from now on.
+    Fix: mark it @private if it is not meant for plugins.
+    At: src/app/component/form/sw-example-entity-select/index.js:28
+
+Change patterns: public-api/FORMAT.md#change-patterns
+Breaking this on purpose? See "Intended breaks" in public-api/FORMAT.md.

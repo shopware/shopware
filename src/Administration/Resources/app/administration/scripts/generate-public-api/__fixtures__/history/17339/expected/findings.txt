@@ -1,0 +1,79 @@
+Public API check failed: 4 unannounced breaks.
+
+Break (4)
+  block_missing  component:sw-bulk-edit-custom-fields/block:sw_custom_field_set_renderer_card_form_renderer_change_field  major
+    The block is gone, because the parent sw-custom-field-set-renderer no longer declares sw_custom_field_set_renderer_card_form_renderer, which this component overrides, so plugin templates that override {% block sw_custom_field_set_renderer_card_form_renderer_change_field %} render nothing.
+    Fix: pattern "Rename". Keep sw_custom_field_set_renderer_card_form_renderer in the major branch of sw-custom-field-set-renderer, wrapped by sw_custom_field_set_renderer_card_mt_tabs_form_renderer, or also override sw_custom_field_set_renderer_card_mt_tabs_form_renderer in this component.
+    At: src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/sw-bulk-edit-custom-fields.html.twig:1
+  block_missing  component:sw-bulk-edit-custom-fields/block:sw_custom_field_set_renderer_card_form_renderer_custom_field  major
+    The block is gone, because the parent sw-custom-field-set-renderer no longer declares sw_custom_field_set_renderer_card_form_renderer, which this component overrides, so plugin templates that override {% block sw_custom_field_set_renderer_card_form_renderer_custom_field %} render nothing.
+    Fix: pattern "Rename". Keep sw_custom_field_set_renderer_card_form_renderer in the major branch of sw-custom-field-set-renderer, wrapped by sw_custom_field_set_renderer_card_mt_tabs_form_renderer, or also override sw_custom_field_set_renderer_card_mt_tabs_form_renderer in this component.
+    At: src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/sw-bulk-edit-custom-fields.html.twig:1
+  block_missing  component:sw-mail-template-index/block:sw_mail_template_list_tabs_header_footer  major
+    The block is gone, so plugin templates that override {% block sw_mail_template_list_tabs_header_footer %} render nothing.
+    Fix: pattern "Removal". Keep the block in the major branch, even empty, and mark it {# @deprecated tag:v6.8.0 #}.
+    Possible rename: sw_mail_template_list_mt_tabs.
+    At: src/module/sw-mail-template/page/sw-mail-template-index/sw-mail-template-index.html.twig:91
+  block_missing  component:sw-mail-template-index/block:sw_mail_template_list_tabs_templates  major
+    The block is gone, so plugin templates that override {% block sw_mail_template_list_tabs_templates %} render nothing.
+    Fix: pattern "Removal". Keep the block in the major branch, even empty, and mark it {# @deprecated tag:v6.8.0 #}.
+    Possible rename: sw_mail_template_list_mt_tabs.
+    At: src/module/sw-mail-template/page/sw-mail-template-index/sw-mail-template-index.html.twig:91
+
+Addition (3)
+  block_added  component:sw-mail-template-index/block:sw_mail_template_list_mt_tabs  major
+    A new public block that plugins can rely on from now on.
+    Fix: mark it @private if it is not meant for plugins.
+    At: src/module/sw-mail-template/page/sw-mail-template-index/sw-mail-template-index.html.twig:92
+  computed_added  component:sw-mail-template-index/computed:mailTemplateTabs  current, major
+    A new public computed property that plugins can rely on from now on.
+    Fix: mark it @private if it is not meant for plugins.
+    At: src/module/sw-mail-template/page/sw-mail-template-index/index.js:46
+  inject_added  component:sw-mail-template-index/inject:feature  current, major
+    A new public inject that plugins can rely on from now on.
+    Fix: mark it @private if it is not meant for plugins.
+    At: src/module/sw-mail-template/page/sw-mail-template-index/index.js:15
+
+Private (10)
+  block_added  component:sw-custom-field-set-renderer/block:sw_custom_field_set_renderer_card_mt_tabs  major
+    A new block of a private component. Plugins must not rely on it.
+    Also affects: sw-bulk-edit-custom-fields (extends sw-custom-field-set-renderer).
+    At: src/app/component/form/sw-custom-field-set-renderer/sw-custom-field-set-renderer.html.twig:7
+  block_added  component:sw-custom-field-set-renderer/block:sw_custom_field_set_renderer_card_mt_tabs_content  major
+    A new block of a private component. Plugins must not rely on it.
+    Also affects: sw-bulk-edit-custom-fields (extends sw-custom-field-set-renderer).
+    At: src/app/component/form/sw-custom-field-set-renderer/sw-custom-field-set-renderer.html.twig:18
+  block_added  component:sw-custom-field-set-renderer/block:sw_custom_field_set_renderer_card_mt_tabs_form_renderer  major
+    A new block of a private component. Plugins must not rely on it.
+    Also affects: sw-bulk-edit-custom-fields (extends sw-custom-field-set-renderer).
+    At: src/app/component/form/sw-custom-field-set-renderer/sw-custom-field-set-renderer.html.twig:27
+  block_missing  component:sw-custom-field-set-renderer/block:sw_custom_field_set_renderer_card_form_renderer  major
+    The block is gone, so plugin templates that override {% block sw_custom_field_set_renderer_card_form_renderer %} render nothing.
+    Possible rename: sw_custom_field_set_renderer_card_mt_tabs_form_renderer.
+    Also affects: sw-bulk-edit-custom-fields (extends sw-custom-field-set-renderer).
+    At: src/app/component/form/sw-custom-field-set-renderer/sw-custom-field-set-renderer.html.twig:4
+  block_missing  component:sw-custom-field-set-renderer/block:sw_custom_field_set_renderer_card_tabs  major
+    The block is gone, so plugin templates that override {% block sw_custom_field_set_renderer_card_tabs %} render nothing.
+    Possible rename: sw_custom_field_set_renderer_card_mt_tabs, sw_custom_field_set_renderer_card_mt_tabs_content.
+    Also affects: sw-bulk-edit-custom-fields (extends sw-custom-field-set-renderer).
+    At: src/app/component/form/sw-custom-field-set-renderer/sw-custom-field-set-renderer.html.twig:4
+  block_missing  component:sw-custom-field-set-renderer/block:sw_custom_field_set_renderer_card_tabs_content  major
+    The block is gone, so plugin templates that override {% block sw_custom_field_set_renderer_card_tabs_content %} render nothing.
+    Possible rename: sw_custom_field_set_renderer_card_mt_tabs, sw_custom_field_set_renderer_card_mt_tabs_content.
+    Also affects: sw-bulk-edit-custom-fields (extends sw-custom-field-set-renderer).
+    At: src/app/component/form/sw-custom-field-set-renderer/sw-custom-field-set-renderer.html.twig:4
+  computed_added  component:sw-custom-field-set-renderer/computed:activeCustomFieldSetTabName  current, major
+    A new computed property of a private component. Plugins must not rely on it.
+    At: src/app/component/form/sw-custom-field-set-renderer/index.js:148
+  computed_added  component:sw-custom-field-set-renderer/computed:customFieldSetTabs  current, major
+    A new computed property of a private component. Plugins must not rely on it.
+    At: src/app/component/form/sw-custom-field-set-renderer/index.js:139
+  data_added  component:sw-custom-field-set-renderer/data:activeCustomFieldSetTab  current, major
+    A new data property of a private component. Plugins must not rely on it.
+    At: src/app/component/form/sw-custom-field-set-renderer/index.js:113
+  method_added  component:sw-custom-field-set-renderer/method:setActiveCustomFieldSetTab  current, major
+    A new method of a private component. Plugins must not rely on it.
+    At: src/app/component/form/sw-custom-field-set-renderer/index.js:624
+
+Change patterns: public-api/FORMAT.md#change-patterns
+Breaking this on purpose? See "Intended breaks" in public-api/FORMAT.md.

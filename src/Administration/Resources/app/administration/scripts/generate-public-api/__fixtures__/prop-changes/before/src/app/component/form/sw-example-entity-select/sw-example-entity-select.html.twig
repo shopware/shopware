@@ -1,0 +1,39 @@
+{% block sw_example_entity_select %}
+<div class="sw-example-entity-select">
+    {% block sw_example_entity_select_input %}
+    <input
+        class="sw-example-entity-select__input"
+        type="text"
+        :placeholder="placeholder"
+        :disabled="isLoading"
+    >
+    {% endblock %}
+
+    {% block sw_example_entity_select_clear %}
+    <button
+        v-if="showClearableButton && value"
+        type="button"
+        class="sw-example-entity-select__clear"
+        @click="onClear"
+    >
+        <mt-icon
+            name="regular-times-s"
+            size="12px"
+        />
+    </button>
+    {% endblock %}
+
+    {% block sw_example_entity_select_results %}
+    <ul class="sw-example-entity-select__results">
+        <li
+            v-for="item in results"
+            :key="item.id"
+            class="sw-example-entity-select__result"
+            @click="onSelect(item)"
+        >
+            {{ item.translated?.name || item.name }}
+        </li>
+    </ul>
+    {% endblock %}
+</div>
+{% endblock %}

@@ -1,0 +1,15 @@
+{
+    "pr": 17339,
+    "title": "feat: migrate sw-tabs to mt-tabs behind a feature flag",
+    "base": "bae081853fc7a103f3216f260008e828137b9aa7",
+    "head": "8fc8b8ee69a28e7fd36ca87486822940787c1d92",
+    "headVersion": "6.7",
+    "files": [
+        "src/Administration/Resources/app/administration/src/app/component/form/sw-custom-field-set-renderer/index.js",
+        "src/Administration/Resources/app/administration/src/app/component/form/sw-custom-field-set-renderer/sw-custom-field-set-renderer.html.twig",
+        "src/Administration/Resources/app/administration/src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/index.js",
+        "src/Administration/Resources/app/administration/src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/sw-bulk-edit-custom-fields.html.twig",
+        "src/Administration/Resources/app/administration/src/module/sw-mail-template/page/sw-mail-template-index/index.js",
+        "src/Administration/Resources/app/administration/src/module/sw-mail-template/page/sw-mail-template-index/sw-mail-template-index.html.twig"
+    ]
+}

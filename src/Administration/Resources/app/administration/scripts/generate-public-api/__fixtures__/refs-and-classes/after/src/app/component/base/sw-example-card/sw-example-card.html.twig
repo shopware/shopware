@@ -1,0 +1,25 @@
+{% block sw_example_card %}
+<mt-card
+    class="sw-example-card"
+    :title="title"
+>
+    {% block sw_example_card_header %}
+    <template #headerRight>
+        {% block sw_example_card_header_title %}
+        <h3 class="sw-example-card__title-field">
+            {{ title }}
+        </h3>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_example_card_grid %}
+    <sw-entity-listing
+        ref="grid"
+        class="sw-example-card__listing"
+        :items="items"
+        :columns="columns"
+    />
+    {% endblock %}
+</mt-card>
+{% endblock %}

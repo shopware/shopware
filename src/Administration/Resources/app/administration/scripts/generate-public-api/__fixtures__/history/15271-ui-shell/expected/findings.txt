@@ -1,0 +1,661 @@
+Public API check passed: no breaks.
+
+Private (219)
+  block_added  component:sw-admin-menu-item/block:sw_admin_menu_item_expand_indicator_fold  current, major
+    A new block of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:90
+  block_added  component:sw-admin-menu-item/block:sw_admin_menu_item_expand_indicator_linked  current, major
+    A new block of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:48
+  block_added  component:sw-admin-menu/block:sw_admin_menu_header_shop_name  current, major
+    A new block of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:51
+  block_added  component:sw-admin-menu/block:sw_admin_menu_header_title  current, major
+    A new block of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:63
+  block_added  component:sw-admin-menu/block:sw_admin_menu_header_title_status  current, major
+    A new block of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:71
+  block_added  component:sw-admin-menu/block:sw_admin_menu_header_toggle_sidebar  current, major
+    A new block of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:77
+  block_added  component:sw-admin-menu/block:sw_admin_menu_off_canvas_backdrop  current, major
+    A new block of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:2
+  block_added  component:sw-admin-menu/block:sw_admin_menu_user_actions_version  current, major
+    A new block of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:258
+  block_added  component:sw-login-login/block:sw_login_login_error  current, major
+    A new block of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/module/sw-login/view/sw-login-login/sw-login-login.html.twig:89
+  block_added  component:sw-login-login/block:sw_login_login_sso  current, major
+    A new block of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/module/sw-login/view/sw-login-login/sw-login-login.html.twig:27
+  block_added  component:sw-login-login/block:sw_login_login_sso_button  current, major
+    A new block of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/module/sw-login/view/sw-login-login/sw-login-login.html.twig:32
+  block_added  component:sw-login-login/block:sw_login_login_sso_divider  current, major
+    A new block of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/module/sw-login/view/sw-login-login/sw-login-login.html.twig:54
+  block_added  component:sw-login/block:sw_login_back_link  current, major
+    A new block of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/module/sw-login/page/index/sw-login.html.twig:50
+  block_added  component:sw-login/block:sw_login_forgot_password_link  current, major
+    A new block of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/module/sw-login/page/index/sw-login.html.twig:60
+  block_added  component:sw-login/block:sw_login_logo  current, major
+    A new block of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/module/sw-login/page/index/sw-login.html.twig:9
+  block_added  component:sw-page/block:sw_page_top_bar  current, major
+    A new block of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-page/sw-page.html.twig:11
+  block_added  component:sw-page/block:sw_page_top_bar_app_button  current, major
+    A new block of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-page/sw-page.html.twig:28
+  block_added  component:sw-sales-channel-menu/block:sw_sales_channel_menu_navigation_add_channel  current, major
+    A new block of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/sw-sales-channel-menu.html.twig:132
+  block_added  component:sw-search-bar/block:sw_search_bar_field_close  current, major
+    A new block of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-search-bar/sw-search-bar.html.twig:115
+  block_missing  component:sw-admin-menu-item/block:sw_admin_menu_item_arrow_indicato  current, major
+    The block is gone, so plugin template overrides of {% block sw_admin_menu_item_arrow_indicato %} render nothing.
+    At: src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:140
+  block_missing  component:sw-admin-menu-item/block:sw_admin_menu_item_arrow_indicator  current, major
+    The block is gone, so plugin template overrides of {% block sw_admin_menu_item_arrow_indicator %} render nothing.
+    At: src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:200
+  block_missing  component:sw-admin-menu-item/block:sw_admin_menu_item_external_arrow_indicato  current, major
+    The block is gone, so plugin template overrides of {% block sw_admin_menu_item_external_arrow_indicato %} render nothing.
+    At: src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:171
+  block_missing  component:sw-admin-menu-item/block:sw_admin_menu_item_external_icon  current, major
+    The block is gone, so plugin template overrides of {% block sw_admin_menu_item_external_icon %} render nothing.
+    At: src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:171
+  block_missing  component:sw-admin-menu-item/block:sw_admin_menu_item_external_text  current, major
+    The block is gone, so plugin template overrides of {% block sw_admin_menu_item_external_text %} render nothing.
+    At: src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:171
+  block_missing  component:sw-admin-menu/block:sw_admin_menu_toggle_sidebar  current, major
+    The block is gone, so plugin template overrides of {% block sw_admin_menu_toggle_sidebar %} render nothing.
+    At: src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:170
+  block_missing  component:sw-admin-menu/block:sw_admin_menu_toggle_sidebar_icon  current, major
+    The block is gone, so plugin template overrides of {% block sw_admin_menu_toggle_sidebar_icon %} render nothing.
+    At: src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:170
+  block_missing  component:sw-admin-menu/block:sw_admin_menu_toggle_sidebar_text  current, major
+    The block is gone, so plugin template overrides of {% block sw_admin_menu_toggle_sidebar_text %} render nothing.
+    At: src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:170
+  block_missing  component:sw-admin-menu/block:sw_admin_menu_user_actions  current, major
+    The block is gone, so plugin template overrides of {% block sw_admin_menu_user_actions %} render nothing.
+    At: src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:170
+  block_missing  component:sw-admin-menu/block:sw_admin_menu_user_actions_label  current, major
+    The block is gone, so plugin template overrides of {% block sw_admin_menu_user_actions_label %} render nothing.
+    At: src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:170
+  block_missing  component:sw-admin-menu/block:sw_admin_menu_user_actions_list  current, major
+    The block is gone, so plugin template overrides of {% block sw_admin_menu_user_actions_list %} render nothing.
+    At: src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:170
+  block_missing  component:sw-login-login/block:sw_login_login_forgot_password  current, major
+    The block is gone, so plugin template overrides of {% block sw_login_login_forgot_password %} render nothing.
+    At: src/module/sw-login/view/sw-login-login/sw-login-login.html.twig:101
+  block_missing  component:sw-login/block:sw_login_badge  current, major
+    The block is gone, so plugin template overrides of {% block sw_login_badge %} render nothing.
+    At: src/module/sw-login/page/index/sw-login.html.twig:17
+  block_missing  component:sw-login/block:sw_login_badge_image  current, major
+    The block is gone, so plugin template overrides of {% block sw_login_badge_image %} render nothing.
+    At: src/module/sw-login/page/index/sw-login.html.twig:17
+  block_missing  component:sw-login/block:sw_login_headline  current, major
+    The block is gone, so plugin template overrides of {% block sw_login_headline %} render nothing.
+    At: src/module/sw-login/page/index/sw-login.html.twig:7
+  block_missing  component:sw-login/block:sw_login_image  current, major
+    The block is gone, so plugin template overrides of {% block sw_login_image %} render nothing.
+    At: src/module/sw-login/page/index/sw-login.html.twig:7
+  block_missing  component:sw-login/block:sw_login_image_headlines  current, major
+    The block is gone, so plugin template overrides of {% block sw_login_image_headlines %} render nothing.
+    At: src/module/sw-login/page/index/sw-login.html.twig:7
+  block_missing  component:sw-login/block:sw_login_sub_headline  current, major
+    The block is gone, so plugin template overrides of {% block sw_login_sub_headline %} render nothing.
+    At: src/module/sw-login/page/index/sw-login.html.twig:7
+  block_missing  component:sw-sales-channel-menu/block:sw_sales_channel_menu_context_button_collapsed  current, major
+    The block is gone, so plugin template overrides of {% block sw_sales_channel_menu_context_button_collapsed %} render nothing.
+    At: src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/sw-sales-channel-menu.html.twig:80
+  block_missing  component:sw-search-bar/block:sw_search_bar_version_display  current, major
+    The block is gone, so plugin template overrides of {% block sw_search_bar_version_display %} render nothing.
+    At: src/app/component/structure/sw-search-bar/sw-search-bar.html.twig:25
+  block_missing  component:sw-version/block:sw_version_name  current, major
+    The block is gone, so plugin template overrides of {% block sw_version_name %} render nothing.
+    At: src/app/component/base/sw-version/sw-version.html.twig:1
+  block_missing  component:sw-version/block:sw_version_name_text  current, major
+    The block is gone, so plugin template overrides of {% block sw_version_name_text %} render nothing.
+    At: src/app/component/base/sw-version/sw-version.html.twig:1
+  block_missing  component:sw-version/block:sw_version_status  current, major
+    The block is gone, so plugin template overrides of {% block sw_version_status %} render nothing.
+    At: src/app/component/base/sw-version/sw-version.html.twig:1
+  block_missing  component:sw-version/block:sw_version_status_badge  current, major
+    The block is gone, so plugin template overrides of {% block sw_version_status_badge %} render nothing.
+    At: src/app/component/base/sw-version/sw-version.html.twig:1
+  block_moved_parent  component:sw-admin-menu-item/block:sw_admin_menu_item_icon  current, major
+    The block moved from sw_admin_menu_item_router_link to sw_admin_menu_item, so plugin overrides of sw_admin_menu_item without {% parent %} now drop it.
+    At: src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:26
+  block_moved_parent  component:sw-admin-menu-item/block:sw_admin_menu_item_navigation_icon  current, major
+    The block moved from sw_admin_menu_item_navigation_link to sw_admin_menu_item, so plugin overrides of sw_admin_menu_item without {% parent %} now drop it.
+    At: src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:68
+  block_moved_parent  component:sw-admin-menu-item/block:sw_admin_menu_item_navigation_text  current, major
+    The block moved from sw_admin_menu_item_navigation_link to sw_admin_menu_item, so plugin overrides of sw_admin_menu_item without {% parent %} now drop it.
+    At: src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:78
+  block_moved_parent  component:sw-admin-menu-item/block:sw_admin_menu_item_text  current, major
+    The block moved from sw_admin_menu_item_router_link to sw_admin_menu_item, so plugin overrides of sw_admin_menu_item without {% parent %} now drop it.
+    At: src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:36
+  block_moved_parent  component:sw-admin-menu/block:sw_admin_menu_user_actions_items  current, major
+    The block moved from sw_admin_menu_user_actions_list to sw_admin_menu_user_actions_toggle, so plugin overrides of sw_admin_menu_user_actions_toggle without {% parent %} now drop it.
+    At: src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:245
+  block_moved_parent  component:sw-admin-menu/block:sw_admin_menu_user_actions_toggle_icon  current, major
+    The block moved from sw_admin_menu_user_actions_custom_fields to sw_admin_menu_user_actions_toggle, so plugin overrides of sw_admin_menu_user_actions_toggle without {% parent %} now drop it.
+    At: src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig:221
+  block_moved_parent  component:sw-page/block:sw_page_search_bar  current, major
+    The block moved from sw_page_head_area to sw_page_top_bar, so plugin overrides of sw_page_top_bar without {% parent %} now drop it.
+    At: src/app/component/structure/sw-page/sw-page.html.twig:13
+  block_moved_parent  component:sw-page/block:sw_page_top_bar_actions  current, major
+    The block moved from sw_page_search_bar to sw_page_top_bar, so plugin overrides of sw_page_top_bar without {% parent %} now drop it.
+    At: src/app/component/structure/sw-page/sw-page.html.twig:26
+  block_moved_parent  component:sw-sales-channel-menu/block:sw_sales_channel_menu_headline_action  current, major
+    The block moved from sw_sales_channel_menu_headline to sw_sales_channel_menu_headline_context_button, so plugin overrides of sw_sales_channel_menu_headline_context_button without {% parent %} now drop it.
+    At: src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/sw-sales-channel-menu.html.twig:63
+  block_moved_parent  component:sw-search-bar/block:sw_search_bar_button_off_canvas_toggle  current, major
+    The block moved from sw_search_bar_mobile_controls to sw_search_bar, so plugin overrides of sw_search_bar without {% parent %} now drop it.
+    At: src/app/component/structure/sw-search-bar/sw-search-bar.html.twig:4
+  computed_added  component:sw-admin-menu-item/computed:aclFilteredEntry  current, major
+    A new computed property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:117
+  computed_added  component:sw-admin-menu-item/computed:activeRouteNames  current, major
+    A new computed property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:113
+  computed_added  component:sw-admin-menu-item/computed:childRouteActive  current, major
+    A new computed property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:276
+  computed_added  component:sw-admin-menu-item/computed:collapsedAriaLabel  current, major
+    A new computed property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:296
+  computed_added  component:sw-admin-menu-item/computed:collapsedFlyoutAria  current, major
+    A new computed property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:280
+  computed_added  component:sw-admin-menu-item/computed:collapsibleLiClass  current, major
+    A new computed property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:235
+  computed_added  component:sw-admin-menu-item/computed:collapsibleOpen  current, major
+    A new computed property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:227
+  computed_added  component:sw-admin-menu-item/computed:expandIcon  current, major
+    A new computed property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:231
+  computed_added  component:sw-admin-menu-item/computed:hasActiveChild  current, major
+    A new computed property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:122
+  computed_added  component:sw-admin-menu-item/computed:hasCollapsibleSubtree  current, major
+    A new computed property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:200
+  computed_added  component:sw-admin-menu-item/computed:isLeafDepth  current, major
+    A new computed property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:108
+  computed_added  component:sw-admin-menu-item/computed:leafLiClass  current, major
+    A new computed property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:248
+  computed_added  component:sw-admin-menu-item/computed:moduleColorStyle  current, major
+    A new computed property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:271
+  computed_added  component:sw-admin-menu-item/computed:navigationIconColor  current, major
+    A new computed property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:266
+  computed_added  component:sw-admin-menu-item/computed:navigationIconName  current, major
+    A new computed property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:260
+  computed_added  component:sw-admin-menu-item/computed:routeKeepsFolderOpen  current, major
+    A new computed property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:205
+  computed_added  component:sw-admin-menu-item/computed:routerLinkActiveClass  current, major
+    A new computed property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:301
+  computed_added  component:sw-admin-menu-item/computed:routerLinkExactActiveClass  current, major
+    A new computed property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:305
+  computed_added  component:sw-admin-menu-item/computed:rowActive  current, major
+    A new computed property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:126
+  computed_added  component:sw-admin-menu-item/computed:showsCollapsedTooltip  current, major
+    A new computed property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:309
+  computed_added  component:sw-admin-menu-item/computed:submenuVisuallyOpen  current, major
+    A new computed property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:213
+  computed_added  component:sw-admin-menu/computed:isMobileViewport  current, major
+    A new computed property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:68
+  computed_added  component:sw-admin-menu/computed:userActionsAriaLabel  current, major
+    A new computed property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:168
+  computed_added  component:sw-login/computed:assetFilter  current, major
+    A new computed property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/module/sw-login/page/index/index.ts:55
+  computed_added  component:sw-login/computed:showBackToLoginLink  current, major
+    A new computed property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/module/sw-login/page/index/index.ts:59
+  computed_added  component:sw-login/computed:showForgotPasswordLink  current, major
+    A new computed property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/module/sw-login/page/index/index.ts:63
+  computed_added  component:sw-sales-channel-menu/computed:adminMenuStore  current, major
+    A new computed property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/index.js:35
+  computed_added  component:sw-sales-channel-menu/computed:isSidebarExpanded  current, major
+    A new computed property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/index.js:39
+  computed_added  component:sw-sales-channel-menu/computed:showAddChannelMenuItem  current, major
+    A new computed property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/index.js:54
+  computed_added  component:sw-search-bar/computed:searchTypeColor  current, major
+    A new computed property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-search-bar/index.js:211
+  computed_missing  component:sw-admin-menu/computed:currentExpandedMenuEntries  current, major
+    The computed property is gone, so plugin overrides that call $super('currentExpandedMenuEntries') throw at runtime.
+    At: src/app/component/structure/sw-admin-menu/index.js:59
+  computed_missing  component:sw-admin-menu/computed:sidebarCollapseIcon  current, major
+    The computed property is gone, so plugin overrides that call $super('sidebarCollapseIcon') throw at runtime.
+    At: src/app/component/structure/sw-admin-menu/index.js:59
+  computed_missing  component:sw-admin-menu/computed:userActionsToggleIcon  current, major
+    The computed property is gone, so plugin overrides that call $super('userActionsToggleIcon') throw at runtime.
+    At: src/app/component/structure/sw-admin-menu/index.js:59
+  computed_missing  component:sw-page/computed:smartBarContentStyle  current, major
+    The computed property is gone, so plugin overrides that call $super('smartBarContentStyle') throw at runtime.
+    At: src/app/component/structure/sw-page/index.js:92
+  computed_missing  component:sw-page/computed:topBarActionStyles  current, major
+    The computed property is gone, so plugin overrides that call $super('topBarActionStyles') throw at runtime.
+    At: src/app/component/structure/sw-page/index.js:92
+  crossing_resolved  component:sw-admin-menu-item/crossing:v-if@sw_admin_menu_item_external_link>sw_admin_menu_item_navigation_link  current, major
+    The v-if chain of block sw_admin_menu_item_external_link no longer continues in block sw_admin_menu_item_navigation_link. The component is private, so this is not public API.
+    At: src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:201
+  crossing_resolved  component:sw-admin-menu-item/crossing:v-if@sw_admin_menu_item_router_link>sw_admin_menu_item_external_link  current, major
+    The v-if chain of block sw_admin_menu_item_router_link no longer continues in block sw_admin_menu_item_external_link. The component is private, so this is not public API.
+    At: src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig:172
+  data_added  component:sw-admin-menu-item/data:manualNestedOpen  current, major
+    A new data property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:103
+  data_added  component:sw-admin-menu-item/data:suppressRouteKeepsFolderOpen  current, major
+    A new data property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:102
+  data_added  component:sw-admin-menu/data:activeBranchKey  current, major
+    A new data property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:55
+  data_added  component:sw-admin-menu/data:flyoutCloseTimeoutId  current, major
+    A new data property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:43
+  data_added  component:sw-admin-menu/data:flyoutReferenceElement  current, major
+    A new data property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:48
+  data_added  component:sw-admin-menu/data:flyoutTitle  current, major
+    A new data property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:42
+  data_added  component:sw-admin-menu/data:isFlyoutClosing  current, major
+    A new data property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:44
+  data_added  component:sw-admin-menu/data:isFlyoutPinned  current, major
+    A new data property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:45
+  data_added  component:sw-admin-menu/data:isTogglingSidebar  current, major
+    A new data property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:51
+  data_added  component:sw-admin-menu/data:isViewportResizing  current, major
+    A new data property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:53
+  data_added  component:sw-admin-menu/data:shopName  current, major
+    A new data property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:50
+  data_added  component:sw-admin-menu/data:toggleSidebarTimeout  current, major
+    A new data property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:52
+  data_added  component:sw-admin-menu/data:viewportResizeTimeout  current, major
+    A new data property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:54
+  data_added  component:sw-admin-menu/data:viewportWidth  current, major
+    A new data property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:49
+  data_added  component:sw-login-login/data:loginErrorMessage  current, major
+    A new data property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/module/sw-login/view/sw-login-login/index.ts:48
+  data_added  component:sw-login/data:loginConfig  current, major
+    A new data property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/module/sw-login/page/index/index.ts:37
+  data_added  component:sw-sales-channel-menu/data:contextMenuOpen  current, major
+    A new data property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/index.js:30
+  data_added  component:sw-sales-channel-menu/data:isMobileViewport  current, major
+    A new data property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/index.js:29
+  data_added  component:sw-sales-channel-menu/data:salesChannelsLoaded  current, major
+    A new data property of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/index.js:26
+  data_missing  component:sw-admin-menu/data:flyoutColor  current, major
+    The data property is gone, so plugin overrides that read or write this.flyoutColor get undefined.
+    At: src/app/component/structure/sw-admin-menu/index.js:36
+  data_missing  component:sw-admin-menu/data:flyoutLabel  current, major
+    The data property is gone, so plugin overrides that read or write this.flyoutLabel get undefined.
+    At: src/app/component/structure/sw-admin-menu/index.js:36
+  data_missing  component:sw-admin-menu/data:flyoutStyle  current, major
+    The data property is gone, so plugin overrides that read or write this.flyoutStyle get undefined.
+    At: src/app/component/structure/sw-admin-menu/index.js:36
+  data_missing  component:sw-admin-menu/data:lastDelayLocation  current, major
+    The data property is gone, so plugin overrides that read or write this.lastDelayLocation get undefined.
+    At: src/app/component/structure/sw-admin-menu/index.js:36
+  data_missing  component:sw-admin-menu/data:lastFlyoutEntries  current, major
+    The data property is gone, so plugin overrides that read or write this.lastFlyoutEntries get undefined.
+    At: src/app/component/structure/sw-admin-menu/index.js:36
+  data_missing  component:sw-admin-menu/data:mouseLocations  current, major
+    The data property is gone, so plugin overrides that read or write this.mouseLocations get undefined.
+    At: src/app/component/structure/sw-admin-menu/index.js:36
+  data_missing  component:sw-admin-menu/data:subMenuOpen  current, major
+    The data property is gone, so plugin overrides that read or write this.subMenuOpen get undefined.
+    At: src/app/component/structure/sw-admin-menu/index.js:36
+  data_missing  component:sw-admin-menu/data:subMenuTimer  current, major
+    The data property is gone, so plugin overrides that read or write this.subMenuTimer get undefined.
+    At: src/app/component/structure/sw-admin-menu/index.js:36
+  emit_added  component:sw-admin-menu-item/emit:branch-toggle  current, major
+    A new event of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:36
+  emit_added  component:sw-admin-menu-item/emit:flyout-close-request  current, major
+    A new event of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:36
+  emit_added  component:sw-admin-menu-item/emit:flyout-focus-request  current, major
+    A new event of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:36
+  emit_added  component:sw-admin-menu-item/emit:flyout-navigate  current, major
+    A new event of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:36
+  emit_added  component:sw-admin-menu-item/emit:menu-item-hover  current, major
+    A new event of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:36
+  emit_added  component:sw-admin-menu-item/emit:navigation-link-click  current, major
+    A new event of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:36
+  emit_added  component:sw-login-login/emit:config-loaded  current, major
+    A new event of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/module/sw-login/view/sw-login-login/index.ts:34
+  emit_missing  component:sw-admin-menu-item/emit:menu-item-click  current, major
+    The event is gone, so plugin listeners on @menu-item-click never fire.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:36
+  emit_missing  component:sw-admin-menu-item/emit:menu-item-enter  current, major
+    The event is gone, so plugin listeners on @menu-item-enter never fire.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:36
+  emit_missing  component:sw-admin-menu-item/emit:sub-menu-item-enter  current, major
+    The event is gone, so plugin listeners on @sub-menu-item-enter never fire.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:36
+  inject_added  component:sw-admin-menu/inject:acl  current, major
+    A new inject of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:21
+  inject_added  component:sw-admin-menu/inject:systemConfigApiService  current, major
+    A new inject of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:21
+  method_added  component:sw-admin-menu-item/method:collapsedTooltipTriggerProps  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:323
+  method_added  component:sw-admin-menu-item/method:forwardFlyoutNavigate  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:402
+  method_added  component:sw-admin-menu-item/method:forwardMenuItemHover  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:445
+  method_added  component:sw-admin-menu-item/method:forwardNavigationLinkClick  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:398
+  method_added  component:sw-admin-menu-item/method:onCollapsedParentKeydown  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:421
+  method_added  component:sw-admin-menu-item/method:onCollapsibleOpenUpdate  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:406
+  method_added  component:sw-admin-menu-item/method:onNavigationLinkClick  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:387
+  method_added  component:sw-admin-menu-item/method:toggleSubmenu  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:379
+  method_added  component:sw-admin-menu/method:activateOffCanvasFocusTrap  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:368
+  method_added  component:sw-admin-menu/method:cancelFlyoutClose  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:667
+  method_added  component:sw-admin-menu/method:closeNavigationOverlays  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:339
+  method_added  component:sw-admin-menu/method:collapseInactiveBranches  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:555
+  method_added  component:sw-admin-menu/method:deactivateFlyoutFocusTrap  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:722
+  method_added  component:sw-admin-menu/method:deactivateOffCanvasFocusTrap  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:439
+  method_added  component:sw-admin-menu/method:dismissOffCanvas  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:358
+  method_added  component:sw-admin-menu/method:expandAncestorBranchesForCurrentRoute  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:817
+  method_added  component:sw-admin-menu/method:getEntryLabel  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:809
+  method_added  component:sw-admin-menu/method:getNavigationLinks  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:734
+  method_added  component:sw-admin-menu/method:isFlyoutEntryActive  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:686
+  method_added  component:sw-admin-menu/method:isNavigationEntryExpanded  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:843
+  method_added  component:sw-admin-menu/method:isSuppressedFlyoutFocusOut  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:635
+  method_added  component:sw-admin-menu/method:loadShopName  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:291
+  method_added  component:sw-admin-menu/method:moveListFocus  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:740
+  method_added  component:sw-admin-menu/method:onFlyoutFocusRequest  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:696
+  method_added  component:sw-admin-menu/method:onFlyoutKeydown  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:781
+  method_added  component:sw-admin-menu/method:onFlyoutMouseLeave  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:623
+  method_added  component:sw-admin-menu/method:onFlyoutNavigate  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:639
+  method_added  component:sw-admin-menu/method:onMenuBranchToggle  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:541
+  method_added  component:sw-admin-menu/method:onMenuItemHover  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:574
+  method_added  component:sw-admin-menu/method:onNavigationKeydown  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:771
+  method_added  component:sw-admin-menu/method:onNavigationLinkClicked  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:353
+  method_added  component:sw-admin-menu/method:onNavigationListMouseLeave  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:611
+  method_added  component:sw-admin-menu/method:onViewportResize  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:317
+  method_added  component:sw-admin-menu/method:scheduleFlyoutClose  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:643
+  method_added  component:sw-admin-menu/method:startFlyoutCloseAnimation  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:655
+  method_added  component:sw-admin-menu/method:startMenuDropdownObserver  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:395
+  method_added  component:sw-admin-menu/method:startSidebarToggleWindow  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:500
+  method_added  component:sw-admin-menu/method:stopMenuDropdownObserver  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:406
+  method_added  component:sw-admin-menu/method:syncMenuDropdownFocusOwner  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu/index.js:412
+  method_added  component:sw-login-login/method:showLoginErrorFromResponse  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/module/sw-login/view/sw-login-login/index.ts:197
+  method_added  component:sw-login/method:setLoginConfig  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/module/sw-login/page/index/index.ts:89
+  method_added  component:sw-sales-channel-menu/method:syncMobileViewport  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/index.js:184
+  method_added  component:sw-search-bar/method:closeSearchPanels  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-search-bar/index.js:358
+  method_added  component:sw-search-bar/method:getTypeIconColor  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-search-bar/index.js:859
+  method_added  component:sw-search-bar/method:onClickFieldWrapper  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-search-bar/index.js:337
+  method_added  component:sw-search-bar/method:onKeyUpEsc  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-search-bar/index.js:364
+  method_added  component:sw-search-bar/method:syncSearchBarCollapse  current, major
+    A new method of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-search-bar/index.js:407
+  method_missing  component:sw-admin-menu-item/method:getCustomKey  current, major
+    The method is gone, so plugin overrides that call $super('getCustomKey') throw at runtime.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:322
+  method_missing  component:sw-admin-menu-item/method:getItemName  current, major
+    The method is gone, so plugin overrides that call $super('getItemName') throw at runtime.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:322
+  method_missing  component:sw-admin-menu-item/method:isFirstPluginInMenuEntries  current, major
+    The method is gone, so plugin overrides that call $super('isFirstPluginInMenuEntries') throw at runtime.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:322
+  method_missing  component:sw-admin-menu-item/method:onSubMenuItemEnter  current, major
+    The method is gone, so plugin overrides that call $super('onSubMenuItemEnter') throw at runtime.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:322
+  method_missing  component:sw-admin-menu-item/method:subIsActive  current, major
+    The method is gone, so plugin overrides that call $super('subIsActive') throw at runtime.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:322
+  method_missing  component:sw-admin-menu/method:activateMenuItem  current, major
+    The method is gone, so plugin overrides that call $super('activateMenuItem') throw at runtime.
+    At: src/app/component/structure/sw-admin-menu/index.js:271
+  method_missing  component:sw-admin-menu/method:adjustMenuForViewport  current, major
+    The method is gone, so plugin overrides that call $super('adjustMenuForViewport') throw at runtime.
+    At: src/app/component/structure/sw-admin-menu/index.js:271
+  method_missing  component:sw-admin-menu/method:closeUserActions  current, major
+    The method is gone, so plugin overrides that call $super('closeUserActions') throw at runtime.
+    At: src/app/component/structure/sw-admin-menu/index.js:271
+  method_missing  component:sw-admin-menu/method:deactivatePreviousMenuItem  current, major
+    The method is gone, so plugin overrides that call $super('deactivatePreviousMenuItem') throw at runtime.
+    At: src/app/component/structure/sw-admin-menu/index.js:271
+  method_missing  component:sw-admin-menu/method:getActivationDelay  current, major
+    The method is gone, so plugin overrides that call $super('getActivationDelay') throw at runtime.
+    At: src/app/component/structure/sw-admin-menu/index.js:271
+  method_missing  component:sw-admin-menu/method:getPolygonFromMenuItem  current, major
+    The method is gone, so plugin overrides that call $super('getPolygonFromMenuItem') throw at runtime.
+    At: src/app/component/structure/sw-admin-menu/index.js:271
+  method_missing  component:sw-admin-menu/method:isActiveItem  current, major
+    The method is gone, so plugin overrides that call $super('isActiveItem') throw at runtime.
+    At: src/app/component/structure/sw-admin-menu/index.js:271
+  method_missing  component:sw-admin-menu/method:isFirstPluginInMenuEntries  current, major
+    The method is gone, so plugin overrides that call $super('isFirstPluginInMenuEntries') throw at runtime.
+    At: src/app/component/structure/sw-admin-menu/index.js:271
+  method_missing  component:sw-admin-menu/method:isMobileViewport  current, major
+    The method is gone, so plugin overrides that call $super('isMobileViewport') throw at runtime.
+    At: src/app/component/structure/sw-admin-menu/index.js:271
+  method_missing  component:sw-admin-menu/method:isPositionInPolygon  current, major
+    The method is gone, so plugin overrides that call $super('isPositionInPolygon') throw at runtime.
+    At: src/app/component/structure/sw-admin-menu/index.js:271
+  method_missing  component:sw-admin-menu/method:onClickOutsideOffCanvas  current, major
+    The method is gone, so plugin overrides that call $super('onClickOutsideOffCanvas') throw at runtime.
+    At: src/app/component/structure/sw-admin-menu/index.js:271
+  method_missing  component:sw-admin-menu/method:onFlyoutEnter  current, major
+    The method is gone, so plugin overrides that call $super('onFlyoutEnter') throw at runtime.
+    At: src/app/component/structure/sw-admin-menu/index.js:271
+  method_missing  component:sw-admin-menu/method:onMenuItemClick  current, major
+    The method is gone, so plugin overrides that call $super('onMenuItemClick') throw at runtime.
+    At: src/app/component/structure/sw-admin-menu/index.js:271
+  method_missing  component:sw-admin-menu/method:onMenuItemEnter  current, major
+    The method is gone, so plugin overrides that call $super('onMenuItemEnter') throw at runtime.
+    At: src/app/component/structure/sw-admin-menu/index.js:271
+  method_missing  component:sw-admin-menu/method:onMenuLeave  current, major
+    The method is gone, so plugin overrides that call $super('onMenuLeave') throw at runtime.
+    At: src/app/component/structure/sw-admin-menu/index.js:271
+  method_missing  component:sw-admin-menu/method:onMouseMoveDocument  current, major
+    The method is gone, so plugin overrides that call $super('onMouseMoveDocument') throw at runtime.
+    At: src/app/component/structure/sw-admin-menu/index.js:271
+  method_missing  component:sw-admin-menu/method:onSubMenuItemEnter  current, major
+    The method is gone, so plugin overrides that call $super('onSubMenuItemEnter') throw at runtime.
+    At: src/app/component/structure/sw-admin-menu/index.js:271
+  method_missing  component:sw-admin-menu/method:onToggleUserActions  current, major
+    The method is gone, so plugin overrides that call $super('onToggleUserActions') throw at runtime.
+    At: src/app/component/structure/sw-admin-menu/index.js:271
+  method_missing  component:sw-admin-menu/method:openUserActions  current, major
+    The method is gone, so plugin overrides that call $super('openUserActions') throw at runtime.
+    At: src/app/component/structure/sw-admin-menu/index.js:271
+  method_missing  component:sw-admin-menu/method:possiblyActivate  current, major
+    The method is gone, so plugin overrides that call $super('possiblyActivate') throw at runtime.
+    At: src/app/component/structure/sw-admin-menu/index.js:271
+  method_missing  component:sw-admin-menu/method:removeClassesFromElements  current, major
+    The method is gone, so plugin overrides that call $super('removeClassesFromElements') throw at runtime.
+    At: src/app/component/structure/sw-admin-menu/index.js:271
+  method_missing  component:sw-admin-menu/method:shouldCloseOffCanvasOnMenuItemClick  current, major
+    The method is gone, so plugin overrides that call $super('shouldCloseOffCanvasOnMenuItemClick') throw at runtime.
+    At: src/app/component/structure/sw-admin-menu/index.js:271
+  method_missing  component:sw-login-login/method:createNotificationFromResponse  current, major
+    The method is gone, so plugin overrides that call $super('createNotificationFromResponse') throw at runtime.
+    Possible rename: showLoginErrorFromResponse.
+    At: src/module/sw-login/view/sw-login-login/index.ts:65
+  method_missing  component:sw-search-bar/method:showSearchFieldOnLargerViewports  current, major
+    The method is gone, so plugin overrides that call $super('showSearchFieldOnLargerViewports') throw at runtime.
+    At: src/app/component/structure/sw-search-bar/index.js:256
+  mixin_missing  component:sw-login-login/mixin:notification  current, major
+    The component no longer lists the mixin notification, so plugin overrides that call its members, for example this.createNotificationError(), throw at runtime.
+    At: src/module/sw-login/view/sw-login-login/index.ts:25
+  param_added  component:sw-admin-menu-item/method:getIconName/param:isActive  current, major
+    A new optional parameter isActive. Plugin overrides that call $super with explicit arguments do not pass it on.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:346
+  prop_added  component:sw-admin-menu-item/prop:flyoutActive  current, major
+    A new prop of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:93
+  prop_added  component:sw-admin-menu-item/prop:isExpanded  current, major
+    A new prop of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:83
+  prop_added  component:sw-admin-menu-item/prop:menuDepth  current, major
+    A new prop of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:51
+  prop_added  component:sw-admin-menu-item/prop:showActiveState  current, major
+    A new prop of a private component, so it is not public API and plugins cannot rely on it.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:88
+  prop_missing  component:sw-admin-menu-item/prop:borderColor  current, major
+    The prop is gone, so a value that plugin templates pass as borderColor falls through as an HTML attribute, and plugin overrides that read this.borderColor get undefined.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:45
+  prop_missing  component:sw-admin-menu-item/prop:parentEntries  current, major
+    The prop is gone, so a value that plugin templates pass as parentEntries falls through as an HTML attribute, and plugin overrides that read this.parentEntries get undefined.
+    At: src/app/component/structure/sw-admin-menu-item/index.js:45
+  prop_missing  component:sw-admin-menu/prop:mouseLocationsTracked  current, major
+    The prop is gone, so a value that plugin templates pass as mouseLocationsTracked falls through as an HTML attribute, and plugin overrides that read this.mouseLocationsTracked get undefined.
+    At: src/app/component/structure/sw-admin-menu/index.js:18
+  prop_missing  component:sw-admin-menu/prop:subMenuDelay  current, major
+    The prop is gone, so a value that plugin templates pass as subMenuDelay falls through as an HTML attribute, and plugin overrides that read this.subMenuDelay get undefined.
+    At: src/app/component/structure/sw-admin-menu/index.js:18
+  type_widened  component:sw-login/data:isLoading  current, major
+    The data property changed its type from any to boolean, which is never a break.
+    At: src/module/sw-login/page/index/index.ts:34
+  type_widened  component:sw-login/data:isLoginError  current, major
+    The data property changed its type from any to boolean, which is never a break.
+    At: src/module/sw-login/page/index/index.ts:36
+  type_widened  component:sw-login/data:isLoginSuccess  current, major
+    The data property changed its type from any to boolean, which is never a break.
+    At: src/module/sw-login/page/index/index.ts:35
+  type_widened  component:sw-login/data:shouldRenderDOM  current, major
+    The data property changed its type from any to boolean, which is never a break.
+    At: src/module/sw-login/page/index/index.ts:33

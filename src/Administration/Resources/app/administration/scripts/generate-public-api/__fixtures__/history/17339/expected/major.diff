@@ -1,0 +1,100 @@
+--- a/app/component/form/sw-custom-field-set-renderer.api.md
++++ b/app/component/form/sw-custom-field-set-renderer.api.md
+@@ -33,6 +33,7 @@
+   save(...args: any[])  [private]
+ 
+ data
++  activeCustomFieldSetTab: any  [private]
+   customFields: any  [private]
+   indirectInheritedCustomFields: any  [private]
+   loadingFields: any  [private]
+@@ -42,9 +43,11 @@
+   translatedInheritanceLoadKey: any  [private]
+ 
+ computed
++  activeCustomFieldSetTabName: any  [private]
+   componentsWithMapInheritanceSupport: any  [private]
+   customFieldSetCriteria: any  [private]
+   customFieldSetRepository: any  [private]
++  customFieldSetTabs: any  [private]
+   globalCustomFieldSets: any  [private]
+   hasExplicitParentEntity: any  [private]
+   hasParent: any  [private]
+@@ -80,6 +83,7 @@
+   onUpdateActiveSelection(value: any): any  [private]
+   resetTabs(): any  [private]
+   resetTranslatedInheritanceState(): any  [private]
++  setActiveCustomFieldSetTab(setId: any): any  [private]
+   sortSets(sets: any): any  [private]
+   supportsMapInheritance(customField: any): any  [private]
+   waitForTabComponent(): any  [private]
+@@ -87,12 +91,12 @@
+ blocks
+   sw_custom_field_set_renderer  [private]
+     sw_custom_field_set_renderer_card  [private]
+-      sw_custom_field_set_renderer_card_tabs  [private]
+-      sw_custom_field_set_renderer_card_tabs_content  [private]
+-        sw_custom_field_set_renderer_card_form_renderer  [scope: active, set] [private]
++      sw_custom_field_set_renderer_card_mt_tabs  [private]
++      sw_custom_field_set_renderer_card_mt_tabs_content  [private]
++        sw_custom_field_set_renderer_card_mt_tabs_form_renderer  [scope: set] [private]
+     sw_custom_field_set_renderer_media  [after v-if] [private]
+       sw_custom_field_set_renderer_media_button_save  [scope: set] [private]
+       sw_custom_field_set_renderer_media_form_renderer  [scope: customField, set] [private]
+ 
+ position-ids
+-  sw-custom-field-set-renderer  tabs  host=sw-tabs  block=sw_custom_field_set_renderer_card  [private]
++  sw-custom-field-set-renderer  tabs  host=mt-tabs  block=sw_custom_field_set_renderer_card_mt_tabs  [private]
+--- a/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields.api.md
++++ b/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields.api.md
+@@ -21,14 +21,12 @@
+ blocks
+   sw_custom_field_set_renderer  [inherited]
+     sw_custom_field_set_renderer_card  [inherited]
+-      sw_custom_field_set_renderer_card_tabs  [inherited]
+-      sw_custom_field_set_renderer_card_tabs_content  [inherited]
+-        sw_custom_field_set_renderer_card_form_renderer  [replaced] [scope: active, set]
+-          sw_custom_field_set_renderer_card_form_renderer_change_field  [scope: active, customField, set]
+-          sw_custom_field_set_renderer_card_form_renderer_custom_field  [scope: active, customField, set]
++      sw_custom_field_set_renderer_card_mt_tabs  [inherited]
++      sw_custom_field_set_renderer_card_mt_tabs_content  [inherited]
++        sw_custom_field_set_renderer_card_mt_tabs_form_renderer  [inherited] [scope: set]
+     sw_custom_field_set_renderer_media  [inherited] [after v-if]
+       sw_custom_field_set_renderer_media_button_save  [inherited] [scope: set]
+       sw_custom_field_set_renderer_media_form_renderer  [inherited] [scope: customField, set]
+ 
+ position-ids
+-  sw-custom-field-set-renderer  tabs  host=sw-tabs  block=sw_custom_field_set_renderer_card
++  sw-custom-field-set-renderer  tabs  host=mt-tabs  block=sw_custom_field_set_renderer_card_mt_tabs
+--- a/module/sw-mail-template/page/sw-mail-template-index.api.md
++++ b/module/sw-mail-template/page/sw-mail-template-index.api.md
+@@ -8,11 +8,13 @@
+ 
+ inject
+   acl
++  feature
+ 
+ data
+   term: any  [deprecated tag:v6.8.0]
+ 
+ computed
++  mailTemplateTabs: any
+   searchType: any
+ 
+ methods
+@@ -26,8 +28,7 @@
+       sw_mail_template_list_content_card  [after v-if] [deprecated tag:v6.8.0]
+       sw_mail_template_list_router_view
+       sw_mail_template_list_tabs
+-        sw_mail_template_list_tabs_header_footer
+-        sw_mail_template_list_tabs_templates
++        sw_mail_template_list_mt_tabs
+     sw_mail_template_list_language_switch
+     sw_mail_template_list_smart_bar_actions
+       sw_mail_header_footer_list_smart_bar_actions_add
+@@ -38,4 +39,4 @@
+     sw_mail_templates_list_search_bar
+ 
+ position-ids
+-  sw-mail-template-index  tabs  host=sw-tabs  block=sw_mail_template_list_tabs
++  sw-mail-template-index  tabs  host=mt-tabs  block=sw_mail_template_list_mt_tabs

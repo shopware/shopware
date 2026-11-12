@@ -1,0 +1,19 @@
+Public API check failed: 2 unannounced breaks.
+
+Break (2)
+  method_signature_changed  component:sw-example-list/method:validateSelection  current, major
+    The method switched from sync to async, so plugin overrides that use the return value of $super('validateSelection') get a Promise instead.
+    Fix: keep the method sync and add an async method under a new name.
+    At: src/app/component/base/sw-example-list/index.js:36
+  param_now_required  component:sw-example-list/method:onDeleteItem/param:itemIndex  current, major
+    The method has a new required parameter itemIndex, so plugin calls and $super('onDeleteItem', ...) calls that pass the old arguments leave it undefined.
+    Fix: pattern "New required parameter". Add itemIndex as optional, call triggerDeprecationOrThrow when it is missing, and mark the method @bc-change NewRequiredParameter version:v6.8.0 parameter:itemIndex.
+    At: src/app/component/base/sw-example-list/index.js:27
+
+Addition (1)
+  param_added  component:sw-example-list/method:onPageChange/param:limit  current, major
+    A new optional parameter limit. Plugin overrides that call $super with explicit arguments do not pass it on.
+    At: src/app/component/base/sw-example-list/index.js:32
+
+Change patterns: public-api/FORMAT.md#change-patterns
+Breaking this on purpose? See "Intended breaks" in public-api/FORMAT.md.

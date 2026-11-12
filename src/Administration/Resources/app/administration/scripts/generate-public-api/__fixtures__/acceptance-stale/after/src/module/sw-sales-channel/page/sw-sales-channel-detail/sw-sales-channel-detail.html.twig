@@ -1,0 +1,34 @@
+{% block sw_sales_channel_detail %}
+<sw-page class="sw-sales-channel-detail">
+    {% block sw_sales_channel_detail_language_switch %}
+    <template #language-switch>
+        <sw-language-switch />
+    </template>
+    {% endblock %}
+
+    {% block sw_sales_channel_detail_content %}
+    <template #content>
+        <sw-card-view>
+            {% block sw_sales_channel_detail_content_view %}
+            <template v-if="isLoading">
+                <sw-skeleton />
+            </template>
+
+            <template v-else>
+                <router-view
+                    :key="$route.params.id"
+                    v-slot="{ Component }"
+                >
+                    <component
+                        :is="Component"
+                        :sales-channel="salesChannel"
+                        :is-loading="isLoading"
+                    />
+                </router-view>
+            </template>
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

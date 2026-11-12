@@ -1,0 +1,25 @@
+{
+    "pr": 15271,
+    "title": "feat: admin ui shell rework",
+    "base": "f6d0fd1ed493e23e44e282f3d615a01f97590f68",
+    "head": "d3216241c1b6b0d35850f73bdc31157f2065b82c",
+    "headVersion": "6.7",
+    "files": [
+        "src/Administration/Resources/app/administration/src/app/component/base/sw-version/index.js",
+        "src/Administration/Resources/app/administration/src/app/component/base/sw-version/sw-version.html.twig",
+        "src/Administration/Resources/app/administration/src/app/component/structure/sw-admin-menu-item/index.js",
+        "src/Administration/Resources/app/administration/src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig",
+        "src/Administration/Resources/app/administration/src/app/component/structure/sw-admin-menu/index.js",
+        "src/Administration/Resources/app/administration/src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig",
+        "src/Administration/Resources/app/administration/src/app/component/structure/sw-page/index.js",
+        "src/Administration/Resources/app/administration/src/app/component/structure/sw-page/sw-page.html.twig",
+        "src/Administration/Resources/app/administration/src/app/component/structure/sw-search-bar/index.js",
+        "src/Administration/Resources/app/administration/src/app/component/structure/sw-search-bar/sw-search-bar.html.twig",
+        "src/Administration/Resources/app/administration/src/module/sw-login/page/index/index.ts",
+        "src/Administration/Resources/app/administration/src/module/sw-login/page/index/sw-login.html.twig",
+        "src/Administration/Resources/app/administration/src/module/sw-login/view/sw-login-login/index.ts",
+        "src/Administration/Resources/app/administration/src/module/sw-login/view/sw-login-login/sw-login-login.html.twig",
+        "src/Administration/Resources/app/administration/src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/index.js",
+        "src/Administration/Resources/app/administration/src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/sw-sales-channel-menu.html.twig"
+    ]
+}

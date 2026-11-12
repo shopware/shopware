@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Overview · Admin API Snapshot</title>
+<style>
+:root {
+  --bg: #f7f7f5; --surface: #ffffff; --text: #1b1b1f; --muted: #5d5d66; --border: #e3e3e8; --soft: #f1f1f4;
+  --accent: #3b5bdb; --accent-soft: #e8edff;
+  --ok: #157347; --ok-bg: #e3f4ea; --bad: #b42318; --bad-bg: #fde8e7; --warn: #8a5a00; --warn-bg: #fdf0d5;
+  --info: #0b6e99; --info-bg: #e2f2fa; --mute-bg: #ececf0;
+  --code-bg: #f3f3f6; --dark: #14151d; --dark-text: #d8dae6; --dark-border: #262838;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111216; --surface: #181a20; --text: #e9e9ee; --muted: #a0a0ac; --border: #2b2d36; --soft: #1e2028;
+    --accent: #8ea2ff; --accent-soft: #1d2442;
+    --ok: #6fd39b; --ok-bg: #14301f; --bad: #ff9a92; --bad-bg: #3a1a18; --warn: #f0c066; --warn-bg: #362a10;
+    --info: #7cc8ec; --info-bg: #10293a; --mute-bg: #262833;
+    --code-bg: #1f2129; --dark: #0d0e13; --dark-text: #d8dae6; --dark-border: #262838;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111216; --surface: #181a20; --text: #e9e9ee; --muted: #a0a0ac; --border: #2b2d36; --soft: #1e2028;
+  --accent: #8ea2ff; --accent-soft: #1d2442;
+  --ok: #6fd39b; --ok-bg: #14301f; --bad: #ff9a92; --bad-bg: #3a1a18; --warn: #f0c066; --warn-bg: #362a10;
+  --info: #7cc8ec; --info-bg: #10293a; --mute-bg: #262833;
+  --code-bg: #1f2129; --dark: #0d0e13; --dark-text: #d8dae6; --dark-border: #262838;
+}
+* { box-sizing: border-box; }
+html { scroll-padding-top: 72px; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 15.5px/1.6 system-ui, -apple-system, "Segoe UI", Inter, sans-serif; -webkit-font-smoothing: antialiased; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+h1, h2, h3, h4, p, ul, ol, table, pre { margin: 0; }
+code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+code { font-size: .86em; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+
+/* Top bar */
+.top { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); }
+.top .in { max-width: 1320px; margin: 0 auto; padding: 0 16px; display: flex; align-items: center; gap: 20px; height: 56px; }
+.brand { font-weight: 750; letter-spacing: -.01em; white-space: nowrap; color: var(--text); }
+.brand span { color: var(--muted); font-weight: 500; }
+.pages { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; flex: 1; }
+.pages::-webkit-scrollbar { display: none; }
+.pages a { color: var(--muted); font-size: 14px; font-weight: 550; padding: 6px 10px; border-radius: 7px; white-space: nowrap; }
+.pages a:hover { background: var(--soft); text-decoration: none; color: var(--text); }
+.pages a.on { background: var(--accent-soft); color: var(--accent); }
+
+/* Layout */
+.layout { max-width: 1320px; margin: 0 auto; padding: 0 16px; display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 48px; }
+@media (max-width: 960px) { .layout { grid-template-columns: minmax(0, 1fr); gap: 0; } .toc { display: none; } }
+.toc { position: sticky; top: 80px; align-self: start; max-height: calc(100vh - 100px); overflow: auto; padding: 32px 0; font-size: 13.5px; }
+.toc .lbl { font-size: 11.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.toc a { display: block; color: var(--muted); padding: 4px 0 4px 12px; border-left: 2px solid var(--border); }
+.toc a.l3 { padding-left: 24px; font-size: 13px; }
+.toc a:hover { color: var(--text); text-decoration: none; border-left-color: var(--accent); }
+main { padding: 40px 0 96px; min-width: 0; }
+
+/* Typography */
+.eyebrow { font-size: 12.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--accent); }
+h1 { font-size: clamp(28px, 3.4vw, 38px); line-height: 1.15; letter-spacing: -.02em; margin-top: 6px; }
+.lead { font-size: 17.5px; color: var(--muted); margin-top: 12px; max-width: 820px; }
+h2 { font-size: 24px; line-height: 1.25; letter-spacing: -.015em; margin-top: 56px; padding-top: 24px; border-top: 1px solid var(--border); }
+h3 { font-size: 18px; line-height: 1.3; margin-top: 32px; }
+h4 { font-size: 15px; margin-top: 20px; }
+main p { margin-top: 12px; max-width: 860px; }
+main ul, main ol { margin-top: 12px; padding-left: 22px; max-width: 860px; }
+main li { margin: 5px 0; }
+main li > ul { margin-top: 4px; }
+.muted { color: var(--muted); }
+.small { font-size: 13.5px; }
+
+/* Boxes */
+.note { margin-top: 18px; padding: 14px 16px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--accent); max-width: 900px; }
+.note.warn { border-left-color: var(--warn); }
+.note.bad { border-left-color: var(--bad); }
+.note.ok { border-left-color: var(--ok); }
+.note p:first-child, .note ul:first-child { margin-top: 0; }
+.proposal { margin-top: 18px; padding: 16px 18px; border-radius: 12px; border: 2px dashed var(--warn); background: var(--warn-bg); }
+.proposal > .tag { margin-bottom: 6px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 18px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; min-width: 0; }
+.card h4 { margin-top: 0; }
+.card p { margin-top: 6px; font-size: 14.5px; color: var(--muted); }
+a.card { color: inherit; display: block; }
+a.card:hover { border-color: var(--accent); text-decoration: none; }
+
+/* Tables */
+.tw { margin-top: 16px; overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+th { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); background: var(--soft); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.id { font-family: ui-monospace, Menlo, monospace; font-weight: 700; white-space: nowrap; color: var(--accent); }
+td pre { margin-top: 0; font-size: 12px; background: var(--code-bg); border-radius: 6px; padding: 6px 8px; white-space: pre-wrap; overflow-wrap: anywhere; }
+td .gap { margin-top: 6px; font-size: 13px; color: var(--bad); }
+td .gap::before { content: "Gap: "; font-weight: 700; }
+
+/* Tags */
+.tag { display: inline-block; font-size: 11.5px; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; margin: 1px 2px 1px 0; background: var(--mute-bg); color: var(--muted); }
+.t-break { background: var(--bad-bg); color: var(--bad); }
+.t-add, .t-allowed, .t-ok { background: var(--ok-bg); color: var(--ok); }
+.t-accepted, .t-warn { background: var(--warn-bg); color: var(--warn); }
+.t-info { background: var(--info-bg); color: var(--info); }
+.t-spec { background: var(--accent-soft); color: var(--accent); }
+.t-snap { background: var(--ok-bg); color: var(--ok); }
+.t-fix { background: var(--info-bg); color: var(--info); }
+.t-hist { background: var(--warn-bg); color: var(--warn); }
+.t-gap { background: var(--bad-bg); color: var(--bad); }
+
+/* Code */
+pre.code { margin-top: 14px; background: var(--dark); color: var(--dark-text); border: 1px solid var(--dark-border); border-radius: 10px; padding: 14px 16px; font-size: 12.5px; line-height: 1.6; overflow-x: auto; }
+.code .c { color: #6f7596; } .code .k { color: #c792ea; } .code .s { color: #a5e3a0; } .code .t { color: #82aaff; }
+.code .sec { color: #a9b7ff; font-weight: 700; } .code .m { color: #f0c066; } .code .a { color: #6fd39b; } .code .d { color: #ff9a92; }
+.code .add { display: block; background: rgba(111,211,155,.10); color: #8fe3b4; }
+.code .del { display: block; background: rgba(255,154,146,.10); color: #ffb3ac; }
+.pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; margin-top: 14px; }
+.pair > div { min-width: 0; }
+.pair.stack { grid-template-columns: minmax(0, 1fr); }
+.pair.stack pre.code { height: auto; }
+.pair pre.code { margin-top: 6px; height: calc(100% - 26px); }
+@media (max-width: 1100px) { .pair { grid-template-columns: minmax(0, 1fr); } .pair pre.code { height: auto; } }
+.fname { font-family: ui-monospace, Menlo, monospace; font-size: 12.5px; color: var(--muted); overflow-wrap: anywhere; }
+.fname b { color: var(--text); font-weight: 600; }
+
+/* Legend + flow */
+.legend { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 14px; font-size: 13.5px; color: var(--muted); align-items: center; }
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; margin-top: 18px; }
+.flow .st { flex: 1 1 150px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+.flow .st b { display: block; font-size: 14.5px; }
+.flow .st span { color: var(--muted); font-size: 13px; }
+.flow .ar { display: flex; align-items: center; color: var(--muted); }
+.flow .st.hl { border-color: var(--accent); background: var(--accent-soft); }
+@media (max-width: 760px) { .flow .ar { display: none; } }
+.pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+.pager a { font-weight: 600; }
+
+/* v2 additions */
+.code .ln { display: block; min-height: 1.6em; white-space: pre; }
+pre.code.wrap { white-space: pre-wrap; overflow-wrap: anywhere; }
+td.ck { text-align: center; color: var(--ok); font-weight: 800; width: 1%; white-space: nowrap; padding-left: 6px; padding-right: 6px; }
+th.ck { padding-left: 6px; padding-right: 6px; font-size: 11px; }
+th.ck { text-align: center; }
+tr.has-gap td:first-child { box-shadow: inset 3px 0 0 var(--bad); }
+td.id a { color: var(--accent); }
+tr:target td { background: var(--accent-soft); }
+details.dts { margin-top: 8px; }
+details.dts > summary { cursor: pointer; font-size: 13.5px; font-weight: 600; color: var(--accent); }
+details.dts > summary:hover { text-decoration: underline; }
+details.box { margin-top: 18px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 0 16px; }
+details.box > summary { cursor: pointer; font-weight: 650; padding: 14px 0; }
+details.box[open] { padding-bottom: 16px; }
+.tldr { margin-top: 22px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; max-width: 900px; }
+.tldr ul { margin-top: 6px; }
+.howto { margin-top: 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font-size: 14px; color: var(--muted); }
+.meta b { color: var(--text); }
+.steps { counter-reset: s; display: grid; gap: 14px; margin-top: 18px; }
+.step { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px 16px 58px; min-width: 0; }
+.step::before { counter-increment: s; content: counter(s); position: absolute; left: 16px; top: 15px; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 800; font-size: 14px; display: grid; place-items: center; }
+.step h4 { margin-top: 0; }
+.step p { margin-top: 6px; }
+.step pre.code { margin-top: 10px; }
+.src-tag { font-size: 11.5px; font-weight: 700; padding: 2px 8px; border-radius: 999px; margin-left: 6px; vertical-align: 2px; }
+.src-real { background: var(--ok-bg); color: var(--ok); }
+.src-illu { background: var(--warn-bg); color: var(--warn); }
+.cmp th:first-child { width: 22%; }
+.tree { margin-top: 18px; display: grid; gap: 10px; max-width: 760px; }
+.tree .q { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 12px; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; }
+.tree .q .n { width: 26px; height: 26px; border-radius: 50%; background: var(--soft); display: grid; place-items: center; font-weight: 800; font-size: 13px; color: var(--muted); }
+.tree .q .yes { font-size: 13px; color: var(--muted); white-space: nowrap; }
+.tree .no { font-size: 12.5px; color: var(--muted); padding-left: 52px; }
+.matrix td, .matrix th { text-align: center; }
+.matrix td:first-child, .matrix th:first-child { text-align: left; white-space: nowrap; }
+.matrix td.nr { background: var(--bad-bg); color: var(--bad); font-weight: 700; font-size: 12px; }
+.matrix td.na { color: var(--muted); opacity: .45; }
+.matrix th { white-space: normal; min-width: 72px; }
+.matrix a { font-family: ui-monospace, Menlo, monospace; font-weight: 700; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.pair3 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; margin-top: 14px; }
+@media (max-width: 900px) { .pair3 { grid-template-columns: minmax(0, 1fr); } }
+.pair3 > div { min-width: 0; }
+.pair3 .lbl { font-size: 13px; font-weight: 700; color: var(--muted); }
+.gloss dt { font-weight: 700; margin-top: 16px; }
+.gloss dd { margin: 4px 0 0; color: var(--muted); max-width: 820px; }
+.flowgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+@media (max-width: 760px) { .flowgrid { grid-template-columns: minmax(0, 1fr); } }
+.flowgrid .st { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+.flowgrid .st b { display: block; }
+.flowgrid .st span { color: var(--muted); font-size: 13px; }
+.flowgrid .st.hl { border-color: var(--accent); background: var(--accent-soft); }
+.stamp { margin-top: 12px; font-size: 13px; color: var(--muted); }
+
+</style>
+</head>
+<body>
+<header class="top"><div class="in"><a class="brand" href="index.html">Admin API Snapshot <span>review</span></a><nav class="pages"><a href="index.html" class="on">Overview</a><a href="snapshot.html">Generated files</a><a href="coverage.html">Coverage</a><a href="open.html">Open questions</a><a href="plugins.html">Plugins</a><a href="generator.html">Generator</a><a href="backtest.html">Backtest</a><a href="decisions.html">Decisions</a><a href="glossary.html">Glossary</a></nav></div></header>
+<div class="layout">
+<aside class="toc"><div class="lbl">On this page</div>
+<a class="" href="#how-to-review">How to review</a>
+<a class="" href="#the-problem">The problem</a>
+<a class="" href="#today-and-with-the-snapshot">Today and with the snapshot</a>
+<a class="" href="#how-it-works">How it works</a>
+<a class="l3" href="#two-flag-states">Two flag states</a>
+<a class="" href="#one-change-end-to-end">One change, end to end</a>
+<a class="" href="#current-state">Current state</a>
+</aside>
+<main>
+<div class="eyebrow">Page 1 of 9 · Must read · about 10 min</div>
+<h1>Overview</h1>
+<p class="lead">A generated, committed list of everything plugins can use in the Administration, so a PR that breaks it shows up in the diff and fails CI.</p>
+
+<p class="note"><b>Short on time?</b> <a href="play.html">Play the 8-minute version first</a>: three real PRs, you decide whether they break plugins.</p>
+<div class="tldr">
+  <b>In short</b>
+  <ul>
+    <li><b>Idea:</b> a generator writes the complete public API of the Administration into committed files. CI compares base and head and fails on breaks that nobody announced.</li>
+    <li><b>Decided:</b> what counts as public, the file format, the two flag states, the CI checks, the plugin integration, the block context rules the plugin-facing names found in the store plugins, and the upgrade path for plugins: <code>@bc-change</code> markers modelled on PHP, change patterns, the upgrade report and marker validation (<a href="decisions.html#D1">D1</a>–<a href="decisions.html#D37">D37</a>).</li>
+    <li><b>Done:</b> the format spec, a hand-written example snapshot that compiles, 24 test fixtures and 4 real PRs as backtest.</li>
+    <li><b>Proposed, not decided:</b> the generator design and the answers to the open questions <a href="open.html#Q1">Q1</a>–<a href="open.html#Q13">Q13</a>.</li>
+    <li><b>Wanted from you:</b> feedback on readability of the reports, on coverage gaps, and on the open questions, by ID.</li>
+  </ul>
+</div>
+
+<h2 id="how-to-review">How to review</h2>
+<div class="meta"><span><b>Total:</b> about 70 minutes for the must-read pages</span></div>
+<div class="tw"><table><thead><tr><th>Page</th><th>Priority</th><th>Time</th><th>Question for you</th></tr></thead><tbody><tr><td><a href="index.html">Overview</a></td><td><b>must read</b></td><td>10 min</td><td>Is the idea clear, and is the worked example convincing?</td></tr><tr><td><a href="snapshot.html">Generated files</a></td><td><b>must read</b></td><td>20 min</td><td>Do the .api.md reports read well, and do they contain the right things?</td></tr><tr><td><a href="coverage.html">Coverage</a></td><td><b>must read</b></td><td>25 min</td><td>Is every API part and every kind of change covered and classified the way we want?</td></tr><tr><td><a href="open.html">Open questions</a></td><td><b>must read</b></td><td>15 min</td><td>Do you agree with the proposed answers?</td></tr><tr><td><a href="plugins.html">Plugins</a></td><td>skim</td><td>10 min</td><td>Is the plugin experience worth the core change and the migration?</td></tr><tr><td><a href="generator.html">Generator</a></td><td>skim</td><td>10 min</td><td>Is the workflow right, and is the proposed design reasonable?</td></tr><tr><td><a href="backtest.html">Backtest</a></td><td>skim</td><td>10 min</td><td>Are the expected results for the real PRs right?</td></tr><tr><td><a href="decisions.html">Decisions</a></td><td>skim</td><td>5 min</td><td>Do you disagree with any decision, including the new <a href="decisions.html#D31">D31</a> to <a href="decisions.html#D37">D37</a>?</td></tr><tr><td><a href="glossary.html">Glossary</a></td><td>reference</td><td>3 min</td><td>Look up a term.</td></tr></tbody></table></div>
+<p>Refer to IDs in your feedback: A for API parts, B for finding types, N for what is not covered, D for decisions, S for assumptions, Q for open questions.
+You do not need to read <code>FORMAT.md</code>. These pages summarize it; open it only to check a detail.</p>
+
+<h2 id="the-problem">The problem</h2>
+<p>Coding agents now write most Administration PRs, and we cannot review all of them line by line.
+In the Administration the main review risk is breaking extensions.
+Plugins hook in through names they only know as strings: components, blocks, methods called via <code>$super</code>, props, services, stores, routes and snippet keys.
+If a PR renames or moves one of them, neither the build nor the tests fail, and the plugin stops working.
+Today the only way to see what is public is to read the code and know the conventions.</p>
+<p>Real cases:</p>
+<ul>
+  <li><b><a href="https://github.com/shopware/shopware/issues/20959">#20959</a></b> added a <code>&lt;div&gt;</code> that opens in one block and closes in another, and moved a block. Plugins that replace the inner block broke the page (issue <a href="https://github.com/shopware/shopware/issues/21108">#21108</a>, fixed in <a href="https://github.com/shopware/shopware/issues/21189">#21189</a>).</li>
+  <li><b><a href="https://github.com/shopware/shopware/issues/17339">#17339</a></b> renamed blocks only with the major feature flag on. The bulk edit lost all custom field checkboxes, and nobody noticed for four weeks (issue <a href="https://github.com/shopware/shopware/issues/19601">#19601</a>).</li>
+  <li><b><a href="https://github.com/shopware/shopware/issues/15271">#15271</a></b> deleted blocks of <code>sw-admin-menu</code> during the UI shell rework and regenerated <code>blocks-list.json</code>, so the guard test turned green again without anyone looking at the deletion.
+    With the snapshot, every deleted block shows up in the PR diff.
+    The check does not fail, because the shell components are <code>@private</code>; it lists the 219 changes in the private group.</li>
+</ul>
+
+<h2 id="today-and-with-the-snapshot">Today and with the snapshot</h2>
+<div class="tw"><table class="cmp"><thead><tr><th>Who</th><th>Today</th><th>With the snapshot</th></tr></thead><tbody>
+<tr><td><b>Reviewer</b></td><td>Reads the whole diff and decides from memory what plugins use.</td><td>Reads the check summary. The <code>.api.md</code> diff shows only API changes, never code inside methods.</td></tr>
+<tr><td><b>PR author</b></td><td>Gets no signal. Learns about a break from a plugin bug report.</td><td>Gets an annotation on the source line with the reason and a fix, before the review.</td></tr>
+<tr><td><b>Plugin developer</b></td><td>Finds out after an update that a block or method is gone.</td><td>Gets a type error for unknown names (after the core change for <a href="decisions.html#D20">D20</a>) and a check against the current and the next major.</td></tr>
+<tr><td><b>Major release</b></td><td>Removals behind the major flag go unnoticed (<a href="https://github.com/shopware/shopware/issues/17339">#17339</a>).</td><td>Both flag states are checked. A removal without <code>@deprecated</code> is a break.</td></tr>
+</tbody></table></div>
+
+<h2 id="how-it-works">How it works</h2>
+<div class="flow">
+  <div class="st"><b>Source code</b><span>components, Twig templates, modules, en.json, the Shopware object</span></div>
+  <div class="ar">→</div>
+  <div class="st"><b>Generator</b><span><code>composer admin:generate-public-api</code></span></div>
+  <div class="ar">→</div>
+  <div class="st hl"><b>public-api/</b><span>committed: one .api.md report and one .d.ts file per unit</span></div>
+  <div class="ar">→</div>
+  <div class="st"><b>CI</b><span>drift check and break check, summary and annotations in the PR</span></div>
+  <div class="ar">→</div>
+  <div class="st"><b>Plugins</b><span>types and a compatibility check</span></div>
+</div>
+<p>Everything without <code>@private</code> is public API. That rule already exists in <code>technical-docs/11-code-quality/02-unused-code.md</code>; the snapshot makes it checkable.</p>
+
+<h3 id="two-flag-states">Two flag states</h3>
+<p>Every file is generated for two flag states.
+<b>Current</b> means the major feature flag <code>v6.8.0.0</code> is off, as in today's releases.
+<b>Major</b> means it is on, as in the next major release.
+The report shows both in one tree and marks what exists in only one of them, by version, so the marker still makes sense when someone reads an old commit: <code>[until v6.8.0]</code> exists in every release before 6.8.0, <code>[from v6.8.0]</code> from 6.8.0 on.</p>
+<div class="pair3">
+  <div><div class="lbl">Current state</div><pre class="code">sw_sales_channel_detail_content_tabs
+  sw_sales_channel_detail_content_tab_general
+  sw_sales_channel_detail_content_tab_products
+  sw_sales_channel_detail_content_tab_theme
+  …</pre></div>
+  <div><div class="lbl">Major state</div><pre class="code">sw_sales_channel_detail_content_tabs
+  sw_sales_channel_detail_content_mt_tabs</pre></div>
+</div>
+<div style="margin-top:14px"><div class="fname"><b>sw-sales-channel-detail.api.md, both states merged</b></div><pre class="code"><span class="ln">sw_sales_channel_detail_content_tabs</span><span class="ln">  sw_sales_channel_detail_content_mt_tabs  <span class="m">[from v6.8.0]</span></span><span class="ln">  sw_sales_channel_detail_content_tab_general  <span class="m">[until v6.8.0]</span></span><span class="ln">  sw_sales_channel_detail_content_tab_products  <span class="m">[after v-if]</span> <span class="m">[until v6.8.0]</span></span><span class="ln">  sw_sales_channel_detail_content_tab_theme  <span class="m">[empty]</span> <span class="m">[after v-if]</span> <span class="m">[until v6.8.0]</span></span></pre></div>
+<p>These tab blocks disappear in the major state without a <code>@deprecated</code> tag. The example snapshot found this on trunk.</p>
+
+<h2 id="one-change-end-to-end">One change, end to end</h2>
+<p>A PR renames a method that plugins can call. This is what every person involved sees.</p>
+<div class="steps">
+  <div class="step"><h4>The change <span class="src-tag src-illu">illustrative</span></h4><p>The author renames <code>getLoadSalesChannelCriteria</code> to <code>getSalesChannelCriteria</code>. This example comes from <code>FORMAT.md</code>.</p><pre class="code"><span class="ln">// src/module/sw-sales-channel/page/sw-sales-channel-detail/index.js</span><span class="ln del">-        getLoadSalesChannelCriteria() {</span><span class="ln add">+        getSalesChannelCriteria() {</span></pre></div>
+  <div class="step"><h4>The diff in the PR</h4><p>The author regenerates and commits the snapshot. The method list in the report changes by two lines. The neighbouring lines are real.</p><div style="margin-top:14px"><div class="fname"><b>module/sw-sales-channel/page/sw-sales-channel-detail.api.md</b></div><pre class="code"><span class="ln"><span class="sec">methods</span></span><span class="ln">   generateAccessUrl(): any</span><span class="ln del">-  getLoadSalesChannelCriteria(): any</span><span class="ln">   getRequiredSalesChannelFieldError(fieldName: any): any</span><span class="ln">   getRequiredSalesChannelFieldErrorExpression(fieldName: any): any</span><span class="ln">   getRequiredSalesChannelFields(): any</span><span class="ln add">+  getSalesChannelCriteria(): any</span><span class="ln">   getSalesChannelEntityName(): any</span></pre></div></div>
+  <div class="step"><h4>What CI prints <span class="src-tag src-illu">illustrative</span></h4><p>The break check fails. The text follows the format in <code>FORMAT.md</code>. The source line also gets an annotation.</p><pre class="code wrap">Public API check failed: 1 unannounced break.
+
+Break (1)
+  method_missing  component:sw-sales-channel-detail/method:getLoadSalesChannelCriteria  current, major
+    The method is gone, so plugin overrides that call $super(&#x27;getLoadSalesChannelCriteria&#x27;) throw at runtime.
+    Fix: pattern &quot;Rename&quot;. Keep getLoadSalesChannelCriteria, let it call getSalesChannelCriteria, keep calling it from core while v6.8.0.0 is off, and mark it @deprecated tag:v6.8.0 - Use {@link getSalesChannelCriteria} instead.
+    Possible rename: getSalesChannelCriteria.
+    Also affects: sw-sales-channel-create (extends sw-sales-channel-detail).
+    At: src/module/sw-sales-channel/page/sw-sales-channel-detail/index.js:303
+
+Addition (1)
+  method_added  component:sw-sales-channel-detail/method:getSalesChannelCriteria  current, major
+    A new public method that plugins can rely on from now on.
+    Fix: mark it @private if it is not meant for plugins.
+
+Change patterns: public-api/FORMAT.md#change-patterns
+Breaking this on purpose? See &quot;Intended breaks&quot; in public-api/FORMAT.md.</pre></div>
+  <div class="step"><h4>How the author resolves it</h4>
+    <p><b>Option A, the pattern "Rename".</b> The <code>Fix:</code> line names it. The old name stays, delegates, and links its replacement. The check passes with one addition and one info, and the removal is allowed in 6.8. Plugin developers see the rename in their upgrade report and can switch on the current version.</p><pre class="code"><span class="c">/** @deprecated tag:v6.8.0 - Use {@link getSalesChannelCriteria} instead. */</span>
+getLoadSalesChannelCriteria() {
+<span class="c">    // Core keeps calling the old name while v6.8.0.0 is off, so plugin overrides of it keep running.</span>
+    <span class="k">return</span> <span class="k">this</span>.getSalesChannelCriteria();
+},
+
+getSalesChannelCriteria() {
+<span class="c">    // the code of the old method</span>
+},</pre>
+    <p><b>Option B, only when the pattern cannot be followed.</b> The author adds an entry that names the pattern and says why it does not work here. Code owners approve it, and the check passes with the break listed first, in the accepted group. The check output never suggests this file; only its last line points to the rules.</p><pre class="code">{
+    &quot;accepted&quot;: [
+        {
+            &quot;finding&quot;: &quot;method_missing&quot;,
+            &quot;element&quot;: &quot;component:sw-sales-channel-detail/method:getLoadSalesChannelCriteria&quot;,
+            &quot;pattern&quot;: &quot;Rename&quot;,
+            &quot;justification&quot;: &quot;The old criteria builder returns a different association set, so it cannot delegate to getSalesChannelCriteria.&quot;,
+            &quot;issue&quot;: &quot;https://github.com/shopware/shopware/issues/22591&quot;
+        }
+    ]
+}</pre>
+    <p>If the new method is not meant for plugins, the author marks it <code>@private</code>, and the addition moves to the private group.</p></div>
+  <div class="step"><h4>What a plugin developer sees <span class="src-tag src-illu">illustrative</span></h4><p>A plugin that still calls the old name gets a type error. This needs the core change for <a href="decisions.html#D20">D20</a>; the message text is not specified yet.</p><pre class="code">Shopware.Component.override(<span class="s">&#x27;sw-sales-channel-detail&#x27;</span>, {
+    methods: {
+        getLoadSalesChannelCriteria() {
+            <span class="k">const</span> criteria = <span class="k">this</span>.$super(<span class="s">&#x27;getLoadSalesChannelCriteria&#x27;</span>);
+<span class="c">            //                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="c">            // error: &#x27;getLoadSalesChannelCriteria&#x27; is not a method of sw-sales-channel-detail</span>
+            <span class="k">return</span> criteria;
+        },
+    },
+});</pre><p>JS plugins get the same finding from <code>admin:check-extensions</code>, with the plugin file and line.</p></div>
+</div>
+
+<h2 id="current-state">Current state</h2>
+<p>We define the output first, by hand, before any generator code exists.</p>
+<div class="tw"><table><thead><tr><th>Part</th><th>State</th><th>Where</th></tr></thead><tbody>
+<tr><td>Format spec</td><td><span class="tag t-ok">written, in review</span></td><td><code>public-api/FORMAT.md</code></td></tr>
+<tr><td>Decisions and plan</td><td><span class="tag t-ok">written</span></td><td><code>PUBLIC_API_SNAPSHOT_PLAN.md</code></td></tr>
+<tr><td>Example snapshot</td><td><span class="tag t-ok">hand-written, compiles with tsc</span></td><td><code>public-api/</code>: sw-sales-channel, sw-order, two mixins, the Shopware object, a service, a store, the shopware:* modules, referenced types</td></tr>
+<tr><td>Test fixtures</td><td><span class="tag t-ok">24 written</span></td><td><code>scripts/generate-public-api/__fixtures__/</code></td></tr>
+<tr><td>Historical cases</td><td><span class="tag t-ok">4 written</span></td><td><a href="https://github.com/shopware/shopware/issues/20959">#20959</a>, <a href="https://github.com/shopware/shopware/issues/17339">#17339</a>, <a href="https://github.com/shopware/shopware/issues/15271">#15271</a>, <a href="https://github.com/shopware/shopware/issues/17081">#17081</a></td></tr>
+<tr><td>Generator, CI checks</td><td><span class="tag">not started</span></td><td>after this review</td></tr>
+<tr><td>Core change for typed overrides (<a href="decisions.html#D20">D20</a>, <a href="decisions.html#D21">D21</a>)</td><td><span class="tag">not started</span></td><td><code>global.types.ts</code>, <code>async-component.factory.ts</code></td></tr>
+<tr><td>Replacing the old lists, plugin tooling</td><td><span class="tag">not started</span></td><td></td></tr>
+</tbody></table></div>
+<p>What the snapshot does not cover, on purpose or not decided yet, is listed in <a href="coverage.html#N1">N1</a>–<a href="coverage.html#N13">N13</a>.</p>
+
+<div class="pager"><span></span><a href="snapshot.html">Generated files →</a></div>
+<p class="stamp">Pages as of 2026-11-06 · branch 22591-admin-make-public-api-breaks-statically-analyzable · base commit e944b563785 plus the uncommitted golden files</p>
+</main>
+</div>
+</body>
+</html>

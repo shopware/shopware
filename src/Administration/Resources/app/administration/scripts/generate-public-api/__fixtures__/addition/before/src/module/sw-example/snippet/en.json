@@ -1,0 +1,12 @@
+{
+    "sw-example": {
+        "general": {
+            "mainMenuItemGeneral": "Examples",
+            "descriptionTextModule": "Manage examples here."
+        },
+        "detail": {
+            "titleCard": "General",
+            "labelName": "Name"
+        }
+    }
+}

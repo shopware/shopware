@@ -55,7 +55,7 @@
             "toolingDependencies": ["jsdoc", "docdash"]
         }
     ],
-    "ignorePatterns": ["!build/**", "scripts/codemods/sfc-migration/__fixtures__/**"],
+    "ignorePatterns": ["!build/**", "scripts/codemods/sfc-migration/__fixtures__/**", "scripts/generate-public-api/__fixtures__/**", "public-api-concept/**"],
     "ignoreFindings": ["build/vite-plugins/**/_fixtures/**"],
     "ignoreDependencies": [
         "shopware:*",

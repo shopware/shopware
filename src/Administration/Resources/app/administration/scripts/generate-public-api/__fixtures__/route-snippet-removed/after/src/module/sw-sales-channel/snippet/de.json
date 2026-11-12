@@ -1,0 +1,13 @@
+{
+    "sw-sales-channel": {
+        "general": {
+            "titleMenuItems": "Verkaufskanäle"
+        },
+        "list": {
+            "productsCount": "Produkt | Produkte"
+        },
+        "detail": {
+            "messageSaveSuccess": "Der Verkaufskanal \"{name}\" wurde erfolgreich gespeichert."
+        }
+    }
+}

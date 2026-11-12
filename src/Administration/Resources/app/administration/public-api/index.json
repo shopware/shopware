@@ -1,0 +1,374 @@
+{
+    "components": {
+        "sw-order-detail": {
+            "file": "module/sw-order/page/sw-order-detail",
+            "visibility": "public",
+            "extends": null,
+            "blocks": [
+                "sw_order_detail",
+                "sw_order_detail_actions",
+                "sw_order_detail_actions_abort",
+                "sw_order_detail_actions_save",
+                "sw_order_detail_actions_slot_smart_bar_actions",
+                "sw_order_detail_content",
+                "sw_order_detail_content_leave_page_modal",
+                "sw_order_detail_content_mt_tabs",
+                "sw_order_detail_content_save_changes_beforehand_modal",
+                "sw_order_detail_content_tabs",
+                "sw_order_detail_content_tabs_details",
+                "sw_order_detail_content_tabs_documents",
+                "sw_order_detail_content_tabs_extension",
+                "sw_order_detail_content_tabs_general",
+                "sw_order_detail_content_view",
+                "sw_order_detail_header",
+                "sw_order_detail_header_label_manual_order",
+                "sw_order_detail_header_title",
+                "sw_order_detail_header_title_new",
+                "sw_order_detail_language_switch"
+            ]
+        },
+        "sw-sales-channel-create": {
+            "file": "module/sw-sales-channel/page/sw-sales-channel-create",
+            "visibility": "public",
+            "extends": "sw-sales-channel-detail",
+            "blocks": [
+                "sw_sales_channel_detail",
+                "sw_sales_channel_detail_actions",
+                "sw_sales_channel_detail_actions_save",
+                "sw_sales_channel_detail_agentic_commerce_deprecation_banner",
+                "sw_sales_channel_detail_content",
+                "sw_sales_channel_detail_content_language_info",
+                "sw_sales_channel_detail_content_tabs",
+                "sw_sales_channel_detail_content_view",
+                "sw_sales_channel_detail_header",
+                "sw_sales_channel_detail_header_headline",
+                "sw_sales_channel_detail_language_switch",
+                "sw_sales_channel_detail_sidebar"
+            ]
+        },
+        "sw-sales-channel-detail": {
+            "file": "module/sw-sales-channel/page/sw-sales-channel-detail",
+            "visibility": "public",
+            "extends": null,
+            "blocks": [
+                "sw_sales_channel_detail",
+                "sw_sales_channel_detail_actions",
+                "sw_sales_channel_detail_actions_save",
+                "sw_sales_channel_detail_agentic_commerce_deprecation_banner",
+                "sw_sales_channel_detail_content",
+                "sw_sales_channel_detail_content_language_info",
+                "sw_sales_channel_detail_content_mt_tabs",
+                "sw_sales_channel_detail_content_tab_agentic_commerce_integration",
+                "sw_sales_channel_detail_content_tab_analytics",
+                "sw_sales_channel_detail_content_tab_export_template",
+                "sw_sales_channel_detail_content_tab_general",
+                "sw_sales_channel_detail_content_tab_product_comparison",
+                "sw_sales_channel_detail_content_tab_product_export_insights",
+                "sw_sales_channel_detail_content_tab_products",
+                "sw_sales_channel_detail_content_tab_theme",
+                "sw_sales_channel_detail_content_tabs",
+                "sw_sales_channel_detail_content_view",
+                "sw_sales_channel_detail_header",
+                "sw_sales_channel_detail_header_headline",
+                "sw_sales_channel_detail_language_switch",
+                "sw_sales_channel_detail_sidebar"
+            ]
+        }
+    },
+    "mixins": {
+        "notification": {
+            "file": "app/mixin/notification",
+            "visibility": "private"
+        },
+        "placeholder": {
+            "file": "app/mixin/placeholder",
+            "visibility": "private"
+        }
+    },
+    "modules": {
+        "sw-order": {
+            "file": "module/sw-order/module"
+        },
+        "sw-sales-channel": {
+            "file": "module/sw-sales-channel/module"
+        }
+    },
+    "positionIdentifiers": {
+        "sw-order-detail": [
+            "sw-order-detail"
+        ],
+        "sw-order-detail__before-content": [
+            "sw-order-detail"
+        ],
+        "sw-sales-channel-detail": [
+            "sw-sales-channel-detail"
+        ]
+    },
+    "dynamicPositionIdentifiers": {},
+    "dataSets": {
+        "sw-order-detail-base__order": [
+            "sw-order-detail"
+        ],
+        "sw-sales-channel-detail__salesChannel": [
+            "sw-sales-channel-detail"
+        ]
+    },
+    "virtualModules": {
+        "shopware:composables": {
+            "exports": [
+                "useCmsElement",
+                "useCmsState",
+                "useInlineSnippet",
+                "useListing",
+                "useMediaGridListener",
+                "useMediaSidebarModal",
+                "useNotification",
+                "useNotificationTranslation",
+                "usePlaceholder",
+                "usePosition",
+                "useRuleBetweenOperator",
+                "useRuleContainer",
+                "useSalutation",
+                "useTranslateWithFallback",
+                "useUserSettings",
+                "useValidation",
+                "useVideoCover"
+            ],
+            "subpaths": {
+                "useCmsElement": [],
+                "useCmsState": [],
+                "useInlineSnippet": [],
+                "useListing": [],
+                "useMediaGridListener": [],
+                "useMediaSidebarModal": [],
+                "useNotification": [],
+                "useNotificationTranslation": [],
+                "usePlaceholder": [],
+                "usePosition": [],
+                "useRuleBetweenOperator": [],
+                "useRuleContainer": [],
+                "useSalutation": [],
+                "useTranslateWithFallback": [],
+                "useUserSettings": [],
+                "useValidation": [],
+                "useVideoCover": []
+            }
+        },
+        "shopware:data": {
+            "exports": [
+                "ChangesetGenerator",
+                "Criteria",
+                "Entity",
+                "EntityCollection",
+                "EntityDefinition",
+                "EntityFactory",
+                "EntityHydrator",
+                "ErrorResolver",
+                "FilterFactory",
+                "Repository"
+            ],
+            "subpaths": {
+                "ChangesetGenerator": [],
+                "Criteria": [],
+                "Entity": [],
+                "EntityCollection": [],
+                "EntityDefinition": [],
+                "EntityFactory": [],
+                "EntityHydrator": [],
+                "ErrorResolver": [],
+                "FilterFactory": [],
+                "Repository": []
+            }
+        },
+        "shopware:mixins": {
+            "exports": [],
+            "subpaths": {
+                "discard-detail-page-changes": [],
+                "generic-condition": [],
+                "listing": [],
+                "notification": [],
+                "notification-translation": [],
+                "placeholder": [],
+                "position": [],
+                "remove-api-error": [],
+                "rule-between-operator": [],
+                "ruleContainer": [],
+                "salutation": [],
+                "sw-form-field": [],
+                "sw-inline-snippet": [],
+                "translate-with-fallback": [],
+                "user-settings": [],
+                "validation": []
+            }
+        },
+        "shopware:stores": {
+            "exports": [],
+            "subpaths": {
+                "actionButtons": [],
+                "adminHelpCenter": [],
+                "adminMenu": [],
+                "blockOverride": [],
+                "cmsPage": [],
+                "context": [],
+                "error": [],
+                "extensionComponentSections": [],
+                "extensionEntryRoutes": [],
+                "extensionMainModules": [],
+                "extensionSdkModules": [],
+                "extensions": [],
+                "inAppPurchaseCheckout": [],
+                "licenseViolation": [],
+                "marketing": [],
+                "mediaModal": [],
+                "menuItem": [],
+                "modals": [],
+                "notification": [],
+                "paymentOverviewCard": [],
+                "ruleConditionsConfig": [],
+                "sdkLocation": [],
+                "session": [],
+                "settingsItems": [],
+                "shopwareApps": [],
+                "shopwareExtensions": [],
+                "sidebar": [],
+                "swBulkEdit": [],
+                "swCategoryDetail": [],
+                "swFlow": [],
+                "swOrder": [],
+                "swOrderDetail": [],
+                "swProductDetail": [],
+                "swProfile": [],
+                "swPromotionDetail": [],
+                "swSeoUrl": [],
+                "swShippingDetail": [],
+                "system": [],
+                "tabs": [],
+                "teaserPopover": [],
+                "topBarButton": []
+            }
+        },
+        "shopware:utils": {
+            "exports": [
+                "EventBus",
+                "VueHelper",
+                "array",
+                "createId",
+                "debounce",
+                "debug",
+                "dom",
+                "extension",
+                "fileReader",
+                "flow",
+                "format",
+                "genericRuleCondition",
+                "get",
+                "mapInheritanceSlotPropsToMeteorProps",
+                "moveItem",
+                "object",
+                "sort",
+                "string",
+                "throttle",
+                "types",
+                "unitConversion"
+            ],
+            "subpaths": {
+                "EventBus": [],
+                "VueHelper": [],
+                "array": [
+                    "chunk",
+                    "flattenDeep",
+                    "intersectionBy",
+                    "remove",
+                    "slice",
+                    "uniqBy"
+                ],
+                "createId": [],
+                "debounce": [],
+                "debug": [
+                    "error",
+                    "warn"
+                ],
+                "dom": [
+                    "copyStringToClipboard",
+                    "getScrollbarHeight",
+                    "getScrollbarWidth"
+                ],
+                "extension": [
+                    "getExtensionNameByOrigin"
+                ],
+                "fileReader": [
+                    "getNameAndExtensionFromFile",
+                    "getNameAndExtensionFromUrl",
+                    "readAsArrayBuffer",
+                    "readAsDataURL",
+                    "readAsText"
+                ],
+                "flow": [],
+                "format": [
+                    "currency",
+                    "date",
+                    "dateWithUserTimezone",
+                    "fileSize",
+                    "localeName",
+                    "md5",
+                    "toISODate"
+                ],
+                "genericRuleCondition": [
+                    "getPlaceholderSnippet"
+                ],
+                "get": [],
+                "mapInheritanceSlotPropsToMeteorProps": [],
+                "moveItem": [],
+                "object": [
+                    "cloneDeep",
+                    "deepCopyObject",
+                    "deepMergeObject",
+                    "get",
+                    "getArrayChanges",
+                    "getObjectDiff",
+                    "has",
+                    "hasOwnProperty",
+                    "merge",
+                    "mergeWith",
+                    "pick",
+                    "set",
+                    "unset"
+                ],
+                "sort": [
+                    "afterSort"
+                ],
+                "string": [
+                    "camelCase",
+                    "capitalizeString",
+                    "isEmptyOrSpaces",
+                    "isUrl",
+                    "isValidCidr",
+                    "isValidIp",
+                    "kebabCase",
+                    "md5",
+                    "snakeCase",
+                    "upperFirst"
+                ],
+                "throttle": [],
+                "types": [
+                    "isArray",
+                    "isBoolean",
+                    "isDate",
+                    "isEmpty",
+                    "isEqual",
+                    "isFunction",
+                    "isNumber",
+                    "isObject",
+                    "isPlainObject",
+                    "isRegExp",
+                    "isString",
+                    "isUndefined"
+                ],
+                "unitConversion": [
+                    "convert"
+                ]
+            }
+        }
+    },
+    "announcements": []
+}

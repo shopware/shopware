@@ -1,0 +1,7 @@
+Public API check passed: no breaks.
+
+Info (1)
+  acceptance_stale  component:sw-sales-channel-create/method:getLoadSalesChannelCriteria  current, major
+    The method_missing entry added to public-api/accepted-breaks.json in this PR matches no finding, so it accepts nothing.
+    Fix: correct the finding id, the element id or the pattern of the entry, or remove the entry.
+    At: public-api/accepted-breaks.json:11

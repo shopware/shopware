@@ -1,0 +1,14 @@
+{
+    "sw-example": {
+        "general": {
+            "mainMenuItemGeneral": "Examples",
+            "descriptionTextModule": "Manage examples here."
+        },
+        "list": {
+            "textDeleteConfirm": "Do you really want to delete \"{exampleName}\"?",
+            "textEmptyState": "You have not created any examples yet.",
+            "textResultSummary": "{total} examples in total, {visible} shown",
+            "textSelectionCount": "No examples selected | {count} example selected | {count} examples selected"
+        }
+    }
+}

@@ -1,0 +1,6 @@
+{
+    "row": "Block moved under a different parent block",
+    "headVersion": "6.7",
+    "majorFlags": ["v6.8.0.0"],
+    "acceptedBreaks": null
+}

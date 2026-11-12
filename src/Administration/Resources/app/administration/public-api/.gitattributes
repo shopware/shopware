@@ -1,0 +1,5 @@
+*.d.ts linguist-generated=true
+*.api.md linguist-generated=true
+index.json linguist-generated=true
+_base/*.d.ts -linguist-generated
+_excerpt/*.d.ts -linguist-generated

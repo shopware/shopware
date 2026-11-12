@@ -1,0 +1,47 @@
+{
+    "components": {
+        "sw-sales-channel-detail": {
+            "file": "module/sw-sales-channel/page/sw-sales-channel-detail",
+            "visibility": "public",
+            "extends": null,
+            "blocks": [
+                "sw_sales_channel_detail",
+                "sw_sales_channel_detail_content",
+                "sw_sales_channel_detail_content_view",
+                "sw_sales_channel_detail_header",
+                "sw_sales_channel_detail_header_headline"
+            ]
+        },
+        "sw-sales-channel-detail-agentic-files": {
+            "file": "module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files",
+            "visibility": "public",
+            "extends": null,
+            "blocks": [
+                "sw_sales_channel_detail_agentic_files",
+                "sw_sales_channel_detail_agentic_files_list"
+            ]
+        },
+        "sw-sales-channel-list": {
+            "file": "module/sw-sales-channel/page/sw-sales-channel-list",
+            "visibility": "public",
+            "extends": null,
+            "blocks": [
+                "sw_sales_channel_list",
+                "sw_sales_channel_list_content",
+                "sw_sales_channel_list_smart_bar_header",
+                "sw_sales_channel_list_smart_bar_header_title"
+            ]
+        }
+    },
+    "mixins": {},
+    "modules": {
+        "sw-sales-channel": {
+            "file": "module/sw-sales-channel/module"
+        }
+    },
+    "positionIdentifiers": {},
+    "dynamicPositionIdentifiers": {},
+    "dataSets": {},
+    "virtualModules": {},
+    "announcements": []
+}

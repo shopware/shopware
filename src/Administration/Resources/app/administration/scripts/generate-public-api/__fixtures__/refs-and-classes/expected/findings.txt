@@ -1,0 +1,20 @@
+Public API check failed: 2 unannounced breaks.
+
+Break (2)
+  ref_missing  component:sw-example-card/ref:titleField  current, major
+    The template ref titleField is gone, so plugin overrides that read this.$refs.titleField get undefined.
+    Fix: keep the ref.
+    At: src/app/component/base/sw-example-card/sw-example-card.html.twig:8
+  ref_target_changed  component:sw-example-card/ref:grid  current, major
+    The template ref grid now points to sw-entity-listing instead of sw-data-grid, so plugin code that calls methods on it fails.
+    Fix: pattern "Rename". Keep the ref grid on sw-data-grid and give the ref on sw-entity-listing another name.
+    At: src/app/component/base/sw-example-card/sw-example-card.html.twig:17
+
+Info (1)
+  class_missing  component:sw-example-card/class:sw-example-card__grid  current, major
+    The CSS class sw-example-card__grid is no longer in the template, so plugin styles and selectors that use it stop matching.
+    Fix: mention it in the upgrade notes if plugins are likely to style it.
+    At: src/app/component/base/sw-example-card/sw-example-card.html.twig:16
+
+Change patterns: public-api/FORMAT.md#change-patterns
+Breaking this on purpose? See "Intended breaks" in public-api/FORMAT.md.

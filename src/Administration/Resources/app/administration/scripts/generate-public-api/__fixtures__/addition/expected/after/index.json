@@ -1,0 +1,33 @@
+{
+    "components": {
+        "sw-example-detail": {
+            "file": "module/sw-example/page/sw-example-detail",
+            "visibility": "public",
+            "extends": null,
+            "blocks": [
+                "sw_example_detail",
+                "sw_example_detail_actions",
+                "sw_example_detail_actions_save",
+                "sw_example_detail_content",
+                "sw_example_detail_content_card",
+                "sw_example_detail_content_notices",
+                "sw_example_detail_header"
+            ]
+        }
+    },
+    "mixins": {},
+    "modules": {
+        "sw-example": {
+            "file": "module/sw-example/module"
+        }
+    },
+    "positionIdentifiers": {
+        "sw-example-detail-card": [
+            "sw-example-detail"
+        ]
+    },
+    "dynamicPositionIdentifiers": {},
+    "dataSets": {},
+    "virtualModules": {},
+    "announcements": []
+}

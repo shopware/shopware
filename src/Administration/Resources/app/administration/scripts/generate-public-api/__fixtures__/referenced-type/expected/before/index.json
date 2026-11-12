@@ -1,0 +1,15 @@
+{
+    "components": {},
+    "mixins": {
+        "example-toast": {
+            "file": "app/mixin/example-toast",
+            "visibility": "public"
+        }
+    },
+    "modules": {},
+    "positionIdentifiers": {},
+    "dynamicPositionIdentifiers": {},
+    "dataSets": {},
+    "virtualModules": {},
+    "announcements": []
+}

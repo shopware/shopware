@@ -1,0 +1,54 @@
+{% block sw_sales_channel_detail %}
+<sw-page class="sw-sales-channel-detail">
+    {% block sw_sales_channel_detail_header %}
+    <template #smart-bar-header>
+        {% block sw_sales_channel_detail_header_headline %}
+        <h2>{{ salesChannel?.translated?.name ?? $t('sw-sales-channel.detail.textHeadline') }}</h2>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_sales_channel_detail_actions %}
+    <template #smart-bar-actions>
+        {% block sw_sales_channel_detail_actions_save %}
+        <sw-button-process
+            v-tooltip.bottom="tooltipSave"
+            class="sw-sales-channel-detail__save-action"
+            :is-loading="isLoading"
+            :process-success="isSaveSuccessful"
+            :disabled="!allowSaving || isLoading"
+            variant="primary"
+            @update:process-success="saveFinish"
+            @click.prevent="onSave"
+        >
+            {{ $t('global.default.save') }}
+        </sw-button-process>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_sales_channel_detail_language_switch %}
+    <template #language-switch>
+        <sw-language-switch @on-change="loadSalesChannel" />
+    </template>
+    {% endblock %}
+
+    {% block sw_sales_channel_detail_content %}
+    <template #content>
+        <sw-card-view>
+            {% block sw_sales_channel_detail_content_language_info %}
+            <sw-language-info :entity-description="salesChannel?.translated?.name" />
+            {% endblock %}
+
+            {% block sw_sales_channel_detail_content_view %}
+            <router-view
+                v-if="salesChannel"
+                :sales-channel="salesChannel"
+                :is-loading="isLoading"
+            />
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

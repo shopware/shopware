@@ -36,13 +36,13 @@ readonly class ProductDocumentConfig
 
         $extensions = [];
         foreach ($event->getAllowedExtensions() as $extension) {
-            $extension = mb_strtolower(ltrim(trim($extension), '.'));
+            $extension = mb_strtolower(ltrim(trim((string) $extension), '.'));
             if ($extension !== '') {
                 $extensions[$extension] = true;
             }
         }
 
-        return array_keys($extensions);
+        return array_map(strval(...), array_keys($extensions));
     }
 
     /**

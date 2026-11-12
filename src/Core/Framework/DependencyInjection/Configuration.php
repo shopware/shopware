@@ -1078,10 +1078,11 @@ class Configuration implements ConfigurationInterface
                     ->performNoDeepMerging()
                     ->prototype('scalar')->end()
                 ->end()
-                ->integerNode('max_file_size')
-                    ->info('Largest file of a document, in bytes. Default: 20 MB.')
-                    ->min(1)
+                ->scalarNode('max_file_size')
+                    ->info('Largest file of a document, in bytes or with a unit, for example 20M. Default: 20M.')
                     ->defaultValue(20 * 1024 * 1024)
+                    ->validate()->always()->then(static fn ($value) => MemorySizeCalculator::convertToBytes((string) $value))->end()
+                    ->validate()->ifTrue(static fn (int $value) => $value < 1)->thenInvalid('The largest file of a document must be at least 1 byte, %s given.')->end()
                 ->end()
             ->end();
 

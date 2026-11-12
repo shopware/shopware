@@ -40,6 +40,16 @@ class ProductDocumentConfigTest extends TestCase
         static::assertSame(['pdf', 'docx'], array_keys($config->getMimeTypesByExtension($context)));
     }
 
+    public function testNumericFileTypesStayStrings(): void
+    {
+        $context = Context::createDefaultContext();
+        /** @phpstan-ignore argument.type */
+        $config = new ProductDocumentConfig(new EventDispatcher(), ['pdf', 264, '7z'], maxFileSize: 1024);
+
+        static::assertSame(['pdf', '264', '7z'], $config->getAllowedExtensions($context));
+        static::assertCount(3, $config->getMimeTypesByExtension($context));
+    }
+
     public function testExtensionsCanChangeTheFileTypes(): void
     {
         $context = Context::createDefaultContext();

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\Url\VerificationState;
 use Shopware\Core\Framework\App\Url\VerificationStatus;
 use Shopware\Core\Framework\App\Validation\Error\AppNameError;
+use Shopware\Core\Framework\App\Validation\Error\IncompatibleAppError;
 use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -34,11 +35,24 @@ class AppExceptionTest extends TestCase
         static::assertSame(AppException::CANNOT_DELETE_COMPOSER_MANAGED, $e->getErrorCode());
     }
 
-    public function testNotCompatible(): void
+    public function testValidationFailedFromErrorReportsTheErrorsCodeMessageAndParameters(): void
+    {
+        $e = AppException::validationFailedFromError(new IncompatibleAppError('IncompatibleApp'));
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(AppException::NOT_COMPATIBLE, $e->getErrorCode());
+        static::assertSame('App IncompatibleApp is not compatible with this Shopware version', $e->getMessage());
+        static::assertSame(['name' => 'IncompatibleApp'], $e->getParameters());
+    }
+
+    public function testNotCompatibleReportsLikeAnIncompatibleAppError(): void
     {
         $e = AppException::notCompatible('IncompatibleApp');
 
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
         static::assertSame(AppException::NOT_COMPATIBLE, $e->getErrorCode());
+        static::assertSame('App IncompatibleApp is not compatible with this Shopware version', $e->getMessage());
+        static::assertSame(['name' => 'IncompatibleApp'], $e->getParameters());
     }
 
     public function testNotFound(): void
@@ -312,27 +326,14 @@ class AppExceptionTest extends TestCase
         static::assertSame($previous, $e->getPrevious());
     }
 
-    public function testRequirementsNotMet(): void
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testRequirementsNotMetReportsLikeAnUnmetRequirementError(): void
     {
-        $violation1 = new UnmetRequirement(
-            appName: 'TestApp1',
-            requirementName: 'PHP Version',
-            actionableResolution: 'Upgrade to PHP 8.2 or higher'
-        );
-
-        $violation2 = new UnmetRequirement(
-            appName: 'TestApp2',
-            requirementName: 'MySQL Version',
-            actionableResolution: 'Upgrade to MySQL 8.0 or higher'
-        );
-
-        $e = AppException::requirementsNotMet($violation1, $violation2);
+        $e = AppException::requirementsNotMet(new UnmetRequirement('TestApp', 'PHP Version', 'Upgrade to PHP 8.2 or higher'));
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-        static::assertSame('FRAMEWORK__APP_REQUIREMENTS_NOT_MET', $e->getErrorCode());
-        static::assertSame('The app requirements are not met: App "TestApp1" - Requirement "PHP Version": Upgrade to PHP 8.2 or higher; App "TestApp2" - Requirement "MySQL Version": Upgrade to MySQL 8.0 or higher', $e->getMessage());
-
-        $expectedViolations = 'App "TestApp1" - Requirement "PHP Version": Upgrade to PHP 8.2 or higher; App "TestApp2" - Requirement "MySQL Version": Upgrade to MySQL 8.0 or higher';
-        static::assertSame(['violations' => $expectedViolations], $e->getParameters());
+        static::assertSame(AppException::APP_REQUIREMENTS_NOT_MET, $e->getErrorCode());
+        static::assertSame('The app requirements are not met: App "TestApp" - Requirement "PHP Version": Upgrade to PHP 8.2 or higher', $e->getMessage());
+        static::assertSame(['violations' => 'App "TestApp" - Requirement "PHP Version": Upgrade to PHP 8.2 or higher'], $e->getParameters());
     }
 }

@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
-use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
 use Shopware\Core\Content\Sitemap\Provider\LandingPageUrlProvider;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
@@ -160,7 +159,6 @@ class LandingPageUrlProviderTest extends TestCase
         /** @var EntityRepository<SeoUrlCollection> $seuUrlRepository */
         $seuUrlRepository = static::getContainer()->get('seo_url.repository');
 
-        /** @var SeoUrlEntity|null $seoUrl */
         $seoUrl = $seuUrlRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
 
         static::assertNotNull($seoUrl);

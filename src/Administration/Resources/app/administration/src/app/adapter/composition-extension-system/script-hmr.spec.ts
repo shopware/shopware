@@ -9,6 +9,7 @@ import type { ComponentConfig, SetupHmrMetadata } from 'src/core/factory/async-c
 import { _overridesMap, createExtendableSetup, overrideComponentSetup } from './index';
 import { attachSetupOverrideShim } from './options-api-setup-shim';
 import { convertOptionsApiOverrideToCompositionApi } from '../options-composition-shim';
+import { deprecations } from 'test/_helper_/deprecations';
 
 type HmrRuntime = { reload: (id: string, component: unknown) => void };
 
@@ -257,6 +258,7 @@ describe('src/app/adapter/composition-extension-system/script-hmr', () => {
         await flushPromises();
 
         expect(totals(wrapper)).toEqual(['112']);
+        expect(deprecations).toHaveTriggered(`Component "${name}" is being overridden with Options API patterns`);
     });
 
     it('applies a Component.override() of the base once after an override was edited', async () => {
@@ -277,6 +279,7 @@ describe('src/app/adapter/composition-extension-system/script-hmr', () => {
         await flushPromises();
 
         expect(totals(wrapper)).toEqual(['112']);
+        expect(deprecations).toHaveTriggered(`Component "${name}" is being overridden with Options API patterns`);
     });
 
     it('adds every registration of an override without hot update data', async () => {

@@ -107,12 +107,13 @@ class ToolsetsListToolTest extends TestCase
         );
 
         $tool = new ToolsetsListTool($toolsetRegistry, static::createStub(McpToolsetSessionStorage::class), new RequestStack(), new McpRequestedToolsetResolver(new RequestStack()));
-        $result = json_decode($tool(), true, 512, \JSON_THROW_ON_ERROR);
+        $result = $tool();
 
+        static::assertFalse($result->isError());
         static::assertSame([
             'entity' => 'Find and change shop data.',
             'order' => 'Tools explicitly assigned to the "order" MCP tool group.',
-        ], array_column($result['data']['toolsets'], 'description', 'name'));
+        ], array_column($result->data['toolsets'], 'description', 'name'));
     }
 
     public function testIsUnavailableOnTheStatelessEraAndPointsToToolsetsInTheUrl(): void

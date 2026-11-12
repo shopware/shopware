@@ -240,7 +240,18 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
         }
 
         $container->setParameter($paramPrefix . 'tool_groups', $groupMap);
-        $container->setParameter($paramPrefix . 'tool_group_descriptions', $this->resolveGroupDescriptions($container, $groupMap, $describedGroups));
+        $descriptions = $this->resolveGroupDescriptions($container, $groupMap, $describedGroups);
+
+        // An authored description promises the whole toolset. `shopware.mcp.allowed_tools` removes tools
+        // before this pass, so McpToolsetRegistry cannot see the gap at runtime; such a toolset falls back
+        // to the generated description.
+        if ($paramPrefix === 'shopware.mcp.' && $container->hasParameter(McpToolDiscoveryCompilerPass::TRIMMED_TOOL_GROUPS_PARAMETER)) {
+            /** @var list<string> $trimmedGroups */
+            $trimmedGroups = $container->getParameter(McpToolDiscoveryCompilerPass::TRIMMED_TOOL_GROUPS_PARAMETER);
+            $descriptions = array_diff_key($descriptions, array_flip($trimmedGroups));
+        }
+
+        $container->setParameter($paramPrefix . 'tool_group_descriptions', $descriptions);
     }
 
     /**

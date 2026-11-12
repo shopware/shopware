@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolAnalysisCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolAttributeReader;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolDiscoveryCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolDependsOn;
@@ -213,6 +214,23 @@ class McpToolAnalysisCompilerPassTest extends TestCase
             'orders' => 'Manage orders.',
         ], $container->getParameter('shopware.mcp.tool_group_descriptions'));
         static::assertSame([], $this->groupDescriptionConflicts($container));
+    }
+
+    public function testToolsetTrimmedByAllowedToolsLosesItsAuthoredDescription(): void
+    {
+        $container = $this->createContainer();
+        $container->setParameter(McpToolDiscoveryCompilerPass::TRIMMED_TOOL_GROUPS_PARAMETER, ['catalogue']);
+
+        foreach ([
+            'tool.describing' => McpAnalysisTestDescribingGroupTool::class,
+            'tool.method-level' => McpAnalysisTestMethodLevelGroupTool::class,
+        ] as $serviceId => $class) {
+            $container->setDefinition($serviceId, (new Definition($class))->addTag('mcp.tool'));
+        }
+
+        (new McpToolAnalysisCompilerPass())->process($container);
+
+        static::assertSame(['orders' => 'Manage orders.'], $container->getParameter('shopware.mcp.tool_group_descriptions'));
     }
 
     public function testStoreApiToolsStayOutOfTheAdminToolMaps(): void

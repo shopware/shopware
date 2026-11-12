@@ -14,6 +14,7 @@ use Twig\Node\Expression\ConstantExpression;
 use Twig\Node\Expression\FilterExpression;
 use Twig\Node\IncludeNode;
 use Twig\Node\Node;
+use Twig\Node\TypesNode;
 use Twig\NodeVisitor\NodeVisitorInterface;
 
 /**
@@ -38,6 +39,18 @@ final class StorefrontIncludeNodeVisitor implements NodeVisitorInterface
         }
 
         $expression = $node->getNode('expr');
+        if ($expression instanceof ConstantExpression
+            && $expression->getAttribute('value') === '@Storefront/storefront/component/line-item/line-item.html.twig'
+            && $node->getSourceContext()?->getPath() === $this->viewsDirectory . '/storefront/component/line-item/element/children-wrapper.html.twig'
+        ) {
+            // shortcut: Widen the recursive counter so TwigStan converges; remove when it widens recursive scalar types upstream.
+            // Inject the hint during analysis because Ludtwig 0.14 cannot parse Twig's types tag.
+            return new Node([
+                new TypesNode(['nestingLevel' => ['type' => 'int', 'optional' => false]], $node->getTemplateLine()),
+                $node,
+            ], [], $node->getTemplateLine());
+        }
+
         $templates = $this->getTemplates($expression);
         if ($templates === []) {
             return $node;

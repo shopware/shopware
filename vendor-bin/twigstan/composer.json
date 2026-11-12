@@ -16,7 +16,7 @@
         "symfony/process": "~7.4.0",
         "symfony/string": "~7.4.0",
         "twig/twig": "^3.30.0",
-        "twigstan/twigstan": "^0.2.4"
+        "twigstan/twigstan": "dev-main"
     },
     "require-dev": {
         "phpstan/phpstan-phpunit": "2.1.1",

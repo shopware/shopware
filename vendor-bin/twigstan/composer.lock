@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0523ec28919ebcbe708d0c0b1f645bf1",
+    "content-hash": "094f2e5bfdd51fc478a5af98766298ac",
     "packages": [
         {
             "name": "nette/bootstrap",
@@ -2030,16 +2030,16 @@
         },
         {
             "name": "twigstan/twigstan",
-            "version": "0.2.4",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigstan/twigstan.git",
-                "reference": "bbb701b3c1f053d9365c6b4016679989e8ef8854"
+                "reference": "49be00a86130bb0db7d603324d65f4edb7fdadb7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigstan/twigstan/zipball/bbb701b3c1f053d9365c6b4016679989e8ef8854",
-                "reference": "bbb701b3c1f053d9365c6b4016679989e8ef8854",
+                "url": "https://api.github.com/repos/twigstan/twigstan/zipball/49be00a86130bb0db7d603324d65f4edb7fdadb7",
+                "reference": "49be00a86130bb0db7d603324d65f4edb7fdadb7",
                 "shasum": ""
             },
             "require": {
@@ -2086,6 +2086,7 @@
                 "ticketswap/phpstan-error-formatter": "^1.0.3",
                 "vincentlanglet/twig-cs-fixer": "^3.1"
             },
+            "default-branch": true,
             "bin": [
                 "bin/twigstan"
             ],
@@ -2106,7 +2107,7 @@
             ],
             "support": {
                 "issues": "https://github.com/twigstan/twigstan/issues",
-                "source": "https://github.com/twigstan/twigstan/tree/0.2.4"
+                "source": "https://github.com/twigstan/twigstan/tree/main"
             },
             "funding": [
                 {
@@ -2114,7 +2115,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-11-10T18:09:31+00:00"
+            "time": "2026-11-11T09:39:13+00:00"
         }
     ],
     "packages-dev": [
@@ -3886,7 +3887,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "twigstan/twigstan": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

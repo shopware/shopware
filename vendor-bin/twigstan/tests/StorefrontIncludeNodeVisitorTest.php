@@ -7,8 +7,11 @@ use Shopware\Core\Framework\Log\Package;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Twig\Node\IncludeNode;
+use Twig\Node\TypesNode;
 use Twig\Source;
+use TwigStan\Processing\Compilation\TwigVisitor\CompilingTypesNode;
 use TwigStan\Processing\Compilation\TwigVisitor\ReplaceIncludeNodeNodeVisitor;
+use TwigStan\Processing\Compilation\TwigVisitor\ReplaceTypesNodeVisitor;
 use TwigStan\Processing\Compilation\TwigVisitor\SimpleIncludeNode;
 use TwigStan\Twig\Node\NodeFinder;
 
@@ -18,6 +21,28 @@ use TwigStan\Twig\Node\NodeFinder;
 #[Package('framework')]
 class StorefrontIncludeNodeVisitorTest extends TestCase
 {
+    public function testWidensDepthOnlyAtTheRecursiveLineItemInclude(): void
+    {
+        $directory = __DIR__ . '/fixtures/cms';
+        foreach (['children-wrapper', 'unrelated'] as $template) {
+            $twig = new Environment(new FilesystemLoader());
+            $twig->addNodeVisitor(new StorefrontIncludeNodeVisitor($directory));
+            $twig->addNodeVisitor(new ReplaceTypesNodeVisitor());
+            $source = '{% include \'@Storefront/storefront/component/line-item/line-item.html.twig\' %}{% include \'unrelated.twig\' %}';
+            $path = $directory . '/storefront/component/line-item/element/' . $template . '.html.twig';
+            $module = $twig->parse($twig->tokenize(new Source($source, $template, $path)));
+            $finder = new NodeFinder();
+            $types = $finder->findInstanceOf($module, TypesNode::class);
+
+            static::assertCount(2, $finder->findInstanceOf($module, IncludeNode::class));
+            static::assertCount($template === 'children-wrapper' ? 1 : 0, $types);
+            if ($template === 'children-wrapper') {
+                static::assertInstanceOf(CompilingTypesNode::class, $types[0]);
+                static::assertSame(['nestingLevel' => ['type' => 'int', 'optional' => false]], $types[0]->getAttribute('mapping'));
+            }
+        }
+    }
+
     public function testExpandsEachCmsLevelAndPreservesIncludeArguments(): void
     {
         $directory = __DIR__ . '/fixtures/cms';

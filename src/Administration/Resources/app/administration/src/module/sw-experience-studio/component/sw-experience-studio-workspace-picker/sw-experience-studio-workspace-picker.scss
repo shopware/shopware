@@ -34,23 +34,14 @@
         gap: var(--scale-size-8);
     }
 
-    &__name,
-    &__creator {
+    &__name {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
     &__actions,
-    &__item .mt-icon,
-    &__item .sw-avatar {
+    &__item .mt-icon {
         flex-shrink: 0;
-    }
-
-    &__creator {
-        margin-left: auto;
-        max-width: 160px;
-        color: var(--color-text-secondary-default);
-        font-size: var(--font-size-2xs);
     }
 }

@@ -13,8 +13,6 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'content_workspace:create',
                 'content_workspace:update',
                 'content_workspace:delete',
-                'user:read',
-                'media:read',
                 'property_group:read',
                 'property_group_option:read',
                 'sales_channel:read',

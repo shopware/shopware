@@ -17,7 +17,6 @@ describe('workspace picker', () => {
                 stubs: {
                     'mt-modal': MtModal,
                     'mt-modal-root': MtModalRoot,
-                    'sw-avatar': true,
                 },
             },
         });
@@ -38,7 +37,7 @@ describe('workspace picker', () => {
         loadWorkspaces = jest.spyOn(store, 'load').mockResolvedValue();
         store.workspaces = [
             { id: 'current', name: 'Bedroom relaunch' },
-            { id: 'shared', name: 'Autumn refresh', createdBy: { firstName: 'Mara', lastName: 'Jensen' } },
+            { id: 'shared', name: 'Autumn refresh' },
         ] as ContentWorkspace[];
         store.activeWorkspace = store.workspaces[0];
     });

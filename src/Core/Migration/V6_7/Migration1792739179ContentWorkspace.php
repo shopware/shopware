@@ -35,7 +35,6 @@ class Migration1792739179ContentWorkspace extends MigrationStep
 
         $this->addAdditionalPrivileges($connection, ['experience_studio.viewer' => [
             'content_workspace:read', 'content_workspace:create', 'content_workspace:update', 'content_workspace:delete',
-            'user:read', 'media:read',
         ]]);
     }
 }

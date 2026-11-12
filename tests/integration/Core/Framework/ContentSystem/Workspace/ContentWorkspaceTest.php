@@ -56,7 +56,7 @@ class ContentWorkspaceTest extends TestCase
 
     public function testLimitedUsersCanShareWorkspacesAndCreatorDeletionPreservesThem(): void
     {
-        $permissions = ['content_workspace:read', 'content_workspace:create', 'content_workspace:update', 'content_workspace:delete', 'user:read', 'media:read'];
+        $permissions = ['content_workspace:read', 'content_workspace:create', 'content_workspace:update', 'content_workspace:delete'];
         $browser = $this->getBrowser(permissions: $permissions);
         $id = Uuid::randomHex();
         $browser->jsonRequest('POST', '/api/content-workspace', [
@@ -82,7 +82,7 @@ class ContentWorkspaceTest extends TestCase
 
         $this->authorizeBrowser($browser, aclPermissions: [...$permissions, 'content_layout:read']);
         $browser->jsonRequest('POST', '/api/search/content-workspace', [
-            'ids' => [$id], 'associations' => ['createdBy' => ['associations' => ['avatarMedia' => []]]],
+            'ids' => [$id],
         ]);
         static::assertSame(200, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
         $browser->jsonRequest('PATCH', '/api/content-workspace/' . $id, ['name' => 'Renamed by another user']);
@@ -100,6 +100,29 @@ class ContentWorkspaceTest extends TestCase
         $browser->jsonRequest('POST', '/api/search/content-workspace', []);
         static::assertSame(403, $browser->getResponse()->getStatusCode());
         $browser->jsonRequest('POST', '/api/content-workspace', ['name' => 'Forbidden', 'configuration' => ['frames' => [], 'previewSalesChannelId' => null, 'canvas' => ['panX' => 0, 'panY' => 0, 'zoom' => 1]]]);
+        static::assertSame(403, $browser->getResponse()->getStatusCode());
+    }
+
+    public function testWorkspaceViewerCannotReadUsersOrPrivateMedia(): void
+    {
+        $mediaId = Uuid::randomHex();
+        $this->getContainer()->get('media.repository')->create([[
+            'id' => $mediaId,
+            'private' => true,
+        ]], Context::createDefaultContext());
+        $browser = $this->getBrowser(permissions: ['content_workspace:read']);
+
+        $browser->jsonRequest('POST', '/api/search/content-workspace', []);
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+        $browser->jsonRequest('POST', '/api/search/user', []);
+        static::assertSame(403, $browser->getResponse()->getStatusCode());
+        $browser->jsonRequest('POST', '/api/search/media', []);
+        static::assertSame(403, $browser->getResponse()->getStatusCode());
+        $browser->jsonRequest('GET', '/api/_action/media/' . $mediaId . '/download');
+        static::assertSame(403, $browser->getResponse()->getStatusCode());
+        $browser->jsonRequest('POST', '/api/search/content-workspace', [
+            'associations' => ['createdBy' => ['associations' => ['avatarMedia' => []]]],
+        ]);
         static::assertSame(403, $browser->getResponse()->getStatusCode());
     }
 

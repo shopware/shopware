@@ -44,8 +44,6 @@
         "manage": "Arbeitsbereiche verwalten",
         "rename": "Arbeitsbereich umbenennen",
         "name": "Name des Arbeitsbereichs",
-        "createdBy": "Erstellt von {name}",
-        "deletedUser": "Gelöschter Benutzer",
         "empty": "Noch keine Arbeitsbereiche vorhanden. Erstelle einen, um Layouts anzuordnen.",
         "loadError": "Die Arbeitsbereiche konnten nicht geladen werden.",
         "saveError": "Die Canvas-Konfiguration konnte nicht gespeichert werden. Versuche es erneut, bevor Du den Arbeitsbereich wechselst.",

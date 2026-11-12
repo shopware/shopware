@@ -34,7 +34,6 @@ const workspaceStore = Shopware.Store.register({
             this.loadError = false;
             try {
                 const criteria = new Criteria(page, 25);
-                criteria.addAssociation('createdBy.avatarMedia');
                 criteria.addSorting(Criteria.sort('name', 'ASC'));
                 if (term.trim()) {
                     criteria.setTerm(term.trim());

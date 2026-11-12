@@ -44,8 +44,6 @@
         "manage": "Manage workspaces",
         "rename": "Rename workspace",
         "name": "Workspace name",
-        "createdBy": "Created by {name}",
-        "deletedUser": "Deleted user",
         "empty": "No workspaces yet. Create one to start arranging layouts.",
         "loadError": "Workspaces could not be loaded.",
         "saveError": "The canvas setup could not be saved. Retry before switching workspaces.",

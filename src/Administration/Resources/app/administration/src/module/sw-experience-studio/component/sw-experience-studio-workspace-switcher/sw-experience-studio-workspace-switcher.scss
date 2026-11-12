@@ -19,9 +19,8 @@
     &__entry-content {
         display: grid;
         flex: 1;
-        grid-template-columns: minmax(0, 1fr) minmax(0, auto) 20px;
+        grid-template-columns: minmax(0, 1fr);
         align-items: center;
-        gap: var(--scale-size-8);
         min-width: 0;
     }
 
@@ -33,15 +32,9 @@
         color: var(--color-text-brand-default);
     }
 
-    &__name,
-    &__creator {
+    &__name {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-    }
-
-    &__creator {
-        max-width: 160px;
-        color: var(--color-text-secondary-default);
     }
 }

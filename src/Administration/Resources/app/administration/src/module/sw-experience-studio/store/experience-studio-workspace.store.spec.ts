@@ -1,4 +1,5 @@
 import type Repository from 'src/core/data/repository.data';
+import type CriteriaType from 'src/core/data/criteria.data';
 import './experience-studio-workspace.store';
 import type { ExperienceStudioWorkspaceStore } from './experience-studio-workspace.store';
 import { createWorkspaceConfiguration } from '../util/workspace-configuration.util';
@@ -8,19 +9,24 @@ function workspace(id = 'workspace-a'): ContentWorkspace {
     return { id, name: id, configuration: createWorkspaceConfiguration() } as ContentWorkspace;
 }
 
-describe('Experience Studio workspace autosave', () => {
+describe('Experience Studio workspaces', () => {
     let store: ExperienceStudioWorkspaceStore;
     let save: jest.Mock<Promise<void>, [ContentWorkspace, apiContext]>;
     let get: jest.Mock<Promise<ContentWorkspace>, [string]>;
+    let search: jest.Mock<Promise<ContentWorkspace[] & { total: number }>, [CriteriaType, apiContext]>;
     beforeEach(() => {
         jest.useFakeTimers();
         store = Shopware.Store.get('experienceStudioWorkspace' as never) as ExperienceStudioWorkspaceStore;
         store.$reset();
         save = jest.fn<Promise<void>, [ContentWorkspace, apiContext]>().mockResolvedValue(undefined);
         get = jest.fn((id: string) => Promise.resolve(workspace(id)));
+        search = jest
+            .fn<Promise<ContentWorkspace[] & { total: number }>, [CriteriaType, apiContext]>()
+            .mockResolvedValue(Object.assign([workspace()], { total: 1 }));
         jest.spyOn(Shopware.Service('repositoryFactory'), 'create').mockReturnValue({
             get,
             save,
+            search,
             delete: jest.fn(),
         } as unknown as Repository<keyof EntitySchema.EntityKeys>);
         store.activate(workspace());
@@ -29,6 +35,18 @@ describe('Experience Studio workspace autosave', () => {
         jest.restoreAllMocks();
         store.cancelTimer();
         jest.useRealTimers();
+    });
+
+    it('loads workspaces without requesting user or media associations', async () => {
+        await store.load(2, ' Autumn ');
+
+        expect(search).toHaveBeenCalledWith(
+            expect.objectContaining({ page: 2, limit: 25, term: 'Autumn', associations: [] }),
+            Shopware.Context.api,
+        );
+        expect(store.workspaces).toEqual([workspace()]);
+        expect(store.total).toBe(1);
+        expect(store.loadError).toBe(false);
     });
 
     it('coalesces edits and sends a captured setup without layout content', async () => {

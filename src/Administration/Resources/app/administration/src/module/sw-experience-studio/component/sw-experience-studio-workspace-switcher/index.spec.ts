@@ -13,7 +13,6 @@ describe('workspace switcher', () => {
         return mount(await wrapTestComponent('sw-experience-studio-workspace-switcher', { sync: true }), {
             attachTo: document.body,
             props: { disabled },
-            global: { stubs: { 'sw-avatar': true } },
         });
     }
 

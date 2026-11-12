@@ -18,6 +18,8 @@ describe('Experience Studio landing page assignment permissions', () => {
 
             expect(viewer?.privileges).toContain('landing_page:read');
             expect(viewer?.privileges).toContain('landing_page_content_layout:read');
+            expect(viewer?.privileges).not.toContain('user:read');
+            expect(viewer?.privileges).not.toContain('media:read');
             for (const operation of ['create', 'update', 'delete']) {
                 expect(editor?.privileges).toContain(`landing_page_content_layout:${operation}`);
                 expect(viewer?.privileges).not.toContain(`landing_page_content_layout:${operation}`);

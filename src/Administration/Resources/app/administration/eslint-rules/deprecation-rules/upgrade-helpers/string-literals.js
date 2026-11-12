@@ -6,9 +6,9 @@
  * in `.html.twig` templates, the strings inside `{{ … }}`.
  */
 
-const { isTwigFile } = require('../upgrade-helpers/todo-comment');
-const { walk } = require('../upgrade-helpers/component-tags');
-const { twigInterpolations } = require('../upgrade-helpers/twig-interpolations');
+const { isTwigFile } = require('./todo-comment');
+const { walk } = require('./component-tags');
+const { twigInterpolations } = require('./twig-interpolations');
 
 function isString(node) {
     return (node.type === 'Literal' && typeof node.value === 'string') || node.type === 'TemplateElement';

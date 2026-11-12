@@ -11,7 +11,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { twigTargets } = require('../upgrade-helpers/twig-target');
+const { twigTargets } = require('./twig-target');
 
 const CORE_COMPONENT_NAME = /^sw-[a-z0-9-]+$/;
 const SCRIPT_FILE = /\.[cm]?[jt]s$/;

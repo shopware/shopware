@@ -522,6 +522,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductReviewLoader::class),
             service(ScriptExecutor::class),
             service(SystemConfigService::class),
+            service('product_document.repository'),
+            service('media.repository'),
         ])
         ->tag('shopware.cms.data_resolver');
 

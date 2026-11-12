@@ -57,6 +57,7 @@ class DefinitionValidator
         'product.cheapest_price',
         'product.cheapest_price_accessor',
         'sales_channel_domain.external_storefront_language_id',
+        'product_document.media',
     ];
 
     /**

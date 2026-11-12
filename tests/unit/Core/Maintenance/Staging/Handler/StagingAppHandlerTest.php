@@ -2,10 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Maintenance\Staging\Handler;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\ShopIdChangeResolver\ReinstallAppsStrategy;
+use Shopware\Core\Framework\App\ShopIdChangeResolver\Resolver;
+use Shopware\Core\Framework\App\ShopIdChangeResolver\ShopIdChangeStrategy;
+use Shopware\Core\Framework\App\ShopIdChangeResolver\UninstallAppsStrategy;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
@@ -19,40 +23,53 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 #[CoversClass(StagingAppHandler::class)]
 class StagingAppHandlerTest extends TestCase
 {
-    public function testDeletion(): void
+    private ShopIdChangeStrategy&MockObject $uninstallApps;
+
+    private ShopIdChangeStrategy&MockObject $reinstallApps;
+
+    private StagingAppHandler $handler;
+
+    protected function setUp(): void
     {
-        $connection = static::createStub(Connection::class);
-        $connection
-            ->method('fetchAllAssociative')
-            ->willReturn([
-                ['id' => 'app_id', 'integration_id' => 'integration_id', 'name' => 'test'],
-            ]);
+        $this->uninstallApps = $this->createMock(ShopIdChangeStrategy::class);
+        $this->uninstallApps->method('getName')->willReturn(UninstallAppsStrategy::STRATEGY_NAME);
 
-        $tables = [];
-        $ids = [];
+        $this->reinstallApps = $this->createMock(ShopIdChangeStrategy::class);
+        $this->reinstallApps->method('getName')->willReturn(ReinstallAppsStrategy::STRATEGY_NAME);
 
-        $connection
-            ->method('delete')
-            ->willReturnCallback(static function (string $table, array $criteria) use (&$tables, &$ids): int {
-                $tables[] = $table;
-                $ids[] = $criteria['id'];
+        $this->handler = new StagingAppHandler(new Resolver([$this->uninstallApps, $this->reinstallApps]));
+    }
 
-                return 1;
-            });
+    public function testAppsAreUninstalledByDefault(): void
+    {
+        $this->uninstallApps->expects($this->once())->method('resolve');
+        $this->reinstallApps->expects($this->never())->method('resolve');
 
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
-        $shopIdProvider->expects($this->once())
-            ->method('deleteShopId');
+        $event = new SetupStagingEvent(Context::createDefaultContext(), static::createStub(SymfonyStyle::class));
+        ($this->handler)($event);
 
-        $handler = new StagingAppHandler($connection, $shopIdProvider);
-        $handler->__invoke(new SetupStagingEvent(
-            Context::createDefaultContext(),
-            static::createStub(SymfonyStyle::class),
-            false,
-            []
-        ));
+        static::assertFalse($event->canceled);
+    }
 
-        static::assertSame(['app', 'integration'], $tables);
-        static::assertSame(['app_id', 'integration_id'], $ids);
+    public function testAppsAreReinstalledWhenRequested(): void
+    {
+        $this->uninstallApps->expects($this->never())->method('resolve');
+        $this->reinstallApps->expects($this->once())->method('resolve');
+
+        $event = new SetupStagingEvent(Context::createDefaultContext(), static::createStub(SymfonyStyle::class), reinstallApps: true);
+        ($this->handler)($event);
+
+        static::assertFalse($event->canceled);
+    }
+
+    public function testAFailedReinstallCancelsTheSetup(): void
+    {
+        $this->uninstallApps->expects($this->never())->method('resolve');
+        $this->reinstallApps->expects($this->once())->method('resolve')->willThrowException(AppException::reinstallAppsFailed(['TestApp']));
+
+        $event = new SetupStagingEvent(Context::createDefaultContext(), static::createStub(SymfonyStyle::class), reinstallApps: true);
+        ($this->handler)($event);
+
+        static::assertTrue($event->canceled);
     }
 }

@@ -45,6 +45,7 @@ use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
 use Shopware\Core\Framework\Mcp\Notification\AppMcpCapabilityDetector;
 use Shopware\Core\Framework\Mcp\Notification\AppMcpCapabilityLifecycleSubscriber;
+use Shopware\Core\Framework\Mcp\Notification\McpHandshakeListChangedSubscriber;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
 use Shopware\Core\Framework\Mcp\Notification\McpListVersions;
 use Shopware\Core\Framework\Mcp\Prompt\ShopwareContextPrompt;
@@ -127,6 +128,10 @@ return static function (ContainerConfigurator $container): void {
         ])
         ->tag('kernel.event_subscriber');
 
+    $services->set(McpHandshakeListChangedSubscriber::class)
+        ->args([service('request_stack')])
+        ->tag('kernel.event_subscriber');
+
     $services->set(McpContextProvider::class)
         ->args([service('request_stack')]);
 
@@ -189,6 +194,7 @@ return static function (ContainerConfigurator $container): void {
         ->args([
             service(Connection::class),
             env('APP_URL'),
+            param('shopware.mcp.allowed_origins'),
         ]);
 
     $services->set(McpHttpTransportFactory::class)

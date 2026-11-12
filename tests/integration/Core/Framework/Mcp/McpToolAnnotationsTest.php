@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -23,6 +24,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 class McpToolAnnotationsTest extends TestCase
 {
     use AdminApiTestBehaviour;
+    use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
     use SalesChannelApiTestBehaviour;
 

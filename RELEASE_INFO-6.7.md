@@ -451,6 +451,8 @@ Variants inherit the documents of their parent unless they have their own.
 A media that a document uses cannot be deleted.
 
 When a document is saved, its files must be public, stored in the shop, have a known size, and match the allowed file types and the largest file size of `shopware.product_documents`.
+A new document needs a file in the default language; other languages fall back to it.
+The same rules apply when a media that a document uses gets a new file or is changed.
 Extensions can change the allowed file types with `Shopware\Core\Content\Product\Events\ProductDocumentAllowedExtensionsEvent`.
 `GET /api/_info/config` returns the allowed file types, their MIME types and the largest file size in `settings.productDocuments`.
 New document files go to the default media folder "Product Document Media".

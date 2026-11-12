@@ -17,7 +17,6 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterPickerInterface;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterSorterInterface;
 use Shopware\Core\Content\Cms\DataResolver\Element\CmsElementResolverInterface;
 use Shopware\Core\Content\Flow\Dispatching\Storer\FlowStorer;
-use Shopware\Core\Content\Media\Cms\CmsElementMediaProviderInterface;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\AbstractListingFilterHandler;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\AbstractListingProcessor;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
@@ -153,10 +152,6 @@ class AutoconfigureCompilerPass implements CompilerPassInterface
         $container
             ->registerForAutoconfiguration(CmsElementResolverInterface::class)
             ->addTag('shopware.cms.data_resolver');
-
-        $container
-            ->registerForAutoconfiguration(CmsElementMediaProviderInterface::class)
-            ->addTag('shopware.cms.element_media_provider');
 
         $container
             ->registerForAutoconfiguration(FieldSerializerInterface::class)

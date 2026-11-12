@@ -24,7 +24,6 @@ use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\Ab
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\AbstractFieldSerializer;
 use Shopware\Core\Content\ImportExport\Processing\Reader\AbstractReaderFactory;
 use Shopware\Core\Content\ImportExport\Processing\Writer\AbstractWriterFactory;
-use Shopware\Core\Content\Media\Cms\CmsElementMediaProviderInterface;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\File\AbstractFileContentValidator;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader\MetadataLoaderInterface;
@@ -93,7 +92,6 @@ return [
             'shopware.cart.validator' => CartValidatorInterface::class,
             'shopware.checkout.gateway.command' => AbstractCheckoutGatewayCommandHandler::class,
             'shopware.cms.data_resolver' => CmsElementResolverInterface::class,
-            'shopware.cms.element_media_provider' => CmsElementMediaProviderInterface::class,
             'shopware.cms.product_slider.processor' => AbstractProductSliderProcessor::class,
             'shopware.dal.exception_handler' => ExceptionHandlerInterface::class,
             'shopware.demodata_generator' => DemodataGeneratorInterface::class,

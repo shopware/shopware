@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage;
 
-use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
-use Shopware\Core\Content\Media\Cms\CmsElementMediaProviderInterface;
+use Shopware\Core\Content\Media\Cms\CmsElementMediaIdsProvider;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Asks the media providers of a CMS element for the media the element shows
+ * Asks the first media provider supporting a CMS element for the media the element shows
  *
  * @internal
  */
@@ -15,42 +14,25 @@ use Shopware\Core\Framework\Log\Package;
 class CmsSlotMediaIdResolver
 {
     /**
-     * @var array<string, list<CmsElementMediaProviderInterface>>
+     * @param iterable<CmsElementMediaIdsProvider> $providers
      */
-    private array $providers = [];
-
-    /**
-     * @param iterable<CmsElementMediaProviderInterface> $providers
-     */
-    public function __construct(iterable $providers)
+    public function __construct(private readonly iterable $providers)
     {
-        foreach ($providers as $provider) {
-            $this->providers[$provider->getType()][] = $provider;
-        }
     }
 
     /**
-     * @param array<mixed> $config
+     * @param array<string, array{source?: string, value?: mixed}> $config
      *
      * @return list<string>
      */
     public function getMediaIds(string $type, array $config): array
     {
-        $providers = $this->providers[$type] ?? [];
-        if ($providers === []) {
-            return [];
+        foreach ($this->providers as $provider) {
+            if ($provider->supports($type)) {
+                return $provider->getMediaIds($config);
+            }
         }
 
-        $slot = new CmsSlotEntity();
-        $slot->setType($type);
-        $slot->setConfig($config);
-        $slot->addTranslated('config', $config);
-
-        $mediaIds = [];
-        foreach ($providers as $provider) {
-            array_push($mediaIds, ...$provider->getMediaIds($slot));
-        }
-
-        return $mediaIds;
+        return [];
     }
 }

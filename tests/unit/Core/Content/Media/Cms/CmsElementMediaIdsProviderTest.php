@@ -5,9 +5,8 @@ namespace Shopware\Tests\Unit\Core\Content\Media\Cms;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Media\Cms\AbstractDefaultMediaResolver;
-use Shopware\Core\Content\Media\Cms\CmsElementMediaFieldProvider;
+use Shopware\Core\Content\Media\Cms\CmsElementMediaIdsProvider;
 use Shopware\Core\Content\Media\Cms\ImageCmsElementResolver;
 use Shopware\Core\Framework\Log\Package;
 
@@ -15,16 +14,17 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(CmsElementMediaFieldProvider::class)]
-class CmsElementMediaFieldProviderTest extends TestCase
+#[CoversClass(CmsElementMediaIdsProvider::class)]
+class CmsElementMediaIdsProviderTest extends TestCase
 {
     private const MEDIA_ID = '0190cd1b2e6a73f0b6b4ae5c3a7d9c01';
 
     private const OTHER_MEDIA_ID = '0190cd1b2e6a73f0b6b4ae5c3a7d9c02';
 
-    public function testIsRegisteredForItsElementType(): void
+    public function testSupportsTheTypeOfItsElement(): void
     {
-        static::assertSame('image', $this->createProvider('media')->getType());
+        static::assertTrue($this->createProvider('media')->supports('image'));
+        static::assertFalse($this->createProvider('media')->supports('image-slider'));
     }
 
     /**
@@ -36,7 +36,7 @@ class CmsElementMediaFieldProviderTest extends TestCase
     {
         $config = array_map(static fn (mixed $value) => ['source' => 'static', 'value' => $value], $values);
 
-        static::assertSame($expected, $this->createProvider($path)->getMediaIds($this->createSlot($config)));
+        static::assertSame($expected, $this->createProvider($path)->getMediaIds($config));
     }
 
     /**
@@ -75,42 +75,36 @@ class CmsElementMediaFieldProviderTest extends TestCase
 
     public function testReadsTheMediaOfEveryPath(): void
     {
-        $slot = $this->createSlot([
+        $config = [
             'media' => ['source' => 'static', 'value' => self::MEDIA_ID],
             'previewMedia' => ['source' => 'static', 'value' => self::OTHER_MEDIA_ID],
-        ]);
+        ];
 
-        static::assertSame([self::MEDIA_ID, self::OTHER_MEDIA_ID], $this->createProvider('media', 'previewMedia')->getMediaIds($slot));
+        static::assertSame([self::MEDIA_ID, self::OTHER_MEDIA_ID], $this->createProvider('media', 'previewMedia')->getMediaIds($config));
     }
 
     public function testIgnoresMappedValues(): void
     {
-        $slot = $this->createSlot(['media' => ['source' => 'mapped', 'value' => 'category.media']]);
-
-        static::assertSame([], $this->createProvider('media')->getMediaIds($slot));
+        static::assertSame([], $this->createProvider('media')->getMediaIds(['media' => ['source' => 'mapped', 'value' => 'category.media']]));
     }
 
     public function testIgnoresOtherFields(): void
     {
-        $slot = $this->createSlot(['previewMedia' => ['source' => 'static', 'value' => self::MEDIA_ID]]);
-
-        static::assertSame([], $this->createProvider('media')->getMediaIds($slot));
+        static::assertSame([], $this->createProvider('media')->getMediaIds(['previewMedia' => ['source' => 'static', 'value' => self::MEDIA_ID]]));
     }
 
-    private function createProvider(string ...$paths): CmsElementMediaFieldProvider
+    public function testIgnoresMalformedFields(): void
     {
-        return new CmsElementMediaFieldProvider(new ImageCmsElementResolver(static::createStub(AbstractDefaultMediaResolver::class)), array_values($paths));
+        $config = [
+            'media' => ['source' => 'static', 'value' => self::MEDIA_ID],
+            'previewMedia' => ['value' => self::OTHER_MEDIA_ID],
+        ];
+
+        static::assertSame([self::MEDIA_ID], $this->createProvider('media', 'previewMedia')->getMediaIds($config));
     }
 
-    /**
-     * @param array<string, array{source: string, value: mixed}> $config
-     */
-    private function createSlot(array $config): CmsSlotEntity
+    private function createProvider(string ...$paths): CmsElementMediaIdsProvider
     {
-        $slot = new CmsSlotEntity();
-        $slot->setConfig($config);
-        $slot->addTranslated('config', $config);
-
-        return $slot;
+        return new CmsElementMediaIdsProvider(new ImageCmsElementResolver(static::createStub(AbstractDefaultMediaResolver::class)), array_values($paths));
     }
 }

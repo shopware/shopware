@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Media\Cms;
 
-use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\Element\CmsElementResolverInterface;
+use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -18,12 +18,12 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @final
  */
 #[Package('discovery')]
-class CmsElementMediaFieldProvider implements CmsElementMediaProviderInterface
+class CmsElementMediaIdsProvider
 {
     private const WILDCARD = '*';
 
     /**
-     * @param CmsElementResolverInterface $resolver resolver of the CMS element, its type is the type of the provider
+     * @param CmsElementResolverInterface $resolver resolver of the CMS element, the provider supports its type
      * @param list<string> $paths paths to the media ids in the config, like `sliderItems.*.mediaId`
      */
     public function __construct(
@@ -32,33 +32,46 @@ class CmsElementMediaFieldProvider implements CmsElementMediaProviderInterface
     ) {
     }
 
-    public function getType(): string
+    /**
+     * Whether the provider knows the media of the CMS element type, like `image`
+     */
+    public function supports(string $type): bool
     {
-        return $this->resolver->getType();
+        return $type === $this->resolver->getType();
     }
 
-    public function getMediaIds(CmsSlotEntity $slot): array
+    /**
+     * Returns the ids of the media the element shows from its static config.
+     * Mapped values like `category.media` are found through the entity they are mapped from.
+     *
+     * @param array<string, array{source?: string, value?: mixed}> $config raw config of the element, its fields by name, like `['media' => ['source' => 'static', 'value' => '<media id>']]`, it is not validated
+     *
+     * @return list<string>
+     */
+    public function getMediaIds(array $config): array
     {
         $mediaIds = [];
         foreach ($this->paths as $path) {
-            array_push($mediaIds, ...$this->getMediaIdsByPath($slot, $path));
+            array_push($mediaIds, ...$this->getMediaIdsByPath($config, $path));
         }
 
         return $mediaIds;
     }
 
     /**
+     * @param array<string, array{source?: string, value?: mixed}> $config
+     *
      * @return list<string>
      */
-    private function getMediaIdsByPath(CmsSlotEntity $slot, string $path): array
+    private function getMediaIdsByPath(array $config, string $path): array
     {
         $segments = explode('.', $path);
-        $config = $slot->getFieldConfig()->get((string) array_shift($segments));
-        if ($config === null || !$config->isStatic()) {
+        $field = $config[array_shift($segments)] ?? null;
+        if (!\is_array($field) || ($field['source'] ?? null) !== FieldConfig::SOURCE_STATIC) {
             return [];
         }
 
-        $values = [$config->getValue()];
+        $values = [$field['value'] ?? null];
         foreach ($segments as $segment) {
             $values = $this->walk($values, $segment);
         }

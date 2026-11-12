@@ -1,112 +1,4 @@
-const espree = require('espree');
-
-// vue-eslint-parser drops Twig tags from text nodes, so they are only visible in the source text
-const TWIG_PATTERN = /{%|%}|{#|#}/;
-const MUSTACHE_PATTERN = /^{{([\s\S]*)}}$/;
-
-/**
- * Quotes a text as a single-quoted JS string.
- *
- * @param {string} text
- * @returns {string}
- */
-function quote(text) {
-    return `'${text.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
-}
-
-function isExpression(code) {
-    try {
-        const program = espree.parse(`(${code})`, { ecmaVersion: 'latest' });
-
-        return program.body.length === 1 && program.body[0].type === 'ExpressionStatement';
-    } catch {
-        return false;
-    }
-}
-
-/**
- * Makes an expression usable inside a double-quoted attribute: double-quoted strings become single-quoted.
- *
- * @param {string} code
- * @returns {string|null} null when a double quote can't be replaced
- */
-function toAttributeExpression(code) {
-    if (!code.includes('"')) {
-        return code;
-    }
-
-    let tokens;
-
-    try {
-        tokens = espree.tokenize(code, { ecmaVersion: 'latest', range: true });
-    } catch {
-        return null;
-    }
-
-    let result = code;
-
-    [...tokens].reverse().forEach((token) => {
-        const inner = token.value.slice(1, -1);
-
-        if (token.type === 'String' && token.value.startsWith('"') && !/['\\]/.test(inner)) {
-            result = `${result.slice(0, token.range[0])}'${inner}'${result.slice(token.range[1])}`;
-        }
-    });
-
-    return result.includes('"') ? null : result;
-}
-
-/**
- * Reads the content of an element as a JS expression for a prop. Plain text becomes a string literal,
- * a single interpolation like `{{ $t('key') }}` stays an expression, so the label is still translated.
- *
- * @param {import('eslint').SourceCode} sourceCode
- * @param {object} element VElement
- * @returns {{ code: string|null }|null} `code` is null for empty content; null for markup, Twig or mixed content
- */
-function readContentExpression(sourceCode, element) {
-    if (!element.endTag) {
-        return { code: null };
-    }
-
-    if (element.children.some((child) => child.type === 'VElement')) {
-        return null;
-    }
-
-    const inner = sourceCode.text.slice(element.startTag.range[1], element.endTag.range[0]);
-
-    // `<` also catches HTML comments, which are no children
-    if (TWIG_PATTERN.test(inner) || inner.includes('<')) {
-        return null;
-    }
-
-    const text = inner.trim();
-
-    if (text === '') {
-        return { code: null };
-    }
-
-    // Interpolations are only parsed in .vue files, in .twig files they are part of the text
-    const mustache = MUSTACHE_PATTERN.exec(text);
-
-    if (mustache) {
-        const code = mustache[1].trim();
-
-        if (/{{|}}/.test(code) || !isExpression(code)) {
-            return null;
-        }
-
-        const attributeCode = toAttributeExpression(code);
-
-        return attributeCode === null ? null : { code: attributeCode };
-    }
-
-    if (/{{|}}|["&]/.test(text)) {
-        return null;
-    }
-
-    return { code: quote(text.replace(/\s+/g, ' ')) };
-}
+const { quote, readContentExpression } = require('../utils/template-expressions');
 
 /**
  * @param {Array<{ label: string, name: string }>} items JS source of each value
@@ -132,9 +24,6 @@ const handleMtTabs = (context, node) => {
     if (node.name !== mtComponentName) {
         return;
     }
-
-    // Get all comments from the template
-    const templateComments = context.getSourceCode().ast?.templateBody?.comments;
 
     // Check if component has attribute ":items"
     const itemsAttribute = node.startTag.attributes.find((attr) => {
@@ -181,22 +70,6 @@ const handleMtTabs = (context, node) => {
                 return attr.key?.name?.name === 'slot' && attr.key?.argument?.name === 'default';
             });
     });
-
-    // Check if component uses slot "content" with shorthand syntax, e.g. <template #content="{ active }">
-    const shorthandSyntaxContentSlot = node.children.find((child) => {
-        return child.type === 'VElement' &&
-            child.startTag &&
-            child.startTag.attributes.find((attr) => {
-                return attr.key?.name?.name === 'slot' && attr.key?.argument?.name === 'content';
-            });
-    });
-
-    // Check if there is a comment a line before the content slot
-    const commentBeforeContentSlot = templateComments.find((comment) => {
-        return comment.loc.end.line === shorthandSyntaxContentSlot?.startTag?.loc?.start?.line - 1;
-    });
-    // Check if the comment is a codemod comment
-    const isContentSlotCodemodComment = commentBeforeContentSlot?.value?.includes('TODO Codemod: The "content" slot is not used anymore. Please set the content manually outside the component.');
 
     // Check if component has children without a slot declaration
     const childrenWithoutSlot = node.children.find((child) => {
@@ -266,21 +139,6 @@ const handleMtTabs = (context, node) => {
 
                 // Add a comment before the default slot to inform that this is not used anymore
                 yield fixer.insertTextBeforeRange(shorthandSyntaxSlot.startTag.range, `<!-- TODO Codemod: This slot is not used anymore. Please use the "items" property instead. -->\n`);
-            }
-        });
-    }
-
-    if (shorthandSyntaxContentSlot && !isContentSlotCodemodComment) {
-        context.report({
-            node,
-            message: `[${mtComponentName}] The "content" slot is not used anymore. Please set the content manually outside the component.`,
-            *fix(fixer) {
-                if (context.options.includes('disableFix')) return;
-
-                const indentation = ' '.repeat(shorthandSyntaxContentSlot.startTag?.loc?.start?.column);
-
-                // Add a comment before the content slot to inform that this is not used anymore
-                yield fixer.insertTextBeforeRange(shorthandSyntaxContentSlot.startTag.range, `<!-- TODO Codemod: The "content" slot is not used anymore. Please set the content manually outside the component. -->\n${indentation}`);
             }
         });
     }
@@ -411,12 +269,11 @@ const mtTabsValidTests = [
             </template>`
     },
     {
-        name: '"mt-tabs" should not be converted if the "content" slot is already commented',
+        name: '"mt-tabs" keeps the "content" slot, which the mt-tabs wrapper renders',
         filename: 'test.html.twig',
         code: `
             <template>
-                <mt-tabs>
-                    <!-- TODO Codemod: The "content" slot is not used anymore. Please set the content manually outside the component. -->
+                <mt-tabs :items="items">
                     <template #content="{ active }">
                         The current active item is {{ active }}
                     </template>
@@ -549,42 +406,6 @@ const mtTabsInvalidTests = [
                 </mt-tabs>
             </template>`,
         errors: [{ message: '[mt-tabs] The default slot usage in mt-tabs was removed and replaced with the property "items".'}]
-    },
-    {
-        name: '"mt-tabs" wrong "content" slot usage - content should be set manually outside the component',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <mt-tabs>
-                    <template #content="{ active }">
-                        The current active item is {{ active }}
-                    </template>
-                </mt-tabs>
-            </template>`,
-        output: `
-            <template>
-                <mt-tabs>
-                    <!-- TODO Codemod: The "content" slot is not used anymore. Please set the content manually outside the component. -->
-                    <template #content="{ active }">
-                        The current active item is {{ active }}
-                    </template>
-                </mt-tabs>
-            </template>`,
-        errors: [{ message: '[mt-tabs] The "content" slot is not used anymore. Please set the content manually outside the component.'}]
-    },
-    {
-        name: '"mt-tabs" wrong "content" slot usage - content should be set manually outside the component [disableFix]',
-        filename: 'test.html.twig',
-        options: ['disableFix'],
-        code: `
-            <template>
-                <mt-tabs>
-                    <template #content="{ active }">
-                        The current active item is {{ active }}
-                    </template>
-                </mt-tabs>
-            </template>`,
-        errors: [{ message: '[mt-tabs] The "content" slot is not used anymore. Please set the content manually outside the component.'}]
     },
     {
         name: '"mt-tabs" property "isVertical" was renamed to "vertical"',
@@ -774,9 +595,4 @@ module.exports = {
     handleMtTabs,
     mtTabsValidTests,
     mtTabsInvalidTests,
-    TWIG_PATTERN,
-    quote,
-    isExpression,
-    toAttributeExpression,
-    readContentExpression,
 };

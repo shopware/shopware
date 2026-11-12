@@ -9,7 +9,7 @@
 export type CodemodScope = 'script' | 'template' | 'both';
 
 /** `fix` rewrites code and may mark what it cannot rewrite; the other action only marks spots with comments. */
-export type CodemodAction = 'fix' | 'todo';
+type CodemodAction = 'fix' | 'todo';
 
 interface BaseCodemod {
     /** Stable id used in `--with` and in reports. */

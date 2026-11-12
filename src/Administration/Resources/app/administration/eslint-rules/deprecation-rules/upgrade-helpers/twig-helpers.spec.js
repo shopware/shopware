@@ -1,16 +1,16 @@
 /**
  * @sw-package framework
  *
- * Covers twig-blocks.js and twig-target.js.
+ * Covers findBlocks() of twig-block-overrides.js and twig-target.js.
  */
 
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { findBlocks } = require('./twig-blocks');
-const { twigTargets } = require('./twig-target');
+const { findBlocks } = require('./twig-block-overrides');
+const { twigTargets, templateOwner } = require('./twig-target');
 
-describe('twig-blocks', () => {
+describe('findBlocks', () => {
     it('finds blocks with the range of their name, also with extra whitespace and trim markers', () => {
         const text = '{% block sw_a %}\n{%  block sw_b %}{% endblock %}\n{%- block sw_c -%}{% endblock sw_c %}{% endblock %}';
         const blocks = findBlocks(text);
@@ -55,6 +55,18 @@ describe('twig-target', () => {
         write('acme/index.ts', "Component.extend('acme-list', 'sw-order-list', {});");
 
         expect(twigTargets(contextFor('acme/acme-list.html.twig'))).toEqual(['sw-order-list']);
+    });
+
+    it('knows the templates of components the extension registers itself', () => {
+        write('acme-copy/acme-copy.js', "import template from './acme-copy.html.twig';\nShopware.Component.register('acme-copy', { template });");
+        write('acme-copy/index.js', "import './acme-copy';");
+        write('acme-element/index.ts', "Shopware.Component.register('sw-cms-el-config-acme', () => import('./config'));");
+        write('acme-element/config/index.ts', 'export default { template };');
+        write('acme-list/index.js', "Shopware.Component.register('acme-list', {});\nShopware.Component.override('sw-order-list', {});");
+
+        expect(templateOwner(contextFor('acme-copy/acme-copy.html.twig'))).toEqual({ targets: [], ownComponent: true });
+        expect(templateOwner(contextFor('acme-element/config/sw-cms-el-config-acme.html.twig')).ownComponent).toBe(true);
+        expect(templateOwner(contextFor('acme-list/acme-list.html.twig'))).toEqual({ targets: ['sw-order-list'], ownComponent: false });
     });
 
     it('falls back to core component file and folder names', () => {

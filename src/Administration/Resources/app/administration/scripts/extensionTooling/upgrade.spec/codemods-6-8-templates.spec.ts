@@ -181,7 +181,7 @@ describe('scripts/extensionTooling/upgrade 6.8 template codemods', () => {
             ),
         ).toEqual({
             'mt-components-6.8': { changes: 4, files: 1 },
-            'mt-tabs': { changes: 2, files: 1 },
+            'mt-tabs': { changes: 3, files: 2 },
             'sw-text-editor': { changes: 1, files: 1 },
             'removed-form-components': { changes: 6, files: 5 },
             'order-state-select-props': { changes: 2, files: 1 },
@@ -221,6 +221,14 @@ describe('scripts/extensionTooling/upgrade 6.8 template codemods', () => {
         expect(written.changedFiles).toContain('src/Resources/app/administration/vite.config.mts');
         expect(config).toContain("const entries = import.meta.glob(['./src/**/*.js', '!./src/**/*.spec.js']);");
         expect(config).not.toContain('!(*.spec)');
+    });
+
+    it('keeps the content slot of a converted sw-tabs without a codemod comment', () => {
+        const source = readSource(projectRoot, 'view/acme-bundle-seo/acme-bundle-seo.html.twig');
+
+        expect(source).toContain('<mt-tabs');
+        expect(source).toContain('<template #content="{ active }">');
+        expect(source).not.toContain('TODO Codemod');
     });
 
     // Runs last: it writes a second time into the project the other tests read.

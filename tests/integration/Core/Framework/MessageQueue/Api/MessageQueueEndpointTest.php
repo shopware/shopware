@@ -43,8 +43,8 @@ class MessageQueueEndpointTest extends TestCase
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
 
-        /** @var string $response */
         $response = $client->getResponse()->getContent();
+        static::assertIsString($response);
 
         $entries = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
 

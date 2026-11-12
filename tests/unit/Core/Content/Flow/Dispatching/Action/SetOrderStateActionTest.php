@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
+use Shopware\Core\Content\Flow\Dispatching\Aware\OrderDeliveryAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\OrderTransactionAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
@@ -125,41 +126,14 @@ class SetOrderStateActionTest extends TestCase
     #[DataProvider('orderDeliveryProvider')]
     public function testOrderDeliveryTransitionTarget(?string $flowOrderDeliveryOrder, ?string $primaryOrderDelivery, string $expectedOrderDelivery): void
     {
-        $ids = new IdsCollection();
+        $this->assertOrderDeliveryTransitionTarget($flowOrderDeliveryOrder, $primaryOrderDelivery, $expectedOrderDelivery);
+    }
 
-        $flow = new StorableFlow('foo', Context::createDefaultContext(), [], [
-            OrderAware::ORDER_ID => $ids->get('order'),
-        ]);
-        $flow->setConfig(['order_delivery' => 'shipped']);
-
-        if ($flowOrderDeliveryOrder !== null) {
-            $flowOrderDelivery = new OrderDeliveryEntity();
-            $flowOrderDelivery->setId($ids->get('flowOrderDelivery'));
-            $flowOrderDelivery->setOrderId($ids->get($flowOrderDeliveryOrder));
-            $flow->setData('orderDelivery', $flowOrderDelivery);
-        }
-
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchOne')->willReturnCallback(
-            static function (string $sql) use ($ids, $primaryOrderDelivery): string|false {
-                if (str_contains($sql, 'primary_order_delivery_id')) {
-                    return $primaryOrderDelivery !== null ? $ids->get($primaryOrderDelivery) : false;
-                }
-
-                if (str_contains($sql, 'shipping_costs')) {
-                    return $ids->get('highestShippingCostsOrderDelivery');
-                }
-
-                return 'ship';
-            }
-        );
-
-        $orderService = $this->createMock(OrderService::class);
-        $orderService->expects($this->once())
-            ->method('orderDeliveryStateTransition')
-            ->with($ids->get($expectedOrderDelivery), 'ship', new ParameterBag());
-
-        $this->createAction($connection, $orderService)->handleFlow($flow);
+    #[DataProvider('orderDeliveryWithoutMajorFlagProvider')]
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testOrderDeliveryTransitionTargetWithoutMajorFlag(?string $flowOrderDeliveryOrder, ?string $primaryOrderDelivery, string $expectedOrderDelivery): void
+    {
+        $this->assertOrderDeliveryTransitionTarget($flowOrderDeliveryOrder, $primaryOrderDelivery, $expectedOrderDelivery);
     }
 
     public function testOrderDeliveryOfTheFlowIsOnlyLoadedForADeliveryTransition(): void
@@ -168,7 +142,7 @@ class SetOrderStateActionTest extends TestCase
             OrderAware::ORDER_ID => Uuid::randomHex(),
         ]);
         $flow->setConfig(['order' => 'cancelled']);
-        $flow->lazy('orderDelivery', static fn () => static::fail('The order delivery of the flow was loaded'));
+        $flow->lazy(OrderDeliveryAware::ORDER_DELIVERY, static fn () => static::fail('The order delivery of the flow was loaded'));
 
         $connection = static::createStub(Connection::class);
         $connection->method('fetchOne')->willReturn('cancel');
@@ -218,7 +192,7 @@ class SetOrderStateActionTest extends TestCase
         $this->assertOrderTransactionTransitionTarget($flowOrderTransactionOrder, $primaryOrderTransaction, $expectedOrderTransaction);
     }
 
-    #[DataProvider('orderTransactionProvider')]
+    #[DataProvider('orderTransactionWithoutMajorFlagProvider')]
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testOrderTransactionTransitionTargetWithoutMajorFlag(?string $flowOrderTransactionOrder, ?string $primaryOrderTransaction, string $expectedOrderTransaction): void
     {
@@ -266,6 +240,27 @@ class SetOrderStateActionTest extends TestCase
         yield 'newest order transaction without primary order transaction' => [
             null,
             null,
+            'newestOrderTransaction',
+        ];
+    }
+
+    public static function orderTransactionWithoutMajorFlagProvider(): \Generator
+    {
+        yield 'order transaction of the flow' => [
+            'order',
+            'primaryOrderTransaction',
+            'flowOrderTransaction',
+        ];
+
+        yield 'order transaction of the flow from another order' => [
+            'otherOrder',
+            'primaryOrderTransaction',
+            'newestOrderTransaction',
+        ];
+
+        yield 'newest order transaction despite a primary order transaction' => [
+            null,
+            'primaryOrderTransaction',
             'newestOrderTransaction',
         ];
     }
@@ -409,12 +404,72 @@ class SetOrderStateActionTest extends TestCase
         ];
     }
 
+    public static function orderDeliveryWithoutMajorFlagProvider(): \Generator
+    {
+        yield 'order delivery of the flow' => [
+            'order',
+            'primaryOrderDelivery',
+            'flowOrderDelivery',
+        ];
+
+        yield 'order delivery of the flow from another order' => [
+            'otherOrder',
+            'primaryOrderDelivery',
+            'highestShippingCostsOrderDelivery',
+        ];
+
+        yield 'order delivery with the highest shipping costs despite a primary order delivery' => [
+            null,
+            'primaryOrderDelivery',
+            'highestShippingCostsOrderDelivery',
+        ];
+    }
+
     private function createAction(?Connection $connection = null, ?OrderService $orderService = null): SetOrderStateAction
     {
         return new SetOrderStateAction(
             $connection ?? $this->connection,
             $orderService ?? $this->orderService,
         );
+    }
+
+    private function assertOrderDeliveryTransitionTarget(?string $flowOrderDeliveryOrder, ?string $primaryOrderDelivery, string $expectedOrderDelivery): void
+    {
+        $ids = new IdsCollection();
+
+        $flow = new StorableFlow('foo', Context::createDefaultContext(), [], [
+            OrderAware::ORDER_ID => $ids->get('order'),
+        ]);
+        $flow->setConfig(['order_delivery' => 'shipped']);
+
+        if ($flowOrderDeliveryOrder !== null) {
+            $flowOrderDelivery = new OrderDeliveryEntity();
+            $flowOrderDelivery->setId($ids->get('flowOrderDelivery'));
+            $flowOrderDelivery->setOrderId($ids->get($flowOrderDeliveryOrder));
+            $flow->setData(OrderDeliveryAware::ORDER_DELIVERY, $flowOrderDelivery);
+        }
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchOne')->willReturnCallback(
+            static function (string $sql) use ($ids, $primaryOrderDelivery): string|false {
+                if (str_contains($sql, 'primary_order_delivery_id')) {
+                    return $primaryOrderDelivery !== null ? $ids->get($primaryOrderDelivery) : false;
+                }
+
+                if (str_contains($sql, 'shipping_costs')) {
+                    return $ids->get('highestShippingCostsOrderDelivery');
+                }
+
+                return 'ship';
+            }
+        );
+
+        $orderService = $this->createMock(OrderService::class);
+        $orderService->expects($this->once())
+            ->method('orderDeliveryStateTransition')
+            ->with($ids->get($expectedOrderDelivery), 'ship', new ParameterBag());
+
+        $this->createAction($connection, $orderService)->handleFlow($flow);
     }
 
     private function assertOrderTransactionTransitionTarget(?string $flowOrderTransactionOrder, ?string $primaryOrderTransaction, string $expectedOrderTransaction): void

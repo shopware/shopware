@@ -355,6 +355,13 @@ Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations
 
 The property is unused and will be removed in 6.8.
 
+### "Assign status" flow action picks the delivery and transaction of the flow
+
+The Flow Builder action "Assign status" (`action.set.order.state`) now changes the delivery and the transaction the flow carries as `orderDelivery` and `orderTransaction` data, if they belong to the order, for example on the delivery and transaction state triggers.
+Otherwise it changes the delivery with the highest shipping costs and the newest transaction, as before.
+With `v6.8.0.0`, it changes the primary delivery and the primary transaction of the order (`primaryOrderDeliveryId`, `primaryOrderTransactionId`) before it falls back, like the Administration, documents and order status rules do.
+Orders placed through the checkout get the same delivery and transaction either way, because their primary delivery has the highest shipping costs and their primary transaction is the newest one.
+
 ### Delivery and transaction state flows know what changed
 
 The `state_enter.order_delivery.state.*` and `state_leave.order_delivery.state.*` triggers now carry the delivery whose state changed, the `order_transaction` ones the transaction.
@@ -367,11 +374,6 @@ On delivery transitions, `order.deliveries` now also contains the state and posi
 
 The listener dispatches the new `OrderDeliveryStateMachineStateChangeEvent` and `OrderTransactionStateMachineStateChangeEvent` for these transitions.
 They extend `OrderStateMachineStateChangeEvent`, so existing subscribers keep working, and add `getOrderDelivery()` and `getOrderTransaction()` with their id getters.
-### "Assign status" flow action picks the delivery and transaction of the flow
-
-The Flow Builder action "Assign status" (`action.set.order.state`) now changes the delivery and the transaction the flow carries as `orderDelivery` and `orderTransaction` data, if they belong to the order.
-Otherwise it changes the primary delivery and the primary transaction of the order (`primaryOrderDeliveryId`, `primaryOrderTransactionId`), and only for orders without them the delivery with the highest shipping costs and the newest transaction, as before.
-Orders placed through the checkout get the same delivery and transaction as before, because their primary delivery has the highest shipping costs and their primary transaction is the newest one.
 
 ### Orders with several deliveries keep their shipping costs and addresses
 

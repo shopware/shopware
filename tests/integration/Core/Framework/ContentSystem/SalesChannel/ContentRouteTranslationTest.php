@@ -196,8 +196,8 @@ class ContentRouteTranslationTest extends TestCase
 
     /**
      * The map carries the dangling entry and nothing else, so there is no second entry a wrong selection
-     * could land on: any implementation that served a key outside the chain would produce the string. It
-     * reduces to the null variant instead, which the rendered-tree mint skips, so the key is absent.
+     * could land on: any implementation that served a key outside the chain would produce the string.
+     * Reduction leaves the key out instead, so the property serves as absent.
      */
     #[TestDox('serves no value at all for a map whose only entry is outside the request language chain')]
     public function testAMapWithNoChainEntryServesTheKeyAsUnset(): void

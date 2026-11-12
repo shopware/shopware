@@ -140,9 +140,17 @@ final class StoredTreePreparer
         foreach ($element->properties() as $key => $value) {
             $type = isset($declared[$key]) ? $declared[$key]->type() : null;
 
-            $properties[$key] = $type !== null && $type->translatable()
-                ? $this->selectTranslation($element->id, $key, $type, $value, $chain)
-                : $value;
+            if ($type === null || !$type->translatable()) {
+                $properties[$key] = $value;
+
+                continue;
+            }
+
+            $selected = $this->selectTranslation($element->id, $key, $type, $value, $chain);
+
+            if ($selected !== null) {
+                $properties[$key] = $selected;
+            }
         }
 
         return $properties;
@@ -150,8 +158,8 @@ final class StoredTreePreparer
 
     /**
      * The value of the first chain entry the map carries, verbatim. A key outside the chain is never
-     * selected, so a dangling language id cannot reach serving, and a map carrying no chain entry collapses
-     * to the null variant, which the rendered-tree mint skips.
+     * selected, so a dangling language id cannot reach serving. A map carrying no chain entry yields null,
+     * and the caller leaves the key out, so the property serves as absent.
      *
      * Anything but a map variant, and a selected entry that does not match the declared primitive, is an
      * internal fault: every client-supplied path rejects both on a translatable property before a render can
@@ -159,7 +167,7 @@ final class StoredTreePreparer
      *
      * @param non-empty-list<string> $languageIdChain
      */
-    private function selectTranslation(string $elementId, string $key, PropertyType $type, StoredValue $value, array $languageIdChain): StoredValue
+    private function selectTranslation(string $elementId, string $key, PropertyType $type, StoredValue $value, array $languageIdChain): ?StoredValue
     {
         if (!$value->isMap()) {
             $raw = $value->jsonSerialize();
@@ -196,7 +204,7 @@ final class StoredTreePreparer
             return $selected;
         }
 
-        return StoredValue::ofNull();
+        return null;
     }
 
     /**

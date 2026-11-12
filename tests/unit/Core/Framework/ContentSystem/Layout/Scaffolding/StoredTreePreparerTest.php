@@ -454,12 +454,12 @@ class StoredTreePreparerTest extends TestCase
     }
 
     /**
-     * Reduction applies no required rule of its own: the anchor requirement is the diagnostics gate's
-     * business, so both sides of it collapse the same way and the property behaves as unset.
+     * Reduction applies no required rule of its own: the system-language requirement is the diagnostics
+     * gate's business, so both sides of it leave the key out the same way.
      */
     #[DataProvider('unfilledTranslatablePropertyProvider')]
-    #[TestDox('reduces a $_dataName translatable property no chain language fills to the null variant')]
-    public function testPrepareReducesAnUnfilledTranslatablePropertyToTheNullVariant(string $key): void
+    #[TestDox('omits a $_dataName translatable property no chain language fills')]
+    public function testPrepareOmitsAnUnfilledTranslatableProperty(string $key): void
     {
         $element = StoredElementBuilder::create('text', 'root-id')
             ->withProperty($key, ['language-other' => 'other copy'])
@@ -467,11 +467,8 @@ class StoredTreePreparerTest extends TestCase
 
         $prepared = $this->prepare([$element], []);
 
-        $value = $prepared[0]->property($key);
-        // Present under its key and holding the null variant, which is the state the mint skips — an absent
-        // key would be a different outcome.
-        static::assertNotNull($value);
-        static::assertTrue($value->isNull());
+        // A key check, not a value check: a present null would be a different stored state.
+        static::assertArrayNotHasKey($key, $prepared[0]->properties());
     }
 
     /**
@@ -955,8 +952,8 @@ class StoredTreePreparerTest extends TestCase
         // absence of the key is that meaning. The raw `[]` arrives as the list variant, because
         // StoredValue::fromDecoded() wraps an array whose keys are a zero-based sequence as a list and an empty
         // array is such a sequence, so the reported type is `list` rather than get_debug_type([])'s `array`. The
-        // benign contrast, a non-empty map that merely lacks the chain language, is pinned above: it collapses
-        // to the null variant instead of throwing.
+        // benign contrast, a non-empty map that merely lacks the chain language, is pinned above: its key is
+        // omitted instead of throwing.
         yield 'empty map' => ['headline', [], 'string (translatable)', 'list'];
     }
 

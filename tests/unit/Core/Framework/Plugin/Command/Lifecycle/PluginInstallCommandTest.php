@@ -297,7 +297,7 @@ class PluginInstallCommandTest extends TestCase
         $composerDependencyService->method('requireDependency')->willReturn(true);
         $composerDependencyService->expects($this->once())->method('removePackage')->with($plugin);
         $installFailure = new \RuntimeException('install failed');
-        $this->pluginLifecycleService->method('installPlugin')->willThrowException($installFailure);
+        $this->pluginLifecycleService->expects($this->once())->method('installPlugin')->willThrowException($installFailure);
 
         $command = new PluginInstallCommand(
             $this->pluginLifecycleService,
@@ -322,7 +322,7 @@ class PluginInstallCommandTest extends TestCase
         $composerDependencyService->method('requireDependency')->willReturn(false);
         $composerDependencyService->expects($this->never())->method('removePackage');
         $installFailure = new \RuntimeException('install failed');
-        $this->pluginLifecycleService->method('installPlugin')->willThrowException($installFailure);
+        $this->pluginLifecycleService->expects($this->once())->method('installPlugin')->willThrowException($installFailure);
 
         $command = new PluginInstallCommand(
             $this->pluginLifecycleService,

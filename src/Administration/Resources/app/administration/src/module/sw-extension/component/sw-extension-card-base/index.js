@@ -145,12 +145,12 @@ export default {
             return Filter.getByName('asset');
         },
 
-        isRemovable() {
-            if (this.extension.installedAt === null && this.extension.source === 'local') {
-                return true;
-            }
+        hasDeletableFiles() {
+            return this.extension.allowRemove === true;
+        },
 
-            return false;
+        isRemovable() {
+            return this.extension.installedAt === null && this.hasDeletableFiles;
         },
 
         isUninstallable() {
@@ -440,7 +440,7 @@ export default {
                 await this.shopwareExtensionService.removeExtension(this.extension.name, this.extension.type, removeData);
                 this.extension.active = false;
             } catch (e) {
-                this.showStoreError(e);
+                this.showExtensionErrors(e);
             } finally {
                 this.isLoading = false;
             }

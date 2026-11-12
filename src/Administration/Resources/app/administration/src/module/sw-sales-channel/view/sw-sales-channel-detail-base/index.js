@@ -204,7 +204,12 @@ export default {
         storefrontSalesChannelCurrencyCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addAssociation('salesChannels');
+            /**
+             * @deprecated tag:v6.8.0 - The currencies will be loaded without their sales channels.
+             */
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                criteria.addAssociation('salesChannels');
+            }
 
             return criteria.addFilter(Criteria.equals('salesChannels.id', this.productExport.storefrontSalesChannelId));
         },
@@ -843,6 +848,7 @@ export default {
             }
 
             const criteria = new Criteria(1, 1);
+            criteria.setTotalCountMode(0);
             criteria.addFilter(
                 Criteria.multi('AND', [
                     Criteria.equals('fileName', this.productExport.fileName),
@@ -851,9 +857,9 @@ export default {
             );
 
             this.productExportRepository
-                .search(criteria)
-                .then(({ total }) => {
-                    this.invalidFileName = total > 0;
+                .searchIds(criteria)
+                .then(({ data }) => {
+                    this.invalidFileName = data.length > 0;
                     this.isFileNameChecking = false;
                 })
                 .catch(() => {

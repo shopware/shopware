@@ -30,6 +30,7 @@ use Shopware\Core\Framework\Mcp\Tool\EntityDeleteTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySchemaTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySearchTool;
+use Shopware\Core\Framework\Mcp\Tool\EntitySyncTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityUpsertTool;
 use Shopware\Core\Framework\Mcp\Tool\MediaUploadTool;
 use Shopware\Core\Framework\Mcp\Tool\OrderStateTool;
@@ -122,6 +123,7 @@ class McpServiceConfigTest extends TestCase
         yield EntityReadTool::class => [EntityReadTool::class];
         yield EntityUpsertTool::class => [EntityUpsertTool::class];
         yield EntityDeleteTool::class => [EntityDeleteTool::class];
+        yield EntitySyncTool::class => [EntitySyncTool::class];
         yield SystemConfigReadTool::class => [SystemConfigReadTool::class];
         yield SystemConfigWriteTool::class => [SystemConfigWriteTool::class];
         yield OrderStateTool::class => [OrderStateTool::class];
@@ -156,6 +158,7 @@ class McpServiceConfigTest extends TestCase
         yield EntityReadTool::class => [EntityReadTool::class];
         yield EntityUpsertTool::class => [EntityUpsertTool::class];
         yield EntityDeleteTool::class => [EntityDeleteTool::class];
+        yield EntitySyncTool::class => [EntitySyncTool::class];
         yield SystemConfigReadTool::class => [SystemConfigReadTool::class];
         yield SystemConfigWriteTool::class => [SystemConfigWriteTool::class];
         yield OrderStateTool::class => [OrderStateTool::class];

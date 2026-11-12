@@ -52,6 +52,7 @@ class McpToolRegistrationTest extends TestCase
         yield 'shopware-entity-aggregate' => ['shopware-entity-aggregate'];
         yield 'shopware-entity-read' => ['shopware-entity-read'];
         yield 'shopware-entity-search' => ['shopware-entity-search'];
+        yield 'shopware-entity-sync' => ['shopware-entity-sync'];
         yield 'shopware-entity-upsert' => ['shopware-entity-upsert'];
     }
 

@@ -53,16 +53,7 @@ Check the Administration code of your plugin or app for these changes:
 
 * A default import of a CommonJS module resolves to `module.exports` if the importing file is an `.mjs`/`.mts` file, the nearest `package.json` sets `"type": "module"`, or the module does not set `__esModule`. Otherwise it resolves to `module.exports.default`. Check default imports of CommonJS dependencies.
 
-  A dependency ships only CommonJS when its `package.json` sets neither `"type": "module"` nor a `module` field,
-  and its `exports` have no `import` condition and no `.mjs` target.
-  The codemod `vite-8` of `administration:upgrade-extensions` writes a TODO above every default import of such a package.
-  It looks the package up in the `node_modules` folders of your extension first and then in those of the Administration.
-
 If your plugin or app ships its own `vite.config.*` or Vite plugins, follow the [Vite 7](https://v7.vite.dev/guide/migration) and [Vite 8](https://vite.dev/guide/migration) migration guides.
-The codemod `vite-8` writes a TODO at the top of a `vite.config.*` next to the `src` folder of your Administration code.
-
-Use Node.js `^20.19.0 || >=22.12.0` wherever you build the Administration code of your extension, including CI.
-If the `package.json` of your extension sets `engines.node`, update it as well.
 
 # Changed Functionality
 
@@ -132,10 +123,8 @@ Events are opted out of webhook delivery with the `#[Shopware\Core\Framework\Web
 ## Composition API extension system is no longer a public entry point
 
 The Administration's Composition API extension system is now internal. `Shopware.Component.createExtendableSetup()` and `Shopware.Component.overrideComponentSetup()` were previously annotated `@experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`; both are now `@private`, together with the new `Shopware.Component.attachOverrides()`.
-`Shopware.Component.getExposedProps()`, which the generated code of a base component uses for its `defineExpose()`, is `@private` as well.
 
 The same applies to the override-component mounting hooks `Shopware.Component.registerOverrideComponent()` and `Shopware.Component.getOverrideComponents()`, which exist so a generated override component can be rendered once, hidden, at boot — that is what causes its setup body to run and register its override callback.
-It also applies to `Shopware.Component.registerNativeExtensionTargets()`, which the build compiles into every override SFC to announce the blocks it extends.
 
 Nothing is removed from the `Shopware.Component` global — generated component code resolves these at runtime — but they are no longer intended to be called directly, and their signatures may change without a deprecation.
 
@@ -144,8 +133,6 @@ Write native setup SFCs instead. The build-time transform emits these calls for 
 `Shopware.Component.override()` and `Shopware.Component.extend()` are not affected.
 No core component is a native setup SFC in 6.8, so existing Options API overrides keep working.
 To write an override with the Composition API anyway, see "Migrating Options API overrides to the Composition API Extension System".
-
-The codemod `composition-api-private` of `administration:upgrade-extensions` writes a TODO above calls of these functions, above destructuring of them from `Shopware.Component` and above imports of `src/app/adapter/composition-extension-system`.
 
 See `src/Administration/Resources/app/administration/technical-docs/03-extensibility/07-native-setup-authoring.md` for the authoring rules.
 
@@ -362,8 +349,6 @@ The integration view `sw-sales-channel-detail-agentic-commerce-integration` with
 SwagAgenticCommerce registers it, and `Shopware.Defaults.agenticCommerceTypeId`, when the core does not.
 The agentic files views `sw-sales-channel-detail-agentic-files` and `sw-sales-channel-detail-agentic-file` are a separate feature and stay in the core.
 
-The codemod `agentic-commerce-ui` of `administration:upgrade-extensions` writes a TODO above overrides and uses of these components and members, the route and `Shopware.Defaults.agenticCommerceTypeId`.
-
 ## Document rendering no longer falls back to the Storefront browser timezone
 
 When no Sales Channel business timezone is configured, document rendering no longer uses the Storefront browser timezone in Shopware 6.8. Documents now render with Twig's configured default timezone (`UTC` unless changed via `twig.date.timezone`) regardless of how they are generated. Set the Sales Channel business timezone if documents should use a merchant-controlled timezone.
@@ -440,7 +425,6 @@ The allocation route `/api/_action/number-range/reserve/{type}` is unchanged and
 In the Administration, `numberRangeService.previewPattern(typeName, pattern, start)` is removed together with the route.
 Use `numberRangeService.previewPatternByNumberRangeId(numberRangeId, pattern, start)` with the id of a saved number range;
 it returns the same `{ number }` response.
-The codemod `service-calls` of `administration:upgrade-extensions` writes a TODO above every call of `previewPattern()`.
 
 ## Mail payload custom data must use `extensions`
 
@@ -856,8 +840,6 @@ These members of `sw-order-promotion-field` were removed without replacement:
 - method `emitLoadingChange(state)`; use `Shopware.Store.get('swOrderDetail').setLoading(['recalculation', state])`
 
 `toggleAutomaticPromotions()` of `sw-order-create-details` belongs to creating an order and stays.
-
-The codemod `order-promotion-toggle` of `administration:upgrade-extensions` writes a TODO above these members in overrides of `sw-order-promotion-field`, above calls of `orderService.toggleAutomaticPromotions()` and above the route.
 
 ## Removal of `PromotionCartInformationTrait` helper methods
 
@@ -1430,41 +1412,6 @@ The column `link` of the table `product_manufacturer` was removed.
 
 Instead of using the `link` property of the `manufacturer` entity directly, the property `manufacturer.translated.link` should be used.
 
-## Removal of product's `states` field in favor of `type` field
-
-The `states` field of the `product` entity has been removed.
-Instead, you must use the `type` field to indicate the product type.
-The `states` field of the `line_item` and `order_line_item` entity has also been removed.
-Use the `productType` field in the `line_item`.`payload` (or `order_line_item`.`payload`) to indicate the product type of a product line item.
-Also the rule `LineItemProductStatesRule` has been removed.
-Use `LineItemProductTypeRule` instead.
-
-The `type` field is required as of 6.8.
-Products and variants created without an explicit `type` default to `physical`.
-Because `type` is immutable, this default cannot be changed afterwards — always send `type` explicitly when creating variants of `digital` products, otherwise they are permanently created as `physical`.
-Converting a variant into a standalone product (writing `parentId: null`) requires sending `type` in the same payload, analogous to the other required fields such as `price` and `taxId`.
-
-### Administration
-
-The Administration replaces the list of product states with one product type: `is-physical` becomes `physical`, `is-download` becomes `digital`.
-The replacements are available since 6.7.7.0.
-
-| Removed | Use instead |
-|---|---|
-| Store `swProductDetail`: getter `productStates`, state `creationStates`, `product.states` | Getter `productType`, state `creationType`, `product.type` |
-| `sw-product-detail`: prop `creationStates` (array), computed `productStates` | Prop `creationType` (string, default `physical`), computed `productType` |
-| Route `sw.product.create`: query `creationStates` | Query `creationType` |
-| `sw-product-detail-base`, `sw-product-detail-specifications`: computed `productStates` | Computed `productType` |
-| `sw-product-detail-variants`: computed `currentProductStates` | Computed `currentProductType` |
-| `sw-product-variants-overview`: prop `productStates` (default `['all']`) and its watcher | Prop `productType` (default `all`) |
-| `sw-product-modal-variant-generation`: `productStates` of the generated variants | `type` of the generated variants |
-| `sw-product-list`: filter `product-states-filter` (property `states`), data `productTypeOptions` | Filter `product-type-filter` (property `type`), computed `productTypes` |
-| `sw-product-stream-value`: computed `productStateOptions`, field type `product_state_list` | Computed `productTypeOptions`, field type `product_type` |
-| Product stream filter field `states` | Field `type` |
-| Rule condition type `cartLineItemProductStates` | `cartLineItemProductType` |
-
-The codemod `product-states` of `administration:upgrade-extensions` writes a TODO above these names, the filter key, the field and condition types, the values `'is-physical'` and `'is-download'`, and above `.states` of products and variants.
-
 ## Removal of increment-based message queue statistics
 
 The increment-based message queue statistics system (displayed indexing progress notifications in the Administration) has been removed.
@@ -1743,28 +1690,24 @@ The template no longer wraps block `sw_system_config_content_card` in `<template
 Overrides of that block or its inner blocks that read `config` must iterate `tab.cards` instead.
 Slot props named `config` (`beforeElements`, `card-element` and `afterElements`) carry the config values and stay.
 
-The codemod `system-config-schema` of `administration:upgrade-extensions` writes a TODO above calls of `getConfig()`, decorators that replace it, the route, the removed members and `config` in templates that override `sw-system-config`.
-
 ## Custom-field set loader computed properties removed
 
 The deprecated custom-field set loader computed properties were removed from these Administration components:
 
-| Component | Removed computed properties | `entityName` |
-|---|---|---|
-| `sw-category-detail` (categories and landing pages) | `customFieldSetRepository`, `customFieldSetCriteria`, `customFieldSetLandingPageCriteria` | `category`; `landing_page` for `customFieldSetLandingPageCriteria` |
-| `sw-customer-detail-base` | `customFieldSetRepository`, `customFieldSetCriteria` | `customer` |
-| `sw-customer-detail-addresses` | `customFieldSetRepository` | `customer_address` |
-| `sw-manufacturer-detail` | `customFieldSetRepository`, `customFieldSetCriteria` | `product_manufacturer` |
-| `sw-order-detail-details` | `customFieldSetRepository`, `customFieldSetCriteria` | `order` |
-| `sw-sales-channel-detail` | `customFieldRepository` | `sales_channel` |
-| `sw-settings-units-detail` | `customFieldSetRepository`, `customFieldSetCriteria` | `unit` |
-| `sw-bulk-edit-customer`, `sw-bulk-edit-order`, `sw-bulk-edit-product` | `customFieldSetRepository`, `customFieldSetCriteria` | `customer`, `order`, `product` |
+| Component | Removed computed properties |
+|---|---|
+| `sw-category-detail` (categories and landing pages) | `customFieldSetRepository`, `customFieldSetCriteria`, `customFieldSetLandingPageCriteria` |
+| `sw-customer-detail-base` | `customFieldSetRepository`, `customFieldSetCriteria` |
+| `sw-customer-detail-addresses` | `customFieldSetRepository` |
+| `sw-manufacturer-detail` | `customFieldSetRepository`, `customFieldSetCriteria` |
+| `sw-order-detail-details` | `customFieldSetRepository`, `customFieldSetCriteria` |
+| `sw-sales-channel-detail` | `customFieldRepository` |
+| `sw-settings-units-detail` | `customFieldSetRepository`, `customFieldSetCriteria` |
+| `sw-bulk-edit-customer`, `sw-bulk-edit-order`, `sw-bulk-edit-product` | `customFieldSetRepository`, `customFieldSetCriteria` |
 
 These components switched to a shared loader to remove their duplicate custom-field queries and reuse cached results across them. Extensions that used the removed properties to load renderable custom-field sets must use `Shopware.Service('customFieldDataProviderService').getCustomFieldSets(entityName)` instead.
 
 `sw-customer-detail-base` no longer injects `repositoryFactory`, which was retained only for its removed `customFieldSetRepository` property. Extensions that still need `repositoryFactory` must inject it themselves.
-
-The codemod `custom-field-set-loaders` of `administration:upgrade-extensions` writes a TODO with the entity name above these properties in overrides of the components, and above `customFieldSetRepository` in overrides of `sw-product-stream-detail`.
 
 ## Media default folder lookup computed properties removed
 
@@ -1781,6 +1724,25 @@ Use `mediaDefaultFolderService.getDefaultFolderId(entityName)` to get the id of 
 
 The deprecated computed property `customFieldSetRepository` was removed from `sw-product-stream-detail`.
 The component loads the product custom fields with the new `customFieldRepository` computed property instead.
+
+## Product states in the Administration are replaced by the product type
+
+The Administration replaces the list of product states with one product type: `is-physical` becomes `physical`, `is-download` becomes `digital`.
+The replacements are available since 6.7.7.0.
+
+| Removed | Use instead |
+|---|---|
+| Store `swProductDetail`: getter `productStates`, state `creationStates`, `product.states` | Getter `productType`, state `creationType`, `product.type` |
+| `sw-product-detail`: prop `creationStates` (array), computed `productStates` | Prop `creationType` (string, default `physical`), computed `productType` |
+| Route `sw.product.create`: query `creationStates` | Query `creationType` |
+| `sw-product-detail-base`, `sw-product-detail-specifications`: computed `productStates` | Computed `productType` |
+| `sw-product-detail-variants`: computed `currentProductStates` | Computed `currentProductType` |
+| `sw-product-variants-overview`: prop `productStates` (default `['all']`) and its watcher | Prop `productType` (default `all`) |
+| `sw-product-modal-variant-generation`: `productStates` of the generated variants | `type` of the generated variants |
+| `sw-product-list`: filter `product-states-filter` (property `states`), data `productTypeOptions` | Filter `product-type-filter` (property `type`), computed `productTypes` |
+| `sw-product-stream-value`: computed `productStateOptions`, field type `product_state_list` | Computed `productTypeOptions`, field type `product_type` |
+| Product stream filter field `states` | Field `type` |
+| Rule condition type `cartLineItemProductStates` | `cartLineItemProductType` |
 
 ## Order detail loading and editing state moved to the `swOrderDetail` store
 
@@ -1806,8 +1768,6 @@ const saved = orderDetailStore.savedSuccessful; // instead of the isSaveSuccessf
 
 The store getters `isLoading` (true while any part of the order loads) and `isEditing` stay.
 
-The codemod `order-detail-store` of `administration:upgrade-extensions` writes a TODO above the provides, members and events in overrides of these components, and above a `<router-view>` with the removed attributes in overrides of `sw-order-detail`.
-
 ## Removed unused order create and state history components
 
 These order components were removed without replacement, because the core no longer uses them:
@@ -1816,16 +1776,12 @@ These order components were removed without replacement, because the core no lon
 - `sw-order-state-history-card` and `sw-order-state-history-card-entry`; the order detail page shows the state history in `sw-order-state-history-modal`
 - `sw-order-user-card`; the order detail page shows the customer in `sw-order-general-info` and `sw-order-detail-details`
 
-The codemod `order-unused-components` of `administration:upgrade-extensions` writes a TODO above their tags and above `Component.override()`, `extend()` and `build()` of them.
-
 ## Shipping costs are edited in the general order view
 
 `sw-order-detail-details` no longer edits shipping costs.
 Its computed properties `shippingCosts` and `currency`, its method `onShippingChargeEdited(amount)` and its blocks `sw_order_detail_details_shipping_costs` and `sw_order_detail_details_order_promotion` were removed.
 Shipping costs are edited in `sw-order-detail-general`: the data `shippingCosts`, the methods `onShippingChargeUpdated(amount)` and `onShippingChargeEdited()` and the block `sw_order_detail_general_line_items_summary_shipping_cost`.
 Read the currency from `order.currency`.
-
-The codemod `order-shipping-costs` of `administration:upgrade-extensions` writes a TODO above these members in overrides of `sw-order-detail-details`.
 
 ## Product detail advanced mode is removed
 
@@ -1842,8 +1798,6 @@ These parts were removed:
 The computed `showModeSetting` of `sw-product-detail`, `sw-product-detail-base`, `sw-product-detail-specifications`, `sw-product-price-form`, `sw-product-deliverability-form`, `sw-product-deliverability-downloadable-form` and `sw-product-category-form` read the removed store getter.
 Overrides must no longer hide content based on it.
 
-The codemod `product-advanced-mode` of `administration:upgrade-extensions` writes a TODO above these members, the store getters, `setLoading(['advancedMode', …])`, the user config key and `sw-product-settings-mode`.
-
 ## Legacy rule condition components are removed
 
 The rule builder condition components `sw-condition-line-item-in-category`, `sw-condition-line-item-purchase-price` and `sw-condition-is-net-select` were removed.
@@ -1852,15 +1806,11 @@ Since 6.7.13.0 `cartLineItemPurchasePrice` stores `type` (`gross` or `net`) inst
 
 Extensions that extend or override these components, render `<sw-condition-is-net-select>` or register them with `ruleConditionDataProviderService.addCondition(type, { component })` must use `sw-condition-generic-line-item` for line item conditions and `sw-condition-generic` otherwise, and describe their fields in `Rule::getConfig()`.
 
-The codemod `rule-condition-components` of `administration:upgrade-extensions` writes a TODO above these tags, `Component.override()` and `extend()` of them and `component:` values that name them.
-
 ## `sw-media-grid` no longer clears the selection on an outside click
 
-`sw-media-grid` no longer clears the media selection when the user clicks outside of it; since 6.7.16.0 the event no longer fires.
+`sw-media-grid` no longer clears the media selection when the user clicks outside of it.
 The event `media-grid-selection-clear`, the computed `nonDeselectingComponents` and the methods `createdComponent()`, `beforeDestroyComponent()`, `clearSelectionOnClickOutside()`, `originatesFromExcludedComponent()`, `isEmittedFromChildren()` and `emitSelectionCleared()` were removed without replacement.
 The media sidebar clears the selection explicitly: `sw-media-quickinfo-multiple` emits `media-item-selection-clear`, which `sw-media-index` and `sw-media-modal-v2` handle.
-
-The codemod `media-grid-deselect` of `administration:upgrade-extensions` writes a TODO above listeners and emits of `media-grid-selection-clear` and above these members in overrides of `sw-media-grid`.
 
 ## Removed settings module members
 
@@ -1879,10 +1829,6 @@ These members of the settings module were removed:
 | `sw-settings-cache-index` | data `processSuccess`, method `resetButtons()` | Nothing |
 | `sw-settings-services-dashboard-banner` | the component | Nothing, the dashboard no longer shows the services banner |
 
-The removed members of `sw-settings-listing-option-criteria-grid`, `sw-settings-document-detail` and `sw-settings-document-list` are described in their own sections.
-
-The codemod `settings-product-promotion-members` of `administration:upgrade-extensions` writes a TODO above these members in overrides of their component.
-
 ## Removed product module members
 
 These members of the product module were removed without replacement:
@@ -1892,10 +1838,6 @@ These members of the product module were removed without replacement:
 | `sw-product-cross-selling-form` | computed `productCrossSellingRepository`, `crossSellingAssigmentRepository` and `disablePositioning`, which were not used |
 | `sw-product-clone-modal`, `sw-product-modal-variant-generation` | computed `progressInPercentage` |
 | `sw-product-packaging-form` | computed `isLoading`, which was not used |
-
-`loadConfigSettingGroups()` of `sw-product-detail-variants`, the media default folder computeds, the product states and the advanced mode are described in their own sections.
-
-The codemod `settings-product-promotion-members` of `administration:upgrade-extensions` writes a TODO above these members in overrides of their component.
 
 ## Removed promotion module members
 
@@ -1913,8 +1855,6 @@ These members of the promotion module were removed:
 The removed rule criteria equal the default `ruleFilter` of `sw-select-rule-create`.
 Templates that pass them with `:rule-filter` can drop the binding.
 
-The codemod `settings-product-promotion-members` of `administration:upgrade-extensions` writes a TODO above these members in overrides of their component.
-
 ## Behaviour changes behind the `v6.8.0.0` flag in the Administration
 
 These Administration changes are active with the `v6.8.0.0` feature flag in 6.7 and become the default in 6.8:
@@ -1927,8 +1867,6 @@ These Administration changes are active with the `v6.8.0.0` feature flag in 6.7 
   Pass `templateData` explicitly, or use `getDataAndSendMailTemplate()`, `previewMailTemplate()` or `simulateMailTemplate()`, which load the data on the server.
 - `sw-order-send-document-modal.onMailTemplateChange()` no longer writes the order into `mailTemplate.mailTemplateType.templateData`.
   The preview loads the order through the `entities` of `previewMailTemplate()`.
-
-The codemod `flag-gated-behaviour` of `administration:upgrade-extensions` writes a TODO above overrides of `sorting` and `nextMediaCriteria` of `sw-media-library`, `sorting` of `sw-media-display-options`, `buildSourceSet()` and `onMailTemplateChange()`, above `encodeURI()` of thumbnail URLs and above `sendMailTemplate()` calls without `templateData`.
 
 ## Deprecated password verification members in `sw-users-permissions-user-listing`
 
@@ -1961,7 +1899,6 @@ await integrationRepository.save(integration);
 ```
 
 Set `integration.admin` on the entity before you save it; the repository needs the entity, not only its id.
-The codemod `service-calls` of `administration:upgrade-extensions` writes a TODO above every call of `updateAdmin()`.
 
 ## Removed `validationService.email()`
 
@@ -1984,8 +1921,6 @@ if (!(await Shopware.Service('validationApiService').validateEmailAddress(this.e
 The `email` rule of the `validation` mixin goes away with the method.
 A component that uses the mixin, like `sw-vector-field`, and gets `validation="email"` then always reports the value as invalid.
 Check email addresses with `validateEmailAddress()` instead, for example before saving.
-
-The codemod `service-calls` of `administration:upgrade-extensions` writes a TODO above every call of `validationService.email()` and above imports of `email` from `src/core/service/validation.service`.
 
 ## Vuex and `Shopware.State` are removed
 
@@ -2031,9 +1966,6 @@ These ids changed:
 
 The Vuex module `usageData` has no Pinia store.
 
-The codemod `vuex-state` of `administration:upgrade-extensions` writes a TODO above every use of these APIs in scripts and templates.
-Where the module id is a literal, the TODO names the Pinia store.
-
 ## Removed CMS page override helpers
 
 The following component methods are removed:
@@ -2047,8 +1979,6 @@ The methods of `sw-category-detail` and `sw-product-detail` have no replacement.
 The layout editor now writes slot config changes back to the category or product itself.
 
 The action `resetCmsPageState()` of the Pinia store `cmsPage` stays.
-
-The codemod `cms-helpers` of `administration:upgrade-extensions` writes a TODO above these methods in overrides, above `this.<method>()` calls and above `$super('<method>')`.
 
 ## Removed Twig blocks with misleading names in CMS element configs
 
@@ -2277,6 +2207,7 @@ const controller = new AbortController();
 
 httpClient.get('/api/endpoint', {
     signal: controller.signal,
+    useAxiosV1: true,
 });
 controller.abort();
 ```
@@ -2307,20 +2238,6 @@ httpClient.interceptors.request.eject(interceptorId);
 ```
 
 Extensions do not need to know which axios version handles a request. The underlying axios instances and their version-specific types are no longer part of the public HTTP-client contract. During the transition, the facade remains structurally compatible with `AxiosInstance`, `AxiosRequestConfig.useAxiosV1`, and `axios-mock-adapter` to avoid unnecessary source changes.
-
-**`CancelToken`, `isCancel()` and the version-specific fields:**
-
-* `httpClient.CancelToken` and the `CancelToken`, `isCancel` and `Cancel` exports of `src/core/factory/http.factory` stay in 6.8.
-  They are the axios 0.x implementations.
-  A token from `httpClient.CancelToken.source()` still cancels a request that axios v1 sends, but axios v1 deprecates `CancelToken`.
-  Pass `signal` from an `AbortController` instead.
-* Detect cancellations with `httpClient.isCancel(error)` instead of `isCancel()` from `axios` or `Axios.isCancel()`.
-  It is part of the `HttpClient` contract and covers both clients.
-* `messageQueueService.consume(receiver, cancelToken)` still takes an axios 0.x `CancelToken` as its second argument and has no `signal` parameter.
-* `httpClient.axiosV0`, `axiosV1`, `interceptorsV0`, `interceptorsV1`, `defaultsV0` and `defaultsV1` still exist, but they are not part of the `HttpClient` contract.
-  Use `httpClient.interceptors` and `httpClient.defaults`, which apply to both clients.
-
-The codemod `axios-v1` of `administration:upgrade-extensions` writes a TODO above `CancelToken`, `cancelToken` request options, `isCancel` and `Cancel` from `axios` or `src/core/factory/http.factory`, `Axios.isCancel()`, `useAxiosV1: false`, the version-specific fields and calls of `messageQueueService.consume()` with a token.
 
 ### Migration guide
 
@@ -3343,7 +3260,6 @@ Changes in `sw-mail-template-index`:
 * `onChangeLanguage` method now only calls `tabContent` ref
 
 The two lists read the search term from the route through the `listing` mixin (`this.term`).
-The codemod `mail-template-api` of `administration:upgrade-extensions` writes a TODO above the `searchTerm` prop and watcher in overrides of the two lists and above `search-term` attributes on their tags.
 
 ## Removal of increment-based message queue notifications
 
@@ -3359,8 +3275,6 @@ The indexing progress notifications in the Administration notification center ha
 
 Remove your own middlewares and the overrides or removals of the core ones.
 For statistics of the message queue, use `Shopware.Service('messageStatsService').getStats()`, which reads `/api/_info/message-stats.json`.
-
-The codemod `worker-notification` of `administration:upgrade-extensions` writes a TODO above uses of `Shopware.WorkerNotification`, the container factory, `enableQueueStatsWorker`, imports of the listener and the factory, and the route `/_info/queue.json`.
 
 </details>
 
@@ -3422,8 +3336,6 @@ The following legacy blocks are removed in Shopware 6.8:
 - `sw_mail_template_detail_preview_modal_footer`
 - `sw_mail_template_detail_preview_modal_footer_cancel`
 
-The codemod `twig-block-renames` of `administration:upgrade-extensions` writes a TODO above overrides of these blocks in `sw-mail-template-detail`.
-
 The following APIs of the old preview are removed as well:
 
 - `mailService.testMailTemplate()`.
@@ -3433,8 +3345,6 @@ The following APIs of the old preview are removed as well:
   Use `mailService.previewMailTemplate(mailTemplateId, entities, templateData, salesChannelId)` for a saved template or `mailService.simulateMailTemplate(templateParts, eventName, salesChannelId)` for unsaved content.
 - the computed `hasTemplateData` and the methods `mailPreviewContent()` and `replaceContent()` of `sw-mail-template-detail`, without replacement.
   The preview is rendered on the server by `simulateMailPreview()` and shown in `sw-mail-template-preview-modal`.
-
-The codemod `mail-template-api` of `administration:upgrade-extensions` writes a TODO above calls of these methods, above the routes `/_action/mail-template/build` and `/_action/mail-template/validate` and above the members in overrides of `sw-mail-template-detail`.
 
 ## `$tc` is deprecated
 
@@ -4115,6 +4025,18 @@ Concretely this means the following configuration options are removed:
 - `shopware.cache.invalidation.country_state_route`
 - `shopware.cache.invalidation.salutation_route`
 - `shopware.cache.invalidation.sitemap_route`
+
+## Removal of product's `states` field in favor of `type` field
+
+The `states` field of the `product` entity has been removed.
+Instead, you must use the `type` field to indicate the product type.
+The `states` field of the `line_item` and `order_line_item` entity has also been removed.
+Use the `productType` field in the `line_item`.`payload` (or `order_line_item`.`payload`) to indicate the product type of a product line item.
+Also the rule `LineItemProductStatesRule` has been removed. Use `LineItemProductTypeRule` instead.
+
+The `type` field is required as of 6.8. Products and variants created without an explicit `type` default to `physical`.
+Because `type` is immutable, this default cannot be changed afterwards — always send `type` explicitly when creating variants of `digital` products, otherwise they are permanently created as `physical`.
+Converting a variant into a standalone product (writing `parentId: null`) requires sending `type` in the same payload, analogous to the other required fields such as `price` and `taxId`.
 
 ## Customer group registration flow events no longer use a SalesChannelContext
 

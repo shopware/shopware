@@ -228,12 +228,12 @@ class ThemeService implements ResetInterface
             $data['configValues'] = array_intersect_key($data['configValues'], array_flip($validFields));
         }
 
-        if (\array_key_exists('configValues', $data)) {
-            $this->dispatcher->dispatch(new ThemeConfigChangedEvent($themeId, $data['configValues'], $context));
-        }
+        // The event carries the submitted values, not the merged config built below.
+        $configValuesChanged = \array_key_exists('configValues', $data);
+        $changedConfig = $configValuesChanged ? $data['configValues'] : [];
 
         // This part is not executed if the theme was reset before, because the config values are then empty.
-        if (\array_key_exists('configValues', $data) && $theme->getConfigValues()) {
+        if ($configValuesChanged && $theme->getConfigValues()) {
             $submittedChanges = $data['configValues'];
             $currentConfig = $theme->getConfigValues();
             $data['configValues'] = array_replace_recursive($currentConfig, $data['configValues']);
@@ -249,6 +249,11 @@ class ThemeService implements ResetInterface
         }
 
         $this->themeRepository->update([$data], $context);
+
+        // Dispatch after the write, because listeners such as StaticFileConfigDumper read the theme config from the database.
+        if ($configValuesChanged) {
+            $this->dispatcher->dispatch(new ThemeConfigChangedEvent($themeId, $changedConfig, $context));
+        }
 
         // Administration resets inherited values before saving. Replace that intermediate
         // runtime configuration even for unassigned themes and descendants compiled asynchronously.

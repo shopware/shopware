@@ -13,5 +13,6 @@ module.exports = {
         'no-empty-listeners': require('./no-empty-listeners'),
         'no-vue-options-api': require('./no-vue-options-api'),
         'no-import-meta-glob-extglob': require('./no-import-meta-glob-extglob'),
+        'valid-api-markers': require('./valid-api-markers'),
     },
 };

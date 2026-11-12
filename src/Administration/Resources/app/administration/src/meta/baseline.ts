@@ -494,7 +494,6 @@ const missingTests = [
     'src/module/sw-users-permissions/components/sw-users-permissions-detailed-additional-permissions/index.js',
     'src/module/sw-users-permissions/index.js',
     'src/app/component/form/select/entity/sw-entity-many-to-many-select/index.js',
-    'src/module/sw-sales-channel/component/sw-sales-channel-modal/index.js',
     // unable to test because of es module <-> cjs conflicts lazy import statements
     'src/app/init/component.init.ts',
     'src/module/sw-settings-services/index.ts',

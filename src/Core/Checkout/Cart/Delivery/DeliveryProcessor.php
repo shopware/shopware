@@ -46,6 +46,7 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
         protected DeliveryBuilder $builder,
         protected DeliveryCalculator $deliveryCalculator,
         protected EntityRepository $shippingMethodRepository,
+        protected DeliveryRuleMatcher $ruleMatcher,
         protected ExtensionDispatcher $extensions
     ) {
     }
@@ -126,6 +127,10 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
 
             if ($manualShippingCosts instanceof CalculatedPrice) {
                 $deliveries->first()?->setShippingCosts($manualShippingCosts);
+            }
+
+            if (Feature::isActive('v6.8.0.0')) {
+                $this->ruleMatcher->match($data, $original, $deliveries, $context);
             }
 
             $this->deliveryCalculator->calculate($data, $toCalculate, $deliveries, $context);

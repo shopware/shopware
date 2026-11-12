@@ -49,7 +49,7 @@ At bind time, `resolvedBy` becomes a stored data requirement, and a config refer
 
 Why: A request value that reaches a loader through an unmarked key or an undeclared parameter picks a target no write-time gate checked. Limiting where a request value may enter is cheaper than guarding each case.
 
-Exceptions: `StoredTreePreparer` removes a `Literal` loader-config key whose whole value is one unresolved `{{token}}`. The key then resolves as absent and takes its declared default where it declares one. An unresolved ordinary placeholder embedded in other text stays literal; a whole-property unresolved placeholder becomes null. Placeholder keys beginning with `map:` after leading whitespace are reserved, so request values cannot replace mapping syntax. Mapping intent is parsed only from authored spans before substitution; see [data mapping](data-mapping.md#only-authored-token-spans-are-expanded).
+Exceptions: `StoredTreePreparer` removes a `Literal` loader-config key whose whole value is one unresolved ordinary placeholder. The key then resolves as absent and takes its declared default where it declares one. An unresolved placeholder embedded in other text, or forming a whole element property, stays verbatim. A placeholder key beginning with `map:` after leading whitespace is mapping syntax, and no request value replaces it. A lone `{{map:...}}` in loader config reaches the loader verbatim. Mapping intent is parsed only from [authored spans](data-mapping.md#only-authored-token-spans-are-expanded) before substitution.
 
 In code:
 
@@ -89,5 +89,5 @@ In code:
 
 ## Also true by construction
 
-- `StoredTreePreparer` substitutes a placeholder token in one pass at the property's own level, in [`RenderingMode::FULL`](README.md#terms-that-are-easy-to-confuse) only. An embedded unresolved ordinary token stays literal; a standalone unresolved property token becomes null. Placeholder values are otherwise made available to page loaders on the [virtual root](README.md#glossary): [pipeline-steps.md](../pipeline-steps.md)
+- `StoredTreePreparer` substitutes a placeholder token in one pass at the property's own level, in [`RenderingMode::FULL`](README.md#terms-that-are-easy-to-confuse) only. An unresolved token in an element property stays verbatim, unlike the [loader-config exception](#no-request-selects-what-a-loader-loads). Placeholder values are otherwise made available to page loaders on the [virtual root](README.md#glossary): [pipeline-steps.md](../pipeline-steps.md)
 - A loader-resolved value dedups by its source, configuration and value identity, without a value comparison. The DAL keeps no identity map, so two loads of one row return two instances that no value-level test can collapse. `ElementDataResolver` creates that identity at the load, because the resolved `LoaderInputs` do not outlive the call. `producedFingerprint` describes the value that the loader returned, not the value that the response finally carries. Any other object dedups by instance identity, a non-object by value equality, and every explicit null shares one `data` map entry: [Output/README.md](../../Output/README.md)

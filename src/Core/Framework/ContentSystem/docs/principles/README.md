@@ -7,7 +7,7 @@
 | stored element / rendered element | Both describe one element of a layout tree. | `StoredElement` is what a layout persists, with wiring and wrapped values. `RenderedElement` is what a page serves, with raw values and no wiring. | [stored-model.md](stored-model.md) |
 | present null / absent key | Neither gives the property a non-null value. | `LayoutDefaultSeeder` fills an absent key and never a present null. | [values.md](values.md) |
 | ordinary wiring / data mapping | Both can deliver a value to an element property. | A typed `source` marks a mapping; its catalogue admission and fallback rules differ from ordinary wiring. | [data-mapping.md](data-mapping.md) |
-| FULL / SKELETON | Both run the one render path and produce the same structure. | FULL resolves data. SKELETON switches off placeholder substitution, data resolution and context delivery. | [rendering.md](rendering.md) |
+| FULL / SKELETON | Both run the one render path and produce the same structure. | FULL resolves data. SKELETON switches off the steps the [mode table](rendering.md#structure-is-a-function-independent-of-rendering-mode) lists. | [rendering.md](rendering.md) |
 | write gate / write boundary | Both sit on the DAL write path of a layout tree. | The write boundary (`LayoutWriteBoundary::apply()`) returns a new tree from its passes, while the write gate (`LayoutGate`, `StoredTreeConstraints`) only checks the tree. | [write-admission.md](write-admission.md), [drafts-and-gates.md](drafts-and-gates.md) |
 | client defect / internal fault | Both are defects that `ContentSystemException` throws. | A code a client causes through the element tree is a client defect (`CLIENT_DEFECT_CODES`), while a defect whose only possible cause is a core or plugin bug or data that bypassed the write gate is an internal fault. | [failure-and-loss.md](failure-and-loss.md) |
 
@@ -39,6 +39,8 @@
 - write gate: the checks that reject a `content_layout` write, `LayoutGate` through `ContentLayoutWriteValidator` and the `StoredTreeConstraints` descriptor: [drafts-and-gates.md](drafts-and-gates.md#the-module-holds-a-draft-to-well-formedness).
 - conformance validator: `PropertyTypeConformanceValidator`, the descriptor's check of a property value against its declared primitive type.
 - constraint descriptor: `StoredTreeConstraints`, the DAL write constraints over the stored forest that keep their own copy of the codec's rules: [write-admission.md](write-admission.md#no-dal-write-can-bypass-the-constraint-descriptor).
+- language map: the stored value of a translatable property, one entry per language id: [translation.md](translation.md#translations-live-inline-in-the-element-tree-as-language-maps).
+- language reduction: the FULL mode step of `StoredTreePreparer` that replaces each language map with one entry: [translation.md](translation.md#language-reduction-happens-on-the-server-and-nothing-downstream-receives-a-language-map).
 - loss, dropped, orphaned: what a mutation response reports, a discarded property or wiring key (dropped) or a detached child it returns (orphaned): [failure-and-loss.md](failure-and-loss.md#the-module-drops-nothing-silently-and-reports-every-loss).
 
 In this module, "context" is the per-element delivery map. In the platform, `Context` is the Shopware context object.
@@ -99,3 +101,4 @@ The render path's steps are in [data-flow.md](../data-flow.md).
 - [wire-contract.md](wire-contract.md): one paired codec and one rendered forest per format
 - [extension-surface.md](extension-surface.md): the bounded extension surface
 - [clients.md](clients.md): the administration type and the storefront's shared partial
+- [translation.md](translation.md): language maps and their reduction on the server

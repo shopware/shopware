@@ -59,30 +59,41 @@ abstract class AbstractMediaUsageIndexer extends EntityIndexer
     }
 
     /**
-     * The indexed entity, its id is stored in `<entity>_id` of the usage table
+     * The indexed entity
      */
     abstract protected function getEntityName(): string;
+
+    /**
+     * The entity whose id and version are stored in `<entity>_id` and `<entity>_version_id` of the usage table, the indexed entity by default
+     */
+    protected function getOwnerEntityName(): string
+    {
+        return $this->getEntityName();
+    }
 
     abstract protected function getTableName(): string;
 
     /**
-     * Replaces the rows of the indexed entities
+     * Replaces the rows of the indexed versions of the entities, the rows of other versions are kept
      *
-     * @param list<string> $ids binary ids of the indexed entities
+     * @param array<string, list<string>> $idsByVersion binary ids of the owner entities by the hex id of the indexed version
      * @param list<array<string, string>> $rows rows to insert, the ids as bytes
      */
-    protected function replaceUsages(array $ids, array $rows): void
+    protected function replaceUsages(array $idsByVersion, array $rows): void
     {
-        RetryableTransaction::retryable($this->connection, function () use ($ids, $rows): void {
-            $this->connection->executeStatement(
-                \sprintf(
-                    'DELETE FROM `%s` WHERE %s IN (:ids)',
-                    $this->getTableName(),
-                    EntityDefinitionQueryHelper::escape($this->getEntityName() . '_id')
-                ),
-                ['ids' => $ids],
-                ['ids' => ArrayParameterType::BINARY]
-            );
+        RetryableTransaction::retryable($this->connection, function () use ($idsByVersion, $rows): void {
+            foreach ($idsByVersion as $versionId => $ids) {
+                $this->connection->executeStatement(
+                    \sprintf(
+                        'DELETE FROM `%s` WHERE %s IN (:ids) AND %s = :version',
+                        $this->getTableName(),
+                        EntityDefinitionQueryHelper::escape($this->getOwnerEntityName() . '_id'),
+                        EntityDefinitionQueryHelper::escape($this->getOwnerEntityName() . '_version_id')
+                    ),
+                    ['ids' => array_values(array_unique($ids)), 'version' => Uuid::fromHexToBytes($versionId)],
+                    ['ids' => ArrayParameterType::BINARY]
+                );
+            }
 
             // ids of deleted media can still be referenced in slot configs, their rows fail the foreign key and are ignored
             $queue = new MultiInsertQueryQueue($this->connection, ignoreErrors: true);

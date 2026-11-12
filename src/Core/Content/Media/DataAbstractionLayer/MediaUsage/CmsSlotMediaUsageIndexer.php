@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage;
 use Doctrine\DBAL\ArrayParameterType;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation\CmsSlotTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
@@ -45,7 +46,7 @@ class CmsSlotMediaUsageIndexer extends AbstractMediaUsageIndexer
         $types = ['ids' => ArrayParameterType::BINARY];
 
         $slots = $this->connection->fetchAllAssociative(
-            'SELECT section.cms_page_id, section.cms_page_version_id, slot.id AS cms_slot_id, slot.version_id AS cms_slot_version_id, slot.type, translation.config
+            'SELECT LOWER(HEX(slot.version_id)) AS cms_slot_version_id, section.cms_page_id, section.cms_page_version_id, slot.id AS cms_slot_id, slot.type, translation.config
              FROM cms_slot_translation AS translation
              INNER JOIN cms_slot AS slot ON slot.id = translation.cms_slot_id AND slot.version_id = translation.cms_slot_version_id
              INNER JOIN cms_block AS block ON block.id = slot.cms_block_id AND block.version_id = slot.cms_block_version_id
@@ -64,7 +65,7 @@ class CmsSlotMediaUsageIndexer extends AbstractMediaUsageIndexer
             }
         }
 
-        $this->replaceUsages($ids, $rows);
+        $this->replaceUsages(FetchModeHelper::group($slots, static fn (array $slot): string => (string) $slot['cms_slot_id']), $rows);
     }
 
     public function getDecorated(): EntityIndexer
@@ -93,7 +94,7 @@ class CmsSlotMediaUsageIndexer extends AbstractMediaUsageIndexer
             'cms_page_id' => (string) $slot['cms_page_id'],
             'cms_page_version_id' => (string) $slot['cms_page_version_id'],
             'cms_slot_id' => (string) $slot['cms_slot_id'],
-            'cms_slot_version_id' => (string) $slot['cms_slot_version_id'],
+            'cms_slot_version_id' => Uuid::fromHexToBytes((string) $slot['cms_slot_version_id']),
             'media_id' => $mediaId,
         ];
     }

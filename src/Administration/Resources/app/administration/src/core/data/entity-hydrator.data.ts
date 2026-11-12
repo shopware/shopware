@@ -48,6 +48,13 @@ type data = {
     aggregations: aggregations;
 };
 
+/**
+ * Payload of a repository search response that the hydrator turns into an `EntityCollection`.
+ *
+ * @private
+ */
+export type EntitySearchResponseData = data;
+
 type field = {
     entity: keyof EntitySchema.Entities;
 };

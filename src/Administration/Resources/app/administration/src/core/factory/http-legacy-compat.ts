@@ -42,7 +42,7 @@ type LegacyParamsSerializerOptions = {
  *
  * @deprecated tag:v6.9.0 - Will be removed together with the legacy compatibility mode.
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations -- Internal helper of the deprecated legacy compatibility mode, not a public API.
 export function toLegacyQueryString(serializedParams: string): string {
     return LEGACY_LITERAL_CHARACTERS.reduce(
         (params, [pattern, replacement]) => params.replace(pattern, replacement),
@@ -55,7 +55,7 @@ export function toLegacyQueryString(serializedParams: string): string {
  *
  * @deprecated tag:v6.9.0 - Will be removed together with the legacy compatibility mode.
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations -- Internal helper of the deprecated legacy compatibility mode, not a public API.
 export function legacyParamsSerializer(params: unknown, options?: LegacyParamsSerializerOptions): string {
     const serialized = Axios.getUri({
         url: '',
@@ -74,7 +74,7 @@ export function legacyParamsSerializer(params: unknown, options?: LegacyParamsSe
  *
  * @deprecated tag:v6.9.0 - Will be removed; Axios 1.x behaviour becomes unconditional.
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations -- Internal helper of the deprecated legacy compatibility mode, not a public API.
 export function isLegacyCompatRequest(config: { useAxiosV1?: boolean }): boolean {
     return !(config.useAxiosV1 ?? Shopware?.Feature?.isActive('V6_8_0_0') ?? false);
 }
@@ -99,7 +99,7 @@ function toPlainHeaders(response: AxiosResponse | undefined): void {
  *
  * @deprecated tag:v6.9.0 - Will be removed together with the legacy compatibility mode.
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations -- Internal helper of the deprecated legacy compatibility mode, not a public API.
 export function legacyCompatInterceptor(client: AxiosInstance): AxiosInstance {
     client.interceptors.request.use(
         (config: InternalAxiosRequestConfig) => {

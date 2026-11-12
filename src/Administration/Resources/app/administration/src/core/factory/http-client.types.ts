@@ -52,7 +52,7 @@ export interface HttpResponse<Data = HttpClientValue> {
     request?: HttpClientValue;
 }
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations -- Shares the visibility of HttpResponse, which it wraps.
 export interface HttpError<Data = HttpClientValue> extends Error {
     code?: string;
     config?: HttpRequestConfig;

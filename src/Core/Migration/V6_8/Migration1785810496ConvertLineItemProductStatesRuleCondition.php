@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Migration\V6_8;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
@@ -33,7 +34,7 @@ class Migration1785810496ConvertLineItemProductStatesRuleCondition extends Migra
         // previous runtime for 6.7 -> 6.8 blue-green deployments, already supports cartLineItemProductType.
 
         $conditions = $connection->fetchAllAssociative(
-            'SELECT `id`, `value` FROM `rule_condition` WHERE `type` = :legacyType',
+            'SELECT `id`, `rule_id`, `value` FROM `rule_condition` WHERE `type` = :legacyType',
             ['legacyType' => 'cartLineItemProductStates']
         );
 
@@ -41,7 +42,7 @@ class Migration1785810496ConvertLineItemProductStatesRuleCondition extends Migra
             return;
         }
 
-        $migrated = false;
+        $ruleIds = [];
 
         foreach ($conditions as $condition) {
             $newValue = $this->conditionPayload($condition['value']);
@@ -59,12 +60,22 @@ class Migration1785810496ConvertLineItemProductStatesRuleCondition extends Migra
                 ['id' => $condition['id']]
             );
 
-            $migrated = true;
+            $ruleIds[$condition['rule_id']] = $condition['rule_id'];
         }
 
-        if ($migrated) {
-            $this->registerIndexer($connection, 'rule.indexer');
+        if ($ruleIds === []) {
+            return;
         }
+
+        // The serialized payload still holds the legacy rule, which throws once the v6.8.0.0 flag is active.
+        // A null payload is rebuilt on the next load, so the shop does not depend on the async indexer.
+        $connection->executeStatement(
+            'UPDATE `rule` SET `payload` = NULL WHERE `id` IN (:ruleIds)',
+            ['ruleIds' => array_values($ruleIds)],
+            ['ruleIds' => ArrayParameterType::BINARY]
+        );
+
+        $this->registerIndexer($connection, 'rule.indexer');
     }
 
     private function conditionPayload(mixed $value): ?string

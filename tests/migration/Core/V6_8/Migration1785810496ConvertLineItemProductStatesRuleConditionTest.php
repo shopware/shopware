@@ -114,8 +114,8 @@ class Migration1785810496ConvertLineItemProductStatesRuleConditionTest extends T
             ['operator' => '=', 'foo' => 'bar']
         );
 
-        static::assertSame(
-            '{"legacy":true}',
+        // the stale payload is reset, so the rule is rebuilt from the converted conditions on the next load
+        static::assertNull(
             $this->connection->fetchOne(
                 'SELECT `payload` FROM `rule` WHERE `id` = :id',
                 ['id' => $this->ruleId]

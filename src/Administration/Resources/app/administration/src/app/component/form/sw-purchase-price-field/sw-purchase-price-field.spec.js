@@ -1,11 +1,9 @@
 /**
  * @sw-package framework
  */
-
 import { mount } from '@vue/test-utils';
 import 'src/app/component/form/sw-purchase-price-field';
 
-// mock data
 const dollarPrice = {
     currencyId: 'a435755c6c4f4fb4b81ec32b4c07e06e',
     net: 250,
@@ -44,7 +42,6 @@ const defaultPrice = {
 
 let wrapper;
 
-// initial component setup
 const setup = async (propOverride) => {
     const props = {
         price: [structuredClone(dollarPrice), structuredClone(euroPrice)],
@@ -98,7 +95,7 @@ describe('components/form/sw-purchase-price-field', () => {
         expect(wrapper.emitted('update:value')[0]).toEqual([[euroPrice, newPrice]]);
     });
 
-    it('should remove purchase prices when both fields are empty', async () => {
+    it('should preserve other currency prices when both fields are empty', async () => {
         const price = [structuredClone(dollarPrice), structuredClone(euroPrice)];
         const wrapper = await setup({ price });
         const emptyPrice = { ...dollarPrice, gross: null, net: null };
@@ -106,6 +103,17 @@ describe('components/form/sw-purchase-price-field', () => {
         wrapper.findComponent('.sw-purchase-price-field').vm.$emit('change', emptyPrice);
 
         expect(price).toEqual([dollarPrice, euroPrice]);
+        expect(wrapper.emitted('update:value')[0]).toEqual([[euroPrice]]);
+    });
+
+    it('should remove purchase prices when the only price is empty', async () => {
+        const price = [structuredClone(dollarPrice)];
+        const wrapper = await setup({ price });
+        const emptyPrice = { ...dollarPrice, gross: null, net: null };
+
+        wrapper.findComponent('.sw-purchase-price-field').vm.$emit('change', emptyPrice);
+
+        expect(price).toEqual([dollarPrice]);
         expect(wrapper.emitted('update:value')[0]).toEqual([null]);
     });
 

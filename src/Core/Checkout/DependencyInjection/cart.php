@@ -25,6 +25,7 @@ use Shopware\Core\Checkout\Cart\CustomCartProcessor;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
+use Shopware\Core\Checkout\Cart\Delivery\DeliveryRuleMatcher;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryValidator;
 use Shopware\Core\Checkout\Cart\Facade\CartFacadeHelper;
 use Shopware\Core\Checkout\Cart\Facade\CartFacadeHookFactory;
@@ -503,11 +504,19 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AbsolutePriceCalculator::class),
         ]);
 
+    $services->set(DeliveryRuleMatcher::class)
+        ->args([
+            service(RuleLoader::class),
+        ])
+        ->tag('kernel.event_subscriber')
+        ->tag('kernel.reset', ['method' => 'reset']);
+
     $services->set(DeliveryProcessor::class)
         ->args([
             service(DeliveryBuilder::class),
             service(DeliveryCalculator::class),
             service('shipping_method.repository'),
+            service(DeliveryRuleMatcher::class),
         ])
         ->tag('shopware.cart.processor', ['priority' => -5000])
         ->tag('shopware.cart.collector', ['priority' => -5000]);

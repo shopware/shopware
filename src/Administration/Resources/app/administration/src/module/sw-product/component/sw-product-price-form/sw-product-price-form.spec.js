@@ -120,9 +120,16 @@ describe('module/sw-product/component/sw-product-price-form', () => {
 
     /** @type Wrapper */
     let wrapper;
+    let previousLocale;
+
+    beforeEach(() => {
+        previousLocale = Shopware.Store.get('session').currentLocale;
+    });
 
     afterEach(() => {
         wrapper?.unmount();
+        Shopware.Store.get('session').currentLocale = previousLocale;
+        Shopware.Component.getOverrideRegistry().delete('sw-product-price-form');
     });
 
     /* eslint-disable sw-test-rules/no-vm-access -- Deprecated extension callbacks require direct API coverage. */
@@ -136,10 +143,19 @@ describe('module/sw-product/component/sw-product-price-form', () => {
         expect(() => wrapper.vm.inheritationCheckFunction()).toThrow(
             'sw-product-price-form.inheritationCheckFunction() is deprecated',
         );
+        expect(() => wrapper.vm.prices).toThrow('sw-product-price-form.prices is deprecated');
+        expect(() => wrapper.vm.parentPrices).toThrow('sw-product-price-form.parentPrices is deprecated');
+        expect(() => {
+            wrapper.vm.prices = {
+                price: [],
+                purchasePrices: [],
+            };
+        }).toThrow('sw-product-price-form.prices is deprecated');
     });
     /* eslint-enable sw-test-rules/no-vm-access */
 
-    it('should show the tax rate percentage alongside each tax name', async () => {
+    it('should show a localized tax rate percentage alongside each tax name', async () => {
+        Shopware.Store.get('session').currentLocale = 'de-DE';
         wrapper = await createWrapper();
         await flushPromises();
         Shopware.Store.get('swProductDetail').taxes = [
@@ -152,9 +168,24 @@ describe('module/sw-product/component/sw-product-price-form', () => {
         const options = wrapper.findComponent({ name: 'mt-select' }).props('options');
 
         expect(options).toEqual([
-            { id: 'standard', value: 'standard', label: 'Standard rate (19%)' },
-            { id: 'reduced', value: 'reduced', label: 'Reduced rate (7.5%)' },
-            { id: 'zero', value: 'zero', label: 'Zero rate (0%)' },
+            { id: 'standard', value: 'standard', label: 'Standard rate (19\u00A0%)' },
+            { id: 'reduced', value: 'reduced', label: 'Reduced rate (7,5\u00A0%)' },
+            { id: 'zero', value: 'zero', label: 'Zero rate (0\u00A0%)' },
+        ]);
+    });
+
+    it('should limit the percentage precision to three decimal places', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+        Shopware.Store.get('swProductDetail').taxes = [
+            { id: 'custom', name: 'Custom rate', taxRate: 7.12345 },
+        ];
+        await nextTick();
+
+        const options = wrapper.findComponent({ name: 'mt-select' }).props('options');
+
+        expect(options).toEqual([
+            { id: 'custom', value: 'custom', label: 'Custom rate (7.123%)' },
         ]);
     });
 
@@ -260,5 +291,38 @@ describe('module/sw-product/component/sw-product-price-form', () => {
         expect(wrapper.find('.sw-product-price-form__purchase-prices').exists()).toBe(false);
 
         expect(wrapper.find('.sw-list-price-field__list-price sw-price-field-stub').exists()).toBe(false);
+    });
+
+    it('should keep replacement blocks inside their deprecated compatibility blocks', async () => {
+        Shopware.Component.override('sw-product-price-form', {
+            template: `
+                {% block sw_product_price_form_fields %}
+                    <div class="legacy-fields">{% parent %}</div>
+                {% endblock %}
+
+                {% block sw_product_price_form_price_field %}
+                    <div class="legacy-price-field">{% parent %}</div>
+                {% endblock %}
+
+                {% block sw_product_price_form_link %}
+                    <div class="legacy-links">{% parent %}</div>
+                {% endblock %}
+
+                {% block sw_product_price_form_maintain_currencies_link %}
+                    <div class="legacy-currency-link">{% parent %}</div>
+                {% endblock %}
+            `,
+        });
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.legacy-fields .legacy-price-field .sw-product-price-form__display-prices').exists()).toBe(
+            true,
+        );
+        expect(wrapper.find('.legacy-links .legacy-currency-link .sw-product-price-form__currency-link').exists()).toBe(
+            true,
+        );
+        expect(wrapper.find('.legacy-fields .sw-product-price-form__purchase-prices').exists()).toBe(false);
     });
 });

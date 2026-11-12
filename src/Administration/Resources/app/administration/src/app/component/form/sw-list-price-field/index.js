@@ -25,9 +25,7 @@ export default {
         /** @deprecated tag:v6.8.0 - Use sw-purchase-price-field separately. */
         purchasePrices: {
             type: Array,
-            default() {
-                return [];
-            },
+            required: false,
             deprecated: { version: 'v6.8.0.0', comment: 'Use sw-purchase-price-field separately.' },
         },
 
@@ -100,12 +98,12 @@ export default {
             default: false,
         },
 
-        /** @deprecated tag:v6.8.0 - Purchase prices are no longer rendered by this component. */
+        /** @deprecated tag:v6.8.0 - Use sw-purchase-price-field separately. */
         hidePurchasePrices: {
             type: Boolean,
             required: false,
             default: false,
-            deprecated: { version: 'v6.8.0.0', comment: 'Purchase prices are no longer rendered by sw-list-price-field.' },
+            deprecated: { version: 'v6.8.0.0', comment: 'Use sw-purchase-price-field separately.' },
         },
 
         hideRegulationPrices: {

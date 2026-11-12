@@ -75,8 +75,6 @@ const config: Config = {
         projectRoot: process.env.PROJECT_ROOT,
     },
 
-    globalTeardown: '<rootDir>test/globalTeardown.js',
-
     resolver: '<rootDir>/test/_helper_/jest-resolver.js',
 
     // Use default jest-circus runner (Jest 30+), removed deprecated jest-jasmine2

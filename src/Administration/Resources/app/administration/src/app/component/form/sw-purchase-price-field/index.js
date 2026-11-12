@@ -1,7 +1,6 @@
 /**
  * @sw-package framework
  */
-
 import template from './sw-purchase-price-field.html.twig';
 
 /**
@@ -52,47 +51,40 @@ export default {
     },
 
     computed: {
-        purchasePrice: {
-            get() {
-                const priceForCurrency = this.price.find((price) => price.currencyId === this.currency.id);
-                if (priceForCurrency) {
-                    return [priceForCurrency];
-                }
+        purchasePrice() {
+            const purchasePrice = this.price.find(({ currencyId }) => currencyId === this.currency.id) ?? {
+                currencyId: this.currency.id,
+                linked: true,
+                gross: null,
+                net: null,
+            };
 
-                return [
-                    {
-                        currencyId: this.currency.id,
-                        linked: true,
-                        gross: null,
-                        net: null,
-                    },
-                ];
-            },
-
-            set(newPurchasePrice) {
-                if (newPurchasePrice.gross === null && newPurchasePrice.net === null) {
-                    this.$emit('update:value', null);
-
-                    return;
-                }
-
-                const prices = [...this.price];
-                const index = prices.findIndex((price) => price.currencyId === newPurchasePrice.currencyId);
-
-                if (index !== -1) {
-                    prices.splice(index, 1, newPurchasePrice);
-                } else {
-                    prices.push(newPurchasePrice);
-                }
-
-                this.$emit('update:value', prices);
-            },
+            return [purchasePrice];
         },
     },
 
     methods: {
-        purchasePriceChanged(value) {
-            this.purchasePrice = value;
+        purchasePriceChanged(newPurchasePrice) {
+            const prices = [...this.price];
+            const index = prices.findIndex((price) => price.currencyId === newPurchasePrice.currencyId);
+
+            if (newPurchasePrice.gross === null && newPurchasePrice.net === null) {
+                if (index !== -1) {
+                    prices.splice(index, 1);
+                }
+
+                this.$emit('update:value', prices.length ? prices : null);
+
+                return;
+            }
+
+            if (index !== -1) {
+                prices.splice(index, 1, newPurchasePrice);
+            } else {
+                prices.push(newPurchasePrice);
+            }
+
+            this.$emit('update:value', prices);
         },
     },
 };

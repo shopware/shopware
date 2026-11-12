@@ -464,6 +464,26 @@ Enable the `v6.8.0.0` feature flag in 6.7 to test your client against the new fo
 
 <details>
 
+## Shipping rules are evaluated per cart delivery
+
+The rule based rows of the shipping price matrix and the availability rule of a shipping method are evaluated for each cart delivery with its own shipping address and shipping method, instead of once for the whole cart with the address and shipping method of the sales channel context.
+A cart with a single delivery gets the same result as before.
+
+Custom rules that read the shipping location or the shipping method from the sales channel context were evaluated against the context for every delivery.
+Read them from the delivery when the rule is matched in a `Shopware\Core\Checkout\Cart\Rule\DeliveryRuleScope`:
+
+```php
+// Before
+$location = $scope->getSalesChannelContext()->getShippingLocation();
+
+// After
+$location = $scope instanceof DeliveryRuleScope
+    ? $scope->getDelivery()->getLocation()
+    : $scope->getSalesChannelContext()->getShippingLocation();
+```
+
+A rule without the branch keeps working and decides by the sales channel context for every delivery.
+
 ## Multiple SQL statements restricted to migrations and installation
 
 Application database connections no longer accepted multiple SQL statements in a single call.
@@ -1590,7 +1610,7 @@ The unused property was removed.
 ## Product prices card extension points
 
 The product prices card was restructured, and display prices and purchase prices now have separate inheritance controls.
-The following blocks were deprecated and left empty, so `parent()` no longer renders their former content.
+The following blocks were deprecated and retained as compatibility wrappers during 6.7.
 Update overrides to use the replacement blocks:
 
 | Previous block | Replacement |
@@ -1600,14 +1620,18 @@ Update overrides to use the replacement blocks:
 | `sw_product_price_form_maintain_currencies_link` | `sw_product_price_form_currency_link` |
 | `sw_product_price_form_advanced_prices_link` | `sw_product_detail_base_advanced_prices_link` in `sw-product-detail-base` |
 
-`sw-list-price-field` no longer renders purchase prices, and its `hidePurchasePrices` and `purchasePrices` props were deprecated.
+`sw-list-price-field` continued to render purchase prices during 6.7 when its deprecated `purchasePrices` prop was supplied.
+Its `hidePurchasePrices` and `purchasePrices` props were deprecated.
 Render `sw-purchase-price-field` separately where purchase prices are needed.
-The `sw_product_price_form_purchase_price_field` and `sw_product_price_form_purchase_price_field_content` blocks were deprecated and left empty.
+The `sw_product_price_form_purchase_price_field` and `sw_product_price_form_purchase_price_field_content` blocks were deprecated.
 Use `sw_product_price_form_purchase_prices` to customize the product card's purchase section.
 
 Each price inheritance wrapper now exposes its price array directly as `currentValue`.
 Replace `currentValue.price` and `currentValue.purchasePrices` with `currentValue` in the corresponding sections.
 Replace overrides of `removePriceInheritation()` and `inheritationCheckFunction()` with `copyDefaultPrice(prices)` and `isPriceInherited(prices)`; each receives one section's price array.
+The `prices` and `parentPrices` computed properties of `sw-product-price-form` were deprecated.
+Replace `this.prices.price` with `this.product.price` and `this.prices.purchasePrices` with `this.product.purchasePrices`.
+Use `product.price`, `product.purchasePrices`, `parentProduct.price`, and `parentProduct.purchasePrices` separately; use `displayPrices` for the effective inherited display prices.
 
 `sw-product-detail.syncVariantPriceInheritance()` was deprecated and is no longer called.
 Move unrelated load-time customization to `sw-product-detail.loadProduct()`.

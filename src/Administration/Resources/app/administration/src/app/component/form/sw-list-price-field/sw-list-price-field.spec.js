@@ -3,7 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
-import { useProductionDeprecationGuard } from 'test/_helper_/deprecations';
+import { deprecations, useProductionDeprecationGuard } from 'test/_helper_/deprecations';
 import 'src/app/component/form/sw-list-price-field';
 
 // mock data
@@ -42,6 +42,14 @@ const defaultPrice = {
     net: 152.33644859813083,
     linked: true,
 };
+const purchasePrices = [
+    {
+        currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+        gross: 100,
+        net: 84.03,
+        linked: true,
+    },
+];
 
 let wrapper;
 
@@ -117,11 +125,40 @@ describe('components/form/sw-list-price-field', () => {
         expect(price.listPrice).toBeNull();
     });
 
-    it('should not render purchase prices', async () => {
+    it('should not render purchase prices when the deprecated prop is not supplied', async () => {
         const wrapper = await setup();
         await flushPromises();
 
+        expect(wrapper.props('purchasePrices')).toBeUndefined();
         expect(wrapper.find('.sw-list-price-field__purchase-price').exists()).toBeFalsy();
+    });
+
+    it('should render purchase prices when the deprecated prop is supplied later', async () => {
+        const wrapper = await setup();
+        await flushPromises();
+
+        await wrapper.setProps({ purchasePrices });
+
+        expect(wrapper.find('.sw-purchase-price-field').exists()).toBe(true);
+    });
+
+    it('should render purchase prices when the deprecated prop is supplied', async () => {
+        const wrapper = await setup({ purchasePrices });
+        await flushPromises();
+
+        expect(deprecations).toHaveTriggered('The prop "purchasePrices" of the component "sw-list-price-field"');
+        const purchasePriceField = wrapper.findComponent('.sw-purchase-price-field');
+        expect(purchasePriceField.exists()).toBe(true);
+        expect(purchasePriceField.props('value')).toEqual(purchasePrices);
+    });
+
+    it('should hide supplied purchase prices when the deprecated hide prop is set', async () => {
+        const wrapper = await setup({ purchasePrices, hidePurchasePrices: true });
+        await flushPromises();
+
+        expect(deprecations).toHaveTriggered('The prop "purchasePrices" of the component "sw-list-price-field"');
+        expect(deprecations).toHaveTriggered('The prop "hidePurchasePrices" of the component "sw-list-price-field"');
+        expect(wrapper.find('.sw-list-price-field__purchase-price').exists()).toBe(false);
     });
 
     it('should set the correct inherited state when inherited', async () => {

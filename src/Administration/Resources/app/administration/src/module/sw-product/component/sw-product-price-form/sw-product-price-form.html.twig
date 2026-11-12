@@ -1,6 +1,8 @@
 {% block sw_product_price_form %}
 <div class="sw-product-price-form">
-    {% block sw_product_price_form_tax_field %}
+    {# @deprecated tag:v6.8.0 - Block will be removed. Use the section-specific blocks instead. #}
+    {% block sw_product_price_form_fields %}
+        {% block sw_product_price_form_tax_field %}
     <sw-container columns="1fr var(--scale-size-56) 1fr">
         <sw-inherit-wrapper
             v-if="!isLoading"
@@ -28,9 +30,11 @@
             </template>
         </sw-inherit-wrapper>
     </sw-container>
-    {% endblock %}
+        {% endblock %}
 
-    {% block sw_product_price_form_display_prices %}
+    {# @deprecated tag:v6.8.0 - Block will be removed. Use sw_product_price_form_display_prices instead. #}
+        {% block sw_product_price_form_price_field %}
+            {% block sw_product_price_form_display_prices %}
     <sw-inherit-wrapper
         v-if="!isLoading"
         v-model:value="product.price"
@@ -58,9 +62,18 @@
             />
         </template>
     </sw-inherit-wrapper>
+            {% endblock %}
+        {% endblock %}
     {% endblock %}
 
-    {% block sw_product_price_form_currency_link %}
+    {# @deprecated tag:v6.8.0 - Block will be removed. Use the section-specific link blocks instead. #}
+    {% block sw_product_price_form_link %}
+    {# @deprecated tag:v6.8.0 - Use sw_product_detail_base_advanced_prices_link instead. #}
+        {% block sw_product_price_form_advanced_prices_link %}{% endblock %}
+
+    {# @deprecated tag:v6.8.0 - Block will be removed. Use sw_product_price_form_currency_link instead. #}
+        {% block sw_product_price_form_maintain_currencies_link %}
+            {% block sw_product_price_form_currency_link %}
     <a
         v-if="displayPrices"
         class="sw-product-price-form__currency-link"
@@ -75,6 +88,8 @@
             size="var(--scale-size-16)"
         />
     </a>
+            {% endblock %}
+        {% endblock %}
     {% endblock %}
 
     {% block sw_product_price_form_purchase_prices %}
@@ -105,17 +120,6 @@
             />
         </template>
     </sw-inherit-wrapper>
-    {% endblock %}
-
-    {# @deprecated tag:v6.8.0 - Blocks will be removed #}
-    {% block sw_product_price_form_fields %}
-        {% block sw_product_price_form_price_field %}{% endblock %}
-    {% endblock %}
-
-    {# @deprecated tag:v6.8.0 - Blocks will be removed #}
-    {% block sw_product_price_form_link %}
-        {% block sw_product_price_form_advanced_prices_link %}{% endblock %}
-        {% block sw_product_price_form_maintain_currencies_link %}{% endblock %}
     {% endblock %}
 
     {% block sw_product_price_form_maintain_currencies_modal %}

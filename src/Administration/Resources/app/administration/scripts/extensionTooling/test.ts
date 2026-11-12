@@ -382,17 +382,33 @@ function nothingTestedDiagnostic(notRunnable: NotRunnableConfig[]): string {
 }
 
 /**
- * Whether every Jest run reported zero tests. A Jest option such as a spec
- * filter gets `--passWithNoTests` over several configs, so each run can pass
- * empty; the run as a whole must not. Passing `--passWithNoTests` yourself
- * allows an empty run.
+ * Whether every Jest run passed without a single test. A spec filter gets
+ * `--passWithNoTests` over several configs, so each run can pass empty; the run
+ * as a whole must not. A failed run that fails the command is left out: a
+ * suite that fails to load also counts zero tests, and its own failure already
+ * explains the run. Passing `--passWithNoTests` yourself allows an empty run.
  */
 function ranNoTest(runs: JestRun[], jestArgs: string[]): boolean {
     return (
         runs.length > 0 &&
-        runs.every((run) => run.testCount === 0) &&
+        runs.every((run) => (run.exitCode === 0 || run.nonFatal) && run.testCount === 0) &&
         booleanJestOption(jestArgs, 'passWithNoTests') !== true
     );
+}
+
+/**
+ * Explains a run in which every Jest run passed or failed non-fatally without a
+ * test. A non-fatal vendor run may count none because its suite failed to load,
+ * so the message points there instead of at a spec filter.
+ *
+ * @example
+ * noTestRanDiagnostic([{ extension: 'A', config: 'a/jest.config.js', exitCode: 0, testCount: 0 }]);
+ * // → 'Nothing was tested: no spec matched in any Jest config.'
+ */
+function noTestRanDiagnostic(runs: JestRun[]): string {
+    return runs.some((run) => run.nonFatal)
+        ? 'Nothing was tested: no Jest config ran a spec, see the non-fatal vendor runs above.'
+        : 'Nothing was tested: no spec matched in any Jest config.';
 }
 
 /**
@@ -598,7 +614,7 @@ export async function testExtensions(options: TestExtensionsOptions): Promise<Te
         }
     }
 
-    return result(runs, ranNoTest(runs, jestArgs) ? ['Nothing was tested: no spec matched in any Jest config.'] : []);
+    return result(runs, ranNoTest(runs, jestArgs) ? [noTestRanDiagnostic(runs)] : []);
 }
 
 /**

@@ -72,6 +72,19 @@ describe('scripts/extensionTooling/test failures', () => {
         expect(result.exitCode).toBe(0);
     });
 
+    it('fails when only a non-fatal vendor Jest run failed and no spec ran', async () => {
+        writeFile(path.join(fixture.projectRoot, vendorAdmin, 'jest.config.mjs'), 'export default {};');
+        fixture.jestExitCode = 1;
+        fixture.jestTestCount = 0;
+
+        const result = await fixture.run();
+
+        expect(result.fatalDiagnostics).toEqual([
+            'Nothing was tested: no Jest config ran a spec, see the non-fatal vendor runs above.',
+        ]);
+        expect(result.exitCode).toBe(1);
+    });
+
     it('fails on a failing vendor Jest run with strictVendor', async () => {
         writeFile(path.join(fixture.projectRoot, vendorAdmin, 'jest.config.mjs'), 'export default {};');
         fixture.jestExitCode = 1;
@@ -115,6 +128,18 @@ describe('scripts/extensionTooling/test failures', () => {
         const report = renderTestReport(result);
         expect(report).toContain('– Suite · custom/plugins/Suite/jest.config.js (no matching spec)');
         expect(report).toContain('✗ Nothing was tested: no spec matched in any Jest config.');
+        expect(result.exitCode).toBe(1);
+    });
+
+    it('reports only the failed Jest run when a suite fails to load and counts no test', async () => {
+        writeFile(path.join(fixture.projectRoot, zeroConfigAdmin, 'jest.config.mjs'), 'export default {};');
+        fixture.jestExitCode = 1;
+        fixture.jestTestCount = 0;
+
+        const result = await fixture.run({ only: 'ZeroConfig' });
+
+        expect(renderTestReport(result)).toContain(`✗ ZeroConfig · ${zeroConfigAdmin}/jest.config.mjs`);
+        expect(result.fatalDiagnostics).toEqual([]);
         expect(result.exitCode).toBe(1);
     });
 

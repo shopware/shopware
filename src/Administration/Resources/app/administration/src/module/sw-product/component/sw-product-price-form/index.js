@@ -77,6 +77,10 @@ export default {
             return Shopware.Store.get('swProductDetail').currencies;
         },
 
+        currentLocale() {
+            return Shopware.Store.get('session').currentLocale ?? 'en-GB';
+        },
+
         ...mapPropertyErrors('product', ['taxId', 'price', 'purchasePrices']),
 
         taxRateHelpText() {
@@ -97,8 +101,16 @@ export default {
             );
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Use product.price and product.purchasePrices separately.
+         */
         prices: {
             get() {
+                Shopware.Feature.triggerDeprecationOrThrow(
+                    'V6_8_0_0',
+                    'sw-product-price-form.prices is deprecated. Use product.price and product.purchasePrices separately.',
+                );
+
                 const prices = {
                     price: [],
                     purchasePrices: [],
@@ -116,12 +128,25 @@ export default {
             },
 
             set(newValue) {
+                Shopware.Feature.triggerDeprecationOrThrow(
+                    'V6_8_0_0',
+                    'sw-product-price-form.prices is deprecated. Use product.price and product.purchasePrices separately.',
+                );
+
                 this.product.price = newValue?.price || null;
                 this.product.purchasePrices = newValue?.purchasePrices || null;
             },
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Use product.price, product.purchasePrices, parentProduct.price, and parentProduct.purchasePrices separately.
+         */
         parentPrices() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-price-form.parentPrices is deprecated. Use the product and parentProduct price properties separately.',
+            );
+
             return {
                 price: this.product.price || this.parentProduct.price,
                 purchasePrices: this.product.purchasePrices || this.parentProduct.purchasePrices,
@@ -129,11 +154,16 @@ export default {
         },
 
         taxRateOptions() {
+            const formatter = new Intl.NumberFormat(this.currentLocale, {
+                style: 'percent',
+                maximumFractionDigits: 20,
+            });
+
             return this.taxes.map((tax) => {
                 return {
                     id: tax.id,
                     value: tax.id,
-                    label: `${this.getTaxLabel(tax)} (${tax.taxRate}%)`,
+                    label: `${this.getTaxLabel(tax)} (${formatter.format(tax.taxRate / 100)})`,
                 };
             });
         },
@@ -215,37 +245,22 @@ export default {
         },
 
         copyDefaultPrice(prices) {
-            const price = prices?.find((item) => item.currencyId === this.defaultCurrency.id);
-
-            if (price) {
-                return [Shopware.Utils.object.cloneDeep(price)];
-            }
-
-            return [
-                {
-                    currencyId: this.defaultCurrency.id,
-                    gross: null,
-                    net: null,
-                    linked: true,
-                },
-            ];
+            return this.copyDefaultCurrencyPrice(prices, null);
         },
 
         copyDefaultPurchasePrice(prices) {
-            const price = prices?.find((item) => item.currencyId === this.defaultCurrency.id);
+            return this.copyDefaultCurrencyPrice(prices, 0);
+        },
 
-            if (price) {
-                return [Shopware.Utils.object.cloneDeep(price)];
-            }
+        copyDefaultCurrencyPrice(prices, fallbackValue) {
+            const price = prices?.find(({ currencyId }) => currencyId === this.defaultCurrency.id) ?? {
+                currencyId: this.defaultCurrency.id,
+                gross: fallbackValue,
+                net: fallbackValue,
+                linked: true,
+            };
 
-            return [
-                {
-                    currencyId: this.defaultCurrency.id,
-                    gross: 0,
-                    net: 0,
-                    linked: true,
-                },
-            ];
+            return [Shopware.Utils.object.cloneDeep(price)];
         },
 
         isPriceInherited(prices) {

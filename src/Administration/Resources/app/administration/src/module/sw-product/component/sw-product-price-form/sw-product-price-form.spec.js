@@ -120,9 +120,15 @@ describe('module/sw-product/component/sw-product-price-form', () => {
 
     /** @type Wrapper */
     let wrapper;
+    let previousLocale;
+
+    beforeEach(() => {
+        previousLocale = Shopware.Store.get('session').currentLocale;
+    });
 
     afterEach(() => {
         wrapper?.unmount();
+        Shopware.Store.get('session').currentLocale = previousLocale;
     });
 
     /* eslint-disable sw-test-rules/no-vm-access -- Deprecated extension callbacks require direct API coverage. */
@@ -136,10 +142,19 @@ describe('module/sw-product/component/sw-product-price-form', () => {
         expect(() => wrapper.vm.inheritationCheckFunction()).toThrow(
             'sw-product-price-form.inheritationCheckFunction() is deprecated',
         );
+        expect(() => wrapper.vm.prices).toThrow('sw-product-price-form.prices is deprecated');
+        expect(() => wrapper.vm.parentPrices).toThrow('sw-product-price-form.parentPrices is deprecated');
+        expect(() => {
+            wrapper.vm.prices = {
+                price: [],
+                purchasePrices: [],
+            };
+        }).toThrow('sw-product-price-form.prices is deprecated');
     });
     /* eslint-enable sw-test-rules/no-vm-access */
 
-    it('should show the tax rate percentage alongside each tax name', async () => {
+    it('should show a localized tax rate percentage alongside each tax name', async () => {
+        Shopware.Store.get('session').currentLocale = 'de-DE';
         wrapper = await createWrapper();
         await flushPromises();
         Shopware.Store.get('swProductDetail').taxes = [
@@ -152,9 +167,9 @@ describe('module/sw-product/component/sw-product-price-form', () => {
         const options = wrapper.findComponent({ name: 'mt-select' }).props('options');
 
         expect(options).toEqual([
-            { id: 'standard', value: 'standard', label: 'Standard rate (19%)' },
-            { id: 'reduced', value: 'reduced', label: 'Reduced rate (7.5%)' },
-            { id: 'zero', value: 'zero', label: 'Zero rate (0%)' },
+            { id: 'standard', value: 'standard', label: 'Standard rate (19\u00A0%)' },
+            { id: 'reduced', value: 'reduced', label: 'Reduced rate (7,5\u00A0%)' },
+            { id: 'zero', value: 'zero', label: 'Zero rate (0\u00A0%)' },
         ]);
     });
 

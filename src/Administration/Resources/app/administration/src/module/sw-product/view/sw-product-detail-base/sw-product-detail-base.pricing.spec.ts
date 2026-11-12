@@ -2,9 +2,8 @@
  * @sw-package inventory
  */
 import type { VueWrapper } from '@vue/test-utils';
-import { shallowMount } from '@vue/test-utils';
+import { RouterLinkStub, shallowMount } from '@vue/test-utils';
 
-const routerPush = jest.fn();
 const productIsNew = jest.fn();
 
 async function createWrapper() {
@@ -14,9 +13,11 @@ async function createWrapper() {
                 'mt-card': {
                     template: '<div><slot name="headerRight" /></div>',
                 },
-            },
-            mocks: {
-                $router: { push: routerPush },
+                'mt-button': {
+                    props: ['is', 'to'],
+                    template: '<component :is="is" :to="to"><slot /></component>',
+                },
+                'router-link': RouterLinkStub,
             },
             provide: {
                 repositoryFactory: {
@@ -36,7 +37,6 @@ describe('sw-product-detail-base pricing', () => {
     let wrapper: VueWrapper;
 
     beforeEach(() => {
-        routerPush.mockClear();
         productIsNew.mockReset().mockReturnValue(false);
         const store = Shopware.Store.get('swProductDetail');
         store.$reset();
@@ -50,13 +50,13 @@ describe('sw-product-detail-base pricing', () => {
         wrapper?.unmount();
     });
 
-    it('should navigate to advanced pricing for a saved product', async () => {
+    it('should link to advanced pricing for a saved product', async () => {
         wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.get('.sw-product-detail-base__advanced-prices').trigger('click');
+        const link = wrapper.getComponent(RouterLinkStub);
 
-        expect(routerPush).toHaveBeenCalledWith({
+        expect(link.props('to')).toEqual({
             name: 'sw.product.detail.prices',
             params: { id: 'productId' },
         });

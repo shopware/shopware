@@ -64,7 +64,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             return Promise.resolve({ variation: [] });
         },
         productId = '1234',
-        { featureActive = false, routeName = 'sw.product.detail.base', routerPush = jest.fn() } = {},
+        { routeName = 'sw.product.detail.base', routerPush = jest.fn() } = {},
     ) {
         return mount(await wrapTestComponent('sw-product-detail', { sync: true }), {
             global: {
@@ -80,9 +80,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
                     },
                 },
                 provide: {
-                    feature: {
-                        isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
-                    },
                     numberRangeService: {
                         reserve: () => Promise.resolve({ number: 1 }),
                     },
@@ -247,9 +244,8 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     /* eslint-disable sw-test-rules/no-vm-access -- Deprecated extension callbacks require direct API coverage. */
-    it('should reject the deprecated price callbacks in v6.8', () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('should reject the deprecated price callbacks in v6.8', () => {
         useProductionDeprecationGuard();
-        jest.spyOn(Shopware.Feature, 'isActive').mockImplementation((flag) => flag === 'V6_8_0_0');
 
         expect(() => wrapper.vm.syncVariantPriceInheritance()).toThrow(
             'sw-product-detail.syncVariantPriceInheritance() is deprecated',
@@ -435,64 +431,59 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
-    it('should render meteor route tabs when the major feature flag is active', async () => {
-        wrapper.unmount();
-        wrapper = await createWrapper(undefined, undefined, '1234', { featureActive: true });
-        await flushPromises();
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should render meteor route tabs when the major feature flag is active',
+        async () => {
+            Shopware.Store.get('swProductDetail').product = { parentId: null };
+            Shopware.Store.get('swProductDetail').advancedModeSetting = advancedModeSettings;
 
-        Shopware.Store.get('swProductDetail').product = { parentId: null };
-        Shopware.Store.get('swProductDetail').advancedModeSetting = advancedModeSettings;
+            await nextTick();
 
-        await nextTick();
+            const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+            const items = tabs.props('items');
 
-        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
-        const items = tabs.props('items');
+            expect(tabs.props('positionIdentifier')).toBe('sw-product-detail');
+            expect(tabs.props('defaultItem')).toBe('sw.product.detail.base');
+            expect(items.map(({ label, name }) => ({ label, name }))).toEqual([
+                {
+                    label: 'sw-product.detail.tabGeneral',
+                    name: 'sw.product.detail.base',
+                },
+                {
+                    label: 'sw-product.detail.tabSpecifications',
+                    name: 'sw.product.detail.specifications',
+                },
+                {
+                    label: 'sw-product.detail.tabAdvancedPrices',
+                    name: 'sw.product.detail.prices',
+                },
+                {
+                    label: 'sw-product.detail.tabVariation',
+                    name: 'sw.product.detail.variants',
+                },
+                {
+                    label: 'sw-product.detail.tabLayout',
+                    name: 'sw.product.detail.layout',
+                },
+                {
+                    label: 'sw-product.detail.tabSeo',
+                    name: 'sw.product.detail.seo',
+                },
+                {
+                    label: 'sw-product.detail.tabCrossSelling',
+                    name: 'sw.product.detail.crossSelling',
+                },
+                {
+                    label: 'sw-product.detail.tabReviews',
+                    name: 'sw.product.detail.reviews',
+                },
+            ]);
+            expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+            expect(wrapper.find('.sw-product-detail__tab-general').exists()).toBe(false);
+        },
+    );
 
-        expect(tabs.props('positionIdentifier')).toBe('sw-product-detail');
-        expect(tabs.props('defaultItem')).toBe('sw.product.detail.base');
-        expect(items.map(({ label, name }) => ({ label, name }))).toEqual([
-            {
-                label: 'sw-product.detail.tabGeneral',
-                name: 'sw.product.detail.base',
-            },
-            {
-                label: 'sw-product.detail.tabSpecifications',
-                name: 'sw.product.detail.specifications',
-            },
-            {
-                label: 'sw-product.detail.tabAdvancedPrices',
-                name: 'sw.product.detail.prices',
-            },
-            {
-                label: 'sw-product.detail.tabVariation',
-                name: 'sw.product.detail.variants',
-            },
-            {
-                label: 'sw-product.detail.tabLayout',
-                name: 'sw.product.detail.layout',
-            },
-            {
-                label: 'sw-product.detail.tabSeo',
-                name: 'sw.product.detail.seo',
-            },
-            {
-                label: 'sw-product.detail.tabCrossSelling',
-                name: 'sw.product.detail.crossSelling',
-            },
-            {
-                label: 'sw-product.detail.tabReviews',
-                name: 'sw.product.detail.reviews',
-            },
-        ]);
-        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
-        expect(wrapper.find('.sw-product-detail__tab-general').exists()).toBe(false);
-    });
-
-    it('should show the layout meteor tab for variant products', async () => {
-        wrapper.unmount();
-        wrapper = await createWrapper(undefined, undefined, '1234', { featureActive: true });
-        await flushPromises();
-
+    it.activeFeatureFlags(['v6.8.0.0'])('should show the layout meteor tab for variant products', async () => {
         Shopware.Store.get('swProductDetail').product = { parentId: 'parent-id' };
         Shopware.Store.get('swProductDetail').advancedModeSetting = advancedModeSettings;
 
@@ -509,12 +500,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(tabNames).not.toContain('sw.product.detail.variants');
     });
 
-    it('should navigate when a meteor route tab is selected', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('should navigate when a meteor route tab is selected', async () => {
         const routerPush = jest.fn();
 
         wrapper.unmount();
         wrapper = await createWrapper(undefined, undefined, '1234', {
-            featureActive: true,
             routerPush,
         });
         await flushPromises();

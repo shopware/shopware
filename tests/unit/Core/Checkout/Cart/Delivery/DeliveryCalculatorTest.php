@@ -51,6 +51,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -562,6 +563,117 @@ class DeliveryCalculatorTest extends TestCase
         static::assertSame(20.0, $delivery->getShippingCosts()->getUnitPrice());
     }
 
+    public function testRuleBasedPriceAppliesOnlyToTheDeliveryWhoseRuleIdsContainTheRule(): void
+    {
+        $ruleId = Uuid::randomHex();
+        $shippingMethod = $this->createShippingMethodWithRulePrice($ruleId, rulePrice: 2.5, defaultPrice: 10.0);
+
+        $matching = $this->createDeliveryWithCartTotal($shippingMethod, 100.0);
+        $matching->setRuleIds([$ruleId]);
+        $other = $this->createDeliveryWithCartTotal($shippingMethod, 100.0);
+        $other->setRuleIds([]);
+
+        $this->calculate($shippingMethod, [$matching, $other], $this->createPriceBasisContext(null, ruleIds: [$ruleId]));
+
+        static::assertSame(2.5, $matching->getShippingCosts()->getTotalPrice());
+        static::assertSame(10.0, $other->getShippingCosts()->getTotalPrice());
+    }
+
+    public function testCalculationRulePriceAppliesOnlyToTheDeliveryWhoseRuleIdsContainTheRule(): void
+    {
+        $calculationRuleId = Uuid::randomHex();
+        $shippingMethod = $this->createShippingMethodWithCalculationRulePrice($calculationRuleId, rulePrice: 2.5, defaultPrice: 10.0);
+
+        $matching = $this->createDeliveryWithCartTotal($shippingMethod, 100.0);
+        $matching->setRuleIds([$calculationRuleId]);
+        $other = $this->createDeliveryWithCartTotal($shippingMethod, 100.0);
+        $other->setRuleIds([]);
+
+        $this->calculate($shippingMethod, [$matching, $other], $this->createPriceBasisContext(null, ruleIds: [$calculationRuleId]));
+
+        static::assertSame(2.5, $matching->getShippingCosts()->getTotalPrice());
+        static::assertSame(10.0, $other->getShippingCosts()->getTotalPrice());
+    }
+
+    public function testDeliveryWithoutMatchedRuleIdsUsesTheContextRuleIds(): void
+    {
+        $ruleId = Uuid::randomHex();
+        $shippingMethod = $this->createShippingMethodWithRulePrice($ruleId, rulePrice: 2.5, defaultPrice: 10.0);
+
+        $delivery = $this->createDeliveryWithCartTotal($shippingMethod, 100.0);
+
+        $this->calculate($shippingMethod, [$delivery], $this->createPriceBasisContext(null, ruleIds: [$ruleId]));
+
+        static::assertSame(2.5, $delivery->getShippingCosts()->getTotalPrice());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testRuleBasedPriceFollowsTheContextRuleIdsWithoutTheMajorFlag(): void
+    {
+        $ruleId = Uuid::randomHex();
+        $shippingMethod = $this->createShippingMethodWithRulePrice($ruleId, rulePrice: 2.5, defaultPrice: 10.0);
+
+        $matchedByDelivery = $this->createDeliveryWithCartTotal($shippingMethod, 100.0);
+        $matchedByDelivery->setRuleIds([$ruleId]);
+        $notMatchedByDelivery = $this->createDeliveryWithCartTotal($shippingMethod, 100.0);
+        $notMatchedByDelivery->setRuleIds([]);
+
+        $this->calculate($shippingMethod, [$matchedByDelivery, $notMatchedByDelivery], $this->createPriceBasisContext(null, ruleIds: [$ruleId]));
+
+        static::assertSame(2.5, $matchedByDelivery->getShippingCosts()->getTotalPrice());
+        static::assertSame(2.5, $notMatchedByDelivery->getShippingCosts()->getTotalPrice());
+    }
+
+    /**
+     * @param list<Delivery> $deliveries
+     */
+    private function calculate(ShippingMethodEntity $shippingMethod, array $deliveries, SalesChannelContext $context): void
+    {
+        $data = new CartDataCollection();
+        $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
+
+        $deliveryCalculator = new DeliveryCalculator(
+            $this->createQuantityPriceCalculator(),
+            static::createStub(PercentageTaxRuleBuilder::class),
+            static::createStub(CashRounding::class),
+            new PriceSelector(new TaxCalculator(), new ExtensionDispatcher(new EventDispatcher())),
+        );
+
+        $deliveryCalculator->calculate($data, new Cart('test'), new DeliveryCollection($deliveries), $context);
+    }
+
+    private function createShippingMethodWithRulePrice(string $ruleId, float $rulePrice, float $defaultPrice): ShippingMethodEntity
+    {
+        $shippingMethod = $this->createShippingMethodWithPriceRanges();
+        $shippingMethodId = $shippingMethod->getId();
+
+        $rulePriceEntity = $this->createShippingMethodPrice($shippingMethodId, 0, null, $rulePrice);
+        $rulePriceEntity->setRuleId($ruleId);
+
+        $shippingMethod->setPrices(new ShippingMethodPriceCollection([
+            $rulePriceEntity,
+            $this->createShippingMethodPrice($shippingMethodId, 0, null, $defaultPrice),
+        ]));
+
+        return $shippingMethod;
+    }
+
+    private function createShippingMethodWithCalculationRulePrice(string $calculationRuleId, float $rulePrice, float $defaultPrice): ShippingMethodEntity
+    {
+        $shippingMethod = $this->createShippingMethodWithPriceRanges();
+        $shippingMethodId = $shippingMethod->getId();
+
+        $calculationRulePrice = $this->createShippingMethodPrice($shippingMethodId, 0, null, $rulePrice);
+        $calculationRulePrice->setCalculationRuleId($calculationRuleId);
+
+        $shippingMethod->setPrices(new ShippingMethodPriceCollection([
+            $calculationRulePrice,
+            $this->createShippingMethodPrice($shippingMethodId, 0, null, $defaultPrice),
+        ]));
+
+        return $shippingMethod;
+    }
+
     private function calculateShippingCostsForCartPriceRange(float $cartTotal): CalculatedPrice
     {
         $shippingMethod = $this->createShippingMethodWithPriceRanges();
@@ -616,13 +728,16 @@ class DeliveryCalculatorTest extends TestCase
         return $shippingMethod;
     }
 
-    private function createPriceBasisContext(?string $priceBasis, string $taxState = CartPrice::TAX_STATE_GROSS, string $currencyId = Defaults::CURRENCY, float $currencyFactor = 1.0): SalesChannelContext
+    /**
+     * @param array<string> $ruleIds
+     */
+    private function createPriceBasisContext(?string $priceBasis, string $taxState = CartPrice::TAX_STATE_GROSS, string $currencyId = Defaults::CURRENCY, float $currencyFactor = 1.0, array $ruleIds = []): SalesChannelContext
     {
         $baseContext = Context::createDefaultContext();
         $baseContext->assign(['currencyFactor' => $currencyFactor]);
 
         $context = static::createStub(SalesChannelContext::class);
-        $context->method('getRuleIds')->willReturn([]);
+        $context->method('getRuleIds')->willReturn($ruleIds);
         $context->method('getContext')->willReturn($baseContext);
         $context->method('getCurrencyId')->willReturn($currencyId);
         $context->method('getTaxState')->willReturn($taxState);

@@ -68,11 +68,12 @@
             <template #headerRight>
                 {% block sw_product_detail_base_advanced_prices_link %}
                 <mt-button
+                    is="router-link"
                     v-if="product.id && !product.isNew()"
                     class="sw-product-detail-base__advanced-prices"
+                    :to="{ name: 'sw.product.detail.prices', params: { id: product.id } }"
                     variant="secondary"
                     size="small"
-                    @click="onOpenAdvancedPrices"
                 >
                     {{ $t('sw-product.detailBase.linkAdvancedPrices') }}
                     <mt-icon

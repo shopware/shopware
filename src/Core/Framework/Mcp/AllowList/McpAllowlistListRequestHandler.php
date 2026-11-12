@@ -164,6 +164,12 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
      */
     private function sessionToolsets(): array
     {
+        // The stateless era has no session, and the session binding of the stateful era does not
+        // check an Mcp-Session-Id sent on it, so a header there must not reach the session's toolsets.
+        if (McpProtocolEra::isStateless($this->requestStack?->getMainRequest())) {
+            return [];
+        }
+
         $sessionId = $this->requestStack?->getCurrentRequest()?->headers->get('Mcp-Session-Id') ?? '';
         if ($sessionId === '' || $this->toolsetSessionStorage === null) {
             return [];

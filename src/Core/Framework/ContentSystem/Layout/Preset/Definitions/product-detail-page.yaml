@@ -12,7 +12,12 @@ layout:
   - component: Sw:Grid:Container
     properties:
       mode: explicit
-      columns: 12
+      columns:
+        xs: 1
+        sm: 1
+        md: 12
+        lg: 12
+        xl: 12
       rows: 1
     slots:
       content:

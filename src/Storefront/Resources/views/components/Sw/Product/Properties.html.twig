@@ -24,10 +24,10 @@
                             <th {{ attributes.nested('label').defaults({
                                 class: 'sw-product-properties__label',
                                 scope: 'row',
-                            }) }}>{{ group.translated.name|e }}:</th>
+                            }) }}>{{ group.translated.name }}:</th>
 
                             <td {{ attributes.nested('value').defaults({ class: 'sw-product-properties__value' }) }}>
-                                {{ group.options|map(option => "#{option.translated.name}")|join(', ') }}
+                                {{ group.options|map(option => option.translated.name)|join(', ') }}
                             </td>
                         </tr>
                     {% endfor %}

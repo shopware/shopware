@@ -8,7 +8,7 @@ meta:
     summary: "Add-to-cart button for the current product."
     hints:
       - "Use on a product detail page; the product is resolved from the current product-page context."
-      - "Adds the product's minimum purchase quantity to the cart."
+      - "Takes the quantity from a Quantity Selector on the page; place one next to the button. Without it, one item is added."
       - "Renders nothing when the product cannot be bought, for example when it is unavailable or a parent product with variants."
 
 properties:
@@ -16,7 +16,7 @@ properties:
     type: Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity
     required: false
     title: "Product"
-    description: "Hydrated product that is added to the cart; resolved from the current product context. Optional because a product context may be unavailable, for example outside a product detail page. Without a buyable product, the component displays a fallback only in the content-system preview and otherwise renders no buy button."
+    description: "Hydrated product that is added to the cart; resolved from the current product context. Optional because a product context may be unavailable, for example outside a product detail page. Without a buyable product, the component renders no buy button and shows a sold-out hint when the product is unavailable."
     resolvedBy: productId
     mappable: true
     defaultMapping:

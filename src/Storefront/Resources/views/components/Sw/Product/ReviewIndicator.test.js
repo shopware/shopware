@@ -60,6 +60,7 @@ describe('Sw:Product:ReviewIndicator', () => {
         expect(document.getElementById('sw-tab-reviews').classList.contains('active')).toBe(true);
         expect(document.getElementById('sw-tab-pane-reviews').classList.contains('active')).toBe(true);
         expect(document.querySelector('.sw-tabs').scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' });
+        expect(document.activeElement).toBe(document.getElementById('sw-tab-reviews'));
         component.destroy();
     });
 
@@ -69,7 +70,11 @@ describe('Sw:Product:ReviewIndicator', () => {
 
         clickLink();
 
-        expect(document.querySelector('.sw-product-reviews').scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' });
+        const reviews = document.querySelector('.sw-product-reviews');
+
+        expect(reviews.scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' });
+        expect(reviews.getAttribute('tabindex')).toBe('-1');
+        expect(document.activeElement).toBe(reviews);
         component.destroy();
     });
 

@@ -21,7 +21,12 @@ layout:
         - component: Sw:Grid:Container
           properties:
             mode: explicit
-            columns: 3
+            columns:
+              xs: 1
+              sm: 3
+              md: 3
+              lg: 3
+              xl: 3
             rows: 1
             gap: 16
             align: start
@@ -38,7 +43,6 @@ layout:
               - component: Sw:Product:BuyButton
                 style:
                   col-span:
-                    xs: 2
                     sm: 2
                     md: 2
                     lg: 2

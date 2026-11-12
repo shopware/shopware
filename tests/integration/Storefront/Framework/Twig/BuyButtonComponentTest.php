@@ -39,6 +39,18 @@ class BuyButtonComponentTest extends TestCase
         static::assertStringContainsString('data-component="Sw:Product:BuyButton"', $html);
         static::assertStringContainsString('is--buyable', $html);
         static::assertStringContainsString('name="lineItems[' . $product->getId() . '][id]"', $html);
+        static::assertStringNotContainsString('name="lineItems[' . $product->getId() . '][quantity]"', $html);
+    }
+
+    public function testRendersQuantityPassedAsExtraFormData(): void
+    {
+        $product = $this->product(minPurchase: 2);
+
+        $html = $this->render([
+            'product' => $product,
+            'extraFormData' => ['lineItems[' . $product->getId() . '][quantity]' => 2],
+        ]);
+
         static::assertMatchesRegularExpression(
             '/name="lineItems\[' . $product->getId() . '\]\[quantity\]"\s+value="2"/',
             $html,
@@ -53,22 +65,18 @@ class BuyButtonComponentTest extends TestCase
         static::assertStringNotContainsString('is--buyable', $html);
     }
 
-    public function testRendersNoFormForUnavailableProduct(): void
+    public function testRendersSoldOutHintForUnavailableProduct(): void
     {
         $html = $this->render(['product' => $this->product(available: false)]);
 
         static::assertStringNotContainsString('<form', $html);
         static::assertStringNotContainsString('is--buyable', $html);
+        static::assertStringContainsString('No longer available', $html);
     }
 
-    public function testShowsFallbackOnlyInPreviewWhenProductIsMissing(): void
+    public function testRendersNothingWhenProductIsMissing(): void
     {
-        $storefront = $this->render([]);
-        $preview = $this->render(['preview' => true]);
-
-        static::assertStringNotContainsString('<form', $storefront);
-        static::assertStringNotContainsString('No longer available', $storefront);
-        static::assertStringContainsString('No longer available', $preview);
+        static::assertSame('', trim($this->render([])));
     }
 
     /**

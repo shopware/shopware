@@ -25,8 +25,22 @@ export default class ProductReviewIndicator extends ShopwareComponent {
         const paneId = this.reviews.closest('.tab-pane')?.id;
         const tabTrigger = paneId ? document.querySelector(`[data-bs-target="#${paneId}"]`) : null;
 
-        tabTrigger?.click();
+        if (tabTrigger) {
+            // Open the reviews tab and move focus to its tab button.
+            // `preventScroll` keeps `focus()` from jumping and cutting off the smooth scroll.
+            tabTrigger.click();
+            tabTrigger.focus({ preventScroll: true });
+            (tabTrigger.closest('.sw-tabs') ?? tabTrigger).scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-        (tabTrigger?.closest('.sw-tabs') ?? this.reviews).scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return;
+        }
+
+        // Without a tab, focus the reviews section itself. `tabindex="-1"` makes it focusable by script without adding it to the tab order.
+        if (!this.reviews.hasAttribute('tabindex')) {
+            this.reviews.setAttribute('tabindex', '-1');
+        }
+
+        this.reviews.focus({ preventScroll: true });
+        this.reviews.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 }

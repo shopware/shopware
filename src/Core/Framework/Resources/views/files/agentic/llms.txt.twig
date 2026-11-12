@@ -38,9 +38,10 @@
         - [Revocation/cancellation policy]({{ path('frontend.cms.page.full', { id: revocationPageId }) }})
 {% endif -%}
 {% else -%}
-        - [Sales channel context]({{ path('store-api.context') }}): Public context information for this sales channel.
-        - [Product search]({{ path('store-api.search') }}): Search public product data through the Store API.
-        - [Sitemap]({{ path('store-api.sitemap') }}): Store API sitemap listing for discoverable resources.
+{% set appUrl = salesChannelFileContext.appUrl|default('') -%}
+        - [Sales channel context]({{ appUrl }}{{ path('store-api.context') }}): Public context information for this sales channel.
+        - [Product search]({{ appUrl }}{{ path('store-api.search') }}): Search public product data through the Store API.
+        - [Sitemap]({{ appUrl }}{{ path('store-api.sitemap') }}): Store API sitemap listing for discoverable resources.
 {% endif -%}
         - [Robots policy](/robots.txt): Crawling and access rules.
         - [Agent instructions](/AGENTS.md): Guidance for AI agents interacting with this shop.

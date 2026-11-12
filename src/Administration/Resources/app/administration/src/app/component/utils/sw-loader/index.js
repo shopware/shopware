@@ -31,7 +31,7 @@ export default {
                 return true;
             }
 
-            // eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- deprecates a usage pattern, not a declaration
+            // @deprecated tag:v6.8.0 - Use "mt-loader" instead.
             Shopware.Feature.triggerDeprecationOrThrow(
                 'V6_8_0_0',
                 'The old usage of "sw-loader" is deprecated and will be removed in v6.8.0.0. Please use "mt-loader" instead.',

@@ -711,7 +711,7 @@ function checkUnsupportedFeatures(componentName: string, config: ComponentConfig
  * Reports the activated compatibility shim as deprecated: warns before 6.8, throws once V6_8_0_0 is active.
  */
 function reportShimDeprecation(componentName: string): void {
-    // eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- deprecates a usage pattern, not a declaration
+    // @deprecated tag:v6.8.0 - Override Composition API components with Shopware.Component.overrideComponentSetup().
     Shopware.Feature.triggerDeprecationOrThrow(
         'V6_8_0_0',
         `Component "${componentName}" is being overridden with Options API patterns, ` +

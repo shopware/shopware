@@ -51,6 +51,9 @@ class CheapestPriceBlobPostUpdaterAfterRemovalTest extends TestCase
             $updater = static::getContainer()->get(CheapestPriceBlobPostUpdater::class);
             $offset = null;
             while ($message = $updater->iterate($offset)) {
+                $data = $message->getData();
+                static::assertIsArray($data);
+                static::assertNotContains($ids->get('populated-after-removal'), $data);
                 $updater->handle($message);
                 $offset = $message->getOffset();
             }

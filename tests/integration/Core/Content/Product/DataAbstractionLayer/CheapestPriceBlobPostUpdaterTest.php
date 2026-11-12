@@ -33,6 +33,8 @@ class CheapestPriceBlobPostUpdaterTest extends TestCase
         $connection = static::getContainer()->get(Connection::class);
         $context = Context::createDefaultContext();
         $ids = new IdsCollection();
+        $updater = $this->getUpdater();
+        $initialTotal = $updater->getTotal();
         $products = [];
         foreach (['missing', 'different', 'matching'] as $name) {
             $products[] = (new ProductBuilder($ids, $name))->price(100)->build();
@@ -48,7 +50,19 @@ class CheapestPriceBlobPostUpdaterTest extends TestCase
         // Simulate a legacy writer changing only the text column after a blob was populated.
         $connection->executeStatement('UPDATE product SET cheapest_price = :price WHERE id = :id', ['price' => 'legacy-write', 'id' => $ids->getBytes('different')]);
 
-        $this->getUpdater()->handle(new EntityIndexingMessage(array_column($products, 'id'), null, $context));
+        static::assertSame($initialTotal + 2, $updater->getTotal());
+        $iteratedIds = [];
+        $offset = null;
+        while ($message = $updater->iterate($offset)) {
+            $data = $message->getData();
+            static::assertIsArray($data);
+            array_push($iteratedIds, ...$data);
+            $updater->handle($message);
+            $offset = $message->getOffset();
+        }
+        static::assertContains($ids->get('missing'), $iteratedIds);
+        static::assertContains($ids->get('different'), $iteratedIds);
+        static::assertNotContains($ids->get('matching'), $iteratedIds);
 
         foreach (['missing', 'different'] as $name) {
             $blob = $connection->fetchOne('SELECT cheapest_price_blob FROM product WHERE id = :id', ['id' => $ids->getBytes($name)]);
@@ -73,6 +87,21 @@ class CheapestPriceBlobPostUpdaterTest extends TestCase
         static::assertArrayNotHasKey(CheapestPriceBlobPostUpdater::NAME, $queue->getIndexers());
     }
 
+    public function testDoesNotIterateAlreadyReconciledProducts(): void
+    {
+        $ids = new IdsCollection();
+        $product = (new ProductBuilder($ids, 'already-reconciled'))->price(100)->build();
+        static::getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
+        static::getContainer()->get(Connection::class)->executeStatement(
+            'UPDATE product SET cheapest_price = cheapest_price_blob WHERE id = :id',
+            ['id' => $ids->getBytes('already-reconciled')]
+        );
+
+        $updater = $this->getUpdater();
+        static::assertSame(0, $updater->getTotal());
+        static::assertNull($updater->iterate(null));
+    }
+
     public function testRebuildsDraftPricesInTheirOwnVersion(): void
     {
         $connection = static::getContainer()->get(Connection::class);
@@ -82,6 +111,11 @@ class CheapestPriceBlobPostUpdaterTest extends TestCase
         $product = (new ProductBuilder($ids, 'versioned'))->price(75)->build();
         $repository->create([$product], $context);
         $versionId = $repository->createVersion($product['id'], $context);
+        $liveBlob = serialize(new CheapestPriceContainer([]));
+        $connection->executeStatement(
+            'UPDATE product SET cheapest_price = :blob, cheapest_price_blob = :blob WHERE id = :id AND version_id = :version',
+            ['blob' => $liveBlob, 'id' => $ids->getBytes('versioned'), 'version' => Uuid::fromHexToBytes($context->getVersionId())]
+        );
         $connection->executeStatement(
             'UPDATE product SET cheapest_price = :legacy, cheapest_price_blob = NULL WHERE id = :id AND version_id = :version',
             ['legacy' => 'legacy-write', 'id' => $ids->getBytes('versioned'), 'version' => Uuid::fromHexToBytes($versionId)]
@@ -96,6 +130,10 @@ class CheapestPriceBlobPostUpdaterTest extends TestCase
         static::assertIsString($blob);
         $container = Serialization::assertUnserializedInstanceOf(CheapestPriceContainer::class, $blob);
         static::assertSame(75.0, $container->resolve($context)?->getPrice()->first()?->getGross());
+        static::assertSame($liveBlob, $connection->fetchOne(
+            'SELECT cheapest_price_blob FROM product WHERE id = :id AND version_id = :version',
+            ['id' => $ids->getBytes('versioned'), 'version' => Uuid::fromHexToBytes($context->getVersionId())]
+        ));
     }
 
     public function testFailedBatchKeepsTheRepairScheduled(): void

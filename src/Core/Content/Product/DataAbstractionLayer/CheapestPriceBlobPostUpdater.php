@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
@@ -45,7 +46,7 @@ class CheapestPriceBlobPostUpdater extends SynchronousPostUpdateIndexer
             IndexerQueuer::registerIndexer($this->connection, self::NAME);
         }
 
-        $iterator = $this->iteratorFactory->createIterator('product', $offset);
+        $iterator = $this->getIterator($offset);
         $ids = $iterator->fetch();
 
         if ($ids === []) {
@@ -64,15 +65,11 @@ class CheapestPriceBlobPostUpdater extends SynchronousPostUpdateIndexer
             return;
         }
 
-        // Destructive migrations may run before or after this updater; once the legacy column is dropped, only missing blobs can be detected.
-        $condition = TableHelper::columnExists($this->connection, 'product', 'cheapest_price')
-            ? 'NOT (CAST(cheapest_price AS BINARY) <=> cheapest_price_blob)'
-            : 'cheapest_price_blob IS NULL';
-
+        // IDs are shared across versions; recheck to avoid rebuilding matching versions.
         $rows = $this->connection->fetchAllAssociative(
             'SELECT DISTINCT LOWER(HEX(COALESCE(parent_id, id))) AS id, LOWER(HEX(version_id)) AS version_id
              FROM product
-             WHERE id IN (:ids) AND ' . $condition,
+             WHERE id IN (:ids) AND ' . $this->getCondition(),
             ['ids' => Uuid::fromHexToBytesList($ids)],
             ['ids' => ArrayParameterType::BINARY]
         );
@@ -89,11 +86,30 @@ class CheapestPriceBlobPostUpdater extends SynchronousPostUpdateIndexer
 
     public function getTotal(): int
     {
-        return $this->iteratorFactory->createIterator('product')->fetchCount();
+        return $this->getIterator(null)->fetchCount();
     }
 
     public function getDecorated(): EntityIndexer
     {
         throw new DecorationPatternException(self::class);
+    }
+
+    /**
+     * @param array{offset: int|null}|null $offset
+     */
+    private function getIterator(?array $offset): IterableQuery
+    {
+        $iterator = $this->iteratorFactory->createIterator('product', $offset);
+        $iterator->getQuery()->andWhere($this->getCondition());
+
+        return $iterator;
+    }
+
+    private function getCondition(): string
+    {
+        // Destructive migrations may run before or after this updater; once the legacy column is dropped, only missing blobs can be detected.
+        return TableHelper::columnExists($this->connection, 'product', 'cheapest_price')
+            ? 'NOT (CAST(cheapest_price AS BINARY) <=> cheapest_price_blob)'
+            : 'cheapest_price_blob IS NULL';
     }
 }

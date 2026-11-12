@@ -21,7 +21,11 @@
     {% set buyable = product.available and product.childCount <= 0 and product.calculatedMaxPurchase > 0 %}
 
     {% if not buyable %}
-        <div {{ attributes.defaults({ class: buyButtonCVA.apply({ buyable: false }) }) }}>
+        {% set attributeDefaults = {
+            class: buyButtonCVA.apply({ buyable: false }),
+        } %}
+
+        <div {{ attributes.defaults(attributeDefaults) }}>
             {% block fallback %}
                 <p {{ attributes.nested('sold-out').defaults({ class: 'sw-buy-widget__sold-out mb-0' }) }}>
                     <twig:Sw:Badge

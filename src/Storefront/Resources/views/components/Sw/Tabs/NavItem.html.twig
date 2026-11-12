@@ -9,9 +9,27 @@
     active = false,
 %}
 
-<li class="sw-tabs__nav-item nav-item" role="presentation">
-    <button {{ attributes.defaults({
-        class: 'sw-tabs__nav-link nav-link' ~ (active ? ' active'),
+{% set navItemCVA = cva({
+    base: 'sw-tabs__nav-item nav-item',
+}) %}
+
+{% set navLinkCVA = cva({
+    base: 'sw-tabs__nav-link nav-link',
+    variants: {
+        active: {
+            true: 'active',
+        },
+    },
+}) %}
+
+{% set attributeDefaults = {
+    class: navItemCVA.apply({}),
+    role: 'presentation',
+} %}
+
+<li {{ attributes.defaults(attributeDefaults) }}>
+    <button {{ attributes.nested('link').defaults({
+        class: navLinkCVA.apply({ active }),
         id: 'sw-tab-' ~ tabId,
         type: 'button',
         role: 'tab',

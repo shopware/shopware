@@ -12,8 +12,12 @@
 {# The content element id pairs this pane with its navigation item in Sw:Tabs:Panel, so no authored ids are needed. A manual usage passes `tabId` instead. #}
 {% set elementId = tabId ?? attributes.all()['data-element-id']|default(null) %}
 
+{% set tabCVA = cva({
+    base: 'sw-tab-pane tab-pane fade',
+}) %}
+
 {% set attributeDefaults = {
-    class: 'sw-tab-pane tab-pane fade',
+    class: tabCVA.apply({}),
     role: 'tabpanel',
     tabindex: '0',
 } %}

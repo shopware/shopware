@@ -13,39 +13,49 @@
 
 {% set idPrefix = 'cross-selling-' ~ (attributes.all()['data-element-id']|default(random())) %}
 
-{% if groups|length == 1 %}
-    {% set group = groups|first %}
+{% set crossSellingCVA = cva({
+    base: 'sw-product-cross-selling',
+}) %}
 
-    <div {{ attributes.defaults({ class: 'sw-product-cross-selling' }) }}>
-        {% block single %}
-            <twig:Sw:Product:Slider
-                :products="group.products"
-                :title="group.crossSelling.translated.name"
-                :itemSizing="itemSizing"
-                :showNavigationArrows="showNavigationArrows"
-            />
-        {% endblock %}
-    </div>
-{% elseif groups|length > 1 %}
-    <twig:Sw:Tabs:Panel {{ ...attributes.defaults({ class: 'sw-product-cross-selling' }) }} :variant="variant">
-        <twig:block name="nav_items">
-            {% for group in groups %}
-                <twig:Sw:Tabs:NavItem
-                    :tabId="idPrefix ~ '-' ~ group.crossSelling.id"
-                    :title="group.crossSelling.translated.name"
-                    :active="loop.first"
-                />
-            {% endfor %}
-        </twig:block>
+{% set attributeDefaults = {
+    class: crossSellingCVA.apply({}),
+} %}
 
-        {% for group in groups %}
-            <twig:Sw:Tabs:Tab :tabId="idPrefix ~ '-' ~ group.crossSelling.id">
+{% if groups is not empty %}
+    <div {{ attributes.defaults(attributeDefaults) }}>
+        {% if groups|length == 1 %}
+            {% set group = groups|first %}
+
+            {% block single %}
                 <twig:Sw:Product:Slider
                     :products="group.products"
+                    :title="group.crossSelling.translated.name"
                     :itemSizing="itemSizing"
                     :showNavigationArrows="showNavigationArrows"
                 />
-            </twig:Sw:Tabs:Tab>
-        {% endfor %}
-    </twig:Sw:Tabs:Panel>
+            {% endblock %}
+        {% else %}
+            <twig:Sw:Tabs:Panel :variant="variant">
+                <twig:block name="nav_items">
+                    {% for group in groups %}
+                        <twig:Sw:Tabs:NavItem
+                            :tabId="idPrefix ~ '-' ~ group.crossSelling.id"
+                            :title="group.crossSelling.translated.name"
+                            :active="loop.first"
+                        />
+                    {% endfor %}
+                </twig:block>
+
+                {% for group in groups %}
+                    <twig:Sw:Tabs:Tab :tabId="idPrefix ~ '-' ~ group.crossSelling.id">
+                        <twig:Sw:Product:Slider
+                            :products="group.products"
+                            :itemSizing="itemSizing"
+                            :showNavigationArrows="showNavigationArrows"
+                        />
+                    </twig:Sw:Tabs:Tab>
+                {% endfor %}
+            </twig:Sw:Tabs:Panel>
+        {% endif %}
+    </div>
 {% endif %}

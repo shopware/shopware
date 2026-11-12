@@ -10,10 +10,14 @@
     base: 'sw-product-properties',
 }) %}
 
+{% set attributeDefaults = {
+    class: propertiesCVA.apply({}),
+} %}
+
 {% set properties = product ? product.sortedProperties : null %}
 
 {% if properties and properties|length > 0 %}
-    <div {{ attributes.defaults({ class: propertiesCVA.apply({}) }) }}>
+    <div {{ attributes.defaults(attributeDefaults) }}>
         {% block table %}
             <table {{ attributes.nested('table').defaults({
                 class: 'sw-product-properties__table table table-striped table-borderless',

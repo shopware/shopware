@@ -10,6 +10,10 @@
     base: 'sw-product-delivery',
 }) %}
 
+{% set attributeDefaults = {
+    class: deliveryCVA.apply({}),
+} %}
+
 {% set showFreeShipping = false %}
 {% set showDeliveryTime = false %}
 
@@ -23,7 +27,7 @@
 {% endif %}
 
 {% if showFreeShipping or showDeliveryTime %}
-    <div {{ attributes.defaults({ class: deliveryCVA.apply({}) }) }}>
+    <div {{ attributes.defaults(attributeDefaults) }}>
         {% if showFreeShipping %}
             <p {{ attributes.nested('free-shipping').defaults({ class: 'sw-product-delivery__free-shipping mb-3' }) }}>
                 <twig:Sw:Badge

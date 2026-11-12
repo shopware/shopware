@@ -12,11 +12,16 @@
 {% set avgRating = totalReviewCount > 0 ? matrix.averageRating|round(2, 'common') : 0 %}
 {% set maxPoints = matrix ? matrix.maxPoints : 5 %}
 
+{% set reviewIndicatorCVA = cva({
+    base: 'sw-product-review-indicator d-flex align-items-baseline gap-2',
+}) %}
+
+{% set attributeDefaults = {
+    class: reviewIndicatorCVA.apply({}),
+    'data-component': 'Sw:Product:ReviewIndicator',
+} %}
+
 {% if showReview and totalReviewCount > 0 %}
-    {% set attributeDefaults = {
-        class: 'sw-product-review-indicator d-flex align-items-baseline gap-2',
-        'data-component': 'Sw:Product:ReviewIndicator',
-    } %}
 
     <div {{ attributes.defaults(attributeDefaults) }}>
         {% block rating %}

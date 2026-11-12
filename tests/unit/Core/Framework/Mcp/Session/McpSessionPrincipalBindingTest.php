@@ -2,7 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Session;
 
+use Mcp\Exception\SessionStoreException;
 use Mcp\Server\Session\InMemorySessionStore;
+use Mcp\Server\Session\SessionStoreInterface;
 use Mcp\Server\Stateless\RequestMeta;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -112,6 +114,24 @@ class McpSessionPrincipalBindingTest extends TestCase
         $sessionId = $this->createSession();
         $this->binding->bind($this->request(null), $sessionId);
         static::assertSame('[]', $this->store->read(Uuid::fromString($sessionId)));
+    }
+
+    public function testUnavailableStoreRejectsOnlyDeleteAndSkipsBinding(): void
+    {
+        $store = $this->createMock(SessionStoreInterface::class);
+        $store->method('exists')->willThrowException(new SessionStoreException('down'));
+        $store->expects($this->never())->method('write');
+        $binding = new McpSessionPrincipalBinding($store, new McpPrincipalResolver());
+        $sessionId = Uuid::v4()->toRfc4122();
+
+        // The SDK answers the other requests with a 503 itself.
+        static::assertFalse($binding->rejects($this->request(self::OWNER, $sessionId)));
+
+        $delete = $this->request(self::OWNER, $sessionId);
+        $delete->setMethod(Request::METHOD_DELETE);
+        static::assertTrue($binding->rejects($delete));
+
+        $binding->bind($this->request(self::OWNER), $sessionId);
     }
 
     /**

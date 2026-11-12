@@ -5,6 +5,7 @@
  * This file decides in which of the two a piece of source exists.
  */
 import ts from 'typescript';
+import normalizeFeatureFlag from '../../test/_helper_/normalizeFeatureFlag';
 
 /**
  * @private
@@ -42,13 +43,9 @@ const VERSION_FLAG = /^V(\d+)_(\d+)_0_0$/;
 
 const FEATURE_OBJECT = /(?:^|\.)\$?feature$/i;
 
-function normalizeFlag(flag: string): string {
-    return flag.toUpperCase().replace(/[.:-]/g, '_');
-}
-
 /** @private Whether two spellings name the same flag, such as `v6.8.0.0` and `V6_8_0_0`. */
 export function isSameFlag(a: string, b: string): boolean {
-    return normalizeFlag(a) === normalizeFlag(b);
+    return normalizeFeatureFlag(a) === normalizeFeatureFlag(b);
 }
 
 /**
@@ -57,7 +54,7 @@ export function isSameFlag(a: string, b: string): boolean {
  * The major and minor number of a version flag such as `v6.8.0.0`, or `null` for any other flag.
  */
 export function versionOfFlag(flag: string): [major: number, minor: number] | null {
-    const [, major, minor] = VERSION_FLAG.exec(normalizeFlag(flag)) ?? [];
+    const [, major, minor] = VERSION_FLAG.exec(normalizeFeatureFlag(flag)) ?? [];
 
     return major === undefined ? null : [Number(major), Number(minor)];
 }

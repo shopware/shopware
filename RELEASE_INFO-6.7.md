@@ -505,9 +505,11 @@ Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-
 
 The Administration no longer ships `blocks-list.json`.
 The block names are now in `public-api/index.json`, listed per component.
+All `blocks` arrays of that file together hold the names of the old list.
 The files beside it show the blocks of each component with their nesting, for the current release and for the next major.
 
 Tools that read `blocks-list.json` have to read `public-api/index.json` instead.
+The format of the files in `public-api/` can still change while the snapshot is being built.
 Core contributors run `composer admin:generate-public-api` instead of `composer admin:generate-blocks-list` after changing a block.
 
 ### Deprecated the unused visibilities and sales channels in the sales channel detail

@@ -20,7 +20,8 @@ composer admin:generate-public-api
 ```
 
 `scripts/generate-public-api/committed-snapshot.spec.ts` fails while the committed files differ from the sources.
-Regenerating the snapshot makes that test pass, because it compares files and judges no change.
+When a block of the committed snapshot is gone from the templates, it reports that as a breaking change and names the block.
+Regenerating the snapshot makes both tests pass, because they compare files and judge no change.
 The break check that blocks an unannounced break is not built yet.
 
 ### Files
@@ -92,7 +93,7 @@ A private component stays in the snapshot: its report marks every line `[private
 - A core `Component.override` adds no entry.
 - The other parts of a component, such as props, methods and slots, and the entry points `current.d.ts` and `major.d.ts` are missing, so the contracts cannot be type-checked yet.
 
-The generator stops with an error in three cases: a block in a template that no registered component uses, a block tag in a place the HTML parser cannot see, and a registration whose component name or import it cannot read.
+The generator stops with an error in four cases: a block in a template that no registered component uses, a block tag in a place the HTML parser cannot see, a registration whose component name or import it cannot read, and a component name that is registered twice.
 
 ## Markers
 

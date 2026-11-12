@@ -121,17 +121,24 @@ function componentUnit(registration: ComponentRegistration, blocks: TemplateBloc
     };
 }
 
-function assertUniqueFiles(components: ComponentUnit[]): void {
-    const owners = new Map<string, string>();
+/**
+ * The snapshot has one entry per component name. A name that is registered twice, for example once per branch
+ * of a feature check, would lose one of its registrations without anyone noticing.
+ */
+function assertUniqueNames(components: ComponentUnit[]): void {
+    const registeredIn = new Map<string, string>();
 
-    components.forEach(({ name, file }) => {
-        const owner = owners.get(file);
+    components.forEach(({ name, registeredIn: file }) => {
+        const first = registeredIn.get(name);
 
-        if (owner !== undefined) {
-            throw new Error(`The components ${owner} and ${name} would both be written to ${file}.`);
+        if (first !== undefined) {
+            throw new Error(
+                `The component ${name} is registered twice, in ${first} and in ${file}. ` +
+                    'The snapshot cannot tell two registrations of one name apart yet.',
+            );
         }
 
-        owners.set(file, name);
+        registeredIn.set(name, file);
     });
 }
 
@@ -180,7 +187,7 @@ export function buildModel(tree: SourceTree, options: SnapshotOptions): Model {
         )
         .sort((a, b) => byCodePoint(a.name, b.name));
 
-    assertUniqueFiles(components);
+    assertUniqueNames(components);
     assertEveryBlockIsListed(tree, components, blocksOf);
 
     return { flags, components };

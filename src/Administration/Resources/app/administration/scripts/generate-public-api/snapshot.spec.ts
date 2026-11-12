@@ -442,12 +442,15 @@ describe('scripts/generate-public-api/snapshot', () => {
                 "the import './component/sw-missing' matches no source file.",
             ],
             [
-                'two components that share one snapshot file',
+                'a component name that is registered once per branch of a feature check',
                 [
-                    "Shopware.Component.register('sw-example-card', () => import('./component/sw-example-card'));",
-                    "Shopware.Component.register('sw-example-card', () => import('./component/sw-example-card'));",
+                    "if (Shopware.Feature.isActive('v6.8.0.0')) {",
+                    "    Shopware.Component.register('sw-example-card', () => import('./component/sw-example-card'));",
+                    '} else {',
+                    "    Shopware.Component.register('sw-example-card', () => import('./component/sw-example-card'));",
+                    '}',
                 ].join('\n'),
-                'The components sw-example-card and sw-example-card would both be written to',
+                'The component sw-example-card is registered twice, in src/module/sw-example/index.js and in',
             ],
         ])('rejects %s', (_case, registry, message) => {
             expect(() => card('', { [REGISTRY]: registry })).toThrow(message);

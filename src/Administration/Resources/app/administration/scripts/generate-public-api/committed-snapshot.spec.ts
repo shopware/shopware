@@ -9,8 +9,26 @@ import { GENERATE_COMMAND } from './print-shared';
 import { snapshotOf } from './snapshot';
 import { readSourceTree, sourceTreeOf } from './source-tree';
 
+function blockNames(files: Record<string, string>): Set<string> {
+    const { components } = JSON.parse(files['index.json']) as { components: Record<string, { blocks: string[] }> };
+
+    return new Set(Object.values(components).flatMap(({ blocks }) => blocks));
+}
+
 describe('scripts/generate-public-api/committed-snapshot', () => {
     const { files } = generateCurrentSnapshot();
+
+    it('still has every block of the committed snapshot', () => {
+        const blocks = blockNames(files);
+        const removed = [...blockNames(readCommittedSnapshot().files)].filter((block) => !blocks.has(block)).sort();
+
+        expect(
+            removed,
+            'Breaking change detected! These blocks are gone from the templates, so extensions that override them ' +
+                `stop rendering. Keep them, or deprecate them first. Regenerating the snapshot with \`${GENERATE_COMMAND}\` ` +
+                'only silences this test.',
+        ).toEqual([]);
+    });
 
     it('matches the Administration sources', () => {
         const committed = readCommittedSnapshot().files;

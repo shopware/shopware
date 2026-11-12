@@ -31,6 +31,7 @@ class CartException extends HttpException
     public const CART_DELIVERY_NOT_FOUND_CODE = 'CHECKOUT__CART_DELIVERY_POSITION_NOT_FOUND';
     public const CART_DELIVERY_POSITION_INVALID_SPLIT_QUANTITY_CODE = 'CHECKOUT__CART_DELIVERY_POSITION_INVALID_SPLIT_QUANTITY';
     public const CART_DELIVERY_POSITION_NOT_SPLITTABLE_CODE = 'CHECKOUT__CART_DELIVERY_POSITION_NOT_SPLITTABLE';
+    public const CART_DELIVERY_POSITION_NOT_STACKABLE_CODE = 'CHECKOUT__CART_DELIVERY_POSITION_NOT_STACKABLE';
     public const CART_INVALID_CODE = 'CHECKOUT__CART_INVALID';
     public const CART_INVALID_LINE_ITEM_PAYLOAD_CODE = 'CHECKOUT__CART_INVALID_LINE_ITEM_PAYLOAD';
     public const CART_INVALID_LINE_ITEM_QUANTITY_CODE = 'CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY';
@@ -247,6 +248,16 @@ class CartException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::CART_DELIVERY_POSITION_NOT_SPLITTABLE_CODE,
             'Delivery position "{{ identifier }}" cannot be split, because its line item has children.',
+            ['identifier' => $identifier]
+        );
+    }
+
+    public static function deliveryPositionNotStackable(string $identifier): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CART_DELIVERY_POSITION_NOT_STACKABLE_CODE,
+            'Delivery position "{{ identifier }}" cannot be split, because its line item is not stackable.',
             ['identifier' => $identifier]
         );
     }

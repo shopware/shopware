@@ -20,6 +20,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  *
  * The part is served from the item's stock first: it gets the regular delivery date when the stock covers its quantity,
  * the remainder only when the stock covers the whole position, otherwise each gets the restock date.
+ * Line items without a delivery time of their own use the given default, usually the one of the shipping method the parts are delivered with.
  *
  * @final
  */
@@ -31,7 +32,6 @@ class DeliveryPositionSplitter
      */
     public function __construct(
         private readonly LineItemQuantitySplitter $lineItemQuantitySplitter,
-        private readonly DeliveryBuilder $deliveryBuilder,
     ) {
     }
 
@@ -40,7 +40,7 @@ class DeliveryPositionSplitter
      *
      * @return array{DeliveryPosition, DeliveryPosition} the part with the given quantity and the remainder
      */
-    public function split(DeliveryPosition $position, int $quantity, SalesChannelContext $context): array
+    public function split(DeliveryPosition $position, int $quantity, ?DeliveryTime $defaultDeliveryTime, SalesChannelContext $context): array
     {
         if ($quantity < 1 || $quantity >= $position->getQuantity()) {
             throw CartException::invalidDeliveryPositionSplitQuantity($position->getIdentifier(), $quantity, $position->getQuantity());
@@ -50,25 +50,29 @@ class DeliveryPositionSplitter
             throw CartException::deliveryPositionNotSplittable($position->getIdentifier());
         }
 
-        $part = $this->createPart($position, $quantity, $quantity, $context);
+        if (!$position->getLineItem()->isStackable()) {
+            throw CartException::deliveryPositionNotStackable($position->getIdentifier());
+        }
 
-        $remainder = $this->createPart($position, $position->getQuantity() - $quantity, $position->getQuantity(), $context);
+        $part = $this->createPart($position, $quantity, $quantity, $defaultDeliveryTime, $context);
+
+        $remainder = $this->createPart($position, $position->getQuantity() - $quantity, $position->getQuantity(), $defaultDeliveryTime, $context);
         $remainder->setExtensions($position->getExtensions());
 
         return [$part, $remainder];
     }
 
-    private function createPart(DeliveryPosition $position, int $quantity, int $requiredStock, SalesChannelContext $context): DeliveryPosition
-    {
+    private function createPart(
+        DeliveryPosition $position,
+        int $quantity,
+        int $requiredStock,
+        ?DeliveryTime $defaultDeliveryTime,
+        SalesChannelContext $context,
+    ): DeliveryPosition {
         $lineItem = $this->lineItemQuantitySplitter->split($position->getLineItem(), $quantity, $context);
         $price = $lineItem->getPrice() ?? throw CartException::missingLineItemPrice($lineItem->getId());
 
-        $shippingMethodDeliveryTime = $context->getShippingMethod()->getDeliveryTime();
-        $deliveryDate = $this->deliveryBuilder->resolveDeliveryDate(
-            $lineItem,
-            $requiredStock,
-            $shippingMethodDeliveryTime !== null ? DeliveryTime::createFromEntity($shippingMethodDeliveryTime) : null,
-        );
+        $deliveryDate = DeliveryBuilder::resolveDeliveryDate($lineItem, $requiredStock, $defaultDeliveryTime);
 
         return new DeliveryPosition(
             $position->getIdentifier(),

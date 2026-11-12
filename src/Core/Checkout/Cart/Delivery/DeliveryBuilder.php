@@ -57,7 +57,7 @@ class DeliveryBuilder
      * the regular delivery date when the item's stock covers the quantity, the restock date otherwise.
      * Returns null when the item has no delivery information or neither the item nor the default has a delivery time.
      */
-    public function resolveDeliveryDate(LineItem $item, int $quantity, ?DeliveryTime $default): ?DeliveryDate
+    public static function resolveDeliveryDate(LineItem $item, int $quantity, ?DeliveryTime $default): ?DeliveryDate
     {
         $deliveryInformation = $item->getDeliveryInformation();
         if ($deliveryInformation === null) {
@@ -74,7 +74,7 @@ class DeliveryBuilder
             return null;
         }
 
-        $availableFrom = $this->resolveAvailableFromDate($item);
+        $availableFrom = self::resolveAvailableFromDate($item);
 
         // if the item is completely in stock, use the delivery date
         if ($deliveryInformation->getStock() >= $quantity) {
@@ -171,7 +171,7 @@ class DeliveryBuilder
                 continue;
             }
 
-            $deliveryDate = $this->resolveDeliveryDate($item, $item->getQuantity(), $default);
+            $deliveryDate = self::resolveDeliveryDate($item, $item->getQuantity(), $default);
 
             if ($deliveryDate === null || $item->getPrice() === null) {
                 continue;
@@ -181,7 +181,7 @@ class DeliveryBuilder
         }
     }
 
-    private function resolveAvailableFromDate(LineItem $item): \DateTimeImmutable
+    private static function resolveAvailableFromDate(LineItem $item): \DateTimeImmutable
     {
         $releaseDate = $item->getPayloadValue('releaseDate');
         $now = Clock::get()->now();

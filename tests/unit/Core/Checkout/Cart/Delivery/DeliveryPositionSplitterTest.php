@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryPositionSplitter;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
@@ -26,7 +25,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
-use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
@@ -61,7 +59,6 @@ class DeliveryPositionSplitterTest extends TestCase
 
         $this->splitter = new DeliveryPositionSplitter(
             new LineItemQuantitySplitter($this->quantityPriceCalculator),
-            new DeliveryBuilder(),
         );
     }
 
@@ -71,7 +68,7 @@ class DeliveryPositionSplitterTest extends TestCase
         $position = $this->createPosition($this->createLineItem(quantity: 3, unitPrice: 9.99, taxRules: new TaxRuleCollection([new TaxRule(19)]), context: $context));
         static::assertSame([[19.0, 4.79]], self::taxes($position));
 
-        [$part, $remainder] = $this->splitter->split($position, 2, $context);
+        [$part, $remainder] = $this->splitter->split($position, 2, null, $context);
 
         static::assertSame('line-item-id', $part->getIdentifier());
         static::assertSame(2, $part->getQuantity());
@@ -97,7 +94,7 @@ class DeliveryPositionSplitterTest extends TestCase
         $position = $this->createPosition($this->createLineItem(quantity: 3, unitPrice: 9.99, taxRules: new TaxRuleCollection([new TaxRule(19)]), context: $context));
         static::assertSame([[19.0, 5.69]], self::taxes($position));
 
-        [$part, $remainder] = $this->splitter->split($position, 2, $context);
+        [$part, $remainder] = $this->splitter->split($position, 2, null, $context);
 
         static::assertSame(19.98, $part->getPrice()->getTotalPrice());
         static::assertEqualsWithDelta([[19.0, 5.69 / 3 * 2]], self::taxes($part), 1e-9);
@@ -110,7 +107,7 @@ class DeliveryPositionSplitterTest extends TestCase
         $context = $this->createContext(CartPrice::TAX_STATE_FREE);
         $position = $this->createPosition($this->createLineItem(quantity: 3, unitPrice: 9.99, taxRules: new TaxRuleCollection([new TaxRule(19)]), context: $context));
 
-        [$part, $remainder] = $this->splitter->split($position, 2, $context);
+        [$part, $remainder] = $this->splitter->split($position, 2, null, $context);
 
         static::assertSame(19.98, $part->getPrice()->getTotalPrice());
         static::assertSame([], self::taxes($part));
@@ -127,7 +124,7 @@ class DeliveryPositionSplitterTest extends TestCase
         $position = $this->createPosition($this->createLineItem(quantity: 3, unitPrice: 10.0, taxRules: $taxRules, context: $context));
         static::assertSame([[19.0, 2.39], [7.0, 0.98]], self::taxes($position));
 
-        [$part, $remainder] = $this->splitter->split($position, 2, $context);
+        [$part, $remainder] = $this->splitter->split($position, 2, null, $context);
 
         static::assertSame(20.0, $part->getPrice()->getTotalPrice());
         static::assertEqualsWithDelta([[19.0, 2.39 / 3 * 2], [7.0, 0.98 / 3 * 2]], self::taxes($part), 1e-9);
@@ -140,7 +137,7 @@ class DeliveryPositionSplitterTest extends TestCase
         $context = $this->createContext(CartPrice::TAX_STATE_GROSS);
         $position = $this->createPosition($this->createLineItem(quantity: 3, unitPrice: 0.99, taxRules: new TaxRuleCollection([new TaxRule(19)]), context: $context));
 
-        [$part, $remainder] = $this->splitter->split($position, 2, $context);
+        [$part, $remainder] = $this->splitter->split($position, 2, null, $context);
 
         static::assertSame(1.98, $part->getPrice()->getTotalPrice());
         static::assertSame(0.99, $remainder->getPrice()->getTotalPrice());
@@ -161,7 +158,7 @@ class DeliveryPositionSplitterTest extends TestCase
         $position = $this->createPosition($this->createLineItem(quantity: 3, unitPrice: 0.99, taxRules: new TaxRuleCollection([new TaxRule(19)]), context: $context));
         static::assertSame([[19.0, 0.47]], self::taxes($position));
 
-        [$part, $remainder] = $this->splitter->split($position, 2, $context);
+        [$part, $remainder] = $this->splitter->split($position, 2, null, $context);
 
         static::assertSame(1.98, $part->getPrice()->getTotalPrice());
         static::assertSame([[19.0, 0.32]], self::taxes($part));
@@ -175,7 +172,7 @@ class DeliveryPositionSplitterTest extends TestCase
         $position = $this->createPosition($this->createLineItem(quantity: 3, unitPrice: 10.0, taxRules: new TaxRuleCollection([new TaxRule(19)]), context: $context));
         $position->addExtension(OrderConverter::ORIGINAL_ID, new IdStruct('order-delivery-position-id'));
 
-        [$part, $remainder] = $this->splitter->split($position, 2, $context);
+        [$part, $remainder] = $this->splitter->split($position, 2, null, $context);
 
         static::assertFalse($part->hasExtension(OrderConverter::ORIGINAL_ID));
         static::assertSame('order-delivery-position-id', $remainder->getExtensionOfType(OrderConverter::ORIGINAL_ID, IdStruct::class)?->getId());
@@ -188,7 +185,7 @@ class DeliveryPositionSplitterTest extends TestCase
         $lineItem = $this->createLineItem(quantity: 3, unitPrice: 10.0, taxRules: new TaxRuleCollection([new TaxRule(19)]), context: $context)
             ->setDeliveryInformation(new DeliveryInformation(stock: $stock, weight: 0.0, freeDelivery: false, restockTime: 3, deliveryTime: self::createDeliveryTime(1, 2)));
 
-        [$part, $remainder] = $this->splitter->split($this->createPosition($lineItem), 2, $context);
+        [$part, $remainder] = $this->splitter->split($this->createPosition($lineItem), 2, null, $context);
 
         static::assertEquals($expectedPartDate, $part->getDeliveryDate());
         static::assertEquals($expectedRemainderDate, $remainder->getDeliveryDate());
@@ -211,26 +208,20 @@ class DeliveryPositionSplitterTest extends TestCase
             ->setDeliveryInformation(new DeliveryInformation(stock: 2, weight: 0.0, freeDelivery: false, restockTime: 3, deliveryTime: self::createDeliveryTime(1, 2)))
             ->setPayloadValue('releaseDate', (new \DateTimeImmutable('2026-12-01 10:00:00'))->format(Defaults::STORAGE_DATE_TIME_FORMAT));
 
-        [$part, $remainder] = $this->splitter->split($this->createPosition($lineItem), 2, $context);
+        [$part, $remainder] = $this->splitter->split($this->createPosition($lineItem), 2, null, $context);
 
         $releaseDeliveryDate = new DeliveryDate(new \DateTimeImmutable('2026-12-02'), new \DateTimeImmutable('2026-12-03'));
         static::assertEquals($releaseDeliveryDate, $part->getDeliveryDate());
         static::assertEquals($releaseDeliveryDate, $remainder->getDeliveryDate());
     }
 
-    public function testUsesTheShippingMethodDeliveryTimeIfTheItemHasNone(): void
+    public function testUsesTheDefaultDeliveryTimeIfTheItemHasNone(): void
     {
-        $shippingMethodDeliveryTime = (new DeliveryTimeEntity())->assign([
-            'unit' => DeliveryTimeEntity::DELIVERY_TIME_DAY,
-            'min' => 6,
-            'max' => 7,
-            'translated' => ['name' => '6-7 days'],
-        ]);
-        $context = $this->createContext(CartPrice::TAX_STATE_GROSS, $shippingMethodDeliveryTime);
+        $context = $this->createContext(CartPrice::TAX_STATE_GROSS);
         $lineItem = $this->createLineItem(quantity: 3, unitPrice: 10.0, taxRules: new TaxRuleCollection([new TaxRule(19)]), context: $context)
             ->setDeliveryInformation(new DeliveryInformation(stock: 3, weight: 0.0, freeDelivery: false));
 
-        [$part] = $this->splitter->split($this->createPosition($lineItem), 2, $context);
+        [$part] = $this->splitter->split($this->createPosition($lineItem), 2, self::createDeliveryTime(6, 7), $context);
 
         static::assertEquals(
             new DeliveryDate(new \DateTimeImmutable('2026-11-11'), new \DateTimeImmutable('2026-11-12')),
@@ -247,7 +238,7 @@ class DeliveryPositionSplitterTest extends TestCase
             $positionDate,
         );
 
-        [$part, $remainder] = $this->splitter->split($position, 2, $context);
+        [$part, $remainder] = $this->splitter->split($position, 2, null, $context);
 
         static::assertEquals($positionDate, $part->getDeliveryDate());
         static::assertEquals($positionDate, $remainder->getDeliveryDate());
@@ -261,7 +252,7 @@ class DeliveryPositionSplitterTest extends TestCase
 
         $this->expectExceptionObject(CartException::invalidDeliveryPositionSplitQuantity('line-item-id', $quantity, 3));
 
-        $this->splitter->split($position, $quantity, $context);
+        $this->splitter->split($position, $quantity, null, $context);
     }
 
     public static function invalidQuantityProvider(): \Generator
@@ -280,20 +271,25 @@ class DeliveryPositionSplitterTest extends TestCase
 
         $this->expectExceptionObject(CartException::deliveryPositionNotSplittable('line-item-id'));
 
-        $this->splitter->split($this->createPosition($lineItem), 2, $context);
+        $this->splitter->split($this->createPosition($lineItem), 2, null, $context);
     }
 
-    private function createContext(string $taxState, ?DeliveryTimeEntity $shippingMethodDeliveryTime = null): SalesChannelContext
+    public function testRefusesAPositionWhoseLineItemIsNotStackable(): void
     {
-        $shippingMethod = new ShippingMethodEntity();
-        if ($shippingMethodDeliveryTime !== null) {
-            $shippingMethod->setDeliveryTime($shippingMethodDeliveryTime);
-        }
+        $context = $this->createContext(CartPrice::TAX_STATE_GROSS);
+        $lineItem = $this->createLineItem(quantity: 3, unitPrice: 10.0, taxRules: new TaxRuleCollection([new TaxRule(19)]), context: $context)
+            ->setStackable(false);
 
+        $this->expectExceptionObject(CartException::deliveryPositionNotStackable('line-item-id'));
+
+        $this->splitter->split($this->createPosition($lineItem), 2, null, $context);
+    }
+
+    private function createContext(string $taxState): SalesChannelContext
+    {
         $context = static::createStub(SalesChannelContext::class);
         $context->method('getTaxState')->willReturn($taxState);
         $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
-        $context->method('getShippingMethod')->willReturn($shippingMethod);
 
         return $context;
     }

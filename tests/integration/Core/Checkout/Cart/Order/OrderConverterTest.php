@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryTime;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
@@ -142,7 +143,11 @@ class OrderConverterTest extends TestCase
         $position = $delivery->getPositions()->get('split-item');
         static::assertNotNull($position);
 
-        [$part, $remainder] = static::getContainer()->get(DeliveryPositionSplitter::class)->split($position, 2, $context);
+        $shippingMethodDeliveryTime = $delivery->getShippingMethod()->getDeliveryTime();
+        static::assertNotNull($shippingMethodDeliveryTime);
+
+        [$part, $remainder] = static::getContainer()->get(DeliveryPositionSplitter::class)
+            ->split($position, 2, DeliveryTime::createFromEntity($shippingMethodDeliveryTime), $context);
 
         $cart->setDeliveries(new DeliveryCollection([
             new Delivery(new DeliveryPositionCollection([$part]), $part->getDeliveryDate(), $delivery->getShippingMethod(), $delivery->getLocation(), $delivery->getShippingCosts()),

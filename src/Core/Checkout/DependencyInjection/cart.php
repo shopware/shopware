@@ -481,7 +481,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service(LineItemQuantitySplitter::class),
-            service(DeliveryBuilder::class),
         ]);
 
     $services->set(DeliveryCalculator::class)

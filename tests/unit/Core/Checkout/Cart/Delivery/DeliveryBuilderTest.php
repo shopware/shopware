@@ -349,15 +349,13 @@ class DeliveryBuilderTest extends TestCase
         $lineItem = (new LineItem('line-item-id', LineItem::CUSTOM_LINE_ITEM_TYPE, null, 5))
             ->assign(['deliveryInformation' => new DeliveryInformation(3, 0.0, false, 2, self::createDeliveryTime(4, 5))]);
 
-        $builder = new DeliveryBuilder();
-
         static::assertEquals(
             DeliveryDate::createFromDeliveryTime(self::createDeliveryTime(4, 5)),
-            $builder->resolveDeliveryDate($lineItem, 3, null),
+            DeliveryBuilder::resolveDeliveryDate($lineItem, 3, null),
         );
         static::assertEquals(
             DeliveryDate::createFromDeliveryTime(self::createDeliveryTime(6, 7)),
-            $builder->resolveDeliveryDate($lineItem, 4, null),
+            DeliveryBuilder::resolveDeliveryDate($lineItem, 4, null),
         );
     }
 
@@ -365,7 +363,7 @@ class DeliveryBuilderTest extends TestCase
     {
         $lineItem = new LineItem('line-item-id', LineItem::CUSTOM_LINE_ITEM_TYPE);
 
-        static::assertNull((new DeliveryBuilder())->resolveDeliveryDate($lineItem, 1, self::createDeliveryTime(1, 2)));
+        static::assertNull(DeliveryBuilder::resolveDeliveryDate($lineItem, 1, self::createDeliveryTime(1, 2)));
     }
 
     private static function createDeliveryTimeEntity(string $unit, int $min, int $max): DeliveryTimeEntity

@@ -534,7 +534,7 @@ SQL;
     /**
      * @param array<string> $productIds
      *
-     * @return array<string, list<array{id: string, translations: list<array{languageId: string}>}>>
+     * @return array<string, list<array{id: string, _count: int, translations: list<array{languageId: string, _count: int}>}>>
      */
     private function fetchDocuments(array $productIds): array
     {
@@ -571,10 +571,10 @@ SQL;
         $documents = [];
 
         foreach ($rows as $row) {
-            $documents[$row['productId']][$row['id']] ??= ['id' => $row['id'], 'translations' => []];
+            $documents[$row['productId']][$row['id']] ??= ['id' => $row['id'], '_count' => 1, 'translations' => []];
 
             if ($row['languageId'] !== null) {
-                $documents[$row['productId']][$row['id']]['translations'][] = ['languageId' => $row['languageId']];
+                $documents[$row['productId']][$row['id']]['translations'][] = ['languageId' => $row['languageId'], '_count' => 1];
             }
         }
 

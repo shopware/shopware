@@ -9,6 +9,8 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -86,6 +88,20 @@ class ProductStreamHasDocumentsTest extends TestCase
         static::assertSame([$this->ids->get('plain')], $this->searchElasticsearch($this->createStream(hasDocuments: false)));
     }
 
+    public function testElasticsearchSortsByTheNumberOfDocuments(): void
+    {
+        $criteria = new Criteria();
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->addFilter(new EqualsAnyFilter('id', [$this->ids->get('plain'), $this->ids->get('manual'), $this->ids->get('drill.blue')]));
+        $criteria->addSorting(new CountSorting('documents.id', FieldSorting::DESCENDING));
+
+        $ids = $this->createEntitySearcher()
+            ->search(static::getContainer()->get(ProductDefinition::class), $criteria, $this->context)
+            ->getIds();
+
+        static::assertSame([$this->ids->get('manual'), $this->ids->get('drill.blue'), $this->ids->get('plain')], $ids);
+    }
+
     protected function getDiContainer(): ContainerInterface
     {
         return static::getContainer();
@@ -120,6 +136,7 @@ class ProductStreamHasDocumentsTest extends TestCase
     {
         static::getContainer()->get('product_document.repository')->create([
             ['productId' => $this->ids->get('manual'), 'title' => 'Manual', 'mediaId' => $this->ids->get('file')],
+            ['productId' => $this->ids->get('manual'), 'title' => 'Datasheet', 'mediaId' => $this->ids->get('file')],
             ['productId' => $this->ids->get('drill'), 'title' => 'Manual', 'mediaId' => $this->ids->get('file')],
         ], $this->context);
     }

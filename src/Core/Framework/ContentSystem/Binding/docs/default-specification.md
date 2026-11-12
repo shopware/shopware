@@ -24,7 +24,7 @@ Core ships no dedicated binding-specification directory and no authored inline `
 - `core:Sw:Media:Image`: `media` from the `mediaId` storage key, `media/image.yaml`
 - `core:Sw:Navigation:Breadcrumb`: `breadcrumb`, `navigation/breadcrumb.yaml`
 
-`Sw:Media:Image` wires the `entity` loader, its property being a `MediaEntity`. `Sw:Navigation:Breadcrumb` names no storage key, because its `resolvedBy` is a tier-B loader block. That block wires the `breadcrumb` loader, its `property` and `type` config values `!scoped` over the `product` and `category` root sources ([resolved-by.md](resolved-by.md)). Applying `Sw:Navigation:Breadcrumb` to an element that does not yet wire `breadcrumb`, on a layout with any other root source or none, throws `bindingRootSourceNotScoped` (400).
+`Sw:Media:Image` wires the `entity` loader, its property being a `MediaEntity`. `Sw:Navigation:Breadcrumb` names no storage key, because its `resolvedBy` is a tier-B loader block. That block wires the `breadcrumb` loader, its `property` and `type` config values `!scoped` over the `product` and `category` root sources ([resolved-by.md](resolved-by.md)).
 
 ## Overriding a core default
 

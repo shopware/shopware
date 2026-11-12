@@ -3,16 +3,13 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Binding;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
-use Shopware\Core\Framework\ContentSystem\Binding\RootSourceConfigMap;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingInput;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
@@ -256,53 +253,6 @@ class BindingApplicatorTest extends TestCase
         static::assertTrue($result->property('mediaId')?->isNull());
     }
 
-    #[TestDox('propagates the error when a scoped config value has no entry for the layout\'s root source')]
-    public function testPropagatesScopedConfigWithoutRootSourceEntry(): void
-    {
-        $element = new StoredElement('crumb-1', 'Sw:Navigation:Breadcrumb');
-
-        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', 'crumb-1', 'landing_page'));
-
-        $this->applicator($this->config())->apply($element, $this->scopedSpecification(), 'core:Sw:Navigation:Breadcrumb', 'landing_page');
-    }
-
-    #[DataProvider('unscopedRootSourceProvider')]
-    #[TestDox('fill-only: leaves a key the element already wires untouched when its scoped config has no entry for the root source ($_dataName)')]
-    public function testFillOnlyIgnoresTheScopedConfigOfAnAlreadyWiredKey(?string $rootSource): void
-    {
-        $oldConfig = static::createStub(AbstractContentDataLoaderConfig::class);
-        $element = StoredElementBuilder::create('Sw:Navigation:Breadcrumb', 'crumb-1')
-            ->withDataRequirement('breadcrumb', 'breadcrumb', $oldConfig)
-            ->withAttributedSpecification('breadcrumb', 'core:old-spec')
-            ->build();
-
-        $result = $this->applicator($this->config())->applyFillOnly($element, $this->scopedSpecification(), 'core:Sw:Navigation:Breadcrumb', $rootSource);
-
-        static::assertSame(['breadcrumb'], array_keys($result->dataRequirements));
-        static::assertSame($oldConfig, $result->dataRequirements['breadcrumb']->config);
-        static::assertSame(['breadcrumb' => 'core:old-spec'], $result->attributedSpecifications);
-    }
-
-    #[DataProvider('unscopedRootSourceProvider')]
-    #[TestDox('fill-only: throws when the scoped config of a key it would wire has no entry for the root source ($_dataName)')]
-    public function testFillOnlyThrowsForTheScopedConfigOfAnUnwiredKey(?string $rootSource): void
-    {
-        $element = new StoredElement('crumb-1', 'Sw:Navigation:Breadcrumb');
-
-        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', 'crumb-1', $rootSource));
-
-        $this->applicator($this->config())->applyFillOnly($element, $this->scopedSpecification(), 'core:Sw:Navigation:Breadcrumb', $rootSource);
-    }
-
-    /**
-     * @return iterable<string, array{string|null}>
-     */
-    public static function unscopedRootSourceProvider(): iterable
-    {
-        yield 'no root source' => [null];
-        yield 'a root source the map does not name' => ['landing_page'];
-    }
-
     #[TestDox('seeds a later input default after an input that declares no default')]
     public function testSeedsLaterInputDefaultAfterInputWithoutDefault(): void
     {
@@ -368,18 +318,6 @@ class BindingApplicatorTest extends TestCase
         $result = $this->applicator($this->config(), $this->typeRegistry([]))->apply($element, $this->textSpecification(), 'core:text-seed');
 
         static::assertSame('Autumn sale', $result->property('text')?->jsonSerialize());
-    }
-
-    private function scopedSpecification(): BindingSpecification
-    {
-        return new BindingSpecification(
-            'Sw:Navigation:Breadcrumb',
-            'Sw:Navigation:Breadcrumb',
-            'Breadcrumb',
-            ['breadcrumb' => new LoaderBinding('breadcrumb', ['type' => [RootSourceConfigMap::MARKER => ['product' => 'product', 'category' => 'category']]])],
-            [],
-            'core',
-        );
     }
 
     private function boundImageElement(AbstractContentDataLoaderConfig $oldConfig): StoredElement

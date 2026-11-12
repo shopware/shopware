@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\MaintenanceController;
@@ -62,5 +63,34 @@ class MaintenanceControllerTest extends TestCase
 
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame('/foo/generated', $response->getTargetUrl());
+    }
+
+    public function testRedirectToShopIsExcludedFromTheHttpCache(): void
+    {
+        $maintenanceModeResolver = static::createStub(MaintenanceModeResolver::class);
+        $maintenanceModeResolver->method('shouldRedirectToShop')
+            ->willReturn(true);
+
+        $controller = new MaintenanceController(
+            static::createStub(SystemConfigService::class),
+            static::createStub(MaintenancePageLoader::class),
+            $maintenanceModeResolver
+        );
+
+        $router = static::createStub(RouterInterface::class);
+        $router->method('generate')->willReturn('/');
+
+        $container = new ContainerBuilder();
+        $container->set('router', $router);
+        $container->set('event_dispatcher', static::createStub(EventDispatcherInterface::class));
+
+        $controller->setContainer($container);
+
+        $request = new Request(attributes: [PlatformRequest::ATTRIBUTE_HTTP_CACHE => true]);
+
+        $response = $controller->renderMaintenancePage($request, Generator::generateSalesChannelContext());
+
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertFalse($request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE));
     }
 }

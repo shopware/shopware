@@ -24,7 +24,6 @@ class VariantCombinationLoader
      */
     public function load(string $productId, Context $context): array
     {
-        // `option_ids` is only filled by the indexer, which may still be queued for new variants
         $optionsSelect = <<<'SQL'
             COALESCE(product.option_ids, (
                 SELECT CONCAT('[', GROUP_CONCAT(JSON_QUOTE(LOWER(HEX(product_option.property_group_option_id)))), ']')

@@ -6,7 +6,10 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\Exception\InvalidTemplateException;
+use Shopware\Core\Content\Seo\MainCategory\MainCategoryDefinition;
 use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
@@ -24,16 +27,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 use Twig\Runtime\EscaperRuntime;
@@ -492,6 +500,36 @@ class SeoUrlGeneratorTest extends TestCase
         $urls = iterator_to_array($generator->generate(['entity-1'], '{{ missing.value }}', $route, $this->context, $this->salesChannel), false);
         static::assertCount(1, $urls);
         static::assertSame('The SEO URL template could not be rendered', $urls[0]->getError());
+    }
+
+    public function testRoutePreparesTheCriteriaWithTheAssociationsOfTheTemplate(): void
+    {
+        $registry = new StaticDefinitionInstanceRegistry(
+            [ProductDefinition::class, MainCategoryDefinition::class, CategoryDefinition::class, SalesChannelDefinition::class],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
+        );
+        $productDefinition = $registry->getByEntityName(ProductDefinition::ENTITY_NAME);
+
+        $parser = static::createStub(TwigVariableParser::class);
+        $parser->method('parse')->willReturn(['product.mainCategories.first.categoryId']);
+
+        $preparedAssociations = null;
+        $route = static::createStub(SeoUrlRouteInterface::class);
+        $route->method('getConfig')->willReturn(new SeoUrlRouteConfig($productDefinition, ProductPageSeoUrlRoute::ROUTE_NAME, 'template', true));
+        $route->method('prepareCriteria')->willReturnCallback(static function (Criteria $criteria) use (&$preparedAssociations): void {
+            $preparedAssociations = array_keys($criteria->getAssociations());
+        });
+
+        $generator = $this->createGenerator(
+            [self::TEST_ENTITY_NAME => StaticEntityRepository::of(EntityCollection::class, [new EntityCollection()], $productDefinition)],
+            $this->createTwigEnvironment(),
+            $parser
+        );
+
+        iterator_to_array($generator->generate(['product-1'], '{{ product.mainCategories.first.categoryId }}', $route, $this->context, $this->salesChannel), false);
+
+        static::assertSame(['mainCategories'], $preparedAssociations);
     }
 
     private function createHeadlessSalesChannel(bool $externalStorefront): SalesChannelEntity

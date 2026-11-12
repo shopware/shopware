@@ -2332,6 +2332,11 @@ export default Shopware.Component.wrapComponentConfig({
                     throw new Error('The saved content layout was not returned by the repository.');
                 }
 
+                // Mutations retain the current entity; drain even operations added while awaiting the queue.
+                while (this.pendingMutationCount > 0) {
+                    await this.mutationQueue;
+                }
+
                 const saved = JSON.parse(savedState) as Pick<ContentLayoutEntity, 'name' | 'rootSource' | 'layout'>;
                 const current = JSON.parse(this.serializeLayoutState(openLayout.layout)) as typeof saved;
                 openLayout.savedState = this.serializeLayoutState(reloaded);

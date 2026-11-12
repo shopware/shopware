@@ -7,15 +7,18 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPayloadStore;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewRequest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -24,6 +27,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('framework')]
 class ContentSystemPreviewControllerTest extends TestCase
 {
+    use EnvTestBehaviour;
     use IntegrationTestBehaviour;
     use StorefrontControllerTestBehaviour;
 
@@ -45,7 +49,7 @@ class ContentSystemPreviewControllerTest extends TestCase
 
     protected function tearDown(): void
     {
-        $cache = static::getContainer()->get('cache.object');
+        $cache = static::getContainer()->get('cache.content_system_preview');
 
         foreach ($this->storedPreviewTokens as $token) {
             $cache->deleteItem(self::PREVIEW_CACHE_KEY_PREFIX . $token);
@@ -62,11 +66,44 @@ class ContentSystemPreviewControllerTest extends TestCase
         static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
     }
 
+    public function testPreviewCanBeOpenedByANewDevelopmentKernel(): void
+    {
+        $payload = new ContentPreviewRequest(
+            layout: [],
+            entityType: 'product',
+            entityId: $this->createProduct(),
+            salesChannelId: $this->getSalesChannelId(),
+        );
+        $request = Request::create($_SERVER['APP_URL'] . '/api/_action/content-system/preview/entity/url', Request::METHOD_POST);
+        $this->setEnvVars(['APP_ENV' => 'dev', 'SHOPWARE_CACHE_ID' => 'preview-cache-regression']);
+        $kernel = KernelLifecycleManager::createKernel(cacheId: 'preview-cache-regression');
+
+        try {
+            $kernel->boot();
+            $response = $kernel->getContainer()->get(ContentPreviewController::class)->previewUrl($payload, $request, Context::createDefaultContext());
+            $data = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
+            $url = $data['url'];
+            $kernel->shutdown();
+
+            $kernel = KernelLifecycleManager::createKernel(cacheId: 'preview-cache-regression');
+            $response = $kernel->handle(Request::create($url));
+
+            static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+            static::assertMatchesRegularExpression('/data-page-id="[0-9a-f]{32}"/', (string) $response->getContent());
+        } finally {
+            if (isset($url)) {
+                $kernel->getContainer()->get('cache.global_clearer')->getPool('cache.content_system_preview')
+                    ->deleteItem(self::PREVIEW_CACHE_KEY_PREFIX . basename($url));
+            }
+            $kernel->shutdown();
+        }
+    }
+
     #[TestDox('answers 500 for a stored envelope that does not decode into a preview request')]
     public function testUndecodableStoredEnvelopeIsServerError(): void
     {
         $token = Uuid::randomHex();
-        $cache = static::getContainer()->get('cache.object');
+        $cache = static::getContainer()->get('cache.content_system_preview');
         $item = $cache->getItem(self::PREVIEW_CACHE_KEY_PREFIX . $token);
         // An envelope with no entityType: only a validated envelope is ever written, so a malformed hit is
         // server-side state, not a defect in this caller's request.

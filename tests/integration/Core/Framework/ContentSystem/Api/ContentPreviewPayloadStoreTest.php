@@ -41,7 +41,7 @@ class ContentPreviewPayloadStoreTest extends TestCase
 
             static::assertEquals($payload, static::getContainer()->get(ContentPreviewPayloadStore::class)->load($token));
         } finally {
-            static::getContainer()->get('cache.object')->deleteItem('content-system.preview.' . $token);
+            static::getContainer()->get('cache.content_system_preview')->deleteItem('content-system.preview.' . $token);
         }
     }
 
@@ -50,7 +50,7 @@ class ContentPreviewPayloadStoreTest extends TestCase
     {
         $token = Uuid::randomHex();
         $key = 'content-system.preview.' . $token;
-        $cache = static::getContainer()->get('cache.object');
+        $cache = static::getContainer()->get('cache.content_system_preview');
 
         // A structurally complete envelope — every field the DTO declares, each of the right PHP type — so the
         // field and type gates pass and the blank entityType reaches the constraint check, the only gate the

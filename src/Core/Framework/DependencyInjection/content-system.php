@@ -903,7 +903,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ContentPreviewPayloadStore::class)
         ->args([
-            service('cache.object'),
+            service('cache.content_system_preview'),
             service('validator'),
         ]);
 

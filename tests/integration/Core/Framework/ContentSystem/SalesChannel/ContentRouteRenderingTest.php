@@ -810,10 +810,6 @@ class ContentRouteRenderingTest extends TestCase
         $poisoned = $original;
         static::assertIsArray($poisoned);
         unset($poisoned['Sw:Media:Image']);
-        // With `LONGRUNNING_ENVIRONMENT` active the kernel resets its services at the start of the request after
-        // one that was handled, which empties the in-memory `cache.system` pool in the test environment. Booting
-        // here consumes that pending reset, so the poisoned entry is still there when the probe request runs.
-        static::getKernel()->boot();
         static::assertTrue(
             $this->overwriteElementTypeCache($pool, $poisoned),
             'The element-type cache entry must be writable from the test.',

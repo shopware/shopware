@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Validation\Error;
 
-use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -25,15 +24,5 @@ class ContentSystemLayoutPresetSchemaError implements Error
     public function getMessage(): string
     {
         return $this->message;
-    }
-
-    public function getErrorCode(): string
-    {
-        return AppException::VALIDATION_FAILED;
-    }
-
-    public function getParameters(): array
-    {
-        return [];
     }
 }

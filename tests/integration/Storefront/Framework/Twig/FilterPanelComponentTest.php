@@ -245,17 +245,14 @@ class FilterPanelComponentTest extends TestCase
 
     private function listing(AggregationResultCollection $aggregations): ProductListingResult
     {
-        $listing = ProductListingResult::createFrom(new EntitySearchResult(
+        return ProductListingResult::fromSearchResult(new EntitySearchResult(
             ProductDefinition::ENTITY_NAME,
             0,
             new ProductCollection(),
             $aggregations,
             new Criteria(),
             Context::createDefaultContext()
-        ));
-        $listing->setAvailableSortings(new ProductSortingCollection());
-
-        return $listing;
+        ), new ProductSortingCollection());
     }
 
     private function manufacturerAggregation(string $name): AggregationResultCollection

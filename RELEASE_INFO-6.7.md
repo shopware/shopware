@@ -414,6 +414,7 @@ Decorating `CartRestorer` just to copy an extension over is no longer needed.
 `payload.value` of promotion line items with an absolute, fixed or fixed unit discount now contains the value in the cart currency, using the advanced price of the currency or the currency factor.
 Orders placed before this change still contain the default currency value.
 Extensions and headless frontends that convert `payload.value` into the cart currency themselves must remove that conversion.
+
 ### Replacing a media file invalidates every cached page showing it
 
 Changing a media file used to invalidate only the product detail pages of products that use the media as product media.

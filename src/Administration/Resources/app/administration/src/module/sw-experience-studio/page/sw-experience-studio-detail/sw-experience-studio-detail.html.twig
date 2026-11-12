@@ -411,7 +411,9 @@
             <sw-experience-studio-layout-picker
                 v-if="isLayoutPickerOpen"
                 :open-layout-ids="layoutPickerOpenIds"
+                :disabled="isLoading || isSavingAll || isWorkspaceTransitioning || openLayouts.some(item => item.isSaving)"
                 @select="onLayoutPickerSelect"
+                @delete="removeOpenLayout"
                 @close="isLayoutPickerOpen = false"
             />
 

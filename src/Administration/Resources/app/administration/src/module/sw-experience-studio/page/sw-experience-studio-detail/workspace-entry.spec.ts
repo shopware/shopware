@@ -127,4 +127,26 @@ describe('Experience Studio workspace entry', () => {
         component.methods.onCreateWizardComplete.call(editor, { name: 'Unauthorized layout', type: 'category' });
         expect(editor.layoutRepository.create).not.toHaveBeenCalled();
     });
+
+    it('keeps the picker open and closes settings when its last open layout is deleted', () => {
+        const editor = {
+            openLayouts: [{ id: 'deleted' }],
+            activeLayoutId: 'deleted',
+            layout: { id: 'deleted' },
+            selectedElementId: 'element',
+            isLayoutPickerOpen: true,
+            workspaceStore: { activeWorkspace: { id: 'workspace' } },
+            editorStore: { removeLayout: jest.fn() },
+            $refs: { experienceStudioCanvas: { closeSettingsPanel: jest.fn() } },
+        };
+
+        component.methods.removeOpenLayout.call(editor, 'deleted');
+
+        expect(editor.openLayouts).toEqual([]);
+        expect(editor.layout).toBeNull();
+        expect(editor.selectedElementId).toBeNull();
+        expect(editor.isLayoutPickerOpen).toBe(true);
+        expect(editor.editorStore.removeLayout).toHaveBeenCalledWith('deleted');
+        expect(editor.$refs.experienceStudioCanvas.closeSettingsPanel).toHaveBeenCalledTimes(1);
+    });
 });

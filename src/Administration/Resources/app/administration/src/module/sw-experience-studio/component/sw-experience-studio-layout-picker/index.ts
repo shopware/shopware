@@ -18,7 +18,7 @@ type LayoutPickerColumn = {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     props: {
         openLayoutIds: {
@@ -26,11 +26,16 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: () => [],
         },
+        disabled: {
+            type: Boolean,
+            default: false,
+        },
     },
 
     emits: [
         'select',
         'close',
+        'delete',
     ],
 
     data(): {
@@ -41,6 +46,9 @@ export default Shopware.Component.wrapComponentConfig({
         limit: number;
         total: number;
         hasLoadError: boolean;
+        layoutToDelete: Pick<Entity<'content_layout'>, 'id' | 'name'> | null;
+        isDeleting: boolean;
+        hasDeleteError: boolean;
     } {
         return {
             layouts: null,
@@ -50,10 +58,21 @@ export default Shopware.Component.wrapComponentConfig({
             limit: 25,
             total: 0,
             hasLoadError: false,
+            layoutToDelete: null,
+            isDeleting: false,
+            hasDeleteError: false,
         };
     },
 
     computed: {
+        allowDelete(): boolean {
+            return this.acl.can('experience_studio.deleter');
+        },
+
+        deleteActionsDisabled(): boolean {
+            return !this.allowDelete || this.disabled || this.isLoading || this.isDeleting;
+        },
+
         layoutRepository(): Repository<'content_layout'> {
             return this.repositoryFactory.create('content_layout');
         },
@@ -110,18 +129,71 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onSearch(value: string): void {
+            if (this.isDeleting) {
+                return;
+            }
             this.searchTerm = value;
             this.page = 1;
             void this.loadLayouts();
         },
 
         onPageChange({ page }: { page: number }): void {
+            if (this.isDeleting) {
+                return;
+            }
             this.page = page;
             void this.loadLayouts();
         },
 
         onSelectLayout(layoutId: string): void {
+            if (this.isDeleting) {
+                return;
+            }
             this.$emit('select', layoutId);
+        },
+
+        onClose(): void {
+            if (!this.isDeleting) {
+                this.$emit('close');
+            }
+        },
+
+        onDeleteLayout(layout: Pick<Entity<'content_layout'>, 'id' | 'name'>): void {
+            if (this.deleteActionsDisabled) {
+                return;
+            }
+            this.layoutToDelete = layout;
+            this.hasDeleteError = false;
+        },
+
+        onCancelDeleteLayout(): void {
+            if (this.isDeleting) {
+                return;
+            }
+            this.layoutToDelete = null;
+            this.hasDeleteError = false;
+        },
+
+        async onConfirmDeleteLayout(): Promise<void> {
+            const layout = this.layoutToDelete;
+            if (!layout || this.deleteActionsDisabled) {
+                return;
+            }
+            this.isDeleting = true;
+            this.hasDeleteError = false;
+            try {
+                await this.layoutRepository.delete(layout.id as EntityKey<'content_layout'>, Shopware.Context.api);
+                this.$emit('delete', layout.id);
+                this.layoutToDelete = null;
+                if (this.layouts?.length === 1 && this.page > 1) {
+                    this.page -= 1;
+                }
+                await this.loadLayouts();
+            } catch {
+                this.hasDeleteError = true;
+            } finally {
+                this.isDeleting = false;
+            }
         },
     },
 });

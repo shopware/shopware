@@ -19,7 +19,10 @@
         "emptyDescription": "Create a layout to start editing.",
         "loadError": "The layout list could not be loaded.",
         "open": "Open layout",
-        "activate": "Go to layout"
+        "activate": "Go to layout",
+        "deleteTitle": "Delete layout?",
+        "deleteDescription": "Permanently delete “{name}”? Unsaved changes to this layout will be lost.",
+        "deleteError": "The layout could not be deleted."
       },
       "layouts": {
         "title": "Layouts",

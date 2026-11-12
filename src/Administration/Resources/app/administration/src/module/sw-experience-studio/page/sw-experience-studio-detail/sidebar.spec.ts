@@ -472,4 +472,25 @@ describe('Experience Studio sidebar navigation', () => {
         expect(emptyState.get('h2').text()).toBe('sw-experience-studio.workspace.layouts.emptyTitle');
         expect(emptyState.text()).toContain('sw-experience-studio.workspace.layouts.emptyDescription');
     });
+
+    it.each([
+        { ids: ['layout-a'] },
+        { ids: ['layout-b'] },
+        { ids: ['layout-b', 'layout-a'] },
+    ])('removes deleted layouts from the canvas and sidebar: $ids', async ({ ids }) => {
+        await wrapper.setData({ isLayoutPickerOpen: true });
+        await wrapper.get('.test-preview[data-layout-id="layout-a"]').trigger('click');
+        const picker = wrapper.getComponent<ComponentPublicInstance>({ name: 'sw-experience-studio-layout-picker' });
+        for (const id of ids) {
+            picker.vm.$emit('delete', id);
+            await flushPromises();
+            expect(wrapper.find(`[data-frame-id="${id}"]`).exists()).toBe(false);
+        }
+        const back = wrapper.find('.sw-experience-studio-sidebar-tree__back-button');
+        if (back.exists()) {
+            await back.trigger('click');
+        }
+        expect(wrapper.findAll('.sw-experience-studio-detail__layout-select')).toHaveLength(2 - ids.length);
+        expect(wrapper.find('.sw-experience-studio-canvas__panel--settings').exists()).toBe(!ids.includes('layout-a'));
+    });
 });

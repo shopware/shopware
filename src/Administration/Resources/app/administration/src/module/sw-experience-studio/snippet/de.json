@@ -19,7 +19,10 @@
         "emptyDescription": "Erstelle ein Layout, um mit der Bearbeitung zu beginnen.",
         "loadError": "Die Layoutliste konnte nicht geladen werden.",
         "open": "Layout öffnen",
-        "activate": "Layout anzeigen"
+        "activate": "Layout anzeigen",
+        "deleteTitle": "Layout löschen?",
+        "deleteDescription": "Möchtest Du „{name}“ dauerhaft löschen? Ungespeicherte Änderungen an diesem Layout gehen verloren.",
+        "deleteError": "Das Layout konnte nicht gelöscht werden."
       },
       "layouts": {
         "title": "Layouts",

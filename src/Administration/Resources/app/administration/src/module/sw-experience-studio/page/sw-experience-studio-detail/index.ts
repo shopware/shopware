@@ -1128,7 +1128,9 @@ export default Shopware.Component.wrapComponentConfig({
                 } else {
                     this.layout = null;
                     this.selectedElementId = null;
-                    this.isLayoutPickerOpen = !this.workspaceStore?.activeWorkspace;
+                    this.isLayoutPickerOpen = this.isLayoutPickerOpen || !this.workspaceStore?.activeWorkspace;
+                    const canvas = this.$refs.experienceStudioCanvas as ExperienceStudioCanvasRef | undefined;
+                    canvas?.closeSettingsPanel();
                 }
             }
         },

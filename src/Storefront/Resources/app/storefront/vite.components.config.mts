@@ -7,6 +7,7 @@ import { devServerNoticePlugin } from './build/vite/dev-server-notice-plugin';
 import { extensionModuleResolverPlugin } from './build/vite/extension-module-resolver-plugin';
 import { plainCssShimPlugin } from './build/vite/plain-css-shim-plugin';
 import { scopedSubpathExportsPlugin } from './build/vite/scoped-subpath-exports-plugin';
+import { resolveStorefrontDevUpdate } from './build/vite/storefront-dev-update';
 import { themeScssWatcherPlugin } from './build/vite/theme-scss-watcher-plugin';
 import {
     extensionComponentAliasesPlugin,
@@ -40,12 +41,14 @@ const scssLoadPaths = [
 const storefrontViteOrigin = process.env.STOREFRONT_VITE_ORIGIN;
 const storefrontViteHost = process.env.STOREFRONT_VITE_HOST;
 
-export default defineConfig(async ({ command }): Promise<UserConfig> => {
+export default defineConfig(async ({ command, mode }): Promise<UserConfig> => {
     const extensionAliases = command === 'serve' ? await loadExtensionComponentAliases(projectRoot) : [];
     const jsEntries = await buildComponentEntries();
     const { scssEntries, plainCssEntries, plainCssShims } = await buildComponentStyleEntries();
     const entries = { ...jsEntries, ...scssEntries, ...plainCssEntries };
     const isServe = command === 'serve';
+    // How a source change reaches the open page: reload (default), hmr, or manual.
+    const devUpdate = isServe ? resolveStorefrontDevUpdate(projectRoot, mode) : 'reload';
     const coreAliases: Alias[] = [
         // Mirror webpack's resolve.alias so that main.js and plugin entries
         // that use bare 'src/…', 'scss/…', 'assets/…', 'vendor/…' imports
@@ -119,18 +122,20 @@ export default defineConfig(async ({ command }): Promise<UserConfig> => {
         plugins: [
             extensionComponentAliasesPlugin(extensionAliases, coreAliases),
             componentMapPlugin(),
-            devImportMapPlugin(projectRoot, scssLoadPaths),
-            devServerNoticePlugin(),
+            devImportMapPlugin(projectRoot, scssLoadPaths, { devUpdate }),
+            devServerNoticePlugin(devUpdate),
             scopedSubpathExportsPlugin(path.resolve(import.meta.dirname, 'node_modules')),
             extensionModuleResolverPlugin(projectRoot),
             plainCssShimPlugin(plainCssShims),
-            themeScssWatcherPlugin(projectRoot),
+            themeScssWatcherPlugin(projectRoot, { devUpdate }),
         ],
         server: {
             port: Number(process.env.STOREFRONT_VITE_PORT ?? 5175),
             host: storefrontViteHost ?? 'localhost',
             origin: storefrontViteOrigin,
             cors: true,
+            // Manual mode sends nothing to the page, so the HMR websocket is not needed.
+            ...(devUpdate === 'manual' ? { hmr: false } : {}),
             fs: {
                 // Allow Vite to serve component sources from any bundle under
                 // the project root via the /@fs/ prefix.

@@ -832,6 +832,22 @@ For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-
 
 ## Storefront
 
+### Choose how the Storefront Vite dev server updates the page
+
+The Vite dev server of the Storefront (`composer storefront:dev-server`) now loads the Vite client, so style changes reach the open page without a manual reload.
+`SHOPWARE_STOREFRONT_DEV_UPDATE` selects how a change is applied:
+
+- `reload` is the default and reloads the page.
+- `hmr` applies the change to the open page in place, for example with a CSS swap that keeps the page state.
+- `manual` sends nothing to the page, as before.
+
+The variable is read from the shell, `.env.local`, or `.env` of the project root.
+The webpack hot proxy (`composer watch:storefront`) does not use it.
+
+```bash
+SHOPWARE_STOREFRONT_DEV_UPDATE=hmr composer storefront:dev-server
+```
+
 ### Skip link for listing filters
 
 Category, landing and search pages with a filtered product listing now offer a "Skip to products" link in the skip-to-content bar, so keyboard users can jump past the filters to the products.

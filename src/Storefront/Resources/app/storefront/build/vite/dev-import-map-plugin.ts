@@ -4,6 +4,7 @@ import type { Plugin, ViteDevServer } from 'vite';
 import { glob } from 'tinyglobby';
 import { compileAsync } from 'sass-embedded';
 import { normalizeComponentEntryName } from './component-entry-name.cjs';
+import type { StorefrontDevUpdate } from './storefront-dev-update';
 
 type BundleEntry = {
     basePath?: string;
@@ -56,10 +57,15 @@ function fileToTag(relPath: string, namespace: string | undefined): string {
  *
  *   scripts  — an ordered array of Vite dev-server JS entry URLs. PHP uses
  *              these to replace the compiled theme JS bundle with live Vite
- *              modules. The first entry is always the core storefront
- *              main.js; any plugin bundles with a storefront entryFilePath
- *              follow in plugins.json order. Present only when
- *              var/plugins.json exists.
+ *              modules. The first entry is the Vite client (/@vite/client),
+ *              which connects to the dev server and applies reloads and CSS
+ *              updates. No Storefront module uses import.meta.hot, so Vite
+ *              would not load it on its own. In manual mode
+ *              (SHOPWARE_STOREFRONT_DEV_UPDATE=manual) the client is left out,
+ *              because nothing is sent to the page. The core
+ *              storefront main.js follows, then any plugin bundles with a
+ *              storefront entryFilePath in plugins.json order. Present only
+ *              when var/plugins.json exists.
  *
  *   themeId  — the dumped theme id from var/theme-files.json. PHP compares
  *              this against the current sales-channel theme to decide whether
@@ -75,8 +81,13 @@ function fileToTag(relPath: string, namespace: string | undefined): string {
  * @param projectRoot  Absolute path to the Shopware project root.
  * @param scssLoadPaths  Additional SCSS load paths forwarded to the on-the-fly
  *                       component SCSS compiler (vendor/, src/scss/, …).
+ * @param options.devUpdate  How a change reaches the page: reload (default), hmr, or manual.
  */
-export function devImportMapPlugin(projectRoot: string, scssLoadPaths: string[] = []): Plugin {
+export function devImportMapPlugin(
+    projectRoot: string,
+    scssLoadPaths: string[] = [],
+    { devUpdate = 'reload' }: { devUpdate?: StorefrontDevUpdate } = {},
+): Plugin {
     const flagFile = path.join(projectRoot, 'var/cache/storefront_components.dev.json');
     let viteRoot = '';
     const resolveBundleBasePath = (basePath?: string): string => path.resolve(projectRoot, basePath ?? '');
@@ -135,10 +146,10 @@ export function devImportMapPlugin(projectRoot: string, scssLoadPaths: string[] 
 
             // Component style files (.scss and .css) are served through the
             // /__sw-comp-css/ middleware, not through Vite's module graph, so
-            // nothing would trigger a client reload when they change. Watch
+            // nothing would trigger a client update when they change. Watch
             // every component root recursively so chokidar surfaces change/
-            // add/unlink events for sibling style files; a full-reload makes
-            // the browser re-request the stylesheet, at which point the
+            // add/unlink events for sibling style files; a css-update makes
+            // the browser re-request the stylesheets, at which point the
             // middleware serves the fresh content. SCSS partials imported via
             // `@use`/`@import` are picked up too as long as they live under a
             // watched component root (the normal authoring location — a
@@ -279,7 +290,8 @@ export function devImportMapPlugin(projectRoot: string, scssLoadPaths: string[] 
             // targets in dev mode — matching the per-file CSS behaviour of the
             // production Vite build.
             server.middlewares.use(COMP_CSS_PREFIX, (req, res, next) => {
-                const relUrl = req.url?.replace(/^\//, '') ?? '';
+                // The Vite client requests swapped styles with a `?t=` query.
+                const relUrl = req.url?.split('?')[0]?.replace(/^\//, '') ?? '';
 
                 // Determine namespace and file path from the URL.
                 // URLs look like "ComponentTestApp/Wusel/Dusel.scss" (namespaced)
@@ -339,6 +351,19 @@ export function devImportMapPlugin(projectRoot: string, scssLoadPaths: string[] 
                     .catch(() => next());
             });
 
+            // Dev-server paths of all component stylesheets, in <link> order.
+            const getComponentStylePaths = (): string[] => {
+                const paths: string[] = [];
+                for (const bundle of componentBundles) {
+                    for (const file of Array.from(styleEntriesByBundle.get(bundle.bundleName) ?? [])) {
+                        const namespacedPath = bundle.namespace ? `${bundle.namespace}/${file}` : file;
+                        paths.push(`${COMP_CSS_PREFIX}${namespacedPath}`);
+                    }
+                }
+
+                return paths;
+            };
+
             const write = (): void => {
                 const origin = resolveDevOrigin(server);
                 const imports: Record<string, string> = {};
@@ -388,16 +413,8 @@ export function devImportMapPlugin(projectRoot: string, scssLoadPaths: string[] 
                     ? [`${origin}/theme-scss/all.css`]
                     : [];
 
-                for (const bundle of componentBundles) {
-                    const styleFiles = styleEntriesByBundle.get(bundle.bundleName);
-                    if (!styleFiles || styleFiles.size === 0) {
-                        continue;
-                    }
-
-                    for (const file of Array.from(styleFiles)) {
-                        const namespacedPath = bundle.namespace ? `${bundle.namespace}/${file}` : file;
-                        styles.push(`${origin}${COMP_CSS_PREFIX}${namespacedPath}`);
-                    }
+                for (const stylePath of getComponentStylePaths()) {
+                    styles.push(`${origin}${stylePath}`);
                 }
 
                 // JS bundle entry URLs — replaces the Webpack hot proxy in dev.
@@ -408,7 +425,10 @@ export function devImportMapPlugin(projectRoot: string, scssLoadPaths: string[] 
                 // 'storefront' is the core entry, not a plugin.
                 const scripts: string[] = [];
                 if (fs.existsSync(pluginsJsonPath)) {
-                    // Core storefront entry is always first.
+                    // The Vite client is first, then the core storefront entry.
+                    if (devUpdate !== 'manual') {
+                        scripts.push(`${origin}/@vite/client`);
+                    }
                     scripts.push(`${origin}/src/main.js`);
 
                     for (const [, bundle] of Object.entries(bundles)) {
@@ -433,25 +453,69 @@ export function devImportMapPlugin(projectRoot: string, scssLoadPaths: string[] 
                 void cachesReady.then(() => write());
             });
 
-            // Full-reload on component style changes. On add/unlink the dev
-            // flag file must be rewritten first so the new <link> list (PHP
-            // reads it to render <link rel="stylesheet"> tags) matches the
-            // files on disk before the browser reloads.
+            // A changed component style reloads the page. In hmr mode it swaps
+            // every component <link> in place instead, because the file can be a
+            // partial that other stylesheets import. The Vite client skips paths
+            // that have no <link> on the page.
+            // On add/unlink the <link> list changes, so the dev flag file is
+            // rewritten first (PHP reads it to render the <link> tags) and the
+            // page is reloaded in both modes.
+            // In manual mode the change is only logged.
             const onStyleEvent = (event: 'changed' | 'added' | 'removed', file: string): void => {
                 if (!isComponentStyleFile(file)) return;
 
-                const notify = (): void => {
+                const relativeFile = path.relative(projectRoot, file);
+
+                if (event === 'changed' && devUpdate === 'manual') {
                     server.config.logger.info(
-                        `[sw-dev-import-map] component style ${event}: ${path.relative(projectRoot, file)} → full reload`,
+                        `[sw-dev-import-map] component style changed: ${relativeFile}, reload the page to see it`,
+                        { timestamp: true },
+                    );
+                    return;
+                }
+
+                if (event === 'changed' && devUpdate === 'reload') {
+                    server.config.logger.info(
+                        `[sw-dev-import-map] component style changed: ${relativeFile} → page reload`,
+                        { timestamp: true },
+                    );
+                    server.ws.send({ type: 'full-reload' });
+                    return;
+                }
+
+                if (event === 'changed') {
+                    server.config.logger.info(
+                        `[sw-dev-import-map] component style changed: ${relativeFile} → css update`,
+                        { timestamp: true },
+                    );
+                    const timestamp = Date.now();
+                    server.ws.send({
+                        type: 'update',
+                        updates: getComponentStylePaths().map(stylePath => ({
+                            type: 'css-update' as const,
+                            path: stylePath,
+                            acceptedPath: stylePath,
+                            timestamp,
+                        })),
+                    });
+                    return;
+                }
+
+                const notify = (): void => {
+                    if (devUpdate === 'manual') {
+                        server.config.logger.info(
+                            `[sw-dev-import-map] component style ${event}: ${relativeFile}, reload the page to see it`,
+                            { timestamp: true },
+                        );
+                        return;
+                    }
+
+                    server.config.logger.info(
+                        `[sw-dev-import-map] component style ${event}: ${relativeFile} → full reload`,
                         { timestamp: true },
                     );
                     server.ws.send({ type: 'full-reload' });
                 };
-
-                if (event === 'changed') {
-                    notify();
-                    return;
-                }
 
                 // add/remove: regenerate the dev flag file first, then reload.
                 const cacheEvent = event === 'added' ? 'add' : 'unlink';

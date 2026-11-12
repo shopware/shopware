@@ -52,6 +52,13 @@ Environment overrides:
 - `STOREFRONT_VITE_HOST` - bind host for Vite (default `localhost`)
 - `STOREFRONT_VITE_ORIGIN` - absolute URL used in `storefront_components.dev.json`
   (useful in Docker/WSL/remote setups, e.g. `http://host.docker.internal:5175`)
+- `SHOPWARE_STOREFRONT_DEV_UPDATE` - how a source change reaches the open page
+  - `reload` (default) - the page reloads
+  - `hmr` - the change is applied to the open page in place
+  - `manual` - nothing is sent to the page, you reload it yourself
+
+`SHOPWARE_STOREFRONT_DEV_UPDATE` is read from the shell first, then from the `.env.local` and `.env` of the project root.
+Put it into `.env.local` to keep your choice for every session.
 
 When the dev server stops, Shopware falls back to production assets/import map.
 
@@ -114,14 +121,24 @@ When the dev server stops, Shopware falls back to production assets/import map.
   - dev-only plugin
   - writes `var/cache/storefront_components.dev.json`
   - provides dev import map + styles/scripts URLs
+  - puts the Vite client (`/@vite/client`) first in `scripts`, because no Storefront module uses `import.meta.hot`
+  - leaves the Vite client out in `manual` mode
   - serves component styles via `/__sw-comp-css/...`
-  - watches component style changes and triggers full reloads
+  - reloads the page on a style change, or swaps component styles in place in `hmr` mode
+  - reloads the page when a style file is added or removed
 
 - `vite/theme-scss-watcher-plugin.ts`
   - dev-only plugin for theme SCSS
   - reads `var/theme-files.json`, compiles all theme style entries together
   - serves result at `/theme-scss/all.css`
   - watches SCSS graph and `theme-files.json`
+  - compiles once on a SCSS change, then reloads the page, or swaps `/theme-scss/all.css` in place in `hmr` mode
+  - shows the Vite error overlay when the SCSS does not compile
+  - reloads the page when `theme-files.json` changes
+  - only logs changes in `manual` mode
+
+- `vite/storefront-dev-update.ts`
+  - reads `SHOPWARE_STOREFRONT_DEV_UPDATE` and falls back to `reload` for an unset or unknown value
 
 - `vite/dev-server-notice-plugin.ts`
   - dev-only UX plugin

@@ -17,6 +17,8 @@ use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\Http\McpHttpTransportFactory;
 use Shopware\Core\Framework\Mcp\McpJsonRpcResponse;
+use Shopware\Core\Framework\Mcp\McpProtocolEra;
+use Shopware\Core\Framework\Mcp\McpServerInstructions;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
@@ -117,7 +119,10 @@ class McpServerController
             $psrResponse = $this->enrichInitializeResponse($request, $psrResponse);
         }
 
-        return $this->transportFactory->createResponse($psrResponse);
+        $response = $this->transportFactory->createResponse($psrResponse);
+        McpServerInstructions::applyToStatelessDiscover($request, $response);
+
+        return $response;
     }
 
     /**
@@ -154,6 +159,11 @@ class McpServerController
      */
     private function syncListVersions(Request $request, PsrResponseInterface $psrResponse): void
     {
+        // The stateless era has no session to sync, and an Mcp-Session-Id sent on it is not bound to the caller.
+        if (McpProtocolEra::isStateless($request)) {
+            return;
+        }
+
         $requestSessionId = $request->headers->get(PlatformRequest::HEADER_MCP_SESSION_ID) ?? '';
         $sessionId = $requestSessionId ?: $psrResponse->getHeaderLine(PlatformRequest::HEADER_MCP_SESSION_ID);
 

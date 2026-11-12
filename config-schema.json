@@ -395,6 +395,31 @@
                     "type": "integer",
                     "minimum": 60,
                     "title": "Seconds a stored oversized MCP tool result is kept before the cleanup task removes it. The task runs hourly, so a result can stay up to an hour longer."
+                },
+                "protocol_era": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "admin": {
+                            "type": "string",
+                            "enum": [
+                                "legacy",
+                                "auto"
+                            ],
+                            "default": "legacy",
+                            "title": "MCP protocol revisions the Admin API endpoint serves. \"legacy\" serves the handshake revisions up to 2025-11-25. \"auto\" also serves the stateless 2026-07-28 revision, and the client picks."
+                        },
+                        "store_api": {
+                            "type": "string",
+                            "enum": [
+                                "legacy",
+                                "auto"
+                            ],
+                            "default": "legacy",
+                            "title": "MCP protocol revisions the Store API endpoint serves. \"legacy\" serves the handshake revisions up to 2025-11-25. \"auto\" also serves the stateless 2026-07-28 revision, and the client picks."
+                        }
+                    },
+                    "title": "MCP protocol revisions each endpoint serves."
                 }
             },
             "title": "MCP (Model Context Protocol)"

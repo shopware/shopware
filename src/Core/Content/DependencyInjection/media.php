@@ -5,8 +5,8 @@ namespace Shopware\Core\Content\DependencyInjection;
 use Doctrine\DBAL\Connection;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Clock\ClockInterface;
-use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\LandingPage\LandingPageDefinition;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
+use Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation\LandingPageTranslationDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationDefinition;
@@ -98,7 +98,7 @@ use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
 use Shopware\Core\Content\Media\Upload\PresignedUploadUrlGenerator;
 use Shopware\Core\Content\Media\Upload\PresignedUrlGeneratorInterface;
-use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -644,7 +644,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(IteratorFactory::class),
             service(Connection::class),
             service(CmsSlotMediaIdResolver::class),
-            service(CategoryDefinition::class),
+            service(CategoryTranslationDefinition::class),
         ]);
 
     $services->set('product_translation_media_usage.indexer', SlotConfigOverrideMediaUsageIndexer::class)
@@ -653,7 +653,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(IteratorFactory::class),
             service(Connection::class),
             service(CmsSlotMediaIdResolver::class),
-            service(ProductDefinition::class),
+            service(ProductTranslationDefinition::class),
         ]);
 
     $services->set('landing_page_translation_media_usage.indexer', SlotConfigOverrideMediaUsageIndexer::class)
@@ -662,7 +662,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(IteratorFactory::class),
             service(Connection::class),
             service(CmsSlotMediaIdResolver::class),
-            service(LandingPageDefinition::class),
+            service(LandingPageTranslationDefinition::class),
         ]);
 
     $services->set(MediaFolderConfigurationIndexer::class)

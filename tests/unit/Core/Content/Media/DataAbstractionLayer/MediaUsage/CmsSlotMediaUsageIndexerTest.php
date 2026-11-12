@@ -88,14 +88,31 @@ class CmsSlotMediaUsageIndexerTest extends TestCase
         $imageId = Uuid::randomHex();
 
         $this->connection->method('fetchAllAssociative')->willReturn([
-            ['cms_page_id' => $pageId, 'cms_page_version_id' => $versionId, 'cms_slot_id' => $slotId, 'cms_slot_version_id' => $versionId, 'type' => 'image', 'config' => json_encode(['media' => ['source' => 'static', 'value' => $imageId]])],
-            ['cms_page_id' => $pageId, 'cms_page_version_id' => $versionId, 'cms_slot_id' => Uuid::randomBytes(), 'cms_slot_version_id' => $versionId, 'type' => 'text', 'config' => json_encode(['content' => ['source' => 'static', 'value' => Uuid::randomHex()]])],
+            ['cms_slot_version_id' => Uuid::fromBytesToHex($versionId), 'cms_page_id' => $pageId, 'cms_page_version_id' => $versionId, 'cms_slot_id' => $slotId, 'type' => 'image', 'config' => json_encode(['media' => ['source' => 'static', 'value' => $imageId]])],
         ]);
 
         $this->indexer->handle(new EntityIndexingMessage([Uuid::fromBytesToHex($slotId)]));
 
-        static::assertSame([$slotId], $this->getReplacedIds(), 'the previous usages of the slot are removed');
+        static::assertSame([[$versionId, [$slotId]]], $this->getDeletes(), 'the previous usages of the slot are removed');
         static::assertSame([[$pageId, $versionId, $slotId, $versionId, Uuid::fromHexToBytes($imageId)]], $this->getInsertedRows(columns: 5));
+    }
+
+    public function testReplacesTheUsagesOfEachVersionOfTheSlotSeparately(): void
+    {
+        $pageId = Uuid::randomBytes();
+        $slotId = Uuid::randomBytes();
+        $liveVersionId = Uuid::randomBytes();
+        $draftVersionId = Uuid::randomBytes();
+        $config = json_encode(['media' => ['source' => 'static', 'value' => Uuid::randomHex()]]);
+
+        $this->connection->method('fetchAllAssociative')->willReturn([
+            ['cms_slot_version_id' => Uuid::fromBytesToHex($liveVersionId), 'cms_page_id' => $pageId, 'cms_page_version_id' => $liveVersionId, 'cms_slot_id' => $slotId, 'type' => 'image', 'config' => $config],
+            ['cms_slot_version_id' => Uuid::fromBytesToHex($draftVersionId), 'cms_page_id' => $pageId, 'cms_page_version_id' => $draftVersionId, 'cms_slot_id' => $slotId, 'type' => 'image', 'config' => $config],
+        ]);
+
+        $this->indexer->handle(new EntityIndexingMessage([Uuid::fromBytesToHex($slotId)]));
+
+        static::assertSame([[$liveVersionId, [$slotId]], [$draftVersionId, [$slotId]]], $this->getDeletes());
     }
 
     public function testDoesNothingWithoutSlots(): void
@@ -118,17 +135,18 @@ class CmsSlotMediaUsageIndexerTest extends TestCase
     }
 
     /**
-     * @return list<string> binary ids whose usages were removed before inserting the current ones
+     * @return list<array{string, list<string>}> the binary version and ids of every delete
      */
-    private function getReplacedIds(): array
+    private function getDeletes(): array
     {
+        $deletes = [];
         foreach ($this->statements as $params) {
-            if (isset($params['ids']) && \is_array($params['ids'])) {
-                return array_values($params['ids']);
+            if (isset($params['ids'], $params['version']) && \is_array($params['ids'])) {
+                $deletes[] = [(string) $params['version'], array_values(array_map(strval(...), $params['ids']))];
             }
         }
 
-        return [];
+        return $deletes;
     }
 
     /**

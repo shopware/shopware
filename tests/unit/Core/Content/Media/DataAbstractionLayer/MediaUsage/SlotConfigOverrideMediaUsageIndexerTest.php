@@ -15,7 +15,6 @@ use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\CmsSlotMediaIdRe
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\SlotConfigOverrideMediaUsageIndexer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -54,7 +53,7 @@ class SlotConfigOverrideMediaUsageIndexerTest extends TestCase
 
     public function testIsNamedAfterTheTableOfItsEntity(): void
     {
-        static::assertSame('category_translation_media_usage.indexer', $this->createIndexer(CategoryDefinition::class)->getName());
+        static::assertSame('category_translation_media_usage.indexer', $this->createIndexer()->getName());
     }
 
     public function testIndexesEntitiesWithChangedOverrides(): void
@@ -62,7 +61,7 @@ class SlotConfigOverrideMediaUsageIndexerTest extends TestCase
         $categoryId = Uuid::randomHex();
         $primaryKey = ['categoryId' => $categoryId, 'languageId' => Uuid::randomHex()];
 
-        $message = $this->createIndexer(CategoryDefinition::class)->update($this->createEvent(CategoryTranslationDefinition::ENTITY_NAME, $primaryKey, ['slotConfig' => []]));
+        $message = $this->createIndexer()->update($this->createEvent(CategoryTranslationDefinition::ENTITY_NAME, $primaryKey, ['slotConfig' => []]));
 
         static::assertInstanceOf(EntityIndexingMessage::class, $message);
         static::assertSame([$categoryId], $message->getData());
@@ -72,7 +71,7 @@ class SlotConfigOverrideMediaUsageIndexerTest extends TestCase
     {
         $primaryKey = ['categoryId' => Uuid::randomHex(), 'languageId' => Uuid::randomHex()];
 
-        static::assertNull($this->createIndexer(CategoryDefinition::class)->update($this->createEvent(CategoryTranslationDefinition::ENTITY_NAME, $primaryKey, ['name' => 'category'])));
+        static::assertNull($this->createIndexer()->update($this->createEvent(CategoryTranslationDefinition::ENTITY_NAME, $primaryKey, ['name' => 'category'])));
     }
 
     public function testMapsTheMediaOfOverridesToTheirOwner(): void
@@ -87,45 +86,44 @@ class SlotConfigOverrideMediaUsageIndexerTest extends TestCase
         $this->connection->method('fetchAllAssociative')->willReturn([$translation]);
         $this->connection->method('fetchAllKeyValue')->willReturn([$slotId => 'image']);
 
-        $this->createIndexer(CategoryDefinition::class)->handle(new EntityIndexingMessage([Uuid::fromBytesToHex($translation['id'])]));
+        $this->createIndexer()->handle(new EntityIndexingMessage([Uuid::fromBytesToHex($translation['id'])]));
 
         static::assertSame([$translation['id']], $this->getReplacedIds(), 'the previous usages of the category are removed');
         static::assertSame(
-            [[$translation['id'], $translation['version_id'], $translation['language_id'], Uuid::fromHexToBytes($imageId)]],
+            [[$translation['id'], Uuid::fromHexToBytes($translation['version_id']), $translation['language_id'], Uuid::fromHexToBytes($imageId)]],
             $this->getInsertedRows(columns: 4),
             'overrides of slots which are not known are ignored'
         );
     }
 
-    /**
-     * @param class-string<EntityDefinition> $definition
-     */
-    private function createIndexer(string $definition): SlotConfigOverrideMediaUsageIndexer
+    private function createIndexer(): SlotConfigOverrideMediaUsageIndexer
     {
         $registry = new StaticDefinitionInstanceRegistry(
             [CategoryDefinition::class, CategoryTranslationDefinition::class],
             static::createStub(ValidatorInterface::class),
             static::createStub(EntityWriteGatewayInterface::class)
         );
+        $definition = $registry->get(CategoryTranslationDefinition::class);
+        static::assertInstanceOf(CategoryTranslationDefinition::class, $definition);
 
         return new SlotConfigOverrideMediaUsageIndexer(
             static::createStub(IteratorFactory::class),
             $this->connection,
             new CmsSlotMediaIdResolver([new CmsElementMediaIdsProvider(new ImageCmsElementResolver(static::createStub(AbstractDefaultMediaResolver::class)), ['media'])]),
-            $registry->get($definition),
+            $definition,
         );
     }
 
     /**
      * @param array<string, mixed> $overrides
      *
-     * @return array{id: string, version_id: string, language_id: string, slot_config: string}
+     * @return array{version_id: string, id: string, language_id: string, slot_config: string} the version id as hex like the query selects it
      */
     private function createTranslation(array $overrides): array
     {
         return [
+            'version_id' => Uuid::randomHex(),
             'id' => Uuid::randomBytes(),
-            'version_id' => Uuid::randomBytes(),
             'language_id' => Uuid::randomBytes(),
             'slot_config' => (string) json_encode($overrides),
         ];

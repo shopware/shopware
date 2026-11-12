@@ -187,6 +187,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
     {
         yield 'IPv4 is kept' => ['10.0.0.1', '10.0.0.1'];
         yield 'IPv6 is grouped by /64' => ['2001:db8:1:2:3:4:5:6', '2001:db8:1:2::'];
+        yield 'IPv4 mapped in IPv6 is kept' => ['::ffff:192.0.2.10', '::ffff:192.0.2.10'];
     }
 
     public function testMailSentByAdminSkipsTheClientLimit(): void

@@ -348,7 +348,6 @@ class DocumentTemplateRendererTest extends TestCase
         ]));
         $twig->addExtension(new IntlExtension());
 
-        /** @var CoreExtension $coreExtension */
         $coreExtension = $twig->getExtension(CoreExtension::class);
         $coreExtension->setTimezone('UTC');
 

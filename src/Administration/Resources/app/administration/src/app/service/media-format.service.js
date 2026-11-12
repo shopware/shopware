@@ -5,15 +5,15 @@
 /**
  * List of video formats that are playable in most browsers
  * @type {string[]}
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const PLAYABLE_VIDEO_FORMATS = ['video/mp4', 'video/ogg', 'video/webm'];
 
 /**
  * List of audio formats that are playable in most browsers
  * @type {string[]}
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const PLAYABLE_AUDIO_FORMATS = [
     'audio/mp3',
     'audio/mpeg',
@@ -24,8 +24,8 @@ export const PLAYABLE_AUDIO_FORMATS = [
 /**
  * Combined list of all playable media formats
  * @type {string[]}
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const PLAYABLE_MEDIA_FORMATS = [...PLAYABLE_VIDEO_FORMATS, ...PLAYABLE_AUDIO_FORMATS];
 
 /**

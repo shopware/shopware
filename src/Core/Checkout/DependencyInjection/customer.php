@@ -68,6 +68,7 @@ use Shopware\Core\Checkout\Customer\Subscriber\CustomerBeforeDeleteSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerChangePasswordSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerEmailUniqueSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerFlowEventsSubscriber;
+use Shopware\Core\Checkout\Customer\Subscriber\CustomerGroupPriceBasisSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerGroupRegistrationSeoUrlSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerLanguageSalesChannelSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerLogoutSubscriber;
@@ -278,7 +279,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('customer_group.repository'),
             service('seo_url.repository'),
-            service('language.repository'),
             service(SeoUrlPersister::class),
             service('slugify'),
         ])
@@ -707,6 +707,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
         ])
         ->tag('kernel.event_subscriber');
+
+    $services->set(CustomerGroupPriceBasisSubscriber::class)
+        ->tag('kernel.event_subscriber')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(CustomerAddressSubscriber::class)
         ->tag('kernel.event_subscriber');

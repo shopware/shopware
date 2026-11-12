@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\Content\Category\Validation;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -93,7 +92,6 @@ class EntryPointValidatorTest extends TestCase
             ],
         ], $context);
 
-        /** @var CategoryEntity|null $category */
         $category = $this->categoryRepository->search(new Criteria([$categoryId]), $context)->getEntities()->first();
         static::assertNotNull($category);
         static::assertSame(CategoryDefinition::TYPE_PAGE, $category->getType());

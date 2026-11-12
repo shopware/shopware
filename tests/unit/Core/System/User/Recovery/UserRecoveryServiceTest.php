@@ -23,9 +23,7 @@ use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryDefinition;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 use Shopware\Core\System\User\Recovery\UserRecoveryService;
-use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserDefinition;
-use Shopware\Core\System\User\UserEntity;
 use Shopware\Core\System\User\UserException;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Clock\NativeClock;
@@ -70,7 +68,7 @@ class UserRecoveryServiceTest extends TestCase
         $recoveryEntity->setUniqueIdentifier(Uuid::randomHex());
 
         $userRepository = new StaticEntityRepository([
-            new UserCollection([]),
+            [],
         ], new UserDefinition());
 
         $recoveryRepository = new StaticEntityRepository([
@@ -111,9 +109,6 @@ class UserRecoveryServiceTest extends TestCase
 
         $userEmail = 'existing@example.com';
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
-        $user = new UserEntity();
-        $user->setUniqueIdentifier(Uuid::randomHex());
-        $user->setId(Uuid::randomHex());
 
         $recoveryEntity = new UserRecoveryEntity();
         $recoveryEntity->setUniqueIdentifier(Uuid::randomHex());
@@ -121,11 +116,11 @@ class UserRecoveryServiceTest extends TestCase
         $recoveryEntity->setHash(Uuid::randomHex());
 
         $userRepository = new StaticEntityRepository([
-            new UserCollection([$user]),
+            [Uuid::randomHex()],
         ], new UserDefinition());
 
         $recoveryRepository = new StaticEntityRepository([
-            new UserRecoveryCollection([$recoveryEntity]),
+            [$recoveryEntity->getId()],
             new UserRecoveryCollection([$recoveryEntity]),
         ], new UserRecoveryDefinition());
 
@@ -163,10 +158,7 @@ class UserRecoveryServiceTest extends TestCase
 
         $userEmail = 'existing@example.com';
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
-        $user = new UserEntity();
         $recoveryEntity = new UserRecoveryEntity();
-        $user->setUniqueIdentifier(Uuid::randomHex());
-        $user->setId(Uuid::randomHex());
         $recoveryEntity->setUniqueIdentifier(Uuid::randomHex());
         $recoveryEntity->setId(Uuid::randomHex());
         $recoveryEntity->setHash(Uuid::randomHex());
@@ -177,11 +169,11 @@ class UserRecoveryServiceTest extends TestCase
         $salesChannelEntity->setCurrencyId(Uuid::randomHex());
 
         $userRepository = new StaticEntityRepository([
-            new UserCollection([$user]),
+            [Uuid::randomHex()],
         ], new UserDefinition());
 
         $recoveryRepository = new StaticEntityRepository([
-            new UserRecoveryCollection([$recoveryEntity]),
+            [$recoveryEntity->getId()],
             new UserRecoveryCollection([$recoveryEntity]),
         ], new UserRecoveryDefinition());
 
@@ -225,24 +217,21 @@ class UserRecoveryServiceTest extends TestCase
 
         $userEmail = 'existing@example.com';
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
-        $user = new UserEntity();
         $recoveryEntity = new UserRecoveryEntity();
         $salesChannelEntity = new SalesChannelEntity();
         $salesChannelEntity->setUniqueIdentifier(Uuid::randomHex());
         $salesChannelEntity->setId(Uuid::randomHex());
         $salesChannelEntity->setLanguageId(Uuid::randomHex());
         $salesChannelEntity->setCurrencyId(Uuid::randomHex());
-        $user->setUniqueIdentifier(Uuid::randomHex());
-        $user->setId(Uuid::randomHex());
         $recoveryEntity->setUniqueIdentifier(Uuid::randomHex());
         $recoveryEntity->setHash(Uuid::randomHex());
 
         $userRepository = new StaticEntityRepository([
-            new UserCollection([$user]),
+            [Uuid::randomHex()],
         ], new UserDefinition());
 
         $recoveryRepository = new StaticEntityRepository([
-            new UserRecoveryCollection([]),
+            [],
             new UserRecoveryCollection([$recoveryEntity]),
         ], new UserRecoveryDefinition());
 
@@ -386,10 +375,6 @@ class UserRecoveryServiceTest extends TestCase
 
     private function getGeneratedRecoveryUrl(RouterInterface $router): string
     {
-        $user = new UserEntity();
-        $user->setUniqueIdentifier(Uuid::randomHex());
-        $user->setId(Uuid::randomHex());
-
         $recoveryEntity = new UserRecoveryEntity();
         $recoveryEntity->setUniqueIdentifier(Uuid::randomHex());
         $recoveryEntity->setId(Uuid::randomHex());
@@ -416,18 +401,15 @@ class UserRecoveryServiceTest extends TestCase
                 return $event;
             });
 
-        /** @var StaticEntityRepository<UserRecoveryCollection> $recoveryRepository */
         $recoveryRepository = new StaticEntityRepository([
-            new UserRecoveryCollection([]),
+            [],
             new UserRecoveryCollection([$recoveryEntity]),
         ], new UserRecoveryDefinition());
 
-        /** @var StaticEntityRepository<UserCollection> $userRepository */
         $userRepository = new StaticEntityRepository([
-            new UserCollection([$user]),
+            [Uuid::randomHex()],
         ], new UserDefinition());
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([
             new SalesChannelCollection([$salesChannelEntity]),
         ], new SalesChannelDefinition());

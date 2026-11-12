@@ -74,7 +74,7 @@ Different projects need different first steps. Pick the path that fits what you 
 | :--- | :--- | :--- |
 | **Explore Shopware** | [Create a demo store](https://hub.shopware.com/build) | Try a hosted shop without local installation. The demo has limitations. |
 | **Build my own shop** | [Run Shopware locally](#run-shopware-locally) | Create a development project with the Shopware CLI and Docker. |
-| **Build an extension or theme** | [Explore extension guides](https://developer.shopware.com/docs/guides/plugins/) | Choose between apps, plugins, themes, and API-based frontends. |
+| **Build an extension or theme** | [Explore extension guides](https://developer.shopware.com/docs/guides/plugins/) | Choose between apps, plugins, themes, and API-based frontends. Scaffold a plugin or theme with `shopware-cli extension create`, then add example features with `shopware-cli extension add`. |
 | **Contribute to Shopware core** | [Read the contribution guide](https://github.com/shopware/shopware/blob/trunk/CONTRIBUTING.md) | Follow the upstream contribution workflow, which differs from a merchant project. |
 
 **Curious about an experimental alternative?** A [community browser playground](https://agentic-commerce-lab.github.io/shopware-claude-commerce/) runs a Shopware demonstration using WebAssembly. It is a separate experiment, not the official hosted demo or production hosting. Optional agent features may require your own API key and provider charges.
@@ -83,7 +83,9 @@ Different projects need different first steps. Pick the path that fits what you 
 
 ## Why developers choose Shopware
 
-**Build the interesting part. Keep the commerce foundation.** Shopware is a PHP application based on Symfony, with a Vue.js administration, a Twig storefront, and APIs and extension points throughout the platform.
+**Own your stack. No vendor lock-in.** The MIT-licensed core runs wherever you choose to host it, and your code, data, and extensions stay yours. Development happens in the open on GitHub, so you can follow every change, see where the platform is heading, and contribute your own solutions back.
+
+Under the hood, Shopware is a Symfony application with a Vue.js administration, a Twig storefront, and APIs and extension points throughout the platform.
 
 | Part | Technology |
 | :--- | :--- |
@@ -108,66 +110,11 @@ Shopware supports different extension models:
 
 ## Run Shopware locally
 
-**Pick your system. Create your project. Open your shop.** The official Shopware CLI offers a guided Docker-based development environment.
+We recommend the [Shopware CLI](https://developer.shopware.com/docs/products/tools/cli/) to create, develop, build, and validate your Shopware projects and extensions, with plenty more built-in features. Its interactive dashboard shows credentials, health checks, live logs, and more. The recommended Docker setup adds a production-like environment and lets you run several Shopware versions side by side, each on its own local HTTPS hostname.
 
-### 1. Install Docker and the Shopware CLI
+**[Start Shopware in minutes →](https://developer.shopware.com/)** Install the Shopware CLI, create a project, and open your shop, with step-by-step instructions. The [installation guide](https://developer.shopware.com/docs/guides/installation/) provides more details. This setup is for local development. Ready to go live? See the [hosting guide](https://developer.shopware.com/docs/guides/hosting/).
 
-<details>
-<summary><strong>macOS</strong></summary>
-
-Install [Docker Desktop](https://docs.docker.com/desktop/setup/install/mac-install/) and, with [Homebrew](https://brew.sh/) available, run:
-
-```bash
-brew install --cask shopware/tap/shopware-cli
-```
-
-See [other CLI installation options](https://developer.shopware.com/docs/products/tools/cli/installation.html) if needed.
-</details>
-
-<details>
-<summary><strong>Linux</strong></summary>
-
-Install [Docker Engine](https://docs.docker.com/engine/install/), the [Compose plugin](https://docs.docker.com/compose/install/linux/), and the CLI using the [official instructions](https://developer.shopware.com/docs/products/tools/cli/).
-</details>
-
-<details>
-<summary><strong>Windows</strong></summary>
-
-Enable [Docker Desktop with WSL 2 integration](https://docs.docker.com/desktop/features/wsl/). Install the CLI inside your Linux environment and run the following commands in the WSL terminal, not PowerShell.
-</details>
-
-### 2. Create and start a project
-
-```bash
-shopware-cli project create my-shop
-cd my-shop
-shopware-cli project dev
-```
-
-The interactive dashboard guides setup and shows environment details, logs, and health checks. The first start includes downloads and installation.
-
-### 3. Open your shop
-
-With the default configuration, visit the [storefront](http://127.0.0.1:8000) or [administration](http://127.0.0.1:8000/admin). Use the actual URLs and credentials shown by your CLI if your setup differs.
-
-Try creating a product, assigning it to the storefront sales channel, and opening it in the shop.
-
-<details>
-<summary><strong>Useful commands and troubleshooting</strong></summary>
-
-```bash
-shopware-cli project dev status
-shopware-cli project logs
-shopware-cli project dev stop
-shopware-cli project dev
-```
-
-See the [development environment reference](https://developer.shopware.com/docs/products/tools/cli/project-commands/dev-environment.html) for configuration and troubleshooting.
-</details>
-
-[Watch the official setup walkthrough](https://www.youtube.com/watch?v=KZhhjKWbDUY) · [Full CLI documentation](https://developer.shopware.com/docs/products/tools/cli/)
-
-This is a development setup, not production hosting. To contribute to Shopware itself, use the [upstream contribution setup](https://github.com/shopware/shopware/blob/trunk/CONTRIBUTING.md).
+Can't use Docker? Choose PHP and Composer when creating your project, and the Shopware CLI still handles the installation.
 
 ## Extend Shopware your way
 
@@ -187,6 +134,8 @@ This is an illustrative snippet; follow the [theme guides](https://developer.sho
 ## Build with your preferred coding agent
 
 Open source makes implementation details available to both developers and their tools. Coding agents can read project code, [agent instructions](https://github.com/shopware/shopware/blob/trunk/AGENTS.md), and [development skills](https://github.com/shopware/shopware/tree/trunk/.agents/skills) to help create and test extensions.
+
+The [Shopware CLI](https://developer.shopware.com/docs/products/tools/cli/) helps you discover Shopware AI tooling: run `shopware-cli ai list` to see the available agent skills and MCP servers, and `shopware-cli ai add` to install one into your coding agent. More integrations are on the way.
 
 A useful first task:
 

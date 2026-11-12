@@ -3,6 +3,12 @@ import { mount } from '@vue/test-utils';
 /**
  * @sw-package after-sales
  */
+const searchIds = jest.fn(() =>
+    Promise.resolve({
+        total: 20,
+    }),
+);
+
 async function createWrapper(privileges = [], routeName = 'sw.flow.index.flows') {
     return mount(
         await wrapTestComponent('sw-flow-index', {
@@ -55,10 +61,7 @@ async function createWrapper(privileges = [], routeName = 'sw.flow.index.flows')
                                 ]);
                             },
 
-                            searchIds: () =>
-                                Promise.resolve({
-                                    total: 20,
-                                }),
+                            searchIds,
                         }),
                     },
 
@@ -104,6 +107,17 @@ describe('module/sw-flow/page/sw-flow-index', () => {
         await flushPromises();
 
         expect(wrapper.find('.sw-page__smart-bar-amount').text()).toBe('(20)');
+    });
+
+    it('should count flows without loading every flow id', async () => {
+        searchIds.mockClear();
+        await createWrapper();
+        await flushPromises();
+
+        expect(searchIds).toHaveBeenCalledTimes(1);
+        const criteria = searchIds.mock.calls[0][0];
+        expect(criteria.limit).toBe(1);
+        expect(criteria.totalCountMode).toBe(1);
     });
 
     it('should search flows on the flows tab', async () => {

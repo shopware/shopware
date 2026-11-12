@@ -32,10 +32,10 @@
 
 const { reportTodo, isTwigFile } = require('./todo-comment');
 const { readComponentCall, elementName, stringValue } = require('./component-tags');
-const { findOverrides, targetAt, fileTargets } = require('./override-target');
+const { findOverrides, targetAt } = require('./override-target');
 const { declaredMembers, thisMemberName, destructuredThisMembers, templateMemberReferences } = require('./member-usage');
 const { shopwareAliases, memberPath, serviceCall } = require('./global-calls');
-const { twigTargets } = require('./twig-target');
+const { targetsOfTemplate } = require('./twig-target');
 const { twigInterpolations } = require('./twig-interpolations');
 
 const asList = (value) => (Array.isArray(value) ? value : [value]);
@@ -146,8 +146,6 @@ function createTodoRule(spec) {
                 memberPath: (node) => memberPath(node, aliases),
                 serviceCall: (node) => serviceCall(node, aliases),
                 targetAt: (node) => targetAt(context, node),
-                fileTargets: () => fileTargets(context),
-                twigTargets: () => twigTargets(context),
             };
 
             const scriptVisitors = {
@@ -266,8 +264,8 @@ function createTodoRule(spec) {
             }
 
             let templateTargets = null;
-            const targetsOfTemplate = () => {
-                templateTargets ??= isTwigFile(context) ? twigTargets(context) : fileTargets(context);
+            const targetsOfFile = () => {
+                templateTargets ??= targetsOfTemplate(context);
 
                 return templateTargets;
             };
@@ -305,7 +303,7 @@ function createTodoRule(spec) {
                     }
 
                     for (const identifier of templateMemberReferences(node)) {
-                        const entry = memberEntry(targetsOfTemplate(), identifier.name);
+                        const entry = memberEntry(targetsOfFile(), identifier.name);
 
                         if (entry) {
                             todo(identifier, entry.message, 'template');
@@ -320,7 +318,7 @@ function createTodoRule(spec) {
 
                     for (const { references } of twigInterpolations(context.sourceCode, node)) {
                         for (const identifier of references) {
-                            const entry = memberEntry(targetsOfTemplate(), identifier.name);
+                            const entry = memberEntry(targetsOfFile(), identifier.name);
 
                             if (entry) {
                                 todo(identifier, entry.message, 'template');

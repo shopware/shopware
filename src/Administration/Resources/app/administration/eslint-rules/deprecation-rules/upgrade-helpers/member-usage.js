@@ -152,9 +152,7 @@ function templateMemberReferences(container) {
 }
 
 module.exports = {
-    OPTION_KINDS,
     propertyName,
-    returnedObject,
     declaredMembers,
     thisMemberName,
     destructuredThisMembers,

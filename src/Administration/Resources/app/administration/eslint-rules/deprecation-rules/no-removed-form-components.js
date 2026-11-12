@@ -14,8 +14,9 @@
  */
 
 const { reportTodo } = require('./upgrade-helpers/todo-comment');
-const { readComponentCall, elementName, attributeName, attributeRemovalRange } = require('./upgrade-helpers/component-tags');
-const { TWIG_PATTERN, readContentExpression } = require('./no-deprecated-component-usage-checks/mt-tabs.check');
+const { readComponentCall, elementName, attributeName, attributeKey, normalizedName, attributeRemovalRange } = require('./upgrade-helpers/component-tags');
+const { fail, attempt } = require('./upgrade-helpers/unconvertible');
+const { TWIG_PATTERN, readContentExpression } = require('./utils/template-expressions');
 
 const ID = 'removed-form-components';
 
@@ -41,16 +42,6 @@ const OVERRIDE_MESSAGES = {
 function selectManualMessage(reason) {
     return 'sw-select-number-field is removed. Use mt-select with v-model and :options="[{ value: 1, label: \'…\' }]" '
         + `with numeric values. Not converted automatically because of ${reason}.`;
-}
-
-class Unconvertible extends Error {}
-
-function fail(reason) {
-    throw new Unconvertible(reason);
-}
-
-function normalize(name) {
-    return name.replace(/-/g, '').toLowerCase();
 }
 
 function numericLiteral(text) {
@@ -136,7 +127,7 @@ function readOptions(sourceCode, element) {
 }
 
 /**
- * Builds the `mt-select` start tag for a `sw-select-number-field`, or throws `Unconvertible`.
+ * Builds the `mt-select` start tag for a `sw-select-number-field`, or fails with the reason it can't.
  */
 function convertSelectNumberField(sourceCode, element) {
     const edits = [];
@@ -169,7 +160,7 @@ function convertSelectNumberField(sourceCode, element) {
             fail('v-bind without an argument');
         }
 
-        switch (normalize(name)) {
+        switch (normalizedName(name)) {
             case 'value':
                 if (attribute.directive) {
                     edits.push({ range: attribute.key.argument.range, text: 'model-value' });
@@ -290,16 +281,10 @@ module.exports = {
             },
 
             'sw-select-number-field'(node) {
-                let startTag;
+                const { result: startTag, reason } = attempt(() => convertSelectNumberField(sourceCode, node));
 
-                try {
-                    startTag = convertSelectNumberField(sourceCode, node);
-                } catch (error) {
-                    if (!(error instanceof Unconvertible)) {
-                        throw error;
-                    }
-
-                    todo(node, selectManualMessage(error.message), 'template');
+                if (reason !== null) {
+                    todo(node, selectManualMessage(reason), 'template');
 
                     return;
                 }
@@ -312,7 +297,7 @@ module.exports = {
             },
 
             'sw-entity-many-to-many-select'(node) {
-                const localMode = node.startTag.attributes.find((attribute) => normalize(attributeName(attribute) ?? '') === 'localmode');
+                const localMode = node.startTag.attributes.find((attribute) => attributeKey(attribute) === 'localmode');
                 const expression = localMode?.directive ? localMode.value?.expression : null;
                 const isLocal = localMode && (!localMode.directive || (expression?.type === 'Literal' && expression.value === true));
 

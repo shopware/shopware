@@ -13,7 +13,7 @@
 const { createTodoRule } = require('./upgrade-helpers/create-todo-rule');
 const { attributeName } = require('./upgrade-helpers/component-tags');
 const { propertyName } = require('./upgrade-helpers/member-usage');
-const { isTwigFile } = require('./upgrade-helpers/todo-comment');
+const { targetsOfTemplate } = require('./upgrade-helpers/twig-target');
 const data = require('./no-product-states.data');
 
 const UNIQUE = new Map(data.members.filter((entry) => entry.unique).map((entry) => [entry.name, entry.message]));
@@ -70,7 +70,7 @@ function visitorsFor(scope) {
                 return [api.targetAt(node)];
             }
 
-            return isTwigFile(context) ? api.twigTargets() : api.fileTargets();
+            return targetsOfTemplate(context);
         };
 
         const visitors = {

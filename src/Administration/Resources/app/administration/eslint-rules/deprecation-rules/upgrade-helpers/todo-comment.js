@@ -40,6 +40,17 @@ function indentationAt(text, lineStart) {
 }
 
 /**
+ * The indentation of the line that contains `index`.
+ *
+ * @param {string} text
+ * @param {number} index
+ * @returns {string}
+ */
+function lineIndentation(text, index) {
+    return indentationAt(text, lineStartIndex(text, index));
+}
+
+/**
  * The comment lines directly above the line that contains `index`, nearest first.
  */
 function commentLinesAbove(text, index) {
@@ -156,5 +167,6 @@ module.exports = {
     todoTag,
     isTwigFile,
     wrapComment,
+    lineIndentation,
     reportTodo,
 };

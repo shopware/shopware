@@ -9,7 +9,7 @@
 
 const { createTodoRule } = require('./upgrade-helpers/create-todo-rule');
 const { elementName } = require('./upgrade-helpers/component-tags');
-const { isTwigFile } = require('./upgrade-helpers/todo-comment');
+const { targetsOfTemplate } = require('./upgrade-helpers/twig-target');
 const data = require('./no-order-detail-loading-members.data');
 
 const toKebab = (name) => name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
@@ -48,7 +48,7 @@ module.exports = createTodoRule({
                 return;
             }
 
-            const targets = isTwigFile(context) ? api.twigTargets() : api.fileTargets();
+            const targets = targetsOfTemplate(context);
 
             if (!targets.includes('sw-order-detail')) {
                 return;

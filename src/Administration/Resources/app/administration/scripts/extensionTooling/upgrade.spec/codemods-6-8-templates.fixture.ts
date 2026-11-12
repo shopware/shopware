@@ -52,6 +52,18 @@ export const TEMPLATE_CODEMOD_FIXTURE: Record<string, string[]> = {
         '</sw-page>',
         '{% endblock %}',
     ],
+    'view/acme-bundle-seo/acme-bundle-seo.html.twig': [
+        '{% block acme_bundle_seo %}',
+        '<sw-tabs position-identifier="acme-bundle-seo">',
+        "    <sw-tabs-item name=\"general\">{{ $t('acme-bundle.seo.tabGeneral') }}</sw-tabs-item>",
+        "    <sw-tabs-item name=\"preview\">{{ $t('acme-bundle.seo.tabPreview') }}</sw-tabs-item>",
+        '',
+        '    <template #content="{ active }">',
+        "        <acme-bundle-seo-preview v-if=\"active === 'preview'\" />",
+        '    </template>',
+        '</sw-tabs>',
+        '{% endblock %}',
+    ],
     // sw-text-editor
     'extension/sw-product-basic-form/sw-product-basic-form.html.twig': [
         '{% block sw_product_basic_form_description_field %}',

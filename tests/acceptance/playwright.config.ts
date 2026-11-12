@@ -95,7 +95,7 @@ export default defineConfig({
                 viewport: { width: 1920, height: 1080 },
             },
             dependencies: ['Setup'],
-            grepInvert: /@Install|@Update|@Visual|@Setup.*/,
+            grepInvert: /@Install|@Update|@PostUpdate|@Visual|@Setup.*/,
         },
         {
             name: 'Install',
@@ -114,6 +114,16 @@ export default defineConfig({
             },
             dependencies: [],
             grep: /@Update/,
+            retries: 0,
+        },
+        {
+            name: 'PostUpdate',
+            use: {
+                ...devices['Desktop Chrome'],
+                viewport: { width: 1920, height: 1080 },
+            },
+            dependencies: [],
+            grep: /@PostUpdate/,
             retries: 0,
         },
         {

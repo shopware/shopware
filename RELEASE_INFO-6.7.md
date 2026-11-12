@@ -32,7 +32,7 @@ Custom conditions that read the cart's line items or deliveries work inside the 
 
 With the `v6.8.0.0` feature flag active, the rule builder offers "Whole cart" or "This delivery" on the cart weight, cart volume and free shipping item conditions.
 "This delivery" wraps the condition in the new container, "Whole cart" stays the default.
-Rules using it can't be assigned to payment methods or promotions, because only shipping method availability and price rows evaluate a rule per delivery.
+The Administration doesn't offer rules using it for payment methods or promotions, because only shipping method availability and price rows evaluate a rule per delivery.
 
 ### Rule Builder: new "Item with longest side and girth" condition
 

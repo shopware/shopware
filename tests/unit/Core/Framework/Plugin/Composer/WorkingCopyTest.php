@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Composer;
 
 use Composer\Autoload\ClassLoader;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Composer\Message\CleanupOldVendorDirectories;
@@ -54,15 +55,15 @@ class WorkingCopyTest extends TestCase
     public function testSuccessfulOperationReplacesVendorComposerJsonAndLock(): void
     {
         $exitCode = $this->workingCopy->run(function (string $composerJson): int {
+            $this->filesystem->dumpFile(self::stagedVendorDir($composerJson) . '/autoload.php', 'staged');
             $this->filesystem->dumpFile($composerJson, '{"name": "staged"}');
             $this->filesystem->dumpFile(substr($composerJson, 0, -4) . 'lock', '{"packages": "staged"}');
-            $this->filesystem->dumpFile(getenv('COMPOSER_VENDOR_DIR') . '/autoload.php', 'staged');
 
             return 0;
         });
 
         static::assertSame(0, $exitCode);
-        static::assertStringEqualsFile($this->projectDir . '/composer.json', '{"name": "staged"}');
+        static::assertJsonStringEqualsJsonFile($this->projectDir . '/composer.json', '{"name": "staged"}');
         static::assertStringEqualsFile($this->projectDir . '/composer.lock', '{"packages": "staged"}');
         static::assertStringEqualsFile($this->projectDir . '/vendor/autoload.php', 'staged');
         static::assertSame(['.vendor-old-'], $this->siblingPrefixes());
@@ -71,20 +72,62 @@ class WorkingCopyTest extends TestCase
 
     public function testOperationRunsAgainstACopyOfTheLiveProject(): void
     {
-        $this->workingCopy->run(static function (string $composerJson): int {
-            static::assertStringEqualsFile($composerJson, '{"name": "live"}');
+        $this->workingCopy->run(function (string $composerJson): int {
+            static::assertJsonStringEqualsJsonFile($composerJson, '{"name": "live", "config": {"vendor-dir": "' . self::stagedVendorDir($composerJson) . '"}}');
             static::assertSame($composerJson, getenv('COMPOSER'));
             static::assertSame($composerJson, $_SERVER['COMPOSER'] ?? null);
             static::assertStringEqualsFile(substr($composerJson, 0, -4) . 'lock', '{"packages": "live"}');
-            static::assertStringEqualsFile(getenv('COMPOSER_VENDOR_DIR') . '/autoload.php', 'live');
+            static::assertStringEqualsFile(self::stagedVendorDir($composerJson) . '/autoload.php', 'live');
 
             return 0;
         });
 
         static::assertFalse(getenv('COMPOSER'));
         static::assertArrayNotHasKey('COMPOSER', $_SERVER);
-        static::assertFalse(getenv('COMPOSER_VENDOR_DIR'));
-        static::assertArrayNotHasKey('COMPOSER_VENDOR_DIR', $_ENV);
+    }
+
+    public function testVendorDirectoryOfTheWorkingCopyIsNotPassedThroughTheEnvironment(): void
+    {
+        $this->workingCopy->run(function (string $composerJson): int {
+            static::assertFalse(getenv('COMPOSER_VENDOR_DIR'));
+            static::assertArrayNotHasKey('COMPOSER_VENDOR_DIR', $_SERVER);
+            static::assertArrayNotHasKey('COMPOSER_VENDOR_DIR', $_ENV);
+            static::assertStringStartsWith($this->projectDir . '/.vendor-staging-', self::stagedVendorDir($composerJson));
+
+            return 0;
+        });
+    }
+
+    public function testVendorDirectorySettingIsNotKeptInTheLiveComposerJson(): void
+    {
+        $this->workingCopy->run(function (string $composerJson): int {
+            $stagedComposerJson = json_decode((string) file_get_contents($composerJson), true, flags: \JSON_THROW_ON_ERROR);
+            $stagedComposerJson['require']['swag/test'] = '1.0.0';
+            $this->filesystem->dumpFile($composerJson, json_encode($stagedComposerJson, \JSON_THROW_ON_ERROR));
+
+            return 0;
+        });
+
+        static::assertJsonStringEqualsJsonFile($this->projectDir . '/composer.json', '{"name": "live", "require": {"swag/test": "1.0.0"}}');
+    }
+
+    #[DataProvider('provideComposerJsonWithFormatting')]
+    public function testLiveComposerJsonKeepsItsFormattingWhenTheOperationLeavesItAlone(string $liveComposerJson): void
+    {
+        $this->filesystem->dumpFile($this->projectDir . '/composer.json', $liveComposerJson);
+
+        $this->workingCopy->run(static fn (): int => 0);
+
+        static::assertStringEqualsFile($this->projectDir . '/composer.json', $liveComposerJson);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function provideComposerJsonWithFormatting(): iterable
+    {
+        yield 'without a config section' => ["{\n    \"name\": \"live\",\n    \"require\": {\n        \"shopware/core\": \"6.7.*\"\n    }\n}\n"];
+        yield 'with other config settings' => ["{\n    \"name\": \"live\",\n    \"config\": {\n        \"sort-packages\": true\n    }\n}\n"];
     }
 
     public function testRelativeSymlinksOfPathRepositoriesStayValid(): void
@@ -101,8 +144,8 @@ class WorkingCopyTest extends TestCase
     public function testClassLoadersComposerRegisteredForTheWorkingCopyAreRemoved(): void
     {
         $stagingDir = null;
-        $this->workingCopy->run(static function () use (&$stagingDir): int {
-            $stagingDir = (string) getenv('COMPOSER_VENDOR_DIR');
+        $this->workingCopy->run(static function (string $composerJson) use (&$stagingDir): int {
+            $stagingDir = self::stagedVendorDir($composerJson);
             (new ClassLoader($stagingDir))->register();
 
             return 0;
@@ -115,8 +158,8 @@ class WorkingCopyTest extends TestCase
     public function testFailedOperationLeavesTheLiveProjectUntouched(): void
     {
         $exitCode = $this->workingCopy->run(function (string $composerJson): int {
+            $this->filesystem->remove(self::stagedVendorDir($composerJson) . '/autoload.php');
             $this->filesystem->dumpFile($composerJson, '{"name": "staged"}');
-            $this->filesystem->remove((string) getenv('COMPOSER_VENDOR_DIR') . '/autoload.php');
 
             return 2;
         });
@@ -131,8 +174,8 @@ class WorkingCopyTest extends TestCase
         $this->expectExceptionObject(PluginException::composerWorkingCopyNotPossible('Composer did not write "autoload.php" into the working copy'));
 
         try {
-            $this->workingCopy->run(function (): int {
-                $this->filesystem->remove((string) getenv('COMPOSER_VENDOR_DIR') . '/autoload.php');
+            $this->workingCopy->run(function (string $composerJson): int {
+                $this->filesystem->remove(self::stagedVendorDir($composerJson) . '/autoload.php');
 
                 return 0;
             });
@@ -210,6 +253,15 @@ class WorkingCopyTest extends TestCase
         $this->workingCopy->removeOldVendorDirectories();
 
         static::assertSame(['.vendor-old-'], $this->siblingPrefixes());
+    }
+
+    private static function stagedVendorDir(string $composerJson): string
+    {
+        $config = json_decode((string) file_get_contents($composerJson), true, flags: \JSON_THROW_ON_ERROR)['config'];
+        static::assertIsArray($config);
+        static::assertIsString($config['vendor-dir']);
+
+        return $config['vendor-dir'];
     }
 
     private function assertLiveProjectIsUntouched(): void

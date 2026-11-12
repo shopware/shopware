@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Plugin\Composer;
 
 use Composer\Autoload\ClassLoader;
+use Composer\Json\JsonManipulator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Composer\Message\CleanupOldVendorDirectories;
 use Shopware\Core\Framework\Plugin\PluginException;
@@ -42,7 +43,8 @@ class WorkingCopy
     }
 
     /**
-     * @param \Closure(string): int $operation receives the staged composer.json; `COMPOSER` and `COMPOSER_VENDOR_DIR` point to the copy while it runs
+     * @param \Closure(string): int $operation receives the staged composer.json, which `COMPOSER` points to while it runs
+     *                                         and which configures the staged vendor directory as its `vendor-dir`
      */
     public function run(\Closure $operation): int
     {
@@ -67,13 +69,14 @@ class WorkingCopy
             try {
                 $this->filesystem->mirror($this->vendorDir(), $stagingDir);
                 $this->filesystem->copy($this->projectDir . '/composer.json', $stagedComposerJson, true);
+                $this->addStagedVendorDir($stagedComposerJson, $stagingDir);
                 if (is_file($this->projectDir . '/composer.lock')) {
                     $this->filesystem->copy($this->projectDir . '/composer.lock', $stagedComposerLock, true);
                 }
 
                 try {
                     $exitCode = $this->withEnvironment(
-                        ['COMPOSER' => $stagedComposerJson, 'COMPOSER_VENDOR_DIR' => $stagingDir],
+                        ['COMPOSER' => $stagedComposerJson],
                         static fn (): int => $operation($stagedComposerJson),
                     );
                 } finally {
@@ -85,6 +88,7 @@ class WorkingCopy
                 }
 
                 $this->assertStagedVendorDirectoryIsComplete($stagingDir);
+                $this->removeStagedVendorDir($stagedComposerJson);
                 $this->replace($swapId, $stagingDir, $stagedComposerJson, $stagedComposerLock);
                 $hasReplacedVendorDirectory = true;
             } finally {
@@ -235,7 +239,38 @@ class WorkingCopy
     {
         $files = glob($this->projectDir . '/' . self::STAGED_COMPOSER_PREFIX . '*', \GLOB_NOSORT);
 
-        return $files === false ? [] : array_values($files);
+        return $files === false ? [] : $files;
+    }
+
+    /**
+     * `COMPOSER_VENDOR_DIR` is not used, because Composer applies it to the global Composer instance as well, which
+     * then treats the working copy as its own vendor directory.
+     */
+    private function addStagedVendorDir(string $stagedComposerJson, string $stagingDir): void
+    {
+        $composerJson = new JsonManipulator((string) file_get_contents($stagedComposerJson));
+        if (!$composerJson->addConfigSetting('vendor-dir', $stagingDir)) {
+            throw PluginException::composerWorkingCopyNotPossible('composer.json cannot be edited to configure the vendor directory');
+        }
+
+        $this->filesystem->dumpFile($stagedComposerJson, $composerJson->getContents());
+    }
+
+    private function removeStagedVendorDir(string $stagedComposerJson): void
+    {
+        $composerJson = new JsonManipulator((string) file_get_contents($stagedComposerJson));
+        $isVendorDirRemoved = $composerJson->removeConfigSetting('vendor-dir');
+
+        $liveComposerJson = json_decode((string) file_get_contents($this->projectDir . '/composer.json'), true, flags: \JSON_THROW_ON_ERROR);
+        if (!\is_array($liveComposerJson) || !\array_key_exists('config', $liveComposerJson)) {
+            $isVendorDirRemoved = $isVendorDirRemoved && $composerJson->removeMainKeyIfEmpty('config');
+        }
+
+        if (!$isVendorDirRemoved) {
+            throw PluginException::composerWorkingCopyNotPossible('composer.json cannot be edited to remove the staged vendor directory');
+        }
+
+        $this->filesystem->dumpFile($stagedComposerJson, $composerJson->getContents());
     }
 
     /**

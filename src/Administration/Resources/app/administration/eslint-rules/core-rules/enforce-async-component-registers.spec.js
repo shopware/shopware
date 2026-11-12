@@ -30,6 +30,18 @@ ruleTester.run('enforce-async-component-registers', rule, {
             code: "Component.extend('sw-example-child', 'sw-example');",
         },
         {
+            name: 'allows an inline config passed to extend',
+            code: "Component.extend('sw-example-child', 'sw-example', { methods: {} });",
+        },
+        {
+            name: 'allows a config variable passed to extend',
+            code: "Shopware.Component.extend('sw-example-child', 'sw-example', config);",
+        },
+        {
+            name: 'allows an inline config passed to override',
+            code: "Component.override('sw-example', { methods: {} });",
+        },
+        {
             name: 'ignores other methods of the component facade',
             code: "Shopware.Component.build('sw-example');",
         },
@@ -55,9 +67,14 @@ ruleTester.run('enforce-async-component-registers', rule, {
             errors: [{ message: dynamicImportMessage('Shopware.Component.extend') }],
         },
         {
-            name: 'reports an inline config passed to override',
-            code: "Component.override('sw-example', { methods: {} });",
+            name: 'reports an import started at boot passed to override',
+            code: "Component.override('sw-example', import('./sw-example-override'));",
             errors: [{ message: dynamicImportMessage('Component.override') }],
+        },
+        {
+            name: 'reports a register without a config',
+            code: "Component.register('sw-example');",
+            errors: [{ message: dynamicImportMessage('Component.register') }],
         },
     ],
 });

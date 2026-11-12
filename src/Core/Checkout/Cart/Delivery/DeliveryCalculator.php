@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Cart\Delivery;
 
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
@@ -60,6 +59,16 @@ class DeliveryCalculator
 
     private function calculateDelivery(CartDataCollection $data, Cart $cart, Delivery $delivery, SalesChannelContext $context): void
     {
+        if ($cart->getBehavior()?->hasPermission(CheckoutPermissions::SKIP_DELIVERY_PRICE_RECALCULATION)) {
+            $delivery->setShippingCosts($this->calculateShippingCosts(
+                new SelectedPrice($delivery->getShippingCosts()->getTotalPrice(), isCalculated: true),
+                $this->resolveTaxRules($delivery, $context),
+                $context
+            ));
+
+            return;
+        }
+
         $costs = null;
         $manualShippingCost = $cart->getExtension(DeliveryProcessor::MANUAL_SHIPPING_COSTS);
         $manualShippingCost = $manualShippingCost instanceof CalculatedPrice ? $manualShippingCost : null;
@@ -79,10 +88,7 @@ class DeliveryCalculator
             return;
         }
 
-        if (
-            $this->hasDeliveryPriceRecalculationSkipWithZeroUnitPrice($cart->getBehavior(), $delivery->getShippingCosts()->getUnitPrice())
-            || $this->hasDeliveryWithOnlyShippingFreeItems($delivery)
-        ) {
+        if ($this->hasDeliveryWithOnlyShippingFreeItems($delivery)) {
             $costs = $this->calculateShippingCosts(
                 new SelectedPrice(0.0, isCalculated: true),
                 $this->resolveTaxRules($delivery, $context),
@@ -284,12 +290,5 @@ class DeliveryCalculator
         }
 
         return $costs;
-    }
-
-    private function hasDeliveryPriceRecalculationSkipWithZeroUnitPrice(?CartBehavior $behavior, float $unitPrice): bool
-    {
-        return $behavior
-            && $behavior->hasPermission(CheckoutPermissions::SKIP_DELIVERY_PRICE_RECALCULATION)
-            && $unitPrice === 0.0;
     }
 }

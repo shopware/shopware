@@ -9,14 +9,10 @@ import RetryHelper from '../../../core/helper/retry.helper';
 const { deepCopyObject, hasOwnProperty } = Shopware.Utils.object;
 const { md5 } = Shopware.Utils.format;
 
-// Indexing is queued so the requests stay short for products with many variants.
-// The server reads it only from the headers.
 const SYNC_HEADERS = { 'single-operation': 1, 'indexing-behavior': 'use-queue-indexing' };
 
-// Nothing indexed or shown in the storefront depends on the variant restrictions
 const RESTRICTIONS_SYNC_HEADERS = { 'single-operation': 1, 'indexing-behavior': 'disable-indexing' };
 
-// Every chunk queues a re-index of the parent with all its variants, so fewer and bigger chunks mean less work
 const CHUNK_SIZE = 100;
 
 function isRetryable(error) {

@@ -265,6 +265,16 @@ class McpAllowlistListRequestHandlerTest extends TestCase
         static::assertSame(['shopware-tool-search', 'shopware-entity-search'], $this->allToolNames($handler));
     }
 
+    public function testStatelessToolsListIgnoresTheToolsetsOfASessionItNames(): void
+    {
+        $toolsetSessionStorage = $this->createMock(McpToolsetSessionStorage::class);
+        $toolsetSessionStorage->expects($this->never())->method('enabledToolsets');
+
+        $handler = $this->connectUrlHandler('/api/_mcp', sessionId: 'someone-elses-session', stateless: true, toolsetSessionStorage: $toolsetSessionStorage);
+
+        static::assertSame(['shopware-tool-search'], $this->allToolNames($handler));
+    }
+
     public function testHandshakeToolsListWithoutSessionKeepsTheToolsetSessionTools(): void
     {
         $names = $this->allToolNames($this->connectUrlHandler('/api/_mcp'));

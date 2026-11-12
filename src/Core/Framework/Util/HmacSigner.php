@@ -42,6 +42,7 @@ class HmacSigner
 
     /**
      * For token formats that already carry hex signatures.
+     * Only the deprecated `ImitateCustomerTokenGenerator::generate()` and `validate()` use it; remove it together with them.
      *
      * @return string the signature, lowercase hex encoded
      */
@@ -50,6 +51,9 @@ class HmacSigner
         return hash_hmac(self::ALGORITHM, $data, $this->secret);
     }
 
+    /**
+     * Only the deprecated `ImitateCustomerTokenGenerator::validate()` uses it; remove it together with that method.
+     */
     public function verifyHex(string $data, string $signature): bool
     {
         return hash_equals($this->signHex($data), $signature);

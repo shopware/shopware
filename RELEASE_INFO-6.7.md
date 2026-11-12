@@ -449,7 +449,6 @@ Each document has a title and a file per language, which fall back separately li
 A variant without documents of its own gets those of its parent.
 
 The settings `shopware.product_documents.allowed_extensions` and `shopware.product_documents.max_file_size` limit the files, by default to PDF, DOCX, JPG and PNG up to 20 MB.
-Extensions can change the allowed types with `ProductDocumentAllowedExtensionsEvent`.
 The scheduled tasks `product_document.media.cleanup` and `product_document.archive.cleanup` delete unused document files and stored ZIP files.
 
 The Storefront shows the documents in a tab of the product description and reviews element.

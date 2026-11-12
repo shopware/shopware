@@ -54,7 +54,7 @@ describe('src/module/sw-product/helper/sw-products-variants-generator saveVarian
         expect(onRejected).toHaveBeenCalledWith(error);
     });
 
-    it('should send chunks of 100 variants and queue their indexing with the indexing-behavior header', async () => {
+    it('should send chunks of 100 variants with indexing-behavior as a header', async () => {
         const generator = new VariantsGenerator();
         const sync = jest.fn(() => Promise.resolve({ data: {}, deleted: {} }));
         generator.syncService = { sync };

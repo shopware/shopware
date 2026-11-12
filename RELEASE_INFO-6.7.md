@@ -1150,7 +1150,12 @@ The `indexing-behavior` header now supports `use-queue-indexing` and `disable-in
 
 ### Store API OpenAPI schema lists missing entity fields
 
-The Store API OpenAPI schema now lists fields that the responses already contain: the GARAN fields of `Product` (`guaranteeMonths`, `guaranteeConfirmed`, `guaranteeTermsMediaId`, `guaranteeTermsUrl` and `guaranteeTermsMedia`), `Document.typeName` and `SalesChannelDomain.isExternalStorefront`. If you generate types from the schema, regenerate them.
+The Store API OpenAPI schema now lists fields that the responses already contain: the GARAN fields of `Product` (`guaranteeMonths`, `guaranteeConfirmed`, `guaranteeTermsMediaId`, `guaranteeTermsUrl` and `guaranteeTermsMedia`), `Document.typeName` and `SalesChannelDomain.isExternalStorefront`.
+The scalar fields are required, because every response carries them; the guarantee fields are `null` when unset.
+`guaranteeTermsMedia` stays optional like every other association.
+`Document.typeName` lists the type names Shopware ships and stays open for the types plugins and apps add.
+If you generate types from the schema, regenerate them.
+
 ### New Store API route to add the products of an order to the cart
 
 `POST /store-api/checkout/cart/reorder/{orderId}` adds an order's products to the cart, and the `checkout.cart.collect-reorder-line-items` extension lets you add or drop items before they reach the cart

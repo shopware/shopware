@@ -12,7 +12,8 @@
                     "salesChannelId",
                     "languageId",
                     "currencyId",
-                    "snippetSetId"
+                    "snippetSetId",
+                    "isExternalStorefront"
                 ],
                 "properties": {
                     "id": {

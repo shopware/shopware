@@ -17,7 +17,11 @@
                     "taxId",
                     "productNumber",
                     "stock",
-                    "name"
+                    "name",
+                    "guaranteeMonths",
+                    "guaranteeConfirmed",
+                    "guaranteeTermsMediaId",
+                    "guaranteeTermsUrl"
                 ],
                 "properties": {
                     "id": {

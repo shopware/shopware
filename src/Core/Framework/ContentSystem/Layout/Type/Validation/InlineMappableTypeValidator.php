@@ -9,13 +9,15 @@ use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
- * Enforces the two declaration rules for `inlineMappable`.
+ * Enforces the three declaration rules for `inlineMappable`.
  *
  * The type rule mirrors {@see TranslatableTypeValidator}: token interpolation writes a string back into a string,
  * so the property must be declared as the lone type `string`; a union, `[string]` included, is rejected.
  *
  * Reject declarations carrying both `mappable` and `inlineMappable`, because they would offer two mapping
  * mechanisms for one value.
+ *
+ * Reject the flag on a member nested inside an object property: only top-level properties are inspected and expanded.
  *
  * @internal only for use by the content-system element types
  */
@@ -30,6 +32,17 @@ final class InlineMappableTypeValidator extends ConstraintValidator
 
         if (!$value instanceof PropertySpecificationDto) {
             throw new UnexpectedTypeException($value, PropertySpecificationDto::class); // @phpstan-ignore shopware.domainException (Symfony ConstraintValidator convention)
+        }
+
+        // The nested members are validated through the cascade on `properties`, so this check sees each member
+        // exactly once, from its direct parent. Inline mapping inspects and expands top-level properties only, so a
+        // nested declaration would promise a behaviour that never runs.
+        foreach ($value->properties ?? [] as $key => $member) {
+            if ($member->inlineMappable) {
+                $this->context->buildViolation($constraint->nestedMessage)
+                    ->atPath(\sprintf('properties[%s].inlineMappable', $key))
+                    ->addViolation();
+            }
         }
 
         if (!$value->inlineMappable) {

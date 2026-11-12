@@ -54,6 +54,51 @@ class InlineMappableTypeValidatorTest extends TestCase
         yield 'neither flag set' => [
             self::dto('count', 'integer'),
         ];
+
+        yield 'nested member without the flag' => [
+            self::dto('link', 'object', properties: [
+                'label' => self::dto('label', 'string'),
+            ]),
+        ];
+
+        yield 'nested member with mappable only' => [
+            self::dto('link', 'object', properties: [
+                'label' => self::dto('label', 'string', mappable: true),
+            ]),
+        ];
+    }
+
+    #[DataProvider('rejectsNestedDeclarationProvider')]
+    #[TestDox('rejects inlineMappable on a nested member: $expectedPath')]
+    public function testRejectsInlineMappableOnNestedMember(PropertySpecificationDto $dto, string $expectedPath): void
+    {
+        $violations = $this->validate($dto);
+
+        static::assertCount(1, $violations);
+        static::assertSame($expectedPath, $violations->get(0)->getPropertyPath());
+        static::assertSame((new InlineMappableType())->nestedMessage, $violations->get(0)->getMessage());
+    }
+
+    /**
+     * @return iterable<string, array{PropertySpecificationDto, string}>
+     */
+    public static function rejectsNestedDeclarationProvider(): iterable
+    {
+        yield 'one level deep' => [
+            self::dto('link', 'object', properties: [
+                'label' => self::dto('label', 'string', inlineMappable: true),
+            ]),
+            'properties[label].inlineMappable',
+        ];
+
+        yield 'two levels deep' => [
+            self::dto('link', 'object', properties: [
+                'target' => self::dto('target', 'object', properties: [
+                    'label' => self::dto('label', 'string', inlineMappable: true),
+                ]),
+            ]),
+            'properties[target].properties[label].inlineMappable',
+        ];
     }
 
     #[DataProvider('rejectsInvalidSpecificationProvider')]
@@ -126,12 +171,14 @@ class InlineMappableTypeValidatorTest extends TestCase
 
     /**
      * @param string|list<string> $type
+     * @param array<string, PropertySpecificationDto>|null $properties
      */
     private static function dto(
         string $name,
         string|array $type,
         bool $mappable = false,
         bool $inlineMappable = false,
+        ?array $properties = null,
     ): PropertySpecificationDto {
         return new PropertySpecificationDto(
             $name,
@@ -143,7 +190,7 @@ class InlineMappableTypeValidatorTest extends TestCase
             null,
             null,
             null,
-            null,
+            $properties,
             $mappable,
             $inlineMappable,
         );

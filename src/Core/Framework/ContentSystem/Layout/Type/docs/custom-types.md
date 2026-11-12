@@ -109,7 +109,7 @@ What a mappable property can be mapped to is determined by the mapping catalogue
 
 ### `inlineMappable`
 
-`inlineMappable: true` allows `{{map:candidate.path}}` tokens in authored text. It requires exactly `string` and cannot be combined with `mappable`. Use it for sanitized rich text, as with `Sw:Content:Text`; a plain-text output component does not support this rendering contract. See [inline mapping](../../../Mapping/README.md#stored-mappings-and-rendering) for eligibility and resource limits, and [rich-text rendering](../../../Mapping/README.md#rich-text-rendering) for escaping and sanitization.
+`inlineMappable: true` allows `{{map:candidate.path}}` tokens in authored text. It requires a top-level property of exactly `string` and cannot be combined with `mappable`. Use it for sanitized rich text, as with `Sw:Content:Text`; a plain-text output component does not support this rendering contract. See [inline mapping](../../../Mapping/README.md#stored-mappings-and-rendering) for eligibility and resource limits, and [rich-text rendering](../../../Mapping/README.md#rich-text-rendering) for escaping and sanitization.
 
 **`slots`** (optional): Each slot has a `name`. Optional: `maxElements` (cap on child count), `allowList` (restrict allowed child component types), `description`. A slot name PHP casts to an integer, such as `12`, is unusable: a stored element rejects an integer slot key (`invalidMapKey`, see [stored-model.md](../../../docs/principles/stored-model.md#every-map-key-is-a-string-and-the-module-rejects-an-integer-castable-key-never-coerces-it)), so no child can be stored under it.
 

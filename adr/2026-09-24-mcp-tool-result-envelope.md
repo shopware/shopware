@@ -94,10 +94,13 @@ Renderers pass them on where their format can express them, for example as cache
 - **Meaning, not wire names.** No part is named after an MCP field. `isError`, `structuredContent`, `_meta` and `resource_link` exist only inside the mapper.
 - **Closed set of part types.** Only core defines part types. An extension can't add a new kind of part, so every renderer can always map every result completely. New part types are added to core together with support in every renderer.
 - **Grow by adding, never by changing.** New optional parts or fields may be added. Existing ones keep their meaning. This keeps plugins that build results today valid for later formats.
-- **Immutable and complete.** The object is a value object, built by the mapper from the helpers' string today, and returned by tools directly once [#21306](https://github.com/shopware/shopware/issues/21306) lands (or built with a builder for richer results). The mapper only reads it, and nothing downstream depends on a tool having produced JSON.
+- **Immutable and complete.** The object is a value object, returned by tools directly since [#21306](https://github.com/shopware/shopware/issues/21306) (or built with a builder for richer results). The mapper still builds it from the legacy string until 6.8.0 (see *Legacy input* below). The mapper only reads it, and nothing downstream depends on a tool having produced JSON.
 - **No transport concerns.** Size limits, offloading, pagination cursors of the protocol, and synchronous versus task-based delivery are not part of the object. They belong to the renderer and the protocol layer.
 
-Tools declare `__invoke(): string` today, and PHP checks that return type before the mapper sees the value. So `McpToolResponse::success()` and `::error()` keep returning the legacy JSON string, and the mapper parses it into this object (see *Legacy input* below). That is why tools using these helpers, which is almost all core and plugin tools, don't have to change. Returning the object directly also needs the return declaration changed (`string|McpToolResult`), so it becomes the documented path with [#21306](https://github.com/shopware/shopware/issues/21306), together with the PHPStan rule. `::error()` accepts an optional error code, and the existing helpers such as `missingPrivilegesError()` set one. Tools declare `outputSchema` against the result data, not against a wire format.
+Tools declare `__invoke(): McpToolResult` and build the object with the `…Result` helpers of `McpToolResponse`, such as `successResult()` and `errorResult()` ([#21306](https://github.com/shopware/shopware/issues/21306)).
+`errorResult()` accepts an optional error code and details, and helpers such as `missingPrivilegesResult()` set one.
+The string helpers `success()`, `error()` and their siblings return the legacy JSON string.
+They are deprecated in 6.7 and removed in 6.8.0, and returning that string from a PHP tool is deprecated the same way. Tools declare `outputSchema` against the result data, not against a wire format.
 
 ### The output mapper
 
@@ -107,7 +110,8 @@ One mapper in core converts every tool result before the SDK sends it. It is the
 - **Every renderer handles every part.** A renderer maps each part type to the closest concept of its format. Where a format has no equivalent (for example images in a text-only format), the renderer falls back to a documented text form, never to silently dropping the part.
 - **Size limits per format.** The renderer applies the size limit of its format to the complete rendered result, including the text copy the MCP spec asks for. Anything too large is stored and sent as a link, which keeps the tool's summary, its own links and its metadata up to a fixed budget. The limit is 200 KB rendered since 2025-06-18, where the data is sent twice, and 100 KB before, so the offload point is about 100 KB of data on every revision.
 - **Format version on the serialized form.** Results that leave PHP and are read back later or elsewhere carry a format version, an enum defined by core: stored large results in `mcp_tool_result_cache`, and responses from app tools. The mapper picks the matching parser for that version, so older stored results and apps built against an older format stay readable. The in-memory result object has no version field: inside PHP the class is the version, and the renderer is chosen by the output target, not by the result. For stored results the version is the `mime_type` column (`McpToolResultStoredFormat`): plain data for clients since 2025-06-18, the legacy envelope before.
-- **Legacy input.** The mapper also accepts the legacy JSON string, so tools that return a string, the `McpToolResponse` helpers and app tools keep working. It parses `{success, data, error}` into a result object and renders it like any other result. An `error` may also be an object, as some extension tools return it; its `message` and `code` become the error, and its other keys are kept as details. Keys next to the envelope fields, such as `dryRun` and `preview` of agentic-commerce's UCP tools, are kept as metadata, so a preview can still be told from a committed change. A string that isn't this envelope (no boolean `success`) is passed through unchanged as a single text block, as today.
+- **Legacy input.** The mapper also accepts the legacy JSON string, so app tools and PHP tools that still return the string keep working.
+  A PHP tool that returns it triggers a deprecation in 6.7 and fails in 6.8.0; app tools keep the envelope as their response format. It parses `{success, data, error}` into a result object and renders it like any other result. An `error` may also be an object, as some extension tools return it; its `message` and `code` become the error, and its other keys are kept as details. Keys next to the envelope fields, such as `dryRun` and `preview` of agentic-commerce's UCP tools, are kept as metadata, so a preview can still be told from a committed change. A string that isn't this envelope (no boolean `success`) is passed through unchanged as a single text block, as today.
 
 For MCP today, the renderers fill `structuredContent`, `isError` and the text block, turn links to stored results into `resource_link` blocks, and respect era differences, for example that `structuredContent` must be an object on the handshake era.
 
@@ -137,7 +141,7 @@ There is no feature flag and no date at which the legacy format is removed.
    The format is deprecated: release notes say so, and new clients are expected to negotiate 2025-06-18 or later.
    It is kept for the clients that still need it, and every client gets only the format it expects.
 
-The tool side is independent of the wire format: the `McpToolResponse` helpers stay, and a PHPStan rule reports tools that build JSON strings by hand ([#21306](https://github.com/shopware/shopware/issues/21306)).
+The tool side is independent of the wire format: tools return the result object built with the `McpToolResponse` helpers, and a PHPStan rule reports tools that still return the legacy string ([#21306](https://github.com/shopware/shopware/issues/21306)).
 
 The MCP format doesn't make results smaller than the legacy envelope, because the specification itself asks for the text copy and the envelope is about the same size as that copy.
 Large results are kept in check by the size limit and `resource_link`, not by dropping one of the copies.
@@ -163,7 +167,9 @@ Such a tool makes the metadata the model needs part of its data and its schema.
 ### Static analysis
 
 - `McpToolResponseRule` stays as it is: every `#[McpTool]` class extends `McpToolResponse`.
-- A second, separate rule reports tools that return a hand-built JSON string instead of the result object. It starts as a warning ([#21306](https://github.com/shopware/shopware/issues/21306)). We don't make the existing rule do both, so each rule has one clear job.
+- A second, separate rule reports tools that return the legacy JSON string instead of the result object ([#21306](https://github.com/shopware/shopware/issues/21306)).
+  In 6.7 it is part of `core-rules.neon`, which extensions don't load by default, so it does not fail their builds yet.
+  It moves to `rules.neon` with 6.8.0. We don't make the existing rule do both, so each rule has one clear job.
 
 Other MCP checks we want in PHPStan are tracked separately and aren't part of this decision: Admin tools must declare ACL privileges, Store tools follow Store API authentication instead of Admin ACL, and extensions must not register tools in reserved groups such as `discovery`.
 
@@ -173,7 +179,7 @@ Other MCP checks we want in PHPStan are tracked separately and aren't part of th
 Their text block is no longer the `{"success": …}` envelope, so an integration that parses `success` out of the text has to read `isError` and `structuredContent`, or negotiate an older revision.
 Clients before 2025-06-18 keep the deprecated envelope unchanged.
 
-**For extension developers.** Plugin and bundle tools that use the `McpToolResponse` helpers get every format change automatically, now and for future MCP revisions. Extensions can attach their own metadata in a namespaced area, but can't invent new part types. Tools that build the JSON string by hand keep working and get a PHPStan warning that points them to the helpers or the result object ([#21306](https://github.com/shopware/shopware/issues/21306)). Declaring `string` as the return type of `__invoke()` keeps working. App tools keep their response format. The mapper translates it, and any change to the app contract is announced separately in the release and upgrade notes.
+**For extension developers.** Plugin and bundle tools that use the `McpToolResponse` helpers get every format change automatically, now and for future MCP revisions. Extensions can attach their own metadata in a namespaced area, but can't invent new part types. Tools that return the legacy JSON string, built with the string helpers or by hand, keep working in 6.7 with a deprecation and fail in 6.8.0, where the PHPStan rule also reports them ([#21306](https://github.com/shopware/shopware/issues/21306)). They switch by declaring `__invoke(): McpToolResult` and using the `…Result` helpers. App tools keep their response format. The mapper translates it, and any change to the app contract is announced separately in the release and upgrade notes.
 
 **For Shopware development.** The mapper is the single place to test the output format on every protocol revision. The large-result pointer and the planned Sync tool build on the result object directly. Every step that changes what clients see comes with a matching change in the evaluation suite and with release notes.
 

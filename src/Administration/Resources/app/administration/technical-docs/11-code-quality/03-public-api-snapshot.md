@@ -4,8 +4,8 @@
 
 The Administration gets a generated snapshot of its public API and a check that blocks unannounced breaks, see [#22591](https://github.com/shopware/shopware/issues/22591).
 Both are built in steps.
-The markers that announce a change exist so far.
-The grammar of the markers is in `eslint-rules/deprecation-rules/utils/api-markers.ts`.
+Three parts exist so far: the markers that announce a change, the summary the break check prints, and the fixtures that the generator and the break check have to satisfy.
+The grammar of the markers is in `eslint-rules/deprecation-rules/utils/api-markers.ts`, the code of the generator in `scripts/generate-public-api/`.
 
 ## Markers
 
@@ -73,5 +73,91 @@ The ESLint rule `sw-deprecation-rules/valid-api-markers` uses it and reports, in
 
 Without the rule such a comment would stay a plain comment, and the change would surface as an unannounced break in the major.
 
+The PHP test `AnnotationTagTester` checks the version of `@deprecated` in every file of the repository as well, with its own grammar.
+A change to the `@deprecated` grammar has to be made in both places.
+
 Only the format is checked so far.
 Whether a marker sits on an element its kind fits, and whether its version is not released yet, comes with the break check.
+
+## Findings
+
+`classifyChanges` in `break-check.ts` returns the findings as data, and `formatFindings` in `findings.ts` prints them as the summary of the break check.
+A finding has a group, a rule such as `block_moved_parent`, the id of its element, the flag states it applies to, an explanation, and optionally a fix, a possible rename and the location in the head commit.
+
+```text
+Public API check failed: 1 unannounced break.
+
+Break (1)
+  block_moved_parent  component:sw-example-card/block:sw_example_card_title  current, major
+    The block moved from sw_example_card_header to sw_example_card, so ...
+    Fix: pattern "Block move". Keep the block under sw_example_card_header while v6.8.0.0 is off, ...
+    At: src/app/component/base/sw-example-card/sw-example-card.html.twig:4
+```
+
+- The first line is the verdict: `Public API check failed: <n> unannounced break(s).` or `Public API check passed: no breaks.`
+- The groups follow in the order `Break`, `Addition`, `Info`, each with its count.
+  Empty groups are left out.
+- A finding line is `<rule>  <element id>  <states>`.
+  Below it, indented four spaces, follow the explanation, `Fix:`, `Possible rename:` and `At:`, each only when the finding has it.
+
+The element id names the owner first and the element below it, for example `component:sw-example-card/block:sw_example_card_list_item/scope:item`.
+The kind of the element below the owner, `block` in this example, decides which unit kind the finding belongs to.
+
+## Fixtures
+
+Each folder in `scripts/generate-public-api/__fixtures__/` is one case: a small source tree before and after a change, and the output expected for it.
+
+| Path | Content |
+|---|---|
+| `case.json` | A description of the case, the version the base branch releases next, and the major flags |
+| `before/`, `after/` | Minimal Administration source tree at the base and at the head commit |
+| `expected/before/`, `expected/after/` | The snapshot files for each tree |
+| `expected/findings.json` | The findings the break check returns for the change |
+| `expected/findings.txt` | How the break check prints these findings |
+
+A source tree holds only what its case is about.
+The script part of a component stays empty unless the case covers it, even where the template uses a prop or a method.
+This keeps the expected snapshot of a case free of unit kinds that are designed later.
+
+The `expected/` folders are written by hand and are the specification the generator is built against.
+`fixtures.spec.ts` checks that `formatFindings` prints `findings.json` as `findings.txt`, so the two files cannot drift apart.
+The expected snapshots hold whole files with every unit kind, while the generator covers one kind at a time.
+`fixtures.spec.ts` therefore compares each case several times:
+
+- Once per unit kind.
+  The comparison takes the kind's sections of the `.api.md` reports, its members of the `.d.ts` contracts, its keys in `index.json` and the findings on its elements, and ignores the rest.
+- Once as `complete`, which compares every file and all findings.
+
+The blocks have three unit kinds, because they are built in three steps:
+
+| Unit kind | Compares |
+|---|---|
+| `block-tree` | The block names, their parents and their flag states |
+| `block-structure` | The crossings, and the `v-if` chain and scope markers of the blocks |
+| `block-findings` | The findings on blocks and crossings |
+
+The markers of a block line other than its flag state, such as `[after v-if]` and `[scope: item]`, and the type arguments of `Block<>` after the parent belong to `block-structure`.
+The comparison moves them out of the block tree into a section `block-context` and a member `blockContext`, which exist only in the comparison.
+
+`expected-failures.ts` lists what cannot pass yet, in two lists:
+
+- `views` names a unit kind, or `complete`, that no case passes yet.
+- `comparisons` names single comparisons such as `block-moved/block-findings`, for a view that other cases pass already.
+
+The spec runs every listed comparison with `it.failing`, so the run is green while they fail and turns red as soon as one of them passes.
+An entry that names no view or comparison is an error, and so is a comparison whose view is listed already.
+So is a section, member, key or element kind of a unit kind that occurs in no expected output, because it would compare nothing.
+
+To build the next part:
+
+1. Add its fixture cases, and its unit kind to `UNIT_KINDS` in `fixture-runner.ts` when it is a new one.
+   A new unit kind goes into `views` of `expected-failures.ts`.
+2. Implement it behind `generateSnapshot` in `snapshot.ts` and `classifyChanges` in `break-check.ts`.
+3. Once some cases pass the kind, remove it from `views` and list the cases that still fail in `comparisons`.
+   The part is done when its entries are gone.
+
+Run the comparisons in `src/Administration/Resources/app/administration`:
+
+```bash
+npx jest --collectCoverage=false scripts/generate-public-api
+```

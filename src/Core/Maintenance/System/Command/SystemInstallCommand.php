@@ -199,7 +199,7 @@ class SystemInstallCommand extends Command
     {
         $console = $this->projectDir . '/bin/console';
         $steps = [
-            [\PHP_BINARY, $console, 'framework:demodata', '--reset-defaults', '--products=500', '--categories=10', '--manufacturers=10', '--properties=10'],
+            [\PHP_BINARY, $console, 'framework:demodata', '--reset-defaults', '--products=500', '--categories=10', '--manufacturers=10', '--properties=10', '--media=100'],
             [\PHP_BINARY, $console, 'dal:refresh:index'],
         ];
 

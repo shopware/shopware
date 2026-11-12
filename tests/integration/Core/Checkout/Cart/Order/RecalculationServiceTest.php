@@ -1039,6 +1039,24 @@ class RecalculationServiceTest extends TestCase
         }
     }
 
+    public function testRecalculationNumbersTheDeliveriesOfAnOrderPlacedBeforeDeliveriesHadPositions(): void
+    {
+        $orderId = $this->persistCart($this->generateDemoCart())['orderId'];
+        static::getContainer()->get(Connection::class)->executeStatement(
+            'UPDATE order_delivery SET position = 0 WHERE order_id = :orderId',
+            ['orderId' => Uuid::fromHexToBytes($orderId)]
+        );
+
+        $versionContext = $this->context->createWithVersionId($this->createVersionedOrder($orderId));
+        static::getContainer()->get(RecalculationService::class)->recalculate($orderId, $versionContext);
+
+        $order = $this->orderRepository->search((new Criteria([$orderId]))->addAssociation('deliveries'), $versionContext)->getEntities()->first();
+        static::assertNotNull($order);
+        $deliveries = $order->getDeliveries();
+        static::assertNotNull($deliveries);
+        static::assertSame([1], array_values($deliveries->map(static fn (OrderDeliveryEntity $delivery) => $delivery->getPosition())));
+    }
+
     public function testRecalculationOfPinnedDisabledPromotion(): void
     {
         $cart = $this->generateDemoCart();

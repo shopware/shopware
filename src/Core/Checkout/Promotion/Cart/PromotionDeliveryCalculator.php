@@ -500,6 +500,7 @@ class PromotionDeliveryCalculator
         }
 
         $deliveries->add($delivery);
+        $deliveries->numberDeliveries();
     }
 
     /**

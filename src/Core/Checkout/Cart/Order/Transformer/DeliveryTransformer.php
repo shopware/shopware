@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
@@ -93,8 +92,6 @@ class DeliveryTransformer
             IdStruct::class
         )?->getId();
 
-        $originalPosition = $delivery->getExtensionOfType(OrderConverter::ORIGINAL_POSITION, ArrayStruct::class)?->get('position');
-
         $deliveryData = [
             'id' => self::getId($delivery),
             'shippingDateEarliest' => $delivery->getDeliveryDate()->getEarliest()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -104,7 +101,7 @@ class DeliveryTransformer
             'shippingCosts' => $delivery->getShippingCosts(),
             'positions' => [],
             'stateId' => $stateId,
-            'position' => \is_int($originalPosition) ? $originalPosition : null,
+            'position' => $delivery->getPosition(),
         ];
 
         if ($originalAddressId !== null && $originalAddressVersionId !== null) {

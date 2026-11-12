@@ -25,7 +25,6 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -172,13 +171,14 @@ class DeliveryTransformerTest extends TestCase
         static::assertSame([1, 2, 3], array_column($result, 'position'));
     }
 
-    public function testTransformCollectionKeepsTheOriginalPositionOfDeliveriesConvertedFromAnOrder(): void
+    public function testTransformCollectionWritesThePositionOfTheCartDeliveries(): void
     {
         $primary = $this->createDelivery(10);
-        $primary->addExtension(OrderConverter::ORIGINAL_POSITION, new ArrayStruct(['position' => 2]));
+        $primary->setPosition(2);
         $first = $this->createDelivery(5);
-        $first->addExtension(OrderConverter::ORIGINAL_POSITION, new ArrayStruct(['position' => 1]));
+        $first->setPosition(1);
         $discount = $this->createDelivery(-5);
+        $discount->setPosition(3);
 
         $result = DeliveryTransformer::transformCollection(
             new DeliveryCollection([$primary, $first, $discount]),

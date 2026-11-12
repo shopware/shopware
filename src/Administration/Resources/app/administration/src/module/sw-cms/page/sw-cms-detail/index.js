@@ -21,6 +21,7 @@ export default {
 
     inject: [
         'repositoryFactory',
+        'mediaDefaultFolderService',
         'entityFactory',
         'entityHydrator',
         'loginService',
@@ -144,6 +145,7 @@ export default {
             return this.repositoryFactory.create('cms_slot');
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed, use mediaDefaultFolderService.getDefaultFolderId() instead. */
         defaultFolderRepository() {
             return this.repositoryFactory.create('media_default_folder');
         },
@@ -357,22 +359,7 @@ export default {
         },
 
         getDefaultFolderId() {
-            const criteria = new Criteria(1, 1);
-            criteria.addAssociation('folder');
-            criteria.addFilter(Criteria.equals('entity', this.cmsPageState.pageEntityName));
-
-            return this.defaultFolderRepository
-                .search(criteria, {
-                    cacheKey: ['media-default-folder', this.cmsPageState.pageEntityName],
-                })
-                .then((searchResult) => {
-                    const defaultFolder = searchResult.first();
-                    if (defaultFolder.folder?.id) {
-                        return defaultFolder.folder.id;
-                    }
-
-                    return null;
-                });
+            return this.mediaDefaultFolderService.getDefaultFolderId(this.cmsPageState.pageEntityName);
         },
 
         async loadPage(pageId) {

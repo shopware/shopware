@@ -513,9 +513,9 @@ class McpAnalysisTestNoAttributeTool extends McpToolResponse
 #[McpToolGroup('catalogue', description: '  Browse and edit the catalogue. ')]
 class McpAnalysisTestDescribingGroupTool extends McpToolResponse
 {
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
-        return '';
+        return McpToolResult::success([]);
     }
 }
 
@@ -526,9 +526,9 @@ class McpAnalysisTestDescribingGroupTool extends McpToolResponse
 #[McpToolGroup('catalogue', description: 'Something else.')]
 class McpAnalysisTestConflictingDescriptionTool extends McpToolResponse
 {
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
-        return '';
+        return McpToolResult::success([]);
     }
 }
 
@@ -539,9 +539,9 @@ class McpAnalysisTestConflictingDescriptionTool extends McpToolResponse
 #[McpToolGroup('blank', description: '   ')]
 class McpAnalysisTestBlankDescriptionTool extends McpToolResponse
 {
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
-        return '';
+        return McpToolResult::success([]);
     }
 }
 
@@ -552,9 +552,9 @@ class McpAnalysisTestBlankDescriptionTool extends McpToolResponse
 #[McpToolGroup('media', description: 'Export media, and everything else.')]
 class McpAnalysisTestDescribingCoreGroupTool extends McpToolResponse
 {
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
-        return '';
+        return McpToolResult::success([]);
     }
 }
 
@@ -565,9 +565,9 @@ class McpAnalysisTestDescribingCoreGroupTool extends McpToolResponse
 #[McpToolGroup(McpToolsetRegistry::FALLBACK_GROUP, description: 'Everything from Swag.')]
 class McpAnalysisTestDescribingFallbackGroupTool extends McpToolResponse
 {
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
-        return '';
+        return McpToolResult::success([]);
     }
 }
 
@@ -578,8 +578,8 @@ class McpAnalysisTestDescribingFallbackGroupTool extends McpToolResponse
 #[McpToolGroup(McpToolsetRegistry::ALL_TOOLSETS, description: 'All of it.')]
 class McpAnalysisTestDescribingAllGroupTool extends McpToolResponse
 {
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
-        return '';
+        return McpToolResult::success([]);
     }
 }

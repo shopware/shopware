@@ -1,50 +1,10 @@
 /**
  * @sw-package fundamentals@after-sales
  */
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 
 const APPLIES_TO_SELECTOR = '.sw-condition-generic-delivery__applies-to';
-const APPLIES_TO_SELECT = `${APPLIES_TO_SELECTOR} select`;
-
-const singleSelectStub = {
-    props: ['value', 'options', 'disabled'],
-    emits: ['update:value'],
-    template: `
-        <div>
-            <select
-                :value="value"
-                :disabled="disabled"
-                @change="$emit('update:value', $event.target.value)"
-            >
-                <option v-for="option in options" :key="option.value" :value="option.value">{{ option.label }}</option>
-            </select>
-            <template v-for="(item, index) in options" :key="item.value">
-                <slot
-                    name="result-item"
-                    v-bind="{
-                        item,
-                        index,
-                        labelProperty: 'label',
-                        isSelected: () => item.value === value,
-                        setValue: () => $emit('update:value', item.value),
-                        getKey: (option, property) => option[property],
-                    }"
-                />
-            </template>
-        </div>
-    `,
-};
-
-const selectResultStub = {
-    props: [
-        'item',
-        'index',
-        'selected',
-        'disabled',
-    ],
-    template: '<div class="select-result-stub" :data-disabled="disabled"><slot /></div>',
-};
 
 function createChildren(): EntityCollection<'rule_condition'> {
     return new Shopware.Data.EntityCollection('/rule-condition', 'rule_condition', Shopware.Context.api, null, []);
@@ -85,10 +45,22 @@ async function createWrapper({
             parentCondition,
             disabled,
         },
+        attachTo: document.body,
         global: {
             stubs: {
-                'sw-single-select': singleSelectStub,
-                'sw-select-result': selectResultStub,
+                'sw-single-select': await wrapTestComponent('sw-single-select'),
+                'sw-select-base': await wrapTestComponent('sw-select-base'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                'sw-select-result': await wrapTestComponent('sw-select-result'),
+                'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
+                'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
+                'sw-loader': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
                 'sw-condition-type-select': true,
                 'sw-condition-operator-select': true,
                 'sw-form-field-renderer': true,
@@ -113,8 +85,18 @@ async function createWrapper({
             },
         },
     });
+    await flushPromises();
 
     return { wrapper, condition };
+}
+
+async function openAppliesTo(wrapper: Awaited<ReturnType<typeof createWrapper>>['wrapper']): Promise<void> {
+    await wrapper.get(`${APPLIES_TO_SELECTOR} .sw-select__selection`).trigger('click');
+    await flushPromises();
+}
+
+function getOption(value: string) {
+    return new DOMWrapper(document.body).get(`.sw-select-option--${value}`);
 }
 
 describe('src/app/component/rule/condition-type/sw-condition-generic-delivery', () => {
@@ -127,10 +109,10 @@ describe('src/app/component/rule/condition-type/sw-condition-generic-delivery', 
 
     it.activeFeatureFlags(['v6.8.0.0'])('offers the whole cart and this delivery', async () => {
         const { wrapper } = await createWrapper();
-        const options = wrapper.findAll(`${APPLIES_TO_SELECT} option`);
 
-        expect(options.map((option) => option.attributes('value'))).toEqual(['cart', 'delivery']);
-        expect(options.map((option) => option.text())).toEqual([
+        await openAppliesTo(wrapper);
+
+        expect(new DOMWrapper(document.body).findAll('.sw-select-result').map((option) => option.text())).toEqual([
             'global.sw-condition.condition.deliveryCondition.cart',
             'global.sw-condition.condition.deliveryCondition.delivery',
         ]);
@@ -142,14 +124,18 @@ describe('src/app/component/rule/condition-type/sw-condition-generic-delivery', 
     ])('reads the scope from a %s parent', async (parentType, expected) => {
         const { wrapper } = await createWrapper({ parentCondition: { id: 'parent', type: parentType } });
 
-        expect((wrapper.find(APPLIES_TO_SELECT).element as HTMLSelectElement).value).toBe(expected);
+        expect(wrapper.get(`${APPLIES_TO_SELECTOR} .sw-single-select__selection-text`).text()).toBe(
+            `global.sw-condition.condition.deliveryCondition.${expected}`,
+        );
     });
 
     it.activeFeatureFlags(['v6.8.0.0'])('offers this delivery while the rule has no blocking assignment', async () => {
         const { wrapper } = await createWrapper();
-        const delivery = wrapper.find('.sw-select-option--delivery');
 
-        expect(delivery.attributes('data-disabled')).toBe('false');
+        await openAppliesTo(wrapper);
+        const delivery = getOption('delivery');
+
+        expect(delivery.classes()).not.toContain('is--disabled');
         expect(delivery.attributes('tooltip-mock-disabled')).toBe('true');
     });
 
@@ -166,20 +152,22 @@ describe('src/app/component/rule/condition-type/sw-condition-generic-delivery', 
                 },
             },
         });
-        const delivery = wrapper.find('.sw-select-option--delivery');
 
-        expect(delivery.attributes('data-disabled')).toBe('true');
+        await openAppliesTo(wrapper);
+        const delivery = getOption('delivery');
+
+        expect(delivery.classes()).toContain('is--disabled');
         expect(delivery.attributes('tooltip-mock-disabled')).toBe('false');
         expect(delivery.attributes('tooltip-mock-message')).toBe(
             'sw-restricted-rules.restrictedConditions.restrictedConditionTooltip',
         );
-        expect(wrapper.find('.sw-select-option--cart').attributes('data-disabled')).toBe('false');
+        expect(getOption('cart').classes()).not.toContain('is--disabled');
     });
 
     it.activeFeatureFlags(['v6.8.0.0'])('disables the select with the condition', async () => {
         const { wrapper } = await createWrapper({ disabled: true });
 
-        expect(wrapper.find(APPLIES_TO_SELECT).attributes('disabled')).toBeDefined();
+        expect(wrapper.get(APPLIES_TO_SELECTOR).classes()).toContain('is--disabled');
     });
 
     it.activeFeatureFlags(['v6.8.0.0'])('wraps a copy of the condition into a delivery container', async () => {
@@ -192,7 +180,8 @@ describe('src/app/component/rule/condition-type/sw-condition-generic-delivery', 
             provide: { createCondition: createConditionMock, insertNodeIntoTree, removeNodeFromTree },
         });
 
-        await wrapper.find(APPLIES_TO_SELECT).setValue('delivery');
+        await openAppliesTo(wrapper);
+        await getOption('delivery').trigger('click');
 
         expect(removeNodeFromTree).toHaveBeenCalledWith(parentCondition, expect.objectContaining({ id: condition.id }));
         expect(createConditionMock).toHaveBeenCalledWith(
@@ -221,7 +210,8 @@ describe('src/app/component/rule/condition-type/sw-condition-generic-delivery', 
             provide: { unwrapDeliveryCondition },
         });
 
-        await wrapper.find(APPLIES_TO_SELECT).setValue('cart');
+        await openAppliesTo(wrapper);
+        await getOption('cart').trigger('click');
 
         expect(unwrapDeliveryCondition).toHaveBeenCalledWith(expect.objectContaining({ id: condition.id }));
     });

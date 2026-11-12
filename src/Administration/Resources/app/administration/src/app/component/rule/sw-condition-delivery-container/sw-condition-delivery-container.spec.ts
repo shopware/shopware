@@ -2,29 +2,10 @@
  * @sw-package fundamentals@after-sales
  */
 import { mount } from '@vue/test-utils';
-import { reactive } from 'vue';
+import { reactive, type ComponentPublicInstance } from 'vue';
 import RuleConditionService from 'src/app/service/rule-condition.service';
 
 type ConditionNode = Record<string, unknown>;
-
-const treeNodeStub = {
-    inject: ['unwrapDeliveryCondition'],
-    props: [
-        'condition',
-        'parentCondition',
-        'level',
-        'disabled',
-        'insertBefore',
-        'insertAfter',
-    ],
-    template: `
-        <div class="tree-node-stub" :data-type="condition.type" :data-level="level" :data-disabled="disabled">
-            <button class="tree-node-stub__unwrap" @click="unwrapDeliveryCondition(condition)"></button>
-            <button class="tree-node-stub__insert-before" @click="insertBefore()"></button>
-            <button class="tree-node-stub__insert-after" @click="insertAfter()"></button>
-        </div>
-    `,
-};
 
 function createChildren(children: ConditionNode[] = []): EntityCollection<'rule_condition'> {
     return new Shopware.Data.EntityCollection(
@@ -81,11 +62,25 @@ async function createWrapper({ disabled = false }: { disabled?: boolean } = {}) 
             disabled,
         },
         global: {
+            renderStubDefaultSlot: true,
             stubs: {
-                'sw-condition-tree-node': treeNodeStub,
+                'sw-condition-tree-node': await wrapTestComponent('sw-condition-tree-node', { sync: true }),
+                'sw-condition-generic-delivery': await wrapTestComponent('sw-condition-generic-delivery', { sync: true }),
+                'sw-condition-generic': true,
+                'sw-condition-script': true,
+                'sw-condition-type-select': true,
+                'sw-condition-operator-select': true,
+                'sw-form-field-renderer': true,
+                'sw-condition-unit-menu': true,
+                'sw-context-button': true,
+                'sw-context-menu-item': true,
+                'sw-field-error': true,
+                'sw-single-select': true,
             },
             provide: {
                 conditionDataProviderService: createConditionDataProviderService(),
+                availableTypes: [],
+                availableGroups: [],
                 childAssociationField: 'children',
                 createCondition,
                 insertNodeIntoTree,
@@ -93,6 +88,7 @@ async function createWrapper({ disabled = false }: { disabled?: boolean } = {}) 
             },
         },
     });
+    await flushPromises();
 
     return { wrapper, condition, createCondition, insertNodeIntoTree, removeNodeFromTree };
 }
@@ -100,22 +96,24 @@ async function createWrapper({ disabled = false }: { disabled?: boolean } = {}) 
 describe('src/app/component/rule/sw-condition-delivery-container', () => {
     it('renders its condition one level deeper', async () => {
         const { wrapper } = await createWrapper();
-        const node = wrapper.find('.tree-node-stub');
+        const node = wrapper.getComponent<ComponentPublicInstance<{ level: number }>>('.sw-condition');
 
-        expect(node.attributes('data-type')).toBe('cartWeight');
-        expect(node.attributes('data-level')).toBe('2');
+        expect(node.find('.sw-condition__condition-type-cartWeight').exists()).toBe(true);
+        expect(node.props('level')).toBe(2);
     });
 
     it('passes the disabled state to its condition', async () => {
         const { wrapper } = await createWrapper({ disabled: true });
 
-        expect(wrapper.find('.tree-node-stub').attributes('data-disabled')).toBe('true');
+        expect(wrapper.get('.sw-condition__container').classes()).toContain('is--disabled');
     });
 
-    it('unwraps its condition when the condition asks for it', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('unwraps its condition when it applies to the whole cart', async () => {
         const { wrapper, condition, createCondition, insertNodeIntoTree, removeNodeFromTree } = await createWrapper();
 
-        await wrapper.find('.tree-node-stub__unwrap').trigger('click');
+        await wrapper
+            .getComponent<ComponentPublicInstance>('.sw-condition-generic-delivery__applies-to')
+            .setValue('cart', 'value');
 
         expect(removeNodeFromTree).toHaveBeenCalledWith(parentCondition, condition);
         expect(createCondition).toHaveBeenCalledWith(
@@ -175,7 +173,7 @@ describe('src/app/component/rule/sw-condition-delivery-container', () => {
     it.each(['before', 'after'])('inserts a new condition %s itself', async (position) => {
         const { wrapper } = await createWrapper();
 
-        await wrapper.find(`.tree-node-stub__insert-${position}`).trigger('click');
+        await wrapper.get(`.sw-condition__create-${position}-action`).trigger('click');
 
         expect(wrapper.emitted(`create-${position}`)).toHaveLength(1);
     });

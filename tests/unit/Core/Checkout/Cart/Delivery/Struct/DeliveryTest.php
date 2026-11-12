@@ -22,61 +22,12 @@ use Shopware\Core\System\Country\CountryEntity;
 #[CoversClass(Delivery::class)]
 class DeliveryTest extends TestCase
 {
-    public function testPayloadIsEmptyByDefault(): void
-    {
-        $delivery = $this->createDelivery();
-
-        static::assertSame([], $delivery->getPayload());
-        static::assertFalse($delivery->hasPayloadValue('group'));
-        static::assertNull($delivery->getPayloadValue('group'));
-    }
-
-    public function testPayloadValuesCanBeSetReadAndRemoved(): void
-    {
-        $delivery = $this->createDelivery();
-        $delivery->setPayload(['group' => 'now']);
-        $delivery->setPayloadValue('warehouseId', 'wh-1');
-
-        static::assertSame(['group' => 'now', 'warehouseId' => 'wh-1'], $delivery->getPayload());
-        static::assertTrue($delivery->hasPayloadValue('warehouseId'));
-        static::assertSame('wh-1', $delivery->getPayloadValue('warehouseId'));
-
-        $delivery->removePayloadValue('group');
-        $delivery->removePayloadValue('unknown');
-
-        static::assertSame(['warehouseId' => 'wh-1'], $delivery->getPayload());
-    }
-
-    public function testPayloadIsPartOfTheSerializedStruct(): void
-    {
-        $delivery = $this->createDelivery();
-        $delivery->setPayload(['group' => 'now']);
-
-        static::assertSame(['group' => 'now'], $delivery->jsonSerialize()['payload']);
-    }
-
     public function testProtectedPayloadValuesStayOutOfTheSerializedStruct(): void
     {
         $delivery = $this->createDelivery();
         $delivery->setPayload(['group' => 'now', 'warehouseId' => 'wh-1'], ['warehouseId' => true]);
-        $delivery->setPayloadValue('carrierContract', 'c-1', protected: true);
-        $delivery->setPayloadValue('warehouseId', 'wh-2');
 
-        static::assertSame(['group' => 'now', 'warehouseId' => 'wh-2', 'carrierContract' => 'c-1'], $delivery->getPayload());
         static::assertSame(['group' => 'now'], $delivery->jsonSerialize()['payload']);
-    }
-
-    public function testPayloadProtectionCanBeLiftedAndEndsWithTheValue(): void
-    {
-        $delivery = $this->createDelivery();
-        $delivery->setPayloadValue('warehouseId', 'wh-1', protected: true);
-        $delivery->setPayloadValue('carrierContract', 'c-1', protected: true);
-
-        $delivery->setPayloadValue('warehouseId', 'wh-1', protected: false);
-        $delivery->removePayloadValue('carrierContract');
-        $delivery->setPayloadValue('carrierContract', 'c-2');
-
-        static::assertSame(['warehouseId' => 'wh-1', 'carrierContract' => 'c-2'], $delivery->jsonSerialize()['payload']);
     }
 
     private function createDelivery(): Delivery

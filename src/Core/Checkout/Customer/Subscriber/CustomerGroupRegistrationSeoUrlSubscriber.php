@@ -153,12 +153,6 @@ class CustomerGroupRegistrationSeoUrlSubscriber implements EventSubscriberInterf
     {
         $salesChannelIds = $this->getSalesChannelIdsOfDomains($event);
 
-        if ($salesChannelIds === null) {
-            $this->updateSeoUrls(null, $event->getContext());
-
-            return;
-        }
-
         if ($salesChannelIds === []) {
             return;
         }

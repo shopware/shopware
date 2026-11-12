@@ -6,8 +6,11 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
+use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage;
@@ -126,6 +129,60 @@ class CacheInvalidationSubscriberTest extends TestCase
 
         $this->logger->expects($this->never())->method('log');
         $this->cacheInvalidationSubscriber->invalidatePropertyFilters($event);
+    }
+
+    public function testInvalidateMediaClearsTheDetailPagesOfTheProductsWhoseDocumentsUseTheFile(): void
+    {
+        $context = Context::createDefaultContext();
+        static::getContainer()->get('media.repository')->create([
+            ['id' => $this->ids->create('manual')],
+            ['id' => $this->ids->create('handbuch')],
+            ['id' => $this->ids->create('blue-sheet')],
+        ], $context);
+
+        $blue = (new ProductBuilder($this->ids, 'drill-blue'))->build();
+        $blue['documents'] = [['title' => 'Blue sheet', 'mediaId' => $this->ids->get('blue-sheet')]];
+        $drill = (new ProductBuilder($this->ids, 'drill'))
+            ->price(10)
+            ->variant((new ProductBuilder($this->ids, 'drill-red'))->build())
+            ->variant($blue)
+            ->build();
+        $drill['documents'] = [[
+            'translations' => [
+                Defaults::LANGUAGE_SYSTEM => ['title' => 'Manual', 'mediaId' => $this->ids->get('manual')],
+                $this->getDeDeLanguageId() => ['title' => 'Handbuch', 'mediaId' => $this->ids->get('handbuch')],
+            ],
+        ]];
+        $hammer = (new ProductBuilder($this->ids, 'hammer'))->price(10)->build();
+        $hammer['documents'] = [['title' => 'Manual', 'mediaId' => $this->ids->get('manual')]];
+        static::getContainer()->get('product.repository')->create([$drill, $hammer], $context);
+
+        // the detail page of a variant carries the tag of its parent
+        static::assertEqualsCanonicalizing([$this->productTag('drill'), $this->productTag('hammer')], $this->invalidatedProductTags('manual'));
+        static::assertSame([$this->productTag('drill')], $this->invalidatedProductTags('handbuch'));
+        static::assertSame([$this->productTag('drill')], $this->invalidatedProductTags('blue-sheet'));
+    }
+
+    private function productTag(string $product): string
+    {
+        return ProductDetailRoute::buildName($this->ids->get($product));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function invalidatedProductTags(string $file): array
+    {
+        $tags = [];
+        $cacheInvalidator = static::createStub(CacheInvalidator::class);
+        $cacheInvalidator->method('invalidate')->willReturnCallback(static function (array $invalidated) use (&$tags): void {
+            $tags = $invalidated;
+        });
+
+        $subscriber = new CacheInvalidationSubscriber($cacheInvalidator, static::getContainer()->get(Connection::class), productStreamIndexerEnabled: true);
+        $subscriber->invalidateMedia(new MediaIndexerEvent([$this->ids->get($file)], Context::createDefaultContext(), []));
+
+        return array_values(array_filter($tags, static fn (string $tag): bool => str_starts_with($tag, 'product-')));
     }
 
     private function insertDefaultPropertyGroup(): void

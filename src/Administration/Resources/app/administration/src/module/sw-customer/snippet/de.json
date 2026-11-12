@@ -224,7 +224,7 @@
       "labelFirstName": "Vorname",
       "labelLastName": "Nachname",
       "labelZipcode": "PLZ",
-      "labelStreet": "Straße",
+      "labelStreet": "Straße und Hausnummer",
       "labelCity": "Stadt",
       "labelCountry": "Land",
       "labelState": "Bundesland",
@@ -240,7 +240,7 @@
       "placeholderFirstName": "Gib einen Vornamen ein ...",
       "placeholderLastName": "Gib einen Nachnamen ein ...",
       "placeholderZipcode": "Gib eine Postleitzahl an ...",
-      "placeholderStreet": "Gib einen Straßennamen ein ...",
+      "placeholderStreet": "Gib Straße und Hausnummer ein ...",
       "placeholderCity": "Gib eine Stadt ein ...",
       "placeholderCountry": "Wähle ein Land aus ...",
       "placeholderState": "Wähle ein (Bundes-)Land aus ...",
@@ -261,8 +261,8 @@
     },
     "filter": {
       "customerNumber": {
-        "label": "Kundenummer",
-        "placeholder": "Kundenummer eingeben ..."
+        "label": "Kundennummer",
+        "placeholder": "Kundennummer eingeben ..."
       },
       "salutation": {
         "label": "Anrede",
@@ -307,7 +307,7 @@
     },
     "customerType": {
       "labelAccountType": "Kundentyp",
-      "placeholderAccountType": "Gib die Kundentyp ein ...",
+      "placeholderAccountType": "Kundentyp auswählen ...",
       "labelPrivate": "Privat",
       "labelBusiness": "Gewerblich"
     }

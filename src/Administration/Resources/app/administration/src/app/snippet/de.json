@@ -847,6 +847,10 @@
           "any": "Mind. eine",
           "all": "Alle"
         },
+        "deliveryCondition": {
+          "cart": "Gesamter Warenkorb",
+          "delivery": "Diese Lieferung"
+        },
         "AddAndCondition": "UND-Bedingung hinzufügen",
         "AddOrCondition": "ODER-Bedingung hinzufügen",
         "AddSubCondition": "Unterbedingungen hinzufügen",

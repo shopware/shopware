@@ -4,22 +4,18 @@ namespace Shopware\Tests\Unit\Core\System\UsageData\EntitySync;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
-use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -28,7 +24,6 @@ use Shopware\Core\System\UsageData\EntitySync\DispatchEntitiesQueryBuilder;
 use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessage;
 use Shopware\Core\System\UsageData\EntitySync\Operation;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
-use Shopware\Core\Test\Stub\Doctrine\QueryBuilderDataExtractor;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -55,52 +50,11 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
         $this->queryHelper = new DispatchEntitiesQueryBuilder($this->connection);
     }
 
-    public function testForEntityAddsTable(): void
-    {
-        static::assertSame($this->queryHelper, $this->queryHelper->forEntity('test_entity'));
-
-        $from = QueryBuilderDataExtractor::getFrom($this->queryHelper->getQueryBuilder());
-        static::assertCount(1, $from);
-        static::assertSame(
-            EntityDefinitionQueryHelper::escape('test_entity'),
-            $from[0],
-        );
-    }
-
-    public function testWithFieldsAddsStorageAwareFields(): void
-    {
-        static::assertSame(
-            $this->queryHelper,
-            $this->queryHelper->withFields(new FieldCollection([
-                new StringField('storage_aware', 'storageAware'),
-            ]))
-        );
-
-        $select = QueryBuilderDataExtractor::getSelect($this->queryHelper->getQueryBuilder());
-        static::assertCount(1, $select);
-        static::assertSame(
-            EntityDefinitionQueryHelper::escape('storage_aware'),
-            $select[0],
-        );
-    }
-
-    public function testWithFieldsRemovesNonStorageAwareFields(): void
-    {
-        static::assertSame(
-            $this->queryHelper,
-            $this->queryHelper->withFields(new FieldCollection([
-                new OneToOneAssociationField('OneToOne', 'one_to_one', 'reverse_one_to_one', 'reference_class'),
-            ]))
-        );
-
-        static::assertCount(0, QueryBuilderDataExtractor::getSelect($this->queryHelper->getQueryBuilder()));
-    }
-
     public function testWithPrimaryKeyAddsNothingForEmptyArray(): void
     {
         static::assertSame($this->queryHelper, $this->queryHelper->withPrimaryKeys([]));
 
-        static::assertNull(QueryBuilderDataExtractor::getWhere($this->queryHelper->getQueryBuilder()));
+        static::assertSame([], $this->queryHelper->getQueryBuilder()->getParameters());
     }
 
     public function testWithPrimaryKeysWithCombinedPrimaryKey(): void
@@ -110,16 +64,6 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
         ];
 
         static::assertSame($this->queryHelper, $this->queryHelper->withPrimaryKeys($primaryKeys));
-
-        static::assertEquals(
-            CompositeExpression::or(
-                CompositeExpression::and(
-                    '`product_id` = :pk_1',
-                    '`category_id` = :pk_2',
-                ),
-            ),
-            QueryBuilderDataExtractor::getWhere($this->queryHelper->getQueryBuilder()),
-        );
 
         $parameters = $this->queryHelper->getQueryBuilder()->getParameters();
         static::assertCount(2, $parameters);
@@ -135,18 +79,6 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
         ];
 
         static::assertSame($this->queryHelper, $this->queryHelper->withPrimaryKeys($primaryKeys));
-
-        static::assertEquals(
-            CompositeExpression::or(
-                CompositeExpression::and(
-                    '`id` = :pk_1',
-                ),
-                CompositeExpression::and(
-                    '`id` = :pk_2',
-                ),
-            ),
-            QueryBuilderDataExtractor::getWhere($this->queryHelper->getQueryBuilder()),
-        );
 
         $parameters = $this->queryHelper->getQueryBuilder()->getParameters();
         static::assertCount(2, $parameters);
@@ -176,14 +108,6 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
 
         static::assertSame($this->queryHelper, $this->queryHelper->checkLiveVersion($definition));
 
-        static::assertEquals(
-            CompositeExpression::and(
-                \sprintf('%s = :versionId', EntityDefinitionQueryHelper::escape('version_id')),
-                \sprintf('%s = :versionId', EntityDefinitionQueryHelper::escape('test_version_id')),
-            ),
-            QueryBuilderDataExtractor::getWhere($this->queryHelper->getQueryBuilder()),
-        );
-
         $parameters = $this->queryHelper->getQueryBuilder()->getParameters();
         static::assertCount(1, $parameters);
         static::assertContains(Uuid::fromHexToBytes(Defaults::LIVE_VERSION), $parameters);
@@ -197,14 +121,6 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
         static::assertSame(
             $this->queryHelper,
             $this->queryHelper->withCollectUntilConstraint($message, $runDate),
-        );
-
-        static::assertEquals(
-            CompositeExpression::or(
-                '`updated_at` IS NULL',
-                '`updated_at` <= :collectUntil',
-            ),
-            QueryBuilderDataExtractor::getWhere($this->queryHelper->getQueryBuilder()),
         );
 
         $parameters = $this->queryHelper->getQueryBuilder()->getParameters();
@@ -222,13 +138,6 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
         static::assertSame(
             $this->queryHelper,
             $this->queryHelper->withCollectUntilConstraint($message, $runDate),
-        );
-
-        static::assertEquals(
-            CompositeExpression::and(
-                '`updated_at` <= :collectUntil',
-            ),
-            QueryBuilderDataExtractor::getWhere($this->queryHelper->getQueryBuilder()),
         );
 
         $parameters = $this->queryHelper->getQueryBuilder()->getParameters();

@@ -98,8 +98,7 @@ export default {
                 this.parentCondition,
                 this.createCondition(
                     {
-                        type: childCondition.type,
-                        value: childCondition.value,
+                        ...this.conditionDataProviderService.getMovableConditionData(childCondition),
                         [this.childAssociationField]: new EntityCollection(
                             this.condition[this.childAssociationField].source,
                             this.condition[this.childAssociationField].entity,

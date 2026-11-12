@@ -29,12 +29,11 @@ describe('src/module/sw-product/helper/sw-products-variants-generator saveVarian
         const sync = jest.fn(() => Promise.reject(error));
         generator.syncService = { sync };
 
-        const result = generator
-            .saveVariants({ deleteQueue: [], createQueue: createVariants(12) })
-            .catch((reason) => reason);
+        const onRejected = jest.fn();
+        generator.saveVariants({ deleteQueue: [], createQueue: createVariants(12) }).catch(onRejected);
         await jest.advanceTimersByTimeAsync(15000);
 
-        expect(await result).toBe(error);
+        expect(onRejected).toHaveBeenCalledWith(error);
         // the first chunk plus three retries, the second chunk is never sent
         expect(sync).toHaveBeenCalledTimes(4);
     });

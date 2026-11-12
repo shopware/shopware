@@ -181,12 +181,39 @@ describe('scripts/extensionTooling/test CLI', () => {
 
         it('fails on a failing vendor Jest run only with --strict-vendor', async () => {
             jest.spyOn(console, 'log').mockImplementation(() => {});
-            writeFile(path.join(fixture.administrationRoot, 'node_modules/jest/bin/jest.js'), 'process.exitCode = 1;');
+            writeFailingJestBin({ reportsResults: true });
             writeFile(path.join(fixture.projectRoot, vendorAdmin, 'jest.config.mjs'), 'export default {};');
 
             await expect(runCli(['--all'])).resolves.toBe(0);
             await expect(runCli(['--all', '--strict-vendor'])).resolves.toBe(1);
         });
+
+        it('fails when the only Jest run is a vendor one that fails before reporting a result', async () => {
+            const consoleLog = jest.spyOn(console, 'log').mockImplementation(() => {});
+            writeFailingJestBin({ reportsResults: false });
+            writeFile(path.join(fixture.projectRoot, vendorAdmin, 'jest.config.mjs'), 'export default {};');
+
+            await expect(runCli(['--all'])).resolves.toBe(1);
+            expect(consoleLog.mock.calls.join('\n')).toContain(
+                'Nothing was tested: no Jest config ran a spec, see the non-fatal vendor runs above.',
+            );
+        });
+
+        /** A Jest bin that exits 1, after one failed test or before Jest reports any result. */
+        function writeFailingJestBin({ reportsResults }: { reportsResults: boolean }): void {
+            writeFile(
+                path.join(fixture.administrationRoot, 'node_modules/jest/bin/jest.js'),
+                [
+                    ...(reportsResults
+                        ? [
+                              "const processor = process.argv.find((arg) => arg.startsWith('--testResultsProcessor='));",
+                              "require(processor.slice('--testResultsProcessor='.length))({ numPassedTests: 0, numFailedTests: 1 });",
+                          ]
+                        : []),
+                    'process.exitCode = 1;',
+                ].join('\n'),
+            );
+        }
     });
 
     /** Runs the CLI against the fixture; `args` are the tooling options and, after a `--`, the Jest options. */

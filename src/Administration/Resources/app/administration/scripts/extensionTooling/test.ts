@@ -42,7 +42,7 @@ const HARNESS_IMPORT = /shopwareAdminJest|\.shopware\/jest\.mjs|extension-toolin
 
 export interface JestOutcome {
     exitCode: number;
-    /** Tests that passed or failed; undefined when Jest wrote no results, e.g. with the caller's own --testResultsProcessor. */
+    /** Tests that passed or failed; undefined when counting was skipped (watch, the caller's or the config's own processor) or a passing run wrote no results. */
     testCount?: number;
 }
 
@@ -262,7 +262,11 @@ export function createJestRunner(administrationRoot: string, stdio: StdioOptions
             // `once` also rejects when the process fails to start.
             const [exitCode] = (await once(jest, 'close')) as [number | null];
 
-            return { exitCode: exitCode ?? 1, testCount: resultsFile ? readTestCount(resultsFile) : undefined };
+            // Jest that fails before it reports any result, e.g. on a broken config, ran no test.
+            const crashed = exitCode !== 0 && resultsFile !== undefined && !fs.existsSync(resultsFile);
+            const testCount = crashed ? 0 : resultsFile && readTestCount(resultsFile);
+
+            return { exitCode: exitCode ?? 1, testCount };
         } finally {
             if (resultsDirectory) {
                 fs.rmSync(resultsDirectory, { recursive: true, force: true });

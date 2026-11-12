@@ -531,6 +531,15 @@ export default class RuleConditionService {
         return condition.type === 'deliveryContainer';
     }
 
+    getMovableConditionData(condition: Entity<'rule_condition'>) {
+        return {
+            type: condition.type,
+            value: condition.value,
+            scriptId: condition.scriptId,
+            appScriptCondition: condition.appScriptCondition,
+        };
+    }
+
     getComponentByCondition(condition: Condition) {
         if (this.isAndContainer(condition)) {
             return 'sw-condition-and-container';

@@ -95,8 +95,9 @@ export default Shopware.Component.wrapComponentConfig({
                 this.parentCondition,
                 this.createCondition(
                     {
-                        type: childCondition.type,
-                        value: childCondition.value,
+                        ...(this.conditionDataProviderService as RuleConditionService).getMovableConditionData(
+                            childCondition,
+                        ),
                         [this.childAssociationField]: new Shopware.Data.EntityCollection(
                             this.children.source,
                             this.children.entity,

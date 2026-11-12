@@ -3,6 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 import { reactive } from 'vue';
+import RuleConditionService from 'src/app/service/rule-condition.service';
 
 type ConditionNode = Record<string, unknown>;
 
@@ -53,6 +54,19 @@ function createContainer(): { children: EntityCollection<'rule_condition'> } & C
 
 const parentCondition = { id: 'or-container', type: 'orContainer' };
 
+function createConditionDataProviderService(): RuleConditionService {
+    const service = new RuleConditionService();
+    service.addCondition('cartWeight', { component: 'sw-condition-generic-delivery' });
+    service.addCondition('cartVolume', { component: 'sw-condition-generic-delivery' });
+    service.addCondition('customerGroup', { component: 'sw-condition-generic' });
+    service.addCondition('scriptRule', {
+        component: 'sw-condition-script',
+        scriptId: 'script-id' as EntityKey<'script'>,
+    });
+
+    return service;
+}
+
 async function createWrapper({ disabled = false }: { disabled?: boolean } = {}) {
     const createCondition = jest.fn(() => ({ id: 'unwrapped-condition' }));
     const insertNodeIntoTree = jest.fn();
@@ -71,13 +85,7 @@ async function createWrapper({ disabled = false }: { disabled?: boolean } = {}) 
                 'sw-condition-tree-node': treeNodeStub,
             },
             provide: {
-                conditionDataProviderService: {
-                    getByType: (type: string) => ({
-                        component: ['cartWeight', 'cartVolume'].includes(type)
-                            ? 'sw-condition-generic-delivery'
-                            : 'sw-condition-generic',
-                    }),
-                },
+                conditionDataProviderService: createConditionDataProviderService(),
                 childAssociationField: 'children',
                 createCondition,
                 insertNodeIntoTree,
@@ -126,6 +134,23 @@ describe('src/app/component/rule/sw-condition-delivery-container', () => {
 
         expect(removeNodeFromTree).toHaveBeenCalledWith(parentCondition, condition);
         expect(createCondition).toHaveBeenCalledWith(expect.objectContaining({ type: 'customerGroup' }), 'or-container', 3);
+    });
+
+    it('keeps the app script of a condition it unwraps', async () => {
+        const { condition, createCondition } = await createWrapper();
+        const appScriptCondition = { id: 'app-script-condition-id' };
+        const child = condition.children.first()!;
+
+        child.type = 'scriptRule';
+        child.scriptId = 'script-id' as typeof child.scriptId;
+        child.appScriptCondition = appScriptCondition as unknown as EntitySchema.Entity<'app_script_condition'>;
+        await flushPromises();
+
+        expect(createCondition).toHaveBeenCalledWith(
+            expect.objectContaining({ type: 'scriptRule', scriptId: 'script-id', appScriptCondition }),
+            'or-container',
+            3,
+        );
     });
 
     it('stays when its condition changes to another type with the applies to choice', async () => {

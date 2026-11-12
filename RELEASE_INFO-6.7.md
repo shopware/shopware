@@ -139,7 +139,8 @@ The session stays valid when the client gets a new access token for the same use
 
 Sessions opened before the update have no owner and are answered with `404` once.
 MCP clients start a new session on `404`, so no action is needed.
-The stateless protocol era and `/store-api/_mcp` are not affected.
+The stateless protocol era is not affected.
+On `/store-api/_mcp`, a `DELETE` of an unknown session now gets `404` instead of `200`.
 
 ### `sales-channel:file:enable` switches on `llms.txt` and `AGENTS.md`
 

@@ -39,7 +39,7 @@ class CoreCorsHeaderProviderTest extends TestCase
 
         (new CoreCorsHeaderProvider())->provide($headers);
 
-        static::assertSame(self::PLATFORM_HEADERS, $headers->getAllowed());
+        static::assertSame([...self::PLATFORM_HEADERS, 'Mcp-Method', 'Mcp-Name'], $headers->getAllowed());
         static::assertSame(self::PLATFORM_HEADERS, $headers->getExposed());
     }
 

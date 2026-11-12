@@ -2,7 +2,11 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Controller;
 
+use Mcp\Schema\Enum\ProtocolVersion;
+use Mcp\Schema\JsonRpc\Error;
 use Mcp\Server;
+use Mcp\Server\Stateless\RequestMeta;
+use Mcp\Server\Stateless\StatelessProtocol;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -175,6 +179,47 @@ class StoreApiMcpServerControllerTest extends TestCase
         $response = $controller->handle($sfRequest);
 
         static::assertNotSame('', (string) $response->headers->get(PlatformRequest::HEADER_MCP_SESSION_ID));
+    }
+
+    public function testStatelessListenIsDeclinedWithoutOpeningAStream(): void
+    {
+        $body = json_encode([
+            'jsonrpc' => '2.0',
+            'id' => 'listen-1',
+            'method' => StatelessProtocol::LISTEN_METHOD,
+            'params' => [
+                '_meta' => [RequestMeta::PROTOCOL_VERSION => ProtocolVersion::V2026_07_28->value],
+                'notifications' => ['toolsListChanged' => true],
+            ],
+        ], \JSON_THROW_ON_ERROR);
+
+        $this->rateLimiter->expects($this->atLeastOnce())->method('ensureAccepted');
+
+        $httpMessageFactory = $this->createMock(HttpMessageFactoryInterface::class);
+        $httpMessageFactory->expects($this->never())->method('createRequest');
+
+        $controller = new StoreApiMcpServerController(
+            Server::builder()->build(),
+            new McpHttpTransportFactory(
+                $httpMessageFactory,
+                $this->psr17,
+                $this->psr17,
+                static::createStub(HttpFoundationFactoryInterface::class),
+                static::createConfiguredStub(McpAllowedHostsProvider::class, ['getAllowedHosts' => ['localhost']]),
+            ),
+            new McpRateLimiter($this->rateLimiter),
+            new McpSessionIdValidator(),
+        );
+
+        $request = Request::create('/store-api/_mcp', 'POST', content: $body);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createSalesChannelContext());
+
+        $response = $controller->handle($request);
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        $error = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
+        static::assertSame('listen-1', $error['id']);
+        static::assertSame(Error::METHOD_NOT_FOUND, $error['error']['code']);
     }
 
     public function testHandleReturnsNotFoundWhenServerIsNull(): void

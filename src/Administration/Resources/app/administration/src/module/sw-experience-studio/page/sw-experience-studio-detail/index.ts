@@ -1114,15 +1114,17 @@ export default Shopware.Component.wrapComponentConfig({
 
         async writeElementPropertyValue(element: ContentElementNode, propertyKey: string, value: unknown): Promise<void> {
             if (this.isTranslatableProperty(element.component, propertyKey)) {
-                if (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean') {
-                    throw new Error(
-                        `The translatable property "${propertyKey}" takes a string, number or boolean value, received ${value === null ? 'null' : typeof value}.`,
-                    );
-                }
-
                 await this.executeStructuralDraftMutation(
                     'update-properties',
                     (layout) => {
+                        // A translatable property takes a string, number or boolean; null has no mutation that removes
+                        // one entry. Throwing here lands in the queued step's catch: the generic notification, no request.
+                        if (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean') {
+                            throw new Error(
+                                `The translatable property "${propertyKey}" takes a string, number or boolean value, received ${value === null ? 'null' : typeof value}.`,
+                            );
+                        }
+
                         const location = findElementLocation(layout, element.id);
 
                         // A target the previous step removed is sent as is; the server rejects it as not found.

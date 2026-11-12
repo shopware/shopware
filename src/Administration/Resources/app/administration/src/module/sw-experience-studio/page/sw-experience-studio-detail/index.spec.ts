@@ -255,7 +255,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         });
     });
 
-    it('throws on an object settings value of a translatable property without sending a mutation', async () => {
+    it('notifies the generic mutation error for an object settings value of a translatable property without sending a request', async () => {
         const element: ContentElementNode = {
             id: 'element-1',
             component: 'Sw:Media:Image',
@@ -265,17 +265,89 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
                 },
             },
         };
-        const requestDraftMutation = jest.fn();
-        const vm = draftMutationVm(element, requestDraftMutation, 'caption');
+        const requestDraftMutation = jest.fn().mockResolvedValueOnce(mutationResponse([element]));
+        const createNotificationError = jest.fn();
+        const vm = {
+            ...draftMutationVm(element, requestDraftMutation, 'caption'),
+            createNotificationError,
+            $t: (snippet: string) => `translated:${snippet}`,
+            notifyMutationError: methods.notifyMutationError,
+            extractMutationErrorCodes: methods.extractMutationErrorCodes,
+        };
 
-        await expect(
-            methods.onElementSettingsChange.call(vm, {
-                elementId: 'element-1',
-                propertyKey: 'caption',
-                value: { text: 'Caption updated' },
-            }),
-        ).rejects.toThrow('The translatable property "caption" takes a string, number or boolean value, received object.');
+        await methods.onElementSettingsChange.call(vm, {
+            elementId: 'element-1',
+            propertyKey: 'caption',
+            value: { text: 'Caption updated' },
+        });
+
         expect(requestDraftMutation).not.toHaveBeenCalled();
+        expect(createNotificationError).toHaveBeenCalledTimes(1);
+        expect(createNotificationError).toHaveBeenCalledWith({
+            message: 'translated:sw-experience-studio.detail.mutationErrors.generic',
+        });
+        expect(vm.pendingMutationCount).toBe(0);
+
+        await methods.onElementSettingsChange.call(vm, {
+            elementId: 'element-1',
+            propertyKey: 'caption',
+            value: 'After object',
+        });
+
+        expect(requestDraftMutation).toHaveBeenCalledTimes(1);
+        expect(requestDraftMutation).toHaveBeenCalledWith('update-properties', [element], {
+            elementId: 'element-1',
+            values: {
+                caption: {
+                    [ANCHOR_LANGUAGE_ID]: 'After object',
+                },
+            },
+        });
+        expect(createNotificationError).toHaveBeenCalledTimes(1);
+    });
+
+    it('notifies the generic mutation error for a null settings value of a translatable property without sending a request', async () => {
+        const element = translatableTextElement();
+        const requestDraftMutation = jest.fn().mockResolvedValueOnce(mutationResponse([element]));
+        const createNotificationError = jest.fn();
+        const vm = {
+            ...draftMutationVm(element, requestDraftMutation),
+            createNotificationError,
+            $t: (snippet: string) => `translated:${snippet}`,
+            notifyMutationError: methods.notifyMutationError,
+            extractMutationErrorCodes: methods.extractMutationErrorCodes,
+        };
+
+        await methods.onElementSettingsChange.call(vm, {
+            elementId: 'element-1',
+            propertyKey: 'text',
+            value: null,
+        });
+
+        expect(requestDraftMutation).not.toHaveBeenCalled();
+        expect(createNotificationError).toHaveBeenCalledTimes(1);
+        expect(createNotificationError).toHaveBeenCalledWith({
+            message: 'translated:sw-experience-studio.detail.mutationErrors.generic',
+        });
+        expect(vm.pendingMutationCount).toBe(0);
+
+        await methods.onElementSettingsChange.call(vm, {
+            elementId: 'element-1',
+            propertyKey: 'text',
+            value: 'After null',
+        });
+
+        expect(requestDraftMutation).toHaveBeenCalledTimes(1);
+        expect(requestDraftMutation).toHaveBeenCalledWith('update-properties', [element], {
+            elementId: 'element-1',
+            values: {
+                text: {
+                    [ANCHOR_LANGUAGE_ID]: 'After null',
+                    [GERMAN_LANGUAGE_ID]: 'Hallo',
+                },
+            },
+        });
+        expect(createNotificationError).toHaveBeenCalledTimes(1);
     });
 
     it('applies a settings change of a non-translatable property to the local layout', async () => {

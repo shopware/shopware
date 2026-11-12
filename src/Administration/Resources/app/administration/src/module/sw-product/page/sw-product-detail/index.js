@@ -1291,16 +1291,16 @@ export default {
 
                 const productType = this.productType;
                 const productIsNew = this.product.isNew();
+                const originalActive = this.product.getOrigin().active;
+                const productWasActive = originalActive === null ? this.parentProduct.active : originalActive;
+                const productIsActive = this.product.active === null ? this.parentProduct.active : this.product.active;
+                const productWasActivated = !productIsNew && productWasActive === false && productIsActive === true;
 
                 // save product
                 this.syncRepository
                     .save(this.product, this.productApiContext)
                     .then(() => {
-                        Shopware.Telemetry.track({
-                            eventName: 'sw_product.detail.product_saved',
-                            product_type: productType,
-                            product_is_new: productIsNew,
-                        });
+                        this.trackProductSaveEvents(productType, productIsNew, productWasActivated);
 
                         this.savePreferenceUnits()
                             .then(() => {
@@ -1322,6 +1322,21 @@ export default {
                         resolve(response);
                     });
             });
+        },
+
+        trackProductSaveEvents(productType, productIsNew, productWasActivated) {
+            Shopware.Telemetry.track({
+                eventName: 'sw_product.detail.product_saved',
+                product_type: productType,
+                product_is_new: productIsNew,
+            });
+
+            if (productWasActivated) {
+                Shopware.Telemetry.track({
+                    eventName: 'sw_product.detail.product_activated',
+                    product_type: productType,
+                });
+            }
         },
 
         removeMediaItem(state, mediaId) {

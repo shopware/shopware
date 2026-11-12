@@ -439,6 +439,30 @@ class RobotsPageLoaderTest extends TestCase
         static::assertSame('/us/account/', $usRule->getDirectives()[0]->value);
     }
 
+    public function testLoadPrefixesTheContentUsagePathWithTheDomainPath(): void
+    {
+        $request = new Request(server: ['HTTP_HOST' => 'shop.example']);
+
+        $this->robotsPageLoader = $this->setupLoaderWithDomains([
+            $this->createDomain('https://shop.example/de', 'sales-channel-de'),
+        ], [
+            'core.basicInformation.robotsRules' => [
+                "User-agent: *\nDisallow: /blog/\nContent-Usage: /blog/ train-ai=n\nContent-Usage: search=y",
+            ],
+        ]);
+
+        $this->setupEventDispatcherExpectation();
+
+        $page = $this->robotsPageLoader->load($request, Context::createDefaultContext());
+
+        $globalBlocks = $page->getGlobalUserAgentBlocks();
+        static::assertCount(1, $globalBlocks);
+
+        $directives = $globalBlocks[0]->directives;
+        $this->assertDirectivePaths($directives, RobotsDirectiveType::DISALLOW, ['/de/blog/']);
+        $this->assertDirectivePaths($directives, RobotsDirectiveType::CONTENT_USAGE, ['/de/blog/ train-ai=n', 'search=y']);
+    }
+
     public function testSearchesDomainsByTheBareRequestHost(): void
     {
         $request = new Request(server: ['HTTP_HOST' => 'example.com:443']);

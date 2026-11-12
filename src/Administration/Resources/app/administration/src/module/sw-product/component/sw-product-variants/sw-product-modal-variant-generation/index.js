@@ -244,7 +244,6 @@ export default {
                             item.productStates = [];
                         }
                         item.type = 'physical';
-                        // Also the id of the new variant, so a retried request updates it instead of creating it again
                         item.id = Shopware.Utils.createId();
                         this.idToIndex[item.id] = index;
                     });
@@ -349,7 +348,6 @@ export default {
         generateVariants() {
             this.isLoading = true;
 
-            // Copies keep the queue unchanged, so a failed generation can be started again with the same variants
             const queues = {
                 deleteQueue: this.variantGenerationQueue.deleteQueue,
                 createQueue: this.variantGenerationQueue.createQueue.map((item) => {
@@ -371,8 +369,6 @@ export default {
 
             this.addOriginalConfiguratorSettings();
 
-            // Settings come first: an interrupted run then leaves missing variants, which the next run creates,
-            // instead of variants without settings, which the next run would delete
             this.variantsGenerator
                 .saveConfiguratorSettings(this.product.configuratorSettings, queues.createQueue)
                 .then(() => {

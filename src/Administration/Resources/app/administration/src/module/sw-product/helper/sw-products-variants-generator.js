@@ -15,7 +15,6 @@ const RESTRICTIONS_SYNC_HEADERS = { 'single-operation': 1, 'indexing-behavior': 
 
 const CHUNK_SIZE = 100;
 
-// Validation errors fail again, so only connection problems, timeouts and server errors get another try
 function isRetryable(error) {
     const status = error?.response?.status;
 

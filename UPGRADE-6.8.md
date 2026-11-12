@@ -272,9 +272,6 @@ Use the order properties instead, which the list already loads in 6.7:
 The data property `filterLoading` and the computed property `filterSelectCriteria` of `sw-order-list` were removed without replacement.
 Its `updateCriteria()` method was removed as well; the `listing` mixin still provides it, so only `this.$super('updateCriteria')` in an override stops working.
 
-The codemod `order-list-helpers` of `administration:upgrade-extensions` replaces the six accessors in scripts and templates of `sw-order-list` overrides.
-It writes a TODO for `deliveryTooltip()`, `filterLoading`, `filterSelectCriteria`, `this.$super()` calls of removed members and reads of `order.deliveries`, `order.transactions` and `order.addresses`.
-
 ## Flow Builder executions run after the main business process
 
 Flows triggered during an HTTP request, Messenger message, or console command are now buffered and executed after the current unit of work has finished.
@@ -2377,9 +2374,6 @@ computed: {
 },
 ```
 
-The codemod `filter-computeds` of `administration:upgrade-extensions` adds this computed to overrides that read the filter in their script or in the template they import.
-An `.html.twig` override that no script in its folder imports gets a TODO instead.
-
 ## Removed unused `dateFilter` computeds
 
 The `dateFilter` computed became unused when the Administration templates switched to `sw-time-ago` for past dates, and was removed from `sw-advanced-selection-rule`, `sw-cms-layout-modal`, `sw-cms-list`, `sw-dashboard-statistics`, `sw-extension-card-base`, `sw-import-export-activity`, `sw-import-export-activity-log-info-modal`, `sw-import-export-activity-result-modal`, `sw-media-folder-item`, `sw-media-media-item`, `sw-newsletter-recipient-list`, `sw-order-document-card`, `sw-order-general-info`, `sw-order-list`, `sw-order-send-document-modal`, `sw-order-state-history-card-entry`, `sw-product-detail-reviews`, `sw-product-list`, `sw-product-stream-list`, `sw-promotion-v2-individual-codes-behavior`, `sw-review-detail`, `sw-review-list`, `sw-sales-channel-detail-base`, `sw-sales-channel-list`, `sw-settings-logging-list`, `sw-settings-rule-list` and `sw-settings-snippet-set-list`.
@@ -2393,8 +2387,6 @@ computed: {
     },
 },
 ```
-
-The codemod `filter-computeds` of `administration:upgrade-extensions` adds this computed in the same way as for `assetFilter`.
 
 ## `sw-loader`, `sw-skeleton-bar` and `sw-progress-bar` are replaced by `mt-*`
 
@@ -3188,8 +3180,7 @@ The canonical `Shopware\Core\Framework\Adapter\Asset\AssetService` is now intern
 
 ## The `snippets` property of `Shopware.Module.register()` is removed
 
-`Shopware.Module.register()` no longer accepts a `snippets` property.
-With the `v6.8.0.0` feature flag, registering a module that still passes it throws an error.
+`Shopware.Module.register()` no longer accepts a `snippets` property, and registering a module that still passes it throws an error.
 
 The server already loads the Administration snippets of an active plugin in 6.7, so remove the property and the imports only it used.
 It finds JSON files named after the language (`de.json`) or the locale (`de-DE.json`) in any folder below `Resources/app/administration/src` and `Resources/app/meteor-app`, except `node_modules` and hidden folders.
@@ -3224,15 +3215,11 @@ The snippets go missing after removing the property when they are:
 - files outside of these folders, such as `Resources/app/administration/snippet/de-DE.json`.
 
 Move such snippets into files the server finds first.
-Before the login, the server only returns the `global` and `sw-login` snippets.
-
-The codemod `module-snippets` of `administration:upgrade-extensions` removes the property and its imports when every value is imported from a JSON file that the server loads for that key.
-Otherwise, it writes a TODO.
 
 ## Removal of snippets
 
 The following option snippets of the rule builder were removed.
-Use the keys of `global.sw-condition-generic` instead, which exist since 6.7.0.0:
+Use the keys of `global.sw-condition-generic` instead:
 
 | Removed key | Replacement |
 |---|---|
@@ -3254,9 +3241,6 @@ The following keys were removed in 6.7.17.0 already:
 | `sw-ui-shell-update-2026-modal.pages.darkMode.profileSettingsLink` | `sw-ui-shell-update-2026-modal.profileSettingsLink` |
 | `sw-app.component.sw-app-wrong-app-url-modal.explanationHeader` | No replacement |
 | `sw-app.component.sw-app-wrong-app-url-modal.textDetails` | No replacement |
-
-The codemod `snippet-keys` of `administration:upgrade-extensions` replaces these keys in strings that are exactly the key, such as the argument of `$t()`.
-For keys without replacement, including `sw-import-export.profile.addNewProfileTooltipLanguage`, it writes a TODO.
 
 ## The following template blocks of the newsletter recipient filter have been removed
 * `sw_newsletter_recipient_list_sidebar_filter_status_not_set`
@@ -3339,22 +3323,10 @@ In favor of WebP the following images have been removed:
 -   `administration/src/module/sw-login/page/index/assets/sw-login-background.png`
 -   `administration/src/module/sw-settings-usage-data/component/sw-usage-data-consent-banner/assets/data-consent-background.png`
 
-Update image references to their `.webp` equivalents, which exist since 6.7.6.0.
+Update image references to their `.webp` equivalents.
 For example instead of `administration/static/img/sw-login-background.png` use `administration/static/img/sw-login-background.webp`.
-At runtime, these images are served below `administration/administration/static/`, which is the path `assetFilter` expects, for example `assetFilter('/administration/administration/static/img/cms/preview_mountain_large.webp')`.
-
-Some of the listed images are gone in 6.7 already:
-
-- `cms/youtube-icon.png` and `cms/vimeo-icon.png` were removed in 6.7.8.0.
-  Use `cms/youtube-icon.webp` and `cms/vimeo-icon.webp`.
-- `cms/preview_youtube.jpg` and `cms/preview_vimeo.jpg` were removed in 6.7.8.0 and have no `.webp` version.
-  Use `cms/youtube-icon.webp` and `cms/vimeo-icon.webp` instead.
-- `sw-usage-data-consent-banner/assets/data-consent-background.png` was removed with its component in 6.7.10.0.
-  Use `administration/static/img/data-consent-background.webp`.
-
-The codemod `asset-paths` of `administration:upgrade-extensions` replaces the extension in scripts and templates that reference these images in the Administration bundle.
-It writes a TODO for `cms/preview_youtube.jpg` and `cms/preview_vimeo.jpg`.
-It does not check SCSS files, so update `url()` references in your styles yourself.
+`cms/preview_youtube.jpg` and `cms/preview_vimeo.jpg` have no `.webp` version, use `cms/youtube-icon.webp` and `cms/vimeo-icon.webp` instead.
+The `.webp` version of `sw-usage-data-consent-banner/assets/data-consent-background.png` is `administration/static/img/data-consent-background.webp`.
 
 ## Mail template component changes
 

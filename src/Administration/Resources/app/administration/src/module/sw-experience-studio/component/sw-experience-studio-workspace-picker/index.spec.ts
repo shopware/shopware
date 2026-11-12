@@ -1,7 +1,6 @@
 import { DOMWrapper, mount } from '@vue/test-utils';
 import MtModal from '@shopware-ag/meteor-component-library/dist/esm/MtModal';
 import MtModalRoot from '@shopware-ag/meteor-component-library/dist/esm/MtModalRoot';
-import type { ComponentPublicInstance } from 'vue';
 import '../../store/experience-studio-workspace.store';
 import type { ExperienceStudioWorkspaceStore } from '../../store/experience-studio-workspace.store';
 import type { ContentWorkspace } from '../../types/workspace.types';
@@ -19,7 +18,6 @@ describe('workspace picker', () => {
                     'mt-modal': MtModal,
                     'mt-modal-root': MtModalRoot,
                     'sw-avatar': true,
-                    'sw-pagination': true,
                 },
             },
         });
@@ -64,6 +62,20 @@ describe('workspace picker', () => {
         expect(wrapper.emitted('select')).toEqual([['shared']]);
     });
 
+    it('shows the Meteor loader until the workspace list has loaded', async () => {
+        store.isLoading = true;
+        wrapper = await createWrapper();
+
+        expect(modal().find('.mt-loader').exists()).toBe(true);
+        expect(modal().find('.sw-experience-studio-workspace-picker__list').exists()).toBe(false);
+
+        store.isLoading = false;
+        await flushPromises();
+
+        expect(modal().find('.mt-loader').exists()).toBe(false);
+        expect(modal().findAll('.sw-experience-studio-workspace-picker__item')).toHaveLength(2);
+    });
+
     it.each([
         'header',
         'backdrop',
@@ -99,35 +111,42 @@ describe('workspace picker', () => {
         expect(wrapper.emitted('create')).toEqual([[]]);
     });
 
-    it('loads page two from the pagination payload', async () => {
+    it.each([0, 25])('hides pagination when %s workspaces fit on one page', async (total) => {
+        store.total = total;
+        wrapper = await createWrapper();
+
+        expect(modal().find('.mt-pagination').exists()).toBe(false);
+    });
+
+    it('loads page two using the Meteor pagination controls', async () => {
         store.total = 30;
         wrapper = await createWrapper();
-        const pagination = wrapper.getComponent<ComponentPublicInstance>('sw-pagination-stub');
 
-        pagination.vm.$emit('page-change', { page: 2, limit: 25 });
+        await modal().get('[data-testid="mt-pagination-next-page-button"]').trigger('click');
         await flushPromises();
 
         expect(loadWorkspaces).toHaveBeenLastCalledWith(2, '');
-        expect(pagination.attributes('page')).toBe('2');
+        expect(modal().get<HTMLInputElement>('[data-testid="mt-pagination-current-page-input"]').element.value).toBe('2');
+        expect(modal().get('[data-testid="mt-pagination-next-page-button"]').attributes('disabled')).toBeDefined();
     });
 
     it('returns to page one on search and keeps the search term when paginating', async () => {
         store.total = 30;
         wrapper = await createWrapper();
-        const pagination = wrapper.getComponent<ComponentPublicInstance>('sw-pagination-stub');
-        pagination.vm.$emit('page-change', { page: 2, limit: 25 });
+        await modal().get('[data-testid="mt-pagination-next-page-button"]').trigger('click');
         await flushPromises();
         const search = modal().get('input');
         search.element.focus();
         await search.setValue('Autumn');
         await flushPromises();
         expect(loadWorkspaces).toHaveBeenLastCalledWith(1, 'Autumn');
+        expect(modal().get<HTMLInputElement>('[data-testid="mt-pagination-current-page-input"]').element.value).toBe('1');
         expect(document.activeElement).toBe(modal().get('input').element);
 
-        pagination.vm.$emit('page-change', { page: 2, limit: 25 });
+        await modal().get('[data-testid="mt-pagination-next-page-button"]').trigger('click');
         await flushPromises();
         expect(loadWorkspaces).toHaveBeenLastCalledWith(2, 'Autumn');
-        expect(pagination.attributes('page')).toBe('2');
+        expect(modal().get<HTMLInputElement>('[data-testid="mt-pagination-current-page-input"]').element.value).toBe('2');
     });
 
     it.each([

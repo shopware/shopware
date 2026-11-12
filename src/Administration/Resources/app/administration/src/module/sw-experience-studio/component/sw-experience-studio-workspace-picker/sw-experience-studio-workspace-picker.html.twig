@@ -23,7 +23,7 @@
                     {{ $t('sw-experience-studio.workspace.manager.retry') }}
                 </mt-button>
             </mt-banner>
-            <sw-loader v-if="workspaceStore.isLoading" />
+            <mt-loader v-if="workspaceStore.isLoading" />
             <ul
                 v-else
                 class="sw-experience-studio-workspace-picker__list"
@@ -93,12 +93,12 @@
             <p v-if="!workspaceStore.isLoading && !workspaceStore.loadError && !workspaceStore.total">
                 {{ $t('sw-experience-studio.workspace.manager.empty') }}
             </p>
-            <sw-pagination
+            <mt-pagination
                 v-if="workspaceStore.total > 25"
-                :page="page"
+                :current-page="page"
                 :limit="25"
-                :total="workspaceStore.total"
-                @page-change="onPageChange"
+                :total-items="workspaceStore.total"
+                @change-current-page="onPageChange"
             />
             <template #footer>
                 <div class="sw-experience-studio-workspace-picker__footer">

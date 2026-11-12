@@ -15,12 +15,6 @@ const RESTRICTIONS_SYNC_HEADERS = { 'single-operation': 1, 'indexing-behavior': 
 
 const CHUNK_SIZE = 100;
 
-function isRetryable(error) {
-    const status = error?.response?.status;
-
-    return status === undefined || status === 429 || status >= 500;
-}
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class VariantsGenerator extends EventEmitter {
     constructor() {
@@ -593,14 +587,9 @@ export default class VariantsGenerator extends EventEmitter {
             },
         ];
 
-        RetryHelper.retry(
-            () => {
-                return this.syncService.sync(payload, {}, SYNC_HEADERS);
-            },
-            undefined,
-            undefined,
-            isRetryable,
-        )
+        RetryHelper.retry(() => {
+            return this.syncService.sync(payload, {}, SYNC_HEADERS);
+        })
             .then((response) => {
                 this.productIds.concat(response.data?.product ?? []).concat(response.data?.deleted?.product ?? []);
                 this.processQueue(type, queue, offset + limit, limit, resolve, reject);

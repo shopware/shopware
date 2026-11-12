@@ -2,8 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\ImportExport\Processing\Writer;
 
-use League\Flysystem\Filesystem;
 use League\Flysystem\Config;
+use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;

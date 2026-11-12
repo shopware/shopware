@@ -417,6 +417,7 @@ Answers on the handshake revisions carry no hints and are unchanged.
 
 The core reference resources now return a `Mcp\Schema\Result\ReadResourceResult` instead of an array.
 A plugin resource can set its own hint by returning a `ReadResourceResult` with `ttlMs` and `cacheScope`; only do so on the 2026-07-28 revision, as `RequestContext::getProtocolVersion()->isModern()` tells.
+
 ### SEO URL routes can restrict the associations of the template
 
 `SeoUrlGenerator` now calls `SeoUrlRouteInterface::prepareCriteria()` after it added the associations the SEO URL template uses.

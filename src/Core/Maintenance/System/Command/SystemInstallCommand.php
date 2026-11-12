@@ -21,6 +21,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Process\Process;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -189,7 +190,31 @@ class SystemInstallCommand extends Command
 
         $this->eventDispatcher->dispatch(new SystemInstallCompletedEvent(Context::createCLIContext()));
 
+        $this->createDemoProducts($output);
+
         return $result;
+    }
+
+    private function createDemoProducts(OutputInterface $output): void
+    {
+        $console = $this->projectDir . '/bin/console';
+        $steps = [
+            [\PHP_BINARY, $console, 'framework:demodata', '--reset-defaults', '--products=500', '--categories=10', '--manufacturers=10', '--properties=10'],
+            [\PHP_BINARY, $console, 'dal:refresh:index'],
+        ];
+
+        foreach ($steps as $step) {
+            $process = new Process($step, $this->projectDir, ['APP_ENV' => 'prod'], null, null);
+            $process->run(static function (string $type, string $buffer) use ($output): void {
+                $output->write($buffer);
+            });
+
+            if (!$process->isSuccessful()) {
+                $output->writeln('<error>Creating the demo products failed.</error>');
+
+                return;
+            }
+        }
     }
 
     /**

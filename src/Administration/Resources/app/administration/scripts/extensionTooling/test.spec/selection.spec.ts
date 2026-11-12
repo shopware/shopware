@@ -24,16 +24,16 @@ describe('scripts/extensionTooling/test selection', () => {
     it('runs the Jest config of every extension that has one and forwards the Jest options', async () => {
         writeTwoJestConfigs(fixture.projectRoot);
 
-        const result = await fixture.run({ jestArgs: ['--ci', 'main.spec'] });
+        const result = await fixture.run({ jestArgs: ['main.spec', '--ci'] });
 
         expect(fixture.jestRuns).toEqual([
             {
                 configPath: 'custom/plugins/Suite/jest.config.js',
-                jestArgs: ['--ci', 'main.spec', '--passWithNoTests'],
+                jestArgs: ['main.spec', '--ci', '--passWithNoTests'],
             },
             {
                 configPath: `${zeroConfigAdmin}/jest.config.mjs`,
-                jestArgs: ['--ci', 'main.spec', '--passWithNoTests'],
+                jestArgs: ['main.spec', '--ci', '--passWithNoTests'],
             },
         ]);
         expect(result.withoutConfig).toEqual(['custom-admin']);

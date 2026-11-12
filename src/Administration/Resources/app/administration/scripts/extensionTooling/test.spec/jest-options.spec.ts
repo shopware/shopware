@@ -51,6 +51,38 @@ describe('scripts/extensionTooling/test Jest options', () => {
         expect(fixture.jestRuns.map((jestRun) => jestRun.jestArgs)).toEqual(Array(configs).fill(jestArgs));
     });
 
+    it.each([
+        { case: 'a positional spec path pattern', jestArgs: ['main.spec'] },
+        { case: 'a spec path pattern after an option with =', jestArgs: ['--coverage=false', 'main.spec'] },
+        { case: 'a test name filter', jestArgs: ['-t', 'saves'] },
+        { case: 'a test path filter option', jestArgs: ['--testPathPatterns=main'] },
+        { case: 'a kebab-case filter option', jestArgs: ['--only-changed'] },
+        { case: 'a shard', jestArgs: ['--shard=1/3'] },
+    ])('adds --passWithNoTests over several Jest configs for $case', async ({ jestArgs }) => {
+        writeTwoJestConfigs(fixture.projectRoot);
+
+        await fixture.run({ jestArgs });
+
+        expect(fixture.jestRuns.map((jestRun) => jestRun.jestArgs)).toEqual(
+            Array(2).fill([
+                ...jestArgs,
+                '--passWithNoTests',
+            ]),
+        );
+    });
+
+    it.each([
+        { case: 'options that do not filter specs', jestArgs: ['--ci', '--coverage'] },
+        { case: 'an option value', jestArgs: ['--maxWorkers', '2'] },
+        { case: 'a bare argument read as the value of the option before it', jestArgs: ['--ci', 'main.spec'] },
+    ])('forwards the Jest options unchanged over several Jest configs for $case', async ({ jestArgs }) => {
+        writeTwoJestConfigs(fixture.projectRoot);
+
+        await fixture.run({ jestArgs });
+
+        expect(fixture.jestRuns.map((jestRun) => jestRun.jestArgs)).toEqual(Array(2).fill(jestArgs));
+    });
+
     it('runs watch mode for a selection with exactly one Jest config', async () => {
         writeTwoJestConfigs(fixture.projectRoot);
 

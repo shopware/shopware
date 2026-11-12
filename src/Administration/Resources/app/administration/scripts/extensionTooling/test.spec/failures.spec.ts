@@ -122,7 +122,7 @@ describe('scripts/extensionTooling/test failures', () => {
         writeTwoJestConfigs(fixture.projectRoot);
         fixture.jestTestCount = 0;
 
-        const result = await fixture.run({ jestArgs: ['--ci'] });
+        const result = await fixture.run({ jestArgs: ['main.spec'] });
 
         expect(fixture.jestRuns).toHaveLength(2);
         const report = renderTestReport(result);
@@ -147,7 +147,7 @@ describe('scripts/extensionTooling/test failures', () => {
         writeTwoJestConfigs(fixture.projectRoot);
         fixture.jestTestCountByConfig = { 'custom/plugins/Suite/jest.config.js': 0 };
 
-        const result = await fixture.run({ jestArgs: ['--ci'] });
+        const result = await fixture.run({ jestArgs: ['main.spec'] });
 
         const report = renderTestReport(result);
         expect(report).toContain('– Suite · custom/plugins/Suite/jest.config.js (no matching spec)');

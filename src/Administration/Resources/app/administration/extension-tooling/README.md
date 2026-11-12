@@ -257,8 +257,11 @@ Pass `--strict-vendor` to fail on it.
 Each Jest run starts with a `▶ <extension> · <jest config>` line, and the report ends with one line per Jest config.
 A run in which no spec ran exits 1, so a CI job cannot pass without running a spec.
 Jest's `--watch` and `--watchAll` need exactly one Jest config, so name one extension via `--only`; otherwise the command exits 2.
-When Jest options go to more than one Jest config, the command adds `--passWithNoTests`,
-so a spec path or name filter fails the run only on a failing spec, not on an extension without a matching spec.
+When a spec filter goes to more than one Jest config, the command adds `--passWithNoTests`,
+so the filter fails the run only on a failing spec, not on an extension without a matching spec.
+A filter is a spec path pattern or an option such as `-t`, `--testPathPatterns`, `--onlyChanged`, `--changedSince` or `--shard`.
+Put a spec path pattern first or after an option written with `=`: after an option without `=`, the command reads it as that option's value.
+Other options, such as `--ci` or `--coverage`, leave it out, so an extension without specs still fails the run.
 The report marks such an extension with `–`, and the run still fails when no Jest config ran a spec; pass `--passWithNoTests` yourself to allow that.
 
 Which Jest runs a config depends on the config:

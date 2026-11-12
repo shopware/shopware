@@ -348,17 +348,62 @@ function isWatchRun(jestArgs: string[]): boolean {
     return booleanJestOption(jestArgs, 'watch') === true || booleanJestOption(jestArgs, 'watchAll') === true;
 }
 
+/** Jest options that narrow down which specs run, so a config may match none. */
+const SPEC_FILTER_OPTIONS = [
+    'testPathPatterns',
+    'testPathPattern',
+    'testPathIgnorePatterns',
+    'testNamePattern',
+    'onlyChanged',
+    'onlyFailures',
+    'changedSince',
+    'lastCommit',
+    'findRelatedTests',
+    'selectProjects',
+    'shard',
+];
+
+const SPEC_FILTER_OPTION_PATTERN = new RegExp(
+    `^(?:--(?:${SPEC_FILTER_OPTIONS.map(optionPattern).join('|')})|-[tof])(?:=|$)`,
+);
+
 /**
- * Adds `--passWithNoTests` when Jest options go to several configs: a spec path
- * or name filter usually matches in one extension only, and the others must not
- * fail the run for having no matching spec.
+ * Whether the Jest options narrow down the specs: a filter option, or a
+ * positional spec path pattern. A bare argument after an option without `=`
+ * counts as that option's value, so a misread fails on "No tests found"
+ * instead of hiding an extension without specs.
+ *
+ * @example
+ * filtersSpecs(['main.spec']); // → true
+ * filtersSpecs(['-t', 'saves']); // → true
+ * filtersSpecs(['--ci', '--coverage']); // → false
+ * filtersSpecs(['--maxWorkers', '2']); // → false
+ */
+function filtersSpecs(jestArgs: string[]): boolean {
+    return jestArgs.some((arg, index) => {
+        if (SPEC_FILTER_OPTION_PATTERN.test(arg)) {
+            return true;
+        }
+
+        const previousArg = jestArgs[index - 1];
+        const isOptionValue = previousArg?.startsWith('-') && !previousArg.includes('=');
+
+        return !arg.startsWith('-') && !isOptionValue;
+    });
+}
+
+/**
+ * Adds `--passWithNoTests` when a spec filter goes to several configs: it
+ * usually matches in one extension only, and the others must not fail the run
+ * for having no matching spec. Without a filter, a config without specs fails.
  *
  * @example
  * withPassWithNoTests(['main.spec'], 2); // → ['main.spec', '--passWithNoTests']
  * withPassWithNoTests(['main.spec'], 1); // → ['main.spec']
+ * withPassWithNoTests(['--ci'], 2); // → ['--ci']
  */
 function withPassWithNoTests(jestArgs: string[], configCount: number): string[] {
-    if (configCount < 2 || jestArgs.length === 0 || booleanJestOption(jestArgs, 'passWithNoTests') !== undefined) {
+    if (configCount < 2 || !filtersSpecs(jestArgs) || booleanJestOption(jestArgs, 'passWithNoTests') !== undefined) {
         return jestArgs;
     }
 

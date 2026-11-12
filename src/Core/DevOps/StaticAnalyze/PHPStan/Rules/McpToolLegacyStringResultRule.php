@@ -143,7 +143,7 @@ class McpToolLegacyStringResultRule implements Rule
 
         if ($type instanceof UnionType) {
             foreach ($type->types as $member) {
-                if (self::isString($member)) {
+                if (self::mayBeString($member)) {
                     return true;
                 }
             }
@@ -151,10 +151,10 @@ class McpToolLegacyStringResultRule implements Rule
             return false;
         }
 
-        return self::isString($type);
+        return self::mayBeString($type);
     }
 
-    private static function isString(Identifier|Name|ComplexType $type): bool
+    private static function mayBeString(Identifier|Name|ComplexType $type): bool
     {
         return $type instanceof Identifier && \in_array($type->toLowerString(), ['string', 'mixed'], true);
     }

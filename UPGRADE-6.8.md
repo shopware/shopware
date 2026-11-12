@@ -1943,35 +1943,9 @@ The `getUploadFailureMessage()` method on `sw-media-upload-v2` is deprecated and
 
 ## Deprecated state select styling members in the order module
 
-The `backgroundStyle` and `roundedStyle` props and the `selectStyle` computed property of `sw-order-state-select-v2` were removed without replacement.
-Both props already have no effect in 6.7.16.0.
-The select derives the status color from its `stateName` prop instead, which is available since 6.7.16.0.
-For the same reason, the `backgroundStyle()` method of `sw-order-general-info` and the `stateSelectBackgroundStyle` computed property of `sw-order-details-state-card` were removed.
+The `backgroundStyle` and `roundedStyle` props and the `selectStyle` computed property of `sw-order-state-select-v2` were removed without replacement. The select derives the status color from its `stateName` prop instead. For the same reason, the `backgroundStyle()` method of `sw-order-general-info` and the `stateSelectBackgroundStyle` computed property of `sw-order-details-state-card` were removed.
 
-Pass the technical name of the current state as `state-name` instead of `background-style`, and remove `rounded-style`.
-The old `background-style` value was the CSS class for that state, so the core helpers map as follows:
-
-| Component | Before | After |
-|---|---|---|
-| `sw-order-general-info` | `:background-style="backgroundStyle('order_transaction')"` | `:state-name="transaction.stateMachineState.technicalName"` |
-| `sw-order-general-info` | `:background-style="backgroundStyle('order_delivery')"` | `:state-name="delivery.stateMachineState.technicalName"` |
-| `sw-order-general-info` | `:background-style="backgroundStyle('order')"` | `:state-name="order.stateMachineState.technicalName"` |
-| `sw-order-details-state-card` | `:background-style="stateSelectBackgroundStyle"` | `:state-name="entity.stateMachineState.technicalName"` |
-
-The codemod `order-state-select-props` of `administration:upgrade-extensions` applies this mapping in overrides of these components.
-It removes `rounded-style` everywhere and writes a TODO for any other `background-style`.
-
-Before:
-
-```html
-<sw-order-state-select-v2
-    state-type="order"
-    rounded-style
-    :background-style="backgroundStyle('order')"
-/>
-```
-
-After:
+Pass the technical name of the current state instead of `background-style` and `rounded-style`:
 
 ```html
 <sw-order-state-select-v2
@@ -2082,12 +2056,7 @@ The codemod `cms-helpers` of `administration:upgrade-extensions` writes a TODO a
 ## Removed Twig blocks with misleading names in CMS element configs
 
 The following blocks of CMS element configs and of `sw-product-cross-selling-assignment` were named after other components and have been removed.
-In 6.7, the deprecation notes of the buy-box, cross-selling, product-description-reviews, product-slider and image-slider blocks point to blocks of the legacy `sw-tabs` branch, which 6.8 removes as well.
-Override the `_mt_` blocks listed below instead.
-In 6.7, these blocks render with the `v6.8.0.0` feature flag from 6.7.14.0 on.
-
-The codemod `twig-block-renames` of `administration:upgrade-extensions` renames the overrides for `sw-cms-el-config-product-box` and `sw-product-cross-selling-assignment`, whose new names already render in 6.7.
-For the other blocks, it writes a TODO that names the `_mt_` block.
+Override the blocks listed below instead.
 
 ### sw-cms-el-config-buy-box.html.twig
 
@@ -2388,8 +2357,6 @@ The architectural rationale is documented in [Keep Administration HTTP transport
 
 The empty Twig anchors left behind when Administration empty states moved to `mt-empty-state` were removed: `sw_flow_list_empty_state_icon`, `sw_mail_header_footer_list_grid_empty_state_icon`, `sw_mail_template_list_grid_empty_state_icon`, `sw_order_create_address_modal_empty_state_content`, `sw_order_customer_grid_empty_state_icon`, `sw_promotion_v2_individual_codes_behavior_empty_state_icon`, `sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty_icon`, `sw_settings_listing_option_criteria_card_empty_state_icon`, `sw_settings_listing_content_card_view_options_card_empty_state_icon`, `sw_product_feature_set_card_empty_state_image`, `sw_product_feature_set_card_empty_state_label`, `sw_tax_rule_card_empty_state_image` and `sw_tax_rule_card_empty_state_label`. The product detail anchors went the same way: `sw_product_detail_prices_empty_state_image`, `sw_product_detail_prices_price_empty_state_text`, `sw_product_detail_prices_price_empty_state_text_child`, `sw_product_detail_prices_price_empty_state_text_inherited`, `sw_product_detail_prices_price_empty_state_text_link`, `sw_product_detail_prices_price_empty_state_text_not_inherited`, `sw_product_detail_prices_price_empty_state_text_empty`, `sw_product_detail_cross_selling_empty_state_actions`, `sw_product_detail_cross_selling_empty_state_icon`, `sw_product_detail_cross_selling_empty_state_content`, `sw_product_detail_cross_selling_empty_state_content_child`, `sw_product_detail_cross_selling_empty_state_content_child_inherited`, `sw_product_detail_cross_selling_empty_state_content_child_inherited_link`, `sw_product_detail_cross_selling_empty_state_content_child_not_inherited` and `sw_product_detail_cross_selling_empty_state_content_empty`. Override the surrounding `*_empty_state` block and pass the icon through the `icon` prop of `mt-empty-state` instead.
 
-The codemod `twig-block-removals` of `administration:upgrade-extensions` writes a TODO above overrides of these blocks.
-
 ## Removed the `assetFilter` computed of the empty state components
 
 The `assetFilter` computed became unused when the Administration empty states moved to `mt-empty-state`, and was removed from `sw-cms-layout-assignment-modal`, `sw-flow-list`, `sw-mail-header-footer-list`, `sw-mail-template-list`, `sw-order-customer-grid`, `sw-product-detail-context-prices`, `sw-product-detail-cross-selling`, `sw-promotion-v2-individual-codes-behavior`, `sw-sales-channel-products-assignment-dynamic-product-groups`, `sw-settings-listing-option-criteria-grid`, `sw-settings-listing`, `sw-settings-product-feature-sets-values-card` and `sw-tax-rule-card`.
@@ -2433,7 +2400,6 @@ The codemod `filter-computeds` of `administration:upgrade-extensions` adds this 
 
 Use `mt-loader`, `mt-skeleton-bar` and `mt-progress-bar` instead of the deprecated `sw-loader`, `sw-skeleton-bar` and `sw-progress-bar`.
 The `mt-*` components are available in 6.7 already, so an extension can switch before the update.
-The codemod `mt-components-6.8` of `administration:upgrade-extensions` renames the tags and adjusts the props of `mt-progress-bar`.
 
 Keep these differences in mind:
 
@@ -2463,7 +2429,6 @@ After:
 
 `sw-text-editor` and its sub-components `sw-text-editor-toolbar`, `sw-text-editor-toolbar-button`, `sw-text-editor-toolbar-table-button`, `sw-text-editor-table-toolbar` and `sw-text-editor-link-menu` have been removed.
 Use `mt-text-editor` instead, which is available in 6.7 already.
-The core Administration switches its own text editors with the `METEOR_TEXT_EDITOR` feature flag.
 
 Map the props, events and slots of `sw-text-editor` like this:
 
@@ -2481,7 +2446,6 @@ Map the props, events and slots of `sw-text-editor` like this:
 The toolbar sub-components have no tag replacement.
 Configure the toolbar of `mt-text-editor` with `custom-buttons`, `excluded-buttons` and the `#button_<name>` slots instead.
 `mt-text-editor` supports tables itself and edits links with `sw-text-editor-toolbar-button-link` in its `#button_link` slot.
-The codemod `sw-text-editor` of `administration:upgrade-extensions` marks every usage and override of these components with a TODO.
 
 Before:
 
@@ -2508,7 +2472,6 @@ After:
 ## Removed form components `sw-select-number-field`, `sw-entity-many-to-many-select` and `sw-help-sidebar`
 
 The deprecated Administration components `sw-select-number-field`, `sw-entity-many-to-many-select` and `sw-help-sidebar` have been removed.
-The codemod `removed-form-components` of `administration:upgrade-extensions` migrates what it can and writes a TODO for the rest.
 
 ### Replace `sw-select-number-field` with `mt-select`
 
@@ -2560,22 +2523,8 @@ Move overrides of `sw-help-sidebar` to `sw-help-center-v2`, and check their mark
 
 The `resize-width` prop of `sw-popover` has been removed.
 Use `match-reference-width` instead, which `sw-popover` accepts since 6.7.6.0.
-The codemod `sw-popover` of `administration:upgrade-extensions` renames the prop.
 
-Before:
-
-```html
-<sw-popover :resize-width="true" />
-```
-
-After:
-
-```html
-<sw-popover :match-reference-width="true" />
-```
-
-`sw-popover` itself is deprecated in favor of `mt-floating-ui`, and the codemod marks every usage with a TODO.
-With the `v6.8.0.0` feature flag, `sw-popover` renders `mt-floating-ui` and passes `popover-class` as `class`.
+`sw-popover` itself is deprecated in favor of `mt-floating-ui`.
 When you move to `mt-floating-ui`, keep these differences in mind:
 
 - Replace `v-if` with `:is-opened`, because `mt-floating-ui` is closed by default.
@@ -2597,8 +2546,6 @@ When an extension has already prepared for the Meteor API, it can opt in to the 
 Prefer migrating directly to `mt-tabs`. The opt-in only helps validate a prepared migration while retaining the wrapper; it does not replace the migration required before 6.9.
 
 The `mt-tabs` API uses an `items` prop instead of `sw-tabs-item` child components.
-The codemod `mt-tabs` of `administration:upgrade-extensions` converts `sw-tabs` with static `sw-tabs-item` children and writes a TODO for everything it can not convert.
-Review every TODO it creates.
 
 ### Replace `sw-tabs` with `mt-tabs`
 
@@ -2730,8 +2677,6 @@ The affected core Administration components use `mt-tabs` in their `v6.8.0.0` br
 The legacy `sw-tabs` branches of `sw-meteor-page`, `sw-meteor-card`, `sw-extension-component-section`, `sw-cms-list`, `sw-generic-custom-entity-detail`, `sw-product-detail-variants`, `sw-users-permissions-role-detail` and `sw-settings-usage-data` have been removed as well.
 They contain no Twig blocks, but overrides that rely on their `sw-tabs` markup need to move to the `mt-tabs` items.
 `sw-tabs-item` children in the `page-tabs` slot of `sw-meteor-page` and in the `tabs` slot of `sw-meteor-card` keep working, because both components convert them into `mt-tabs` items.
-
-The codemod `twig-block-removals` of `administration:upgrade-extensions` writes a TODO above every override of these blocks, naming the `_mt_` block or the tabs computed to use instead.
 
 The following Twig blocks have been removed:
 
@@ -3118,7 +3063,6 @@ The following Twig blocks have been removed:
 ## Removed deprecated Administration Twig blocks
 
 The following Administration Twig blocks were deprecated in 6.7 and have been removed.
-The codemod `twig-block-removals` of `administration:upgrade-extensions` writes a TODO above every override of these blocks that names the replacement.
 
 - `sw-settings-snippet-set-list`: the snippet sets are listed by an `sw-entity-listing` now.
   Extend `sw_settings_snippet_set_list_card_list_grid` instead of these blocks:
@@ -3322,8 +3266,6 @@ For keys without replacement, including `sw-import-export.profile.addNewProfileT
 
 Use the parent blocks instead
 
-The codemod `twig-block-removals` of `administration:upgrade-extensions` writes a TODO above overrides of these blocks.
-
 ## Removement of component sw-newsletter-recipient-filter-switch
 `administration/src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch` are removed without replacement
 
@@ -3339,7 +3281,6 @@ The Storefront settings Administration page owns its settings fields directly.
 ## The following template blocks have been replaced due to typos or misleading names:
 
 The new names already exist in 6.7.17.0.
-The codemod `twig-block-renames` of `administration:upgrade-extensions` renames overrides of these blocks.
 
 * `sw_condiiton_date_range_field_to_date` -> `sw_condition_date_range_field_to_date`
 * `sw_cms_detail_stage_empty_stade_content` -> `sw_cms_detail_stage_empty_stage_content`
@@ -3351,17 +3292,11 @@ The codemod `twig-block-renames` of `administration:upgrade-extensions` renames 
 * `sw_product_stream_filter` -> `sw_condition_base` in `sw-product-stream-filter`, which inherits the block from `sw-condition-base`
 * `sw_product_stream_filter_container` -> `sw_condition_base_content` in `sw-product-stream-filter`, which inherits the block from `sw-condition-base`
 
-The following blocks have no replacement that renders in 6.7 and 6.8.
-The codemod writes a TODO above their overrides.
+The following blocks have no replacement that renders in 6.7 and 6.8:
 
-* `sw_sales_channel_detail_content_tab_product_comparison` in `sw-sales-channel-detail`: add the tab to the `salesChannelDetailTabs` computed instead.
-  The computed feeds the `mt-tabs` of the `v6.8.0.0` branch.
 * `sw_settings_storefront_smtp_settings` in the Storefront component `sw-settings-storefront-index`: override `sw_settings_storefront_settings_icon_cache` and `sw_settings_storefront_settings_speculation_rules` instead.
 * `sw_theme_manager_detail_sidebar`, `sw_theme_manager_detail_sidebar_media` and `sw_theme_manager_detail_sidebar_media_items` in the Storefront component `sw-theme-manager-detail`: the media sidebar was replaced by a media modal.
   Override `sw_theme_manager_detail_media_modal` instead.
-
-The renamed blocks of CMS element configs are listed under "Removed Twig blocks with misleading names in CMS element configs".
-The preview footer blocks of `sw-mail-template-detail` are listed under "Mail template preview component changes".
 
 ## Removed .png and .jpg images
 
@@ -3531,12 +3466,9 @@ The codemod `mail-template-api` of `administration:upgrade-extensions` writes a 
 
 ## `$tc` is deprecated
 
-`$tc()`, the root instance `$tc()` and `Shopware.Snippet.tc()` still work in 6.8, but they are deprecated and will be removed in 6.9.
+`$tc()`, the root instance `$tc()` and `Shopware.Snippet.tc()` were deprecated and are removed in 6.9.
 Use `$t()` and `Shopware.Snippet.t()` instead, which select the plural form from a number argument as well.
-In development builds, the Administration logs a deprecation for every component and snippet key that is still translated with `$tc()`.
-
-The codemod `tc-translation` of `administration:upgrade-extensions` rewrites `$tc()` to `$t()` for 6.8 already.
-It does not check `{{ }}` interpolations in `.html.twig` templates, migrate those by hand.
+The codemod `tc-translation` of `administration:upgrade-extensions` already rewrites them for 6.8, except in `{{ }}` interpolations of `.html.twig` templates.
 
 ## Deprecated unused methods in `sw-order-document-card`
 
@@ -3573,6 +3505,7 @@ bin/console administration:upgrade-extensions -- --only=YourPlugin --target=6.8 
 
 The old options map to the new ones like this: `-p`/`--plugin-name` becomes `--only`, `-v`/`--shopware-version` becomes `--target`, `-r`/`--shopware-root` becomes `--project-root`, `--fix` becomes `--write`, and `-G`/`--ignore-git` becomes `--skip-git-check`.
 `-s`/`--src` has no replacement, because the command finds the Administration source folders of an extension itself.
+For 6.8, it also migrates the Administration components and Twig block overrides described in this file where it can, and writes a `TODO Codemod(6.8, <id>)` comment above every spot that needs manual work.
 
 ## Removed `sw-cms-layout-modal` grid selection methods
 

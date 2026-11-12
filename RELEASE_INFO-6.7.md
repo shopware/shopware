@@ -36,6 +36,17 @@ In a `DeliveryRuleScope` the shipping address rules read only the delivery's add
 Custom rules that read `getShippingLocation()` or `getShippingMethod()` from the sales channel context should read them from `$scope->getDelivery()` when the scope is a `DeliveryRuleScope`, otherwise they decide by the context for every delivery.
 See `UPGRADE-6.8.md` for an example.
 
+### Rule conditions can apply to a single cart delivery
+
+The new container condition `deliveryContainer` (`Shopware\Core\Checkout\Cart\Rule\DeliveryContainerRule`) matches its conditions against the delivery of a `DeliveryRuleScope`.
+Inside it, the cart holds only the delivery's line items and the delivery itself, while the price and the cart data stay those of the whole cart.
+Core only matches rules for a single delivery with the `v6.8.0.0` feature flag active; until then, and in every other scope, its conditions read the whole cart.
+Custom conditions that read the cart's line items or deliveries work inside the container without changes.
+
+With the `v6.8.0.0` feature flag active, the rule builder offers "Whole cart" or "This delivery" on the cart weight, cart volume and free shipping item conditions.
+"This delivery" wraps the condition in the new container, "Whole cart" stays the default.
+The Administration doesn't offer rules using it for payment methods or promotions, because only shipping method availability and price rows evaluate a rule per delivery.
+
 ### Rule Builder: new "Item with longest side and girth" condition
 
 A new line item rule condition `LineItemDimensionLongestAndGirthRule` (`cartLineItemDimensionLongestAndGirth`) was added. It matches the cart against the longest side plus girth of each individual line item. It is calculated as `longest side + 2 * (shortest side + second shortest side)`. This condition allows for more precise shipping rules based on the dimensions of the items in the cart.

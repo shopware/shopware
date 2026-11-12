@@ -1,0 +1,23 @@
+# resolvedBy References
+
+A reference property can name its storage key inline through a single `resolvedBy` key, instead of an authored `bindings:` entry:
+
+```yaml
+properties:
+  media:
+    type: Shopware\Core\Content\Media\MediaEntity
+    required: true
+    resolvedBy: mediaId
+```
+
+`resolvedBy` names the storage key under which elements of this type store the entity id (`properties.mediaId`). The property resolves from that key through the DAL at serving time. It is valid only on a reference (FQCN-typed) property. On a primitive property it is a hard load error. The storage key must not collide with a declared property key of the type. Two `resolvedBy` properties of one type must not name the same storage key. Either collision is a hard load error. The storage key is a defined concept only for the two built-in resolvedBy branches (`ResolvedByLoaderBranch`). A value wired through any other loader has no single storage key, so these collision checks do not apply to it. Canonicalization and validation remain its only gates. The key is undeclared by design. It is invisible to the type pipeline: the type serializer reads only its own declared property keys and drops everything else, the same tolerance that makes `bindings:` possible (see [Type](../../Layout/Type/README.md)). `TypeConsistentBindingSpecification` accepts it as an undeclared `resolvedBy` storage key rather than rejecting it as unknown (see [validation.md](validation.md)). A typo in that key is not load-time detectable by construction, being indistinguishable from an intentional undeclared key. So the wiring validates. The required reference then resolves from its own stored requirement, but the mistyped key never carries a value. Diagnosis reports it as an unfilled required input (`Diagnostics/ViolationCode::UnfilledRequiredInput`), never a load-time error.
+
+Its value is a `resolves` entry value and goes through the same three sugar tiers as an authored entry. A bare string is the standard case. The single-key and canonical forms also apply (see [authoring-sugar.md](authoring-sugar.md)). `DefaultBindingSpecificationSynthesizer`, injected into `YamlBindingSpecificationLoader`, turns every `resolvedBy` property of a type file into one synthesized specification for the file. `id` is the type name itself (see [default-specification.md](default-specification.md)). `label` is `meta.label` falling back to the type name. `resolves` carries one entry per `resolvedBy` property fed through the standard load path. The specification carries no `inputs`, because the canonicalizer's input synthesis skips undeclared storage keys and requiredness already lives on the reference property. Synthesis reads the raw parsed `properties` map before any type-pipeline validation runs. Property-level malformation is therefore its own hard load error naming the file: a non-array property entry, a missing or non-string `type`, a non-reference `type`, the id-length cap, or either storage-key collision. A malformed resolvedBy *value* (null, a non-string scalar, an empty array, a multi-key map) is a `resolves` entry value like any authored one. It fails hard downstream through the shared sugar tiers, as a canonicalization error (`bindingSpecificationCanonicalizationFailed`) keyed on the synthesized id.
+
+Because the type name is reserved for the synthesized default, an authored `bindings:` entry whose map key equals the containing file's type name is a hard load error (`ContentSystemException::bindingSpecificationReservedId`, 409). It is raised before duplicate detection, so the default can never be impersonated or carry authored `inputs`. This applies whether or not the file actually declares a `resolvedBy` property.
+
+`resolvedBy` needs no `bindings:` section, no pseudo-property for the id, and no client-side binding step: the client inserts the element and the type's default is fill-applied automatically (see [default-specification.md](default-specification.md)). Author a `bindings:` entry (see [inline-bindings.md](inline-bindings.md)) when a type needs an alternative or additional wiring beyond its default.
+
+## The Classification Enum
+
+`ResolvedByLoaderBranch` is the closed tier-A classification, `@internal`, with the cases `Entity` and `EntityCollection`. `fromReferenceFqcn(fqcn)` classifies a reference property and answers `null` for neither branch; `loaderSource()` returns the built-in loader's `SOURCE` constant (`EntityLoader::SOURCE` or `EntityCollectionLoader::SOURCE`, never a bare string literal); `fromLoaderSource(source)` is its inverse; `matchesStoredValueShape(value)` is the per-branch check on a stored value.

@@ -1,0 +1,188 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\ContentSystem\Layout\Type\Specification;
+
+use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\TranslatableTypeValidator;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\TypedEnumValidator;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Collection;
+
+/**
+ * $type accepts primitives (`string`, `integer`, `boolean`, `number`), `object`,
+ * class-string<Struct> FQCNs, and lists for union-like declarations.
+ * `enum` and `translatable` are ignored for non-primitive types. {@see TypedEnumValidator} {@see TranslatableTypeValidator}
+ *
+ * @phpstan-type PropertyTypeSchema = array{
+ *     type: string|list<string>,
+ *     contextTypes: list<string>,
+ *     translatable: bool,
+ *     enum: list<string|int|float|bool>|null,
+ *     default: string|int|float|bool|null,
+ *     properties: array<string, array<string, mixed>>|null
+ * }
+ */
+#[Package('framework')]
+final readonly class PropertyType
+{
+    /**
+     * The canonical primitive type set: any other `type` value is a `class-string<Struct>` FQCN.
+     */
+    public const PRIMITIVE_TYPES = ['string', 'integer', 'number', 'boolean'];
+
+    /**
+     * @param string|list<string> $type
+     * @param list<string|int|float|bool>|null $enum
+     * @param array<string, PropertySpecification>|null $properties
+     */
+    public function __construct(
+        private string|array $type,
+        private bool $translatable,
+        private ?array $enum,
+        private string|int|float|bool|null $default,
+        private ?array $properties = null,
+    ) {
+    }
+
+    /**
+     * @return PropertyTypeSchema
+     */
+    public function toSchema(): array
+    {
+        $properties = null;
+
+        if ($this->properties !== null) {
+            $properties = array_map(
+                static fn (PropertySpecification $property): array => $property->toSchema(),
+                $this->properties
+            );
+        }
+
+        return [
+            'type' => $this->type,
+            'contextTypes' => $this->contextTypes(),
+            'translatable' => $this->translatable,
+            'enum' => $this->enum,
+            'default' => $this->default,
+            'properties' => $properties,
+        ];
+    }
+
+    /**
+     * @return string|list<string>
+     */
+    public function type(): string|array
+    {
+        return $this->type;
+    }
+
+    public function default(): string|int|float|bool|null
+    {
+        return $this->default;
+    }
+
+    /**
+     * @return array<string, PropertySpecification>|null
+     */
+    public function properties(): ?array
+    {
+        return $this->properties;
+    }
+
+    public function isPrimitive(): bool
+    {
+        return \in_array($this->type, self::PRIMITIVE_TYPES, true);
+    }
+
+    /**
+     * The primitive types a value must satisfy at least one of, or `null` when the declaration constrains
+     * nothing: a bare `object` or an FQCN admits whatever the client authored, and so does a union carrying
+     * either, because that member alone accepts every value.
+     *
+     * @return list<string>|null
+     */
+    public function enforceableTypes(): ?array
+    {
+        if (\is_string($this->type)) {
+            return \in_array($this->type, self::PRIMITIVE_TYPES, true) ? [$this->type] : null;
+        }
+
+        if ($this->type === []) {
+            return null;
+        }
+
+        foreach ($this->type as $member) {
+            if (!\in_array($member, self::PRIMITIVE_TYPES, true)) {
+                return null;
+            }
+        }
+
+        return $this->type;
+    }
+
+    /**
+     * A null is admissible under every primitive, because whether a key may be null is the required-input
+     * rule's business, not this one's.
+     */
+    public function admits(mixed $value): bool
+    {
+        $types = $this->enforceableTypes();
+
+        if ($types === null || $value === null) {
+            return true;
+        }
+
+        foreach ($types as $type) {
+            if (PrimitiveTypeMatcher::matches($value, $type)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Which cardinalities can fill this property, combining the kinds of its declared union members.
+     * Primitives and non-Collection classes accept single values; Collection classes accept collections.
+     * Bare `object` accepts both, as does a union mixing collection and single-value members.
+     *
+     * The Administration uses this to filter candidates by cardinality. Declared-type assignability is also
+     * supplied by the server as candidate `compatibleTypes`, computed by
+     * `Mapping/MappingTypeCompatibility`; the browser does not reimplement PHP class compatibility.
+     *
+     * @return list<string> {@see ContextType} values, in declaration order and without repeats
+     */
+    public function contextTypes(): array
+    {
+        $accepted = [];
+
+        foreach (\is_array($this->type) ? $this->type : [$this->type] as $member) {
+            foreach ($this->contextTypesFor($member) as $contextType) {
+                if (!\in_array($contextType, $accepted, true)) {
+                    $accepted[] = $contextType;
+                }
+            }
+        }
+
+        return $accepted;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function contextTypesFor(string $type): array
+    {
+        // Bare `object` names an object without naming which, so it rules nothing out.
+        if ($type === 'object') {
+            return [ContextType::Single->value, ContextType::Collection->value];
+        }
+
+        if (\in_array($type, self::PRIMITIVE_TYPES, true)) {
+            return [ContextType::Single->value];
+        }
+
+        return is_a($type, Collection::class, true)
+            ? [ContextType::Collection->value]
+            : [ContextType::Single->value];
+    }
+}

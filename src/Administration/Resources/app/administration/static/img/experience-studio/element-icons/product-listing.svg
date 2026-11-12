@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="128" viewBox="0 0 200 128" fill="none">
+  <defs>
+    <linearGradient id="paper" x1="30" y1="18" x2="160" y2="114" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff" />
+      <stop offset="1" stop-color="#f3f8ff" />
+    </linearGradient>
+    <linearGradient id="wash" x1="40" y1="30" x2="160" y2="110" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#eaf5ff" />
+      <stop offset="1" stop-color="#d3eaff" />
+    </linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop stop-color="#62b8ff" />
+      <stop offset="1" stop-color="#1895ff" />
+    </linearGradient>
+    <filter id="frame-shadow" x="0" y="0" width="200" height="128" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#24436b" flood-opacity="0.14" />
+    </filter>
+  </defs>
+  <g stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="16" y="14" width="168" height="100" rx="8" fill="url(#paper)" stroke="#9eb3ce" filter="url(#frame-shadow)" />
+    <g transform="translate(10.777 -1.652) scale(0.8878)">
+      <rect x="20" y="43" width="47" height="44" rx="4" fill="url(#wash)" stroke="#b2ccea" />
+      <g transform="translate(30 48) scale(0.7)">
+        <path d="M0 7 11 0c4 6 12 6 16 0l11 7-7 13-5-3v24H12V17l-5 3Z" fill="url(#blue)" stroke="#1895ff" />
+      </g>
+      <path d="M23 96h33" stroke="#a7b8cf" stroke-width="3" />
+      <path d="M23 104h22" stroke="#cfdbeb" stroke-width="3" />
+      <rect x="77" y="43" width="47" height="44" rx="4" fill="url(#wash)" stroke="#b2ccea" />
+      <path d="M84 70q12-3 16-15l6 7 10 3v11H84Z" fill="url(#blue)" stroke="#1895ff" />
+      <path d="M80 96h33" stroke="#a7b8cf" stroke-width="3" />
+      <path d="M80 104h22" stroke="#cfdbeb" stroke-width="3" />
+      <rect x="134" y="43" width="47" height="44" rx="4" fill="url(#wash)" stroke="#b2ccea" />
+      <rect x="146" y="54" width="24" height="23" rx="5" fill="#b9dfff" stroke="#1895ff" />
+      <path d="M152 54v-4a6 6 0 0 1 12 0v4" fill="none" stroke="#1895ff" />
+      <path d="M137 96h33" stroke="#a7b8cf" stroke-width="3" />
+      <path d="M137 104h22" stroke="#cfdbeb" stroke-width="3" />
+    </g>
+  </g>
+</svg>

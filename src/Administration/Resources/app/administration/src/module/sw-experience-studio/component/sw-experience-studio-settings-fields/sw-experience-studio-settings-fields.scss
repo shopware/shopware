@@ -1,0 +1,396 @@
+.sw-experience-studio-settings-fields {
+    display: grid;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: hidden;
+
+    & .mt-switch {
+        margin-top: 0;
+    }
+
+    &__panel {
+        border-bottom: 1px solid var(--color-border-primary-default);
+        min-width: 0;
+
+        > .sw-collapse__header {
+            padding: var(--scale-size-16);
+        }
+
+        &.is--plain {
+            border-bottom: 0;
+
+            > .sw-collapse__header {
+                display: none;
+            }
+        }
+    }
+
+    &__panel-header {
+        display: flex;
+        gap: var(--scale-size-8);
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    &__panel-title {
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-s);
+        font-weight: var(--font-weight-semibold);
+    }
+
+    &__panel-indicator {
+        flex: 0 0 auto;
+        color: var(--color-icon-primary-default);
+        transition: transform 0.2s ease;
+
+        &.is--expanded {
+            transform: rotate(90deg);
+        }
+    }
+
+    &__panel-content {
+        display: grid;
+        gap: var(--scale-size-12);
+        padding: var(--scale-size-24) var(--scale-size-16) var(--scale-size-16);
+        min-width: 0;
+        overflow-x: hidden;
+    }
+
+    &__radio-panel-group {
+        display: grid;
+        gap: 8px;
+
+        > .sw-experience-studio-settings-fields__radio-panel-label {
+            margin-bottom: 0;
+        }
+    }
+
+    &__radio-panel-label {
+        margin-bottom: 0;
+        cursor: default;
+    }
+
+    &__radio-panel-options {
+        width: 100%;
+        height: var(--scale-size-40);
+        min-height: var(--scale-size-40);
+    }
+
+    // stylelint-disable-next-line max-line-length
+    &__radio-panel-options.sw-button-group .sw-experience-studio-settings-fields__radio-panel-option.mt-button.mt-button--square {
+        flex: 1 1 0;
+        min-width: 0;
+        height: var(--scale-size-40);
+        min-height: var(--scale-size-40);
+    }
+
+    &__corner-radius-preview {
+        display: block;
+        width: var(--scale-size-16);
+        height: var(--scale-size-16);
+        border: 2px solid currentcolor;
+    }
+
+    &__responsive-control {
+        margin-bottom: var(--scale-size-32);
+
+        > .mt-field,
+        > .mt-text-field,
+        > .mt-select {
+            margin-bottom: var(--scale-size-8);
+        }
+    }
+
+    &__responsive-slider {
+        width: 100%;
+    }
+
+    &__responsive-slider-input {
+        width: 100%;
+
+        .mt-field__label {
+            margin-bottom: 0;
+        }
+
+        &.mt-slider {
+            margin-bottom: 0;
+        }
+
+        &.mt-slider > .mt-block-field__block {
+            padding: 0;
+            gap: var(--scale-size-8);
+            align-items: center;
+            width: 100%;
+            min-width: 0;
+            min-height: var(--scale-size-48);
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            box-sizing: border-box;
+        }
+
+        &.mt-slider .mt-slider__slider .mt-slider__marks {
+            display: none;
+        }
+
+        &.mt-slider .mt-slider__slider .mt-slider__bar {
+            margin-top: 0;
+        }
+
+        &.mt-slider .mt-slider__input-slider__hint {
+            display: none;
+        }
+
+        &.mt-slider .mt-field__hint {
+            display: none;
+        }
+
+        &.mt-slider .mt-field--default .mt-block-field__block {
+            min-height: var(--scale-size-28);
+            min-width: var(--scale-size-40);
+        }
+
+        &.mt-slider .mt-number-field__controls {
+            display: none;
+        }
+
+        &.mt-slider .mt-field--default .mt-field__controls {
+            min-height: var(--scale-size-28);
+            height: var(--scale-size-28);
+        }
+
+        &.mt-slider .mt-field--default input {
+            font-size: var(--font-size-xs);
+            line-height: var(--scale-size-20);
+            text-align: center;
+            padding-top: var(--scale-size-2);
+            padding-bottom: var(--scale-size-2);
+            padding-left: var(--scale-size-2);
+            padding-right: var(--scale-size-2);
+            appearance: textfield;
+        }
+
+        &.mt-slider .mt-field--default input::-webkit-outer-spin-button,
+        &.mt-slider .mt-field--default input::-webkit-inner-spin-button {
+            margin: 0;
+            appearance: none;
+        }
+    }
+
+    &__responsive-slider-input.mt-slider > .mt-block-field__block > .mt-slider__slider {
+        flex: 1 1 0;
+        min-width: 0;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    &__responsive-slider-input.mt-slider > .mt-block-field__block > .mt-field--default {
+        flex: 0 0 auto;
+        max-width: 100%;
+        margin-bottom: 0;
+        justify-self: end;
+    }
+
+    &__responsive-slider-input.mt-slider > .mt-block-field__block > .mt-slider__slider .mt-slider__slider {
+        width: auto;
+        min-width: 0;
+    }
+
+    &__viewport-toggle {
+        border: 0;
+        padding: 0;
+        margin: 0;
+        background: transparent;
+        color: var(--color-interaction-primary-default);
+        font-size: var(--font-size-xs);
+        text-align: left;
+        cursor: pointer;
+    }
+
+    &__viewport-toggle:disabled {
+        color: var(--color-text-disabled);
+        cursor: default;
+    }
+
+    &__viewport-settings {
+        display: grid;
+        gap: var(--scale-size-12);
+        padding-top: var(--scale-size-16);
+
+        .sw-experience-studio-settings-fields__responsive-slider-input {
+            &.mt-slider > .mt-block-field__block {
+                min-height: 0;
+            }
+
+            &.mt-slider .mt-field--default .mt-block-field__block {
+                min-height: 0;
+            }
+        }
+    }
+
+    &__viewport-row {
+        display: grid;
+        grid-template-columns: 16px 30px minmax(0, 1fr);
+        column-gap: 8px;
+        align-items: center;
+    }
+
+    &__viewport-icon {
+        color: var(--color-text-secondary-default);
+        justify-self: center;
+    }
+
+    &__viewport-label {
+        color: var(--color-text-secondary-default);
+        font-size: var(--font-size-xs);
+        width: 30px;
+        min-width: 30px;
+    }
+
+    &__viewport-control {
+        width: 100%;
+        min-width: 0;
+        margin-bottom: 0;
+
+        &.mt-switch {
+            margin: 0;
+            min-height: 0;
+            justify-self: start;
+
+            &.mt-switch--not-bordered {
+                min-height: 0;
+            }
+
+            .mt-switch__block {
+                min-height: auto;
+            }
+
+            .mt-switch__label {
+                display: none;
+            }
+        }
+
+        &.mt-text-field,
+        &.mt-select,
+        &.mt-field {
+            margin-bottom: 0;
+        }
+
+        &.sw-experience-studio-box-spacing-field {
+            margin-bottom: 0;
+        }
+
+        &.mt-text-field,
+        &.mt-select {
+            .mt-field__label:has(label:empty) {
+                display: none;
+            }
+        }
+    }
+
+    &__mapping-chip {
+        display: flex;
+        align-items: stretch;
+        border: 1px solid var(--color-border-brand-selected);
+        border-radius: var(--border-radius-default);
+        background: var(--color-background-brand-default);
+        overflow: hidden;
+    }
+
+    &__mapping-value {
+        display: flex;
+        flex: 1 1 auto;
+        gap: var(--scale-size-8);
+        align-items: center;
+        min-width: 0;
+        padding: var(--scale-size-8) var(--scale-size-12);
+        border: 0;
+        background: transparent;
+        color: var(--color-text-brand-default);
+        font-size: var(--font-size-xs);
+        text-align: left;
+        cursor: pointer;
+    }
+
+    &__mapping-name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__mapping-remove {
+        display: flex;
+        flex: 0 0 auto;
+        align-items: center;
+        padding: 0 var(--scale-size-8);
+        border: 0;
+        background: transparent;
+        color: var(--color-icon-brand-default);
+        cursor: pointer;
+    }
+
+    &__mapping-value:disabled,
+    &__mapping-remove:disabled {
+        color: var(--color-text-disabled);
+        cursor: default;
+    }
+
+    &__field {
+        min-width: 0;
+        max-width: 100%;
+        overflow-x: hidden;
+
+        > .mt-text-editor,
+        > .sw-experience-studio-inline-text-field {
+            min-width: 0;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+    }
+
+    &__field.is--error &__mapping-chip {
+        border-color: var(--color-border-critical-default);
+        background: var(--color-background-critical-default);
+    }
+
+    &__violation {
+        margin-top: var(--scale-size-4);
+        color: var(--color-text-critical-default);
+        font-size: var(--font-size-xs);
+    }
+
+    // Controls carry their own 22px bottom margin, which lands between the input and the mapping action
+    // belonging to it — the action reads as introducing the next field rather than describing this one. The
+    // reset hands that gap to the field wrapper so it falls after the action instead. Matching the controls'
+    // own value keeps a mappable field spaced exactly like its neighbours.
+    // Keyed on `:has()` rather than a template modifier so the rule cannot drift from `canMapField()`, and
+    // because the resulting three-class specificity clears every control's own margin, including the
+    // `.mt-field.mt-field--small` rule that out-specifies a single class.
+    &__field:has(> .sw-experience-studio-settings-fields__mapping-trigger) {
+        margin-bottom: var(--scale-size-22);
+
+        > :not(.sw-experience-studio-settings-fields__mapping-trigger) {
+            margin-bottom: 0;
+        }
+    }
+
+    &__mapping-trigger {
+        display: flex;
+        gap: var(--scale-size-4);
+        align-items: center;
+        width: fit-content;
+        padding: 0;
+        margin-top: var(--scale-size-4);
+        margin-left: auto;
+        border: 0;
+        background: transparent;
+        color: var(--color-interaction-primary-default);
+        font-size: var(--font-size-xs);
+        cursor: pointer;
+    }
+
+    &__mapping-trigger:disabled {
+        color: var(--color-text-disabled);
+        cursor: default;
+    }
+}

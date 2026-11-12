@@ -1,0 +1,8 @@
+:root {
+    /* Kept at the legacy `.form-group` value so migrated forms do not shift. */
+    --sw-form-field-spacing: 20px;
+}
+
+.sw-form-field {
+    margin-bottom: var(--sw-form-field-spacing);
+}

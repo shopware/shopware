@@ -7,11 +7,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContactForm\SalesChannel\AbstractContactFormRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterUnsubscribeRoute;
+use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewSaveRoute;
 use Shopware\Core\Content\RevocationRequest\SalesChannel\AbstractRevocationRequestRoute;
 use Shopware\Core\Framework\Adapter\Translation\ConstraintViolationTranslator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\FormController;
 use Shopware\Tests\Unit\Storefront\Controller\Stub\FormControllerStub;
@@ -137,6 +139,38 @@ class FormControllerTest extends TestCase
         $this->assertTranslatedViolation($controller);
     }
 
+    public function testSendProductReviewReturnsCreatedId(): void
+    {
+        $storeApiResponse = new NoContentResponse();
+        $storeApiResponse->getObject()->set(AbstractProductReviewSaveRoute::REVIEW_ID, 'review-id');
+
+        $saveRoute = static::createStub(AbstractProductReviewSaveRoute::class);
+        $saveRoute->method('save')->willReturn($storeApiResponse);
+
+        $controller = $this->createController(productReviewSaveRoute: $saveRoute);
+
+        $response = $controller->sendProductReview('product-id', new RequestDataBag(), Generator::generateSalesChannelContext());
+
+        static::assertSame(200, $response->getStatusCode());
+        static::assertSame(['id' => 'review-id'], json_decode((string) $response->getContent(), true));
+    }
+
+    public function testSendProductReviewReturnsTranslatedViolations(): void
+    {
+        $saveRoute = static::createStub(AbstractProductReviewSaveRoute::class);
+        $saveRoute->method('save')->willThrowException($this->createViolationException());
+
+        $controller = $this->createController(productReviewSaveRoute: $saveRoute);
+
+        $response = $controller->sendProductReview('product-id', new RequestDataBag(), Generator::generateSalesChannelContext());
+
+        static::assertSame(400, $response->getStatusCode());
+        static::assertSame(
+            ['errors' => ['translated:error.' . self::VIOLATION_CODE]],
+            json_decode((string) $response->getContent(), true),
+        );
+    }
+
     private function createViolationException(?ConstraintViolation $violation = null): ConstraintViolationException
     {
         return new ConstraintViolationException(
@@ -158,6 +192,7 @@ class FormControllerTest extends TestCase
         ?AbstractNewsletterUnsubscribeRoute $unsubscribeRoute = null,
         ?AbstractRevocationRequestRoute $abstractRevocationRequestRoute = null,
         ?ConstraintViolationTranslator $constraintViolationTranslator = null,
+        ?AbstractProductReviewSaveRoute $productReviewSaveRoute = null,
     ): FormControllerStub {
         $translator = static::createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(
@@ -169,6 +204,7 @@ class FormControllerTest extends TestCase
             $subscribeRoute ?? static::createStub(AbstractNewsletterSubscribeRoute::class),
             $unsubscribeRoute ?? static::createStub(AbstractNewsletterUnsubscribeRoute::class),
             $abstractRevocationRequestRoute ?? static::createStub(AbstractRevocationRequestRoute::class),
+            $productReviewSaveRoute ?? static::createStub(AbstractProductReviewSaveRoute::class),
             $constraintViolationTranslator ?? new ConstraintViolationTranslator($translator),
         );
     }

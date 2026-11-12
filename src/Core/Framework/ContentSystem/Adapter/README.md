@@ -1,0 +1,34 @@
+# Adapter
+
+Connects CMS-capable entities (Product, Category, Landing Page) and domain-scoped content (Header, Footer) to the rendering pipeline. Specification sources implement `supports()` to claim paths, then `RenderingSpecificationFactory` assembles a `ResolvedContentLayout` (layout ID plus `RenderingSpecification`) from discrete resolution steps.
+
+## Guides
+
+- [docs/entity-rendering.md](docs/entity-rendering.md) - The main-section endpoints, the assignment record, the sales channel fallback between assignments, and the default layout.
+- [docs/automatic-data-loading.md](docs/automatic-data-loading.md) - The entity an entity-based render loads before the layout runs, and how a layout receives it.
+- [docs/placeholders.md](docs/placeholders.md) - The placeholders entity-based rendering provides, and passing more via the query string.
+- [docs/custom-sources.md](docs/custom-sources.md) - The plugin-facing guide to authoring and registering a specification source.
+- [docs/introspection.md](docs/introspection.md) - The Admin API endpoint listing the entity types a layout can be assigned to.
+
+## Resolution Strategies
+
+**Entity-based** (Product, Category, Landing Page): Assignment tables with sales channel fallback. `EntityLayoutResolver` queries: sales channel specific → global. When no assignment matches, products and categories fall back to the default layout from system config (see [docs/entity-rendering.md](docs/entity-rendering.md#default-layout)).
+
+**Domain-aware** (Header, Footer): Three-tier fallback via `DomainAwareLayoutResolver`: domain+channel → channel → global. There is no domain-only tier: `domain_id = X AND sales_channel_id IS NULL` never matches. The assignment key is `UNIQUE (domain_id, sales_channel_id)`.
+
+Header and footer sources are not in the tagged iterator. Each is injected into its own `RenderingSpecificationResolver`: main (Core, tagged iterator), header and footer (Storefront, one source each). Registered in `Storefront/DependencyInjection/content-system.php`.
+
+## Key Classes
+
+- `RootSourceRegistry` - The single authority over the valid root-source set (entity types, section keys and `none`, excluding `main`) and their resolution. `resolve()` fails hard on an unknown id, so callers gate membership first. The entity-type id list is baked in at build time by `ContentLayoutAssignableCompilerPass`
+- `NoneSpecificationSource` - The `none` root source for a context-free layout. It keeps `content_layout.root_source` total
+- `RenderingSpecificationResolver` - Iterates sources via `supports()` (path-based, returns a `ResolvedContentLayout`) or `supportsEntityType()` (assignment-free, returns a bare `RenderingSpecification` for the preview action), delegating to `RenderingSpecificationFactory`
+- `RenderingSpecificationFactory` - Assembles a `ResolvedContentLayout` from the source's discrete resolution steps, or a `RenderingSpecification` with no layout id (no assignment lookup)
+- `AbstractSpecificationSource` - Base class of specification sources. Entity sources override the assignment-free `supportsEntityType()` and `resolveSpecificationDataForEntity()`, and `providedRootContext()` to expose root-ambient context, reached via `RootSourceRegistry::resolve()`
+- Entity sources moved to domain aggregates: `Content/Product/.../ProductSpecificationSource`, `Content/Category/.../CategorySpecificationSource`, `Content/LandingPage/.../LandingPageSpecificationSource`
+- Domain-aware sources moved to Storefront: `Storefront/ContentSystem/HeaderContentLayout/HeaderSpecificationSource`, `Storefront/ContentSystem/FooterContentLayout/FooterSpecificationSource`
+
+## Subdirectories
+
+- **Entity/** - Abstract base classes for the assignment side: `AbstractContentLayoutAssignmentEntity` (the assignment-record entity) and `AbstractContentLayoutAssignableDefinition` (the `EntityDefinition` base for assignable entity types). Assignments are unidirectional: the assignment points at the parent entity (Product, Category, Landing Page), and the parent entity has no awareness of ContentSystem.
+- **FactoryHelper/** - Shared resolution logic (EntityLayoutResolver, EntityLayoutContextFactory, DomainAwareLayoutResolver, NavigationAliasResolver). `EntityLayoutContextFactory::providedRootContext()` delegates to `Diagnostics/RootContextMapper`, and its `buildSpecificationData()` is the assignment-free assembly entry point all three entity sources call.

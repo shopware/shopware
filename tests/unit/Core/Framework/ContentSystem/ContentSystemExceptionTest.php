@@ -1,0 +1,694 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Unit\Core\Framework\ContentSystem;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
+
+/**
+ * @internal
+ */
+#[Package('framework')]
+#[CoversClass(ContentSystemException::class)]
+class ContentSystemExceptionTest extends TestCase
+{
+    #[DataProvider('producesCorrectStatusAndErrorCodeProvider')]
+    #[TestDox('produces correct status and error code for $_dataName')]
+    public function testProducesCorrectStatusAndErrorCode(
+        ContentSystemException $exception,
+        int $expectedStatus,
+        string $expectedErrorCode,
+        string $expectedMessageFragment,
+    ): void {
+        static::assertSame($expectedStatus, $exception->getStatusCode());
+        static::assertSame($expectedErrorCode, $exception->getErrorCode());
+        static::assertStringContainsString($expectedMessageFragment, $exception->getMessage());
+    }
+
+    /**
+     * @param \Closure(ConstraintViolationList): ContentSystemException $factory
+     */
+    #[DataProvider('definitionValidationFailureProvider')]
+    #[TestDox('classifies $_dataName')]
+    public function testDefinitionValidationFailureClassification(
+        \Closure $factory,
+        int $expectedStatus,
+        string $expectedErrorCode,
+    ): void {
+        $violations = new ConstraintViolationList([
+            new ConstraintViolation('must not be blank', null, [], null, 'definitions[first].label', null),
+            new ConstraintViolation('is invalid', null, [], null, 'definitions[second].type', null),
+        ]);
+
+        $exception = $factory($violations);
+
+        static::assertSame($expectedStatus, $exception->getStatusCode());
+        static::assertSame($expectedErrorCode, $exception->getErrorCode());
+        static::assertStringContainsString(
+            'definitions[first].label: must not be blank; definitions[second].type: is invalid',
+            $exception->getMessage(),
+        );
+    }
+
+    #[DataProvider('classifiesClientDefectProvider')]
+    #[TestDox('classifies $_dataName')]
+    public function testIsClientDefect(\Throwable $exception, bool $isClientDefect): void
+    {
+        static::assertSame($isClientDefect, ContentSystemException::isClientDefect($exception));
+    }
+
+    /**
+     * The expected side is spelled as the literal wire strings rather than as the class constants the catalogue
+     * itself is built from. Reading both sides off the same constants would make the assertion self-referential:
+     * renaming a code's value would keep it green while breaking the error-code contract clients match on.
+     */
+    #[TestDox('pins the catalogue of client-defect error codes')]
+    public function testClientDefectCodes(): void
+    {
+        $expected = [
+            'CONTENT_SYSTEM__DATA_LOADER_NOT_REGISTERED',
+            'CONTENT_SYSTEM__CONFIG_SERIALIZER_NOT_REGISTERED',
+            'CONTENT_SYSTEM__UNKNOWN_LOADER_ENTITY',
+            'CONTENT_SYSTEM__INVALID_FIELD_VALUE_TYPE',
+            'CONTENT_SYSTEM__INVALID_FIELD_VALUE_RANGE',
+            'CONTENT_SYSTEM__CONSUMER_ALIAS_WITHOUT_REDISTRIBUTE',
+            'CONTENT_SYSTEM__PROPERTY_ALIAS_WITH_DOT_NOTATION',
+            'CONTENT_SYSTEM__PROPERTY_ALIAS_COLLISION',
+            'CONTENT_SYSTEM__REDISTRIBUTE_DOTTED_PATH',
+            'CONTENT_SYSTEM__REDISTRIBUTE_CONFLICT',
+            'CONTENT_SYSTEM__ROOT_SCOPE_WITH_REDISTRIBUTE',
+            'CONTENT_SYSTEM__PROVIDER_DELIVERY_COLLISION',
+            'CONTENT_SYSTEM__INVALID_MAP_KEY',
+            'CONTENT_SYSTEM__INVALID_ELEMENT_ID',
+            'CONTENT_SYSTEM__BOX_SPACING_INVALID_VALUE',
+        ];
+
+        $actual = ContentSystemException::CLIENT_DEFECT_CODES;
+        sort($expected);
+        sort($actual);
+
+        static::assertSame($expected, $actual);
+    }
+
+    #[DataProvider('configSerializerMessageFormProvider')]
+    #[TestDox('formats the message for $_dataName')]
+    public function testConfigSerializerNotRegisteredMessageForm(string $source, ?string $elementId, string $expectedMessage): void
+    {
+        $exception = ContentSystemException::configSerializerNotRegistered($source, $elementId);
+
+        static::assertSame($expectedMessage, $exception->getMessage());
+        static::assertSame(ContentSystemException::CONFIG_SERIALIZER_NOT_REGISTERED, $exception->getErrorCode());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+    }
+
+    /**
+     * The id that reaches this factory is the one that failed the domain rule, so it can hold a control
+     * character — and the message is written to logs as plain text, where a raw `\r` hides everything
+     * before it. The reason is irrelevant here; only the rendering of the id is under test.
+     */
+    #[DataProvider('printableIdProvider')]
+    #[TestDox('renders $_dataName without corrupting the message')]
+    public function testInvalidElementIdRendersAPrintableId(string $id, string $expectedId): void
+    {
+        $exception = ContentSystemException::invalidElementId($id, 'reads as an integer');
+
+        static::assertSame(
+            \sprintf('Element id "%s" is not accepted: it reads as an integer.', $expectedId),
+            $exception->getMessage()
+        );
+        static::assertSame($expectedId, $exception->getParameters()['id']);
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function printableIdProvider(): iterable
+    {
+        yield 'an ordinary id, unchanged' => ['hero', 'hero'];
+
+        yield 'a non-ASCII id, left intact rather than escaped to \u00e9' => ['héro', 'héro'];
+
+        yield 'a carriage return, which would otherwise rewind the log line' => ["hero\rfoot", 'hero\\rfoot'];
+
+        yield 'a line feed' => ["hero\nfoot", 'hero\\nfoot'];
+
+        yield 'a line separator, which addcslashes would have missed' => ["hero\u{2028}", 'hero\\u2028'];
+
+        yield 'an embedded quote, kept balanced' => ['"hero"', '\\"hero\\"'];
+
+        yield 'an invalid UTF-8 id, returned as-is because it cannot be JSON-escaped' => ["hero\xFF", "hero\xFF"];
+    }
+
+    #[TestDox('names the target element in the type-mismatch message and parameters, and omits it when the element does not exist yet')]
+    public function testBindingTypeMismatchMessageForms(): void
+    {
+        $named = ContentSystemException::bindingTypeMismatch('spec-1', 'Sw:Media:Image', 'Sw:Product', 'el-1');
+        $unnamed = ContentSystemException::bindingTypeMismatch('spec-1', 'Sw:Media:Image', 'Sw:Product', null);
+
+        static::assertSame(
+            'Binding specification "spec-1" applies to type "Sw:Media:Image", but the target element "el-1" is of type "Sw:Product".',
+            $named->getMessage()
+        );
+        static::assertSame(
+            ['bindingSpecificationId' => 'spec-1', 'specificationType' => 'Sw:Media:Image', 'elementComponent' => 'Sw:Product', 'elementId' => 'el-1'],
+            $named->getParameters()
+        );
+        static::assertSame(
+            'Binding specification "spec-1" applies to type "Sw:Media:Image", but the target element is of type "Sw:Product".',
+            $unnamed->getMessage()
+        );
+        static::assertSame(
+            ['bindingSpecificationId' => 'spec-1', 'specificationType' => 'Sw:Media:Image', 'elementComponent' => 'Sw:Product', 'elementId' => null],
+            $unnamed->getParameters()
+        );
+    }
+
+    #[TestDox('propagates previous throwable when loading element type fails')]
+    public function testPreservesPreviousThrowableOnLoadFailed(): void
+    {
+        $previous = new \RuntimeException('parse error');
+        $e = ContentSystemException::elementTypeLoadFailed('test.yaml', 'invalid syntax', $previous);
+
+        static::assertSame($previous, $e->getPrevious());
+    }
+
+    #[TestDox('propagates previous throwable when a data loader config is invalid')]
+    public function testPreservesPreviousThrowableOnInvalidLoaderConfig(): void
+    {
+        $previous = new \RuntimeException('rootId expected non-empty string, got integer');
+        $e = ContentSystemException::invalidLoaderConfig('navigation', $previous);
+
+        static::assertSame($previous, $e->getPrevious());
+    }
+
+    /**
+     * @return iterable<string, array{\Throwable, bool}>
+     */
+    public static function classifiesClientDefectProvider(): iterable
+    {
+        // A code in the catalogue is reachable from the layout decode path (dataRequirements / acceptsContext),
+        // so a client typo must become an invalid_config diagnostic, not a 500 that aborts the write. The exact
+        // catalogue membership is pinned by a separate test.
+        yield 'a code in the client-defect catalogue as a client defect' => [ContentSystemException::unknownLoaderEntity('prodct'), true];
+        yield 'a provider delivery collision as a client defect' => [ContentSystemException::providerDeliveryCollision('item', 'product', 'category', 'el-1'), true];
+        yield 'a root scope combined with redistribute as a client defect' => [ContentSystemException::rootScopeWithRedistribute('product'), true];
+        // A code outside the catalogue is an internal fault that must propagate, never relabelled as the client's mistake.
+        yield 'a code outside the client-defect catalogue as an internal fault' => [ContentSystemException::invalidFieldType('A', 'B'), false];
+        // A served layout is stored data, not client input, so a corrupt forest is an internal fault.
+        yield 'a duplicate element id as an internal fault' => [ContentSystemException::duplicateElementId('repeated-id'), false];
+        yield 'an inline expansion resource limit as an internal fault' => [ContentSystemException::inlineMappingExpansionTooLarge(1048576, 'property'), false];
+        yield 'an unbound internal mapping operation as an internal fault' => [ContentSystemException::mappingRootSourceMissing('element-1', 'text'), false];
+        // The two halves of the split: an HTTP 500 that is nonetheless a client defect, so the strict draft
+        // decode turns it into a 400 and the lintable one collects it as a 200 violation, while the
+        // stored-column read keeps the fault status.
+        yield 'an invalid element id as a client defect despite its 500' => [ContentSystemException::invalidElementId('12', 'reads as an integer'), true];
+        yield 'a box-spacing input failure as a client defect' => [ContentSystemException::boxSpacingInvalidValue('trim', 'x'), true];
+        // Only a content-system exception can be a client defect, whatever its message says.
+        yield 'a non content-system throwable as an internal fault' => [new \RuntimeException('boom'), false];
+    }
+
+    /**
+     * @return iterable<string, array{\Closure(ConstraintViolationList): ContentSystemException, int, string}>
+     */
+    public static function definitionValidationFailureProvider(): iterable
+    {
+        yield 'an element-type request validation failure as a client error' => [
+            static fn (ConstraintViolationList $violations): ContentSystemException => ContentSystemException::elementTypesInvalid($violations),
+            Response::HTTP_BAD_REQUEST,
+            ContentSystemException::ELEMENT_TYPES_INVALID,
+        ];
+
+        yield 'a preset load validation failure as a server error' => [
+            static fn (ConstraintViolationList $violations): ContentSystemException => ContentSystemException::layoutPresetsInvalid($violations),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            ContentSystemException::LAYOUT_PRESETS_INVALID,
+        ];
+
+        yield 'an element-type load validation failure as a server error' => [
+            static fn (ConstraintViolationList $violations): ContentSystemException => ContentSystemException::elementTypeLoadFailed('test definitions', ContentSystemException::violationMessages($violations)),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            ContentSystemException::ELEMENT_TYPE_LOAD_FAILED,
+        ];
+
+        yield 'a style-option load validation failure as a server error' => [
+            static fn (ConstraintViolationList $violations): ContentSystemException => ContentSystemException::styleOptionLoadFailed('test definitions', ContentSystemException::violationMessages($violations)),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            ContentSystemException::STYLE_OPTION_LOAD_FAILED,
+        ];
+
+        yield 'a binding load validation failure as a server error' => [
+            static fn (ConstraintViolationList $violations): ContentSystemException => ContentSystemException::bindingSpecificationLoadFailed('test definitions', ContentSystemException::violationMessages($violations)),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            ContentSystemException::BINDING_SPECIFICATION_LOAD_FAILED,
+        ];
+    }
+
+    /**
+     * @return iterable<string, array{ContentSystemException, int, string, string}>
+     */
+    public static function producesCorrectStatusAndErrorCodeProvider(): iterable
+    {
+        yield 'an unbound internal mapping operation' => [
+            ContentSystemException::mappingRootSourceMissing('element-1', 'text'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__MAPPING_ROOT_SOURCE_MISSING',
+            'Mapping property "text" on element "element-1" requires a bound layout root source.',
+        ];
+
+        yield 'inline expansion limit is a render fault' => [
+            ContentSystemException::inlineMappingExpansionTooLarge(1048576, 'property'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__INLINE_MAPPING_EXPANSION_TOO_LARGE',
+            '1048576 bytes per property',
+        ];
+
+        yield 'inline input limit remains a validation failure' => [
+            ContentSystemException::inlineMappingInputTooLarge(262144),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__INLINE_MAPPING_INPUT_TOO_LARGE',
+            '262144 bytes',
+        ];
+
+        yield 'inline token scan failure is a server fault' => [
+            ContentSystemException::inlineMappingParsingFailed('scan tokens in', 'Backtrack limit exhausted'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__INLINE_MAPPING_PARSING_FAILED',
+            'Could not scan tokens in inline mapping text: Backtrack limit exhausted.',
+        ];
+
+        yield 'inline path validation failure is a server fault' => [
+            ContentSystemException::inlineMappingParsingFailed('validate a path in', 'Backtrack limit exhausted'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__INLINE_MAPPING_PARSING_FAILED',
+            'Could not validate a path in inline mapping text: Backtrack limit exhausted.',
+        ];
+
+        yield 'box-spacing input limit' => [
+            ContentSystemException::boxSpacingInvalidValue('trim', 'x'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__BOX_SPACING_INVALID_VALUE',
+            'exceeds the supported input limits',
+        ];
+
+        yield 'box-spacing engine failure' => [
+            ContentSystemException::boxSpacingTokenizationFailed('split', 'x', 'Internal error'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__BOX_SPACING_TOKENIZATION_FAILED',
+            'Could not split a box-spacing value',
+        ];
+
+        yield 'style filename' => [
+            ContentSystemException::styleOptionInvalidFilename('Bad', 'Bad.yaml'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__STYLE_OPTION_INVALID_FILENAME',
+            'Bad',
+        ];
+
+        yield 'preset filename' => [
+            ContentSystemException::layoutPresetInvalidFilename('Bad', 'Bad.yaml'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__LAYOUT_PRESET_INVALID_FILENAME',
+            'Bad',
+        ];
+
+        yield 'unknown binding type' => [
+            ContentSystemException::bindingSpecificationUnknownType('binding', 'Unknown'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__BINDING_SPECIFICATION_UNKNOWN_TYPE',
+            'Unknown',
+        ];
+
+        yield 'binding canonicalization' => [
+            ContentSystemException::bindingSpecificationCanonicalizationFailed('binding', 'invalid sugar'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__BINDING_SPECIFICATION_CANONICALIZATION_FAILED',
+            'invalid sugar',
+        ];
+
+        yield 'data loader not registered' => [
+            ContentSystemException::dataLoaderNotRegistered('product', 'Sw:Product:Card', 'elem-1'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__DATA_LOADER_NOT_REGISTERED',
+            'product',
+        ];
+
+        // 500 while still a client-defect code, the split invalidFieldValueType and invalidMapKey take: the
+        // DAL write wraps it into an unconditional 400 and the draft routes answer 400 or 200 by catalogue
+        // membership, so the one path where this status IS the response is the stored-column read.
+        yield 'invalid element id' => [
+            ContentSystemException::invalidElementId('12', 'reads as an integer'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__INVALID_ELEMENT_ID',
+            '12',
+        ];
+
+        // An element-definition wiring defect the client authored and can correct, so a 400 like its five
+        // siblings rather than the 500 the two rows above take.
+        yield 'root scope with redistribute' => [
+            ContentSystemException::rootScopeWithRedistribute('product'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__ROOT_SCOPE_WITH_REDISTRIBUTE',
+            'product',
+        ];
+
+        yield 'preview payload invalid' => [
+            ContentSystemException::previewPayloadInvalid('layout', 'array', 'string'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__PREVIEW_PAYLOAD_INVALID',
+            'layout',
+        ];
+
+        yield 'invalid field type' => [
+            ContentSystemException::invalidFieldType('StringField', 'IntField'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__INVALID_FIELD_TYPE',
+            'StringField',
+        ];
+
+        yield 'invalid field value type' => [
+            ContentSystemException::invalidFieldValueType('count', 'int', 'string'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__INVALID_FIELD_VALUE_TYPE',
+            'count',
+        ];
+
+        yield 'invalid loader config' => [
+            ContentSystemException::invalidLoaderConfig('navigation', new \RuntimeException('rootId expected non-empty string, got integer')),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__INVALID_FIELD_VALUE_TYPE',
+            'navigation',
+        ];
+
+        yield 'invalid map key' => [
+            ContentSystemException::invalidMapKey('ConfigMap', 'integer'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__INVALID_MAP_KEY',
+            'ConfigMap',
+        ];
+
+        yield 'invalid map value' => [
+            ContentSystemException::invalidMapValue('ConfigMap', 'foo', 'string', 'array'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__INVALID_MAP_VALUE',
+            'foo',
+        ];
+
+        yield 'duplicate element id' => [
+            ContentSystemException::duplicateElementId('repeated-id'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__DUPLICATE_ELEMENT_ID',
+            'repeated-id',
+        ];
+
+        yield 'layout assignment not found' => [
+            ContentSystemException::layoutAssignmentNotFound('product', 'prod-1', 'sc-1'),
+            Response::HTTP_NOT_FOUND,
+            'CONTENT_SYSTEM__LAYOUT_ASSIGNMENT_NOT_FOUND',
+            'prod-1',
+        ];
+
+        yield 'layout not found' => [
+            ContentSystemException::layoutNotFound('layout-1'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__LAYOUT_NOT_FOUND',
+            'layout-1',
+        ];
+
+        yield 'element not found' => [
+            ContentSystemException::elementNotFound('elem-1'),
+            Response::HTTP_NOT_FOUND,
+            'CONTENT_SYSTEM__ELEMENT_NOT_FOUND',
+            'elem-1',
+        ];
+
+        yield 'no factory can handle' => [
+            ContentSystemException::noFactoryCanHandle('/store-api/content/unknown'),
+            Response::HTTP_NOT_FOUND,
+            'CONTENT_SYSTEM__NO_FACTORY_CAN_HANDLE',
+            '/store-api/content/unknown',
+        ];
+
+        yield 'invalid entity path' => [
+            ContentSystemException::invalidEntityPath('product', 'bad//path', 'entity/id'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__INVALID_ENTITY_PATH',
+            'bad//path',
+        ];
+
+        yield 'redistribute with dotted path' => [
+            ContentSystemException::redistributeWithDottedPath('parent.child'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__REDISTRIBUTE_DOTTED_PATH',
+            'parent.child',
+        ];
+
+        yield 'redistribute conflict' => [
+            ContentSystemException::redistributeConflict('myKey'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__REDISTRIBUTE_CONFLICT',
+            'redistribute:true and explicit providesContext',
+        ];
+
+        yield 'consumer alias without redistribute' => [
+            ContentSystemException::consumerAliasWithoutRedistribute('myKey'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__CONSUMER_ALIAS_WITHOUT_REDISTRIBUTE',
+            'has consumerAlias but redistribute is not true',
+        ];
+
+        yield 'contextPathNotResolvable without reason' => [
+            ContentSystemException::contextPathNotResolvable('product.name', 'elem-1'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__CONTEXT_PATH_NOT_RESOLVABLE',
+            'product.name',
+        ];
+
+        yield 'contextPathNotResolvable with reason' => [
+            ContentSystemException::contextPathNotResolvable('product.name', 'elem-1', 'missing provider'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__CONTEXT_PATH_NOT_RESOLVABLE',
+            'missing provider',
+        ];
+
+        yield 'property alias with dot notation' => [
+            ContentSystemException::propertyAliasWithDotNotation('myKey', 'parent.child'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__PROPERTY_ALIAS_WITH_DOT_NOTATION',
+            'has propertyAlias "parent.child" with dot notation',
+        ];
+
+        yield 'property alias collision' => [
+            ContentSystemException::propertyAliasCollision('name', 'ctx1', 'ctx2'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__PROPERTY_ALIAS_COLLISION',
+            'Each propertyAlias must be unique within an element',
+        ];
+
+        yield 'provider delivery collision' => [
+            ContentSystemException::providerDeliveryCollision('item', 'product', 'category', 'el-1'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__PROVIDER_DELIVERY_COLLISION',
+            'Each child-facing key must be unique within an element',
+        ];
+
+        yield 'missing extends annotation' => [
+            ContentSystemException::missingExtendsAnnotation('App\Loader\MyLoader'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__MISSING_EXTENDS_ANNOTATION',
+            'App\Loader\MyLoader',
+        ];
+
+        yield 'unsupported type node' => [
+            ContentSystemException::unsupportedTypeNode('UnionTypeNode'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__UNSUPPORTED_TYPE_NODE',
+            'UnionTypeNode',
+        ];
+
+        yield 'unresolvable type class' => [
+            ContentSystemException::unresolvableTypeClass('SomeClass', 'App\Loader\MyLoader'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__UNRESOLVABLE_TYPE_CLASS',
+            'SomeClass',
+        ];
+
+        yield 'routes already loaded' => [
+            ContentSystemException::routesAlreadyLoaded(),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__ROUTES_ALREADY_LOADED',
+            'already loaded',
+        ];
+
+        yield 'element type load failed' => [
+            ContentSystemException::elementTypeLoadFailed('test.yaml', 'invalid syntax'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__ELEMENT_TYPE_LOAD_FAILED',
+            'test.yaml',
+        ];
+
+        yield 'element type duplicate' => [
+            ContentSystemException::elementTypeDuplicate('Sw:Product:Card', 'core', 'MyPlugin'),
+            Response::HTTP_CONFLICT,
+            'CONTENT_SYSTEM__ELEMENT_TYPE_DUPLICATE',
+            'Sw:Product:Card',
+        ];
+
+        yield 'element type invalid filename' => [
+            ContentSystemException::elementTypeInvalidFilename('bad segment', 'path/to/file.yaml'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__ELEMENT_TYPE_INVALID_FILENAME',
+            'bad segment',
+        ];
+
+        yield 'element type not found' => [
+            ContentSystemException::elementTypeNotFound('Sw:Unknown:Type'),
+            Response::HTTP_NOT_FOUND,
+            'CONTENT_SYSTEM__ELEMENT_TYPE_NOT_FOUND',
+            'Sw:Unknown:Type',
+        ];
+
+        yield 'unknown entity type' => [
+            ContentSystemException::unknownEntityType('mystery_entity'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__UNKNOWN_ENTITY_TYPE',
+            'mystery_entity',
+        ];
+
+        yield 'entity type resolution unsupported' => [
+            ContentSystemException::entityTypeResolutionUnsupported(),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__ENTITY_TYPE_RESOLUTION_UNSUPPORTED',
+            'supportsEntityType() returns true',
+        ];
+
+        yield 'invalid layout structure with violations' => [
+            ContentSystemException::invalidLayoutStructure(
+                new ConstraintViolationList([
+                    new ConstraintViolation('id must be a non-empty string', null, [], null, '[0].id', null),
+                    new ConstraintViolation('component must be a non-empty string', null, [], null, '[1].component', null),
+                ])
+            ),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__INVALID_LAYOUT_STRUCTURE',
+            '[0].id: id must be a non-empty string; [1].component: component must be a non-empty string',
+        ];
+
+        yield 'binding specification duplicate' => [
+            ContentSystemException::bindingSpecificationDuplicate('media-picker', 'core', 'app:Acme'),
+            Response::HTTP_CONFLICT,
+            'CONTENT_SYSTEM__BINDING_SPECIFICATION_DUPLICATE',
+            'media-picker',
+        ];
+
+        yield 'binding specification load failed' => [
+            ContentSystemException::bindingSpecificationLoadFailed('/path/x.yaml', 'missing or empty "id"'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__BINDING_SPECIFICATION_LOAD_FAILED',
+            '/path/x.yaml',
+        ];
+
+        yield 'binding specification not found' => [
+            ContentSystemException::bindingSpecificationNotFound('ghost'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__BINDING_SPECIFICATION_NOT_FOUND',
+            'ghost',
+        ];
+
+        yield 'binding type mismatch' => [
+            ContentSystemException::bindingTypeMismatch('spec-1', 'Sw:Media:Image', 'Sw:Product', 'el-1'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__BINDING_TYPE_MISMATCH',
+            'Sw:Media:Image',
+        ];
+
+        yield 'default content layout deletion' => [
+            ContentSystemException::defaultContentLayoutDeletion(['layout-a', 'layout-b']),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__DEFAULT_CONTENT_LAYOUT_DELETION',
+            'layout-a, layout-b',
+        ];
+
+        yield 'invalid field value range' => [
+            ContentSystemException::invalidFieldValueRange('columns', 1, 0),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__INVALID_FIELD_VALUE_RANGE',
+            'expected a minimum of 1, got 0',
+        ];
+
+        yield 'unknown style breakpoint reusing the map-key code' => [
+            ContentSystemException::unknownStyleBreakpoint('padding', 'xxl', ['xs', 'sm']),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__INVALID_MAP_KEY',
+            'has no breakpoint "xxl"; expected one of xs, sm.',
+        ];
+
+        yield 'layout preset duplicate' => [
+            ContentSystemException::layoutPresetDuplicate('hero-preset'),
+            Response::HTTP_CONFLICT,
+            'CONTENT_SYSTEM__LAYOUT_PRESET_DUPLICATE',
+            'hero-preset',
+        ];
+
+        yield 'layout preset circular reference' => [
+            ContentSystemException::layoutPresetCircularReference(['App:A', 'App:B', 'App:A']),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__LAYOUT_PRESET_CIRCULAR_REFERENCE',
+            'Layout preset "App:A" has a circular reference: App:A -> App:B -> App:A',
+        ];
+
+        yield 'layout preset unknown reference' => [
+            ContentSystemException::layoutPresetUnknownReference('App:Missing', ['App:A', 'App:B']),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__LAYOUT_PRESET_UNKNOWN_REFERENCE',
+            'Layout preset "App:A" references unknown preset "App:Missing" via App:A -> App:B -> App:Missing',
+        ];
+
+        yield 'layout preset too many references' => [
+            ContentSystemException::layoutPresetTooManyReferences('App:A', 1000),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__LAYOUT_PRESET_TOO_MANY_REFERENCES',
+            'Layout preset "App:A" reaches the limit of 1000 nested presets',
+        ];
+
+        yield 'style option duplicate' => [
+            ContentSystemException::styleOptionDuplicate('padding', 'core', 'MyPlugin'),
+            Response::HTTP_CONFLICT,
+            'CONTENT_SYSTEM__STYLE_OPTION_DUPLICATE',
+            'padding',
+        ];
+
+        yield 'binding specification reserved id' => [
+            ContentSystemException::bindingSpecificationReservedId('default', 'Sw:Product:Card', 'bindings/default.yaml'),
+            Response::HTTP_CONFLICT,
+            'CONTENT_SYSTEM__BINDING_SPECIFICATION_RESERVED_ID',
+            'is reserved for the synthesized default of element type "Sw:Product:Card"',
+        ];
+
+        yield 'binding specification default ambiguous' => [
+            ContentSystemException::bindingSpecificationDefaultAmbiguous('Sw:Product:Card', ['core:a', 'core:b']),
+            Response::HTTP_CONFLICT,
+            'CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS',
+            'core:a, core:b',
+        ];
+    }
+
+    /**
+     * @return iterable<string, array{string, string|null, string}>
+     */
+    public static function configSerializerMessageFormProvider(): iterable
+    {
+        yield 'without element id' => [
+            'yaml', null, 'Config serializer for source "yaml" is not registered',
+        ];
+        yield 'with element id' => [
+            'yaml', 'elem-1', 'Config serializer for source "yaml" is not registered. Element ID: "elem-1"',
+        ];
+    }
+}

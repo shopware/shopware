@@ -1,0 +1,102 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    id = 'sw-modal-' ~ random(),
+    title = 'Modal title',
+    setTitleFromAjaxContent = false,
+    backdrop = 'true',
+    closeLabel = 'global.default.close'|trans|sw_sanitize,
+    ajaxUrl = null,
+    size = 'lg',
+    scrollable = false,
+    verticallyCentered = false,
+    animation = true,
+    fullscreen = false,
+%}
+
+{% set modalCVA = cva({
+    base: 'sw-modal modal',
+    variants: {
+        size: {
+            default: null,
+            sm: 'modal-sm',
+            lg: 'modal-lg',
+            xl: 'modal-xl',
+        },
+        animation: {
+            false: null,
+            true: ['fade']
+        },
+    }
+}) %}
+
+{% set modalDialogCVA = cva({
+    base: 'sw-modal__dialog modal-dialog',
+    variants: {
+        scrollable: {
+            false: null,
+            true: ['modal-dialog-scrollable']
+        },
+        verticallyCentered: {
+            false: null,
+            true: ['modal-dialog-centered']
+        },
+        fullscreen: {
+            true: 'modal-fullscreen',
+            'sm-down': 'modal-fullscreen-sm-down',
+            'md-down': 'modal-fullscreen-md-down',
+            'lg-down': 'modal-fullscreen-lg-down',
+            'xl-down': 'modal-fullscreen-xl-down',
+            'xxl-down': 'modal-fullscreen-xxl-down',
+        },
+    }
+}) %}
+
+{% set options = {
+    ajaxUrl: ajaxUrl,
+    setTitleFromAjaxContent: setTitleFromAjaxContent,
+} %}
+
+{% set defaultAttributes = {
+    id: id,
+    tabindex: '-1',
+    'aria-labelledby': id ~ '-title',
+    'aria-hidden': 'true',
+    'data-bs-backdrop': backdrop,
+    'data-component': 'Sw:Content:Modal',
+    'data-component-options': options|json_encode,
+} %}
+
+<div class="{{ modalCVA.apply({ size, animation }, attributes.render('class')) }}" {{ attributes.defaults(defaultAttributes) }}>
+    <div class="{{ modalDialogCVA.apply({ scrollable, verticallyCentered, fullscreen }, attributes.render('class')) }}">
+        <div class="sw-modal__content modal-content">
+            {% block modal_content %}
+                <div class="sw-modal__header modal-header">
+                    {% block header %}
+                        <h2 class="sw-modal__title modal-title" id="{{ id }}-title">
+                            {{ title|raw }}
+                        </h2>
+                        <button
+                            type="button"
+                            class="sw-modal__close btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="{{ closeLabel }}"
+                        ></button>
+                    {% endblock %}
+                </div>
+
+                <div class="sw-modal__body modal-body">
+                    {% block content %}{% endblock %}
+                </div>
+
+                {% if block('footer') is not empty %}
+                    <div class="sw-modal__footer modal-footer">
+                        {% block footer %}{% endblock %}
+                    </div>
+                {% endif %}
+            {% endblock %}
+        </div>
+    </div>
+</div>

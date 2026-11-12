@@ -378,6 +378,12 @@ class ApiRoutesHaveASchemaTest extends TestCase
 
     private function isExperimentalRoute(Route $route): bool
     {
+        // TODO: Routes that use service IDs as controllers (not PHP class names) must set
+        // _experimental explicitly as a route default at compile time to avoid ReflectionException.
+        if ($route->hasDefault('_experimental')) {
+            return (bool) $route->getDefault('_experimental');
+        }
+
         /** @var class-string<object> $controllerClass */
         $controllerClass = (string) strtok((string) $route->getDefault('_controller'), ':');
 

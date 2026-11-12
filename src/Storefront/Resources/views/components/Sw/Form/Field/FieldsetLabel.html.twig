@@ -1,0 +1,28 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    label = null,
+    required = false,
+%}
+
+{% set fieldsetLabelCVA = cva({
+    base: 'sw-form-fieldset-label form-label',
+}) %}
+
+{% set attributeDefaults = {
+    class: fieldsetLabelCVA.apply({}),
+} %}
+
+{% if label is not empty %}
+    <legend {{ attributes.defaults(attributeDefaults) }}>
+        {% block content %}{{ label|sw_sanitize|raw }}{% endblock %}
+
+        {% if required %}
+            {% block required_marker %}
+                <span class="sw-form-fieldset-label__required form-required-label" aria-hidden="true">{{ 'general.required'|trans|sw_sanitize }}</span>
+            {% endblock %}
+        {% endif %}
+    </legend>
+{% endif %}

@@ -1,0 +1,127 @@
+meta:
+  label: "Gallery"
+  description: "Media gallery element showing multiple images with thumbnail navigation."
+  icon: "image-text"
+  illustration: "media-gallery"
+  category: "content"
+  priority: 89
+  copilot:
+    summary: "Media gallery element."
+    hints:
+      - "Requires one or more media entities."
+
+properties:
+  mediaItems:
+    type: Shopware\Core\Content\Media\MediaCollection
+    required: true
+    mappable: true
+    title: "Media"
+    description: "The images to be shown in the gallery."
+    resolvedBy: mediaIds
+    adminUI:
+      component: "media-collection"
+      panel: "general"
+
+  displayMode:
+    type: string
+    title: "Display Mode"
+    description: "How the gallery images are sized."
+    default: "auto"
+    enum:
+      - "auto"
+      - "fixedHeight"
+    adminUI:
+      component: "select"
+      panel: "general"
+
+  maxHeight:
+    type: integer
+    required: false
+    title: "Max Height"
+    description: "Maximum image height in px, used in fixed height mode."
+    default: null
+    adminUI:
+      component: "number"
+      panel: "general"
+      visibleWhen:
+        field: "displayMode"
+        equals: "fixedHeight"
+
+  showThumbnailNav:
+    type: boolean
+    title: "Show Thumbnail Navigation"
+    description: "Show the thumbnail navigation."
+    default: true
+    adminUI:
+      panel: "thumbnails"
+
+  thumbnailSize:
+    type: integer
+    title: "Thumbnail Size"
+    description: "Size of the thumbnails navigation images in px."
+    default: 70
+    adminUI:
+      component: "number"
+      panel: "thumbnails"
+      visibleWhen:
+        field: "showThumbnailNav"
+        equals: true
+
+  thumbnailNavigationPosition:
+    type: string
+    title: "Position"
+    description: "Position of the thumbnail navigation."
+    default: "left"
+    enum:
+      - "left"
+      - "bottom"
+    adminUI:
+      component: "select"
+      panel: "thumbnails"
+      visibleWhen:
+        field: "showThumbnailNav"
+        equals: true
+
+  thumbnailNavShowsMediaOnHover:
+    type: boolean
+    title: "Navigate on hover"
+    description: "Show the media belonging to a thumbnail when hovering it, without clicking it."
+    default: false
+    adminUI:
+      panel: "thumbnails"
+      helpText: "Accessibility: when active, the gallery switches media on hover alone, without any click. This could be triggered by accident."
+      visibleWhen:
+        field: "showThumbnailNav"
+        equals: true
+
+  showNavigationArrows:
+    type: boolean
+    title: "Show Navigation Arrows"
+    description: "Show the navigation arrows. Visible on extra small and small viewports by default."
+    default: true
+    adminUI:
+      panel: "behaviour"
+
+  showMagnifier:
+    type: boolean
+    title: "Show Magnifier"
+    description: "Show the magnifier when hovering over the images."
+    default: true
+    adminUI:
+      panel: "behaviour"
+
+  showFullScreenGallery:
+    type: boolean
+    title: "Show Fullscreen Gallery"
+    description: "Show the fullscreen gallery when clicking on the images."
+    default: true
+    adminUI:
+      panel: "behaviour"
+
+  autoplayVideos:
+    type: boolean
+    title: "Autoplay Videos"
+    description: "Automatically play videos shown in the gallery."
+    default: true
+    adminUI:
+      panel: "behaviour"

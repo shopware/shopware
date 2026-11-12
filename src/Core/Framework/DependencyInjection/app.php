@@ -25,6 +25,10 @@ use Shopware\Core\Framework\App\ActionButton\Response\ReloadDataResponseFactory;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonDefinition;
 use Shopware\Core\Framework\App\Aggregate\ActionButtonTranslation\ActionButtonTranslationDefinition;
+use Shopware\Core\Framework\App\Aggregate\AppContentSystemBindingSpecification\AppContentSystemBindingSpecificationDefinition;
+use Shopware\Core\Framework\App\Aggregate\AppContentSystemElementType\AppContentSystemElementTypeDefinition;
+use Shopware\Core\Framework\App\Aggregate\AppContentSystemLayoutPreset\AppContentSystemLayoutPresetDefinition;
+use Shopware\Core\Framework\App\Aggregate\AppContentSystemStyleOption\AppContentSystemStyleOptionDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppScriptConditionTranslation\AppScriptConditionTranslationDefinition;
@@ -91,6 +95,10 @@ use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
 use Shopware\Core\Framework\App\Lifecycle\Handler\ActionButtonLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\CmsBlockLifecycleHandler;
+use Shopware\Core\Framework\App\Lifecycle\Handler\ContentSystemBindingSpecificationLifecycleHandler;
+use Shopware\Core\Framework\App\Lifecycle\Handler\ContentSystemElementTypeLifecycleHandler;
+use Shopware\Core\Framework\App\Lifecycle\Handler\ContentSystemLayoutPresetLifecycleHandler;
+use Shopware\Core\Framework\App\Lifecycle\Handler\ContentSystemStyleOptionLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\CustomFieldLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\FlowActionLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\FlowEventLifecycleHandler;
@@ -103,6 +111,10 @@ use Shopware\Core\Framework\App\Lifecycle\Handler\TaxProviderLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\TemplateLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\WebhookLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService;
+use Shopware\Core\Framework\App\Lifecycle\Persister\ContentSystemBindingSpecificationPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\ContentSystemElementTypePersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\ContentSystemLayoutPresetPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\ContentSystemStyleOptionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Lifecycle\Registration\HandshakeFactory;
 use Shopware\Core\Framework\App\Lifecycle\ScriptFileReader;
@@ -151,11 +163,29 @@ use Shopware\Core\Framework\App\Validation\AppNameValidator;
 use Shopware\Core\Framework\App\Validation\AppRequirementsValidator;
 use Shopware\Core\Framework\App\Validation\CompatibilityValidator;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
+use Shopware\Core\Framework\App\Validation\ContentSystemBindingSpecificationAppValidator;
+use Shopware\Core\Framework\App\Validation\ContentSystemElementTypeAppValidator;
+use Shopware\Core\Framework\App\Validation\ContentSystemLayoutPresetAppValidator;
+use Shopware\Core\Framework\App\Validation\ContentSystemStyleOptionAppValidator;
 use Shopware\Core\Framework\App\Validation\HookableValidator;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\App\Validation\Requirements\PublicAccess;
 use Shopware\Core\Framework\App\Validation\Requirements\SecureUrlValidator;
 use Shopware\Core\Framework\App\Validation\TranslationValidator;
+use Shopware\Core\Framework\ContentSystem\Binding\Loader\YamlBindingSpecificationLoader;
+use Shopware\Core\Framework\ContentSystem\Binding\Registry\ContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\YamlStyleOptionLoader;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\ContentSystemStyleOptionRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Serialization\StyleOptionSpecificationSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleOptionCollisionDetector;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\ContentSystemLayoutPresetAppLoader;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\ContentSystemLayoutPresetRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSpecificationSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\ElementTypeCollisionDetector;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Gateway\Context\Command\Executor\ContextGatewayCommandExecutor;
 use Shopware\Core\Framework\Gateway\Context\Command\Registry\ContextGatewayCommandRegistry;
@@ -411,6 +441,102 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(SourceResolver::class),
         ]);
+
+    $services->set(ContentSystemElementTypePersister::class)
+        ->args([
+            service('app_content_system_element_type.repository'),
+            service(YamlTypeLoader::class),
+            service(ElementTypeCollisionDetector::class),
+            service(ContentSystemElementTypeRegistry::class),
+            service(ElementTypeSpecificationSerializer::class),
+            service(Connection::class),
+            service('lock.factory'),
+        ]);
+
+    $services->set(ContentSystemElementTypeLifecycleHandler::class)
+        ->args([
+            service(ContentSystemElementTypePersister::class),
+            service(ContentSystemElementTypeRegistry::class),
+        ])
+        ->tag('shopware.app_lifecycle.handler', ['priority' => -1400]);
+
+    $services->set(ContentSystemElementTypeAppValidator::class)
+        ->args([
+            service(YamlTypeLoader::class),
+        ])
+        ->tag('shopware.app_manifest.validator');
+
+    $services->set(ContentSystemStyleOptionPersister::class)
+        ->args([
+            service('app_content_system_style_option.repository'),
+            service(YamlStyleOptionLoader::class),
+            service(StyleOptionCollisionDetector::class),
+            service(ContentSystemStyleOptionRegistry::class),
+            service(StyleOptionSpecificationSerializer::class),
+            service(Connection::class),
+            service('lock.factory'),
+        ]);
+
+    $services->set(ContentSystemStyleOptionLifecycleHandler::class)
+        ->args([
+            service(ContentSystemStyleOptionPersister::class),
+            service(ContentSystemStyleOptionRegistry::class),
+        ])
+        ->tag('shopware.app_lifecycle.handler', ['priority' => -1401]);
+
+    $services->set(ContentSystemStyleOptionAppValidator::class)
+        ->args([
+            service(YamlStyleOptionLoader::class),
+        ])
+        ->tag('shopware.app_manifest.validator');
+
+    $services->set(ContentSystemBindingSpecificationPersister::class)
+        ->args([
+            service(YamlBindingSpecificationLoader::class),
+            service(YamlTypeLoader::class),
+            service('app_content_system_binding_specification.repository'),
+            service(BindingSpecificationSerializer::class),
+            service(Connection::class),
+            service(ContentSystemBindingSpecificationRegistry::class),
+            service('lock.factory'),
+        ]);
+
+    $services->set(ContentSystemBindingSpecificationLifecycleHandler::class)
+        ->args([
+            service(ContentSystemBindingSpecificationPersister::class),
+            service(ContentSystemBindingSpecificationRegistry::class),
+        ])
+        ->tag('shopware.app_lifecycle.handler', ['priority' => -1402]);
+
+    $services->set(ContentSystemBindingSpecificationAppValidator::class)
+        ->args([
+            service(YamlBindingSpecificationLoader::class),
+            service(YamlTypeLoader::class),
+        ])
+        ->tag('shopware.app_manifest.validator');
+
+    $services->set(ContentSystemLayoutPresetPersister::class)
+        ->args([
+            service('app_content_system_layout_preset.repository'),
+            service(ContentSystemLayoutPresetAppLoader::class),
+            service(LayoutPresetSpecificationSerializer::class),
+            service(ContentSystemLayoutPresetRegistry::class),
+            service(Connection::class),
+            service('lock.factory'),
+        ]);
+
+    $services->set(ContentSystemLayoutPresetLifecycleHandler::class)
+        ->args([
+            service(ContentSystemLayoutPresetPersister::class),
+            service(ContentSystemLayoutPresetRegistry::class),
+        ])
+        ->tag('shopware.app_lifecycle.handler', ['priority' => -1403]);
+
+    $services->set(ContentSystemLayoutPresetAppValidator::class)
+        ->args([
+            service(ContentSystemLayoutPresetAppLoader::class),
+        ])
+        ->tag('shopware.app_manifest.validator');
 
     $services->set(AppService::class)
         ->args([
@@ -951,6 +1077,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.entity.definition');
 
     $services->set(AppShippingMethodDefinition::class)
+        ->tag('shopware.entity.definition');
+
+    $services->set(AppContentSystemElementTypeDefinition::class)
+        ->tag('shopware.entity.definition');
+
+    $services->set(AppContentSystemStyleOptionDefinition::class)
+        ->tag('shopware.entity.definition');
+
+    $services->set(AppContentSystemBindingSpecificationDefinition::class)
+        ->tag('shopware.entity.definition');
+
+    $services->set(AppContentSystemLayoutPresetDefinition::class)
         ->tag('shopware.entity.definition');
 
     $services->set(AppFlowActionLoadedSubscriber::class)

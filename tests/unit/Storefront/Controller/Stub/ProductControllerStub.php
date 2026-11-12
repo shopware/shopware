@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace Shopware\Tests\Unit\Storefront\Controller\Stub;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\ProductController;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Tests\Unit\Storefront\Controller\StorefrontControllerRecorder;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -61,6 +64,11 @@ class ProductControllerStub extends ProductController
     protected function hook(Hook $hook): void
     {
         $this->recorder()->hook($hook);
+    }
+
+    protected function loadContentPage(string $path, Request $request, SalesChannelContext $context): ?ContentPage
+    {
+        return $this->recorder()->loadContentPage($path);
     }
 
     /**

@@ -27,6 +27,9 @@ use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoaded
 use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Framework\ContentSystem\LayoutReference;
+use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
+use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -112,6 +115,30 @@ class ProductControllerTest extends TestCase
         static::assertInstanceOf(ProductPage::class, $this->controller->recorder()->renderStorefrontParameters['page']);
         static::assertSame('test', $this->controller->recorder()->renderStorefrontParameters['page']->getProduct()->getId());
         static::assertSame('@Storefront/storefront/page/content/product-detail.html.twig', $this->controller->recorder()->renderStorefrontView);
+    }
+
+    public function testIndexRendersContentPageWhenLayoutAssigned(): void
+    {
+        $productEntity = new SalesChannelProductEntity();
+        $productEntity->setId('test');
+        $productPage = new ProductPage();
+        $productPage->setProduct($productEntity);
+
+        $this->productPageLoaderMock->method('load')->willReturn($productPage);
+
+        $contentPage = ContentPage::fromRenderResult(
+            new RenderResult([], LayoutReference::create('layout-id', 'PDP layout', null), null)
+        );
+        $this->controller->recorder()->contentPage = $contentPage;
+
+        $response = $this->controller->index(static::createStub(SalesChannelContext::class), new Request());
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame('/product/test', $this->controller->recorder()->loadedContentPath);
+        static::assertSame('@Storefront/storefront/page/content/page.html.twig', $this->controller->recorder()->renderStorefrontView);
+        static::assertSame($contentPage, $this->controller->recorder()->renderStorefrontParameters['contentPage']);
+        static::assertTrue($this->controller->recorder()->renderStorefrontParameters['isNewContentStructure']);
+        static::assertInstanceOf(ProductPage::class, $this->controller->recorder()->renderStorefrontParameters['page']);
     }
 
     public function testSwitchNoVariantReturn(): void

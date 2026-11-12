@@ -1,0 +1,39 @@
+{# ludtwig-ignore-file #}
+{# @sw-package discovery #}
+{# @internal #}
+
+{% props
+    navigationTree = [],
+    navigationMaxDepth = context.salesChannel.navigationCategoryDepth,
+    displayType = 'static',
+    expandAll = false,
+    activeId = shopware.navigation.id,
+    activePath = shopware.navigation.pathIdList,
+    ariaLabel = null,
+%}
+
+{% set treeItems = navigationTree.tree ?? navigationTree %}
+
+{% set treeCVA = cva({
+    base: 'sw-navigation-tree',
+}) %}
+
+{# `default` rather than a prop default: a stored empty label must not win, because a landmark
+   announced with no name at all beats one announced with a blank one. #}
+{% set attributeDefaults = {
+    class: treeCVA.apply({}),
+    'aria-label': ariaLabel|default('general.categories'|trans)|striptags,
+} %}
+
+{% if treeItems|length > 0 %}
+    <nav {{ attributes.defaults(attributeDefaults) }}>
+        <twig:Sw:Navigation:TreeItems
+            :navigationTree="treeItems"
+            :navigationMaxDepth="navigationMaxDepth"
+            :displayType="displayType"
+            :expandAll="expandAll"
+            :activeId="activeId"
+            :activePath="activePath"
+        />
+    </nav>
+{% endif %}

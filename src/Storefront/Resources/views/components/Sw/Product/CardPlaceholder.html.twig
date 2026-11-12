@@ -1,0 +1,39 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    animation = null,
+    loadingIndicator = false,
+%}
+
+{% set placeholderCVA = cva({
+    base: 'sw-product-card-placeholder d-flex flex-column pt-3',
+    variants: {
+        loadingIndicator: {
+            true: 'is--loading-indicator',
+            false: null,
+        },
+    },
+}) %}
+
+{% set animationClass = animation in ['wave', 'glow'] ? ' placeholder-' ~ animation : '' %}
+
+{% set attributeDefaults = {
+    class: placeholderCVA.apply({ loadingIndicator }),
+    'aria-hidden': true,
+} %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
+    <h5 class="sw-product-card-placeholder__title{{ animationClass }}">
+        <span class="placeholder placeholder-lg col-11"></span>
+    </h5>
+    <p class="sw-product-card-placeholder__text card-text{{ animationClass }}">
+        <span class="placeholder placeholder-sm col-4"></span>
+        <span class="placeholder placeholder-sm col-6"></span>
+    </p>
+
+    <a class="sw-product-card-placeholder__cta btn btn-light bg-secondary-subtle disabled placeholder col-12"
+       aria-disabled="true">
+    </a>
+</div>

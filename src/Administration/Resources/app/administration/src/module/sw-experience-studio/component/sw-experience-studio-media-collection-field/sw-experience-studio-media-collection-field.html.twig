@@ -1,0 +1,43 @@
+{% block sw_experience_studio_media_collection_field %}
+<div class="sw-experience-studio-media-collection-field">
+    {% block sw_experience_studio_media_collection_field_label %}
+    <label
+        v-if="label"
+        class="sw-experience-studio-media-collection-field__label"
+    >
+        {{ label }}
+    </label>
+    {% endblock %}
+
+    {% block sw_experience_studio_media_collection_field_selection %}
+    <sw-media-list-selection-v2
+        :entity="listEntity"
+        :entity-media-items="entityMediaItems"
+        :upload-tag="uploadTag"
+        default-folder-name="media"
+        :disabled="disabled"
+        @open-sidebar="onOpenMediaModal"
+        @item-remove="onItemRemove"
+        @item-sort="onItemSort"
+    />
+    {% endblock %}
+
+    {% block sw_experience_studio_media_collection_field_upload_listener %}
+    <sw-upload-listener
+        :upload-tag="uploadTag"
+        auto-upload
+        @media-upload-finish="onUploadFinish"
+    />
+    {% endblock %}
+
+    {% block sw_experience_studio_media_collection_field_modal %}
+    <sw-media-modal-v2
+        v-if="showMediaModal"
+        variant="full"
+        :allow-multi-select="true"
+        @media-modal-selection-change="onMediaSelectionChange"
+        @modal-close="onCloseMediaModal"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

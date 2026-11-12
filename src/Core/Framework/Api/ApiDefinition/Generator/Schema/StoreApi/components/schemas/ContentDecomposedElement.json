@@ -1,0 +1,56 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ContentDecomposedElement": {
+                "type": "object",
+                "description": "A node of the decomposed format's skeleton tree: the element's structure with no property values, which this format serves separately through the page's `data` and `assignments` maps, keyed by this node's `id`. The grammar is: `id`, `component` and `slots` always present, an empty `slots` map serialized as `[]`; `style` present only when the element carries style, omitted entirely otherwise; `apiAlias` present on every node at every depth and written last. Key order on the wire is `id`, `component`, `slots`, `style`, `apiAlias`. This node type shares its `slots` grammar with the skeleton format's node (`ContentSkeletonElement`) and differs from it only on `apiAlias` placement.",
+                "required": ["id", "component", "slots", "apiAlias"],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Element identifier, carried through from the stored element. Unique across every root of the page, and the key this element's entry in the page `assignments` map is filed under."
+                    },
+                    "component": {
+                        "type": "string",
+                        "description": "Element component type (e.g. Sw:Grid:Container, Sw:Content:Text, Sw:Media:Image)."
+                    },
+                    "slots": {
+                        "description": "Child element subtrees keyed by slot name, each slot holding an ordered list of child nodes. Always present on every node at every depth: a node with no slots carries it as an empty JSON array `[]` rather than an empty object.",
+                        "oneOf": [
+                            {
+                                "type": "array",
+                                "maxItems": 0,
+                                "description": "The empty slot map, serialized as `[]`."
+                            },
+                            {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "array",
+                                    "items": { "$ref": "#/components/schemas/ContentDecomposedElement" }
+                                }
+                            }
+                        ]
+                    },
+                    "style": {
+                        "type": "object",
+                        "description": "Universal presentation options keyed by option wire name, carried through from the stored element. Each value is either a single scalar (a flat option) or an object keyed by breakpoint (xs, sm, md, lg, xl, xxl) for a breakpoint-aware option, per the option's breakpointAware flag in the style-option introspection schema. Omitted when the element has no style.",
+                        "additionalProperties": {
+                            "oneOf": [
+                                { "type": ["string", "integer", "number", "boolean"] },
+                                { "type": "object", "additionalProperties": { "type": ["string", "integer", "number", "boolean"] } }
+                            ]
+                        }
+                    },
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": ["content_skeleton_element"],
+                        "description": "Present on EVERY node at every depth, written last, with the value `content_skeleton_element`. The decomposed encoder holds this alias as its own constant; a client must read it off the node it is looking at rather than infer it from the node's position in the tree."
+                    }
+                }
+            }
+        }
+    }
+}

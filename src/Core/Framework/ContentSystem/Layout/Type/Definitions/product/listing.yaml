@@ -1,0 +1,57 @@
+meta:
+  label: "Product Listing"
+  description: "Displays a category product listing with grid and pagination slots."
+  icon: "regular-products"
+  illustration: "product-listing"
+  category: "commerce"
+  priority: 100
+  copilot:
+    summary: "Category product listing component."
+    hints:
+      - "The listing is loaded per request from the page's category, no configuration needed."
+      - "Filters are a separate Filter Panel element. Place one alongside the listing."
+      - "Use slots to customize the grid and pagination."
+
+properties:
+  listing:
+    type: Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult
+    title: "Listing"
+    description: "Hydrated listing result containing products, sorting, and aggregations. Received as root-scoped context from the page, which loads it once, so a listing and a filter panel beside it share one load."
+
+  limit:
+    type: integer
+    title: "Limit"
+    description: "Requested number of products per page."
+    default: 24
+    adminUI:
+      component: "number"
+
+  page:
+    type: integer
+    title: "Page"
+    description: "Requested page number."
+    default: 1
+    adminUI:
+      component: "number"
+
+  showSorting:
+    type: boolean
+    title: "Show Sorting"
+    description: "Whether the sorting select is offered."
+    default: true
+    adminUI:
+      panel: "sorting"
+
+  showLayoutSwitch:
+    type: boolean
+    title: "Show Layout Switch"
+    description: "Whether to show listing layout toggle actions."
+    default: true
+    adminUI:
+      panel: "sorting"
+
+slots:
+  - name: product-grid
+    description: "Container slot for product grid rendering."
+  - name: pagination
+    description: "Container slot for pagination controls."

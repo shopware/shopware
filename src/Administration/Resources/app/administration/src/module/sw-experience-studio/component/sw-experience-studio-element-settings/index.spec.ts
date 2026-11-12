@@ -1,0 +1,274 @@
+import elementSettingsComponent from './index';
+
+describe('module/sw-experience-studio/component/sw-experience-studio-element-settings', () => {
+    const computed = (
+        elementSettingsComponent as unknown as {
+            computed: Record<string, (...args: unknown[]) => unknown>;
+        }
+    ).computed;
+    const methods = (
+        elementSettingsComponent as unknown as {
+            methods: Record<string, (...args: unknown[]) => unknown>;
+        }
+    ).methods;
+    const imageType = {
+        properties: {
+            media: {},
+        },
+        bindingSpecifications: {
+            'core:Sw:Media:Image': {
+                default: true,
+                resolves: {
+                    media: {
+                        loader: 'entity',
+                        config: {
+                            entity: 'media',
+                            property: 'mediaId',
+                        },
+                    },
+                },
+            },
+        },
+    };
+
+    it('reads resolved fields from their storage key', () => {
+        const values = computed.elementPropertyValues.call({
+            selectedElement: {
+                properties: {
+                    mediaId: 'media-id',
+                },
+            },
+            selectedElementType: imageType,
+        });
+
+        expect(values).toEqual({
+            media: 'media-id',
+            mediaId: 'media-id',
+        });
+    });
+
+    it('does not resolve a reference field value from the declared key', () => {
+        const fields = computed.elementFields.call({
+            selectedElement: {
+                properties: {
+                    media: 'media-id',
+                },
+            },
+            selectedElementType: {
+                properties: {
+                    media: {
+                        type: 'string',
+                    },
+                    // visible only where the declared key of `media` is read as its resolved value
+                    caption: {
+                        type: 'string',
+                        adminUI: {
+                            visibleWhen: {
+                                field: 'media',
+                                equals: 'media-id',
+                            },
+                        },
+                    },
+                },
+                bindingSpecifications: imageType.bindingSpecifications,
+            },
+        });
+
+        expect(fields).toEqual([
+            {
+                key: 'media',
+                property: {
+                    type: 'string',
+                },
+                breakpointAware: false,
+            },
+        ]);
+    });
+
+    it('emits resolved fields using their storage key', () => {
+        const $emit = jest.fn();
+
+        methods.onUpdateElementField.call(
+            {
+                selectedElement: {
+                    id: 'image-element',
+                },
+                selectedElementType: imageType,
+                allowEdit: true,
+                $emit,
+            },
+            {
+                key: 'media',
+                value: 'media-id',
+            },
+        );
+
+        expect($emit).toHaveBeenCalledWith('update-properties', {
+            elementId: 'image-element',
+            properties: {
+                mediaId: 'media-id',
+            },
+        });
+    });
+
+    it.each([
+        [
+            'catalogue unavailable',
+            true,
+        ],
+        [
+            null,
+            false,
+        ],
+        [
+            '',
+            false,
+        ],
+    ])('reports load-error state for %s', (message, expected) => {
+        expect(computed.hasMappingCandidateLoadError.call({ mappingCandidateLoadError: message })).toBe(expected);
+    });
+
+    it('emits a mapping-candidate retry request', () => {
+        const $emit = jest.fn();
+
+        methods.onRetryMappingCandidates.call({ $emit });
+
+        expect($emit).toHaveBeenCalledWith('retry-mapping-candidates');
+    });
+
+    it('keeps breakpoint-aware box spacing properties in the element settings', () => {
+        const fields = computed.elementFields.call({
+            selectedElement: {
+                properties: {},
+            },
+            selectedElementType: {
+                properties: {
+                    padding: {
+                        type: [
+                            'string',
+                            'object',
+                        ],
+                        adminUI: {
+                            component: 'box-spacing',
+                            breakpointAware: true,
+                        },
+                    },
+                },
+            },
+        });
+
+        expect(fields).toEqual([
+            {
+                key: 'padding',
+                property: {
+                    type: [
+                        'string',
+                        'object',
+                    ],
+                    adminUI: {
+                        component: 'box-spacing',
+                        breakpointAware: true,
+                    },
+                },
+                breakpointAware: true,
+            },
+        ]);
+    });
+
+    describe('data mapping', () => {
+        const textType = {
+            properties: {
+                text: {},
+                headline: {},
+            },
+        };
+
+        it('reports the mapped path per declared property', () => {
+            const mappings = computed.elementMappings.call({
+                selectedElement: {
+                    id: 'text-element',
+                    acceptsContext: {
+                        text: {
+                            type: 'single',
+                            required: false,
+                            scope: 'root',
+                            source: { type: 'root', id: 'category', path: 'name' },
+                        },
+                    },
+                },
+                selectedElementType: textType,
+            });
+
+            expect(mappings).toEqual({
+                text: 'category.name',
+            });
+        });
+
+        it('ignores ordinary wiring under a declared property key', () => {
+            const mappings = computed.elementMappings.call({
+                selectedElement: {
+                    id: 'text-element',
+                    acceptsContext: {
+                        text: {
+                            type: 'single',
+                            required: true,
+                            scope: 'root',
+                        },
+                    },
+                },
+                selectedElementType: textType,
+            });
+
+            expect(mappings).toEqual({});
+        });
+
+        it('emits the declared property key rather than a binding storage key', () => {
+            const $emit = jest.fn();
+
+            methods.onUpdateElementMapping.call(
+                {
+                    selectedElement: {
+                        id: 'image-element',
+                    },
+                    selectedElementType: imageType,
+                    allowEdit: true,
+                    $emit,
+                },
+                {
+                    key: 'media',
+                    source: { type: 'root', id: 'product', path: 'cover' },
+                    contextType: 'single',
+                },
+            );
+
+            expect($emit).toHaveBeenCalledWith('update-mapping', {
+                elementId: 'image-element',
+                propertyKey: 'media',
+                source: { type: 'root', id: 'product', path: 'cover' },
+                contextType: 'single',
+            });
+        });
+
+        it('stays silent on a read-only layout', () => {
+            const $emit = jest.fn();
+
+            methods.onUpdateElementMapping.call(
+                {
+                    selectedElement: {
+                        id: 'text-element',
+                    },
+                    selectedElementType: textType,
+                    allowEdit: false,
+                    $emit,
+                },
+                {
+                    key: 'text',
+                    source: { type: 'root', id: 'category', path: 'name' },
+                    contextType: 'single',
+                },
+            );
+
+            expect($emit).not.toHaveBeenCalled();
+        });
+    });
+});

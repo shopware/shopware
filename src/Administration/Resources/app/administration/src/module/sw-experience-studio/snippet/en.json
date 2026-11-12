@@ -1,0 +1,294 @@
+{
+  "sw-experience-studio": {
+    "general": {
+      "mainMenuItemGeneral": "Experience Studio",
+      "descriptionTextModule": "Manage content layouts for the new content system.",
+      "placeholderSearchBar": "Search layouts...",
+      "moduleTitle": "Experience Studio",
+      "createNewLayout": "Create new layout"
+    },
+    "mapping": {
+      "category": {
+        "name": {
+          "label": "Category name",
+          "description": "The name of the category the page shows."
+        },
+        "description": {
+          "label": "Category description",
+          "description": "The description text of the category."
+        },
+        "metaTitle": {
+          "label": "Meta title",
+          "description": "The SEO title of the category."
+        },
+        "metaDescription": {
+          "label": "Meta description",
+          "description": "The SEO description of the category."
+        },
+        "keywords": {
+          "label": "Keywords",
+          "description": "The SEO keywords of the category."
+        },
+        "media": {
+          "label": "Category image",
+          "description": "The image assigned to the category."
+        }
+      },
+      "product": {
+        "entity": {
+          "label": "Product entity",
+          "description": "The full product shown on the page."
+        },
+        "name": {
+          "label": "Product name",
+          "description": "The name of the product the page shows."
+        },
+        "description": {
+          "label": "Product description",
+          "description": "The description text of the product."
+        },
+        "productNumber": {
+          "label": "Product number",
+          "description": "The order number of the product."
+        },
+        "metaTitle": {
+          "label": "Meta title",
+          "description": "The SEO title of the product."
+        },
+        "metaDescription": {
+          "label": "Meta description",
+          "description": "The SEO description of the product."
+        },
+        "keywords": {
+          "label": "Keywords",
+          "description": "The SEO keywords of the product."
+        },
+        "cover": {
+          "label": "Cover image",
+          "description": "The main image of the product."
+        },
+        "media": {
+          "label": "Product images",
+          "description": "All images of the product, in the order set on the product."
+        }
+      },
+      "landingPage": {
+        "name": {
+          "label": "Landing page name",
+          "description": "The name of the landing page being shown."
+        },
+        "url": {
+          "label": "Landing page URL",
+          "description": "The URL path configured for the landing page."
+        },
+        "metaTitle": {
+          "label": "Meta title",
+          "description": "The SEO title of the landing page."
+        },
+        "metaDescription": {
+          "label": "Meta description",
+          "description": "The SEO description of the landing page."
+        },
+        "keywords": {
+          "label": "Keywords",
+          "description": "The SEO keywords of the landing page."
+        }
+      }
+    },
+    "elements": {
+      "sw-grid-container": {
+        "panels": {
+          "general": "General",
+          "spacing": "Spacing",
+          "alignment": "Alignment",
+          "border": "Border",
+          "corners": "Corners",
+          "shadow": "Shadow",
+          "background": "Background"
+        }
+      },
+      "sw-media-gallery": {
+        "panels": {
+          "general": "General",
+          "thumbnails": "Thumbnail navigation",
+          "behaviour": "Behaviour"
+        }
+      },
+      "sw-product-listing": {
+        "panels": {
+          "sorting": "Sorting"
+        }
+      },
+      "sw-tabs-panel": {
+        "panels": {
+          "general": "General"
+        }
+      },
+      "sw-tabs-tab": {
+        "panels": {
+          "general": "General"
+        }
+      }
+    },
+    "list": {
+      "columnName": "Name",
+      "columnVersion": "Version",
+      "columnCreatedAt": "Created at",
+      "columnUpdatedAt": "Updated at",
+      "emptyStateTitle": "No content layouts yet",
+      "emptyStateSubline": "Create your first content layout to get started."
+    },
+    "createWizard": {
+      "title": "Create content layout",
+      "description": "Choose a name and the layout type before you start editing.",
+      "nameLabel": "Layout name",
+      "namePlaceholder": "Enter layout name...",
+      "typeLabel": "Layout type",
+      "typePlaceholder": "Select layout type...",
+      "loadingTypes": "Loading layout types...",
+      "typeLoadError": "Layout types could not be loaded.",
+      "noTypes": "No layout types are available.",
+      "start": "Start editing",
+      "missingFields": "Please provide a layout name and layout type before saving.",
+      "layoutTypes": {
+        "product": "Product",
+        "category": "Category",
+        "landing_page": "Landing page"
+      }
+    },
+    "detail": {
+      "toolbar": {
+        "undo": "Undo",
+        "redo": "Redo",
+        "viewportMobile": "Mobile",
+        "viewportTablet": "Tablet",
+        "viewportDesktop": "Desktop",
+        "previewEntity": "Entity",
+        "previewEntityPlaceholder": "Select entity for preview",
+        "previewSalesChannel": "Sales channel",
+        "previewSalesChannelPlaceholder": "Select sales channel for preview",
+        "assignments": "Assignments",
+        "save": "Save layout"
+      },
+      "assignmentModal": {
+        "title": "Layout assignments",
+        "description": "Experience Studio assignments take precedence over Shopping Experiences layouts. Entities without an assignment use the default layout of their type, or their Shopping Experiences layout if no default is set.",
+        "defaultLabel": {
+          "product": "Default layout for products",
+          "category": "Default layout for categories"
+        },
+        "entitiesLabel": {
+          "product": "Products",
+          "category": "Categories"
+        },
+        "entitiesHelpText": "An entity that is already assigned to another layout is moved to this layout.",
+        "messageSaved": "Layout assignments saved.",
+        "messageLoadError": "The layout assignments could not be loaded.",
+        "messageSaveError": "The layout assignments could not be saved."
+      },
+      "sidebarTree": {
+        "title": "Structure",
+        "emptyState": "No elements in this layout yet.",
+        "addElement": "Add element",
+        "addElementNoTypeAvailable": "No registered element type is available for insertion.",
+        "addElementNotAllowed": "This element cannot be inserted into the selected slot.",
+        "configureElement": "Configure element",
+        "duplicateElement": "Duplicate element",
+        "deleteElement": "Delete element"
+      },
+      "preview": {
+        "title": "Preview",
+        "placeholder": "Storefront preview will be shown here.",
+        "missingSalesChannel": "Select a sales channel to load the preview.",
+        "missingEntityContext": "This layout is not assigned to a product, category, or landing page yet.",
+        "noElements": "The preview loaded, but no root elements were returned.",
+        "emptySlot": "No elements in this slot.",
+        "errorLoad": "Preview could not be loaded."
+      },
+      "elementSettings": {
+        "title": "Element settings",
+        "tabElement": "Element",
+        "tabLayout": "Layout",
+        "emptyState": "Select an element to edit its settings.",
+        "loading": "Loading element settings...",
+        "typeLoadError": "Element settings could not be loaded.",
+        "styleLoadError": "Layout settings could not be loaded.",
+        "typeMissing": "No registered element type was found for this component yet.",
+        "noEditableProperties": "This element does not provide editable primitive properties.",
+        "noEditableStyleOptions": "No layout style options are available.",
+        "panelGeneral": "General",
+        "viewportSettings": "Viewport settings",
+        "boxSpacingTop": "Top",
+        "boxSpacingRight": "Right",
+        "boxSpacingBottom": "Bottom",
+        "boxSpacingLeft": "Left",
+        "boxSpacingLinkSides": "Edit all sides together",
+        "boxSpacingUnlinkSides": "Edit sides individually",
+        "mapping": {
+          "mapAction": "Dynamic data",
+          "insertAction": "Insert dynamic data",
+          "unmapAction": "Remove dynamic data",
+          "modalTitle": "Select dynamic data",
+          "modalIntro": "Choose the data that fills \"{property}\" when the page is shown.",
+          "sourceIntro": "Choose a property to use for this field.",
+          "searchLabel": "Search",
+          "searchPlaceholder": "Search data fields",
+          "noCandidates": "No dynamic data is available for this field.",
+          "noSearchResults": "No data field matches your search.",
+          "loadingCandidates": "Loading dynamic data...",
+          "loadError": "Dynamic data could not be loaded.",
+          "loadingText": "Preparing text for editing...",
+          "parseError": "Dynamic data placeholders could not be checked. Your text has been preserved. Retry to check the placeholders.",
+          "retryAction": "Retry",
+          "groups": {
+            "basic": "Basic information",
+            "seo": "SEO",
+            "media": "Media",
+            "customFields": "Custom Fields"
+          },
+          "sources": {
+            "rootEntity": "Root entity",
+            "navigationLabel": "Data sources"
+          }
+        }
+      },
+      "elementPicker": {
+        "title": "Add element",
+        "tabElements": "Elements",
+        "tabPresets": "Presets",
+        "searchElementsPlaceholder": "Search elements",
+        "searchPresetsPlaceholder": "Search presets",
+        "noSearchResults": "No results found. Try another search term.",
+        "noElements": "No element types are available for this position.",
+        "noPresets": "No presets are available for this position.",
+        "categoryHeadlines": {
+          "content": "Content",
+          "commerce": "Commerce",
+          "layout": "Layout",
+          "presets": "Presets",
+          "other": "Other"
+        }
+      },
+      "mappingMutationErrors": {
+        "propertyNotMappable": "This property cannot use dynamic data. Choose a property that supports dynamic data.",
+        "unknownMappingPath": "This data source is no longer available. Choose another source for this property.",
+        "mappingTypeMismatch": "This data source is incompatible with the property. Choose a compatible source.",
+        "propertyAliasCollision": "This property already receives data from another source. Choose another property or change that source.",
+        "invalidMappingSource": "The selected source for dynamic data is invalid. Choose a source from the available list.",
+        "missingRootSource": "This layout has no data source, so dynamic data cannot be added."
+      },
+      "mutationErrors": {
+        "unknownRootSource": "The layout's data source is not available.",
+        "targetNotFound": "The selected element is no longer available. Select an existing element before editing it.",
+        "unknownElementType": "This element type is no longer available. Choose an available element type.",
+        "invalidStructure": "This change is not valid for the current layout structure. Review the selected elements and their positions.",
+        "generic": "The layout edit could not be applied. Review your changes or contact your administrator."
+      },
+      "messageSaved": "Content layout saved successfully.",
+      "messageSaveError": "The content layout could not be saved.",
+      "messageSaveErrorDetail": "The content layout could not be saved: {detail}",
+      "messageReloadError": "The content layout was saved but could not be reloaded.",
+      "messageDiagnoseError": "The layout could not be checked. Diagnostic results are unavailable."
+    }
+  }
+}

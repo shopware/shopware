@@ -1,0 +1,26 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    text = null,
+    inline = false,
+%}
+
+{% set textVariants = cva({
+    base: 'sw-text',
+    variants: {
+        inline: {
+            false: null,
+            true: ['d-inline'],
+        },
+    },
+}) %}
+
+{% set attributeDefaults = {
+    class: textVariants.apply({ inline }),
+} %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
+    {{ text|sw_sanitize|raw }}
+</div>

@@ -1,0 +1,6 @@
+type: boolean
+default: true
+adminUI:
+  component: "switch"
+  label: "Display"
+  description: "Whether the element is rendered at this breakpoint."

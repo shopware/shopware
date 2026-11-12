@@ -5,7 +5,7 @@
         {% set showTaxPrice = false %}
     {% endif %}
     {% set showSubtotal = config('core.cart.showSubtotal') %}
-    {% set shipments = order.deliveries.shipments %}
+    {% set shipments = order.shipments %}
 
     <div class="order-item-detail">
         <div class="collapse"
@@ -173,7 +173,7 @@
                                                     {% block page_account_order_item_detail_shipping_method_value %}
                                                         {% if shipments|length > 1 %}
                                                             <dd class="col-6 col-md-7 order-item-detail-labels-value">
-                                                                {{ shipments|map(shipment => shipment.shippingMethod.translated.name)|join(', ') }}
+                                                                {{ shipments.shippingMethods|map(shippingMethod => shippingMethod.translated.name)|join(', ') }}
                                                             </dd>
                                                         {% elseif feature('v6.8.0.0') %}
                                                             <dd class="col-6 col-md-7 order-item-detail-labels-value">

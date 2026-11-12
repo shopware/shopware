@@ -105,7 +105,7 @@
         {% endfor %}
     </table>
 
-    {% set shipments = order.deliveries.shipments %}
+    {% set shipments = order.shipments %}
     {% set delivery = shipments|first %}
 
     {% set displayRounded = order.totalRounding.interval != 0.01 or order.totalRounding.decimals != order.itemRounding.decimals %}

@@ -1,7 +1,7 @@
 {% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},
 
 der Lieferstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{ order.orderNumber }}) vom {{ order.orderDateTime|format_datetime('medium', 'short', locale='de-DE') }} hat sich geändert!
-{% set shipments = order.deliveries.shipments %}
+{% set shipments = order.shipments %}
 {% set changedShipment = orderDelivery is defined and orderDelivery ? shipments.get(orderDelivery.id) : null %}
 {% if shipments|length > 1 and changedShipment %}
 {% set changedShipmentNumber = null %}

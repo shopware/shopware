@@ -15,11 +15,12 @@ A new line item rule condition `LineItemDimensionLongestAndGirthRule` (`cartLine
 
 ### Mails and documents list every shipment
 
-`OrderDeliveryCollection::getShipments()` and the cart's `DeliveryCollection::getShipments()` return the deliveries that are not shipping discounts, highest shipping costs first.
+`OrderEntity::getShipments()` returns the deliveries of an order that are not shipping discounts, in the order the Administration lists them: the primary delivery first, then by shipping costs.
+`OrderDeliveryCollection::getShipments()` and the cart's `DeliveryCollection::getShipments()` do the same on a delivery collection.
 When an order has more than one shipment, the default order confirmation, payment received and payment reminder mails list each shipment with its shipping method, address, shipping costs and delivery period.
 The delivery status mails name the shipment whose state changed when the flow provides `orderDelivery`, and list every shipment with its state otherwise.
 A migration updates these mail templates unless they were changed in the Administration.
-Documents keep one shipping costs row with the shipping total of the order; this row and the shipping method line name the shipping method of every shipment.
+Documents keep one shipping costs row with the shipping total of the order; this row and the shipping method line name each shipping method of the shipments once.
 The invoice shows the shipping address of the primary delivery.
 Orders with one shipment render as before.
 

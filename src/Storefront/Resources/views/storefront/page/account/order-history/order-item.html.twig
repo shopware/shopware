@@ -26,7 +26,7 @@
                 {% set orderPaymentState = order.transactions.last.stateMachineState.technicalName %}
             {% endif %}
             {% set isPaymentNeeded = orderPaymentState in states and orderState != ORDER_STATE_CANCELLED %}
-            {% set shipments = order.deliveries.shipments %}
+            {% set shipments = order.shipments %}
 
             <div class="row flex-wrap">
                 {% block page_account_order_item_heading %}
@@ -233,7 +233,7 @@
                                         {{ 'account.orderShippingStatus'|trans|sw_sanitize }}{{ 'account.colonCharacter'|trans|sw_sanitize }}
                                     </strong>
                                     {% if shipments|length > 1 %}
-                                        <span class="order-table-body-value">{{ shipments|map(shipment => shipment.stateMachineState.translated.name)|join(', ') }}</span>
+                                        <span class="order-table-body-value">{{ shipments|map(shipment => shipment.stateMachineState.translated.name)|reduce((names, name) => name in names ? names : names|merge([name]), [])|join(', ') }}</span>
                                     {% elseif feature('v6.8.0.0') %}
                                         <span class="order-table-body-value">{{ order.primaryOrderDelivery.stateMachineState.translated.name }}</span>
                                     {% else %}
@@ -277,7 +277,7 @@
                                         {{ 'account.orderShippingMethod'|trans|sw_sanitize }}{{ 'account.colonCharacter'|trans|sw_sanitize }}
                                     </strong>
                                     {% if shipments|length > 1 %}
-                                        <span class="order-table-body-value">{{ shipments|map(shipment => shipment.shippingMethod.translated.name)|join(', ') }}</span>
+                                        <span class="order-table-body-value">{{ shipments.shippingMethods|map(shippingMethod => shippingMethod.translated.name)|join(', ') }}</span>
                                     {% elseif feature('v6.8.0.0') %}
                                         <span class="order-table-body-value">{{ order.primaryOrderDelivery.shippingMethod.translated.name }}</span>
                                     {% else %}

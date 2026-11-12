@@ -21,7 +21,7 @@
             {% endif %}
         {% endif %}
 
-        {% set shipments = order.deliveries.shipments %}
+        {% set shipments = order.shipments %}
     {% else %}
         {% set billingAddress = context.customer.activeBillingAddress %}
         {% set shippingAddress = context.customer.activeShippingAddress %}

@@ -1,21 +1,23 @@
 import detailComponent from './index';
+import { createContentLayoutRepository } from '../../util/content-layout-repository.util';
 
 describe('module/sw-experience-studio/page/sw-experience-studio-detail workspace saving', () => {
     const methods = (detailComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> }).methods;
 
     it('saves each dirty layout independently and keeps failures on their layout', async () => {
-        const savedLayout = {
+        const repository = createContentLayoutRepository(Shopware.Service('repositoryFactory').create('content_layout'));
+        const savedLayout = Object.assign(repository.create(Shopware.Context.api), {
             id: 'layout-saved',
             name: 'Saved layout',
             rootSource: 'product',
             layout: [],
-        };
-        const failedLayout = {
+        });
+        const failedLayout = Object.assign(repository.create(Shopware.Context.api), {
             id: 'layout-failed',
             name: 'Failed layout',
             rootSource: 'category',
             layout: [],
-        };
+        });
         const save = jest.fn((layout: { id: string }) => {
             if (layout.id === failedLayout.id) {
                 return Promise.reject(new Error('Save failed'));
@@ -53,6 +55,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail workspace
             syncActiveLayoutState: jest.fn(),
             isLayoutDirty: () => true,
             saveOpenLayout: methods.saveOpenLayout,
+            reloadSavedLayout: methods.reloadSavedLayout,
             serializeLayoutState: (layout: typeof savedLayout) => JSON.stringify(layout),
             getLayoutRootSource: (layout: typeof savedLayout) => layout.rootSource,
             extractApiErrorDetail: () => null,

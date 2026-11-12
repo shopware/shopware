@@ -2298,21 +2298,14 @@ export default Shopware.Component.wrapComponentConfig({
             try {
                 openLayout.layout.layout = cloneDeep(openLayout.layout.layout);
                 const savedState = this.serializeLayoutState(openLayout.layout);
+                const savedDraft = cloneDeep(openLayout.layout.getDraft());
                 await this.layoutRepository.save(openLayout.layout, Shopware.Context.api);
                 openLayout.savedState = savedState;
                 openLayout.isNew = false;
-                const reloaded = await this.layoutRepository.get(
-                    openLayout.id,
-                    Shopware.Context.api,
-                    this.layoutLoadCriteria,
-                );
-                if (reloaded && this.serializeLayoutState(openLayout.layout) === savedState) {
-                    openLayout.layout = reloaded;
-                    openLayout.savedState = this.serializeLayoutState(reloaded);
-                    if (this.activeLayoutId === openLayout.id) {
-                        this.layout = reloaded;
-                    }
-                }
+                // The write succeeded even if reloading fails; subsequent edits must use PATCH.
+                openLayout.layout._isNew = false;
+                Object.assign(openLayout.layout.getOrigin(), savedDraft);
+                await this.reloadSavedLayout(openLayout, savedState);
                 if (this.workspaceStore?.activeWorkspace) {
                     void this.scheduleWorkspaceSetup();
                 }
@@ -2325,6 +2318,36 @@ export default Shopware.Component.wrapComponentConfig({
                 return false;
             } finally {
                 openLayout.isSaving = false;
+            }
+        },
+
+        async reloadSavedLayout(openLayout: ExperienceStudioOpenLayout, savedState: string): Promise<void> {
+            try {
+                const reloaded = await this.layoutRepository.get(
+                    openLayout.id,
+                    Shopware.Context.api,
+                    this.layoutLoadCriteria,
+                );
+                if (!reloaded) {
+                    throw new Error('The saved content layout was not returned by the repository.');
+                }
+
+                const saved = JSON.parse(savedState) as Pick<ContentLayoutEntity, 'name' | 'rootSource' | 'layout'>;
+                const current = JSON.parse(this.serializeLayoutState(openLayout.layout)) as typeof saved;
+                openLayout.savedState = this.serializeLayoutState(reloaded);
+                for (const key of ['name', 'rootSource', 'layout'] as const) {
+                    if (JSON.stringify(current[key]) !== JSON.stringify(saved[key])) {
+                        Object.assign(reloaded, { [key]: current[key] });
+                    }
+                }
+                openLayout.layout = reloaded;
+                if (this.activeLayoutId === openLayout.id) {
+                    this.layout = reloaded;
+                }
+            } catch {
+                this.createNotificationError({
+                    message: this.$t('sw-experience-studio.detail.messageReloadError'),
+                });
             }
         },
 

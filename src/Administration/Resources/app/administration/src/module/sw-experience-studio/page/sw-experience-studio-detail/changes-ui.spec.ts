@@ -1,9 +1,12 @@
 import { DOMWrapper, mount } from '@vue/test-utils';
 import type { Component } from 'vue';
+import Entity from 'src/core/data/entity.data';
+import { createContentLayoutRepository } from '../../util/content-layout-repository.util';
 import detailComponent from './index';
 import '../../store/experience-studio-workspace.store';
 
 async function createWrapper(failedLayoutId: string | null = null, newLayoutId: string | null = null) {
+    const repository = createContentLayoutRepository(Shopware.Service('repositoryFactory').create('content_layout'));
     const layouts = [
         {
             id: 'about',
@@ -17,7 +20,7 @@ async function createWrapper(failedLayoutId: string | null = null, newLayoutId: 
             rootSource: 'category',
             layout: [{ id: 'b', component: 'Sw:Content:Text', properties: { text: 'Saved' } }],
         },
-    ];
+    ].map((layout) => Object.assign(repository.create(Shopware.Context.api), layout, { _isNew: layout.id === newLayoutId }));
     const openLayouts = layouts.map((layout) => ({
         id: layout.id,
         layout,
@@ -36,9 +39,12 @@ async function createWrapper(failedLayoutId: string | null = null, newLayoutId: 
     const save = jest.fn((layout: { id: string }) =>
         layout.id === failedLayoutId ? Promise.reject(new Error('Save failed')) : Promise.resolve(),
     );
-    const get = jest.fn((id: string) =>
-        Promise.resolve(Shopware.Utils.object.cloneDeep(layouts.find((layout) => layout.id === id) ?? null)),
-    );
+    const get = jest.fn((id: string) => {
+        const layout = layouts.find((item) => item.id === id);
+        return Promise.resolve(
+            layout ? new Entity(id, 'content_layout', Shopware.Utils.object.cloneDeep(layout.getDraft())) : null,
+        );
+    });
     const toolbar = await wrapTestComponent('sw-experience-studio-toolbar', { sync: true });
     const wrapper = mount(
         {
@@ -55,6 +61,7 @@ async function createWrapper(failedLayoutId: string | null = null, newLayoutId: 
         } as Component,
         {
             attachTo: document.body,
+            data: () => ({ layout: layouts[0], activeLayoutId: 'about', openLayouts }),
             global: {
                 provide: {
                     repositoryFactory: { create: () => ({ save, get }) },
@@ -77,7 +84,6 @@ async function createWrapper(failedLayoutId: string | null = null, newLayoutId: 
             },
         },
     );
-    await wrapper.setData({ layout: layouts[0], activeLayoutId: 'about', openLayouts });
     await flushPromises();
     return { wrapper, save, get };
 }

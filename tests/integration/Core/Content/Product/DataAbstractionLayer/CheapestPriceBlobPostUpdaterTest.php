@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Migration\IndexerQueuer;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Assert\Serialization;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
@@ -60,20 +59,17 @@ class CheapestPriceBlobPostUpdaterTest extends TestCase
         static::assertSame($matching, $connection->fetchOne('SELECT cheapest_price_blob FROM product WHERE id = :id', ['id' => $ids->getBytes('matching')]));
     }
 
-    public function testCompletionIsRecordedOnlyAfterTheLastBatch(): void
+    public function testRepairRemainsScheduledUntilTheLastBatch(): void
     {
         $updater = $this->getUpdater();
-        $config = static::getContainer()->get(SystemConfigService::class);
         $queue = new IndexerQueuer(static::getContainer()->get(Connection::class));
         $offset = null;
         while ($message = $updater->iterate($offset)) {
-            static::assertFalse($config->getBool(CheapestPriceBlobPostUpdater::COMPLETED_CONFIG_KEY));
             static::assertArrayHasKey(CheapestPriceBlobPostUpdater::NAME, $queue->getIndexers());
             $updater->handle($message);
             $offset = $message->getOffset();
         }
 
-        static::assertTrue($config->getBool(CheapestPriceBlobPostUpdater::COMPLETED_CONFIG_KEY));
         static::assertArrayNotHasKey(CheapestPriceBlobPostUpdater::NAME, $queue->getIndexers());
     }
 
@@ -102,10 +98,9 @@ class CheapestPriceBlobPostUpdaterTest extends TestCase
         static::assertSame(75.0, $container->resolve($context)?->getPrice()->first()?->getGross());
     }
 
-    public function testFailedBatchKeepsTheRepairScheduledAndIncomplete(): void
+    public function testFailedBatchKeepsTheRepairScheduled(): void
     {
         $connection = static::getContainer()->get(Connection::class);
-        $config = static::getContainer()->get(SystemConfigService::class);
         $context = Context::createDefaultContext();
         $ids = new IdsCollection();
         $product = (new ProductBuilder($ids, 'failed'))->price(100)->build();
@@ -119,7 +114,6 @@ class CheapestPriceBlobPostUpdaterTest extends TestCase
             static::getContainer()->get(IteratorFactory::class),
             $connection,
             $priceUpdater,
-            $config,
         );
         static::assertNotNull($updater->iterate(null));
 
@@ -127,7 +121,6 @@ class CheapestPriceBlobPostUpdaterTest extends TestCase
         try {
             $updater->handle(new EntityIndexingMessage([$product['id']], null, $context));
         } finally {
-            static::assertFalse($config->getBool(CheapestPriceBlobPostUpdater::COMPLETED_CONFIG_KEY));
             static::assertArrayHasKey(CheapestPriceBlobPostUpdater::NAME, (new IndexerQueuer($connection))->getIndexers());
         }
     }
@@ -138,7 +131,6 @@ class CheapestPriceBlobPostUpdaterTest extends TestCase
             static::getContainer()->get(IteratorFactory::class),
             static::getContainer()->get(Connection::class),
             static::getContainer()->get(CheapestPriceUpdater::class),
-            static::getContainer()->get(SystemConfigService::class),
         );
     }
 }

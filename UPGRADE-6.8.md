@@ -470,10 +470,10 @@ The JSON data in `cheapest_price_accessor` is unchanged.
 
 The update schedules a synchronous, batched reconciliation that rebuilds cheapest prices when the legacy and blob payloads differ, including missing blob values.
 Drain older application instances and workers before running `system:update:finish`, and keep storefront traffic stopped until it completes.
-The reconciliation scans all product versions and only recalculates mismatches.
+The reconciliation scans all product versions and only recalculates mismatches while the legacy column exists.
 
-Destructive migrations refuse to drop the legacy column until reconciliation completes.
-When using `--version-selection-mode=all`, first run the non-destructive migrations and `system:update:finish` with the default safe mode, then run the destructive migrations with `--version-selection-mode=all`.
+Destructive migrations can remove the legacy column before reconciliation runs.
+In that case, reconciliation rebuilds only NULL blob values; it cannot detect stale non-NULL values after the comparison source has been removed.
 The default safe migration mode retains the unused legacy column for later removal.
 
 <details>

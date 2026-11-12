@@ -718,7 +718,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(IteratorFactory::class),
             service(Connection::class),
             service(CheapestPriceUpdater::class),
-            service(SystemConfigService::class),
         ])
         ->tag('shopware.entity_indexer');
 

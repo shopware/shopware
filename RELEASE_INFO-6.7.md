@@ -355,6 +355,18 @@ Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations
 
 The property is unused and will be removed in 6.8.
 
+### Delivery notes of a single delivery
+
+A delivery note can be generated for one delivery of an order.
+Pass the delivery id as `custom.orderDeliveryId` in the config of a `delivery_note` document operation, or as `orderDeliveryId` to the experimental `/api/_action/order/document-v2/create` route.
+The legacy route takes one operation per order, so request the notes of several deliveries of one order separately.
+The note then lists only the line items with a position in that delivery, prints their position quantities and uses the shipping address and shipping method of that delivery.
+A line item inside a container is listed together with the container and all its children; children shipped by another delivery show the quantity 0.
+A delivery of another order fails the operation with `DOCUMENT__ORDER_DELIVERY_NOT_FOUND`, or `DOCUMENT_V2__ORDER_DELIVERY_NOT_FOUND` in Document V2.
+Without the id, the note lists the whole order as before.
+
+Templates extending `@Framework/documents/delivery_note.html.twig` find the delivery in `orderDelivery` and the printed quantity of each listed line item, keyed by its id, in `deliveryLineItemQuantities`, which is `null` for a note of the whole order.
+
 ### Delivery and transaction state flows know what changed
 
 The `state_enter.order_delivery.state.*` and `state_leave.order_delivery.state.*` triggers now carry the delivery whose state changed, the `order_transaction` ones the transaction.

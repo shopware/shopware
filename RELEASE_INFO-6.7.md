@@ -442,6 +442,19 @@ Amounts that carry a single value instead of a net and gross pair, such as absol
 
 The customer group detail page offers both settings separately. Plugins customize the selection through the new extension point `Shopware\Core\Checkout\Cart\Extension\PriceSelectorExtension` (`price-selector.select.pre` and `.post`), for example to apply charm-price rounding to derived gross prices. `GrossPriceCalculator` now grosses up uncalculated prices over several tax rules so that its own tax split returns the given net value; prices with a single tax rule are unchanged. Background and trade-offs are documented in the ADR `adr/2026-08-11-decouple-price-calculation-basis-from-tax-display.md`.
 
+### Product documents
+
+Products have documents, such as manuals or datasheets, in the new entities `product_document` and `product_document_translation`.
+Each document has a position, and a title and a file per language.
+They are available in the Admin API under `/api/product-document` and as the `documents` association of `product`.
+Variants inherit the documents of their parent unless they have their own.
+A media that a document uses cannot be deleted.
+
+When a document is saved, its files must be public, stored in the shop, have a known size, and match the allowed file types and the largest file size of `shopware.product_documents`.
+Extensions can change the allowed file types with `Shopware\Core\Content\Product\Events\ProductDocumentAllowedExtensionsEvent`.
+`GET /api/_info/config` returns the allowed file types, their MIME types and the largest file size in `settings.productDocuments`.
+New document files go to the default media folder "Product Document Media".
+
 ## App System
 
 ### Inline `<custom-fields>` in `manifest.xml` stay supported
@@ -463,8 +476,10 @@ Invalid JSON, malformed messages or resource contents, and `{"success":false,"er
 
 ### Product list filters by product documents
 
-The product list has a new "Documents" filter, registered as `product-documents-filter`. It finds the products with or without product documents; variants count the documents they inherit from their parent.
-With `ENABLE_OPENSEARCH_FOR_ADMIN_API`, run `bin/console es:admin:index` after the update.
+The product list has a new "Documents" filter, registered as `product-documents-filter`.
+It finds the products with or without product documents; variants count the documents they inherit from their parent.
+With `ENABLE_OPENSEARCH_FOR_ADMIN_API`, run `bin/console es:admin:mapping:update` after the update.
+
 ### Deprecated the `defaultFolderRepository` computed property of `sw-cms-detail` and `sw-cms-list`
 
 The `defaultFolderRepository` computed property of `sw-cms-detail` and `sw-cms-list` is deprecated and will be removed.
@@ -719,8 +734,10 @@ The CMS layout selection modal (`sw-cms-layout-modal`) uses them instead of chec
 
 ### Dynamic product groups filter by product documents
 
-Dynamic product groups have a new "Has documents" condition with the values "Yes" and "No". It stores a filter on `documents.id` being null or not null; variants count the documents they inherit from their parent.
-With Elasticsearch, run `bin/console es:index` after the update; until then the condition gives wrong results.
+Dynamic product groups have a new "Has documents" condition with the values "Yes" and "No".
+It stores a filter on `documents.id` being null or not null; variants count the documents they inherit from their parent.
+The Elasticsearch product index has a new `documents` field with the languages of each document.
+With Elasticsearch, run `bin/console es:index` after the update.
 
 ### Meteor Component Library updated to 5.10.0
 
@@ -1004,6 +1021,24 @@ Switching maintenance mode on again then sent every visitor not on the IP allowl
 The redirect is no longer cached. A shop that is already in this state gets out of it by running `bin/console cache:clear:http`.
 
 ## Hosting & Configuration
+
+### Product document settings and file cleanup
+
+The new `shopware.product_documents` settings limit the files of product documents:
+
+```yaml
+shopware:
+    product_documents:
+        allowed_extensions: ["pdf", "docx", "jpg", "jpeg", "png"]
+        max_file_size: 20M
+```
+
+A list in your own configuration replaces the core list of `allowed_extensions`.
+`max_file_size` accepts bytes or a value with a unit, such as `20M`.
+
+The new scheduled task `product_document.media.cleanup` runs once a month.
+It deletes the files in the "Product Document Media" folder and its subfolders that are not used and were uploaded more than one day ago.
+To switch it off, run `bin/console scheduled-task:deactivate product_document.media.cleanup`.
 
 ### Sitemaps skip inactive sales channels and `sitemap:generate` continues after a failure
 

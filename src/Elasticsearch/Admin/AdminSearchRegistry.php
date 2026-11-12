@@ -12,6 +12,7 @@ use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
@@ -188,6 +189,26 @@ class AdminSearchRegistry implements EventSubscriberInterface
             // otherwise we invoke the message handler directly
             $this->__invoke($msg);
         }
+    }
+
+    /**
+     * @param list<string> $ids
+     */
+    public function updateIds(string $entity, array $ids, Context $context): void
+    {
+        if ($ids === [] || !$this->adminEsHelper->isEnabled() || $context->getVersionId() !== Defaults::LIVE_VERSION || !$this->hasIndexer($entity)) {
+            return;
+        }
+
+        /** @var array<string, string> $indices */
+        $indices = $this->connection->fetchAllKeyValue('SELECT `alias`, `index` FROM admin_elasticsearch_index_task');
+        if ($indices === []) {
+            return;
+        }
+
+        $indexer = $this->getIndexer($entity);
+
+        $this->push($indexer, new AdminSearchIndexingMessage($indexer->getEntity(), $indexer->getName(), $indices, $ids, []));
     }
 
     /**

@@ -5,6 +5,9 @@ namespace Shopware\Tests\Integration\Elasticsearch\Admin\Indexer;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
+use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -12,8 +15,11 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
 use Shopware\Elasticsearch\Admin\Indexer\ProductAdminSearchIndexer;
+use Shopware\Elasticsearch\Admin\Subscriber\ProductInheritanceSubscriber;
 
 /**
  * @internal
@@ -49,16 +55,10 @@ class ProductAdminSearchIndexerTest extends TestCase
         ], $this->context);
     }
 
-    public function testVariantsAreIndexedWithTheDocumentsOfTheirParentWhenTheInheritanceColumnIsNotSet(): void
+    public function testVariantsAreIndexedWithTheDocumentsTheyInherit(): void
     {
         $this->createDocument('manual', 'drill');
         $this->createDocument('own', 'drill.red');
-
-        static::getContainer()->get(Connection::class)->executeStatement(
-            'UPDATE product SET documents = NULL WHERE id IN (:ids)',
-            ['ids' => Uuid::fromHexToBytesList($this->ids->getList(['drill', 'drill.blue', 'drill.red']))],
-            ['ids' => ArrayParameterType::BINARY]
-        );
 
         Feature::fake(['ENABLE_OPENSEARCH_FOR_ADMIN_API'], function (): void {
             $documents = $this->getIndexer()->fetch($this->ids->getList(['drill', 'drill.blue', 'drill.red']));
@@ -66,6 +66,41 @@ class ProductAdminSearchIndexerTest extends TestCase
             static::assertSame([['id' => $this->ids->get('manual'), '_count' => 1]], $documents[$this->ids->get('drill')]['documents']);
             static::assertSame([['id' => $this->ids->get('manual'), '_count' => 1]], $documents[$this->ids->get('drill.blue')]['documents']);
             static::assertSame([['id' => $this->ids->get('own'), '_count' => 1]], $documents[$this->ids->get('drill.red')]['documents']);
+        });
+    }
+
+    public function testAQueuedInheritanceUpdateIndexesTheVariantsAgain(): void
+    {
+        $this->createDocument('manual', 'drill');
+        static::getContainer()->get(Connection::class)->executeStatement(
+            'UPDATE product SET documents = NULL WHERE id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($this->ids->getList(['drill.blue', 'drill.red']))],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        $indexedIds = [];
+        $registry = $this->createMock(AdminSearchRegistry::class);
+        $registry->expects($this->once())->method('updateIds')->willReturnCallback(static function (string $entity, array $ids) use (&$indexedIds): void {
+            static::assertSame('product', $entity);
+            $indexedIds = $ids;
+        });
+        $listener = (new ProductInheritanceSubscriber($registry))->update(...);
+
+        $dispatcher = EventHookDispatcher::fromContainer(static::getContainer());
+        $dispatcher->on(ProductIndexerEvent::class, $listener);
+        try {
+            static::getContainer()->get(ProductIndexer::class)->handle(new ProductIndexingMessage($this->ids->getList(['drill.blue', 'drill.red']), null, $this->context));
+        } finally {
+            $dispatcher->off(ProductIndexerEvent::class, $listener);
+        }
+
+        static::assertEqualsCanonicalizing(array_values($this->ids->getList(['drill.blue', 'drill.red'])), array_values($indexedIds));
+
+        Feature::fake(['ENABLE_OPENSEARCH_FOR_ADMIN_API'], function (): void {
+            $documents = $this->getIndexer()->fetch($this->ids->getList(['drill.blue', 'drill.red']));
+
+            static::assertSame([['id' => $this->ids->get('manual'), '_count' => 1]], $documents[$this->ids->get('drill.blue')]['documents']);
+            static::assertSame([['id' => $this->ids->get('manual'), '_count' => 1]], $documents[$this->ids->get('drill.red')]['documents']);
         });
     }
 

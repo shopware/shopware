@@ -146,7 +146,7 @@ class ProductAdminSearchIndexerTest extends TestCase
     public function testFetchingAProductWithoutDocuments(): void
     {
         $indexer = new ProductAdminSearchIndexer(
-            $this->getConnection(['documentIds' => null]),
+            $this->getConnection(['documentsId' => null]),
             static::createStub(IteratorFactory::class),
             static::createStub(EntityRepository::class),
             static::createStub(ElasticsearchFieldBuilder::class),
@@ -431,6 +431,7 @@ class ProductAdminSearchIndexerTest extends TestCase
                     'manufacturerId' => 'aabbccdd11223344556677889900aabb',
                     'categoryIds' => null,
                     'mediaId' => 'aabb11223344556677889900aabbccdd',
+                    'documentsId' => '809c1844f4734243b6aa04aba860cd45',
                     'documentIds' => 'c1c2c3c4c5c6c7c8c9c0c1c2c3c4c5c6 d1d2d3d4d5d6d7d8d9d0d1d2d3d4d5d6',
                     'visibilities' => null,
                     'createdAt' => '2024-01-01 00:00:00.000',

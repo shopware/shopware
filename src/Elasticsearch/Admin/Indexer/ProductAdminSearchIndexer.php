@@ -320,7 +320,8 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
         $visibilityIds = $this->collectHexColumnValues($baseRows, 'visibilitiesId');
         $visibilitiesByProductId = $this->fetchVisibilitiesByIds($visibilityIds, $versionId);
 
-        $documentsByProductId = $this->fetchDocumentsByProductIds($translationIds, $versionId);
+        $documentOwnerIds = $this->collectHexColumnValues($baseRows, 'documentsId');
+        $documentsByProductId = $this->fetchDocumentsByProductIds($documentOwnerIds, $versionId);
 
         return $this->mapAdvancedRows(
             $baseRows,
@@ -353,6 +354,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
                    product.states as states,
                    LOWER(HEX(product.manufacturer)) AS manufacturerId,
                    LOWER(HEX(product.visibilities)) AS visibilitiesId,
+                   LOWER(HEX(product.documents)) AS documentsId,
                    IFNULL(product.category_ids, parent.category_ids) AS categoryIds,
                    product.stock as stock,
                    IFNULL(product.price, parent.price) AS priceRaw,
@@ -595,7 +597,8 @@ SQL,
             $parentId = \is_string($row['parentId'] ?? null) ? $row['parentId'] : null;
             $manufacturerId = \is_string($row['manufacturerId'] ?? null) ? $row['manufacturerId'] : null;
             $visibilitiesId = \is_string($row['visibilitiesId'] ?? null) ? $row['visibilitiesId'] : null;
-            $documents = $documentsByProductId[$id] ?? ($parentId !== null ? ($documentsByProductId[$parentId] ?? []) : []);
+            $documentsId = \is_string($row['documentsId'] ?? null) ? $row['documentsId'] : null;
+            $documents = $documentsId !== null ? ($documentsByProductId[$documentsId] ?? []) : [];
 
             $ownTranslation = $translationsByProductId[$id] ?? null;
             $parentTranslation = $parentId !== null ? ($translationsByProductId[$parentId] ?? null) : null;

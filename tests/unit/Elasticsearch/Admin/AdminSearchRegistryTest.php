@@ -489,6 +489,47 @@ class AdminSearchRegistryTest extends TestCase
         ]), []));
     }
 
+    public function testUpdateIdsIndexesTheGivenIds(): void
+    {
+        $this->indexer->method('getName')->willReturn('product-listing');
+        $this->indexer->method('getEntity')->willReturn('product');
+        $this->indexer->method('fetch')->willReturn([
+            'c1a28776116d4431a2208eb2960ec340' => ['id' => 'c1a28776116d4431a2208eb2960ec340'],
+        ]);
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllKeyValue')->willReturn(['sw-admin-product-listing' => 'sw-admin-product-listing_12345']);
+
+        $client = $this->createMock(Client::class);
+        $client->expects($this->once())->method('bulk')->with([
+            'index' => 'sw-admin-product-listing_12345',
+            'body' => [
+                ['index' => ['_id' => 'c1a28776116d4431a2208eb2960ec340']],
+                ['entityName' => 'product', 'parameters' => [], 'textBoosted' => '', 'text' => '', 'completion' => [], 'id' => 'c1a28776116d4431a2208eb2960ec340'],
+            ],
+        ]);
+
+        $this->createRegistryForUpdateIds($client, $connection, true)->updateIds('product', ['c1a28776116d4431a2208eb2960ec340'], Context::createDefaultContext());
+    }
+
+    public function testUpdateIdsDoesNothingWhenAdminSearchIsDisabled(): void
+    {
+        $client = $this->createMock(Client::class);
+        $client->expects($this->never())->method('bulk');
+
+        $this->createRegistryForUpdateIds($client, static::createStub(Connection::class), false)->updateIds('product', ['c1a28776116d4431a2208eb2960ec340'], Context::createDefaultContext());
+    }
+
+    public function testUpdateIdsDoesNothingOutsideTheLiveVersion(): void
+    {
+        $client = $this->createMock(Client::class);
+        $client->expects($this->never())->method('bulk');
+
+        $context = Context::createDefaultContext()->createWithVersionId('c1a28776116d4431a2208eb2960ec341');
+
+        $this->createRegistryForUpdateIds($client, static::createStub(Connection::class), true)->updateIds('product', ['c1a28776116d4431a2208eb2960ec340'], $context);
+    }
+
     public function testRefreshQueuesEveryAffectedIndexerForSalesChannelSources(): void
     {
         $this->indexer->method('getName')->willReturn('promotion-listing');
@@ -834,5 +875,22 @@ class AdminSearchRegistryTest extends TestCase
     {
         yield 'refresh indices' => [true];
         yield 'do not refresh indices' => [false];
+    }
+
+    private function createRegistryForUpdateIds(Client $client, Connection $connection, bool $enabled): AdminSearchRegistry
+    {
+        return new AdminSearchRegistry(
+            ['product' => $this->indexer],
+            $connection,
+            static::createStub(MessageBusInterface::class),
+            static::createStub(EventDispatcherInterface::class),
+            $client,
+            new AdminElasticsearchHelper($enabled, false, 'sw-admin', 'test', true, new NullLogger()),
+            static::createStub(LoggerInterface::class),
+            [],
+            [],
+            'test',
+            new NativeClock()
+        );
     }
 }

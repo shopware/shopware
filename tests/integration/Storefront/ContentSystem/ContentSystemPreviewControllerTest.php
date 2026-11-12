@@ -43,6 +43,19 @@ class ContentSystemPreviewControllerTest extends TestCase
      */
     private array $storedPreviewTokens = [];
 
+    /**
+     * The test kernel is shared across tests and `cache.system` is an in-memory pool there. With
+     * `LONGRUNNING_ENVIRONMENT` active the kernel resets its services at the start of the request after one that
+     * was handled, which empties that pool. Booting here consumes a pending reset, so a token stored by the test
+     * is still there when the test's own request runs.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        static::getKernel()->boot();
+    }
+
     protected function tearDown(): void
     {
         $cache = static::getContainer()->get('cache.system');

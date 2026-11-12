@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Command;
 
+use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\ShopIdChangeResolver\Resolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
@@ -25,8 +26,10 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 class ChangeShopIdCommand extends Command
 {
-    public function __construct(private readonly Resolver $shopIdChangeResolver)
-    {
+    public function __construct(
+        private readonly Resolver $shopIdChangeResolver,
+        private readonly ShopIdProvider $shopIdProvider,
+    ) {
         parent::__construct();
     }
 
@@ -46,6 +49,14 @@ class ChangeShopIdCommand extends Command
             );
 
             $io->warning($deprecationMessage);
+        }
+
+        $result = $this->shopIdProvider->verifyShopId();
+
+        if (!$result->isOk()) {
+            $io->error($result->errors);
+
+            return self::FAILURE;
         }
 
         $availableStrategies = $this->shopIdChangeResolver->getAvailableStrategies();

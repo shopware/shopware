@@ -841,6 +841,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ChangeShopIdCommand::class)
         ->args([
             service(Resolver::class),
+            service(ShopIdProvider::class),
         ])
         ->tag('console.command');
 
@@ -1060,6 +1061,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(SystemConfigService::class),
             service(FingerprintGenerator::class),
+            service(ShopIdProvider::class),
         ])
         ->tag('console.command');
 

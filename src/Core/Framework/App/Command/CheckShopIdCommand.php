@@ -28,6 +28,7 @@ class CheckShopIdCommand extends Command
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
         private readonly FingerprintGenerator $fingerprintGenerator,
+        private readonly ShopIdProvider $shopIdProvider,
     ) {
         parent::__construct();
     }
@@ -38,6 +39,14 @@ class CheckShopIdCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
+
+        $verification = $this->shopIdProvider->verifyShopId();
+
+        if (!$verification->isOk()) {
+            $io->warning($verification->errors);
+
+            return self::FAILURE;
+        }
 
         $shopIdConfig = $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2)
             ?? $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY);

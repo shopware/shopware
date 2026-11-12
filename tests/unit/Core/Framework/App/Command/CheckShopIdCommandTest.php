@@ -3,13 +3,16 @@
 namespace Shopware\Tests\Unit\Core\Framework\App\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Command\CheckShopIdCommand;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\FingerprintGenerator;
 use Shopware\Core\Framework\App\ShopId\FingerprintMatch;
 use Shopware\Core\Framework\App\ShopId\FingerprintMismatch;
+use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Result;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -21,6 +24,29 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(CheckShopIdCommand::class)]
 class CheckShopIdCommandTest extends TestCase
 {
+    private ShopIdProvider&Stub $shopIdProvider;
+
+    protected function setUp(): void
+    {
+        $this->shopIdProvider = static::createStub(ShopIdProvider::class);
+        $this->shopIdProvider->method('verifyShopId')->willReturn(Result::ok());
+    }
+
+    public function testFailsWhenTheCachedShopIdDiffersFromTheDatabase(): void
+    {
+        $shopIdProvider = static::createStub(ShopIdProvider::class);
+        $shopIdProvider->method('verifyShopId')->willReturn(Result::failed('The cached shop ID differs.'));
+
+        $commandTester = new CommandTester(
+            new CheckShopIdCommand(static::createStub(SystemConfigService::class), static::createStub(FingerprintGenerator::class), $shopIdProvider)
+        );
+
+        $commandTester->execute([]);
+
+        static::assertSame(Command::FAILURE, $commandTester->getStatusCode());
+        static::assertStringContainsString('The cached shop ID differs.', $commandTester->getDisplay());
+    }
+
     public function testDisplaysHintThatNoShopIsExistsYet(): void
     {
         $systemConfigService = $this->createMock(SystemConfigService::class);
@@ -31,7 +57,7 @@ class CheckShopIdCommandTest extends TestCase
         $fingerprintGenerator = static::createStub(FingerprintGenerator::class);
 
         $commandTester = new CommandTester(
-            new CheckShopIdCommand($systemConfigService, $fingerprintGenerator)
+            new CheckShopIdCommand($systemConfigService, $fingerprintGenerator, $this->shopIdProvider)
         );
 
         $commandTester->execute([]);
@@ -53,7 +79,7 @@ class CheckShopIdCommandTest extends TestCase
             ->willReturn(new FingerprintComparisonResult([], [], 75));
 
         $commandTester = new CommandTester(
-            new CheckShopIdCommand($systemConfigService, $fingerprintGenerator)
+            new CheckShopIdCommand($systemConfigService, $fingerprintGenerator, $this->shopIdProvider)
         );
 
         $commandTester->execute([]);
@@ -89,7 +115,7 @@ class CheckShopIdCommandTest extends TestCase
             ], 75));
 
         $commandTester = new CommandTester(
-            new CheckShopIdCommand($systemConfigService, $fingerprintGenerator)
+            new CheckShopIdCommand($systemConfigService, $fingerprintGenerator, $this->shopIdProvider)
         );
 
         $commandTester->execute([]);
@@ -123,7 +149,7 @@ class CheckShopIdCommandTest extends TestCase
             ], [], 75));
 
         $commandTester = new CommandTester(
-            new CheckShopIdCommand($systemConfigService, $fingerprintGenerator)
+            new CheckShopIdCommand($systemConfigService, $fingerprintGenerator, $this->shopIdProvider)
         );
 
         $commandTester->execute([]);

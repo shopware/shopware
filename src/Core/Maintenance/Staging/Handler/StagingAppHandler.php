@@ -34,6 +34,7 @@ readonly class StagingAppHandler
         }
 
         $event->io->info(\sprintf('Staging: applied the shop ID change strategy "%s".', $strategy));
+        $event->io->note('Make sure this installation has its own SHOPWARE_CACHE_ID or its own cache server, otherwise it can share the cache, and the shop ID, with the original shop.');
     }
 
     private function strategyName(SetupStagingEvent $event): string

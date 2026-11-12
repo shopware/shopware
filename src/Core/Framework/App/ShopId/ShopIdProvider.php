@@ -3,10 +3,12 @@
 namespace Shopware\Core\Framework\App\ShopId;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Adapter\Database\ReplicaConnection;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
+use Shopware\Core\Framework\Util\Result;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Service\ResetInterface;
@@ -80,6 +82,25 @@ class ShopIdProvider implements ResetInterface
         $this->eventDispatcher->dispatch(new ShopIdDeletedEvent());
     }
 
+    /**
+     * @return Result<string>
+     */
+    public function verifyShopId(): Result
+    {
+        $cachedShopId = $this->fetchCachedShopId();
+        $storedShopId = $this->fetchStoredShopId();
+
+        if ($cachedShopId === $storedShopId) {
+            return Result::ok();
+        }
+
+        return Result::failed(\sprintf(
+            'The cached shop ID "%s" differs from the shop ID "%s" in the database. This can happen when another installation shares this cache. Give each installation its own SHOPWARE_CACHE_ID or its own cache server, then clear the cache.',
+            $cachedShopId ?? 'none',
+            $storedShopId ?? 'none',
+        ));
+    }
+
     public function reset(): void
     {
         $this->shopId = null;
@@ -109,6 +130,31 @@ class ShopIdProvider implements ResetInterface
     private function hasAppsRegisteredAtAppServers(): bool
     {
         return (int) $this->connection->fetchOne('SELECT COUNT(id) FROM app WHERE app_secret IS NOT NULL') > 0;
+    }
+
+    private function fetchCachedShopId(): ?string
+    {
+        $config = $this->systemConfigService->get(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
+
+        return \is_array($config) ? ShopId::fromSystemConfig($config)->id : null;
+    }
+
+    private function fetchStoredShopId(): ?string
+    {
+        ReplicaConnection::ensurePrimary();
+
+        $value = $this->connection->fetchOne(
+            'SELECT configuration_value FROM system_config WHERE configuration_key = :key AND sales_channel_id IS NULL',
+            ['key' => self::SHOP_ID_SYSTEM_CONFIG_KEY_V2],
+        );
+
+        if (!\is_string($value)) {
+            return null;
+        }
+
+        $config = json_decode($value, true)['_value'] ?? null;
+
+        return \is_array($config) ? ShopId::fromSystemConfig($config)->id : null;
     }
 
     private function fetchShopIdFromSystemConfig(): ?ShopId

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\ShopId;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Util\Result;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 
@@ -134,6 +136,32 @@ class ShopIdProviderTest extends TestCase
 
         static::assertNull($this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY));
         static::assertNull($this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2));
+    }
+
+    public function testACachedShopIdMatchingTheDatabaseIsVerified(): void
+    {
+        $this->shopIdProvider->getShopId();
+
+        static::assertEquals(Result::ok(), $this->shopIdProvider->verifyShopId());
+    }
+
+    public function testACachedShopIdDifferingFromTheDatabaseFailsVerification(): void
+    {
+        $cachedShopId = $this->shopIdProvider->getShopId()->id;
+        $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
+
+        static::getContainer()->get(Connection::class)->executeStatement(
+            'UPDATE system_config SET configuration_value = :value WHERE configuration_key = :key',
+            [
+                'value' => json_encode(['_value' => ShopId::v2('storedShopId', [])->toArray()]),
+                'key' => ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2,
+            ],
+        );
+
+        static::assertEquals(
+            Result::failed(\sprintf('The cached shop ID "%s" differs from the shop ID "storedShopId" in the database. This can happen when another installation shares this cache. Give each installation its own SHOPWARE_CACHE_ID or its own cache server, then clear the cache.', $cachedShopId)),
+            $this->shopIdProvider->verifyShopId(),
+        );
     }
 
     /**

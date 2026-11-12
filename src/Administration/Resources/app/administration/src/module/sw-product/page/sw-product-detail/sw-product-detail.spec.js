@@ -118,6 +118,10 @@ describe('module/sw-product/page/sw-product-detail', () => {
                                     product.isNew = () => false;
                                 }
 
+                                if (product && !product.getOrigin) {
+                                    product.getOrigin = () => product._origin;
+                                }
+
                                 return product;
                             },
                             hasChanges: () => true,

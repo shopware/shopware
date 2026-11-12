@@ -64,6 +64,7 @@ class CheapestPriceBlobPostUpdater extends SynchronousPostUpdateIndexer
             return;
         }
 
+        // Destructive migrations may run before or after this updater; once the legacy column is dropped, only missing blobs can be detected.
         $condition = TableHelper::columnExists($this->connection, 'product', 'cheapest_price')
             ? 'NOT (CAST(cheapest_price AS BINARY) <=> cheapest_price_blob)'
             : 'cheapest_price_blob IS NULL';

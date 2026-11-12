@@ -7,7 +7,6 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
@@ -78,26 +77,20 @@ final class PropertyTypeConformanceValidator extends ConstraintValidator
                 continue;
             }
 
-            $this->reportNonLanguageKeys($constraint, $key, $type->languageKeys($stored));
+            $this->reportNonLanguageKeys($constraint, $key, $type->nonLanguageKeys($stored));
         }
     }
 
     /**
-     * One violation per key that is not a language id, so a client can name and correct each. Only the key
-     * format is judged: whether the id names an existing language is a diagnostics warning, never a write
-     * rejection. No separate case check accompanies the domain test — {@see Uuid::VALID_PATTERN} is anchored
-     * lowercase-only hex, so an upper-case key already fails it. The keys come from
-     * {@see PropertyType::languageKeys()}, which holds none for a non-translatable property.
+     * One violation per key that is not a language id, so a client can name and correct each. The keys come from
+     * {@see PropertyType::nonLanguageKeys()}, the one owner of the key rule, which holds none for a
+     * non-translatable property.
      *
-     * @param list<string> $languageKeys
+     * @param list<string> $nonLanguageKeys
      */
-    private function reportNonLanguageKeys(PropertyTypeConformance $constraint, string $key, array $languageKeys): void
+    private function reportNonLanguageKeys(PropertyTypeConformance $constraint, string $key, array $nonLanguageKeys): void
     {
-        foreach ($languageKeys as $languageKey) {
-            if (Uuid::isValid($languageKey)) {
-                continue;
-            }
-
+        foreach ($nonLanguageKeys as $languageKey) {
             $this->context->buildViolation($constraint->languageKeyMessage)
                 ->setParameter('{{ key }}', $key)
                 ->setParameter('{{ languageKey }}', $languageKey)

@@ -180,22 +180,22 @@ abstract class AbstractLayoutMutation implements LayoutMutation
 
     /**
      * Every key of a translatable property's language map must be a language id in lowercase UUID hex, else
-     * `mutationPropertyLanguageKeyInvalid` names the first offending one: the key rule the DAL write path enforces in
+     * `mutationPropertyLanguageKeyInvalid` names the first offending one. The rule is owned by
+     * {@see PropertyType::nonLanguageKeys()}, which the DAL write path asks too in
      * {@see PropertyTypeConformanceValidator}, so the draft and persisted routes answer a malformed key the same way.
-     * The keys are read through {@see PropertyType::languageKeys()}, so a map key PHP holds as an integer, such as
-     * "42", is checked and reported as the string it arrived as, and a non-translatable $type or a $value that is
-     * not a map holds none and is never rejected. Whether the id names an existing language stays a diagnostics
-     * warning ({@see ViolationCode::DanglingLanguage}), never a rejection.
+     * A map key PHP holds as an integer, such as "42", is reported as the string it arrived as, and a
+     * non-translatable $type or a $value that is not a map holds none and is never rejected. Whether the id names
+     * an existing language stays a diagnostics warning ({@see ViolationCode::DanglingLanguage}), never a rejection.
      */
     protected function rejectNonLanguageKeys(string $elementId, string $key, PropertyType $type, StoredValue $value): void
     {
-        foreach ($type->languageKeys($value) as $languageKey) {
-            if (Uuid::isValid($languageKey)) {
-                continue;
-            }
+        $nonLanguageKeys = $type->nonLanguageKeys($value);
 
-            throw ContentSystemException::mutationPropertyLanguageKeyInvalid($elementId, $key, $languageKey);
+        if ($nonLanguageKeys === []) {
+            return;
         }
+
+        throw ContentSystemException::mutationPropertyLanguageKeyInvalid($elementId, $key, $nonLanguageKeys[0]);
     }
 
     /**

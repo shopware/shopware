@@ -464,6 +464,58 @@ class PropertyTypeTest extends TestCase
     }
 
     /**
+     * @param array<array-key, StoredValue> $entries
+     * @param list<string> $expected
+     */
+    #[DataProvider('nonLanguageKeysProvider')]
+    #[TestDox('lists the keys of a translatable language map that are no lowercase UUID hex language id: $_dataName')]
+    public function testNonLanguageKeysListsTheKeysBreakingTheKeyRule(array $entries, array $expected): void
+    {
+        $type = new PropertyType('string', true, null, null);
+
+        static::assertSame($expected, $type->nonLanguageKeys(StoredValue::ofMap($entries)));
+    }
+
+    /**
+     * @return iterable<string, array{array<array-key, StoredValue>, list<string>}>
+     */
+    public static function nonLanguageKeysProvider(): iterable
+    {
+        yield 'a key that is not UUID hex' => [['abc' => StoredValue::ofString('Hallo')], ['abc']];
+
+        yield 'an integer-like key, held by PHP as an integer' => [[42 => StoredValue::ofString('Hallo')], ['42']];
+
+        yield 'an upper-case UUID hex key' => [[strtoupper(Defaults::LANGUAGE_SYSTEM) => StoredValue::ofString('Hallo')], [strtoupper(Defaults::LANGUAGE_SYSTEM)]];
+
+        yield 'a lowercase UUID hex key' => [[Defaults::LANGUAGE_SYSTEM => StoredValue::ofString('Hallo')], []];
+
+        yield 'a mix, offending keys in map order' => [
+            [
+                'de-DE' => StoredValue::ofString('Hallo'),
+                Defaults::LANGUAGE_SYSTEM => StoredValue::ofString('Hello'),
+                42 => StoredValue::ofString('Salut'),
+            ],
+            ['de-DE', '42'],
+        ];
+    }
+
+    #[TestDox('lists no non-language keys for a map under a non-translatable declaration')]
+    public function testNonLanguageKeysIsEmptyForANonTranslatableDeclaration(): void
+    {
+        $type = new PropertyType('string', false, null, null);
+        $map = StoredValue::ofMap(['de-DE' => StoredValue::ofString('Hallo')]);
+
+        static::assertSame([], $type->nonLanguageKeys($map));
+    }
+
+    #[DataProvider('nonMapValueProvider')]
+    #[TestDox('lists no non-language keys for a translatable declaration holding $_dataName')]
+    public function testNonLanguageKeysIsEmptyForAValueThatIsNotAMap(StoredValue $value): void
+    {
+        static::assertSame([], (new PropertyType('string', true, null, null))->nonLanguageKeys($value));
+    }
+
+    /**
      * @param list<array{languageId: ?string, text: string}> $expected
      */
     #[DataProvider('textsProvider')]

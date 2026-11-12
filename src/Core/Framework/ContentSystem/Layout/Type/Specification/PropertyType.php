@@ -9,6 +9,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\TranslatableTyp
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\TypedEnumValidator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * $type accepts primitives (`string`, `integer`, `boolean`, `number`), `object`,
@@ -21,7 +22,7 @@ use Shopware\Core\Framework\Struct\Collection;
  * declared default), {@see admits()} is the one
  * conformance predicate answering whether a stored value matches this declared type, {@see admitsMapEntry()}
  * judges one language-map entry against the declared primitive, {@see languageKeys()} lists the keys of a
- * language map as strings, {@see texts()} lists the authored strings of a value with their language, and
+ * language map as strings, {@see nonLanguageKeys()} lists those that break the key rule, {@see texts()} lists the authored strings of a value with their language, and
  * {@see describe()} renders the declaration for the violation messages both
  * reporters share.
  *
@@ -219,6 +220,25 @@ final readonly class PropertyType
         }
 
         return array_map(strval(...), array_keys($value->asMap()));
+    }
+
+    /**
+     * The keys of a translatable property's language map that are not a language id in lowercase UUID hex, as
+     * {@see languageKeys()} reads them, in map order. This is the one owner of the key rule: the mutation
+     * operations and the write-path validator both ask it. {@see Uuid::VALID_PATTERN} is anchored lowercase-only
+     * hex, so an upper-case key fails it without a case check of its own. Only the key format is judged; whether
+     * the id names an existing language is a diagnostics warning, and {@see admits()} does not read keys. Like
+     * {@see languageKeys()}, it answers the empty list for a non-translatable declaration and for a value that
+     * is not a map.
+     *
+     * @return list<string>
+     */
+    public function nonLanguageKeys(StoredValue $value): array
+    {
+        return array_values(array_filter(
+            $this->languageKeys($value),
+            static fn (string $languageKey): bool => !Uuid::isValid($languageKey),
+        ));
     }
 
     /**

@@ -15,8 +15,9 @@ In code:
 - `ContentLayoutDefinition` has one `StoredElementListField` and no translation association.
 - `ContentLayoutDefinition` keeps `name` a plain `StringField`.
 - `PropertyType::admits()` admits only a non-empty map whose every entry matches the declared primitive.
-- `PropertyTypeConformanceValidator` rejects a key that is not a language id on the DAL write.
-- `AbstractLayoutMutation` rejects it in `UpdateElementProperties` and `TranslateElement`.
+- `PropertyType::nonLanguageKeys()` owns the rule that a key is a language id in lowercase UUID hex.
+- `PropertyTypeConformanceValidator` rejects each such key on the DAL write.
+- `AbstractLayoutMutation` rejects the first one in `UpdateElementProperties` and `TranslateElement`.
 - `ViolationCode::DanglingLanguage` is the warning for a key that names no language.
 - See [Layout/Element/README.md](../../Layout/Element/README.md#translatable-properties).
 

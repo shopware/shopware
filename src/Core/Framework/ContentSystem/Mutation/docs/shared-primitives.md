@@ -13,7 +13,8 @@ itself is not here: it belongs to `Layout/StoredTree` and the ops call it there.
   property's default arrives as a language map under the system language.
 - `requireRegistered()` - throws `ContentSystemException::mutationUnknownType` when the type is unregistered.
 - `rejectNonLanguageKeys()` - throws `ContentSystemException::mutationPropertyLanguageKeyInvalid` for the first key of
-  a translatable property's language map that is not a lowercase hex UUID, the key rule the DAL write path enforces.
+  a translatable property's language map that is not a lowercase hex UUID, as `PropertyType::nonLanguageKeys()`
+  reports it, the same rule the DAL write path applies.
   Shared by `Op/UpdateElementProperties` and `Op/TranslateElement`.
 - `resolveDefaultSpecification()` - the type's default binding specification: zero is `null`, one is returned, more
   than one throws `bindingSpecificationDefaultAmbiguous`.

@@ -34,6 +34,7 @@ Exceptions: A `resolvedBy` storage key is undeclared, and `matchesStoredValueSha
 In code:
 
 - `PropertyType::admits()` owns the acceptance of a value for a declared property.
+- `PropertyType::nonLanguageKeys()` owns the key rule of a language map, and `PropertyTypeConformanceValidator` and `AbstractLayoutMutation` both call it.
 - `StoredElementCodec::MAX_NESTING_DEPTH` owns the nesting bound.
 - `StoredTreeShapeConformanceTest` pins that the codec and the descriptor agree on `MAX_NESTING_DEPTH`.
 - See [Layout/Field/README.md](../../Layout/Field/README.md).

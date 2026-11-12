@@ -42,7 +42,7 @@ const importExportProfileFixture = new EntityCollection(
 );
 
 const repositoryMock = {
-    search: () => Promise.resolve(importExportProfileFixture),
+    search: jest.fn(() => Promise.resolve(importExportProfileFixture)),
     create: jest.fn(() => new Entity(uuid.get('new-profile'), 'import_export_profile', {})),
     get: (id) => Promise.resolve(importExportProfileFixture.get(id)),
     delete: (id) => Promise.resolve(importExportProfileFixture.remove(id)),
@@ -170,5 +170,15 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         await flushPromises();
 
         expect(wrapper.vm.profiles).toHaveLength(1);
+    });
+
+    it('should search profiles without their logs', async () => {
+        repositoryMock.search.mockClear();
+        await createWrapper();
+        await flushPromises();
+
+        expect(repositoryMock.search).toHaveBeenCalledTimes(1);
+        const criteria = repositoryMock.search.mock.calls[0][0];
+        expect(criteria.hasAssociation('importExportLogs')).toBe(false);
     });
 });

@@ -42,10 +42,7 @@ export default {
         },
 
         profileCriteria() {
-            return new Criteria(1, 25)
-                .setTerm(this.searchTerm)
-                .addAssociation('importExportLogs')
-                .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
+            return new Criteria(1, 25).setTerm(this.searchTerm).addSorting(Criteria.sort(this.sortBy, this.sortDirection));
         },
 
         profilesColumns() {

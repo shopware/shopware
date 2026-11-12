@@ -47,7 +47,6 @@ async function createWrapper(allowInlineDataMapping = true) {
                 'mt-button': true,
                 'router-link': true,
                 'sw-loader': true,
-                'mt-text-field': true,
                 'sw-field-copyable': true,
                 'mt-switch': true,
                 'sw-inheritance-switch': true,
@@ -337,7 +336,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         await flushPromises();
 
         // insert inline data mapping
-        await wrapper.find('.sw-text-editor-toolbar-button__children :first-child > div').trigger('click');
+        await wrapper.find('.sw-text-editor-toolbar-button__children-child').trigger('click');
         await flushPromises();
 
         // check if newly edited content is correct
@@ -347,6 +346,77 @@ describe('src/app/component/form/sw-text-editor', () => {
         // check emitted events
         const event = wrapper.emitted('update:value')[1];
         expect(event[0]).toBe(expectedTextContent);
+    });
+
+    it('should insert an inline mapping found by the search at the previous editor selection', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const contentEditor = wrapper.find('.sw-text-editor__content-editor');
+
+        await addTextToEditor(wrapper, '<p id="text-editor-content">some random text</p>');
+        const paragraph = document.getElementById('text-editor-content');
+
+        await addAndCheckSelection(wrapper, paragraph, 12, 16, 'text');
+
+        await wrapper
+            .find('.sw-text-editor-toolbar-button__type-data-mapping .sw-text-editor-toolbar-button__icon')
+            .trigger('click');
+        await flushPromises();
+
+        const searchInput = wrapper.find('.sw-text-editor-toolbar-button__children-search input');
+        await searchInput.setValue('TYPE');
+        // Focusing the search input moves the document selection out of the editor.
+        document.getSelection().selectAllChildren(searchInput.element.parentElement);
+
+        const children = wrapper.findAll('.sw-text-editor-toolbar-button__children-child');
+        expect(children).toHaveLength(1);
+
+        await children[0].trigger('click');
+        await flushPromises();
+
+        expect(contentEditor.element.innerHTML).toBe('<p id="text-editor-content">some random {{ category.type }}</p>');
+    });
+
+    it('should show an empty state if the inline mapping search has no results', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        await addTextToEditor(wrapper, '<p id="text-editor-content">some random text</p>');
+        await addAndCheckSelection(wrapper, document.getElementById('text-editor-content'), 12, 16, 'text');
+
+        await wrapper
+            .find('.sw-text-editor-toolbar-button__type-data-mapping .sw-text-editor-toolbar-button__icon')
+            .trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-text-editor-toolbar-button__children-search input').setValue('unknown');
+
+        expect(wrapper.findAll('.sw-text-editor-toolbar-button__children-child')).toHaveLength(0);
+        expect(wrapper.find('.sw-text-editor-toolbar-button__children-empty').text()).toBe(
+            'sw-text-editor-toolbar.childSearch.noResults',
+        );
+    });
+
+    it('should list inline mappings that are loaded after the editor was created', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const stringMappings = Shopware.Store.get('cmsPage').currentMappingTypes.string;
+        stringMappings.push('category.customFields.color');
+        await flushPromises();
+
+        await wrapper
+            .find('.sw-text-editor-toolbar-button__type-data-mapping .sw-text-editor-toolbar-button__icon')
+            .trigger('click');
+        await flushPromises();
+
+        expect(wrapper.findAll('.sw-text-editor-toolbar-button__children-child').map((child) => child.text())).toEqual([
+            'category.type',
+            'category.customFields.color',
+        ]);
+
+        stringMappings.pop();
     });
 
     it('should return true if selection contains one or two opening brackets', async () => {

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\System\User\Api;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -74,10 +75,9 @@ class UserRecoveryControllerTest extends TestCase
         ], $resetIfConfiguredCalls);
     }
 
-    public function testCreateUserRecoveryRateLimitersAreCalledWithCorrectKeys(): void
+    #[DataProvider('clientIpProvider')]
+    public function testCreateUserRecoveryRateLimitersAreCalledWithCorrectKeys(string $ip, string $expectedClientKey): void
     {
-        $ip = '10.0.0.1';
-
         $calls = [];
         $rateLimiter = $this->createMock(RateLimiter::class);
         $rateLimiter->expects($this->exactly(2))
@@ -99,10 +99,16 @@ class UserRecoveryControllerTest extends TestCase
         $controller->createUserRecovery($request, Context::createDefaultContext());
 
         static::assertSame([
-            [RateLimiter::USER_RECOVERY_CLIENT, $ip],
+            [RateLimiter::USER_RECOVERY_CLIENT, $expectedClientKey],
             [RateLimiter::USER_RECOVERY, 'admin@example.com-' . $ip],
             [RateLimiter::USER_RECOVERY_USER, 'admin@example.com'],
         ], $calls);
+    }
+
+    public static function clientIpProvider(): \Generator
+    {
+        yield 'IPv4 is kept' => ['10.0.0.1', '10.0.0.1'];
+        yield 'IPv6 is grouped by /64' => ['2001:db8:1:2:3:4:5:6', '2001:db8:1:2::'];
     }
 
     public function testCreateUserRecoveryIsSilentNoOpWhenDisabled(): void

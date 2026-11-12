@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\User\Recovery\UserRecoveryService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\IpUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -37,10 +38,12 @@ class UserRecoveryController extends AbstractController
 
         $email = (string) $request->request->get('email');
         $emailKey = mb_strtolower(mb_trim($email));
-        $clientIpKey = (string) $request->getClientIp();
+        $clientIp = (string) $request->getClientIp();
+        // an IPv6 client can rotate through its whole /64, so the network shares one limit
+        $clientNetworkKey = $clientIp === '' ? '' : IpUtils::anonymize($clientIp, 0, 8);
 
-        $this->rateLimiter->ensureAccepted(RateLimiter::USER_RECOVERY_CLIENT, $clientIpKey);
-        $this->rateLimiter->ensureAccepted(RateLimiter::USER_RECOVERY, $emailKey . '-' . $clientIpKey);
+        $this->rateLimiter->ensureAccepted(RateLimiter::USER_RECOVERY_CLIENT, $clientNetworkKey);
+        $this->rateLimiter->ensureAccepted(RateLimiter::USER_RECOVERY, $emailKey . '-' . $clientIp);
         // last, so a request blocked by an IP limit does not use up the limit of the email owner
         $this->rateLimiter->ensureAcceptedIfConfigured(RateLimiter::USER_RECOVERY_USER, $emailKey);
 
@@ -96,7 +99,6 @@ class UserRecoveryController extends AbstractController
         $emailKey = mb_strtolower(mb_trim($user->getEmail()));
         $this->rateLimiter->reset(RateLimiter::USER_RECOVERY, $emailKey . '-' . $request->getClientIp());
         $this->rateLimiter->resetIfConfigured(RateLimiter::USER_RECOVERY_USER, $emailKey);
-        // USER_RECOVERY_CLIENT is kept, otherwise resetting an own account refills the IP limit for recovery mails
 
         return new Response();
     }

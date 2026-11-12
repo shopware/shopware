@@ -33,6 +33,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\HttpFoundation\IpUtils;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\Choice;
@@ -88,14 +89,16 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
 
         if (($request = $this->requestStack->getMainRequest()) !== null) {
             $emailKey = mb_strtolower(mb_trim((string) $data->get('email')));
-            $clientIpKey = (string) $request->getClientIp();
+            $clientIp = (string) $request->getClientIp();
+            // an IPv6 client can rotate through its whole /64, so the network shares one limit
+            $clientNetworkKey = $clientIp === '' ? '' : IpUtils::anonymize($clientIp, 0, 8);
 
             // one admin sends mails for many customers from one IP, e.g. when converting guests
             if (!$context->getContext()->getSource() instanceof AdminSalesChannelApiSource) {
-                $this->rateLimiter->ensureAccepted(RateLimiter::RESET_PASSWORD_CLIENT, $clientIpKey);
+                $this->rateLimiter->ensureAccepted(RateLimiter::RESET_PASSWORD_CLIENT, $clientNetworkKey);
             }
 
-            $this->rateLimiter->ensureAccepted(RateLimiter::RESET_PASSWORD, $emailKey . '-' . $clientIpKey);
+            $this->rateLimiter->ensureAccepted(RateLimiter::RESET_PASSWORD, $emailKey . '-' . $clientIp);
             // last, so a request blocked by an IP limit does not use up the limit of the email owner
             $this->rateLimiter->ensureAcceptedIfConfigured(RateLimiter::RESET_PASSWORD_USER, $emailKey);
         }

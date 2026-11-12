@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryCollection;
@@ -143,9 +144,9 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         static::assertTrue($response['success']);
     }
 
-    public function testRateLimitersAreCalledWithCorrectKeys(): void
+    #[DataProvider('clientIpProvider')]
+    public function testRateLimitersAreCalledWithCorrectKeys(string $ip, string $expectedClientKey): void
     {
-        $ip = '10.0.0.1';
         $requestStack = new RequestStack();
         $requestStack->push(new Request(server: ['REMOTE_ADDR' => $ip]));
 
@@ -176,10 +177,16 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $route->sendRecoveryMail(new RequestDataBag(['email' => " \u{00A0}Test@Test.DEV\u{3000}  "]), $this->context, false);
 
         static::assertSame([
-            [RateLimiter::RESET_PASSWORD_CLIENT, $ip],
+            [RateLimiter::RESET_PASSWORD_CLIENT, $expectedClientKey],
             [RateLimiter::RESET_PASSWORD, 'test@test.dev-' . $ip],
             [RateLimiter::RESET_PASSWORD_USER, 'test@test.dev'],
         ], $calls);
+    }
+
+    public static function clientIpProvider(): \Generator
+    {
+        yield 'IPv4 is kept' => ['10.0.0.1', '10.0.0.1'];
+        yield 'IPv6 is grouped by /64' => ['2001:db8:1:2:3:4:5:6', '2001:db8:1:2::'];
     }
 
     public function testMailSentByAdminSkipsTheClientLimit(): void

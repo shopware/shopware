@@ -244,7 +244,7 @@ export default {
                             item.productStates = [];
                         }
                         item.type = 'physical';
-                        item.id = item.productNumber;
+                        item.id = Shopware.Utils.createId();
                         this.idToIndex[item.id] = index;
                     });
 
@@ -348,26 +348,29 @@ export default {
         generateVariants() {
             this.isLoading = true;
 
-            this.variantGenerationQueue.createQueue.forEach((item) => {
-                delete item.id;
+            const queues = {
+                deleteQueue: this.variantGenerationQueue.deleteQueue,
+                createQueue: this.variantGenerationQueue.createQueue.map((item) => {
+                    const variant = {
+                        ...item,
+                        downloads: item.downloads.map((download) => ({ mediaId: download.id })),
+                    };
 
-                if (item.type === 'digital') {
-                    item.maxPurchase = 1;
-                    item.minPurchase = 1;
-                    item.isCloseout = false;
-                    item.shippingFree = false;
-                }
+                    if (variant.type === 'digital') {
+                        variant.maxPurchase = 1;
+                        variant.minPurchase = 1;
+                        variant.isCloseout = false;
+                        variant.shippingFree = false;
+                    }
 
-                const mediaIds = [];
-                item.downloads.forEach((download) => {
-                    mediaIds.push({ mediaId: download.id });
-                });
+                    return variant;
+                }),
+            };
 
-                item.downloads = mediaIds;
-            });
+            this.addOriginalConfiguratorSettings();
 
             this.variantsGenerator
-                .saveVariants(this.variantGenerationQueue)
+                .saveConfiguratorSettings(this.product.configuratorSettings, queues.createQueue)
                 .then(() => {
                     return this.variantsGenerator.saveVariantRestrictions();
                 })
@@ -375,11 +378,7 @@ export default {
                     return this.variantsGenerator.saveVariantListingConfig();
                 })
                 .then(() => {
-                    this.addOriginalConfiguratorSettings();
-                    return this.variantsGenerator.saveConfiguratorSettings(
-                        this.product.configuratorSettings,
-                        this.variantGenerationQueue.createQueue,
-                    );
+                    return this.variantsGenerator.saveVariants(queues);
                 })
                 .then(() => {
                     this.$emit('variations-finish-generate');

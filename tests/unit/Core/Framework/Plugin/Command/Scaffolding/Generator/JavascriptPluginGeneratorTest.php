@@ -103,6 +103,24 @@ class JavascriptPluginGeneratorTest extends TestCase
         ];
     }
 
+    public function testMainEntryRegistersPluginViaSharedPluginManager(): void
+    {
+        $stubs = new StubCollection();
+
+        (new JavascriptPluginGenerator())
+            ->generateStubs(self::getConfig([JavascriptPluginGenerator::OPTION_NAME => true]), $stubs);
+
+        $mainEntry = $stubs->get('src/Resources/app/storefront/src/main.ts')?->getContent();
+
+        static::assertIsString($mainEntry);
+        static::assertStringContainsString(
+            'window.PluginManager.register(\'ExamplePlugin\', ExamplePlugin, \'[data-example-plugin]\');',
+            $mainEntry,
+        );
+        // A runtime import would bundle a second PluginManager into the extension, which the Storefront never initializes
+        static::assertDoesNotMatchRegularExpression('/^import\s+(?!type\b).*plugin\.manager/m', $mainEntry);
+    }
+
     /**
      * @param array<string, mixed> $options
      */

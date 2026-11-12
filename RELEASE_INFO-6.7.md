@@ -47,8 +47,17 @@ Existing plugin files are unchanged.
 ### TypeScript Storefront plugin scaffolding
 
 `bin/console plugin:create --create-javascript-plugin` now generates `main.ts` and `example-plugin.plugin.ts` instead of JavaScript files.
-The generated `main.ts` imports `PluginManager` directly instead of using `window.PluginManager`.
-The Storefront `Plugin` base class and `PluginManager.register` now ship TypeScript declarations next to their JavaScript implementation; runtime behavior is unchanged.
+The generated plugin types its options via `Plugin<ExamplePluginOptions>`.
+
+The Storefront `Plugin` base class, `PluginManager` and `NativeEventEmitter` now ship TypeScript declarations next to their JavaScript implementation; runtime behavior is unchanged.
+The generated plugin does not include a `tsconfig.json`, and the Storefront build strips types without checking them.
+To get these types in your editor or with `tsc`, map `src/*` to the Storefront's `Resources/app/storefront/src/*` in your own `tsconfig.json`.
+Once a file imports `src/plugin-system/plugin.class`, `window.PluginManager` is typed as well.
+Pass the options shape as type argument to type `this.options`, for example `class MyPlugin extends Plugin<{ threshold: number }>`.
+Without a type argument, `this.options` is `Record<string, unknown>`.
+
+Keep registering extension plugins via `window.PluginManager`.
+Do not import `src/plugin-system/plugin.manager` at runtime in an extension, because the extension bundle would create a second `PluginManager` that the Storefront never initializes.
 Existing plugin files are unchanged.
 
 ### Missing plugin conditions in stored carts

@@ -1,13 +1,22 @@
 import Plugin from 'src/plugin-system/plugin.class';
 
-export default class ExamplePlugin extends Plugin {
+type ExamplePluginOptions = {
+    message: string;
+};
+
+export default class ExamplePlugin extends Plugin<ExamplePluginOptions> {
+    static options: ExamplePluginOptions = {
+        message: 'Seems like there\'s nothing more to see here.',
+    };
+
     init(): void {
         window.addEventListener('scroll', this.onScroll.bind(this));
     }
 
     onScroll(): void {
         if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
-            alert('Seems like there\'s nothing more to see here.');
+            alert(this.options.message);
+            this.$emitter.publish('ExamplePlugin/bottomReached');
         }
     }
 }

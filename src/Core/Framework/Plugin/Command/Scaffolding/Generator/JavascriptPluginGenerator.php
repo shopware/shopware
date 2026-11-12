@@ -24,11 +24,12 @@ class JavascriptPluginGenerator implements ScaffoldingGenerator
 
     private string $mainTsEntry = <<<'EOL'
     // Import all necessary Storefront plugins
-    import PluginManager from 'src/plugin-system/plugin.manager';
     import ExamplePlugin from './example-plugin/example-plugin.plugin';
 
-    // Register your plugin via the PluginManager
-    PluginManager.register('ExamplePlugin', ExamplePlugin, '[data-example-plugin]');
+    // Register your plugin via the existing PluginManager.
+    // Do not import 'src/plugin-system/plugin.manager' here: your plugin is bundled separately,
+    // so the import would create a second PluginManager that the Storefront never initializes.
+    window.PluginManager.register('ExamplePlugin', ExamplePlugin, '[data-example-plugin]');
 
     EOL;
 

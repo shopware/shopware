@@ -2,6 +2,11 @@ import {type tns} from 'tiny-slider';
 // @ts-ignore
 import type GallerySliderPlugin from '../../slider/gallery-slider.plugin';
 import type SpatialZoomGallerySliderViewerPlugin from '../spatial-zoom-gallery-slider-viewer.plugin';
+import type Plugin from 'src/plugin-system/plugin.class';
+
+type ZoomModalPlugin = Plugin<object> & {
+    gallerySliderPlugin: GallerySliderPlugin;
+};
 
 /**
  * @package innovation
@@ -14,7 +19,7 @@ import type SpatialZoomGallerySliderViewerPlugin from '../spatial-zoom-gallery-s
 export default class SpatialZoomGallerySliderRenderUtil {
 
     private readonly zoomModalElement: Element | undefined;
-    private zoomModalPlugin;
+    private zoomModalPlugin: ZoomModalPlugin | undefined;
     private sliderPlugin: GallerySliderPlugin;
     // @ts-ignore
     private tnsSlider: tns;
@@ -46,11 +51,10 @@ export default class SpatialZoomGallerySliderRenderUtil {
         }
         this.zoomModalElement = zoomModalElement;
 
-        // @ts-ignore
-        this.zoomModalPlugin = window.PluginManager.getPluginInstanceFromElement(this.zoomModalElement, 'ZoomModal');
+        this.zoomModalPlugin = window.PluginManager.getPluginInstanceFromElement<ZoomModalPlugin>(this.zoomModalElement, 'ZoomModal');
 
         // initialize the util once the slider is created & initialized
-        this.zoomModalPlugin.$emitter.subscribe('initSlider', async () => {
+        this.zoomModalPlugin?.$emitter.subscribe('initSlider', async () => {
             await this.plugin.initViewer();
         });
     }
@@ -59,7 +63,7 @@ export default class SpatialZoomGallerySliderRenderUtil {
      * Initializes the util.
      */
     public async initViewer() {
-        this.sliderPlugin = this.zoomModalPlugin.gallerySliderPlugin;
+        this.sliderPlugin = this.zoomModalPlugin?.gallerySliderPlugin;
         this.tnsSlider = this.sliderPlugin?._slider;
 
         const currentPage = this.tnsSlider?.getInfo().index ?? 0;

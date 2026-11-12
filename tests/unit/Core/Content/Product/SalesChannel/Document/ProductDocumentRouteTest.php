@@ -29,8 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
@@ -90,7 +89,7 @@ class ProductDocumentRouteTest extends TestCase
         static::assertSame(['media-1', 'media-2'], $mediaRepository->searchedCriteria[0]->getIds());
         static::assertEquals([
             new EqualsFilter('private', false),
-            new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('path', null)]),
+            new NotEqualsFilter('path', null),
         ], $mediaRepository->searchedCriteria[0]->getFilters());
 
         $documentCriteria = $this->documentCriteria[0];

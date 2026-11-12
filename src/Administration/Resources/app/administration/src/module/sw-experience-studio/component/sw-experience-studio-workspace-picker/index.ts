@@ -29,7 +29,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.page = 1;
             void this.workspaceStore.load(1, term);
         },
-        onPageChange(page: number): void {
+        onPageChange({ page }: { page: number }): void {
             this.page = page;
             void this.workspaceStore.load(page, this.term);
         },

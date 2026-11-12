@@ -1,17 +1,18 @@
 import { shallowMount } from '@vue/test-utils';
+import type { ComponentPublicInstance } from 'vue';
 
-async function createWrapper() {
+async function createWrapper(total = 2, search = jest.fn()) {
     const [picker, grid] = await Promise.all([
         wrapTestComponent('sw-experience-studio-layout-picker', { sync: true }),
         wrapTestComponent('sw-data-grid', { sync: true }),
     ]);
-    const search = jest.fn().mockResolvedValue(
+    search.mockResolvedValue(
         Object.assign(
             [
                 { id: 'layout-a', name: 'Home', version: 1, updatedAt: '2026-11-09T10:00:00Z' },
                 { id: 'layout-b', name: 'Summer collection', version: 2, updatedAt: '2026-11-08T10:00:00Z' },
             ],
-            { total: 2 },
+            { total },
         ),
     );
 
@@ -72,5 +73,52 @@ describe('layout picker', () => {
 
         expect(wrapper.emitted('close')).toEqual([[]]);
         expect(wrapper.emitted('select')).toBeUndefined();
+    });
+
+    it('loads page two from the pagination payload and displays the returned layouts', async () => {
+        wrapper.unmount();
+        const search = jest.fn();
+        wrapper = await createWrapper(30, search);
+        await flushPromises();
+        search.mockResolvedValueOnce(
+            Object.assign(
+                [
+                    { id: 'older-layout', name: 'Older layout', version: 1 },
+                ],
+                { total: 30 },
+            ),
+        );
+        const pagination = wrapper.getComponent<ComponentPublicInstance>('sw-pagination-stub');
+
+        pagination.vm.$emit('page-change', { page: 2, limit: 25 });
+        await flushPromises();
+
+        expect(search).toHaveBeenLastCalledWith(expect.objectContaining({ page: 2, limit: 25 }), Shopware.Context.api);
+        expect(pagination.attributes('page')).toBe('2');
+        expect(wrapper.get('.sw-experience-studio-layout-picker__grid').text()).toContain('Older layout');
+        expect(wrapper.find('.mt-banner').exists()).toBe(false);
+    });
+
+    it('returns to page one on search and keeps the search term when paginating', async () => {
+        wrapper.unmount();
+        const search = jest.fn();
+        wrapper = await createWrapper(30, search);
+        await flushPromises();
+        const pagination = wrapper.getComponent<ComponentPublicInstance>('sw-pagination-stub');
+        pagination.vm.$emit('page-change', { page: 2, limit: 25 });
+        await flushPromises();
+        wrapper.getComponent<ComponentPublicInstance>({ name: 'mt-text-field' }).vm.$emit('update:modelValue', '  Summer  ');
+        await flushPromises();
+        expect(search).toHaveBeenLastCalledWith(
+            expect.objectContaining({ page: 1, limit: 25, term: 'Summer' }),
+            Shopware.Context.api,
+        );
+
+        pagination.vm.$emit('page-change', { page: 2, limit: 25 });
+        await flushPromises();
+        expect(search).toHaveBeenLastCalledWith(
+            expect.objectContaining({ page: 2, limit: 25, term: 'Summer' }),
+            Shopware.Context.api,
+        );
     });
 });

@@ -115,7 +115,7 @@ export default Shopware.Component.wrapComponentConfig({
             void this.loadLayouts();
         },
 
-        onPageChange(page: number): void {
+        onPageChange({ page }: { page: number }): void {
             this.page = page;
             void this.loadLayouts();
         },

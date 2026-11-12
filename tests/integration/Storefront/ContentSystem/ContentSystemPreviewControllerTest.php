@@ -45,7 +45,7 @@ class ContentSystemPreviewControllerTest extends TestCase
 
     protected function tearDown(): void
     {
-        $cache = static::getContainer()->get('cache.system');
+        $cache = static::getContainer()->get('cache.object');
 
         foreach ($this->storedPreviewTokens as $token) {
             $cache->deleteItem(self::PREVIEW_CACHE_KEY_PREFIX . $token);
@@ -66,7 +66,7 @@ class ContentSystemPreviewControllerTest extends TestCase
     public function testUndecodableStoredEnvelopeIsServerError(): void
     {
         $token = Uuid::randomHex();
-        $cache = static::getContainer()->get('cache.system');
+        $cache = static::getContainer()->get('cache.object');
         $item = $cache->getItem(self::PREVIEW_CACHE_KEY_PREFIX . $token);
         // An envelope with no entityType: only a validated envelope is ever written, so a malformed hit is
         // server-side state, not a defect in this caller's request.

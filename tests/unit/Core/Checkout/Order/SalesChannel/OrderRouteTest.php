@@ -7,12 +7,15 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\Rule\PaymentMethodRule;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\Event\OrderCriteriaEvent;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
@@ -23,6 +26,11 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponse;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
+use Shopware\Core\Checkout\Promotion\PromotionDefinition;
+use Shopware\Core\Checkout\Promotion\PromotionEntity;
+use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -37,6 +45,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\Rule\Container\AndRule;
+use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -330,6 +340,98 @@ class OrderRouteTest extends TestCase
         );
 
         static::assertSame($response, $route->load($request, $context, $criteria));
+    }
+
+    /**
+     * @param list<bool> $paymentBoundPromotions
+     */
+    #[DataProvider('paymentChangeablePromotionProvider')]
+    public function testPaymentChangeableWithPromotions(array $paymentBoundPromotions, bool $expectedChangeable): void
+    {
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+
+        $lineItems = new OrderLineItemCollection();
+        $promotions = new PromotionCollection();
+        foreach ($paymentBoundPromotions as $paymentBound) {
+            $promotion = new PromotionEntity();
+            $promotion->setId(Uuid::randomHex());
+            $promotion->setCartRules(new RuleCollection());
+
+            if ($paymentBound) {
+                $cartRule = new RuleEntity();
+                $cartRule->setId(Uuid::randomHex());
+                $cartRule->setPayload(new AndRule([new OrRule([new AndRule([new PaymentMethodRule()])])]));
+                $promotion->getCartRules()?->add($cartRule);
+            }
+
+            $promotions->add($promotion);
+
+            $lineItem = new OrderLineItemEntity();
+            $lineItem->setId(Uuid::randomHex());
+            $lineItem->setPayload(['promotionId' => $promotion->getId()]);
+            $lineItems->add($lineItem);
+        }
+
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+        $order->setLineItems($lineItems);
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context
+            ->method('getCustomer')
+            ->willReturn($customer);
+
+        $orderRepository = static::createStub(EntityRepository::class);
+        $orderRepository
+            ->method('search')
+            ->willReturn(new EntitySearchResult(
+                OrderDefinition::ENTITY_NAME,
+                1,
+                new OrderCollection([$order]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            ));
+
+        $promotionRepository = static::createStub(EntityRepository::class);
+        $promotionRepository
+            ->method('search')
+            ->willReturn(new EntitySearchResult(
+                PromotionDefinition::ENTITY_NAME,
+                $promotions->count(),
+                $promotions,
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            ));
+
+        $route = new OrderRoute(
+            $orderRepository,
+            $promotionRepository,
+            static::createStub(RateLimiter::class),
+            new EventDispatcher(),
+            static::createStub(AccountService::class),
+            new GuestAuthenticator(),
+            new NativeClock(),
+            new ExtensionDispatcher(new EventDispatcher())
+        );
+
+        $response = $route->load(new Request(['checkPromotion' => true]), $context, new Criteria());
+
+        static::assertSame([$order->getId() => $expectedChangeable], $response->getPaymentsChangeable());
+    }
+
+    /**
+     * @return iterable<string, array{list<bool>, bool}>
+     */
+    public static function paymentChangeablePromotionProvider(): iterable
+    {
+        yield 'no promotion' => [[], true];
+        yield 'only plain promotion' => [[false], true];
+        yield 'only payment bound promotion' => [[true], false];
+        yield 'payment bound promotion first' => [[true, false], false];
+        yield 'plain promotion first' => [[false, true], false];
     }
 
     /**

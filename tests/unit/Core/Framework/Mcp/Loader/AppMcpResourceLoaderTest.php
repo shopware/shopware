@@ -2,13 +2,18 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Loader;
 
+use Mcp\Capability\Formatter\ResourceResultFormatter;
 use Mcp\Capability\Registry\ResourceReference;
 use Mcp\Capability\RegistryInterface;
+use Mcp\Exception\ResourceReadException;
+use Mcp\Schema\Content\BlobResourceContents;
+use Mcp\Schema\Content\TextResourceContents;
 use Mcp\Schema\JsonRpc\Request;
 use Mcp\Schema\ResourceDefinition;
 use Mcp\Server\RequestContext;
 use Mcp\Server\Session\SessionInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
@@ -19,6 +24,7 @@ use Shopware\Core\Framework\App\Mcp\Feature\McpResourceConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpCapabilityExecutor;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpResourceLoader;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 
 /**
@@ -102,15 +108,74 @@ class AppMcpResourceLoaderTest extends TestCase
                 'https://app.example.com/mcp/resource/order-stats',
                 ['uri' => 'app-example://order-stats'],
             )
-            ->willReturn('{"contents":[]}');
+            ->willReturn('{"text":"{}"}');
 
         $this->storage->method('forActiveApps')->willReturn([$this->feature($this->resourceConfig())]);
         $loader = new AppMcpResourceLoader($this->storage, $executor, $this->localeProvider, new NullLogger());
-        $request = static::createStub(Request::class);
 
-        $result = $this->registeredHandler($loader)(new RequestContext(static::createStub(SessionInterface::class), $request));
+        static::assertEquals(new TextResourceContents('app-example://order-stats', 'application/json', '{}'), $this->readResource($loader));
+    }
 
-        static::assertSame('{"contents":[]}', $result);
+    public function testTheTextOfTheAppBecomesTheResourceContent(): void
+    {
+        $this->executor->method('execute')->willReturn(Json::encode([
+            'uri' => 'app-example://order-stats',
+            'mimeType' => 'application/json',
+            'text' => '{"openOrders":3}',
+        ]));
+        $this->storage->method('forActiveApps')->willReturn([$this->feature($this->resourceConfig())]);
+
+        $contents = (new ResourceResultFormatter())->format($this->readResource($this->loader), 'app-example://order-stats', 'application/json');
+
+        static::assertEquals([new TextResourceContents('app-example://order-stats', 'application/json', '{"openOrders":3}')], $contents);
+    }
+
+    public function testTheMimeTypeOfTheAppOverridesTheConfiguredOne(): void
+    {
+        $this->executor->method('execute')->willReturn('{"mimeType":"text/markdown","text":"# Stats"}');
+        $this->storage->method('forActiveApps')->willReturn([$this->feature($this->resourceConfig())]);
+
+        static::assertEquals(new TextResourceContents('app-example://order-stats', 'text/markdown', '# Stats'), $this->readResource($this->loader));
+    }
+
+    public function testABlobOfTheAppBecomesABinaryResourceContent(): void
+    {
+        $this->executor->method('execute')->willReturn('{"blob":"aGVsbG8="}');
+        $this->storage->method('forActiveApps')->willReturn([$this->feature($this->resourceConfig(mimeType: 'image/png'))]);
+
+        static::assertEquals(new BlobResourceContents('app-example://order-stats', 'image/png', 'aGVsbG8='), $this->readResource($this->loader));
+    }
+
+    #[DataProvider('invalidResponseProvider')]
+    public function testAnUnusableResponseFailsWithAMessageForTheClient(string $body, string $expectedMessage): void
+    {
+        $this->executor->method('execute')->willReturn($body);
+        $this->storage->method('forActiveApps')->willReturn([$this->feature($this->resourceConfig())]);
+
+        $this->expectExceptionObject(new ResourceReadException($expectedMessage));
+
+        $this->readResource($this->loader);
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function invalidResponseProvider(): iterable
+    {
+        yield 'failed app call' => [
+            '{"success":false,"error":"App capability \\"my-app-order-stats\\" execution failed: timeout"}',
+            'App capability "my-app-order-stats" execution failed: timeout',
+        ];
+        yield 'failure without error text' => ['{"success":false}', 'App resource "my-app-order-stats" failed.'];
+        yield 'not JSON' => ['open orders: 3', 'App resource "my-app-order-stats" returned a response that is not valid JSON.'];
+        yield 'no text or blob' => ['{"uri":"app-example://order-stats"}', 'App resource "my-app-order-stats" must respond with a JSON object holding a "text" or "blob" string.'];
+        yield 'text is not a string' => ['{"text":{"openOrders":3}}', 'App resource "my-app-order-stats" must respond with a JSON object holding a "text" or "blob" string.'];
+        yield 'list instead of object' => ['[{"text":"{}"}]', 'App resource "my-app-order-stats" must respond with a JSON object holding a "text" or "blob" string.'];
+    }
+
+    private function readResource(AppMcpResourceLoader $loader): mixed
+    {
+        return $this->registeredHandler($loader)(new RequestContext(static::createStub(SessionInterface::class), static::createStub(Request::class)));
     }
 
     /**

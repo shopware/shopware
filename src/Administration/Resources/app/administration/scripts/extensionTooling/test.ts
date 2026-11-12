@@ -228,8 +228,9 @@ function declaresJest(packageJsonPath: string): boolean {
  * Runs Jest from the config's directory, so relative CLI paths (e.g. --outputFile)
  * and process.cwd() inside the config resolve there: the extension's own Jest when
  * the caller passes it, otherwise the Administration's.
- * A results processor writes the test counts to a temp file, unless the caller
- * passes their own --testResultsProcessor or starts watch mode, which never ends.
+ * A results processor writes the test counts to a temp file, unless watch mode
+ * never ends, or the caller or the config file brings their own processor:
+ * Jest's CLI option would replace the config's one.
  */
 export function createJestRunner(administrationRoot: string, stdio: StdioOptions = 'inherit'): JestRunner {
     const administrationJestBin = path.join(administrationRoot, 'node_modules', 'jest', 'bin', 'jest.js');
@@ -237,7 +238,8 @@ export function createJestRunner(administrationRoot: string, stdio: StdioOptions
     return async (configPath, jestArgs, ownJestBin) => {
         const countsTests =
             !isWatchRun(jestArgs) &&
-            !jestArgs.some((arg) => new RegExp(`^--(?:${optionPattern('testResultsProcessor')})(=|$)`).test(arg));
+            !jestArgs.some((arg) => new RegExp(`^--(?:${optionPattern('testResultsProcessor')})(=|$)`).test(arg)) &&
+            !fs.readFileSync(configPath, 'utf8').includes('testResultsProcessor');
         const resultsDirectory = countsTests ? fs.mkdtempSync(path.join(os.tmpdir(), 'sw-test-extensions-')) : undefined;
         const resultsFile = resultsDirectory && path.join(resultsDirectory, 'results.json');
 

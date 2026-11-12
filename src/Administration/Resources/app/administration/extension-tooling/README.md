@@ -263,6 +263,9 @@ A filter is a spec path pattern or an option such as `-t`, `--testPathPatterns`,
 Put a spec path pattern first or after an option written with `=`: after an option without `=`, the command reads it as that option's value.
 Other options, such as `--ci` or `--coverage`, leave it out, so an extension without specs still fails the run.
 The report marks such an extension with `–`, and the run still fails when no Jest config ran a spec; pass `--passWithNoTests` yourself to allow that.
+The command counts the specs with its own `--testResultsProcessor`, which replaces one set in the Jest config.
+It leaves out its own when the Jest config file or the Jest options name `testResultsProcessor`; that run then does not count its specs.
+A processor that comes in through a preset or an imported base config is not detected, so name it in the Jest config file itself.
 
 Which Jest runs a config depends on the config:
 

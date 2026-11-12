@@ -105,6 +105,23 @@ describe('scripts/extensionTooling/test CLI', () => {
             expect(stubJestRuns()[0].slice(2)).toEqual(jestOptions);
         });
 
+        it('leaves the results processor to a Jest config that sets its own', async () => {
+            jest.spyOn(console, 'log').mockImplementation(() => {});
+            const stubJestRuns = writeStubJestBin(fixture.administrationRoot);
+            const configPath = path.join(fixture.projectRoot, zeroConfigAdmin, 'jest.config.mjs');
+            writeFile(configPath, "export default { testResultsProcessor: 'jest-sonar-reporter' };");
+
+            await expect(runCli(['--only=ZeroConfig', '--', '--ci'])).resolves.toBe(0);
+
+            expect(stubJestRuns()).toEqual([
+                [
+                    '--config',
+                    configPath,
+                    '--ci',
+                ],
+            ]);
+        });
+
         it.each([
             [['--json']],
             [['--json', '--outputFile=results.json']],

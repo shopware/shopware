@@ -203,6 +203,14 @@ The route requires the `number_range:read` privilege.
 The number range detail page in the Administration uses it to show a warning when it loads or saves a number range with a colliding pattern.
 Saving is not blocked.
 
+### Store API OpenAPI schema lists missing entity fields
+
+The Store API OpenAPI schema now lists fields that the responses already contain: the GARAN fields of `Product` (`guaranteeMonths`, `guaranteeConfirmed`, `guaranteeTermsMediaId`, `guaranteeTermsUrl` and `guaranteeTermsMedia`), `Document.typeName` and `SalesChannelDomain.isExternalStorefront`.
+The scalar fields are required, because every response carries them; the guarantee fields are `null` when unset.
+`guaranteeTermsMedia` stays optional like every other association.
+`Document.typeName` lists the type names Shopware ships and stays open for the types plugins and apps add.
+If you generate types from the schema, regenerate them.
+
 ## Features
 
 ### Disable the Administration password recovery flow
@@ -1147,14 +1155,6 @@ The `indexing-behavior` header now supports `use-queue-indexing` and `disable-in
 ### Store API payment, shipping and checkout gateway routes accept an `orderId`
 
 `/store-api/payment-method`, `/store-api/shipping-method` and `/store-api/checkout/gateway` accept an optional `orderId` (query or body). Combined with `onlyAvailable`, they evaluate availability for that order instead of the session: the order's currency, language, customer, addresses and stored rule IDs, without re-evaluating rules. The order must be loadable through `/store-api/order` for the logged-in customer or guest; unknown and foreign orders both answer `CHECKOUT__ORDER_ORDER_NOT_FOUND`. These responses are not cacheable. `POST /store-api/order/payment` validates on the same basis.
-
-### Store API OpenAPI schema lists missing entity fields
-
-The Store API OpenAPI schema now lists fields that the responses already contain: the GARAN fields of `Product` (`guaranteeMonths`, `guaranteeConfirmed`, `guaranteeTermsMediaId`, `guaranteeTermsUrl` and `guaranteeTermsMedia`), `Document.typeName` and `SalesChannelDomain.isExternalStorefront`.
-The scalar fields are required, because every response carries them; the guarantee fields are `null` when unset.
-`guaranteeTermsMedia` stays optional like every other association.
-`Document.typeName` lists the type names Shopware ships and stays open for the types plugins and apps add.
-If you generate types from the schema, regenerate them.
 
 ### New Store API route to add the products of an order to the cart
 

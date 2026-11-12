@@ -128,6 +128,29 @@ export function resolveTranslatableEntry(value: unknown, chain: readonly string[
 }
 
 /**
+ * Resolves the value a field control shows for a translatable property: `undefined`
+ * when the key is absent, so the declared default applies. A present language map
+ * without a chain entry shows an empty string on a string property, since the map
+ * records that the property was authored; other property types stay `undefined`.
+ *
+ * @private
+ * @sw-package discovery
+ */
+export function resolveTranslatableFieldValue(
+    property: ContentSystemElementTypeProperty,
+    value: unknown,
+    chain: readonly string[],
+): string | number | boolean | undefined {
+    const entry = resolveTranslatableEntry(value, chain);
+
+    if (entry === undefined && value !== undefined && propertyHasType(property, 'string')) {
+        return '';
+    }
+
+    return entry;
+}
+
+/**
  * Sets the entry of one language, or removes it when `entry` is `null`.
  *
  * Every other entry travels verbatim; the write route judges whether an entry

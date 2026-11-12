@@ -9,6 +9,7 @@ import {
     getPropertyControlType,
     isPropertyVisible,
     resolveTranslatableEntry,
+    resolveTranslatableFieldValue,
     withLanguageEntry,
 } from './element-settings.util';
 
@@ -669,6 +670,38 @@ describe('module/sw-experience-studio/util/element-settings.util', () => {
         expect(resolveTranslatableEntry(undefined, LANGUAGE_CHAIN)).toBeUndefined();
     });
 
+    it('shows the entry of a present language map on a translatable string property', () => {
+        expect(resolveTranslatableFieldValue(stringProperty, { [ANCHOR_LANGUAGE_ID]: 'Hello' }, LANGUAGE_CHAIN)).toBe(
+            'Hello',
+        );
+    });
+
+    it('shows an empty string for a present language map without a chain entry on a string property, not the default', () => {
+        expect(
+            resolveTranslatableFieldValue(
+                { ...stringProperty, default: 'Default' },
+                { [ITALIAN_LANGUAGE_ID]: 'Ciao' },
+                LANGUAGE_CHAIN,
+            ),
+        ).toBe('');
+    });
+
+    it('leaves an absent key undefined so the declared default applies', () => {
+        expect(
+            resolveTranslatableFieldValue({ ...stringProperty, default: 'Default' }, undefined, LANGUAGE_CHAIN),
+        ).toBeUndefined();
+    });
+
+    it('leaves a present language map without a chain entry undefined on a non-string property', () => {
+        expect(
+            resolveTranslatableFieldValue(
+                { ...stringProperty, type: 'integer', default: 3 },
+                { [ITALIAN_LANGUAGE_ID]: 2 },
+                LANGUAGE_CHAIN,
+            ),
+        ).toBeUndefined();
+    });
+
     it.each([
         [
             'boolean',
@@ -764,6 +797,23 @@ describe('module/sw-experience-studio/util/element-settings.util', () => {
             [ANCHOR_LANGUAGE_ID]: 'Hello',
             [FRENCH_LANGUAGE_ID]: 'Bonjour',
             [GERMAN_LANGUAGE_ID]: 'Hallo',
+        });
+    });
+
+    it('writes the anchor entry into a language map that has none and keeps every other entry', () => {
+        expect(
+            withLanguageEntry(
+                {
+                    [GERMAN_LANGUAGE_ID]: 'Hallo',
+                    [FRENCH_LANGUAGE_ID]: 'Bonjour',
+                },
+                ANCHOR_LANGUAGE_ID,
+                'Hello',
+            ),
+        ).toEqual({
+            [GERMAN_LANGUAGE_ID]: 'Hallo',
+            [FRENCH_LANGUAGE_ID]: 'Bonjour',
+            [ANCHOR_LANGUAGE_ID]: 'Hello',
         });
     });
 

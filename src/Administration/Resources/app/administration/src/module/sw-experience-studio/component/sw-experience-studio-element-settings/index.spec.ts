@@ -192,7 +192,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
         });
     });
 
-    it('leaves a translatable property without an anchor chain entry absent so the declared default still applies', () => {
+    it('shows an empty string for a translatable string property whose language map has no anchor chain entry', () => {
         const values = computed.elementPropertyValues.call({
             selectedElement: {
                 properties: {
@@ -204,8 +204,31 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
             selectedElementType: textType,
         });
 
+        expect(values).toEqual({ text: '' });
+    });
+
+    it('keeps a translatable number property without an anchor chain entry absent so the declared default applies', () => {
+        const values = computed.elementPropertyValues.call({
+            selectedElement: {
+                properties: {
+                    columns: {
+                        [GERMAN_LANGUAGE_ID]: 2,
+                    },
+                },
+            },
+            selectedElementType: {
+                properties: {
+                    columns: {
+                        type: 'integer',
+                        translatable: true,
+                        default: 3,
+                    },
+                },
+            },
+        });
+
         expect(values).toEqual({});
-        expect(Object.prototype.hasOwnProperty.call(values, 'text')).toBe(false);
+        expect(Object.prototype.hasOwnProperty.call(values, 'columns')).toBe(false);
     });
 
     it('leaves an unauthored translatable property absent so the declared default still applies', () => {

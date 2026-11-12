@@ -1,5 +1,8 @@
 import type { ContentElementNode } from 'src/core/service/content-element.types';
-import type { ContentSystemElementTypeSpecification } from 'src/core/service/api/content-system-element-type.api.service';
+import type {
+    ContentSystemElementTypeProperty,
+    ContentSystemElementTypeSpecification,
+} from 'src/core/service/api/content-system-element-type.api.service';
 import type { ContentSystemStyleOptionSpecification } from 'src/core/service/api/content-system-style-option.api.service';
 import type { ContentSystemMappingCandidate } from 'src/core/service/api/content-system-mapping-candidate.api.service';
 import type { ContentSystemViolation } from 'src/core/service/api/content-system-layout-draft-mutation.api.service';
@@ -10,15 +13,18 @@ import {
     getInitialPropertyValue,
     getPropertyControlType,
     isPropertyVisible,
-    resolveTranslatableEntry,
+    resolveTranslatableFieldValue,
 } from '../../util/element-settings.util';
 import { findPropertyMapping } from '../../util/element-mapping.util';
 import { getEditableStyleFields } from '../../util/style-settings.util';
 import template from './sw-experience-studio-element-settings.html.twig';
 import './sw-experience-studio-element-settings.scss';
 
-function projectTranslatableValue(value: unknown): string | number | boolean | undefined {
-    return resolveTranslatableEntry(value, editingLanguageChain());
+function projectTranslatableValue(
+    property: ContentSystemElementTypeProperty,
+    value: unknown,
+): string | number | boolean | undefined {
+    return resolveTranslatableFieldValue(property, value, editingLanguageChain());
 }
 
 /**
@@ -158,9 +164,10 @@ export default Shopware.Component.wrapComponentConfig({
                     values[key] = properties[storageKey];
                 }
 
-                // An absent key stays absent so the field controls still fall back to the declared default.
+                // An absent key stays absent so the field controls still fall back to the declared default;
+                // a present map without a chain entry shows an empty string property.
                 if (property.translatable && Object.prototype.hasOwnProperty.call(values, key)) {
-                    const projectedValue = projectTranslatableValue(values[key]);
+                    const projectedValue = projectTranslatableValue(property, values[key]);
 
                     if (projectedValue === undefined) {
                         delete values[key];
@@ -215,7 +222,9 @@ export default Shopware.Component.wrapComponentConfig({
                     const storageKey = getElementPropertyStorageKey(typeSpecification, key);
                     const elementProperties = selectedElement?.properties ?? {};
                     const storedValue = elementProperties[storageKey];
-                    const currentValue = property.translatable ? projectTranslatableValue(storedValue) : storedValue;
+                    const currentValue = property.translatable
+                        ? projectTranslatableValue(property, storedValue)
+                        : storedValue;
                     accumulator[key] = getInitialPropertyValue(property, currentValue);
 
                     return accumulator;

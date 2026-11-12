@@ -1650,6 +1650,42 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame(ViolationCode::InvalidMapping, $report->bindingErrors()[0]->code);
         static::assertSame('el-1', $report->bindingErrors()[0]->elementId);
         static::assertSame('text', $report->bindingErrors()[0]->key);
+        // A bare string has no language, so its message names none.
+        static::assertSame(
+            ContentSystemException::unknownInlineMappingPath('product.secret', 'product')->getMessage(),
+            $report->bindingErrors()[0]->message,
+        );
+    }
+
+    #[TestDox('reports an uncatalogued inline mapping token in a non-system language entry once, on the property key')]
+    public function testUncataloguedInlineMappingInALanguageEntryIsReported(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Content:Text', 'el-1')
+            ->withProperties(['text' => [
+                Defaults::LANGUAGE_SYSTEM => 'Buy {{map:product.name}}',
+                'language-german' => 'Kauf {{map:product.secret}}',
+            ]])
+            ->build();
+        $candidate = new MappingCandidate('product.name', 'Name', '', 'basic', 'string');
+
+        $report = $this->diagnostics(
+            [
+                'Sw:Content:Text' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')
+                    ->primitive('text', 'string', translatable: true, inlineMappable: true)
+                    ->build(),
+            ],
+            candidates: [$candidate->path => $candidate],
+        )->analyze([$element], [], 'product')->report;
+
+        static::assertCount(1, $report->bindingErrors());
+        static::assertSame(ViolationCode::InvalidMapping, $report->bindingErrors()[0]->code);
+        static::assertSame('el-1', $report->bindingErrors()[0]->elementId);
+        static::assertSame('text', $report->bindingErrors()[0]->key);
+        static::assertSame(
+            ContentSystemException::unknownInlineMappingPath('product.secret', 'product')->getMessage()
+                . ' Found in the entry for language "language-german".',
+            $report->bindingErrors()[0]->message,
+        );
     }
 
     public function testAdmitsACataloguedStringifiableInlineMapping(): void

@@ -21,7 +21,8 @@ use Shopware\Core\Framework\Struct\Collection;
  * declared default), {@see admits()} is the one
  * conformance predicate answering whether a stored value matches this declared type, {@see admitsMapEntry()}
  * judges one language-map entry against the declared primitive, {@see languageKeys()} lists the keys of a
- * language map as strings, and {@see describe()} renders the declaration for the violation messages both
+ * language map as strings, {@see texts()} lists the authored strings of a value with their language, and
+ * {@see describe()} renders the declaration for the violation messages both
  * reporters share.
  *
  * @phpstan-type PropertyTypeSchema = array{
@@ -134,7 +135,7 @@ final readonly class PropertyType
 
     /**
      * The one statement of what shape a default value takes in storage: a translatable property stores one value
-     * per language, so the value seeds under the anchor language key, and every other property stores it bare.
+     * per language, so the value seeds as the system-language entry, and every other property stores it bare.
      * Only a non-null value is wrapped, because null is no language-map entry: it is returned as is and left to
      * the caller's own validation to reject. A falsy value (`false`, `0`, `''`) is wrapped like any other.
      */
@@ -218,6 +219,36 @@ final readonly class PropertyType
         }
 
         return array_map(strval(...), array_keys($value->asMap()));
+    }
+
+    /**
+     * The authored strings a stored value holds, each with the language it is stored under. A bare string is its
+     * own one text with no language. A translatable property's language map yields every string entry under its
+     * language id, read as a string like {@see languageKeys()}. Any other value holds no text.
+     *
+     * @return list<array{languageId: ?string, text: string}>
+     */
+    public function texts(StoredValue $value): array
+    {
+        if ($value->isString()) {
+            return [['languageId' => null, 'text' => $value->asString()]];
+        }
+
+        if (!$this->translatable || !$value->isMap()) {
+            return [];
+        }
+
+        $texts = [];
+
+        foreach ($value->asMap() as $languageId => $entry) {
+            if (!$entry->isString()) {
+                continue;
+            }
+
+            $texts[] = ['languageId' => (string) $languageId, 'text' => $entry->asString()];
+        }
+
+        return $texts;
     }
 
     /**

@@ -463,6 +463,67 @@ class PropertyTypeTest extends TestCase
         yield 'the null variant' => [StoredValue::ofNull()];
     }
 
+    /**
+     * @param list<array{languageId: ?string, text: string}> $expected
+     */
+    #[DataProvider('textsProvider')]
+    #[TestDox('lists the authored strings of $_dataName')]
+    public function testTextsListsTheAuthoredStringsOfAValue(PropertyType $type, StoredValue $value, array $expected): void
+    {
+        static::assertSame($expected, $type->texts($value));
+    }
+
+    /**
+     * @return iterable<string, array{PropertyType, StoredValue, list<array{languageId: ?string, text: string}>}>
+     */
+    public static function textsProvider(): iterable
+    {
+        yield 'a bare string as one text without a language' => [
+            new PropertyType('string', false, null, null),
+            StoredValue::ofString('Welcome'),
+            [['languageId' => null, 'text' => 'Welcome']],
+        ];
+
+        yield 'a translatable language map as one text per entry, an integer key cast' => [
+            new PropertyType('string', true, null, null),
+            StoredValue::ofMap([
+                Defaults::LANGUAGE_SYSTEM => StoredValue::ofString('Willkommen'),
+                42 => StoredValue::ofString('Welcome'),
+            ]),
+            [
+                ['languageId' => Defaults::LANGUAGE_SYSTEM, 'text' => 'Willkommen'],
+                ['languageId' => '42', 'text' => 'Welcome'],
+            ],
+        ];
+
+        yield 'a translatable language map without its non-string entries' => [
+            new PropertyType('string', true, null, null),
+            StoredValue::ofMap([
+                Defaults::LANGUAGE_SYSTEM => StoredValue::ofString('Willkommen'),
+                'language-two' => StoredValue::ofInt(7),
+            ]),
+            [['languageId' => Defaults::LANGUAGE_SYSTEM, 'text' => 'Willkommen']],
+        ];
+
+        yield 'a map under a non-translatable declaration as no text' => [
+            new PropertyType('object', false, null, null),
+            StoredValue::ofMap([Defaults::LANGUAGE_SYSTEM => StoredValue::ofString('Willkommen')]),
+            [],
+        ];
+
+        yield 'a list as no text' => [
+            new PropertyType('string', true, null, null),
+            StoredValue::ofList([StoredValue::ofString('Willkommen')]),
+            [],
+        ];
+
+        yield 'the null variant as no text' => [
+            new PropertyType('string', true, null, null),
+            StoredValue::ofNull(),
+            [],
+        ];
+    }
+
     #[TestDox('reports the nested member declarations of an object declaration through its schema')]
     public function testToSchemaReportsTheNestedMemberDeclarations(): void
     {

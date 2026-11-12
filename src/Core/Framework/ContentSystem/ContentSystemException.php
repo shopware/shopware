@@ -1239,6 +1239,22 @@ class ContentSystemException extends HttpException
         );
     }
 
+    // An inline mapping fault found in one entry of a translatable property's language map. It keeps the fault's
+    // status, code and parameters and names the entry's language, because one property holds a text per language.
+    public static function inlineMappingFaultInLanguageEntry(self $fault, string $languageId): self
+    {
+        // The fault's message is already rendered, so it is built without parameters: a second substitution pass
+        // would rewrite authored path text that the first pass produced.
+        $exception = new self(
+            $fault->getStatusCode(),
+            $fault->getErrorCode(),
+            $fault->getMessage() . ' Found in the entry for language "' . $languageId . '".',
+        );
+        $exception->parameters = [...$fault->getParameters(), 'languageId' => $languageId];
+
+        return $exception;
+    }
+
     // Expansion budgets include authored literal text and escaped source values. Exceeding the output
     // allowance is a render fault; the separate authored-input limit remains an input-validation 400.
     public static function inlineMappingExpansionTooLarge(int $maximumBytes, string $scope): self

@@ -9,7 +9,7 @@ A resolvability problem (an unresolved required property, a broken context chain
 | `map-property` source has missing, invalid, or unknown fields                                             | 400  | `invalidMappingSource` (`CONTENT_SYSTEM__INVALID_MAPPING_SOURCE`) |
 | `map-property` targets a property without mapping opt-in, an unavailable source, or an incompatible value type | 400 | `propertyNotMappable`, `unknownMappingPath`, `mappingTypeMismatch` |
 | `map-property` conflicts with an ordinary consumer's destination/base key or would overwrite its consumer key | 400 | `propertyAliasCollision` (`CONTENT_SYSTEM__PROPERTY_ALIAS_COLLISION`) |
-| An inline-mapped property exceeds 256 KiB | 400 | `inlineMappingInputTooLarge` (`CONTENT_SYSTEM__INLINE_MAPPING_INPUT_TOO_LARGE`) |
+| An inline-mapped property, or one entry of its language map, exceeds 256 KiB | 400 | `inlineMappingInputTooLarge` (`CONTENT_SYSTEM__INLINE_MAPPING_INPUT_TOO_LARGE`) |
 | Inline token scanning or path validation fails in the regular-expression engine | 500 | `inlineMappingParsingFailed` (`CONTENT_SYSTEM__INLINE_MAPPING_PARSING_FAILED`); the request aborts instead of returning incomplete diagnostics |
 | A referenced element id is not in the layout                                                             | 400  | `mutationTargetNotFound`                          |
 | Moving an element into itself or a descendant                                                            | 400  | `mutationCycle`                                   |

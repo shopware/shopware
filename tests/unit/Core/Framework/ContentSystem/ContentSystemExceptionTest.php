@@ -43,6 +43,37 @@ class ContentSystemExceptionTest extends TestCase
         );
     }
 
+    #[TestDox('keeps an inline mapping fault\'s status, code and parameters and names the language of its entry')]
+    public function testInlineMappingFaultInLanguageEntryNamesTheLanguage(): void
+    {
+        $fault = ContentSystemException::malformedInlineMappingToken('product', 'text');
+
+        $exception = ContentSystemException::inlineMappingFaultInLanguageEntry($fault, 'language-german');
+
+        static::assertSame($fault->getStatusCode(), $exception->getStatusCode());
+        static::assertSame(ContentSystemException::MALFORMED_INLINE_MAPPING_TOKEN, $exception->getErrorCode());
+        static::assertSame(['path' => 'product', 'propertyKey' => 'text', 'languageId' => 'language-german'], $exception->getParameters());
+        static::assertSame(
+            'Inline mapping path "product" in property "text" must include a member below its source, for example "{{map:product.name}}". Found in the entry for language "language-german".',
+            $exception->getMessage(),
+        );
+    }
+
+    #[TestDox('appends the language to the fault\'s rendered message without rendering that message a second time')]
+    public function testInlineMappingFaultInLanguageEntryKeepsTheRenderedMessageVerbatim(): void
+    {
+        // A malformed path may hold "$0", which the placeholder substitution reads as a back reference, so a
+        // second rendering pass would change the already rendered message.
+        $fault = ContentSystemException::malformedInlineMappingToken('$0$0', 'text');
+
+        $exception = ContentSystemException::inlineMappingFaultInLanguageEntry($fault, 'language-german');
+
+        static::assertSame(
+            $fault->getMessage() . ' Found in the entry for language "language-german".',
+            $exception->getMessage(),
+        );
+    }
+
     /**
      * @param \Closure(ConstraintViolationList): ContentSystemException $factory
      */

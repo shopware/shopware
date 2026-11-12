@@ -49,7 +49,7 @@ Malformed requests and layouts are rejected with `400 Bad Request` (`ContentSyst
 | Invalid sales channel id | 404 / 412 | `SalesChannelException` (not a `ContentSystemException`) |
 | Inline mapping exceeds 1 MiB per property or 4 MiB per render | 500 | `inlineMappingExpansionTooLarge` (`CONTENT_SYSTEM__INLINE_MAPPING_EXPANSION_TOO_LARGE`); no token is stored |
 | Inline token scanning or path validation fails in PCRE | 500 | `inlineMappingParsingFailed` (`CONTENT_SYSTEM__INLINE_MAPPING_PARSING_FAILED`); no token is stored |
-| An inline-mapped authored property exceeds 256 KiB | 400 | `inlineMappingInputTooLarge` |
+| An inline-mapped authored property, or one entry of its language map, exceeds 256 KiB | 400 | `inlineMappingInputTooLarge` |
 | The cache rejects the payload write | 500 | `ContentSystemException::previewPayloadStoreFailed` |
 
 Entity resolution and hydration run when the URL is created as well as when it is opened, so `unknownEntityType` and hydration faults are raised here too. A target entity that does not exist, or an unresolvable data requirement inside a loader, is no failure at all. The loader degrades that element to `notFound()` and the preview renders without it.

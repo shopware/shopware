@@ -602,7 +602,10 @@ class LayoutMutationControllerTest extends TestCase
         static::assertSame('text', $violations[0]['key']);
         static::assertSame('binding', $violations[0]['scope']);
         static::assertSame(
-            ContentSystemException::inlineMappingRequiresRootSource('product.name', 'text')->getMessage(),
+            ContentSystemException::inlineMappingFaultInLanguageEntry(
+                ContentSystemException::inlineMappingRequiresRootSource('product.name', 'text'),
+                Defaults::LANGUAGE_SYSTEM,
+            )->getMessage(),
             $violations[0]['message'],
         );
         static::assertTrue($body['diagnostics']['wellFormed']);

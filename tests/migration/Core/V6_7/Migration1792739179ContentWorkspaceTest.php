@@ -25,13 +25,20 @@ class Migration1792739179ContentWorkspaceTest extends TestCase
             $connection->executeStatement('DROP TABLE content_workspace');
         }
         $roleId = Uuid::randomBytes();
+        $editorId = Uuid::randomBytes();
+        $creatorId = Uuid::randomBytes();
+        $deleterId = Uuid::randomBytes();
         $privilegedRoleId = Uuid::randomBytes();
         $unrelatedId = Uuid::randomBytes();
-        foreach ([
+        $roles = [
             $roleId => ['experience_studio.viewer'],
+            $editorId => ['experience_studio.viewer', 'experience_studio.editor'],
+            $creatorId => ['experience_studio.viewer', 'experience_studio.editor', 'experience_studio.creator'],
+            $deleterId => ['experience_studio.viewer', 'experience_studio.deleter'],
             $privilegedRoleId => ['experience_studio.viewer', 'user:read', 'media:read'],
             $unrelatedId => ['product.viewer'],
-        ] as $id => $privileges) {
+        ];
+        foreach ($roles as $id => $privileges) {
             $connection->insert('acl_role', [
                 'id' => $id, 'name' => 'Workspace migration test', 'privileges' => json_encode($privileges, \JSON_THROW_ON_ERROR),
                 'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -47,9 +54,17 @@ class Migration1792739179ContentWorkspaceTest extends TestCase
             static::assertIsArray($privileges);
             static::assertNotContains('user:read', $privileges);
             static::assertNotContains('media:read', $privileges);
-            foreach (['read', 'create', 'update', 'delete'] as $operation) {
-                static::assertContains('content_workspace:' . $operation, $privileges);
-                static::assertCount(1, array_keys($privileges, 'content_workspace:' . $operation, true));
+            foreach ([
+                $roleId => ['read'],
+                $editorId => ['read', 'update'],
+                $creatorId => ['read', 'update', 'create'],
+                $deleterId => ['read', 'delete'],
+            ] as $id => $operations) {
+                $actual = json_decode($connection->fetchOne('SELECT privileges FROM acl_role WHERE id = ?', [$id]), true, 512, \JSON_THROW_ON_ERROR);
+                static::assertIsArray($actual);
+                foreach (['read', 'create', 'update', 'delete'] as $operation) {
+                    static::assertCount(\in_array($operation, $operations, true) ? 1 : 0, array_keys($actual, 'content_workspace:' . $operation, true));
+                }
             }
             $privilegedRole = json_decode($connection->fetchOne('SELECT privileges FROM acl_role WHERE id = ?', [$privilegedRoleId]), true, 512, \JSON_THROW_ON_ERROR);
             static::assertIsArray($privilegedRole);
@@ -57,9 +72,9 @@ class Migration1792739179ContentWorkspaceTest extends TestCase
             static::assertContains('media:read', $privilegedRole);
             static::assertSame(['product.viewer'], json_decode($connection->fetchOne('SELECT privileges FROM acl_role WHERE id = ?', [$unrelatedId]), true, 512, \JSON_THROW_ON_ERROR));
         } finally {
-            $connection->delete('acl_role', ['id' => $roleId]);
-            $connection->delete('acl_role', ['id' => $privilegedRoleId]);
-            $connection->delete('acl_role', ['id' => $unrelatedId]);
+            foreach (array_keys($roles) as $id) {
+                $connection->delete('acl_role', ['id' => $id]);
+            }
         }
     }
 }

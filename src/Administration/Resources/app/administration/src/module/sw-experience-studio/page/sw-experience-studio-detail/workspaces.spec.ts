@@ -75,6 +75,7 @@ describe('Experience Studio workspace transitions', () => {
         ].map((layoutId) => ({ layoutId, x: 0, y: 0, width: 700, height: 900, viewport: 'custom', previewEntityId: null }));
         const schedule = jest.fn();
         const vm = {
+            allowSave: true,
             workspaceStore: { activeWorkspace: { id: 'workspace' }, schedule },
             $nextTick: jest.fn().mockResolvedValue(undefined),
             $refs: { experienceStudioCanvas: { getWorkspaceConfiguration: () => configuration } },

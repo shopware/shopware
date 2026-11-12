@@ -8,6 +8,7 @@ describe('Experience Studio workspace management', () => {
         const activeWorkspace = { id: 'current', name: 'Current workspace' };
         const workspace = { id: 'other', name: 'Shared workspace' };
         const vm = {
+            allowSave: true,
             workspaceStore: { activeWorkspace, rename: jest.fn().mockResolvedValue(undefined) },
             managedWorkspace: null,
             workspaceName: '',
@@ -36,6 +37,7 @@ describe('Experience Studio workspace management', () => {
     it('keeps the rename dialog available when saving the new name fails', async () => {
         const workspace = { id: 'other', name: 'Shared workspace' };
         const vm = {
+            allowSave: true,
             workspaceStore: { rename: jest.fn().mockRejectedValue(new Error('Save failed')) },
             managedWorkspace: workspace,
             workspaceName: 'New name',
@@ -60,6 +62,7 @@ describe('Experience Studio workspace management', () => {
         const activeWorkspace = { id: 'current' };
         const layouts = [{ id: 'dirty-layout', dirty: true }];
         const vm = {
+            allowDelete: true,
             workspaceStore: { activeWorkspace, remove: jest.fn().mockResolvedValue(undefined), flush: jest.fn() },
             managedWorkspace: null,
             isWorkspacePickerOpen: true,
@@ -96,6 +99,7 @@ describe('Experience Studio workspace management', () => {
     it('still asks to save or discard dirty layouts before deleting the active workspace', async () => {
         const action = { type: 'delete', id: 'current' };
         const vm = {
+            allowDelete: true,
             workspaceStore: { activeWorkspace: { id: 'current' } },
             mutationQueue: Promise.resolve(),
             openLayouts: [{ id: 'dirty-layout', dirty: true }],

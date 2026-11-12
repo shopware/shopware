@@ -45,7 +45,10 @@
                         />
                         <span class="sw-experience-studio-workspace-picker__name">{{ workspace.name }}</span>
                     </button>
-                    <mt-dropdown-menu-root :modal="false">
+                    <mt-dropdown-menu-root
+                        v-if="allowEdit || allowDelete"
+                        :modal="false"
+                    >
                         <mt-dropdown-menu-trigger as-child>
                             <mt-button
                                 class="sw-experience-studio-workspace-picker__actions"
@@ -64,12 +67,14 @@
                         <mt-dropdown-menu-portal disabled>
                             <mt-action-menu>
                                 <mt-action-menu-item
+                                    v-if="allowEdit"
                                     icon="regular-pencil-s"
                                     @select="$emit('rename', workspace)"
                                 >
                                     {{ $t('sw-experience-studio.workspace.manager.rename') }}
                                 </mt-action-menu-item>
                                 <mt-action-menu-item
+                                    v-if="allowDelete"
                                     icon="regular-trash"
                                     variant="critical"
                                     @select="$emit('delete', workspace)"
@@ -101,6 +106,7 @@
                     </mt-button>
                     <mt-button
                         variant="primary"
+                        :disabled="!allowCreate"
                         @click="$emit('create')"
                     >
                         {{ $t('sw-experience-studio.workspace.manager.create') }}

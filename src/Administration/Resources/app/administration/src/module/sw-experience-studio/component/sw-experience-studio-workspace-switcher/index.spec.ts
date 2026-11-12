@@ -8,6 +8,7 @@ describe('workspace switcher', () => {
     let wrapper: Awaited<ReturnType<typeof createWrapper>>;
     let store: ExperienceStudioWorkspaceStore;
     let loadMock: jest.SpyInstance;
+    let allowedRoles: string[];
 
     async function createWrapper(disabled = false) {
         return mount(await wrapTestComponent('sw-experience-studio-workspace-switcher', { sync: true }), {
@@ -22,6 +23,8 @@ describe('workspace switcher', () => {
     }
 
     beforeEach(() => {
+        allowedRoles = ['experience_studio.creator'];
+        jest.spyOn(Shopware.Service('acl'), 'can').mockImplementation((key) => !key || allowedRoles.includes(key));
         store = Shopware.Store.get('experienceStudioWorkspace' as never) as ExperienceStudioWorkspaceStore;
         store.$reset();
         loadMock = jest.spyOn(store, 'load').mockResolvedValue();
@@ -60,6 +63,27 @@ describe('workspace switcher', () => {
             'sw-experience-studio.workspace.manager.create',
             'sw-experience-studio.workspace.manager.manage',
         ]);
+    });
+
+    it('keeps browsing available to viewers but disables workspace creation', async () => {
+        allowedRoles = ['experience_studio.viewer'];
+        wrapper = await createWrapper();
+        await openMenu();
+
+        const create = Array.from(document.body.querySelectorAll<HTMLElement>('[role="menuitem"]')).find(
+            (item) => item.textContent?.trim() === 'sw-experience-studio.workspace.manager.create',
+        )!;
+        expect(create.getAttribute('aria-disabled')).toBe('true');
+        create.click();
+        await flushPromises();
+        expect(wrapper.emitted('create')).toBeUndefined();
+
+        const browse = Array.from(document.body.querySelectorAll<HTMLElement>('[role="menuitem"]')).find(
+            (item) => item.textContent?.trim() === 'sw-experience-studio.workspace.manager.manage',
+        )!;
+        browse.click();
+        await flushPromises();
+        expect(wrapper.emitted('browse')).toHaveLength(1);
     });
 
     it('highlights only the current workspace and updates the highlight when it changes', async () => {

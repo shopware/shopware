@@ -9,6 +9,7 @@ describe('workspace picker', () => {
     let wrapper: Awaited<ReturnType<typeof createWrapper>>;
     let store: ExperienceStudioWorkspaceStore;
     let loadWorkspaces: jest.SpyInstance;
+    let allowedRoles: string[];
 
     async function createWrapper() {
         const picker = mount(await wrapTestComponent('sw-experience-studio-workspace-picker', { sync: true }), {
@@ -31,6 +32,8 @@ describe('workspace picker', () => {
     }
 
     beforeEach(() => {
+        allowedRoles = ['experience_studio.creator', 'experience_studio.editor', 'experience_studio.deleter'];
+        jest.spyOn(Shopware.Service('acl'), 'can').mockImplementation((key) => !key || allowedRoles.includes(key));
         jest.useFakeTimers({ doNotFake: ['setImmediate'] });
         store = Shopware.Store.get('experienceStudioWorkspace' as never) as ExperienceStudioWorkspaceStore;
         store.$reset();
@@ -59,6 +62,35 @@ describe('workspace picker', () => {
         ).toHaveLength(2);
         await modal().findAll('.sw-experience-studio-workspace-picker__item')[1].trigger('click');
         expect(wrapper.emitted('select')).toEqual([['shared']]);
+    });
+
+    it('lets viewers open workspaces without offering write actions', async () => {
+        allowedRoles = ['experience_studio.viewer'];
+        wrapper = await createWrapper();
+
+        expect(modal().find('.sw-experience-studio-workspace-picker__actions').exists()).toBe(false);
+        const create = modal().get('.sw-experience-studio-workspace-picker__footer .mt-button--primary');
+        expect(create.attributes('disabled')).toBeDefined();
+        await create.trigger('click');
+        expect(wrapper.emitted('create')).toBeUndefined();
+        await modal().findAll('.sw-experience-studio-workspace-picker__item')[1].trigger('click');
+        expect(wrapper.emitted('select')).toEqual([['shared']]);
+    });
+
+    it.each([
+        ['experience_studio.editor', 'sw-experience-studio.workspace.manager.rename'],
+        ['experience_studio.deleter', 'global.default.delete'],
+    ])('only offers the row action granted by %s', async (role, action) => {
+        allowedRoles = [role];
+        wrapper = await createWrapper();
+        await modal().findAll('.sw-experience-studio-workspace-picker__actions')[0].trigger('click');
+        await flushPromises();
+
+        expect(
+            modal()
+                .findAll('[role="menuitem"]')
+                .map((item) => item.text()),
+        ).toEqual([action]);
     });
 
     it('shows the Meteor loader until the workspace list has loaded', async () => {

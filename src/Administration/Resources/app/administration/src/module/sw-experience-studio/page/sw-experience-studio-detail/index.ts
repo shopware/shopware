@@ -392,6 +392,10 @@ export default Shopware.Component.wrapComponentConfig({
             return this.acl.can('experience_studio.creator');
         },
 
+        allowDelete(): boolean {
+            return this.acl.can('experience_studio.deleter');
+        },
+
         layoutTypeOptions(): LayoutTypeOption[] {
             return this.availableLayoutTypes.map((entityType) => {
                 const snippetKey = `sw-experience-studio.createWizard.layoutTypes.${entityType}`;
@@ -608,7 +612,7 @@ export default Shopware.Component.wrapComponentConfig({
     methods: {
         async scheduleWorkspaceSetup(): Promise<void> {
             const workspaceId = this.workspaceStore?.activeWorkspace?.id;
-            if (!workspaceId || this.isRestoringWorkspace) {
+            if (!this.allowSave || !workspaceId || this.isRestoringWorkspace) {
                 return;
             }
             await this.$nextTick();
@@ -799,6 +803,10 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async requestWorkspaceAction(action: WorkspaceAction): Promise<void> {
+            const allowedActions = { open: true, create: this.allowCreate, delete: this.allowDelete };
+            if (!allowedActions[action.type]) {
+                return;
+            }
             if (
                 this.isWorkspaceTransitioning ||
                 this.isSavingAll ||
@@ -887,7 +895,19 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
+        onWorkspaceCreate(): void {
+            if (!this.allowCreate) {
+                return;
+            }
+            this.isWorkspacePickerOpen = false;
+            this.workspaceName = '';
+            this.workspaceNameAction = 'create';
+        },
+
         onWorkspaceRename(workspace: ContentWorkspace): void {
+            if (!this.allowSave) {
+                return;
+            }
             this.isWorkspacePickerOpen = false;
             this.managedWorkspace = workspace;
             this.workspaceName = workspace.name;
@@ -895,6 +915,9 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onWorkspaceDelete(workspace: ContentWorkspace): void {
+            if (!this.allowDelete) {
+                return;
+            }
             this.isWorkspacePickerOpen = false;
             this.managedWorkspace = workspace;
             this.isDeleteWorkspaceModalOpen = true;
@@ -913,7 +936,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async onWorkspaceDeleteConfirm(): Promise<void> {
-            if (!this.managedWorkspace) {
+            if (!this.allowDelete || !this.managedWorkspace) {
                 return;
             }
             const id = this.managedWorkspace.id;
@@ -928,6 +951,9 @@ export default Shopware.Component.wrapComponentConfig({
             }
             if (this.workspaceNameAction === 'create') {
                 await this.requestWorkspaceAction({ type: 'create', name });
+                return;
+            }
+            if (!this.allowSave) {
                 return;
             }
             const id = this.managedWorkspace?.id;

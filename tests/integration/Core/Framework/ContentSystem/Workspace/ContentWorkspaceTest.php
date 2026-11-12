@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Workspace;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
@@ -101,6 +102,57 @@ class ContentWorkspaceTest extends TestCase
         static::assertSame(403, $browser->getResponse()->getStatusCode());
         $browser->jsonRequest('POST', '/api/content-workspace', ['name' => 'Forbidden', 'configuration' => ['frames' => [], 'previewSalesChannelId' => null, 'canvas' => ['panX' => 0, 'panY' => 0, 'zoom' => 1]]]);
         static::assertSame(403, $browser->getResponse()->getStatusCode());
+    }
+
+    #[DataProvider('workspacePermissionProvider')]
+    public function testWorkspaceWritesRequireTheirOwnPrivileges(bool $canCreate, bool $canUpdate, bool $canDelete): void
+    {
+        $id = Uuid::randomHex();
+        $configuration = ['frames' => [], 'previewSalesChannelId' => null, 'canvas' => ['panX' => 0, 'panY' => 0, 'zoom' => 1]];
+        $repository = $this->getContainer()->get('content_workspace.repository');
+        $repository->create([['id' => $id, 'name' => 'Shared workspace', 'configuration' => $configuration]], Context::createDefaultContext());
+        $permissions = ['content_workspace:read'];
+        foreach (['create' => $canCreate, 'update' => $canUpdate, 'delete' => $canDelete] as $operation => $allowed) {
+            if ($allowed) {
+                $permissions[] = 'content_workspace:' . $operation;
+            }
+        }
+        $browser = $this->getBrowser(permissions: $permissions);
+        $browser->jsonRequest('POST', '/api/search/content-workspace', ['ids' => [$id]]);
+        static::assertSame(200, $browser->getResponse()->getStatusCode());
+
+        $browser->jsonRequest('POST', '/api/content-workspace', [
+            'id' => Uuid::randomHex(), 'name' => 'New workspace', 'configuration' => $configuration,
+        ]);
+        static::assertSame($canCreate ? 204 : 403, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+
+        $changedConfiguration = $configuration;
+        $changedConfiguration['canvas']['panX'] = 100;
+        $browser->jsonRequest('PATCH', '/api/content-workspace/' . $id, ['name' => 'Changed', 'configuration' => $changedConfiguration]);
+        static::assertSame($canUpdate ? 204 : 403, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+
+        $browser->jsonRequest('DELETE', '/api/content-workspace/' . $id);
+        static::assertSame($canDelete ? 204 : 403, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+        $workspace = $repository->search(new Criteria([$id]), Context::createDefaultContext())->getEntities()->first();
+        if ($canDelete) {
+            static::assertNull($workspace);
+
+            return;
+        }
+        static::assertInstanceOf(ContentWorkspaceEntity::class, $workspace);
+        static::assertSame($canUpdate ? 'Changed' : 'Shared workspace', $workspace->getName());
+        static::assertEquals($canUpdate ? $changedConfiguration : $configuration, $workspace->getConfiguration());
+    }
+
+    /**
+     * @return \Generator<string, array{bool, bool, bool}>
+     */
+    public static function workspacePermissionProvider(): \Generator
+    {
+        yield 'viewer can only read' => [false, false, false];
+        yield 'editor can update' => [false, true, false];
+        yield 'creator can create and update' => [true, true, false];
+        yield 'deleter can delete' => [false, false, true];
     }
 
     public function testWorkspaceViewerCannotReadUsersOrPrivateMedia(): void

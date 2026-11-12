@@ -52,6 +52,7 @@
             <mt-action-menu-group>
                 <mt-action-menu-item
                     icon="regular-plus"
+                    :disabled="!allowCreate"
                     @select="$emit('create')"
                 >
                     {{ $t('sw-experience-studio.workspace.manager.create') }}

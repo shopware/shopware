@@ -29,6 +29,7 @@ describe('Experience Studio workspace dialogs', () => {
                     ...component.computed,
                     allowSave: () => true,
                     allowCreate: () => true,
+                    allowDelete: () => true,
                     layoutId: () => '',
                     availablePickerElements: () => [],
                     previewEntityType: () => null,
@@ -65,6 +66,7 @@ describe('Experience Studio workspace dialogs', () => {
     }
 
     beforeEach(() => {
+        jest.spyOn(Shopware.Service('acl'), 'can').mockReturnValue(true);
         jest.useFakeTimers({ doNotFake: ['setImmediate'] });
         store = Shopware.Store.get('experienceStudioWorkspace' as never) as ExperienceStudioWorkspaceStore;
         store.$reset();

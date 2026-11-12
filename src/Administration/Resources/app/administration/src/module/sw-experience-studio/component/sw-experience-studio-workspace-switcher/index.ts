@@ -5,6 +5,7 @@ import './sw-experience-studio-workspace-switcher.scss';
 /** @private @sw-package discovery */
 export default Shopware.Component.wrapComponentConfig({
     template,
+    inject: ['acl'],
     emits: [
         'select',
         'create',
@@ -12,6 +13,9 @@ export default Shopware.Component.wrapComponentConfig({
     ],
     props: { disabled: { type: Boolean, default: false } },
     computed: {
+        allowCreate(): boolean {
+            return this.acl.can('experience_studio.creator');
+        },
         workspaceStore(): ExperienceStudioWorkspaceStore {
             return Shopware.Store.get('experienceStudioWorkspace' as never) as ExperienceStudioWorkspaceStore;
         },

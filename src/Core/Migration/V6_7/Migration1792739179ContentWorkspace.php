@@ -33,8 +33,11 @@ class Migration1792739179ContentWorkspace extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
             SQL);
 
-        $this->addAdditionalPrivileges($connection, ['experience_studio.viewer' => [
-            'content_workspace:read', 'content_workspace:create', 'content_workspace:update', 'content_workspace:delete',
-        ]]);
+        $this->addAdditionalPrivileges($connection, [
+            'experience_studio.viewer' => ['content_workspace:read'],
+            'experience_studio.editor' => ['content_workspace:update'],
+            'experience_studio.creator' => ['content_workspace:create'],
+            'experience_studio.deleter' => ['content_workspace:delete'],
+        ]);
     }
 }

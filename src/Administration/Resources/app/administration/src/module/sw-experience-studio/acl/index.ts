@@ -10,9 +10,6 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
             privileges: [
                 'content_layout:read',
                 'content_workspace:read',
-                'content_workspace:create',
-                'content_workspace:update',
-                'content_workspace:delete',
                 'property_group:read',
                 'property_group_option:read',
                 'sales_channel:read',
@@ -28,6 +25,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
         editor: {
             privileges: [
                 'content_layout:update',
+                'content_workspace:update',
                 'product_content_layout:create',
                 'product_content_layout:update',
                 'product_content_layout:delete',
@@ -45,6 +43,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
         creator: {
             privileges: [
                 'content_layout:create',
+                'content_workspace:create',
             ],
             dependencies: [
                 'experience_studio.viewer',
@@ -54,6 +53,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
         deleter: {
             privileges: [
                 'content_layout:delete',
+                'content_workspace:delete',
             ],
             dependencies: [
                 'experience_studio.viewer',

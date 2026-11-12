@@ -23,7 +23,7 @@
                         :disabled="isLoading || isWorkspaceTransitioning || isSavingAll || openLayouts.some(item => item.isSaving)"
                         @select="requestWorkspaceAction({ type: 'open', id: $event })"
                         @browse="isWorkspacePickerOpen = true"
-                        @create="workspaceName = ''; workspaceNameAction = 'create'"
+                        @create="onWorkspaceCreate"
                     />
                 </template>
             </sw-experience-studio-toolbar>
@@ -317,7 +317,7 @@
             <sw-experience-studio-workspace-picker
                 v-if="isWorkspacePickerOpen"
                 @select="isWorkspacePickerOpen = false; requestWorkspaceAction({ type: 'open', id: $event })"
-                @create="isWorkspacePickerOpen = false; workspaceName = ''; workspaceNameAction = 'create'"
+                @create="onWorkspaceCreate"
                 @rename="onWorkspaceRename"
                 @delete="onWorkspaceDelete"
                 @close="isWorkspacePickerOpen = false"

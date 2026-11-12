@@ -150,7 +150,7 @@ class ContentWorkspaceTest extends TestCase
     public static function workspacePermissionProvider(): \Generator
     {
         yield 'viewer can only read' => [false, false, false];
-        yield 'editor can update' => [false, true, false];
+        yield 'editor can create and update' => [true, true, false];
         yield 'creator can create and update' => [true, true, false];
         yield 'deleter can delete' => [false, false, true];
     }

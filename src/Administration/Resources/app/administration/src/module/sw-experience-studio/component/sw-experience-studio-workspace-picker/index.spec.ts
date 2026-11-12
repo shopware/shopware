@@ -142,6 +142,21 @@ describe('workspace picker', () => {
         expect(wrapper.emitted('create')).toEqual([[]]);
     });
 
+    it('lets an editor without creator permission create the first workspace', async () => {
+        allowedRoles = ['experience_studio.viewer', 'experience_studio.editor'];
+        store.activeWorkspace = null;
+        store.workspaces = [];
+        store.total = 0;
+        wrapper = await createWrapper();
+
+        expect(modal().text()).toContain('sw-experience-studio.workspace.manager.empty');
+        const create = modal().get('.sw-experience-studio-workspace-picker__footer .mt-button--primary');
+        expect(create.attributes('disabled')).toBeUndefined();
+        await create.trigger('click');
+
+        expect(wrapper.emitted('create')).toEqual([[]]);
+    });
+
     it.each([0, 25])('hides pagination when %s workspaces fit on one page', async (total) => {
         store.total = total;
         wrapper = await createWrapper();

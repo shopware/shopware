@@ -17,9 +17,10 @@ describe('Experience Studio workspace permissions', () => {
         expect(vm.$nextTick).not.toHaveBeenCalled();
     });
 
-    it('opens the creation dialog for a creator', () => {
+    it('opens the workspace creation dialog for an editor without layout creation permission', () => {
         const vm = {
-            allowCreate: true,
+            allowSave: true,
+            allowCreate: false,
             isWorkspacePickerOpen: true,
             workspaceName: 'Previous name',
             workspaceNameAction: null,
@@ -55,7 +56,7 @@ describe('Experience Studio workspace permissions', () => {
     );
 
     it.each(['create', 'delete'])('does not execute a viewer workspace %s request', async (type) => {
-        const vm = { allowCreate: false, allowDelete: false, executeWorkspaceAction: jest.fn() };
+        const vm = { allowSave: false, allowCreate: false, allowDelete: false, executeWorkspaceAction: jest.fn() };
 
         await methods.requestWorkspaceAction.call(vm, { type, id: 'shared', name: 'New workspace' });
 

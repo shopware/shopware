@@ -23,7 +23,7 @@ describe('workspace switcher', () => {
     }
 
     beforeEach(() => {
-        allowedRoles = ['experience_studio.creator'];
+        allowedRoles = ['experience_studio.creator', 'experience_studio.editor'];
         jest.spyOn(Shopware.Service('acl'), 'can').mockImplementation((key) => !key || allowedRoles.includes(key));
         store = Shopware.Store.get('experienceStudioWorkspace' as never) as ExperienceStudioWorkspaceStore;
         store.$reset();
@@ -169,6 +169,7 @@ describe('workspace switcher', () => {
     });
 
     it('offers browsing and creation when there is no active workspace', async () => {
+        allowedRoles = ['experience_studio.viewer', 'experience_studio.editor'];
         store.activeWorkspace = null;
         store.workspaces = [];
         wrapper = await createWrapper();
@@ -180,5 +181,9 @@ describe('workspace switcher', () => {
         expect(actions).toHaveLength(2);
         expect(actions[0].textContent).toContain('sw-experience-studio.workspace.manager.create');
         expect(actions[1].textContent).toContain('sw-experience-studio.workspace.manager.manage');
+        expect(actions[0].getAttribute('aria-disabled')).not.toBe('true');
+        (actions[0] as HTMLElement).click();
+        await flushPromises();
+        expect(wrapper.emitted('create')).toEqual([[]]);
     });
 });

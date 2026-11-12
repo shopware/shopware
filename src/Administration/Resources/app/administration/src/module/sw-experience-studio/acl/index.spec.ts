@@ -22,7 +22,7 @@ describe('Experience Studio landing page assignment permissions', () => {
             expect(viewer?.privileges).not.toContain('media:read');
             expect(viewer?.privileges).toContain('content_workspace:read');
             for (const [operation, role] of [
-                ['create', 'creator'],
+                ['create', 'editor'],
                 ['update', 'editor'],
                 ['delete', 'deleter'],
             ]) {
@@ -31,6 +31,7 @@ describe('Experience Studio landing page assignment permissions', () => {
                     `content_workspace:${operation}`,
                 );
             }
+            expect(editor?.privileges).not.toContain('content_layout:create');
             for (const operation of ['create', 'update', 'delete']) {
                 expect(editor?.privileges).toContain(`landing_page_content_layout:${operation}`);
                 expect(viewer?.privileges).not.toContain(`landing_page_content_layout:${operation}`);

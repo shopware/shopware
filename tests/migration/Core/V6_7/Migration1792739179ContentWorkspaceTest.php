@@ -56,7 +56,7 @@ class Migration1792739179ContentWorkspaceTest extends TestCase
             static::assertNotContains('media:read', $privileges);
             foreach ([
                 $roleId => ['read'],
-                $editorId => ['read', 'update'],
+                $editorId => ['read', 'create', 'update'],
                 $creatorId => ['read', 'update', 'create'],
                 $deleterId => ['read', 'delete'],
             ] as $id => $operations) {

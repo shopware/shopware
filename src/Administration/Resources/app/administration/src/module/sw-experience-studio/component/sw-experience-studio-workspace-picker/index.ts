@@ -18,7 +18,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
     computed: {
         allowCreate(): boolean {
-            return this.acl.can('experience_studio.creator');
+            return this.acl.can('experience_studio.editor');
         },
         allowEdit(): boolean {
             return this.acl.can('experience_studio.editor');

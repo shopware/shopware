@@ -803,7 +803,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async requestWorkspaceAction(action: WorkspaceAction): Promise<void> {
-            const allowedActions = { open: true, create: this.allowCreate, delete: this.allowDelete };
+            const allowedActions = { open: true, create: this.allowSave, delete: this.allowDelete };
             if (!allowedActions[action.type]) {
                 return;
             }
@@ -896,7 +896,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onWorkspaceCreate(): void {
-            if (!this.allowCreate) {
+            if (!this.allowSave) {
                 return;
             }
             this.isWorkspacePickerOpen = false;

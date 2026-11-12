@@ -14,7 +14,7 @@ export default Shopware.Component.wrapComponentConfig({
     props: { disabled: { type: Boolean, default: false } },
     computed: {
         allowCreate(): boolean {
-            return this.acl.can('experience_studio.creator');
+            return this.acl.can('experience_studio.editor');
         },
         workspaceStore(): ExperienceStudioWorkspaceStore {
             return Shopware.Store.get('experienceStudioWorkspace' as never) as ExperienceStudioWorkspaceStore;

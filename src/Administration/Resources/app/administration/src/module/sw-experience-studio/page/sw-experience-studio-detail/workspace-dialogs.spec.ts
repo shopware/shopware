@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 import MtModal from '@shopware-ag/meteor-component-library/dist/esm/MtModal';
 import MtModalRoot from '@shopware-ag/meteor-component-library/dist/esm/MtModalRoot';
 import '../../store/experience-studio-workspace.store';
@@ -10,7 +10,7 @@ describe('Experience Studio workspace dialogs', () => {
     let wrapper: Awaited<ReturnType<typeof createWrapper>>;
     let store: ExperienceStudioWorkspaceStore;
 
-    async function createWrapper() {
+    async function createWrapper(methodOverrides: Record<string, (...args: never[]) => unknown> = {}) {
         // Exercise the page's template and dialog handlers without booting the layout editor.
         const component = (await wrapTestComponent('sw-experience-studio-detail', { sync: true })) as unknown as {
             template: string;
@@ -22,19 +22,17 @@ describe('Experience Studio workspace dialogs', () => {
         const page = mount(
             {
                 template: component.template,
+                inject: ['acl'],
                 data() {
                     return { ...component.data(), isWorkspacePickerOpen: true };
                 },
                 computed: {
                     ...component.computed,
-                    allowSave: () => true,
-                    allowCreate: () => true,
-                    allowDelete: () => true,
                     layoutId: () => '',
                     availablePickerElements: () => [],
                     previewEntityType: () => null,
                 },
-                methods: component.methods,
+                methods: { ...component.methods, ...methodOverrides },
             },
             {
                 attachTo: document.body,
@@ -81,6 +79,37 @@ describe('Experience Studio workspace dialogs', () => {
         await jest.advanceTimersByTimeAsync(400);
         jest.useRealTimers();
         jest.restoreAllMocks();
+    });
+
+    it('creates and opens the first workspace for an editor without layout creation permission', async () => {
+        jest.spyOn(Shopware.Service('acl'), 'can').mockImplementation(
+            (key) => !key || ['experience_studio.viewer', 'experience_studio.editor'].includes(key),
+        );
+        store.activeWorkspace = null;
+        store.workspaces = [];
+        store.total = 0;
+        const create = jest.spyOn(store, 'create').mockResolvedValue({ id: 'first' } as ContentWorkspace);
+        const open = jest.fn().mockResolvedValue(undefined);
+        wrapper = await createWrapper({ openWorkspace: open });
+
+        expect(wrapper.get('sw-experience-studio-toolbar-stub').attributes('allow-save')).toBe('true');
+        expect(wrapper.get('sw-experience-studio-canvas-stub').attributes('allow-create')).toBe('false');
+        const button = document.body.querySelector<HTMLButtonElement>(
+            '.sw-experience-studio-workspace-picker__footer .mt-button--primary',
+        )!;
+        expect(button.disabled).toBe(false);
+        button.click();
+        await flushPromises();
+        await jest.advanceTimersByTimeAsync(400);
+
+        const dialog = new DOMWrapper(document.body).get('.sw-modal');
+        const input = dialog.get('input');
+        await input.setValue('First workspace');
+        await dialog.get('form').trigger('submit');
+        await flushPromises();
+
+        expect(create).toHaveBeenCalledWith('First workspace');
+        expect(open).toHaveBeenCalledWith('first');
     });
 
     it('keeps the modal backdrop and search interactive while a row action menu is open', async () => {

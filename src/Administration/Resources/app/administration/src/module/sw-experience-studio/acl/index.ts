@@ -25,6 +25,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
         editor: {
             privileges: [
                 'content_layout:update',
+                'content_workspace:create',
                 'content_workspace:update',
                 'product_content_layout:create',
                 'product_content_layout:update',
@@ -43,7 +44,6 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
         creator: {
             privileges: [
                 'content_layout:create',
-                'content_workspace:create',
             ],
             dependencies: [
                 'experience_studio.viewer',

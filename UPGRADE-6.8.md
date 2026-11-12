@@ -464,6 +464,26 @@ Enable the `v6.8.0.0` feature flag in 6.7 to test your client against the new fo
 
 <details>
 
+## Shipping rules are evaluated per cart delivery
+
+The rule based rows of the shipping price matrix and the availability rule of a shipping method are evaluated for each cart delivery with its own shipping address and shipping method, instead of once for the whole cart with the address and shipping method of the sales channel context.
+A cart with a single delivery gets the same result as before.
+
+Custom rules that read the shipping location or the shipping method from the sales channel context were evaluated against the context for every delivery.
+Read them from the delivery when the rule is matched in a `Shopware\Core\Checkout\Cart\Rule\DeliveryRuleScope`:
+
+```php
+// Before
+$location = $scope->getSalesChannelContext()->getShippingLocation();
+
+// After
+$location = $scope instanceof DeliveryRuleScope
+    ? $scope->getDelivery()->getLocation()
+    : $scope->getSalesChannelContext()->getShippingLocation();
+```
+
+A rule without the branch keeps working and decides by the sales channel context for every delivery.
+
 ## Multiple SQL statements restricted to migrations and installation
 
 Application database connections no longer accepted multiple SQL statements in a single call.
@@ -1586,6 +1606,14 @@ The `$operator` parameter of `\Shopware\Core\Framework\DataAbstractionLayer\Sear
 The unused property was removed.
 
 # Administration
+
+## Sales channel detail components load fewer visibilities and sales channels
+
+- `sw-sales-channel-detail-base`: the currencies of the *Currency* select are loaded without `salesChannels`.
+- `sw-sales-channel-detail-products`: the products contain only the visibility of the current sales channel, without its `salesChannel`.
+- `sw-sales-channel-products-assignment-single-products`: the products are loaded without `visibilities`.
+
+Extensions that read other sales channel or visibility data in these components must load it with their own `sales_channel` or `product_visibility` request.
 
 ## Sales channel lists removed from `sw-settings-search-live-search` and `sw-newsletter-recipient-list`
 

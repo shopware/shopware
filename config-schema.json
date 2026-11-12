@@ -317,8 +317,10 @@
                     }
                 },
                 "max_file_size": {
-                    "type": "integer",
-                    "minimum": 1
+                    "type": [
+                        "integer",
+                        "string"
+                    ]
                 }
             },
             "title": "Product Documents"

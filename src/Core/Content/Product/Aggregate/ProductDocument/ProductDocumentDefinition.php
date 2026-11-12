@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductDocument;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -71,7 +72,7 @@ class ProductDocumentDefinition extends EntityDefinition
             (new TranslatedField('mediaId'))->addFlags(new ApiAware())->setDescription('Unique identity of the file of the document.'),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
 
-            (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id'))->addFlags(new ApiAware(), new ReverseInherited('documents')),
+            (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id'))->addFlags(new ApiAware(AdminApiSource::class), new ReverseInherited('documents')),
             (new TranslationsAssociationField(ProductDocumentTranslationDefinition::class, 'product_document_id'))->addFlags(new ApiAware(), new Required()),
             (new OneToOneAssociationField('media', 'media', 'id', MediaDefinition::class))->addFlags(new ApiAware(), new Runtime())->setDescription('File of the document in the current language, set where the documents are shown in the storefront.'),
         ]);

@@ -778,7 +778,6 @@
     "product_document.title",
     "product_document.mediaId",
     "product_document.customFields",
-    "product_document.product",
     "product_document.translations",
     "product_document.media",
     "product_document.createdAt",

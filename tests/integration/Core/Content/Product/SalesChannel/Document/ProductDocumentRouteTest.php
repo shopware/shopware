@@ -74,6 +74,28 @@ class ProductDocumentRouteTest extends TestCase
         static::assertSame('', $urls[$this->ids->get('datenblatt')]);
     }
 
+    public function testLoadLeavesOutTheProductOfTheDocuments(): void
+    {
+        $this->browser->request('POST', '/store-api/product/' . $this->ids->get('drill') . '/documents', [
+            'associations' => ['product' => ['associations' => ['productReviews' => []]]],
+        ]);
+
+        $response = $this->decode();
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(1, $response['total']);
+        static::assertArrayNotHasKey('product', $response['elements'][0]);
+    }
+
+    public function testLoadRejectsCriteriaOnTheProductOfTheDocuments(): void
+    {
+        $this->browser->request('POST', '/store-api/product/' . $this->ids->get('drill') . '/documents', [
+            'filter' => [['type' => 'contains', 'field' => 'product.productReviews.content', 'value' => 'secret']],
+        ]);
+
+        static::assertSame(400, $this->browser->getResponse()->getStatusCode());
+        static::assertSame('FRAMEWORK__ACCESSOR_NOT_ALLOWED', $this->decode()['errors'][0]['code']);
+    }
+
     public function testLoadReturnsTheDocumentsAVariantInheritsFromItsParent(): void
     {
         $response = $this->fetch('drill-red');

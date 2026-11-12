@@ -58,9 +58,6 @@
                     "translated": {
                         "type": "object"
                     },
-                    "product": {
-                        "$ref": "#/components/schemas/Product"
-                    },
                     "media": {
                         "$ref": "#/components/schemas/Media",
                         "description": "File of the document in the current language, set where the documents are shown in the storefront."

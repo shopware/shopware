@@ -9,9 +9,9 @@ import RetryHelper from '../../../core/helper/retry.helper';
 const { deepCopyObject, hasOwnProperty } = Shopware.Utils.object;
 const { md5 } = Shopware.Utils.format;
 
-const SYNC_HEADERS = { 'single-operation': 1, 'indexing-behavior': 'use-queue-indexing' };
+const SYNC_HEADERS = { 'indexing-behavior': 'use-queue-indexing' };
 
-const RESTRICTIONS_SYNC_HEADERS = { 'single-operation': 1, 'indexing-behavior': 'disable-indexing' };
+const RESTRICTIONS_SYNC_HEADERS = { 'indexing-behavior': 'disable-indexing' };
 
 const CHUNK_SIZE = 100;
 
@@ -21,11 +21,9 @@ export default class VariantsGenerator extends EventEmitter {
         super();
 
         this.product = null;
-        this.productIds = [];
 
         // set dependencies
         this.syncService = Shopware.Service('syncService');
-        this.cacheService = Shopware.Service('cacheApiService');
         this.httpClient = this.syncService.httpClient;
 
         // local data
@@ -181,22 +179,18 @@ export default class VariantsGenerator extends EventEmitter {
 
             // send api calls for delete
             this.processQueue('delete', mapped, 0, CHUNK_SIZE, resolveDelete, rejectDelete);
-        })
-            .then(() => {
-                // notify view to refresh progress
-                this.emit('progress-max', {
-                    type: 'upsert',
-                    progress: queues.createQueue.length,
-                });
-
-                return new Promise((resolve, reject) => {
-                    // send api calls for create
-                    this.processQueue('upsert', queues.createQueue, 0, CHUNK_SIZE, resolve, reject);
-                });
-            })
-            .then(() => {
-                this.indexProducts(this.productIds);
+        }).then(() => {
+            // notify view to refresh progress
+            this.emit('progress-max', {
+                type: 'upsert',
+                progress: queues.createQueue.length,
             });
+
+            return new Promise((resolve, reject) => {
+                // send api calls for create
+                this.processQueue('upsert', queues.createQueue, 0, CHUNK_SIZE, resolve, reject);
+            });
+        });
     }
 
     generateVariants(currencies, product, isAddOnly = false) {
@@ -590,18 +584,9 @@ export default class VariantsGenerator extends EventEmitter {
         RetryHelper.retry(() => {
             return this.syncService.sync(payload, {}, SYNC_HEADERS);
         })
-            .then((response) => {
-                this.productIds.concat(response.data?.product ?? []).concat(response.data?.deleted?.product ?? []);
+            .then(() => {
                 this.processQueue(type, queue, offset + limit, limit, resolve, reject);
             })
             .catch(reject);
-    }
-
-    indexProducts(productIds) {
-        if (productIds.length <= 0) {
-            return;
-        }
-
-        this.cacheService.indexProducts(productIds);
     }
 }

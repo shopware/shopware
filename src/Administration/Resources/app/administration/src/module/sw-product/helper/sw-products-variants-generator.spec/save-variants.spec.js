@@ -15,7 +15,6 @@ function createVariants(count) {
 describe('src/module/sw-product/helper/sw-products-variants-generator saveVariants', () => {
     beforeAll(() => {
         Shopware.Service().register('syncService', () => ({ httpClient: {} }));
-        Shopware.Service().register('cacheApiService', () => ({ indexProducts() {} }));
     });
 
     afterEach(() => {
@@ -70,7 +69,7 @@ describe('src/module/sw-product/helper/sw-products-variants-generator saveVarian
         ]);
         sync.mock.calls.forEach(([, params, headers]) => {
             expect(params).toEqual({});
-            expect(headers).toEqual({ 'single-operation': 1, 'indexing-behavior': 'use-queue-indexing' });
+            expect(headers).toEqual({ 'indexing-behavior': 'use-queue-indexing' });
         });
     });
 });

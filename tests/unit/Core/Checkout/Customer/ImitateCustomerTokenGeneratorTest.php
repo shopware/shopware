@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
@@ -83,6 +84,25 @@ class ImitateCustomerTokenGeneratorTest extends TestCase
         $this->imitateCustomerTokenGenerator->validate($token, self::SALES_CHANNEL_ID, self::CUSTOMER_ID, self::USER_ID);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed with tested method
+     */
+    #[DoesNotPerformAssertions]
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testValidateAcceptsATokenIssuedBeforeTheSharedSigner(): void
+    {
+        // issued at 2026-09-28T10:00:00+00:00 by the former inline hash_hmac implementation
+        $token = 'uFhlmrRHhtPb4IJ8rjx9V041eVBqNnY3K0NxNDFoc1pUNXZUOGhSZWlSNG44dFZsTFAyZkZpL2dqZng4Tk1hay9ZTHFhK0srTTdiZEZaRWkyUDBQenZHbnExL2xEVUsvTnAyWTRLa3ZhZHB1R3ZidFVPTmdkWTlxYXlnPQ==';
+        $generator = new ImitateCustomerTokenGenerator(
+            self::APP_SECRET,
+            $this->jwtConfiguration,
+            $this->dataValidator,
+            new MockClock('2026-09-28T10:30:00+00:00'),
+        );
+
+        $generator->validate($token, self::SALES_CHANNEL_ID, self::CUSTOMER_ID, self::USER_ID);
+    }
+
     public function testEncodeDecode(): void
     {
         $tokenStruct = new ImitateCustomerToken();
@@ -136,7 +156,7 @@ class ImitateCustomerTokenGeneratorTest extends TestCase
             throw CustomerException::invalidImitationToken($salesChannelId . ':' . $customerId . ':' . $userId);
         }
 
-        return $this->encrypt(hash_hmac(ImitateCustomerTokenGenerator::HMAC_HASH_ALGORITHM, $data, self::APP_SECRET) . '.' . $time);
+        return $this->encrypt(hash_hmac('sha256', $data, self::APP_SECRET) . '.' . $time);
     }
 
     private function encrypt(string $token): string

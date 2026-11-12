@@ -228,7 +228,7 @@ class InfoController extends AbstractController
                 'hideUpdateModule' => (bool) $this->params->get('shopware.auto_update.hide_module'),
                 'minSearchTermLength' => $this->systemConfigService->getInt('core.search.minSearchTermLength') ?: 2,
                 'productDocuments' => [
-                    'allowedExtensions' => array_keys($productDocumentMimeTypesByExtension),
+                    'allowedExtensions' => array_map(strval(...), array_keys($productDocumentMimeTypesByExtension)),
                     'allowedMimeTypesByExtension' => $productDocumentMimeTypesByExtension,
                     // presigned uploads go straight to the storage, past PHP's limits
                     'maxFileSize' => $presignedUploadSupported ? $this->productDocumentConfig->maxFileSize : $this->productDocumentConfig->getMaxUploadFileSize(),

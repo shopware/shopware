@@ -753,6 +753,12 @@ This covers `sw-tabs`, `sw-loader`, `sw-popover`, `sw-skeleton-bar`, the `items`
 
 Deprecation notices for the legacy Twig override shim and for deprecated extension SDK position identifiers and data sets still only warn and do not throw, because no removal version exists for them yet.
 
+### Deprecated Administration APIs warn when they are used
+
+Deprecated Administration JavaScript APIs now call `Shopware.Feature.triggerDeprecationOrThrow()` when they are used: deprecated `Shopware.*` globals including `Shopware.State`, services, exported functions, component `methods` and `computed` members, also through `this.$super()`, as well as deprecated components and props.
+In development builds, a use logs a warning naming the API and its replacement.
+With the next major flag active, it throws unless baselined.
+
 ### Unused runtime packages removed from the Administration
 
 The Administration no longer ships these packages:

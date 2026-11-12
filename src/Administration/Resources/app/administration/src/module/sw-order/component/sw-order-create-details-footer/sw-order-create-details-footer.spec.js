@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
 import Criteria from 'src/core/data/criteria.data';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 /**
  * @sw-package checkout
@@ -35,6 +36,7 @@ describe('src/module/sw-order/component/sw-order-create-details-footer', () => {
     let wrapper;
 
     beforeEach(async () => {
+        allowDeprecation('The component "sw-order-create-details-footer" is deprecated');
         wrapper = await createWrapper();
     });
 

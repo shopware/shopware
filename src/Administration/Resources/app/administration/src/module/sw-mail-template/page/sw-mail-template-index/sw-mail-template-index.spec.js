@@ -134,6 +134,23 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
      * @deprecated tag:v6.8.0 - This test will be removed.
      */
     describe('tabbed layout', () => {
+        let error;
+
+        /**
+         * The listing mixin still calls the deprecated `getList()` of the page when it is created. Where the test
+         * itself activates the major, the guard logs that baselined deprecation instead of recording it.
+         */
+        function expectOnlyTheGetListNotice() {
+            error.mock.calls.forEach(([label, message]) => {
+                expect(label).toBe('[Deprecation]');
+                expect(message).toContain('sw-mail-template-index.getList() is deprecated');
+            });
+        }
+
+        beforeEach(() => {
+            error = jest.spyOn(console, 'error').mockImplementation(() => {});
+        });
+
         it.activeFeatureFlags(['v6.8.0.0'])('should render meteor tabs with router-view instead of lists', async () => {
             const wrapper = await createWrapper({
                 routeName: 'sw.mail.template.index.header_footer',
@@ -158,6 +175,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
             expect(wrapper.findComponent({ name: 'router-view' }).exists()).toBe(true);
             expect(wrapper.findComponent({ name: 'sw-mail-template-list' }).exists()).toBe(false);
             expect(wrapper.findComponent({ name: 'sw-mail-header-footer-list' }).exists()).toBe(false);
+            expectOnlyTheGetListNotice();
         });
 
         it.activeFeatureFlags(['v6.8.0.0'])('should navigate when a meteor tab item is clicked', async () => {
@@ -171,6 +189,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
             headerFooterTab.onClick();
 
             expect(routerPush).toHaveBeenCalledWith({ name: 'sw.mail.template.index.header_footer' });
+            expectOnlyTheGetListNotice();
         });
     });
 });

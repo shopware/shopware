@@ -147,7 +147,9 @@ export default Shopware.Component.wrapComponentConfig({
         createdComponent() {
             // @deprecated tag:v6.8.0 - Remove together with getUserConfig()
             if (!Shopware.Feature.isActive('v6.8.0.0')) {
-                void this.getUserConfig();
+                Shopware.Feature.silence('V6_8_0_0', () => {
+                    void this.getUserConfig();
+                });
             }
 
             void Shopware.Store.get('whatsNew').load();
@@ -174,6 +176,11 @@ export default Shopware.Component.wrapComponentConfig({
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         async getUserConfig() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-index.getUserConfig() is deprecated. Will be removed without replacement.',
+            );
+
             const config = (await Shopware.Service('userConfigService').search(['settings.hideRenameBanner']))?.data?.[
                 'settings.hideRenameBanner'
             ] as { value?: boolean } | undefined;
@@ -185,6 +192,11 @@ export default Shopware.Component.wrapComponentConfig({
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         async onCloseSettingRenameBanner() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-index.onCloseSettingRenameBanner() is deprecated. Will be removed without replacement.',
+            );
+
             this.hideSettingRenameBanner = true;
 
             await Shopware.Service('userConfigService').upsert({

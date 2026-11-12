@@ -118,6 +118,11 @@ export default {
          * @deprecated tag:v6.9.0 - Removed with document generation v1.
          */
         documentModal() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_9_0_0',
+                'sw-order-document-card.documentModal is deprecated. Removed with document generation v1.',
+            );
+
             const subComponentName = this.currentDocumentType.technicalName.replace(/_/g, '-');
 
             if (this.$.appContext.components[`sw-order-document-settings-${subComponentName}-modal`]) {
@@ -278,6 +283,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
         dateFilter() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-document-card.dateFilter is deprecated and will be removed, because the filter is unused.',
+            );
+
             return Shopware.Filter.getByName('date');
         },
 
@@ -349,6 +359,11 @@ export default {
          * @deprecated tag:v6.9.0 - Removed with document generation v1.
          */
         convertStoreEventToVueEvent({ action, payload }) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_9_0_0',
+                'sw-order-document-card.convertStoreEventToVueEvent() is deprecated. Removed with document generation v1.',
+            );
+
             if (action === DocumentEvents.DOCUMENT_FAILED) {
                 let errorMessage = payload.detail;
                 if (payload.code === 'DOCUMENT__NUMBER_ALREADY_EXISTS') {
@@ -407,6 +422,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         documentTypeAvailable(documentType) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-document-card.documentTypeAvailable() is deprecated. Will be removed without replacement.',
+            );
+
             return (
                 (documentType.technicalName !== DOCUMENT_TYPES.CANCELLATION_INVOICE &&
                     documentType.technicalName !== DOCUMENT_TYPES.CREDIT_NOTE) ||
@@ -420,6 +440,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         invoiceExists() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-document-card.invoiceExists() is deprecated. Will be removed without replacement.',
+            );
+
             return this.documents.some((document) => {
                 return (
                     document.documentType.technicalName === DOCUMENT_TYPES.INVOICE ||
@@ -438,6 +463,11 @@ export default {
          * @deprecated tag:v6.9.0 - Removed with document generation v1.
          */
         createDocument(orderId, documentTypeName, params, referencedDocumentId, file) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_9_0_0',
+                'sw-order-document-card.createDocument() is deprecated. Removed with document generation v1.',
+            );
+
             return this.documentService.createDocument(
                 orderId,
                 documentTypeName,
@@ -485,6 +515,11 @@ export default {
          * @deprecated tag:v6.9.0 - Removed with document generation v1.
          */
         onCancelCreation() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_9_0_0',
+                'sw-order-document-card.onCancelCreation() is deprecated. Removed with document generation v1.',
+            );
+
             this.showModal = false;
             this.currentDocumentType = null;
         },
@@ -493,6 +528,11 @@ export default {
          * @deprecated tag:v6.9.0 - Removed with document generation v1.
          */
         onPrepareDocument() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_9_0_0',
+                'sw-order-document-card.onPrepareDocument() is deprecated. Removed with document generation v1.',
+            );
+
             this.showModal = true;
         },
 
@@ -500,6 +540,11 @@ export default {
          * @deprecated tag:v6.9.0 - Removed with document generation v1.
          */
         openDocument(documentId, documentDeepLink, fileType) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_9_0_0',
+                'sw-order-document-card.openDocument() is deprecated. Removed with document generation v1.',
+            );
+
             this.documentService
                 .getDocument(documentId, documentDeepLink, Shopware.Context.api, true, fileType)
                 .then((response) => {

@@ -55,6 +55,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed
          */
         resultCriteria() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-condition-line-item.resultCriteria is deprecated. Will be removed without replacement.',
+            );
+
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('options.group');
 

@@ -201,7 +201,10 @@
         {% endblock %}
     </template>
 
-    <template v-else>
+    <sw-silence-deprecations
+        v-else
+        flag="V6_9_0_0"
+    >
         <sw-tabs
             position-identifier="sw-cms-layout-assignment-modal"
             class="sw-cms-layout-assignment-modal__tabs"
@@ -392,7 +395,7 @@
 
             </template>
         </sw-tabs>
-    </template>
+    </sw-silence-deprecations>
     {% endblock %}
 
     {% block sw_cms_layout_assignment_modal_confirm_changes %}

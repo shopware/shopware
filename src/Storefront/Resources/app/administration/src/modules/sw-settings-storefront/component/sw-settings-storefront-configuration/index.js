@@ -8,6 +8,11 @@ import './sw-settings-storefront-configuration.scss';
 export default {
     template,
 
+    deprecated: {
+        version: 'v6.8.0.0',
+        comment: 'Will be removed without replacement.',
+    },
+
     inject: ['feature'],
 
     props: {

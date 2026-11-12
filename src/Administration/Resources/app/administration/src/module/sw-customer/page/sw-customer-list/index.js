@@ -103,6 +103,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         filterSelectCriteria() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-customer-list.filterSelectCriteria is deprecated. Will be removed without replacement.',
+            );
+
             const criteria = new Criteria(1, 1);
             criteria.addFilter(
                 Criteria.not('AND', [Criteria.equals('affiliateCode', null), Criteria.equals('campaignCode', null)]),
@@ -214,6 +219,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         createdComponent() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-customer-list.createdComponent() is deprecated. Will be removed without replacement.',
+            );
+
             return Promise.resolve();
         },
 
@@ -424,6 +434,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         loadFilterValues() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-customer-list.loadFilterValues() is deprecated. Will be removed without replacement.',
+            );
+
             this.filterLoading = true;
 
             return this.customerRepository
@@ -444,6 +459,11 @@ export default {
          * @deprecated tag:v6.8.0 - Use listing mixin implementation directly
          */
         updateCriteria(criteria) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-customer-list.updateCriteria() is deprecated. Use listing mixin implementation directly.',
+            );
+
             // Delegate to listing mixin implementation
             return Mixin.getByName('listing').methods.updateCriteria.call(this, criteria);
         },

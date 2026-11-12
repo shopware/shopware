@@ -22,6 +22,10 @@ export default {
             type: String,
             required: false,
             default: '',
+            deprecated: {
+                version: 'v6.8.0.0',
+                comment: 'Will be removed without replacement.',
+            },
         },
     },
 
@@ -48,6 +52,11 @@ export default {
 
         /** @deprecated tag:v6.8.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
         assetFilter() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                "sw-mail-template-list.assetFilter is deprecated. Use Shopware.Filter.getByName('asset') instead.",
+            );
+
             return Shopware.Filter.getByName('asset');
         },
     },

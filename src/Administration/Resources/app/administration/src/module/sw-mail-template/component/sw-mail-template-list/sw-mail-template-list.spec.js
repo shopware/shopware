@@ -2,6 +2,7 @@
  * @sw-package after-sales
  */
 import { mount } from '@vue/test-utils';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 const createWrapper = async (privileges = [], term = '') => {
     return mount(await wrapTestComponent('sw-mail-template-list', { sync: true }), {
@@ -95,6 +96,10 @@ const createWrapper = async (privileges = [], term = '') => {
 };
 
 describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
+    beforeEach(() => {
+        allowDeprecation('sw-mail-template-list.assetFilter is deprecated');
+    });
+
     it('should not allow to duplicate without create permission', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

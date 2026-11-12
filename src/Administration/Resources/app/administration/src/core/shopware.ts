@@ -184,9 +184,31 @@ class ShopwareClass implements CustomShopwareProperties {
     };
 
     /**
+     * The Vuex state behind the deprecated `State` facade. The boot sequence still has to populate it,
+     * and reaching for the backing field keeps core from tripping the guard it installs for extensions.
+     *
+     * @private
+     */
+    public _state = StateFactory();
+
+    /**
      * @deprecated tag:v6.8.0 - Will be removed, use Store instead.
      */
-    public State = StateFactory();
+    public get State() {
+        // Through `this.Feature`, so a replaced `Shopware.Feature`, like the Jest mock, guards it too.
+        this.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'Shopware.State is deprecated. Use Shopware.Store instead.');
+
+        return this._state;
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use Store instead.
+     */
+    public set State(state: ShopwareClass['_state']) {
+        this.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'Shopware.State is deprecated. Use Shopware.Store instead.');
+
+        this._state = state;
+    }
 
     public Store = Store.instance;
 

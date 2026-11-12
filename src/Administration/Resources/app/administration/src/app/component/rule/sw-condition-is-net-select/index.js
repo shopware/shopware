@@ -4,6 +4,11 @@
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
+    deprecated: {
+        version: 'v6.8.0.0',
+        comment: 'Use sw-condition-generic instead.',
+    },
+
     computed: {
         operator: {
             get() {

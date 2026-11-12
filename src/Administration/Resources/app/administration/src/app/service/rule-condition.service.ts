@@ -270,6 +270,10 @@ export default class RuleConditionService {
             }
         }
 
+        if (this.isDeliveryContainer({ type } as Condition)) {
+            return { type, label: 'global.sw-condition.condition.deliveryCondition.delivery' } as Condition;
+        }
+
         return this.$store[type];
     }
 

@@ -863,12 +863,18 @@ export const AWARENESS_CONFIGURATIONS = (service: RuleConditionService): Awarene
     const orderRestrictions = service
         .getRestrictionsByGroup(GROUPS.ORDER)
         .filter((type) => service.getByType(type).scopes.indexOf(SCOPES.CHECKOUT) === -1);
+    const promotionRestrictions = [
+        'cartCartAmount',
+        'cartShippingCost',
+        'deliveryContainer',
+        ...orderRestrictions,
+    ];
 
     return [
         {
             name: 'personaPromotions',
             config: {
-                notEquals: ['cartCartAmount', 'cartShippingCost', ...orderRestrictions],
+                notEquals: [...promotionRestrictions],
                 equalsAny: ['alwaysValid', ...service.getRestrictionsByGroup(GROUPS.CUSTOMER)],
                 snippet: 'sw-restricted-rules.restrictedAssignment.personaPromotions',
             },
@@ -876,28 +882,28 @@ export const AWARENESS_CONFIGURATIONS = (service: RuleConditionService): Awarene
         {
             name: 'orderPromotions',
             config: {
-                notEquals: ['cartCartAmount', 'cartShippingCost', ...orderRestrictions],
+                notEquals: [...promotionRestrictions],
                 snippet: 'sw-restricted-rules.restrictedAssignment.orderPromotions',
             },
         },
         {
             name: 'cartPromotions',
             config: {
-                notEquals: ['cartCartAmount', 'cartShippingCost', ...orderRestrictions],
+                notEquals: [...promotionRestrictions],
                 snippet: 'sw-restricted-rules.restrictedAssignment.cartPromotions',
             },
         },
         {
             name: 'promotionSetGroups',
             config: {
-                notEquals: ['cartCartAmount', 'cartShippingCost', ...orderRestrictions],
+                notEquals: [...promotionRestrictions],
                 snippet: 'sw-restricted-rules.restrictedAssignment.promotionSetGroups',
             },
         },
         {
             name: 'promotionDiscounts',
             config: {
-                notEquals: ['cartCartAmount', 'cartShippingCost', ...orderRestrictions],
+                notEquals: [...promotionRestrictions],
                 snippet: 'sw-restricted-rules.restrictedAssignment.promotionDiscounts',
             },
         },
@@ -918,7 +924,7 @@ export const AWARENESS_CONFIGURATIONS = (service: RuleConditionService): Awarene
         {
             name: 'paymentMethods',
             config: {
-                notEquals: [...orderRestrictions],
+                notEquals: ['deliveryContainer', ...orderRestrictions],
                 snippet: 'sw-restricted-rules.restrictedAssignment.paymentMethods',
             },
         },

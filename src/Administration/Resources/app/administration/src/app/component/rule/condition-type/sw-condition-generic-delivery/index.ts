@@ -6,6 +6,8 @@ type RuleCondition = EntitySchema.Entity<'rule_condition'>;
 type AppliesTo = 'cart' | 'delivery';
 type CreateCondition = (conditionData: Record<string, unknown>, parentId: string | null, position: number) => RuleCondition;
 type MoveNode = (parentCondition: RuleCondition, condition: RuleCondition) => void;
+type RestrictedAssignment = { associationName: string; snippet: string };
+type AppliesToOption = { value: AppliesTo; label: string; disabled: boolean };
 
 /**
  * @private
@@ -21,6 +23,7 @@ export default Shopware.Component.wrapComponentConfig({
         createCondition: { from: 'createCondition' },
         childAssociationField: { from: 'childAssociationField' },
         unwrapDeliveryCondition: { from: 'unwrapDeliveryCondition', default: null },
+        restrictedConditions: { from: 'restrictedConditions', default: () => ({}) },
     },
 
     props: {
@@ -41,15 +44,21 @@ export default Shopware.Component.wrapComponentConfig({
             return Shopware.Feature.isActive('V6_8_0_0');
         },
 
-        appliesToOptions(): { value: AppliesTo; label: string }[] {
+        deliveryRestrictions(): RestrictedAssignment[] {
+            return (this.restrictedConditions as Record<string, RestrictedAssignment[]>).deliveryContainer ?? [];
+        },
+
+        appliesToOptions(): AppliesToOption[] {
             return [
                 {
                     value: 'cart',
                     label: this.$t('global.sw-condition.condition.deliveryCondition.cart'),
+                    disabled: false,
                 },
                 {
                     value: 'delivery',
                     label: this.$t('global.sw-condition.condition.deliveryCondition.delivery'),
+                    disabled: this.deliveryRestrictions.length > 0,
                 },
             ];
         },
@@ -75,6 +84,28 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
+        getOptionTooltip(option: AppliesToOption): { message: string; disabled: boolean; width?: number } {
+            if (!option.disabled) {
+                return { message: '', disabled: true };
+            }
+
+            const assignments = this.deliveryRestrictions
+                .map(({ associationName, snippet }) => {
+                    const relation = /promotion/i.test(associationName) ? 'promotion' : associationName;
+
+                    return this.$t(`sw-restricted-rules.restrictedConditions.relation.${relation}`, {
+                        assignments: `"${this.$t(snippet, 1)}"`,
+                    });
+                })
+                .join('<br />');
+
+            return {
+                disabled: false,
+                width: 260,
+                message: this.$t('sw-restricted-rules.restrictedConditions.restrictedConditionTooltip', { assignments }),
+            };
+        },
+
         wrapCondition(): void {
             const parentCondition = this.parentCondition as RuleCondition;
             const childAssociationField = this.childAssociationField as string;

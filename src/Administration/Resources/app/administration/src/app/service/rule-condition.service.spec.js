@@ -444,6 +444,14 @@ describe('src/app/service/rule-condition.service.js', () => {
         });
     });
 
+    it('should name the delivery container in restriction messages', () => {
+        const ruleConditionService = new RuleConditionService();
+
+        expect(ruleConditionService.getByType('deliveryContainer').label).toBe(
+            'global.sw-condition.condition.deliveryCondition.delivery',
+        );
+    });
+
     it('should render a delivery container with the delivery container component', () => {
         const ruleConditionService = new RuleConditionService();
 

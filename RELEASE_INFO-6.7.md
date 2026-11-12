@@ -355,6 +355,13 @@ Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations
 
 The property is unused and will be removed in 6.8.
 
+### "Assign status" flow action picks the delivery and transaction of the flow
+
+The Flow Builder action "Assign status" (`action.set.order.state`) now changes the delivery and the transaction the flow carries as `orderDelivery` and `orderTransaction` data, if they belong to the order, for example on the delivery and transaction state triggers.
+Otherwise it changes the delivery with the highest shipping costs and the newest transaction, as before.
+With `v6.8.0.0`, it changes the primary delivery and the primary transaction of the order (`primaryOrderDeliveryId`, `primaryOrderTransactionId`) before it falls back, like the Administration, documents and order status rules do.
+Orders placed through the checkout get the same delivery and transaction either way, because their primary delivery has the highest shipping costs and their primary transaction is the newest one.
+
 ### Delivery notes of a single delivery
 
 A delivery note can be generated for one delivery of an order.

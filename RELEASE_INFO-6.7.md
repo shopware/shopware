@@ -400,6 +400,7 @@ On the stateless revision there is no MCP session:
   The notifications go through `cache.app`, so setups with several hosts need a shared `cache.app`, for example Redis.
 * Each open `subscriptions/listen` stream occupies a PHP worker for up to 30 seconds before the client reconnects.
   Account for it in `pm.max_children`.
+
 ### Event once all line items of an add are in the cart
 
 `CartItemAddRoute` dispatches the new `Shopware\Core\Checkout\Cart\Event\LineItemsAddedBeforeCalculationEvent` once per add, after `BeforeLineItemAddedEvent` was dispatched for each line item and before the cart is calculated.

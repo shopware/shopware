@@ -134,11 +134,13 @@ class CacheInvalidationSubscriberTest extends TestCase
     public function testInvalidateMediaClearsTheDetailPagesOfTheProductsWhoseDocumentsUseTheFile(): void
     {
         $context = Context::createDefaultContext();
-        static::getContainer()->get('media.repository')->create([
-            ['id' => $this->ids->create('manual')],
-            ['id' => $this->ids->create('handbuch')],
-            ['id' => $this->ids->create('blue-sheet')],
-        ], $context);
+        static::getContainer()->get('media.repository')->create(array_map(fn (string $name): array => [
+            'id' => $this->ids->create($name),
+            'fileName' => $name,
+            'fileExtension' => 'pdf',
+            'mimeType' => 'application/pdf',
+            'fileSize' => 1024,
+        ], ['manual', 'handbuch', 'blue-sheet']), $context);
 
         $blue = (new ProductBuilder($this->ids, 'drill-blue'))->build();
         $blue['documents'] = [['title' => 'Blue sheet', 'mediaId' => $this->ids->get('blue-sheet')]];

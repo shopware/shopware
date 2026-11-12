@@ -52,7 +52,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             diagnoseRequestSequence: 0,
             latestDiagnoseRequestId: 0,
             draftMutationService: () => ({ diagnose }),
-            resolveMutationRootSource: () => 'category',
+            getLayoutRootSource: () => 'category',
         };
 
         await methods.diagnoseLayout.call(vm);
@@ -74,7 +74,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             latestDiagnoseRequestId: 0,
             diagnoseTimeoutId: null as number | null,
             draftMutationService: () => ({ diagnose }),
-            resolveMutationRootSource: () => 'category',
+            getLayoutRootSource: () => 'category',
             diagnoseLayout() {
                 return methods.diagnoseLayout.call(this);
             },

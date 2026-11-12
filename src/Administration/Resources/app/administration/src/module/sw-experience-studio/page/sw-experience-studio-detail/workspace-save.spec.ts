@@ -56,6 +56,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail workspace
             isLayoutDirty: () => true,
             saveOpenLayout: methods.saveOpenLayout,
             reloadSavedLayout: methods.reloadSavedLayout,
+            diagnoseLayout: jest.fn().mockResolvedValue(undefined),
             serializeLayoutState: (layout: typeof savedLayout) => JSON.stringify(layout),
             getLayoutRootSource: (layout: typeof savedLayout) => layout.rootSource,
             extractApiErrorDetail: () => null,

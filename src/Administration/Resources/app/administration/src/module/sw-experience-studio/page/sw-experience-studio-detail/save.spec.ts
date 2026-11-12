@@ -1,10 +1,21 @@
 import type { ContentElementNode } from 'src/core/service/content-element.types';
+import type { ContentSystemViolation } from 'src/core/service/api/content-system-layout-draft-mutation.api.service';
 import Entity from 'src/core/data/entity.data';
 import { createContentLayoutRepository } from '../../util/content-layout-repository.util';
 import detailComponent from './index';
 
 const methods = (detailComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> }).methods;
+const computed = (detailComponent as unknown as { computed: Record<string, (...args: unknown[]) => unknown> }).computed;
 const { cloneDeep } = Shopware.Utils.object;
+const missingMedia: ContentSystemViolation = {
+    code: 'missing_required_property',
+    scope: 'intrinsic',
+    severity: 'error',
+    elementId: 'image',
+    key: 'media',
+    message: 'Required property "media" has no value.',
+    candidates: [],
+};
 
 function createEditor(elements: ContentElementNode[] = []) {
     const repository = createContentLayoutRepository(Shopware.Service('repositoryFactory').create('content_layout'));
@@ -14,10 +25,17 @@ function createEditor(elements: ContentElementNode[] = []) {
         rootSource: 'category',
         layout: elements,
     });
+    const diagnose = jest.fn().mockResolvedValue({ diagnostics: { violations: [] } });
     return {
         layout,
         activeLayoutId: layout.id,
         allowSave: true,
+        selectedElementId: elements[0]?.id ?? null,
+        diagnostics: [] as ContentSystemViolation[],
+        showDiagnostics: false,
+        diagnoseTimeoutId: null as number | null,
+        diagnoseRequestSequence: 0,
+        latestDiagnoseRequestId: 0,
         openLayouts: [{ id: layout.id, layout, savedState: '', isNew: true, isSaving: false, saveError: null }],
         layoutLoadCriteria: {},
         layoutRepository: {
@@ -28,6 +46,8 @@ function createEditor(elements: ContentElementNode[] = []) {
         getLayoutRootSource: (value: typeof layout) => value.rootSource,
         extractApiErrorDetail: methods.extractApiErrorDetail,
         reloadSavedLayout: methods.reloadSavedLayout,
+        diagnoseLayout: jest.fn(methods.diagnoseLayout),
+        draftMutationService: () => ({ diagnose }),
         createNotificationError: jest.fn(),
         $t: (key: string) => key,
     };
@@ -40,6 +60,7 @@ describe('workspace layout save errors and reload', () => {
         editor.layoutRepository.save.mockRejectedValue({
             response: { data: { errors: [{ detail: 'Required property "media" has no value.' }] } },
         });
+        editor.draftMutationService().diagnose.mockResolvedValue({ diagnostics: { violations: [missingMedia] } });
 
         expect(await methods.saveOpenLayout.call(editor, 'layout-1')).toBe(false);
 
@@ -49,6 +70,12 @@ describe('workspace layout save errors and reload', () => {
         expect(editor.layout.isNew()).toBe(true);
         expect(editor.layoutRepository.get).not.toHaveBeenCalled();
         expect(methods.serializeLayoutState.call(editor, editor.layout)).toBe(authored);
+        expect(editor.draftMutationService().diagnose).toHaveBeenCalledWith({
+            layout: [{ id: 'image', component: 'Sw:Media:Image', properties: {} }],
+            rootSource: 'category',
+        });
+        expect(editor.showDiagnostics).toBe(true);
+        expect(computed.selectedElementViolations.call(editor)).toEqual([missingMedia]);
     });
 
     it('uses the generic error when the rejection carries no API detail', async () => {
@@ -59,6 +86,79 @@ describe('workspace layout save errors and reload', () => {
 
         expect(editor.openLayouts[0].saveError).toBe('sw-experience-studio.detail.messageSaveError');
         expect(editor.openLayouts[0].isSaving).toBe(false);
+    });
+
+    it('clears the failed-save field highlights after a successful retry', async () => {
+        const editor = createEditor([{ id: 'image', component: 'Sw:Media:Image', properties: {} }]);
+        editor.layoutRepository.save.mockRejectedValueOnce(new Error('Save refused'));
+        editor.draftMutationService().diagnose.mockResolvedValue({ diagnostics: { violations: [missingMedia] } });
+        expect(await methods.saveOpenLayout.call(editor, editor.layout.id)).toBe(false);
+        expect(computed.selectedElementViolations.call(editor)).toEqual([missingMedia]);
+
+        expect(await methods.saveOpenLayout.call(editor, editor.layout.id)).toBe(true);
+
+        expect(editor.showDiagnostics).toBe(false);
+        expect(computed.selectedElementViolations.call(editor)).toEqual([]);
+        expect(editor.openLayouts[0].saveError).toBeNull();
+        expect(editor.draftMutationService().diagnose).toHaveBeenCalledTimes(1);
+    });
+
+    it.each([false, true])(
+        'keeps the active layout diagnostics visible=%s when another layout fails to save',
+        async (visible) => {
+            const editor = createEditor([{ id: 'image', component: 'Sw:Media:Image', properties: {} }]);
+            editor.layoutRepository.save.mockRejectedValue(new Error('Save refused'));
+            editor.draftMutationService().diagnose.mockResolvedValue({ diagnostics: { violations: [missingMedia] } });
+            const saving = methods.saveOpenLayout.call(editor, editor.layout.id);
+            const active = createEditor().layout;
+            Object.assign(active, { id: 'other-layout', rootSource: 'product' });
+            editor.layout = active;
+            editor.activeLayoutId = active.id;
+            const activeDiagnostics = [{ ...missingMedia, elementId: 'other-image' }];
+            editor.diagnostics = activeDiagnostics;
+            editor.showDiagnostics = visible;
+            editor.diagnoseRequestSequence = 7;
+            editor.latestDiagnoseRequestId = 7;
+
+            expect(await saving).toBe(false);
+
+            expect(editor.draftMutationService().diagnose).toHaveBeenCalledWith({
+                layout: [{ id: 'image', component: 'Sw:Media:Image', properties: {} }],
+                rootSource: 'category',
+            });
+            expect(editor.layout).toBe(active);
+            expect(editor.diagnostics).toBe(activeDiagnostics);
+            expect(editor.showDiagnostics).toBe(visible);
+            expect(editor.latestDiagnoseRequestId).toBe(7);
+            expect(editor.openLayouts[0].saveError).toBe('sw-experience-studio.detail.messageSaveError');
+        },
+    );
+
+    it('does not apply a failed-save diagnosis after the active layout changes', async () => {
+        const editor = createEditor([{ id: 'image', component: 'Sw:Media:Image', properties: {} }]);
+        editor.layoutRepository.save.mockRejectedValue(new Error('Save refused'));
+        let finishDiagnosis!: () => void;
+        editor.draftMutationService().diagnose.mockImplementation(
+            () =>
+                new Promise((resolve) => {
+                    finishDiagnosis = () => resolve({ diagnostics: { violations: [missingMedia] } });
+                }),
+        );
+        const saving = methods.saveOpenLayout.call(editor, editor.layout.id);
+        await flushPromises();
+        expect(editor.draftMutationService().diagnose).toHaveBeenCalledTimes(1);
+        const active = createEditor().layout;
+        Object.assign(active, { id: 'other-layout' });
+        editor.layout = active;
+        editor.activeLayoutId = active.id;
+        const activeDiagnostics = [{ ...missingMedia, elementId: 'other-image' }];
+        editor.diagnostics = activeDiagnostics;
+        finishDiagnosis();
+
+        expect(await saving).toBe(false);
+        expect(editor.diagnostics).toBe(activeDiagnostics);
+        expect(editor.showDiagnostics).toBe(false);
+        expect(editor.createNotificationError).not.toHaveBeenCalled();
     });
 
     it('retains the saved snapshot when the subsequent reload fails', async () => {

@@ -15,11 +15,12 @@ const violation: ContentSystemViolation = {
 const createVm = (diagnose: jest.Mock) => ({
     layout: { id: 'layout-1', name: 'Layout', layout: [] },
     diagnostics: [violation],
+    showDiagnostics: false,
     diagnoseTimeoutId: null as number | null,
     diagnoseRequestSequence: 0,
     latestDiagnoseRequestId: 0,
     draftMutationService: () => ({ diagnose }),
-    resolveMutationRootSource: () => 'product',
+    getLayoutRootSource: () => 'product',
     createNotificationError: jest.fn(),
     $t: (key: string) => `translated:${key}`,
     diagnoseLayout() {
@@ -28,6 +29,31 @@ const createVm = (diagnose: jest.Mock) => ({
 });
 
 describe('Experience Studio diagnosis failures', () => {
+    it('does not reveal a failed-save report invalidated by an edit while diagnosis runs', async () => {
+        jest.useFakeTimers();
+        let finishDiagnosis = () => {};
+        const diagnose = jest.fn(
+            () =>
+                new Promise((resolve) => {
+                    finishDiagnosis = () => resolve({ diagnostics: { violations: [violation] } });
+                }),
+        );
+        const vm = createVm(diagnose);
+
+        try {
+            const diagnosis = methods.diagnoseLayout.call(vm, vm.layout, { showDiagnostics: true });
+            methods.scheduleDiagnoseLayout.call(vm);
+            finishDiagnosis();
+            await diagnosis;
+
+            expect(vm.showDiagnostics).toBe(false);
+            expect(vm.createNotificationError).not.toHaveBeenCalled();
+        } finally {
+            jest.clearAllTimers();
+            jest.useRealTimers();
+        }
+    });
+
     it('clears outdated findings and notifies when the current diagnosis fails', async () => {
         const vm = createVm(jest.fn().mockRejectedValue(new Error('Diagnosis unavailable')));
 

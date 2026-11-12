@@ -1853,33 +1853,44 @@ export default Shopware.Component.wrapComponentConfig({
             return Shopware.Service('contentSystemLayoutDraftMutationService') as ContentSystemLayoutDraftMutationService;
         },
 
-        async diagnoseLayout(): Promise<void> {
-            if (this.diagnoseTimeoutId !== null) {
+        async diagnoseLayout(
+            targetLayout?: ContentLayoutEntity | null,
+            options: { showDiagnostics?: boolean } = {},
+        ): Promise<void> {
+            const layout = targetLayout === undefined ? this.layout : targetLayout;
+            const isActive = layout === this.layout;
+            if (isActive && this.diagnoseTimeoutId !== null) {
                 window.clearTimeout(this.diagnoseTimeoutId);
                 this.diagnoseTimeoutId = null;
             }
 
-            if (!this.layout) {
+            if (!layout) {
                 this.diagnostics = [];
 
                 return;
             }
 
-            const requestId = this.diagnoseRequestSequence + 1;
-            this.diagnoseRequestSequence = requestId;
-            this.latestDiagnoseRequestId = requestId;
+            const requestId = isActive ? this.diagnoseRequestSequence + 1 : null;
+            if (requestId !== null) {
+                this.diagnoseRequestSequence = requestId;
+                this.latestDiagnoseRequestId = requestId;
+            }
+            const isCurrentRequest = (): boolean => layout === this.layout && requestId === this.latestDiagnoseRequestId;
 
             try {
                 const response = await this.draftMutationService().diagnose({
-                    layout: cloneDeep(this.layout.layout),
-                    rootSource: this.resolveMutationRootSource(),
+                    layout: cloneDeep(layout.layout),
+                    rootSource: this.getLayoutRootSource(layout),
                 });
 
-                if (requestId === this.latestDiagnoseRequestId) {
+                if (isCurrentRequest()) {
                     this.diagnostics = response.diagnostics.violations;
+                    if (options.showDiagnostics) {
+                        this.showDiagnostics = true;
+                    }
                 }
             } catch {
-                if (requestId === this.latestDiagnoseRequestId) {
+                if (isCurrentRequest()) {
                     this.diagnostics = [];
                     this.createNotificationError({
                         message: this.$t('sw-experience-studio.detail.messageDiagnoseError'),
@@ -2309,6 +2320,9 @@ export default Shopware.Component.wrapComponentConfig({
                 await this.layoutRepository.save(openLayout.layout, Shopware.Context.api);
                 openLayout.savedState = savedState;
                 openLayout.isNew = false;
+                if (this.activeLayoutId === layoutId) {
+                    this.showDiagnostics = false;
+                }
                 // The write succeeded even if reloading fails; subsequent edits must use PATCH.
                 openLayout.layout._isNew = false;
                 Object.assign(openLayout.layout.getOrigin(), savedDraft);
@@ -2321,6 +2335,7 @@ export default Shopware.Component.wrapComponentConfig({
             } catch (error) {
                 const detail = this.extractApiErrorDetail(error);
                 openLayout.saveError = detail ?? this.$t('sw-experience-studio.detail.messageSaveError');
+                await this.diagnoseLayout(openLayout.layout, { showDiagnostics: true });
 
                 return false;
             } finally {

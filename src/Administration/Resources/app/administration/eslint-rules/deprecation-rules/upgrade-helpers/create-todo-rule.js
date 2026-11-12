@@ -85,10 +85,6 @@ function mergeVisitors(...visitorSets) {
     return merged;
 }
 
-/**
- * @param {object} spec see the file comment
- * @returns {import('eslint').Rule.RuleModule}
- */
 function createTodoRule(spec) {
     const components = new Map(Object.entries(spec.components ?? {}));
     const members = spec.members ?? [];

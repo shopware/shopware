@@ -13,9 +13,6 @@ const MUSTACHE_PATTERN = /^{{([\s\S]*)}}$/;
 
 /**
  * Quotes a text as a single-quoted JS string.
- *
- * @param {string} text
- * @returns {string}
  */
 function quote(text) {
     return `'${text.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
@@ -33,9 +30,7 @@ function isExpression(code) {
 
 /**
  * Makes an expression usable inside a double-quoted attribute: double-quoted strings become single-quoted.
- *
- * @param {string} code
- * @returns {string|null} null when a double quote can't be replaced
+ * Returns `null` when a double quote can't be replaced.
  */
 function toAttributeExpression(code) {
     if (!code.includes('"')) {
@@ -66,10 +61,7 @@ function toAttributeExpression(code) {
 /**
  * Reads the content of an element as a JS expression for a prop. Plain text becomes a string literal,
  * a single interpolation like `{{ $t('key') }}` stays an expression, so the label is still translated.
- *
- * @param {import('eslint').SourceCode} sourceCode
- * @param {object} element VElement
- * @returns {{ code: string|null }|null} `code` is null for empty content; null for markup, Twig or mixed content
+ * Returns `{ code: null }` for empty content and `null` for markup, Twig or mixed content.
  */
 function readContentExpression(sourceCode, element) {
     if (!element.endTag) {

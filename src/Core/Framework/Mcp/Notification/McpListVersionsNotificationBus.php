@@ -26,7 +26,8 @@ use Symfony\Contracts\Cache\ItemInterface;
  * - cursor() packs the three versions into one integer, since() emits `list_changed` for each list whose
  *   version differs from the one packed into the cursor.
  * - A failing read never ends a stream: cursor() then returns an unknown cursor, for which the next successful
- *   since() emits `list_changed` for all three lists, and since() keeps the cursor it was given.
+ *   since() emits `list_changed` for all three lists, and since() keeps the cursor it was given. Only the first
+ *   failing read after a successful one is logged, because a stream polls about four times a second.
  * - Streams poll since() about four times a second. The versions are read through a `cache.app` item that
  *   lives one second, so each host reads the table at most once a second, however many streams are open.
  *
@@ -55,6 +56,8 @@ final class McpListVersionsNotificationBus implements NotificationBusInterface
      * Packed cursors are never negative, so this cannot collide with a real one.
      */
     private const UNKNOWN_CURSOR = -1;
+
+    private bool $readFailing = false;
 
     /**
      * @internal
@@ -91,9 +94,7 @@ final class McpListVersionsNotificationBus implements NotificationBusInterface
         try {
             return self::pack($this->versions());
         } catch (\Throwable $exception) {
-            $this->logger->warning('Could not read the MCP list versions to open a subscriptions/listen stream.', [
-                'exception' => $exception,
-            ]);
+            $this->logReadFailure('Could not read the MCP list versions to open a subscriptions/listen stream.', $exception);
 
             return self::UNKNOWN_CURSOR;
         }
@@ -108,9 +109,7 @@ final class McpListVersionsNotificationBus implements NotificationBusInterface
         try {
             $versions = $this->versions();
         } catch (\Throwable $exception) {
-            $this->logger->warning('Could not read the MCP list versions for a subscriptions/listen stream.', [
-                'exception' => $exception,
-            ]);
+            $this->logReadFailure('Could not read the MCP list versions for a subscriptions/listen stream.', $exception);
 
             return [[], $cursor];
         }
@@ -141,6 +140,16 @@ final class McpListVersionsNotificationBus implements NotificationBusInterface
         return [$notifications, $next];
     }
 
+    private function logReadFailure(string $message, \Throwable $exception): void
+    {
+        if ($this->readFailing) {
+            return;
+        }
+
+        $this->readFailing = true;
+        $this->logger->warning($message, ['exception' => $exception]);
+    }
+
     /**
      * @return array{tools: int, resources: int, prompts: int}
      */
@@ -151,6 +160,7 @@ final class McpListVersionsNotificationBus implements NotificationBusInterface
 
             return $this->listVersions->current();
         });
+        $this->readFailing = false;
 
         return [
             McpListVersions::TOOLS => self::version($versions, McpListVersions::TOOLS),

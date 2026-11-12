@@ -160,7 +160,7 @@ class McpListVersionsNotificationBusTest extends TestCase
             return ['tools' => 1, 'resources' => 1, 'prompts' => 1];
         });
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->exactly(2))->method('warning');
+        $logger->expects($this->once())->method('warning');
 
         $bus = new McpListVersionsNotificationBus($listVersions, new ArrayAdapter(), $logger);
         $cursor = $bus->cursor();
@@ -174,6 +174,36 @@ class McpListVersionsNotificationBusTest extends TestCase
             array_map(static fn (Notification $notification): string => $notification::class, $notifications),
         );
         static::assertSame([[], $next], $bus->since($next));
+    }
+
+    public function testOnlyTheFirstFailingReadOfAnOutageIsLogged(): void
+    {
+        $listVersions = static::createStub(McpListVersions::class);
+        $listVersions->method('current')->willReturnCallback(function (): array {
+            // reads 1-5 fail, read 6 works, reads 7-11 fail again: two outages
+            if (++$this->reads !== 6) {
+                throw new \RuntimeException('database down');
+            }
+
+            return ['tools' => 1, 'resources' => 1, 'prompts' => 1];
+        });
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->exactly(2))->method('warning');
+
+        $bus = new McpListVersionsNotificationBus($listVersions, new ArrayAdapter(clock: $this->clock), $logger);
+
+        for ($poll = 0; $poll < 5; ++$poll) {
+            $bus->since(42);
+        }
+
+        $cursor = $bus->since(42)[1];
+        $this->clock->sleep(McpListVersionsNotificationBus::CACHE_TTL + 1);
+
+        for ($poll = 0; $poll < 5; ++$poll) {
+            static::assertSame([[], $cursor], $bus->since($cursor));
+        }
+
+        static::assertSame(11, $this->reads);
     }
 
     public function testAnUnreadableCacheEntryCountsAsVersionZero(): void

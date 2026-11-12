@@ -169,7 +169,7 @@ class ProductDocumentRouteTest extends TestCase
             'mimeType' => 'application/pdf',
             'fileSize' => 1024,
             'path' => 'media/' . $name . '.pdf',
-        ], ['manual', 'handbuch', 'certificate', 'blue-sheet', 'datasheet', 'datenblatt']), $context);
+        ], ['manual', 'handbuch', 'certificate', 'certificate-copy', 'blue-sheet', 'datasheet', 'datenblatt']), $context);
 
         $blue = (new ProductBuilder($this->ids, 'drill-blue'))->build();
         $blue['documents'] = [['title' => 'Blue sheet', 'mediaId' => $this->ids->get('blue-sheet')]];
@@ -190,6 +190,7 @@ class ProductDocumentRouteTest extends TestCase
                 ],
             ],
             ['position' => 1, 'title' => 'Certificate', 'mediaId' => $this->ids->get('certificate')],
+            ['position' => 2, 'title' => 'Certificate copy', 'mediaId' => $this->ids->get('certificate-copy')],
         ];
 
         $saw = (new ProductBuilder($this->ids, 'saw'))->price(10)->visibility($this->ids->get('sales-channel'))->build();
@@ -207,6 +208,7 @@ class ProductDocumentRouteTest extends TestCase
         static::getContainer()->get('media.repository')->update([
             ['id' => $this->ids->get('certificate'), 'private' => true],
             ['id' => $this->ids->get('datenblatt'), 'private' => true],
+            ['id' => $this->ids->get('certificate-copy'), 'path' => null],
         ], $context);
     }
 }

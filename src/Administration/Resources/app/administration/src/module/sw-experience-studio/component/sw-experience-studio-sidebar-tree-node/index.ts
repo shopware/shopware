@@ -98,7 +98,11 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         label(): string {
-            return getContentElementLabel(this.contentElement, editingLanguageChain());
+            return getContentElementLabel(
+                this.contentElement,
+                this.elementTypeStore.getByName(this.contentElement.component)?.properties,
+                editingLanguageChain(),
+            );
         },
 
         typeIcon(): string {

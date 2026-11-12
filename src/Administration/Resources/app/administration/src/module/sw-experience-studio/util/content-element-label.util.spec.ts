@@ -1,12 +1,13 @@
+import type { ContentSystemElementTypeProperty } from 'src/core/service/api/content-system-element-type.api.service';
 import type { ContentElementNode } from 'src/core/service/content-element.types';
 import { formatComponentName, getContentElementLabel } from './content-element-label.util';
 
-const ANCHOR_LANGUAGE_ID = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
+const SYSTEM_LANGUAGE_ID = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
 const GERMAN_LANGUAGE_ID = 'a1b2c3d4e5f60718293a4b5c6d7e8f90';
-const ANCHOR_CHAIN = [ANCHOR_LANGUAGE_ID];
+const SYSTEM_CHAIN = [SYSTEM_LANGUAGE_ID];
 const GERMAN_CHAIN = [
     GERMAN_LANGUAGE_ID,
-    ANCHOR_LANGUAGE_ID,
+    SYSTEM_LANGUAGE_ID,
 ];
 
 function makeElement(properties: Record<string, unknown>): ContentElementNode {
@@ -16,27 +17,33 @@ function makeElement(properties: Record<string, unknown>): ContentElementNode {
     } as ContentElementNode;
 }
 
+function declare(declarations: Record<string, { translatable: boolean }>): Record<string, ContentSystemElementTypeProperty> {
+    return declarations as unknown as Record<string, ContentSystemElementTypeProperty>;
+}
+
 describe('module/sw-experience-studio/util/content-element-label.util', () => {
-    it('returns the chain-head entry of a translatable property as the label', () => {
+    it('returns the chain-head entry of a declared translatable property as the label', () => {
         expect(
             getContentElementLabel(
                 makeElement({
                     title: {
                         [GERMAN_LANGUAGE_ID]: 'Hallo',
-                        [ANCHOR_LANGUAGE_ID]: 'Hello',
+                        [SYSTEM_LANGUAGE_ID]: 'Hello',
                     },
                 }),
-                ANCHOR_CHAIN,
+                declare({ title: { translatable: true } }),
+                SYSTEM_CHAIN,
             ),
         ).toBe('Hello');
     });
 
-    it('returns the earliest chain-language entry of a translatable property as the label', () => {
+    it('returns the earliest chain-language entry of a declared translatable property as the label', () => {
         expect(
             getContentElementLabel(
                 makeElement({
-                    title: { [ANCHOR_LANGUAGE_ID]: 'Hello' },
+                    title: { [SYSTEM_LANGUAGE_ID]: 'Hello' },
                 }),
+                declare({ title: { translatable: true } }),
                 GERMAN_CHAIN,
             ),
         ).toBe('Hello');
@@ -50,7 +57,8 @@ describe('module/sw-experience-studio/util/content-element-label.util', () => {
                     name: { [GERMAN_LANGUAGE_ID]: 'Hallo' },
                     title: 'Fallback title',
                 }),
-                ANCHOR_CHAIN,
+                declare({ name: { translatable: true }, title: { translatable: false } }),
+                SYSTEM_CHAIN,
             ),
         ).toBe('Fallback title');
     });
@@ -61,7 +69,8 @@ describe('module/sw-experience-studio/util/content-element-label.util', () => {
                 makeElement({
                     title: { [GERMAN_LANGUAGE_ID]: 'Hallo' },
                 }),
-                ANCHOR_CHAIN,
+                declare({ title: { translatable: true } }),
+                SYSTEM_CHAIN,
             ),
         ).toBe('Slider');
     });
@@ -79,40 +88,75 @@ describe('module/sw-experience-studio/util/content-element-label.util', () => {
         expect(
             getContentElementLabel(
                 makeElement({
-                    name: { [ANCHOR_LANGUAGE_ID]: entry },
+                    name: { [SYSTEM_LANGUAGE_ID]: entry },
                     title: 'Fallback title',
                 }),
-                ANCHOR_CHAIN,
+                declare({ name: { translatable: true }, title: { translatable: false } }),
+                SYSTEM_CHAIN,
             ),
         ).toBe('Fallback title');
     });
 
-    it('throws when a label key carries a language map with a null entry', () => {
+    it('throws when a declared translatable label key carries a language map with a null entry', () => {
         expect(() =>
             getContentElementLabel(
                 makeElement({
-                    name: { [ANCHOR_LANGUAGE_ID]: null },
+                    name: { [SYSTEM_LANGUAGE_ID]: null },
                     title: 'Fallback title',
                 }),
-                ANCHOR_CHAIN,
+                declare({ name: { translatable: true }, title: { translatable: false } }),
+                SYSTEM_CHAIN,
             ),
         ).toThrow(/must be undefined or a non-empty language map of primitive values/);
     });
 
+    it('skips an object value of a non-translatable label key and uses the next key', () => {
+        expect(
+            getContentElementLabel(
+                makeElement({
+                    name: { first: 'Ada', last: 'Lovelace' },
+                    title: 'Fallback title',
+                }),
+                declare({ name: { translatable: false }, title: { translatable: false } }),
+                SYSTEM_CHAIN,
+            ),
+        ).toBe('Fallback title');
+    });
+
+    it('uses only string values when the element type is not in the store', () => {
+        expect(
+            getContentElementLabel(
+                makeElement({
+                    name: { [SYSTEM_LANGUAGE_ID]: 'Hello' },
+                    title: 'Fallback title',
+                }),
+                undefined,
+                SYSTEM_CHAIN,
+            ),
+        ).toBe('Fallback title');
+    });
+
     it('returns a bare string property as the label', () => {
-        expect(getContentElementLabel(makeElement({ name: 'Headline' }), ANCHOR_CHAIN)).toBe('Headline');
+        expect(
+            getContentElementLabel(
+                makeElement({ name: 'Headline' }),
+                declare({ name: { translatable: false } }),
+                SYSTEM_CHAIN,
+            ),
+        ).toBe('Headline');
     });
 
     it('prefers the name key over title when both resolve to a non-blank value', () => {
         expect(
             getContentElementLabel(
                 makeElement({
-                    name: { [ANCHOR_LANGUAGE_ID]: 'Anchor name' },
+                    name: { [SYSTEM_LANGUAGE_ID]: 'System-language name' },
                     title: 'Title string',
                 }),
-                ANCHOR_CHAIN,
+                declare({ name: { translatable: true }, title: { translatable: false } }),
+                SYSTEM_CHAIN,
             ),
-        ).toBe('Anchor name');
+        ).toBe('System-language name');
     });
 
     it('formats a namespaced component identifier into its trailing segment', () => {

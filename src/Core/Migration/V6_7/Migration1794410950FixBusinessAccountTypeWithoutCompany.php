@@ -31,8 +31,7 @@ class Migration1794410950FixBusinessAccountTypeWithoutCompany extends MigrationS
         $sql = 'UPDATE `customer`
                 SET `account_type` = :private
                 WHERE `account_type` = :business
-                    AND (`company` IS NULL OR `company` = \'\')
-                    AND `vat_ids` IS NULL
+                    AND (`company` IS NULL OR TRIM(`company`) = \'\')
                 ORDER BY `id`
                 LIMIT :limit';
 

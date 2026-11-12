@@ -35,10 +35,14 @@ class Migration1794410950FixBusinessAccountTypeWithoutCompanyTest extends TestCa
         static::assertSame(1794410950, (new Migration1794410950FixBusinessAccountTypeWithoutCompany())->getCreationTimestamp());
     }
 
-    public function testResetsBusinessCustomersWithoutCompanyAndVatIdsToPrivate(): void
+    public function testResetsBusinessCustomersWithoutCompanyToPrivate(): void
     {
         $withNullCompany = $this->insertCustomer(accountType: CustomerEntity::ACCOUNT_TYPE_BUSINESS, company: null, vatIds: null);
         $withEmptyCompany = $this->insertCustomer(accountType: CustomerEntity::ACCOUNT_TYPE_BUSINESS, company: '', vatIds: null);
+        $withWhitespaceCompany = $this->insertCustomer(accountType: CustomerEntity::ACCOUNT_TYPE_BUSINESS, company: '   ', vatIds: null);
+        $withVatIds = $this->insertCustomer(accountType: CustomerEntity::ACCOUNT_TYPE_BUSINESS, company: null, vatIds: '["DE123456789"]');
+        $withEmptyVatIds = $this->insertCustomer(accountType: CustomerEntity::ACCOUNT_TYPE_BUSINESS, company: null, vatIds: '[]');
+        $withWhitespaceCompanyAndVatIds = $this->insertCustomer(accountType: CustomerEntity::ACCOUNT_TYPE_BUSINESS, company: '   ', vatIds: '["DE123456789"]');
 
         $migration = new Migration1794410950FixBusinessAccountTypeWithoutCompany();
         $migration->update($this->connection);
@@ -46,24 +50,15 @@ class Migration1794410950FixBusinessAccountTypeWithoutCompanyTest extends TestCa
 
         static::assertSame(CustomerEntity::ACCOUNT_TYPE_PRIVATE, $this->fetchAccountType($withNullCompany));
         static::assertSame(CustomerEntity::ACCOUNT_TYPE_PRIVATE, $this->fetchAccountType($withEmptyCompany));
+        static::assertSame(CustomerEntity::ACCOUNT_TYPE_PRIVATE, $this->fetchAccountType($withWhitespaceCompany));
+        static::assertSame(CustomerEntity::ACCOUNT_TYPE_PRIVATE, $this->fetchAccountType($withVatIds));
+        static::assertSame(CustomerEntity::ACCOUNT_TYPE_PRIVATE, $this->fetchAccountType($withEmptyVatIds));
+        static::assertSame(CustomerEntity::ACCOUNT_TYPE_PRIVATE, $this->fetchAccountType($withWhitespaceCompanyAndVatIds));
     }
 
     public function testKeepsBusinessCustomerWithCompany(): void
     {
         $customerId = $this->insertCustomer(accountType: CustomerEntity::ACCOUNT_TYPE_BUSINESS, company: 'shopware AG', vatIds: null);
-
-        (new Migration1794410950FixBusinessAccountTypeWithoutCompany())->update($this->connection);
-
-        static::assertSame(CustomerEntity::ACCOUNT_TYPE_BUSINESS, $this->fetchAccountType($customerId));
-    }
-
-    public function testKeepsBusinessCustomerWithVatIdsButWithoutCompany(): void
-    {
-        $customerId = $this->insertCustomer(
-            accountType: CustomerEntity::ACCOUNT_TYPE_BUSINESS,
-            company: null,
-            vatIds: '["DE123456789"]',
-        );
 
         (new Migration1794410950FixBusinessAccountTypeWithoutCompany())->update($this->connection);
 
@@ -91,6 +86,7 @@ class Migration1794410950FixBusinessAccountTypeWithoutCompanyTest extends TestCa
             'SELECT COUNT(*) FROM `customer` WHERE `account_type` = :business',
             ['business' => CustomerEntity::ACCOUNT_TYPE_BUSINESS]
         );
+
         static::assertSame(0, $remainingBusinessCustomers);
     }
 

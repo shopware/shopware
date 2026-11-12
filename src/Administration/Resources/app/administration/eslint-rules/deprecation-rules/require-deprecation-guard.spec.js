@@ -178,7 +178,7 @@ ruleTester.run('require-deprecation-guard', rule, {
         {
             name: 'a guard for another major',
             code: `/** @deprecated tag:v6.9.0 - x */ export function oldFunction() { ${guard} }`,
-            errors: [{ messageId: 'flagMismatch', data: { name: 'oldFunction', flag: 'V6_9_0_0', version: 'v6.9.0' } }],
+            errors: [{ messageId: 'flagMismatch', data: { name: 'oldFunction', flag: 'V6_9_0_0', announced: 'v6.9.0' } }],
         },
         {
             name: 'a class without a guard',

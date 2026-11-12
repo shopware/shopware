@@ -10,8 +10,6 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class Delivery extends Struct
 {
-    protected ?int $position = null;
-
     /**
      * @var list<string>|null
      */
@@ -59,19 +57,6 @@ class Delivery extends Struct
     public function setShippingCosts(CalculatedPrice $shippingCosts): void
     {
         $this->shippingCosts = $shippingCosts;
-    }
-
-    /**
-     * Position of the delivery in the cart, starting at 1, null until the delivery processor numbered it
-     */
-    public function getPosition(): ?int
-    {
-        return $this->position;
-    }
-
-    public function setPosition(?int $position): void
-    {
-        $this->position = $position;
     }
 
     /**

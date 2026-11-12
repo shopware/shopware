@@ -65,6 +65,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
@@ -464,21 +465,14 @@ class OrderConverterTest extends TestCase
         static::assertCount(0, $cart->getTransactions());
     }
 
-    #[DataProvider('storedDeliveryPositionProvider')]
-    public function testConvertToCartCarriesTheStoredPositionOfTheDeliveries(int $storedPosition, ?int $expectedPosition): void
+    public function testConvertToCartCarriesTheStoredPositionOfTheDeliveries(): void
     {
         $order = $this->getOrder();
-        $order->getDeliveries()?->first()?->setPosition($storedPosition);
+        $order->getDeliveries()?->first()?->setPosition(3);
 
         $cart = $this->orderConverter->convertToCart($order, Context::createDefaultContext());
 
-        static::assertSame($expectedPosition, $cart->getDeliveries()->first()?->getPosition());
-    }
-
-    public static function storedDeliveryPositionProvider(): \Generator
-    {
-        yield 'a stored position is kept' => [3, 3];
-        yield 'an order placed before deliveries had positions leaves it to the delivery processor' => [0, null];
+        static::assertSame(3, $cart->getDeliveries()->first()?->getExtensionOfType(OrderConverter::ORIGINAL_POSITION, ArrayStruct::class)?->get('position'));
     }
 
     #[DataProvider('convertToCartManipulatedOrderData')]

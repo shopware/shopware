@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Delivery;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -235,82 +234,6 @@ class DeliveryProcessorTest extends TestCase
         static::assertCount(2, $toCalculate->getDeliveries());
         static::assertSame(7.0, $primaryDelivery->getShippingCosts()->getTotalPrice());
         static::assertSame(4.99, $secondDelivery->getShippingCosts()->getTotalPrice());
-    }
-
-    /**
-     * @param list<int|null> $builtPositions
-     * @param list<int> $expectedPositions
-     */
-    #[DataProvider('builtDeliveryPositionProvider')]
-    public function testProcessNumbersTheBuiltDeliveriesBeforeCalculatingTheCosts(array $builtPositions, array $expectedPositions): void
-    {
-        $deliveries = new DeliveryCollection(array_map($this->createDeliveryAtPosition(...), $builtPositions));
-
-        $builder = static::createStub(DeliveryBuilder::class);
-        $builder->method('build')->willReturn($deliveries);
-
-        $calculator = $this->createMock(DeliveryCalculator::class);
-        $calculator
-            ->expects($this->once())
-            ->method('calculate')
-            ->willReturnCallback(static function (CartDataCollection $data, Cart $cart, DeliveryCollection $deliveries) use ($expectedPositions): void {
-                static::assertSame($expectedPositions, self::positionsOf($deliveries));
-            });
-
-        $processor = new DeliveryProcessor($builder, $calculator, static::createStub(EntityRepository::class), static::createStub(DeliveryRuleMatcher::class));
-        $processor->process(new CartDataCollection(), new Cart('test'), new Cart('calculate'), static::createStub(SalesChannelContext::class), new CartBehavior());
-    }
-
-    public static function builtDeliveryPositionProvider(): \Generator
-    {
-        yield 'a fresh cart is numbered in cart order' => [[null, null, null], [1, 2, 3]];
-        yield 'positions set by the builder are kept' => [[2, null, 1], [2, 3, 1]];
-    }
-
-    /**
-     * @param list<int|null> $originalPositions
-     * @param list<int> $expectedPositions
-     */
-    #[DataProvider('recalculatedDeliveryPositionProvider')]
-    public function testProcessKeepsTheStoredPositionsWhenThePriceRecalculationIsSkipped(array $originalPositions, array $expectedPositions): void
-    {
-        $original = new Cart('test');
-        $original->setDeliveries(new DeliveryCollection(array_map($this->createDeliveryAtPosition(...), $originalPositions)));
-
-        $calculator = $this->createMock(DeliveryCalculator::class);
-        $calculator
-            ->expects($this->once())
-            ->method('calculate')
-            ->willReturnCallback(static function (CartDataCollection $data, Cart $cart, DeliveryCollection $deliveries) use ($expectedPositions): void {
-                static::assertSame($expectedPositions, self::positionsOf($deliveries));
-            });
-
-        $behavior = new CartBehavior([CheckoutPermissions::SKIP_DELIVERY_PRICE_RECALCULATION => true]);
-
-        $processor = new DeliveryProcessor(static::createStub(DeliveryBuilder::class), $calculator, static::createStub(EntityRepository::class), static::createStub(DeliveryRuleMatcher::class));
-        $processor->process(new CartDataCollection(), $original, new Cart('calculate'), static::createStub(SalesChannelContext::class), $behavior);
-    }
-
-    public static function recalculatedDeliveryPositionProvider(): \Generator
-    {
-        yield 'stored positions stay with their deliveries' => [[2, 1], [2, 1]];
-        yield 'an order placed before deliveries had positions is numbered in cart order' => [[null, null], [1, 2]];
-    }
-
-    /**
-     * @return list<int|null>
-     */
-    private static function positionsOf(DeliveryCollection $deliveries): array
-    {
-        return array_values($deliveries->map(static fn (Delivery $delivery) => $delivery->getPosition()));
-    }
-
-    private function createDeliveryAtPosition(?int $position): Delivery
-    {
-        $delivery = $this->createDelivery();
-        $delivery->setPosition($position);
-
-        return $delivery;
     }
 
     private function createDelivery(): Delivery

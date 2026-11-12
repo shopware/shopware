@@ -69,7 +69,6 @@ final class CartOrderConversionStub
             'errors' => [],
             'deliveries' => [
                 [
-                    'position' => null,
                     'positions' => [
                         [
                             'lineItem' => [
@@ -229,6 +228,11 @@ final class CartOrderConversionStub
                         ],
                         'originalAddressVersionId' => [
                             'id' => 'order-address-version-id',
+                            'extensions' => [],
+                        ],
+                        'originalPosition' => [
+                            'position' => 0,
+                            'apiAlias' => null,
                             'extensions' => [],
                         ],
                     ],

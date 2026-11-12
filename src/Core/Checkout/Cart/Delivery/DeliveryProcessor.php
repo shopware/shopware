@@ -126,8 +126,6 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
                     $firstDelivery->setShippingCosts($manualShippingCosts);
                 }
 
-                $deliveries->numberDeliveries();
-
                 $this->deliveryCalculator->calculate($data, $toCalculate, $deliveries, $context);
 
                 $toCalculate->setDeliveries($deliveries);
@@ -145,8 +143,6 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
             if (Feature::isActive('v6.8.0.0')) {
                 $this->ruleMatcher->match($data, $original, $deliveries, $context);
             }
-
-            $deliveries->numberDeliveries();
 
             $this->deliveryCalculator->calculate($data, $toCalculate, $deliveries, $context);
 

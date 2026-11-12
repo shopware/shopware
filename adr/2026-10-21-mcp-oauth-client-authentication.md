@@ -179,6 +179,9 @@ Rules:
 - The resource is compared without its query and without a trailing slash, so `https://shop.example/api/_mcp?toolsets=all` names the same resource.
   Only the discovery answers keep the query, see "Names and URLs".
   A resource with a fragment is rejected, as RFC 8707 requires.
+- On `/api/_mcp` the token's resource is not compared with the requested host.
+  A token bound to the MCP resource of one allowed host of the shop also works on the other hosts of the same shop.
+  This is the second exception next to the query: the token is bound to the shop's MCP endpoint, not to one of its host names.
 - A token request without `resource` after an authorization request with one still yields a token bound to that resource; RFC 8707 lets the authorization server apply the resource of the grant.
 - A refresh keeps the resource of the original grant.
 - The JWT keeps the client id as the first `aud` entry and adds the resource as a further entry.
@@ -329,7 +332,6 @@ What is reused from `mcp/sdk` 0.9:
 
 - `ProtectedResourceMetadata` builds the metadata document and its path.
   Its https rule fails for plain-http development hosts other than loopback, so those serve no metadata.
-- The transport sets the `AccessToken` request attribute from the validated Shopware token (scopes, `sub`, client id), so SDK-level handlers see the same principal through `RequestContext::getAccessToken()`.
 
 Discovery uses `ProtectedResourceMetadata` directly and needs no internal builder.
 `ScopePolicy` is reconsidered when the read-only consent from 4 is built.

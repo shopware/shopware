@@ -8,7 +8,7 @@
  */
 
 const { reportTodo } = require('./upgrade-helpers/todo-comment');
-const { indexByName, forEachBlockOverride, namedEndBlockRange, removalMessage } = require('./utils/twig-block-overrides');
+const { indexByName, forEachBlockOverride, namedEndBlockRange, removalMessage } = require('./upgrade-helpers/twig-block-overrides');
 const renames = require('./no-renamed-twig-blocks.data');
 const { groups: removals } = require('./no-removed-twig-blocks.data');
 

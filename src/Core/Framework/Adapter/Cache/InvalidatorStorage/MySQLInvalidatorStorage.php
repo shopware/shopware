@@ -84,11 +84,15 @@ class MySQLInvalidatorStorage extends AbstractInvalidatorStorage
             return [];
         }
 
-        RetryableQuery::retryable($this->connection, fn () => $this->connection->executeStatement(
-            \sprintf('DELETE FROM %s WHERE id IN (:ids)', self::TABLE_NAME),
-            ['ids' => array_column($rows, 'id')],
-            ['ids' => ArrayParameterType::BINARY]
-        ));
+        foreach (array_chunk(array_column($rows, 'id'), 1000) as $ids) {
+            RetryableQuery::retryable($this->connection, function () use ($ids): void {
+                $this->connection->executeStatement(
+                    \sprintf('DELETE FROM %s WHERE id IN (:ids)', self::TABLE_NAME),
+                    ['ids' => $ids],
+                    ['ids' => ArrayParameterType::BINARY]
+                );
+            });
+        }
 
         return array_column($rows, 'tag');
     }

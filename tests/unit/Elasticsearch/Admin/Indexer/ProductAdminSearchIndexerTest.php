@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -145,7 +146,7 @@ class ProductAdminSearchIndexerTest extends TestCase
     public function testFetchingAProductWithoutDocuments(): void
     {
         $indexer = new ProductAdminSearchIndexer(
-            $this->getConnection(['documentsId' => null]),
+            $this->getConnection(['documentIds' => null]),
             static::createStub(IteratorFactory::class),
             static::createStub(EntityRepository::class),
             static::createStub(ElasticsearchFieldBuilder::class),
@@ -194,16 +195,23 @@ class ProductAdminSearchIndexerTest extends TestCase
     public function testGetUpdatedIdsContainsTheProductsOfAddedDocuments(): void
     {
         $productId = Uuid::randomHex();
+        $otherProductId = Uuid::randomHex();
+        $documentId = Uuid::randomHex();
 
-        $event = new EntityWrittenContainerEvent(
-            Context::createDefaultContext(),
-            new NestedEventCollection([
-                new EntityWrittenEvent('product_document', [
-                    new EntityWriteResult(Uuid::randomHex(), ['productId' => $productId], 'product_document', EntityWriteResult::OPERATION_INSERT),
-                ], Context::createDefaultContext()),
-            ]),
-            []
-        );
+        $event = $this->createWrittenEvent([
+            new EntityWrittenEvent('product_document', [
+                new EntityWriteResult($documentId, [
+                    'id' => $documentId,
+                    'versionId' => Defaults::LIVE_VERSION,
+                    'productId' => $productId,
+                    'productVersionId' => Defaults::LIVE_VERSION,
+                ], 'product_document', EntityWriteResult::OPERATION_INSERT),
+            ], Context::createDefaultContext()),
+            new EntityWrittenEvent('product', [
+                new EntityWriteResult($productId, [], 'product', EntityWriteResult::OPERATION_UPDATE),
+                new EntityWriteResult($otherProductId, ['id' => $otherProductId, 'versionId' => Defaults::LIVE_VERSION], 'product', EntityWriteResult::OPERATION_UPDATE),
+            ], Context::createDefaultContext()),
+        ]);
 
         static::assertSame([$productId], $this->searchIndexer->getUpdatedIds($event));
     }
@@ -211,19 +219,16 @@ class ProductAdminSearchIndexerTest extends TestCase
     public function testGetUpdatedIdsContainsTheProductsOfDeletedDocuments(): void
     {
         $productId = Uuid::randomHex();
+        $documentId = Uuid::randomHex();
 
-        $event = new EntityWrittenContainerEvent(
-            Context::createDefaultContext(),
-            new NestedEventCollection([
-                new EntityWrittenEvent('product_document', [
-                    new EntityWriteResult(Uuid::randomHex(), [], 'product_document', EntityWriteResult::OPERATION_DELETE),
-                ], Context::createDefaultContext()),
-                new EntityWrittenEvent('product', [
-                    new EntityWriteResult($productId, [], 'product', EntityWriteResult::OPERATION_UPDATE),
-                ], Context::createDefaultContext()),
-            ]),
-            []
-        );
+        $event = $this->createWrittenEvent([
+            new EntityWrittenEvent('product_document', [
+                new EntityWriteResult($documentId, ['id' => $documentId, 'versionId' => Defaults::LIVE_VERSION], 'product_document', EntityWriteResult::OPERATION_DELETE),
+            ], Context::createDefaultContext()),
+            new EntityWrittenEvent('product', [
+                new EntityWriteResult($productId, [], 'product', EntityWriteResult::OPERATION_UPDATE),
+            ], Context::createDefaultContext()),
+        ]);
 
         static::assertSame([$productId], $this->searchIndexer->getUpdatedIds($event));
     }
@@ -232,6 +237,7 @@ class ProductAdminSearchIndexerTest extends TestCase
     {
         $productId = Uuid::randomHex();
         $variantId = Uuid::randomHex();
+        $documentId = Uuid::randomHex();
 
         $connection = static::createStub(Connection::class);
         $connection->method('fetchFirstColumn')->willReturn([$variantId]);
@@ -244,17 +250,49 @@ class ProductAdminSearchIndexerTest extends TestCase
             100
         );
 
-        $event = new EntityWrittenContainerEvent(
-            Context::createDefaultContext(),
-            new NestedEventCollection([
-                new EntityWrittenEvent('product_document', [
-                    new EntityWriteResult(Uuid::randomHex(), ['productId' => $productId], 'product_document', EntityWriteResult::OPERATION_INSERT),
-                ], Context::createDefaultContext()),
-            ]),
-            []
-        );
+        $event = $this->createWrittenEvent([
+            new EntityWrittenEvent('product_document', [
+                new EntityWriteResult($documentId, [
+                    'id' => $documentId,
+                    'versionId' => Defaults::LIVE_VERSION,
+                    'productId' => $productId,
+                    'productVersionId' => Defaults::LIVE_VERSION,
+                ], 'product_document', EntityWriteResult::OPERATION_INSERT),
+            ], Context::createDefaultContext()),
+            new EntityWrittenEvent('product', [
+                new EntityWriteResult($productId, [], 'product', EntityWriteResult::OPERATION_UPDATE),
+            ], Context::createDefaultContext()),
+        ]);
 
         static::assertSame([$productId, $variantId], $indexer->getUpdatedIds($event));
+    }
+
+    public function testGetUpdatedIdsIgnoresDocumentUpdates(): void
+    {
+        $productId = Uuid::randomHex();
+        $documentId = Uuid::randomHex();
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('fetchFirstColumn');
+
+        $indexer = new ProductAdminSearchIndexer(
+            $connection,
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            100
+        );
+
+        $event = $this->createWrittenEvent([
+            new EntityWrittenEvent('product_document', [
+                new EntityWriteResult($documentId, ['id' => $documentId, 'versionId' => Defaults::LIVE_VERSION, 'position' => 2], 'product_document', EntityWriteResult::OPERATION_UPDATE),
+            ], Context::createDefaultContext()),
+            new EntityWrittenEvent('product', [
+                new EntityWriteResult($productId, [], 'product', EntityWriteResult::OPERATION_UPDATE),
+            ], Context::createDefaultContext()),
+        ]);
+
+        static::assertSame([], $indexer->getUpdatedIds($event));
     }
 
     public function testGlobalCriteria(): void
@@ -343,6 +381,14 @@ class ProductAdminSearchIndexerTest extends TestCase
     }
 
     /**
+     * @param list<EntityWrittenEvent<string>> $events
+     */
+    private function createWrittenEvent(array $events): EntityWrittenContainerEvent
+    {
+        return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection($events), []);
+    }
+
+    /**
      * @param array<string, mixed> $overrides
      */
     private function getConnection(array $overrides = []): Connection
@@ -385,7 +431,6 @@ class ProductAdminSearchIndexerTest extends TestCase
                     'manufacturerId' => 'aabbccdd11223344556677889900aabb',
                     'categoryIds' => null,
                     'mediaId' => 'aabb11223344556677889900aabbccdd',
-                    'documentsId' => '809c1844f4734243b6aa04aba860cd45',
                     'documentIds' => 'c1c2c3c4c5c6c7c8c9c0c1c2c3c4c5c6 d1d2d3d4d5d6d7d8d9d0d1d2d3d4d5d6',
                     'visibilities' => null,
                     'createdAt' => '2024-01-01 00:00:00.000',

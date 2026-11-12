@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -319,8 +320,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
         $visibilityIds = $this->collectHexColumnValues($baseRows, 'visibilitiesId');
         $visibilitiesByProductId = $this->fetchVisibilitiesByIds($visibilityIds, $versionId);
 
-        $documentOwnerIds = $this->collectHexColumnValues($baseRows, 'documentsId');
-        $documentsByProductId = $this->fetchDocumentsByProductIds($documentOwnerIds, $versionId);
+        $documentsByProductId = $this->fetchDocumentsByProductIds($translationIds, $versionId);
 
         return $this->mapAdvancedRows(
             $baseRows,
@@ -353,7 +353,6 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
                    product.states as states,
                    LOWER(HEX(product.manufacturer)) AS manufacturerId,
                    LOWER(HEX(product.visibilities)) AS visibilitiesId,
-                   LOWER(HEX(product.documents)) AS documentsId,
                    IFNULL(product.category_ids, parent.category_ids) AS categoryIds,
                    product.stock as stock,
                    IFNULL(product.price, parent.price) AS priceRaw,
@@ -544,20 +543,17 @@ SQL,
      */
     private function getProductIdsWithChangedDocuments(EntityWrittenContainerEvent $event): array
     {
-        $documentEvent = $event->getEventByEntityName(ProductDocumentDefinition::ENTITY_NAME);
-        if ($documentEvent === null) {
-            return [];
+        $documentResults = $event->getResults(ProductDocumentDefinition::ENTITY_NAME);
+
+        $productIds = array_column($documentResults->only(EntityWriteResult::OPERATION_INSERT)->map(
+            static fn (EntityWriteResult $result): array => $result->getPayload()
+        ), 'productId');
+
+        if ($documentResults->only(EntityWriteResult::OPERATION_DELETE)->count() > 0) {
+            $productIds = array_merge($productIds, $event->getPrimaryKeys(ProductDefinition::ENTITY_NAME));
         }
 
-        $productIds = $event->getPrimaryKeys(ProductDefinition::ENTITY_NAME);
-        foreach ($documentEvent->getWriteResults() as $result) {
-            $productId = $result->getPayload()['productId'] ?? null;
-            if (\is_string($productId)) {
-                $productIds[] = $productId;
-            }
-        }
-
-        $productIds = array_values(array_filter($productIds, '\is_string'));
+        $productIds = array_values(array_unique(array_filter($productIds, '\is_string')));
         if ($productIds === []) {
             return [];
         }
@@ -599,10 +595,7 @@ SQL,
             $parentId = \is_string($row['parentId'] ?? null) ? $row['parentId'] : null;
             $manufacturerId = \is_string($row['manufacturerId'] ?? null) ? $row['manufacturerId'] : null;
             $visibilitiesId = \is_string($row['visibilitiesId'] ?? null) ? $row['visibilitiesId'] : null;
-            $documentsId = \is_string($row['documentsId'] ?? null) ? $row['documentsId'] : null;
-            $documentIds = ($documentsId !== null && \is_string($documentsByProductId[$documentsId]['documentIds'] ?? null))
-                ? explode(' ', $documentsByProductId[$documentsId]['documentIds'])
-                : [];
+            $documents = $documentsByProductId[$id] ?? ($parentId !== null ? ($documentsByProductId[$parentId] ?? []) : []);
 
             $ownTranslation = $translationsByProductId[$id] ?? null;
             $parentTranslation = $parentId !== null ? ($translationsByProductId[$parentId] ?? null) : null;
@@ -681,7 +674,7 @@ SQL,
                     return array_merge(['_count' => 1], $visibility);
                 }, $visibilities),
                 'media' => \is_string($row['mediaId'] ?? null) ? [['id' => $row['mediaId'], '_count' => 1]] : [],
-                'documents' => array_map(static fn (string $documentId): array => ['id' => $documentId, '_count' => 1], $documentIds),
+                'documents' => $this->parseTagIds($documents, 'documentIds'),
                 'tags' => $parsedTagIds,
                 'createdAt' => $this->formatDateTime($row, 'createdAt'),
                 'updatedAt' => $this->formatDateTime($row, 'updatedAt'),

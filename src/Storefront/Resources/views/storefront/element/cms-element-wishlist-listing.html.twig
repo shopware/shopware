@@ -13,7 +13,7 @@
     {% set boxLayout = 'wishlist' %}
     {% set displayMode = null %}
 
-    {% set sidebar = sectionType == 'sidebar' %}
+    {% set sidebar = section and section.type == 'sidebar' %}
 
     {% set params = { slots: slot.id, 'no-aggregations': 1 } %}
 

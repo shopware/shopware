@@ -6,13 +6,12 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionDefinition;
-use Shopware\Core\Content\Cms\CmsPageDefinition;
+use Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation\CmsSlotTranslationDefinition;
 use Shopware\Core\Content\Media\Cms\AbstractDefaultMediaResolver;
 use Shopware\Core\Content\Media\Cms\CmsElementMediaIdsProvider;
 use Shopware\Core\Content\Media\Cms\ImageCmsElementResolver;
-use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\CmsPageMediaUsageIndexer;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\CmsSlotMediaIdResolver;
+use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\CmsSlotMediaUsageIndexer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
@@ -27,8 +26,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(CmsPageMediaUsageIndexer::class)]
-class CmsPageMediaUsageIndexerTest extends TestCase
+#[CoversClass(CmsSlotMediaUsageIndexer::class)]
+class CmsSlotMediaUsageIndexerTest extends TestCase
 {
     private Connection&Stub $connection;
 
@@ -37,7 +36,7 @@ class CmsPageMediaUsageIndexerTest extends TestCase
      */
     private array $statements = [];
 
-    private CmsPageMediaUsageIndexer $indexer;
+    private CmsSlotMediaUsageIndexer $indexer;
 
     protected function setUp(): void
     {
@@ -49,7 +48,7 @@ class CmsPageMediaUsageIndexerTest extends TestCase
             return 1;
         });
 
-        $this->indexer = new CmsPageMediaUsageIndexer(
+        $this->indexer = new CmsSlotMediaUsageIndexer(
             static::createStub(IteratorFactory::class),
             $this->connection,
             new CmsSlotMediaIdResolver([new CmsElementMediaIdsProvider(new ImageCmsElementResolver(static::createStub(AbstractDefaultMediaResolver::class)), ['media'])]),
@@ -61,60 +60,45 @@ class CmsPageMediaUsageIndexerTest extends TestCase
         static::assertSame('cms_page_media_usage.indexer', $this->indexer->getName());
     }
 
-    public function testIndexesWrittenLayouts(): void
+    public function testIndexesSlotsWithChangedConfig(): void
     {
-        $pageId = Uuid::randomHex();
+        $slotId = Uuid::randomHex();
+        $primaryKey = ['cmsSlotId' => $slotId, 'languageId' => Uuid::randomHex()];
 
-        $message = $this->indexer->update($this->createEvent(CmsPageDefinition::ENTITY_NAME, $pageId, ['name' => 'layout']));
+        $message = $this->indexer->update($this->createEvent(CmsSlotTranslationDefinition::ENTITY_NAME, $primaryKey, ['config' => []]));
 
         static::assertInstanceOf(EntityIndexingMessage::class, $message);
-        static::assertSame([$pageId], $message->getData());
-    }
-
-    public function testIndexesTheLayoutOfSectionsWithChangedBackgrounds(): void
-    {
-        $pageId = Uuid::randomHex();
-        $this->connection->method('fetchFirstColumn')->willReturn([$pageId]);
-
-        $message = $this->indexer->update($this->createEvent(CmsSectionDefinition::ENTITY_NAME, Uuid::randomHex(), ['backgroundMediaId' => Uuid::randomHex()]));
-
-        static::assertInstanceOf(EntityIndexingMessage::class, $message);
-        static::assertSame([$pageId], $message->getData());
+        static::assertSame([$slotId], $message->getData());
     }
 
     public function testIgnoresWritesWhichDoNotChangeMedia(): void
     {
-        $message = $this->indexer->update($this->createEvent(CmsSectionDefinition::ENTITY_NAME, Uuid::randomHex(), ['position' => 1]));
+        $primaryKey = ['cmsSlotId' => Uuid::randomHex(), 'languageId' => Uuid::randomHex()];
+
+        $message = $this->indexer->update($this->createEvent(CmsSlotTranslationDefinition::ENTITY_NAME, $primaryKey, ['customFields' => []]));
 
         static::assertNull($message);
     }
 
-    public function testMapsBackgroundsAndElementMediaToTheLayout(): void
+    public function testMapsTheMediaOfElementsToTheirSlotAndLayout(): void
     {
         $pageId = Uuid::randomBytes();
         $versionId = Uuid::randomBytes();
-        $backgroundId = Uuid::randomBytes();
+        $slotId = Uuid::randomBytes();
         $imageId = Uuid::randomHex();
 
-        $this->connection->method('fetchAllAssociative')->willReturnOnConsecutiveCalls(
-            [['cms_page_id' => $pageId, 'cms_page_version_id' => $versionId, 'media_id' => $backgroundId]],
-            [],
-            [
-                ['cms_page_id' => $pageId, 'cms_page_version_id' => $versionId, 'type' => 'image', 'config' => json_encode(['media' => ['source' => 'static', 'value' => $imageId]])],
-                ['cms_page_id' => $pageId, 'cms_page_version_id' => $versionId, 'type' => 'text', 'config' => json_encode(['content' => ['source' => 'static', 'value' => Uuid::randomHex()]])],
-            ],
-        );
+        $this->connection->method('fetchAllAssociative')->willReturn([
+            ['cms_page_id' => $pageId, 'cms_page_version_id' => $versionId, 'cms_slot_id' => $slotId, 'cms_slot_version_id' => $versionId, 'type' => 'image', 'config' => json_encode(['media' => ['source' => 'static', 'value' => $imageId]])],
+            ['cms_page_id' => $pageId, 'cms_page_version_id' => $versionId, 'cms_slot_id' => Uuid::randomBytes(), 'cms_slot_version_id' => $versionId, 'type' => 'text', 'config' => json_encode(['content' => ['source' => 'static', 'value' => Uuid::randomHex()]])],
+        ]);
 
-        $this->indexer->handle(new EntityIndexingMessage([Uuid::fromBytesToHex($pageId)]));
+        $this->indexer->handle(new EntityIndexingMessage([Uuid::fromBytesToHex($slotId)]));
 
-        static::assertSame([$pageId], $this->getReplacedIds(), 'the previous usages of the layout are removed');
-        static::assertEqualsCanonicalizing(
-            [[$pageId, $versionId, $backgroundId], [$pageId, $versionId, Uuid::fromHexToBytes($imageId)]],
-            $this->getInsertedRows(columns: 3)
-        );
+        static::assertSame([$slotId], $this->getReplacedIds(), 'the previous usages of the slot are removed');
+        static::assertSame([[$pageId, $versionId, $slotId, $versionId, Uuid::fromHexToBytes($imageId)]], $this->getInsertedRows(columns: 5));
     }
 
-    public function testDoesNothingWithoutLayouts(): void
+    public function testDoesNothingWithoutSlots(): void
     {
         $this->indexer->handle(new EntityIndexingMessage([]));
 
@@ -122,12 +106,13 @@ class CmsPageMediaUsageIndexerTest extends TestCase
     }
 
     /**
+     * @param array<string, string>|string $primaryKey
      * @param array<string, mixed> $payload
      */
-    private function createEvent(string $entity, string $id, array $payload): EntityWrittenContainerEvent
+    private function createEvent(string $entity, array|string $primaryKey, array $payload): EntityWrittenContainerEvent
     {
         $context = Context::createDefaultContext();
-        $result = new EntityWriteResult($id, $payload, $entity, EntityWriteResult::OPERATION_UPDATE);
+        $result = new EntityWriteResult($primaryKey, $payload, $entity, EntityWriteResult::OPERATION_UPDATE);
 
         return new EntityWrittenContainerEvent($context, new NestedEventCollection([new EntityWrittenEvent($entity, [$result], $context)]), []);
     }

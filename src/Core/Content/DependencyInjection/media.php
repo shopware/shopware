@@ -41,8 +41,8 @@ use Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderConfigurationInd
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderIndexer;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexer;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaPathWriteValidator;
-use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\CmsPageMediaUsageIndexer;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\CmsSlotMediaIdResolver;
+use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\CmsSlotMediaUsageIndexer;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\SlotConfigOverrideMediaUsageIndexer;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Media\File\FileContentValidationStrategy;
@@ -637,7 +637,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             tagged_iterator('shopware.cms.element_media_ids_provider'),
         ]);
 
-    $services->set(CmsPageMediaUsageIndexer::class)
+    $services->set(CmsSlotMediaUsageIndexer::class)
         ->tag('shopware.entity_indexer')
         ->args([
             service(IteratorFactory::class),

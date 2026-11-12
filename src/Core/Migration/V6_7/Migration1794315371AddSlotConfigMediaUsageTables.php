@@ -29,15 +29,19 @@ class Migration1794315371AddSlotConfigMediaUsageTables extends MigrationStep
     public function update(Connection $connection): void
     {
         // Maps the media of the layouts and of the layout overrides, so a replaced media can be traced to the pages showing it with a single indexed query.
-        // Deleting the layout, the translation or the media removes the rows.
+        // Deleting the layout, the slot, the translation or the media removes the rows, deleting a section or block deletes its slots.
         $connection->executeStatement('
             CREATE TABLE IF NOT EXISTS `cms_page_media_usage` (
                 `cms_page_id`         BINARY(16) NOT NULL,
                 `cms_page_version_id` BINARY(16) NOT NULL,
+                `cms_slot_id`         BINARY(16) NOT NULL,
+                `cms_slot_version_id` BINARY(16) NOT NULL,
                 `media_id`            BINARY(16) NOT NULL,
-                PRIMARY KEY (`cms_page_id`, `cms_page_version_id`, `media_id`),
+                PRIMARY KEY (`cms_slot_id`, `cms_slot_version_id`, `media_id`),
                 CONSTRAINT `fk.cms_page_media_usage.cms_page_id` FOREIGN KEY (`cms_page_id`, `cms_page_version_id`)
                     REFERENCES `cms_page` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                CONSTRAINT `fk.cms_page_media_usage.cms_slot_id` FOREIGN KEY (`cms_slot_id`, `cms_slot_version_id`)
+                    REFERENCES `cms_slot` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
                 CONSTRAINT `fk.cms_page_media_usage.media_id` FOREIGN KEY (`media_id`)
                     REFERENCES `media` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -553,7 +553,10 @@ class CacheInvalidationSubscriber
                 ...$this->getCategoryIdsByMedia($mediaIds),
                 ...$this->getCategoryIdsBySlotConfigOverride($mediaIds),
             ]),
-            ...array_map(EntityCacheKeyGenerator::buildCmsTag(...), $this->getCmsPageIdsByMedia($mediaIds)),
+            ...array_map(EntityCacheKeyGenerator::buildCmsTag(...), [
+                ...$this->getCmsPageIdsByMedia($mediaIds),
+                ...$this->getCmsPageIdsByBackground($mediaIds),
+            ]),
             ...array_map(LandingPageRoute::buildName(...), $this->getLandingPageIdsBySlotConfigOverride($mediaIds)),
             ...array_map(EntityCacheKeyGenerator::buildProductTag(...), $this->getProductIdsBySlotConfigOverride($mediaIds)),
         ]));
@@ -580,7 +583,7 @@ class CacheInvalidationSubscriber
     }
 
     /**
-     * Section and block backgrounds and the media of CMS elements, mapped by the media usage indexer
+     * The media of CMS elements, mapped by the media usage indexer
      *
      * @param list<string> $mediaIds
      *
@@ -589,6 +592,31 @@ class CacheInvalidationSubscriber
     private function getCmsPageIdsByMedia(array $mediaIds): array
     {
         return $this->fetchIdsByMedia('SELECT LOWER(HEX(cms_page_id)) FROM cms_page_media_usage WHERE media_id IN (:ids) AND cms_page_version_id = :version', $mediaIds);
+    }
+
+    /**
+     * Section and block backgrounds, a block belongs to its layout by its section
+     *
+     * @param list<string> $mediaIds
+     *
+     * @return list<string>
+     */
+    private function getCmsPageIdsByBackground(array $mediaIds): array
+    {
+        $pageIds = $this->fetchIdsByMedia('SELECT LOWER(HEX(cms_page_id)) FROM cms_section WHERE background_media_id IN (:ids) AND version_id = :version', $mediaIds);
+        $sectionIds = $this->fetchIdsByMedia('SELECT LOWER(HEX(cms_section_id)) FROM cms_block WHERE background_media_id IN (:ids) AND version_id = :version', $mediaIds);
+        if ($sectionIds === []) {
+            return $pageIds;
+        }
+
+        return [
+            ...$pageIds,
+            ...$this->connection->fetchFirstColumn(
+                'SELECT LOWER(HEX(cms_page_id)) FROM cms_section WHERE id IN (:ids) AND version_id = :version',
+                ['ids' => Uuid::fromHexToBytesList($sectionIds), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+                ['ids' => ArrayParameterType::BINARY]
+            ),
+        ];
     }
 
     /**

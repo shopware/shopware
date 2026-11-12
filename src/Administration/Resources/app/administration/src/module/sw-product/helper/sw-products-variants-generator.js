@@ -19,7 +19,6 @@ const RESTRICTIONS_SYNC_HEADERS = { 'single-operation': 1, 'indexing-behavior': 
 // Every chunk queues a re-index of the parent with all its variants, so fewer and bigger chunks mean less work
 const CHUNK_SIZE = 100;
 
-// Validation errors fail again, so only connection problems, timeouts and server errors get another try
 function isRetryable(error) {
     const status = error?.response?.status;
 

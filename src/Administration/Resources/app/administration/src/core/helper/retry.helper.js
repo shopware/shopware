@@ -3,12 +3,6 @@
  * @sw-package framework
  */
 export default class RetryHelper {
-    /**
-     * @param {function(): Promise} fn
-     * @param {number} [maxTries]
-     * @param {number} [time]
-     * @param {function(Error): boolean} [shouldRetry] - returns false for errors that would fail again
-     */
     static async retry(fn, maxTries, time, shouldRetry = () => true) {
         const wait = (ms) =>
             new Promise((resolve) => {

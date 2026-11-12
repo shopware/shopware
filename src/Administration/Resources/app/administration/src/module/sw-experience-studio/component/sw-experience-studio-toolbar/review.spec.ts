@@ -52,8 +52,10 @@ describe('toolbar change review', () => {
             'FAQ',
         ]);
         expect(wrapper.emitted('save')).toBeUndefined();
+        expect(wrapper.emitted('discard-layout')).toBeUndefined();
         expect(getPanel().attributes('role')).toBe('dialog');
-        expect(document.activeElement).toBe(getPanel().get('button').element);
+        expect(getPanel().attributes('tabindex')).toBe('-1');
+        expect(document.activeElement).toBe(getPanel().element);
     });
 
     it('discards only the selected layout and updates the remaining list and count', async () => {
@@ -113,7 +115,7 @@ describe('toolbar change review', () => {
     it('closes on Escape and restores focus to the trigger', async () => {
         wrapper = await createWrapper();
         await openReview();
-        await getPanel().get('button').trigger('keydown', { key: 'Escape' });
+        await getPanel().trigger('keydown', { key: 'Escape' });
 
         expect(wrapper.get('.sw-experience-studio-toolbar__review-trigger').attributes('aria-expanded')).toBe('false');
         expect(document.activeElement).toBe(wrapper.get('.sw-experience-studio-toolbar__review-trigger').element);

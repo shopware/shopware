@@ -94,7 +94,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.isReviewOpen = true;
             void this.$nextTick(() => {
                 const panel = this.$refs.reviewPanel as HTMLElement | undefined;
-                panel?.querySelector<HTMLButtonElement>('button')?.focus();
+                panel?.focus();
             });
         },
 

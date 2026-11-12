@@ -12,6 +12,7 @@ async function createWrapper(withLayouts = true, preview = '') {
         attachTo: document.body,
         slots: { preview },
         props: {
+            allowCreate: true,
             frames: frames.map((frame) => ({
                 id: frame.layoutId,
                 layout: { id: frame.layoutId, name: frame.layoutId },

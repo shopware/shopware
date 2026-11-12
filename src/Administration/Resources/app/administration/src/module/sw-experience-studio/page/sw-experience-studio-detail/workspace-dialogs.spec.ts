@@ -26,6 +26,7 @@ describe('Experience Studio workspace dialogs', () => {
                 computed: {
                     ...component.computed,
                     allowSave: () => true,
+                    allowCreate: () => true,
                     layoutId: () => '',
                     availablePickerElements: () => [],
                     previewEntityType: () => null,

@@ -71,7 +71,11 @@ describe('Experience Studio workspace entry', () => {
     });
 
     it('does not create a standalone layout without a workspace', () => {
-        const editor = { workspaceStore: { activeWorkspace: null }, layoutRepository: { create: jest.fn() } };
+        const editor = {
+            allowCreate: true,
+            workspaceStore: { activeWorkspace: null },
+            layoutRepository: { create: jest.fn() },
+        };
         component.methods.onCreateWizardComplete.call(editor, { name: 'New layout', type: 'category' });
 
         expect(editor.layoutRepository.create).not.toHaveBeenCalled();
@@ -80,6 +84,7 @@ describe('Experience Studio workspace entry', () => {
     it('creates and activates a new unsaved layout in the current workspace', async () => {
         const layout = { id: 'new-layout', name: '', rootSource: '', layout: [] };
         const editor = {
+            allowCreate: true,
             workspaceStore: { activeWorkspace: { id: 'workspace' } },
             layoutRepository: { create: jest.fn().mockReturnValue(layout) },
             openLayouts: [] as Array<{ id: string; isNew: boolean }>,
@@ -103,5 +108,23 @@ describe('Experience Studio workspace entry', () => {
         expect(editor.activateLayout).toHaveBeenCalledWith('new-layout');
         expect(editor.isCreateLayoutModalOpen).toBe(false);
         expect(editor.$refs.experienceStudioCanvas.fitCanvasToFrame).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not open or complete creation without the creator privilege', () => {
+        const editor = {
+            allowCreate: false,
+            workspaceStore: { activeWorkspace: { id: 'workspace' } },
+            layoutRepository: { create: jest.fn() },
+            createWizardName: 'Previous name',
+            createWizardSelectedType: 'category',
+            isCreateLayoutModalOpen: false,
+        };
+
+        component.methods.onOpenCreateLayout.call(editor);
+        expect(editor.isCreateLayoutModalOpen).toBe(false);
+        expect(editor.createWizardName).toBe('Previous name');
+        expect(editor.createWizardSelectedType).toBe('category');
+        component.methods.onCreateWizardComplete.call(editor, { name: 'Unauthorized layout', type: 'category' });
+        expect(editor.layoutRepository.create).not.toHaveBeenCalled();
     });
 });

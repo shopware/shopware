@@ -281,6 +281,7 @@
                         </mt-action-menu-item>
                         <mt-action-menu-item
                             icon="regular-plus"
+                            :disabled="!allowCreate"
                             @select="$emit('create-layout')"
                         >
                             {{ $t('sw-experience-studio.workspace.layouts.create') }}

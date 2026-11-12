@@ -3,7 +3,7 @@ import type { Component, ComponentPublicInstance } from 'vue';
 import detailComponent from './index';
 import '../../store/experience-studio-workspace.store';
 
-async function createWrapper(renderMenus = false) {
+async function createWrapper(renderMenus = false, role: 'viewer' | 'editor' | 'creator' = 'creator') {
     const [
         canvasComponent,
         treeComponent,
@@ -32,7 +32,12 @@ async function createWrapper(renderMenus = false) {
         {
             global: {
                 provide: {
-                    acl: { can: () => true },
+                    acl: {
+                        can: (privilege: string) =>
+                            privilege === 'experience_studio.viewer' ||
+                            (privilege === 'experience_studio.editor' && role !== 'viewer') ||
+                            (privilege === 'experience_studio.creator' && role === 'creator'),
+                    },
                     repositoryFactory: { create: jest.fn() },
                 },
                 mocks: { $route: { name: 'sw.experience.studio.detail', params: { id: 'layout-a' } } },
@@ -196,6 +201,36 @@ describe('Experience Studio sidebar navigation', () => {
         await flushPromises();
 
         expect(wrapper.find(modal).exists()).toBe(true);
+    });
+
+    it.each(['viewer', 'editor'] as const)('disables all layout creation entry points for a %s', async (role) => {
+        wrapper.unmount();
+        wrapper = await createWrapper(true, role);
+        await flushPromises();
+        const create = wrapper.get('button[aria-label="sw-experience-studio.workspace.layouts.create"]');
+        const emptyCreate = wrapper.get('.sw-experience-studio-detail__layouts-empty-state').findAll('button')[1];
+        expect(create.attributes('disabled')).toBeDefined();
+        expect(emptyCreate.attributes('disabled')).toBeDefined();
+        await create.trigger('click');
+        await emptyCreate.trigger('click');
+        const canvas = wrapper.getComponent<ComponentPublicInstance>({ ref: 'experienceStudioCanvas' });
+        expect(canvas.props()).toMatchObject({ allowCreate: false });
+        canvas.vm.$emit('create-layout');
+        await flushPromises();
+        expect(wrapper.find('sw-experience-studio-create-wizard-stub').exists()).toBe(false);
+
+        await wrapper.get('.sw-experience-studio-canvas__background').trigger('contextmenu', { clientX: 500, clientY: 200 });
+        await flushPromises();
+        const items = new DOMWrapper(document.body)
+            .get('.sw-experience-studio-canvas__context-menu')
+            .findAll('[role="menuitem"]');
+        expect(items[1].attributes('data-disabled')).toBeDefined();
+        await items[1].trigger('click');
+        expect(wrapper.find('sw-experience-studio-create-wizard-stub').exists()).toBe(false);
+        expect(items[0].attributes('data-disabled')).toBeUndefined();
+        await items[0].trigger('click');
+        await flushPromises();
+        expect(wrapper.find('sw-experience-studio-layout-picker-stub').exists()).toBe(true);
     });
 
     it('opens the selected page tree and returns to the opened pages with the back button', async () => {

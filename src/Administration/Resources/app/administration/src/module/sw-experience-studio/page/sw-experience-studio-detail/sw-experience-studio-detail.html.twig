@@ -53,6 +53,7 @@
                     :key="workspaceStore.activeWorkspace?.id ?? 'no-workspace'"
                     :workspace-configuration="workspaceCanvasConfiguration"
                     :frames="canvasFrames"
+                    :allow-create="allowCreate"
                     :layout-id="layoutId"
                     :layout-name="layout?.name ?? ''"
                     :viewport="currentViewport"
@@ -152,6 +153,7 @@
                                 variant="secondary"
                                 square
                                 :aria-label="$t('sw-experience-studio.workspace.layouts.create')"
+                                :disabled="!allowCreate"
                                 @click="onOpenCreateLayout"
                             >
                                 <mt-icon
@@ -194,6 +196,7 @@
                                 <mt-button
                                     size="small"
                                     variant="secondary"
+                                    :disabled="!allowCreate"
                                     @click="onOpenCreateLayout"
                                 >
                                     {{ $t('sw-experience-studio.general.createNewLayout') }}

@@ -39,6 +39,10 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: () => [],
         },
+        allowCreate: {
+            type: Boolean,
+            default: false,
+        },
         layoutId: {
             type: String,
             required: false,

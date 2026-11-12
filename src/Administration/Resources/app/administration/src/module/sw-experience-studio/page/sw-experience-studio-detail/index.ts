@@ -388,6 +388,10 @@ export default Shopware.Component.wrapComponentConfig({
             return this.acl.can('experience_studio.editor');
         },
 
+        allowCreate(): boolean {
+            return this.acl.can('experience_studio.creator');
+        },
+
         layoutTypeOptions(): LayoutTypeOption[] {
             return this.availableLayoutTypes.map((entityType) => {
                 const snippetKey = `sw-experience-studio.createWizard.layoutTypes.${entityType}`;
@@ -1075,6 +1079,9 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onOpenCreateLayout(): void {
+            if (!this.allowCreate) {
+                return;
+            }
             this.createWizardName = '';
             this.createWizardSelectedType = null;
             this.isCreateLayoutModalOpen = true;
@@ -1343,7 +1350,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onCreateWizardComplete(payload: { name: string; type: string }): void {
-            if (!this.workspaceStore.activeWorkspace) {
+            if (!this.allowCreate || !this.workspaceStore.activeWorkspace) {
                 return;
             }
 

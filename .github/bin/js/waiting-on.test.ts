@@ -5,10 +5,12 @@ import {
     buildRows,
     classifyPullRequest,
     daysSince,
+    findSetByHand,
     isHuman,
     isNonHumanLogin,
     NON_HUMAN_LOGINS,
     PARKED_LABEL,
+    renderReport,
     planLabelChanges,
     type PullRequestFacts,
     summarizeActivity,
@@ -216,6 +218,28 @@ test('a pull request nobody ever reviewed dates from when it was offered, not op
     assert.equal(verdict.since, '2026-08-02T00:00:00Z');
 });
 
+test('maintainer comments without a review are not never-reviewed', () => {
+    // Regression: this is #21029, where two maintainers gave feedback as plain comments
+    // and nobody submitted a review.
+    const theirs = classify({
+        createdAt: '2026-09-29T15:26:23Z',
+        lastAuthorActivityAt: '2026-09-29T15:26:23Z',
+        lastMaintainerActivityAt: '2026-11-02T22:05:57Z',
+    });
+
+    assert.equal(theirs.waitingOn, 'author');
+    assert.equal(theirs.reason, 'author-turn');
+
+    const ours = classify({
+        createdAt: '2026-09-29T15:26:23Z',
+        lastAuthorActivityAt: '2026-11-04T06:56:58Z',
+        lastMaintainerActivityAt: '2026-11-02T22:05:57Z',
+    });
+
+    assert.equal(ours.waitingOn, 'shopware');
+    assert.equal(ours.reason, 'our-turn');
+});
+
 test('a maintainer writing last puts it back with the author', () => {
     const verdict = classify({
         reviewCount: 2,
@@ -366,12 +390,13 @@ const node = (overrides: Record<string, unknown> = {}) => ({
     reviewDecision: null,
     mergeable: 'MERGEABLE',
     author: { login: 'someone', __typename: 'User' },
-    labels: { nodes: [] },
+    labels: { nodes: [{ name: 'external-contribution' }] },
     approvals: { totalCount: 0 },
     allReviews: { totalCount: 0 },
     latestOpinionatedReviews: { nodes: [] },
     reviewThreads: { nodes: [] },
     timelineItems: { nodes: [] },
+    labelEvents: { nodes: [] },
     ...overrides,
 }) as Parameters<typeof buildRows>[0][number];
 
@@ -420,7 +445,7 @@ test('a lone reply inside a review thread is activity the timeline does not repo
     assert.equal(activity.lastMaintainerActivityAt, '2026-07-21T12:24:31Z');
 });
 
-const labelled = (number: number, ...names: string[]) => node({ number, labels: { nodes: names.map((name) => ({ name })) } });
+const labelled = (number: number, ...names: string[]) => node({ number, labels: { nodes: ['external-contribution', ...names].map((name) => ({ name })) } });
 
 test('planLabelChanges sets the verdict and swaps out a stale one', () => {
     const nodes = [labelled(1), labelled(2, 'waiting-on/author', 'component/core'), labelled(3, 'waiting-on/shopware')];
@@ -430,6 +455,18 @@ test('planLabelChanges sets the verdict and swaps out a stale one', () => {
         { number: 1, add: WAITING_ON_LABEL.shopware, remove: [] },
         { number: 2, add: WAITING_ON_LABEL.shopware, remove: ['waiting-on/author'] },
     ]);
+});
+
+test('buildRows leaves out internal pull requests', () => {
+    const rows = buildRows([node({ number: 1 }), node({ number: 2, labels: { nodes: [{ name: 'domain/crm-after-sales' }] } })], new Date('2026-09-10T00:00:00Z'));
+
+    assert.deepEqual(rows.map((row) => row.number), [1]);
+});
+
+test('planLabelChanges strips the label from an internal pull request', () => {
+    const nodes = [node({ number: 5, labels: { nodes: [{ name: 'waiting-on/shopware' }, { name: 'domain/crm-after-sales' }] } })];
+
+    assert.deepEqual(planLabelChanges(nodes, buildRows(nodes, new Date())), [{ number: 5, add: undefined, remove: ['waiting-on/shopware'] }]);
 });
 
 test('planLabelChanges strips the label from a pull request a bot opened', () => {
@@ -470,4 +507,67 @@ test('applyLabelChanges carries on past a failing pull request and reports it', 
 
     assert.deepEqual(failed, [1]);
     assert.deepEqual(calls, ['add #2 waiting-on/author', 'remove #2 waiting-on/shopware']);
+});
+
+const handSet = { waitingOn: 'author', actor: 'larskemper', at: '2026-10-10T09:00:00Z' } as const;
+
+test('a label a person set wins over a rule that disagrees, dated from when it was set', () => {
+    const verdict = classify({ reviewDecision: 'APPROVED', reviewCount: 2, approvals: 2, lastMaintainerActivityAt: '2026-10-07T12:00:00Z', setByHand: handSet });
+
+    assert.equal(verdict.waitingOn, 'author');
+    assert.equal(verdict.reason, 'set-by-hand');
+    assert.equal(verdict.since, '2026-10-10T09:00:00Z');
+    assert.equal(verdict.setBy, 'larskemper');
+});
+
+test('the first activity after a label set by hand gives the decision back to the rule', () => {
+    const approved = { reviewDecision: 'APPROVED', reviewCount: 2, approvals: 2, setByHand: handSet } as const;
+
+    assert.equal(classify({ ...approved, lastAuthorActivityAt: '2026-10-11T08:00:00Z' }).reason, 'just-merge-it');
+    assert.equal(classify({ ...approved, lastMaintainerActivityAt: '2026-10-11T08:00:00Z' }).reason, 'just-merge-it');
+});
+
+test('a label set by hand that agrees with the rule keeps the rules reason', () => {
+    const verdict = classify({ reviewDecision: 'CHANGES_REQUESTED', reviewCount: 1, lastChangesRequestedAt: '2026-10-01T00:00:00Z', setByHand: handSet });
+
+    assert.equal(verdict.reason, 'changes-requested');
+});
+
+test(`\`${PARKED_LABEL}\` still wins over a label set by hand`, () => {
+    assert.equal(classify({ isParked: true, setByHand: handSet }).reason, 'parked-by-label');
+});
+
+test('findSetByHand takes the newest waiting-on label a person set, while it is still there', () => {
+    const labeled = (name: string, createdAt: string, login: string, __typename = 'User') => ({ createdAt, actor: { login, __typename }, label: { name } });
+    const events = [
+        labeled('waiting-on/shopware', '2026-10-01T06:00:00Z', 'github-actions', 'Bot'),
+        labeled('waiting-on/nobody', '2026-10-02T10:00:00Z', 'mitelg'),
+        labeled('domain/crm-after-sales', '2026-10-04T10:00:00Z', 'larskemper'),
+        labeled('waiting-on/author', '2026-10-03T10:00:00Z', 'larskemper'),
+        labeled('waiting-on/shopware', '2026-10-05T06:00:00Z', 'shopware-octo-sts-app', 'User'),
+    ];
+
+    assert.deepEqual(findSetByHand(events, ['waiting-on/author']), { waitingOn: 'author', actor: 'larskemper', at: '2026-10-03T10:00:00Z' });
+    assert.equal(findSetByHand(events, ['waiting-on/shopware']), undefined, 'a label removed since does not count');
+    assert.equal(findSetByHand(events.slice(0, 1), ['waiting-on/shopware']), undefined, 'our own writes are not a person');
+});
+
+test('buildRows keeps a label set by hand, so the sweep does not undo it, and the report lists it', () => {
+    const rows = buildRows(
+        [
+            node({
+                reviewDecision: 'APPROVED',
+                approvals: { totalCount: 2 },
+                allReviews: { totalCount: 2 },
+                labels: { nodes: [{ name: 'external-contribution' }, { name: 'waiting-on/author' }] },
+                labelEvents: { nodes: [{ createdAt: '2026-09-02T00:00:00Z', actor: { login: 'larskemper', __typename: 'User' }, label: { name: 'waiting-on/author' } }] },
+            }),
+        ],
+        new Date('2026-09-10T00:00:00Z'),
+    );
+
+    assert.equal(rows[0].label, 'waiting-on/author');
+    assert.equal(rows[0].setBy, 'larskemper');
+    assert.deepEqual(planLabelChanges([node({ labels: { nodes: [{ name: 'external-contribution' }, { name: 'waiting-on/author' }] } })], rows), []);
+    assert.match(renderReport(rows), /### Set by hand — 1/);
 });

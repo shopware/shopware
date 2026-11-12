@@ -3884,16 +3884,6 @@
       "count": 1
     }
   },
-  "src/core/factory/http-client-adapter.spec.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 4
-    }
-  },
-  "src/core/factory/http-client-adapter.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 3
-    }
-  },
   "src/core/factory/http-client.types.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 3

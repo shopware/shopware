@@ -1,7 +1,7 @@
 /**
  * @sw-package framework
  */
-import type { AxiosError } from 'axios';
+import type { HttpError } from 'src/core/factory/http-client.types';
 
 /**
  * @private
@@ -20,10 +20,10 @@ export default function (exception: unknown): string {
     return message;
 }
 
-function isAxiosError(exception: unknown): exception is AxiosError<unknown> {
+function isAxiosError(exception: unknown): exception is HttpError<unknown> {
     return exception instanceof Error && exception.name === 'AxiosError';
 }
 
-function isShopwareHttpErrorResponse(exception: unknown): exception is AxiosError<{ errors: ShopwareHttpError[] }> {
+function isShopwareHttpErrorResponse(exception: unknown): exception is HttpError<{ errors: ShopwareHttpError[] }> {
     return isAxiosError(exception) && typeof exception.response !== 'undefined';
 }

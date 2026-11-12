@@ -113,7 +113,6 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
         $resolver->enrich($slot, $context, $result);
 
-        /** @var ImageSliderStruct $data */
         $data = $slot->getData();
         static::assertInstanceOf(ImageSliderStruct::class, $data);
         $sliderItems = $data->getSliderItems();

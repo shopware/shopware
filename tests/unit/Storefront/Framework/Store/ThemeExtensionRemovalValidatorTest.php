@@ -27,8 +27,7 @@ class ThemeExtensionRemovalValidatorTest extends TestCase
 
     public function testExtensionWithoutThemeCanBeRemoved(): void
     {
-        $salesChannelRepository = $this->createMock(EntityRepository::class);
-        $salesChannelRepository->expects($this->never())->method('aggregate');
+        $salesChannelRepository = StaticEntityRepository::of(SalesChannelCollection::class);
 
         $validator = new ThemeExtensionRemovalValidator(
             StaticEntityRepository::of(ThemeCollection::class, [[]]),
@@ -36,6 +35,8 @@ class ThemeExtensionRemovalValidatorTest extends TestCase
         );
 
         $validator->validateCanBeRemoved('SwagPlugin', 'extension-id', Context::createDefaultContext());
+
+        static::assertSame([], $salesChannelRepository->searchedCriteria);
     }
 
     public function testThemeAssignedToASalesChannelCannotBeRemoved(): void
@@ -64,11 +65,9 @@ class ThemeExtensionRemovalValidatorTest extends TestCase
 
     public function testUnassignedThemeCanBeRemoved(): void
     {
-        $salesChannelRepository = $this->createMock(EntityRepository::class);
-        $salesChannelRepository
-            ->expects($this->once())
-            ->method('aggregate')
-            ->willReturn($this->buildAggregationResult(directlyAssigned: [], assignedChildren: []));
+        $salesChannelRepository = StaticEntityRepository::of(SalesChannelCollection::class, [
+            $this->buildAggregationResult(directlyAssigned: [], assignedChildren: []),
+        ]);
 
         $validator = new ThemeExtensionRemovalValidator(
             StaticEntityRepository::of(ThemeCollection::class, [[self::THEME_ID]]),
@@ -76,6 +75,8 @@ class ThemeExtensionRemovalValidatorTest extends TestCase
         );
 
         $validator->validateCanBeRemoved('SwagTheme', 'extension-id', Context::createDefaultContext());
+
+        static::assertCount(1, $salesChannelRepository->searchedCriteria);
     }
 
     /**
@@ -86,10 +87,7 @@ class ThemeExtensionRemovalValidatorTest extends TestCase
      */
     private function buildSalesChannelRepository(array $directlyAssigned, array $assignedChildren): EntityRepository
     {
-        $repository = static::createStub(EntityRepository::class);
-        $repository->method('aggregate')->willReturn($this->buildAggregationResult($directlyAssigned, $assignedChildren));
-
-        return $repository;
+        return StaticEntityRepository::of(SalesChannelCollection::class, [$this->buildAggregationResult($directlyAssigned, $assignedChildren)]);
     }
 
     /**

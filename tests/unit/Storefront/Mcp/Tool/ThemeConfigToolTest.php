@@ -55,11 +55,10 @@ class ThemeConfigToolTest extends TestCase
         );
 
         $output = $tool($salesChannelId, 'get');
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertTrue($data['success']);
-        static::assertSame($themeId, $data['data']['themeId']);
-        static::assertSame($expectedConfig, $data['data']['config']);
+        static::assertFalse($output->isError());
+        static::assertSame($themeId, $output->data['themeId']);
+        static::assertSame($expectedConfig, $output->data['config']);
     }
 
     public function testUpdateDryRunReturnsPreview(): void
@@ -81,11 +80,10 @@ class ThemeConfigToolTest extends TestCase
 
         $config = json_encode(['sw-color-brand-primary' => ['value' => '#0000ff']], \JSON_THROW_ON_ERROR);
         $output = $tool($salesChannelId, 'update', $config, true);
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertTrue($data['success']);
-        static::assertTrue($data['_meta']['dryRun']);
-        static::assertSame($themeId, $data['data']['themeId']);
+        static::assertFalse($output->isError());
+        static::assertTrue($output->meta['dryRun']);
+        static::assertSame($themeId, $output->data['themeId']);
     }
 
     public function testUpdateCommitCallsThemeService(): void
@@ -110,11 +108,10 @@ class ThemeConfigToolTest extends TestCase
 
         $config = json_encode($configValues, \JSON_THROW_ON_ERROR);
         $output = $tool($salesChannelId, 'update', $config, false);
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertTrue($data['success']);
-        static::assertFalse($data['_meta']['dryRun']);
-        static::assertSame(['sw-color-brand-primary'], $data['data']['updatedKeys']);
+        static::assertFalse($output->isError());
+        static::assertFalse($output->meta['dryRun']);
+        static::assertSame(['sw-color-brand-primary'], $output->data['updatedKeys']);
     }
 
     public function testResolvesSalesChannelByName(): void
@@ -139,11 +136,10 @@ class ThemeConfigToolTest extends TestCase
         );
 
         $output = $tool('Storefront', 'get');
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertTrue($data['success']);
-        static::assertSame($themeId, $data['data']['themeId']);
-        static::assertSame($expectedConfig, $data['data']['config']);
+        static::assertFalse($output->isError());
+        static::assertSame($themeId, $output->data['themeId']);
+        static::assertSame($expectedConfig, $output->data['config']);
     }
 
     /**
@@ -164,10 +160,9 @@ class ThemeConfigToolTest extends TestCase
         );
 
         $output = $tool('not-a-uuid', 'get');
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('not-a-uuid', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('not-a-uuid', $output->error->message);
         // The input never reaches Uuid::fromHexToBytes(); it is bound as a name only.
         static::assertNull($lookupParams['id']);
     }
@@ -184,12 +179,11 @@ class ThemeConfigToolTest extends TestCase
         );
 
         $output = $tool('Storfront', 'get');
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('not found', $data['error']);
-        static::assertStringContainsString('"Storefront"', $data['error']);
-        static::assertStringContainsString('"Headless"', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('not found', $output->error->message);
+        static::assertStringContainsString('"Storefront"', $output->error->message);
+        static::assertStringContainsString('"Headless"', $output->error->message);
     }
 
     public function testAmbiguousSalesChannelNameReturnsError(): void
@@ -207,12 +201,11 @@ class ThemeConfigToolTest extends TestCase
         );
 
         $output = $tool('Storefront', 'get');
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('ambiguous', $data['error']);
-        static::assertStringContainsString($firstId, $data['error']);
-        static::assertStringContainsString($secondId, $data['error']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('ambiguous', $output->error->message);
+        static::assertStringContainsString($firstId, $output->error->message);
+        static::assertStringContainsString($secondId, $output->error->message);
     }
 
     public function testUppercaseUuidIsAccepted(): void
@@ -237,10 +230,9 @@ class ThemeConfigToolTest extends TestCase
         );
 
         $output = $tool(strtoupper($salesChannelId), 'get');
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertTrue($data['success']);
-        static::assertSame($themeId, $data['data']['themeId']);
+        static::assertFalse($output->isError());
+        static::assertSame($themeId, $output->data['themeId']);
         // Uuid::isValid() only matches lowercase hex, so without the lowercasing the uppercase
         // input would never be bound as an ID.
         static::assertSame(Uuid::fromHexToBytes($salesChannelId), $lookupParams['id']);
@@ -258,11 +250,10 @@ class ThemeConfigToolTest extends TestCase
         );
 
         $output = $tool(Uuid::randomHex(), 'get');
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('not found', $data['error']);
-        static::assertStringNotContainsString('No theme assigned', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('not found', $output->error->message);
+        static::assertStringNotContainsString('No theme assigned', $output->error->message);
     }
 
     /**
@@ -314,10 +305,9 @@ class ThemeConfigToolTest extends TestCase
         );
 
         $output = $tool($uuidShapedName, 'get');
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertTrue($data['success']);
-        static::assertSame($themeId, $data['data']['themeId']);
+        static::assertFalse($output->isError());
+        static::assertSame($themeId, $output->data['themeId']);
         // Both candidates are bound in the same lookup, so a UUID that matches no ID cannot
         // shadow a channel carrying it as a name.
         static::assertSame(Uuid::fromHexToBytes($uuidShapedName), $lookupParams['id']);
@@ -336,10 +326,9 @@ class ThemeConfigToolTest extends TestCase
         );
 
         $output = $tool('Storefront', 'get');
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('Available sales channels: none.', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('Available sales channels: none.', $output->error->message);
     }
 
     public function testAvailableNamesAreTruncated(): void
@@ -356,12 +345,11 @@ class ThemeConfigToolTest extends TestCase
         );
 
         $output = $tool('Unknown', 'get');
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('"Channel 20"', $data['error']);
-        static::assertStringNotContainsString('"Channel 21"', $data['error']);
-        static::assertStringContainsString('and 5 more', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('"Channel 20"', $output->error->message);
+        static::assertStringNotContainsString('"Channel 21"', $output->error->message);
+        static::assertStringContainsString('and 5 more', $output->error->message);
     }
 
     public function testNoThemeReturnsError(): void
@@ -378,10 +366,9 @@ class ThemeConfigToolTest extends TestCase
         );
 
         $output = $tool($salesChannelId, 'get');
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('No theme assigned', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('No theme assigned', $output->error->message);
     }
 
     public function testSurroundingWhitespaceIsTrimmed(): void
@@ -400,9 +387,8 @@ class ThemeConfigToolTest extends TestCase
         );
 
         $output = $tool('  Storefront  ', 'get');
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertTrue($data['success']);
+        static::assertFalse($output->isError());
         static::assertSame('Storefront', $lookupParams['name']);
     }
 
@@ -415,10 +401,9 @@ class ThemeConfigToolTest extends TestCase
         );
 
         $output = $tool(Uuid::randomHex(), 'delete');
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('Unknown action', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('Unknown action', $output->error->message);
     }
 
     public function testGetExceptionReturnsError(): void
@@ -440,10 +425,9 @@ class ThemeConfigToolTest extends TestCase
         );
 
         $output = $tool($salesChannelId, 'get');
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('Theme config broken', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('Theme config broken', $output->error->message);
     }
 
     public function testUpdateWithEmptyConfigReturnsError(): void
@@ -461,10 +445,9 @@ class ThemeConfigToolTest extends TestCase
         );
 
         $output = $tool($salesChannelId, 'update', '{}', false);
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('non-empty JSON', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('non-empty JSON', $output->error->message);
     }
 
     public function testUpdateExceptionReturnsError(): void
@@ -487,10 +470,9 @@ class ThemeConfigToolTest extends TestCase
 
         $config = json_encode(['sw-color-brand-primary' => ['value' => '#ff0000']], \JSON_THROW_ON_ERROR);
         $output = $tool($salesChannelId, 'update', $config, false);
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('Compilation failed', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('Compilation failed', $output->error->message);
     }
 
     public function testMalformedConfigJsonReturnsError(): void
@@ -508,11 +490,10 @@ class ThemeConfigToolTest extends TestCase
         );
 
         $output = $tool($salesChannelId, 'update', 'not-json', false);
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('Invalid JSON', $data['error']);
-        static::assertStringContainsString('config', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('Invalid JSON', $output->error->message);
+        static::assertStringContainsString('config', $output->error->message);
     }
 
     public function testEmptySalesChannelIdReturnsError(): void
@@ -524,10 +505,9 @@ class ThemeConfigToolTest extends TestCase
         );
 
         $output = $tool('');
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('salesChannelId is required', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('salesChannelId is required', $output->error->message);
     }
 
     public function testMissingAclReturnsError(): void
@@ -542,9 +522,8 @@ class ThemeConfigToolTest extends TestCase
         );
 
         $output = $tool(Uuid::randomHex(), 'get');
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertFalse($data['success']);
+        static::assertTrue($output->isError());
     }
 
     /**

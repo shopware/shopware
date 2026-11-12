@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Mcp\Tool;
 use Mcp\Capability\Attribute\McpTool;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
+use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 
 /**
  * @experimental stableVersion:v6.8.0
@@ -21,7 +22,7 @@ class ToolSearchTool extends AbstractToolSearchTool
      * binds the tool to this class instead of the (non-instantiable) abstract base.
      */
     #[\Override]
-    public function __invoke(string $query, int $maxResults = 3): string
+    public function __invoke(string $query, int $maxResults = 3): McpToolResult
     {
         return parent::__invoke($query, $maxResults);
     }

@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Mcp\Result\McpToolError;
+use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 
@@ -56,18 +57,18 @@ class OrderStateTool extends McpToolResponse
         string $transactionAction = '',
         string $deliveryAction = '',
         bool $dryRun = true,
-    ): string {
+    ): McpToolResult {
         if ($orderNumber === '' && $orderId === '') {
-            return $this->error('Provide either orderNumber or orderId.');
+            return $this->errorResult('Provide either orderNumber or orderId.');
         }
 
         if ($orderAction === '' && $transactionAction === '' && $deliveryAction === '') {
-            return $this->error('Provide at least one of orderAction, transactionAction, or deliveryAction.');
+            return $this->errorResult('Provide at least one of orderAction, transactionAction, or deliveryAction.');
         }
 
         $context = $this->contextProvider->getContext();
 
-        if ($error = $this->requirePrivilege($context, OrderDefinition::ENTITY_NAME . ':read')) {
+        if ($error = $this->requirePrivilegeResult($context, OrderDefinition::ENTITY_NAME . ':read')) {
             return $error;
         }
 
@@ -83,7 +84,7 @@ class OrderStateTool extends McpToolResponse
                 $writePrivileges[] = OrderDeliveryDefinition::ENTITY_NAME . ':update';
             }
 
-            if ($writePrivileges !== [] && ($error = $this->requirePrivilege($context, ...$writePrivileges))) {
+            if ($writePrivileges !== [] && ($error = $this->requirePrivilegeResult($context, ...$writePrivileges))) {
                 return $error;
             }
         }
@@ -91,7 +92,7 @@ class OrderStateTool extends McpToolResponse
         $order = $this->loadOrder($orderId, $orderNumber, $context);
 
         if (!$order instanceof OrderEntity) {
-            return $this->error('Order not found.', McpToolError::NOT_FOUND);
+            return $this->errorResult('Order not found.', McpToolError::NOT_FOUND);
         }
 
         $base = [
@@ -110,7 +111,7 @@ class OrderStateTool extends McpToolResponse
             );
         }
 
-        return $this->success(array_merge($base, $transitionResult), ['dryRun' => $dryRun]);
+        return $this->successResult(array_merge($base, $transitionResult), ['dryRun' => $dryRun]);
     }
 
     /**

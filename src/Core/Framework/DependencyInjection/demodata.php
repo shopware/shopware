@@ -104,7 +104,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('property_group.repository'),
         ])
-        ->tag('shopware.demodata_generator', ['option-name' => 'properties', 'option-default' => 10, 'option-description' => 'Property group count (option count rand(30-300))', 'option_name' => 'properties', 'option_default' => 10, 'option_description' => 'Property group count (option count rand(30-300))']);
+        ->tag('shopware.demodata_generator', ['option-name' => 'properties', 'option-default' => 11, 'option-description' => 'Property group count, groups are added until this many exist', 'option_name' => 'properties', 'option_default' => 11, 'option_description' => 'Property group count, groups are added until this many exist']);
 
     $services->set(CategoryGenerator::class)
         ->args([

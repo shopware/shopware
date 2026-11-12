@@ -343,6 +343,13 @@ A route can restrict these associations, for example with `$criteria->getAssocia
 Orders placed before this change still contain the default currency value.
 Extensions and headless frontends that convert `payload.value` into the cart currency themselves must remove that conversion.
 
+### `framework:demodata` creates the requested number of property groups
+
+`--properties` now sets the number of property groups: the command adds groups until that many exist.
+The default stays at the 11 predefined groups.
+The new `--property-options` option sets the number of options per new group, otherwise each group keeps its predefined options.
+Generated products pick their properties from all property groups, and generating large product counts is several times faster.
+
 ## API
 
 ### Plain JSON becomes the default Admin API response format in 6.8

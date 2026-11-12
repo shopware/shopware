@@ -37,11 +37,14 @@ class PropertyGroupGenerator implements DemodataGeneratorInterface
     {
         $criteria = new Criteria();
         $criteria->setLimit(1);
-        $exists = $this->propertyGroupRepository->searchIds($criteria, Context::createDefaultContext());
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+        $existing = $this->propertyGroupRepository->searchIds($criteria, Context::createDefaultContext())->getTotal();
 
-        if ($exists->getTotal() > 0) {
+        if ($existing >= $numberOfItems) {
             return;
         }
+
+        $optionCount = (int) ($options['options'] ?? 0);
 
         $data = [
             'color' => ['aliceblue', 'antiquewhite', 'aquamarine', 'azure', 'bakerschocolate', 'beige', 'bisque', 'blanchedalmond', 'blueviolet', 'brass', 'brightgold', 'bronze', 'brown', 'burlywood', 'cadetblue', 'chartreuse', 'chocolate', 'coolcopper', 'copper', 'coral', 'cornflowerblue', 'cornsilk', 'crimson', 'cyan', 'darkblue', 'darkbrown', 'darkcyan', 'darkgoldenrod', 'darkgray', 'darkgreen', 'darkgreencopper', 'darkkhaki', 'darkmagenta', 'darkolivegreen', 'darkorange', 'darkorchid', 'darkpurple', 'darkred', 'darksalmon', 'darkseagreen', 'darkslateblue', 'darkslategray', 'darktan', 'darkturquoise', 'darkviolet', 'darkwood', 'deeppink', 'deepskyblue', 'dimgray', 'dodgerblue', 'dustyrose', 'fadedbrown', 'feldspar', 'firebrick', 'floralwhite', 'forestgreen', 'gainsboro', 'ghostwhite', 'gold', 'goldenrod', 'greencopper', 'greenyellow', 'honeydew', 'hotpink', 'huntergreen', 'indianred', 'indigo', 'ivory', 'khaki', 'lavender', 'lavenderblush', 'lawngreen', 'lemonchiffon', 'lightblue', 'lightcoral', 'lightcyan', 'lightgoldenrodyellow', 'lightgreen', 'lightgrey', 'lightpink', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslateblue', 'lightslategray', 'lightsteelblue', 'lightwood', 'lightyellow', 'limegreen', 'linen', 'mandarinorange', 'mediumaquamarine', 'mediumblue', 'mediumgoldenrod', 'mediumorchid', 'mediumpurple', 'mediumseagreen', 'mediumslateblue', 'mediumspringgreen', 'mediumturquoise', 'mediumvioletred', 'mediumwood', 'midnightblue', 'mintcream', 'mistyrose', 'moccasin', 'navajowhite', 'navyblue', 'neonblue', 'neonpink', 'newmidnightblue', 'newtan', 'oldgold', 'oldlace', 'olivedrab', 'orange', 'orangered', 'orchid', 'palegoldenrod', 'palegreen', 'paleturquoise', 'palevioletred', 'papayawhip', 'peachpuff', 'peru', 'pink', 'plum', 'powderblue', 'quartz', 'richblue', 'rosybrown', 'royalblue', 'saddlebrown', 'salmon', 'sandybrown', 'scarlet', 'seagreen', 'seashell', 'semisweetchocolate', 'sienna', 'skyblue', 'slateblue', 'slategray', 'snow', 'spicypink', 'springgreen', 'steelblue', 'summersky', 'tan', 'thistle', 'tomato', 'turquoise', 'verylightgrey', 'violet', 'violetred', 'wheat', 'whitesmoke', 'yellowgreen'],
@@ -57,16 +60,23 @@ class PropertyGroupGenerator implements DemodataGeneratorInterface
             'shirt-size' => ['28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '28,5', '29,5', '30,5', '31,5', '32,5', '33,5', '34,5', '35,5', '36,5', '37,5', '38,5', '39,5', '40,5', '41,5', '42,5'],
         ];
 
-        $context->getConsole()->progressStart(\count($data));
+        $groupNames = array_keys($data);
 
-        foreach ($data as $group => $groupOptions) {
+        $context->getConsole()->progressStart($numberOfItems - $existing);
+
+        for ($i = $existing; $i < $numberOfItems; ++$i) {
+            $groupOptions = $data[$groupNames[$i % \count($groupNames)]];
+            if ($optionCount > 0) {
+                $groupOptions = array_map(fn (int $index): string => $this->numbered($groupOptions, $index), range(0, $optionCount - 1));
+            }
+
             $mapped = array_map(static fn ($option) => ['id' => Uuid::randomHex(), 'name' => $option], $groupOptions);
 
             $this->propertyGroupRepository->create(
                 [
                     [
                         'id' => Uuid::randomHex(),
-                        'name' => $group,
+                        'name' => $this->numbered($groupNames, $i),
                         'options' => $mapped,
                         'sorting_type' => PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC,
                         'display_type' => PropertyGroupDefinition::DISPLAY_TYPE_TEXT,
@@ -80,5 +90,16 @@ class PropertyGroupGenerator implements DemodataGeneratorInterface
         }
 
         $context->getConsole()->progressFinish();
+    }
+
+    /**
+     * @param list<string> $names
+     */
+    private function numbered(array $names, int $index): string
+    {
+        $name = $names[$index % \count($names)];
+        $round = intdiv($index, \count($names));
+
+        return $round === 0 ? $name : $name . ' ' . ($round + 1);
     }
 }

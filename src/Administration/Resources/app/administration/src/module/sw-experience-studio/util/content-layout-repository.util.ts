@@ -38,27 +38,27 @@ export function createContentLayoutRepository(repository: Repository<'content_la
         },
 
         async get(id: string, context: apiContext, criteria: CriteriaType): Promise<ContentLayoutEntity | null> {
-            const entity = (await repository.get(
-                id as EntityKey<'content_layout'>,
-                context,
-                criteria,
-            )) as ContentLayoutEntity | null;
+            const entity = await repository.get(id as EntityKey<'content_layout'>, context, criteria);
 
-            if (entity && entity.layout !== undefined && entity.layout !== null && !Array.isArray(entity.layout)) {
-                throw new Error(
-                    `content_layout entity "${entity.id}" has a non-array layout: expected an array, received ${typeof entity.layout}.`,
-                );
-            }
-
-            return entity;
+            return entity ? validateContentLayout(entity) : null;
         },
 
         async search(criteria: CriteriaType, context: apiContext): Promise<ContentLayoutEntity[]> {
-            return Array.from(await repository.search(criteria, context)) as ContentLayoutEntity[];
+            return Array.from(await repository.search(criteria, context), validateContentLayout);
         },
 
         async save(layout: ContentLayoutEntity, context: apiContext): Promise<void> {
             await repository.save(layout, context);
         },
     };
+}
+
+function validateContentLayout(entity: Entity<'content_layout'>): ContentLayoutEntity {
+    if (entity.layout !== undefined && entity.layout !== null && !Array.isArray(entity.layout)) {
+        throw new Error(
+            `content_layout entity "${entity.id}" has a non-array layout: expected an array, received ${typeof entity.layout}.`,
+        );
+    }
+
+    return entity as ContentLayoutEntity;
 }

@@ -220,9 +220,23 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
             $groupMap[$tool->name] = $group;
 
             $description = trim($groupAttribute->description ?? '');
-            if ($description !== '') {
-                $describedGroups[$tool->name] = ['description' => $description, 'core' => self::isCoreClass($class)];
+            if ($description === '') {
+                continue;
             }
+
+            // `other` collects the tools of many extensions, and `all` is resolved to `other` (see
+            // McpCapabilityCatalog), so no single tool may describe either of them.
+            if ($group === McpToolsetRegistry::FALLBACK_GROUP || $group === McpToolsetRegistry::ALL_TOOLSETS) {
+                $container->log($this, \sprintf(
+                    'MCP tool "%s" describes the reserved "%s" toolset; the description is ignored.',
+                    $tool->name,
+                    $group,
+                ));
+
+                continue;
+            }
+
+            $describedGroups[$tool->name] = ['description' => $description, 'core' => self::isCoreClass($class)];
         }
 
         $container->setParameter($paramPrefix . 'tool_groups', $groupMap);

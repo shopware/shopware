@@ -247,6 +247,7 @@ Plugins that add their own toolset should set it on one tool of the group:
 
 Existing `#[McpToolGroup('<group>')]` declarations keep working and keep the generated description.
 Plugins can add tools to a core toolset such as `entity`, but cannot change its description.
+
 ### MCP servers run on `mcp/sdk` 0.9 and `symfony/mcp-bundle` 0.15
 
 Shopware now requires `mcp/sdk` 0.9 and `symfony/mcp-bundle` 0.15.

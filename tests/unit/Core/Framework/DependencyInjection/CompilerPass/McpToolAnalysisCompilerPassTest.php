@@ -343,6 +343,28 @@ class McpToolAnalysisCompilerPassTest extends TestCase
         static::assertCount(1, $ignored);
     }
 
+    public function testDescriptionsOfReservedToolsetsAreIgnored(): void
+    {
+        $container = $this->createContainer();
+        $container->setDefinition('tool.other', (new Definition(McpAnalysisTestDescribingFallbackGroupTool::class))->addTag('mcp.tool'));
+        $container->setDefinition('tool.all', (new Definition(McpAnalysisTestDescribingAllGroupTool::class))->addTag('mcp.tool'));
+
+        (new McpToolAnalysisCompilerPass())->process($container);
+
+        static::assertSame([], $container->getParameter('shopware.mcp.tool_group_descriptions'));
+        static::assertSame(
+            ['swag-analysis-describing-other-tool' => McpToolsetRegistry::FALLBACK_GROUP, 'swag-analysis-describing-all-tool' => McpToolsetRegistry::ALL_TOOLSETS],
+            $container->getParameter('shopware.mcp.tool_groups'),
+            'the tools keep their group',
+        );
+
+        $ignored = array_values(array_filter(
+            $container->getCompiler()->getLog(),
+            static fn (string $message): bool => str_contains($message, 'reserved'),
+        ));
+        static::assertCount(2, $ignored);
+    }
+
     private function createContainer(): ContainerBuilder
     {
         $container = new ContainerBuilder();
@@ -528,6 +550,32 @@ class McpAnalysisTestBlankDescriptionTool extends McpToolResponse
 #[McpTool(name: 'acme-analysis-media-export', description: 'extension tool in a core group')]
 #[McpToolGroup('media', description: 'Export media, and everything else.')]
 class McpAnalysisTestDescribingCoreGroupTool extends McpToolResponse
+{
+    public function __invoke(): string
+    {
+        return '';
+    }
+}
+
+/**
+ * @internal
+ */
+#[McpTool(name: 'swag-analysis-describing-other-tool', description: 'tool that describes the fallback toolset')]
+#[McpToolGroup(McpToolsetRegistry::FALLBACK_GROUP, description: 'Everything from Swag.')]
+class McpAnalysisTestDescribingFallbackGroupTool extends McpToolResponse
+{
+    public function __invoke(): string
+    {
+        return '';
+    }
+}
+
+/**
+ * @internal
+ */
+#[McpTool(name: 'swag-analysis-describing-all-tool', description: 'tool that describes the all selector')]
+#[McpToolGroup(McpToolsetRegistry::ALL_TOOLSETS, description: 'All of it.')]
+class McpAnalysisTestDescribingAllGroupTool extends McpToolResponse
 {
     public function __invoke(): string
     {

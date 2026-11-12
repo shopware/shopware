@@ -442,6 +442,43 @@ Amounts that carry a single value instead of a net and gross pair, such as absol
 
 The customer group detail page offers both settings separately. Plugins customize the selection through the new extension point `Shopware\Core\Checkout\Cart\Extension\PriceSelectorExtension` (`price-selector.select.pre` and `.post`), for example to apply charm-price rounding to derived gross prices. `GrossPriceCalculator` now grosses up uncalculated prices over several tax rules so that its own tax split returns the given net value; prices with a single tax rule are unchanged. Background and trade-offs are documented in the ADR `adr/2026-08-11-decouple-price-calculation-basis-from-tax-display.md`.
 
+### Product documents
+
+Products can have documents, such as manuals, datasheets or certificates.
+`product.documents` holds them with their `position`, and `product_document_translation` holds a title and a file per language.
+Title and file fall back separately, from the requested language to its parent language and then to the default language.
+A variant without documents of its own gets the documents of its parent.
+The product of a document can't be changed, and a file that a document uses can't be deleted.
+A new document without a title gets the name of its file, without the extension.
+Administration roles with product privileges get the matching `product_document` and `product_document_translation` privileges.
+Apps and integrations need the same permissions to read or write documents.
+
+Saving a document checks its files: they have to exist, be public, be stored in the shop, and have an allowed type and a known size within the limit.
+Rejected files get errors with `PRODUCT_DOCUMENT_FILE_*` codes.
+The allowed types and the maximum size are new settings, and a list of your own replaces the default types:
+
+```yaml
+shopware:
+    product_documents:
+        allowed_extensions: ["pdf", "docx", "jpg", "jpeg", "png"]
+        max_file_size: 20971520 # 20 MB
+```
+
+Extensions can change the allowed types with `ProductDocumentAllowedExtensionsEvent`.
+`GET /api/_info/config` returns the settings in `settings.productDocuments`, with `maxFileSize` lowered to PHP's upload limits unless uploads go straight to the storage.
+
+Files uploaded for documents go into the new default media folder "Product Document Media".
+The monthly scheduled task `product_document.media.cleanup` deletes files from that folder that no document uses and that are older than a day.
+To turn it off, run `bin/console scheduled-task:deactivate product_document.media.cleanup`.
+
+In the Storefront, the description and reviews element on the product page shows the documents in a tab, rendered by `storefront/component/product/documents.html.twig`.
+There, `product_document.media` holds the file in the shopper's language.
+
+Shoppers can download all documents of a product as one ZIP file, through `GET /store-api/product/{productId}/documents/archive` or the Storefront route `frontend.product.documents.archive`.
+The new rate limiter `product_documents_archive` allows 10 downloads per minute and IP address.
+The ZIP files are stored in the private filesystem under `product-documents/archives`, and the daily scheduled task `product_document.archive.cleanup` deletes those older than a day.
+Extensions can change the download through the `product-document-archive-route.load` extension event.
+
 ## App System
 
 ### Inline `<custom-fields>` in `manifest.xml` stay supported

@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Log\Package;
  * default, or the map of nested member defaults. A present key keeps its value, an authored null or a partial map
  * included, so no member default is merged into a map that is present. An unregistered component is left untouched
  * (the write gate reports that separately). It then recurses every slot's children. A translatable property's
- * default seeds as a one-entry language map under the anchor language, the stored shape the provider hands back.
+ * default seeds as a one-entry language map under the system-language entry, the stored shape the provider hands back.
  *
  * A {@see StoredElement} is immutable, so seeding it rebuilds the subtree through its `with*()` methods and hands
  * back a new forest rather than filling the one it was given. Shares the per-type rule with the layout mutations

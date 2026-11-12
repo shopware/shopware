@@ -22,9 +22,9 @@ Rules, in this order, each a `400` apart from the known limitation in
 The language-key check runs in a pass after every map is admitted, so a value rejection on any key reports ahead of a
 language-key rejection on another. Key existence stays a `dangling_language` diagnostics warning.
 
-The operation's own edit normalizes nothing and overlays no type default. There is no anchor rule: a map without the
-`Defaults::LANGUAGE_SYSTEM` entry passes the operation. On the draft route, a required property left without its
-anchor surfaces as `UnresolvedRequired` in the response diagnostics only when the request names a `rootSource`. On
+The operation's own edit normalizes nothing and overlays no type default. No rule requires the system-language entry: a map
+without the `Defaults::LANGUAGE_SYSTEM` entry passes the operation. On the draft route, a required property left
+without its system-language entry surfaces as `UnresolvedRequired` in the response diagnostics only when the request names a `rootSource`. On
 the persisted route the committing write rejects it as a `400`. There is no `$removeKeys`: clearing one language is
 writing the map without that entry, and removing a property key stays with `UpdateElementProperties`.
 

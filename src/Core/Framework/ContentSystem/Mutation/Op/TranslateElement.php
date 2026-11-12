@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
  * type declares translatable, so no other property, no wiring, style or child is reachable through it. What a
  * translated value can still change, and when to grant the privilege, is in `Mutation/docs/translate-element.md`.
  * Each map is judged through {@see PropertyType::admits()} and written as supplied: nothing is normalized, no type
- * default is overlaid, and a map without the anchor entry passes. Every key not in $values carries verbatim, unread.
+ * default is overlaid, and a map without the system-language entry passes. Every key not in $values carries verbatim, unread.
  *
  * @internal
  */

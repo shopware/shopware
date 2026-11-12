@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
  * rule here, so "a type's stored defaults" is defined once.
  *
  * A primitive default takes the stored shape {@see PropertyType::inStoredShape()} defines, not one this class picks,
- * so a translatable property's default arrives already keyed by the anchor language.
+ * so a translatable property's default arrives already keyed by the system language.
  *
  * The caller guarantees the type is registered; a property whose type declares neither a default of its own nor a
  * nested member with one is skipped.

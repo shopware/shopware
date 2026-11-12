@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Log\Package;
  * Both seed an `inputs` default only when the element does not already carry the property
  * ({@see StoredElement::property()} presence gate, so an authored value always wins, including an explicit null),
  * and both seed it in the storage shape the target property declares — a translatable property's default lands
- * under the anchor language key, resolved through the element-type registry.
+ * under the system-language entry, resolved through the element-type registry.
  *
  * @internal
  */

@@ -560,7 +560,7 @@ class LayoutDiagnostics
     {
         if ($resolution->kind === PropertyKind::Primitive) {
             // Satisfied iff the element holds a value for the key under the rule {@see hasStoredValue()} states
-            // — for a translatable property, its language map carrying the anchor entry. Serving applies no
+            // — for a translatable property, its language map carrying the system-language entry. Serving applies no
             // type default, so only a stored value renders. The type default is a creation-time seed (scaffold
             // + the write-boundary seeder), not a render-time fallback, and so is not consulted here. A stored
             // explicit null counts as no value (it renders empty), so a required primitive authored as null is
@@ -687,7 +687,7 @@ class LayoutDiagnostics
      * A resolvedBy reference's storage key is undeclared by design, so an empty value there is the normal
      * pre-fill state before the value is set and saved; a typo'd key is indistinguishable and reads the same
      * way. Emptiness is the same rule the strict primitive check above uses ({@see hasStoredValue()}): a stored
-     * explicit null counts as no value, and a translatable property counts as filled only through its anchor
+     * explicit null counts as no value, and a translatable property counts as filled only through its system-language
      * entry. A stored value also has to be one the loader is handed: {@see LoaderInputResolver} passes on only a
      * value {@see ConfigKeySpecification::admitsReferencedValue()} admits and nulls any other, so a stored integer
      * or boolean under a `string` key reads as unfilled too. Only a lone primitive declaration is value-bearing
@@ -732,12 +732,12 @@ class LayoutDiagnostics
      * `isNull()`. Both are "no value", so a single-term `property($key) === null` test would silently credit an
      * authored null.
      *
-     * Translatable, a value counts when it is a language map carrying the anchor entry
+     * Translatable, a value counts when it is a language map carrying the system-language entry
      * `Defaults::LANGUAGE_SYSTEM` and that entry matches the declared primitive, judged by
-     * {@see PropertyType::admitsMapEntry()}. The anchor terminates every language chain a `SalesChannelContext`
-     * is built with, so an anchor entry resolves on every request while any other entry may not. The test is a
-     * type test, never truthiness: an empty string, `false` and `0` each satisfy. An anchor entry holding the
-     * null variant does not satisfy and an absent anchor key does not satisfy; the two are distinct stored states
+     * {@see PropertyType::admitsMapEntry()}. The system language terminates every language chain a `SalesChannelContext`
+     * is built with, so the system-language entry resolves on every request while any other entry may not. The test is a
+     * type test, never truthiness: an empty string, `false` and `0` each satisfy. A system-language entry holding the
+     * null variant does not satisfy and an absent system-language entry does not satisfy; the two are distinct stored states
      * that this rule maps to the same answer.
      *
      * @phpstan-assert-if-true !null $read
@@ -757,13 +757,13 @@ class LayoutDiagnostics
 
     /**
      * The stored value that stands in for what a loader reads for the key: the stored value itself, or for a
-     * translatable property its `Defaults::LANGUAGE_SYSTEM` anchor entry, the one entry that resolves on every
+     * translatable property its system-language entry (`Defaults::LANGUAGE_SYSTEM`), the one entry that resolves on every
      * request. At render time the loader can be handed another translation or a placeholder-substituted string
      * instead; neither changes the verdict of {@see ConfigKeySpecification::admitsReferencedValue()}. Substitution
      * yields a string from a string, and every entry of a map {@see PropertyType::admits()} accepts matches the one
      * declared primitive, so under a `string` declaration every entry is a string and under any other every entry
      * is a non-string scalar. Null when the key is absent, or when a translatable property's stored value is not a
-     * language map or carries no anchor entry; an untranslated stored explicit null comes back as the null variant.
+     * language map or carries no system-language entry; an untranslated stored explicit null comes back as the null variant.
      */
     private function loaderReadValue(?StoredValue $value, ?PropertyType $type): ?StoredValue
     {

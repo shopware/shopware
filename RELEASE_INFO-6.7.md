@@ -497,6 +497,25 @@ Invalid JSON, malformed messages or resource contents, and `{"success":false,"er
 
 ## Administration
 
+### Experimental: `Feature.silence()` and `sw-silence-deprecations`
+
+Both silence the deprecations of a major on the pre-major side of a feature-flag branch, so an extension can support both sides of a major without warnings:
+
+```js
+if (!Shopware.Feature.isActive('V6_8_0_0')) {
+    Shopware.Feature.silence('V6_8_0_0', () => this.legacyLoad());
+}
+```
+
+```html
+<sw-silence-deprecations v-if="!feature.isActive('V6_8_0_0')" flag="V6_8_0_0">
+    <sw-deprecated-component />
+</sw-silence-deprecations>
+```
+
+The component silences the first level of components inside of it, ignoring plain HTML, and everything they render themselves.
+Event handlers, watchers and code after an `await` need `Feature.silence()`.
+Once the major is active, both silence nothing.
 ### Deprecated the unused visibilities and sales channels in the sales channel detail
 
 Some sales channel detail components load the visibilities or sales channels of their products and currencies, although they only need one of them or none.

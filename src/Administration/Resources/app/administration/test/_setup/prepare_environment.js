@@ -12,6 +12,7 @@ import DeprecationPlugin from 'src/app/plugin/deprecation.plugin';
 import getBlockDataScope from 'src/app/component/structure/sw-block-override/sw-block/get-block-data-scope';
 import SwBlock from 'src/app/component/structure/sw-block-override/sw-block/index';
 import SwBlockParent from 'src/app/component/structure/sw-block-override/sw-block-parent/index';
+import SwSilenceDeprecations from 'src/app/component/utils/sw-silence-deprecations/index';
 import {
     MtActionMenu,
     MtActionMenuGroup,
@@ -293,6 +294,8 @@ config.global.stubs = {
     // keeps them real under shallowMount, which stubs every child component.
     'sw-block': SwBlock,
     'sw-block-parent': SwBlockParent,
+    // Real as well: a stub would report the deprecations it silences around a deprecated component.
+    'sw-silence-deprecations': SwSilenceDeprecations,
     'sw-modal': {
         template: `
         <div class="sw-modal">

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\Aggregate\ProductDocument;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentValidator;
 use Shopware\Core\Content\Product\Events\InvalidateProductCache;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
@@ -82,12 +83,76 @@ class ProductDocumentApiTest extends TestCase
         static::assertSame('The field "product_id" of "product_document" is immutable and cannot be updated.', $error['detail']);
     }
 
+    public function testADocumentCannotBeCreatedWithoutAFileInTheDefaultLanguage(): void
+    {
+        $this->createDrillWithBlueVariant();
+
+        foreach ([[], ['mediaId' => $this->ids->get('manual')]] as $germanFields) {
+            $this->getBrowser()->request(
+                'POST',
+                '/api/product-document',
+                server: ['CONTENT_TYPE' => 'application/json', 'HTTP_SW_LANGUAGE_ID' => $this->getDeDeLanguageId()],
+                content: json_encode(['productId' => $this->ids->get('drill'), ...$germanFields], \JSON_THROW_ON_ERROR),
+            );
+
+            static::assertSame(
+                [ProductDocumentValidator::VIOLATION_DEFAULT_LANGUAGE_FILE_MISSING],
+                $this->errorCodes(),
+                (string) $this->getBrowser()->getResponse()->getContent(),
+            );
+        }
+    }
+
+    public function testTheFileOfADocumentCannotBeReplacedByAFileOfAnotherType(): void
+    {
+        $this->createDocumentWithManual();
+        $file = __DIR__ . '/../../../Media/fixtures/file_example.mp3';
+
+        $this->getBrowser()->request(
+            'POST',
+            '/api/_action/media/' . $this->ids->get('manual') . '/upload?extension=mp3&fileName=manual',
+            server: ['HTTP_CONTENT-TYPE' => 'audio/mpeg', 'HTTP_CONTENT-LENGTH' => filesize($file)],
+            content: (string) file_get_contents($file),
+        );
+
+        static::assertSame([ProductDocumentValidator::VIOLATION_FILE_EXTENSION_NOT_ALLOWED], $this->errorCodes());
+    }
+
+    public function testTheFileOfADocumentCannotBeMadePrivate(): void
+    {
+        $this->createDocumentWithManual();
+
+        $this->getBrowser()->jsonRequest('PATCH', '/api/media/' . $this->ids->get('manual'), ['private' => true]);
+
+        static::assertSame([ProductDocumentValidator::VIOLATION_FILE_PRIVATE], $this->errorCodes());
+    }
+
     /**
      * @return array{title: string, mediaId: string}
      */
     private function manual(): array
     {
         return ['title' => 'Manual', 'mediaId' => $this->ids->get('manual')];
+    }
+
+    private function createDocumentWithManual(): void
+    {
+        $this->createDrillWithBlueVariant();
+        static::getContainer()->get('product_document.repository')->create(
+            [['productId' => $this->ids->get('drill'), ...$this->manual()]],
+            Context::createDefaultContext(),
+        );
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function errorCodes(): array
+    {
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(400, $response->getStatusCode(), (string) $response->getContent());
+
+        return array_column(json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR)['errors'], 'code');
     }
 
     private function createDrillWithBlueVariant(): void

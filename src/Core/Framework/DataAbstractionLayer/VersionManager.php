@@ -47,6 +47,7 @@ class VersionManager
 {
     final public const DISABLE_AUDIT_LOG = 'disable-audit-log';
     final public const MERGE_SCOPE = 'merge-scope';
+    final public const CLONE_SCOPE = 'clone-scope';
 
     public function __construct(
         private readonly EntityWriterInterface $entityWriter,
@@ -250,6 +251,7 @@ class VersionManager
         $data = $this->clonePayloadBuilder->build($definition, $data, $id, $newId, $behavior->getOverwrites(), $context->getContext());
 
         $versionContext = $context->createWithVersionId($versionId);
+        $versionContext->addState(self::CLONE_SCOPE);
         $result = null;
         $versionContext->scope(Context::SYSTEM_SCOPE, function (WriteContext $context) use ($definition, $data, &$result): void {
             $result = $this->entityWriter->insert($definition, [$data], $context);

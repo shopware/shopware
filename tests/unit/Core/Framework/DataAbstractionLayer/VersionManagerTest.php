@@ -74,6 +74,7 @@ class VersionManagerTest extends TestCase
 
         $writeContextMockWithVersionId = $this->createMock(WriteContext::class);
         $writeContextMock->expects($this->once())->method('createWithVersionId')->willReturn($writeContextMockWithVersionId);
+        $writeContextMockWithVersionId->expects($this->once())->method('addState')->with(VersionManager::CLONE_SCOPE);
 
         $entityWriterMock->expects($this->once())->method('insert')->willReturn([
             'product' => [

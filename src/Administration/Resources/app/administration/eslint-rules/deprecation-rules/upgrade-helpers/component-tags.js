@@ -108,19 +108,37 @@ function attributeName(attribute) {
 }
 
 /**
- * Finds a static attribute or `v-bind` of an element by its kebab-case or camelCase name.
+ * A prop or attribute name without dashes and case, so `resize-width`, `resizeWidth` and `resizewidth` compare equal.
+ *
+ * @param {string} name
+ * @returns {string}
+ */
+function normalizedName(name) {
+    return name.replace(/-/g, '').toLowerCase();
+}
+
+/**
+ * The normalized key of a static attribute or `v-bind`, or null for other directives.
+ *
+ * @param {object} attribute VAttribute
+ * @returns {string|null}
+ */
+function attributeKey(attribute) {
+    const name = attributeName(attribute);
+
+    return name === null ? null : normalizedName(name);
+}
+
+/**
+ * Finds a static attribute or `v-bind` of an element by its name in any case style.
  *
  * @param {object} element VElement
- * @param {string} name kebab-case name
+ * @param {string} name
  */
 function findAttribute(element, name) {
-    const camel = name.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+    const key = normalizedName(name);
 
-    return element.startTag.attributes.find((attribute) => {
-        const key = attributeName(attribute);
-
-        return key === name || key === camel;
-    });
+    return element.startTag.attributes.find((attribute) => attributeKey(attribute) === key);
 }
 
 /**
@@ -183,6 +201,8 @@ module.exports = {
     readComponentCall,
     elementName,
     attributeName,
+    normalizedName,
+    attributeKey,
     findAttribute,
     attributeRemovalRange,
 };

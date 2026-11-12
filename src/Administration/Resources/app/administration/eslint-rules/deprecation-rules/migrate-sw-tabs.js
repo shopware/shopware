@@ -18,8 +18,9 @@
  * `sw-meteor-card`, stays untouched.
  */
 
-const { reportTodo } = require('./upgrade-helpers/todo-comment');
-const { elementName, findAttribute } = require('./upgrade-helpers/component-tags');
+const { reportTodo, lineIndentation } = require('./upgrade-helpers/todo-comment');
+const { walk, elementName, findAttribute, normalizedName } = require('./upgrade-helpers/component-tags');
+const { fail, attempt } = require('./upgrade-helpers/unconvertible');
 const {
     TWIG_PATTERN,
     quote,
@@ -45,23 +46,13 @@ function manualMessage(reason) {
         + `Not converted automatically because of ${reason}.`;
 }
 
-class Unconvertible extends Error {}
-
-function fail(reason) {
-    throw new Unconvertible(reason);
-}
-
-function normalize(name) {
-    return name.replace(/-/g, '').toLowerCase();
-}
-
 /**
  * @param {object} attribute VAttribute
  * @returns {{ kind: 'static'|'bound', name: string }|{ kind: 'directive', directive: string, argument: string|null }|{ kind: 'dynamic' }}
  */
 function readAttribute(attribute) {
     if (!attribute.directive) {
-        return { kind: 'static', name: normalize(attribute.key.rawName ?? attribute.key.name) };
+        return { kind: 'static', name: normalizedName(attribute.key.rawName ?? attribute.key.name) };
     }
 
     const directive = attribute.key.name.name;
@@ -71,19 +62,13 @@ function readAttribute(attribute) {
         return { kind: 'dynamic' };
     }
 
-    const argumentName = argument ? normalize(argument.rawName ?? argument.name) : null;
+    const argumentName = argument ? normalizedName(argument.rawName ?? argument.name) : null;
 
     if (directive === 'bind') {
         return argumentName ? { kind: 'bound', name: argumentName } : { kind: 'dynamic' };
     }
 
     return { kind: 'directive', directive, argument: argumentName };
-}
-
-function lineIndent(text, index) {
-    const lineStart = text.lastIndexOf('\n', index - 1) + 1;
-
-    return /^[ \t]*/.exec(text.slice(lineStart))[0];
 }
 
 /**
@@ -123,38 +108,19 @@ function renameAttribute(sourceCode, attribute, newName) {
 function eventReferences(root) {
     const references = [];
 
-    const visit = (node, parent) => {
-        if (!node || typeof node.type !== 'string') {
+    walk(root, (node) => {
+        if (node.type !== 'Identifier' || node.name !== '$event') {
             return;
         }
 
-        if (node.type === 'Identifier' && node.name === '$event') {
-            const isMemberKey = parent?.type === 'MemberExpression' && parent.property === node && !parent.computed;
-            const isPropertyKey = parent?.type === 'Property' && parent.key === node && !parent.computed && !parent.shorthand;
+        const parent = node.parent;
+        const isMemberKey = parent?.type === 'MemberExpression' && parent.property === node && !parent.computed;
+        const isPropertyKey = parent?.type === 'Property' && parent.key === node && !parent.computed && !parent.shorthand;
 
-            if (!isMemberKey && !isPropertyKey) {
-                references.push({ node, parent });
-            }
-
-            return;
+        if (!isMemberKey && !isPropertyKey) {
+            references.push({ node, parent });
         }
-
-        Object.keys(node).forEach((key) => {
-            if (['parent', 'loc', 'range', 'tokens', 'comments'].includes(key)) {
-                return;
-            }
-
-            const value = node[key];
-
-            if (Array.isArray(value)) {
-                value.forEach((child) => visit(child, node));
-            } else if (value && typeof value.type === 'string') {
-                visit(value, node);
-            }
-        });
-    };
-
-    visit(root, null);
+    });
 
     return references;
 }
@@ -413,7 +379,7 @@ function convertItem(sourceCode, item, activeRefs) {
 }
 
 /**
- * Collects everything needed to build the `mt-tabs` element, or throws `Unconvertible`.
+ * Collects everything needed to build the `mt-tabs` element, or fails with the reason it can't.
  */
 function analyze(sourceCode, element) {
     const attributes = [];
@@ -581,7 +547,7 @@ function contentSource(sourceCode, template, indent) {
 }
 
 function buildMtTabs(sourceCode, element, plan) {
-    const indent = lineIndent(sourceCode.text, element.range[0]);
+    const indent = lineIndentation(sourceCode.text, element.range[0]);
     const attributeIndent = `${indent}${INDENT}`;
     const items = plan.items.map((item) => `${attributeIndent}${INDENT}${item},`);
     const lines = [...plan.attributes];
@@ -648,16 +614,10 @@ module.exports = {
                     return;
                 }
 
-                let plan;
+                const { result: plan, reason } = attempt(() => analyze(sourceCode, node));
 
-                try {
-                    plan = analyze(sourceCode, node);
-                } catch (error) {
-                    if (!(error instanceof Unconvertible)) {
-                        throw error;
-                    }
-
-                    todo(node, manualMessage(error.message));
+                if (reason !== null) {
+                    todo(node, manualMessage(reason));
 
                     return;
                 }

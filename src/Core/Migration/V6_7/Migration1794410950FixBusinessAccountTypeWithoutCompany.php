@@ -26,8 +26,7 @@ class Migration1794410950FixBusinessAccountTypeWithoutCompany extends MigrationS
         // Migration1676272000AddAccountTypeToCustomer classified customers as business based on the company of their
         // default billing address, without ensuring that `customer.company` is populated. Such records violate the
         // business account validation (company is mandatory) and break the B2B tax exemption, which requires
-        // `customer.company`. Restore the previous classification based on `customer.company` for records that cannot
-        // be a deliberate business account: no company and no VAT ids.
+        // `customer.company`. Restore the previous classification based on `customer.company`.
         $sql = 'UPDATE `customer`
                 SET `account_type` = :private
                 WHERE `account_type` = :business

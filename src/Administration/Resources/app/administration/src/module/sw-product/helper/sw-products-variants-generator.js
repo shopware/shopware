@@ -15,12 +15,6 @@ const RESTRICTIONS_SYNC_HEADERS = { 'indexing-behavior': 'disable-indexing' };
 
 const CHUNK_SIZE = 100;
 
-function isRetryable(error) {
-    const status = error?.response?.status;
-
-    return status === undefined || status === 429 || status >= 500;
-}
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class VariantsGenerator extends EventEmitter {
     constructor() {
@@ -587,14 +581,9 @@ export default class VariantsGenerator extends EventEmitter {
             },
         ];
 
-        RetryHelper.retry(
-            () => {
-                return this.syncService.sync(payload, {}, SYNC_HEADERS);
-            },
-            undefined,
-            undefined,
-            isRetryable,
-        )
+        RetryHelper.retry(() => {
+            return this.syncService.sync(payload, {}, SYNC_HEADERS);
+        })
             .then(() => {
                 this.processQueue(type, queue, offset + limit, limit, resolve, reject);
             })

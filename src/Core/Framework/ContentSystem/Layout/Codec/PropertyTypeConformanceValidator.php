@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Codec;
 
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
@@ -60,25 +61,36 @@ final class PropertyTypeConformanceValidator extends ConstraintValidator
 
             $type = $specification->type();
 
-            // fromDecoded() throws for a non-finite float (a JSON 1e400 decodes to INF) and nothing catches
-            // it here; that 500 is the accepted limitation in Api/docs/mutation-errors.md. A list-shaped
-            // payload never carries one this far: the write's first decode already admitted its values
-            // (see Layout/Field/README.md).
-            $stored = StoredValue::fromDecoded($raw);
+            try {
+                $stored = StoredValue::fromDecoded($raw);
+            } catch (ContentSystemException $exception) {
+                if (!ContentSystemException::isClientDefect($exception)) {
+                    throw $exception;
+                }
+
+                $this->reportValueMismatch($constraint, $key, $type, $raw);
+
+                continue;
+            }
 
             if (!$type->admits($stored)) {
-                $this->context->buildViolation($constraint->message)
-                    ->setParameter('{{ key }}', $key)
-                    ->setParameter('{{ declaredType }}', $type->describe())
-                    ->setParameter('{{ actualType }}', get_debug_type($raw))
-                    ->atPath('[properties][' . $key . ']')
-                    ->addViolation();
+                $this->reportValueMismatch($constraint, $key, $type, $raw);
 
                 continue;
             }
 
             $this->reportNonLanguageKeys($constraint, $key, $type->nonLanguageKeys($stored));
         }
+    }
+
+    private function reportValueMismatch(PropertyTypeConformance $constraint, string $key, PropertyType $type, mixed $raw): void
+    {
+        $this->context->buildViolation($constraint->message)
+            ->setParameter('{{ key }}', $key)
+            ->setParameter('{{ declaredType }}', $type->describe())
+            ->setParameter('{{ actualType }}', get_debug_type($raw))
+            ->atPath('[properties][' . $key . ']')
+            ->addViolation();
     }
 
     /**

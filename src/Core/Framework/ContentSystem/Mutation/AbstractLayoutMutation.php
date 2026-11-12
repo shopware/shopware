@@ -199,6 +199,25 @@ abstract class AbstractLayoutMutation implements LayoutMutation
     }
 
     /**
+     * Wraps a client-supplied property value. A value {@see StoredValue::fromDecoded()} refuses as a client defect,
+     * such as a non-finite float a JSON `1e400` decodes to, is the client's payload defect and answers
+     * `mutationPropertyValueRejected` (a 400) rather than the 500 the stored-column read keeps. Any other
+     * failure passes through unchanged.
+     */
+    protected function decodePropertyValue(string $elementId, string $key, mixed $value): StoredValue
+    {
+        try {
+            return StoredValue::fromDecoded($value);
+        } catch (ContentSystemException $exception) {
+            if (!ContentSystemException::isClientDefect($exception)) {
+                throw $exception;
+            }
+
+            throw ContentSystemException::mutationPropertyValueRejected($elementId, $key, get_debug_type($value));
+        }
+    }
+
+    /**
      * The type's default binding specification (`byType($type)` filtered by `isDefault()`), read as zero, one, or
      * more: zero returns null (nothing to fill-apply), one is returned, more than one throws — never a first-wins
      * pick. Shared by {@see InsertElement} and {@see ReplaceElement}, which auto-apply a type's default at scaffold, and

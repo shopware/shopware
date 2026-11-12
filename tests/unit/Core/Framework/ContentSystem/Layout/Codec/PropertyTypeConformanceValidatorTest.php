@@ -149,6 +149,11 @@ class PropertyTypeConformanceValidatorTest extends TestCase
         yield 'an empty language map, refused because absence rather than an empty map means no translations' => [['text' => []], 'text', 'string (translatable)', 'array'];
         // A map entry that fails the type check is reported once as a type violation, not again for its non-language key.
         yield 'a language map with a non-string entry under a non-language key, reported once as a type violation' => [['text' => ['de-DE' => 5]], 'text', 'string (translatable)', 'array'];
+        // StoredValue::fromDecoded() refuses a non-finite float (a JSON 1e400 decodes to INF); the pass reports it
+        // as the type violation instead of letting the throw escape.
+        yield 'an infinite float under a number declaration' => [['ratio' => \INF], 'ratio', 'number', 'float'];
+        yield 'a NAN float under a number declaration' => [['ratio' => \NAN], 'ratio', 'number', 'float'];
+        yield 'an infinite float inside a language map' => [['text' => [Defaults::LANGUAGE_SYSTEM => \INF]], 'text', 'string (translatable)', 'array'];
     }
 
     #[DataProvider('rejectsLanguageKeyProvider')]

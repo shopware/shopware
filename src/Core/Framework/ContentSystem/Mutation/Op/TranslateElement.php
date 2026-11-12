@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\ContentSystem\Mutation\Op;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
@@ -57,7 +56,7 @@ final class TranslateElement extends AbstractLayoutMutation
         $properties = $node->properties();
 
         foreach ($this->values as $key => $value) {
-            $candidate = StoredValue::fromDecoded($value);
+            $candidate = $this->decodePropertyValue($this->elementId, $key, $value);
 
             if (!$declared[$key]->type()->admits($candidate)) {
                 throw ContentSystemException::mutationPropertyValueRejected($this->elementId, $key, get_debug_type($value));

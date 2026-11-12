@@ -293,6 +293,36 @@ class UpdateElementPropertiesTest extends TestCase
             ['label' => []],
             ContentSystemException::mutationPropertyValueRejected('block-a', 'label', 'array'),
         ];
+
+        // StoredValue::fromDecoded() refuses a non-finite float; a JSON 1e400 decodes to INF.
+        yield 'an infinite float' => [
+            ['columns' => \INF],
+            ContentSystemException::mutationPropertyValueRejected('block-a', 'columns', 'float'),
+        ];
+
+        yield 'a NAN float' => [
+            ['columns' => \NAN],
+            ContentSystemException::mutationPropertyValueRejected('block-a', 'columns', 'float'),
+        ];
+
+        yield 'an infinite float inside a language map' => [
+            ['ratio' => [Defaults::LANGUAGE_SYSTEM => \INF]],
+            ContentSystemException::mutationPropertyValueRejected('block-a', 'ratio', 'array'),
+        ];
+    }
+
+    #[TestDox('answers a non-finite float with a 400 carrying the value-rejected code, not the 500 of the stored-value read')]
+    public function testNonFiniteFloatIsAClientError(): void
+    {
+        $update = new UpdateElementProperties($this->registry(), 'block-a', ['columns' => \INF], []);
+
+        try {
+            $update->apply(new StoredTree([$this->target()]));
+            static::fail('Expected the non-finite float to be rejected.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(400, $exception->getStatusCode());
+            static::assertSame(ContentSystemException::MUTATION_PROPERTY_VALUE_REJECTED, $exception->getErrorCode());
+        }
     }
 
     /**

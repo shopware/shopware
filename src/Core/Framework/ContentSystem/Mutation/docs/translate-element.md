@@ -8,8 +8,7 @@ a property the element's type declares translatable is reachable, never another 
 Each key is cast to string before the lookup (`(string) $key`), so a key PHP turned into an integer array key is
 reported like any other key.
 
-Rules, in this order, each a `400` apart from the known limitation in
-[mutation-errors.md](../../Api/docs/mutation-errors.md):
+Rules, in this order, each a `400` ([mutation-errors.md](../../Api/docs/mutation-errors.md)):
 
 1. Target must exist (`mutationTargetNotFound`).
 2. The element's component must be registered (`mutationUnknownType`, via `requireRegistered`).

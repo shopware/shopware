@@ -16,6 +16,9 @@ itself is not here: it belongs to `Layout/StoredTree` and the ops call it there.
   a translatable property's language map that is not a lowercase hex UUID, as `PropertyType::nonLanguageKeys()`
   reports it, the same rule the DAL write path applies.
   Shared by `Op/UpdateElementProperties` and `Op/TranslateElement`.
+- `decodePropertyValue()` - wraps a client-supplied property value with `StoredValue::fromDecoded()`. A client-defect
+  `ContentSystemException` (a non-finite float) becomes `mutationPropertyValueRejected`; any other throwable
+  passes through. Used by `Op/UpdateElementProperties` and `Op/TranslateElement`.
 - `resolveDefaultSpecification()` - the type's default binding specification: zero is `null`, one is returned, more
   than one throws `bindingSpecificationDefaultAmbiguous`.
 - `childList()` - every direct child across all slots, in slot order.

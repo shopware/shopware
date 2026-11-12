@@ -226,6 +226,36 @@ class TranslateElementTest extends TestCase
             ['visible' => [Defaults::LANGUAGE_SYSTEM => 1]],
             ContentSystemException::mutationPropertyValueRejected('block-a', 'visible', 'array'),
         ];
+
+        // StoredValue::fromDecoded() refuses a non-finite float; a JSON 1e400 decodes to INF.
+        yield 'a language map carrying an infinite float entry' => [
+            ['label' => [Defaults::LANGUAGE_SYSTEM => \INF]],
+            ContentSystemException::mutationPropertyValueRejected('block-a', 'label', 'array'),
+        ];
+
+        yield 'a language map carrying a NAN entry' => [
+            ['label' => [Defaults::LANGUAGE_SYSTEM => \NAN]],
+            ContentSystemException::mutationPropertyValueRejected('block-a', 'label', 'array'),
+        ];
+
+        yield 'a bare infinite float under a translatable key' => [
+            ['label' => \INF],
+            ContentSystemException::mutationPropertyValueRejected('block-a', 'label', 'float'),
+        ];
+    }
+
+    #[TestDox('answers a non-finite float with a 400 carrying the value-rejected code, not the 500 of the stored-value read')]
+    public function testNonFiniteFloatIsAClientError(): void
+    {
+        $translate = new TranslateElement($this->registry(), 'block-a', ['label' => [Defaults::LANGUAGE_SYSTEM => \INF]]);
+
+        try {
+            $translate->apply(new StoredTree([$this->target()]));
+            static::fail('Expected the non-finite float to be rejected.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(400, $exception->getStatusCode());
+            static::assertSame(ContentSystemException::MUTATION_PROPERTY_VALUE_REJECTED, $exception->getErrorCode());
+        }
     }
 
     /**

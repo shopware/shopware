@@ -267,7 +267,7 @@ class AppMcpCapabilityExecutorTest extends TestCase
         $requestStack->method('getCurrentRequest')->willReturn($parent);
 
         $router = static::createStub(RouterInterface::class);
-        $router->method('match')->willReturn(['_route' => 'api.script.run']);
+        $router->method('match')->willReturn(['_route' => 'api.script_endpoint']);
 
         $kernel = $this->createMock(KernelInterface::class);
         $kernel->expects($this->once())->method('handle')->willReturnCallback(
@@ -296,7 +296,7 @@ class AppMcpCapabilityExecutorTest extends TestCase
         $requestStack->method('getCurrentRequest')->willReturn($parent);
 
         $router = static::createStub(RouterInterface::class);
-        $router->method('match')->willReturn(['_route' => 'api.script.run']);
+        $router->method('match')->willReturn(['_route' => 'api.script_endpoint']);
 
         $kernel = $this->createMock(KernelInterface::class);
         $kernel->expects($this->once())->method('handle')->willReturnCallback(
@@ -311,6 +311,31 @@ class AppMcpCapabilityExecutorTest extends TestCase
         $executor->execute('my-tool', 'my-app', '/api/script/my-tool', []);
     }
 
+    public function testSubrequestToAnotherRouteIsNotMarked(): void
+    {
+        $parent = new Request();
+        $parent->headers->set('Authorization', 'Bearer my-token-123');
+        $parent->attributes->set(OAuthResource::REQUEST_ATTRIBUTE, 'https://shop.example/api/_mcp');
+
+        $requestStack = static::createStub(RequestStack::class);
+        $requestStack->method('getCurrentRequest')->willReturn($parent);
+
+        $router = static::createStub(RouterInterface::class);
+        $router->method('match')->willReturn(['_route' => 'api.action.sync']);
+
+        $kernel = $this->createMock(KernelInterface::class);
+        $kernel->expects($this->once())->method('handle')->willReturnCallback(
+            static function (Request $r): SymfonyResponse {
+                static::assertFalse($r->attributes->has(OAuthResource::SUBREQUEST_ATTRIBUTE));
+
+                return new SymfonyResponse('{"success":true}');
+            }
+        );
+
+        $executor = $this->makeExecutorWithSubrequest($kernel, $requestStack, $router);
+        $executor->execute('my-tool', 'my-app', '/api/_action/sync', []);
+    }
+
     public function testSubrequestOfATokenWithoutResourceIsNotMarked(): void
     {
         $parent = new Request();
@@ -320,7 +345,7 @@ class AppMcpCapabilityExecutorTest extends TestCase
         $requestStack->method('getCurrentRequest')->willReturn($parent);
 
         $router = static::createStub(RouterInterface::class);
-        $router->method('match')->willReturn(['_route' => 'api.script.run']);
+        $router->method('match')->willReturn(['_route' => 'api.script_endpoint']);
 
         $kernel = $this->createMock(KernelInterface::class);
         $kernel->expects($this->once())->method('handle')->willReturnCallback(
@@ -346,7 +371,7 @@ class AppMcpCapabilityExecutorTest extends TestCase
         $requestStack->method('getCurrentRequest')->willReturn($parent);
 
         $router = static::createStub(RouterInterface::class);
-        $router->method('match')->willReturn(['_route' => 'api.script.run']);
+        $router->method('match')->willReturn(['_route' => 'api.script_endpoint']);
 
         $kernel = $this->createMock(KernelInterface::class);
         $kernel->expects($this->once())->method('handle')->willReturnCallback(
@@ -374,7 +399,7 @@ class AppMcpCapabilityExecutorTest extends TestCase
         $requestStack->method('getCurrentRequest')->willReturn(new Request());
 
         $router = static::createStub(RouterInterface::class);
-        $router->method('match')->willReturn(['_route' => 'api.script.run']);
+        $router->method('match')->willReturn(['_route' => 'api.script_endpoint']);
 
         $kernel = $this->createMock(KernelInterface::class);
         $kernel->expects($this->once())->method('handle')->willReturnCallback(
@@ -418,7 +443,7 @@ class AppMcpCapabilityExecutorTest extends TestCase
         $requestStack->method('getCurrentRequest')->willReturn(new Request());
 
         $router = static::createStub(RouterInterface::class);
-        $router->method('match')->willReturn(['_route' => 'api.script.run']);
+        $router->method('match')->willReturn(['_route' => 'api.script_endpoint']);
 
         $kernel = static::createStub(KernelInterface::class);
         $kernel->method('handle')->willReturn(new SymfonyResponse(''));

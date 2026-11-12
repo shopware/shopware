@@ -28,6 +28,8 @@ use Symfony\Component\Routing\RouterInterface;
 #[Package('framework')]
 class AppMcpCapabilityExecutor
 {
+    private const SCRIPT_ROUTE = 'api.script_endpoint';
+
     /**
      * @internal
      */
@@ -135,9 +137,10 @@ class AppMcpCapabilityExecutor
             $subRequest = Request::create($url, 'POST', [], [], [], $server, $body);
             $subRequest->attributes->add($route);
 
-            // lets the subrequest accept the MCP-bound token of the parent, see ApiAuthenticationListener
+            // lets an app script subrequest accept the MCP-bound token of the parent, see ApiAuthenticationListener.
+            // Only the script route: `url` in mcp.xml may name any Admin API route.
             $resource = $parent->attributes->get(OAuthResource::REQUEST_ATTRIBUTE);
-            if (\is_string($resource) && $resource !== '') {
+            if (\is_string($resource) && $resource !== '' && ($route['_route'] ?? null) === self::SCRIPT_ROUTE) {
                 $subRequest->attributes->set(OAuthResource::SUBREQUEST_ATTRIBUTE, $resource);
             }
 

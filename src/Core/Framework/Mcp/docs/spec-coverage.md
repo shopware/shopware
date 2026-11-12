@@ -8,6 +8,10 @@ Shopware serves the handshake era by default.
 What each feature does without a session is decided in `adr/2026-09-24-mcp-stateless-era-degradation-policy.md` and covered by `McpDualEraConformanceTest`.
 On the stateless era `tools/list` does not advertise `shopware-toolset-enable` and `shopware-toolsets-list`, because there is no session to keep a toolset in; a direct call answers `isError`, and the `server/discover` instructions and `shopware-tool-search` point to `?toolsets=` instead.
 No request state key is configured, because no Shopware handler asks the client for input more than once; the rules are in "Request state on the stateless era" of `AGENTS.md`, the key itself is planned in #22081.
+On the stateless revision, `subscriptions/listen` carries `notifications/{tools,resources,prompts}/list_changed` on the Admin API endpoint, from the list versions in `mcp_list_version` (`McpListVersionsNotificationBus`).
+`server/discover` of the Admin API endpoint announces `listChanged`; the Store API endpoint does not, because its lists only change per session.
+A listen stream lasts 25 seconds and holds one PHP worker for that time.
+`notifications/resources/updated` is not published.
 
 This doc is the compact matrix for one question:
 

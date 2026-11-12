@@ -135,7 +135,7 @@ The `=== null` null-checks on injected `mcp.*` dependencies in controllers/comma
 
 The 2026-07-28 revision (SEP-2549) puts `ttlMs` and `cacheScope` on `server/discover`, the four list methods and `resources/read`.
 mcp/sdk 0.9 adds them only on that revision, in `Rev2026Codec`; answers on the handshake revisions up to 2025-11-25 carry none.
-The hints are fields of the JSON-RPC result, not HTTP headers, and both MCP endpoints only answer `POST`, so no HTTP cache or reverse proxy stores an answer.
+The hints are fields of the JSON-RPC result, not HTTP headers, and every request that receives them is a `POST`, so no HTTP cache or reverse proxy stores an answer.
 
 - **Policy**: `servers.<name>.cache` in `Resources/config/packages/mcp.php`, the same for both servers.
   Default `private` with `ttlMs: 0`; `server/discover`, `tools/list`, `prompts/list`, `resources/list` and `resources/templates/list` are `private` for 60 seconds.

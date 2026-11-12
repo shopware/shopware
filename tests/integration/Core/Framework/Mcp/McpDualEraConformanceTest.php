@@ -230,7 +230,12 @@ class McpDualEraConformanceTest extends TestCase
     public static function referenceResourceProvider(): iterable
     {
         yield 'shopware://entities' => ['shopware://entities', McpResourceCacheHint::DEPLOYMENT_TTL_MS];
+        yield 'shopware://state-machines' => ['shopware://state-machines', McpResourceCacheHint::DEPLOYMENT_TTL_MS];
+        yield 'shopware://business-events' => ['shopware://business-events', McpResourceCacheHint::DEPLOYMENT_TTL_MS];
+        yield 'shopware://flow-actions' => ['shopware://flow-actions', McpResourceCacheHint::DEPLOYMENT_TTL_MS];
         yield 'shopware://currencies' => ['shopware://currencies', McpResourceCacheHint::SHOP_CONFIGURATION_TTL_MS];
+        yield 'shopware://languages' => ['shopware://languages', McpResourceCacheHint::SHOP_CONFIGURATION_TTL_MS];
+        yield 'shopware://sales-channels' => ['shopware://sales-channels', McpResourceCacheHint::SHOP_CONFIGURATION_TTL_MS];
     }
 
     /**
@@ -238,8 +243,9 @@ class McpDualEraConformanceTest extends TestCase
      */
     public static function referenceResourceUriProvider(): iterable
     {
-        yield 'shopware://entities' => ['shopware://entities'];
-        yield 'shopware://currencies' => ['shopware://currencies'];
+        foreach (self::referenceResourceProvider() as $name => [$uri]) {
+            yield $name => [$uri];
+        }
     }
 
     #[DataProvider('referenceResourceUriProvider')]

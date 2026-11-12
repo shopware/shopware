@@ -444,40 +444,16 @@ The customer group detail page offers both settings separately. Plugins customiz
 
 ### Product documents
 
-Products can have documents, such as manuals, datasheets or certificates.
-`product.documents` holds them with their `position`, and `product_document_translation` holds a title and a file per language.
-Title and file fall back separately, from the requested language to its parent language and then to the default language.
-A variant without documents of its own gets the documents of its parent.
-The product of a document can't be changed, and a file that a document uses can't be deleted.
-A new document without a title gets the name of its file, without the extension.
-Administration roles with product privileges get the matching `product_document` and `product_document_translation` privileges.
-Apps and integrations need the same permissions to read or write documents.
+Products can have documents, such as manuals, datasheets or certificates, in `product.documents`.
+Each document has a title and a file per language, which fall back separately like other translated fields.
+A variant without documents of its own gets those of its parent.
 
-Saving a document checks its files: they have to exist, be public, be stored in the shop, and have an allowed type and a known size within the limit.
-Rejected files get errors with `PRODUCT_DOCUMENT_FILE_*` codes.
-The allowed types and the maximum size are new settings, and a list of your own replaces the default types:
-
-```yaml
-shopware:
-    product_documents:
-        allowed_extensions: ["pdf", "docx", "jpg", "jpeg", "png"]
-        max_file_size: 20971520 # 20 MB
-```
-
+The settings `shopware.product_documents.allowed_extensions` and `shopware.product_documents.max_file_size` limit the files, by default to PDF, DOCX, JPG and PNG up to 20 MB.
 Extensions can change the allowed types with `ProductDocumentAllowedExtensionsEvent`.
-`GET /api/_info/config` returns the settings in `settings.productDocuments`, with `maxFileSize` lowered to PHP's upload limits unless uploads go straight to the storage.
+The scheduled tasks `product_document.media.cleanup` and `product_document.archive.cleanup` delete unused document files and stored ZIP files.
 
-Files uploaded for documents go into the new default media folder "Product Document Media".
-The monthly scheduled task `product_document.media.cleanup` deletes files from that folder that no document uses and that are older than a day.
-To turn it off, run `bin/console scheduled-task:deactivate product_document.media.cleanup`.
-
-In the Storefront, the description and reviews element on the product page shows the documents in a tab, rendered by `storefront/component/product/documents.html.twig`.
-There, `product_document.media` holds the file in the shopper's language.
-
-Shoppers can download all documents of a product as one ZIP file, through `GET /store-api/product/{productId}/documents/archive` or the Storefront route `frontend.product.documents.archive`.
-The new rate limiter `product_documents_archive` allows 10 downloads per minute and IP address.
-The ZIP files are stored in the private filesystem under `product-documents/archives`, and the daily scheduled task `product_document.archive.cleanup` deletes those older than a day.
-Extensions can change the download through the `product-document-archive-route.load` extension event.
+The Storefront shows the documents in a tab of the product description and reviews element.
+`GET /store-api/product/{productId}/documents/archive` returns all documents of a product as one ZIP file, limited by the new rate limiter `product_documents_archive`.
 
 ## App System
 

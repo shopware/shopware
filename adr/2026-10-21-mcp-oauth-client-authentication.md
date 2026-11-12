@@ -72,8 +72,7 @@ It removed the OAuth proxy and the client registration middleware and keeps:
 - `ScopePolicy`, mapping scopes to JSON-RPC methods and tools.
 - `AccessToken`, readable by handlers through `RequestContext::getAccessToken()`; an application authenticating requests itself may set the attribute instead.
 
-Shopware still runs `mcp/sdk` 0.8.1, because `symfony/mcp-bundle` 0.14.1 pins it.
-The upgrade is [#21832](https://github.com/shopware/shopware/issues/21832) and waits for bundle 0.15.
+Shopware runs `mcp/sdk` 0.9 with `symfony/mcp-bundle` 0.15 since [#22000](https://github.com/shopware/shopware/pull/22000), which closed [#21832](https://github.com/shopware/shopware/issues/21832).
 
 ### Scope
 
@@ -207,7 +206,7 @@ Decision: **A now, B as an opt-in later, never C.**
 - C is deprecated in the specification and lets anyone create clients on an open endpoint.
   `POST /register` keeps answering `invalid_client`.
 
-Redirect URI rules for static clients stay as they are: loopback IP literals with any port, everything else exact, no wildcards.
+The matching rules for static clients stay as they are: loopback IP literals with any port, everything else exact, no wildcards.
 Redirect URIs that are neither loopback nor `localhost` must use https; private-use schemes (`cursor://`) are allowed only as an exact match.
 Plain http is accepted for `localhost` and the loopback IP literals `127.0.0.1` and `[::1]` only.
 The exception is the `dev` kernel environment (`kernel.environment` is `dev`): there every http redirect URI is accepted, so development hosts such as `http://shop.test` are not blocked.
@@ -263,7 +262,7 @@ C needs storage and UI per token family and is not planned.
 Options:
 
 - **A. Token id** (today); a refresh, or a new `client_credentials` token every ten minutes, starts a new bucket.
-- **B. Principal:** `user-<userId>` for user-bound tokens, `integration-<accessKey>` for integration tokens and access-key headers.
+- **B. Principal:** `user-<userId>` for user-bound tokens and user access keys, `integration-<accessKey>` for integration tokens and integration access keys.
 - **C. Principal plus client id.**
 
 Decision: **B**, for every authentication mode.
@@ -326,13 +325,13 @@ Decision: **B**.
 - `ScopePolicy` authorizes per method and tool by scope; Shopware authorizes tools by ACL and allowlist (`#[McpToolRequires]`).
   Two models for the same decision would drift apart.
 
-What is reused once [#21832](https://github.com/shopware/shopware/issues/21832) lands:
+What is reused from `mcp/sdk` 0.9:
 
 - `ProtectedResourceMetadata` builds the metadata document and its path.
   Its https rule fails for plain-http development hosts other than loopback, so those serve no metadata.
 - The transport sets the `AccessToken` request attribute from the validated Shopware token (scopes, `sub`, client id), so SDK-level handlers see the same principal through `RequestContext::getAccessToken()`.
 
-`mcp/sdk` 0.8.1 already ships `ProtectedResourceMetadata`, so discovery uses it directly and needs no internal builder.
+Discovery uses `ProtectedResourceMetadata` directly and needs no internal builder.
 `ScopePolicy` is reconsidered when the read-only consent from 4 is built.
 
 ### Error answers
@@ -363,7 +362,7 @@ These replace the proposed sub-issues of [#20866](https://github.com/shopware/sh
    Can ship first.
 2. **Rate-limit key** on the principal for every authentication mode (5).
 3. **Discovery:** protected resource metadata, authorization server metadata at the path-suffixed URI, `WWW-Authenticate` on `401`, `iss` in the authorization response (RFC 9207), `RequestTransformer` exemption, documentation for subdirectory installs (7, error answers).
-4. **Audience-bound tokens:** `resource` on authorize and token requests, `aud` entry, rejection outside `/api/_mcp` for main requests, refresh keeps the resource (2).
+4. **Audience-bound tokens:** `resource` on authorize and token requests, `aud` entry, rejection outside `/api/_mcp`, including subrequests the MCP request did not mark, refresh keeps the resource (2).
 5. **Consent text** for MCP clients, including the administrator notice and the MCP-only notice (4).
 6. **Client ID Metadata Documents** behind a flag, with SSRF review (3), tracked in [#22047](https://github.com/shopware/shopware/issues/22047).
 7. **`shopware-mcp-evals`:** an OAuth login path next to integration keys.

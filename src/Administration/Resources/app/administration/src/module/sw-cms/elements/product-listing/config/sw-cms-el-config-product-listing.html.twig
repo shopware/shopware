@@ -25,6 +25,7 @@
                 <template #default="{ isInherited }">
                     <mt-select
                         v-model="element.config.boxLayout.value"
+                        :hide-clearable-button="true"
                         :options="boxLayoutOptions"
                         :disabled="isInherited"
                     />
@@ -396,6 +397,7 @@
                         <template #default="{ isInherited }">
                             <mt-select
                                 v-model="element.config.boxLayout.value"
+                                :hide-clearable-button="true"
                                 :options="boxLayoutOptions"
                                 :disabled="isInherited"
                             />

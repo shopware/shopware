@@ -89,7 +89,9 @@ class ProductAdminSearchIndexerTest extends TestCase
         $dispatcher = EventHookDispatcher::fromContainer(static::getContainer());
         $dispatcher->on(ProductIndexerEvent::class, $listener);
         try {
-            static::getContainer()->get(ProductIndexer::class)->handle(new ProductIndexingMessage($this->ids->getList(['drill.blue', 'drill.red']), null, $this->context));
+            Feature::fake(['ENABLE_OPENSEARCH_FOR_ADMIN_API'], function (): void {
+                static::getContainer()->get(ProductIndexer::class)->handle(new ProductIndexingMessage($this->ids->getList(['drill.blue', 'drill.red']), null, $this->context));
+            });
         } finally {
             $dispatcher->off(ProductIndexerEvent::class, $listener);
         }

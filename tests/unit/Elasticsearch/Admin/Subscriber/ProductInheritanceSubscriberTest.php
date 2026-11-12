@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
 use Shopware\Elasticsearch\Admin\Subscriber\ProductInheritanceSubscriber;
@@ -29,7 +30,21 @@ class ProductInheritanceSubscriberTest extends TestCase
         $registry = $this->createMock(AdminSearchRegistry::class);
         $registry->expects($this->once())->method('updateIds')->with('product', ['variant-1', 'variant-2'], $context);
 
-        (new ProductInheritanceSubscriber($registry))->update(new ProductIndexerEvent(['variant-1', 'variant-2'], $context, [ProductIndexer::STOCK_UPDATER]));
+        Feature::fake(['ENABLE_OPENSEARCH_FOR_ADMIN_API'], static function () use ($registry, $context): void {
+            (new ProductInheritanceSubscriber($registry))->update(new ProductIndexerEvent(['variant-1', 'variant-2'], $context, [ProductIndexer::STOCK_UPDATER]));
+        });
+    }
+
+    public function testNothingIsIndexedWithoutTheAdvancedAdminSearch(): void
+    {
+        $registry = $this->createMock(AdminSearchRegistry::class);
+        $registry->expects($this->never())->method('updateIds');
+
+        Feature::fake([], static function () use ($registry): void {
+            $_SERVER['ENABLE_OPENSEARCH_FOR_ADMIN_API'] = false;
+
+            (new ProductInheritanceSubscriber($registry))->update(new ProductIndexerEvent(['variant-1'], Context::createDefaultContext(), []));
+        });
     }
 
     public function testProductsWhoseInheritanceWasSkippedAreNotIndexedAgain(): void
@@ -37,6 +52,8 @@ class ProductInheritanceSubscriberTest extends TestCase
         $registry = $this->createMock(AdminSearchRegistry::class);
         $registry->expects($this->never())->method('updateIds');
 
-        (new ProductInheritanceSubscriber($registry))->update(new ProductIndexerEvent(['product-1'], Context::createDefaultContext(), [ProductIndexer::INHERITANCE_UPDATER]));
+        Feature::fake(['ENABLE_OPENSEARCH_FOR_ADMIN_API'], static function () use ($registry): void {
+            (new ProductInheritanceSubscriber($registry))->update(new ProductIndexerEvent(['product-1'], Context::createDefaultContext(), [ProductIndexer::INHERITANCE_UPDATER]));
+        });
     }
 }

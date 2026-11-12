@@ -5,6 +5,7 @@ namespace Shopware\Elasticsearch\Admin\Subscriber;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -31,7 +32,7 @@ final readonly class ProductInheritanceSubscriber implements EventSubscriberInte
 
     public function update(ProductIndexerEvent $event): void
     {
-        if (\in_array(ProductIndexer::INHERITANCE_UPDATER, $event->getSkip(), true)) {
+        if (!Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API') || \in_array(ProductIndexer::INHERITANCE_UPDATER, $event->getSkip(), true)) {
             return;
         }
 

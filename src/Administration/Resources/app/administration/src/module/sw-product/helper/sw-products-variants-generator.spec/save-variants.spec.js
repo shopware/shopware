@@ -18,7 +18,7 @@ describe('src/module/sw-product/helper/sw-products-variants-generator saveVarian
         Shopware.Service().register('cacheApiService', () => ({ indexProducts() {} }));
     });
 
-    it('should queue the indexing of every chunk with the indexing-behavior header', async () => {
+    it('should send indexing-behavior as a header with every request', async () => {
         const generator = new VariantsGenerator();
         const sync = jest.fn(() => Promise.resolve({ data: {}, deleted: {} }));
         generator.syncService = { sync };

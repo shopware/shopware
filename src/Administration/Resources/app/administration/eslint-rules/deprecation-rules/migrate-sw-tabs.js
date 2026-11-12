@@ -25,7 +25,7 @@ const {
     quote,
     toAttributeExpression,
     readContentExpression,
-} = require('./no-deprecated-component-usage-checks/mt-tabs.check');
+} = require('./utils/template-expressions');
 
 const ID = 'mt-tabs';
 const INDENT = '    ';

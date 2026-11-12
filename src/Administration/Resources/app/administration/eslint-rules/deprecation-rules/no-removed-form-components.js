@@ -15,7 +15,7 @@
 
 const { reportTodo } = require('./upgrade-helpers/todo-comment');
 const { readComponentCall, elementName, attributeName, attributeRemovalRange } = require('./upgrade-helpers/component-tags');
-const { TWIG_PATTERN, readContentExpression } = require('./no-deprecated-component-usage-checks/mt-tabs.check');
+const { TWIG_PATTERN, readContentExpression } = require('./utils/template-expressions');
 
 const ID = 'removed-form-components';
 

@@ -69,7 +69,9 @@ class ProductDocumentRouteTest extends TestCase
         static::assertSame(1, $response['total']);
         static::assertSame($this->ids->get('datasheet'), $response['elements'][0]['media']['id']);
         static::assertCount(2, $response['elements'][0]['translations']);
-        static::assertSame([null, null], array_column($response['elements'][0]['translations'], 'media'));
+        foreach ($response['elements'][0]['translations'] as $translation) {
+            static::assertArrayNotHasKey('media', $translation);
+        }
     }
 
     public function testLoadLeavesOutTheProductOfTheDocuments(): void
@@ -92,6 +94,25 @@ class ProductDocumentRouteTest extends TestCase
 
         static::assertSame(400, $this->browser->getResponse()->getStatusCode());
         static::assertSame('FRAMEWORK__ACCESSOR_NOT_ALLOWED', $this->decode()['errors'][0]['code']);
+    }
+
+    public function testLoadRejectsCriteriaOnTheFilesOfTheTranslations(): void
+    {
+        $this->browser->request('POST', '/store-api/product/' . $this->ids->get('saw') . '/documents', [
+            'aggregations' => [['name' => 'paths', 'type' => 'terms', 'field' => 'translations.media.path']],
+        ]);
+
+        static::assertSame(400, $this->browser->getResponse()->getStatusCode());
+        static::assertSame('FRAMEWORK__ACCESSOR_NOT_ALLOWED', $this->decode()['errors'][0]['code']);
+    }
+
+    public function testLoadReturnsWholeDocumentsWhenTheRequestAsksForFields(): void
+    {
+        $this->browser->request('POST', '/store-api/product/' . $this->ids->get('drill') . '/documents', ['fields' => ['id']]);
+
+        $response = $this->decode();
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), (string) $this->browser->getResponse()->getContent());
+        static::assertSame($this->ids->get('manual'), $response['elements'][0]['media']['id']);
     }
 
     public function testLoadReturnsTheDocumentsAVariantInheritsFromItsParent(): void

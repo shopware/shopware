@@ -71,6 +71,7 @@ class ProductDocumentRoute
         $media = $this->loadPublicMedia($productId, $context->getContext());
 
         $criteria->setTitle('product-document-route');
+        $criteria->resetFields();
         $criteria->removeAssociation('product');
         if ($criteria->hasAssociation('translations')) {
             $criteria->getAssociation('translations')->removeAssociation('media');

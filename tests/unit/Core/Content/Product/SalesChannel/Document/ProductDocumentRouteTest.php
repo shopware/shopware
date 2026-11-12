@@ -103,6 +103,7 @@ class ProductDocumentRouteTest extends TestCase
         $criteria = new Criteria();
         $criteria->addAssociation('product.productReviews');
         $criteria->addAssociation('translations.media');
+        $criteria->addFields(['id']);
 
         $this->createRoute(
             [static fn (): array => [self::createProduct($productId, null)]],
@@ -114,6 +115,7 @@ class ProductDocumentRouteTest extends TestCase
         static::assertFalse($documentCriteria->hasAssociation('product'));
         static::assertTrue($documentCriteria->hasAssociation('translations'));
         static::assertFalse($documentCriteria->getAssociation('translations')->hasAssociation('media'));
+        static::assertSame([], $documentCriteria->getFields());
     }
 
     public function testLoadKeepsTheRequestedSorting(): void

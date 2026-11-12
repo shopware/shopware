@@ -786,7 +786,6 @@
     "product_document_translation.title",
     "product_document_translation.mediaId",
     "product_document_translation.customFields",
-    "product_document_translation.media",
     "product_document_translation.createdAt",
     "product_document_translation.updatedAt",
     "product_document_translation.productDocumentId",

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation;
 
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -54,7 +55,7 @@ class ProductDocumentTranslationDefinition extends EntityTranslationDefinition
             (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new ApiAware(), new Required())->setDescription('Unique identity of the file of the document in this language.'),
             (new CustomFields())->addFlags(new ApiAware()),
 
-            (new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware()),
+            (new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware(AdminApiSource::class)),
         ]);
     }
 }

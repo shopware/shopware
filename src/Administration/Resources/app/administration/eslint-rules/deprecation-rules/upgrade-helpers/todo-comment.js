@@ -152,6 +152,7 @@ function reportTodo(context, { id, message, range, scope, version = '6.8', seen 
 }
 
 module.exports = {
+    TODO_PREFIX,
     todoTag,
     isTwigFile,
     wrapComment,

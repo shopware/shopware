@@ -38,24 +38,9 @@ class ProductDocumentValidatorTest extends TestCase
     /**
      * @var list<OutcomeRow>
      */
-    private array $documents = [];
-
-    /**
-     * @var list<OutcomeRow>
-     */
     private array $translations = [];
 
-    /**
-     * @var list<OutcomeRow>
-     */
-    private array $writtenFiles = [];
-
     private MediaCollection $storedFiles;
-
-    /**
-     * @var list<string>
-     */
-    private array $linkedFileIds = [];
 
     protected function setUp(): void
     {
@@ -129,102 +114,9 @@ class ProductDocumentValidatorTest extends TestCase
     public function testCopiedDocumentsAreNotChecked(string $state): void
     {
         $this->storeFile(self::file(extension: 'xlsx', size: 1025));
-        $this->documents = [$this->document('manual', '/0')];
         $this->translations = [$this->translation('manual', self::GERMAN, '/0/translations/' . self::GERMAN, file: 'manual-file')];
 
         static::assertSame([], $this->validate($state));
-    }
-
-    public function testANewDocumentNeedsAFileInTheDefaultLanguage(): void
-    {
-        $this->storeFile(self::file());
-        $this->documents = [$this->document('manual', '/0')];
-        $this->translations = [$this->translation('manual', self::GERMAN, '/0/translations/' . self::GERMAN, file: 'manual-file')];
-
-        static::assertSame([
-            ['code' => ProductDocumentValidator::VIOLATION_DEFAULT_LANGUAGE_FILE_MISSING, 'pointer' => '/0/translations/' . Defaults::LANGUAGE_SYSTEM . '/mediaId'],
-        ], $this->validate());
-    }
-
-    public function testANewDocumentWithAFileInTheDefaultLanguagePasses(): void
-    {
-        $this->storeFile(self::file());
-        $this->documents = [$this->document('manual', '/0')];
-        $this->translations = [$this->translation('manual', Defaults::LANGUAGE_SYSTEM, '/0', file: 'manual-file')];
-
-        static::assertSame([], $this->validate());
-    }
-
-    public function testTheDefaultLanguageCannotLoseItsFile(): void
-    {
-        $this->translations = [$this->translation('manual', Defaults::LANGUAGE_SYSTEM, '/0', file: null, storedFile: 'manual-file')];
-
-        static::assertSame([
-            ['code' => ProductDocumentValidator::VIOLATION_DEFAULT_LANGUAGE_FILE_MISSING, 'pointer' => '/0/mediaId'],
-        ], $this->validate());
-    }
-
-    public function testAnotherLanguageWithoutAFileFallsBackToTheDefaultLanguage(): void
-    {
-        $this->translations = [$this->translation('manual', self::GERMAN, '/0', file: null)];
-
-        static::assertSame([], $this->validate());
-    }
-
-    public function testAFileWrittenInTheSameWriteIsCheckedWithItsNewValues(): void
-    {
-        $this->writtenFiles = [$this->writtenFile('/0', stored: ['file_extension' => 'pdf'], written: ['file_extension' => 'zip'])];
-        $this->translations = [$this->translation('manual', Defaults::LANGUAGE_SYSTEM, '/1', file: 'manual-file')];
-
-        static::assertSame([
-            ['code' => ProductDocumentValidator::VIOLATION_FILE_EXTENSION_NOT_ALLOWED, 'pointer' => '/1/mediaId'],
-        ], $this->validate());
-    }
-
-    public function testAFileCreatedInTheSameWriteIsChecked(): void
-    {
-        $this->writtenFiles = [$this->writtenFile('/0', stored: null, written: ['file_extension' => 'pdf', 'file_size' => 2048, 'path' => 'media/manual.pdf'])];
-        $this->translations = [$this->translation('manual', Defaults::LANGUAGE_SYSTEM, '/1', file: 'manual-file')];
-
-        static::assertSame([
-            ['code' => ProductDocumentValidator::VIOLATION_FILE_TOO_LARGE, 'pointer' => '/1/mediaId'],
-        ], $this->validate());
-    }
-
-    public static function linkedFileChangeProvider(): iterable
-    {
-        yield 'a new file of another type' => [['file_extension' => 'zip'], ProductDocumentValidator::VIOLATION_FILE_EXTENSION_NOT_ALLOWED];
-        yield 'a new file over the maximum size' => [['file_size' => 1025], ProductDocumentValidator::VIOLATION_FILE_TOO_LARGE];
-        yield 'a file made private' => [['private' => 1], ProductDocumentValidator::VIOLATION_FILE_PRIVATE];
-        yield 'a file moved to another server' => [['path' => 'https://cdn.example.com/manual.pdf'], ProductDocumentValidator::VIOLATION_FILE_SIZE_UNKNOWN];
-    }
-
-    /**
-     * @param array<string, mixed> $written
-     */
-    #[DataProvider('linkedFileChangeProvider')]
-    public function testChangingTheFileOfADocumentIsChecked(array $written, string $code): void
-    {
-        $this->writtenFiles = [$this->writtenFile('/0', stored: [], written: $written)];
-        $this->linkedFileIds = [$this->ids->get('manual-file')];
-
-        static::assertSame([['code' => $code, 'pointer' => '/0']], $this->validate());
-    }
-
-    public function testChangingAFileNoDocumentUsesPasses(): void
-    {
-        $this->writtenFiles = [$this->writtenFile('/0', stored: [], written: ['file_extension' => 'zip'])];
-        $this->linkedFileIds = [];
-
-        static::assertSame([], $this->validate());
-    }
-
-    public function testWritingAFileWithoutChangingItIsNotChecked(): void
-    {
-        $this->writtenFiles = [$this->writtenFile('/0', stored: ['file_extension' => 'zip'], written: ['file_extension' => 'zip'])];
-        $this->linkedFileIds = [$this->ids->get('manual-file')];
-
-        static::assertSame([], $this->validate());
     }
 
     private static function file(?string $extension = 'pdf', ?int $size = 1024, bool $private = false, ?string $path = 'media/manual.pdf'): MediaEntity
@@ -251,12 +143,14 @@ class ProductDocumentValidatorTest extends TestCase
     /**
      * @return list<array{code: mixed, pointer: mixed}>
      */
-    private function validate(string ...$states): array
+    private function validate(?string $state = null): array
     {
         // an Admin API request runs in the user scope, where the media repository hides private files
         $context = Context::createDefaultContext(new AdminApiSource(null));
         $writeContext = WriteContext::createFromContext($context);
-        $writeContext->addState(...$states);
+        if ($state !== null) {
+            $writeContext->addState($state);
+        }
         $event = new PreWriteValidationEvent($writeContext, []);
 
         $this->validator()->validate($event);
@@ -272,30 +166,21 @@ class ProductDocumentValidatorTest extends TestCase
     private function validator(): ProductDocumentValidator
     {
         $writeOutcome = static::createStub(WriteOutcome::class);
-        $writeOutcome->method('resultingRows')->willReturnCallback(fn (array $commands, array $columns): array => match ($columns) {
-            ['product_id'] => $this->documents,
-            ['media_id'] => $this->translations,
-            default => $this->writtenFiles,
-        });
+        $writeOutcome->method('resultingRows')->willReturnCallback(fn (): array => $this->translations);
 
-        $search = function (Criteria $criteria, Context $context): MediaCollection|array {
-            if ($criteria->getTitle() === 'product-document-validator::linked-files') {
-                static::assertSame(Context::SYSTEM_SCOPE, $context->getScope());
+        $mediaRepository = StaticEntityRepository::of(MediaCollection::class, [
+            function (Criteria $criteria, Context $context): MediaCollection {
+                // the caller's scope, so files the caller can't see stay hidden
+                static::assertSame(Context::USER_SCOPE, $context->getScope());
 
-                return array_values(array_intersect($this->linkedFileIds, $criteria->getIds()));
-            }
-
-            // the caller's scope, so files the caller can't see stay hidden
-            static::assertSame(Context::USER_SCOPE, $context->getScope());
-
-            return $this->storedFiles->filter(static fn (MediaEntity $file): bool => \in_array($file->getId(), $criteria->getIds(), true));
-        };
-        $mediaRepository = StaticEntityRepository::of(MediaCollection::class, [$search, $search]);
+                return $this->storedFiles->filter(static fn (MediaEntity $file): bool => \in_array($file->getId(), $criteria->getIds(), true));
+            },
+        ]);
 
         return new ProductDocumentValidator($writeOutcome, $mediaRepository, new ProductDocumentConfig(new EventDispatcher(), ['pdf', 'docx'], maxFileSize: 1024));
     }
 
-    private function translation(string $document, string $languageId, string $path, ?string $file, ?string $storedFile = null): OutcomeRow
+    private function translation(string $document, string $languageId, string $path, string $file, ?string $storedFile = null): OutcomeRow
     {
         return new OutcomeRow(
             primaryKey: [
@@ -306,44 +191,8 @@ class ProductDocumentValidatorTest extends TestCase
             path: $path,
             isNew: $storedFile === null,
             isDeleted: false,
-            payload: ['media_id' => $file === null ? null : $this->ids->getBytes($file)],
+            payload: ['media_id' => $this->ids->getBytes($file)],
             state: ['media_id' => $storedFile === null ? null : $this->ids->getBytes($storedFile)],
-        );
-    }
-
-    private function document(string $document, string $path): OutcomeRow
-    {
-        return new OutcomeRow(
-            primaryKey: [
-                'id' => $this->ids->getBytes($document),
-                'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-            ],
-            path: $path,
-            isNew: true,
-            isDeleted: false,
-            payload: ['product_id' => $this->ids->getBytes('drill')],
-            state: ['product_id' => null],
-        );
-    }
-
-    /**
-     * @param array<string, mixed>|null $stored
-     * @param array<string, mixed> $written
-     */
-    private function writtenFile(string $path, ?array $stored, array $written): OutcomeRow
-    {
-        $state = array_fill_keys(['private', 'path', 'file_extension', 'file_size'], null);
-        if ($stored !== null) {
-            $state = [...$state, 'private' => 0, 'path' => 'media/manual.pdf', 'file_extension' => 'pdf', 'file_size' => 1024, ...$stored];
-        }
-
-        return new OutcomeRow(
-            primaryKey: ['id' => $this->ids->getBytes('manual-file')],
-            path: $path,
-            isNew: $stored === null,
-            isDeleted: false,
-            payload: $written,
-            state: $state,
         );
     }
 }

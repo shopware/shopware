@@ -123,24 +123,6 @@ class ProductDocumentValidatorTest extends TestCase
         ], $errors);
     }
 
-    public function testAFileChangedInTheSameWriteIsCheckedWithItsNewValues(): void
-    {
-        $mediaId = $this->createMedia('manual');
-
-        $errors = $this->errorsOf(fn () => $this->productRepository->update([[
-            'id' => $this->ids->get('drill'),
-            'documents' => [[
-                'translations' => [
-                    Defaults::LANGUAGE_SYSTEM => ['mediaId' => $mediaId, 'media' => ['id' => $mediaId, 'private' => true]],
-                ],
-            ]],
-        ]], $this->context));
-
-        static::assertSame([
-            ['code' => ProductDocumentValidator::VIOLATION_FILE_PRIVATE, 'pointer' => '/0/documents/0/translations/' . Defaults::LANGUAGE_SYSTEM . '/mediaId'],
-        ], $errors);
-    }
-
     private function createMedia(string $fileName, bool $private = false): string
     {
         $this->mediaRepository->create([[

@@ -9,8 +9,6 @@ import RetryHelper from '../../../core/helper/retry.helper';
 const { deepCopyObject, hasOwnProperty } = Shopware.Utils.object;
 const { md5 } = Shopware.Utils.format;
 
-// Indexing is queued so the requests stay short for products with many variants.
-// The server reads it only from the headers.
 const SYNC_HEADERS = { 'single-operation': 1, 'indexing-behavior': 'use-queue-indexing' };
 
 const RESTRICTIONS_SYNC_HEADERS = { 'single-operation': 1, 'indexing-behavior': 'disable-indexing' };

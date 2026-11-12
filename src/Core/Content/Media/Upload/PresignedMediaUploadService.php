@@ -7,6 +7,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Event\UpdateMediaPathEvent;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
+use Shopware\Core\Content\Media\Event\BeforeMediaFileReplacedEvent;
 use Shopware\Core\Content\Media\Event\MediaPathChangedEvent;
 use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
 use Shopware\Core\Content\Media\File\FileInfoHelper;
@@ -115,13 +116,14 @@ readonly class PresignedMediaUploadService
 
             $s3Metadata = $this->verifyFileOnStorage($mediaId, $payload->path, $isPrivate);
 
-            if ($isReplace) {
-                $this->cleanupOldMediaData($media, $payload->path, $context);
-            }
-
             // The S3 object stores the canonical Content-Type incl. `charset` (see PresignedUploadUrlGenerator);
             // strip any parameters so the persisted entity mimeType stays bare for media-type/extension detection.
             $mimeType = FileInfoHelper::stripParameters($s3Metadata->contentType ?? $payload->mimeType);
+
+            if ($isReplace) {
+                $this->dispatchBeforeReplace($media, $payload, $mimeType, $s3Metadata->size, $context);
+                $this->cleanupOldMediaData($media, $payload->path, $context);
+            }
 
             $this->persistMediaData($mediaId, $payload, $s3Metadata, $mimeType, $media, $context);
             $this->dispatchFinalizeEvents($mediaId, $payload->path, $mimeType, $context);
@@ -229,6 +231,20 @@ readonly class PresignedMediaUploadService
         }
 
         return $s3Metadata;
+    }
+
+    private function dispatchBeforeReplace(MediaEntity $media, PresignedUploadFinalizePayload $payload, string $mimeType, int $fileSize, Context $context): void
+    {
+        try {
+            $this->eventDispatcher->dispatch(new BeforeMediaFileReplacedEvent($media->getId(), $payload->extension, $mimeType, $fileSize, $context));
+        } catch (\Throwable $e) {
+            // a rejected upload is removed, unless it already overwrote the old file on the same path
+            if ($payload->path !== $media->getPath()) {
+                $this->presignedUrlGenerator->deleteFromStorage($payload->path, $media->isPrivate());
+            }
+
+            throw $e;
+        }
     }
 
     private function cleanupOldMediaData(MediaEntity $media, string $newPath, Context $context): void

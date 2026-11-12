@@ -343,6 +343,12 @@ A route can restrict these associations, for example with `$criteria->getAssocia
 Orders placed before this change still contain the default currency value.
 Extensions and headless frontends that convert `payload.value` into the cart currency themselves must remove that conversion.
 
+### Event before a media file is replaced
+
+`Shopware\Core\Content\Media\Event\BeforeMediaFileReplacedEvent` is dispatched before an upload replaces the file of a media, while the old file still exists.
+It carries the media ID and the extension, MIME type and size of the new file.
+A listener can throw an exception to stop the replacement, and the media keeps its old file.
+
 ## API
 
 ### Plain JSON becomes the default Admin API response format in 6.8

@@ -12,6 +12,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
 use Shopware\Core\Content\Media\Core\Params\ThumbnailLocationStruct;
+use Shopware\Core\Content\Media\Event\BeforeMediaFileReplacedEvent;
 use Shopware\Core\Content\Media\File\FileContentValidationStrategy;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
@@ -35,6 +36,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\Clock\NativeClock;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -239,6 +241,78 @@ class FileSaverTest extends TestCase
         static::assertSame('foo', $update[0]['fileName']);
 
         static::assertCount(0, $this->messageBus->getMessages());
+    }
+
+    public function testAListenerCanStopReplacingAFile(): void
+    {
+        $mediaId = Uuid::randomHex();
+        $currentMedia = new MediaEntity();
+        $currentMedia->setId($mediaId);
+        $currentMedia->setPrivate(false);
+        $currentMedia->setPath('media/manual.png');
+        // the media, then the media with the same file name
+        $this->mediaRepository->addSearch(new MediaCollection([$currentMedia]), new MediaCollection([$currentMedia]));
+
+        $filesystemPublic = $this->createMock(FilesystemOperator::class);
+        $filesystemPublic->expects($this->never())->method('delete');
+
+        $events = [];
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener(BeforeMediaFileReplacedEvent::class, static function (BeforeMediaFileReplacedEvent $event) use (&$events): void {
+            $events[] = $event;
+
+            throw new \RuntimeException('The new file is not allowed.');
+        });
+
+        $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()));
+
+        try {
+            $this->createFileSaver($filesystemPublic, eventDispatcher: $eventDispatcher)
+                ->persistFileToMedia(new MediaFile('manual.png', 'image/png', 'png', 2048), 'manual', $mediaId, $context);
+
+            static::fail('The replace was not stopped.');
+        } catch (\RuntimeException $exception) {
+            static::assertSame('The new file is not allowed.', $exception->getMessage());
+        }
+
+        // the media keeps its old file
+        static::assertSame([], $this->mediaRepository->updates);
+
+        static::assertCount(1, $events);
+        static::assertSame($mediaId, $events[0]->mediaId);
+        static::assertSame('png', $events[0]->fileExtension);
+        static::assertSame('image/png', $events[0]->mimeType);
+        static::assertSame(2048, $events[0]->fileSize);
+        static::assertSame($context, $events[0]->getContext());
+    }
+
+    public function testAFirstUploadReplacesNoFile(): void
+    {
+        $mediaId = Uuid::randomHex();
+        $newMedia = new MediaEntity();
+        $newMedia->setId($mediaId);
+        $newMedia->setPrivate(false);
+
+        $uploadedMedia = clone $newMedia;
+        $uploadedMedia->setPath('media/manual.png');
+        // the media, the media with the same file name, then the media after the upload
+        $this->mediaRepository->addSearch(new MediaCollection([$newMedia]), new MediaCollection([$newMedia]), new MediaCollection([$uploadedMedia]));
+
+        $events = [];
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener(BeforeMediaFileReplacedEvent::class, static function (BeforeMediaFileReplacedEvent $event) use (&$events): void {
+            $events[] = $event;
+        });
+
+        $file = tmpfile();
+        static::assertIsResource($file);
+        $mediaFile = new MediaFile(stream_get_meta_data($file)['uri'] ?? '', 'image/png', 'png', 2048);
+
+        $this->createFileSaver(eventDispatcher: $eventDispatcher)
+            ->persistFileToMedia($mediaFile, 'manual', $mediaId, Context::createDefaultContext());
+
+        static::assertCount(1, $this->mediaRepository->updates);
+        static::assertSame([], $events);
     }
 
     public function testRenameMediaWithMissingFile(): void
@@ -480,11 +554,11 @@ class FileSaverTest extends TestCase
         static::assertSame('foobar', $update[0]['fileName']);
     }
 
-    private function createFileSaver(?FilesystemOperator $filesystemPublic = null, bool $remoteThumbnailsEnabled = false): FileSaver
+    private function createFileSaver(?FilesystemOperator $filesystemPublic = null, bool $remoteThumbnailsEnabled = false, ?EventDispatcherInterface $eventDispatcher = null): FileSaver
     {
         $filesystemPublic ??= $this->filesystemPublic;
         $filesystemPrivate = static::createStub(FilesystemOperator::class);
-        $eventDispatcher = static::createStub(EventDispatcherInterface::class);
+        $eventDispatcher ??= static::createStub(EventDispatcherInterface::class);
 
         return new FileSaver(
             $this->mediaRepository,

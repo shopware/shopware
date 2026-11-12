@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Media\Upload;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -10,6 +11,7 @@ use Psr\Log\NullLogger;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
+use Shopware\Core\Content\Media\Event\BeforeMediaFileReplacedEvent;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
@@ -26,6 +28,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Clock\NativeClock;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -570,7 +573,7 @@ class PresignedMediaUploadServiceTest extends TestCase
 
         $this->mediaPathStrategy->method('generate')->willReturn([$mediaId => $newPath]);
 
-        $this->eventDispatcher->expects($this->exactly(3))->method('dispatch');
+        $this->eventDispatcher->expects($this->exactly(4))->method('dispatch');
         $this->extensionValidator->expects($this->once())->method('validate');
 
         $this->presignedUrlGenerator->expects($this->once())
@@ -624,7 +627,7 @@ class PresignedMediaUploadServiceTest extends TestCase
 
         $this->mediaPathStrategy->method('generate')->willReturn([$mediaId => $path]);
 
-        $this->eventDispatcher->expects($this->exactly(3))->method('dispatch');
+        $this->eventDispatcher->expects($this->exactly(4))->method('dispatch');
         $this->extensionValidator->expects($this->once())->method('validate');
 
         $this->presignedUrlGenerator->expects($this->once())
@@ -651,6 +654,65 @@ class PresignedMediaUploadServiceTest extends TestCase
         );
 
         $service->finalize($mediaId, $payload, $context);
+    }
+
+    /**
+     * @return iterable<string, array{string, int}>
+     */
+    public static function rejectedUploads(): iterable
+    {
+        yield 'an upload on a new path is removed' => ['media/ef/gh/manual.xlsx', 1];
+        yield 'an upload on the old path stays, it overwrote the old file' => ['media/ab/cd/manual.pdf', 0];
+    }
+
+    #[DataProvider('rejectedUploads')]
+    public function testAListenerCanStopAReplaceBeforeTheOldFileIsRemoved(string $newPath, int $deletes): void
+    {
+        $context = Context::createDefaultContext();
+        $mediaId = '0189b0a1-0000-0000-0000-000000000012';
+
+        $media = $this->buildMedia($mediaId);
+        $media->assign(['path' => 'media/ab/cd/manual.pdf', 'fileName' => 'manual', 'fileExtension' => 'pdf']);
+
+        $events = [];
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener(BeforeMediaFileReplacedEvent::class, static function (BeforeMediaFileReplacedEvent $event) use (&$events): void {
+            $events[] = $event;
+
+            throw new \RuntimeException('The new file is not allowed.');
+        });
+
+        [$repo, $service] = $this->createService([new MediaCollection([$media])], $eventDispatcher);
+
+        $this->mediaPathStrategy->method('generate')->willReturn([$mediaId => $newPath]);
+        $this->presignedUrlGenerator->expects($this->once())->method('getFileMetadata')->willReturn(new FileMetadataResult(
+            size: 5000,
+            lastModified: new \DateTimeImmutable(),
+            contentType: 'text/csv; charset=utf-8',
+        ));
+
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->extensionValidator->expects($this->once())->method('validate');
+        $this->mediaFileCleanup->expects($this->never())->method('removeOldMediaData');
+        $this->mediaFileCleanup->expects($this->never())->method('deleteThumbnails');
+        $this->presignedUrlGenerator->expects($this->exactly($deletes))->method('deleteFromStorage')->with($newPath, false);
+
+        try {
+            $service->finalize($mediaId, new PresignedUploadFinalizePayload(fileName: 'manual', extension: 'csv', mimeType: 'text/csv', path: $newPath), $context);
+
+            static::fail('The replace was not stopped.');
+        } catch (\RuntimeException $exception) {
+            static::assertSame('The new file is not allowed.', $exception->getMessage());
+        }
+
+        static::assertSame([], $repo->updates);
+
+        static::assertCount(1, $events);
+        static::assertSame($mediaId, $events[0]->mediaId);
+        static::assertSame('csv', $events[0]->fileExtension);
+        static::assertSame('text/csv', $events[0]->mimeType);
+        static::assertSame(5000, $events[0]->fileSize);
+        static::assertSame($context, $events[0]->getContext());
     }
 
     public function testPreparePrivateUploadIsSignedAsPrivate(): void
@@ -729,14 +791,14 @@ class PresignedMediaUploadServiceTest extends TestCase
      *
      * @return array{StaticEntityRepository<MediaCollection>, PresignedMediaUploadService}
      */
-    private function createService(array $searches = []): array
+    private function createService(array $searches = [], ?EventDispatcherInterface $eventDispatcher = null): array
     {
         $repo = new StaticEntityRepository($searches);
 
         $service = new PresignedMediaUploadService(
             $repo,
             $this->presignedUrlGenerator,
-            $this->eventDispatcher,
+            $eventDispatcher ?? $this->eventDispatcher,
             static::createStub(TypeDetector::class),
             $this->mediaFileCleanup,
             $this->extensionValidator,

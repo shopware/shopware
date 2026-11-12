@@ -99,8 +99,18 @@ test.describe('Product Analytics - Validate events.', { tag: '@ProductAnalytics'
                 const requests = parseCapturedRequests(capturedTrackingEventRequests);
                 expect(requests.length).toBeGreaterThanOrEqual(1);
 
+                // Only the events this flow triggers: extensions may add their own (e.g. a survey card on the dashboard)
+                const asserted = [
+                    'login',
+                    'admin_session_started',
+                    'page_viewed',
+                    'link_visited',
+                    'button_click',
+                ];
                 const getAnalyticsEvents = () =>
-                    parseCapturedRequests(capturedTrackingEventRequests).flatMap((request) => request.events);
+                    parseCapturedRequests(capturedTrackingEventRequests)
+                        .flatMap((request) => request.events)
+                        .filter((event) => asserted.includes(event.name));
 
                 await waitForEventCount(getAnalyticsEvents, 11);
 

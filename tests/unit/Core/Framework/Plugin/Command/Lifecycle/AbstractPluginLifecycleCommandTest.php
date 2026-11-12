@@ -158,6 +158,7 @@ class AbstractPluginLifecycleCommandTest extends TestCase
 
         $pluginLifecycleService = $this->createMock(PluginLifecycleService::class);
         $pluginLifecycleService->expects($this->once())->method('deactivatePlugin')->with($chosenPlugin);
+        $this->cacheClearer->expects($this->never())->method('clear');
 
         $command = new PluginDeactivateCommand(
             $pluginLifecycleService,

@@ -194,8 +194,8 @@ class RecordingComposerApplication extends Application
 
         $this->input = $input;
         $composerJsonPath = (string) getenv('COMPOSER');
-        $this->vendorDirDuringRun = (string) getenv('COMPOSER_VENDOR_DIR');
         $this->composerJsonDuringRun = json_decode((string) file_get_contents($composerJsonPath), true, flags: \JSON_THROW_ON_ERROR);
+        $this->vendorDirDuringRun = (string) ($this->composerJsonDuringRun['config']['vendor-dir'] ?? '');
 
         if ($this->exception !== null) {
             throw $this->exception;

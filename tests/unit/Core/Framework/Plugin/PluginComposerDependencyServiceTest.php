@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin;
 
 use Composer\InstalledVersions;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -23,16 +23,18 @@ use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
 /**
  * @internal
+ *
+ * @phpstan-type InstalledVersionsData array{root: array{name: string, pretty_version: string, version: string, reference: string|null, type: string, install_path: string, aliases: string[], dev: bool}, versions: array<string, array{pretty_version?: string, version?: string, reference?: string|null, type?: string, install_path?: string, aliases?: string[], dev_requirement: bool, replaced?: string[], provided?: string[]}>}
  */
 #[Package('framework')]
 #[CoversClass(PluginComposerDependencyService::class)]
 class PluginComposerDependencyServiceTest extends TestCase
 {
-    private const BASE_CLASS = 'Swag\Test\SwagTest';
+    private CommandExecutor&Stub $executor;
 
-    private MockObject&CommandExecutor $executor;
+    private PluginService&Stub $pluginService;
 
-    private MockObject&PluginService $pluginService;
+    private Plugin&Stub $kernelPlugin;
 
     private ArrayAdapter $restartSignalCachePool;
 
@@ -41,14 +43,16 @@ class PluginComposerDependencyServiceTest extends TestCase
     private string $projectDir;
 
     /**
-     * @var array{root: array<string, mixed>, versions: array<string, array<string, mixed>>}
+     * @var InstalledVersionsData
      */
     private array $installedVersionsBefore;
 
     protected function setUp(): void
     {
-        $this->executor = $this->createMock(CommandExecutor::class);
-        $this->pluginService = $this->createMock(PluginService::class);
+        $this->executor = static::createStub(CommandExecutor::class);
+        $this->pluginService = static::createStub(PluginService::class);
+        $this->kernelPlugin = static::createStub(Plugin::class);
+        $this->kernelPlugin->method('executeComposerCommands')->willReturnCallback(fn (): bool => $this->executesComposerCommands);
         $this->restartSignalCachePool = new ArrayAdapter();
         $this->projectDir = sys_get_temp_dir() . '/plugin-composer-dependency-' . bin2hex(random_bytes(6));
         $this->installedVersionsBefore = InstalledVersions::getAllRawData()[0];
@@ -64,24 +68,27 @@ class PluginComposerDependencyServiceTest extends TestCase
     {
         $plugin = $this->createPlugin(version: '1.0.0', upgradeVersion: '1.1.0');
 
-        $this->executor->expects($this->once())->method('require')->with('swag/test:1.1.0', 'SwagTest');
-        $this->pluginService->expects($this->once())->method('refreshPlugins');
+        $executor = $this->createMock(CommandExecutor::class);
+        $executor->expects($this->once())->method('require')->with('swag/test:1.1.0', 'SwagTest');
+        $pluginService = $this->createMock(PluginService::class);
+        $pluginService->expects($this->once())->method('refreshPlugins');
 
-        static::assertTrue($this->createService()->requireDependency($plugin, Context::createDefaultContext()));
+        static::assertTrue($this->createService(executor: $executor, pluginService: $pluginService)->requireDependency($plugin, Context::createDefaultContext()));
         static::assertTrue($this->restartSignalCachePool->getItem(StopWorkerOnRestartSignalListener::RESTART_REQUESTED_TIMESTAMP_KEY)->isHit());
     }
 
     public function testRequireDependencyMakesTheNewPackageVisibleToThisProcess(): void
     {
         $plugin = $this->createPlugin(version: '1.0.0');
-        $this->executor->expects($this->once())->method('require')->willReturnCallback(function (): void {
+        $executor = $this->createMock(CommandExecutor::class);
+        $executor->expects($this->once())->method('require')->willReturnCallback(function (): void {
             (new Filesystem())->dumpFile(
                 $this->projectDir . '/vendor/composer/installed.php',
                 '<?php return ' . var_export($this->installedVersions('1.0.0.0'), true) . ';'
             );
         });
 
-        $service = $this->createService();
+        $service = $this->createService(executor: $executor);
         $service->requireDependency($plugin, Context::createDefaultContext());
 
         static::assertFalse($service->isRequireNeeded($plugin, '1.0.0'));
@@ -91,25 +98,28 @@ class PluginComposerDependencyServiceTest extends TestCase
     {
         InstalledVersions::reload($this->installedVersions('1.0.0.0'));
 
-        $this->executor->expects($this->never())->method('require');
+        $executor = $this->createMock(CommandExecutor::class);
+        $executor->expects($this->never())->method('require');
 
-        static::assertFalse($this->createService()->requireDependency($this->createPlugin(version: '1.0.0'), Context::createDefaultContext()));
+        static::assertFalse($this->createService(executor: $executor)->requireDependency($this->createPlugin(version: '1.0.0'), Context::createDefaultContext()));
     }
 
     public function testRequireDependencySkipsPluginsThatDoNotAskForComposer(): void
     {
         $this->executesComposerCommands = false;
 
-        $this->executor->expects($this->never())->method('require');
+        $executor = $this->createMock(CommandExecutor::class);
+        $executor->expects($this->never())->method('require');
 
-        static::assertFalse($this->createService()->requireDependency($this->createPlugin(version: '1.0.0'), Context::createDefaultContext()));
+        static::assertFalse($this->createService(executor: $executor)->requireDependency($this->createPlugin(version: '1.0.0'), Context::createDefaultContext()));
     }
 
     public function testRequireDependencySkipsClusterSetups(): void
     {
-        $this->executor->expects($this->never())->method('require');
+        $executor = $this->createMock(CommandExecutor::class);
+        $executor->expects($this->never())->method('require');
 
-        static::assertFalse($this->createService(isClusterSetup: true)->requireDependency($this->createPlugin(version: '1.0.0'), Context::createDefaultContext()));
+        static::assertFalse($this->createService(isClusterSetup: true, executor: $executor)->requireDependency($this->createPlugin(version: '1.0.0'), Context::createDefaultContext()));
     }
 
     public function testRequireDependencyNeedsAComposerName(): void
@@ -124,9 +134,9 @@ class PluginComposerDependencyServiceTest extends TestCase
     public function testRequireDependencyNeedsTheLoadedPluginClass(): void
     {
         $plugin = $this->createPlugin(version: '1.0.0');
-        $plugin->setBaseClass('Swag\Missing\SwagMissing');
+        $plugin->setBaseClass(Plugin::class);
 
-        $this->expectExceptionObject(PluginException::baseClassNotFound('Swag\Missing\SwagMissing'));
+        $this->expectExceptionObject(PluginException::baseClassNotFound(Plugin::class));
 
         $this->createService()->requireDependency($plugin, Context::createDefaultContext());
     }
@@ -135,10 +145,12 @@ class PluginComposerDependencyServiceTest extends TestCase
     {
         $plugin = $this->createPlugin(version: '1.0.0', managedByComposer: true);
 
-        $this->executor->expects($this->once())->method('remove')->with('swag/test', 'SwagTest');
-        $this->pluginService->expects($this->once())->method('refreshPlugins');
+        $executor = $this->createMock(CommandExecutor::class);
+        $executor->expects($this->once())->method('remove')->with('swag/test', 'SwagTest');
+        $pluginService = $this->createMock(PluginService::class);
+        $pluginService->expects($this->once())->method('refreshPlugins');
 
-        static::assertTrue($this->createService()->removeDependency($plugin, Context::createDefaultContext()));
+        static::assertTrue($this->createService(executor: $executor, pluginService: $pluginService)->removeDependency($plugin, Context::createDefaultContext()));
     }
 
     public function testRemoveDependencyRemovesThePackageOfAPluginThatNoLongerAsksForComposer(): void
@@ -147,9 +159,10 @@ class PluginComposerDependencyServiceTest extends TestCase
         $plugin = $this->createPlugin(version: '1.0.0', managedByComposer: true);
         $plugin->setInstalledAt(new \DateTimeImmutable());
 
-        $this->executor->expects($this->once())->method('remove')->with('swag/test', 'SwagTest');
+        $executor = $this->createMock(CommandExecutor::class);
+        $executor->expects($this->once())->method('remove')->with('swag/test', 'SwagTest');
 
-        static::assertTrue($this->createService()->removeDependency($plugin, Context::createDefaultContext()));
+        static::assertTrue($this->createService(executor: $executor)->removeDependency($plugin, Context::createDefaultContext()));
     }
 
     public function testRemoveDependencyKeepsThePackageOfAnUninstalledPluginThatNeverAskedForComposer(): void
@@ -158,9 +171,10 @@ class PluginComposerDependencyServiceTest extends TestCase
         $plugin = $this->createPlugin(version: '1.0.0', managedByComposer: true);
         $plugin->setPath('custom/static-plugins/SwagTest');
 
-        $this->executor->expects($this->never())->method('remove');
+        $executor = $this->createMock(CommandExecutor::class);
+        $executor->expects($this->never())->method('remove');
 
-        static::assertFalse($this->createService()->removeDependency($plugin, Context::createDefaultContext()));
+        static::assertFalse($this->createService(executor: $executor)->removeDependency($plugin, Context::createDefaultContext()));
     }
 
     public function testRemoveDependencyKeepsThePackageOfAnInstalledPluginThatAsksForComposer(): void
@@ -168,9 +182,10 @@ class PluginComposerDependencyServiceTest extends TestCase
         $plugin = $this->createPlugin(version: '1.0.0', managedByComposer: true);
         $plugin->setInstalledAt(new \DateTimeImmutable());
 
-        $this->executor->expects($this->never())->method('remove');
+        $executor = $this->createMock(CommandExecutor::class);
+        $executor->expects($this->never())->method('remove');
 
-        static::assertFalse($this->createService()->removeDependency($plugin, Context::createDefaultContext()));
+        static::assertFalse($this->createService(executor: $executor)->removeDependency($plugin, Context::createDefaultContext()));
     }
 
     public function testRemoveDependencyKeepsPackagesTheProjectRequiresOutsideCustom(): void
@@ -178,36 +193,39 @@ class PluginComposerDependencyServiceTest extends TestCase
         $plugin = $this->createPlugin(version: '1.0.0', managedByComposer: true);
         $plugin->setPath('vendor/swag/test');
 
-        $this->executor->expects($this->never())->method('remove');
+        $executor = $this->createMock(CommandExecutor::class);
+        $executor->expects($this->never())->method('remove');
 
-        static::assertFalse($this->createService()->removeDependency($plugin, Context::createDefaultContext()));
+        static::assertFalse($this->createService(executor: $executor)->removeDependency($plugin, Context::createDefaultContext()));
     }
 
     public function testRemoveDependencySkipsPluginsComposerDoesNotManage(): void
     {
-        $this->executor->expects($this->never())->method('remove');
+        $executor = $this->createMock(CommandExecutor::class);
+        $executor->expects($this->never())->method('remove');
 
-        static::assertFalse($this->createService()->removeDependency($this->createPlugin(version: '1.0.0'), Context::createDefaultContext()));
+        static::assertFalse($this->createService(executor: $executor)->removeDependency($this->createPlugin(version: '1.0.0'), Context::createDefaultContext()));
     }
 
     public function testRemoveDependencySkipsClusterSetups(): void
     {
-        $this->executor->expects($this->never())->method('remove');
+        $executor = $this->createMock(CommandExecutor::class);
+        $executor->expects($this->never())->method('remove');
 
         $plugin = $this->createPlugin(version: '1.0.0', managedByComposer: true);
 
-        static::assertFalse($this->createService(isClusterSetup: true)->removeDependency($plugin, Context::createDefaultContext()));
+        static::assertFalse($this->createService(isClusterSetup: true, executor: $executor)->removeDependency($plugin, Context::createDefaultContext()));
     }
 
-    private function createService(bool $isClusterSetup = false): PluginComposerDependencyService
-    {
-        $pluginClass = static::createStub(Plugin::class);
-        $pluginClass->method('executeComposerCommands')->willReturnCallback(fn (): bool => $this->executesComposerCommands);
-
+    private function createService(
+        bool $isClusterSetup = false,
+        ?CommandExecutor $executor = null,
+        ?PluginService $pluginService = null,
+    ): PluginComposerDependencyService {
         return new PluginComposerDependencyService(
-            new KernelPluginCollection([self::BASE_CLASS => $pluginClass]),
-            $this->executor,
-            $this->pluginService,
+            new KernelPluginCollection([$this->kernelPlugin::class => $this->kernelPlugin]),
+            $executor ?? $this->executor,
+            $pluginService ?? $this->pluginService,
             new VersionSanitizer(),
             $this->restartSignalCachePool,
             new MockClock(),
@@ -220,7 +238,7 @@ class PluginComposerDependencyServiceTest extends TestCase
     {
         $plugin = new PluginEntity();
         $plugin->setName('SwagTest');
-        $plugin->setBaseClass(self::BASE_CLASS);
+        $plugin->setBaseClass($this->kernelPlugin::class);
         if ($composerName !== null) {
             $plugin->setComposerName($composerName);
         }
@@ -233,7 +251,7 @@ class PluginComposerDependencyServiceTest extends TestCase
     }
 
     /**
-     * @return array{root: array<string, mixed>, versions: array<string, array<string, mixed>>}
+     * @return InstalledVersionsData
      */
     private function installedVersions(string $pluginVersion): array
     {

@@ -142,7 +142,10 @@ export default class ExtensionStoreActionService extends ApiService {
             );
         } catch (error) {
             if (composerRan) {
-                await this.composerRemoveExtension(technicalName, type).catch(() => false);
+                await this.composerRemoveExtension(technicalName, type).catch(() => {
+                    // the install error is rethrown below, a failed rollback must not replace it
+                    return false;
+                });
             }
 
             throw error;

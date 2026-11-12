@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Store\Services;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -28,18 +28,18 @@ class ExtensionLifecycleServiceTest extends TestCase
 {
     private Context $context;
 
-    private PluginLifecycleService&MockObject $pluginLifecycleService;
+    private PluginLifecycleService&Stub $pluginLifecycleService;
 
-    private PluginManagementService&MockObject $pluginManagementService;
+    private PluginManagementService&Stub $pluginManagementService;
 
-    private PluginComposerDependencyService&MockObject $composerDependencyService;
+    private PluginComposerDependencyService&Stub $composerDependencyService;
 
     protected function setUp(): void
     {
         $this->context = Context::createDefaultContext();
-        $this->pluginLifecycleService = $this->createMock(PluginLifecycleService::class);
-        $this->pluginManagementService = $this->createMock(PluginManagementService::class);
-        $this->composerDependencyService = $this->createMock(PluginComposerDependencyService::class);
+        $this->pluginLifecycleService = static::createStub(PluginLifecycleService::class);
+        $this->pluginManagementService = static::createStub(PluginManagementService::class);
+        $this->composerDependencyService = static::createStub(PluginComposerDependencyService::class);
     }
 
     #[DataProvider('removablePluginProvider')]
@@ -47,8 +47,11 @@ class ExtensionLifecycleServiceTest extends TestCase
     {
         $plugin = $this->createPlugin(installed: true, managedByComposer: $managedByComposer, path: $path);
 
+        $pluginLifecycleService = $this->createMock(PluginLifecycleService::class);
+        $pluginManagementService = $this->createMock(PluginManagementService::class);
+
         $steps = [];
-        $this->pluginLifecycleService
+        $pluginLifecycleService
             ->expects($this->once())
             ->method('uninstallPlugin')
             ->with($plugin, $this->context, true)
@@ -57,7 +60,7 @@ class ExtensionLifecycleServiceTest extends TestCase
 
                 return static::createStub(UninstallContext::class);
             });
-        $this->pluginManagementService
+        $pluginManagementService
             ->expects($this->once())
             ->method('deletePlugin')
             ->with($plugin, $this->context)
@@ -65,7 +68,7 @@ class ExtensionLifecycleServiceTest extends TestCase
                 $steps[] = 'delete';
             });
 
-        $this->createService($plugin)->remove('plugin', 'SwagExample', true, $this->context);
+        $this->createService($plugin, $pluginLifecycleService, $pluginManagementService)->remove('plugin', 'SwagExample', true, $this->context);
 
         static::assertSame(['uninstall', 'delete'], $steps);
     }
@@ -80,25 +83,29 @@ class ExtensionLifecycleServiceTest extends TestCase
     {
         $plugin = $this->createPlugin(installed: false, managedByComposer: false, path: 'custom/plugins/SwagExample/');
 
-        $this->pluginLifecycleService->expects($this->never())->method('uninstallPlugin');
-        $this->pluginManagementService
+        $pluginLifecycleService = $this->createMock(PluginLifecycleService::class);
+        $pluginLifecycleService->expects($this->never())->method('uninstallPlugin');
+        $pluginManagementService = $this->createMock(PluginManagementService::class);
+        $pluginManagementService
             ->expects($this->once())
             ->method('deletePlugin')
             ->with($plugin, $this->context);
 
-        $this->createService($plugin)->remove('plugin', 'SwagExample', false, $this->context);
+        $this->createService($plugin, $pluginLifecycleService, $pluginManagementService)->remove('plugin', 'SwagExample', false, $this->context);
     }
 
     public function testRemoveRefusesAPluginManagedByComposerBeforeUninstallingIt(): void
     {
         $plugin = $this->createPlugin(installed: true, managedByComposer: true, path: 'vendor/swag/example/');
 
-        $this->pluginLifecycleService->expects($this->never())->method('uninstallPlugin');
-        $this->pluginManagementService->expects($this->never())->method('deletePlugin');
+        $pluginLifecycleService = $this->createMock(PluginLifecycleService::class);
+        $pluginLifecycleService->expects($this->never())->method('uninstallPlugin');
+        $pluginManagementService = $this->createMock(PluginManagementService::class);
+        $pluginManagementService->expects($this->never())->method('deletePlugin');
 
         $this->expectExceptionObject(StoreException::cannotDeleteManaged('SwagExample'));
 
-        $this->createService($plugin)->remove('plugin', 'SwagExample', false, $this->context);
+        $this->createService($plugin, $pluginLifecycleService, $pluginManagementService)->remove('plugin', 'SwagExample', false, $this->context);
     }
 
     public function testRemoveWithTheSeparateComposerStepRemovesThePackageBeforeTheFiles(): void
@@ -112,7 +119,8 @@ class ExtensionLifecycleServiceTest extends TestCase
 
             return static::createStub(UninstallContext::class);
         });
-        $this->composerDependencyService
+        $composerDependencyService = $this->createMock(PluginComposerDependencyService::class);
+        $composerDependencyService
             ->expects($this->once())
             ->method('removeDependency')
             ->with($plugin, $this->context)
@@ -125,7 +133,7 @@ class ExtensionLifecycleServiceTest extends TestCase
             $steps[] = 'delete';
         });
 
-        $this->createService($plugin)->remove('plugin', 'SwagExample', false, $this->context);
+        $this->createService($plugin, composerDependencyService: $composerDependencyService)->remove('plugin', 'SwagExample', false, $this->context);
 
         static::assertSame(['uninstall', 'composer remove', 'delete'], $steps);
     }
@@ -134,43 +142,50 @@ class ExtensionLifecycleServiceTest extends TestCase
     {
         $plugin = $this->createPlugin(installed: false, managedByComposer: false, path: 'custom/plugins/SwagExample/');
 
-        $this->composerDependencyService->expects($this->once())->method('requireDependency')->with($plugin, $this->context);
+        $composerDependencyService = $this->createMock(PluginComposerDependencyService::class);
+        $composerDependencyService->expects($this->once())->method('requireDependency')->with($plugin, $this->context);
 
-        $this->createService($plugin)->composerRequire('plugin', 'SwagExample', $this->context);
+        $this->createService($plugin, composerDependencyService: $composerDependencyService)->composerRequire('plugin', 'SwagExample', $this->context);
     }
 
     public function testComposerRemoveRemovesThePackageOfAPlugin(): void
     {
         $plugin = $this->createPlugin(installed: false, managedByComposer: true, path: 'custom/plugins/SwagExample/');
 
-        $this->composerDependencyService->expects($this->once())->method('removeDependency')->with($plugin, $this->context);
+        $composerDependencyService = $this->createMock(PluginComposerDependencyService::class);
+        $composerDependencyService->expects($this->once())->method('removeDependency')->with($plugin, $this->context);
 
-        $this->createService($plugin)->composerRemove('plugin', 'SwagExample', $this->context);
+        $this->createService($plugin, composerDependencyService: $composerDependencyService)->composerRemove('plugin', 'SwagExample', $this->context);
     }
 
     public function testComposerStepIgnoresApps(): void
     {
         $plugin = $this->createPlugin(installed: false, managedByComposer: false, path: 'custom/apps/SwagExample/');
 
-        $this->composerDependencyService->expects($this->never())->method('requireDependency');
-        $this->composerDependencyService->expects($this->never())->method('removeDependency');
+        $composerDependencyService = $this->createMock(PluginComposerDependencyService::class);
+        $composerDependencyService->expects($this->never())->method('requireDependency');
+        $composerDependencyService->expects($this->never())->method('removeDependency');
 
-        $service = $this->createService($plugin);
+        $service = $this->createService($plugin, composerDependencyService: $composerDependencyService);
         $service->composerRequire('app', 'SwagExample', $this->context);
         $service->composerRemove('app', 'SwagExample', $this->context);
     }
 
-    private function createService(PluginEntity $plugin): ExtensionLifecycleService
-    {
+    private function createService(
+        PluginEntity $plugin,
+        ?PluginLifecycleService $pluginLifecycleService = null,
+        ?PluginManagementService $pluginManagementService = null,
+        ?PluginComposerDependencyService $composerDependencyService = null,
+    ): ExtensionLifecycleService {
         $pluginService = static::createStub(PluginService::class);
         $pluginService->method('getPluginByName')->willReturn($plugin);
 
         return new ExtensionLifecycleService(
             static::createStub(AbstractStoreAppLifecycleService::class),
             $pluginService,
-            $this->pluginLifecycleService,
-            $this->pluginManagementService,
-            $this->composerDependencyService,
+            $pluginLifecycleService ?? $this->pluginLifecycleService,
+            $pluginManagementService ?? $this->pluginManagementService,
+            $composerDependencyService ?? $this->composerDependencyService,
         );
     }
 

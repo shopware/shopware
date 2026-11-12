@@ -185,6 +185,22 @@ class ProductDocumentRouteTest extends TestCase
 
         static::assertCount(0, $result);
         static::assertSame([], $mediaRepository->searchedCriteria);
+        static::assertSame([], $this->documentCriteria);
+    }
+
+    public function testLoadSkipsTheDocumentSearchWithoutAPublicFile(): void
+    {
+        $productId = Uuid::randomHex();
+
+        $result = $this->createRoute(
+            [[self::createProduct($productId, null)]],
+            $this->createDocumentRepository(['media-1'], []),
+            new StaticEntityRepository([new MediaCollection()]),
+        )->load($productId, new Request(), Generator::generateSalesChannelContext(), new Criteria())->getResult();
+
+        static::assertSame(0, $result->getTotal());
+        static::assertCount(0, $result->getEntities());
+        static::assertSame([], $this->documentCriteria);
     }
 
     public function testLoadTagsTheResponseWithTheParentProduct(): void

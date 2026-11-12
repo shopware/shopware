@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
@@ -82,6 +83,17 @@ class ProductDocumentRoute
         );
         if ($criteria->getSorting() === []) {
             $criteria->addSorting(new FieldSorting('position'), new FieldSorting('id'));
+        }
+
+        if ($media->count() === 0 && $criteria->getAggregations() === []) {
+            return new ProductDocumentRouteResponse(new EntitySearchResult(
+                ProductDocumentDefinition::ENTITY_NAME,
+                0,
+                new ProductDocumentCollection(),
+                null,
+                $criteria,
+                $context->getContext(),
+            ));
         }
 
         $result = $this->productDocumentRepository->search($criteria, $context->getContext());

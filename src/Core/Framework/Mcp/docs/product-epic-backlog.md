@@ -41,7 +41,7 @@ Planning reference for contributors and PMs. For the public docs see [developer.
 | Tool / prompt / resource discovery (core + bundles + apps) | **Done** | `McpToolDiscoveryCompilerPass`, `McpCapabilityDiscoveryTest` | S | — |
 | App registration (XML, persistence, HMAC execution) | **Done** | `AppMcpToolLoader` / `AppMcpToolExecutor` | M | — |
 | Auth: Admin API bearer + integration header | **Done** | `McpAuthenticationListener` | S | — |
-| Rate limiting | **Done** | `McpRateLimiter`; per-scope routes `RateLimiter::MCP_ADMIN_API` (OAuth-token key) and `RateLimiter::MCP_STORE_API` (sales-channel-token key, tighter). Per-tool limits + `Retry-After` header are open (see `AGENTS.md`) | S | — |
+| Rate limiting | **Done** | `McpRateLimiter`; per-scope routes `RateLimiter::MCP_ADMIN_API` (principal key: user or integration, IP fallback) and `RateLimiter::MCP_STORE_API` (sales-channel-token key, tighter). Per-tool limits + `Retry-After` header are open (see `AGENTS.md`) | S | — |
 | Per-installation allowlist | **Done** | `shopware.mcp.allowed_tools` + compiler pass | S | — |
 | Per-integration allowlist (Admin UI + API + runtime filter) | **Done** | `integration.mcp_allowlist`, `McpAllowlistProvider`, `sw-integration-mcp-allowlist` component | M–L | — |
 | Write safety (dry-run defaults) | **Done** | All write tools default `dryRun=true` | S | — |

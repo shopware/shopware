@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ObjectField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -59,14 +58,6 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
             }
 
             $association->addFilter($activeReviewsFilter);
-        }
-
-        // the translations of a document reference its file per language, which must not expose other languages or private media
-        if ($criteria->hasAssociation('documents') && $criteria->getAssociation('documents')->hasAssociation('translations')) {
-            $criteria->getAssociation('documents')->getAssociation('translations')->addFilter(
-                new EqualsAnyFilter('languageId', $context->getContext()->getLanguageIdChain()),
-                new EqualsFilter('media.private', false),
-            );
         }
 
         if ($criteria->getNestingLevel() !== Criteria::ROOT_NESTING_LEVEL) {

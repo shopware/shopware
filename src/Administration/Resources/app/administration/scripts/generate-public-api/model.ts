@@ -143,8 +143,8 @@ function assertUniqueNames(components: ComponentUnit[]): void {
 }
 
 /**
- * The old `blocks-list.json` listed the blocks of every template file. The snapshot lists them per component,
- * so a template that no component uses would lose its blocks without anyone noticing.
+ * The snapshot lists blocks per component, so the blocks of a template that no component uses would be missing
+ * from it without anyone noticing.
  */
 function assertEveryBlockIsListed(
     tree: SourceTree,

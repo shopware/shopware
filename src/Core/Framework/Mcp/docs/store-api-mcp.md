@@ -127,6 +127,8 @@ The endpoint supports browser-based MCP clients. `CoreCorsHeaderProvider` contri
 (`CorsListener`) and exposes `mcp-session-id` on responses. A browser client can therefore
 read the session ID from the `initialize` response header and send it on all subsequent
 requests.
+It also allows the `Mcp-Method` and `Mcp-Name` request headers, which the stateless era
+requires, so browser clients can use both eras.
 
 Bundles that introduce their own API headers add them the same way, by registering a
 `Shopware\Core\Framework\Api\Cors\CorsHeaderProviderInterface` service. The lists are

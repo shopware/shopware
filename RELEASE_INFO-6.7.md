@@ -420,6 +420,7 @@ On the stateless revision there is no MCP session:
   The notifications go through `cache.app`, so setups with several hosts need a shared `cache.app`, for example Redis.
 * Each open `subscriptions/listen` stream occupies a PHP worker for up to 25 seconds before the client reconnects.
   Account for it in `pm.max_children`.
+  The Store API endpoint publishes no notifications, so it answers `subscriptions/listen` with the JSON-RPC error `-32601` instead of opening a stream.
 
 ### Event once all line items of an add are in the cart
 

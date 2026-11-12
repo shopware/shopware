@@ -21,9 +21,6 @@ const cache = new WeakMap();
 /**
  * The options object of a component definition, also inside `wrapComponentConfig({...})`, `defineComponent({...})`
  * and TypeScript casts.
- *
- * @param {object|null} node
- * @returns {object|null} ObjectExpression
  */
 function unwrapOptions(node) {
     if (!node) {
@@ -53,9 +50,6 @@ function exportDefaultOptions(ast) {
 
 /**
  * The folder name of the linted file when it is a core component name.
- *
- * @param {import('eslint').Rule.RuleContext} context
- * @returns {string|null}
  */
 function folderTarget(context) {
     const filename = context.physicalFilename ?? context.filename ?? '';
@@ -66,9 +60,6 @@ function folderTarget(context) {
 
 /**
  * Every override or extension of a component in the linted file.
- *
- * @param {import('eslint').Rule.RuleContext} context
- * @returns {Array<{ target: string, options: object|null, node: object, fromFolder: boolean }>}
  */
 function findOverrides(context) {
     const ast = context.sourceCode.ast;
@@ -122,9 +113,6 @@ function targetAt(context, node) {
 
 /**
  * Every component the linted file overrides or extends.
- *
- * @param {import('eslint').Rule.RuleContext} context
- * @returns {string[]}
  */
 function fileTargets(context) {
     return [...new Set(findOverrides(context).map(({ target }) => target))];

@@ -7,19 +7,10 @@
 
 class Unconvertible extends Error {}
 
-/**
- * @param {string} reason why the spot is not converted, part of the TODO text
- * @returns {never}
- */
 function fail(reason) {
     throw new Unconvertible(reason);
 }
 
-/**
- * @template T
- * @param {() => T} convert
- * @returns {{ result: T, reason: null }|{ result: null, reason: string }}
- */
 function attempt(convert) {
     try {
         return { result: convert(), reason: null };

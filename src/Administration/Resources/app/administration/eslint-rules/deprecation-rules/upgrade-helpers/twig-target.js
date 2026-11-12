@@ -30,9 +30,6 @@ function physicalFilename(context) {
 
 /**
  * The sources of the scripts in a folder, specs excluded.
- *
- * @param {string} directory
- * @returns {string}
  */
 function readScripts(directory) {
     let names;
@@ -59,9 +56,6 @@ function readScripts(directory) {
 /**
  * The core components the linted template may override, and whether it belongs to a component the extension
  * registers itself.
- *
- * @param {import('eslint').Rule.RuleContext} context
- * @returns {{ targets: string[], ownComponent: boolean }}
  */
 function templateOwner(context) {
     const filename = physicalFilename(context);
@@ -88,9 +82,6 @@ function templateOwner(context) {
 
 /**
  * The core components the linted template may override.
- *
- * @param {import('eslint').Rule.RuleContext} context
- * @returns {string[]}
  */
 function twigTargets(context) {
     return templateOwner(context).targets;
@@ -99,9 +90,6 @@ function twigTargets(context) {
 /**
  * The core components whose template the linted file overrides: for `.html.twig` files from the scripts next to it,
  * for `.vue` files from their own script.
- *
- * @param {import('eslint').Rule.RuleContext} context
- * @returns {string[]}
  */
 function targetsOfTemplate(context) {
     return isTwigFile(context) ? twigTargets(context) : fileTargets(context);

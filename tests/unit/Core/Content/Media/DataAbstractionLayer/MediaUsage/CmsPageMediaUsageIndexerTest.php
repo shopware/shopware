@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionDefinition;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\Media\Cms\AbstractDefaultMediaResolver;
-use Shopware\Core\Content\Media\Cms\CmsElementMediaFieldProvider;
+use Shopware\Core\Content\Media\Cms\CmsElementMediaIdsProvider;
 use Shopware\Core\Content\Media\Cms\ImageCmsElementResolver;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\CmsPageMediaUsageIndexer;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\CmsSlotMediaIdResolver;
@@ -52,7 +52,7 @@ class CmsPageMediaUsageIndexerTest extends TestCase
         $this->indexer = new CmsPageMediaUsageIndexer(
             static::createStub(IteratorFactory::class),
             $this->connection,
-            new CmsSlotMediaIdResolver([new CmsElementMediaFieldProvider(new ImageCmsElementResolver(static::createStub(AbstractDefaultMediaResolver::class)), ['media'])]),
+            new CmsSlotMediaIdResolver([new CmsElementMediaIdsProvider(new ImageCmsElementResolver(static::createStub(AbstractDefaultMediaResolver::class)), ['media'])]),
         );
     }
 

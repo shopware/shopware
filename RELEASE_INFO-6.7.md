@@ -428,17 +428,17 @@ the media of layout overrides in `category_translation_media_usage`, `product_tr
 so replacing a file does not have to search the JSON of the content.
 After the update, the indexers of the same names with the suffix `.indexer` fill the tables for the existing content.
 
-The media of an element are returned by its media provider, a service implementing the new `CmsElementMediaProviderInterface`.
+The media of an element are read by its media ids provider, a `CmsElementMediaIdsProvider` service tagged with `shopware.cms.element_media_ids_provider`.
 The core registers providers for the image, image slider, image gallery, video, YouTube and Vimeo elements.
 Elements showing media should register a provider as well, so replacing those media invalidates the pages showing them.
-Several providers can be registered for the same element type.
-The `CmsElementMediaFieldProvider` takes the resolver of the element, which names the element type, and the paths to the media in the config.
+The first provider supporting the element type is used, so a provider with a higher tag priority replaces the one of the core.
+The provider takes the resolver of the element, which names the element type, and the paths to the media in the config.
 A path starts with the config field, `*` stands for every entry of a list, so `sliderItems.*.mediaId` reads the `mediaId` of every slider item:
 
 ```php
-$services->set('my_plugin.cms.element_media_provider.my-gallery', CmsElementMediaFieldProvider::class)
+$services->set('my_plugin.cms.element_media_ids_provider.my_gallery', CmsElementMediaIdsProvider::class)
     ->args([service(MyGalleryCmsElementResolver::class), ['slides.*.picture.media.*.id', 'background.mediaId']])
-    ->tag('shopware.cms.element_media_provider');
+    ->tag('shopware.cms.element_media_ids_provider');
 ```
 
 ### Split cart delivery positions by quantity

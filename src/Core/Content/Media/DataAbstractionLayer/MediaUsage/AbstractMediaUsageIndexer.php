@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
@@ -74,7 +75,11 @@ abstract class AbstractMediaUsageIndexer extends EntityIndexer
     {
         RetryableTransaction::retryable($this->connection, function () use ($ids, $rows): void {
             $this->connection->executeStatement(
-                \sprintf('DELETE FROM `%s` WHERE `%s_id` IN (:ids)', $this->getTableName(), $this->getEntityName()),
+                \sprintf(
+                    'DELETE FROM `%s` WHERE %s IN (:ids)',
+                    $this->getTableName(),
+                    EntityDefinitionQueryHelper::escape($this->getEntityName() . '_id')
+                ),
                 ['ids' => $ids],
                 ['ids' => ArrayParameterType::BINARY]
             );

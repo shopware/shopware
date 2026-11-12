@@ -21,7 +21,7 @@ use Shopware\Core\Content\Media\Api\MediaUploadController;
 use Shopware\Core\Content\Media\Api\MediaUploadV2Controller;
 use Shopware\Core\Content\Media\Api\MediaVideoCoverController;
 use Shopware\Core\Content\Media\Api\PresignedUploadController;
-use Shopware\Core\Content\Media\Cms\CmsElementMediaFieldProvider;
+use Shopware\Core\Content\Media\Cms\CmsElementMediaIdsProvider;
 use Shopware\Core\Content\Media\Cms\DefaultMediaResolver;
 use Shopware\Core\Content\Media\Cms\ImageCmsElementResolver;
 use Shopware\Core\Content\Media\Cms\Type\ImageGalleryTypeDataResolver;
@@ -601,33 +601,33 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('shopware.media.remote_thumbnails.enable'),
         ]);
 
-    $services->set('shopware.cms.element_media_provider.image', CmsElementMediaFieldProvider::class)
+    $services->set('shopware.cms.element_media_ids_provider.image', CmsElementMediaIdsProvider::class)
         ->args([service(ImageCmsElementResolver::class), ['media']])
-        ->tag('shopware.cms.element_media_provider');
+        ->tag('shopware.cms.element_media_ids_provider');
 
-    $services->set('shopware.cms.element_media_provider.image-slider', CmsElementMediaFieldProvider::class)
+    $services->set('shopware.cms.element_media_ids_provider.image_slider', CmsElementMediaIdsProvider::class)
         ->args([service(ImageSliderTypeDataResolver::class), ['sliderItems.*.mediaId']])
-        ->tag('shopware.cms.element_media_provider');
+        ->tag('shopware.cms.element_media_ids_provider');
 
-    $services->set('shopware.cms.element_media_provider.image-gallery', CmsElementMediaFieldProvider::class)
+    $services->set('shopware.cms.element_media_ids_provider.image_gallery', CmsElementMediaIdsProvider::class)
         ->args([service(ImageGalleryTypeDataResolver::class), ['sliderItems.*.mediaId']])
-        ->tag('shopware.cms.element_media_provider');
+        ->tag('shopware.cms.element_media_ids_provider');
 
-    $services->set('shopware.cms.element_media_provider.video', CmsElementMediaFieldProvider::class)
+    $services->set('shopware.cms.element_media_ids_provider.video', CmsElementMediaIdsProvider::class)
         ->args([service(VideoCmsElementResolver::class), ['media']])
-        ->tag('shopware.cms.element_media_provider');
+        ->tag('shopware.cms.element_media_ids_provider');
 
-    $services->set('shopware.cms.element_media_provider.youtube-video', CmsElementMediaFieldProvider::class)
+    $services->set('shopware.cms.element_media_ids_provider.youtube_video', CmsElementMediaIdsProvider::class)
         ->args([service(YoutubeVideoCmsElementResolver::class), ['previewMedia']])
-        ->tag('shopware.cms.element_media_provider');
+        ->tag('shopware.cms.element_media_ids_provider');
 
-    $services->set('shopware.cms.element_media_provider.vimeo-video', CmsElementMediaFieldProvider::class)
+    $services->set('shopware.cms.element_media_ids_provider.vimeo_video', CmsElementMediaIdsProvider::class)
         ->args([service(VimeoVideoCmsElementResolver::class), ['previewMedia']])
-        ->tag('shopware.cms.element_media_provider');
+        ->tag('shopware.cms.element_media_ids_provider');
 
     $services->set(CmsSlotMediaIdResolver::class)
         ->args([
-            tagged_iterator('shopware.cms.element_media_provider'),
+            tagged_iterator('shopware.cms.element_media_ids_provider'),
         ]);
 
     $services->set(CmsPageMediaUsageIndexer::class)

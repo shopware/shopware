@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Media\Cms\AbstractDefaultMediaResolver;
-use Shopware\Core\Content\Media\Cms\CmsElementMediaFieldProvider;
+use Shopware\Core\Content\Media\Cms\CmsElementMediaIdsProvider;
 use Shopware\Core\Content\Media\Cms\ImageCmsElementResolver;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\CmsSlotMediaIdResolver;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\SlotConfigOverrideMediaUsageIndexer;
@@ -111,7 +111,7 @@ class SlotConfigOverrideMediaUsageIndexerTest extends TestCase
         return new SlotConfigOverrideMediaUsageIndexer(
             static::createStub(IteratorFactory::class),
             $this->connection,
-            new CmsSlotMediaIdResolver([new CmsElementMediaFieldProvider(new ImageCmsElementResolver(static::createStub(AbstractDefaultMediaResolver::class)), ['media'])]),
+            new CmsSlotMediaIdResolver([new CmsElementMediaIdsProvider(new ImageCmsElementResolver(static::createStub(AbstractDefaultMediaResolver::class)), ['media'])]),
             $registry->get($definition),
         );
     }

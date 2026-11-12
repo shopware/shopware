@@ -257,8 +257,8 @@ class CheckoutGatewayRouteTest extends TestCase
             new Transaction($amount, $paymentMethod->getId()),
         ]));
         $cart->setDeliveries(new DeliveryCollection([
-            $this->createDelivery('First shipping'),
-            $this->createDelivery('Second shipping'),
+            $this->createDelivery('First shipping', position: 2),
+            $this->createDelivery('Second shipping', position: 1),
         ]));
 
         $paymentMethodRoute = static::createStub(AbstractPaymentMethodRoute::class);
@@ -283,20 +283,20 @@ class CheckoutGatewayRouteTest extends TestCase
             new ExtensionDispatcher(new EventDispatcher()),
         );
 
-        $transactionIndexes = [];
-        $deliveryIndexes = [];
+        $transactionPositions = [];
+        $deliveryPositions = [];
         foreach ($route->load(new Request(), $cart, $context)->getErrors() as $error) {
             if ($error instanceof PaymentMethodBlockedError) {
-                $transactionIndexes[$error->getName()] = $error->getTransactionIndex();
+                $transactionPositions[$error->getName()] = $error->getTransactionPosition();
             }
 
             if ($error instanceof ShippingMethodBlockedError) {
-                $deliveryIndexes[$error->getName()] = $error->getDeliveryIndex();
+                $deliveryPositions[$error->getName()] = $error->getDeliveryPosition();
             }
         }
 
-        static::assertSame(['Bar' => 1], $transactionIndexes);
-        static::assertSame(['First shipping' => 0, 'Second shipping' => 1], $deliveryIndexes);
+        static::assertSame(['Bar' => 2], $transactionPositions);
+        static::assertSame(['First shipping' => 2, 'Second shipping' => 1], $deliveryPositions);
     }
 
     public function testOnlyAvailableFlagIsSet(): void
@@ -360,18 +360,21 @@ class CheckoutGatewayRouteTest extends TestCase
         static::assertSame($response, $route->load($request, $cart, $context));
     }
 
-    private function createDelivery(string $shippingMethodName): Delivery
+    private function createDelivery(string $shippingMethodName, int $position): Delivery
     {
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
         $shippingMethod->addTranslated('name', $shippingMethodName);
 
-        return new Delivery(
+        $delivery = new Delivery(
             new DeliveryPositionCollection(),
             new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),
             new CalculatedPrice(100.00, 100.00, new CalculatedTaxCollection(), new TaxRuleCollection())
         );
+        $delivery->setPosition($position);
+
+        return $delivery;
     }
 }

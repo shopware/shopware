@@ -19,7 +19,7 @@ class ShippingMethodBlockedError extends Error
         protected readonly string $name,
         protected readonly ?string $id = null,
         protected readonly ?string $reason = null,
-        protected readonly ?int $deliveryIndex = null,
+        protected readonly ?int $deliveryPosition = null,
     ) {
         if ($id === null || $reason === null) {
             Feature::triggerDeprecationOrThrow(
@@ -48,7 +48,7 @@ class ShippingMethodBlockedError extends Error
             'id' => $this->id,
             'name' => $this->name,
             'reason' => $this->reason,
-            'deliveryIndex' => $this->deliveryIndex,
+            'deliveryPosition' => $this->deliveryPosition,
         ];
     }
 
@@ -69,9 +69,9 @@ class ShippingMethodBlockedError extends Error
         return $this->reason;
     }
 
-    public function getDeliveryIndex(): ?int
+    public function getDeliveryPosition(): ?int
     {
-        return $this->deliveryIndex;
+        return $this->deliveryPosition;
     }
 
     public function blockOrder(): bool

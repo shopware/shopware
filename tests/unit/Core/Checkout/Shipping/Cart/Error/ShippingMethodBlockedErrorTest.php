@@ -29,9 +29,9 @@ class ShippingMethodBlockedErrorTest extends TestCase
             'id' => $error->getShippingMethodId(),
             'name' => 'FOO',
             'reason' => 'BAR',
-            'deliveryIndex' => null,
+            'deliveryPosition' => null,
         ], $error->getParameters());
-        static::assertNull($error->getDeliveryIndex());
+        static::assertNull($error->getDeliveryPosition());
         static::assertSame('FOO', $error->getName());
         static::assertTrue($error->blockOrder());
         static::assertSame('shipping-method-blocked-' . $error->getShippingMethodId(), $error->getId());
@@ -47,11 +47,11 @@ class ShippingMethodBlockedErrorTest extends TestCase
             name: 'FOO',
             id: $shippingMethodId,
             reason: 'BAR',
-            deliveryIndex: 1,
+            deliveryPosition: 1,
         );
 
-        static::assertSame(1, $error->getDeliveryIndex());
-        static::assertSame(1, $error->getParameters()['deliveryIndex']);
+        static::assertSame(1, $error->getDeliveryPosition());
+        static::assertSame(1, $error->getParameters()['deliveryPosition']);
         static::assertSame('shipping-method-blocked-' . $shippingMethodId, $error->getId());
     }
 }

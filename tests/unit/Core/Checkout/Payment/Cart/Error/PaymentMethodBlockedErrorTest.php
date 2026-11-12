@@ -29,9 +29,9 @@ class PaymentMethodBlockedErrorTest extends TestCase
             'id' => $error->getPaymentMethodId(),
             'name' => 'FOO',
             'reason' => 'BAR',
-            'transactionIndex' => null,
+            'transactionPosition' => null,
         ], $error->getParameters());
-        static::assertNull($error->getTransactionIndex());
+        static::assertNull($error->getTransactionPosition());
         static::assertSame('FOO', $error->getName());
         static::assertTrue($error->blockOrder());
         static::assertSame('payment-method-blocked-' . $error->getPaymentMethodId(), $error->getId());
@@ -47,11 +47,11 @@ class PaymentMethodBlockedErrorTest extends TestCase
             name: 'FOO',
             reason: 'BAR',
             id: $paymentMethodId,
-            transactionIndex: 1,
+            transactionPosition: 1,
         );
 
-        static::assertSame(1, $error->getTransactionIndex());
-        static::assertSame(1, $error->getParameters()['transactionIndex']);
+        static::assertSame(1, $error->getTransactionPosition());
+        static::assertSame(1, $error->getParameters()['transactionPosition']);
         static::assertSame('payment-method-blocked-' . $paymentMethodId, $error->getId());
     }
 }

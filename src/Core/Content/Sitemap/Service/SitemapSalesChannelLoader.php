@@ -35,7 +35,7 @@ class SitemapSalesChannelLoader
     }
 
     /**
-     * Sitemaps are generated for storefront sales channels and for headless (API type) sales channels
+     * Sitemaps are generated for active storefront sales channels and for active headless (API type) sales channels
      * with a domain flagged as external storefront.
      */
     public function loadSalesChannels(Context $context, ?string $salesChannelId = null): SalesChannelCollection
@@ -52,6 +52,8 @@ class SitemapSalesChannelLoader
                 new EqualsFilter('domains.isExternalStorefront', true),
             ]),
         ]));
+
+        $criteria->addFilter(new EqualsFilter('active', true));
 
         $this->eventDispatcher->dispatch(new SitemapSalesChannelCriteriaEvent($criteria, $context));
 

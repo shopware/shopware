@@ -10,9 +10,9 @@
             <div>
                 <h4>{{ service.label }}</h4>
                 <sw-status
-                    :color="serviceStatus"
+                    :color="status.color"
                 >
-                    {{ $t(statusText) }}
+                    {{ $t(status.label) }}
                 </sw-status>
             </div>
 

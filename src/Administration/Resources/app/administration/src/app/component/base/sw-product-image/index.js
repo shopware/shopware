@@ -14,10 +14,7 @@ import './sw-product-image.scss';
 export default {
     template,
 
-    emits: [
-        'sw-product-image-cover',
-        'sw-product-image-delete',
-    ],
+    emits: ['sw-product-image-cover', 'sw-product-image-delete'],
 
     props: {
         mediaId: {

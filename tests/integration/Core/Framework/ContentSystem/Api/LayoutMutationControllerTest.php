@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Api;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -87,6 +88,37 @@ class LayoutMutationControllerTest extends TestCase
         static::assertSame('block-a', $body['layout'][0]['id']);
         static::assertSame($to, $body['layout'][0]['component']);
         static::assertSame(['block-a'], $body['affectedElementIds']);
+    }
+
+    public function testReplacementReportsInvalidChildMappingsWithoutDroppingParentWiring(): void
+    {
+        $source = ['type' => 'root', 'id' => 'product', 'path' => 'missing'];
+        $child = [
+            'id' => 'child', 'component' => TestElementTypeLoader::MAPPABLE_PRIMITIVE,
+            'properties' => ['text' => 'Child fallback'],
+            'acceptsContext' => ['text' => ['type' => 'single', 'required' => false, 'scope' => 'root', 'source' => $source]],
+        ];
+
+        $body = $this->mutate('replace-element', [
+            'layout' => [[
+                'id' => 'parent', 'component' => 'Sw:Grid:Container',
+                'slots' => ['content' => [$child]],
+            ]],
+            'elementId' => 'parent', 'newType' => 'Sw:Grid:Container', 'rootSource' => 'product',
+        ]);
+
+        static::assertSame([], $body['droppedWiring']);
+        static::assertSame($source, $body['layout'][0]['slots']['content'][0]['acceptsContext']['text']['source']);
+        static::assertSame('Child fallback', $body['layout'][0]['slots']['content'][0]['properties']['text']);
+        $violations = array_values(array_filter(
+            $body['diagnostics']['violations'],
+            static fn (array $violation): bool => $violation['code'] === 'invalid_mapping',
+        ));
+        static::assertCount(1, $violations);
+        static::assertSame('child', $violations[0]['elementId']);
+        static::assertSame('text', $violations[0]['key']);
+        static::assertTrue($body['diagnostics']['wellFormed']);
+        static::assertFalse($body['diagnostics']['resolvable']);
     }
 
     #[TestDox('duplicates an element with a server-minted id')]
@@ -324,6 +356,31 @@ class LayoutMutationControllerTest extends TestCase
         static::assertFalse($body['diagnostics']['resolvable']);
     }
 
+    public function testMalformedInlineTokenIsReportedWithoutAbortingTheDraftMutation(): void
+    {
+        $text = 'Hello {{map:product}}';
+        $body = $this->mutate('insert-element', [
+            'layout' => [[
+                'id' => 'text-with-token',
+                'component' => 'Sw:Content:Text',
+                'properties' => ['text' => $text],
+            ]],
+            'type' => TestElementTypeLoader::RESOLVABLE,
+            'rootSource' => 'product',
+        ]);
+
+        $violations = array_values(array_filter(
+            $body['diagnostics']['violations'],
+            static fn (array $violation): bool => $violation['code'] === 'invalid_mapping',
+        ));
+        static::assertCount(1, $violations);
+        static::assertSame('text-with-token', $violations[0]['elementId']);
+        static::assertSame('text', $violations[0]['key']);
+        static::assertSame('binding', $violations[0]['scope']);
+        static::assertSame($text, $body['layout'][0]['properties']['text']);
+        static::assertCount(2, $body['layout']);
+    }
+
     #[TestDox('inlines the core Sw:Media:Image default specification\'s wiring and attribution on a draft bind')]
     public function testBindElementInlinesCoreSpecificationWiringAndAttribution(): void
     {
@@ -359,12 +416,11 @@ class LayoutMutationControllerTest extends TestCase
         static::assertSame(['media' => self::CORE_MEDIA_BINDING_ID], $inserted['attributedSpecifications']);
     }
 
-    #[TestDox('mirrors a resolved root-ambient reference onto a freshly inserted element as a root-scope acceptsContext consumer')]
+    #[TestDox('seeds the default product mapping on a freshly inserted element while retaining its resolvedBy loader')]
     public function testInsertElementMirrorsRootContextConsumerOntoCreatedElement(): void
     {
-        // Sw:Product:PriceDisplay declares a bare SalesChannelProductEntity "product" reference: no resolvedBy
-        // (so no default binding fills it) and no self-provided key, and the "product" root source offers that
-        // exact FQCN, so every mirror skip clears and the live resolver, not a hand-built candidate, proves it.
+        // Sw:Product:PriceDisplay declares the product root source as its default mapping and keeps a
+        // resolvedBy loader underneath it so unmapping restores the entity selection.
         $body = $this->mutate('insert-element', [
             'layout' => [],
             'type' => 'Sw:Product:PriceDisplay',
@@ -372,11 +428,16 @@ class LayoutMutationControllerTest extends TestCase
         ]);
 
         $inserted = $body['layout'][0];
-        static::assertArrayNotHasKey('product', $inserted['dataRequirements'] ?? []);
         static::assertSame(
-            ['type' => 'single', 'required' => false, 'scope' => 'root'],
+            [
+                'type' => 'single',
+                'required' => false,
+                'scope' => 'root',
+                'source' => ['type' => 'root', 'id' => 'product'],
+            ],
             $inserted['acceptsContext']['product'],
         );
+        static::assertArrayHasKey('product', $inserted['dataRequirements'] ?? []);
     }
 
     #[TestDox('resolves the bound media reference via CandidateOrigin::Stored once mediaId is filled in on the bound draft')]
@@ -459,6 +520,95 @@ class LayoutMutationControllerTest extends TestCase
         static::assertTrue($body['diagnostics']['wellFormed']);
     }
 
+    public function testMapPropertyReturnsTheMappedDraft(): void
+    {
+        $this->getBrowser(permissions: ['content_layout:read']);
+        $source = ['type' => 'root', 'id' => 'category', 'path' => 'media'];
+
+        $body = $this->mutate('map-property', [
+            'elementId' => 'mapped-image',
+            'propertyKey' => 'media',
+            'source' => $source,
+            'rootSource' => 'category',
+            'layout' => [['id' => 'mapped-image', 'component' => 'Sw:Media:Image', 'properties' => ['height' => '250px', 'mediaId' => '0188fa1b2c3d4e5f6a7b8c9d0e1f2a40']]],
+        ]);
+
+        static::assertSame($source, $body['layout'][0]['acceptsContext']['media']['source']);
+        static::assertSame('root', $body['layout'][0]['acceptsContext']['media']['scope']);
+        static::assertSame('250px', $body['layout'][0]['properties']['height']);
+        static::assertSame(['mapped-image'], $body['affectedElementIds']);
+    }
+
+    public function testMapPropertyRequiresReadPrivilege(): void
+    {
+        $browser = $this->getBrowser(permissions: []);
+
+        $browser->jsonRequest('POST', self::BASE_URL . 'map-property', [
+            'elementId' => 'image',
+            'propertyKey' => 'media',
+            'source' => ['type' => 'root', 'id' => 'category', 'path' => 'media'],
+            'rootSource' => 'category',
+        ]);
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+    }
+
+    public function testMapPropertyRejectsAMalformedSourceWithTheMappingError(): void
+    {
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'map-property', [
+            'elementId' => 'mapped-image',
+            'propertyKey' => 'media',
+            'source' => ['type' => '', 'id' => 'category'],
+            'rootSource' => 'category',
+            'layout' => [['id' => 'mapped-image', 'component' => 'Sw:Media:Image']],
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        $body = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::INVALID_MAPPING_SOURCE, array_column($body['errors'], 'code'));
+    }
+
+    /**
+     * @param array<string, mixed> $rootSourcePayload
+     */
+    #[DataProvider('missingMappingRootSourceProvider')]
+    public function testMovingElementsPreservesUnboundMappingsAndReportsInlineTokensRequiringASource(array $rootSourcePayload): void
+    {
+        $source = ['type' => 'root', 'id' => 'category', 'path' => 'media'];
+        $body = $this->mutate('move-element', [
+            ...$rootSourcePayload,
+            'layout' => [
+                [
+                    'id' => 'mapped', 'component' => 'Sw:Media:Gallery', 'properties' => [],
+                    'acceptsContext' => ['mediaItems' => ['type' => 'single', 'required' => false, 'scope' => 'root', 'source' => $source]],
+                ],
+                [
+                    'id' => 'inline', 'component' => 'Sw:Content:Text',
+                    'properties' => ['text' => [Defaults::LANGUAGE_SYSTEM => 'Hello {{map:product.name}}']],
+                ],
+            ],
+            'elementId' => 'inline', 'index' => 0,
+        ]);
+
+        static::assertSame(['inline', 'mapped'], array_column($body['layout'], 'id'));
+        static::assertSame($source, $body['layout'][1]['acceptsContext']['mediaItems']['source']);
+        $violations = array_values(array_filter(
+            $body['diagnostics']['violations'],
+            static fn (array $violation): bool => $violation['code'] === 'invalid_mapping',
+        ));
+        static::assertCount(1, $violations);
+        static::assertSame('inline', $violations[0]['elementId']);
+        static::assertSame('text', $violations[0]['key']);
+        static::assertSame('binding', $violations[0]['scope']);
+        static::assertSame(
+            ContentSystemException::inlineMappingRequiresRootSource('product.name', 'text')->getMessage(),
+            $violations[0]['message'],
+        );
+        static::assertTrue($body['diagnostics']['wellFormed']);
+        static::assertFalse($body['diagnostics']['resolvable']);
+    }
+
     #[TestDox('rejects non-string wrap target ids at the request boundary with a 400')]
     public function testWrapRejectsNonStringElementIds(): void
     {
@@ -501,6 +651,123 @@ class LayoutMutationControllerTest extends TestCase
 
         $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertContains(ContentSystemException::UNKNOWN_ROOT_SOURCE, array_column($body['errors'], 'code'));
+    }
+
+    /**
+     * @param array<string, mixed> $rootSourcePayload
+     */
+    #[DataProvider('missingMappingRootSourceProvider')]
+    public function testMapPropertyRejectsAMissingRootSourceAtTheRequestBoundary(array $rootSourcePayload): void
+    {
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'map-property', [
+            'elementId' => 'missing-element',
+            'propertyKey' => 'text',
+            'source' => ['type' => 'root', 'id' => 'product', 'path' => 'name'],
+            ...$rootSourcePayload,
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertNotContains(ContentSystemException::MAPPING_ROOT_SOURCE_MISSING, array_column($body['errors'], 'code'));
+        static::assertNotContains(ContentSystemException::MUTATION_TARGET_NOT_FOUND, array_column($body['errors'], 'code'));
+    }
+
+    #[DataProvider('nonArrayMappingInputProvider')]
+    public function testMappingMutationsRejectNonArrayInputsBeforeApplyingTheMutation(string $operation, string $field, mixed $value): void
+    {
+        $payload = [
+            'elementId' => 'missing-element',
+            'propertyKey' => 'text',
+            'layout' => [],
+            'rootSource' => 'product',
+        ];
+
+        if ($operation === 'map-property') {
+            $payload['source'] = ['type' => 'root', 'id' => 'product', 'path' => 'name'];
+        }
+
+        $payload[$field] = $value;
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . $operation, $payload);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertNotSame([], $body['errors']);
+        static::assertNotContains(ContentSystemException::MUTATION_TARGET_NOT_FOUND, array_column($body['errors'], 'code'));
+    }
+
+    /**
+     * @return iterable<string, array{string, string, mixed}>
+     */
+    public static function nonArrayMappingInputProvider(): iterable
+    {
+        yield 'map source rejects a string' => ['map-property', 'source', 'not-an-array'];
+        yield 'map source rejects null' => ['map-property', 'source', null];
+        yield 'map source rejects a number' => ['map-property', 'source', 42];
+        yield 'map layout rejects a string' => ['map-property', 'layout', 'not-an-array'];
+        yield 'map layout rejects null' => ['map-property', 'layout', null];
+        yield 'map layout rejects a number' => ['map-property', 'layout', 42];
+        yield 'unmap layout rejects a string' => ['unmap-property', 'layout', 'not-an-array'];
+        yield 'unmap layout rejects null' => ['unmap-property', 'layout', null];
+        yield 'unmap layout rejects a number' => ['unmap-property', 'layout', 42];
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function missingMappingRootSourceProvider(): iterable
+    {
+        yield 'omitted source' => [[]];
+        yield 'null source' => [['rootSource' => null]];
+        yield 'empty source' => [['rootSource' => '']];
+    }
+
+    #[DataProvider('conflictingMappingConsumers')]
+    public function testMapPropertyRejectsConflictingOrdinaryWiring(string $contextKey, ?string $propertyAlias): void
+    {
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'map-property', [
+            'layout' => [[
+                'id' => 'price', 'component' => 'Sw:Product:PriceDisplay',
+                'acceptsContext' => [$contextKey => [
+                    'type' => 'single', 'required' => false, 'propertyAlias' => $propertyAlias,
+                ]],
+            ]],
+            'elementId' => 'price', 'propertyKey' => 'product', 'rootSource' => 'product',
+            'source' => ['type' => 'root', 'id' => 'product'],
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::PROPERTY_ALIAS_COLLISION, array_column($body['errors'], 'code'));
+    }
+
+    /**
+     * @return iterable<string, array{string, string|null}>
+     */
+    public static function conflictingMappingConsumers(): iterable
+    {
+        yield 'same destination' => ['product', null];
+        yield 'alias writes the destination' => ['selectedProduct', 'product'];
+        yield 'dotted consumer holds the same base' => ['product.manufacturer', null];
+        yield 'same consumer key with a different destination' => ['product', 'otherProduct'];
+    }
+
+    public function testMapPropertyRejectsAnUnknownRootSourceBeforeApplyingTheMutation(): void
+    {
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'map-property', [
+            'elementId' => 'missing-element',
+            'propertyKey' => 'text',
+            'source' => ['type' => 'root', 'id' => 'product', 'path' => 'name'],
+            'rootSource' => 'definitely-not-a-root-source',
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::UNKNOWN_ROOT_SOURCE, array_column($body['errors'], 'code'));
+        static::assertNotContains(ContentSystemException::MUTATION_TARGET_NOT_FOUND, array_column($body['errors'], 'code'));
     }
 
     #[TestDox('rejects an unknown request field on a draft mutation with a 400 and the unknownRequestField code')]

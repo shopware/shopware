@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Config;
 
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
@@ -26,8 +27,8 @@ use Symfony\Contracts\Service\ResetInterface;
  * Loads the merged document configuration (global + sales-channel override)
  * for a document type. Reads typed columns directly; falls back to the JSON
  * `config` blob only for fields not yet migrated to columns.
- * Sales-channel configured values override global. For the filename prefix
- * and suffix, '' counts as unconfigured.
+ * Sales-channel configured values override global. For the filename prefix,
+ * suffix, and infixes, '' counts as unconfigured.
  *
  * @internal
  */
@@ -117,18 +118,19 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
         }
 
         $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('typeName', $documentType))
+            ->addFilter(
+                new EqualsFilter('typeName', $documentType),
+                new OrFilter([
+                    new EqualsFilter('global', true),
+                    new EqualsFilter('salesChannels.salesChannelId', $salesChannelId),
+                ]),
+            )
             ->addAssociation('logo');
-
-        $criteria->getAssociation('salesChannels')
-            ->addFilter(new EqualsFilter('salesChannelId', $salesChannelId));
 
         $rows = $this->documentConfigRepository->search($criteria, $context)->getEntities();
 
         $globalRow = $rows->filterByProperty('global', true)->first();
-        $salesChannelRow = $rows
-            ->filter(static fn (DocumentBaseConfigEntity $row): bool => ((int) $row->getSalesChannels()?->count()) > 0)
-            ->first();
+        $salesChannelRow = $rows->filterByProperty('global', false)->first();
 
         $legacyConfig = $this->mergeJsonConfig($globalRow, $salesChannelRow);
         $systemConfigCompanyInfo = $this->resolveCompanyInfoFromSystemConfig($salesChannelId);
@@ -149,6 +151,34 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
         $this->bundles[$documentType] ??= [];
 
         return $this->bundles[$documentType][$salesChannelId] = $bundle;
+    }
+
+    /**
+     * @param array<string, mixed> $global
+     * @param array<string, mixed> $salesChannel
+     *
+     * @return array<string, string>
+     */
+    public static function mergeFilenameInfixes(array $global, array $salesChannel): array
+    {
+        return array_merge(self::configuredFilenameInfixes($global), self::configuredFilenameInfixes($salesChannel));
+    }
+
+    /**
+     * @param array<string, mixed> $infixes
+     *
+     * @return array<string, string>
+     */
+    public static function configuredFilenameInfixes(array $infixes): array
+    {
+        $configured = [];
+        foreach ($infixes as $format => $infix) {
+            if (\is_scalar($infix) && (string) $infix !== '') {
+                $configured[(string) $format] = (string) $infix;
+            }
+        }
+
+        return $configured;
     }
 
     /**
@@ -220,7 +250,7 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
             itemsPerPage: $itemsPerPage,
             filenamePrefix: self::firstConfiguredValue($salesChannelRow?->getFilenamePrefix(), $globalRow?->getFilenamePrefix()),
             filenameSuffix: self::firstConfiguredValue($salesChannelRow?->getFilenameSuffix(), $globalRow?->getFilenameSuffix()),
-            filenameInfixes: array_merge(
+            filenameInfixes: self::mergeFilenameInfixes(
                 $globalRow?->getFilenameInfixes() ?? [],
                 $salesChannelRow?->getFilenameInfixes() ?? [],
             ),

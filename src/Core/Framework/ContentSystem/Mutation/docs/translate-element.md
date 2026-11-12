@@ -30,10 +30,11 @@ writing the map without that entry, and removing a property key stays with `Upda
 
 `affected = [elementId]`; `created`, `orphaned`, `droppedWiring` and `droppedProperties` stay empty.
 
-`writePrivilege()` returns `content_layout:translate`. `PersistedLayoutMutator::mutate()` checks that the caller
-holds it before reading anything (`ContentSystemException::missingPrivileges`, `403`, ahead of any `404`, `409` or
-`400`) and runs the repository `update()` in `Context::SYSTEM_SCOPE` ([runners.md](runners.md#persistedlayoutmutator)), where `AclWriteValidator`
-checks no privilege, so the persisted route needs `content_layout:translate` and not `content_layout:update`.
+`writePrivilege()` returns `content_layout:translate`. The persisted route checks it first and writes in system scope,
+so it needs `content_layout:translate` and not `content_layout:update`
+([runners.md](runners.md#persistedlayoutmutator)). A caller holding `content_layout:translate` may add, remove or
+retarget `{{map:...}}` tokens in a translated entry of an `inlineMappable` property.
+
 Listeners running inside that write (`EntityWriteEvent`, `PreWriteValidationEvent`, `PostWriteValidationEvent`) see
 system scope. `EntityWrittenContainerEvent` subscribers run in system scope on every DAL write already, since
 `EntityRepository` dispatches it inside `Context::scope(Context::SYSTEM_SCOPE, ...)`, so the operation adds no

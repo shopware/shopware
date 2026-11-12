@@ -143,9 +143,7 @@ describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
         expect(downloadSpy).toHaveBeenCalledWith('SwExamplePlugin', 'plugin');
         expect(cacheApiSpy).toHaveBeenCalled();
         expect(extensionServiceSpy).toHaveBeenCalled();
-        expect(wrapper.emitted('on-plugin-installed')).toEqual([
-            ['SwExamplePlugin'],
-        ]);
+        expect(wrapper.emitted('on-plugin-installed')).toEqual([['SwExamplePlugin']]);
     });
 
     it('can install an app', async () => {
@@ -174,9 +172,7 @@ describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
         expect(cacheApiSpy).not.toHaveBeenCalled();
         expect(extensionServiceSpy).toHaveBeenCalled();
 
-        expect(wrapper.emitted('on-plugin-installed')).toEqual([
-            ['SwExampleApp'],
-        ]);
+        expect(wrapper.emitted('on-plugin-installed')).toEqual([['SwExampleApp']]);
     });
 
     it('displays errors on failed installation', async () => {
@@ -217,8 +213,6 @@ describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
         expect(showExtensionErrorsSpy).toHaveBeenCalledWith(downloadError);
         expect(extensionServiceSpy).toHaveBeenCalled();
 
-        expect(wrapper.emitted('on-plugin-installed')).toEqual([
-            ['SwExamplePlugin'],
-        ]);
+        expect(wrapper.emitted('on-plugin-installed')).toEqual([['SwExamplePlugin']]);
     });
 });

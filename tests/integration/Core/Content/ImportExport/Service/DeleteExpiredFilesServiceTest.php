@@ -3,14 +3,14 @@
 namespace Shopware\Tests\Integration\Core\Content\ImportExport\Service;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileCollection;
 use Shopware\Core\Content\ImportExport\Service\DeleteExpiredFilesService;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -20,10 +20,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('fundamentals@after-sales')]
 class DeleteExpiredFilesServiceTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     /**
-     * @var EntityRepository<EntityCollection<ImportExportFileEntity>>
+     * @var EntityRepository<ImportExportFileCollection>
      */
     private EntityRepository $fileRepository;
 
@@ -162,10 +163,9 @@ class DeleteExpiredFilesServiceTest extends TestCase
     public function testDeleteFilesWithEmptyDatabase(): void
     {
         // Ensure no files exist
-        $allFiles = $this->fileRepository->searchIds(new Criteria(), $this->context)->getIds();
+        $allFiles = $this->fileRepository->searchIds(new Criteria(), $this->context)->getPrimaryKeyData();
         if ($allFiles !== []) {
-            $deleteData = array_map(static fn ($id) => ['id' => $id], $allFiles);
-            $this->fileRepository->delete($deleteData, $this->context);
+            $this->fileRepository->delete($allFiles, $this->context);
         }
 
         $count = $this->deleteExpiredFilesService->countFiles($this->context);

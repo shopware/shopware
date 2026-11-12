@@ -10,15 +10,15 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Registers five deterministic element types for the resolvability-gate and default-materialization tests,
+ * Registers six deterministic element types for the resolvability-gate, mapping and default-materialization tests,
  * independent of the shipped type definitions: a property-free component that is resolvable against every binding,
  * a component with a required reference to {@see UnresolvableContextTarget} that is resolvable against none, a
  * component with a required primitive carrying a type default (used to prove the write-boundary default seeding),
- * and a component with a required translatable primitive carrying no default, which no shipped type declares —
+ * and a component with a required translatable primitive carrying no default, which no shipped type declares:
  * every shipped translatable property is optional, so the anchor-entry satisfaction rule has no shipped subject.
  * The fifth is that same required translatable primitive with a type default, the corner where a reseeded default
  * is stored as the language map {@see PropertyType::storedDefault()} keys under the anchor language rather than
- * as a bare scalar.
+ * as a bare scalar. The sixth carries a mappable string property for provider extension tests.
  * Wired only in the test environment via the content_system.type_loader tag in services_test.php.
  *
  * @final
@@ -36,11 +36,32 @@ class TestElementTypeLoader extends AbstractContentSystemElementTypeLoader
 
     public const DEFAULTED_TRANSLATABLE = 'Sw:Test:DefaultedTranslatable';
 
+    public const MAPPABLE_PRIMITIVE = 'Sw:Test:MappablePrimitive';
+
     public const SOURCE = 'test';
 
     public function load(): array
     {
         return [
+            new ContentSystemElementTypeSpecification(
+                self::MAPPABLE_PRIMITIVE,
+                'Mappable primitive test element',
+                '',
+                null,
+                null,
+                new CopilotSpecification('', []),
+                ['text' => new PropertySpecification(
+                    'text',
+                    new PropertyType('string', false, null, null),
+                    false,
+                    '',
+                    '',
+                    null,
+                    mappable: true,
+                )],
+                [],
+                self::SOURCE,
+            ),
             new ContentSystemElementTypeSpecification(
                 self::RESOLVABLE,
                 'Resolvable test element',

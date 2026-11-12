@@ -1,8 +1,6 @@
 # Custom Style Options
 
-The plugin- and app-facing guide to registering a new style option.
-
-Style options are universal presentation attributes — alignment, span, spacing, display — that can be set per breakpoint on **every** element, regardless of its type. Unlike an element type property, an option declares nothing about which elements it applies to: every registered option is valid on every element. Plugins and apps register options by placing YAML files in a style-options directory; the Administration decides where each control is shown from the option's `adminUI` hints.
+Style options are universal presentation attributes — alignment, span, spacing, display — that can be set per breakpoint on **every** element, regardless of its type. Unlike an element type property, an option declares nothing about which elements it applies to: every registered option is valid on every element. Plugins and apps register options by placing YAML files in a style-options directory.
 
 The declaration's own file format is documented in [option-yaml.md](option-yaml.md).
 
@@ -27,7 +25,7 @@ An option name is the **Store-API wire key** taken directly from the kebab-case 
 ## Collision Detection
 
 Option names must be globally unique across core, bundles, plugins, and apps. Duplicates are detected at:
-- **Load time** by the registry when aggregating loaders (core / bundle / plugin)
+- **Load time** by registry `all()` when aggregating loaders (core / bundle / plugin)
 - **Persist time** by `StyleOptionCollisionDetector` when syncing app options to the database (also checks inactive app options). The `UNIQUE KEY` on `app_content_system_style_option.name` is the authoritative guard.
 
 ## App Lifecycle
@@ -36,10 +34,10 @@ App activation state is read live, not denormalized onto the option rows. `Datab
 
 ## Validation Posture
 
-Writing an element `style` is strict: an unknown option, an unknown breakpoint, or a value that violates the option's `type` / `enum` / `range` / `maxLength` is rejected (`HTTP 400`). Reading is registry-free: an option whose plugin or app has since been removed rides through verbatim in the served `style` so an old layout still renders, mirroring the element-type system's unknown-`component` handling. Re-saving that layout is rejected until the orphaned option is cleared, so a normal edit round-trip no longer auto-clears it.
+Writing an element `style` is strict: an unknown option, an unknown breakpoint, or a value that violates the option's `type` / `enum` / `range` / `maxLength` is rejected (`HTTP 400`). See [Structural malformation and registry drift are different cases on read](../../../../docs/principles/wire-contract.md#structural-malformation-and-registry-drift-are-different-cases-on-read).
 
 ## Discoverability
 
 A registered option appears in `GET /api/_info/content-system-style-options.json` and, folded under a `styleOptions` key, in `GET /api/_info/content-system-element-types.json`. The Administration reads either to render controls from the option's `adminUI` hints. See [introspection.md](introspection.md).
 
-Reference: [Layout/Element/Style/README.md](../README.md), `Layout/Element/Style/Definitions/` (5 core option examples)
+Reference: [Layout/Element/Style/README.md](../README.md), `Layout/Element/Style/Definitions/`

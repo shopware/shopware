@@ -22,9 +22,7 @@ const NOTIFICATION_DESCRIPTOR: ComposableDescriptor = {
         'createSystemNotification',
     ]),
     // Every create* helper routes through createNotification.
-    internallyReferencedMembers: [
-        'createNotification',
-    ],
+    internallyReferencedMembers: ['createNotification'],
 };
 
 export default NOTIFICATION_DESCRIPTOR;

@@ -3,7 +3,7 @@ import './sw-dashboard-statistics.scss';
 
 const { Criteria } = Shopware.Data;
 
-type OrderEntity = EntitySchema.order;
+type OrderEntity = Entity<'order'>;
 
 type HistoryDateRange = {
     label: string;
@@ -54,11 +54,7 @@ interface ComponentData {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-        'stateStyleDataProviderService',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'stateStyleDataProviderService', 'acl'],
 
     data(): ComponentData {
         return {
@@ -521,8 +517,3 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 });
-
-/**
- * @private might get removed with any update (even minor!) as it likely gets replaced by shopware analytics
- */
-export type { HistoryDateRange };

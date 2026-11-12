@@ -6,18 +6,20 @@ import { nextTick } from 'vue';
  */
 
 describe('module/sw-product/component/sw-product-deliverability-downloadable-form', () => {
-    async function createWrapper(productEntityOverride, parentProductOverride) {
-        const productEntity = {
+    // Like an entity, the product keeps the values it was loaded with as its origin
+    function createProduct(values) {
+        const origin = { ...values };
+
+        return { ...values, getOrigin: () => origin };
+    }
+
+    async function createWrapper(productEntityOverride, parentProduct = {}) {
+        const productEntity = createProduct({
             metaTitle: 'Product1',
             id: 'productId1',
             isCloseout: false,
             ...productEntityOverride,
-        };
-
-        const parentProduct = {
-            id: 'productId',
-            ...parentProductOverride,
-        };
+        });
 
         const store = Shopware.Store.get('swProductDetail');
         store.$reset();
@@ -85,90 +87,197 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
 
     let wrapper;
 
+    const orderQuantityFieldsClassName = [
+        '.product-deliverability-downloadable-form__min-purchase',
+        '.product-deliverability-downloadable-form__purchase-steps',
+        '.product-deliverability-downloadable-form__max-purchase',
+    ];
+
+    const product = () => Shopware.Store.get('swProductDetail').product;
+    const orderQuantity = () => {
+        const { minPurchase, purchaseSteps, maxPurchase } = product();
+
+        return { minPurchase, purchaseSteps, maxPurchase };
+    };
+
+    const orderQuantitySwitch = () => wrapper.find('input[name="sw-field--product-allow-multiple-units"]');
+    const maxPurchaseInput = () => wrapper.find('.product-deliverability-downloadable-form__max-purchase input');
+    const stockSwitch = () => wrapper.find('input[name="sw-field--product-is-closeout"]');
+    const stockInput = () => wrapper.find('input[name="sw-field--product-stock"]');
+
+    async function setMaxPurchase(value) {
+        await maxPurchaseInput().setValue(value);
+        await maxPurchaseInput().trigger('change');
+    }
+
+    function expectOrderQuantityFields(visible) {
+        orderQuantityFieldsClassName.forEach((item) => {
+            expect(wrapper.find(item).exists()).toBe(visible);
+        });
+    }
+
     it('should show Deliverability item fields when advanced mode is on', async () => {
-        wrapper = await createWrapper();
+        wrapper = await createWrapper({ maxPurchase: 5 });
         await flushPromises();
 
-        const deliveryFieldsClassName = [
+        [
             '.product-deliverability-downloadable-form__delivery-time',
-        ];
-
-        deliveryFieldsClassName.forEach((item) => {
+            '.product-deliverability-downloadable-form__order-quantity-switch',
+            ...orderQuantityFieldsClassName,
+        ].forEach((item) => {
             expect(wrapper.find(item).exists()).toBe(true);
         });
     });
 
     it('should hide Deliverability item fields when advanced mode is off', async () => {
-        wrapper = await createWrapper();
+        wrapper = await createWrapper({ maxPurchase: 5 });
         await flushPromises();
 
-        const advancedModeSetting = Shopware.Store.get('swProductDetail').advancedModeSetting;
-
-        Shopware.Store.get('swProductDetail').advancedModeSetting = {
+        const store = Shopware.Store.get('swProductDetail');
+        store.advancedModeSetting = {
             value: {
-                ...advancedModeSetting.value,
+                ...store.advancedModeSetting.value,
                 advancedMode: {
                     enabled: false,
                     label: 'sw-product.general.textAdvancedMode',
                 },
             },
         };
-
-        const deliveryFieldsClassName = [
-            '.product-deliverability-downloadable-form__delivery-time',
-        ];
-
         await nextTick();
 
-        deliveryFieldsClassName.forEach((item) => {
-            expect(wrapper.find(item).exists()).toBeFalsy();
+        [
+            '.product-deliverability-downloadable-form__delivery-time',
+            '.product-deliverability-downloadable-form__order-quantity-switch',
+            ...orderQuantityFieldsClassName,
+        ].forEach((item) => {
+            expect(wrapper.find(item).exists()).toBe(false);
         });
+    });
+
+    it('should hide the order quantities of a product limited to one unit per order', async () => {
+        wrapper = await createWrapper({ minPurchase: 1, purchaseSteps: 1, maxPurchase: 1 });
+        await flushPromises();
+
+        expect(orderQuantitySwitch().element.checked).toBe(false);
+        expectOrderQuantityFields(false);
+    });
+
+    it.each([
+        ['no max. order quantity', { maxPurchase: null }],
+        ['a max. order quantity above 1', { maxPurchase: 5 }],
+        ['a min. order quantity above 1', { minPurchase: 2, maxPurchase: 1 }],
+        ['purchase steps above 1', { purchaseSteps: 2, maxPurchase: 1 }],
+    ])('should show the order quantities of a product with %s', async (_, orderQuantities) => {
+        wrapper = await createWrapper(orderQuantities);
+        await flushPromises();
+
+        expect(orderQuantitySwitch().element.checked).toBe(true);
+        expectOrderQuantityFields(true);
+    });
+
+    it.each([
+        ['show', 5, true],
+        ['hide', 1, false],
+    ])(
+        'should %s the order quantities of a variant whose parent has a max. order quantity of %d',
+        async (_, parentMaxPurchase, expected) => {
+            wrapper = await createWrapper(
+                { minPurchase: null, purchaseSteps: null, maxPurchase: null },
+                { id: 'parentId', minPurchase: 1, purchaseSteps: 1, maxPurchase: parentMaxPurchase },
+            );
+            await flushPromises();
+
+            expect(orderQuantitySwitch().element.checked).toBe(expected);
+            expectOrderQuantityFields(expected);
+        },
+    );
+
+    it('should keep the order quantities when the order quantity switch is turned on', async () => {
+        wrapper = await createWrapper({ minPurchase: 1, purchaseSteps: 1, maxPurchase: 1 });
+        await flushPromises();
+
+        await orderQuantitySwitch().setChecked(true);
+
+        expect(orderQuantity()).toEqual({ minPurchase: 1, purchaseSteps: 1, maxPurchase: 1 });
+        expectOrderQuantityFields(true);
+    });
+
+    it('should limit the product to one unit per order when the order quantity switch is turned off', async () => {
+        wrapper = await createWrapper({ minPurchase: 2, purchaseSteps: 2, maxPurchase: 10 });
+        await flushPromises();
+
+        await orderQuantitySwitch().setChecked(false);
+
+        expect(orderQuantity()).toEqual({ minPurchase: 1, purchaseSteps: 1, maxPurchase: 1 });
+        expectOrderQuantityFields(false);
+    });
+
+    it('should restore the order quantities when the order quantity switch is turned on again', async () => {
+        wrapper = await createWrapper({ minPurchase: 2, purchaseSteps: 2, maxPurchase: 10 });
+        await flushPromises();
+
+        await setMaxPurchase('20');
+        expect(product().maxPurchase).toBe(20);
+
+        await orderQuantitySwitch().setChecked(false);
+        await orderQuantitySwitch().setChecked(true);
+
+        expect(orderQuantity()).toEqual({ minPurchase: 2, purchaseSteps: 2, maxPurchase: 20 });
+    });
+
+    it('should store a max purchase above one so customers can choose the quantity', async () => {
+        wrapper = await createWrapper({ maxPurchase: 1 });
+        await flushPromises();
+
+        await orderQuantitySwitch().setChecked(true);
+        await setMaxPurchase('5');
+
+        expect(product().maxPurchase).toBe(5);
     });
 
     it('should pre-fill stock value', async () => {
         wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.find('input[name="sw-field--product-stock"]').element.value).toBe('0');
+        expect(stockInput().element.value).toBe('0');
     });
 
     it('should set stock to before value if stock was not saved and isCloseout is set to false', async () => {
         wrapper = await createWrapper();
         await flushPromises();
 
-        const isCloseoutSwitch = wrapper.find('input[name="sw-field--product-is-closeout"]');
-        await isCloseoutSwitch.setChecked(true);
+        await stockSwitch().setChecked(true);
+        await stockInput().setValue('5');
+        await stockSwitch().setChecked(false);
 
-        const stockElement = wrapper.find('input[name="sw-field--product-stock"]');
-        await stockElement.setValue('5');
-
-        await isCloseoutSwitch.setChecked(false);
-        await wrapper.vm.$nextTick();
-
-        expect(stockElement.element.value).toBe('0');
+        expect(stockInput().element.value).toBe('0');
     });
 
-    it('should set stock to persisted product stock if stock was saved and stock deliverability menu is reopened', async () => {
-        wrapper = await createWrapper({
-            stock: 10,
-        });
+    it('should restore the entered stock when manage stock is turned on again', async () => {
+        wrapper = await createWrapper({ stock: 10 });
         await flushPromises();
 
-        const isCloseoutSwitch = wrapper.find('input[name="sw-field--product-is-closeout"]');
-        await isCloseoutSwitch.setChecked(true);
+        await stockSwitch().setChecked(true);
+        expect(stockInput().element.value).toBe('10');
 
-        const stockElement = wrapper.find('input[name="sw-field--product-stock"]');
-        expect(stockElement.element.value).toBe('10');
+        await stockInput().setValue('20');
+        await stockSwitch().setChecked(false);
+        expect(product().stock).toBe(10);
 
-        await stockElement.setValue('20');
-        expect(stockElement.element.value).toBe('20');
+        await stockSwitch().setChecked(true);
+        expect(stockInput().element.value).toBe('20');
+    });
 
-        await isCloseoutSwitch.setChecked(false);
-        await wrapper.vm.$nextTick();
+    it('should keep the entered stock when a variant inherits manage stock again', async () => {
+        wrapper = await createWrapper({ isCloseout: true, stock: 10 }, { id: 'parentId', isCloseout: true });
+        await flushPromises();
 
-        await isCloseoutSwitch.setChecked(true);
-        await wrapper.vm.$nextTick();
+        await stockInput().setValue('20');
+        await wrapper
+            .find('.product-deliverability-downloadable-form__manage-stock-switch .mt-inheritance-switch')
+            .trigger('click');
 
-        expect(stockElement.element.value).toBe('10');
+        expect(product().isCloseout).toBeNull();
+        expect(product().stock).toBe(20);
     });
 });

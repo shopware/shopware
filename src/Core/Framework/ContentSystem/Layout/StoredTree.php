@@ -31,11 +31,22 @@ final readonly class StoredTree
 {
     /**
      * @param list<StoredElement> $roots
+     * @param string|null $rootSource the mutation layout source; null for an unbound draft
      */
     public function __construct(
         public array $roots,
         public ?string $rootSource = null,
     ) {
+    }
+
+    /**
+     * Rebuild the forest while retaining the layout's root source.
+     *
+     * @param list<StoredElement> $roots
+     */
+    public function withRoots(array $roots): self
+    {
+        return new self($roots, $this->rootSource);
     }
 
     public function find(string $id): ?StoredElement

@@ -19,10 +19,7 @@ import './sw-step-item.scss';
 export default {
     template,
 
-    inject: [
-        'feature',
-        'addStep',
-    ],
+    inject: ['feature', 'addStep'],
 
     props: {
         disabledIcon: {

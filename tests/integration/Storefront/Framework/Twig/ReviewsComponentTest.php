@@ -148,8 +148,13 @@ class ReviewsComponentTest extends TestCase
         $customer->setId(Uuid::randomHex());
         $customer->setGuest(false);
 
-        $result = $this->reviewResult($this->matrix(five: 1), new ProductReviewCollection(), total: 1, totalInCurrentLanguage: 1);
-        $result->setCustomerReview($this->review(5.0, 'My review title', 'My existing review content that is long enough.'));
+        $result = $this->reviewResult(
+            $this->matrix(five: 1),
+            new ProductReviewCollection(),
+            total: 1,
+            totalInCurrentLanguage: 1,
+            customerReview: $this->review(5.0, 'My review title', 'My existing review content that is long enough.'),
+        );
 
         $html = $this->render('Sw:Product:ReviewForm', $result, $customer);
 
@@ -350,6 +355,7 @@ class ReviewsComponentTest extends TestCase
         int $totalInCurrentLanguage,
         ?FieldSorting $sorting = null,
         ?string $productId = null,
+        ?ProductReviewEntity $customerReview = null,
     ): ProductReviewResult {
         $criteria = new Criteria();
         $criteria->setLimit(10);
@@ -373,6 +379,7 @@ class ReviewsComponentTest extends TestCase
             matrix: $matrix,
             productId: $productId ?? Uuid::randomHex(),
             totalReviewsInCurrentLanguage: $totalInCurrentLanguage,
+            customerReview: $customerReview,
         );
     }
 }

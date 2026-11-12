@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('discovery')]
 class SalesChannelData
 {
+    public ?string $typeId = null;
+
     public ?string $currentDefault = null;
 
     public ?string $newDefault = null;

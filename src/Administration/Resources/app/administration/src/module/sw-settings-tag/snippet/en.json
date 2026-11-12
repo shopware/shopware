@@ -14,7 +14,7 @@
       "contextMenuDuplicate": "Duplicate tag",
       "contextMenuDelete": "Delete tag",
       "messageDeleteSuccess": "Tag \"{name}\" deleted.",
-      "titleEmptyStateList": "No tags found.",
+      "titleEmptyStateList": "No tags yet",
       "searchPlaceholder": "Search tags...",
       "filter": "Filter",
       "filterAssignemnt": "Filter by assigned entity",
@@ -47,15 +47,15 @@
           "rules": "Rule assignments"
         },
         "content": {
-          "products": "products | product | products",
+          "products": "product | products",
           "media": "media",
-          "categories": "categories | category | categories",
-          "customers": "customers | customer | customers",
-          "orders": "orders | order | orders",
-          "shippingMethods": "shipping methods | shipping method | shipping methods",
-          "newsletterRecipients": "newsletter recipients | newsletter recipient | newsletter recipients",
-          "landingPages": "landing pages | landing page | landing pages",
-          "rules": "rules | rule | rules"
+          "categories": "category | categories",
+          "customers": "customer | customers",
+          "orders": "order | orders",
+          "shippingMethods": "shipping method | shipping methods",
+          "newsletterRecipients": "newsletter recipient | newsletter recipients",
+          "landingPages": "landing page | landing pages",
+          "rules": "rule | rules"
         },
         "filter": {
           "products": "Product",

@@ -11,10 +11,12 @@ use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventCollectorResponse;
 use Shopware\Core\Framework\Event\BusinessEventDefinition;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 
@@ -31,27 +33,7 @@ class DocsAppEventCommandTest extends TestCase
 
     private Environment&MockObject $twig;
 
-    private DocsAppEventCommandTestable $command;
-
-    private static string $fixtureDir;
-
-    private static string $testFilePath;
-
-    public static function setUpBeforeClass(): void
-    {
-        self::$fixtureDir = __DIR__ . '/../../../../_fixtures';
-        if (!is_dir(self::$fixtureDir)) {
-            mkdir(self::$fixtureDir, 0777, true);
-        }
-        self::$testFilePath = self::$fixtureDir . '/webhook-events-reference-test.md';
-    }
-
-    public static function tearDownAfterClass(): void
-    {
-        if (is_file(self::$testFilePath)) {
-            unlink(self::$testFilePath);
-        }
-    }
+    private DocsAppEventCommand $command;
 
     protected function setUp(): void
     {
@@ -59,12 +41,13 @@ class DocsAppEventCommandTest extends TestCase
         $this->businessEventCollector = static::createStub(BusinessEventCollector::class);
         $this->hookableEventCollector = static::createStub(HookableEventCollector::class);
         $this->twig = $this->createMock(Environment::class);
-        $this->command = new DocsAppEventCommandTestable(
+        $this->command = new DocsAppEventCommand(
             $this->businessEventCollector,
             $this->hookableEventCollector,
+            $this->policies(),
             [],
             $this->twig,
-            self::$testFilePath
+            static::createStub(Filesystem::class)
         );
     }
 
@@ -90,15 +73,9 @@ class DocsAppEventCommandTest extends TestCase
         // getListEventPath() does not render, so the shared twig mock must assert it is not used here.
         $this->twig->expects($this->never())->method('getLoader');
 
-        $command = new DocsAppEventCommand(
-            $this->businessEventCollector,
-            $this->hookableEventCollector,
-            [],
-            $this->twig
-        );
         static::assertStringEndsWith(
             'Resources/generated/webhook-events-reference.md',
-            $command->getListEventPath()
+            $this->command->getListEventPath()
         );
     }
 
@@ -204,26 +181,12 @@ class DocsAppEventCommandTest extends TestCase
         $result = $this->command->render();
         static::assertSame('rendered content', $result);
     }
-}
-/**
- * @internal
- *
- * Allows overriding the event document path to avoid writing to production code.
- */
-class DocsAppEventCommandTestable extends DocsAppEventCommand
-{
-    public function __construct(
-        BusinessEventCollector $businessEventCollector,
-        HookableEventCollector $hookableEventCollector,
-        iterable $hookableEventDescribers,
-        Environment $twig,
-        private readonly string $testPath
-    ) {
-        parent::__construct($businessEventCollector, $hookableEventCollector, $hookableEventDescribers, $twig);
-    }
 
-    public function getListEventPath(): string
+    private function policies(): PolicyRegistry
     {
-        return $this->testPath;
+        $policies = static::createStub(PolicyRegistry::class);
+        $policies->method('permitsSubscription')->willReturn(true);
+
+        return $policies;
     }
 }

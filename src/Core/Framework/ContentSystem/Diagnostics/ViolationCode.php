@@ -26,6 +26,7 @@ enum ViolationCode: string
     case UnfilledRequiredInput = 'unfilled_required_input';
     case UnknownStyleOption = 'unknown_style_option';
     case DanglingLanguage = 'dangling_language';
+    case InvalidMapping = 'invalid_mapping';
 
     public function scope(): ViolationScope
     {
@@ -42,7 +43,11 @@ enum ViolationCode: string
             self::AmbiguousRequired,
             self::BrokenRequiredChain,
             self::UnresolvedOptional,
-            self::UnfilledRequiredInput => ViolationScope::Binding,
+            self::UnfilledRequiredInput,
+            // Binding rather than intrinsic, and not a judgement call: a mapping is admissible only against
+            // a particular root source's catalogue, so the same tree is legal under one bound source and not
+            // under another. That dependence on the binding is exactly what the scope names.
+            self::InvalidMapping => ViolationScope::Binding,
         };
     }
 
@@ -58,7 +63,8 @@ enum ViolationCode: string
             self::UnresolvedRequired,
             self::AmbiguousRequired,
             self::BrokenRequiredChain,
-            self::UnfilledRequiredInput => ViolationSeverity::Error,
+            self::UnfilledRequiredInput,
+            self::InvalidMapping => ViolationSeverity::Error,
             self::UnresolvedOptional,
             self::DanglingLanguage,
             self::OrphanedProvider => ViolationSeverity::Warning,

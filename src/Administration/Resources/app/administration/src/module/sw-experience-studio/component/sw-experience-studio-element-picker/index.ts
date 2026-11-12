@@ -1,3 +1,4 @@
+import { useId } from 'vue';
 import template from './sw-experience-studio-element-picker.html.twig';
 import './sw-experience-studio-element-picker.scss';
 
@@ -5,7 +6,9 @@ type PickerItem = {
     name: string;
     label: string;
     icon: string | null;
+    illustration?: string | null;
     category?: string | null;
+    priority?: number;
     kind?: 'element' | 'preset';
     id?: string;
     description?: string | null;
@@ -18,13 +21,19 @@ type PickerItem = {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    setup() {
+        return { tabId: useId() };
+    },
+
     data() {
         return {
+            activeTab: 'elements' as 'elements' | 'presets',
+            searchTerm: '',
+            failedIllustrations: [] as string[],
             categoryOrder: [
                 'layout',
                 'content',
                 'commerce',
-                'presets',
             ],
             fallbackCategoryKey: 'other',
         };
@@ -58,6 +67,58 @@ export default Shopware.Component.wrapComponentConfig({
     ],
 
     computed: {
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+
+        tabItems(): Array<{ name: 'elements' | 'presets'; label: string }> {
+            return [
+                {
+                    name: 'elements',
+                    label: this.$t('sw-experience-studio.detail.elementPicker.tabElements'),
+                },
+                {
+                    name: 'presets',
+                    label: this.$t('sw-experience-studio.detail.elementPicker.tabPresets'),
+                },
+            ];
+        },
+
+        searchPlaceholderSnippetKey(): string {
+            return this.activeTab === 'presets'
+                ? 'sw-experience-studio.detail.elementPicker.searchPresetsPlaceholder'
+                : 'sw-experience-studio.detail.elementPicker.searchElementsPlaceholder';
+        },
+
+        normalizedSearchTerm(): string {
+            return this.searchTerm.trim().toLowerCase();
+        },
+
+        visibleElements(): PickerItem[] {
+            const searchTerm = this.normalizedSearchTerm;
+
+            return (this.elements as PickerItem[]).filter((item) => {
+                const belongsToActiveTab = this.activeTab === 'presets' ? item.kind === 'preset' : item.kind !== 'preset';
+
+                return (
+                    belongsToActiveTab &&
+                    (!searchTerm ||
+                        item.label.toLowerCase().includes(searchTerm) ||
+                        item.name.toLowerCase().includes(searchTerm))
+                );
+            });
+        },
+
+        emptyStateSnippetKey(): string {
+            if (this.normalizedSearchTerm) {
+                return 'sw-experience-studio.detail.elementPicker.noSearchResults';
+            }
+
+            return this.activeTab === 'presets'
+                ? 'sw-experience-studio.detail.elementPicker.noPresets'
+                : 'sw-experience-studio.detail.elementPicker.noElements';
+        },
+
         floatingUiOptions(): { placement: 'right-start' } {
             return {
                 placement: 'right-start',
@@ -76,12 +137,12 @@ export default Shopware.Component.wrapComponentConfig({
                 firstSeenIndex: number;
             };
 
-            const groups = this.elements.reduce<Group[]>((result, element, index) => {
-                const categoryKey = this.normalizeCategoryKey((element as PickerItem).category ?? null);
+            const groups = this.visibleElements.reduce<Group[]>((result, element, index) => {
+                const categoryKey = this.normalizeCategoryKey(element.category ?? null);
                 const existingGroup = result.find((group) => group.key === categoryKey);
 
                 if (existingGroup) {
-                    existingGroup.elements.push(element as PickerItem);
+                    existingGroup.elements.push(element);
 
                     return result;
                 }
@@ -89,7 +150,7 @@ export default Shopware.Component.wrapComponentConfig({
                 result.push({
                     key: categoryKey,
                     headlineSnippetKey: this.categoryHeadlineSnippetKey(categoryKey),
-                    elements: [element as PickerItem],
+                    elements: [element],
                     firstSeenIndex: index,
                 });
 
@@ -113,12 +174,74 @@ export default Shopware.Component.wrapComponentConfig({
                 .map((group) => ({
                     key: group.key,
                     headlineSnippetKey: group.headlineSnippetKey,
-                    elements: group.elements,
+                    elements: [...group.elements].sort(
+                        (a, b) =>
+                            (b.priority ?? 0) - (a.priority ?? 0) ||
+                            a.label.localeCompare(b.label) ||
+                            a.name.localeCompare(b.name),
+                    ),
                 }));
         },
     },
 
+    watch: {
+        open(isOpen: boolean): void {
+            if (isOpen) {
+                this.searchTerm = '';
+            }
+        },
+    },
+
     methods: {
+        illustrationSource(illustration?: string | null): string | null {
+            if (!illustration || this.failedIllustrations.includes(illustration)) {
+                return null;
+            }
+
+            return this.assetFilter(
+                `/administration/administration/static/img/experience-studio/element-icons/${encodeURIComponent(illustration)}.svg`,
+            );
+        },
+
+        onIllustrationError(illustration?: string | null): void {
+            if (illustration && !this.failedIllustrations.includes(illustration)) {
+                this.failedIllustrations.push(illustration);
+            }
+        },
+
+        onTabKeydown(event: KeyboardEvent): void {
+            if (
+                ![
+                    'ArrowLeft',
+                    'ArrowRight',
+                    'Home',
+                    'End',
+                ].includes(event.key)
+            ) {
+                return;
+            }
+
+            event.preventDefault();
+
+            if (event.key === 'Home') {
+                this.activeTab = 'elements';
+            } else if (event.key === 'End') {
+                this.activeTab = 'presets';
+            } else {
+                this.activeTab = this.activeTab === 'elements' ? 'presets' : 'elements';
+            }
+
+            (event.currentTarget as HTMLElement)
+                .querySelector<HTMLButtonElement>(`[data-tab-name="${this.activeTab}"]`)
+                ?.focus();
+        },
+
+        onTabChange(tabName: string): void {
+            if (tabName === 'elements' || tabName === 'presets') {
+                this.activeTab = tabName;
+            }
+        },
+
         normalizeCategoryKey(category: string | null): string {
             if (!category) {
                 return this.fallbackCategoryKey;

@@ -63,7 +63,7 @@ function mockCustomFieldRepository() {
     return new Repository();
 }
 
-async function createWrapper(privileges = [], repo = mockCustomFieldRepository()) {
+async function createWrapper(privileges = [], repo = mockCustomFieldRepository(), stubs = {}) {
     customFields = mockCustomFieldData();
 
     return mount(
@@ -124,6 +124,7 @@ async function createWrapper(privileges = [], repo = mockCustomFieldRepository()
                     'mt-number-field': true,
                     'sw-custom-field-detail': true,
                     'sw-select-field': true,
+                    ...stubs,
                 },
                 mocks: {
                     $route: {
@@ -287,12 +288,39 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-list/sw-
     });
 
     it('should be able to edit', async () => {
-        const wrapper = await createWrapper([
-            'custom_field.editor',
-        ]);
+        const wrapper = await createWrapper(['custom_field.editor']);
         await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-custom-field-list__edit-action');
         expect(editMenuItem.attributes().disabled).toBeFalsy();
+    });
+
+    it('should treat a custom field name as taken when an id is found', async () => {
+        const repoMock = {
+            search: jest.fn(() => Promise.resolve(mockCustomFieldRepository().search())),
+            searchIds: jest.fn(() => Promise.resolve({ total: 1, data: ['id1'] })),
+        };
+
+        const wrapper = await createWrapper(['custom_field.editor'], repoMock, {
+            'sw-custom-field-detail': {
+                inject: ['SwCustomFieldListIsCustomFieldNameUnique'],
+                data() {
+                    return { isUnique: null };
+                },
+                created() {
+                    this.SwCustomFieldListIsCustomFieldNameUnique({ name: 'custom_additional_field_1' }).then((isUnique) => {
+                        this.isUnique = isUnique;
+                    });
+                },
+                template: '<div class="sw-custom-field-detail-unique-check" :data-unique="String(isUnique)"></div>',
+            },
+        });
+        await flushPromises();
+
+        await wrapper.find('.sw-custom-field-list__edit-action').trigger('click');
+        await flushPromises();
+
+        expect(repoMock.searchIds).toHaveBeenCalledTimes(1);
+        expect(wrapper.find('.sw-custom-field-detail-unique-check').attributes('data-unique')).toBe('false');
     });
 });

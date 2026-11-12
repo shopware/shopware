@@ -17,8 +17,8 @@ into version 2.
 
 | Phase   | Version  | Action                                                                                                                                                                               |
 | ------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Phase 1 | 6.7      | Opt-in: v2 is available behind the feature flag (default off). Version 1 is fully deprecated for removal in 6.9. Compatibility gaps are closed and the backfill process is prepared. |
-| Phase 2 | 6.8      | Opt-out: v2 becomes the default (flag flips to `default: true`). The `@experimental` annotations are removed, the marked surface becomes the stable public API.                      |
+| Phase 1 | 6.7      | Opt-in: v2 is available behind the feature flag (default off). Version 1 is marked with `#[ExperimentalReplacement]` for removal in 6.9. The shared v1 classes move into `DocumentV2` behind runtime class aliases. Compatibility gaps are closed and the backfill process is prepared. |
+| Phase 2 | 6.8      | Opt-out: v2 becomes the default (flag flips to `default: true`). The `@experimental` annotations are removed, the marked surface becomes the stable public API. The `#[ExperimentalReplacement]` attributes become `@deprecated tag:v6.9.0` annotations and legacy implementation will throw if 6.9 flag is active. |
 | Phase 3 | 6.9      | Version 1 and the feature flag are completely removed. Backfills are executed.                                                                                                       |
 | Phase 4 | post-6.9 | Destructive schema drops are executed to finalize the database cleanup.                                                                                                              |
 
@@ -83,13 +83,24 @@ feature:DOCUMENT_GENERATION_REWORK` from the start. This includes abstract exten
 configuration DTOs, file entity classes, domain exceptions, and events. Everything that stays internal carries plain
 `@internal` and is never marked experimental. In 6.8, the `@experimental` annotations are removed and the marked classes
 become the stable public API, while orchestration internals stay restricted.
-The `DocumentV2` namespace is permanent, and reused v1 classes (`DocumentEntity`, `DocumentDefinition`, `DocumentCollection`,
-`ReferenceInvoiceLoader`, the `DocumentBaseConfig` aggregates) move into it with the removal of v1 in 6.9.
+The `DocumentV2` namespace is permanent. The v1 classes that v2 reuses (`DocumentEntity`, `DocumentDefinition`,
+`DocumentCollection`, the `DocumentBaseConfig` aggregates, `RenderedDocument`, the Store API document route and
+`ReferenceInvoiceLoader`) move into it during 6.7. Their previous names stay available as runtime class aliases until
+the removal of v1 in 6.9, following [Use runtime aliases for moved PHP classes](./2026-09-16-use-runtime-aliases-for-moved-php-classes.md).
+
+**Amendment 2026-09-29:** the reused v1 classes move during 6.7 instead of with the removal of v1 in 6.9. Runtime class
+aliases keep the previous and the canonical name working as one class, so extension authors can migrate early and v1
+keeps running on the moved classes.
 
 ### Deprecations and Entity Removal
 
-Everything slated for removal in 6.9 is deprecated now, during 6.7, with `@deprecated tag:v6.9.0`. This covers the v1
-domain, legacy parts of document and mail actions, admin components, and legacy Twig branches.
+Everything slated for removal in 6.9 is announced now, during 6.7. Legacy parts of document and mail actions, admin
+components, and legacy Twig branches are deprecated with `@deprecated tag:v6.9.0`.
+
+**Amendment 2026-09-11:** the v1 PHP domain under `Shopware\Core\Checkout\Document` is *not* hard-deprecated
+during 6.7. A `@deprecated` annotation asks extension authors to migrate now, but v2 is still `@experimental` and offers
+no BC promise, so the deprecation would only produce non-actionable static-analysis noise and baseline pollution. The v1
+classes carry `#[ExperimentalReplacement(version: 'v6.9.0', feature: 'DOCUMENT_GENERATION_REWORK', ...)]` instead.
 
 Document types and formats are now code-registered strings rather than database entities. The legacy foreign keys currently
 live across three tables: `document`, `document_base_config`, and `document_base_config_sales_channel`.
@@ -116,7 +127,7 @@ from IDs to technical names.
 
 1. Remove `DOCUMENT_GENERATION_REWORK` and every gate (PHP, DI, Twig, admin JS, system config XML).
 2. Delete the v1 domain, v1 admin components, v1 flow/mail branches, v1-only Twig branches, and the v1 entries in the PHPStan tagged-service contracts.
-3. Move the surviving shared classes into the `DocumentV2` namespace.
+3. Remove the class aliases, `#[ClassMoved]` attributes and deprecated service aliases of the moved shared classes. Replace the v1 dependencies they still carry: the v1 renderer type constants in `ReferenceInvoiceLoader`, the v1 `PdfRenderer` constants in `RenderedDocument` and `AbstractDocumentRoute`, the v1 generator and `DocumentException` in `DocumentRoute` together with its `DomainExceptionRule` remap, and `DocumentTypeDefinition` in `DocumentDefinition`.
 4. Execute the prepared backfills: `document_file` rows (incl. Zugferd normalization), the `type_name` columns, rule/flow payloads; make the `document_type_id` columns nullable.
 5. Drop the `document_base_config.config` JSON blob (destructive) and remove the `DocumentBaseConfigSyncSubscriber`.
 6. Make the v2 branch of the storefront and Store API download routes unconditional.

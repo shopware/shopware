@@ -171,7 +171,7 @@ class DoubleOptInServiceTest extends TestCase
         ])->resendDoubleOptInMail($customer, $context);
 
         static::assertFalse($eventDispatched);
-        static::assertEmpty($this->customerRepository->updates);
+        static::assertCount(0, $this->customerRepository->updates);
     }
 
     public function testResendDoubleOptInMailDisabledWhenIntervalNotConfigured(): void
@@ -191,7 +191,7 @@ class DoubleOptInServiceTest extends TestCase
         $this->createService()->resendDoubleOptInMail($customer, $context);
 
         static::assertFalse($eventDispatched);
-        static::assertEmpty($this->customerRepository->updates);
+        static::assertCount(0, $this->customerRepository->updates);
     }
 
     public function testResendDoubleOptInMailSkipsWhenNoSentDate(): void

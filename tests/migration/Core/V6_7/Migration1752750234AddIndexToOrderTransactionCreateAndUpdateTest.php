@@ -4,18 +4,18 @@ namespace Shopware\Tests\Migration\Core\V6_7;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1752750234AddIndexToOrderTransactionCreateAndUpdate;
+use Shopware\Tests\Migration\NonStandardFkGuardMigrationTestCase;
 
 /**
  * @internal
  */
 #[Package('checkout')]
 #[CoversClass(Migration1752750234AddIndexToOrderTransactionCreateAndUpdate::class)]
-class Migration1752750234AddIndexToOrderTransactionCreateAndUpdateTest extends TestCase
+class Migration1752750234AddIndexToOrderTransactionCreateAndUpdateTest extends NonStandardFkGuardMigrationTestCase
 {
     private Connection $connection;
 
@@ -44,6 +44,11 @@ class Migration1752750234AddIndexToOrderTransactionCreateAndUpdateTest extends T
         $migration->update($this->connection);
 
         static::assertTrue(TableHelper::indexExists($this->connection, 'order_transaction', 'idx.order_transaction_created_updated'));
+    }
+
+    public function testIndexCreationSurvivesNonStandardForeignKeyGuard(): void
+    {
+        $this->assertIndexCreationSurvivesNonStandardForeignKeyGuard(new Migration1752750234AddIndexToOrderTransactionCreateAndUpdate(), 'order_transaction');
     }
 
     private function rollback(): void

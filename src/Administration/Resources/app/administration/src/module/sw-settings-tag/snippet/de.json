@@ -14,7 +14,7 @@
       "contextMenuDuplicate": "Tag duplizieren",
       "contextMenuDelete": "Tag löschen",
       "messageDeleteSuccess": "Tag \"{name}\" gelöscht.",
-      "titleEmptyStateList": "Keine Tags gefunden.",
+      "titleEmptyStateList": "Noch keine Tags",
       "searchPlaceholder": "Durchsuche Tags ...",
       "filter": "Filter",
       "filterAssignemnt": "Filter nach zugewiesenen Entitäten",
@@ -47,15 +47,15 @@
           "rules": "Regelzuweisungen"
         },
         "content": {
-          "products": "Produkte | Produkt | Produkte",
-          "media": "Medien | Medium | Medien",
-          "categories": "Kategorien | Kategorie | Kategorien",
-          "customers": "Kunden | Kunde | Kunden",
-          "orders": "Bestellungen | Bestellung | Bestellungen",
-          "shippingMethods": "Versandarten | Versandart | Versandarten",
+          "products": "Produkt | Produkte",
+          "media": "Medium | Medien",
+          "categories": "Kategorie | Kategorien",
+          "customers": "Kunde | Kunden",
+          "orders": "Bestellung | Bestellungen",
+          "shippingMethods": "Versandart | Versandarten",
           "newsletterRecipients": "Newsletterempfänger",
-          "landingPages": "Landingpages | Landingpage | Landingpages",
-          "rules": "Regeln | Regel | Regeln"
+          "landingPages": "Landingpage | Landingpages",
+          "rules": "Regel | Regeln"
         },
         "filter": {
           "products": "Produkt",

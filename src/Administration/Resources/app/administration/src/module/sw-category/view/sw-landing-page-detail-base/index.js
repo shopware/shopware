@@ -10,14 +10,9 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('placeholder')],
 
     props: {
         isLoading: {
@@ -31,11 +26,7 @@ export default {
             return Shopware.Store.get('swCategoryDetail').customFieldSets ?? [];
         },
 
-        ...mapPropertyErrors('landingPage', [
-            'name',
-            'url',
-            'salesChannels',
-        ]),
+        ...mapPropertyErrors('landingPage', ['name', 'url', 'salesChannels']),
 
         landingPage() {
             return Shopware.Store.get('swCategoryDetail').landingPage;

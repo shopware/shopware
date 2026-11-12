@@ -58,10 +58,7 @@ export default {
             default: '',
         },
         helpText: {
-            type: [
-                String,
-                Object,
-            ],
+            type: [String, Object],
             required: false,
             default: () => {
                 return '';

@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * `TwigAppVariable::getRequest()` memoizes the first `app.request` read per container, so a render is only
  * asserted against its own query string when the container has not served an earlier request.
- * `setUpBeforeClass()` therefore boots a fresh kernel, whose container carries an unarmed memo, and the class
+ * The first `setUp()` therefore boots a fresh kernel, whose container carries an unarmed memo, and the class
  * issues exactly one request.
  *
  * `strict_variables` is false, so a template member that stops resolving renders empty and the route still
@@ -51,15 +51,15 @@ class ListingLayoutEmptyParameterRenderTest extends TestCase
 
     private IdsCollection $ids;
 
-    public static function setUpBeforeClass(): void
-    {
-        parent::setUpBeforeClass();
-
-        KernelLifecycleManager::bootKernel();
-    }
+    private static bool $kernelBooted = false;
 
     protected function setUp(): void
     {
+        if (!self::$kernelBooted) {
+            KernelLifecycleManager::bootKernel();
+            self::$kernelBooted = true;
+        }
+
         parent::setUp();
 
         $this->ids = new IdsCollection();

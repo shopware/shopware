@@ -4,6 +4,8 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Element\Style;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -82,19 +84,69 @@ class BoxSpacingNormalizerTest extends TestCase
         static::assertSame('20px 20px 20px 20px', (new BoxSpacingNormalizer())->normalizeCssValue('20px  20px '));
     }
 
-    #[TestDox('throws instead of substituting a split when the pattern cannot run on the value')]
-    public function testPcreFailureThrowsInsteadOfSubstitutingAResult(): void
+    #[TestDox('rejects malformed UTF-8 as a client defect instead of substituting a split')]
+    public function testMalformedUtf8IsRejectedAsInvalidClientValue(): void
     {
         // A lone continuation-less 0xC3 is not valid UTF-8, so every `u`-modified pattern in the normalizer
         // fails on it. The entry trim is the first one reached, so it is the operation that reports.
         $value = "\xC3\x28";
 
-        $this->expectExceptionObject(ContentSystemException::boxSpacingTokenizationFailed(
-            'trim',
-            $value,
-            'Malformed UTF-8 characters, possibly incorrectly encoded',
-        ));
+        $this->expectExceptionObject(ContentSystemException::boxSpacingInvalidValue('trim', $value));
 
         (new BoxSpacingNormalizer())->normalizeCssValue($value);
+    }
+
+    #[TestDox('rejects a value that exceeds PCRE backtracking limits as a client defect')]
+    public function testBacktrackLimitFailureIsRejectedAsInvalidClientValue(): void
+    {
+        $previousLimit = ini_get('pcre.backtrack_limit');
+        static::assertNotFalse($previousLimit);
+        static::assertNotFalse(ini_set('pcre.backtrack_limit', '1000'));
+
+        try {
+            $value = 'x' . str_repeat(' ', 10_000) . 'y';
+
+            $this->expectExceptionObject(ContentSystemException::boxSpacingInvalidValue('trim', $value));
+
+            (new BoxSpacingNormalizer())->normalizeCssValue($value);
+        } finally {
+            static::assertNotFalse(ini_set('pcre.backtrack_limit', $previousLimit));
+        }
+    }
+
+    /**
+     * @return iterable<string, array{string, int}>
+     */
+    public static function matchLimitProvider(): iterable
+    {
+        // The px-suffix pattern rejects this without backtracking; unit matching exceeds the limit.
+        yield 'unit matching rejects an engine failure' => ['10', 1];
+
+        // The px-suffix pattern needs a limit of 7 here. The `(` makes normalizeUnit() return before its
+        // unit and plain-number patterns, so only trim, split and keyword run, and those need 1.
+        // Without the formatSide guard, no later match failure can mask the missing rejection.
+        yield 'px stripping rejects an engine failure independently of unit matching' => ['1px(', 3];
+    }
+
+    #[DataProvider('matchLimitProvider')]
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
+    public function testMatchLimitFailureIsRejectedInsteadOfTreatedAsANonMatch(string $value, int $backtrackLimit): void
+    {
+        // Disable JIT before any pattern is cached so the interpreter's limit is deterministic.
+        $jit = ini_get('pcre.jit');
+        $limit = ini_get('pcre.backtrack_limit');
+        static::assertNotFalse($jit);
+        static::assertNotFalse($limit);
+        ini_set('pcre.jit', '0');
+        ini_set('pcre.backtrack_limit', (string) $backtrackLimit);
+
+        try {
+            $this->expectExceptionObject(ContentSystemException::boxSpacingInvalidValue('match', $value));
+            (new BoxSpacingNormalizer())->normalizeCssValue($value);
+        } finally {
+            ini_set('pcre.jit', $jit);
+            ini_set('pcre.backtrack_limit', $limit);
+        }
     }
 }

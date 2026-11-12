@@ -420,7 +420,6 @@ class CacheClearerTest extends TestCase
         $pruneableAdapter = $this->createMock(PruneableInterface::class);
         $pruneableAdapter->expects($this->once())->method('prune');
 
-        /** @var CacheItemPoolInterface&Stub $nonPruneableAdapter */
         $nonPruneableAdapter = static::createStub(CacheItemPoolInterface::class);
 
         $cacheClearer = new CacheClearer(
@@ -530,6 +529,33 @@ class CacheClearerTest extends TestCase
             $this->adapters,
             $this->symfonyCache,
             null, // no reverse proxy
+            $this->invalidator,
+            $this->filesystem,
+            $this->cacheDir,
+            'test',
+            false,
+            false,
+            $this->messageBus,
+            $this->logger,
+            $this->lock
+        );
+
+        $this->appAdapter->expects($this->never())->method('clear');
+        $this->httpAdapter->expects($this->once())->method('clear');
+
+        $this->invalidator->expects($this->never())->method('invalidateExpired');
+        $this->symfonyCache->expects($this->never())->method('clear');
+        $this->reverseProxyCache->expects($this->never())->method('banAll');
+
+        $cacheClearer->clearHttpCache();
+    }
+
+    public function testClearHttpCacheWithRegisteredButDisabledReverseProxy(): void
+    {
+        $cacheClearer = new CacheClearer(
+            $this->adapters,
+            $this->symfonyCache,
+            $this->reverseProxyCache,
             $this->invalidator,
             $this->filesystem,
             $this->cacheDir,

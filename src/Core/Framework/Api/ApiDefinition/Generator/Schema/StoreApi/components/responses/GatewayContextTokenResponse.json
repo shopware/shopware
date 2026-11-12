@@ -21,7 +21,7 @@
                             "properties": {
                                 "redirectUrl": {
                                     "description": "Define the URL which browser will be redirected to",
-                                    "type": "string"
+                                    "type": ["string", "null"]
                                 }
                             }
                         }

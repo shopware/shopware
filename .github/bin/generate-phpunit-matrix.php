@@ -1,5 +1,8 @@
 <?php
 
+// Emits the `strategy.matrix` object only — `fail-fast` is set statically by the calling
+// workflow, because zizmor cannot audit a file whose whole `strategy:` is an expression.
+//
 // argv[1] is the run profile: '' (PR), 'nightly' or 'release'. Only nightly widens the matrix.
 $nightly = ($_SERVER['argv'][1] ?? '') === 'nightly';
 $major = filter_var($_SERVER['argv'][2] ?? false, \FILTER_VALIDATE_BOOLEAN);
@@ -19,13 +22,10 @@ $integrationTests = [
 if ($major) {
     // Nightly major-flag run: each integration shard once on a single PHP/DB (migration excluded — php.yml already runs it major).
     echo \json_encode([
-        'fail-fast' => false,
-        'matrix' => [
-            'test' => $integrationTests,
-            'php' => ['8.2'],
-            'db' => ['mysql:8.0'],
-            'opensearch' => ['opensearchproject/opensearch:3'],
-        ],
+        'test' => $integrationTests,
+        'php' => ['8.2'],
+        'db' => ['mysql:8.0'],
+        'opensearch' => ['opensearchproject/opensearch:3'],
     ], \JSON_THROW_ON_ERROR);
 
     return;
@@ -78,27 +78,24 @@ if ($nightly) {
 }
 
 $matrix = [
-    'fail-fast' => false,
-    'matrix' => [
-        'test' => array_merge($integrationTests, [
-            ['testsuite' => 'migration'],
-        ]),
-        'php' => $php,
-        'db' => $db,
-        'opensearch' => ['opensearchproject/opensearch:3'],
-        'include' => $includes
-    ]
+    'test' => array_merge($integrationTests, [
+        ['testsuite' => 'migration'],
+    ]),
+    'php' => $php,
+    'db' => $db,
+    'opensearch' => ['opensearchproject/opensearch:3'],
+    'include' => $includes
 ];
 
 if ($nightly) {
-    $matrix['matrix']['include'][] = [
+    $matrix['include'][] = [
         'test' => ['path' => '{Administration,Elasticsearch}'],
         'php' => '8.4',
         'db' => 'mysql:8.0',
         'opensearch' => 'opensearchproject/opensearch:2',
     ];
     /** @deprecated tag:v6.8.0 - Support for OpenSearch 1 will be removed in v6.8.0 (update the docs as well!) */
-    $matrix['matrix']['include'][] = [
+    $matrix['include'][] = [
         'test' => ['path' => '{Administration,Elasticsearch}'],
         'php' => '8.4',
         'db' => 'mysql:8.0',

@@ -497,7 +497,7 @@
                 "tags": ["Content System"],
                 "summary": "Attach an element subtree into a stored layout",
                 "operationId": "contentSystemLayoutPersistedAttachElement",
-                "description": "Applies a single structural edit to the stored layout named by `{layoutId}` and commits it, returning the re-resolved tree plus diagnostics. Splices the supplied `element` subtree into the root, or into `parentElementId`/`slot` at the optional `index`. Every id in the subtree is re-minted server-side; the placed ids are returned in `affectedElementIds`. Use this to re-place an `orphaned` subtree from an earlier edit. The committing write runs the resolvability gates. The type's default specification, applied to each element of the attached subtree, whose config carries a `!scoped` value, for a key it writes, with no entry for the layout's root source, or for a layout with none, is rejected with `400` (`bindingRootSourceNotScoped`). A type with more than one default binding specification (only reachable via a database row created outside the app lifecycle) is rejected with `409` (`bindingSpecificationDefaultAmbiguous`), before the repository write, so nothing is persisted. `expectedVersion` is the optimistic-concurrency token; a malformed `expectedVersion` returns `400 invalidVersionToken`. Unknown request fields are rejected with `400` (`unknownRequestField`). Requires the `content_layout:update` privilege.",
+                "description": "Applies a single structural edit to the stored layout named by `{layoutId}` and commits it, returning the re-resolved tree plus diagnostics. Splices the supplied `element` subtree into the root, or into `parentElementId`/`slot` at the optional `index`. Every id in the subtree is re-minted server-side; the placed ids are returned in `affectedElementIds`. Use this to re-place an `orphaned` subtree from an earlier edit or to attach a copy. Supplied mapping choices, including deliberately removed mappings and selected entities, are preserved; attaching does not seed default mappings. The committing write runs the resolvability gates. The type's default specification, applied to each element of the attached subtree, whose config carries a `!scoped` value, for a key it writes, with no entry for the layout's root source, or for a layout with none, is rejected with `400` (`bindingRootSourceNotScoped`). A type with more than one default binding specification (only reachable via a database row created outside the app lifecycle) is rejected with `409` (`bindingSpecificationDefaultAmbiguous`), before the repository write, so nothing is persisted. `expectedVersion` is the optimistic-concurrency token; a malformed `expectedVersion` returns `400 invalidVersionToken`. Unknown request fields are rejected with `400` (`unknownRequestField`). Requires the `content_layout:update` privilege.",
                 "parameters": [
                     {
                         "name": "layoutId",
@@ -693,6 +693,77 @@
                 "responses": {
                     "200": {
                         "description": "The committed, re-resolved layout plus diagnostics, with the language maps replaced.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentLayoutMutationResponse" }
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" },
+                    "404": { "$ref": "#/components/responses/404" },
+                    "409": { "$ref": "#/components/responses/ContentLayoutVersionConflict" }
+                }
+            }
+        }
+,
+        "/_action/content-system/layout/{layoutId}/map-property": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Map a property in a stored layout",
+                "operationId": "contentSystemLayoutPersistedMapProperty",
+                "description": "Maps one mappable property to a path catalogued for the stored layout's authoritative root source and commits the edit. Context cardinality is derived by the server. A malformed source returns 400 with code CONTENT_SYSTEM__INVALID_MAPPING_SOURCE.",
+                "parameters": [{
+                    "name": "layoutId",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+                }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/ContentLayoutPersistedMapPropertyRequest" }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The committed layout plus diagnostics.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentLayoutMutationResponse" }
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" },
+                    "404": { "$ref": "#/components/responses/404" },
+                    "409": { "$ref": "#/components/responses/ContentLayoutVersionConflict" }
+                }
+            }
+        },
+        "/_action/content-system/layout/{layoutId}/unmap-property": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Unmap a property in a stored layout",
+                "operationId": "contentSystemLayoutPersistedUnmapProperty",
+                "description": "Removes one property mapping, retains its authored fallback value, and commits the edit.",
+                "parameters": [{
+                    "name": "layoutId",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+                }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/ContentLayoutPersistedUnmapPropertyRequest" }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The committed layout plus diagnostics.",
                         "content": {
                             "application/json": {
                                 "schema": { "$ref": "#/components/schemas/ContentLayoutMutationResponse" }

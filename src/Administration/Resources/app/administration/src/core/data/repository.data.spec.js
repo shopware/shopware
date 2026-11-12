@@ -48,9 +48,17 @@ if (!Shopware.Service('cacheService')) {
 }
 
 describe('repository.data.ts', () => {
+    const originalFetch = global.fetch;
+    const originalBaseUrl = global.repositoryFactoryMock.httpClient.defaults.baseURL;
+
     beforeEach(async () => {
         clientMock.resetHistory();
         Shopware.Service('cacheService').clear();
+    });
+
+    afterEach(() => {
+        global.fetch = originalFetch;
+        global.repositoryFactoryMock.httpClient.defaults.baseURL = originalBaseUrl;
     });
 
     it('should search with the criteria title', async () => {
@@ -111,6 +119,33 @@ describe('repository.data.ts', () => {
         expect(clientMock.history.post[3].url).toBe('/search-ids/product?title=ImmaTest');
     });
 
+    it('should iterate ids without requesting a total count', async () => {
+        responses.addResponse({
+            method: 'POST',
+            url: '/search-ids/product',
+            status: 200,
+            response: {
+                total: 1,
+                data: ['product-id'],
+            },
+        });
+
+        const repository = repositoryFactory.create('product');
+        const criteria = new Criteria(1, 2);
+        const callback = jest.fn(() => Promise.resolve());
+
+        await repository.iterateIds(criteria, callback);
+
+        expect(callback).toHaveBeenCalledWith(['product-id']);
+        expect(clientMock.history.post).toHaveLength(1);
+        expect(JSON.parse(clientMock.history.post[0].data)).toEqual(
+            expect.objectContaining({
+                limit: 2,
+                'total-count-mode': 0,
+            }),
+        );
+    });
+
     it('should use axios v1 for repository requests regardless of repository options', async () => {
         responses.addResponse({
             method: 'POST',
@@ -142,6 +177,44 @@ describe('repository.data.ts', () => {
         };
 
         expect(actualHeaders).toEqual(exptectedHeaders);
+    });
+
+    it('should delete a version with a keepalive request', async () => {
+        global.fetch = jest.fn(() => Promise.resolve());
+        const repository = repositoryFactory.create('order');
+        repository.httpClient.defaults.baseURL = 'http://shopware.local/api';
+
+        await repository.deleteVersionWithKeepalive('order-id', 'version-id', mockContext());
+
+        expect(global.fetch).toHaveBeenCalledWith('http://shopware.local/api/_action/version/version-id/order/order-id', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/vnd.api+json',
+                Authorization: 'Bearer BwP_OL47uNW6k8iQzChh6SxE31XaleO_l4unyLNmFco',
+                'Content-Type': 'application/json',
+                'sw-api-compatibility': 'true',
+                'sw-currency-id': '7924299acc9641bfb8237a06e5aa0fa4',
+                'sw-language-id': '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+            },
+            body: '{}',
+            keepalive: true,
+        });
+    });
+
+    it('should fall back to the HTTP client when fetch is unavailable', async () => {
+        global.fetch = undefined;
+        const repository = repositoryFactory.create('order');
+        responses.addResponse({
+            method: 'POST',
+            url: '/_action/version/version-id/order/order-id',
+            status: 200,
+            response: {},
+        });
+
+        await repository.deleteVersionWithKeepalive('order-id', 'version-id', mockContext());
+
+        expect(clientMock.history.post).toHaveLength(1);
+        expect(clientMock.history.post[0].url).toBe('/_action/version/version-id/order/order-id');
     });
 
     it('should include measurement units in headers', async () => {
@@ -203,9 +276,7 @@ describe('repository.data.ts', () => {
         product.name = 'test';
         product.productNumber = ids.get('product');
         product.stock = 10;
-        product.price = [
-            { currencyId: DEFAULT_CURRENCY, gross: 15, net: 10, linked: false },
-        ];
+        product.price = [{ currencyId: DEFAULT_CURRENCY, gross: 15, net: 10, linked: false }];
         product.tax = { name: 'test', taxRate: 15 };
 
         const categories = new EntityCollection(
@@ -355,5 +426,54 @@ describe('repository.data.ts', () => {
         }
 
         expect(thrownError.message).toBe('Request failed with status code 400');
+    });
+
+    describe('api errors on delete', () => {
+        const oldId = 'a5a4cd8fa3434cc6a8e2a7b7a9d0b3a1';
+        const newId = 'b1f6a8d2c4e94d7f9a3b5c7d9e1f2a3b';
+
+        beforeEach(() => {
+            Shopware.Store.get('error').resetApiErrors();
+            Shopware.Store.get('error').addApiError({
+                expression: `tax.${oldId}`,
+                error: { code: 'FRAMEWORK__DELETE_RESTRICTED' },
+            });
+        });
+
+        it('should clear old api errors when a delete succeeds', async () => {
+            responses.addResponse({ method: 'DELETE', url: `/tax/${newId}`, status: 204, response: {} });
+
+            await repositoryFactory.create('tax').delete(newId);
+
+            expect(Shopware.Store.get('error').api).toEqual({});
+        });
+
+        it('should clear old api errors when a sync delete succeeds', async () => {
+            responses.addResponse({ method: 'POST', url: '_action/sync', status: 200, response: { success: true } });
+
+            await repositoryFactory.create('tax').syncDeleted([newId]);
+
+            expect(Shopware.Store.get('error').api).toEqual({});
+        });
+
+        it('should keep old api errors on delete when keepApiErrors is set', async () => {
+            responses.addResponse({ method: 'DELETE', url: `/tax/${newId}`, status: 204, response: {} });
+
+            await repositoryFactory.create('tax', null, { keepApiErrors: true }).delete(newId);
+
+            expect(Shopware.Store.get('error').getErrorsForEntity('tax', oldId)).toMatchObject({
+                code: 'FRAMEWORK__DELETE_RESTRICTED',
+            });
+        });
+
+        it('should keep old api errors on sync delete when keepApiErrors is set', async () => {
+            responses.addResponse({ method: 'POST', url: '_action/sync', status: 200, response: { success: true } });
+
+            await repositoryFactory.create('tax', null, { keepApiErrors: true }).syncDeleted([newId]);
+
+            expect(Shopware.Store.get('error').getErrorsForEntity('tax', oldId)).toMatchObject({
+                code: 'FRAMEWORK__DELETE_RESTRICTED',
+            });
+        });
     });
 });

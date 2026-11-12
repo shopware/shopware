@@ -11,13 +11,15 @@ import type {
     RouteLocationNormalizedLoaded,
     RouteLocationRaw,
 } from 'vue-router';
-import { createApp, defineAsyncComponent, h } from 'vue';
+import { compile, createApp, defineAsyncComponent, h } from 'vue';
 import type { Component as VueComponent, App } from 'vue';
 import VuePlugins from 'src/app/plugin';
 import setupShopwareDevtools from 'src/app/adapter/view/sw-vue-devtools';
 import type ApplicationBootstrapper from 'src/core/application';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
+import TemplateFactory from 'src/core/factory/template.factory';
 import type { ComponentPublicInstance } from '@vue/runtime-core';
+import { createDeprecatedTc, createTranslate } from 'src/core/helper/i18n-legacy-syntax.helper';
 
 import MtAvatar from '@shopware-ag/meteor-component-library/dist/esm/MtAvatar';
 import MtBanner from '@shopware-ag/meteor-component-library/dist/esm/MtBanner';
@@ -25,6 +27,10 @@ import MtLoader from '@shopware-ag/meteor-component-library/dist/esm/MtLoader';
 import MtProgressBar from '@shopware-ag/meteor-component-library/dist/esm/MtProgressBar';
 import MtButton from '@shopware-ag/meteor-component-library/dist/esm/MtButton';
 import MtCheckbox from '@shopware-ag/meteor-component-library/dist/esm/MtCheckbox';
+import MtRadioGroupRoot from '@shopware-ag/meteor-component-library/dist/esm/MtRadioGroupRoot';
+import MtRadioGroupItem from '@shopware-ag/meteor-component-library/dist/esm/MtRadioGroupItem';
+import MtRadioGroupCustomItem from '@shopware-ag/meteor-component-library/dist/esm/MtRadioGroupCustomItem';
+import MtRadioGroupIndicator from '@shopware-ag/meteor-component-library/dist/esm/MtRadioGroupIndicator';
 import MtEmailField from '@shopware-ag/meteor-component-library/dist/esm/MtEmailField';
 import MtEmptyState from '@shopware-ag/meteor-component-library/dist/esm/MtEmptyState';
 import MtNumberField from '@shopware-ag/meteor-component-library/dist/esm/MtNumberField';
@@ -37,6 +43,7 @@ import MtTextField from '@shopware-ag/meteor-component-library/dist/esm/MtTextFi
 import MtTextarea from '@shopware-ag/meteor-component-library/dist/esm/MtTextarea';
 import MtThemeSelect from '@shopware-ag/meteor-component-library/dist/esm/MtThemeSelect';
 import MtIcon from '@shopware-ag/meteor-component-library/dist/esm/MtIcon';
+import MtInset from '@shopware-ag/meteor-component-library/dist/esm/MtInset';
 import MtPagination from '@shopware-ag/meteor-component-library/dist/esm/MtPagination';
 import MtSkeletonBar from '@shopware-ag/meteor-component-library/dist/esm/MtSkeletonBar';
 import MtToast from '@shopware-ag/meteor-component-library/dist/esm/MtToast';
@@ -53,11 +60,14 @@ import MtLink from '@shopware-ag/meteor-component-library/dist/esm/MtLink';
 import MtUnitField from '@shopware-ag/meteor-component-library/dist/esm/MtUnitField';
 import MtSnackbar from '@shopware-ag/meteor-component-library/dist/esm/MtSnackbar';
 import MtBadge from '@shopware-ag/meteor-component-library/dist/esm/MtBadge';
+import MtStatusDot from '@shopware-ag/meteor-component-library/dist/esm/MtStatusDot';
 import MtPromoBadge from '@shopware-ag/meteor-component-library/dist/esm/MtPromoBadge';
 import MtActionMenu from '@shopware-ag/meteor-component-library/dist/esm/MtActionMenu';
 import MtActionMenuItem from '@shopware-ag/meteor-component-library/dist/esm/MtActionMenuItem';
 import MtActionMenuGroup from '@shopware-ag/meteor-component-library/dist/esm/MtActionMenuGroup';
 import MtTooltip from '@shopware-ag/meteor-component-library/dist/esm/MtTooltip';
+import MtDivider from '@shopware-ag/meteor-component-library/dist/esm/MtDivider';
+import MtHelpText from '@shopware-ag/meteor-component-library/dist/esm/MtHelpText';
 import {
     MtDropdownMenuRoot,
     MtDropdownMenuTrigger,
@@ -65,6 +75,7 @@ import {
     MtDropdownMenuSub,
 } from '@shopware-ag/meteor-component-library';
 
+import { attachSetupOverrideShim } from '../composition-extension-system/options-api-setup-shim';
 import getBlockDataScope from '../../component/structure/sw-block-override/sw-block/get-block-data-scope';
 import useLegacyConditionContext from '../../component/structure/sw-block-override/shim/legacy-condition-context';
 import type { LegacyConditionCaseOptions } from '../../component/structure/sw-block-override/shim/legacy-condition-context';
@@ -102,11 +113,18 @@ type RouteEnterCallback =
     Exclude<Parameters<NavigationGuardNext>[0], undefined> extends (vm: infer VM) => void ? (vm: VM) => void : never;
 type RouteGuardResult = false | RouteLocationRaw | Error | RouteEnterCallback | undefined;
 
-const routeGuardNames: RouteGuardName[] = [
-    'beforeRouteEnter',
-    'beforeRouteLeave',
-    'beforeRouteUpdate',
-];
+type VueHmrRuntime = {
+    rerender(id: string, render: ReturnType<typeof compile>): void;
+};
+
+type HmrComponentConfig = ComponentConfig & { __hmrId?: string };
+
+const getHmrId = (componentName: string) => `shopware-component:${componentName}`;
+
+const isTemplateConfig = (config: ComponentConfig | boolean | undefined): config is ComponentConfig & { template: string } =>
+    typeof config === 'object' && typeof config.template === 'string';
+
+const routeGuardNames: RouteGuardName[] = ['beforeRouteEnter', 'beforeRouteLeave', 'beforeRouteUpdate'];
 
 /**
  * @private
@@ -164,59 +182,16 @@ export default class VueAdapter extends ViewAdapter {
             throw new Error('Vue app is not initialized yet');
         }
 
-        function fixI18NParametersOrder(args: Parameters<typeof i18n.global.t>): Parameters<typeof i18n.global.t> {
-            if (args.length === 3 && typeof args[1] === 'number' && typeof args[2] === 'object') {
-                console.warn(
-                    'the order of the parameters for $t has changed in the latest version.',
-                    'Please, check Vue I18n documentation for more details:',
-                    'https://vue-i18n.intlify.dev/guide/migration/breaking10#tc-key-key-resourcekeys-choice-number-named-record-string-unknown-translateresult',
-                );
-                // This is a workaround to avoid breaking changes for the $tc function which that swap the second and
-                // third parameters in the latest version.
-                return [
-                    args[0],
-                    args[1],
-                    args[2],
-                ];
-            }
-            return args;
-        }
-
         this.app.config.compilerOptions.whitespace = 'preserve';
         this.app.config.performance = process.env.NODE_ENV !== 'production';
-        this.app.config.globalProperties.$t = function (...args: Parameters<typeof i18n.global.t>) {
-            return i18n.global.t(...fixI18NParametersOrder(args));
-        } as typeof i18n.global.t;
-        /**
-         * @deprecated tag:v6.8.0 - Will be removed, use $t instead.
-         */
-        this.app.config.globalProperties.$tc = function (...args: Parameters<typeof i18n.global.t>) {
-            if (window._features_.V6_8_0_0) {
-                console.warn(
-                    'Deprecation Warning',
-                    'The $tc function is deprecated and will be removed in future versions. Please use $t instead.',
-                );
-            }
-            return i18n.global.t(...fixI18NParametersOrder(args));
-        } as typeof i18n.global.t;
 
         this.app.config.warnHandler = (msg: string, instance: unknown, trace: string) => {
-            const warnArgs = [
-                `[Vue warn]: ${msg}`,
-                trace,
-                instance,
-            ];
+            const warnArgs = [`[Vue warn]: ${msg}`, trace, instance];
 
             console.warn(...warnArgs);
 
             if (msg.includes('Template compilation error')) {
-                console.error(
-                    ...[
-                        `[Vue error]: ${msg}`,
-                        trace,
-                        instance,
-                    ],
-                );
+                console.error(...[`[Vue error]: ${msg}`, trace, instance]);
                 throw new Error(msg);
             }
         };
@@ -301,6 +276,12 @@ export default class VueAdapter extends ViewAdapter {
         this.app.use(router);
         this.app.use(vuexRoot);
         this.app.use(i18n);
+        // Assigned after `app.use(i18n)`, because vue-i18n's global injection overwrites `$t`.
+        this.app.config.globalProperties.$t = createTranslate(i18n.global.t);
+        /**
+         * @deprecated tag:v6.9.0 - Will be removed, use $t instead.
+         */
+        this.app.config.globalProperties.$tc = createDeprecatedTc(i18n.global.t, '$tc', '$t');
 
         // This is a hack for providing the i18n scope to the components.
         Object.defineProperty(this.app.config.globalProperties, '$i18n', {
@@ -311,8 +292,8 @@ export default class VueAdapter extends ViewAdapter {
         });
 
         // Add global properties to root view instance
-        this.app.$tc = i18n.global.t;
-        this.app.$t = i18n.global.t;
+        this.app.$tc = this.app.config.globalProperties.$tc;
+        this.app.$t = this.app.config.globalProperties.$t;
 
         this.initTitle(this.app);
 
@@ -392,7 +373,9 @@ export default class VueAdapter extends ViewAdapter {
         await this.initComponents();
 
         // initialize all module locales
-        this.initModuleLocales();
+        if (!Shopware.Feature.isActive('V6_8_0_0')) {
+            this.initModuleLocales();
+        }
 
         // initialize all module routes
         const allRoutes = this.applicationFactory.module.getModuleRoutes();
@@ -453,6 +436,10 @@ export default class VueAdapter extends ViewAdapter {
             MtProgressBar,
             MtButton,
             MtCheckbox,
+            MtRadioGroupRoot,
+            MtRadioGroupItem,
+            MtRadioGroupCustomItem,
+            MtRadioGroupIndicator,
             MtEmailField,
             MtEmptyState,
             MtNumberField,
@@ -465,6 +452,7 @@ export default class VueAdapter extends ViewAdapter {
             MtTextarea,
             MtThemeSelect,
             MtIcon,
+            MtInset,
             MtPagination,
             MtSkeletonBar,
             MtToast,
@@ -481,6 +469,7 @@ export default class VueAdapter extends ViewAdapter {
             MtUnitField,
             MtSnackbar,
             MtBadge,
+            MtStatusDot,
             MtPromoBadge,
             MtActionMenu,
             MtActionMenuItem,
@@ -490,6 +479,8 @@ export default class VueAdapter extends ViewAdapter {
             MtDropdownMenuPortal,
             MtDropdownMenuSub,
             MtTooltip,
+            MtDivider,
+            MtHelpText,
         } as const;
 
         const lazyMeteorComponents = {
@@ -499,44 +490,31 @@ export default class VueAdapter extends ViewAdapter {
             MtPopoverItem: () => import('@shopware-ag/meteor-component-library/dist/esm/MtPopoverItem'),
         };
 
-        Object.entries(meteorComponents).forEach(
-            ([
-                componentName,
-                component,
-            ]) => {
-                const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
-                this.app.component(componentNameAsKebabCase, component as VueComponent);
-            },
-        );
+        Object.entries(meteorComponents).forEach(([componentName, component]) => {
+            const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
+            this.app.component(componentNameAsKebabCase, component as VueComponent);
+        });
 
-        Object.entries(lazyMeteorComponents).forEach(
-            ([
-                componentName,
-                importMethod,
-            ]) => {
-                const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
-                this.registerAsyncComponent(componentNameAsKebabCase, importMethod);
-            },
-        );
+        Object.entries(lazyMeteorComponents).forEach(([componentName, importMethod]) => {
+            const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
+            this.registerAsyncComponent(componentNameAsKebabCase, importMethod);
+        });
 
         return this.vueComponents;
     }
 
     /**
      * Initializes all core components as Vue components.
+     *
+     * @deprecated tag:v6.8.0 - Will be removed. Module snippets are loaded by the initial snippets request.
      */
     initModuleLocales() {
         // Extend default snippets with module specific snippets
         const moduleSnippets = this.applicationFactory.module.getModuleSnippets();
 
-        Object.entries(moduleSnippets).forEach(
-            ([
-                key,
-                moduleSnippet,
-            ]) => {
-                this.applicationFactory.locale.extend(key, moduleSnippet);
-            },
-        );
+        Object.entries(moduleSnippets).forEach(([key, moduleSnippet]) => {
+            this.applicationFactory.locale.extend(key, moduleSnippet);
+        });
 
         return this.applicationFactory.locale;
     }
@@ -591,6 +569,13 @@ export default class VueAdapter extends ViewAdapter {
                         if (typeof componentConfig === 'boolean') {
                             resolve(false);
                         } else {
+                            if (process.env.NODE_ENV !== 'production') {
+                                // Lets the Vue HMR runtime find the mounted instances when a template file changes.
+                                // Native SFCs keep the id of their Vite plugin, which hot updates their script.
+                                (componentConfig as HmrComponentConfig).__hmrId ??= getHmrId(componentName);
+                            }
+
+                            attachSetupOverrideShim(componentName, componentConfig);
                             this.resolveMixins(componentConfig);
                         }
 
@@ -601,6 +586,56 @@ export default class VueAdapter extends ViewAdapter {
         }
 
         return this.resolvedComponentConfigs.get(componentName) as Promise<ComponentConfig | boolean>;
+    }
+
+    /**
+     * Applies an edited template file to the mounted components during development.
+     * Resolves to false when the change needs a page reload.
+     *
+     * @private
+     */
+    async hotUpdateTemplate(previousTemplate: string, nextTemplate: string): Promise<boolean> {
+        if (process.env.NODE_ENV === 'production') {
+            return false;
+        }
+
+        const runtime = (window as Window & { __VUE_HMR_RUNTIME__?: VueHmrRuntime }).__VUE_HMR_RUNTIME__;
+        if (!runtime) {
+            return false;
+        }
+
+        const affected = TemplateFactory.replaceTemplate(previousTemplate, nextTemplate) ?? [];
+        const builtComponents = affected.filter((name) => this.resolvedComponentConfigs.has(name));
+
+        if (builtComponents.length === 0) {
+            return false;
+        }
+
+        try {
+            const updates = await Promise.all(
+                builtComponents.map(async (name) => {
+                    const config = await this.resolvedComponentConfigs.get(name);
+                    const template = await Component.getTemplate(name);
+
+                    return isTemplateConfig(config) && typeof template === 'string' ? { name, config, template } : null;
+                }),
+            );
+
+            const applicable = updates.filter((update) => update !== null);
+
+            if (applicable.length !== updates.length) {
+                return false;
+            }
+
+            applicable.forEach(({ name, config, template }) => {
+                config.template = template;
+                runtime.rerender(getHmrId(name), compile(template, this.app.config.compilerOptions));
+            });
+
+            return true;
+        } catch {
+            return false;
+        }
     }
 
     /**
@@ -770,7 +805,8 @@ export default class VueAdapter extends ViewAdapter {
         Shopware.Vue.watch(
             useSession().currentLocale,
             (currentLocale: string | null) => {
-                i18n.global.locale.value = currentLocale ?? '';
+                // Keep the last known locale until the session locale is resolved, otherwise the fallback locale is shown
+                i18n.global.locale.value = currentLocale ?? lastKnownLocale;
             },
             { immediate: true },
         );

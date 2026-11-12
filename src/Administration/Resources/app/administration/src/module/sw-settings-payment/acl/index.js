@@ -23,22 +23,12 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
             dependencies: [],
         },
         editor: {
-            privileges: [
-                'payment_method:update',
-                Shopware.Service('privileges').getPrivileges('media.creator'),
-            ],
-            dependencies: [
-                'payment.viewer',
-            ],
+            privileges: ['payment_method:update', Shopware.Service('privileges').getPrivileges('media.creator')],
+            dependencies: ['payment.viewer'],
         },
         creator: {
-            privileges: [
-                'payment_method:create',
-            ],
-            dependencies: [
-                'payment.viewer',
-                'payment.editor',
-            ],
+            privileges: ['payment_method:create'],
+            dependencies: ['payment.viewer', 'payment.editor'],
         },
         deleter: {
             privileges: [
@@ -47,10 +37,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'sales_channel:read',
                 'order_transaction:read',
             ],
-            dependencies: [
-                'payment.viewer',
-                'payment.editor',
-            ],
+            dependencies: ['payment.viewer', 'payment.editor'],
         },
     },
 });

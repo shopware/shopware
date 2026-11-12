@@ -15,14 +15,14 @@ export interface Extension {
     version?: string;
     type: 'app' | 'plugin';
     sourceType?: string;
-    integrationId?: string;
+    integrationId?: EntityKey<'integration'>;
     active?: boolean;
 }
 
 /**
  * @private
  */
-export interface ExtensionsState {
+interface ExtensionsState {
     [key: string]: Extension;
 }
 

@@ -4,10 +4,10 @@ namespace Shopware\Tests\Integration\Core\Content\ImportExport\Repository;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileCollection;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
@@ -26,7 +26,7 @@ class ImportExportFileRepositoryTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepository<EntityCollection<ImportExportFileEntity>>
+     * @var EntityRepository<ImportExportFileCollection>
      */
     private EntityRepository $repository;
 
@@ -52,7 +52,7 @@ class ImportExportFileRepositoryTest extends TestCase
         $record = $this->connection->fetchAssociative('SELECT * FROM import_export_file WHERE id = :id', ['id' => $id]);
 
         $expect = $data[$id];
-        static::assertNotEmpty($record);
+        static::assertNotFalse($record);
         static::assertSame($id, $record['id']);
         static::assertSame($expect['originalName'], $record['original_name']);
         static::assertSame($expect['path'], $record['path']);
@@ -122,8 +122,8 @@ class ImportExportFileRepositoryTest extends TestCase
             static::assertCount(\count($requiredProperties), $e->getExceptions());
             $foundViolations = [];
 
-            /** @var WriteConstraintViolationException $violations */
             foreach ($e->getExceptions() as $violations) {
+                static::assertInstanceOf(WriteConstraintViolationException::class, $violations);
                 foreach ($violations->getViolations() as $violation) {
                     $foundViolations[] = $violation->getPropertyPath();
                 }

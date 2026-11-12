@@ -3,8 +3,11 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Resolution;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
@@ -27,12 +30,24 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSyste
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderMapResolver;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeRegistry;
+use Shopware\Core\Test\Stub\ContentSystem\TestMappingCandidateRegistry;
 
 /**
  * @internal
@@ -511,6 +526,70 @@ class AvailableContextResolverTest extends TestCase
         }
     }
 
+    #[DataProvider('mappedProviderBacking')]
+    public function testMappedProviderBackingUsesAdmittedMetadata(MappingSourceReference $source, bool $offered, string $valueType, ContextType $consumerType, ?string $rootSource, bool $expected): void
+    {
+        $collection = $valueType === MediaCollection::class;
+        $contextType = $collection ? ContextType::Collection : ContextType::Single;
+        $registry = TestElementTypeRegistry::of([
+            'Sw:MappedProvider' => ContentSystemElementTypeSpecificationBuilder::create('Sw:MappedProvider')
+                ->reference('picture', $collection ? MediaCollection::class : Struct::class, mappable: true)
+                ->build(),
+        ]);
+        $catalogued = $source->type === 'root'
+            ? MappingSourceReference::root('product', 'cover')
+            : new MappingSourceReference('AcmePlugin', 'image', ['size' => 'large'], 'media');
+        $candidates = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
+        $candidates->method('forRootSource')->willReturn($offered ? [
+            $catalogued->displayName() => new MappingCandidate($catalogued->displayName(), 'Image', '', 'media', $valueType, $contextType, source: $catalogued),
+        ] : []);
+        $candidates->expects($this->never())->method('resolveAdmittedSource');
+        $map = static::createStub(AbstractContentSystemDataLoaderMapResolver::class);
+        $map->method('resolve')->willReturn(new ContentSystemDataLoaderMap([], []));
+        $resolver = new AvailableContextResolver(
+            $registry,
+            new ElementResolver($registry, $map, static::createStub(DataLoaderConfigSerializerProvider::class), static::createStub(DataLoaderProvider::class), new MappingConsumers()),
+            new ProviderDeliveryKeyResolver(),
+            new ContextPathResolver(),
+            new StoredMappingInspector($registry, $candidates, new MappingTypeCompatibility(), new MappingConsumers(), new InlineMappingTokenParser()),
+        );
+        $child = new StoredElement('child', 'Sw:Block');
+        $parent = StoredElementBuilder::create('Sw:MappedProvider', 'parent')
+            ->withConsumer('picture', $consumerType, scope: ConsumerScope::Root, source: $source)
+            ->withProvider('picture', BroadcastDistributionConfig::aliased('image'), $contextType)
+            ->withSlot('content', [$child])
+            ->build();
+        $ambient = $source->type === 'root' ? $this->rootAmbientProductContext() : [];
+
+        $available = $resolver->resolve('child', [$parent], $ambient, $rootSource);
+        $provided = array_values(array_filter($available, static fn (ProvidedContext $context): bool => !$context->root));
+
+        static::assertCount($expected ? 1 : 0, $provided);
+        if ($expected) {
+            static::assertSame($valueType, $provided[0]->fqcn);
+            static::assertSame($contextType, $provided[0]->contextType);
+            static::assertSame('image', $provided[0]->contextKey);
+            static::assertSame('parent', $provided[0]->providerElementId);
+        }
+    }
+
+    /**
+     * @return iterable<string, array{MappingSourceReference, bool, string, ContextType, string|null, bool}>
+     */
+    public static function mappedProviderBacking(): iterable
+    {
+        $root = MappingSourceReference::root('product', 'cover');
+        $plugin = new MappingSourceReference('AcmePlugin', 'image', ['size' => 'large'], 'media');
+        yield 'reshaped root media under another destination key' => [$root, true, MediaEntity::class, ContextType::Single, 'product', true];
+        yield 'plugin media without ambient entries' => [$plugin, true, MediaEntity::class, ContextType::Single, 'product', true];
+        yield 'plugin collection retains cardinality' => [$plugin, true, MediaCollection::class, ContextType::Collection, 'product', true];
+        yield 'unavailable mapping does not back the provider' => [$plugin, false, MediaEntity::class, ContextType::Single, 'product', false];
+        yield 'configuration mismatch does not back the provider' => [new MappingSourceReference('AcmePlugin', 'image', ['size' => 'small'], 'media'), true, MediaEntity::class, ContextType::Single, 'product', false];
+        yield 'incompatible effective type does not back the provider' => [$plugin, true, 'string', ContextType::Single, 'product', false];
+        yield 'stored cardinality mismatch does not back the provider' => [$root, true, MediaEntity::class, ContextType::Collection, 'product', false];
+        yield 'ambient entries cannot replace a missing source identifier' => [$root, true, MediaEntity::class, ContextType::Single, null, false];
+    }
+
     /**
      * The shape the root-source registry mints: marked root-ambient and carrying no provider element id.
      *
@@ -623,8 +702,14 @@ class AvailableContextResolverTest extends TestCase
         $configSerializers = static::createStub(DataLoaderConfigSerializerProvider::class);
         $configSerializers->method('decode')->willReturn(static::createStub(AbstractContentDataLoaderConfig::class));
 
-        $elementResolver = new ElementResolver($registry, $typeResolver, $configSerializers, static::createStub(DataLoaderProvider::class));
+        $elementResolver = new ElementResolver($registry, $typeResolver, $configSerializers, static::createStub(DataLoaderProvider::class), new MappingConsumers());
 
-        return new AvailableContextResolver($registry, $elementResolver, new ProviderDeliveryKeyResolver(), new ContextPathResolver());
+        return new AvailableContextResolver(
+            $registry,
+            $elementResolver,
+            new ProviderDeliveryKeyResolver(),
+            new ContextPathResolver(),
+            new StoredMappingInspector($registry, new TestMappingCandidateRegistry(), new MappingTypeCompatibility(), new MappingConsumers(), new InlineMappingTokenParser()),
+        );
     }
 }

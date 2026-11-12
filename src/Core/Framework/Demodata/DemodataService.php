@@ -68,7 +68,7 @@ class DemodataService
 
             $end = (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT) - $start;
 
-            $console->note(\sprintf('Took %f seconds', $end));
+            $console->note(\sprintf('Took %F seconds', $end));
 
             $demodataContext->setTiming($definition, $numberOfItems, $end);
         }

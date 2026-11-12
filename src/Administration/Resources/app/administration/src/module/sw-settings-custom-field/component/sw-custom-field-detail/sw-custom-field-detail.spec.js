@@ -42,7 +42,7 @@ const defaultProps = {
     set: {},
 };
 
-async function createWrapper(props = defaultProps, privileges = []) {
+async function createWrapper(props = defaultProps, privileges = [], repositoryFactory = null) {
     return mount(
         await wrapTestComponent('sw-custom-field-detail', {
             sync: true,
@@ -59,6 +59,7 @@ async function createWrapper(props = defaultProps, privileges = []) {
                     },
                 },
                 provide: {
+                    ...(repositoryFactory ? { repositoryFactory } : {}),
                     acl: {
                         can: (identifier) => {
                             if (!identifier) {
@@ -109,10 +110,7 @@ async function createWrapper(props = defaultProps, privileges = []) {
                                 </div>
                             </div>
                         `,
-                        props: [
-                            'disabled',
-                            'options',
-                        ],
+                        props: ['disabled', 'options'],
                         data() {
                             return {
                                 showPopover: false,
@@ -141,10 +139,7 @@ async function createWrapper(props = defaultProps, privileges = []) {
                                 </div>
                             </div>
                         `,
-                        props: [
-                            'disabled',
-                            'error',
-                        ],
+                        props: ['disabled', 'error'],
                     },
                 },
             },
@@ -214,6 +209,30 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
                 componentName: 'sw-field',
             }),
         );
+    });
+
+    it('should drop type-specific config when switching the type of a new custom field', async () => {
+        const newField = { ...customFieldFixture, config: { ...customFieldFixture.config } };
+        const wrapper = await createWrapper({ currentCustomField: newField, set: {} }, ['custom_field.editor']);
+        await flushPromises();
+
+        await selectMtSelectOptionByText(wrapper, 'sw-settings-custom-field.types.select');
+        Object.assign(wrapper.vm.currentCustomField.config, {
+            componentName: 'sw-single-select',
+            options: [{ value: '', label: {} }],
+        });
+
+        await selectMtSelectOptionByText(wrapper, 'sw-settings-custom-field.types.checkbox');
+        await flushPromises();
+
+        expect(wrapper.vm.currentCustomField.type).toBe('bool');
+        expect(wrapper.vm.currentCustomField.config).toEqual({
+            customFieldType: 'checkbox',
+            customFieldPosition: 1,
+            componentName: 'sw-field',
+            type: 'checkbox',
+            label: { 'en-GB': 'Special field 1' },
+        });
     });
 
     it('should show error if custom field name is invalid', async () => {
@@ -343,5 +362,30 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
 
         const banner = wrapper.find('.sw-custom-field-detail__searchable-banner');
         expect(banner.exists()).toBe(false);
+    });
+
+    it('should disable cart expose when a cart rule condition uses the field', async () => {
+        const ruleConditionRepository = {
+            searchIds: jest.fn(() => Promise.resolve({ total: 1, data: ['condition-id'] })),
+        };
+
+        const wrapper = await createWrapper(
+            {
+                currentCustomField: {
+                    ...customFieldFixture,
+                    config: { ...customFieldFixture.config },
+                    allowCartExpose: true,
+                },
+                set: {
+                    relations: [{ entityName: 'product' }],
+                },
+            },
+            ['custom_field.editor'],
+            { create: () => ruleConditionRepository },
+        );
+        await flushPromises();
+
+        expect(ruleConditionRepository.searchIds).toHaveBeenCalledTimes(1);
+        expect(wrapper.find('.sw-custom-field-detail__allow-cart-expose').attributes('disabled')).toBe('true');
     });
 });

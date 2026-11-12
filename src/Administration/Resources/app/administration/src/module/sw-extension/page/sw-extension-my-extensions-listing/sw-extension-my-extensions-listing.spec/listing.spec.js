@@ -100,7 +100,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         await wrapper.vm.$router.push(routes[1]);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const extensionCards = wrapper.findAll('.sw-self-maintained-extension-card');
 
@@ -120,7 +120,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             },
         ]);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const extensionCards = wrapper.findAll('.sw-self-maintained-extension-card');
 
@@ -157,10 +157,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
     it('should apply the sorting option from the route after loading', async () => {
         const wrapper = await createWrapper({ query: { sorting: 'name-asc' } });
-        const extensions = [
-            'Zeta',
-            'Alpha',
-        ].map((name) => ({
+        const extensions = ['Zeta', 'Alpha'].map((name) => ({
             name,
             label: name,
             updatedAt: null,
@@ -168,12 +165,9 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         Shopware.Store.get('shopwareExtensions').setMyExtensions(extensions);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        expect(wrapper.findAll('.sw-self-maintained-extension-card').map((card) => card.text())).toEqual([
-            'Alpha',
-            'Zeta',
-        ]);
+        expect(wrapper.findAll('.sw-self-maintained-extension-card').map((card) => card.text())).toEqual(['Alpha', 'Zeta']);
     });
 
     it('should update the route with the new values from pagination', async () => {
@@ -192,7 +186,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         Shopware.Store.get('shopwareExtensions').setMyExtensions(extensions);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // check if only shows first 25 extensions
         let extensionCards = wrapper.findAllComponents('.sw-self-maintained-extension-card');
@@ -231,7 +225,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         Shopware.Store.get('shopwareExtensions').setMyExtensions(extensions);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // check if only shows first 25 extensions
         let extensionCards = wrapper.findAllComponents('.sw-self-maintained-extension-card');
@@ -281,12 +275,9 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
                 };
             });
 
-        Shopware.Store.get('shopwareExtensions').setMyExtensions([
-            ...activeExtensions,
-            ...inactiveExtensions,
-        ]);
+        Shopware.Store.get('shopwareExtensions').setMyExtensions([...activeExtensions, ...inactiveExtensions]);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const allExtensions = wrapper.findAll('.sw-self-maintained-extension-card');
         expect(allExtensions).toHaveLength(25);
@@ -301,11 +292,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
     it('should sort the extensions by their name in an ascending order', async () => {
         const wrapper = await createWrapper();
 
-        const extensionNames = [
-            'very smart plugin',
-            '#1 best plugin',
-            'semi good plugin',
-        ];
+        const extensionNames = ['very smart plugin', '#1 best plugin', 'semi good plugin'];
         const extensions = extensionNames.map((name, i) => {
             return {
                 name,
@@ -318,7 +305,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         Shopware.Store.get('shopwareExtensions').setMyExtensions(extensions);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await selectMtSelectOptionByText(
             wrapper,
@@ -326,11 +313,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             '.mt-select__selection',
         );
 
-        const correctOrder = [
-            'very smart plugin',
-            'semi good plugin',
-            '#1 best plugin',
-        ];
+        const correctOrder = ['very smart plugin', 'semi good plugin', '#1 best plugin'];
         const orderedExtensions = wrapper.findAll('.sw-self-maintained-extension-card');
         orderedExtensions.forEach((currentWrapper, i) => {
             const currentWrapperLabel = currentWrapper.text();
@@ -342,11 +325,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
     it('should sort the extensions by their name in an decending order', async () => {
         const wrapper = await createWrapper();
 
-        const extensionNames = [
-            'very smart plugin',
-            '#1 best plugin',
-            'semi good plugin',
-        ];
+        const extensionNames = ['very smart plugin', '#1 best plugin', 'semi good plugin'];
         const extensions = extensionNames.map((name, i) => {
             return {
                 name,
@@ -365,11 +344,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             '.mt-select__selection',
         );
 
-        const correctOrder = [
-            '#1 best plugin',
-            'semi good plugin',
-            'very smart plugin',
-        ];
+        const correctOrder = ['#1 best plugin', 'semi good plugin', 'very smart plugin'];
         const orderedExtensions = wrapper.findAll('.sw-self-maintained-extension-card');
         orderedExtensions.forEach((currentWrapper, i) => {
             const currentWrapperLabel = currentWrapper.text();
@@ -381,11 +356,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
     it('should sort the extensions by their updatedAt property', async () => {
         const wrapper = await createWrapper();
 
-        const unsortedUpdatedAtValues = [
-            '2021-04-22T23:00:00.000Z',
-            '2021-01-22T23:00:00.000Z',
-            '2021-05-22T23:00:00.000Z',
-        ];
+        const unsortedUpdatedAtValues = ['2021-04-22T23:00:00.000Z', '2021-01-22T23:00:00.000Z', '2021-05-22T23:00:00.000Z'];
         const extensions = unsortedUpdatedAtValues.map((updatedAtValue, i) => {
             const extensionName = `extension no. ${i}`;
 
@@ -400,15 +371,11 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         Shopware.Store.get('shopwareExtensions').setMyExtensions(extensions);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // not setting the sorting option via the dropdown because the default sorting is by their updatedAt value
 
-        const correctOrder = [
-            'extension no. 2',
-            'extension no. 0',
-            'extension no. 1',
-        ];
+        const correctOrder = ['extension no. 2', 'extension no. 0', 'extension no. 1'];
         const orderedExtensions = wrapper.findAll('.sw-self-maintained-extension-card');
 
         orderedExtensions.forEach((currentWrapper, i) => {
@@ -430,7 +397,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         Shopware.Store.get('context').app.config.settings.appUrlReachable = false;
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const alert = wrapper.find('.sw-extension-my-extensions-listing__app-url-warning');
         expect(alert.isVisible()).toBe(true);

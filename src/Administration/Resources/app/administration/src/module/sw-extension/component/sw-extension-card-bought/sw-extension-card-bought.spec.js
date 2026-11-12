@@ -107,9 +107,7 @@ async function createWrapper(extension) {
             mocks: {
                 $t: translateSnippet,
             },
-            mixins: [
-                Shopware.Mixin.getByName('sw-extension-error'),
-            ],
+            mixins: [Shopware.Mixin.getByName('sw-extension-error')],
             stubs: {
                 'sw-meteor-card': await wrapTestComponent('sw-meteor-card', { sync: true }),
 
@@ -442,17 +440,45 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             active: false,
             type: 'plugin',
             source: 'local',
+            allowRemove: true,
         });
 
         await wrapper.get('.sw-extension-card-base__remove-link').trigger('click');
         expect(wrapper.find('.sw-extension-removal-modal').exists()).toBe(true);
 
-        await wrapper
-            .findByText('button', 'sw-extension-store.component.sw-extension-removal-modal.labelCancel')
-            .trigger('click');
+        await wrapper.findByText('.sw-extension-removal-modal button', 'global.default.remove').trigger('click');
         expect(wrapper.find('.sw-extension-removal-modal').exists()).toBe(false);
         expect(cancelLicenceSpy).toHaveBeenCalledTimes(0);
         expect(removeExtensionSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not offer to cancel the subscription when it is already cancelled', async () => {
+        const wrapper = await createWrapper({
+            ...defaultExtension,
+            installedAt: null,
+            source: 'local',
+            allowRemove: true,
+            storeLicense: {
+                variants: [{}],
+                variant: 'rent',
+                expirationDate: '2025-08-01T03:30:35+01:00',
+            },
+        });
+
+        expect(wrapper.find('.sw-extension-card-base__cancel-and-remove-link').exists()).toBe(false);
+
+        await wrapper.get('.sw-extension-card-base__remove-link').trigger('click');
+
+        expect(wrapper.get('.sw-extension-removal-modal__bold-paragraph').text()).toBe(
+            'sw-extension-store.component.sw-extension-removal-modal.alertRemove',
+        );
+        expect(
+            wrapper.findByText(
+                '.sw-extension-removal-modal button',
+                'sw-extension-store.component.sw-extension-removal-modal.labelCancel',
+            ),
+        ).toBeNull();
+        expect(wrapper.findByText('.sw-extension-removal-modal button', 'global.default.remove')).not.toBeNull();
     });
 
     it('should try to cancel the extension subscription on remove attempt when it has no expiry date', async () => {
@@ -488,6 +514,8 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             iconRaw: null,
             active: false,
             type: 'plugin',
+            source: 'local',
+            allowRemove: true,
         });
 
         await wrapper.get('.sw-extension-card-base__cancel-and-remove-link').trigger('click');
@@ -500,6 +528,129 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         expect(cancelLicenceSpy).toHaveBeenCalledTimes(1);
         expect(removeExtensionSpy).toHaveBeenCalledTimes(1);
         expect(httpClient.delete).toHaveBeenCalledTimes(1);
+    });
+
+    it.each([
+        [
+            'is managed by Composer',
+            {
+                source: 'local',
+                installedAt: { date: '2026-09-02T10:00:00+00:00' },
+                managedByComposer: true,
+                allowRemove: false,
+            },
+        ],
+        ['is no longer on the server', { source: 'store' }],
+    ])('should only cancel the subscription of a rented extension that %s', async (_, extension) => {
+        const cancelLicenseSpy = jest.spyOn(extensionStoreActionService, 'cancelLicense').mockResolvedValue();
+        const removeExtensionSpy = jest.spyOn(extensionStoreActionService, 'removeExtension');
+
+        const wrapper = await createWrapper(
+            createExtension({ ...extension, storeLicense: { id: 1337, expirationDate: null } }),
+        );
+
+        expect(wrapper.find('.sw-extension-card-base__cancel-and-remove-link').exists()).toBe(false);
+
+        await wrapper.get('.sw-extension-card-base__cancel-subscription-link').trigger('click');
+
+        expect(wrapper.get('.sw-extension-removal-modal__bold-paragraph').text()).toBe(
+            'sw-extension-store.component.sw-extension-removal-modal.alertCancelSubscription',
+        );
+
+        await wrapper
+            .findByText(
+                '.sw-extension-removal-modal button',
+                'sw-extension-store.component.sw-extension-removal-modal.labelCancelSubscription',
+            )
+            .trigger('click');
+        await flushPromises();
+
+        expect(cancelLicenseSpy).toHaveBeenCalledWith(1337);
+        expect(removeExtensionSpy).not.toHaveBeenCalled();
+        expect(wrapper.emitted('update-list')).toHaveLength(1);
+    });
+
+    it('should not offer to remove an extension whose files are managed by Composer', async () => {
+        const wrapper = await createWrapper(
+            createExtension({
+                source: 'local',
+                managedByComposer: true,
+                allowRemove: false,
+                storeLicense: { variant: 'buy' },
+            }),
+        );
+
+        expect(wrapper.find('.sw-extension-card-base__remove-link').exists()).toBe(false);
+    });
+
+    it.each([
+        ['remove', { variant: 'buy' }, '.sw-extension-card-base__remove-link'],
+        ['cancel and remove', { expirationDate: null }, '.sw-extension-card-base__cancel-and-remove-link'],
+    ])('should offer %s for a plugin in custom/plugins that Composer manages', async (_, storeLicense, removalLink) => {
+        const wrapper = await createWrapper(
+            createExtension({
+                source: 'local',
+                type: 'plugin',
+                managedByComposer: true,
+                allowRemove: true,
+                storeLicense,
+            }),
+        );
+
+        expect(wrapper.find(removalLink).exists()).toBe(true);
+    });
+
+    it('should show the error when removing the extension fails', async () => {
+        jest.spyOn(extensionStoreActionService, 'removeExtension').mockRejectedValue({
+            response: {
+                data: {
+                    errors: [{ code: 'FRAMEWORK__PLUGIN_NOT_FOUND', title: 'Not Found', detail: 'Plugin not found.' }],
+                },
+            },
+        });
+
+        const createNotification = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+        const wrapper = await createWrapper(
+            createExtension({ source: 'local', allowRemove: true, storeLicense: { variant: 'buy' } }),
+        );
+
+        await wrapper.get('.sw-extension-card-base__remove-link').trigger('click');
+        await wrapper.findByText('.sw-extension-removal-modal button', 'global.default.remove').trigger('click');
+        await flushPromises();
+
+        expect(createNotification).toHaveBeenCalledWith(
+            expect.objectContaining({ variant: 'error', title: 'Not Found', message: 'Plugin not found.' }),
+        );
+    });
+
+    it('should reload the list when removing fails after the subscription was cancelled', async () => {
+        jest.spyOn(extensionStoreActionService, 'cancelLicense').mockResolvedValue();
+        jest.spyOn(extensionStoreActionService, 'removeExtension').mockRejectedValue({
+            response: {
+                data: {
+                    errors: [{ code: 'FRAMEWORK__PLUGIN_NOT_FOUND', title: 'Not Found', detail: 'Plugin not found.' }],
+                },
+            },
+        });
+
+        const createNotification = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+        const wrapper = await createWrapper(
+            createExtension({ source: 'local', allowRemove: true, storeLicense: { id: 1337, expirationDate: null } }),
+        );
+
+        await wrapper.get('.sw-extension-card-base__cancel-and-remove-link').trigger('click');
+        await wrapper
+            .findByText(
+                '.sw-extension-removal-modal button',
+                'sw-extension-store.component.sw-extension-removal-modal.labelCancel',
+            )
+            .trigger('click');
+        await flushPromises();
+
+        expect(createNotification).toHaveBeenCalledWith(
+            expect.objectContaining({ variant: 'error', title: 'Not Found', message: 'Plugin not found.' }),
+        );
+        expect(wrapper.emitted('update-list')).toHaveLength(1);
     });
 
     it('should display error on install and download attempt when app subscription is expired', async () => {
@@ -643,6 +794,69 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         await flushPromises();
 
         expect(wrapper.get('.sw-extension-card-bought__info-price').text()).toBe('Current subscription billing text');
+    });
+
+    it('should ask for confirmation before deactivating a rented extension', async () => {
+        const deactivateExtension = jest
+            .spyOn(Shopware.Service('shopwareExtensionService'), 'deactivateExtension')
+            .mockResolvedValue();
+        const wrapper = await createWrapper(createExtension({ storeLicense: { expirationDate: null } }));
+
+        await wrapper.vm.changeExtensionStatus();
+        await flushPromises();
+
+        const modal = wrapper.find('sw-extension-deactivation-modal-stub');
+        expect(modal.exists()).toBe(true);
+        expect(modal.attributes('extension-name')).toBe('Test extension label');
+        expect(modal.attributes('is-licensed')).toBe('true');
+        expect(deactivateExtension).not.toHaveBeenCalled();
+    });
+
+    it('should tell the deactivation modal that a rented extension managed by Composer cannot be removed', async () => {
+        const wrapper = await createWrapper(
+            createExtension({
+                source: 'local',
+                installedAt: { date: '2026-09-02T10:00:00+00:00' },
+                active: true,
+                allowDisable: true,
+                managedByComposer: true,
+                allowRemove: false,
+                storeLicense: { expirationDate: null },
+            }),
+        );
+
+        await wrapper.get('.sw-extension-card-base__switch .mt-switch input[type="checkbox"]').trigger('change');
+        await flushPromises();
+
+        expect(wrapper.get('sw-extension-deactivation-modal-stub').attributes('has-deletable-files')).toBe('false');
+    });
+
+    it('should deactivate a rented extension with a cancelled subscription right away', async () => {
+        const deactivateExtension = jest
+            .spyOn(Shopware.Service('shopwareExtensionService'), 'deactivateExtension')
+            .mockResolvedValue();
+        const wrapper = await createWrapper(
+            createExtension({ storeLicense: { expirationDate: '2026-12-01T00:00:00.000+00:00' } }),
+        );
+
+        await wrapper.vm.changeExtensionStatus();
+        await flushPromises();
+
+        expect(wrapper.find('sw-extension-deactivation-modal-stub').exists()).toBe(false);
+        expect(deactivateExtension).toHaveBeenCalledWith('Test extension', 'app');
+    });
+
+    it('should deactivate an extension without a rent license right away', async () => {
+        const deactivateExtension = jest
+            .spyOn(Shopware.Service('shopwareExtensionService'), 'deactivateExtension')
+            .mockResolvedValue();
+        const wrapper = await createWrapper(createExtension({ storeLicense: { variant: 'buy' } }));
+
+        await wrapper.vm.changeExtensionStatus();
+        await flushPromises();
+
+        expect(wrapper.find('sw-extension-deactivation-modal-stub').exists()).toBe(false);
+        expect(deactivateExtension).toHaveBeenCalledWith('Test extension', 'app');
     });
 
     describe('test display of rent and trail phase information', () => {

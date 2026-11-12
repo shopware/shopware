@@ -12,6 +12,7 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
@@ -37,6 +38,13 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\Sty
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\CandidateOrigin;
 use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
@@ -1552,6 +1560,186 @@ class LayoutDiagnosticsTest extends TestCase
         yield 'empty string counts as filled (null is the sole empty sentinel)' => [''];
     }
 
+    #[DataProvider('requiredReferenceMappingSources')]
+    public function testRequiredMappedReferenceReportsMappingIntentAndRetainsAdmissionErrors(MappingSourceReference $source, bool $offered): void
+    {
+        $element = StoredElementBuilder::create('Sw:MappedReference', 'el-1')
+            ->withConsumer('product', ContextType::Single, scope: ConsumerScope::Root, source: $source)
+            ->build();
+        $specification = ContentSystemElementTypeSpecificationBuilder::create('Sw:MappedReference')
+            ->reference('product', SalesChannelProductEntity::class, required: true, mappable: true)
+            ->build();
+        $candidate = new MappingCandidate($source->displayName(), 'Product', '', 'basic', SalesChannelProductEntity::class, source: $source);
+        $analysis = $this->diagnostics(
+            ['Sw:MappedReference' => $specification],
+            candidates: $offered ? [$source->displayName() => $candidate] : [],
+        )->analyze([$element], [], 'product');
+
+        $resolved = $analysis->resolutions['el-1'][0]->resolved;
+        static::assertNotNull($resolved);
+        static::assertSame(CandidateOrigin::Root, $resolved->origin);
+        static::assertSame($source->displayName(), $resolved->contextKey);
+        static::assertSame($offered ? [] : [ViolationCode::InvalidMapping], array_column($analysis->report->bindingErrors(), 'code'));
+    }
+
+    /**
+     * @return iterable<string, array{MappingSourceReference, bool}>
+     */
+    public static function requiredReferenceMappingSources(): iterable
+    {
+        $root = MappingSourceReference::root('product');
+        $plugin = new MappingSourceReference('AcmePlugin', 'selection', path: 'item');
+        yield 'admitted root mapping' => [$root, true];
+        yield 'admitted plugin mapping' => [$plugin, true];
+        yield 'unavailable root mapping remains invalid' => [$root, false];
+        yield 'unavailable plugin mapping remains invalid' => [$plugin, false];
+    }
+
+    public function testRequiredMappedPrimitiveStillNeedsAuthoredValue(): void
+    {
+        $source = MappingSourceReference::root('product', 'name');
+        $element = StoredElementBuilder::create('Sw:MappedPrimitive', 'el-1')
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: $source)
+            ->build();
+        $specification = ContentSystemElementTypeSpecificationBuilder::create('Sw:MappedPrimitive')
+            ->primitive('text', 'string', required: true, mappable: true)
+            ->build();
+        $candidate = new MappingCandidate($source->displayName(), 'Name', '', 'basic', 'string', source: $source);
+
+        $analysis = $this->diagnostics(
+            ['Sw:MappedPrimitive' => $specification],
+            candidates: [$source->displayName() => $candidate],
+        )->analyze([$element], [], 'product');
+
+        $resolved = $analysis->resolutions['el-1'][0]->resolved;
+        static::assertNotNull($resolved);
+        static::assertSame(CandidateOrigin::Root, $resolved->origin);
+        static::assertSame([ViolationCode::UnresolvedRequired], array_column($analysis->report->bindingErrors(), 'code'));
+    }
+
+    /**
+     * Editor diagnostics reports an inadmissible mapping before an author attempts to save it.
+     */
+    #[TestDox('reports an inadmissible mapping as a binding error when handed a root source')]
+    public function testMappingViolationIsReportedForABoundRootSource(): void
+    {
+        $report = $this->diagnoseMapping('category.name', rootSource: 'category')->report;
+
+        static::assertCount(1, $report->bindingErrors());
+        static::assertSame(ViolationCode::InvalidMapping, $report->bindingErrors()[0]->code);
+        static::assertSame('el-1', $report->bindingErrors()[0]->elementId);
+        // Keyed on the property rather than on the mapped path, so the entry names the control the author
+        // acted on and the Administration can mark it.
+        static::assertSame('text', $report->bindingErrors()[0]->key);
+    }
+
+    #[TestDox('reports an uncatalogued inline mapping token as a binding error')]
+    public function testUncataloguedInlineMappingIsReported(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Content:Text', 'el-1')
+            ->withProperties(['text' => 'Buy {{map:product.secret}}'])
+            ->build();
+
+        $report = $this->diagnostics([
+            'Sw:Content:Text' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')
+                ->primitive('text', 'string', inlineMappable: true)
+                ->build(),
+        ])->analyze([$element], [], 'product')->report;
+
+        static::assertCount(1, $report->bindingErrors());
+        static::assertSame(ViolationCode::InvalidMapping, $report->bindingErrors()[0]->code);
+        static::assertSame('el-1', $report->bindingErrors()[0]->elementId);
+        static::assertSame('text', $report->bindingErrors()[0]->key);
+    }
+
+    public function testAdmitsACataloguedStringifiableInlineMapping(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Content:Text', 'el-1')
+            ->withProperty('text', 'Buy {{map:product.name}}')
+            ->build();
+        $specification = ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')
+            ->primitive('text', 'string', inlineMappable: true)
+            ->build();
+        $candidate = new MappingCandidate('product.name', 'Name', '', 'basic', 'string');
+
+        $report = $this->diagnostics(
+            ['Sw:Content:Text' => $specification],
+            candidates: [$candidate->path => $candidate],
+        )->analyze([$element], [], 'product')->report;
+
+        static::assertSame([], $report->bindingErrors());
+        static::assertTrue($report->isResolvable());
+    }
+
+    #[TestDox('admits a mapping the catalogue offers for the bound root source')]
+    public function testCataloguedMappingIsAdmitted(): void
+    {
+        $catalogued = [
+            'category.name' => new MappingCandidate(
+                path: 'category.name',
+                label: 'a label',
+                description: 'a description',
+                group: 'basic',
+                valueType: 'string',
+            ),
+        ];
+
+        $report = $this->diagnoseMapping('category.name', rootSource: 'category', candidates: $catalogued)->report;
+
+        static::assertSame([], $report->bindingErrors());
+    }
+
+    /**
+     * The one reason the source is a separate argument rather than something the analysis derives: a mapping
+     * is admissible only against a particular catalogue, and a caller without a source id — the write gate's
+     * well-formedness pass, `DraftLayoutChecker` — has nothing to judge it against and must not guess.
+     */
+    #[TestDox('leaves a whole-field mapping unjudged when no root source is given')]
+    public function testWholeFieldMappingIsUnjudgedWithoutARootSource(): void
+    {
+        $report = $this->diagnoseMapping('category.name', rootSource: null)->report;
+
+        static::assertSame([], $report->bindingErrors());
+        static::assertTrue($report->isWellFormed());
+    }
+
+    #[TestDox('reports an inline mapping token when no root source is bound')]
+    public function testInlineMappingRequiresRootSource(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Content:Text', 'el-1')
+            ->withProperties(['text' => 'Buy {{map:product.name}}'])
+            ->build();
+
+        $report = $this->diagnostics([
+            'Sw:Content:Text' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')
+                ->primitive('text', 'string', inlineMappable: true)
+                ->build(),
+        ])->analyze([$element], null)->report;
+
+        static::assertCount(1, $report->bindingErrors());
+        static::assertSame(ViolationCode::InvalidMapping, $report->bindingErrors()[0]->code);
+        static::assertSame('text', $report->bindingErrors()[0]->key);
+        static::assertStringContainsString('requires a layout with a bound root source', $report->bindingErrors()[0]->message);
+        static::assertTrue($report->isWellFormed());
+    }
+
+    #[TestDox('does not report a missing root source when a bound source provides no context values')]
+    public function testInlineMappingDoesNotRequireRootSourceWhenBoundContextIsEmpty(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Content:Text', 'el-1')
+            ->withProperties(['text' => 'Buy {{map:product.name}}'])
+            ->build();
+
+        $report = $this->diagnostics([
+            'Sw:Content:Text' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')
+                ->primitive('text', 'string', inlineMappable: true)
+                ->build(),
+        ])->analyze([$element], [])->report;
+
+        static::assertSame([], $report->bindingErrors());
+        static::assertTrue($report->isWellFormed());
+    }
+
     /**
      * @return iterable<string, array{string, bool, array<string, int|bool>|int}>
      */
@@ -1606,6 +1794,23 @@ class LayoutDiagnosticsTest extends TestCase
         // that call would hide.
         yield 'a bare string' => ['Hallo', 'string'];
         yield 'a present null' => [null, 'null'];
+    }
+
+    /**
+     * @param array<string, MappingCandidate> $candidates defaults to an empty catalogue, so the path below is uncatalogued
+     */
+    private function diagnoseMapping(string $path, ?string $rootSource, array $candidates = []): LayoutAnalysis
+    {
+        $element = StoredElementBuilder::create('Sw:Content:Text', 'el-1')
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath($path))
+            ->build();
+
+        return $this->diagnostics(
+            ['Sw:Content:Text' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')
+                ->primitive('text', 'string', mappable: true)
+                ->build()],
+            candidates: $candidates,
+        )->analyze([$element], [], $rootSource);
     }
 
     /**
@@ -1673,6 +1878,7 @@ class LayoutDiagnosticsTest extends TestCase
 
     /**
      * @param array<string, ContentSystemElementTypeSpecification> $specs
+     * @param array<string, MappingCandidate>|null $candidates the mapping catalogue, read only by an analyze() call that passes a root source
      */
     private function diagnostics(
         array $specs,
@@ -1681,6 +1887,7 @@ class LayoutDiagnosticsTest extends TestCase
         ?DataLoaderProvider $loaderProvider = null,
         ?AbstractContentSystemStyleOptionRegistry $styleOptionRegistry = null,
         ?LanguageLoaderInterface $languageLoader = null,
+        ?array $candidates = null,
     ): LayoutDiagnostics {
         $registry = $this->registry($specs);
 
@@ -1697,10 +1904,13 @@ class LayoutDiagnosticsTest extends TestCase
             $typeResolver,
             $serializers,
             $loaderProvider,
+            new MappingConsumers(),
         );
 
+        $mappingInspector = $this->mappingInspector($registry, $candidates ?? []);
+
         return new LayoutDiagnostics(
-            new AvailableContextResolver($registry, $elementResolver, new ProviderDeliveryKeyResolver(), new ContextPathResolver()),
+            new AvailableContextResolver($registry, $elementResolver, new ProviderDeliveryKeyResolver(), new ContextPathResolver(), $mappingInspector),
             $elementResolver,
             $registry,
             new RootContextMapper($loaderProvider),
@@ -1709,6 +1919,28 @@ class LayoutDiagnosticsTest extends TestCase
             $styleOptionRegistry ?? $this->styleOptionRegistry([]),
             new ContextPathResolver(),
             $languageLoader ?? $this->languageLoader(),
+            new MappingConsumers(),
+            $mappingInspector,
+        );
+    }
+
+    /**
+     * Reached only by an analyze() call that passes a root source; every other test here passes two
+     * arguments and never touches it.
+     *
+     * @param array<string, MappingCandidate> $candidates
+     */
+    private function mappingInspector(AbstractContentSystemElementTypeRegistry $registry, array $candidates): StoredMappingInspector
+    {
+        $candidateRegistry = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidateRegistry->method('forRootSource')->willReturnCallback(static fn (string $rootSource): array => array_filter($candidates, static fn (MappingCandidate $candidate): bool => $candidate->source->type !== 'root' || $candidate->source->id === $rootSource));
+
+        return new StoredMappingInspector(
+            $registry,
+            $candidateRegistry,
+            new MappingTypeCompatibility(),
+            new MappingConsumers(),
+            new InlineMappingTokenParser(),
         );
     }
 

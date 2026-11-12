@@ -19,10 +19,7 @@ export default {
         'filterService',
     ],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
 
     data() {
         return {
@@ -50,6 +47,10 @@ export default {
     computed: {
         getRuleDefinition() {
             return Shopware.EntityDefinition.get('rule');
+        },
+
+        hasActiveSearchOrFilter() {
+            return this.activeFilterNumber > 0 || this.isValidTerm(this.term);
         },
 
         ruleRepository() {
@@ -139,10 +140,7 @@ export default {
         listCriteria() {
             const criteria = new Criteria(this.page, this.limit);
             criteria.setTerm(this.term);
-            const naturalSort = [
-                'createdAt',
-                'updatedAt',
-            ].includes(this.sortBy);
+            const naturalSort = ['createdAt', 'updatedAt'].includes(this.sortBy);
             const sorting = Criteria.sort(this.sortBy, this.sortDirection, naturalSort);
 
             criteria.addSorting(sorting);

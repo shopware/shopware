@@ -42,6 +42,7 @@ class Action extends XmlElement
     public function toArray(string $defaultLocale): array
     {
         $data = parent::toArray($defaultLocale);
+        $meta = $this->meta->toArray($defaultLocale);
 
         return array_merge($data, [
             'name' => $this->meta->getName(),
@@ -49,12 +50,15 @@ class Action extends XmlElement
             'url' => $this->meta->getUrl(),
             'delayable' => $this->meta->getDelayable(),
             'parameters' => $this->normalizeParameters(),
-            'config' => array_map(static fn (InputField $config) => $config->jsonSerialize(), $this->config->getConfig()),
+            'config' => array_map(
+                static fn (InputField $config) => [...$config->jsonSerialize(), ...$config->toArray($defaultLocale)],
+                $this->config->getConfig()
+            ),
             'headers' => array_map(static fn (Parameter $header) => $header->jsonSerialize(), $this->headers->getParameters()),
             'requirements' => $this->meta->getRequirements(),
-            'label' => $this->meta->getLabel(),
-            'description' => $this->meta->getDescription(),
-            'headline' => $this->meta->getHeadline(),
+            'label' => $meta['label'],
+            'description' => $meta['description'],
+            'headline' => $meta['headline'],
         ]);
     }
 

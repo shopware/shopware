@@ -12,19 +12,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'liveSearchService',
-    ],
+    inject: ['repositoryFactory', 'liveSearchService'],
 
-    emits: [
-        'live-search-results-change',
-        'sales-channel-change',
-    ],
+    emits: ['live-search-results-change', 'sales-channel-change'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         currentSalesChannelId: {
@@ -49,6 +41,9 @@ export default {
     data() {
         return {
             liveSearchTerm: '',
+            /**
+             * @deprecated tag:v6.8.0 - Will be removed, the sales channel select loads its options itself
+             */
             salesChannels: [],
             salesChannelId: this.currentSalesChannelId,
             productSortings: [],
@@ -60,6 +55,9 @@ export default {
     },
 
     computed: {
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, the sales channel select loads its options itself
+         */
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
         },
@@ -118,7 +116,9 @@ export default {
 
     methods: {
         createdComponent() {
-            this.fetchSalesChannels();
+            if (!Shopware.Feature.isActive('V6_8_0_0')) {
+                this.fetchSalesChannels();
+            }
             this.fetchProductSortings();
             this.liveSearchTerm = this.searchTerms;
             this.liveSearchResults = this.searchResults;
@@ -156,6 +156,9 @@ export default {
                 });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, the sales channel select loads its options itself
+         */
         fetchSalesChannels() {
             this.salesChannelRepository.search(new Criteria(1, 25)).then((response) => {
                 this.salesChannels = response;

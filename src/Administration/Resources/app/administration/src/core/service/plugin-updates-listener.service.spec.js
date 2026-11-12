@@ -41,13 +41,7 @@ describe('src/core/service/plugin-update-listener.service.ts', () => {
             return false;
         });
 
-        addPluginUpdatesListener(
-            null,
-            createServiceContainer([
-                'plugin:update',
-                'app.all',
-            ]),
-        );
+        addPluginUpdatesListener(null, createServiceContainer(['plugin:update', 'app.all']));
         Shopware.Store.get('session').setCurrentUser({
             firstName: 'userFirstName',
         });
@@ -63,13 +57,7 @@ describe('src/core/service/plugin-update-listener.service.ts', () => {
         // This is to simplify the retrieval of the notification
         jest.spyOn(Shopware.Utils, 'createId').mockImplementation(() => 'jest');
 
-        addPluginUpdatesListener(
-            null,
-            createServiceContainer([
-                'plugin:update',
-                'app.all',
-            ]),
-        );
+        addPluginUpdatesListener(null, createServiceContainer(['plugin:update', 'app.all']));
 
         Shopware.Store.get('session').setCurrentUser({
             firstName: 'userFirstName',

@@ -2,7 +2,9 @@ meta:
   label: "Product Quantity Selector"
   description: "Allows customers to select the purchase quantity of the current product on the product detail page."
   icon: "regular-list-numbered-xs"
+  illustration: "product-quantity"
   category: "commerce"
+  priority: 79
   copilot:
     summary: "Product purchase quantity selector."
     hints:
@@ -15,3 +17,11 @@ properties:
     required: false
     title: "Product"
     description: "Hydrated product that provides the purchase quantity constraints; resolved from the current product context. Optional because a product context may be unavailable, for example outside a product detail page; in that case, the component renders a fallback message."
+    resolvedBy: productId
+    mappable: true
+    defaultMapping:
+      type: root
+      id: product
+    adminUI:
+      component: "entity-single-select"
+      entity: "product"

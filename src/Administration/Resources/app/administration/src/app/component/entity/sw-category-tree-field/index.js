@@ -122,10 +122,7 @@ export default {
                 const pathIds = item.path ? item.path.split('|').filter((pathId) => pathId.length > 0) : '';
 
                 // add parent id to accumulator
-                return [
-                    ...acc,
-                    ...pathIds,
-                ];
+                return [...acc, ...pathIds];
             }, []);
         },
 
@@ -405,6 +402,21 @@ export default {
 
         closeDropdown() {
             this.isExpanded = false;
+        },
+
+        toggleDropdown({ setFocusClass, removeFocusClass }) {
+            if (this.disabled) {
+                return;
+            }
+
+            if (this.isExpanded) {
+                this.closeDropdown();
+
+                return;
+            }
+
+            this.openDropdown({ setFocusClass, removeFocusClass });
+            this.$refs.searchInput.focus();
         },
 
         closeDropdownOnClickOutside(event) {

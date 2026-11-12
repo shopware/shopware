@@ -2,6 +2,7 @@ import template from './sw-media-upload-v2.html.twig';
 import './sw-media-upload-v2.scss';
 
 const { Mixin, Context } = Shopware;
+const { Criteria } = Shopware.Data;
 const { fileReader } = Shopware.Utils;
 const { fileSize } = Shopware.Utils.format;
 const INPUT_TYPE_FILE_UPLOAD = 'file-upload';
@@ -40,17 +41,11 @@ export default {
         'media-upload-add-file',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         source: {
-            type: [
-                Object,
-                String,
-                File,
-            ],
+            type: [Object, String, File],
             required: false,
             default: null,
         },
@@ -58,17 +53,9 @@ export default {
         variant: {
             type: String,
             required: false,
-            validValues: [
-                'compact',
-                'regular',
-                'small',
-            ],
+            validValues: ['compact', 'regular', 'small'],
             validator(value) {
-                return [
-                    'compact',
-                    'regular',
-                    'small',
-                ].includes(value);
+                return ['compact', 'regular', 'small'].includes(value);
             },
             default: 'regular',
         },
@@ -305,10 +292,7 @@ export default {
 
         mountedComponent() {
             if (this.$refs.dropzone) {
-                [
-                    'dragover',
-                    'drop',
-                ].forEach((event) => {
+                ['dragover', 'drop'].forEach((event) => {
                     window.addEventListener(event, this.stopEventPropagation, false);
                 });
                 this.$refs.dropzone.addEventListener('drop', this.onDrop);
@@ -324,10 +308,7 @@ export default {
             this.mediaService.removeByTag(this.uploadTag);
             this.mediaService.removeListener(this.uploadTag, this.handleMediaServiceUploadEvent);
 
-            [
-                'dragover',
-                'drop',
-            ].forEach((event) => {
+            ['dragover', 'drop'].forEach((event) => {
                 window.removeEventListener(event, this.stopEventPropagation, false);
             });
             if (this.$refs.dropzone) {
@@ -485,10 +466,7 @@ export default {
                 }
 
                 if (this.addFilesOnMultiselect) {
-                    this.preview = [
-                        ...this.preview,
-                        ...newMediaFiles,
-                    ];
+                    this.preview = [...this.preview, ...newMediaFiles];
                 } else {
                     this.preview = newMediaFiles;
                 }
@@ -556,20 +534,25 @@ export default {
             const pendingIds = Array.from(this.pendingUploadMediaIds);
             this.pendingUploadMediaIds.clear();
 
-            pendingIds.forEach((mediaId) => {
-                Promise.resolve()
-                    .then(() => this.mediaRepository.get(mediaId, Context.api))
-                    .then((media) => {
-                        if (media && !media.hasFile) {
-                            return this.mediaRepository.delete(mediaId, Context.api);
-                        }
+            const criteria = new Criteria(1, pendingIds.length);
+            criteria.setIds(pendingIds);
 
+            Promise.resolve()
+                .then(() => this.mediaRepository.search(criteria, Context.api))
+                .then((mediaItems) => {
+                    const orphanedIds = Array.from(mediaItems)
+                        .filter((media) => !media.hasFile)
+                        .map((media) => media.id);
+
+                    if (orphanedIds.length === 0) {
                         return null;
-                    })
-                    .catch((error) => {
-                        Shopware.Utils.debug.warn('sw-media-upload-v2', 'Failed to clean up orphaned media', mediaId, error);
-                    });
-            });
+                    }
+
+                    return this.mediaRepository.syncDeleted(orphanedIds, Context.api);
+                })
+                .catch((error) => {
+                    Shopware.Utils.debug.warn('sw-media-upload-v2', 'Failed to clean up orphaned media', pendingIds, error);
+                });
         },
 
         async getDefaultFolderId() {

@@ -43,6 +43,31 @@ class ContentSystemExceptionTest extends TestCase
         );
     }
 
+    /**
+     * @param \Closure(ConstraintViolationList): ContentSystemException $factory
+     */
+    #[DataProvider('definitionValidationFailureProvider')]
+    #[TestDox('classifies $_dataName')]
+    public function testDefinitionValidationFailureClassification(
+        \Closure $factory,
+        int $expectedStatus,
+        string $expectedErrorCode,
+    ): void {
+        $violations = new ConstraintViolationList([
+            new ConstraintViolation('must not be blank', null, [], null, 'definitions[first].label', null),
+            new ConstraintViolation('is invalid', null, [], null, 'definitions[second].type', null),
+        ]);
+
+        $exception = $factory($violations);
+
+        static::assertSame($expectedStatus, $exception->getStatusCode());
+        static::assertSame($expectedErrorCode, $exception->getErrorCode());
+        static::assertStringContainsString(
+            'definitions[first].label: must not be blank; definitions[second].type: is invalid',
+            $exception->getMessage(),
+        );
+    }
+
     #[DataProvider('classifiesClientDefectProvider')]
     #[TestDox('classifies $_dataName')]
     public function testIsClientDefect(\Throwable $exception, bool $isClientDefect): void
@@ -73,6 +98,7 @@ class ContentSystemExceptionTest extends TestCase
             'CONTENT_SYSTEM__PROVIDER_DELIVERY_COLLISION',
             'CONTENT_SYSTEM__INVALID_MAP_KEY',
             'CONTENT_SYSTEM__INVALID_ELEMENT_ID',
+            'CONTENT_SYSTEM__BOX_SPACING_INVALID_VALUE',
         ];
 
         $actual = ContentSystemException::CLIENT_DEFECT_CODES;
@@ -267,12 +293,51 @@ class ContentSystemExceptionTest extends TestCase
         // Every client-supplied path rejects a non-map value on a translatable property before serving, so a
         // value reaching language reduction with one is an internal fault on the same argument.
         yield 'an invalid translation shape as an internal fault' => [ContentSystemException::translationShapeInvalid('el-1', 'text', 'string (translatable)', 'string'), false];
+        yield 'an inline expansion resource limit as an internal fault' => [ContentSystemException::inlineMappingExpansionTooLarge(1048576, 'property'), false];
+        yield 'an unbound internal mapping operation as an internal fault' => [ContentSystemException::mappingRootSourceMissing('element-1', 'text'), false];
         // The two halves of the split: an HTTP 500 that is nonetheless a client defect, so the strict draft
         // decode turns it into a 400 and the lintable one collects it as a 200 violation, while the
         // stored-column read keeps the fault status.
         yield 'an invalid element id as a client defect despite its 500' => [ContentSystemException::invalidElementId('12', 'reads as an integer'), true];
+        yield 'a box-spacing input failure as a client defect' => [ContentSystemException::boxSpacingInvalidValue('trim', 'x'), true];
         // Only a content-system exception can be a client defect, whatever its message says.
         yield 'a non content-system throwable as an internal fault' => [new \RuntimeException('boom'), false];
+    }
+
+    /**
+     * @return iterable<string, array{\Closure(ConstraintViolationList): ContentSystemException, int, string}>
+     */
+    public static function definitionValidationFailureProvider(): iterable
+    {
+        yield 'an element-type request validation failure as a client error' => [
+            static fn (ConstraintViolationList $violations): ContentSystemException => ContentSystemException::elementTypesInvalid($violations),
+            Response::HTTP_BAD_REQUEST,
+            ContentSystemException::ELEMENT_TYPES_INVALID,
+        ];
+
+        yield 'a preset load validation failure as a server error' => [
+            static fn (ConstraintViolationList $violations): ContentSystemException => ContentSystemException::layoutPresetsInvalid($violations),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            ContentSystemException::LAYOUT_PRESETS_INVALID,
+        ];
+
+        yield 'an element-type load validation failure as a server error' => [
+            static fn (ConstraintViolationList $violations): ContentSystemException => ContentSystemException::elementTypeLoadFailed('test definitions', ContentSystemException::violationMessages($violations)),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            ContentSystemException::ELEMENT_TYPE_LOAD_FAILED,
+        ];
+
+        yield 'a style-option load validation failure as a server error' => [
+            static fn (ConstraintViolationList $violations): ContentSystemException => ContentSystemException::styleOptionLoadFailed('test definitions', ContentSystemException::violationMessages($violations)),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            ContentSystemException::STYLE_OPTION_LOAD_FAILED,
+        ];
+
+        yield 'a binding load validation failure as a server error' => [
+            static fn (ConstraintViolationList $violations): ContentSystemException => ContentSystemException::bindingSpecificationLoadFailed('test definitions', ContentSystemException::violationMessages($violations)),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            ContentSystemException::BINDING_SPECIFICATION_LOAD_FAILED,
+        ];
     }
 
     /**
@@ -280,6 +345,83 @@ class ContentSystemExceptionTest extends TestCase
      */
     public static function producesCorrectStatusAndErrorCodeProvider(): iterable
     {
+        yield 'an unbound internal mapping operation' => [
+            ContentSystemException::mappingRootSourceMissing('element-1', 'text'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__MAPPING_ROOT_SOURCE_MISSING',
+            'Mapping property "text" on element "element-1" requires a bound layout root source.',
+        ];
+
+        yield 'inline expansion limit is a render fault' => [
+            ContentSystemException::inlineMappingExpansionTooLarge(1048576, 'property'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__INLINE_MAPPING_EXPANSION_TOO_LARGE',
+            '1048576 bytes per property',
+        ];
+
+        yield 'inline input limit remains a validation failure' => [
+            ContentSystemException::inlineMappingInputTooLarge(262144),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__INLINE_MAPPING_INPUT_TOO_LARGE',
+            '262144 bytes',
+        ];
+
+        yield 'inline token scan failure is a server fault' => [
+            ContentSystemException::inlineMappingParsingFailed('scan tokens in', 'Backtrack limit exhausted'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__INLINE_MAPPING_PARSING_FAILED',
+            'Could not scan tokens in inline mapping text: Backtrack limit exhausted.',
+        ];
+
+        yield 'inline path validation failure is a server fault' => [
+            ContentSystemException::inlineMappingParsingFailed('validate a path in', 'Backtrack limit exhausted'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__INLINE_MAPPING_PARSING_FAILED',
+            'Could not validate a path in inline mapping text: Backtrack limit exhausted.',
+        ];
+
+        yield 'box-spacing input limit' => [
+            ContentSystemException::boxSpacingInvalidValue('trim', 'x'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__BOX_SPACING_INVALID_VALUE',
+            'exceeds the supported input limits',
+        ];
+
+        yield 'box-spacing engine failure' => [
+            ContentSystemException::boxSpacingTokenizationFailed('split', 'x', 'Internal error'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__BOX_SPACING_TOKENIZATION_FAILED',
+            'Could not split a box-spacing value',
+        ];
+
+        yield 'style filename' => [
+            ContentSystemException::styleOptionInvalidFilename('Bad', 'Bad.yaml'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__STYLE_OPTION_INVALID_FILENAME',
+            'Bad',
+        ];
+
+        yield 'preset filename' => [
+            ContentSystemException::layoutPresetInvalidFilename('Bad', 'Bad.yaml'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__LAYOUT_PRESET_INVALID_FILENAME',
+            'Bad',
+        ];
+
+        yield 'unknown binding type' => [
+            ContentSystemException::bindingSpecificationUnknownType('binding', 'Unknown'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__BINDING_SPECIFICATION_UNKNOWN_TYPE',
+            'Unknown',
+        ];
+
+        yield 'binding canonicalization' => [
+            ContentSystemException::bindingSpecificationCanonicalizationFailed('binding', 'invalid sugar'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__BINDING_SPECIFICATION_CANONICALIZATION_FAILED',
+            'invalid sugar',
+        ];
+
         yield 'data loader not registered' => [
             ContentSystemException::dataLoaderNotRegistered('product', 'Sw:Product:Card', 'elem-1'),
             Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -495,21 +637,9 @@ class ContentSystemExceptionTest extends TestCase
             'Sw:Product:Card',
         ];
 
-        yield 'element types invalid with batch violations' => [
-            ContentSystemException::elementTypesInvalid(
-                new ConstraintViolationList([
-                    new ConstraintViolation('must not be blank', null, [], null, '[Sw:Bad:A].label', null),
-                    new ConstraintViolation('too short', null, [], null, '[Sw:Bad:B].description', null),
-                ])
-            ),
-            Response::HTTP_BAD_REQUEST,
-            'CONTENT_SYSTEM__ELEMENT_TYPES_INVALID',
-            '[Sw:Bad:A].label: must not be blank; [Sw:Bad:B].description: too short',
-        ];
-
         yield 'element type invalid filename' => [
             ContentSystemException::elementTypeInvalidFilename('bad segment', 'path/to/file.yaml'),
-            Response::HTTP_BAD_REQUEST,
+            Response::HTTP_INTERNAL_SERVER_ERROR,
             'CONTENT_SYSTEM__ELEMENT_TYPE_INVALID_FILENAME',
             'bad segment',
         ];
@@ -559,17 +689,6 @@ class ContentSystemExceptionTest extends TestCase
             Response::HTTP_INTERNAL_SERVER_ERROR,
             'CONTENT_SYSTEM__BINDING_SPECIFICATION_LOAD_FAILED',
             '/path/x.yaml',
-        ];
-
-        yield 'binding specifications invalid' => [
-            ContentSystemException::bindingSpecificationsInvalid(
-                new ConstraintViolationList([
-                    new ConstraintViolation('must not be blank', null, [], null, 'resolves[media]', null),
-                ])
-            ),
-            Response::HTTP_BAD_REQUEST,
-            'CONTENT_SYSTEM__BINDING_SPECIFICATIONS_INVALID',
-            'resolves[media]',
         ];
 
         yield 'binding specification not found' => [
@@ -674,6 +793,27 @@ class ContentSystemExceptionTest extends TestCase
             Response::HTTP_CONFLICT,
             'CONTENT_SYSTEM__LAYOUT_PRESET_DUPLICATE',
             'hero-preset',
+        ];
+
+        yield 'layout preset circular reference' => [
+            ContentSystemException::layoutPresetCircularReference(['App:A', 'App:B', 'App:A']),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__LAYOUT_PRESET_CIRCULAR_REFERENCE',
+            'Layout preset "App:A" has a circular reference: App:A -> App:B -> App:A',
+        ];
+
+        yield 'layout preset unknown reference' => [
+            ContentSystemException::layoutPresetUnknownReference('App:Missing', ['App:A', 'App:B']),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__LAYOUT_PRESET_UNKNOWN_REFERENCE',
+            'Layout preset "App:A" references unknown preset "App:Missing" via App:A -> App:B -> App:Missing',
+        ];
+
+        yield 'layout preset too many references' => [
+            ContentSystemException::layoutPresetTooManyReferences('App:A', 1000),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__LAYOUT_PRESET_TOO_MANY_REFERENCES',
+            'Layout preset "App:A" reaches the limit of 1000 nested presets',
         ];
 
         yield 'style option duplicate' => [

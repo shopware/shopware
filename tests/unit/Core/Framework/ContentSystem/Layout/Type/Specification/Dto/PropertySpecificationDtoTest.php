@@ -27,6 +27,22 @@ class PropertySpecificationDtoTest extends TestCase
             ->getValidator();
     }
 
+    public function testDefaultMappingSchemaKeepsItsPathAndConfiguration(): void
+    {
+        $source = ['type' => 'ExamplePlugin', 'id' => 'recommendation', 'path' => 'title', 'config' => ['variant' => 'featured']];
+        $dto = new PropertySpecificationDto('title', 'string', false, false, 'Title', 'Mapped title', null, null, null, mappable: true, defaultMapping: $source);
+
+        $schema = $dto->toPropertySpecification()->toSchema();
+
+        static::assertNotNull($schema['defaultMapping']);
+        static::assertArrayHasKey('path', $schema['defaultMapping']);
+        static::assertArrayHasKey('config', $schema['defaultMapping']);
+        static::assertSame('ExamplePlugin', $schema['defaultMapping']['type']);
+        static::assertSame('recommendation', $schema['defaultMapping']['id']);
+        static::assertSame('title', $schema['defaultMapping']['path']);
+        static::assertSame(['variant' => 'featured'], $schema['defaultMapping']['config']);
+    }
+
     #[TestDox('accepts valid property with all required fields')]
     public function testAcceptsValidProperty(): void
     {

@@ -13,24 +13,15 @@ import template from './sw-media-url-form.html.twig';
 export default {
     template,
 
-    emits: [
-        'media-url-form-submit',
-        'modal-close',
-    ],
+    emits: ['media-url-form-submit', 'modal-close'],
 
     props: {
         variant: {
             type: String,
             required: true,
-            validValues: [
-                'modal',
-                'inline',
-            ],
+            validValues: ['modal', 'inline'],
             validator(value) {
-                return [
-                    'modal',
-                    'inline',
-                ].includes(value);
+                return ['modal', 'inline'].includes(value);
             },
             default: 'inline',
         },

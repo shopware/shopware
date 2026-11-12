@@ -31,7 +31,7 @@ All metrics must be pre-configured under the `shopware.telemetry.metrics.definit
 
 The `Meter` validates each metric against this merged configuration at emit time. In `dev`/`test` environments, an unconfigured metric throws a `MissingMetricConfigurationException`. In production the exception is logged at error level and the metric is dropped (not emitted to transports).
 
-A PHPStan rule (`NoUnconfiguredMetricAllowed`) additionally enforces at static analysis time that every `ConfiguredMetric` instantiation with a string-literal name has a matching definition in the configuration.
+A PHPStan rule (`NoUnconfiguredMetricAllowed`) additionally enforces at static analysis time that every `ConfiguredMetric` or `DurationMetric` instantiation with a string-literal name has a matching definition in the configuration.
 
 Example of adding metric definitions in a project or plugin:
 

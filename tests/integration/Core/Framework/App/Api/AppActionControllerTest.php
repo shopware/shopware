@@ -37,7 +37,7 @@ class AppActionControllerTest extends TestCase
 
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertArrayHasKey('actions', $response);
-        static::assertEmpty($response['actions']);
+        static::assertSame([], $response['actions']);
     }
 
     public function testGetActionsPerView(): void
@@ -129,7 +129,8 @@ class AppActionControllerTest extends TestCase
 
         static::assertEquals($expectedSource, $data['source']);
         static::assertEquals($expectedData, $data['data']);
-        static::assertNotEmpty($data['meta']['timestamp']);
+        static::assertIsInt($data['meta']['timestamp']);
+        static::assertGreaterThan(0, $data['meta']['timestamp']);
         static::assertTrue(Uuid::isValid($data['meta']['reference']));
     }
 

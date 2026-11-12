@@ -67,10 +67,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         const branches = wrapper.vm.mainMenuEntries.filter((entry) => (entry.children?.length ?? 0) > 0);
         expect(branches.length).toBeGreaterThanOrEqual(2);
 
-        const [
-            activeBranch,
-            otherBranch,
-        ] = branches;
+        const [activeBranch, otherBranch] = branches;
 
         wrapper.vm.$route.name = activeBranch.children[0].path;
         Shopware.Store.get('adminMenu').clearExpandedMenuEntries();
@@ -85,10 +82,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     it('should close a branch without an active child when another branch is opened', async () => {
         const branches = wrapper.vm.mainMenuEntries.filter((entry) => (entry.children?.length ?? 0) > 0);
 
-        const [
-            branchA,
-            branchB,
-        ] = branches;
+        const [branchA, branchB] = branches;
 
         wrapper.vm.$route.name = undefined;
         Shopware.Store.get('adminMenu').clearExpandedMenuEntries();
@@ -103,10 +97,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     it('should close the previous branch when the active item moves to another branch', async () => {
         const branches = wrapper.vm.mainMenuEntries.filter((entry) => (entry.children?.length ?? 0) > 0);
 
-        const [
-            branchA,
-            branchB,
-        ] = branches;
+        const [branchA, branchB] = branches;
 
         Shopware.Store.get('adminMenu').clearExpandedMenuEntries();
         wrapper.vm.activeBranchKey = null;
@@ -126,10 +117,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     it('should re-expand the branch owning the active route after it was collapsed manually', async () => {
         const branches = wrapper.vm.mainMenuEntries.filter((entry) => (entry.children?.length ?? 0) > 0);
 
-        const [
-            branchA,
-            branchB,
-        ] = branches;
+        const [branchA, branchB] = branches;
 
         Shopware.Store.get('adminMenu').clearExpandedMenuEntries();
         wrapper.vm.activeBranchKey = null;
@@ -156,7 +144,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
             aclRoles: [],
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const userTitle = wrapper.find('.sw-admin-menu__user-type');
 
@@ -169,7 +157,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
             title: 'Master of something',
             aclRoles: [],
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const userTitle = wrapper.find('.sw-admin-menu__user-type');
 
@@ -182,7 +170,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
             title: null,
             aclRoles: [],
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const userTitle = wrapper.find('.sw-admin-menu__user-type');
 
@@ -193,12 +181,10 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         Shopware.Store.get('session').setCurrentUser({
             admin: false,
             title: null,
-            aclRoles: [
-                { name: 'Copyreader' },
-            ],
+            aclRoles: [{ name: 'Copyreader' }],
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const userTitle = wrapper.find('.sw-admin-menu__user-type');
 
@@ -209,12 +195,12 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         jest.useFakeTimers();
 
         wrapper.vm.onViewportResize();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('aside.sw-admin-menu').classes()).toContain('is--viewport-resizing');
 
         jest.advanceTimersByTime(200);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('aside.sw-admin-menu').classes()).not.toContain('is--viewport-resizing');
 
@@ -230,12 +216,12 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         expect(isInert()).toBe(false);
 
         wrapper.vm.viewportWidth = 1280;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(isInert()).toBe(true);
 
         wrapper.vm.onToggleCanvas(true);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(isInert()).toBe(false);
     });
@@ -389,12 +375,12 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     it('should close the open off-canvas menu when the viewport grows past the breakpoint', async () => {
         wrapper.vm.viewportWidth = 1280;
         wrapper.vm.onToggleCanvas(true);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.isOffCanvasShown).toBe(true);
 
         wrapper.vm.viewportWidth = 1920;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.isOffCanvasShown).toBe(false);
     });

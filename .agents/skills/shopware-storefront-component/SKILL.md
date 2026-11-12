@@ -406,21 +406,32 @@ Component user interface should be build upon Bootstrap components. (Buttons, Mo
 
 ## Stories (Storybook)
 
+Declare Twig blocks in argTypes as `blocks.<blockName>` text controls (sharing names with props is allowed). In `args`, omit the block to keep its default, provide raw HTML to override it, or use `""` to clear it. Block values do not evaluate Twig syntax, overriding an outer block replaces all nested blocks, and all markup is filtered before rendering.
+
 ```json
 {
-    "title": "Sw/ProductCard",
+    "title": "Sw/Product/Card",
     "parameters": {
-        "server": { "id": "Sw:ProductCard" },
-        "template": "<twig:Sw:ProductCard :product=\"product\" />",
+        "server": { "id": "Sw:Product:Card" },
+        "template": "<twig:Sw:Product:Card :product=\"product\" />",
         "slots": [
             { "name": "media", "description": "Product image slot." }
         ]
     },
     "argTypes": {
-        "layout": { "control": "select", "options": ["default", "horizontal"], "description": "Card layout." }
+        "layout": { "control": "select", "options": ["default", "horizontal"], "description": "Card layout." },
+        "blocks.title": { "control": "text" },
+        "blocks.price": { "control": "text" }
     },
     "stories": [
-        { "name": "Default", "args": { "layout": "default" } }
+        {
+            "name": "Default",
+            "args": {
+                "product": {},
+                "layout": "default",
+                "blocks.title": "<strong>Product title</strong>"
+            }
+        }
     ]
 }
 ```

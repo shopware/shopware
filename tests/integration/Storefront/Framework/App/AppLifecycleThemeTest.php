@@ -19,13 +19,13 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\AppSystemTestBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 
 /**
  * @internal
@@ -50,8 +50,6 @@ class AppLifecycleThemeTest extends TestCase
 
     private AbstractAppLifecycle $appLifecycle;
 
-    private TraceableEventDispatcher $eventDispatcher;
-
     /**
      * @var EntityRepository<ThemeCollection>
      */
@@ -64,13 +62,12 @@ class AppLifecycleThemeTest extends TestCase
         $this->themeRepo = static::getContainer()->get('theme.repository', ContainerInterface::NULL_ON_INVALID_REFERENCE);
         $this->templateRepo = static::getContainer()->get('app_template.repository');
         $this->appLifecycle = static::getContainer()->get(AppLifecycle::class);
-        $this->eventDispatcher = static::getContainer()->get('event_dispatcher');
     }
 
     public function testAppWithAThemeInUseCannotBeDeactivated(): void
     {
         $context = Context::createDefaultContext();
-        $this->loadAppsFromDir(__DIR__ . '/../../Theme/fixtures/Apps/theme');
+        $this->loadAppsFromDir(__DIR__ . '/../../Theme/fixtures/Apps/SwagTheme');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', 'SwagTheme'));
         $themeId = $this->themeRepo->searchIds($criteria, $context)->firstId();
@@ -97,7 +94,7 @@ class AppLifecycleThemeTest extends TestCase
     public function testAppWithAChildThemeInUseCannotBeDeactivated(): void
     {
         $context = Context::createDefaultContext();
-        $this->loadAppsFromDir(__DIR__ . '/../../Theme/fixtures/Apps/theme');
+        $this->loadAppsFromDir(__DIR__ . '/../../Theme/fixtures/Apps/SwagTheme');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', 'SwagTheme'));
         $themeId = $this->themeRepo->searchIds($criteria, $context)->firstId();
@@ -136,7 +133,7 @@ class AppLifecycleThemeTest extends TestCase
 
     public function testAppWithAThemeCanBeDeactivated(): void
     {
-        $this->loadAppsFromDir(__DIR__ . '/../../Theme/fixtures/Apps/theme');
+        $this->loadAppsFromDir(__DIR__ . '/../../Theme/fixtures/Apps/SwagTheme');
         $context = Context::createDefaultContext();
 
         $criteria = new Criteria();
@@ -144,30 +141,27 @@ class AppLifecycleThemeTest extends TestCase
         $appId = $this->appRepo->searchIds($criteria, $context)->firstId();
         static::assertIsString($appId);
 
-        $eventWasReceived = false;
-        $onAppDeactivation = static function (AppDeactivatedEvent $event) use (&$eventWasReceived, $appId, $context): void {
-            $eventWasReceived = true;
-            static::assertSame($appId, $event->getApp()->getId());
-            static::assertSame($context, $event->getContext());
-        };
-        $this->eventDispatcher->addListener(AppDeactivatedEvent::class, $onAppDeactivation);
+        $receivedEvent = null;
+        EventHookDispatcher::fromContainer(static::getContainer())->on(AppDeactivatedEvent::class, static function (AppDeactivatedEvent $event) use (&$receivedEvent): void {
+            $receivedEvent = $event;
+        });
 
         $this->appLifecycle->deactivate($appId, $context);
 
-        static::assertTrue($eventWasReceived);
+        static::assertInstanceOf(AppDeactivatedEvent::class, $receivedEvent);
+        static::assertSame($appId, $receivedEvent->getApp()->getId());
+        static::assertSame($context, $receivedEvent->getContext());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', true));
 
         static::assertSame(0, $this->templateRepo->search($criteria, $context)->getTotal());
-
-        $this->eventDispatcher->removeListener(AppDeactivatedEvent::class, $onAppDeactivation);
     }
 
     public function testAppWithAThemeCanBeActivated(): void
     {
-        $this->loadAppsFromDir(__DIR__ . '/../../Theme/fixtures/Apps/theme', false);
+        $this->loadAppsFromDir(__DIR__ . '/../../Theme/fixtures/Apps/SwagTheme', false);
         $context = Context::createDefaultContext();
 
         $criteria = new Criteria();
@@ -175,17 +169,16 @@ class AppLifecycleThemeTest extends TestCase
         $appId = $this->appRepo->searchIds($criteria, $context)->firstId();
         static::assertIsString($appId);
 
-        $eventWasReceived = false;
-        $onAppActivation = static function (AppActivatedEvent $event) use (&$eventWasReceived, $appId, $context): void {
-            $eventWasReceived = true;
-            static::assertSame($appId, $event->getApp()->getId());
-            static::assertSame($context, $event->getContext());
-        };
-        $this->eventDispatcher->addListener(AppActivatedEvent::class, $onAppActivation);
+        $receivedEvent = null;
+        EventHookDispatcher::fromContainer(static::getContainer())->on(AppActivatedEvent::class, static function (AppActivatedEvent $event) use (&$receivedEvent): void {
+            $receivedEvent = $event;
+        });
 
         $this->appLifecycle->activate($appId, $context);
 
-        static::assertTrue($eventWasReceived);
+        static::assertInstanceOf(AppActivatedEvent::class, $receivedEvent);
+        static::assertSame($appId, $receivedEvent->getApp()->getId());
+        static::assertSame($context, $receivedEvent->getContext());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));
@@ -194,8 +187,6 @@ class AppLifecycleThemeTest extends TestCase
         // We expect 1 storefront twig template and svg image to be stored in the DB
         $expectedTemplates = 2;
         static::assertSame($expectedTemplates, $this->templateRepo->search($criteria, $context)->getTotal());
-
-        $this->eventDispatcher->removeListener(AppActivatedEvent::class, $onAppActivation);
     }
 
     private function createSalesChannel(): string

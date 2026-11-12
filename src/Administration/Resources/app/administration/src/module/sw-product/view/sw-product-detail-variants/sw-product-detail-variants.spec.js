@@ -20,6 +20,7 @@ async function createWrapper(options = {}) {
                 },
                 repositoryFactory: {
                     create: () => ({
+                        searchIds: jest.fn(() => Promise.resolve({ total: 1, data: ['1'] })),
                         search: jest.fn(() =>
                             Promise.resolve([
                                 {
@@ -128,9 +129,7 @@ async function createWrapper(options = {}) {
                 },
                 'mt-tabs': {
                     name: 'mt-tabs',
-                    emits: [
-                        'new-item-active',
-                    ],
+                    emits: ['new-item-active'],
                     props: {
                         positionIdentifier: {
                             type: String,
@@ -318,7 +317,7 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
         });
 
         wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'digital');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.activeTab).toBe('digital');
     });
@@ -373,10 +372,7 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
         });
         await flushPromises();
 
-        expect(wrapper.vm.currentProductStates).toEqual([
-            'is-foo',
-            'is-bar',
-        ]);
+        expect(wrapper.vm.currentProductStates).toEqual(['is-foo', 'is-bar']);
     });
 
     it('should compute configSettingGroups from productEntity.configuratorSettings and groups', async () => {
@@ -387,10 +383,7 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
             { id: 'other', name: 'other' },
         ];
         wrapper.vm.productEntity = {
-            configuratorSettings: [
-                { option: { groupId: 'id-1' } },
-                { option: { groupId: 'id-2' } },
-            ],
+            configuratorSettings: [{ option: { groupId: 'id-1' } }, { option: { groupId: 'id-2' } }],
         };
 
         expect(wrapper.vm.configSettingGroups).toEqual([
@@ -411,10 +404,7 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
         const wrapper = await createWrapper();
         wrapper.vm.groups = [{ id: 'id-1', name: 'group-1' }];
         wrapper.vm.productEntity = {
-            configuratorSettings: [
-                { option: { groupId: 'id-1' } },
-                { option: { groupId: 'id-missing' } },
-            ],
+            configuratorSettings: [{ option: { groupId: 'id-1' } }, { option: { groupId: 'id-missing' } }],
         };
 
         expect(wrapper.vm.configSettingGroups).toEqual([{ id: 'id-1', name: 'group-1' }]);

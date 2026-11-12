@@ -9,15 +9,19 @@ use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\FastlyReverseProxyGateway
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCache;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.8.0 - Will be removed together with the ReverseProxyCompilerPass
  */
 #[Package('framework')]
 #[CoversClass(ReverseProxyCompilerPass::class)]
+#[DisabledFeatures(['v6.8.0.0'])]
 class ReverseProxyCompilerPassTest extends TestCase
 {
     public function testFastlyReplaces(): void
@@ -29,8 +33,8 @@ class ReverseProxyCompilerPassTest extends TestCase
         static::assertTrue($container->has(ReverseProxyCache::class));
         static::assertTrue($container->has(FastlyReverseProxyGateway::class));
 
-        /** @var DummyService $dummy */
         $dummy = $container->get(DummyService::class);
+        static::assertInstanceOf(DummyService::class, $dummy);
         static::assertInstanceOf(FastlyService::class, $dummy->get());
     }
 
@@ -49,8 +53,8 @@ class ReverseProxyCompilerPassTest extends TestCase
 
         static::assertInstanceOf(PluginService::class, $container->get(FastlyReverseProxyGateway::class));
 
-        /** @var DummyService $dummy */
         $dummy = $container->get(DummyService::class);
+        static::assertInstanceOf(DummyService::class, $dummy);
         static::assertInstanceOf(PluginService::class, $dummy->get());
     }
 
@@ -64,8 +68,8 @@ class ReverseProxyCompilerPassTest extends TestCase
         static::assertTrue($container->has(ReverseProxyCache::class));
         static::assertTrue($container->has(FastlyReverseProxyGateway::class));
 
-        /** @var DummyService $dummy */
         $dummy = $container->get(DummyService::class);
+        static::assertInstanceOf(DummyService::class, $dummy);
         static::assertInstanceOf(VarnishService::class, $dummy->get());
     }
 

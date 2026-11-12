@@ -12,10 +12,9 @@ const { get, format, array } = Utils;
 export default Component.wrapComponentConfig({
     template,
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('cart-notification'),
-    ],
+    emits: ['error'],
+
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('cart-notification')],
 
     data(): {
         isLoading: boolean;

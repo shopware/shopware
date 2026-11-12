@@ -347,6 +347,31 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
         });
     });
 
+    it.each([
+        [
+            'catalogue unavailable',
+            true,
+        ],
+        [
+            null,
+            false,
+        ],
+        [
+            '',
+            false,
+        ],
+    ])('reports load-error state for %s', (message, expected) => {
+        expect(computed.hasMappingCandidateLoadError.call({ mappingCandidateLoadError: message })).toBe(expected);
+    });
+
+    it('emits a mapping-candidate retry request', () => {
+        const $emit = jest.fn();
+
+        methods.onRetryMappingCandidates.call({ $emit });
+
+        expect($emit).toHaveBeenCalledWith('retry-mapping-candidates');
+    });
+
     it('keeps breakpoint-aware box spacing properties in the element settings', () => {
         const fields = computed.elementFields.call({
             selectedElement: {
@@ -384,5 +409,102 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
                 breakpointAware: true,
             },
         ]);
+    });
+
+    describe('data mapping', () => {
+        const mappableTextType = {
+            properties: {
+                text: {},
+                headline: {},
+            },
+        };
+
+        it('reports the mapped path per declared property', () => {
+            const mappings = computed.elementMappings.call({
+                selectedElement: {
+                    id: 'text-element',
+                    acceptsContext: {
+                        text: {
+                            type: 'single',
+                            required: false,
+                            scope: 'root',
+                            source: { type: 'root', id: 'category', path: 'name' },
+                        },
+                    },
+                },
+                selectedElementType: mappableTextType,
+            });
+
+            expect(mappings).toEqual({
+                text: 'category.name',
+            });
+        });
+
+        it('ignores ordinary wiring under a declared property key', () => {
+            const mappings = computed.elementMappings.call({
+                selectedElement: {
+                    id: 'text-element',
+                    acceptsContext: {
+                        text: {
+                            type: 'single',
+                            required: true,
+                            scope: 'root',
+                        },
+                    },
+                },
+                selectedElementType: mappableTextType,
+            });
+
+            expect(mappings).toEqual({});
+        });
+
+        it('emits the declared property key rather than a binding storage key', () => {
+            const $emit = jest.fn();
+
+            methods.onUpdateElementMapping.call(
+                {
+                    selectedElement: {
+                        id: 'image-element',
+                    },
+                    selectedElementType: imageType,
+                    allowEdit: true,
+                    $emit,
+                },
+                {
+                    key: 'media',
+                    source: { type: 'root', id: 'product', path: 'cover' },
+                    contextType: 'single',
+                },
+            );
+
+            expect($emit).toHaveBeenCalledWith('update-mapping', {
+                elementId: 'image-element',
+                propertyKey: 'media',
+                source: { type: 'root', id: 'product', path: 'cover' },
+                contextType: 'single',
+            });
+        });
+
+        it('stays silent on a read-only layout', () => {
+            const $emit = jest.fn();
+
+            methods.onUpdateElementMapping.call(
+                {
+                    selectedElement: {
+                        id: 'text-element',
+                    },
+                    selectedElementType: textType,
+                    allowEdit: false,
+                    $emit,
+                },
+                {
+                    key: 'text',
+                    source: { type: 'root', id: 'category', path: 'name' },
+                    contextType: 'single',
+                },
+            );
+
+            expect($emit).not.toHaveBeenCalled();
+        });
     });
 });

@@ -21,31 +21,16 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
             dependencies: [],
         },
         editor: {
-            privileges: [
-                'currency:update',
-                'currency_country_rounding:update',
-                'currency_country_rounding:delete',
-            ],
-            dependencies: [
-                'currencies.viewer',
-            ],
+            privileges: ['currency:update', 'currency_country_rounding:update', 'currency_country_rounding:delete'],
+            dependencies: ['currencies.viewer'],
         },
         creator: {
-            privileges: [
-                'currency:create',
-            ],
-            dependencies: [
-                'currencies.viewer',
-                'currencies.editor',
-            ],
+            privileges: ['currency:create'],
+            dependencies: ['currencies.viewer', 'currencies.editor'],
         },
         deleter: {
-            privileges: [
-                'currency:delete',
-            ],
-            dependencies: [
-                'currencies.viewer',
-            ],
+            privileges: ['currency:delete'],
+            dependencies: ['currencies.viewer'],
         },
     },
 });

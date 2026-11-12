@@ -26,6 +26,7 @@
                 "Skip optional construct parameters": "patches/skip-optional-construct-parameters.patch",
                 "Add exclude errors": "patches/add-exclude-errors.patch",
                 "Add exclude files": "patches/add-exclude-files.patch",
+                "Honor Shopware class aliases": "patches/honor-class-aliases-8.19.patch",
                 "Honor @final annotations": "patches/honor-doc-final.patch"
             }
         }

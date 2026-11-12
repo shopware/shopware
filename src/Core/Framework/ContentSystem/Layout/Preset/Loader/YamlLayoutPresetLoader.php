@@ -3,9 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Layout\Preset\LayoutPresetPayloadCompiler;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSpecificationSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\ContentSystemLayoutPresetSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\Dto\LayoutPresetSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\Dto\LayoutPresetSpecificationDtoCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -27,7 +25,6 @@ class YamlLayoutPresetLoader extends AbstractContentSystemLayoutPresetLoader
      */
     public function __construct(
         private readonly LayoutPresetSpecificationSerializer $serializer,
-        private readonly LayoutPresetPayloadCompiler $compiler,
         private readonly ValidatorInterface $validator,
         private readonly LayoutPresetNameResolver $nameResolver,
         private readonly array $directories = [],
@@ -35,45 +32,23 @@ class YamlLayoutPresetLoader extends AbstractContentSystemLayoutPresetLoader
     }
 
     /**
-     * @return list<ContentSystemLayoutPresetSpecification>
+     * @return array<string, LayoutPresetSpecificationDto>
      */
     public function load(): array
     {
         $all = [];
-        $seen = [];
 
         foreach ($this->directories as $directory) {
-            foreach ($this->loadFromDirectory($directory->path, $directory->source, $directory->prefix) as $preset) {
-                if (isset($seen[$preset->id])) {
-                    throw ContentSystemException::layoutPresetDuplicate($preset->id);
+            foreach ($this->loadDtosFromDirectory($directory->path, $directory->source, $directory->prefix) as $id => $dto) {
+                if (isset($all[$id])) {
+                    throw ContentSystemException::layoutPresetDuplicate($id);
                 }
 
-                $seen[$preset->id] = true;
-                $all[] = $preset;
+                $all[$id] = $dto;
             }
         }
 
         return $all;
-    }
-
-    /**
-     * @return list<ContentSystemLayoutPresetSpecification>
-     */
-    public function loadFromDirectory(string $directory, string $source, string $prefix): array
-    {
-        $presets = [];
-
-        foreach ($this->loadDtosFromDirectory($directory, $source, $prefix) as $id => $dto) {
-            $presets[] = new ContentSystemLayoutPresetSpecification(
-                $id,
-                $dto->name,
-                $dto->description,
-                $dto->icon,
-                $this->compiler->compile($dto->layout),
-            );
-        }
-
-        return $presets;
     }
 
     /**

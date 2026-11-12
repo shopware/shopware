@@ -23,9 +23,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     emits: ['modal-close'],
 
-    mixins: [
-        Shopware.Mixin.getByName('notification'),
-    ],
+    mixins: [Shopware.Mixin.getByName('notification')],
 
     props: {
         page: {
@@ -96,7 +94,6 @@ export default Shopware.Component.wrapComponentConfig({
                 tabs.push({
                     label: this.$t('sw-cms.components.cmsLayoutAssignmentModal.tabLandingPages'),
                     name: 'landing_pages',
-                    disabled: !this.acl.can('system.system_config'),
                 });
             }
 
@@ -176,6 +173,7 @@ export default Shopware.Component.wrapComponentConfig({
             return this.page.type === 'product_detail';
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },
@@ -329,7 +327,9 @@ export default Shopware.Component.wrapComponentConfig({
                         this.selectedShopPages[this.shopPageSalesChannelId!] = pages;
                     } else this.selectedShopPages[this.shopPageSalesChannelId!] = null;
 
-                    this.previousShopPages = cloneDeep(this.selectedShopPages);
+                    // Only set the baseline of the loaded scope, changes in other scopes must still be saved
+                    const loadedSalesChannelId = this.shopPageSalesChannelId as string;
+                    this.previousShopPages[loadedSalesChannelId] = cloneDeep(this.selectedShopPages[loadedSalesChannelId]);
                 })
                 .catch(() => {
                     this.createNotificationError({

@@ -28,20 +28,27 @@ export interface ContextState {
                     js: string | string[];
                     permissions?: privileges;
                     sourceType?: string;
-                    integrationId?: string;
+                    integrationId?: EntityKey<'integration'>;
                     active?: boolean;
                 };
             };
             settings?: {
                 appUrlReachable: boolean;
+                appUrlStatusCode?: number | null;
                 appsRequireAppUrl: boolean;
                 disableExtensionManagement: boolean;
                 firstMigrationDate?: string | null;
+                hideUpdateModule?: boolean;
                 minSearchTermLength: number;
             };
             version: null | string;
             versionRevision: null | string;
             inAppPurchases: Record<string, string[]>;
+            versionHistory?: {
+                version: string;
+                recordedAt: string;
+                type: 'install' | 'update';
+            }[];
             shopId: null | string;
             appUrl: null | string;
         };
@@ -52,9 +59,10 @@ export interface ContextState {
         };
         firstRunWizard: null | boolean;
         systemCurrencyISOCode: null | string;
-        systemCurrencyId: null | string;
+        systemCurrencyId: null | EntityKey<'currency'>;
         windowId: null | string;
         analyticsGatewayUrl: null | string;
+        hideUpdateModule: null | boolean;
     };
     api: {
         apiPath: null | string;
@@ -65,16 +73,16 @@ export interface ContextState {
         pathInfo: null | string;
         inheritance: null | boolean;
         installationPath: null | string;
-        languageId: null | string;
+        languageId: null | EntityKey<'language'>;
         language: null | {
             name: string;
-            parentId?: string;
+            parentId?: EntityKey<'language'>;
         };
         apiVersion: null | string;
         liveVersionId: null | string;
-        systemLanguageId: null | string;
-        currencyId: null | string;
-        versionId: null | string;
+        systemLanguageId: null | EntityKey<'language'>;
+        currencyId: null | EntityKey<'currency'>;
+        versionId: null | EntityKey<'version'>;
         refreshTokenTtl: null | string;
         serviceRegistryUrl: null | string;
         measurementLengthUnit: null | string;
@@ -101,6 +109,7 @@ const state: ContextState = reactive({
         systemCurrencyISOCode: null,
         windowId: null,
         analyticsGatewayUrl: null,
+        hideUpdateModule: null,
     },
     api: {
         apiPath: null,
@@ -153,7 +162,7 @@ function addAppConfigValue<K extends keyof ContextState['app']['config']>({
     state.app.config[key] = value;
 }
 
-function setApiLanguageId(newLanguageId: string) {
+function setApiLanguageId(newLanguageId: EntityKey<'language'>) {
     state.api.languageId = newLanguageId;
     localStorage.setItem('sw-admin-current-language', newLanguageId);
 }

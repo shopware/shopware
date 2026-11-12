@@ -8,10 +8,7 @@ import './sw-extension-permissions-modal.scss';
 export default {
     template,
 
-    emits: [
-        'modal-close',
-        'close-with-action',
-    ],
+    emits: ['modal-close', 'close-with-action'],
 
     props: {
         permissions: {
@@ -74,30 +71,22 @@ export default {
 
         permissionsWithGroupedOperations() {
             return Object.fromEntries(
-                Object.entries(this.permissions).map(
-                    ([
-                        category,
-                        permissions,
-                    ]) => {
-                        permissions = permissions.reduce((acc, permission) => {
-                            const entity = permission.entity;
+                Object.entries(this.permissions).map(([category, permissions]) => {
+                    permissions = permissions.reduce((acc, permission) => {
+                        const entity = permission.entity;
 
-                            if (entity === 'additional_privileges') {
-                                acc[permission.operation] = [];
-
-                                return acc;
-                            }
-
-                            acc[entity] = (acc[entity] || []).concat(permission.operation);
+                        if (entity === 'additional_privileges') {
+                            acc[permission.operation] = [];
 
                             return acc;
-                        }, {});
-                        return [
-                            category,
-                            permissions,
-                        ];
-                    },
-                ),
+                        }
+
+                        acc[entity] = (acc[entity] || []).concat(permission.operation);
+
+                        return acc;
+                    }, {});
+                    return [category, permissions];
+                }),
             );
         },
 

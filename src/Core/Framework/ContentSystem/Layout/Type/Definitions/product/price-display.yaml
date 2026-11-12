@@ -2,7 +2,9 @@ meta:
   label: "Product Price"
   description: "Displays a product's price — including list, regulation, reference and graduated (tiered) prices — on the product detail page."
   icon: "regular-tag"
+  illustration: "product-price"
   category: "commerce"
+  priority: 80
   copilot:
     summary: "Product detail page price element."
     hints:
@@ -14,6 +16,14 @@ properties:
     required: false
     title: "Product"
     description: "Hydrated product whose price is shown."
+    resolvedBy: productId
+    mappable: true
+    defaultMapping:
+      type: root
+      id: product
+    adminUI:
+      component: "entity-single-select"
+      entity: "product"
 
   showTaxInfo:
     type: boolean

@@ -162,11 +162,11 @@ class ThemeFileResolver
             $bundleRelative = $this->parseBundleRelativePath($filepath);
 
             if ($bundleRelative !== null) {
-                $this->processBundleRelativeFile($filepath, $bundleRelative, $fileType, $themeConfig, $configurationCollection, $resolvedFiles, $processedFiles);
+                $this->processBundleRelativeFile($filepath, $bundleRelative, $themeConfig, $configurationCollection, $resolvedFiles, $processedFiles);
             } elseif (!$this->isInclude($filepath)) {
                 $this->processDirectFile($file, $filepath, $themeConfig, $resolvedFiles, $processedFiles);
             } else {
-                $this->processNamespaceReference($filepath, $fileType, $themeConfig, $configurationCollection, $onlySourceFiles, $configFileResolver, $nextIncluded, $included, $processedFiles, $nextProcessedConfigs, $resolvedFiles);
+                $this->processNamespaceReference($filepath, $fileType, $configurationCollection, $onlySourceFiles, $configFileResolver, $nextIncluded, $included, $processedFiles, $nextProcessedConfigs, $resolvedFiles);
             }
         }
 
@@ -202,7 +202,6 @@ class ThemeFileResolver
     private function processBundleRelativeFile(
         string $filepath,
         array $bundleRelative,
-        string $fileType,
         StorefrontPluginConfiguration $themeConfig,
         StorefrontPluginConfigurationCollection $configurationCollection,
         FileCollection $resolvedFiles,
@@ -278,7 +277,6 @@ class ThemeFileResolver
     private function processNamespaceReference(
         string $filepath,
         string $fileType,
-        StorefrontPluginConfiguration $themeConfig,
         StorefrontPluginConfigurationCollection $configurationCollection,
         bool $onlySourceFiles,
         callable $configFileResolver,
@@ -305,7 +303,7 @@ class ThemeFileResolver
             return;
         }
 
-        $this->addFilesFromTheme($filepath, $fileType, $configurationCollection, $onlySourceFiles, $configFileResolver, $nextIncluded, $processedFiles, $nextProcessedConfigs, $resolvedFiles, $themeConfig);
+        $this->addFilesFromTheme($filepath, $fileType, $configurationCollection, $onlySourceFiles, $configFileResolver, $nextIncluded, $processedFiles, $nextProcessedConfigs, $resolvedFiles);
     }
 
     /**
@@ -364,8 +362,7 @@ class ThemeFileResolver
         array $nextIncluded,
         array &$processedFiles,
         array $nextProcessedConfigs,
-        FileCollection $resolvedFiles,
-        StorefrontPluginConfiguration $themeConfig
+        FileCollection $resolvedFiles
     ): void {
         $name = mb_substr($filepath, 1);
         $configuration = $configurationCollection->getByTechnicalName($name);

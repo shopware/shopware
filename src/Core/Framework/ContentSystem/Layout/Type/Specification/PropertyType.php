@@ -3,10 +3,12 @@
 namespace Shopware\Core\Framework\ContentSystem\Layout\Type\Specification;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\TranslatableTypeValidator;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\TypedEnumValidator;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * $type accepts primitives (`string`, `integer`, `boolean`, `number`), `object`,
@@ -24,6 +26,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @phpstan-type PropertyTypeSchema = array{
  *     type: string|list<string>,
+ *     contextTypes: list<string>,
  *     translatable: bool,
  *     enum: list<string|int|float|bool>|null,
  *     default: string|int|float|bool|null,
@@ -68,6 +71,7 @@ final readonly class PropertyType
 
         return [
             'type' => $this->type,
+            'contextTypes' => $this->contextTypes(),
             'translatable' => $this->translatable,
             'enum' => $this->enum,
             'default' => $this->default,
@@ -170,7 +174,7 @@ final readonly class PropertyType
         $raw = $value->jsonSerialize();
 
         foreach ($enforceable as $primitive) {
-            if ($this->matchesPrimitive($raw, $primitive)) {
+            if (PrimitiveTypeMatcher::matches($raw, $primitive)) {
                 return true;
             }
         }
@@ -196,7 +200,7 @@ final readonly class PropertyType
             return false;
         }
 
-        return $this->matchesPrimitive($entry->jsonSerialize(), $this->type);
+        return PrimitiveTypeMatcher::matches($entry->jsonSerialize(), $this->type);
     }
 
     /**
@@ -245,6 +249,32 @@ final readonly class PropertyType
     }
 
     /**
+     * Which cardinalities can fill this property, combining the kinds of its declared union members.
+     * Primitives and non-Collection classes accept single values; Collection classes accept collections.
+     * Bare `object` accepts both, as does a union mixing collection and single-value members.
+     *
+     * The Administration uses this to filter candidates by cardinality. Declared-type assignability is also
+     * supplied by the server as candidate `compatibleTypes`, computed by
+     * `Mapping/MappingTypeCompatibility`; the browser does not reimplement PHP class compatibility.
+     *
+     * @return list<string> {@see ContextType} values, in declaration order and without repeats
+     */
+    public function contextTypes(): array
+    {
+        $accepted = [];
+
+        foreach (\is_array($this->type) ? $this->type : [$this->type] as $member) {
+            foreach ($this->contextTypesFor($member) as $contextType) {
+                if (!\in_array($contextType, $accepted, true)) {
+                    $accepted[] = $contextType;
+                }
+            }
+        }
+
+        return $accepted;
+    }
+
+    /**
      * Only a map variant whose every entry matches the declared primitive ({@see admitsMapEntry()}). Emptiness
      * needs no test of its own: the empty map is unrepresentable ({@see StoredValue::ofMap()}), and the wire's
      * empty `[]` decodes to the list variant.
@@ -265,17 +295,21 @@ final readonly class PropertyType
     }
 
     /**
-     * `number` admits an integer as well as a float — JSON carries no distinction a client can be held to —
-     * while `integer` admits only an integer.
+     * @return list<string>
      */
-    private function matchesPrimitive(mixed $raw, string $primitive): bool
+    private function contextTypesFor(string $type): array
     {
-        return match ($primitive) {
-            'string' => \is_string($raw),
-            'integer' => \is_int($raw),
-            'number' => \is_int($raw) || \is_float($raw),
-            'boolean' => \is_bool($raw),
-            default => false,
-        };
+        // Bare `object` names an object without naming which, so it rules nothing out.
+        if ($type === 'object') {
+            return [ContextType::Single->value, ContextType::Collection->value];
+        }
+
+        if (\in_array($type, self::PRIMITIVE_TYPES, true)) {
+            return [ContextType::Single->value];
+        }
+
+        return is_a($type, Collection::class, true)
+            ? [ContextType::Collection->value]
+            : [ContextType::Single->value];
     }
 }

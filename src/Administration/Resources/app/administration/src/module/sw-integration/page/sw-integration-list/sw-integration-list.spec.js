@@ -12,8 +12,11 @@ const appIntegration = {
     mcpAllowlist: null,
 };
 
+const searchIntegrations = jest.fn();
+
 async function createWrapper(privileges = [], integrations = null) {
     const defaultIntegrations = integrations ?? [{ id: '44de136acf314e7184401d36406c1e90' }];
+    searchIntegrations.mockResolvedValue(defaultIntegrations);
 
     const wrapper = mount(await wrapTestComponent('sw-integration-list', { sync: true }), {
         global: {
@@ -26,9 +29,7 @@ async function createWrapper(privileges = [], integrations = null) {
                             });
                         },
 
-                        search: () => {
-                            return Promise.resolve(defaultIntegrations);
-                        },
+                        search: searchIntegrations,
 
                         save: () => {
                             return Promise.resolve();
@@ -110,11 +111,7 @@ async function createWrapper(privileges = [], integrations = null) {
 
                 'sw-entity-multi-select': true,
                 'sw-entity-listing': {
-                    props: [
-                        'items',
-                        'dataSource',
-                        'detailRoute',
-                    ],
+                    props: ['items', 'dataSource', 'detailRoute'],
                     template: `
                         <div>
                             <template v-for="item in (dataSource || items)" :key="item.id">
@@ -166,10 +163,7 @@ describe('module/sw-integration/page/sw-integration-list', () => {
     });
 
     it('should be able to create a integration', async () => {
-        const wrapper = await createWrapper([
-            'integration.creator',
-            'integration.editor',
-        ]);
+        const wrapper = await createWrapper(['integration.creator', 'integration.editor']);
 
         const createButton = wrapper.find('.sw-integration-list__add-integration-action');
         expect(createButton.attributes().disabled).toBeUndefined();
@@ -198,9 +192,7 @@ describe('module/sw-integration/page/sw-integration-list', () => {
     });
 
     it('should be able to edit a integration', async () => {
-        const wrapper = await createWrapper([
-            'integration.editor',
-        ]);
+        const wrapper = await createWrapper(['integration.editor']);
 
         const editMenuItem = wrapper.find('.sw_integration_list__edit-action');
         await editMenuItem.trigger('click');
@@ -228,10 +220,21 @@ describe('module/sw-integration/page/sw-integration-list', () => {
         expect(modalAfterSave.exists()).toBeFalsy();
     });
 
+    it('should reload the integrations after editing an integration', async () => {
+        const wrapper = await createWrapper(['integration.editor']);
+        expect(searchIntegrations).toHaveBeenCalledTimes(1);
+
+        await wrapper.find('.sw_integration_list__edit-action').trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-integration-detail-modal__save-action').trigger('click');
+        await flushPromises();
+
+        expect(searchIntegrations).toHaveBeenCalledTimes(2);
+    });
+
     it('should be able to delete a integration', async () => {
-        const wrapper = await createWrapper([
-            'integration.deleter',
-        ]);
+        const wrapper = await createWrapper(['integration.deleter']);
 
         const deleteMenuItem = wrapper.find('.sw_integration_list__delete-action');
         await deleteMenuItem.trigger('click');
@@ -252,11 +255,7 @@ describe('module/sw-integration/page/sw-integration-list', () => {
     });
 
     it('should not be able add an integration with admin-role as a non-admin', async () => {
-        const wrapper = await createWrapper([
-            'integration.viewer',
-            'integration.editor',
-            'integration.deleter',
-        ]);
+        const wrapper = await createWrapper(['integration.viewer', 'integration.editor', 'integration.deleter']);
 
         const editMenuItem = wrapper.find('.sw_integration_list__edit-action');
         await editMenuItem.trigger('click');
@@ -267,13 +266,7 @@ describe('module/sw-integration/page/sw-integration-list', () => {
     });
 
     it('should disable edit and delete for app integrations', async () => {
-        const wrapper = await createWrapper(
-            [
-                'integration.editor',
-                'integration.deleter',
-            ],
-            [appIntegration],
-        );
+        const wrapper = await createWrapper(['integration.editor', 'integration.deleter'], [appIntegration]);
 
         const editMenuItem = wrapper.find('.sw_integration_list__edit-action');
         expect(editMenuItem.classes()).toContain('is--disabled');
@@ -290,10 +283,7 @@ describe('module/sw-integration/page/sw-integration-list', () => {
     });
 
     it('should not disable edit and delete for manual integrations', async () => {
-        const wrapper = await createWrapper([
-            'integration.editor',
-            'integration.deleter',
-        ]);
+        const wrapper = await createWrapper(['integration.editor', 'integration.deleter']);
 
         const editMenuItem = wrapper.find('.sw_integration_list__edit-action');
         expect(editMenuItem.classes()).not.toContain('is--disabled');
@@ -315,6 +305,23 @@ describe('module/sw-integration/page/sw-integration-list', () => {
         await flushPromises();
 
         expect(saveMock).toHaveBeenCalledWith(integration.id, ['shopware-entity-read']);
+    });
+
+    it('should reload the integrations after saving the MCP allowlist', async () => {
+        const wrapper = await createWrapper(['integration_mcp.editor'], [appIntegration]);
+        expect(searchIntegrations).toHaveBeenCalledTimes(1);
+
+        await wrapper.find('.sw_integration_list__edit-mcp-action').trigger('click');
+        await flushPromises();
+
+        const saveButton = wrapper
+            .find('.sw-integration-list__mcp-modal')
+            .findAll('button')
+            .find((button) => button.text().trim() === 'sw-integration.detail.buttonApplyEdit');
+        await saveButton.trigger('click');
+        await flushPromises();
+
+        expect(searchIntegrations).toHaveBeenCalledTimes(2);
     });
 
     it('should gate Edit MCP Tools on integration_mcp.editor not integration.editor', async () => {

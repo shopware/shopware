@@ -33,11 +33,13 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\Test\AppSystemTestBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
+use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Envelope;
@@ -87,6 +89,7 @@ class InfoControllerTest extends TestCase
                 'enableUrlFeature' => true,
                 'presignedUploadSupported' => false,
                 'appUrlReachable' => true,
+                'appUrlStatusCode' => null,
                 'appsRequireAppUrl' => false,
                 'firstMigrationDate' => null,
                 'private_allowed_extensions' => [
@@ -140,6 +143,7 @@ class InfoControllerTest extends TestCase
                 'enableHtmlSanitizer' => true,
                 'enableStagingMode' => false,
                 'disableExtensionManagement' => false,
+                'hideUpdateModule' => false,
                 'minSearchTermLength' => 2,
             ],
             'inAppPurchases' => [],
@@ -163,11 +167,13 @@ class InfoControllerTest extends TestCase
         static::assertArrayHasKey('private_allowed_mime_types_by_extension', $decodedResponse['settings']);
         static::assertIsArray($decodedResponse['settings']['private_allowed_mime_types_by_extension']);
         static::assertContains('application/pdf', $decodedResponse['settings']['private_allowed_mime_types_by_extension']['pdf']);
+        static::assertIsArray($decodedResponse['versionHistory']);
 
         // reset environment-based mismatch
         $decodedResponse['bundles'] = [];
         $decodedResponse['versionRevision'] = $expected['versionRevision'];
         $expected['settings']['firstMigrationDate'] = $decodedResponse['settings']['firstMigrationDate'];
+        $expected['versionHistory'] = $decodedResponse['versionHistory'];
         unset($decodedResponse['settings']['private_allowed_mime_types_by_extension']);
 
         static::assertSame($expected, $decodedResponse);
@@ -175,35 +181,26 @@ class InfoControllerTest extends TestCase
 
     public function testGetConfigIncludesMimeTypesForEventAddedPrivateExtensions(): void
     {
-        $eventDispatcher = static::getContainer()->get('event_dispatcher');
-        static::assertInstanceOf(EventDispatcherInterface::class, $eventDispatcher);
-
-        $listener = static function (MediaFileExtensionWhitelistEvent $event): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(MediaFileExtensionWhitelistEvent::class, static function (MediaFileExtensionWhitelistEvent $event): void {
             $extensions = $event->getWhitelist();
             $extensions[] = 'epub';
 
             $event->setWhitelist($extensions);
-        };
+        });
 
-        $eventDispatcher->addListener(MediaFileExtensionWhitelistEvent::class, $listener);
+        $client = $this->getBrowser();
+        $client->request(Request::METHOD_GET, '/api/_info/config');
 
-        try {
-            $client = $this->getBrowser();
-            $client->request(Request::METHOD_GET, '/api/_info/config');
+        $content = $client->getResponse()->getContent();
+        static::assertNotFalse($content);
 
-            $content = $client->getResponse()->getContent();
-            static::assertNotFalse($content);
-
-            $decodedResponse = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-            static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
-            static::assertContains('epub', $decodedResponse['settings']['private_allowed_extensions']);
-            static::assertSame(
-                ['application/epub+zip'],
-                $decodedResponse['settings']['private_allowed_mime_types_by_extension']['epub']
-            );
-        } finally {
-            $eventDispatcher->removeListener(MediaFileExtensionWhitelistEvent::class, $listener);
-        }
+        $decodedResponse = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+        static::assertContains('epub', $decodedResponse['settings']['private_allowed_extensions']);
+        static::assertSame(
+            ['application/epub+zip'],
+            $decodedResponse['settings']['private_allowed_mime_types_by_extension']['epub']
+        );
     }
 
     public function testGetConfigWithPermissions(): void
@@ -376,7 +373,7 @@ class InfoControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
         $version = mb_substr(json_encode($expected, \JSON_THROW_ON_ERROR), 0, -3);
-        static::assertNotEmpty($version);
+        static::assertNotSame('', $version);
         static::assertStringStartsWith($version, $content);
     }
 
@@ -396,7 +393,7 @@ class InfoControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
         $version = mb_substr(json_encode($expected, \JSON_THROW_ON_ERROR), 0, -3);
-        static::assertNotEmpty($version);
+        static::assertNotSame('', $version);
         static::assertStringStartsWith($version, $content);
     }
 
@@ -427,6 +424,7 @@ class InfoControllerTest extends TestCase
                     ],
                     'contextToken' => [
                         'type' => 'string',
+                        'hiddenFromWebhook' => true,
                     ],
                 ],
                 'aware' => [
@@ -496,7 +494,7 @@ class InfoControllerTest extends TestCase
 
         foreach ($expected as $event) {
             $actualEvents = array_values(array_filter($response, static fn ($x) => $x['name'] === $event['name']));
-            static::assertNotEmpty($actualEvents, 'Event with name "' . $event['name'] . '" not found');
+            static::assertNotCount(0, $actualEvents, 'Event with name "' . $event['name'] . '" not found');
             sort($event['aware']);
             sort($actualEvents[0]['aware']);
             static::assertCount(1, $actualEvents);
@@ -531,7 +529,7 @@ class InfoControllerTest extends TestCase
 
         foreach ($expected as $action) {
             $actualActions = array_values(array_filter($response, static fn ($x) => $x['name'] === $action['name']));
-            static::assertNotEmpty($actualActions, 'Event with name "' . $action['name'] . '" not found');
+            static::assertNotCount(0, $actualActions, 'Event with name "' . $action['name'] . '" not found');
             static::assertCount(1, $actualActions);
             static::assertSame($action, $actualActions[0]);
         }
@@ -571,7 +569,7 @@ class InfoControllerTest extends TestCase
 
         foreach ($expected as $action) {
             $actualActions = array_values(array_filter($response, static fn ($x) => $x['name'] === $action['name']));
-            static::assertNotEmpty($actualActions, 'Event with name "' . $action['name'] . '" not found');
+            static::assertNotCount(0, $actualActions, 'Event with name "' . $action['name'] . '" not found');
             static::assertCount(1, $actualActions);
             static::assertSame($action, $actualActions[0]);
         }
@@ -641,7 +639,7 @@ class InfoControllerTest extends TestCase
                 return $x['name'] === $event['name'];
             }));
 
-            static::assertNotEmpty($actualEvent, 'Event with name "' . $event['name'] . '" not found');
+            static::assertNotCount(0, $actualEvent, 'Event with name "' . $event['name'] . '" not found');
             static::assertCount(1, $actualEvent);
             static::assertSame($event, $actualEvent[0]);
         }
@@ -682,6 +680,104 @@ class InfoControllerTest extends TestCase
         static::assertContains('product', $data['entityTypes']);
         static::assertContains('category', $data['entityTypes']);
         static::assertContains('landing_page', $data['entityTypes']);
+    }
+
+    /**
+     * Proves the category provider really reaches the endpoint through the DI tag, which is the half of the
+     * data-mapping catalogue a unit test with a stubbed registry cannot see.
+     */
+    public function testContentSystemMappingCandidates(): void
+    {
+        $client = $this->getBrowser();
+        $client->request(Request::METHOD_GET, '/api/_info/content-system-mapping-candidates.json');
+
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($data);
+        static::assertIsArray($data['mappingCandidates'] ?? null);
+        static::assertIsArray($data['mappingCandidates']['category'] ?? null);
+
+        $paths = array_column($data['mappingCandidates']['category'], 'path');
+
+        static::assertContains('category.name', $paths);
+        static::assertContains('category.media', $paths);
+
+        $candidatesByPath = array_column($data['mappingCandidates']['category'], null, 'path');
+        $nameCandidate = $candidatesByPath['category.name'] ?? null;
+        static::assertIsArray($nameCandidate);
+        static::assertSame('{{map:category.name}}', $nameCandidate['canonicalToken']);
+
+        foreach ($paths as $path) {
+            static::assertStringStartsWith('category.', (string) $path);
+        }
+
+        foreach (['header', 'footer', 'none'] as $rootSource) {
+            static::assertSame([], $data['mappingCandidates'][$rootSource]);
+        }
+    }
+
+    public function testContentSystemMappingCandidatesWithOnlyContentLayoutReadPermission(): void
+    {
+        $browser = $this->getBrowser();
+        $publicName = 'mapping_public_' . Uuid::randomHex();
+        $privateName = 'mapping_private_' . Uuid::randomHex();
+        static::getContainer()->get('custom_field_set.repository')->create([[
+            'id' => Uuid::randomHex(),
+            'name' => 'mapping_catalogue_' . Uuid::randomHex(),
+            'active' => true,
+            'relations' => [['entityName' => 'product']],
+            'customFields' => [[
+                'name' => $publicName,
+                'type' => 'text',
+                'active' => true,
+                'storeApiAware' => true,
+                'config' => [
+                    'label' => ['en-GB' => 'Material'],
+                    'helpText' => ['en-GB' => 'The product material'],
+                ],
+            ], [
+                'name' => $privateName,
+                'type' => 'text',
+                'active' => true,
+                'storeApiAware' => false,
+            ]],
+        ]], Context::createDefaultContext());
+        TestUser::createNewTestUser(
+            $browser->getContainer()->get(Connection::class),
+            ['content_layout:read'],
+        )->authorizeBrowser($browser);
+
+        $browser->request(Request::METHOD_GET, '/api/_info/content-system-mapping-candidates.json');
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $content = $response->getContent();
+        static::assertIsString($content);
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        $productCandidates = array_column($data['mappingCandidates']['product'], null, 'path');
+        static::assertArrayHasKey('product.name', $productCandidates);
+        $publicCandidate = $productCandidates['product.customFields.' . $publicName];
+        static::assertSame(['en-GB' => 'Material'], $publicCandidate['labelTranslations']);
+        static::assertSame(['en-GB' => 'The product material'], $publicCandidate['descriptionTranslations']);
+        static::assertArrayNotHasKey('product.customFields.' . $privateName, $productCandidates);
+    }
+
+    public function testContentSystemMappingCandidatesRequiresContentLayoutReadPermission(): void
+    {
+        $browser = $this->getBrowser();
+        TestUser::createNewTestUser(
+            $browser->getContainer()->get(Connection::class),
+            ['custom_field:read'],
+        )->authorizeBrowser($browser);
+
+        $browser->request(Request::METHOD_GET, '/api/_info/content-system-mapping-candidates.json');
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode());
     }
 
     public function testContentSystemRootSources(): void
@@ -842,12 +938,18 @@ class InfoControllerTest extends TestCase
     {
         [$typesByName, $content] = $this->requestElementTypesWithStorageSchema();
 
-        // quantity-selector.yaml declares only `product`, an FQCN filled by the pipeline, so it contributes no
-        // property entry; no binding specification for this type names a propertyReference key either, so
-        // storageSchema resolves to []. InfoController::elementTypeSchema() casts it to (object) before
-        // encoding, so an empty schema must reach the wire as {} rather than [] — this pins that encoding.
+        // The quantity selector retains `resolvedBy: productId` alongside its default product mapping,
+        // so manual product selection remains available after unmapping.
         static::assertArrayHasKey('Sw:Product:QuantitySelector', $typesByName);
-        static::assertSame([], $typesByName['Sw:Product:QuantitySelector']['storageSchema']);
+        static::assertSame(
+            ['productId' => ['kind' => 'resolvedByStorage', 'type' => 'string', 'required' => true]],
+            $typesByName['Sw:Product:QuantitySelector']['storageSchema'],
+        );
+
+        // The property-free test type has no storage keys. Its empty schema must be encoded as {} rather
+        // than [], independently of changes to shipped element definitions.
+        static::assertArrayHasKey(TestElementTypeLoader::RESOLVABLE, $typesByName);
+        static::assertSame([], $typesByName[TestElementTypeLoader::RESOLVABLE]['storageSchema']);
         static::assertStringContainsString('"storageSchema":{}', $content);
     }
 

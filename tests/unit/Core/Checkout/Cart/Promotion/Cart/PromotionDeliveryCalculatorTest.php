@@ -23,10 +23,13 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceCollection;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionDeliveryCalculator;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
+use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
@@ -190,6 +193,66 @@ class PromotionDeliveryCalculatorTest extends TestCase
         static::assertSame(0.0, $cart->getShippingCosts()->getTotalPrice());
     }
 
+    public function testDeliveryDiscountInOtherCurrencyRestoresPriceDefinitionFromPayloadValue(): void
+    {
+        $this->quantityPriceCalculator
+            ->method('calculate')
+            ->willReturnCallback(static function (QuantityPriceDefinition $definition, SalesChannelContext $context) {
+                return new CalculatedPrice($definition->getPrice(), $definition->getPrice(), new CalculatedTaxCollection(), new TaxRuleCollection());
+            });
+
+        $currencyId = $this->ids->get('currency');
+
+        $advancedPrice = new PromotionDiscountPriceEntity();
+        $advancedPrice->setUniqueIdentifier($this->ids->get('advanced-price'));
+        $advancedPrice->setCurrencyId($currencyId);
+        $advancedPrice->setPrice(4.0);
+
+        $promotion = new PromotionEntity();
+        $promotion->setId('free-shipping');
+        $promotion->setPriority(1);
+        $promotion->setUseIndividualCodes(false);
+
+        $promotionDiscount = new PromotionDiscountEntity();
+        $promotionDiscount->setId($this->ids->get('discount'));
+        $promotionDiscount->setType(PromotionDiscountEntity::TYPE_FIXED_UNIT);
+        $promotionDiscount->setScope(PromotionDiscountEntity::SCOPE_DELIVERY);
+        $promotionDiscount->setValue(10.0);
+        $promotionDiscount->setConsiderAdvancedRules(false);
+        $promotionDiscount->setPromotionDiscountPrices(new PromotionDiscountPriceCollection([$advancedPrice]));
+
+        // simulate a recalculation where the copied delivery discount line item
+        // carries the currency specific payload value and a QuantityPriceDefinition
+        $discount = (new PromotionItemBuilder())
+            ->buildDiscountLineItem('code-1', $promotion, $promotionDiscount, $currencyId, 2.0)
+            ->setPriceDefinition(new QuantityPriceDefinition(0, new TaxRuleCollection(), 1));
+
+        static::assertSame('4', $discount->getPayloadValue('value'));
+
+        $delivery = new Delivery(
+            new DeliveryPositionCollection(),
+            new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
+            new ShippingMethodEntity(),
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(5.0, 5.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
+
+        $cart = new Cart('promotion-test');
+        $cart->setDeliveries(new DeliveryCollection([$delivery]));
+
+        $this->promotionDeliveryCalculator->calculate(
+            new LineItemCollection([$discount]),
+            $cart,
+            $cart,
+            static::createStub(SalesChannelContext::class)
+        );
+
+        $priceDefinition = $discount->getPriceDefinition();
+        static::assertInstanceOf(AbsolutePriceDefinition::class, $priceDefinition);
+        static::assertSame(4.0, $priceDefinition->getPrice());
+        static::assertSame(4.0, $cart->getShippingCosts()->getTotalPrice());
+    }
+
     public function testPromotionPrioritySorting(): void
     {
         $lineItems = new LineItem($this->ids->get('line-item-1'), LineItem::PRODUCT_LINE_ITEM_TYPE);
@@ -229,6 +292,90 @@ class PromotionDeliveryCalculatorTest extends TestCase
         static::assertCount(2, $cart->getLineItems());
         static::assertCount(2, $cart->getErrors());
         static::assertTrue($cart->getErrors()->has('promotion-discount-added-second-promotion'));
+        static::assertTrue($cart->getErrors()->has('promotion-not-eligible'));
+    }
+
+    /**
+     * A valid delivery promotion keeps its exclusions even when its own discount does not reduce shipping costs.
+     */
+    public function testValidDeliveryPromotionWithZeroDiscountExcludesLowerPriorityPromotion(): void
+    {
+        $this->quantityPriceCalculator
+            ->method('calculate')
+            ->willReturnCallback(static function (QuantityPriceDefinition $definition): CalculatedPrice {
+                return new CalculatedPrice($definition->getPrice(), $definition->getPrice(), new CalculatedTaxCollection(), new TaxRuleCollection());
+            });
+
+        $zeroDiscountItem = $this->getDiscountItem('zero-discount-promotion')
+            ->setPayloadValue('code', 'code-1')
+            ->setPayloadValue('exclusions', ['excluded-promotion'])
+            ->setPayloadValue('priority', 2)
+            ->setPriceDefinition(new AbsolutePriceDefinition(0));
+        $excludedDiscountItem = $this->getDiscountItem('excluded-promotion')
+            ->setPayloadValue('code', 'code-2')
+            ->setPayloadValue('priority', 1);
+
+        $delivery = new Delivery(
+            new DeliveryPositionCollection(),
+            new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
+            new ShippingMethodEntity(),
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
+
+        $cart = new Cart('promotion-test');
+        $cart->setDeliveries(new DeliveryCollection([$delivery]));
+
+        $this->promotionDeliveryCalculator->calculate(
+            new LineItemCollection([$excludedDiscountItem, $zeroDiscountItem]),
+            $cart,
+            $cart,
+            static::createStub(SalesChannelContext::class)
+        );
+
+        static::assertSame(100.0, $cart->getShippingCosts()->getTotalPrice());
+        static::assertTrue($cart->getErrors()->has('promotion-not-eligible'));
+    }
+
+    /**
+     * preventCombination is resolved by the delivery calculator itself, e.g. when the cart calculator skipped a zero-value cart.
+     */
+    public function testPreventCombinationIsResolvedWithoutCartCalculator(): void
+    {
+        $this->quantityPriceCalculator
+            ->method('calculate')
+            ->willReturnCallback(static function (QuantityPriceDefinition $definition): CalculatedPrice {
+                return new CalculatedPrice($definition->getPrice(), $definition->getPrice(), new CalculatedTaxCollection(), new TaxRuleCollection());
+            });
+
+        $preventCombinationDiscountItem = $this->getDiscountItem('prevent-combination-promotion')
+            ->setPayloadValue('code', 'code-1')
+            ->setPayloadValue('preventCombination', true)
+            ->setPayloadValue('priority', 2);
+        $otherDiscountItem = $this->getDiscountItem('other-promotion')
+            ->setPayloadValue('code', 'code-2')
+            ->setPayloadValue('priority', 1)
+            ->setPriceDefinition(new AbsolutePriceDefinition(-20.0));
+
+        $delivery = new Delivery(
+            new DeliveryPositionCollection(),
+            new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
+            new ShippingMethodEntity(),
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
+
+        $cart = new Cart('promotion-test');
+        $cart->setDeliveries(new DeliveryCollection([$delivery]));
+
+        $this->promotionDeliveryCalculator->calculate(
+            new LineItemCollection([$otherDiscountItem, $preventCombinationDiscountItem]),
+            $cart,
+            $cart,
+            static::createStub(SalesChannelContext::class)
+        );
+
+        static::assertSame(90.0, $cart->getShippingCosts()->getTotalPrice());
         static::assertTrue($cart->getErrors()->has('promotion-not-eligible'));
     }
 
@@ -367,6 +514,185 @@ class PromotionDeliveryCalculatorTest extends TestCase
 
         // Should apply the lowest fixed price (20)
         static::assertSame(20.0, $cart->getShippingCosts()->getTotalPrice(), 'Should set shipping to lowest fixed price of 20');
+    }
+
+    public function testNotApplicableFixedDeliveryDiscountDoesNotSuppressApplicableOne(): void
+    {
+        $this->quantityPriceCalculator
+            ->method('calculate')
+            ->willReturnCallback(static function (QuantityPriceDefinition $definition, SalesChannelContext $context) {
+                return new CalculatedPrice($definition->getPrice(), $definition->getPrice(), new CalculatedTaxCollection(), new TaxRuleCollection());
+            });
+
+        $applicableDiscount = $this->getDiscountItem('applicable-fixed')
+            ->setPayloadValue('code', 'SHIP50')
+            ->setPayloadValue('discountType', PromotionDiscountEntity::TYPE_FIXED_UNIT)
+            ->setPayloadValue('value', 50)
+            ->setPayloadValue('priority', 1)
+            ->setPriceDefinition(new AbsolutePriceDefinition(50));
+
+        // cheaper, so it wins the reduction, but its requirement does not match the current cart
+        $notApplicableDiscount = $this->getDiscountItem('not-applicable-fixed')
+            ->setPayloadValue('code', 'SHIP20')
+            ->setPayloadValue('discountType', PromotionDiscountEntity::TYPE_FIXED_UNIT)
+            ->setPayloadValue('value', 20)
+            ->setPayloadValue('priority', 2)
+            ->setPriceDefinition(new AbsolutePriceDefinition(20));
+        $notApplicableDiscount->setRequirement(new FalseRule());
+
+        $delivery = new Delivery(
+            new DeliveryPositionCollection(),
+            new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
+            new ShippingMethodEntity(),
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
+
+        $cart = new Cart('promotion-test');
+        $cart->setDeliveries(new DeliveryCollection([$delivery]));
+
+        $this->promotionDeliveryCalculator->calculate(
+            new LineItemCollection([$applicableDiscount, $notApplicableDiscount]),
+            $cart,
+            $cart,
+            static::createStub(SalesChannelContext::class)
+        );
+
+        static::assertSame(50.0, $cart->getShippingCosts()->getTotalPrice());
+    }
+
+    public function testNotApplicableFixedDeliveryDiscountWithEqualPriceAndHigherPriorityDoesNotSuppressApplicableOne(): void
+    {
+        $this->quantityPriceCalculator
+            ->method('calculate')
+            ->willReturnCallback(static function (QuantityPriceDefinition $definition, SalesChannelContext $context) {
+                return new CalculatedPrice($definition->getPrice(), $definition->getPrice(), new CalculatedTaxCollection(), new TaxRuleCollection());
+            });
+
+        $applicableDiscount = $this->getDiscountItem('applicable-fixed')
+            ->setPayloadValue('code', 'SHIP40')
+            ->setPayloadValue('discountType', PromotionDiscountEntity::TYPE_FIXED_UNIT)
+            ->setPayloadValue('value', 40)
+            ->setPayloadValue('priority', 1)
+            ->setPriceDefinition(new AbsolutePriceDefinition(40));
+
+        // same fixed price, so the higher priority decides the order and this one ranks first
+        $notApplicableDiscount = $this->getDiscountItem('not-applicable-fixed')
+            ->setPayloadValue('code', 'SHIP40-B')
+            ->setPayloadValue('discountType', PromotionDiscountEntity::TYPE_FIXED_UNIT)
+            ->setPayloadValue('value', 40)
+            ->setPayloadValue('priority', 99)
+            ->setPriceDefinition(new AbsolutePriceDefinition(40));
+        $notApplicableDiscount->setRequirement(new FalseRule());
+
+        $delivery = new Delivery(
+            new DeliveryPositionCollection(),
+            new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
+            new ShippingMethodEntity(),
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
+
+        $cart = new Cart('promotion-test');
+        $cart->setDeliveries(new DeliveryCollection([$delivery]));
+
+        $this->promotionDeliveryCalculator->calculate(
+            new LineItemCollection([$applicableDiscount, $notApplicableDiscount]),
+            $cart,
+            $cart,
+            static::createStub(SalesChannelContext::class)
+        );
+
+        static::assertSame(40.0, $cart->getShippingCosts()->getTotalPrice());
+    }
+
+    public function testAllFixedDeliveryDiscountsNotApplicableKeepsNotEligibleError(): void
+    {
+        $notApplicableDiscount = $this->getDiscountItem('not-applicable-fixed')
+            ->setPayloadValue('code', 'SHIP20')
+            ->setPayloadValue('discountType', PromotionDiscountEntity::TYPE_FIXED_UNIT)
+            ->setPayloadValue('value', 20)
+            ->setPayloadValue('priority', 1)
+            ->setPriceDefinition(new AbsolutePriceDefinition(20));
+        $notApplicableDiscount->setRequirement(new FalseRule());
+
+        $delivery = new Delivery(
+            new DeliveryPositionCollection(),
+            new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
+            new ShippingMethodEntity(),
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
+
+        $cart = new Cart('promotion-test');
+        $cart->setDeliveries(new DeliveryCollection([$delivery]));
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn(null);
+
+        $this->promotionDeliveryCalculator->calculate(
+            new LineItemCollection([$notApplicableDiscount]),
+            $cart,
+            $cart,
+            $context
+        );
+
+        static::assertSame(100.0, $cart->getShippingCosts()->getTotalPrice());
+        static::assertCount(1, $cart->getErrors());
+        static::assertInstanceOf(PromotionNotEligibleError::class, $cart->getErrors()->first());
+    }
+
+    public function testNotApplicableFixedDeliveryDiscountDoesNotSuppressPercentageOne(): void
+    {
+        $this->quantityPriceCalculator
+            ->method('calculate')
+            ->willReturnCallback(static function (QuantityPriceDefinition $definition, SalesChannelContext $context) {
+                return new CalculatedPrice($definition->getPrice(), $definition->getPrice(), new CalculatedTaxCollection(), new TaxRuleCollection());
+            });
+
+        $this->percentagePriceCalculator
+            ->method('calculate')
+            ->willReturnCallback(static function (float $percentage, PriceCollection $prices, SalesChannelContext $context) {
+                $price = $prices->getTotalPriceAmount() * ($percentage / 100);
+
+                return new CalculatedPrice($price, $price, new CalculatedTaxCollection(), new TaxRuleCollection());
+            });
+
+        $percentageDiscount = $this->getDiscountItem('percentage-delivery')
+            ->setPayloadValue('code', 'SHIP30')
+            ->setPayloadValue('discountType', PromotionDiscountEntity::TYPE_PERCENTAGE)
+            ->setPayloadValue('value', 30)
+            ->setPayloadValue('priority', 1)
+            ->setPriceDefinition(new PercentagePriceDefinition(30));
+
+        // a fixed price discount reduces the collection to itself, even though it does not apply to this cart
+        $notApplicableDiscount = $this->getDiscountItem('not-applicable-fixed')
+            ->setPayloadValue('code', 'SHIP20')
+            ->setPayloadValue('discountType', PromotionDiscountEntity::TYPE_FIXED_UNIT)
+            ->setPayloadValue('value', 20)
+            ->setPayloadValue('priority', 2)
+            ->setPriceDefinition(new AbsolutePriceDefinition(20));
+        $notApplicableDiscount->setRequirement(new FalseRule());
+
+        $delivery = new Delivery(
+            new DeliveryPositionCollection(),
+            new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
+            new ShippingMethodEntity(),
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
+
+        $cart = new Cart('promotion-test');
+        $cart->setDeliveries(new DeliveryCollection([$delivery]));
+
+        $this->promotionDeliveryCalculator->calculate(
+            new LineItemCollection([$percentageDiscount, $notApplicableDiscount]),
+            $cart,
+            $cart,
+            static::createStub(SalesChannelContext::class)
+        );
+
+        static::assertSame(70.0, $cart->getShippingCosts()->getTotalPrice());
     }
 
     public function testNotLoggedInAddsSpecificErrorForDeliveryDiscount(): void

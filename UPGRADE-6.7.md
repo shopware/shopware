@@ -1,14 +1,67 @@
+# 6.7.16.0
+
+## Reorder no longer posts its line items
+
+`frontend.checkout.cart.reorder` resolves the reordered products from the order, so the reorder form no longer posts `lineItems`. The blocks `page_account_order_item_context_menu_reorder_form_line_items_input` and `page_account_order_item_context_menu_reorder_form_line_item_input` in `storefront/page/account/order-history/order-item.html.twig` are empty and deprecated: an override still renders, but it no longer changes what a reorder adds. Subscribe to the `checkout.cart.collect-reorder-line-items` extension instead, which hands you the `OrderEntity` and the built `list<LineItem>`
+
+The form is only rendered when at least one of the order's products is still visible in the sales channel, so `page_account_order_item_context_menu_reorder_form` and the blocks inside it no longer render for an order whose products were all deactivated or deleted, or that carries no product line item at all. An order built only from a custom line item type therefore offers no reorder entry, and `checkout.cart.collect-reorder-line-items` is not reached from the storefront for it
+
+## Existing MCP integrations and non-admin users need an explicit MCP allowlist
+
+`user.mcp_allowlist` and `integration.mcp_allowlist` changed meaning when they are unset: this used to grant unrestricted MCP access, it now grants none. Only administrator users still bypass the allowlist, integrations never do. Affected credentials still authenticate, but the capability lists return only the discovery meta-tools and a `tools/call` for a domain tool is rejected.
+
+A per-type entry that is missing or explicitly `null` counts as an empty selection too, so an allowlist stored as `{"tools": ["shopware-entity-search"], "resources": null, "prompts": null}` keeps its tool and loses every resource and prompt. If you used the per-type "All" switch in the Administration, re-save the allowlist.
+
+Note which capabilities each integration actually uses before updating, then grant them under Settings > System > Integrations, on the user detail page, or through the API:
+
+```
+POST /api/_action/integration/{integrationId}/mcp-allowlist
+POST /api/_action/user/{userId}/mcp-allowlist
+
+{
+  "allowlist": {
+    "tools": ["shopware-entity-search", "shopware-entity-schema"],
+    "resources": ["shopware://entities"],
+    "prompts": []
+  }
+}
+```
+
+An empty array blocks a type. There is no value meaning "everything" for a principal without the administrator bypass, by design.
+
+Both routes now also require the matching entity privilege, `user:update` and `integration:update` respectively, and answer `403` without it. `users_and_permissions.editor` already grants `user:update`; a custom role carrying only the action privilege has to be extended.
+
+## Shared document classes moved to `DocumentV2`
+
+The legacy document classes that document generation v2 keeps moved from `Shopware\Core\Checkout\Document` into `Shopware\Core\Checkout\DocumentV2`, keeping their class names. `RenderedDocument` also moved into the `Struct` sub-namespace. The previous class names and service IDs keep working as aliases until Shopware 6.9. Replace them with the canonical names before upgrading to 6.9.
+
+| Previous (`Shopware\Core\Checkout\Document\`) | Canonical (`Shopware\Core\Checkout\DocumentV2\`) |
+|---|---|
+| `DocumentEntity` | `DocumentEntity` |
+| `DocumentDefinition` | `DocumentDefinition` |
+| `DocumentCollection` | `DocumentCollection` |
+| `Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity` | `Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity` |
+| `Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition` | `Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition` |
+| `Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection` | `Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection` |
+| `Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelEntity` | `Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelEntity` |
+| `Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition` | `Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition` |
+| `Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection` | `Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection` |
+| `Renderer\RenderedDocument` | `Struct\RenderedDocument` |
+| `SalesChannel\AbstractDocumentRoute` | `SalesChannel\AbstractDocumentRoute` |
+| `SalesChannel\DocumentRoute` | `SalesChannel\DocumentRoute` |
+| `Service\ReferenceInvoiceLoader` | `Service\ReferenceInvoiceLoader` |
+
 # 6.7.15.0
 
-## Document generation v1 deprecated for removal in Shopware 6.9
+## Document generation v1 marked for replacement
 
-The legacy document generation implementation is deprecated with `@deprecated tag:v6.9.0` and replaced by document generation v2 (opt-in via the `DOCUMENT_GENERATION_REWORK` feature flag, the default with Shopware 6.8). The legacy implementation keeps working throughout 6.7 and 6.8 and is removed with Shopware 6.9. Migration guidance per extension point is in `UPGRADE-6.9.md`.
+The legacy document generation implementation is superseded by document generation v2 (opt-in via the `DOCUMENT_GENERATION_REWORK` feature flag, the default with Shopware 6.8). Because v2 is still `@experimental`, the legacy classes are not deprecated yet. They carry `#[ExperimentalReplacement(version: 'v6.9.0', feature: 'DOCUMENT_GENERATION_REWORK', ...)]`, which is silent for static analysis. With Shopware 6.8 the attribute becomes a `@deprecated tag:v6.9.0` annotation. The legacy implementation keeps working throughout 6.7 and 6.8 and is removed with Shopware 6.9. Migration guidance per extension point is in `UPGRADE-6.9.md`.
 
-### Deprecated classes
+### Superseded classes
 
-All classes below live under `Shopware\Core\Checkout\Document`. Replacements live under `Shopware\Core\Checkout\DocumentV2`. A replacement is only named when it is part of the public v2 surface. Where the column says none, v2 handles the concern internally.
+All classes below live under `Shopware\Core\Checkout\Document` and carry `#[ExperimentalReplacement]`. Replacements live under `Shopware\Core\Checkout\DocumentV2`. A replacement is only named when it is part of the public v2 surface. Where the column says none, v2 handles the concern internally and the attribute's `description` explains the shift.
 
-| Deprecated | Replacement |
+| Legacy class | Replacement |
 |---|---|
 | `Controller\DocumentController` | `Controller\DocumentV2Controller` |
 | `DocumentGeneratorController` | `Controller\DocumentV2Controller` |
@@ -76,23 +129,7 @@ The `document_type` and `document_type_translation` entities are deprecated with
 
 ### Relocated classes
 
-The following classes survive v1 and move into the `Shopware\Core\Checkout\DocumentV2` namespace with Shopware 6.9, keeping their class names (annotated with `#[NamespaceChange]`):
-
-| Current location | Location from 6.9 |
-|---|---|
-| `DocumentEntity` | `DocumentV2\DocumentEntity` |
-| `DocumentDefinition` | `DocumentV2\DocumentDefinition` |
-| `DocumentCollection` | `DocumentV2\DocumentCollection` |
-| `Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity` | `DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity` |
-| `Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition` | `DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition` |
-| `Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection` | `DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection` |
-| `Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelEntity` | `DocumentV2\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelEntity` |
-| `Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition` | `DocumentV2\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition` |
-| `Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection` | `DocumentV2\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection` |
-| `Renderer\RenderedDocument` | `DocumentV2\Struct\RenderedDocument` |
-| `SalesChannel\AbstractDocumentRoute` | `DocumentV2\SalesChannel\AbstractDocumentRoute` |
-| `SalesChannel\DocumentRoute` | `DocumentV2\SalesChannel\DocumentRoute` |
-| `Service\ReferenceInvoiceLoader` | `DocumentV2\Service\ReferenceInvoiceLoader` |
+The classes that survive v1 moved into the `Shopware\Core\Checkout\DocumentV2` namespace with Shopware 6.7.16.0. See "Shared document classes moved to `DocumentV2`" in the 6.7.16.0 section.
 
 ## Document generation v2 experimental public surface
 
@@ -169,6 +206,10 @@ The following components are fully deprecated including their registration, temp
 - the v1-only branches inside the surviving download and creation methods
 
 `sw-bulk-edit-save-modal-process` (order bulk edit): the methods `createDocument()`, `getDocumentGenerationResult()`, `getFailedDocumentGenerationItems()`
+
+## `Feature` becomes final
+
+`Shopware\Core\Framework\Feature` becomes `final` with Shopware 6.8 and cannot be extended from then on. It is a static utility class, call its methods directly instead of subclassing it.
 
 # 6.7.14.0
 
@@ -1840,7 +1881,6 @@ In short this means we replaced the following components:
 * `sw-datepicker` with `mt-datepicker`
 * `sw-password-field` with `mt-password-field`
 * `sw-colorpicker` with `mt-colorpicker`
-* `sw-external-link` with `mt-external-link`
 * `sw-skeleton-bar` with `mt-skeleton-bar`
 * `sw-email-field` with `mt-email-field`
 * `sw-url-field` with `mt-url-field`
@@ -1929,96 +1969,6 @@ After:
 <mt-floating-ui :isOpened="myVisibility" />
 ```
 
-## Removal of "sw-tabs":
-The old "sw-tabs" component will be removed in the next major version. Please use the new "mt-tabs" component instead.
-
-We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-tabs" component. In this specific component it cannot convert anything correctly, because the new "mt-tabs" component has a different API. You have to manually check and solve every "TODO" comment created by the codemod.
-
-If you don't want to use the codemod, you can manually replace all occurrences of "sw-tabs" with "mt-tabs".
-
-Following changes are necessary:
-
-### "sw-tabs" is removed
-Replace all component names from "sw-tabs" with "mt-tabs"
-
-Before:
-```html
-<sw-tabs />
-```
-After:
-```html
-<mt-tabs />
-```
-
-### "sw-tabs" wrong "default" slot usage will be replaced with "items" property
-You need to replace the "default" slot with the "items" property. The "items" property is an array of objects which are used to render the tabs. Using the "sw-tabs-item" component is not needed anymore.
-
-Before:
-```html
-<sw-tabs>
-    <template #default="{ active }">
-        <sw-tabs-item name="tab1">Tab 1</sw-tabs-item>
-        <sw-tabs-item name="tab2">Tab 2</sw-tabs-item>
-    </template>
-</sw-tabs>
-```
-
-After:
-```html
-<mt-tabs :items="[
-    {
-        'label': 'Tab 1',
-        'name': 'tab1'
-    },
-    {
-        'label': 'Tab 2',
-        'name': 'tab2'
-    }
-]">
-</mt-tabs>
-```
-
-### "sw-tabs" wrong "content" slot usage - content should be set manually outside the component
-The content slot is not supported anymore. You need to set the content manually outside the component. You can use the "new-item-active" event to get the active item and set it to a variable. Then you can use this variable anywere in your template.
-
-Before:
-```html
-<sw-tabs>
-    <template #content="{ active }">
-        The current active item is {{ active }}
-    </template>
-</sw-tabs>
-```
-
-After:
-```html
-<!-- setActiveItem need to be defined -->
-<mt-tabs @new-item-active="setActiveItem"></mt-tabs>
-
-The current active item is {{ activeItem }}
-```
-
-### "sw-tabs" property "isVertical" was renamed to "vertical"
-Before:
-```html
-<sw-tabs is-vertical />
-```
-
-After:
-```html
-<mt-tabs vertical />
-```
-
-### "sw-tabs" property "alignRight" was removed
-Before:
-```html
-<sw-tabs align-right />
-```
-
-After:
-```html
-<mt-tabs />
-```
 ## Removal of "sw-select-field":
 The old "sw-select-field" component will be removed in the next major version. Please use the new "mt-select" component instead.
 
@@ -2489,38 +2439,6 @@ Before:
 After:
 ```html
 <mt-colorpicker @update:model-value="onUpdateValue" />
-```
-## Removal of "sw-external-link":
-The old "sw-external-link" component will be removed in the next major version. Please use the new "mt-external-link" component instead.
-
-We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-external-link" component.
-
-If you don't want to use the codemod, you can manually replace all occurrences of "sw-external-link" with "mt-external-link".
-
-Following changes are necessary:
-
-### "sw-external-link" is removed
-Replace all component names from "sw-external-link" with "mt-external-link"
-
-Before:
-```html
-<sw-external-link>Hello World</sw-external-link>
-```
-After:
-```html
-<mt-external-link>Hello World</mt-external-link>
-```
-
-### "sw-external-link" property "icon" is removed
-The "icon" property is removed from the "mt-external-link" component. There is no replacement for this property.
-
-Before:
-```html
-<sw-external-link icon="world">Hello World</sw-external-link>
-```
-After:
-```html
-<mt-external-link>Hello World</mt-external-link>
 ```
 ## Removal of "sw-skeleton-bar":
 The old "sw-skeleton-bar" component will be removed in the next major version. Please use the new "mt-skeleton-bar" component instead.

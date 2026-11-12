@@ -13,11 +13,7 @@ const utils = Shopware.Utils;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-        'customFieldDataProviderService',
-    ],
+    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -222,19 +218,18 @@ export default {
             }
 
             const criteria = new Criteria(1, 1);
+            criteria.setTotalCountMode(0);
             criteria.addFilter(
                 Criteria.multi('AND', [
                     Criteria.equals('salutationKey', this.salutation.salutationKey),
-                    Criteria.not('AND', [
-                        Criteria.equals('id', this.salutation.id),
-                    ]),
+                    Criteria.not('AND', [Criteria.equals('id', this.salutation.id)]),
                 ]),
             );
 
             this.salutationRepository
-                .search(criteria)
-                .then(({ total }) => {
-                    this.invalidKey = total > 0;
+                .searchIds(criteria)
+                .then(({ data }) => {
+                    this.invalidKey = data.length > 0;
                     this.isKeyChecking = false;
                 })
                 .catch(() => {

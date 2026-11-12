@@ -9,14 +9,10 @@
 
     &__empty-state {
         min-height: 34.375rem;
+        justify-content: center;
     }
 
     &__event-name {
         min-width: var(--scale-size-256);
-    }
-
-    .sw-empty-state__icon {
-        display: flex;
-        justify-content: center;
     }
 }

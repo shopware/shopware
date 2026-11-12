@@ -22,12 +22,4 @@ class ContentSystemLayoutPresetSchemaErrorTest extends TestCase
 
         static::assertSame('Invalid layout preset in "/path/to/presets": YAML syntax invalid', $error->getMessage());
     }
-
-    #[TestDox('returns correct message key')]
-    public function testReturnsCorrectMessageKey(): void
-    {
-        $error = new ContentSystemLayoutPresetSchemaError('file.yaml', 'reason');
-
-        static::assertSame('manifest-invalid-layout-preset-schema', $error->getMessageKey());
-    }
 }

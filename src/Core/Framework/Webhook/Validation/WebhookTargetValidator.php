@@ -26,6 +26,7 @@ final readonly class WebhookTargetValidator
         private bool $allowUnencryptedTraffic,
         array $allowedPrivateIpAddresses = [],
         ?TrustedUrlResolver $urlResolver = null,
+        private bool $enableUrlValidation = true,
     ) {
         $this->allowedPrivateIpAddresses = array_values(array_filter(
             $allowedPrivateIpAddresses,
@@ -52,6 +53,10 @@ final readonly class WebhookTargetValidator
             $port = $scheme === 'http' ? 80 : 443;
         }
 
+        if (!$this->enableUrlValidation) {
+            return new WebhookTarget($host, $port, null);
+        }
+
         $ipLiteral = trim($host, '[]');
         if (filter_var($ipLiteral, \FILTER_VALIDATE_IP) !== false && !\in_array($ipLiteral, $this->allowedPrivateIpAddresses, true)) {
             return null;
@@ -68,6 +73,10 @@ final readonly class WebhookTargetValidator
 
     private function isAllowedScheme(string $scheme): bool
     {
-        return $scheme === 'https' || ($this->allowUnencryptedTraffic && $scheme === 'http');
+        if ($scheme === 'https') {
+            return true;
+        }
+
+        return $scheme === 'http' && ($this->allowUnencryptedTraffic || !$this->enableUrlValidation);
     }
 }

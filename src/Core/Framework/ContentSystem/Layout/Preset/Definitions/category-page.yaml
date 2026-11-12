@@ -1,6 +1,9 @@
 name: "Category page"
 description: "Collection of components that make up the category page."
 icon: "regular-boxes"
+illustration: "preset-category-page"
+category: "commerce"
+priority: 200
 layout:
   - component: Sw:Grid:Container
     properties:

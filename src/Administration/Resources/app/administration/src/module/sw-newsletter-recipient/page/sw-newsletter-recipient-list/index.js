@@ -16,14 +16,9 @@ const {
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-    ],
+    mixins: [Mixin.getByName('listing')],
 
     shortcuts: {
         OF: 'openFilterSidebar',
@@ -39,6 +34,9 @@ export default {
             filterSidebarItem: null,
             languageFilters: [],
             languageFilterValue: [],
+            /**
+             * @deprecated tag:v6.8.0 - Will be removed, the sales channel filter loads its options itself
+             */
             salesChannelFilters: [],
             salesChannelFilterValue: [],
             statusFilterValue: [],
@@ -118,13 +116,11 @@ export default {
 
             const criteria = new Criteria(1, 100);
             try {
-                const [
-                    languages,
-                    salesChannels,
-                    tags,
-                ] = await Promise.all([
+                const [languages, salesChannels, tags] = await Promise.all([
                     this.repositoryFactory.create('language').search(criteria, Shopware.Context.api),
-                    this.salesChannelRepository.search(criteria),
+                    Shopware.Feature.isActive('V6_8_0_0')
+                        ? Promise.resolve([])
+                        : this.salesChannelRepository.search(criteria),
                     this.tagRepository.search(criteria),
                 ]);
 

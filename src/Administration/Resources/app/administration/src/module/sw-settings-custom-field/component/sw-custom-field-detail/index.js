@@ -19,14 +19,9 @@ export default {
         'acl',
     ],
 
-    emits: [
-        'custom-field-edit-cancel',
-        'custom-field-edit-save',
-    ],
+    emits: ['custom-field-edit-cancel', 'custom-field-edit-save'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         currentCustomField: {
@@ -104,9 +99,27 @@ export default {
             });
         },
 
-        ...mapPropertyErrors('currentCustomField', [
-            'name',
-        ]),
+        genericConfigKeys() {
+            return [
+                'customFieldType',
+                'customFieldPosition',
+                'label',
+                'helpText',
+                'placeholder',
+            ];
+        },
+
+        ...mapPropertyErrors('currentCustomField', ['name']),
+    },
+
+    watch: {
+        'currentCustomField.config.customFieldType'(newType, oldType) {
+            if (!oldType || !newType || !this.currentCustomField._isNew) {
+                return;
+            }
+
+            this.resetTypeConfiguration(newType);
+        },
     },
 
     created() {
@@ -144,6 +157,7 @@ export default {
             }
 
             const criteria = new Criteria(1, 1);
+            criteria.setTotalCountMode(0);
             criteria.addFilter(
                 Criteria.multi('AND', [
                     Criteria.equals('type', 'cartLineItemCustomField'),
@@ -151,8 +165,8 @@ export default {
                 ]),
             );
 
-            this.ruleConditionRepository.search(criteria, Context.api).then((searchResult) => {
-                this.disableCartExpose = searchResult.length > 0;
+            this.ruleConditionRepository.searchIds(criteria, Context.api).then((searchResult) => {
+                this.disableCartExpose = searchResult.data.length > 0;
             });
         },
 
@@ -218,6 +232,24 @@ export default {
             this.currentCustomField.config = {
                 ...this.fieldTypes[customFieldType].config,
                 ...this.currentCustomField.config,
+            };
+        },
+
+        resetTypeConfiguration(customFieldType) {
+            const fieldType = this.fieldTypes[customFieldType];
+
+            if (!fieldType) {
+                return;
+            }
+
+            const genericConfig = Object.fromEntries(
+                Object.entries(this.currentCustomField.config).filter(([key]) => this.genericConfigKeys.includes(key)),
+            );
+
+            this.currentCustomField.type = fieldType.type || customFieldType;
+            this.currentCustomField.config = {
+                ...fieldType.config,
+                ...genericConfig,
             };
         },
 

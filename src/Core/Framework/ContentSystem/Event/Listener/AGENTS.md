@@ -1,12 +1,16 @@
-> Conceptual overview and design rationale live in [README.md](README.md), same
-> directory. The references and constraints below cover most code changes; read
-> the README when you need the mental model.
-
 ## Constraints
 
-- Placeholders resolved in single pass, on the stored tree, after `ContentTreePreparationEvent` and in FULL mode only — a listener adding new placeholders MUST resolve them in the same dispatch cycle, and MUST NOT rely on the pipeline resolving anything in SKELETON mode
-- A preparation listener is positioned ahead of every preparation pass ([../../docs/pipeline-steps.md](../../docs/pipeline-steps.md)), so it reads and writes a translatable property as its whole language map, keyed by language id; it MUST NOT write a bare value there; in FULL mode a value the listener leaves non-map reaches reduction as `TRANSLATION_SHAPE_INVALID` (500)
-- A finalization listener MUST return a map-free tree in either mode. In FULL it receives the reduced forest, where a translatable property already holds the reduced value; in SKELETON reduction never ran, but the mint strips every property value, so there is no map to receive either. A language map a listener introduces is the extension's own fault — no runtime scan guards it
-- Both events carry their forest in private storage and replace it via `replaceTree()`: `ContentTreePreparationEvent` the stored one, `RenderedTreeFinalizationEvent` the rendered one. Every other event property is readonly, and neither exposes `RenderingMode`. `replaceTree()` and the constructor both reject a replacement that is not a list of that event's own element model (`INVALID_MAP_VALUE`, 500); depth is covered by the element constructors, each of which rejects a slot child of the other model
-- A finalization listener may rewrite property values, remove, reorder AND add an element; it may NOT repeat an element id. `ContentPipeline::load()` rejects a repeated id in the forest the event handed back, after the dispatch and before the result is assembled (`DUPLICATE_ELEMENT_ID`, 500, not a client defect)
-- Extension: `#[AsEventListener]` attribute with event class and priority
+- Never rely on the pipeline resolving a placeholder in SKELETON mode, or one that a `RenderedTreeFinalizationEvent` listener adds; resolve it in the listener. Check: does a `{{token}}` the listener introduces reach a FULL-mode preparation step before the finalization event? Why: [rendering.md](../../docs/principles/rendering.md#the-two-tree-replacement-events-fire-at-fixed-points)
+- Return from either event a tree with no repeated element id, and from `ContentTreePreparationEvent` also valid wiring. Check: can the tree passed to `replaceTree()` repeat an element id or, after preparation, break wiring? Either fails the render under [the final check](../../docs/principles/rendering.md#the-render-validates-the-whole-stored-forest-in-every-mode).
+- Write a translatable property from a `ContentTreePreparationEvent` listener only as a language map, never as a bare value. Check: does every value the listener writes under a translatable key stay a map keyed by language id? A bare value throws `TRANSLATION_SHAPE_INVALID` at FULL-mode [language reduction](../../docs/principles/translation.md#language-reduction-happens-on-the-server-and-nothing-downstream-receives-a-language-map).
+- Return from `RenderedTreeFinalizationEvent` a tree that carries no language map. No check enforces this. Check: does the listener write a map where a translatable property held its reduced value? Why: [rendering.md](../../docs/principles/rendering.md#the-two-tree-replacement-events-fire-at-fixed-points)
+- Before adding a guard or rule on listener output, list every action the listener contract permits with its outcome (throw, drop or a new category). Never let a permitted action throw, and document a rule no guard can enforce. Check: can any permitted action reach the new throw? Why: [extension-surface.md](../../docs/principles/extension-surface.md#a-guard-on-listener-output-never-throws-on-an-action-that-the-extension-contract-permits)
+
+## Where to look
+
+- The tree each event carries, `replaceTree()`, the private tree storage, the readonly event properties, the lack of `RenderingMode`, and the edits a finalization listener may make: [custom-listeners.md](docs/custom-listeners.md#custom-event-listeners)
+- Editing `RenderedElement`, `RenderedTreeEditor::mapNodes()` and null properties: [listener-api.md](docs/listener-api.md#working-with-renderedelement)
+- A worked listener, registering it with `#[AsEventListener]` and the autoconfigure requirement: [listener-api.md](docs/listener-api.md#example-reading-time-listener)
+- Cache tags and disabling the cache from a listener: [listener-api.md](docs/listener-api.md#cache-context-in-subscribers)
+- Priority ordering against other extensions' listeners: [listener-api.md](docs/listener-api.md#priorities)
+- Pipeline step order and what a listener sees at each position: [README.md](README.md#execution-order)

@@ -73,6 +73,46 @@ class ContextPathResolverTest extends TestCase
         static::assertSame('child-name', $result);
     }
 
+    #[TestDox('does not expose array traversal to ordinary context wiring')]
+    public function testResolvePathKeepsCustomFieldsOpaqueForOrdinaryConsumers(): void
+    {
+        $struct = new StubPathStruct(customFields: ['material' => 'Leather']);
+
+        static::assertNull(
+            $this->resolver->resolvePath($struct, ['customFields', 'material'], false, 'product.customFields.material', 'elem-1')
+        );
+    }
+
+    /**
+     * @param list<string> $path
+     */
+    #[DataProvider('presenceAwarePathProvider')]
+    public function testMappingLookupPreservesPresence(?Struct $data, array $path, bool $found, mixed $value): void
+    {
+        static::assertSame(['found' => $found, 'value' => $value], $this->resolver->resolveMappingPathWithPresence($data, $path));
+    }
+
+    /**
+     * @return iterable<string, array{Struct|null, list<string>, bool, mixed}>
+     */
+    public static function presenceAwarePathProvider(): iterable
+    {
+        $whole = new StubPathStruct(name: 'Whole source');
+        yield 'whole source preserves its instance' => [$whole, [], true, $whole];
+        yield 'missing whole source' => [null, [], false, null];
+        yield 'non-empty custom field' => [new StubPathStruct(customFields: ['material' => 'Leather']), ['customFields', 'material'], true, 'Leather'];
+        yield 'custom fields below the root stay opaque' => [new StubPathStruct(child: new StubPathStruct(customFields: ['secret' => 'hidden'])), ['child', 'customFields', 'secret'], false, null];
+        yield 'absent custom field' => [new StubPathStruct(customFields: []), ['customFields', 'material'], false, null];
+        yield 'present terminal null' => [new StubPathStruct(name: null), ['name'], true, null];
+        yield 'present null custom field' => [new StubPathStruct(customFields: ['material' => null]), ['customFields', 'material'], true, null];
+        yield 'present empty custom field' => [new StubPathStruct(customFields: ['material' => '']), ['customFields', 'material'], true, ''];
+        yield 'custom field paths cannot continue past the field name' => [new StubPathStruct(customFields: ['material' => 'Leather']), ['customFields', 'material', 'deeper'], false, null];
+        yield 'missing property' => [new StubPathStruct(), ['missing'], false, null];
+        yield 'null intermediate value' => [new StubPathStruct(child: null), ['child', 'name'], false, null];
+        yield 'nested Struct value' => [new StubPathStruct(child: new StubPathStruct(name: 'Child')), ['child', 'name'], true, 'Child'];
+        yield 'ordinary arrays remain opaque' => [new StubPathStruct(nonStructProp: ['secret' => 'hidden']), ['nonStructProp', 'secret'], false, null];
+    }
+
     /**
      * @param list<string> $path
      */

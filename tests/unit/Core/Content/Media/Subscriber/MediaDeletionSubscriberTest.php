@@ -238,7 +238,7 @@ class MediaDeletionSubscriberTest extends TestCase
         $event = $this->createDeleteEvent(MediaDefinition::ENTITY_NAME, $mediaId, $context);
         $this->createMediaDeletionSubscriber()->beforeDelete($event);
 
-        static::assertEmpty($this->messageBus->getMessages());
+        static::assertCount(0, $this->messageBus->getMessages());
         static::assertFalse($this->filesystemPublic->fileExists('media/image.jpg'));
     }
 
@@ -264,7 +264,7 @@ class MediaDeletionSubscriberTest extends TestCase
         $event = $this->createDeleteEvent(MediaThumbnailDefinition::ENTITY_NAME, $thumbId, $context);
         $this->createMediaDeletionSubscriber()->beforeDelete($event);
 
-        static::assertEmpty($this->messageBus->getMessages());
+        static::assertCount(0, $this->messageBus->getMessages());
         static::assertTrue($this->filesystemPublic->fileExists('thumbnail/thumbnail.jpg'));
     }
 

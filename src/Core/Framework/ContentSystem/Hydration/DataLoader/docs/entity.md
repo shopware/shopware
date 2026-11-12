@@ -47,6 +47,6 @@ A product card that loads its own data:
 }
 ```
 
-The `property` field points to the element's own property. The loader reads the ID from there, loads the product, and stores the result back in the same property.
+The `property` field points to the element's own property. The loader reads the ID from there, loads the product, and stores the result under the map key.
 
 If multiple elements need the same product, load it once at their parent and use the context system instead (see [Context System](../../../Layout/Element/Context/README.md)).

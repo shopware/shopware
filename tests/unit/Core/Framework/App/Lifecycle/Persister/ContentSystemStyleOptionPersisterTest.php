@@ -95,7 +95,6 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
         $seeded->setHash(Hasher::hash(json_encode($normalized, \JSON_THROW_ON_ERROR)));
         $seeded->setSchema($normalized);
 
-        /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
         $repo = new StaticEntityRepository([
             new AppContentSystemStyleOptionCollection([$seeded]),
             new AppContentSystemStyleOptionCollection(),
@@ -119,7 +118,6 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
         $existing = $this->buildExistingEntity('opt-gap', 'brand-gap');
         $existing->setHash('outdated-hash-value');
 
-        /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
         $repo = new StaticEntityRepository([
             new AppContentSystemStyleOptionCollection([$existing]),
             new AppContentSystemStyleOptionCollection(),
@@ -145,7 +143,6 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
     {
         $obsolete = $this->buildExistingEntity('opt-old', 'legacy-option');
 
-        /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
         $repo = new StaticEntityRepository([
             new AppContentSystemStyleOptionCollection([$obsolete]),
             new AppContentSystemStyleOptionCollection(),
@@ -185,8 +182,7 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
     #[TestDox('queries the stored options for the installing app by app id')]
     public function testQueriesExistingOptionsByAppId(): void
     {
-        /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
-        $repo = new StaticEntityRepository([
+        $repo = StaticEntityRepository::of(AppContentSystemStyleOptionCollection::class, [
             function (Criteria $criteria, Context $context): AppContentSystemStyleOptionCollection {
                 static::assertCount(1, $criteria->getFilters());
                 $filter = $criteria->getFilters()[0];
@@ -208,8 +204,7 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
     #[TestDox('queries inactive app options excluding the installing app during collision detection')]
     public function testQueriesInactiveOptionsExcludingSelf(): void
     {
-        /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
-        $repo = new StaticEntityRepository([
+        $repo = StaticEntityRepository::of(AppContentSystemStyleOptionCollection::class, [
             static fn (Criteria $criteria, Context $context): AppContentSystemStyleOptionCollection => new AppContentSystemStyleOptionCollection(),
             static function (Criteria $criteria, Context $context): AppContentSystemStyleOptionCollection {
                 $filters = $criteria->getFilters();
@@ -238,7 +233,6 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
 
         $orphan = $this->buildExistingEntity('opt-orphan', 'orphan-option');
 
-        /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
         $repo = new StaticEntityRepository([new AppContentSystemStyleOptionCollection([$orphan])]);
 
         $registry = static::createMock(AbstractContentSystemStyleOptionRegistry::class);
@@ -260,7 +254,6 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
         // so both write kinds run; the single transactional() call must wrap them together.
         $obsolete = $this->buildExistingEntity('opt-old', 'legacy-option');
 
-        /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
         $repo = new StaticEntityRepository([
             new AppContentSystemStyleOptionCollection([$obsolete]),
             new AppContentSystemStyleOptionCollection(),
@@ -386,7 +379,6 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
         $loader = static::createStub(YamlStyleOptionLoader::class);
         $loader->method('loadDtosFromDirectory')->willReturn([]);
 
-        /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
         $repo = new StaticEntityRepository([new AppContentSystemStyleOptionCollection()]);
 
         $persister = $this->buildPersister($repo, loader: $loader);
@@ -407,7 +399,6 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
         $orphaned->setAppId($this->ids->create('deleted-app'));
         // deliberately no setApp(): a dangling row whose app association did not load
 
-        /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
         $repo = new StaticEntityRepository([
             new AppContentSystemStyleOptionCollection(),
             new AppContentSystemStyleOptionCollection([$orphaned]),
@@ -428,8 +419,7 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
         $loader = static::createStub(YamlStyleOptionLoader::class);
         $loader->method('loadDtosFromDirectory')->willThrowException($loaderException);
 
-        /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
-        $repo = new StaticEntityRepository([]);
+        $repo = StaticEntityRepository::of(AppContentSystemStyleOptionCollection::class, []);
 
         $persister = $this->buildPersister($repo, loader: $loader);
 
@@ -477,7 +467,6 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
         $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
         $registry->method('all')->willReturn([]);
 
-        /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
         $repo = new StaticEntityRepository([
             new AppContentSystemStyleOptionCollection(),
             new AppContentSystemStyleOptionCollection([$inactive]),
@@ -679,7 +668,6 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
      */
     private function createEmptyRepository(): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
         $repo = new StaticEntityRepository([
             new AppContentSystemStyleOptionCollection(),
             new AppContentSystemStyleOptionCollection(),

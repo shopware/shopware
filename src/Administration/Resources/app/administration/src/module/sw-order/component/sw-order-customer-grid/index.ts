@@ -38,14 +38,9 @@ type ApiErrorResponse = {
 export default Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
 
     data(): {
         customers: EntityCollection<'customer'> | null;
@@ -158,6 +153,7 @@ export default Component.wrapComponentConfig({
             return Store.get('swOrder').cart;
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },
@@ -263,7 +259,7 @@ export default Component.wrapComponentConfig({
             void this.handleSelectCustomer();
         },
 
-        createCart(salesChannelId: string): Promise<void> {
+        createCart(salesChannelId: EntityKey<'sales_channel'>): Promise<void> {
             return Store.get('swOrder').createCart({ salesChannelId });
         },
 
@@ -277,7 +273,7 @@ export default Component.wrapComponentConfig({
             try {
                 if (!this.cart.token) {
                     // It is compulsory to create cart and get cart token first
-                    await this.createCart(this.customer?.salesChannelId ?? '');
+                    await this.createCart(this.customer?.salesChannelId ?? ('' as EntityKey<'sales_channel'>));
                 }
 
                 this.setCustomer(this.customer);
@@ -304,7 +300,7 @@ export default Component.wrapComponentConfig({
             }
         },
 
-        onAddNewCustomer(customerId: string): void {
+        onAddNewCustomer(customerId: EntityKey<'customer'>): void {
             if (!customerId) {
                 return;
             }
@@ -347,7 +343,7 @@ export default Component.wrapComponentConfig({
             return ids;
         },
 
-        onSalesChannelChange(salesChannelId: string, salesChannel: Entity<'sales_channel'>): void {
+        onSalesChannelChange(salesChannelId: EntityKey<'sales_channel'>, salesChannel: Entity<'sales_channel'>): void {
             if (!this.customer) {
                 return;
             }

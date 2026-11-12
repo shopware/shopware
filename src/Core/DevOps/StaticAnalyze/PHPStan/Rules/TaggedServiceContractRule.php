@@ -20,6 +20,10 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Contracts\Service\ServiceProviderInterface;
 
 /**
+ * Keeps tagged service implementations and their consumers aligned with declared tag contracts.
+ * Checks service classes through PHPStan's service map and tagged iterator/locator constructor
+ * arguments through the compiled container XML and constructor attributes.
+ *
  * @implements Rule<InClassNode>
  *
  * @internal
@@ -505,6 +509,10 @@ class TaggedServiceContractRule implements Rule
                 foreach ($referencedService->getTags() as $tag) {
                     /** @phpstan-ignore phpstanApi.method (ServiceTag is returned by the public ServiceDefinition API, but this accessor is not marked API) */
                     $tagName = $tag->getName();
+
+                    if ($tagName === 'shopware.feature' || $tagName === 'shopware.inactiveFeature') {
+                        continue;
+                    }
 
                     $tags[] = $tagName;
                 }

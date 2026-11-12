@@ -10,6 +10,7 @@ use Shopware\Core\Framework\App\Feature\AppFeatureConfig;
 use Shopware\Core\Framework\App\Feature\AppFeatureDefinition;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Manifest\XmlParserUtils;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -33,8 +34,6 @@ use Shopware\Core\System\NumberRange\NumberRangeCollection;
 final class DocumentAppFeatureDefinition extends AppFeatureDefinition
 {
     final public const TYPE = 'document';
-
-    private const FALLBACK_LOCALE = 'en-GB';
 
     /**
      * @param EntityRepository<NumberRangeTypeCollection> $numberRangeTypeRepository
@@ -69,7 +68,7 @@ final class DocumentAppFeatureDefinition extends AppFeatureDefinition
             static fn (array $documentType): AppDocumentTypeConfig => new AppDocumentTypeConfig(
                 $documentType['identifier'],
                 $documentType['formats'],
-                self::resolveLabel($documentType['label'], $defaultLocale),
+                XmlParserUtils::ensureTranslationForLocale($documentType['label'], $defaultLocale),
                 $documentType['config'],
             ),
             $documents->getDocumentTypes(),
@@ -199,24 +198,5 @@ final class DocumentAppFeatureDefinition extends AppFeatureDefinition
                 'start' => 1000,
             ]], $context);
         }
-    }
-
-    /**
-     * Guarantees the shop default locale has a label, falling back to the English or first
-     * declared translation, mirroring the manifest translation handling of other app features.
-     *
-     * @param array<string, string> $label
-     *
-     * @return array<string, string>
-     */
-    private static function resolveLabel(array $label, string $defaultLocale): array
-    {
-        if ($label === [] || \array_key_exists($defaultLocale, $label)) {
-            return $label;
-        }
-
-        $label[$defaultLocale] = $label[self::FALLBACK_LOCALE] ?? reset($label);
-
-        return $label;
     }
 }

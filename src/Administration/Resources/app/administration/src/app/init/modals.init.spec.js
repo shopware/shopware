@@ -149,9 +149,7 @@ describe('src/app/init/modals.init.ts', () => {
         await ui.modal.open({
             title: 'Button Modal',
             locationId: 'button-modal-id',
-            buttons: [
-                { label: 'Old Button', method: () => {} },
-            ],
+            buttons: [{ label: 'Old Button', method: () => {} }],
         });
 
         expect(Shopware.Store.get('modals').modals[0].buttons).toHaveLength(1);

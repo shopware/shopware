@@ -6,6 +6,7 @@ use Monolog\Level;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\MessageAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
+use Shopware\Core\Content\Mail\Service\MailLogData;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
@@ -14,10 +15,12 @@ use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\LogAware;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\NotHookable;
 use Symfony\Component\Mime\Email;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('after-sales')]
+#[NotHookable]
 class MailBeforeSentEvent extends Event implements LogAware, MessageAware, ScalarValuesAware, FlowEventAware
 {
     final public const EVENT_NAME = 'mail.after.create.message';
@@ -73,6 +76,14 @@ class MailBeforeSentEvent extends Event implements LogAware, MessageAware, Scala
 
     public function getLogData(): array
     {
+        if (MailLogData::isSensitive($this->data, ['eventName' => $this->eventName]) || MailLogData::isSensitiveMessage($this->message)) {
+            return MailLogData::create([
+                ...$this->data,
+                ...MailLogData::fromMessage($this->message),
+                'eventName' => $this->eventName,
+            ]);
+        }
+
         $data = $this->data;
         unset($data['binAttachments']);
 

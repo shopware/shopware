@@ -32,6 +32,11 @@ type Ctx = {
     inferredEmits: string[];
     /** Written through `report()`; a single `skip` entry refuses the component outright. */
     reports: (TodoEntry & { kind: ReportKind })[];
+    /**
+     * The component belongs to an extension, which cannot import Administration source, so a mixin whose
+     * composable `shopware:composables` does not publish refuses it.
+     */
+    extensionTarget: boolean;
 };
 
 type FnLike = {
@@ -252,10 +257,7 @@ function arrowText(ctx: Ctx, fn: FnLike): string {
     return `${commentPrefix}${asyncPrefix}function${generator}${typeParameters}(${params})${returnType} ${snip(ctx, fn.body)}`;
 }
 
-const OPTIONS_WRAPPERS = new Set([
-    'wrapComponentConfig',
-    'defineComponent',
-]);
+const OPTIONS_WRAPPERS = new Set(['wrapComponentConfig', 'defineComponent']);
 
 /** Strips the type-only and grouping wrappers an expression may be authored behind. */
 function unwrapExpression(node: t.Node): t.Node {

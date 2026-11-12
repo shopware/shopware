@@ -49,7 +49,7 @@ class CustomFieldSet extends XmlElement
      *
      * @return CustomFieldSetArray
      */
-    public function toEntityArray(?string $appId, array &$existingRelations, array &$existingFields, ?string $existingSetId = null): array
+    public function toEntityArray(?string $appId, array &$existingRelations, array &$existingFields, ?string $existingSetId = null, ?string $defaultLocale = null): array
     {
         $relations = array_map(static function (string $entity) use (&$existingRelations): array {
             $relationData = ['entityName' => $entity];
@@ -62,8 +62,8 @@ class CustomFieldSet extends XmlElement
             return $relationData;
         }, $this->relatedEntities);
 
-        $customFields = array_map(static function (CustomFieldType $field) use (&$existingFields): array {
-            $fieldData = $field->toEntityPayload();
+        $customFields = array_map(static function (CustomFieldType $field) use (&$existingFields, $defaultLocale): array {
+            $fieldData = $field->toEntityPayload($defaultLocale);
             if (\array_key_exists($field->getName(), $existingFields)) {
                 $fieldData['id'] = $existingFields[$field->getName()];
 
@@ -79,7 +79,7 @@ class CustomFieldSet extends XmlElement
         $set = [
             'global' => $this->global,
             'config' => [
-                'label' => $this->label,
+                'label' => $defaultLocale === null ? $this->label : $this->ensureTranslationForDefaultLanguageExist($this->label, $defaultLocale),
                 'translated' => true,
             ],
             'relations' => $relations,

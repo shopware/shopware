@@ -19,11 +19,7 @@ export default {
         'cmsPageTypeService',
     ],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-        Mixin.getByName('user-settings'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification'), Mixin.getByName('user-settings')],
 
     data() {
         return {
@@ -48,17 +44,16 @@ export default {
             showDeleteModal: false,
             defaultMediaFolderId: null,
             listMode: 'grid',
-            assignablePageTypes: [
-                'categories',
-                'products',
-                'landingPages',
-            ],
+            assignablePageTypes: ['categories', 'products', 'landingPages'],
             searchConfigEntity: 'cms_page',
             showLayoutSetAsDefaultModal: false,
             defaultCategoryId: '',
             defaultProductId: '',
             newDefaultLayout: undefined,
             maxVisibleAssignedPages: 3,
+            isCompactLayout: false,
+            compactLayoutBreakpoint: 800,
+            layoutResizeObserver: null,
         };
     },
 
@@ -168,9 +163,7 @@ export default {
                     type: 'multi',
                     operator: 'OR',
                     queries: this.assignablePageTypes.map((name) =>
-                        Criteria.not('OR', [
-                            Criteria.equals(`${name}.id`, null),
-                        ]),
+                        Criteria.not('OR', [Criteria.equals(`${name}.id`, null)]),
                     ),
                 },
             ];
@@ -196,7 +189,44 @@ export default {
         this.createdComponent();
     },
 
+    mounted() {
+        this.mountedComponent();
+    },
+
+    beforeUnmount() {
+        this.beforeUnmountComponent();
+    },
+
     methods: {
+        mountedComponent() {
+            this.registerLayoutResizeObserver();
+        },
+
+        beforeUnmountComponent() {
+            if (this.layoutResizeObserver) {
+                this.layoutResizeObserver.disconnect();
+                this.layoutResizeObserver = null;
+            }
+        },
+
+        /**
+         * The page type navigation needs the width of the page, not of the viewport, because the
+         * admin menu takes a different share of the viewport depending on its collapsed state.
+         */
+        registerLayoutResizeObserver() {
+            if (!(this.$el instanceof HTMLElement) || typeof ResizeObserver === 'undefined') {
+                return;
+            }
+
+            this.layoutResizeObserver = new ResizeObserver((entries) => {
+                entries.forEach((entry) => {
+                    this.isCompactLayout = entry.contentRect.width < this.compactLayoutBreakpoint;
+                });
+            });
+
+            this.layoutResizeObserver.observe(this.$el);
+        },
+
         async createdComponent() {
             if (this.acl.can('user_config:read')) {
                 await this.loadGridUserSettings().catch(() => {});
@@ -297,6 +327,13 @@ export default {
             criteria.addAggregation(linkedLayoutsFilter);
         },
 
+        isDefaultLayout(page) {
+            return [
+                this.defaultProductId,
+                this.defaultCategoryId,
+            ].includes(page.id);
+        },
+
         showDefaultLayoutContextMenu(cmsPage) {
             if (!this.acl.can('system_config:read')) {
                 return false;
@@ -372,10 +409,7 @@ export default {
 
             return this.defaultFolderRepository
                 .search(criteria, {
-                    cacheKey: [
-                        'media-default-folder',
-                        'cms_page',
-                    ],
+                    cacheKey: ['media-default-folder', 'cms_page'],
                 })
                 .then((searchResult) => {
                     const defaultFolder = searchResult.first();
@@ -400,10 +434,7 @@ export default {
         },
 
         onSortingChanged(value) {
-            [
-                this.sortBy,
-                this.sortDirection,
-            ] = value.split(':');
+            [this.sortBy, this.sortDirection] = value.split(':');
             this.resetList();
             this.saveGridUserSettings();
         },
@@ -625,10 +656,7 @@ export default {
         },
 
         getPageType(page) {
-            const isDefault = [
-                this.defaultProductId,
-                this.defaultCategoryId,
-            ].includes(page.id);
+            const isDefault = this.isDefaultLayout(page);
             const defaultText = this.$t('sw-cms.components.cmsListItem.defaultLayout');
             const typeLabel = this.$t(this.cmsPageTypeService.getType(page.type)?.title);
 

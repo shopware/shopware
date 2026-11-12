@@ -17,10 +17,7 @@ const operationToRole: Record<string, string> = {
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function colonToDot(chip: string): string | null {
     if (typeof chip !== 'string' || chip.startsWith('<')) return null;
-    const [
-        entity,
-        operation,
-    ] = chip.split(':');
+    const [entity, operation] = chip.split(':');
     const role = operationToRole[operation];
     return entity && role ? `${entity}.${role}` : null;
 }
@@ -29,10 +26,7 @@ export function colonToDot(chip: string): string | null {
 export function isPrivilegeGranted(chip: string, grantedPrivileges: string[]): boolean {
     if (typeof chip !== 'string') return false;
     if (grantedPrivileges.includes(chip)) return true;
-    const [
-        entity,
-        operation,
-    ] = chip.split(':');
+    const [entity, operation] = chip.split(':');
     return !!operationToRole[operation] && grantedPrivileges.includes(`${entity}.${operationToRole[operation]}`);
 }
 

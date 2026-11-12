@@ -56,6 +56,72 @@ class ContentLayoutMutationControllerTest extends TestCase
         static::assertCount(2, $this->reload($layoutId)->getLayout());
     }
 
+    public function testMapPropertyPersistsTheAuthoredMapping(): void
+    {
+        $layoutId = $this->createLayout([[
+            'id' => 'mapped-image',
+            'component' => 'Sw:Media:Image',
+            'properties' => ['height' => '250px', 'mediaId' => '0188fa1b2c3d4e5f6a7b8c9d0e1f2a40'],
+            'dataRequirements' => ['media' => ['key' => 'media', 'source' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']]],
+        ]]);
+        $source = ['type' => 'root', 'id' => 'category', 'path' => 'media'];
+        $this->getBrowser(permissions: ['content_layout:read', 'content_layout:update']);
+
+        $body = $this->mutate('map-property', $layoutId, [
+            'elementId' => 'mapped-image',
+            'propertyKey' => 'media',
+            'source' => $source,
+            'expectedVersion' => null,
+        ]);
+
+        static::assertSame($source, $body['layout'][0]['acceptsContext']['media']['source']);
+        static::assertSame(['mapped-image'], $body['affectedElementIds']);
+        $saved = $this->reload($layoutId)->getLayout()[0];
+        static::assertSame($source, $saved->contextDefinitions->getAllConsumers()['media']->source?->jsonSerialize());
+        static::assertSame('250px', $saved->property('height')?->asString());
+    }
+
+    public function testMapPropertyRequiresUpdatePrivilege(): void
+    {
+        $layoutId = $this->createLayout([$this->element('image', TestElementTypeLoader::RESOLVABLE)]);
+        $browser = $this->getBrowser(permissions: ['content_layout:read']);
+
+        $browser->jsonRequest('POST', self::BASE_URL . $layoutId . '/map-property', [
+            'elementId' => 'image',
+            'propertyKey' => 'media',
+            'source' => ['type' => 'root', 'id' => 'category', 'path' => 'media'],
+            'expectedVersion' => null,
+        ]);
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+        static::assertSame([], $this->reload($layoutId)->getLayout()[0]->contextDefinitions->getAllConsumers());
+    }
+
+    public function testMapPropertyRejectsAMalformedSourceWithoutWriting(): void
+    {
+        $layoutId = $this->createLayout([[
+            'id' => 'mapped-image',
+            'component' => 'Sw:Media:Image',
+            'properties' => ['height' => '250px', 'mediaId' => '0188fa1b2c3d4e5f6a7b8c9d0e1f2a40'],
+            'dataRequirements' => ['media' => ['key' => 'media', 'source' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']]],
+        ]]);
+
+        $this->request('map-property', $layoutId, [
+            'elementId' => 'mapped-image',
+            'propertyKey' => 'media',
+            'source' => ['type' => 'root', 'id' => ''],
+            'expectedVersion' => null,
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        $body = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::INVALID_MAPPING_SOURCE, array_column($body['errors'], 'code'));
+        $saved = $this->reload($layoutId)->getLayout()[0];
+        static::assertSame([], $saved->contextDefinitions->getAllConsumers());
+        static::assertSame('250px', $saved->property('height')?->asString());
+    }
+
     #[TestDox('rejects a mutation with a stale expected version (409) without writing')]
     public function testStaleVersionConflictDoesNotWrite(): void
     {

@@ -12,6 +12,9 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingMetadata;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingToken;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Output\PartialRenderer;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\ContentSystem\Rendering\ElementLowering;
@@ -24,10 +27,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * Brings a stored forest into the state the rendering steps require, and hands stored forests back. Its
  * steps are ordered and internal: a caller asks for a prepared tree, never for one of the steps.
  *
- * The order is language reduction, then placeholder resolution, then the virtual-root wrap, then the partial
- * prune, and finally the scaffolding the finishing steps read. The first two run in FULL mode only. The
- * skeleton response carries a tree's structure and its style, never a property value, so collapsing and
- * resolving into values it discards is work no reader can observe.
+ * The order is language reduction, then authored-token capture and placeholder resolution, then the
+ * virtual-root wrap, then the partial prune, and finally the scaffolding the finishing steps read. The first
+ * two run in FULL mode only. The skeleton response carries a tree's structure and its style, never a property
+ * value, so collapsing and resolving into values it discards is work no reader can observe.
  *
  * Language reduction is a value-level collapse inside preparation, which is why it is not named a lowering:
  * that role name belongs to the stored-to-rendered model translation, which {@see ElementLowering} runs. The
@@ -44,6 +47,7 @@ final class StoredTreePreparer
         private readonly PartialRenderer $partialRenderer,
         private readonly DataLoaderConfigSerializerProvider $configSerializerProvider,
         private readonly DataLoaderProvider $dataLoaderProvider,
+        private readonly InlineMappingTokenParser $inlineMappingTokenParser,
     ) {
     }
 
@@ -56,11 +60,13 @@ final class StoredTreePreparer
         RenderingMode $mode,
         SalesChannelContext $salesChannelContext,
     ): TreePreparationResult {
-        // Placeholders substitute into string values and never descend into a map, so they see a translatable
-        // property only once reduction has collapsed it to the selected entry.
+        $inlineTokens = [];
+
+        // The token parser and placeholder substitution read strings only, and a translatable value is a
+        // language map until reduction selects one entry.
         if ($mode === RenderingMode::FULL) {
             $tree = $this->reduceTreeLanguage($tree, $salesChannelContext);
-            $tree = $this->resolveTreePlaceholders($tree, $specification);
+            $tree = $this->resolveTreePlaceholders($tree, $specification, $inlineTokens);
         }
 
         $virtualRootWrapped = $this->virtualRootWrapper->requiresWrapping($specification, $tree);
@@ -77,7 +83,8 @@ final class StoredTreePreparer
         return new TreePreparationResult(
             $tree,
             $prePruneForest,
-            $this->deriveScaffolding($tree, $extractTargetId, $virtualRootWrapped)
+            $this->deriveScaffolding($tree, $extractTargetId, $virtualRootWrapped),
+            new InlineMappingMetadata($inlineTokens),
         );
     }
 
@@ -194,15 +201,18 @@ final class StoredTreePreparer
 
     /**
      * @param list<StoredElement> $tree
+     * @param array<string, array<string, list<InlineMappingToken>>> $inlineTokens
      *
      * @return list<StoredElement>
      */
-    private function resolveTreePlaceholders(array $tree, RenderingSpecification $specification): array
+    private function resolveTreePlaceholders(array $tree, RenderingSpecification $specification, array &$inlineTokens): array
     {
-        return array_map(
-            fn (StoredElement $element): StoredElement => $this->resolvePlaceholders($element, $specification->placeholderValues),
-            $tree
-        );
+        $prepared = [];
+        foreach ($tree as $element) {
+            $prepared[] = $this->resolvePlaceholders($element, $specification->placeholderValues, $inlineTokens);
+        }
+
+        return $prepared;
     }
 
     /**
@@ -272,14 +282,30 @@ final class StoredTreePreparer
      * A property value that is entirely one unresolved `{{token}}` stays verbatim, like any other unresolved
      * token. A Literal config value of that shape is removed before the config is decoded instead: an optional
      * key then decodes as absent (its declared default, or null when it declares none), and a required key
-     * fails in the loader config serializer's decode.
+     * fails in the loader config serializer's decode. A lone `{{map:...}}` is mapping syntax, not a
+     * placeholder, so it is neither substituted nor removed.
+     *
+     * @param array<string, array<string, list<InlineMappingToken>>> $inlineTokens
      */
-    private function resolvePlaceholders(StoredElement $element, PlaceholderValues $values): StoredElement
+    private function resolvePlaceholders(StoredElement $element, PlaceholderValues $values, array &$inlineTokens): StoredElement
     {
+        $declaredProperties = null;
         $properties = [];
         foreach ($element->properties() as $key => $value) {
             if ($value->isString()) {
-                $value = StoredValue::ofString($this->substitute($value->asString(), $values));
+                $declaredProperties ??= $this->typeRegistry->has($element->component)
+                    ? $this->typeRegistry->get($element->component)->properties()
+                    : [];
+                $authored = $value->asString();
+                $tokens = ($declaredProperties[(string) $key] ?? null)?->inlineMappable()
+                    ? $this->inlineMappingTokenParser->parse($authored)
+                    : [];
+                [$substituted, $adjustedTokens] = $this->substituteAuthoredText($authored, $values, $tokens);
+                if ($adjustedTokens !== []) {
+                    $inlineTokens[$element->id][(string) $key] = $adjustedTokens;
+                }
+
+                $value = StoredValue::ofString($substituted);
             }
 
             $properties[$key] = $value;
@@ -292,10 +318,10 @@ final class StoredTreePreparer
 
         $slots = [];
         foreach ($element->slots as $slotName => $children) {
-            $slots[$slotName] = array_map(
-                fn (StoredElement $child): StoredElement => $this->resolvePlaceholders($child, $values),
-                $children
-            );
+            $slots[$slotName] = [];
+            foreach ($children as $child) {
+                $slots[$slotName][] = $this->resolvePlaceholders($child, $values, $inlineTokens);
+            }
         }
 
         return $element->withProperties($properties)->withDataRequirements($dataRequirements)->withSlots($slots);
@@ -357,12 +383,18 @@ final class StoredTreePreparer
 
     /**
      * One pass over the declared keys, no recursion into what a substitution produced: a declared value that
-     * itself reads as a `{{token}}` is inserted verbatim. An unresolved token stays verbatim.
+     * itself reads as a `{{token}}` is inserted verbatim. An unresolved token stays verbatim. A key beginning
+     * with mapping syntax is never replaced, so a request value cannot overwrite a `{{map:...}}` token, even in
+     * a property that bypasses the mapping parser.
      */
     private function substitute(string $input, PlaceholderValues $values): string
     {
         $replacements = [];
         foreach ($values->all() as $key => $value) {
+            if (InlineMappingTokenParser::isReservedPlaceholderKey((string) $key)) {
+                continue;
+            }
+
             $replacements['{{' . $key . '}}'] = (string) $value;
         }
 
@@ -370,12 +402,50 @@ final class StoredTreePreparer
     }
 
     /**
-     * Whether the input is entirely one `{{token}}` whose key carries no value. Judged on the input, never on
-     * a substitution output: a declared value that is itself a token is a resolved value.
+     * Substitutes the text around the authored tokens and records each token at its offset in the result.
+     * Tokens supplied by placeholder values are never added to this metadata.
+     *
+     * @param list<InlineMappingToken> $tokens
+     *
+     * @return array{string, list<InlineMappingToken>}
+     */
+    private function substituteAuthoredText(string $input, PlaceholderValues $values, array $tokens): array
+    {
+        if ($tokens === []) {
+            return [$this->substitute($input, $values), []];
+        }
+
+        $rewritten = '';
+        $cursor = 0;
+        $adjustedTokens = [];
+
+        foreach ($tokens as $token) {
+            $rewritten .= $this->substitute(substr($input, $cursor, $token->offset - $cursor), $values);
+            $adjustedTokens[] = new InlineMappingToken(
+                $token->path,
+                $token->match,
+                \strlen($rewritten),
+                $token->insideMarkup,
+                $token->malformed,
+            );
+            $rewritten .= $token->match;
+            $cursor = $token->offset + \strlen($token->match);
+        }
+
+        $rewritten .= $this->substitute(substr($input, $cursor), $values);
+
+        return [$rewritten, $adjustedTokens];
+    }
+
+    /**
+     * Whether the input is entirely one ordinary `{{token}}` whose key carries no value. Judged on the input,
+     * never on a substitution output: a declared value that is itself a token is a resolved value. A reserved
+     * mapping key is never a placeholder, so it never counts as unresolved.
      */
     private function isLoneUnresolvedToken(string $input, PlaceholderValues $values): bool
     {
         return preg_match('/^\{\{([^{}]+)\}\}$/D', $input, $match) === 1
+            && !InlineMappingTokenParser::isReservedPlaceholderKey($match[1])
             && !\array_key_exists($match[1], $values->all());
     }
 }

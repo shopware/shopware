@@ -23,10 +23,7 @@ const getDefaultSorting = () => {
 export default {
     template,
 
-    emits: [
-        'media-sorting-change',
-        'media-presentation-change',
-    ],
+    emits: ['media-sorting-change', 'media-presentation-change'],
 
     props: {
         presentation: {

@@ -8,9 +8,6 @@ use Shopware\Core\Framework\App\Aggregate\AppContentSystemBindingSpecification\A
 use Shopware\Core\Framework\App\Aggregate\AppContentSystemElementType\AppContentSystemElementTypeCollection;
 use Shopware\Core\Framework\App\Aggregate\AppContentSystemLayoutPreset\AppContentSystemLayoutPresetCollection;
 use Shopware\Core\Framework\App\Aggregate\AppContentSystemStyleOption\AppContentSystemStyleOptionCollection;
-use Shopware\Core\Framework\App\Aggregate\AppMcpPrompt\AppMcpPromptCollection;
-use Shopware\Core\Framework\App\Aggregate\AppMcpResource\AppMcpResourceCollection;
-use Shopware\Core\Framework\App\Aggregate\AppMcpTool\AppMcpToolCollection;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodCollection;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
@@ -170,12 +167,6 @@ class AppEntity extends Entity
      * @var EntityCollection<AppShippingMethodEntity>|null
      */
     protected ?EntityCollection $appShippingMethods = null;
-
-    protected ?AppMcpToolCollection $mcpTools = null;
-
-    protected ?AppMcpPromptCollection $mcpPrompts = null;
-
-    protected ?AppMcpResourceCollection $mcpResources = null;
 
     protected int $templateLoadPriority;
 
@@ -724,36 +715,6 @@ class AppEntity extends Entity
     public function setAppShippingMethods(EntityCollection $appShippingMethods): void
     {
         $this->appShippingMethods = $appShippingMethods;
-    }
-
-    public function getMcpTools(): ?AppMcpToolCollection
-    {
-        return $this->mcpTools;
-    }
-
-    public function setMcpTools(AppMcpToolCollection $mcpTools): void
-    {
-        $this->mcpTools = $mcpTools;
-    }
-
-    public function getMcpPrompts(): ?AppMcpPromptCollection
-    {
-        return $this->mcpPrompts;
-    }
-
-    public function setMcpPrompts(AppMcpPromptCollection $mcpPrompts): void
-    {
-        $this->mcpPrompts = $mcpPrompts;
-    }
-
-    public function getMcpResources(): ?AppMcpResourceCollection
-    {
-        return $this->mcpResources;
-    }
-
-    public function setMcpResources(AppMcpResourceCollection $mcpResources): void
-    {
-        $this->mcpResources = $mcpResources;
     }
 
     public function jsonSerialize(): array

@@ -19,6 +19,8 @@ use Shopware\Core\Framework\Log\Package;
  * remint so a rejection names the element id the caller supplied; the two touch disjoint fields. The supplied
  * root's component must be a registered element type (mutationUnknownType), matching the type check
  * insert/replace/wrap run. The placed ids are minted server-side and come back in affected().
+ * Copied and detached content retains its mapping choices. Preset insertion explicitly marks new scaffolds for
+ * default mapping seeding and consumer mirroring; minting ids alone does not initialize either.
  *
  * @internal
  */
@@ -33,6 +35,7 @@ final class AttachElement extends AbstractLayoutMutation
         private readonly ?string $parentElementId = null,
         private readonly ?string $slot = null,
         private readonly ?int $index = null,
+        private readonly bool $isNewScaffold = false,
     ) {
     }
 
@@ -49,6 +52,7 @@ final class AttachElement extends AbstractLayoutMutation
         $this->affected = $this->subtreeIds($clone);
         // created and affected are the same set here: every node of the fresh subtree.
         $this->created = $this->subtreeIds($clone);
+        $this->freshlyScaffolded = $this->isNewScaffold ? $this->created : [];
 
         if ($this->parentElementId === null) {
             return $tree->insertAtRoot($this->index, [$clone]);

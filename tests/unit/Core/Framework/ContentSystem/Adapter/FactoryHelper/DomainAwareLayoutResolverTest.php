@@ -42,8 +42,7 @@ class DomainAwareLayoutResolverTest extends TestCase
 
         $context = Generator::generateSalesChannelContext();
 
-        /** @var StaticEntityRepository<HeaderContentLayoutCollection> $repository */
-        $repository = new StaticEntityRepository([
+        $repository = StaticEntityRepository::of(HeaderContentLayoutCollection::class, [
             static function (Criteria $criteria) use ($entity): array {
                 $filters = $criteria->getFilters();
                 static::assertCount(1, $filters);
@@ -77,8 +76,7 @@ class DomainAwareLayoutResolverTest extends TestCase
         $context->method('getSalesChannel')->willReturn($salesChannel);
         $context->method('getContext')->willReturn(Context::createDefaultContext());
 
-        /** @var StaticEntityRepository<HeaderContentLayoutCollection> $repository */
-        $repository = new StaticEntityRepository([
+        $repository = StaticEntityRepository::of(HeaderContentLayoutCollection::class, [
             static function (Criteria $criteria) use ($entity): array {
                 $filters = $criteria->getFilters();
                 static::assertCount(1, $filters);
@@ -139,8 +137,7 @@ class DomainAwareLayoutResolverTest extends TestCase
      */
     private function createRepository(HeaderContentLayoutEntity ...$entities): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<HeaderContentLayoutCollection> $repository */
-        $repository = new StaticEntityRepository([$entities]);
+        $repository = StaticEntityRepository::of(HeaderContentLayoutCollection::class, [$entities]);
 
         return $repository;
     }

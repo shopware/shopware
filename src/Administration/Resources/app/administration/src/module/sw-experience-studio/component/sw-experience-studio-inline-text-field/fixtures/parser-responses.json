@@ -1,0 +1,109 @@
+[
+    {
+        "text": "{{map:category.description}}",
+        "tokens": [
+            {
+                "path": "category.description",
+                "match": "{{map:category.description}}",
+                "canonicalToken": "{{map:category.description}}",
+                "offset": 0,
+                "insideMarkup": false,
+                "malformed": false
+            }
+        ]
+    },
+    {
+        "text": "<p>The {{map:category.description}} explains it.</p>",
+        "tokens": [
+            {
+                "path": "category.description",
+                "match": "{{map:category.description}}",
+                "canonicalToken": "{{map:category.description}}",
+                "offset": 7,
+                "insideMarkup": false,
+                "malformed": false
+            }
+        ]
+    },
+    {
+        "text": "<p>{{map:category.description}}</p>",
+        "tokens": [
+            {
+                "path": "category.description",
+                "match": "{{map:category.description}}",
+                "canonicalToken": "{{map:category.description}}",
+                "offset": 3,
+                "insideMarkup": false,
+                "malformed": false
+            }
+        ]
+    },
+    {
+        "text": "<p>{{map:category.description}} / {{map:category.description}}</p>",
+        "tokens": [
+            {
+                "path": "category.description",
+                "match": "{{map:category.description}}",
+                "canonicalToken": "{{map:category.description}}",
+                "offset": 3,
+                "insideMarkup": false,
+                "malformed": false
+            },
+            {
+                "path": "category.description",
+                "match": "{{map:category.description}}",
+                "canonicalToken": "{{map:category.description}}",
+                "offset": 34,
+                "insideMarkup": false,
+                "malformed": false
+            }
+        ]
+    },
+    {
+        "text": "<h2>{{map:category.description}}</h2>",
+        "tokens": [
+            {
+                "path": "category.description",
+                "match": "{{map:category.description}}",
+                "canonicalToken": "{{map:category.description}}",
+                "offset": 4,
+                "insideMarkup": false,
+                "malformed": false
+            }
+        ]
+    },
+    {
+        "text": "<ul><li><p>{{map:category.description}}</p></li></ul>",
+        "tokens": [
+            {
+                "path": "category.description",
+                "match": "{{map:category.description}}",
+                "canonicalToken": "{{map:category.description}}",
+                "offset": 11,
+                "insideMarkup": false,
+                "malformed": false
+            }
+        ]
+    },
+    {
+        "text": "<p>{{map:category.nonsense}}</p>",
+        "tokens": [
+            {
+                "path": "category.nonsense",
+                "match": "{{map:category.nonsense}}",
+                "canonicalToken": "{{map:category.nonsense}}",
+                "offset": 3,
+                "insideMarkup": false,
+                "malformed": false
+            }
+        ]
+    },
+    {
+        "text": "",
+        "tokens": []
+    },
+    {
+        "text": "Just words.",
+        "tokens": []
+    }
+]

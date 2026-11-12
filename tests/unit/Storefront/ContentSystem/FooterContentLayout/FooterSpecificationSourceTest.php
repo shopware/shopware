@@ -33,8 +33,7 @@ class FooterSpecificationSourceTest extends TestCase
     {
         $this->resolver = static::createStub(DomainAwareLayoutResolver::class);
 
-        /** @var StaticEntityRepository<FooterContentLayoutCollection> $repository */
-        $repository = new StaticEntityRepository([]);
+        $repository = StaticEntityRepository::of(FooterContentLayoutCollection::class, []);
 
         $this->source = new FooterSpecificationSource(
             $this->resolver,
@@ -48,6 +47,12 @@ class FooterSpecificationSourceTest extends TestCase
         $context = Generator::generateSalesChannelContext();
 
         static::assertTrue($this->source->supports('', new Request(), $context));
+    }
+
+    #[TestDox('uses the footer section as its mapping catalogue source')]
+    public function testRootSourceReturnsFooterSection(): void
+    {
+        static::assertSame('footer', $this->source->rootSource());
     }
 
     #[TestDox('resolves layout ID from domain-aware assignment')]

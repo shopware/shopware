@@ -59,6 +59,8 @@ class ElementTypeSpecificationSerializer
             copilot: $copilot,
             properties: $properties,
             slots: $slots,
+            priority: \array_key_exists('priority', $meta) ? $meta['priority'] : 0,
+            illustration: $meta['illustration'] ?? null,
         );
     }
 
@@ -75,8 +77,15 @@ class ElementTypeSpecificationSerializer
         if ($dto->icon !== null) {
             $meta['icon'] = $dto->icon;
         }
+        if ($dto->illustration !== null) {
+            $meta['illustration'] = $dto->illustration;
+        }
         if ($dto->category !== null) {
             $meta['category'] = $dto->category;
+        }
+
+        if ($dto->priority !== 0) {
+            $meta['priority'] = $dto->priority;
         }
 
         if ($dto->copilot->summary !== '' || $dto->copilot->hints !== []) {
@@ -93,36 +102,7 @@ class ElementTypeSpecificationSerializer
         $result = ['meta' => $meta];
 
         if ($dto->properties !== []) {
-            $properties = [];
-            foreach ($dto->properties as $key => $prop) {
-                $propData = ['type' => $prop->type];
-                if ($prop->required) {
-                    $propData['required'] = true;
-                }
-                if ($prop->translatable) {
-                    $propData['translatable'] = true;
-                }
-                if ($prop->title !== '') {
-                    $propData['title'] = $prop->title;
-                }
-                if ($prop->description !== '') {
-                    $propData['description'] = $prop->description;
-                }
-                if ($prop->enum !== null) {
-                    $propData['enum'] = $prop->enum;
-                }
-                if ($prop->default !== null) {
-                    $propData['default'] = $prop->default;
-                }
-                if ($prop->adminUI !== null) {
-                    $propData['adminUI'] = $prop->adminUI;
-                }
-                if ($prop->properties !== null) {
-                    $propData['properties'] = $this->normalizeProperties($prop->properties);
-                }
-                $properties[$key] = $propData;
-            }
-            $result['properties'] = $properties;
+            $result['properties'] = $this->normalizeProperties($dto->properties);
         }
 
         if ($dto->slots !== []) {
@@ -162,6 +142,9 @@ class ElementTypeSpecificationSerializer
             default: $propertyData['default'] ?? null,
             adminUI: $propertyData['adminUI'] ?? null,
             properties: $this->denormalizeProperties($propertyData['properties'] ?? null),
+            mappable: $propertyData['mappable'] ?? false,
+            inlineMappable: $propertyData['inlineMappable'] ?? false,
+            defaultMapping: $propertyData['defaultMapping'] ?? null,
         );
     }
 
@@ -224,6 +207,18 @@ class ElementTypeSpecificationSerializer
 
             if ($prop->translatable) {
                 $propData['translatable'] = true;
+            }
+
+            if ($prop->mappable) {
+                $propData['mappable'] = true;
+            }
+
+            if ($prop->inlineMappable) {
+                $propData['inlineMappable'] = true;
+            }
+
+            if ($prop->defaultMapping !== null) {
+                $propData['defaultMapping'] = $prop->defaultMapping;
             }
 
             if ($prop->title !== '') {

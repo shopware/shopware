@@ -66,6 +66,8 @@ class UuidTest extends TestCase
 
         static::assertFalse(Uuid::isValid('1111aaabbbFFF1111111111CCC111111'));
         static::assertFalse(Uuid::isValid('74d25156-60e6-444c-a177-a96e67ecfc5f'));
+
+        static::assertFalse(Uuid::isValid("bd5303139e5e47c68eeda68746b73436\n"));
     }
 
     public function testUuidFormat(): void

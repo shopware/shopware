@@ -54,6 +54,8 @@ class ContentSystemElementTypeSpecificationTest extends TestCase
 
         static::assertNull($schema['icon']);
         static::assertNull($schema['category']);
+        static::assertNull($schema['illustration']);
+        static::assertSame(0, $schema['priority']);
         static::assertIsArray($schema['copilot']);
         static::assertSame([], $schema['properties']);
         static::assertSame([], $schema['slots']);
@@ -75,6 +77,25 @@ class ContentSystemElementTypeSpecificationTest extends TestCase
         );
 
         static::assertSame('core', $specification->toSchema()['source']);
+    }
+
+    public function testToSchemaIncludesPriority(): void
+    {
+        $specification = new ContentSystemElementTypeSpecification(
+            name: 'Sw:Content:Text',
+            label: 'Text',
+            description: 'Text element.',
+            icon: null,
+            category: 'content',
+            copilot: new CopilotSpecification('Text.', []),
+            properties: [],
+            slots: [],
+            priority: 100,
+            illustration: 'content-text',
+        );
+
+        static::assertSame(100, $specification->toSchema()['priority']);
+        static::assertSame('content-text', $specification->toSchema()['illustration']);
     }
 
     private function createSpecification(?string $icon, ?string $category): ContentSystemElementTypeSpecification

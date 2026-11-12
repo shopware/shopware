@@ -11,10 +11,7 @@ const { Store } = Shopware;
 export default {
     template,
 
-    emits: [
-        'close',
-        'confirm',
-    ],
+    emits: ['close', 'confirm'],
 
     computed: {
         invalidPromotionCodes() {

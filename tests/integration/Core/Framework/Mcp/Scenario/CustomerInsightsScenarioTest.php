@@ -39,11 +39,9 @@ class CustomerInsightsScenarioTest extends McpScenarioTestCase
         static::getContainer()->get('customer.repository')->create([$customer], $context);
 
         $now = new \DateTimeImmutable();
-        $reviewIds = [];
 
         foreach ([1, 5, 1] as $i => $points) {
             $reviewId = Uuid::randomHex();
-            $reviewIds[] = ['id' => $reviewId, 'points' => $points];
 
             static::getContainer()->get('product_review.repository')->create([
                 [
@@ -54,6 +52,7 @@ class CustomerInsightsScenarioTest extends McpScenarioTestCase
                     'languageId' => $context->getLanguageId(),
                     'title' => 'Review ' . $i,
                     'content' => 'Test review content',
+                    'externalUser' => 'Test',
                     'points' => $points,
                     'status' => true,
                 ],

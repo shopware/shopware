@@ -11,11 +11,12 @@ const { isEmpty } = Utils.types;
 export default {
     template,
 
-    inject: ['repositoryFactory'],
-
-    mixins: [
-        Mixin.getByName('notification'),
+    inject: [
+        'repositoryFactory',
+        'mediaDefaultFolderService',
     ],
+
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         disabled: {
@@ -41,10 +42,12 @@ export default {
             return this.repositoryFactory.create('product_media');
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed, use mediaDefaultFolderService.getDefaultFolderId() instead. */
         mediaDefaultFolderRepository() {
             return this.repositoryFactory.create('media_default_folder');
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed, use mediaDefaultFolderService.getDefaultFolderId() instead. */
         mediaDefaultFolderCriteria() {
             const criteria = new Criteria(1, 1);
 
@@ -71,25 +74,7 @@ export default {
         },
 
         getMediaDefaultFolderId() {
-            return this.mediaDefaultFolderRepository
-                .search(this.mediaDefaultFolderCriteria, {
-                    cacheKey: [
-                        'media-default-folder',
-                        'product',
-                    ],
-                })
-                .then((mediaDefaultFolder) => {
-                    const defaultFolder = mediaDefaultFolder.first();
-                    if (defaultFolder === null) {
-                        return null;
-                    }
-
-                    if (defaultFolder.folder?.id) {
-                        return defaultFolder.folder.id;
-                    }
-
-                    return null;
-                });
+            return this.mediaDefaultFolderService.getDefaultFolderId('product');
         },
 
         onAddMedia(media) {

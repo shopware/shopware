@@ -7,16 +7,27 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductConfiguratorDataLoader;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductConfiguratorLoaderConfig;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('inventory')]
+#[Package('discovery')]
 #[CoversClass(ProductContentLayoutDefinition::class)]
 class ProductContentLayoutDefinitionTest extends TestCase
 {
+    public function testProductEntityRequirementExplicitlyLoadsCoverMedia(): void
+    {
+        $requirements = (new ProductContentLayoutDefinition())->getPageDataRequirements();
+        $product = array_values(array_filter($requirements, static fn (DataRequirement $requirement): bool => $requirement->key === 'product'));
+
+        static::assertCount(1, $product);
+        static::assertInstanceOf(EntityLoaderConfig::class, $product[0]->config);
+        static::assertContains('cover.media', $product[0]->config->associations);
+    }
+
     public function testProvidesConfiguratorSettingsAsPageDataRequirement(): void
     {
         $requirements = (new ProductContentLayoutDefinition())->getPageDataRequirements();

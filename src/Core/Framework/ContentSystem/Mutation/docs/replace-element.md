@@ -3,47 +3,52 @@
 The one operation that changes an element's type in place, and the only one whose contract is a set of carry-over
 rules rather than a placement. The other operations are in [operations.md](operations.md).
 
-`__construct(AbstractContentSystemElementTypeRegistry $registry, string $elementId, string $newType, AbstractContentSystemBindingSpecificationRegistry $bindingRegistry, BindingApplicator $bindingApplicator)`.
-
 ## What it carries over
 
-Swaps an element's component to `$newType`, keeping the same id. `requireRegistered($newType)`; the element must
-exist (`mutationTargetNotFound`); carries over a property whose key the new type declares with an enforceable
-type and whose value that type admits (`PropertyType::enforceableTypes()` / `admits()`, the same rule the write gate
-and the diagnostics apply), wiring (data requirements, providers, consumers) keyed to a new-type property with no
-enforceable type (`object`, an FQCN, or a union carrying either), and children of slots present in the new type, then
-seeds the new type's stored defaults for any key it does not carry (a carried or authored value wins). A lone
-primitive and an all-primitive union are enforceable, so a value matching any member of the union carries, and wiring
-keyed to one is dropped and reported in `droppedWiring()`. A key the new type declares as `object`, an FQCN, or a union
-carrying either has no enforceable type, so nothing can vouch for the value's shape and it is dropped and reported
-rather than carried across unexamined.
+Swaps an element's component to `$newType`, keeping the same id. `requireRegistered($newType)` must pass; the element must
+exist (`mutationTargetNotFound`). The swap carries over a property whose key the new type declares with an
+enforceable type and whose value that type admits (`PropertyType::enforceableTypes()` / `admits()`, the rule the
+write gate and the diagnostics apply). It also carries wiring (data requirements, providers, consumers) keyed to a
+new-type property with no enforceable type (`object`, an FQCN, or a union carrying either), and children of slots
+present in the new type. It seeds the new type's stored defaults for uncarried keys (a carried or authored value
+wins). Ordinary wiring keyed to a lone primitive or an all-primitive union is dropped and reported in
+`droppedWiring()`. Typed mapping consumers are handled separately through source-aware admission, as described below.
+A key the new type declares with no enforceable type gives nothing that can vouch for the value's shape, so the value
+is dropped rather than carried across unexamined.
 
-Two consequences follow from the predicate, not from a rule of this operation. A translatable property carries its
-whole language map when the new type declares that key translatable and its declared primitive admits every entry; a
-bare value under a translatable key, null included, is dropped, because `admits()` rejects it. An authored `null`
-carries under a non-translatable declaration with an enforceable type, and the default overlay leaves it in place,
-because `+` fills only an absent key. The element's `style` carries over unconditionally, being universal and
-type-independent, and `attributedSpecifications` survives only for keys whose carried data requirement survives.
+These follow from `admits()`, not from a rule of this operation. A translatable property carries its whole
+[language map](../../docs/principles/README.md#glossary) when the new type declares that key translatable and its
+declared primitive admits every entry. A bare value under a translatable key, null included, is dropped. An authored
+`null` carries under a non-translatable declaration with an enforceable type, and the default overlay leaves it in
+place, because `+` fills only an absent key.
 
-A stored property under one of the new type's `resolvedBy` storage keys is likewise carryable: `carryProperties()`
+The element's `style` carries over unconditionally, being universal and type-independent. `attributedSpecifications`
+survives only for keys whose carried data requirement survives.
+
+A stored property under one of the new type's `resolvedBy` storage keys is likewise carryable. `carryProperties()`
 maps the new type's default specification's `resolves` entries whose loader is one of the two built-in resolvedBy
-loaders (`Binding/ResolvedByLoaderBranch::fromLoaderSource()`) to their storage keys, and carries a value forward
-only when its shape strictly matches that branch (`matchesStoredValueShape()`: a string for `entity`, a list of
-strings for `entity_collection`). A shape mismatch is dropped and reported like any other uncarryable value.
+loaders (`Binding/ResolvedByLoaderBranch`) to their storage keys. It carries a value forward
+only when its shape strictly matches that branch (a string for `entity`, a list of strings for `entity_collection`). A shape mismatch is dropped and reported like any other uncarryable value.
+
+With a bound source, whole-field mapping consumers survive only when they remain valid for the new type; invalid mappings are removed and reported as dropped wiring. An intentionally unbound tree drops mapping consumers without source-specific inspection, while compatible authored properties remain. Inline tokens remain authored property text rather than consumer wiring.
+
+Mapping cleanup applies only to the replaced element. Carried descendants keep their mapping consumers, and their mapping problems are reported against those descendants by normal diagnostics. A descendant's finding cannot remove a same-named consumer from the replacement or add a dropped-wiring entry for it.
 
 ## The default overlay
 
-After the rebuild, the new type's default binding specification, when it has exactly one
-(`resolveDefaultSpecification()`; zero is a no-op, more than one throws `bindingSpecificationDefaultAmbiguous`
-`409`), is fill-applied via `BindingApplicator::applyFillOnly()`, after `carryWiring()`, so carried wiring is never
-overwritten by the default even when the default would correct a renamed storage key.
+After the rebuild, the new type's default binding specification is fill-applied after the
+wiring carry-over when it has exactly one. Zero is a no-op. More than one throws `bindingSpecificationDefaultAmbiguous` `409`.
+Carried wiring is therefore never overwritten by the default even when the default would correct a
+renamed storage key.
 
 ## Result channels
 
-`orphaned` = children of slots absent from the new type; `droppedWiring` = old wiring keys minus kept;
+[`orphaned`](../README.md#result-channels) = children of slots absent from the new type. `droppedWiring` = old wiring keys not carried.
 `droppedProperties` = static property values whose key is absent from the new type (and not a carryable `resolvedBy`
 storage key) or whose value its property type rejects. A value rejected for a key the new type declares with a
-stored default is reported as dropped even though that default then re-fills the key; a key absent from the new type
+stored default is reported as dropped even though that default then re-fills the key. A key absent from the new type
 is reported and never re-filled, because the default overlay is keyed by the new type's stored-default keys.
 `affected = subtreeIds($replacement)`; `created = [$elementId]` only, because the carried-over children keep their own
 nodes while the replaced node is re-scaffolded under the same id.
+
+`freshlyScaffolded = [$elementId]` makes only the replacement eligible for default mappings and consumer mirroring; retained descendants keep their authored state. Mapping admission reads `StoredTree::$rootSource`.

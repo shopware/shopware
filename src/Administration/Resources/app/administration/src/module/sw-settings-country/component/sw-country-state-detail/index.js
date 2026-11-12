@@ -11,14 +11,9 @@ export default {
 
     inject: ['acl'],
 
-    emits: [
-        'attribute-edit-cancel',
-        'attribute-edit-save',
-    ],
+    emits: ['attribute-edit-cancel', 'attribute-edit-save'],
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('placeholder')],
 
     props: {
         countryState: {

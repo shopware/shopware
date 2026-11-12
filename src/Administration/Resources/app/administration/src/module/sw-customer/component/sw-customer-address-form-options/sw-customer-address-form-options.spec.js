@@ -20,10 +20,7 @@ async function createWrapper(props = {}) {
         global: {
             stubs: {
                 'mt-checkbox': {
-                    props: [
-                        'checked',
-                        'disabled',
-                    ],
+                    props: ['checked', 'disabled'],
                     template: '<input type="checkbox" class="mt-checkbox" :checked="checked" :disabled="disabled">',
                 },
                 'sw-custom-field-set-renderer': {

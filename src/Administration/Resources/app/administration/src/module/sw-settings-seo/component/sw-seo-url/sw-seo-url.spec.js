@@ -58,7 +58,7 @@ function expectedCurrentSeoUrl({ routeName, pathInfo, salesChannelId, foreignKey
     return { foreignKey, isCanonical: true, languageId: LANGUAGE_ID, pathInfo, routeName, salesChannelId, isModified: true };
 }
 
-async function createWrapper() {
+async function createWrapper(stubs = {}) {
     return mount(await wrapTestComponent('sw-seo-url', { sync: true }), {
         global: {
             renderStubDefaultSlot: true,
@@ -67,12 +67,24 @@ async function createWrapper() {
                 'sw-sales-channel-switch': true,
                 'sw-text-field': true,
                 'sw-inherit-wrapper': true,
+                ...stubs,
             },
             provide: {
                 repositoryFactory: {
                     create: (entity) => ({
-                        search: () =>
-                            Promise.resolve(entity === 'sales_channel' ? createEntityCollection(SALES_CHANNELS) : []),
+                        search: (criteria) => {
+                            if (entity !== 'sales_channel') {
+                                return Promise.resolve([]);
+                            }
+
+                            const { ids } = criteria;
+
+                            return Promise.resolve(
+                                createEntityCollection(
+                                    ids.length ? SALES_CHANNELS.filter(({ id }) => ids.includes(id)) : SALES_CHANNELS,
+                                ),
+                            );
+                        },
                         create: () => ({}),
                         schema: { entity: {} },
                     }),
@@ -116,7 +128,7 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
             salesChannelId: STOREFRONT_SALES_CHANNEL_ID,
         });
         await wrapper.setData({ showEmptySeoUrlError: false, currentSalesChannelId: STOREFRONT_SALES_CHANNEL_ID });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.vm.refreshCurrentSeoUrl();
 
@@ -144,7 +156,7 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
             salesChannelId: 'a-sales-channel-without-seo-urls',
         });
         await wrapper.setData({ showEmptySeoUrlError: false, currentSalesChannelId: STOREFRONT_SALES_CHANNEL_ID });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.vm.refreshCurrentSeoUrl();
 
@@ -158,19 +170,18 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
         );
     });
 
-    it.each([
-        ['seo/url%/1'],
-        ['foo/bar#baz'],
-        ['foo\\bar'],
-    ])('reports a validation error for disallowed character in "%s"', async (invalidPath) => {
-        Shopware.Store.get('swSeoUrl').currentSeoUrl = {
-            seoPathInfo: invalidPath,
-        };
+    it.each([['seo/url%/1'], ['foo/bar#baz'], ['foo\\bar']])(
+        'reports a validation error for disallowed character in "%s"',
+        async (invalidPath) => {
+            Shopware.Store.get('swSeoUrl').currentSeoUrl = {
+                seoPathInfo: invalidPath,
+            };
 
-        expect(wrapper.vm.seoPathInfoError).toEqual(
-            expect.objectContaining({ code: 'CONTENT__SEO_URL_INVALID_CHARACTERS' }),
-        );
-    });
+            expect(wrapper.vm.seoPathInfoError).toEqual(
+                expect.objectContaining({ code: 'CONTENT__SEO_URL_INVALID_CHARACTERS' }),
+            );
+        },
+    );
 
     it.each([
         ['Computers/Laptops'],
@@ -213,7 +224,7 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
             salesChannelId: STOREFRONT_SALES_CHANNEL_ID,
         });
         await wrapper.setData({ showEmptySeoUrlError: false, currentSalesChannelId: STOREFRONT_SALES_CHANNEL_ID });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.vm.refreshCurrentSeoUrl();
 
@@ -229,31 +240,11 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
     });
 
     it.each([
-        [
-            'storefront',
-            STOREFRONT_SALES_CHANNEL_ID,
-            false,
-        ],
-        [
-            'headless',
-            HEADLESS_SALES_CHANNEL_ID,
-            false,
-        ],
-        [
-            'product comparison',
-            PRODUCT_COMPARISON_SALES_CHANNEL_ID,
-            true,
-        ],
-        [
-            'agentic commerce',
-            AGENTIC_COMMERCE_SALES_CHANNEL_ID,
-            true,
-        ],
-        [
-            'none selected',
-            null,
-            false,
-        ],
+        ['storefront', STOREFRONT_SALES_CHANNEL_ID, false],
+        ['headless', HEADLESS_SALES_CHANNEL_ID, false],
+        ['product comparison', PRODUCT_COMPARISON_SALES_CHANNEL_ID, true],
+        ['agentic commerce', AGENTIC_COMMERCE_SALES_CHANNEL_ID, true],
+        ['none selected', null, false],
     ])('should flag SEO URL support for a %s sales channel', async (_, salesChannelId, unsupported) => {
         setSalesChannels();
 
@@ -298,7 +289,7 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
             salesChannelId: STOREFRONT_SALES_CHANNEL_ID,
         });
         await wrapper.setData({ showEmptySeoUrlError: false, currentSalesChannelId: STOREFRONT_SALES_CHANNEL_ID });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.vm.refreshCurrentSeoUrl();
 
@@ -339,5 +330,34 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
         expect(wrapper.vm.headlessExternalStorefrontUrl).toBeNull();
         expect(wrapper.vm.seoUrlHelptext).toBeNull();
         expect(wrapper.vm.allowInput).toBe(true);
+    });
+
+    it('loads a selected sales channel that is not part of the initially loaded sales channels', async () => {
+        wrapper.unmount();
+        wrapper = await createWrapper({
+            'mt-card': { template: '<div><slot name="toolbar"></slot><slot></slot></div>' },
+            'sw-inherit-wrapper': {
+                template: '<div><slot name="content" v-bind="{ isInherited: false, currentValue: null }"></slot></div>',
+            },
+            'mt-text-field': {
+                props: ['disabled', 'disableInheritanceToggle', 'helpText'],
+                template: '<input class="mt-text-field">',
+            },
+        });
+        await flushPromises();
+        // with many sales channels, the initially loaded page does not contain every sales channel
+        setSalesChannels([SALES_CHANNELS[0]]);
+        await wrapper.setData({ showEmptySeoUrlError: false });
+
+        wrapper
+            .findComponent('sw-sales-channel-switch-stub')
+            .vm.$emit('change-sales-channel-id', PRODUCT_COMPARISON_SALES_CHANNEL_ID);
+        await flushPromises();
+
+        expect(Shopware.Store.get('swSeoUrl').salesChannelCollection.has(PRODUCT_COMPARISON_SALES_CHANNEL_ID)).toBe(true);
+        const seoPathField = wrapper.findComponent('.mt-text-field');
+        expect(seoPathField.props('disabled')).toBe(true);
+        expect(seoPathField.props('disableInheritanceToggle')).toBe(true);
+        expect(seoPathField.props('helpText')).toBe('sw-seo-url.textSeoUrlsNotSupported');
     });
 });

@@ -1,0 +1,17 @@
+{
+  "$comment": "Guide fixture content-system-principles/catch: a serve-time default and a swallowed exception in the rendered element factory. A non-test PHP change under ContentSystem selects the principles guide next to the always-on PHP guides.",
+  "signals": [
+    "php_src",
+    "php_src_without_tests"
+  ],
+  "not_signals": [
+    "admin_ui",
+    "storefront_ui"
+  ],
+  "guides": [
+    "bc-php",
+    "platform-scope",
+    "tests-for-behavior-change",
+    "content-system-principles"
+  ]
+}

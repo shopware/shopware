@@ -149,7 +149,7 @@ class OrderTotalAmountRuleTest extends TestCase
         $rule = new OrderTotalAmountRule();
         $rule->assign(['amount' => 2, 'operator' => Rule::OPERATOR_LT]);
 
-        $result = $rule->match($this->createMock(RuleScope::class));
+        $result = $rule->match(static::createStub(RuleScope::class));
 
         static::assertFalse($result);
     }
@@ -160,8 +160,8 @@ class OrderTotalAmountRuleTest extends TestCase
         $rule = new OrderTotalAmountRule();
         $rule->assign(['amount' => $ruleOrderAmount, 'operator' => $operator]);
 
-        $scope = $this->createMock(CheckoutRuleScope::class);
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $scope = static::createStub(CheckoutRuleScope::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $orderCollection = new OrderCollection();
         $customer = new CustomerEntity();
         $customer->setOrderTotalAmount($orderAmount ?? 0);

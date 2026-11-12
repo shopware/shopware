@@ -25,11 +25,7 @@ interface LoginData {
 export default Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'loginService',
-        'userService',
-        'licenseViolationService',
-    ],
+    inject: ['loginService', 'userService', 'licenseViolationService'],
 
     emits: [
         'is-loading',
@@ -83,7 +79,7 @@ export default Component.wrapComponentConfig({
                 this.loginConfig = await this.loginService.getLoginTemplateConfig();
             } catch {
                 // Fall back to the password login when the SSO config cannot be loaded.
-                this.loginConfig = { useDefault: true, url: '' };
+                this.loginConfig = { useDefault: true, url: '', passwordRecoveryEnabled: true };
             }
 
             this.$emit('config-loaded', this.loginConfig);

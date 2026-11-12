@@ -8,9 +8,9 @@ use Shopware\Core\Framework\Log\Package;
  * @internal only for use by the app-system
  */
 #[Package('framework')]
-class ContentSystemElementTypeSchemaError extends Error
+class ContentSystemElementTypeSchemaError implements Error
 {
-    private const KEY = 'manifest-invalid-element-type-schema';
+    private readonly string $message;
 
     public function __construct(string $filename, string $reason)
     {
@@ -19,12 +19,10 @@ class ContentSystemElementTypeSchemaError extends Error
             $filename,
             $reason
         );
-
-        parent::__construct($this->message);
     }
 
-    public function getMessageKey(): string
+    public function getMessage(): string
     {
-        return self::KEY;
+        return $this->message;
     }
 }

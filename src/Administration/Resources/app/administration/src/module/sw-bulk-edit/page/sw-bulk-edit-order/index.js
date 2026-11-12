@@ -1,5 +1,6 @@
 import template from './sw-bulk-edit-order.html.twig';
 import './sw-bulk-edit-order.scss';
+import { collectStatusTransitionFailures, toFailedStatusItems } from './status-transition-failures';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -19,11 +20,10 @@ export default {
         // @deprecated tag:v6.9.0 - orderDocumentApiService will be removed.
         'orderDocumentApiService',
         'feature',
+        'customFieldDataProviderService',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -38,6 +38,7 @@ export default {
             customFieldSets: [],
             itemsPerRequest: 100,
             processStatus: '',
+            statusTransitionFailures: [],
             order: {},
         };
     },
@@ -61,10 +62,12 @@ export default {
             return this.repositoryFactory.create('order');
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetRepository() {
             return this.repositoryFactory.create('custom_field_set');
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetCriteria() {
             const criteria = new Criteria(1, null);
 
@@ -101,9 +104,7 @@ export default {
             let restrictedFields = [];
 
             if (this.$route.params.excludeDelivery === '1') {
-                restrictedFields = restrictedFields.concat([
-                    'orderDeliveries',
-                ]);
+                restrictedFields = restrictedFields.concat(['orderDeliveries']);
             }
 
             return restrictedFields;
@@ -311,16 +312,12 @@ export default {
                 this.$route.meta.$module = {};
             }
 
-            this.$route.meta.$module.color = 'var(--color-purple-500)';
+            this.$route.meta.$module.color = 'var(--sw-color-module-purple-default)';
             this.$route.meta.$module.icon = 'regular-shopping-bag';
         },
 
         loadBulkEditData() {
-            const bulkEditFormGroups = [
-                this.statusFormFields,
-                this.documentsFormFields,
-                this.tagsFormFields,
-            ];
+            const bulkEditFormGroups = [this.statusFormFields, this.documentsFormFields, this.tagsFormFields];
 
             bulkEditFormGroups.forEach((bulkEditForms) => {
                 bulkEditForms.forEach((bulkEditForm) => {
@@ -474,50 +471,41 @@ export default {
                 syncData: [],
             };
 
-            const dataPush = [
-                'orderTransactions',
-                'orderDeliveries',
-                'orders',
-            ];
+            const dataPush = ['orderTransactions', 'orderDeliveries', 'orders'];
 
-            Object.entries(this.bulkEditData).forEach(
-                ([
-                    key,
-                    item,
-                ]) => {
-                    if (item.isChanged || (key === 'customFields' && item.value)) {
-                        const payload = {
-                            field: key,
-                            type: item.type,
-                            value: item.value,
-                        };
+            Object.entries(this.bulkEditData).forEach(([key, item]) => {
+                if (item.isChanged || (key === 'customFields' && item.value)) {
+                    const payload = {
+                        field: key,
+                        type: item.type,
+                        value: item.value,
+                    };
 
-                        if (dataPush.includes(key)) {
-                            const documentTypes = this.order?.documents?.documentType;
+                    if (dataPush.includes(key)) {
+                        const documentTypes = this.order?.documents?.documentType;
 
-                            if (this.bulkEditData?.documents?.isChanged) {
-                                const selectedDocumentTypes = Object.keys(documentTypes).filter(
-                                    (documentTypeName) => documentTypes[documentTypeName] === true,
-                                );
+                        if (this.bulkEditData?.documents?.isChanged) {
+                            const selectedDocumentTypes = Object.keys(documentTypes).filter(
+                                (documentTypeName) => documentTypes[documentTypeName] === true,
+                            );
 
-                                if (selectedDocumentTypes.length > 0) {
-                                    payload.documentTypes = selectedDocumentTypes;
-                                    payload.skipSentDocuments = this.order.documents.skipSentDocuments;
-                                }
+                            if (selectedDocumentTypes.length > 0) {
+                                payload.documentTypes = selectedDocumentTypes;
+                                payload.skipSentDocuments = this.order.documents.skipSentDocuments;
                             }
-
-                            payload.sendMail = this.bulkEditData?.statusMails?.isChanged;
-                            payload.internalComment = this.bulkEditData?.transitionInternalComment?.isChanged
-                                ? this.bulkEditData?.transitionInternalComment?.value?.trim() || null
-                                : null;
-                            payload.value = this.order?.[key];
-                            data.statusData.push(payload);
-                        } else if (key !== 'documents' && key !== 'statusMails' && key !== 'delete' && key !== 'download') {
-                            data.syncData.push(payload);
                         }
+
+                        payload.sendMail = this.bulkEditData?.statusMails?.isChanged;
+                        payload.internalComment = this.bulkEditData?.transitionInternalComment?.isChanged
+                            ? this.bulkEditData?.transitionInternalComment?.value?.trim() || null
+                            : null;
+                        payload.value = this.order?.[key];
+                        data.statusData.push(payload);
+                    } else if (key !== 'documents' && key !== 'statusMails' && key !== 'delete' && key !== 'download') {
+                        data.syncData.push(payload);
                     }
-                },
-            );
+                }
+            });
 
             return data;
         },
@@ -532,33 +520,37 @@ export default {
 
         onSave() {
             this.isLoading = true;
+            this.statusTransitionFailures = [];
 
             const { statusData, syncData } = this.onProcessData();
             const bulkEditOrderHandler = this.bulkEditApiFactory.getHandler('order');
 
             const payloadChunks = chunk(this.selectedIds, this.itemsPerRequest);
-            const requests = [];
+            const statusRequest = statusData.length
+                ? collectStatusTransitionFailures(bulkEditOrderHandler, this.selectedIds, statusData)
+                : Promise.resolve([]);
 
-            payloadChunks.forEach((payload) => {
-                if (statusData.length) {
-                    requests.push(bulkEditOrderHandler.bulkEditStatus(payload, statusData));
-                }
+            return statusRequest
+                .then((statusFailures) => {
+                    this.statusTransitionFailures = toFailedStatusItems(statusFailures, (key) => this.$t(key));
 
-                if (syncData.length) {
-                    requests.push(bulkEditOrderHandler.bulkEdit(payload, syncData));
-                }
-            });
+                    const syncRequests = syncData.length
+                        ? payloadChunks.map((payload) => bulkEditOrderHandler.bulkEdit(payload, syncData))
+                        : [];
 
-            return Promise.all(requests)
-                .then(() => {
-                    this.processStatus = 'success';
+                    return Promise.allSettled(syncRequests);
+                })
+                .then((syncResults) => {
+                    const hasStatusFailures = this.statusTransitionFailures.length > 0;
+                    const hasSyncFailures = syncResults.some((result) => result.status === 'rejected');
+
+                    this.processStatus = hasStatusFailures || hasSyncFailures ? 'fail' : 'success';
                 })
                 .catch(() => {
                     this.processStatus = 'fail';
                 })
                 .finally(() => {
-                    this.isLoading = false;
-                    this.getLatestOrderStatus().finally(() => {
+                    return this.getLatestOrderStatus().finally(() => {
                         this.isLoading = false;
                     });
                 });
@@ -568,10 +560,10 @@ export default {
             const promises = [];
 
             if (this.bulkEditData.orderTransactions.isChanged) {
-                promises.push(this.fetchStatusOptions('orderTransactions.order.id'));
+                promises.push(this.fetchStatusOptions('orderTransactions.orderId'));
             }
             if (this.bulkEditData.orderDeliveries?.isChanged) {
-                promises.push(this.fetchStatusOptions('orderDeliveries.order.id'));
+                promises.push(this.fetchStatusOptions('orderDeliveries.orderId'));
             }
             if (this.bulkEditData.orders.isChanged) {
                 promises.push(this.fetchStatusOptions('orders.id'));
@@ -587,7 +579,7 @@ export default {
         },
 
         loadCustomFieldSets() {
-            return this.customFieldSetRepository.search(this.customFieldSetCriteria).then((res) => {
+            return this.customFieldDataProviderService.getCustomFieldSets('order', false, null).then((res) => {
                 this.customFieldSets = res;
             });
         },

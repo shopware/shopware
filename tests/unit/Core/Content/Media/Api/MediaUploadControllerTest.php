@@ -28,6 +28,11 @@ class MediaUploadControllerTest extends TestCase
 {
     public static bool $simulateFailedTempnam = false;
 
+    /**
+     * @var list<string>
+     */
+    public static array $createdTempFiles = [];
+
     private FileSaver&Stub $fileSaver;
 
     private MediaService&Stub $mediaService;
@@ -47,6 +52,14 @@ class MediaUploadControllerTest extends TestCase
     protected function tearDown(): void
     {
         self::$simulateFailedTempnam = false;
+
+        foreach (self::$createdTempFiles as $tempFile) {
+            if (is_file($tempFile)) {
+                unlink($tempFile);
+            }
+        }
+
+        self::$createdTempFiles = [];
     }
 
     public function testRemoveNonPrintingCharactersInFileNameBeforeUpload(): void
@@ -225,6 +238,26 @@ class MediaUploadControllerTest extends TestCase
         $controller->upload(new Request(['fileName' => "\xFF\xFE"]), Uuid::randomHex(), Context::createDefaultContext(), $this->responseFactory);
     }
 
+    public function testUploadDoesNotCreateTempFileForIllegalFileName(): void
+    {
+        $controller = new MediaUploadController(
+            $this->mediaService,
+            $this->fileSaver,
+            $this->fileNameProvider,
+            new MediaDefinition(),
+            new EventDispatcher()
+        );
+
+        try {
+            $controller->upload(new Request(['fileName' => "\xFF\xFE"]), Uuid::randomHex(), Context::createDefaultContext(), $this->responseFactory);
+            static::fail('Expected an illegal file name exception');
+        } catch (MediaException $e) {
+            static::assertSame(MediaException::illegalFileName("\xFF\xFE", 'Path encoding is invalid')->getMessage(), $e->getMessage());
+        }
+
+        static::assertSame([], self::$createdTempFiles);
+    }
+
     public function testRenameThrowsOnIllegalFileName(): void
     {
         $this->expectExceptionObject(MediaException::illegalFileName("\xFF\xFE", 'Path encoding is invalid'));
@@ -266,5 +299,11 @@ function tempnam(string $dir, string $prefix): string|false
         return false;
     }
 
-    return \tempnam($dir, $prefix);
+    $tempFile = \tempnam($dir, $prefix);
+
+    if (\is_string($tempFile)) {
+        MediaUploadControllerTest::$createdTempFiles[] = $tempFile;
+    }
+
+    return $tempFile;
 }

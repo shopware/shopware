@@ -160,10 +160,7 @@ export function projectHasOwnedConfig(project: ExtensionToolingProject): boolean
 /** Every extension-owned config of this project, both tools. */
 function ownedConfigs(project: ExtensionToolingProject): OwnedConfig[] {
     return project.targets
-        .flatMap((target) => [
-            target.tsconfig,
-            target.eslintConfig,
-        ])
+        .flatMap((target) => [target.tsconfig, target.eslintConfig])
         .filter((config): config is OwnedConfig => config !== null);
 }
 
@@ -179,6 +176,55 @@ export function firstDrift(project: ExtensionToolingProject, tool: 'tsconfig' | 
  */
 export function isPlatformProject(project: ExtensionToolingProject): boolean {
     return !project.vendor && !project.basePath.startsWith('custom/plugins/');
+}
+
+/**
+ * Extensions the upgrade codemods rewrite without being named via --only. Unlike
+ * {@link isPlatformProject}, custom/static-plugins and other project folders are
+ * the shop's own code here; only vendor installs and the monorepo's src/ bundles are not.
+ */
+export function isUpgradable(project: ExtensionToolingProject): boolean {
+    return !project.vendor && !project.basePath.startsWith('src/');
+}
+
+/** Normalizes the selection (single value, comma list, or array) to trimmed, non-empty names. */
+export function normalizeSelection(only: string | string[] | undefined): string[] {
+    if (!only) {
+        return [];
+    }
+
+    return (Array.isArray(only) ? only : only.split(',')).map((value) => value.trim()).filter((value) => value !== '');
+}
+
+/** Whether a --only entry names this project, by extension name or by one of its bundle technical names. */
+export function matchesProjectName(project: ExtensionToolingProject, name: string): boolean {
+    return project.name === name || project.technicalNames.includes(name);
+}
+
+/** Restricts the discovered projects to a --only selection; an unknown name is a fatal, run-blocking diagnostic. */
+export function filterSelectedProjects(
+    projects: ExtensionToolingProject[],
+    selected: string[],
+): { projects: ExtensionToolingProject[]; fatalDiagnostic?: string } {
+    if (selected.length === 0) {
+        return { projects };
+    }
+
+    // Resolve every requested name independently. A single unknown name fails
+    // the whole run before any tool executes — a renamed/removed target must
+    // never leave CI green while it is silently unchecked.
+    const unmatched = selected.filter((name) => !projects.some((project) => matchesProjectName(project, name)));
+
+    if (unmatched.length > 0) {
+        const available = projects.map((project) => project.name).join(', ');
+
+        return {
+            projects: [],
+            fatalDiagnostic: `--only names unknown extension(s): ${unmatched.join(', ')}. Discovered: ${available || '(none)'}.`,
+        };
+    }
+
+    return { projects: projects.filter((project) => selected.some((name) => matchesProjectName(project, name))) };
 }
 
 export function deriveExtensionState(project: ExtensionToolingProject): DerivedExtensionState {
@@ -223,6 +269,8 @@ export interface ToolingCommands {
     generateSchema: string;
     /** e.g. `composer admin:check-extensions` or `bin/console administration:check-extensions`. */
     check: string;
+    /** e.g. `composer admin:upgrade-extensions` or `bin/console administration:upgrade-extensions`. */
+    upgrade: string;
 }
 
 /** The platform-checkout invocations — the safe default when the layout is unknown (e.g. in unit fixtures). */
@@ -230,12 +278,14 @@ export const DEFAULT_TOOLING_COMMANDS: ToolingCommands = {
     setup: 'composer admin:setup-extension-tooling',
     generateSchema: 'composer admin:generate-entity-schema-types',
     check: 'composer admin:check-extensions',
+    upgrade: 'composer admin:upgrade-extensions',
 };
 
 const CONSOLE_TOOLING_COMMANDS: ToolingCommands = {
     setup: 'bin/console administration:setup-extension-tooling',
     generateSchema: 'bin/console administration:generate-entity-schema-types',
     check: 'bin/console administration:check-extensions',
+    upgrade: 'bin/console administration:upgrade-extensions',
 };
 
 export function resolveToolingCommands(projectRoot: string, administrationRoot: string): ToolingCommands {
@@ -331,12 +381,9 @@ function escapeRegExp(value: string): string {
  * `/privatecustom/a.ts`.
  */
 export function relativizeToolOutput(output: string, projectRoot: string): string {
-    const roots = [
-        ...new Set([
-            projectRoot,
-            canonicalizePath(projectRoot),
-        ]),
-    ].sort((left, right) => right.length - left.length);
+    const roots = [...new Set([projectRoot, canonicalizePath(projectRoot)])].sort(
+        (left, right) => right.length - left.length,
+    );
 
     let relativized = output;
 
@@ -498,11 +545,7 @@ export const MANAGED_BLOCK_END = `# <<< ${GENERATED_MARKER}`;
  * byte-identically; a begin marker without its end reports a conflict.
  */
 export function writeManagedBlock(filePath: string, blockBody: string[], dryRun = false): WriteResult {
-    const block = [
-        MANAGED_BLOCK_BEGIN,
-        ...blockBody,
-        MANAGED_BLOCK_END,
-    ].join('\n');
+    const block = [MANAGED_BLOCK_BEGIN, ...blockBody, MANAGED_BLOCK_END].join('\n');
 
     if (!fs.existsSync(filePath)) {
         if (!dryRun) {

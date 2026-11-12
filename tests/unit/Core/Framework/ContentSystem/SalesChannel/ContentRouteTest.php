@@ -236,8 +236,7 @@ class ContentRouteTest extends TestCase
      */
     private function createLayoutRepository(ContentLayoutEntity ...$entities): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<ContentLayoutCollection> $repository */
-        $repository = new StaticEntityRepository([$entities]);
+        $repository = StaticEntityRepository::of(ContentLayoutCollection::class, [$entities]);
 
         return $repository;
     }

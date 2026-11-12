@@ -64,7 +64,7 @@ class Migration1739197440ChangeCmsBlockDefaultMarginTest extends TestCase
         static::assertNotNull($layoutId);
 
         $defaultListingBlocks = $this->getCmsPageBlocks($this->connection, $layoutId);
-        static::assertNotEmpty($defaultListingBlocks);
+        static::assertNotCount(0, $defaultListingBlocks);
 
         foreach ($defaultListingBlocks as $block) {
             static::assertNull($block['margin_left']);

@@ -22,12 +22,4 @@ class ContentSystemStyleOptionSchemaErrorTest extends TestCase
 
         static::assertSame('Invalid style option schema in "/path/to/style-options": YAML syntax invalid', $error->getMessage());
     }
-
-    #[TestDox('returns the style-option schema message key')]
-    public function testReturnsCorrectMessageKey(): void
-    {
-        $error = new ContentSystemStyleOptionSchemaError('file.yaml', 'reason');
-
-        static::assertSame('manifest-invalid-style-option-schema', $error->getMessageKey());
-    }
 }

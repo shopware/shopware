@@ -26,7 +26,7 @@
                                             "type": "array",
                                             "items": {
                                                 "type": "object",
-                                                "required": ["name", "label", "description", "source", "icon", "category", "copilot", "properties", "slots", "bindingSpecifications", "storageSchema"],
+                                                "required": ["name", "label", "description", "source", "icon", "illustration", "category", "priority", "copilot", "properties", "slots", "bindingSpecifications", "storageSchema"],
                                                 "properties": {
                                                     "name": {
                                                         "type": "string",
@@ -46,11 +46,20 @@
                                                     },
                                                     "icon": {
                                                         "type": ["string", "null"],
-                                                        "description": "Optional icon identifier."
+                                                        "description": "Optional Meteor icon name used in the tree and as the picker fallback."
+                                                    },
+                                                    "illustration": {
+                                                        "type": ["string", "null"],
+                                                        "description": "Optional SVG illustration filename without its extension, for example media-image. Used in the picker independently of icon."
                                                     },
                                                     "category": {
                                                         "type": ["string", "null"],
                                                         "description": "Optional category for grouping."
+                                                    },
+                                                    "priority": {
+                                                        "type": "integer",
+                                                        "default": 0,
+                                                        "description": "Element picker priority within its category. Higher values appear first; defaults to 0 when omitted from the type declaration."
                                                     },
                                                     "copilot": {
                                                         "type": "object",
@@ -72,7 +81,7 @@
                                                         "description": "Map of property name to property specification. Encodes as `[]` when the type declares no properties (for example a slot-only container).",
                                                         "additionalProperties": {
                                                             "type": "object",
-                                                            "required": ["type", "translatable", "enum", "default", "required", "title", "description", "adminUI"],
+                                                            "required": ["type", "contextTypes", "translatable", "enum", "default", "properties", "required", "mappable", "inlineMappable", "title", "description", "adminUI", "defaultMapping"],
                                                             "properties": {
                                                                 "type": {
                                                                     "oneOf": [
@@ -87,6 +96,13 @@
                                                                         }
                                                                     ],
                                                                     "description": "Primitive type name, FQCN, object, or a list of those for union declarations."
+                                                                },
+                                                                "contextTypes": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "string",
+                                                                        "enum": ["single", "collection"]
+                                                                    }
                                                                 },
                                                                 "translatable": {
                                                                     "type": "boolean"
@@ -110,6 +126,12 @@
                                                                 "required": {
                                                                     "type": "boolean"
                                                                 },
+                                                                "mappable": {
+                                                                    "type": "boolean"
+                                                                },
+                                                                "inlineMappable": {
+                                                                    "type": "boolean"
+                                                                },
                                                                 "title": {
                                                                     "type": "string"
                                                                 },
@@ -118,6 +140,13 @@
                                                                 },
                                                                 "adminUI": {
                                                                     "type": ["object", "null"]
+                                                                },
+                                                                "defaultMapping": {
+                                                                    "description": "Initial mapping for a freshly scaffolded element when the layout root offers a compatible candidate. Insert, preset attachment, wrapping containers, and replacement mutations apply it. Duplication preserves the copied mapping state. Direct DAL, Admin CRUD API, and Sync API writes do not seed it, and saving does not restore a removed mapping.",
+                                                                    "oneOf": [
+                                                                        { "$ref": "#/components/schemas/ContentSystemMappingSourceReference" },
+                                                                        { "type": "null" }
+                                                                    ]
                                                                 }
                                                             }
                                                         }

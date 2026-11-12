@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Test\Migration;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
@@ -104,7 +103,7 @@ trait MigrationTestBehaviour
 
     protected function assertMigrationState(MigrationCollection $migrationCollection, int $expectedCount, ?int $updateUntil = null, ?int $destructiveUntil = null): void
     {
-        $connection = static::getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get('doctrine.dbal.migration_connection');
 
         /** @var MigrationSource $migrationSource */
         $migrationSource = (new \ReflectionProperty(MigrationCollection::class, 'migrationSource'))->getValue($migrationCollection);

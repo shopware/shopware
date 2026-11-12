@@ -80,6 +80,15 @@ use Shopware\Elasticsearch\Sort\CountSort;
 class CriteriaParser
 {
     /**
+     * Cache of the (immutable) Groovy script file contents. getScript() is called for every
+     * cheapest-price sort/filter/aggregation and translated-field sort, i.e. multiple times per
+     * listing request on this shared service, and the scripts are static bundle files.
+     *
+     * @var array<string, string>
+     */
+    private array $scriptContentCache = [];
+
+    /**
      * @internal
      */
     public function __construct(
@@ -1100,21 +1109,25 @@ class CriteriaParser
 
     private function loadScriptContent(string $filename): string
     {
+        if (isset($this->scriptContentCache[$filename])) {
+            return $this->scriptContentCache[$filename];
+        }
+
         $scriptPath = realpath(__DIR__ . '/../../Framework/Indexing/Scripts/' . $filename);
 
         // Check if the file exists and is readable
         if ($scriptPath === false || !is_readable($scriptPath)) {
-            return '';
+            return $this->scriptContentCache[$filename] = '';
         }
 
         $scriptContent = file_get_contents($scriptPath);
 
         // Check for reading issues
         if ($scriptContent === false) {
-            return '';
+            return $this->scriptContentCache[$filename] = '';
         }
 
-        return $scriptContent;
+        return $this->scriptContentCache[$filename] = $scriptContent;
     }
 
     /**
@@ -1174,6 +1187,10 @@ class CriteriaParser
 
         if ($sorting instanceof CountSorting) {
             return new CountSort($accessor, $sorting->getDirection());
+        }
+
+        if ($field instanceof PriceField && preg_match('/^price\.c_[0-9a-f]{32}\.(gross|net)$/D', $accessor) === 1) {
+            return new FieldSort($accessor, $sorting->getDirection(), null, ['unmapped_type' => 'double']);
         }
 
         return new FieldSort($accessor, $sorting->getDirection());

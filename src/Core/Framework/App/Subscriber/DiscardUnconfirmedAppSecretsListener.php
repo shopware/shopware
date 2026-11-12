@@ -35,17 +35,18 @@ class DiscardUnconfirmedAppSecretsListener
         $criteria = new Criteria();
         $criteria->addFilter(new NotEqualsFilter('unconfirmedAppSecrets', null));
 
-        /** @var list<string> $appIds */
-        $appIds = $this->appRepository->searchIds($criteria, $context)->getIds();
-        if ($appIds === []) {
+        $apps = $this->appRepository->searchIds($criteria, $context)->getPrimaryKeyData();
+        if ($apps === []) {
             return;
         }
 
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($appIds): void {
-            $this->appRepository->update(
-                array_map(static fn (string $appId) => ['id' => $appId, 'unconfirmedAppSecrets' => null], $appIds),
-                $context
-            );
+        foreach ($apps as &$app) {
+            $app['unconfirmedAppSecrets'] = null;
+        }
+        unset($app);
+
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($apps): void {
+            $this->appRepository->update($apps, $context);
         });
     }
 }

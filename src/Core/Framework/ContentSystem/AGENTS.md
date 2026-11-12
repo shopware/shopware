@@ -1,45 +1,30 @@
-> Conceptual overview and design rationale live in [README.md](README.md), same
-> directory. The references and constraints below cover most code changes; read
-> the README when you need the mental model.
-
-## Navigation
-
-- Pipeline step order and the preparation passes — [docs/pipeline-steps.md](docs/pipeline-steps.md)
-- Write-time gates, default seeding, delete protection — [docs/layout-write-gates.md](docs/layout-write-gates.md)
-- Structural layout edits — [docs/layout-mutation.md](docs/layout-mutation.md)
-- Binding specifications at the module root — [docs/binding-specifications.md](docs/binding-specifications.md)
-- Universal style options and their storage — [docs/element-styles.md](docs/element-styles.md)
-- Registries, compiler passes, `_info` endpoints — [docs/introspection-endpoints.md](docs/introspection-endpoints.md)
-- Which error codes are a client defect — [docs/client-defect-codes.md](docs/client-defect-codes.md)
-- The six extension mechanisms — [docs/extending.md](docs/extending.md)
-- DI tags, base classes, value objects, enums, events — [docs/service-tags-and-types.md](docs/service-tags-and-types.md)
-- Data-flow diagram: [docs/data-flow.md](docs/data-flow.md)
-- A worked layout (entity rendering, data loading, context distribution): [docs/product-detail-page.md](docs/product-detail-page.md)
-- Class naming: [NAMING.md](NAMING.md), then [docs/stored-and-rendered.md](docs/stored-and-rendered.md) (which element model a name is about) and [docs/role-suffixes.md](docs/role-suffixes.md) (what a role suffix promises)
-
-## Source Code References
-
-- **Pipeline and Store API**: `ContentPipeline`, `RenderingMode` (FULL vs SKELETON); ordered steps: [docs/pipeline-steps.md](docs/pipeline-steps.md). `SalesChannel/ContentRoute` — one class, DI-parameterized per format and section
-- **Specification Sources**: entity: `Content/Product/Aggregate/ProductContentLayout/ProductSpecificationSource`, `Content/Category/Aggregate/CategoryContentLayout/CategorySpecificationSource`, `Content/LandingPage/Aggregate/LandingPageContentLayout/LandingPageSpecificationSource`; header/footer: `Storefront/ContentSystem/HeaderContentLayout/HeaderSpecificationSource`, `Storefront/ContentSystem/FooterContentLayout/FooterSpecificationSource`
-- **Resolver**: `Adapter/RenderingSpecificationResolver` (3 instances: main, header, footer — see DI config); assignment-free `resolveWithoutLayout()` selects via `supportsEntityType()`; `RenderingSpecificationFactory::createWithoutLayout()` builds a `RenderingSpecification` with no layout id
-- **Root Source Registry**: `Adapter/RootSourceRegistry` (`knownRootSources()`, `entityRootSources()`, `resolve()`, `sourceFor()`), `Adapter/NoneSpecificationSource`
-- **Events and value objects**: `Event/ContentTreePreparationEvent`, `Event/RenderedTreeFinalizationEvent`; `RenderableLayout` (reference + stored elements), `LayoutReference` (id, name, version), `ResolvedContentLayout` (layout ID + `RenderingSpecification`)
-- **Admin Preview API**: `Api/ContentPreviewController` — one route that mints a short-lived token for an unsaved draft and returns a Storefront preview URL rendering it against real entity data, assignment-free. Route, mint-time admission, the absent direct render route, payload store: [Api/AGENTS.md](Api/AGENTS.md); wire contract: [Api/docs/preview-url.md](Api/docs/preview-url.md). Its draft check, `DraftLayoutChecker` (module root), runs the persistence gate's `LayoutDiagnostics` intrinsic subset
-- **Resolution & Diagnostics**: `Resolution/ElementResolver` + `Resolution/AvailableContextResolver` (kernel), `Diagnostics/LayoutDiagnostics` (`analyze(tree, rootContext)` → `LayoutAnalysis`: per-element `PropertyResolution`s + a `DiagnosticsReport`), `Diagnostics/RootContextMapper` (bound source → root-ambient context). `ViolationCode` resolves a violation's scope (intrinsic/binding) + severity
-- **Write-time gates**: the resolvability gate, the write-boundary default seeder, the delete protection — [docs/layout-write-gates.md](docs/layout-write-gates.md); the default-layout gate `Validation/ContentLayoutDefaultValidator` guards the system-config default layout of product and category and refuses deleting a default — [Validation/AGENTS.md](Validation/AGENTS.md)
-- **Resolve-and-diagnose route**: `Api/ContentDiagnoseController` (`POST /api/_action/content-system/layout/diagnose`): draft tree only, never the persisted `content_layout`; an optional `rootSource` resolves root-ambient context via `Adapter/RootSourceRegistry::resolveGated()` (absent or empty → intrinsic well-formedness only)
-- **Layout mutation**: `Mutation/MutationPipeline`, its `Mutation/Op` operations and `Mutation/PersistedLayoutMutator` — [docs/layout-mutation.md](docs/layout-mutation.md)
-- **Introspection and compiler passes**: the element-type, style-option and root-source registries and the `/api/_info/` endpoints — [docs/introspection-endpoints.md](docs/introspection-endpoints.md); passes: `ContentSystemDataLoaderCompilerPass`, `ContentSystemCompilerPass`, `ContentSystemStyleOptionCompilerPass`, `ContentLayoutAssignableCompilerPass`, `ContentRouteCompilerPass`
-- **Element style**: `Layout/Element/Style/Registry/ContentSystemStyleOptionRegistry` and where an element's `style` is stored, encoded and served — [docs/element-styles.md](docs/element-styles.md)
-- **Binding Specification System**: `Binding/Specification/BindingSpecification`, `Binding/BindingApplicator`, `Binding/AttributionReconciler` — [docs/binding-specifications.md](docs/binding-specifications.md)
-
 ## Constraints
 
-- `RenderingSpecificationResolver`: iterates sources via `supports()` bool check, first match wins — NOT null-return
-- OpenAPI schemas: update `src/Core/Framework/Api/ApiDefinition/Generator/Schema/StoreApi/` when modifying endpoints
-- Constraints owned elsewhere: pipeline step order and language reduction — [docs/pipeline-steps.md](docs/pipeline-steps.md); introspection assembly and the `storageSchema` fold — [docs/introspection-endpoints.md](docs/introspection-endpoints.md); primitive property satisfaction, the translatable anchor rule and what each write-time gate admits — [docs/layout-write-gates.md](docs/layout-write-gates.md); client-defect error codes — [docs/client-defect-codes.md](docs/client-defect-codes.md)
+- Before planning or making a change, read the principle file for the area the change touches ([docs/principles/README.md](docs/principles/README.md#index) routes by task and by area). Check: does the change contradict a rule, a Why line or a Decided against line of that file?
+- Change a rule, its pinning test and the code it governs in the same commit. The pinning test is the enforcing class's test, unless the rule's In code list names another ([principle files](docs/principles/README.md#by-area)). Check: the test is in the diff.
+- Read a translatable property after preparation only as its reduced value ([language reduction](docs/principles/translation.md#language-reduction-happens-on-the-server-and-nothing-downstream-receives-a-language-map)). Check: in FULL mode no data loader, encoder or template in the diff reads a language map.
+- Credit a required translatable property only through its system-language entry ([translation principles](docs/principles/translation.md#a-required-translatable-property-is-filled-only-by-its-system-language-entry)). Check: a satisfaction check in the diff reads no other entry.
+- Update the Store API OpenAPI schema when changing an endpoint. Check: the matching file under [`Framework/Api/ApiDefinition/Generator/Schema/StoreApi/`](../Api/ApiDefinition/Generator/Schema/StoreApi/) is in the diff.
+- Register a domain service in its owning module's DI, never in `content-system.php`. Check: [Domain Placement](README.md#domain-placement) lists the class as domain-owned.
 
-## Quick Reference
+## Where to look
 
-- Exception class: `ContentSystemException`
-- DI config: `content-system.php` contains only framework-owned infrastructure; domain services register in their owning module's DI
+- Reference documents, one subject per file: [docs/README.md](docs/README.md#contentsystem-reference-documents)
+- Terms easy to confuse, glossary and module map: [docs/principles/README.md](docs/principles/README.md#terms-that-are-easy-to-confuse)
+- Content sections, rendering pipeline overview and key classes: [README.md](README.md#content-sections)
+- Domain-owned versus framework-owned classes, DI registration and the package attribute: [README.md](README.md#domain-placement)
+- Specification source selection by the resolver: [Adapter/docs/custom-sources.md](Adapter/docs/custom-sources.md#chain-of-responsibility)
+- Pipeline step order, the orderings inside preparation, and the data flow diagram: [docs/pipeline-steps.md](docs/pipeline-steps.md#pipeline-steps), [docs/data-flow.md](docs/data-flow.md#rendering-data-flow)
+- Naming a type, the Stored/Rendered prefix and what each role suffix promises: [NAMING.md](NAMING.md#a-name-answers-two-questions), [docs/stored-and-rendered.md](docs/stored-and-rendered.md#where-each-subject-belongs), [docs/role-suffixes.md](docs/role-suffixes.md#the-two-model-roles)
+- Extension mechanisms and where each is authored: [docs/extending.md](docs/extending.md#extending-the-content-system)
+- DI tags, base classes, value objects, enums, events and the exception class: [docs/service-tags-and-types.md](docs/service-tags-and-types.md#service-tag-reference), [docs/service-tags-and-types.md](docs/service-tags-and-types.md#type-reference)
+- Which error codes count as a client defect: [docs/client-defect-codes.md](docs/client-defect-codes.md#client-defect-error-codes)
+- Introspection assembly and the `storageSchema` derivation: [docs/introspection-endpoints.md](docs/introspection-endpoints.md#what-the-endpoints-derive-from)
+- Primitive property satisfaction, what each write-time gate admits and delete protection: [docs/layout-write-gates.md](docs/layout-write-gates.md#layout-write-gates)
+- The stateless and the persisted structural-edit runners: [docs/layout-mutation.md](docs/layout-mutation.md#layout-mutation)
+- What one binding specification declares and its two apply modes: [docs/binding-specifications.md](docs/binding-specifications.md#binding-specifications)
+- Element style options, storage and serving: [docs/element-styles.md](docs/element-styles.md#element-styles)
+- A worked layout combining entity rendering, data loading and context distribution: [docs/product-detail-page.md](docs/product-detail-page.md#product-detail-page-example)
+- Admin preview API, its route constraints and its wire contract: [Api/AGENTS.md](Api/AGENTS.md#constraints), [Api/docs/preview-url.md](Api/docs/preview-url.md#preview-url)
+- Data access in this repository: [AGENTS.md](../../../../AGENTS.md#not-standard-symfonydoctrine)
+- Data-mapping admission, runtime outcomes, and the supported override boundary: [data-mapping principles](docs/principles/data-mapping.md), [Mapping/README.md](Mapping/README.md), [provider guide](Mapping/docs/source-providers.md), [plugin overrides](Mapping/docs/plugin-sources.md)

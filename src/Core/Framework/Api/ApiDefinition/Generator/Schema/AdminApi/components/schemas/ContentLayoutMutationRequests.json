@@ -19,7 +19,7 @@
                     },
                     "rootSource": {
                         "type": ["string", "null"],
-                        "description": "Optional root source the draft is resolved against for resolvability. An entity type (a value from `GET /api/_info/content-system-entity-types.json`), a section (`header`, `footer`), or `none`. With it unset, only intrinsic well-formedness is evaluated.",
+                        "description": "Optional root source the draft is resolved against for resolvability. An entity type (a value from `GET /api/_info/content-system-entity-types.json`), a section (`header`, `footer`), or `none`. With it absent or empty, intrinsic well-formedness is evaluated and inline tokens in opted-in properties that require a source report `invalid_mapping`; whole-field mappings and other binding checks remain unjudged.",
                         "default": null,
                         "example": "product"
                     }
@@ -736,6 +736,80 @@
                     }
                 ]
             },
+            "ContentSystemMappingSourceReference": {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                    "type": { "type": "string", "minLength": 1, "example": "root" },
+                    "id": { "type": "string", "minLength": 1, "example": "product" },
+                    "path": { "type": "string", "minLength": 1, "example": "name" },
+                    "config": { "type": "object", "description": "Optional provider configuration. Omitted from responses when empty.", "additionalProperties": true }
+                },
+                "additionalProperties": false
+            },
+            "ContentLayoutMapPropertyRequest": {
+                "title": "Map property request (draft)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutDraftEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["elementId", "propertyKey", "source", "rootSource"],
+                        "properties": {
+                            "elementId": { "$ref": "#/components/schemas/ContentElementId" },
+                            "propertyKey": { "type": "string", "minLength": 1 },
+                            "source": { "$ref": "#/components/schemas/ContentSystemMappingSourceReference" },
+                            "rootSource": { "type": "string", "minLength": 1, "example": "product" }
+                        }
+                    }
+                ]
+            },
+            "ContentLayoutUnmapPropertyRequest": {
+                "title": "Unmap property request (draft)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutDraftEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["elementId", "propertyKey"],
+                        "properties": {
+                            "elementId": { "$ref": "#/components/schemas/ContentElementId" },
+                            "propertyKey": { "type": "string", "minLength": 1 }
+                        }
+                    }
+                ]
+            },
+            "ContentLayoutPersistedMapPropertyRequest": {
+                "title": "Map property request (persisted)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutVersionEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["elementId", "propertyKey", "source"],
+                        "properties": {
+                            "elementId": { "$ref": "#/components/schemas/ContentElementId" },
+                            "propertyKey": { "type": "string", "minLength": 1 },
+                            "source": { "$ref": "#/components/schemas/ContentSystemMappingSourceReference" }
+                        }
+                    }
+                ]
+            },
+            "ContentLayoutPersistedUnmapPropertyRequest": {
+                "title": "Unmap property request (persisted)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutVersionEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["elementId", "propertyKey"],
+                        "properties": {
+                            "elementId": { "$ref": "#/components/schemas/ContentElementId" },
+                            "propertyKey": { "type": "string", "minLength": 1 }
+                        }
+                    }
+                ]
+            },
             "ContentPreviewEntityRequest": {
                 "title": "Content preview request",
                 "type": "object",
@@ -744,7 +818,7 @@
                 "properties": {
                     "layout": {
                         "type": "array",
-                        "description": "The draft element tree to render. May be empty for a layout without elements.",
+                        "description": "The draft element tree to render; an empty array renders a blank page.",
                         "items": {
                             "$ref": "#/components/schemas/StoredContentElement"
                         }
@@ -813,7 +887,7 @@
                     },
                     "rootSource": {
                         "type": ["string", "null"],
-                        "description": "Optional root source the draft is resolved against. An entity type (a value from `GET /api/_info/content-system-entity-types.json`), a section (`header`, `footer`), or `none`. With it unset, only intrinsic well-formedness is evaluated.",
+                        "description": "Optional root source the draft is resolved against. An entity type (a value from `GET /api/_info/content-system-entity-types.json`), a section (`header`, `footer`), or `none`. Without a root source, intrinsic well-formedness and inline tokens requiring a source are checked; whole-field mappings and other binding checks remain unjudged.",
                         "default": null,
                         "example": "product"
                     }

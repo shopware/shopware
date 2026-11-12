@@ -1,22 +1,20 @@
 # Custom Event Listeners
 
-The plugin-facing authoring guide for a rendering-lifecycle listener: the two events, where each one sits in the pipeline, and what each may change. The element members, a worked listener, cache tags and priority are in [listener-api.md](listener-api.md).
-
-Listeners modify elements before or after rendering: computing derived values, transforming structure, resolving custom placeholders.
+Listeners replace the tree around data loading in `ContentPipeline::load()`: computing derived values, resolving custom placeholders.
 
 | Event                         | When                                               | Purpose                                  |
 |-------------------------------|----------------------------------------------------|------------------------------------------|
 | `ContentTreePreparationEvent` | Before every pipeline step, so before data loading | Modify layout tree, resolve placeholders |
-| `RenderedTreeFinalizationEvent` | After data loading and every tree-shaping step | Enrich data, transform property values |
+| `RenderedTreeFinalizationEvent` | After data loading and the [finishing steps](../../../docs/principles/README.md#glossary) | Enrich data, transform property values |
 
-`ContentPipeline::load()` calls its own preparation and finishing steps directly rather than through these events, so the tree a listener sees does not depend on its priority. A `ContentTreePreparationEvent` listener sees the raw loaded layout, before every step in [Execution Order](../README.md#execution-order). A `RenderedTreeFinalizationEvent` listener sees the finished rendered tree, after the virtual-root unwrap and the partial extract, and before the pipeline's second duplicate-element-id check, which judges the tree the listener handed back.
+`ContentPipeline::load()` calls its own preparation and finishing steps directly rather than through these events, so the tree a listener sees does not depend on its priority. A `ContentTreePreparationEvent` listener sees the raw loaded layout, before every step in [Execution Order](../README.md#execution-order). A `RenderedTreeFinalizationEvent` listener sees the finished rendered tree, after `VirtualRootWrapper::unwrap()` and `PartialRenderer::extractTarget()`, and before the pipeline's duplicate-element-id check on the returned tree. It judges the tree the listener handed back.
 
-That places the two events on opposite sides of language reduction, the preparer's first pass. A `translatable: true` property is stored as a language map, language id to a value of the declared primitive. A preparation listener reads and writes that whole map and must keep every entry matching that primitive; in FULL mode a non-map value, or a map whose selected entry does not match the declared primitive, reaches reduction as `CONTENT_SYSTEM__TRANSLATION_SHAPE_INVALID` (500). A finalization listener reads the selected value, or in SKELETON no property value at all, and returns a map-free tree either way; a map reintroduced there is its own defect, unscanned for. The declared primitive is not necessarily `string` — an `integer`, `number` or `boolean` property can carry the flag too — so third-party listeners must not assume a language-map entry is a string.
+A preparation listener reads and writes each translatable property as its whole language map, and every entry must match the declared primitive. That primitive may be `integer`, `number` or `boolean`, so a listener must not assume a string entry. In FULL mode a non-map value, or a chain entry of another primitive, throws `CONTENT_SYSTEM__TRANSLATION_SHAPE_INVALID` (500) at [language reduction](../../../docs/principles/translation.md#language-reduction-happens-on-the-server-and-nothing-downstream-receives-a-language-map). A finalization listener reads the reduced value, or in SKELETON mode no property value, and returns a tree without a language map. No check scans for a map that a finalization listener adds.
 
-The two carry the tree in the model of their own position, and each exposes one way to put a changed tree back, which refuses anything that is not a list of that event's own model:
+The two carry the tree in the model of their own position, hold it privately behind `tree()`, and each exposes one way to put a changed tree back, which refuses anything that is not a list of that event's own model:
 
-- `ContentTreePreparationEvent::tree()` — `list<StoredElement>`; a replacement goes back through `replaceTree()`, because a stored element is immutable and an edit produces new instances
-- `RenderedTreeFinalizationEvent::tree()` — `list<RenderedElement>`; a replacement goes back through `replaceTree()`, because a rendered element is immutable too
+- `ContentTreePreparationEvent::tree()`: `list<StoredElement>`; a replacement goes back through `replaceTree()`, because a stored element is immutable and an edit produces new instances
+- `RenderedTreeFinalizationEvent::tree()`: `list<RenderedElement>`; a replacement goes back through `replaceTree()`, because a rendered element is immutable too
 
 Both expose the same remaining properties, all readonly:
 
@@ -25,7 +23,7 @@ Both expose the same remaining properties, all readonly:
 - `salesChannelContext` — `SalesChannelContext`
 - `cacheContext` — `RenderingCacheContext`, for cache tag management (readonly reference, but methods mutate state)
 
-Neither event exposes `RenderingMode`, and both are dispatched at the same position in both modes. That is deliberate: a listener's structural output must not depend on the rendering mode. Property values are empty in SKELETON and populated in FULL, so deriving structure, slots or style from a property value produces a tree that differs between a cached skeleton and the later full response, which breaks their composition. Mode remains observable indirectly (the per-format route name on the specification's request, property emptiness, loader effects on the cache context); the bar is a contract, not something the event shape can enforce.
+Neither event exposes `RenderingMode`, and both are dispatched at the same position in both modes ([rule](../../../docs/principles/rendering.md#structure-is-a-function-independent-of-rendering-mode)). Mode remains observable indirectly: the per-format route name on the specification's request, property emptiness, loader effects on the cache context.
 
 ### What a finalization listener may change
 
@@ -37,11 +35,13 @@ The tree a listener hands back through `replaceTree()` is what the response carr
 | Remove an element or a subtree | Supported |
 | Reorder elements or slot children | Supported |
 | Add an element with a new id | Supported |
-| Duplicate an existing element id | Fails the render, `CONTENT_SYSTEM__DUPLICATE_ELEMENT_ID` (500) |
+| Duplicate an existing element id | Fails the render, under [the render's final check](../../../docs/principles/rendering.md#the-render-validates-the-whole-stored-forest-in-every-mode) |
 | Hand back the stored model, or an array that is not a list | Fails the render, `CONTENT_SYSTEM__INVALID_MAP_VALUE` (500) |
 
-Element ids are a rendered-model contract, not bookkeeping: partial extraction addresses by id, the storefront emits `data-element-id`, and the decomposed format's `assignments` are keyed by it. The pipeline rejects a repeated id twice — once over the pre-prune stored forest, once over the forest this event hands back — so a stored forest carrying one fails just as a listener's duplicate does. Structural validity is otherwise the listener's responsibility; nothing repairs a tree a listener hands back.
+Structural validity is otherwise the listener's responsibility; nothing repairs a tree a listener hands back.
 
-`RenderedTreeEditor::mapNodes()` is the whole-tree edit idiom: it visits every existing node exactly once and replaces it with exactly one node, so it neither mints nor drops nodes. That guarantee is about cardinality only. The mapper's signature is `callable(RenderedElement): RenderedElement` and whatever it returns lands in the tree, so nothing stops it returning an element whose id already exists elsewhere in the forest, or one carrying extra slot children. Using the idiom does not discharge the id obligation — that stays with the listener, as above.
+`RenderedTreeEditor::mapNodes()` is the whole-tree edit idiom: it visits every existing node exactly once and replaces it with exactly one node, so it neither adds nor drops nodes. That guarantee is about cardinality only. Whatever the mapper returns goes into the tree, so nothing stops it returning an element whose id already exists elsewhere in the forest, or one carrying extra slot children. Using the idiom does not satisfy the id obligation. That stays with the listener, as above.
 
 Placeholder resolution runs in FULL mode only and before this event, so a listener introducing a `{{token}}` resolves it itself rather than expecting the pipeline to.
+
+Product variant-option enrichment is a domain finalization listener, not a pipeline stage. It reads the rendered product after mapping and fallback delivery, changes only properties, and preserves the FULL/SKELETON structure contract. See [execution order](../README.md#execution-order).

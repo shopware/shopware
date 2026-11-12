@@ -105,11 +105,13 @@ class CartTest extends TestCase
 
         $cart->add($lineItem);
 
-        $this->expectException(CartException::class);
+        $this->expectExceptionObject(CartException::lineItemNotRemovable($lineItem->getId()));
 
-        $cart->remove($lineItem->getId());
-
-        static::assertCount(1, $cart->getLineItems());
+        try {
+            $cart->remove($lineItem->getId());
+        } finally {
+            static::assertCount(1, $cart->getLineItems());
+        }
     }
 
     public function testHashing(): void

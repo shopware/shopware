@@ -4,9 +4,8 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Layout\Preset\LayoutPresetPayloadCompiler;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSpecificationSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\ContentSystemLayoutPresetSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\Dto\LayoutPresetSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\Dto\LayoutPresetSpecificationDtoCollection;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -21,7 +20,6 @@ class DatabaseLayoutPresetLoader extends AbstractContentSystemLayoutPresetLoader
 {
     public function __construct(
         private readonly LayoutPresetSpecificationSerializer $serializer,
-        private readonly LayoutPresetPayloadCompiler $compiler,
         private readonly ValidatorInterface $validator,
         private readonly Connection $connection,
         private readonly string $environment,
@@ -29,7 +27,7 @@ class DatabaseLayoutPresetLoader extends AbstractContentSystemLayoutPresetLoader
     }
 
     /**
-     * @return list<ContentSystemLayoutPresetSpecification>
+     * @return array<string, LayoutPresetSpecificationDto>
      */
     public function load(): array
     {
@@ -45,7 +43,7 @@ class DatabaseLayoutPresetLoader extends AbstractContentSystemLayoutPresetLoader
              WHERE a.active = 1'
         );
 
-        $presets = [];
+        $dtos = [];
 
         foreach ($rows as $row) {
             $identifier = 'app:' . $row['app_name'] . ':' . ($row['name'] ?: '<unknown>');
@@ -60,22 +58,14 @@ class DatabaseLayoutPresetLoader extends AbstractContentSystemLayoutPresetLoader
                 throw ContentSystemException::layoutPresetLoadFailed($identifier, 'Persisted data must decode to an array/map, got ' . get_debug_type($data));
             }
 
-            $dto = $this->serializer->denormalize($data);
-
-            $violations = $this->validator->validate(new LayoutPresetSpecificationDtoCollection([$row['name'] => $dto]));
-            if ($violations->count() > 0) {
-                throw ContentSystemException::layoutPresetsInvalid($violations);
-            }
-
-            $presets[] = new ContentSystemLayoutPresetSpecification(
-                $row['name'],
-                $dto->name,
-                $dto->description,
-                $dto->icon,
-                $this->compiler->compile($dto->layout),
-            );
+            $dtos[$row['name']] = $this->serializer->denormalize($data);
         }
 
-        return $presets;
+        $violations = $this->validator->validate(new LayoutPresetSpecificationDtoCollection($dtos));
+        if ($violations->count() > 0) {
+            throw ContentSystemException::layoutPresetsInvalid($violations);
+        }
+
+        return $dtos;
     }
 }

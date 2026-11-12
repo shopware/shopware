@@ -98,10 +98,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
                     'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
                     'sw-list-price-field': await wrapTestComponent('sw-list-price-field'),
                     'sw-inheritance-switch': {
-                        props: [
-                            'isInherited',
-                            'disabled',
-                        ],
+                        props: ['isInherited', 'disabled'],
                         template: `
                           <div class="sw-inheritance-switch">
                           <div v-if="isInherited"
@@ -222,7 +219,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
 
         // remove purchasePrices of parent
         wrapper.vm.parentProduct.purchasePrices = undefined;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const priceInheritance = wrapper.find('.sw-product-price-form__price-list');
         const priceSwitchInheritance = priceInheritance.find('.sw-inheritance-switch');
@@ -276,10 +273,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
         wrapper = await createWrapper();
         await flushPromises();
 
-        const priceFieldsClassName = [
-            '.sw-purchase-price-field',
-            '.sw-list-price-field__list-price sw-price-field-stub',
-        ];
+        const priceFieldsClassName = ['.sw-purchase-price-field', '.sw-list-price-field__list-price sw-price-field-stub'];
 
         priceFieldsClassName.forEach((item) => {
             expect(wrapper.find(item).exists()).toBeTruthy();
@@ -304,10 +298,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
 
         await nextTick();
 
-        const priceFieldsClassName = [
-            '.sw-purchase-price-field',
-            '.sw-list-price-field__list-price sw-price-field-stub',
-        ];
+        const priceFieldsClassName = ['.sw-purchase-price-field', '.sw-list-price-field__list-price sw-price-field-stub'];
 
         priceFieldsClassName.forEach((item) => {
             expect(wrapper.find(item).exists()).toBeFalsy();

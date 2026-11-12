@@ -21,10 +21,7 @@ export default {
         'inline-edit-cancel',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('sw-inline-snippet'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('sw-inline-snippet')],
 
     props: {
         productSortingEntity: {
@@ -37,6 +34,7 @@ export default {
         return {
             customFields: [],
             selectedCriteria: null,
+            /** @deprecated tag:v6.8.0 - Will be removed without replacement. */
             customFieldSetIDs: null,
             notSortableCustomFields: [
                 'price',
@@ -56,26 +54,22 @@ export default {
             return this.repositoryFactory.create('custom_field_set');
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed without replacement. */
         customFieldSetRelationsRepository() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-listing-option-criteria-grid.customFieldSetRelationsRepository is deprecated.',
+            );
+
             return this.repositoryFactory.create('custom_field_set_relation');
         },
 
         customFieldCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addFilter(
-                Criteria.not('and', [
-                    Criteria.equalsAny('type', this.notSortableCustomFields),
-                ]),
-            );
+            criteria.addFilter(Criteria.not('and', [Criteria.equalsAny('type', this.notSortableCustomFields)]));
 
-            if (this.customFieldSetIDs !== null) {
-                if (this.customFieldSetIDs.length) {
-                    criteria.addFilter(Criteria.equalsAny('customFieldSetId', this.customFieldSetIDs));
-                } else {
-                    criteria.addFilter(Criteria.equals('id', null));
-                }
-            }
+            criteria.addFilter(Criteria.equals('customFieldSet.relations.entityName', 'product'));
 
             if (this.getProductSortingFieldsByName().length) {
                 criteria.addFilter(Criteria.equalsAny('id', this.getProductSortingFieldsByName()));
@@ -84,7 +78,13 @@ export default {
             return criteria;
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed without replacement. */
         customFieldsRelationsCriteria() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-listing-option-criteria-grid.customFieldsRelationsCriteria is deprecated.',
+            );
+
             const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.equals('entityName', 'product'));
@@ -200,6 +200,7 @@ export default {
             ];
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },
@@ -228,12 +229,16 @@ export default {
 
     methods: {
         createdComponent() {
-            this.fetchCustomFieldSetIds().then(() => {
-                this.fetchCustomFields();
-            });
+            this.fetchCustomFields();
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed without replacement. */
         fetchCustomFieldSetIds() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-listing-option-criteria-grid.fetchCustomFieldSetIds() is deprecated.',
+            );
+
             return this.customFieldSetRelationsRepository.search(this.customFieldsRelationsCriteria).then((response) => {
                 this.customFieldSetIDs = response.map((currentField) => {
                     return currentField.customFieldSetId;
@@ -402,25 +407,13 @@ export default {
         customFieldCriteriaSingleSelect(customField) {
             const criteria = new Criteria(1, 25);
 
-            criteria.addFilter(
-                Criteria.not('and', [
-                    Criteria.equalsAny('type', this.notSortableCustomFields),
-                ]),
-            );
+            criteria.addFilter(Criteria.not('and', [Criteria.equalsAny('type', this.notSortableCustomFields)]));
 
-            if (this.customFieldSetIDs !== null) {
-                if (this.customFieldSetIDs.length) {
-                    criteria.addFilter(Criteria.equalsAny('customFieldSetId', this.customFieldSetIDs));
-                } else {
-                    criteria.addFilter(Criteria.equals('id', null));
-                }
-            }
+            criteria.addFilter(Criteria.equals('customFieldSet.relations.entityName', 'product'));
 
             if (this.getProductSortingFieldsByName(customField).length) {
                 criteria.addFilter(
-                    Criteria.not('AND', [
-                        Criteria.equalsAny('id', this.getProductSortingFieldsByName(customField)),
-                    ]),
+                    Criteria.not('AND', [Criteria.equalsAny('id', this.getProductSortingFieldsByName(customField))]),
                 );
             }
 

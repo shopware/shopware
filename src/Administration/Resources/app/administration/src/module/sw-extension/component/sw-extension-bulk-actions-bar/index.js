@@ -8,11 +8,7 @@ import './sw-extension-bulk-actions-bar.scss';
 export default {
     template,
 
-    emits: [
-        'select-all',
-        'clear',
-        'run-action',
-    ],
+    emits: ['select-all', 'clear', 'run-action'],
 
     props: {
         selectedCount: {

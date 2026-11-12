@@ -106,6 +106,7 @@
       "pluginDeactivatedHint": "Erweiterung deaktiviert.",
       "messagePluginRequirementMismatch": "Die Erweiterung hat technische Anforderungen, die nicht mit denen der installierten Shopware-Version kompatibel sind. Bitte wende Dich an den Hersteller.",
       "appIsNotCompatible": "Die Erweiterung \"{name}\" ist nicht kompatibel mit dieser Shopware Version",
+      "appValidationFailed": "Die App hat Validierungsfehler",
       "appLicenseCouldNotBeVerified": {
         "title": "Die Lizenz dieser Erweiterung konnte nicht überprüft werden",
         "message": "Stelle sicher, dass Deine Lizenzdomain korrekt gesetzt ist und Du mit Deinem Shopware Account angemeldet bist, auf welchen diese Erweiterung lizenziert ist.",
@@ -186,7 +187,7 @@
         "labelUpdatedAt": "Zuletzt aktualisiert",
         "labelLanguages": "Sprachen",
         "labelWebsite": "Entwicklerwebseite",
-        "labelPrivacy": "Datenschutzbestimmungen"
+        "labelPrivacy": "Datenschutzhinweise"
       },
       "cardTitleFAQ": "Häufig gestellte Fragen",
       "cardTitleChangelog": "Änderungsprotokoll",
@@ -288,6 +289,7 @@
           "seeDetailsLabel": "Details ansehen",
           "privacyAndSafetyLabel": "Datenschutz & Datensicherheit",
           "cancelAndRemoveLabel": "Kündigen und entfernen",
+          "cancelSubscriptionLabel": "Miete kündigen",
           "uninstallLabel": "Deinstallieren",
           "updateLabel": "Aktualisieren auf {version}",
           "rateLabel": "Erweiterung bewerten",
@@ -352,11 +354,14 @@
       },
       "sw-extension-removal-modal": {
         "titleCancel": "\"{extensionName}\" kündigen und entfernen",
+        "titleCancelSubscription": "\"{extensionName}\" kündigen",
         "titleRemove": "\"{extensionName}\" entfernen",
         "description": "Wenn Du die Erweiterung entfernst, kannst Du sie nicht mehr nutzen.",
         "alertCancel": "Möchtest Du die Erweiterung wirklich kündigen und entfernen?",
+        "alertCancelSubscription": "Möchtest Du die Miete wirklich kündigen?",
         "alertRemove": "Möchtest Du die Erweiterung wirklich entfernen?",
-        "labelCancel": "Kündigen und entfernen"
+        "labelCancel": "Kündigen und entfernen",
+        "labelCancelSubscription": "Miete kündigen"
       },
       "sw-extension-uninstall-modal": {
         "title": "\"{extensionName}\" deinstallieren",

@@ -10,10 +10,7 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    emits: [
-        'main-category-add',
-        'main-category-remove',
-    ],
+    emits: ['main-category-add', 'main-category-remove'],
 
     props: {
         currentSalesChannelId: {
@@ -68,6 +65,20 @@ export default {
 
             // from Defaults.php
             return this.currentSalesChannelId !== null && salesChannel.typeId === 'f183ee5650cf4bdb8a774337575067a6';
+        },
+
+        categoryOptions() {
+            return this.categories.map((category) => {
+                const breadcrumb = category.translated?.breadcrumb ?? category.breadcrumb;
+                const hasBreadcrumb = !!breadcrumb && Object.keys(breadcrumb).length > 0;
+
+                return {
+                    id: category.id,
+                    label: hasBreadcrumb
+                        ? Object.values(breadcrumb).join(' / ')
+                        : (category.translated?.name ?? category.name),
+                };
+            });
         },
 
         selectedCategory() {

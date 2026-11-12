@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Storefront\Controller\StorefrontController;
+use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -70,6 +71,10 @@ class InternalClassRule implements Rule
         'Shopware\\Core\\Framework\\ContentSystem\\Event\\RenderedTreeFinalizationEvent',
         'Shopware\\Core\\Framework\\ContentSystem\\Hydration\\DataLoader\\AbstractContentDataLoader',
         'Shopware\\Core\\Framework\\ContentSystem\\Hydration\\DataLoader\\AbstractContentDataLoaderConfigSerializer',
+        'Shopware\\Core\\Framework\\ContentSystem\\Mapping\\Provider\\AbstractMappingCandidateProvider',
+        'Shopware\\Core\\Framework\\ContentSystem\\Mapping\\MappingSourceReference',
+        'Shopware\\Core\\Framework\\ContentSystem\\Mapping\\MappingSourceResolution',
+        'Shopware\\Core\\Framework\\ContentSystem\\Mapping\\MappingSourceResolutionContext',
         'Shopware\\Core\\Framework\\ContentSystem\\Output\\Format\\AbstractResponseFactory',
         'Shopware\\Core\\Framework\\ContentSystem\\Adapter\\AbstractSpecificationSource',
         'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Type\\Loader\\AbstractContentSystemElementTypeLoader',
@@ -127,6 +132,8 @@ class InternalClassRule implements Rule
         'Shopware\\Core\\Framework\\ContentSystem\\Binding\\Specification\\BindingSpecification',
         'Shopware\\Core\\Framework\\ContentSystem\\Binding\\Specification\\LoaderBinding',
         'Shopware\\Core\\Framework\\ContentSystem\\Binding\\Specification\\BindingInput',
+        'Shopware\\Core\\Framework\\ContentSystem\\Mapping\\MappingCandidate',
+        'Shopware\\Core\\Framework\\ContentSystem\\Mapping\\Registry\\AbstractContentSystemMappingCandidateRegistry',
         'Shopware\\Core\\Framework\\ContentSystem\\ContentSystemException',
     ];
 
@@ -175,6 +182,14 @@ class InternalClassRule implements Rule
         if ($this->isBundle($node)) {
             return [
                 RuleErrorBuilder::message('Bundles must be flagged @internal to not be captured by the BC checker.')
+                    ->identifier('shopware.internalClass')
+                    ->build(),
+            ];
+        }
+
+        if ($node->getClassReflection()->implementsInterface(CompilerPassInterface::class)) {
+            return [
+                RuleErrorBuilder::message('Compiler passes must be flagged @internal to not be captured by the BC checker.')
                     ->identifier('shopware.internalClass')
                     ->build(),
             ];

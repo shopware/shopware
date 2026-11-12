@@ -134,10 +134,7 @@ async function createWrapper({
                 },
                 'sw-search-bar': {
                     template: '<div class="sw-search-bar"></div>',
-                    props: [
-                        'initial-search-type',
-                        'initial-search',
-                    ],
+                    props: ['initial-search-type', 'initial-search'],
                 },
                 'sw-card-view': {
                     template: '<div class="sw-card-view"><slot></slot></div>',
@@ -182,10 +179,7 @@ async function createWrapper({
                 },
                 'sw-generic-cms-page-assignment': {
                     template: '<div class="sw-generic-cms-page-assignment"></div>',
-                    props: [
-                        'cms-page-id',
-                        'slot-overrides',
-                    ],
+                    props: ['cms-page-id', 'slot-overrides'],
                 },
                 'sw-generic-seo-general-card': {
                     template: '<div class="sw-generic-seo-general-card"></div>',
@@ -198,11 +192,7 @@ async function createWrapper({
                 },
                 'sw-generic-social-media-card': {
                     template: '<div class="sw-generic-social-media-card"></div>',
-                    props: [
-                        'og-title',
-                        'og-description',
-                        'og-image-id',
-                    ],
+                    props: ['og-title', 'og-description', 'og-image-id'],
                 },
             },
             provide: {

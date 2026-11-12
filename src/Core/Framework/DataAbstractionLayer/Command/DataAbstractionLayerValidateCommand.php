@@ -3,9 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Command;
 
 use Shopware\Core\Framework\Console\OutputFormatTrait;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -113,7 +111,7 @@ class DataAbstractionLayerValidateCommand extends Command
     }
 
     /**
-     * @param array<class-string<EntityDefinition|DefinitionInstanceRegistry>, list<string>> $errors
+     * @param array<string, list<string>> $errors
      */
     private function printErrors(SymfonyStyle $io, array $errors): void
     {

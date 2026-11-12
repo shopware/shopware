@@ -2,7 +2,9 @@ meta:
   label: "Product Slider"
   description: "Displays a manually curated selection of products in a slider."
   icon: "regular-bulk-edit"
+  illustration: "product-slider"
   category: "commerce"
+  priority: 98
   copilot:
     summary: "Product slider element with a manual product selection."
     hints:

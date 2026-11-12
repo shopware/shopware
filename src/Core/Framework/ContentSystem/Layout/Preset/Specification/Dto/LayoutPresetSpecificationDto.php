@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\Dto;
 
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Validation\LayoutPresetNodes;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -26,7 +27,13 @@ final readonly class LayoutPresetSpecificationDto
         #[Assert\NotBlank]
         public string $icon,
         #[Assert\Type(type: 'list', message: 'The "layout" field must be a list of elements.')]
+        #[LayoutPresetNodes]
         public array $layout,
+        #[Assert\NotBlank(allowNull: true)]
+        public ?string $category = null,
+        public int $priority = 0,
+        #[Assert\NotBlank(allowNull: true)]
+        public ?string $illustration = null,
     ) {
     }
 }

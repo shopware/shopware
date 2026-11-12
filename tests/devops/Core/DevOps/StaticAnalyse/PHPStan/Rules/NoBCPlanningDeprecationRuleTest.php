@@ -4,7 +4,6 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules;
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\NoBCPlanningDeprecationRule;
 use Shopware\Core\Framework\Log\Package;
 
@@ -16,7 +15,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class NoBCPlanningDeprecationRuleTest extends RuleTestCase
 {
-    #[RunInSeparateProcess]
     public function testBCPlanningReasonTagsAreReported(): void
     {
         $this->analyse([__DIR__ . '/data/NoBCPlanningDeprecationRule/BCPlanningDeprecations.php'], [

@@ -238,16 +238,8 @@ describe('scripts/codemods/sfc-migration/component-source-model', () => {
     });
 
     it.each([
-        [
-            'wrong',
-            "import template from './template.js';\nexport default { template };\n",
-            'template-binding-missing',
-        ],
-        [
-            'missing',
-            'export default { template };\n',
-            'template-binding-missing',
-        ],
+        ['wrong', "import template from './template.js';\nexport default { template };\n", 'template-binding-missing'],
+        ['missing', 'export default { template };\n', 'template-binding-missing'],
         [
             'unrelated',
             "import template from 'some-package/template.html.twig';\nexport default { template };\n",

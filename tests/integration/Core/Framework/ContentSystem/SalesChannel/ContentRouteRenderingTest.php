@@ -34,12 +34,12 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\ContentSystem\ContentLayoutFixtureBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -118,28 +118,12 @@ class ContentRouteRenderingTest extends TestCase
 
     private KernelBrowser $browser;
 
-    private ?\Closure $finalizationListener = null;
-
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->ids = new IdsCollection();
         $this->browser = $this->createSalesChannelBrowser();
-    }
-
-    /**
-     * The kernel outlives the test case, so a listener left on its dispatcher would rewrite the rendered
-     * forest of every later test in the process.
-     */
-    protected function tearDown(): void
-    {
-        if ($this->finalizationListener !== null) {
-            $this->eventDispatcher()->removeListener(RenderedTreeFinalizationEvent::class, $this->finalizationListener);
-            $this->finalizationListener = null;
-        }
-
-        parent::tearDown();
     }
 
     #[TestDox('serves the stored element ids, components, slot names and slot nesting in the full format')]
@@ -1041,8 +1025,7 @@ class ContentRouteRenderingTest extends TestCase
 
     private function registerFinalizationListener(\Closure $listener): void
     {
-        $this->finalizationListener = $listener;
-        $this->eventDispatcher()->addListener(RenderedTreeFinalizationEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(RenderedTreeFinalizationEvent::class, $listener);
     }
 
     /**
@@ -1090,14 +1073,6 @@ class ContentRouteRenderingTest extends TestCase
         }
 
         return $keys;
-    }
-
-    private function eventDispatcher(): EventDispatcherInterface
-    {
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-        static::assertInstanceOf(EventDispatcherInterface::class, $dispatcher);
-
-        return $dispatcher;
     }
 
     /**

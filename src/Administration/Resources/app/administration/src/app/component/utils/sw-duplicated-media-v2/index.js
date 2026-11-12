@@ -17,11 +17,7 @@ const LOCAL_STORAGE_SAVE_SELECTION = 'sw-duplicate-media-resolve-save-selection'
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'mediaService',
-        'mediaPresignedUploadService',
-    ],
+    inject: ['repositoryFactory', 'mediaService', 'mediaPresignedUploadService'],
 
     data() {
         return {
@@ -72,9 +68,7 @@ export default {
             if (!this.currentTask) {
                 return '';
             }
-            const metadata = [
-                this.dateFilter(new Date(), { month: 'long' }),
-            ];
+            const metadata = [this.dateFilter(new Date(), { month: 'long' })];
 
             if (this.currentTask.src instanceof File) {
                 metadata.push(this.fileSizeFilter(this.currentTask.src.size));
@@ -308,14 +302,16 @@ export default {
                     Criteria.equals('private', uploadTask.isPrivate),
                 ]),
             );
+            criteria.setTotalCountMode(0);
 
-            const searchResult = await this.mediaRepository.search(criteria, Context.api);
-            const newTarget = searchResult[0];
+            const {
+                data: [newTargetId],
+            } = await this.mediaRepository.searchIds(criteria, Context.api);
             const oldTargetId = uploadTask.targetId;
 
             if (this.presignedSupported && uploadTask.src instanceof File) {
                 try {
-                    const mediaId = await this.presignedUpload(uploadTask, newTarget.id);
+                    const mediaId = await this.presignedUpload(uploadTask, newTargetId);
 
                     const oldTarget = await this.mediaRepository.get(oldTargetId, Context.api);
                     if (oldTarget && !oldTarget.hasFile) {
@@ -335,7 +331,7 @@ export default {
                 return;
             }
 
-            uploadTask.targetId = newTarget.id;
+            uploadTask.targetId = newTargetId;
 
             this.mediaService.addUpload(uploadTask.uploadTag, uploadTask);
 
@@ -352,10 +348,7 @@ export default {
         async presignedUpload(uploadTask, mediaId) {
             const mimeType = uploadTask.src.type || 'application/octet-stream';
 
-            const [
-                result,
-                dimensions,
-            ] = await Promise.all([
+            const [result, dimensions] = await Promise.all([
                 this.mediaPresignedUploadService.prepareUpload({
                     fileName: uploadTask.fileName,
                     extension: uploadTask.extension,
@@ -407,10 +400,12 @@ export default {
                     Criteria.equals('private', uploadTask.isPrivate),
                 ]),
             );
+            criteria.setTotalCountMode(0);
 
-            const searchResult = await this.mediaRepository.search(criteria, Context.api);
-            const newTarget = searchResult[0];
-            uploadTask.targetId = newTarget.id;
+            const {
+                data: [newTargetId],
+            } = await this.mediaRepository.searchIds(criteria, Context.api);
+            uploadTask.targetId = newTargetId;
             uploadTask.originalTargetId = originalTargetId;
 
             this.mediaService.keepFile(uploadTask.uploadTag, uploadTask);

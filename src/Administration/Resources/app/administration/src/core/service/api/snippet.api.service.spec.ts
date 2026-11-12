@@ -394,20 +394,14 @@ describe('core/service/api/snippet.api.service.ts', () => {
 
             clientMock.onGet('/_action/snippet/filter').reply(200, {
                 total: 2,
-                data: [
-                    'filter1',
-                    'filter2',
-                ],
+                data: ['filter1', 'filter2'],
             });
 
             const result = await snippetApiService.getFilter();
 
             expect(result).toEqual({
                 total: 2,
-                data: [
-                    'filter1',
-                    'filter2',
-                ],
+                data: ['filter1', 'filter2'],
             });
         });
     });

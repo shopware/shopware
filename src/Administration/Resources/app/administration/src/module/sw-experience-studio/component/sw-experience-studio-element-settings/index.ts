@@ -1,6 +1,8 @@
 import type { ContentElementNode } from 'src/core/service/content-element.types';
 import type { ContentSystemElementTypeSpecification } from 'src/core/service/api/content-system-element-type.api.service';
 import type { ContentSystemStyleOptionSpecification } from 'src/core/service/api/content-system-style-option.api.service';
+import type { ContentSystemMappingCandidate } from 'src/core/service/api/content-system-mapping-candidate.api.service';
+import type { ContentSystemViolation } from 'src/core/service/api/content-system-layout-draft-mutation.api.service';
 import type { SettingsFieldDefinition } from '../sw-experience-studio-settings-fields';
 import {
     editingLanguageChain,
@@ -10,6 +12,7 @@ import {
     isPropertyVisible,
     resolveTranslatableEntry,
 } from '../../util/element-settings.util';
+import { findPropertyMapping } from '../../util/element-mapping.util';
 import { getEditableStyleFields } from '../../util/style-settings.util';
 import template from './sw-experience-studio-element-settings.html.twig';
 import './sw-experience-studio-element-settings.scss';
@@ -71,21 +74,38 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: null,
         },
+        isLoadingMappingCandidates: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        mappingCandidateLoadError: {
+            type: String,
+            required: false,
+            default: null,
+        },
         allowEdit: {
             type: Boolean,
             required: false,
             default: false,
         },
-        isInlineEditingActive: {
-            type: Boolean,
+        mappingCandidates: {
+            type: Array as PropType<ContentSystemMappingCandidate[]>,
             required: false,
-            default: false,
+            default: () => [],
+        },
+        violations: {
+            type: Array as PropType<ContentSystemViolation[]>,
+            required: false,
+            default: () => [],
         },
     },
 
     emits: [
         'update-properties',
         'update-style',
+        'update-mapping',
+        'retry-mapping-candidates',
     ],
 
     data() {
@@ -105,6 +125,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         hasStyleOptionLoadError(): boolean {
             return typeof this.styleOptionLoadError === 'string' && this.styleOptionLoadError.length > 0;
+        },
+
+        hasMappingCandidateLoadError(): boolean {
+            return typeof this.mappingCandidateLoadError === 'string' && this.mappingCandidateLoadError.length > 0;
         },
 
         hasSelectedElementType(): boolean {
@@ -151,6 +175,25 @@ export default Shopware.Component.wrapComponentConfig({
 
         elementStyleValues(): Record<string, unknown> {
             return this.selectedElement?.style ?? {};
+        },
+
+        elementMappings(): Record<string, string> {
+            const typeSpecification = this.selectedElementType as ContentSystemElementTypeSpecification | null;
+            const selectedElement = this.selectedElement;
+
+            if (!typeSpecification || !selectedElement) {
+                return {};
+            }
+
+            return Object.keys(typeSpecification.properties).reduce<Record<string, string>>((accumulator, key) => {
+                const mapping = findPropertyMapping(selectedElement, key);
+
+                if (mapping !== null) {
+                    accumulator[key] = mapping.path;
+                }
+
+                return accumulator;
+            }, {});
         },
 
         elementFields(): SettingsFieldDefinition[] {
@@ -250,6 +293,10 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
+        onRetryMappingCandidates(): void {
+            this.$emit('retry-mapping-candidates');
+        },
+
         onUpdateElementField(payload: { key: string; value: unknown }): void {
             const selectedElement = this.selectedElement;
 
@@ -266,6 +313,28 @@ export default Shopware.Component.wrapComponentConfig({
                 elementId: selectedElement.id,
                 propertyKey: storageKey,
                 value: payload.value,
+            });
+        },
+
+        /**
+         * A mapping keys off the declared destination property, not the binding storage key.
+         */
+        onUpdateElementMapping(payload: {
+            key: string;
+            source: { type: string; id: string; config?: Record<string, unknown>; path?: string } | null;
+            contextType: 'single' | 'collection' | null;
+        }): void {
+            const selectedElement = this.selectedElement;
+
+            if (!selectedElement || !this.allowEdit) {
+                return;
+            }
+
+            this.$emit('update-mapping', {
+                elementId: selectedElement.id,
+                propertyKey: payload.key,
+                source: payload.source,
+                contextType: payload.contextType,
             });
         },
 

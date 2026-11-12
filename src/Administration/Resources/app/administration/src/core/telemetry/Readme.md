@@ -85,6 +85,14 @@ This properties will be transformed into snake case and sent as part of the even
 To manually track events you can simply call `Shopware.Telemetry.track(eventData)`. The `eventData` object must contain a `eventName` property.
 This can be useful if you want to track progress of a long-running process like installing and activating extensions, track Admin-SDK and Admin-API usage and so on.  
 
+### Session snapshot
+
+Global user settings are not tracked from their own call sites. They are reported together, once per Admin boot,
+with a single `admin_session_started` event that is sent after the user was identified and only while the product
+analytics consent is active. To report another global setting, add it as a property of this event in
+`src/app/service/product-analytics-session-snapshot.service.ts`. A change of a setting is a user interaction and is
+tracked where it happens.
+
 ## Debugging telemetry events
 
 While developing you may be interested in the events being fired. To enable logging of telemetry events, you can turn on the debug mode in you dev console in the browser.

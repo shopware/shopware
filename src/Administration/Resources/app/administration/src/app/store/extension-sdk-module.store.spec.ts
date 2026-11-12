@@ -76,17 +76,13 @@ describe('extensionSdkModules.store', () => {
 
         store.addSmartBarButton(button);
 
-        expect(store.smartBarButtons).toEqual([
-            button,
-        ]);
+        expect(store.smartBarButtons).toEqual([button]);
     });
 
     it('addHiddenSmartBar', () => {
         store.addHiddenSmartBar('test');
 
-        expect(store.hiddenSmartBars).toEqual([
-            'test',
-        ]);
+        expect(store.hiddenSmartBars).toEqual(['test']);
     });
 
     it('getRegisteredModuleInformation', () => {
@@ -102,8 +98,6 @@ describe('extensionSdkModules.store', () => {
 
         store.modules.push(module);
 
-        expect(store.getRegisteredModuleInformation('test')).toEqual([
-            module,
-        ]);
+        expect(store.getRegisteredModuleInformation('test')).toEqual([module]);
     });
 });

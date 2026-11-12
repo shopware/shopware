@@ -163,6 +163,30 @@ class LineItemFactoryRegistryTest extends TestCase
         $service->updateLineItem($cart, ['id' => $id, 'quantity' => $newQuantity], $lineItem, $this->context);
     }
 
+    public function testUpdateUsesTheStoredLineItemType(): void
+    {
+        $id = Uuid::randomHex();
+        $lineItem = new LineItem($id, LineItem::CUSTOM_LINE_ITEM_TYPE, Uuid::randomHex(), 1);
+
+        $cart = new Cart('test');
+        $cart->add($lineItem);
+
+        $productFactory = $this->createMock(LineItemFactoryInterface::class);
+        $productFactory->method('supports')->willReturnCallback(static fn (string $type) => $type === LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $productFactory->expects($this->never())->method('update');
+
+        $customFactory = $this->createMock(LineItemFactoryInterface::class);
+        $customFactory->method('supports')->willReturnCallback(static fn (string $type) => $type === LineItem::CUSTOM_LINE_ITEM_TYPE);
+        $customFactory->expects($this->once())->method('update')->with($lineItem, ['id' => $id, 'type' => LineItem::CUSTOM_LINE_ITEM_TYPE], $this->context);
+
+        $service = new LineItemFactoryRegistry(
+            [$productFactory, $customFactory],
+            static::createStub(DataValidator::class),
+            $this->eventDispatcher
+        );
+        $service->update($cart, ['id' => $id, 'type' => LineItem::PRODUCT_LINE_ITEM_TYPE], $this->context);
+    }
+
     public function testUpdateLineItemWithUnsupportedType(): void
     {
         $id = Uuid::randomHex();

@@ -15,10 +15,7 @@ const utils = Shopware.Utils;
 export default {
     template,
 
-    inject: [
-        'seoUrlTemplateService',
-        'repositoryFactory',
-    ],
+    inject: ['seoUrlTemplateService', 'repositoryFactory'],
 
     emits: ['sales-channel-changed'],
 
@@ -77,10 +74,7 @@ export default {
                 return true;
             }
 
-            const supported = [
-                Defaults.storefrontSalesChannelTypeId,
-                Defaults.apiSalesChannelTypeId,
-            ];
+            const supported = [Defaults.storefrontSalesChannelTypeId, Defaults.apiSalesChannelTypeId];
             if (!supported.includes(this.currentSalesChannel.typeId)) {
                 return false;
             }
@@ -187,22 +181,17 @@ export default {
         createVariableOptions(id, data) {
             const storeOptions = [];
 
-            Object.entries(data).forEach(
-                ([
-                    property,
-                    value,
-                ]) => {
-                    storeOptions.push({ name: `${property}` });
+            Object.entries(data).forEach(([property, value]) => {
+                storeOptions.push({ name: `${property}` });
 
-                    if (value instanceof Object) {
-                        Object.keys(value).forEach((innerProperty) => {
-                            storeOptions.push({
-                                name: `${property}.${innerProperty}`,
-                            });
+                if (value instanceof Object) {
+                    Object.keys(value).forEach((innerProperty) => {
+                        storeOptions.push({
+                            name: `${property}.${innerProperty}`,
                         });
-                    }
-                },
-            );
+                    });
+                }
+            });
 
             this.variableStores[id] = storeOptions;
         },
@@ -368,8 +357,34 @@ export default {
                 this.salesChannels = response;
             });
         },
-        onSalesChannelChanged(salesChannelId) {
+        /**
+         * Only the first page of sales channels is loaded up front, so the selected one may be missing.
+         */
+        fetchSalesChannel(salesChannelId) {
+            const criteria = new Criteria(1, 1);
+            criteria.setIds([salesChannelId]);
+            criteria.addAssociation('domains');
+
+            return this.salesChannelRepository.search(criteria).then((response) => {
+                const salesChannel = response.first();
+
+                if (salesChannel && !this.currentSalesChannel) {
+                    this.salesChannels.push(salesChannel);
+                }
+            });
+        },
+        async onSalesChannelChanged(salesChannelId) {
             this.salesChannelId = salesChannelId;
+
+            if (salesChannelId && !this.currentSalesChannel) {
+                await this.fetchSalesChannel(salesChannelId);
+
+                // another sales channel was selected while this one was loading
+                if (this.salesChannelId !== salesChannelId) {
+                    return;
+                }
+            }
+
             this.$emit('sales-channel-changed', this.salesChannelIsHeadless);
             this.fetchSeoUrlTemplates(salesChannelId);
         },

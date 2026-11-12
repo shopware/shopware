@@ -12,6 +12,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Validation;
 
 /**
@@ -88,9 +89,8 @@ class YamlTypeLoaderTest extends TestCase
     #[TestDox('defines grid container spacing as breakpoint-aware element properties')]
     public function testGridContainerDefinesBreakpointAwareSpacingProperties(): void
     {
-        $loaderDirectory = \dirname((string) (new \ReflectionClass(YamlTypeLoader::class))->getFileName());
         $definitions = $this->createLoader([
-            new ElementTypeSourceDirectory('core', $loaderDirectory . '/../Definitions', 'Sw'),
+            new ElementTypeSourceDirectory('core', __DIR__ . '/../../../../../../../../src/Core/Framework/ContentSystem/Layout/Type/Definitions', 'Sw'),
         ])->load();
 
         $byName = [];
@@ -183,6 +183,26 @@ class YamlTypeLoaderTest extends TestCase
 
         static::assertSame('color', self::adminUi($containerProperties['shadowColor'])['component']);
         static::assertFalse($containerProperties['shadowInset']['default']);
+    }
+
+    #[TestDox('declares variant selection product as mappable with the current product as its default mapping')]
+    public function testVariantSelectionProductCanBeMapped(): void
+    {
+        $definitions = $this->createLoader([
+            new ElementTypeSourceDirectory('core', __DIR__ . '/../../../../../../../../src/Core/Framework/ContentSystem/Layout/Type/Definitions', 'Sw'),
+        ])->load();
+
+        $byName = [];
+        foreach ($definitions as $definition) {
+            $byName[$definition->name()] = $definition;
+        }
+
+        $product = $byName['Sw:Product:VariantSelection']->toSchema()['properties']['product'];
+
+        static::assertTrue($product['mappable']);
+        static::assertSame(['type' => 'root', 'id' => 'product'], $product['defaultMapping']);
+        static::assertSame('entity-single-select', self::adminUi($product)['component']);
+        static::assertSame('product', self::adminUi($product)['entity']);
     }
 
     #[TestDox('returns the directory\'s specifications keyed by their resolved type name, the overlay shape')]
@@ -309,9 +329,14 @@ class YamlTypeLoaderTest extends TestCase
             new ElementTypeSourceDirectory('source', $this->tempDir, 'Sw'),
         ]);
 
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessageMatches('/types\[Sw:Invalid\]\.label/');
-        $loader->load();
+        try {
+            $loader->load();
+            static::fail('Expected the invalid type definition to abort the load.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+            static::assertSame(ContentSystemException::ELEMENT_TYPE_LOAD_FAILED, $exception->getErrorCode());
+            static::assertMatchesRegularExpression('/types\[Sw:Invalid\]\.label/', $exception->getMessage());
+        }
     }
 
     #[TestDox('batch validation reports violations from multiple invalid files')]

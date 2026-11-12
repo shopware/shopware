@@ -491,9 +491,10 @@ class does not need to be rendered separately when using CVA.
 
 * A component should be as independent as possible.
 * A component must not rely on its parent component in order to function correctly.
-* A component must not rely on global variables or state internally in order to function correctly.
-* If a global setting is needed e.g. `config('core.listing.allowBuyInListing')` it should be able to be passed as a prop from outside.
+* A component reads no request state and no parent state. A value it needs from the request, such as the locale, is passed in as a prop.
+* Sales-channel context and configuration enter as prop defaults, such as `allowsBuyAction = config('core.listing.allowBuyInListing')` below. A caller can override the value, and a test can set it without a request.
 * A component can use Symfony translation internally.
+* A component that can render more than once on a page derives its element ids per instance. `Sw/Filter/Item.html.twig` builds `filterItemId` from `random()` on each render.
 
 ```twig
 {# ProductCard.html.twig #}
@@ -652,9 +653,14 @@ export default async () => {
         namespace: 'MyExtension',
         storefrontAppDir,
         sourcemap: true,
+        resolveAliases: {
+            '@modules': path.resolve(storefrontAppDir, 'src/modules'),
+        },
     });
 };
 ```
+
+The unified component dev server loads each active bundle's config and applies its `resolve.alias` entries only to imports from that bundle's resource tree. This lets different bundles use the same alias name for different paths, including when a module under `Resources/app/storefront/src` imports another module through the alias. Other bundle-specific build options and plugins are used by the component build only.
 
 ### Build security defaults
 

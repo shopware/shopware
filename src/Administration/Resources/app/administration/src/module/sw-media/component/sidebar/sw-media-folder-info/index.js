@@ -11,16 +11,11 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
     emits: ['media-folder-renamed'],
 
-    mixins: [
-        Mixin.getByName('media-sidebar-modal-mixin'),
-    ],
+    mixins: [Mixin.getByName('media-sidebar-modal-mixin')],
 
     props: {
         mediaFolder: {

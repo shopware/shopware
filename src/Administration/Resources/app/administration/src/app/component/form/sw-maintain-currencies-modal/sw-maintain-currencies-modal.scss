@@ -27,7 +27,7 @@
 
     .sw-maintain-currencies-modal__price-label-wrapper {
         display: grid;
-        grid-template-columns: repeat(3, 448px);
+        grid-template-columns: repeat(3, 1fr);
         width: 100%;
     }
 }

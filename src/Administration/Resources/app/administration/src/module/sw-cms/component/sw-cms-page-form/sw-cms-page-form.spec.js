@@ -64,18 +64,12 @@ async function createWrapper() {
                 stubs: {
                     'sw-cms-el-config-text': {
                         template: '<div class="sw-cms-el-config-text">Config element</div>',
-                        props: [
-                            'element',
-                            'elementData',
-                        ],
+                        props: ['element', 'elementData'],
                     },
                     'sw-extension-component-section': true,
                     'sw-cms-form-sync': {
                         template: '<slot />',
-                        props: [
-                            'element',
-                            'contentEntity',
-                        ],
+                        props: ['element', 'contentEntity'],
                     },
                 },
                 provide: {
@@ -104,8 +98,7 @@ describe('module/sw-cms/component/sw-cms-page-form', () => {
 
     it("should have only one empty state 'card'", async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const lengthOfEmptyStates = wrapper.findAll('.sw-cms-page-form__block-card.is--empty').length;
 
         expect(lengthOfEmptyStates).toBe(1);
@@ -146,7 +139,6 @@ describe('module/sw-cms/component/sw-cms-page-form', () => {
         const blockFormDeviceActions = wrapper.find('.sw-cms-page-form__block-device-actions');
 
         await flushPromises();
-        await wrapper.vm.$nextTick();
 
         expect(formDeviceActions.exists()).toBeTruthy();
         expect(blockFormDeviceActions.exists()).toBeTruthy();

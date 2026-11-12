@@ -14,6 +14,7 @@ use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
+use Shopware\Core\Framework\Api\Acl\AclVersionMergeValidator;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\AllStoreApiSchemaMigrationScopeProvider;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection;
@@ -44,19 +45,26 @@ use Shopware\Core\Framework\Api\Controller\HealthCheckController;
 use Shopware\Core\Framework\Api\Controller\IndexingController;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Controller\IntegrationController;
+use Shopware\Core\Framework\Api\Controller\OAuthAuthorizeController;
 use Shopware\Core\Framework\Api\Controller\SyncController;
 use Shopware\Core\Framework\Api\Controller\UserController;
+use Shopware\Core\Framework\Api\Cors\CoreCorsHeaderProvider;
+use Shopware\Core\Framework\Api\Cors\CorsHeaderProviderInterface;
 use Shopware\Core\Framework\Api\EventListener\Authentication\ApiAuthenticationListener;
 use Shopware\Core\Framework\Api\EventListener\Authentication\SalesChannelAuthenticationListener;
 use Shopware\Core\Framework\Api\EventListener\Authentication\UserCredentialsChangedSubscriber;
+use Shopware\Core\Framework\Api\EventListener\CompressedCriteriaRequestListener;
 use Shopware\Core\Framework\Api\EventListener\CorsListener;
 use Shopware\Core\Framework\Api\EventListener\ExpectationSubscriber;
 use Shopware\Core\Framework\Api\EventListener\JsonRequestTransformerListener;
 use Shopware\Core\Framework\Api\EventListener\ResponseExceptionListener;
 use Shopware\Core\Framework\Api\EventListener\ResponseHeaderListener;
 use Shopware\Core\Framework\Api\OAuth\AccessTokenRepository;
+use Shopware\Core\Framework\Api\OAuth\AuthCodeRepository;
+use Shopware\Core\Framework\Api\OAuth\Client\PublicClientRegistry;
 use Shopware\Core\Framework\Api\OAuth\ClientRepository;
 use Shopware\Core\Framework\Api\OAuth\FakeCryptKey;
+use Shopware\Core\Framework\Api\OAuth\GrantTypeFactory;
 use Shopware\Core\Framework\Api\OAuth\JWTConfigurationFactory;
 use Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository;
 use Shopware\Core\Framework\Api\OAuth\Scope\AdminScope;
@@ -75,17 +83,22 @@ use Shopware\Core\Framework\Api\Serializer\JsonApiDecoder;
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Api\Sync\SyncService;
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\Url\AppUrlVerifier;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\ContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\ContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\ContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredSchemaResolver;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderSchemaGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Feature\FeatureFlagRegistry;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
@@ -101,9 +114,9 @@ use Shopware\Core\Framework\Sso\TokenService\ExternalTokenService;
 use Shopware\Core\Framework\Sso\UserService\UserService;
 use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Framework\SystemCheck\SystemChecker;
+use Shopware\Core\Framework\Update\Services\VersionHistory;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\HappyPathValidator;
-use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -127,7 +140,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->call('setContainer', [service('service_container')]);
 
+    $services->set(CoreCorsHeaderProvider::class)
+        ->tag(CorsHeaderProviderInterface::SERVICE_TAG, ['priority' => 1000]);
+
     $services->set(CorsListener::class)
+        ->args([
+            tagged_iterator(CorsHeaderProviderInterface::SERVICE_TAG),
+        ])
         ->tag('kernel.event_subscriber');
 
     $services->set(ResponseExceptionListener::class)
@@ -154,6 +173,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('api.request_criteria_builder'),
             service(EntityProtectionValidator::class),
             service(AclCriteriaValidator::class),
+            service(AclVersionMergeValidator::class),
         ])
         ->call('setContainer', [service('service_container')]);
 
@@ -320,6 +340,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shopware.increment.gateway.registry'),
             service(MigrationInfo::class),
             service(AppUrlVerifier::class),
+            service(ActiveAppsLoader::class),
             service(FlowActionCollector::class),
             service(SystemConfigService::class),
             service(ApiRouteInfoResolver::class),
@@ -334,8 +355,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ContentSystemBindingSpecificationRegistry::class),
             service(StoredSchemaResolver::class),
             service(ContentSystemLayoutPresetRegistry::class),
+            service(AbstractContentSystemMappingCandidateRegistry::class),
+            service(InlineMappingTokenParser::class),
             service(PresignedMediaUploadService::class)->nullOnInvalid(),
             service(MediaFileExtensionListProvider::class),
+            service(VersionHistory::class),
         ])
         ->call('setContainer', [service('service_container')]);
 
@@ -345,6 +369,19 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shopware.api.authorization_server'),
             service(PsrHttpFactory::class),
             service('shopware.rate_limiter'),
+            service(Connection::class),
+        ])
+        ->call('setContainer', [service('service_container')]);
+
+    $services->set(OAuthAuthorizeController::class)
+        ->public()
+        ->args([
+            service('shopware.api.authorization_server'),
+            service(PsrHttpFactory::class),
+            service(Psr17Factory::class),
+            service(PublicClientRegistry::class),
+            service('shopware.rate_limiter'),
+            service('router'),
         ])
         ->call('setContainer', [service('service_container')]);
 
@@ -363,10 +400,16 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(AccessTokenRepository::class);
 
+    $services->set(PublicClientRegistry::class)
+        ->args([
+            param('shopware.api.oauth_clients'),
+        ]);
+
     $services->set(ClientRepository::class)
         ->args([
             service(Connection::class),
             service(ClockInterface::class),
+            service(PublicClientRegistry::class),
         ]);
 
     $services->set(RefreshTokenRepository::class)
@@ -425,6 +468,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(JsonRequestTransformerListener::class)
         ->tag('kernel.event_subscriber');
 
+    $services->set(CompressedCriteriaRequestListener::class)
+        ->args([
+            service(CompressedCriteriaDecoder::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
     $services->set(ExpectationSubscriber::class)
         ->args([
             param('kernel.shopware_version'),
@@ -440,24 +489,38 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.event_subscriber');
 
+    $services->set(AuthCodeRepository::class)
+        ->args([
+            service(Connection::class),
+            service(ClockInterface::class),
+        ]);
+
+    $services->set(GrantTypeFactory::class)
+        ->args([
+            service(UserRepository::class),
+            service(RefreshTokenRepository::class),
+            service(AuthCodeRepository::class),
+            service(UserService::class),
+            service(ExternalTokenService::class),
+            service(ClockInterface::class),
+            param('shopware.api.refresh_token_ttl'),
+            param('shopware.api.auth_code_ttl'),
+        ]);
+
     $services->set(ApiAuthenticationListener::class)
         ->args([
             service(SymfonyBearerTokenValidator::class),
             service('shopware.api.authorization_server'),
-            service(UserRepository::class),
-            service(RefreshTokenRepository::class),
+            service(GrantTypeFactory::class),
             service(RouteScopeRegistry::class),
-            service(UserService::class),
-            service(ExternalTokenService::class),
-            service(ClockInterface::class),
             param('shopware.api.access_token_ttl'),
-            param('shopware.api.refresh_token_ttl'),
         ])
         ->tag('kernel.event_subscriber');
 
     $services->set(UserCredentialsChangedSubscriber::class)
         ->args([
             service(RefreshTokenRepository::class),
+            service(AuthCodeRepository::class),
             service(Connection::class),
             service(ClockInterface::class),
         ])

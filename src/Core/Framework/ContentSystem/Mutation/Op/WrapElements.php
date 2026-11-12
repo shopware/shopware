@@ -52,6 +52,7 @@ final class WrapElements extends AbstractLayoutMutation
         $this->affected = [$containerElement->id, ...$this->elementIds];
         // The wrapped targets move; only the container is a fresh node.
         $this->created = [$containerElement->id];
+        $this->freshlyScaffolded = [$containerElement->id];
 
         $without = $tree;
         foreach ($this->elementIds as $id) {

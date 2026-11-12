@@ -1,32 +1,26 @@
-> Conceptual overview and design rationale live in [README.md](README.md), same
-> directory. The references and constraints below cover most code changes; read
-> the README when you need the mental model.
-
-## Navigation
-
-- Specification model — [docs/specification-model.md](docs/specification-model.md)
-- Authoring tiers — [docs/authoring-sugar.md](docs/authoring-sugar.md)
-- Entity-name derivation — [docs/entity-name-derivation.md](docs/entity-name-derivation.md)
-- `resolvedBy` shorthand — [docs/resolved-by.md](docs/resolved-by.md)
-- Inline `bindings:`, app overlay — [docs/inline-bindings.md](docs/inline-bindings.md)
-- The per-type default — [docs/default-specification.md](docs/default-specification.md)
-- Load-time validation — [docs/validation.md](docs/validation.md)
-- Loading, registry, compiler pass — [docs/loading-and-apps.md](docs/loading-and-apps.md)
-- App bindings and their storage — [docs/app-bindings.md](docs/app-bindings.md)
-- Applying a binding — [docs/applying.md](docs/applying.md)
-- Write-boundary attribution — [docs/write-boundary.md](docs/write-boundary.md)
-- Introspection fold — [docs/introspection.md](docs/introspection.md)
-- Authoring guide — [docs/custom-specifications.md](docs/custom-specifications.md)
-- Symbol index: classes, roles, paths — [docs/symbols.md](docs/symbols.md)
-
 ## Constraints
 
-- Uniqueness is by source-qualified id (`"source:id"`), not by bare id: `ContentSystemBindingSpecificationRegistry::all()` keys on `BindingSpecification::qualifiedId()`, so only a duplicate **within** one source/directory throws `bindingSpecificationDuplicate`
-- **App type overlay:** the app persister and validator pass a type overlay built from the app's own `Resources/content-system/types`; every non-app path passes an empty overlay
-- **Default uniqueness** is at most one default specification per element type (`isDefault()` derives `id === type`, computed, never stored). An authored `bindings:` key equal to the file's type name is rejected before duplicate detection (`bindingSpecificationReservedId`, 409). At *application* time the default set is read zero/one/more: no-op / fill-applied / `bindingSpecificationDefaultAmbiguous` (409)
-- `TypeConsistentBindingSpecification` resolves each `resolves` entry's produced type via `Diagnostics/RootContextMapper::resolveType()`; a client-defect exception becomes a validation violation, any other propagates
-- An unknown declared type is `bindingSpecificationUnknownType` (400) and non-deterministic sugar is `bindingSpecificationCanonicalizationFailed` (400), and neither is a `CLIENT_DEFECT_CODE`
-- A DECLARATION stays scalar: `WellFormedBindingSpecification` admits a scalar or `null` `inputs` default and nothing else, and no author writes a language id. The language shape is applied at seed time — `BindingApplicator` seeds a translatable property's `inputs` default under `Defaults::LANGUAGE_SYSTEM`, through `Layout/Type/Specification/PropertyType::inStoredShape()`, the one statement of the shape rule. `PropertyType::storedDefault()` applies it to the type's declared default and `BindingApplicator` applies it to a specification's `inputs` default
-- `TypeConsistentBindingSpecification` keeps its `isPrimitive()` gate, so a translatable property stays a valid `inputs` target, and additionally rejects a `null` default on one (`inputsEntryNullDefaultOnTranslatableMessage`): `null` is no valid language-map entry, so it could never seed
-- Loaders are tagged `content_system.binding_specification_loader`. Core ships no dedicated binding-specification directory and no authored inline `bindings:` entry: every core binding specification is a synthesized default, each from the `resolvedBy` properties of one file under `Layout/Type/Definitions/`. Inventory: [docs/default-specification.md](docs/default-specification.md)
-- `DatabaseBindingSpecificationLoader` fails fast like `YamlBindingSpecificationLoader`: a row with no name, or whose schema fails to decode or validate, aborts the whole load
+- Key binding specifications by `qualifiedId()` (`source:id`); throw `bindingSpecificationDuplicate` only for a duplicate within one source. Check: does one bare id from two sources still coexist? [custom-specifications.md](docs/custom-specifications.md#collision-detection)
+- Reject an authored `bindings:` key equal to the file's type name with `bindingSpecificationReservedId`, before duplicate detection. Check: does such a key raise the reserved-id error, not the duplicate error? [resolved-by.md](docs/resolved-by.md)
+- Keep a declaration's `inputs` default scalar or `null` in `WellFormedBindingSpecification`. Check: does an array default still fail validation? [validation.md](docs/validation.md)
+- Declare an `inputs` default for a translatable property bare and never `null`, and let `BindingApplicator` wrap it through `PropertyType::inStoredShape()`. Check: does a `null` default on a translatable target fail `TypeConsistentBindingSpecification`? [translation.md](../docs/principles/translation.md#a-value-the-module-produces-is-declared-bare-and-wrapped-by-one-owner)
+- Reconcile app rows as `ContentSystemBindingSpecificationPersister::persist()` does; override every lifecycle hook in the handler. Check: does a deactivated app's specification leave the registry? [extension-surface.md](../docs/principles/extension-surface.md#an-app-shipped-declaration-is-validated-and-reconciled-by-the-module-never-trusted-or-patched)
+
+## Where to look
+
+- Class inventory per directory: [README.md](README.md#subdirectories)
+- What a specification declares and what "binding" is not: [specification-model.md](docs/specification-model.md)
+- Authoring a specification as a plugin or app: [custom-specifications.md](docs/custom-specifications.md)
+- `resolves` authoring tiers and canonicalization: [authoring-sugar.md](docs/authoring-sugar.md)
+- Entity-name derivation turning ambiguous after an install: [entity-name-derivation.md](docs/entity-name-derivation.md)
+- `resolvedBy` and its synthesized default: [resolved-by.md](docs/resolved-by.md)
+- Default derivation, uniqueness and application-time ambiguity: [default-specification.md](docs/default-specification.md)
+- Core's synthesized defaults: [default-specification.md](docs/default-specification.md#the-core-defaults)
+- Inline `bindings:` entries in a type file: [inline-bindings.md](docs/inline-bindings.md)
+- App type overlay of the app persister and validator: [inline-bindings.md](docs/inline-bindings.md#inline-bindings-in-an-app-the-type-overlay)
+- Load-time validators and produced-type resolution: [validation.md](docs/validation.md)
+- Loaders, loader tag, registry and compiler pass: [loading-and-apps.md](docs/loading-and-apps.md)
+- App bindings: storage, lifecycle and malformed database rows: [app-bindings.md](docs/app-bindings.md)
+- Applicator modes and the mutation operations: [applying.md](docs/applying.md)
+- Attribution reconciliation on DAL writes: [write-boundary.md](docs/write-boundary.md)
+- The `bindingSpecifications` catalog clients read: [introspection.md](docs/introspection.md)

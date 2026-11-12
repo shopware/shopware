@@ -50,14 +50,9 @@ export default class ShopIdChangeService extends ApiService {
                 headers: this.getBasicHeaders(),
             })
             .then(({ data }: { data: Record<string, string> }) => {
-                return Object.entries(data).map(
-                    ([
-                        key,
-                        description,
-                    ]) => {
-                        return { name: key, description };
-                    },
-                );
+                return Object.entries(data).map(([key, description]) => {
+                    return { name: key, description };
+                });
             });
     }
 

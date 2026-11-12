@@ -139,17 +139,11 @@ export default function useCmsState(): {
         // parent-language fields on the same slot.
         const merged: SlotConfigMap = {};
 
-        for (const [
-            slotId,
-            fields,
-        ] of Object.entries(parentSlotConfig ?? {})) {
+        for (const [slotId, fields] of Object.entries(parentSlotConfig ?? {})) {
             merged[slotId] = { ...fields };
         }
 
-        for (const [
-            slotId,
-            fields,
-        ] of Object.entries(currentSlotConfig ?? {})) {
+        for (const [slotId, fields] of Object.entries(currentSlotConfig ?? {})) {
             merged[slotId] = { ...(merged[slotId] ?? {}), ...fields };
         }
 

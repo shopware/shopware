@@ -8,6 +8,7 @@ import '@testing-library/jest-dom';
 
 import VirtualCallStackPlugin from 'src/app/plugin/virtual-call-stack.plugin';
 import MeteorSdkDataPlugin from 'src/app/plugin/meteor-sdk-data.plugin';
+import DeprecationPlugin from 'src/app/plugin/deprecation.plugin';
 import getBlockDataScope from 'src/app/component/structure/sw-block-override/sw-block/get-block-data-scope';
 import SwBlock from 'src/app/component/structure/sw-block-override/sw-block/index';
 import SwBlockParent from 'src/app/component/structure/sw-block-override/sw-block-parent/index';
@@ -19,9 +20,14 @@ import {
     MtButton,
     MtCard,
     MtCheckbox,
+    MtRadioGroupCustomItem,
+    MtRadioGroupIndicator,
+    MtRadioGroupItem,
+    MtRadioGroupRoot,
     MtColorpicker,
     MtDataTable,
     MtDatepicker,
+    MtDivider,
     MtDropdownMenuPortal,
     MtDropdownMenuRoot,
     MtDropdownMenuSub,
@@ -29,7 +35,9 @@ import {
     MtEmailField,
     MtEmptyState,
     MtFloatingUi,
+    MtHelpText,
     MtIcon,
+    MtInset,
     MtLink,
     MtLoader,
     MtNumberField,
@@ -41,6 +49,7 @@ import {
     MtProgressBar,
     MtSelect,
     MtSkeletonBar,
+    MtStatusDot,
     MtSwitch,
     MtTabs,
     MtText,
@@ -53,13 +62,14 @@ import {
 } from '@shopware-ag/meteor-component-library';
 import { createI18n } from 'vue-i18n';
 import aclService from './_mocks_/acl.service.mock';
-import feature from './_mocks_/feature.service.mock';
+import feature, { FeatureMock } from './_mocks_/feature.service.mock';
 import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
 import flushPromises from '../_helper_/flushPromises';
 import wrapTestComponent from '../_helper_/componentWrapper';
 import 'blob-polyfill';
 import {
     sendTimeoutExpired,
+    deprecationWarning,
     deprecatedTabComponent,
     deprecatedPopoverComponent,
     unresolvedComponentWarning,
@@ -67,10 +77,11 @@ import {
 import findByText from '../_helper_/find-by-text';
 import findByLabel from '../_helper_/find-by-label';
 import findByPlaceholder from '../_helper_/find-by-placeholder';
+import { getDefaultActiveFeatureFlags, setDefaultActiveFeatureFlags } from '../_helper_/defaultActiveFeatureFlags';
+import { endDeprecationLog, startDeprecationLog } from '../_helper_/deprecations';
 import CacheService from '../../src/app/service/cache.service';
 
-const defaultActiveFeatureFlagsSymbol = Symbol.for('shopware.defaultActiveFeatureFlags');
-global[defaultActiveFeatureFlagsSymbol] = [...global.activeFeatureFlags];
+setDefaultActiveFeatureFlags([...global.activeFeatureFlags]);
 
 // initialize the Stores
 import '../../src/module/sw-cms/store/cms-page.store';
@@ -90,6 +101,7 @@ import '../../src/app/store/main-module.store';
 import '../../src/app/store/marketing.store';
 import '../../src/app/store/sdk-location.store';
 import '../../src/app/store/rule-conditions-config.store';
+import '../../src/app/store/whats-new.store';
 import '../../src/app/store/settings-item.store';
 import '../../src/app/store/shopware-apps.store';
 import '../../src/app/store/system.store';
@@ -173,7 +185,7 @@ const customFieldDataProviderService = {
 // Add services
 Shopware.Service().register('acl', () => aclService);
 Shopware.Service().register('feature', () => feature);
-Shopware.Feature = Shopware.Service('feature');
+Shopware.Feature = FeatureMock;
 Shopware.Service().register('repositoryFactory', () => repositoryFactory);
 Shopware.Service().register('customFieldDataProviderService', () => customFieldDataProviderService);
 
@@ -304,9 +316,14 @@ config.global.stubs = {
     'mt-button': MtButton,
     'mt-card': MtCard,
     'mt-checkbox': MtCheckbox,
+    'mt-radio-group-root': MtRadioGroupRoot,
+    'mt-radio-group-item': MtRadioGroupItem,
+    'mt-radio-group-custom-item': MtRadioGroupCustomItem,
+    'mt-radio-group-indicator': MtRadioGroupIndicator,
     'mt-colorpicker': MtColorpicker,
     'mt-data-table': MtDataTable,
     'mt-datepicker': MtDatepicker,
+    'mt-divider': MtDivider,
     'mt-dropdown-menu-portal': MtDropdownMenuPortal,
     'mt-dropdown-menu-root': MtDropdownMenuRoot,
     'mt-dropdown-menu-sub': MtDropdownMenuSub,
@@ -314,7 +331,9 @@ config.global.stubs = {
     'mt-email-field': MtEmailField,
     'mt-empty-state': MtEmptyState,
     'mt-floating-ui': MtFloatingUi,
+    'mt-help-text': MtHelpText,
     'mt-icon': MtIcon,
+    'mt-inset': MtInset,
     'mt-link': MtLink,
     'mt-loader': MtLoader,
     'mt-number-field': MtNumberField,
@@ -326,6 +345,7 @@ config.global.stubs = {
     'mt-porgress-bar': MtProgressBar,
     'mt-select': MtSelect,
     'mt-skeleton-bar': MtSkeletonBar,
+    'mt-status-dot': MtStatusDot,
     'mt-switch': MtSwitch,
     'mt-tabs': MtTabs,
     'mt-text': MtText,
@@ -372,6 +392,7 @@ const BlockDataScopePlugin = {
 config.global.plugins = [
     VirtualCallStackPlugin,
     MeteorSdkDataPlugin,
+    DeprecationPlugin,
     BlockDataScopePlugin,
     i18n,
 ];
@@ -397,11 +418,6 @@ directiveRegistry.forEach((value, key) => {
                 el.setAttribute('tooltip-mock-disabled', binding.value.disabled);
             },
         };
-        return;
-    }
-
-    if (key === 'popover') {
-        config.global.directives[key] = {};
         return;
     }
 
@@ -540,6 +556,7 @@ global.allowedErrors = [
     },
 
     sendTimeoutExpired,
+    deprecationWarning,
     deprecatedTabComponent,
     deprecatedPopoverComponent,
     // Vue 3 test stubs may have empty templates which triggers this warning
@@ -701,6 +718,7 @@ global.console.warn = (...args) => {
 
 // eslint-disable-next-line jest/require-top-level-describe
 beforeEach(() => {
+    startDeprecationLog();
     hasActiveTest = true;
     consoleHasError = false;
     consoleHasWarning = false;
@@ -708,7 +726,7 @@ beforeEach(() => {
     warnArgs = null;
     warnTrace = null;
     unhandledRejectionError = null;
-    global.activeFeatureFlags = global.activeFeatureFlagsForCurrentTest ?? [...global[defaultActiveFeatureFlagsSymbol]];
+    global.activeFeatureFlags = global.activeFeatureFlagsForCurrentTest ?? [...getDefaultActiveFeatureFlags()];
 
     if (typeof Shopware?.Service !== 'function' || typeof Shopware?.Application?.getContainer !== 'function') {
         return;
@@ -767,6 +785,10 @@ afterEach(() => {
         throw new Error('A console.warn occurred without any arguments.');
     }
 });
+
+// A hook of its own, so a failing deprecation check never skips the console and rejection checks above.
+// eslint-disable-next-line jest/require-top-level-describe, jest/no-duplicate-hooks
+afterEach(endDeprecationLog);
 
 // eslint-disable-next-line listeners/no-inline-function-event-listener,listeners/no-missing-remove-event-listener
 process.on('unhandledRejection', (reason) => {

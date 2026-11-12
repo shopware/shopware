@@ -24,10 +24,7 @@ const defaultConfig = {
         value: '',
     },
     products: {
-        value: [
-            'de8de156da134dabac24257f81ff282f',
-            '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
-        ],
+        value: ['de8de156da134dabac24257f81ff282f', '2fbb5fe2e29a4d70aa5854ce7ce3e20b'],
         source: 'static',
     },
     productStreamSorting: {
@@ -67,10 +64,7 @@ const defaultConfig = {
 
 const productStreamMock = {
     name: 'Cheap pc parts',
-    apiFilter: [
-        'foo',
-        'bar',
-    ],
+    apiFilter: ['foo', 'bar'],
     invalid: false,
 };
 
@@ -227,7 +221,7 @@ describe('module/sw-cms/elements/product-slider/config', () => {
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
 
         await tabs.vm.$emit('new-item-active', 'settings');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.activeTab).toBe('settings');
         expect(wrapper.find('.sw-cms-el-config-product-slider__tab-content-products').exists()).toBe(false);
@@ -256,7 +250,7 @@ describe('module/sw-cms/elements/product-slider/config', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.productStream).toEqual(productStreamMock);
     });
@@ -266,7 +260,7 @@ describe('module/sw-cms/elements/product-slider/config', () => {
 
         wrapper.vm.onChangeProductStream('de8de156da134dabac24257f81ff282f');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.productStream).toEqual(productStreamMock);
     });
@@ -276,7 +270,7 @@ describe('module/sw-cms/elements/product-slider/config', () => {
 
         wrapper.vm.onChangeProductStream(null);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.productStream).toBeNull();
     });
@@ -289,7 +283,7 @@ describe('module/sw-cms/elements/product-slider/config', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // Product stream select should exist
         expect(wrapper.find('.sw-cms-el-config-product-slider__tab-content-product-stream-select').exists()).toBeTruthy();
@@ -309,12 +303,9 @@ describe('module/sw-cms/elements/product-slider/config', () => {
 
         wrapper.vm.onChangeAssignmentType('product_stream');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        const expectedProductIds = [
-            'de8de156da134dabac24257f81ff282f',
-            '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
-        ];
+        const expectedProductIds = ['de8de156da134dabac24257f81ff282f', '2fbb5fe2e29a4d70aa5854ce7ce3e20b'];
 
         expect(wrapper.vm.tempProductIds).toEqual(expectedProductIds);
         expect(wrapper.vm.element.config.products.value).toBeNull();
@@ -330,7 +321,7 @@ describe('module/sw-cms/elements/product-slider/config', () => {
 
         wrapper.vm.onChangeAssignmentType('static');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const expectedStreamId = 'de8de156da134dabac24257f81ff282f';
 
@@ -346,13 +337,13 @@ describe('module/sw-cms/elements/product-slider/config', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setData({
             showProductStreamPreview: true,
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('sw-product-stream-modal-preview-stub').exists()).toBeTruthy();
     });
@@ -369,7 +360,7 @@ describe('module/sw-cms/elements/product-slider/config', () => {
 
         wrapper.vm.productCollection = new Shopware.Data.EntityCollection('/product', 'product', {}, null, productMock);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.onProductsChange();
 
@@ -380,7 +371,7 @@ describe('module/sw-cms/elements/product-slider/config', () => {
             source: 'static',
         };
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.onProductsChange();
 

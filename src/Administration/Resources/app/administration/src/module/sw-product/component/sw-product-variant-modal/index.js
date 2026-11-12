@@ -12,16 +12,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
     emits: ['modal-close'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         // this is the parent product entity from wich we will get all the variants
@@ -225,7 +220,8 @@ export default {
         },
 
         canBeDeletedCriteria() {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, 1);
+            criteria.setTotalCountMode(0);
             const variantIds = this.toBeDeletedVariants.map((variant) => variant.id);
             criteria.addFilter(Criteria.equalsAny('canonicalProductId', variantIds));
 
@@ -296,17 +292,11 @@ export default {
                         };
                     });
 
-                return [
-                    ...result,
-                    ...optionsForGroup,
-                ];
+                return [...result, ...optionsForGroup];
             }, []);
 
             // Assign groups and children to order objects
-            return [
-                ...groups,
-                ...children,
-            ];
+            return [...groups, ...children];
         },
 
         stockColorVariantFilter() {
@@ -331,8 +321,7 @@ export default {
             return Promise.all([
                 this.fetchProductMedias(),
                 this.fetchProductConfiguration(),
-                this.fetchProductVariants(),
-                this.fetchSystemCurrency(),
+                this.fetchSystemCurrency().then(() => this.fetchProductVariants()),
                 this.loadGroups(),
             ]).finally(() => {
                 this.isLoading = false;
@@ -594,9 +583,9 @@ export default {
         },
 
         async canVariantsBeDeleted() {
-            const products = await this.productRepository.search(this.canBeDeletedCriteria);
+            const products = await this.productRepository.searchIds(this.canBeDeletedCriteria);
 
-            return products.length === 0;
+            return products.data.length === 0;
         },
 
         onInlineEditSave(editedVariant) {

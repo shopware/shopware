@@ -1,32 +1,29 @@
-> Conceptual overview and design rationale live in [README.md](README.md), same
-> directory. The references and constraints below cover most code changes; read
-> the README when you need the mental model.
-
 ## Constraints
 
-- Immutability is the core invariant, enforced by the types: `StoredTree` and `StoredElement` are `final readonly`, so `apply()` cannot mutate the input, and a result tree may safely alias an input subtree by reference.
-- Rebuild a stored element through `StoredElement::withSlots()`, never by hand: `Layout/StoredTree`'s surgery and `Output/ElementTreePruner`'s partial-render rebuild both go through it, and a hand-written rebuild silently drops any field added to `StoredElement` later. This replaced an earlier reading (two layers with opposite intents, a surface-only similarity), which held while `Output/ElementTreePruner` rebuilt a different element model by hand; both layers now rebuild stored elements.
-- A mutation is single-use: `apply()` computes the report stash, so it must run before any reporter is read; never re-apply an instance to a second tree.
-- Do not collapse `created()` into `affected()`. `created` is the exact set of nodes the op built fresh, and the only input the consumer mirroring reads; widening it to match `affected` would re-mirror consumers onto elements the op merely relocated or carried over, undoing an explicit unwiring.
-- `affected()` is a conservative highlight hint, never the correctness output: the authority is `MutationPipeline`'s `LayoutDiagnostics` pass over the whole new tree; `affected` only narrows the resolutions the result carries. The per-op rules are load-bearing, do not weaken them (rationale in [README.md](README.md#affected-set-rationale)): `RemoveElement` reports none; `MoveElement` reports the moved subtree only on a parent change; `ReplaceElement` reports the whole reconstructed subtree; `UnwrapElement` reports the whole hoisted forest.
-- No silent loss: a detached subtree always comes back via `orphaned()`, a wiring key that cannot be re-homed via `droppedWiring()`, a property value that cannot be carried over via `droppedProperties()`. None is discarded or silently re-mapped.
-- `droppedWiring` carries reference keys an operation could not re-home, populated by `ReplaceElement` and `UnwrapElement`. The context an unwrapped element *provided* to its descendants is ancestor context, not a re-homeable wiring key, so it is never a `droppedWiring` entry; a hoisted descendant that depended on it surfaces instead as a `ViolationCode::BrokenRequiredChain` binding violation when a source is bound. That is intentional, not a silent loss.
-- Structural impossibilities fail `400` via `ContentSystemException`: `mutationTargetNotFound`, `mutationCycle`, `mutationSlotRequired`, `mutationInvalidWrapTargets`, `mutationUnknownType`, `mutationPropertyUnknown`, `mutationPropertyConflict`, `mutationPropertyValueRejected`, `mutationPropertyLanguageKeyInvalid`, `mutationPropertyNotTranslatable`. Mutation-specific structural errors, NOT client-defect codes (not in `CLIENT_DEFECT_CODES`).
-- `bindingSpecificationNotFound`, `bindingTypeMismatch` and `bindingRootSourceNotScoped` (`400`, also not client-defect codes) concern the specification rather than the tree's shape, and `bindingSpecificationDefaultAmbiguous` is `409`.
-- `MutationPipeline::run()` takes an already-decoded `StoredTree`; the request draft is decoded upstream by `Api/DraftLayoutDecoder`, never by the pipeline.
-- `ReplaceElement` honors a type default exactly as `scaffoldElement` does on insert: `apply()` overlays `storedDefaults($newType)` with PHP's `+`, so a carried or authored value wins and a default fills only a new-type defaulted key the carry-over left empty ([docs/replace-element.md](docs/replace-element.md)).
-- `ReplaceElement::carryProperties()` judges a carried value with `Layout/Type/Specification/PropertyType::admits()` behind its `enforceableTypes()` pre-gate, and keeps no match table of its own — do not reintroduce one, the write path and `Diagnostics/LayoutDiagnostics` read the same predicate. Two consequences the predicate owns: a translatable property's language map carries when the new type declares that key translatable and its declared primitive admits the map's entries, and an authored present `null` under a non-translatable primitive carries instead of being dropped, with the default overlay leaving it in place. The `resolvedBy` storage-key rule deliberately does NOT reuse `admits()`: a storage key is undeclared by design, so it is never a new-type property. `UpdateElementProperties` judges the one value it reads the same way, behind its own primitive-and-declared gate, and `TranslateElement` behind its translatable-key gate, neither with a match table of its own.
-- Every other op is opaque to property values, and that is what carries language maps through: `RemoveElement`, `MoveElement`, `DuplicateElement`, `AttachElement`, `AttachElements` (which loops `AttachElement`) and `UnwrapElement` read no property value, as does `Layout/StoredTree`'s slot rebuild. `UpdateElementProperties` is opaque to every key it is not named for in `$values` or `$removeKeys`, `TranslateElement` to every key not in `$values`: those carry verbatim, unread. Do not add a value-inspecting branch to one of the fully opaque ops.
-- `writePrivilege()`: a declared privilege the caller lacks fails `403` via `ContentSystemException::missingPrivileges` at the start of `PersistedLayoutMutator::mutate()`, before the layout load; never pre-scope the context in a caller ([docs/runners.md](docs/runners.md#persistedlayoutmutator)).
-- `WrapElements` containers provide no context of their own; wrapping changes the wrapped elements' nesting scope but adds no provider.
+- Return a new tree from `apply()` and rebuild nodes with `with*()`, never by hand. Check: does an op build a `StoredElement` from another element's fields? [Layout/Element/AGENTS.md](../Layout/Element/AGENTS.md)
+- Run `apply()` before any reporter read and never re-apply an instance to a second tree. Check: does a caller read `affected()` or `orphaned()` first, or reuse an instance? [LayoutMutation.php](LayoutMutation.php)
+- Seed mapping defaults and mirror consumers only onto `freshlyScaffolded()`, never generic `created()` or `affected()`. Check: do copies, reattachments, and relocated nodes preserve authored choices? `MutationPipelineTest` pins it. [mutation.md](../docs/principles/mutation.md#the-draft-pipeline-writes-derived-wiring-only-where-proved)
+- Keep `affected()` a highlight hint, never the correctness output, and keep each op's affected set as [docs/operations.md](docs/operations.md) states it. Check: does an op narrow `affected()` below the elements whose resolution can change? [mutation.md](../docs/principles/mutation.md#the-affected-set-is-a-highlight-hint-derived-from-how-context-flows)
+- Report every loss: a detached subtree through `orphaned()`, a wiring key the op cannot carry through `droppedWiring()`, a value the op cannot carry through `droppedProperties()`. Discard or re-map none silently. Check: `MutationResponseTest` pins all three on the wire. [failure-and-loss.md](../docs/principles/failure-and-loss.md#the-module-drops-nothing-silently-and-reports-every-loss)
+- Fail a mutation payload defect as a typed `400` from a `ContentSystemException` factory, never a `500` or a silent save. List a new structural code in [Api/docs/mutation-errors.md](../Api/docs/mutation-errors.md) and keep it out of `CLIENT_DEFECT_CODES`. Check: is the code in that table?
+- Judge a property value an operation reads only through `PropertyType::admits()`, never a type table of its own. Check: does `ReplaceElement`, `UpdateElementProperties` or `TranslateElement` match a value outside `admits()`? [values.md](../docs/principles/values.md#a-rule-about-a-stored-value-has-one-owner-and-every-path-that-needs-the-rule-calls-that-owner)
+- Keep every operation but a type swap opaque to each property value it is not named for, so a [language map](../docs/principles/translation.md#translations-live-inline-in-the-element-tree-as-language-maps) carries verbatim. Check: does the change add a value-inspecting branch to a move, duplicate, attach, remove, unwrap or mapping operation?
+- Declare the privilege an operation needs in `writePrivilege()`, which `PersistedLayoutMutator::mutate()` checks before the layout load. Never pre-scope the context in a caller. Check: does a caller widen the context scope itself? [runners](docs/runners.md#persistedlayoutmutator)
+- Read the layout source only from `StoredTree::$rootSource` and retain it through `withRoots()`. Check: does a transform lose it or duplicate it in a constructor argument? [runners](docs/runners.md)
 
-## Navigation
+## Where to look
 
-- [docs/symbols.md](docs/symbols.md) - the classes, their roles, and their paths
-- [docs/operations.md](docs/operations.md) - per-operation contracts, constructors, error codes
-- [docs/replace-element.md](docs/replace-element.md) - carry-over and drop rules
-- [docs/translate-element.md](docs/translate-element.md) - translatable-key gate and write privilege
-- [docs/shared-primitives.md](docs/shared-primitives.md) - the helpers every op inherits
-- [docs/runners.md](docs/runners.md) - pipeline, persisted mutator, result assembly
-- [docs/consumer-mirroring.md](docs/consumer-mirroring.md) - match rules and skips
-- [README.md](README.md) - the mental model
+- What an operation receives and returns: [README.md](README.md#stateless-whole-tree-model)
+- What each result channel carries: [README.md](README.md#result-channels)
+- Pipeline steps and who decodes the draft handed to `MutationPipeline::run()`: [README.md](README.md#pipeline)
+- Re-diagnosis gate and root context of `MutationPipeline::run()`: [docs/runners.md](docs/runners.md#mutationpipeline)
+- Persisted route, its lock, version token and known limits: [docs/runners.md](docs/runners.md#persistedlayoutmutator)
+- Placement, errors, affected and created set of each operation: [docs/operations.md](docs/operations.md)
+- What unwrap reports as dropped and the context its container provided: [docs/operations.md](docs/operations.md#unwrapelement)
+- Context of a wrap container: [docs/operations.md](docs/operations.md#wrapelements)
+- Binding specification resolution on insert, its error codes and statuses: [docs/operations.md](docs/operations.md#insertelement)
+- Type swap carry-over and which value wins over a type default: [docs/replace-element.md](docs/replace-element.md#what-it-carries-over)
+- Which resolutions become consumers on a fresh scaffold: [docs/consumer-mirroring.md](docs/consumer-mirroring.md#what-proves-a-consumer)
+- The translatable-key gate and write privilege of `translate-element`: [docs/translate-element.md](docs/translate-element.md)
+- Helpers every operation inherits: [docs/shared-primitives.md](docs/shared-primitives.md)
+- Explicit mapping/unmapping and source-dependent carry-over: [operations](docs/operations.md#mapproperty), [replace-element](docs/replace-element.md#what-it-carries-over), [mapping principles](../docs/principles/data-mapping.md)

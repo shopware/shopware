@@ -37,9 +37,19 @@
                 :product-id="product.id"
                 :label="$t('sw-product.detailBase.downloadsLabel')"
                 :disabled="!acl.can('product.editor')"
-                required
+                :required="!isDownloadExternallyManaged"
                 @media-open="onOpenDownloadMediaModal"
             />
+
+            {% block sw_product_detail_base_download_external_management %}
+            <mt-switch
+                :model-value="isDownloadExternallyManaged"
+                :label="$t('sw-product.detailBase.downloadExternalManagementLabel')"
+                :help-text="$t('sw-product.detailBase.downloadExternalManagementTooltip')"
+                :disabled="!acl.can('product.editor')"
+                @update:model-value="onDownloadExternalManagementChange"
+            />
+            {% endblock %}
         </mt-card>
 
         {% block sw_product_detail_base_price_card %}
@@ -191,6 +201,7 @@
             v-if="showMediaModal"
             :initial-folder-id="mediaDefaultFolderId"
             :entity-context="product.getEntityName()"
+            file-accept="image/*,video/*,model/gltf-binary"
             @media-modal-selection-change="onAddMedia"
             @modal-close="onCloseMediaModal"
         />

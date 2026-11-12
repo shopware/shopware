@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\App\Validation;
 
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\Error\ContentSystemBindingSpecificationSchemaError;
-use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
+use Shopware\Core\Framework\App\Validation\Error\Error;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\YamlBindingSpecificationLoader;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
@@ -30,13 +30,12 @@ class ContentSystemBindingSpecificationAppValidator extends AbstractManifestVali
      * Validates the schema of the inline `bindings:` sections of the app's element-type files. Every
      * canonicalization or type-consistency failure becomes a schema error, never an exception, so
      * `manifest:validate` reports what install would reject. Collisions within the source are the loader's job
-     * (its per-directory dedup). All violations aggregate into ONE schema error, because ErrorCollection keys by
-     * message key and a second error of the same class would replace the first.
+     * (its per-directory dedup). All violations aggregate into ONE schema error.
+     *
+     * @return list<Error>
      */
-    public function validate(Manifest $manifest, Context $context): ErrorCollection
+    public function validate(Manifest $manifest, Context $context): array
     {
-        $errors = new ErrorCollection();
-
         $appName = $manifest->getMetadata()->getName();
         $source = 'app:' . $appName;
         $typesDirectory = $manifest->getPath() . '/' . self::TYPES_DIRECTORY;
@@ -52,10 +51,10 @@ class ContentSystemBindingSpecificationAppValidator extends AbstractManifestVali
         }
 
         if ($violations !== []) {
-            $errors->add(new ContentSystemBindingSpecificationSchemaError($violations));
+            return [new ContentSystemBindingSpecificationSchemaError($violations)];
         }
 
-        return $errors;
+        return [];
     }
 
     /**

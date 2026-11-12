@@ -61,7 +61,11 @@ export default Component.wrapComponentConfig({
         },
 
         showForgotPasswordLink() {
-            return this.$route?.name === 'sw.login.index.login' && !!this.loginConfig?.useDefault;
+            return (
+                this.$route?.name === 'sw.login.index.login' &&
+                !!this.loginConfig?.useDefault &&
+                this.loginConfig?.passwordRecoveryEnabled !== false
+            );
         },
     },
 

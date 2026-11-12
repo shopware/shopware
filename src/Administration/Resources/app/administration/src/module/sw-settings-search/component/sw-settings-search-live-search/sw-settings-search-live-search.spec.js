@@ -88,7 +88,27 @@ const mockResults = {
     },
 };
 
-async function createWrapper() {
+let salesChannelRepository;
+
+async function createWrapper(salesChannelList = salesChannels) {
+    salesChannelRepository = {
+        search: jest.fn((criteria) => {
+            const matches = salesChannelList.filter(({ name }) => !criteria.term || name.includes(criteria.term));
+            const limit = criteria.limit ?? 500;
+
+            return Promise.resolve(
+                new Shopware.Data.EntityCollection(
+                    'sales_channel',
+                    'sales_channel',
+                    {},
+                    criteria,
+                    matches.slice((criteria.page - 1) * limit, criteria.page * limit),
+                    matches.length,
+                ),
+            );
+        }),
+    };
+
     return mount(
         await wrapTestComponent('sw-settings-search-live-search', {
             sync: true,
@@ -115,7 +135,7 @@ async function createWrapper() {
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
-                    'sw-single-select': await wrapTestComponent('sw-single-select'),
+                    'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                     'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                     'sw-select-result': await wrapTestComponent('sw-select-result'),
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
@@ -159,11 +179,7 @@ async function createWrapper() {
                                 };
                             }
 
-                            return {
-                                search: () => {
-                                    return Promise.resolve(salesChannels);
-                                },
-                            };
+                            return salesChannelRepository;
                         },
                     },
                     validationService: {},
@@ -206,6 +222,48 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
 
     it('should render the sales channel select', async () => {
         expect(wrapper.find('.sw-settings-search-live-search__sales-channel-select').exists()).toBeTruthy();
+    });
+
+    // @deprecated tag:v6.8.0 - The test will be removed together with the sales channel request on mount.
+    it.deprecated('v6.8.0.0')('should load the sales channels on mount', async () => {
+        expect(salesChannelRepository.search).toHaveBeenCalledTimes(1);
+        expect(salesChannelRepository.search.mock.calls[0][0]).toEqual(expect.objectContaining({ page: 1, limit: 25 }));
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should not load the sales channels on mount', async () => {
+        expect(salesChannelRepository.search).not.toHaveBeenCalled();
+    });
+
+    it('should find a sales channel beyond the first page of the select by its name', async () => {
+        wrapper.unmount();
+
+        const manySalesChannels = Array.from({ length: 30 }, (_, index) => ({
+            id: `sales-channel-${index}`,
+            name: `Sales channel ${index}`,
+            translated: { name: `Sales channel ${index}` },
+        }));
+        wrapper = await createWrapper(manySalesChannels);
+        await flushPromises();
+
+        await wrapper.find('.sw-settings-search-live-search__sales-channel-select .sw-select__selection').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.findAll('.sw-select-result').map((option) => option.text())).toEqual(
+            manySalesChannels.slice(0, 25).map(({ name }) => name),
+        );
+
+        jest.useFakeTimers();
+        await wrapper.find('.sw-settings-search-live-search__sales-channel-select input').setValue('Sales channel 29');
+        jest.advanceTimersByTime(400);
+        jest.useRealTimers();
+        await flushPromises();
+
+        expect(wrapper.findAll('.sw-select-result').map((option) => option.text())).toEqual(['Sales channel 29']);
+
+        await wrapper.find('.sw-select-option--0').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.emitted('sales-channel-change')).toEqual([['sales-channel-29']]);
     });
 
     it('should show the search box disabled on no sales channel selected', async () => {

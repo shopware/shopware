@@ -94,9 +94,7 @@ async function createWrapper(productSortings = [], defaultSorting = {}) {
                     return param;
                 },
             },
-            mixins: [
-                Shopware.Mixin.getByName('sw-inline-snippet'),
-            ],
+            mixins: [Shopware.Mixin.getByName('sw-inline-snippet')],
         },
         props: {
             modelValue: productSortings,
@@ -147,7 +145,7 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
             ]),
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         await wrapper.vm.$forceUpdate();
         await flushPromises();
 
@@ -170,16 +168,14 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
         const itemBar = wrapper.find('.column-priority_bar');
         await itemBar.find('input').setValue(7);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         await wrapper.vm.$forceUpdate();
 
         expect(wrapper.vm.productSortings.get('bar').priority).toBe(7);
     });
 
     it('should forward inline edit events', async () => {
-        const productSortings = new EntityCollection('', '', {}, {}, [
-            { id: 'foo', locked: false, priority: 5 },
-        ]);
+        const productSortings = new EntityCollection('', '', {}, {}, [{ id: 'foo', locked: false, priority: 5 }]);
         const wrapper = await createWrapper(productSortings);
 
         await wrapper.find('.inline-edit-save').trigger('click');
@@ -205,10 +201,7 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
             },
             {
                 id: 'bar',
-                fields: [
-                    { field: 'product.price' },
-                    { field: 'custom_field_0' },
-                ],
+                fields: [{ field: 'product.price' }, { field: 'custom_field_0' }],
                 locked: false,
                 priority: 3,
             },
@@ -244,10 +237,7 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
             },
             {
                 id: 'bar',
-                fields: [
-                    { field: 'product.price' },
-                    { field: 'custom_field_0' },
-                ],
+                fields: [{ field: 'product.price' }, { field: 'custom_field_0' }],
                 locked: false,
                 priority: 3,
             },

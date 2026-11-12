@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
@@ -70,7 +71,7 @@ class ElasticsearchIndexerTest extends TestCase
     {
         $c = static::getContainer()->get(Connection::class);
         $before = $c->fetchAllAssociative('SELECT * FROM elasticsearch_index_task');
-        static::assertEmpty($before);
+        static::assertCount(0, $before);
 
         $indexer = static::getContainer()->get(ElasticsearchIndexer::class);
         static::assertNotNull($indexer);
@@ -79,7 +80,34 @@ class ElasticsearchIndexerTest extends TestCase
         $indexer->iterate(null);
 
         $after = $c->fetchAllAssociative('SELECT * FROM elasticsearch_index_task');
-        static::assertNotEmpty($after);
+        static::assertNotCount(0, $after);
+    }
+
+    public function testIterateWithEntitiesKeepsTasksOfOtherEntities(): void
+    {
+        $c = static::getContainer()->get(Connection::class);
+        $indexer = static::getContainer()->get(ElasticsearchIndexer::class);
+        static::assertNotNull($indexer);
+
+        $indexer->iterate(null);
+        $indexer->iterate(null);
+
+        $otherTaskId = Uuid::randomBytes();
+        $c->insert('elasticsearch_index_task', [
+            'id' => $otherTaskId,
+            '`entity`' => 'swag_other',
+            '`index`' => 'swag_other_1',
+            '`alias`' => 'swag_other',
+            '`doc_count`' => 1,
+        ]);
+
+        $indexer->iterate(null, ['product']);
+
+        static::assertSame(
+            [['entity' => 'product'], ['entity' => 'swag_other']],
+            $c->fetchAllAssociative('SELECT `entity` FROM elasticsearch_index_task ORDER BY `entity`')
+        );
+        static::assertSame('swag_other', $c->fetchOne('SELECT `entity` FROM elasticsearch_index_task WHERE id = :id', ['id' => $otherTaskId]));
     }
 
     protected function getDiContainer(): ContainerInterface

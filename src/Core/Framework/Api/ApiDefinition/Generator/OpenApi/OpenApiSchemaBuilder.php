@@ -441,6 +441,13 @@ EOF,
                             'write' => 'Full write access',
                         ],
                     ],
+                    'authorizationCode' => [
+                        'authorizationUrl' => $url . '/api/oauth/authorize',
+                        'tokenUrl' => $url . '/api/oauth/token',
+                        'scopes' => [
+                            'write' => 'Full write access',
+                        ],
+                    ],
                 ],
             ]),
         ];
@@ -487,12 +494,12 @@ EOF,
             'description' => $title,
             'content' => [
                 new MediaType([
-                    'mediaType' => 'application/vnd.api+json',
+                    'mediaType' => 'application/json',
                     'schema' => $schema,
                     'example' => $example,
                 ]),
                 new MediaType([
-                    'mediaType' => 'application/json',
+                    'mediaType' => 'application/vnd.api+json',
                     'schema' => $schema,
                     'example' => $example,
                 ]),

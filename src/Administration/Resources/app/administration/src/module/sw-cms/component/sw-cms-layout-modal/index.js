@@ -18,14 +18,9 @@ export default {
         'cmsPageTypeService',
     ],
 
-    emits: [
-        'modal-layout-select',
-        'modal-close',
-    ],
+    emits: ['modal-layout-select', 'modal-close'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-    ],
+    mixins: [Mixin.getByName('listing')],
 
     props: {
         headline: {
@@ -108,6 +103,9 @@ export default {
             ];
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the list view selects layouts with radio buttons
+         */
         gridPreSelection() {
             if (!this.selectedPageObject?.id) {
                 return {};
@@ -163,6 +161,9 @@ export default {
             this.closeModal();
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the list view selects layouts with radio buttons
+         */
         selectInGrid(column) {
             const columnEntries = Object.values(column);
             if (columnEntries.length === 0) {
@@ -175,6 +176,10 @@ export default {
 
         selectItem(page) {
             this.selectedPageObject = page;
+        },
+
+        onSelectPage(pageId) {
+            this.selectItem(this.pages.find((page) => page.id === pageId) ?? null);
         },
 
         onSearch(value) {
@@ -207,10 +212,7 @@ export default {
         },
 
         getPageType(page) {
-            const isDefault = [
-                this.defaultProductId,
-                this.defaultCategoryId,
-            ].includes(page.id);
+            const isDefault = [this.defaultProductId, this.defaultCategoryId].includes(page.id);
             const defaultText = this.$t('sw-cms.components.cmsListItem.defaultLayout');
             const typeLabel = this.$t(this.cmsPageTypeService.getType(page.type)?.title);
             return isDefault ? `${defaultText} - ${typeLabel}` : typeLabel;

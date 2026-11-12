@@ -143,23 +143,13 @@ describe('error.store', () => {
 
         describe('getApiErrorFromPath', () => {
             it('returns null if no error exists at the path', () => {
-                expect(
-                    store.getApiErrorFromPath('entity', 'id', [
-                        'nonexistent',
-                        'path',
-                    ]),
-                ).toBeNull();
+                expect(store.getApiErrorFromPath('entity', 'id', ['nonexistent', 'path'])).toBeNull();
             });
 
             it('returns the error at the specified path', () => {
                 const error = new ShopwareError({ code: 'PATH-001', detail: 'Nested error' });
                 store.addApiError({ expression: 'entity.id.nested.field', error });
-                expect(
-                    store.getApiErrorFromPath('entity', 'id', [
-                        'nested',
-                        'field',
-                    ]),
-                ).toEqual(error);
+                expect(store.getApiErrorFromPath('entity', 'id', ['nested', 'field'])).toEqual(error);
             });
         });
 
@@ -174,13 +164,15 @@ describe('error.store', () => {
 
         describe('getSystemConfigApiError', () => {
             it('returns null if no error exists', () => {
-                expect(store.getSystemConfigApiError('entity', 'channel', 'key')).toBeNull();
+                expect(store.getSystemConfigApiError('entity', 'channel' as EntityKey<'sales_channel'>, 'key')).toBeNull();
             });
 
             it('returns the system config API error', () => {
                 const error = new ShopwareError({ code: 'CONFIG-001', detail: 'Config error' });
                 store.addApiError({ expression: 'entity.channel.key', error });
-                expect(store.getSystemConfigApiError('entity', 'channel', 'key')).toEqual(error);
+                expect(store.getSystemConfigApiError('entity', 'channel' as EntityKey<'sales_channel'>, 'key')).toEqual(
+                    error,
+                );
             });
         });
 

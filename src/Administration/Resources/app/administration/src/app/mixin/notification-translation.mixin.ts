@@ -45,10 +45,7 @@ export default Mixin.register(
                         'em',
                         'br',
                     ],
-                    ALLOWED_ATTR: [
-                        'href',
-                        'target',
-                    ],
+                    ALLOWED_ATTR: ['href', 'target'],
                 });
             },
         },

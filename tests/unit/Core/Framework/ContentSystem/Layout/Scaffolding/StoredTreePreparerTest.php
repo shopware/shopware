@@ -24,6 +24,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Output\ElementTreePruner;
 use Shopware\Core\Framework\ContentSystem\Output\PartialRenderer;
 use Shopware\Core\Framework\ContentSystem\Output\SubTreeExtractor;
@@ -47,6 +48,63 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(StoredTreePreparer::class)]
 class StoredTreePreparerTest extends TestCase
 {
+    private AbstractContentSystemElementTypeRegistry $typeRegistry;
+
+    protected function setUp(): void
+    {
+        $this->typeRegistry = $this->declaredTypes();
+    }
+
+    /**
+     * Language reduction asks once whether the component is registered; an unregistered component leaves the
+     * placeholder pass as the only further reader, so a second `has()` would be that pass reading metadata.
+     */
+    public function testDoesNotReadTypeMetadataForPropertiesWithoutStrings(): void
+    {
+        $types = $this->createMock(AbstractContentSystemElementTypeRegistry::class);
+        $types->expects($this->once())->method('has')->with('text')->willReturn(false);
+        $types->expects($this->never())->method('get');
+        $types->expects($this->never())->method('all');
+        $this->typeRegistry = $types;
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('count', 0)
+            ->withProperty('enabled', false)
+            ->withProperty('settings', ['name' => '{{ordinary}}'])
+            ->build();
+
+        $result = $this->preparer()->prepare([$element], $this->specification([]), RenderingMode::FULL, $this->salesChannelContext());
+
+        static::assertSame(0, $result->tree[0]->property('count')?->jsonSerialize());
+        static::assertFalse($result->tree[0]->property('enabled')?->jsonSerialize());
+        static::assertSame(['name' => '{{ordinary}}'], $result->tree[0]->property('settings')?->jsonSerialize());
+        static::assertSame([], $result->inlineMappings->tokens);
+    }
+
+    /**
+     * One read belongs to language reduction and one to the placeholder pass; a per-property read in the
+     * placeholder pass would make it three.
+     */
+    public function testReadsTypeMetadataOncePerPassWhenSeveralPropertiesAreStrings(): void
+    {
+        $specification = ContentSystemElementTypeSpecificationBuilder::create('text')
+            ->primitive('text', 'string', inlineMappable: true)
+            ->primitive('title', 'string')
+            ->build();
+        $types = $this->createMock(AbstractContentSystemElementTypeRegistry::class);
+        $types->expects($this->exactly(2))->method('has')->with('text')->willReturn(true);
+        $types->expects($this->exactly(2))->method('get')->with('text')->willReturn($specification);
+        $this->typeRegistry = $types;
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('title', 'Hello {{name}}')
+            ->withProperty('text', '{{map:product.name}}')
+            ->build();
+
+        $result = $this->preparer()->prepare([$element], $this->specification(['name' => 'World']), RenderingMode::FULL, $this->salesChannelContext());
+
+        static::assertSame('Hello World', $result->tree[0]->property('title')?->asString());
+        static::assertSame('product.name', $result->inlineMappings->tokensFor('root-id', 'text')[0]->path);
+    }
+
     #[TestDox('substitutes a declared token in a string property')]
     public function testPrepareResolvesStringProperties(): void
     {
@@ -57,6 +115,136 @@ class StoredTreePreparerTest extends TestCase
         $prepared = $this->prepare([$element], ['productId' => 'prod-1']);
 
         static::assertSame('Product prod-1', $prepared[0]->property('title')?->asString());
+    }
+
+    #[TestDox('preserves an inline mapping token for the render-time mapping pass')]
+    public function testPreparePreservesAnInlineMappingToken(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('text', '{{map:product.name}}')
+            ->build();
+
+        $prepared = $this->prepare([$element], [
+            'productId' => 'prod-1',
+            'map:product.name' => 'query supplied text',
+        ]);
+
+        static::assertSame('{{map:product.name}}', $prepared[0]->property('text')?->asString());
+    }
+
+    #[TestDox('captures authored token spans after placeholder substitution shifts their byte offsets')]
+    public function testPrepareCarriesAuthoredTokenSpans(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('text', 'A {{prefix}} {{map:product.name}}')
+            ->build();
+
+        $result = $this->preparer()->prepare(
+            [$element],
+            $this->specification(['prefix' => 'longer']),
+            RenderingMode::FULL,
+            $this->salesChannelContext(),
+        );
+
+        static::assertSame('A longer {{map:product.name}}', $result->tree[0]->property('text')?->asString());
+        $token = $result->inlineMappings->tokensFor('root-id', 'text')[0];
+        static::assertSame(9, $token->offset);
+        static::assertSame('{{map:product.name}}', $token->match);
+        static::assertSame('product.name', $token->path);
+        static::assertFalse($token->insideMarkup);
+        static::assertFalse($token->malformed);
+    }
+
+    public function testPrepareShiftsMultipleTokensPastALongerPlaceholderReplacement(): void
+    {
+        $replacement = 'A much longer replacement than the placeholder';
+        $first = '{{map:product.name}}';
+        $second = '{{map:product.description}}';
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('text', 'Before {{prefix}} ' . $first . ' middle ' . $second . ' after')
+            ->build();
+
+        $result = $this->preparer()->prepare([$element], $this->specification(['prefix' => $replacement]), RenderingMode::FULL, $this->salesChannelContext());
+
+        $expected = 'Before ' . $replacement . ' ' . $first . ' middle ' . $second . ' after';
+        static::assertSame($expected, $result->tree[0]->property('text')?->asString());
+        $tokens = $result->inlineMappings->tokensFor('root-id', 'text');
+        static::assertCount(2, $tokens);
+        static::assertSame(['product.name', 'product.description'], array_column($tokens, 'path'));
+        static::assertSame([$first, $second], array_column($tokens, 'match'));
+        static::assertSame([
+            \strlen('Before ' . $replacement . ' '),
+            \strlen('Before ' . $replacement . ' ' . $first . ' middle '),
+        ], array_column($tokens, 'offset'));
+        foreach ($tokens as $token) {
+            static::assertSame($token->match, substr($expected, $token->offset, \strlen($token->match)));
+        }
+    }
+
+    #[TestDox('keeps authored mapping spans separate from placeholder-injected text')]
+    public function testPrepareDoesNotTurnPlaceholderValuesIntoMappingInstructions(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('text', '{{map:product.name}} / {{query}}')
+            ->build();
+
+        $result = $this->preparer()->prepare([$element], $this->specification(['query' => '{{map:product.name}}']), RenderingMode::FULL, $this->salesChannelContext());
+        $prepared = $result->tree;
+        $tokens = $result->inlineMappings->tokensFor('root-id', 'text');
+        static::assertCount(1, $tokens);
+        static::assertSame(0, $tokens[0]->offset);
+        static::assertSame('product.name', $tokens[0]->path);
+
+        static::assertSame(
+            '{{map:product.name}} / {{map:product.name}}',
+            $prepared[0]->property('text')?->asString(),
+        );
+    }
+
+    #[TestDox('does not parse mapping syntax assembled from placeholder text')]
+    public function testPrepareDoesNotTurnPartialPlaceholderValuesIntoMappingInstructions(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('text', '{{query}}product.name}}')
+            ->build();
+
+        $result = $this->preparer()->prepare([$element], $this->specification(['query' => '{{map:']), RenderingMode::FULL, $this->salesChannelContext());
+        $prepared = $result->tree;
+        static::assertSame([], $result->inlineMappings->tokens);
+
+        static::assertSame(
+            '{{map:product.name}}',
+            $prepared[0]->property('text')?->asString(),
+        );
+    }
+
+    public function testCapturesInlineMetadataForNestedElements(): void
+    {
+        $child = StoredElementBuilder::create('text', 'nested')->withProperty('text', 'Hi {{name}} {{map:product.name}}')->build();
+        $parent = StoredElementBuilder::create('section', 'parent')->withSlot('content', [$child])->build();
+        $result = $this->preparer()->prepare([$parent], $this->specification(['name' => 'X']), RenderingMode::FULL, $this->salesChannelContext());
+        $tokens = $result->inlineMappings->tokensFor('nested', 'text');
+        static::assertCount(1, $tokens);
+        static::assertSame('product.name', $tokens[0]->path);
+        static::assertSame(5, $tokens[0]->offset);
+        static::assertSame([], $result->inlineMappings->tokensFor('parent', 'text'));
+    }
+
+    public function testRebuiltTokenMetadataPreservesMarkupAndMalformedFlags(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('text', '{{prefix}} <a title="{{map:product.name}}">{{map:product}}</a>')->build();
+        $result = $this->preparer()->prepare([$element], $this->specification(['prefix' => 'Longer prefix replacement']), RenderingMode::FULL, $this->salesChannelContext());
+        $tokens = $result->inlineMappings->tokensFor('root-id', 'text');
+        static::assertCount(2, $tokens);
+        static::assertSame(['product.name', 'product'], array_column($tokens, 'path'));
+        static::assertSame([true, false], array_column($tokens, 'insideMarkup'));
+        static::assertSame([false, true], array_column($tokens, 'malformed'));
+        $text = $result->tree[0]->property('text')?->asString();
+        static::assertNotNull($text);
+        foreach ($tokens as $token) {
+            static::assertSame($token->match, substr($text, $token->offset, \strlen($token->match)));
+        }
     }
 
     #[TestDox('substitutes tokens in slot children at every depth')]
@@ -195,6 +383,17 @@ class StoredTreePreparerTest extends TestCase
         $prepared = $this->prepare([$element], ['productId' => 'prod-1']);
 
         static::assertSame(['depth' => 3], $prepared[0]->dataRequirements['navigationTree']->config->jsonSerialize());
+    }
+
+    public function testPrepareDoesNotSubstituteReservedMappingNamesInLiteralLoaderConfig(): void
+    {
+        $element = StoredElementBuilder::create('navigation', 'root-id')
+            ->withDataRequirement('navigationTree', 'test_literal', new NavigationLoaderConfig('root-{{productId}} {{map:product.name}}'))
+            ->build();
+
+        $prepared = $this->prepare([$element], ['productId' => 'prod-1', 'map:product.name' => 'query supplied text']);
+
+        static::assertSame('root-prod-1 {{map:product.name}}', $prepared[0]->dataRequirements['navigationTree']->config->jsonSerialize()['rootId']);
     }
 
     #[DataProvider('nonStringPropertyProvider')]
@@ -363,6 +562,7 @@ class StoredTreePreparerTest extends TestCase
         yield 'the placeholder values map is empty' => ['Product {{productId}}', []];
         // A trailing newline makes the token embedded text, not the whole value.
         yield 'a lone token is followed by a newline' => ["{{categoryId}}\n", ['productId' => 'prod-1']];
+        yield 'a lone unresolved token containing a colon stays verbatim' => ['{{map:product}}', []];
     }
 
     #[TestDox('keeps a token carried by a substituted value literal, even when that token is declared')]
@@ -399,6 +599,125 @@ class StoredTreePreparerTest extends TestCase
         $prepared = $this->prepare([$element], ['productId' => '{{categoryId}}']);
 
         static::assertSame('{{categoryId}}', $prepared[0]->property('title')?->asString());
+    }
+
+    /**
+     * @param non-empty-string $input
+     * @param array<string, string> $values
+     */
+    #[DataProvider('ordinaryPropertyPlaceholderCases')]
+    #[TestDox('applies the ordinary placeholder rules to a property when $_dataName')]
+    public function testOrdinaryPlaceholderRulesApplyToProperties(string $input, array $values, string $expected): void
+    {
+        $element = StoredElementBuilder::create('navigation', 'root-id')
+            ->withProperty('title', $input)
+            ->build();
+
+        $prepared = $this->prepare([$element], $values);
+
+        static::assertSame($expected, $prepared[0]->property('title')?->asString());
+    }
+
+    /**
+     * @return iterable<string, array{non-empty-string, array<string, string>, string}>
+     */
+    public static function ordinaryPropertyPlaceholderCases(): iterable
+    {
+        yield 'missing ordinary key stays verbatim' => ['{{missing}}', [], '{{missing}}'];
+        yield 'missing colon key stays verbatim' => ['{{external:id}}', [], '{{external:id}}'];
+        yield 'known ordinary key' => ['{{productId}}', ['productId' => 'prod-1'], 'prod-1'];
+        yield 'known colon key' => ['{{external:id}}', ['external:id' => 'cat-1'], 'cat-1'];
+        yield 'padded known key is not implicitly trimmed' => ['{{ productId }}', ['productId' => 'prod-1'], '{{ productId }}'];
+        yield 'padded known colon key is not implicitly trimmed' => ['{{ external:id }}', ['external:id' => 'cat-1'], '{{ external:id }}'];
+        yield 'exact explicitly padded key still matches' => ['{{ productId }}', [' productId ' => 'exact-value'], 'exact-value'];
+        yield 'embedded missing colon key stays literal' => ['Category {{external:id}}', [], 'Category {{external:id}}'];
+        yield 'embedded padded key stays literal' => ['Product {{ productId }}', ['productId' => 'prod-1'], 'Product {{ productId }}'];
+        yield 'reserved mapping stays literal' => ['{{map:product.name}}', ['map:product.name' => 'query value'], '{{map:product.name}}'];
+        yield 'padded reserved mapping stays literal' => ['{{ map:product.name }}', [' map:product.name ' => 'query value'], '{{ map:product.name }}'];
+        yield 'malformed reserved marker stays literal' => ['{{map:}}', ['map:' => 'query value'], '{{map:}}'];
+        yield 'similar ordinary prefix is not reserved' => ['{{mapping:id}}', ['mapping:id' => 'mapped'], 'mapped'];
+        yield 'uppercase prefix is not reserved' => ['{{MAP:product.name}}', ['MAP:product.name' => 'upper'], 'upper'];
+        yield 'lone ordinary placeholder left after substitution stays verbatim' => ['{{query}}', ['query' => '{{missing}}'], '{{missing}}'];
+        yield 'inserted mapping-looking text stays literal' => ['{{query}}', ['query' => '{{map:product.name}}'], '{{map:product.name}}'];
+    }
+
+    /**
+     * @param non-empty-string $input
+     * @param array<string, string> $values
+     */
+    #[DataProvider('keptLiteralConfigPlaceholderCases')]
+    #[TestDox('keeps a Literal loader-config key and applies the ordinary placeholder rules when $_dataName')]
+    public function testOrdinaryPlaceholderRulesApplyToLiteralConfig(string $input, array $values, string $expected): void
+    {
+        $element = StoredElementBuilder::create('navigation', 'root-id')
+            ->withDataRequirement('navigationTree', 'test_literal', new NavigationLoaderConfig($input))
+            ->build();
+
+        $prepared = $this->prepare([$element], $values);
+
+        static::assertSame(['rootId' => $expected], $prepared[0]->dataRequirements['navigationTree']->config->jsonSerialize());
+    }
+
+    /**
+     * @return iterable<string, array{non-empty-string, array<string, string>, string}>
+     */
+    public static function keptLiteralConfigPlaceholderCases(): iterable
+    {
+        yield 'known ordinary key' => ['{{productId}}', ['productId' => 'prod-1'], 'prod-1'];
+        yield 'known colon key' => ['{{external:id}}', ['external:id' => 'cat-1'], 'cat-1'];
+        yield 'exact explicitly padded key still matches' => ['{{ productId }}', [' productId ' => 'exact-value'], 'exact-value'];
+        yield 'embedded missing colon key stays literal' => ['Category {{external:id}}', [], 'Category {{external:id}}'];
+        yield 'embedded padded key stays literal' => ['Product {{ productId }}', ['productId' => 'prod-1'], 'Product {{ productId }}'];
+        yield 'reserved mapping stays literal' => ['{{map:product.name}}', ['map:product.name' => 'query value'], '{{map:product.name}}'];
+        yield 'padded reserved mapping stays literal' => ['{{ map:product.name }}', [' map:product.name ' => 'query value'], '{{ map:product.name }}'];
+        yield 'malformed reserved marker stays literal' => ['{{map:}}', ['map:' => 'query value'], '{{map:}}'];
+        yield 'lone reserved mapping without a value is not removed' => ['{{map:product.name}}', [], '{{map:product.name}}'];
+        yield 'lone reserved mapping with a request value is not removed' => ['{{map:product}}', ['map:product' => 'query value'], '{{map:product}}'];
+        yield 'inserted mapping-looking text stays literal' => ['{{query}}', ['query' => '{{map:product.name}}'], '{{map:product.name}}'];
+    }
+
+    /**
+     * Removal is judged on the authored input, so each row is a lone ordinary token whose exact key carries
+     * no value.
+     *
+     * @param non-empty-string $input
+     * @param array<string, string> $values
+     */
+    #[DataProvider('removedLiteralConfigPlaceholderCases')]
+    #[TestDox('removes a Literal loader-config key when $_dataName')]
+    public function testLiteralConfigRemovesALoneUnresolvedOrdinaryPlaceholder(string $input, array $values): void
+    {
+        $element = StoredElementBuilder::create('navigation', 'root-id')
+            ->withDataRequirement('navigationTree', 'test_literal', new NavigationLoaderConfig($input, 3))
+            ->build();
+
+        $prepared = $this->prepare([$element], $values);
+
+        static::assertSame(['depth' => 3], $prepared[0]->dataRequirements['navigationTree']->config->jsonSerialize());
+    }
+
+    /**
+     * @return iterable<string, array{non-empty-string, array<string, string>}>
+     */
+    public static function removedLiteralConfigPlaceholderCases(): iterable
+    {
+        yield 'missing colon key' => ['{{external:id}}', []];
+        yield 'padded known key is not implicitly trimmed' => ['{{ productId }}', ['productId' => 'prod-1']];
+        yield 'padded known colon key is not implicitly trimmed' => ['{{ external:id }}', ['external:id' => 'cat-1']];
+        yield 'similar ordinary prefix is not reserved' => ['{{mapping:id}}', []];
+        yield 'uppercase prefix is not reserved' => ['{{MAP:product.name}}', []];
+    }
+
+    public function testInsertedLoneMappingTextDoesNotProduceAuthoredTokens(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('text', '{{query}}')
+            ->build();
+
+        $result = $this->preparer()->prepare([$element], $this->specification(['query' => '{{ map:product.name }}']), RenderingMode::FULL, $this->salesChannelContext());
+
+        static::assertSame('{{ map:product.name }}', $result->tree[0]->property('text')?->asString());
+        static::assertSame([], $result->inlineMappings->tokens);
     }
 
     #[TestDox('records that the virtual root did not survive a prune that cut it away')]
@@ -641,6 +960,146 @@ class StoredTreePreparerTest extends TestCase
         yield 'empty map' => ['headline', [], 'string (translatable)', 'list'];
     }
 
+    #[DataProvider('literalPropertyProvider')]
+    #[TestDox('preserves oversized literal text for $_dataName')]
+    public function testPreparePreservesOversizedMappingLookingLiteralText(string $component, string $property): void
+    {
+        $prefix = str_repeat('x', InlineMappingTokenParser::MAX_INPUT_BYTES);
+        $element = StoredElementBuilder::create($component, 'root-id')
+            ->withProperty($property, $prefix . '{{productId}} {{map:product.name}}')
+            ->build();
+
+        $result = $this->preparer()->prepare(
+            [$element],
+            $this->specification(['productId' => 'prod-1', 'map:product.name' => 'query supplied text']),
+            RenderingMode::FULL,
+            $this->salesChannelContext(),
+        );
+
+        static::assertSame($prefix . 'prod-1 {{map:product.name}}', $result->tree[0]->property($property)?->asString());
+        static::assertSame([], $result->inlineMappings->tokens);
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function literalPropertyProvider(): iterable
+    {
+        yield 'declared property without inline mapping' => ['text', 'title'];
+        yield 'undeclared property' => ['text', 'extra'];
+        yield 'unregistered component' => ['unknown', 'text'];
+    }
+
+    public function testPrepareStillRejectsOversizedInlineMappingText(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('text', str_repeat('x', InlineMappingTokenParser::MAX_INPUT_BYTES) . '{{map:product.name}}')
+            ->build();
+
+        $this->expectExceptionObject(ContentSystemException::inlineMappingInputTooLarge(InlineMappingTokenParser::MAX_INPUT_BYTES));
+
+        $this->prepare([$element], []);
+    }
+
+    public function testPrepareIgnoresOversizedLiteralMappingTextInAPrunedSibling(): void
+    {
+        $literal = str_repeat('x', InlineMappingTokenParser::MAX_INPUT_BYTES) . '{{map:product.name}}';
+        $root = StoredElementBuilder::create('section', 'root-id')
+            ->withSlot('default', [
+                StoredElementBuilder::create('text', 'target-id')->withConsumer('product', ContextType::Single)->build(),
+                StoredElementBuilder::create('text', 'sibling-id')->withProperty('title', $literal)->build(),
+            ])
+            ->build();
+
+        $result = $this->preparer()->prepare([$root], $this->targetedSpecification('target-id'), RenderingMode::FULL, $this->salesChannelContext());
+
+        static::assertSame(['root-id', 'target-id'], $this->collectIds($result->tree));
+        static::assertSame($literal, $result->prePruneForest[0]->slots['default'][1]->property('title')?->asString());
+        static::assertSame([], $result->inlineMappings->tokens);
+    }
+
+    #[DataProvider('reservedMappingPlaceholderProvider')]
+    #[TestDox('keeps a reserved mapping name unsubstituted for a $_dataName')]
+    public function testPrepareDoesNotSubstituteReservedMappingNamesInLiteralProperties(string $key): void
+    {
+        $literal = '{{' . $key . '}}';
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('title', 'Product {{productId}} ' . $literal)
+            ->build();
+
+        $result = $this->preparer()->prepare(
+            [$element],
+            $this->specification(['productId' => 'prod-1', $key => 'query supplied text']),
+            RenderingMode::FULL,
+            $this->salesChannelContext(),
+        );
+
+        static::assertSame('Product prod-1 ' . $literal, $result->tree[0]->property('title')?->asString());
+        static::assertSame([], $result->inlineMappings->tokens);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function reservedMappingPlaceholderProvider(): iterable
+    {
+        yield 'canonical mapping token' => ['map:product.name'];
+        yield 'mapping token with whitespace' => [' map:product.name '];
+        yield 'mapping token with form feed' => ["\fmap:product.name"];
+    }
+
+    /**
+     * The anchor entry carries its token at another offset, so a span captured on the anchor, or before
+     * reduction, cannot match the selected string.
+     */
+    #[TestDox('captures an authored token span in the selected entry of a translatable property')]
+    public function testPrepareCapturesATokenSpanInTheSelectedTranslationEntry(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('body', [
+                Defaults::LANGUAGE_SYSTEM => '{{map:product.name}} anchor copy',
+                'language-child' => 'Child {{prefix}} {{map:product.name}}',
+            ])
+            ->build();
+
+        $result = $this->preparer()->prepare(
+            [$element],
+            $this->specification(['prefix' => 'longer']),
+            RenderingMode::FULL,
+            $this->salesChannelContext(['language-child', Defaults::LANGUAGE_SYSTEM]),
+        );
+
+        static::assertSame('Child longer {{map:product.name}}', $result->tree[0]->property('body')?->asString());
+        $tokens = $result->inlineMappings->tokensFor('root-id', 'body');
+        static::assertCount(1, $tokens);
+        static::assertSame(\strlen('Child longer '), $tokens[0]->offset);
+        static::assertSame('product.name', $tokens[0]->path);
+    }
+
+    #[TestDox('captures no token span from a translatable property in SKELETON mode')]
+    public function testPrepareCapturesNoTokenSpanFromALanguageMapInSkeletonMode(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('body', [Defaults::LANGUAGE_SYSTEM => 'Copy {{map:product.name}}'])
+            ->build();
+
+        $result = $this->preparer()->prepare([$element], $this->specification([]), RenderingMode::SKELETON, $this->salesChannelContext());
+
+        static::assertSame([], $result->inlineMappings->tokens);
+    }
+
+    #[TestDox('keeps a selected translation entry that is entirely one unresolved token verbatim')]
+    public function testPrepareKeepsALoneUnresolvedTokenInTheSelectedTranslationVerbatim(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('headline', [Defaults::LANGUAGE_SYSTEM => 'anchor copy', 'language-child' => '{{categoryId}}'])
+            ->build();
+
+        $prepared = $this->prepare([$element], ['productId' => 'prod-1'], ['language-child', Defaults::LANGUAGE_SYSTEM]);
+
+        static::assertSame('{{categoryId}}', $prepared[0]->property('headline')?->asString());
+    }
+
     private function preparer(): StoredTreePreparer
     {
         $serializerLocator = static::createStub(ServiceLocator::class);
@@ -665,25 +1124,28 @@ class StoredTreePreparerTest extends TestCase
         );
 
         return new StoredTreePreparer(
-            $this->typeRegistry(),
+            $this->typeRegistry,
             new VirtualRootWrapper(),
             new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()),
             new DataLoaderConfigSerializerProvider($serializerLocator),
             new DataLoaderProvider($loaderLocator),
+            new InlineMappingTokenParser(),
         );
     }
 
     /**
-     * Only `text` is registered, and it declares the keys the reduction cases read: one plain string, two
-     * translatable strings differing in the required flag, and one translatable key per other primitive. Every
-     * other key these fixtures store is undeclared, and `section` names no type at all, which is the shape the
-     * virtual root is in too.
+     * Only `text` is registered, and it declares the keys the cases read: one plain string, one inline-mappable
+     * string, two translatable strings differing in the required flag, one translatable inline-mappable string,
+     * and one translatable key per other primitive. Every other key these fixtures store is undeclared, and
+     * `section` names no type at all, which is the shape the virtual root is in too.
      */
-    private function typeRegistry(): AbstractContentSystemElementTypeRegistry
+    private function declaredTypes(): AbstractContentSystemElementTypeRegistry
     {
         return TestElementTypeRegistry::of([
             'text' => ContentSystemElementTypeSpecificationBuilder::create('text')
                 ->primitive('title', 'string')
+                ->primitive('text', 'string', inlineMappable: true)
+                ->primitive('body', 'string', translatable: true, inlineMappable: true)
                 ->primitive('headline', 'string', translatable: true)
                 ->primitive('requiredHeadline', 'string', required: true, translatable: true)
                 ->primitive('count', 'integer', translatable: true)

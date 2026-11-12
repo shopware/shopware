@@ -67,7 +67,16 @@
                 "disabledCheckboxMessage": "Um diese Option deaktivieren zu können, musst Du zuerst andere aktive Optionen deaktivieren.",
                 "tooltipParentRole": "Alle {role}-Rechte für {parent}",
                 "tooltipParentAll": "Alle Rechte für {parent} ({roles})",
-                "tooltipEntityAll": "Alle Rechte für {entity} ({roles})"
+                "tooltipEntityAll": "Alle Rechte für {entity} ({roles})",
+                "hiddenAccessChip": "+{count} Bereich | +{count} Bereiche",
+                "hiddenAccessChipTooltip": "Diese Berechtigung gewährt auch Zugriff auf Daten anderer Bereiche. Klicke, um sie anzuzeigen.",
+                "personalData": "Personenbezogene Daten",
+                "writeAccess": "Kann Daten ändern",
+                "sharedData": "Gemeinsam genutzte Daten",
+                "grantedViaTitle": "Auch über andere Berechtigungen zugänglich:",
+                "grantedViaEntry": "{operation} über {modules}",
+                "personalDataBannerText": "Manche Bereiche brauchen Daten aus anderen Bereichen, daher kann diese Rolle auch auf personenbezogene Daten in {areas} zugreifen. Die hervorgehobenen Zeilen unten zeigen, woher das kommt.",
+                "personalDataBannerLink": "Alle enthaltenen Berechtigungen anzeigen"
             },
             "additional-permissions": {
                 "title": "Zusätzliche Berechtigungen"
@@ -76,7 +85,8 @@
                 "title": "Zusätzliche Berechtigungen"
             },
             "detailed-grid": {
-                "coveredByGeneralMessage": "Bereits über den Tab \"Allgemein\" gewährt."
+                "coveredByGeneralMessage": "Bereits über den Tab \"Allgemein\" gewährt.",
+                "grantedVia": "Gewährt über: {sources}"
             },
             "view": {
                 "detailed": {

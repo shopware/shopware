@@ -67,7 +67,16 @@
                 "disabledCheckboxMessage": "To disable this option, you must first disable other active options.",
                 "tooltipParentRole": "All {role} rights for {parent}",
                 "tooltipParentAll": "All rights for {parent} ({roles})",
-                "tooltipEntityAll": "All rights for {entity} ({roles})"
+                "tooltipEntityAll": "All rights for {entity} ({roles})",
+                "hiddenAccessChip": "+{count} area | +{count} areas",
+                "hiddenAccessChipTooltip": "This permission also grants access to data of other areas. Click to show them.",
+                "personalData": "Personal data",
+                "writeAccess": "Can change data",
+                "sharedData": "Shared data",
+                "grantedViaTitle": "Also accessible through other permissions:",
+                "grantedViaEntry": "{operation} via {modules}",
+                "personalDataBannerText": "Some areas need data from other areas to work, so this role can also access personal data in {areas}. Highlighted rows below show where this comes from.",
+                "personalDataBannerLink": "Show all included permissions"
             },
             "additional-permissions": {
                 "title": "Additional permissions"
@@ -76,7 +85,8 @@
                 "title": "Additional permissions"
             },
             "detailed-grid": {
-                "coveredByGeneralMessage": "Already granted via the General tab."
+                "coveredByGeneralMessage": "Already granted via the General tab.",
+                "grantedVia": "Granted via: {sources}"
             },
             "view": {
                 "detailed": {

@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { reactive } from 'vue';
+import { computed, reactive } from 'vue';
 
 const { warn, error } = Shopware.Utils.debug;
 const { object } = Shopware.Utils;
@@ -21,11 +21,75 @@ type PrivilegeMapping = {
     roles: {
         [key: string]: PrivilegeRole;
     };
+    /**
+     * Marks the entities owned by this mapping as personal data.
+     * `true` flags every owned entity, a list of entity names flags only those.
+     */
+    containsPersonalData?: boolean | string[];
 };
 
 type PrivilegesState = {
     privilegesMappings: PrivilegeMapping[];
 };
+
+/**
+ * Privileges of one admin privilege key on entities owned by other modules.
+ * `ownerKey` is null for entities owned by more than one module ("shared data").
+ *
+ * @private
+ */
+export type HiddenAccessGroup = {
+    ownerKey: string | null;
+    privileges: string[];
+    /**
+     * Entities that share exactly the same operations, so no entity is shown with an operation it doesn't get.
+     */
+    entries: Array<{
+        operations: string[];
+        entities: string[];
+    }>;
+    containsWrite: boolean;
+    containsPersonalData: boolean;
+};
+
+/**
+ * Access to the entities of one owning module through admin privilege keys of other modules.
+ *
+ * @private
+ */
+export type IndirectAccess = {
+    ownerKey: string;
+    containsPersonalData: boolean;
+    entries: Array<{
+        privilege: string;
+        entity: string;
+        operation: string;
+        sourceKeys: string[];
+        containsPersonalData: boolean;
+    }>;
+};
+
+type AccessCache = {
+    entityOwners: Map<string, string[]>;
+    personalDataEntities: Set<string>;
+    expandedKeys: Map<string, string[]>;
+};
+
+const OPERATION_ORDER = [
+    'read',
+    'update',
+    'create',
+    'delete',
+];
+
+function sortOperations(operations: Iterable<string>): string[] {
+    return [...new Set(operations)].sort((a, b) => {
+        const rankA = OPERATION_ORDER.indexOf(a);
+        const rankB = OPERATION_ORDER.indexOf(b);
+
+        return (rankA === -1 ? OPERATION_ORDER.length : rankA) - (rankB === -1 ? OPERATION_ORDER.length : rankB);
+    });
+}
 
 /**
  * @private
@@ -36,6 +100,13 @@ export default class PrivilegesService {
     private state = reactive<PrivilegesState>({
         privilegesMappings: [],
     });
+
+    /**
+     * Rebuilt whenever a privilege mapping is added or changed, read lazily.
+     */
+    private accessCache = computed<AccessCache>(() => this.buildAccessCache());
+
+    private hiddenAccessCache = new WeakMap<AccessCache, Map<string, HiddenAccessGroup[]>>();
 
     private defaultUserPrivileges = [
         'language:read', // for entityInit and languageSwitch
@@ -248,6 +319,10 @@ export default class PrivilegesService {
             return this;
         }
 
+        if (privilegeMapping.containsPersonalData !== undefined) {
+            existingCategoryKeyCombination.containsPersonalData = privilegeMapping.containsPersonalData;
+        }
+
         Object.entries(privilegeMapping.roles).forEach(([role, entry]) => {
             if (existingCategoryKeyCombination.roles.hasOwnProperty(role)) {
                 existingCategoryKeyCombination.roles[role] = object.deepMergeObject(
@@ -288,6 +363,18 @@ export default class PrivilegesService {
             return false;
         }
 
+        if (
+            'containsPersonalData' in privilegeMapping &&
+            typeof privilegeMapping.containsPersonalData !== 'boolean' &&
+            !Array.isArray(privilegeMapping.containsPersonalData)
+        ) {
+            warn(
+                'addPrivilegeMappingEntry',
+                'The property "containsPersonalData" must be a boolean or an array of entity names. It is ignored.',
+            );
+            delete (privilegeMapping as { containsPersonalData?: unknown }).containsPersonalData;
+        }
+
         return true;
     }
 
@@ -319,5 +406,270 @@ export default class PrivilegesService {
 
     public getRequiredPrivileges() {
         return this.getDefaultUserPrivileges();
+    }
+
+    /**
+     * Returns the owning module keys per entity.
+     * A module owns an entity when one of its roles grants `<entity>:create` or `<entity>:delete`
+     * directly as a string, not through `getPrivileges()` or a dependency.
+     */
+    public getEntityOwners(): Map<string, string[]> {
+        return this.accessCache.value.entityOwners;
+    }
+
+    /**
+     * An entity is personal data when every module owning it flags it with `containsPersonalData`.
+     */
+    public isPersonalDataEntity(entity: string): boolean {
+        return this.accessCache.value.personalDataEntities.has(entity);
+    }
+
+    /**
+     * Returns all entity privileges (`entity:operation`) the given admin privilege key grants,
+     * including its dependencies.
+     */
+    public getExpandedPrivileges(adminPrivilegeKey: string): string[] {
+        return this.accessCache.value.expandedKeys.get(adminPrivilegeKey) ?? [];
+    }
+
+    /**
+     * Returns the privileges the given admin privilege key grants on entities owned by other modules,
+     * grouped by the owning module.
+     * Entities without an owner and default user privileges are not hidden;
+     * entities with several owners are grouped under `ownerKey: null`.
+     */
+    public getHiddenAccess(adminPrivilegeKey: string): HiddenAccessGroup[] {
+        const cache = this.accessCache.value;
+        let hiddenAccessByKey = this.hiddenAccessCache.get(cache);
+
+        if (!hiddenAccessByKey) {
+            hiddenAccessByKey = new Map();
+            this.hiddenAccessCache.set(cache, hiddenAccessByKey);
+        }
+
+        const cached = hiddenAccessByKey.get(adminPrivilegeKey);
+        if (cached) {
+            return cached;
+        }
+
+        const moduleKey = adminPrivilegeKey.split('.')[0];
+        const hiddenPrivileges = this.getExpandedPrivileges(adminPrivilegeKey).filter((privilege) => {
+            // Every user gets the default privileges, so they reveal nothing
+            if (this.defaultUserPrivileges.includes(privilege)) {
+                return false;
+            }
+
+            const owners = cache.entityOwners.get(privilege.split(':')[0]);
+
+            return owners !== undefined && !owners.includes(moduleKey);
+        });
+
+        const hiddenAccess = this.groupHiddenPrivileges(hiddenPrivileges);
+        hiddenAccessByKey.set(adminPrivilegeKey, hiddenAccess);
+
+        return hiddenAccess;
+    }
+
+    /**
+     * Combines the hidden access of several admin privilege keys, for example all selected roles of one module.
+     */
+    public getHiddenAccessForAdminPrivilegeKeys(adminPrivilegeKeys: string[]): HiddenAccessGroup[] {
+        if (adminPrivilegeKeys.length === 1) {
+            return this.getHiddenAccess(adminPrivilegeKeys[0]);
+        }
+
+        const hiddenPrivileges = adminPrivilegeKeys.flatMap((adminPrivilegeKey) => {
+            return this.getHiddenAccess(adminPrivilegeKey).flatMap((group) => group.privileges);
+        });
+
+        return this.groupHiddenPrivileges(hiddenPrivileges);
+    }
+
+    /**
+     * Returns the selected admin privilege keys whose expanded privileges contain the given entity privilege.
+     */
+    public getSourceKeysForPrivilege(privilege: string, selectedAdminPrivilegeKeys: string[]): string[] {
+        return selectedAdminPrivilegeKeys.filter((adminPrivilegeKey) => {
+            return this.getExpandedPrivileges(adminPrivilegeKey).includes(privilege);
+        });
+    }
+
+    /**
+     * Returns, per owning module, the privileges on its entities that the selection grants through other modules.
+     * Privileges already granted by a selected role of the owning module itself are left out.
+     * Entities with several owners are left out, because no single module row can show them.
+     */
+    public getIndirectAccess(selectedAdminPrivilegeKeys: string[]): IndirectAccess[] {
+        const cache = this.accessCache.value;
+        const selectedKeys = [...new Set(selectedAdminPrivilegeKeys)].filter((adminPrivilegeKey) => {
+            return cache.expandedKeys.has(adminPrivilegeKey);
+        });
+        const indirectAccess = new Map<string, Map<string, IndirectAccess['entries'][number]>>();
+
+        selectedKeys.forEach((sourceKey) => {
+            this.getHiddenAccess(sourceKey).forEach((group) => {
+                const ownerKey = group.ownerKey;
+
+                if (ownerKey === null) {
+                    return;
+                }
+
+                const ownerPrivileges = new Set(
+                    selectedKeys
+                        .filter((adminPrivilegeKey) => adminPrivilegeKey.split('.')[0] === ownerKey)
+                        .flatMap((adminPrivilegeKey) => this.getExpandedPrivileges(adminPrivilegeKey)),
+                );
+
+                group.privileges.forEach((privilege) => {
+                    if (ownerPrivileges.has(privilege)) {
+                        return;
+                    }
+
+                    let entries = indirectAccess.get(ownerKey);
+                    if (!entries) {
+                        entries = new Map();
+                        indirectAccess.set(ownerKey, entries);
+                    }
+
+                    const [entity, operation] = privilege.split(':');
+                    const entry = entries.get(privilege) ?? {
+                        privilege,
+                        entity,
+                        operation,
+                        sourceKeys: [],
+                        containsPersonalData: cache.personalDataEntities.has(entity),
+                    };
+
+                    entry.sourceKeys.push(sourceKey);
+                    entries.set(privilege, entry);
+                });
+            });
+        });
+
+        return [...indirectAccess.entries()].map(([ownerKey, entries]) => {
+            const entryList = [...entries.values()];
+
+            return {
+                ownerKey,
+                containsPersonalData: entryList.some((entry) => entry.containsPersonalData),
+                entries: entryList,
+            };
+        });
+    }
+
+    private groupHiddenPrivileges(privileges: string[]): HiddenAccessGroup[] {
+        const { entityOwners, personalDataEntities } = this.accessCache.value;
+        const groups = new Map<string | null, Set<string>>();
+
+        privileges.forEach((privilege) => {
+            const owners = entityOwners.get(privilege.split(':')[0]);
+
+            if (!owners) {
+                return;
+            }
+
+            const ownerKey = owners.length === 1 ? owners[0] : null;
+            const group = groups.get(ownerKey) ?? new Set<string>();
+            group.add(privilege);
+            groups.set(ownerKey, group);
+        });
+
+        return [...groups.entries()]
+            .map(([ownerKey, groupPrivileges]) => {
+                const sortedPrivileges = [...groupPrivileges].sort();
+
+                const operationsByEntity = new Map<string, string[]>();
+                sortedPrivileges.forEach((privilege) => {
+                    const [entity, operation] = privilege.split(':');
+                    operationsByEntity.set(entity, [...(operationsByEntity.get(entity) ?? []), operation]);
+                });
+
+                const entitiesByOperations = new Map<string, { operations: string[]; entities: string[] }>();
+                operationsByEntity.forEach((operations, entity) => {
+                    const sortedOperations = sortOperations(operations);
+                    const operationsKey = sortedOperations.join(',');
+                    const entry = entitiesByOperations.get(operationsKey) ?? { operations: sortedOperations, entities: [] };
+                    entry.entities.push(entity);
+                    entitiesByOperations.set(operationsKey, entry);
+                });
+
+                return {
+                    ownerKey,
+                    privileges: sortedPrivileges,
+                    // Widest access first
+                    entries: [...entitiesByOperations.values()].sort((a, b) => b.operations.length - a.operations.length),
+                    containsWrite: sortedPrivileges.some((privilege) => privilege.split(':')[1] !== 'read'),
+                    containsPersonalData: sortedPrivileges.some((privilege) => {
+                        return personalDataEntities.has(privilege.split(':')[0]);
+                    }),
+                };
+            })
+            .sort((a, b) => {
+                // Shared data goes last
+                if (a.ownerKey === null || b.ownerKey === null) {
+                    return a.ownerKey === null ? 1 : -1;
+                }
+
+                return a.ownerKey.localeCompare(b.ownerKey);
+            });
+    }
+
+    private buildAccessCache(): AccessCache {
+        const permissionMappings = this.state.privilegesMappings.filter((mapping) => {
+            return mapping.category === 'permissions' && typeof mapping.key === 'string';
+        });
+
+        const entityOwners = new Map<string, string[]>();
+        permissionMappings.forEach((mapping) => {
+            const moduleKey = mapping.key as string;
+
+            Object.values(mapping.roles).forEach((role) => {
+                role.privileges.forEach((privilege) => {
+                    if (typeof privilege !== 'string') {
+                        return;
+                    }
+
+                    const [entity, operation] = privilege.split(':');
+                    if (operation !== 'create' && operation !== 'delete') {
+                        return;
+                    }
+
+                    const owners = entityOwners.get(entity) ?? [];
+                    if (!owners.includes(moduleKey)) {
+                        owners.push(moduleKey);
+                    }
+                    entityOwners.set(entity, owners);
+                });
+            });
+        });
+
+        const personalDataEntities = new Set<string>();
+        entityOwners.forEach((owners, entity) => {
+            const isPersonalData = owners.every((ownerKey) => {
+                const flag = permissionMappings.find((mapping) => mapping.key === ownerKey)?.containsPersonalData;
+
+                return flag === true || (Array.isArray(flag) && flag.includes(entity));
+            });
+
+            if (isPersonalData) {
+                personalDataEntities.add(entity);
+            }
+        });
+
+        const expandedKeys = new Map<string, string[]>();
+        this.state.privilegesMappings.forEach((mapping) => {
+            Object.keys(mapping.roles).forEach((role) => {
+                const adminPrivilegeKey = `${mapping.key}.${role}`;
+
+                expandedKeys.set(
+                    adminPrivilegeKey,
+                    this.getPrivilegesForAdminPrivilegeKeys([adminPrivilegeKey]).filter((privilege) => {
+                        return privilege.includes(':');
+                    }),
+                );
+            });
+        });
+
+        return { entityOwners, personalDataEntities, expandedKeys };
     }
 }

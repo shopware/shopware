@@ -5,6 +5,11 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
     category: 'permissions',
     parent: 'settings',
     key: 'users_and_permissions',
+    // acl_role and system_config are configuration, not personal data
+    containsPersonalData: [
+        'user',
+        'user_access_key',
+    ],
     roles: {
         viewer: {
             privileges: [

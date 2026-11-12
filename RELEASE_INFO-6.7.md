@@ -475,6 +475,28 @@ Invalid JSON, malformed messages or resource contents, and `{"success":false,"er
 
 ## Administration
 
+### Roles show the access they grant on other modules
+
+The role permission grid in *Settings > Users & permissions* now shows the access a module grants on data of other modules through its ACL dependencies.
+Each row gets a chip listing these areas, highlighted when the access includes changing data or reading personal data, rows note when their data is already reachable through other selected modules, and a banner warns when the selection grants access to personal data.
+The *Detailed privileges* tab names the General tab selections a disabled privilege comes from.
+All of this is computed from the registered privilege mappings, so the mappings of plugins and apps are included without changes.
+
+A module owns an entity when one of its roles grants `<entity>:create` or `<entity>:delete` directly.
+To mark the owned entities of your module as personal data, add the optional `containsPersonalData` flag to its privilege mapping:
+
+```js
+Shopware.Service('privileges').addPrivilegeMappingEntry({
+    category: 'permissions',
+    parent: 'customers',
+    key: 'swag_loyalty',
+    containsPersonalData: ['swag_loyalty_member'], // or `true` for every owned entity
+    roles: { /* ... */ },
+});
+```
+
+An entity counts as personal data only when every module owning it flags it.
+
 ### Deprecated the unused visibilities and sales channels in the sales channel detail
 
 Some sales channel detail components load the visibilities or sales channels of their products and currencies, although they only need one of them or none.

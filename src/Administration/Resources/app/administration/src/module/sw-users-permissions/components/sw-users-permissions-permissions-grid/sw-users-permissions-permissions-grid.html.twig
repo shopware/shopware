@@ -5,6 +5,37 @@
     :is-loading="isLoading"
     :title="$t('sw-users-permissions.roles.grid.title')"
 >
+    {% block sw_users_permissions_permissions_grid_personal_data_banner %}
+    <mt-banner
+        v-if="role && personalDataAreas.length > 0"
+        class="sw-users-permissions-permissions-grid__personal-data-banner"
+        variant="info"
+    >
+        <i18n-t
+            keypath="sw-users-permissions.roles.grid.personalDataBannerText"
+            tag="p"
+            class="sw-users-permissions-permissions-grid__personal-data-text"
+        >
+            <template #areas>
+                <template
+                    v-for="(area, index) in personalDataAreas"
+                    :key="area.key"
+                >
+                    <strong>{{ area.label }}</strong> ({{ area.privileges }}){{ index + 1 !== personalDataAreas.length ? ', ' : '' }}
+                </template>
+            </template>
+        </i18n-t>
+
+        <mt-link
+            as="a"
+            class="sw-users-permissions-permissions-grid__personal-data-link"
+            @click.prevent="onShowDetailedPrivileges"
+        >
+            {{ $t('sw-users-permissions.roles.grid.personalDataBannerLink') }}
+        </mt-link>
+    </mt-banner>
+    {% endblock %}
+
     <div
         v-if="role"
         class="sw-users-permissions-permissions-grid__grid"
@@ -105,6 +136,43 @@
                     {% block sw_users_permissions_permissions_grid_permissions_title_content %}
                     {{ $t('sw-privileges.permissions.' + permission.key + '.label') }}
                     {% endblock %}
+
+                    {% block sw_users_permissions_permissions_grid_permissions_hidden_access_chip %}
+                    <mt-button
+                        v-if="hiddenAccess(permission.key).length > 0"
+                        v-tooltip="$t('sw-users-permissions.roles.grid.hiddenAccessChipTooltip')"
+                        class="sw-users-permissions-permissions-grid__hidden-access-chip"
+                        :class="{ 'is--attention': hasHiddenAttention(permission.key) }"
+                        :aria-expanded="isHiddenAccessExpanded(permission.key) ? 'true' : 'false'"
+                        size="x-small"
+                        variant="secondary"
+                        @click="toggleHiddenAccess(permission.key)"
+                    >
+                        <template
+                            v-if="hasHiddenAttention(permission.key)"
+                            #iconFront
+                        >
+                            <mt-icon
+                                name="solid-exclamation-triangle"
+                                color="var(--color-icon-attention-default)"
+                                size="12px"
+                            />
+                        </template>
+                        {{ $t('sw-users-permissions.roles.grid.hiddenAccessChip', { count: hiddenAccess(permission.key).length }, hiddenAccess(permission.key).length) }}
+                    </mt-button>
+                    {% endblock %}
+
+                    {% block sw_users_permissions_permissions_grid_permissions_granted_via %}
+                    <mt-icon
+                        v-if="grantedViaNotes(permission.key).length > 0"
+                        v-tooltip="grantedViaTooltip(permission.key)"
+                        class="sw-users-permissions-permissions-grid__granted-via sw-users-permissions-permissions-grid__info-icon"
+                        name="regular-info-circle"
+                        size="16px"
+                        tabindex="0"
+                        :aria-label="grantedViaTooltip(permission.key)"
+                    />
+                    {% endblock %}
                 </div>
                 {% endblock %}
 
@@ -146,6 +214,56 @@
                     {% endblock %}
                 </div>
                 {% endblock %}
+
+                {% block sw_users_permissions_permissions_grid_permissions_hidden_access_details %}
+                <div
+                    v-if="isHiddenAccessExpanded(permission.key) && hiddenAccess(permission.key).length > 0"
+                    class="sw-users-permissions-permissions-grid__row-info sw-users-permissions-permissions-grid__hidden-access-details"
+                >
+                    {% block sw_users_permissions_permissions_grid_permissions_hidden_access_groups %}
+                    <span
+                        v-for="group in sortedHiddenAccess(permission.key)"
+                        :key="group.ownerKey ?? 'shared'"
+                        :class="{ 'is--attention': needsAttention(group) }"
+                        class="sw-users-permissions-permissions-grid__hidden-access-group"
+                    >
+                        <strong>{{ ownerLabel(group.ownerKey) }}</strong>
+
+                        <span
+                            v-if="group.containsPersonalData"
+                            class="sw-users-permissions-permissions-grid__attention-label"
+                        >
+                            <mt-icon
+                                name="solid-exclamation-triangle"
+                                size="12px"
+                            />
+                            {{ $t('sw-users-permissions.roles.grid.personalData') }}
+                        </span>
+
+                        <span
+                            v-else-if="group.containsWrite"
+                            class="sw-users-permissions-permissions-grid__attention-label"
+                        >
+                            <mt-icon
+                                name="solid-exclamation-triangle"
+                                size="12px"
+                            />
+                            {{ $t('sw-users-permissions.roles.grid.writeAccess') }}
+                        </span>
+
+                        <mt-icon
+                            v-tooltip="hiddenAccessTooltip(group)"
+                            class="sw-users-permissions-permissions-grid__info-icon"
+                            name="regular-info-circle"
+                            size="16px"
+                            tabindex="0"
+                            :aria-label="hiddenAccessTooltip(group)"
+                        />
+                    </span>
+                    {% endblock %}
+                </div>
+                {% endblock %}
+
             </div>
         </template>
         {% endblock %}

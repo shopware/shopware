@@ -54,7 +54,7 @@
                 <mt-checkbox
                     v-tooltip="{
                         message: isEntityDisabled(entity, permissionType) && !disabled
-                            ? $t('sw-users-permissions.roles.detailed-grid.coveredByGeneralMessage')
+                            ? coveredByGeneralTooltip(entity, permissionType)
                             : `${entity}:${permissionType}`,
                         showOnDisabledElements: true
                     }"

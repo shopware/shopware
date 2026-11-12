@@ -25,7 +25,7 @@
 import type { Identifier, JSXIdentifier, Node as BabelNode, Statement } from '@babel/types';
 import { forEachPatternIdentifier } from '../utils/babel-patterns';
 import { childBabelEntries, childBabelNodes, isFunctionLikeNode, isTypeKey } from '../utils/ast-traversal';
-import { isValueReadPosition } from './identifier-position';
+import { isShorthandPropertyValue, isValueReadPosition } from './identifier-position';
 
 /**
  * Returns the leftmost identifier of a type **entity name** (`A` in `A`, `A.B`, or `A.B.C`).
@@ -111,13 +111,6 @@ function collectBlockScopedDeclarations(statements: Statement[], into: Set<strin
 }
 
 /**
- * One identifier a rename pass must rewrite, together with the exact text to put in its place.
- *
- * For most occurrences `replacement` is just the alias, but a shorthand object property (`{ foo }`)
- * must expand to `{ foo: alias }` - renaming the single shared identifier in place would silently
- * rewrite the property *key* as well, so the collector emits the expanded replacement here.
- */
-/**
  * How much of the surrounding syntax an occurrence's replacement text has to reproduce.
  *
  * A plain occurrence can be swapped for the alias, but two forms share one source range with a name
@@ -132,20 +125,6 @@ type SetupRenameTarget = {
     localName: string;
     expansion: SetupRenameExpansion;
 };
-
-/**
- * Whether an identifier is the value of a shorthand object property without a default (`{ foo }`).
- *
- * The property key and value share one source range, so a plain rename would rewrite the key too; the
- * replacement must expand the shorthand to `key: alias`.
- *
- * The defaulted form (`{ foo = 1 }`) shares that range too, but Babel nests the identifier as an
- * `AssignmentPattern`'s `left`, so the leaf cannot recognise it from its parent alone. It is handled
- * by the dedicated branch in `collectSetupRenameTargets`, which reports the same expansion.
- */
-function isShorthandPropertyValue(node: Identifier, parent: BabelNode | null): boolean {
-    return parent?.type === 'ObjectProperty' && parent.shorthand === true && parent.value === node;
-}
 
 /**
  * Whether an identifier is the local side of a shorthand type export (`export type { C }`).

@@ -183,9 +183,12 @@ class ThemeRuntimeConfigServiceTest extends TestCase
             ->willReturn($technicalName);
 
         $storage
+            ->expects($this->once())
             ->method('getOwnThemeTechnicalName')
             ->with($themeId)
             ->willReturn($technicalName);
+
+        $this->mergedConfigBuilder->method('getPlainThemeConfigurations')->willReturn([$themeId => []]);
 
         $scriptFilesCollection = new FileCollection([
             new File('foo/file1.js', [], 'foo'),
@@ -235,13 +238,13 @@ class ThemeRuntimeConfigServiceTest extends TestCase
             ->willReturn(new StorefrontPluginConfigurationCollection([$themeConfig]));
 
         $storage = $this->createMock(ThemeRuntimeConfigStorage::class);
-        $storage->method('getById')->with($copyId)->willReturn(null);
+        $storage->expects($this->exactly(2))->method('getById')->with($copyId)->willReturn(null);
         // getThemeTechnicalName() inherits the parent's name; getOwnThemeTechnicalName() is NULL for the copy.
-        $storage->method('getThemeTechnicalName')->with($copyId)->willReturn($parentTechnicalName);
-        $storage->method('getOwnThemeTechnicalName')->with($copyId)->willReturn(null);
-        $storage->method('getCopiesIds')->with($copyId)->willReturn([]);
+        $storage->expects($this->once())->method('getThemeTechnicalName')->with($copyId)->willReturn($parentTechnicalName);
+        $storage->expects($this->once())->method('getOwnThemeTechnicalName')->with($copyId)->willReturn(null);
+        $storage->expects($this->once())->method('getCopiesIds')->with($copyId)->willReturn([]);
 
-        $this->mergedConfigBuilder->method('getPlainThemeConfiguration')->willReturn(['key' => 'value']);
+        $this->mergedConfigBuilder->method('getPlainThemeConfigurations')->willReturn([$copyId => ['key' => 'value']]);
         $this->themeFileResolver->method('resolveScriptFiles')->willReturn(new FileCollection());
 
         $saved = null;
@@ -287,9 +290,9 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         $mergedConfigBuilder = $this->createMock(ThemeMergedConfigBuilder::class);
         $mergedConfigBuilder
             ->expects($this->once())
-            ->method('getPlainThemeConfiguration')
-            ->with($themeId, $context)
-            ->willReturn(['key' => 'value']);
+            ->method('getPlainThemeConfigurations')
+            ->with([$themeId], $context)
+            ->willReturn([$themeId => ['key' => 'value']]);
 
         $scriptFilesCollection = new FileCollection([
             new File('foo/file1.js', [], 'foo'),
@@ -306,7 +309,7 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         $storage = $this->createMock(ThemeRuntimeConfigStorage::class);
         // No existing config stored — getById called to check for preserved importMap.
         $storage->method('getById')->willReturn(null);
-        $storage->method('getOwnThemeTechnicalName')->with($themeId)->willReturn($technicalName);
+        $storage->expects($this->once())->method('getOwnThemeTechnicalName')->with($themeId)->willReturn($technicalName);
 
         $storage
             ->expects($this->once())
@@ -334,6 +337,52 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         static::assertNull($result->importMap);
     }
 
+    public function testRefreshRuntimeConfigBuildsTheConfigsOfTheThemeAndItsCopiesTogether(): void
+    {
+        $themeId = '1234567890abcdef1234567890abcdef';
+        $copyIds = ['abcdef1234567890abcdef1234567890', 'fedcba0987654321fedcba0987654321'];
+        $context = Context::createDefaultContext();
+
+        $themeConfig = new StorefrontPluginConfiguration('test-theme');
+
+        // One theme load for the theme and all copies, instead of one per copy
+        $mergedConfigBuilder = $this->createMock(ThemeMergedConfigBuilder::class);
+        $mergedConfigBuilder->expects($this->never())->method('getPlainThemeConfiguration');
+        $mergedConfigBuilder
+            ->expects($this->once())
+            ->method('getPlainThemeConfigurations')
+            ->with([$themeId, ...$copyIds], $context)
+            ->willReturn([
+                $themeId => ['color' => 'theme'],
+                $copyIds[0] => ['color' => 'first copy'],
+                $copyIds[1] => ['color' => 'second copy'],
+            ]);
+
+        $this->themeFileResolver->method('resolveScriptFiles')->willReturn(new FileCollection());
+
+        $storage = $this->createMock(ThemeRuntimeConfigStorage::class);
+        $storage->method('getCopiesIds')->willReturn($copyIds);
+
+        $saved = [];
+        $storage
+            ->expects($this->exactly(3))
+            ->method('save')
+            ->willReturnCallback(static function (ThemeRuntimeConfig $config) use (&$saved): void {
+                $saved[$config->themeId] = $config->resolvedConfig;
+            });
+
+        $this->createService(
+            mergedConfigBuilder: $mergedConfigBuilder,
+            storage: $storage,
+        )->refreshRuntimeConfig($themeId, $themeConfig, $context);
+
+        static::assertSame([
+            $themeId => ['color' => 'theme'],
+            $copyIds[0] => ['color' => 'first copy'],
+            $copyIds[1] => ['color' => 'second copy'],
+        ], $saved);
+    }
+
     public function testRefreshRuntimeConfigStoresComponentImportMapWhenProvided(): void
     {
         $themeId = '1234567890abcdef1234567890abcdef';
@@ -350,7 +399,7 @@ class ThemeRuntimeConfigServiceTest extends TestCase
             ],
         ];
 
-        $this->mergedConfigBuilder->method('getPlainThemeConfiguration')->willReturn([]);
+        $this->mergedConfigBuilder->method('getPlainThemeConfigurations')->willReturn([$themeId => []]);
 
         $this->themeFileResolver->method('resolveScriptFiles')
             ->willReturn(new FileCollection());
@@ -395,7 +444,7 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         // Set importMap via `with()` since createThemeRuntimeConfig doesn't expose it as param.
         $existingConfig = $existingConfig->with(['importMap' => $existingImportMap]);
 
-        $this->mergedConfigBuilder->method('getPlainThemeConfiguration')->willReturn([]);
+        $this->mergedConfigBuilder->method('getPlainThemeConfigurations')->willReturn([$themeId => []]);
         $this->themeFileResolver->method('resolveScriptFiles')->willReturn(new FileCollection());
 
         $storage = $this->createMock(ThemeRuntimeConfigStorage::class);
@@ -438,9 +487,9 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         $mergedConfigBuilder = $this->createMock(ThemeMergedConfigBuilder::class);
         $mergedConfigBuilder
             ->expects($this->once())
-            ->method('getPlainThemeConfiguration')
-            ->with($themeId, $context)
-            ->willReturn(['key' => 'value']);
+            ->method('getPlainThemeConfigurations')
+            ->with([$themeId], $context)
+            ->willReturn([$themeId => ['key' => 'value']]);
 
         $themeFileResolver = $this->createMock(ThemeFileResolver::class);
         $themeFileResolver

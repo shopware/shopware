@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
 use Shopware\Core\Framework\Mcp\McpException;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
-use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
@@ -70,7 +69,7 @@ class StoreApiMcpServerControllerTest extends TestCase
 
         $this->rateLimiter->expects($this->atLeastOnce())->method('ensureAccepted');
 
-        $psrRequest = new ServerRequest('POST', '/store-api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $psrRequest = new ServerRequest('POST', 'http://localhost/store-api/_mcp', ['Content-Type' => 'application/json'], $body);
         $controller = $this->buildController($psrRequest, new HttpFoundationFactory());
 
         $sfRequest = Request::create('/store-api/_mcp', 'POST', content: $body);
@@ -96,7 +95,7 @@ class StoreApiMcpServerControllerTest extends TestCase
             });
 
         $controller = $this->buildController(
-            new ServerRequest('GET', '/store-api/_mcp'),
+            new ServerRequest('GET', 'http://localhost/store-api/_mcp'),
             static::createStub(HttpFoundationFactoryInterface::class),
         );
 
@@ -121,7 +120,7 @@ class StoreApiMcpServerControllerTest extends TestCase
             ->method('ensureAccepted')
             ->willThrowException($rateLimitException);
 
-        $controller = $this->buildController(new ServerRequest('GET', '/store-api/_mcp'));
+        $controller = $this->buildController(new ServerRequest('GET', 'http://localhost/store-api/_mcp'));
 
         $this->expectExceptionObject(McpException::throttled(60, $rateLimitException));
 
@@ -134,7 +133,7 @@ class StoreApiMcpServerControllerTest extends TestCase
             ->expects($this->never())
             ->method('ensureAccepted');
 
-        $controller = $this->buildController(new ServerRequest('POST', '/store-api/_mcp'));
+        $controller = $this->buildController(new ServerRequest('POST', 'http://localhost/store-api/_mcp'));
 
         $request = Request::create('/store-api/_mcp', 'POST');
         $request->headers->set(PlatformRequest::HEADER_MCP_SESSION_ID, 'not-a-uuid');
@@ -144,7 +143,7 @@ class StoreApiMcpServerControllerTest extends TestCase
         $controller->handle($request);
     }
 
-    public function testInitializeRegistersMcpSession(): void
+    public function testInitializeReturnsASessionWithoutSyncingListVersions(): void
     {
         $body = json_encode([
             'jsonrpc' => '2.0',
@@ -159,16 +158,15 @@ class StoreApiMcpServerControllerTest extends TestCase
 
         $this->rateLimiter->expects($this->atLeastOnce())->method('ensureAccepted');
 
-        $sessionRegistry = $this->createMock(McpSessionRegistry::class);
-        $sessionRegistry->expects($this->once())
-            ->method('register')
-            ->with(static::callback(static fn (string $sessionId): bool => $sessionId !== ''));
+        // App capabilities only reach the Admin API server, so store-api sessions never sync list versions.
+        $notifier = $this->createMock(McpListChangedNotifier::class);
+        $notifier->expects($this->never())->method('syncSession');
 
-        $psrRequest = new ServerRequest('POST', '/store-api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $psrRequest = new ServerRequest('POST', 'http://localhost/store-api/_mcp', ['Content-Type' => 'application/json'], $body);
         $controller = $this->buildController(
             $psrRequest,
             new HttpFoundationFactory(),
-            sessionRegistry: $sessionRegistry,
+            listChangedNotifier: $notifier,
         );
 
         $sfRequest = Request::create('/store-api/_mcp', 'POST', content: $body);
@@ -177,30 +175,6 @@ class StoreApiMcpServerControllerTest extends TestCase
         $response = $controller->handle($sfRequest);
 
         static::assertNotSame('', (string) $response->headers->get(PlatformRequest::HEADER_MCP_SESSION_ID));
-    }
-
-    public function testDoesNotRegisterSessionWhenResponseHasNoSessionHeader(): void
-    {
-        $this->rateLimiter->expects($this->atLeastOnce())->method('ensureAccepted');
-
-        $sessionRegistry = $this->createMock(McpSessionRegistry::class);
-        $sessionRegistry->expects($this->never())->method('register');
-
-        $httpFoundationFactory = static::createStub(HttpFoundationFactoryInterface::class);
-        $httpFoundationFactory->method('createResponse')->willReturn(new Response('', 405));
-
-        $controller = $this->buildController(
-            new ServerRequest('GET', '/store-api/_mcp'),
-            $httpFoundationFactory,
-            sessionRegistry: $sessionRegistry,
-        );
-
-        $sfRequest = Request::create('/store-api/_mcp', 'GET');
-        $sfRequest->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createSalesChannelContext());
-
-        $response = $controller->handle($sfRequest);
-
-        static::assertSame(405, $response->getStatusCode());
     }
 
     public function testHandleReturnsNotFoundWhenServerIsNull(): void
@@ -214,7 +188,7 @@ class StoreApiMcpServerControllerTest extends TestCase
                 $this->psr17,
                 $this->psr17,
                 static::createStub(HttpFoundationFactoryInterface::class),
-                static::createStub(McpAllowedHostsProvider::class),
+                static::createConfiguredStub(McpAllowedHostsProvider::class, ['getAllowedHosts' => ['localhost']]),
             ),
             new McpRateLimiter($this->rateLimiter),
             new McpSessionIdValidator(),
@@ -233,7 +207,7 @@ class StoreApiMcpServerControllerTest extends TestCase
             null,
             null,
             null,
-            static::createStub(McpAllowedHostsProvider::class),
+            static::createConfiguredStub(McpAllowedHostsProvider::class, ['getAllowedHosts' => ['localhost']]),
         );
 
         $controller = new StoreApiMcpServerController(
@@ -261,7 +235,7 @@ class StoreApiMcpServerControllerTest extends TestCase
             );
 
         $controller = $this->buildController(
-            new ServerRequest('POST', '/store-api/_mcp'),
+            new ServerRequest('POST', 'http://localhost/store-api/_mcp'),
             new HttpFoundationFactory(),
             listChangedNotifier: $notifier,
         );
@@ -282,7 +256,7 @@ class StoreApiMcpServerControllerTest extends TestCase
         $notifier->expects($this->never())->method('notifySession');
 
         $controller = $this->buildController(
-            new ServerRequest('POST', '/store-api/_mcp'),
+            new ServerRequest('POST', 'http://localhost/store-api/_mcp'),
             new HttpFoundationFactory(),
             listChangedNotifier: $notifier,
         );
@@ -302,7 +276,7 @@ class StoreApiMcpServerControllerTest extends TestCase
         $notifier->expects($this->never())->method('notifySession');
 
         $controller = $this->buildController(
-            new ServerRequest('POST', '/store-api/_mcp'),
+            new ServerRequest('POST', 'http://localhost/store-api/_mcp'),
             new HttpFoundationFactory(),
             listChangedNotifier: $notifier,
         );
@@ -318,7 +292,6 @@ class StoreApiMcpServerControllerTest extends TestCase
         ServerRequest $psrRequest,
         ?HttpFoundationFactoryInterface $httpFoundationFactory = null,
         ?Server $server = null,
-        ?McpSessionRegistry $sessionRegistry = null,
         ?McpListChangedNotifier $listChangedNotifier = null,
     ): StoreApiMcpServerController {
         $httpMessageFactory = static::createStub(HttpMessageFactoryInterface::class);
@@ -329,7 +302,7 @@ class StoreApiMcpServerControllerTest extends TestCase
             $this->psr17,
             $this->psr17,
             $httpFoundationFactory ?? static::createStub(HttpFoundationFactoryInterface::class),
-            static::createStub(McpAllowedHostsProvider::class),
+            static::createConfiguredStub(McpAllowedHostsProvider::class, ['getAllowedHosts' => ['localhost']]),
         );
 
         return new StoreApiMcpServerController(
@@ -337,7 +310,6 @@ class StoreApiMcpServerControllerTest extends TestCase
             $transportFactory,
             new McpRateLimiter($this->rateLimiter),
             new McpSessionIdValidator(),
-            sessionRegistry: $sessionRegistry,
             listChangedNotifier: $listChangedNotifier,
         );
     }

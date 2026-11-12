@@ -8,9 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Extension\PdfRendererExtension;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
-use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
+use Shopware\Core\Checkout\DocumentV2\Struct\RenderedDocument;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
@@ -92,7 +92,7 @@ class PdfRendererTest extends TestCase
         );
 
         $generatorOutput = $pdfRenderer->render($rendered);
-        static::assertNotEmpty($generatorOutput);
+        static::assertNotSame('', $generatorOutput);
 
         static::assertSame($rendered->getFileExtension(), PdfRenderer::FILE_EXTENSION);
         static::assertSame($rendered->getContentType(), PdfRenderer::FILE_CONTENT_TYPE);
@@ -153,7 +153,7 @@ class PdfRendererTest extends TestCase
         );
 
         $generatorOutput = $pdfRenderer->render($rendered);
-        static::assertNotEmpty($generatorOutput);
+        static::assertNotSame('', $generatorOutput);
 
         $text = (new Parser())->parseContent($generatorOutput)->getText();
 

@@ -108,7 +108,7 @@ class ProductSerializerTest extends TestCase
 
         $serialized = iterator_to_array($serializer->serialize(new Config([], [], []), $productDefinition, $product));
 
-        static::assertNotEmpty($serialized);
+        static::assertNotCount(0, $serialized);
 
         static::assertSame($product->getId(), $serialized['id']);
         static::assertSame($product->getTranslations()?->first()?->getName(), $serialized['translations']['DEFAULT']['name']);

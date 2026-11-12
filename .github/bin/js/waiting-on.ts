@@ -1,8 +1,20 @@
 /**
  * Decide who an open pull request is waiting for: its author, us, or nobody.
  *
- * This module only reports. It writes no labels and posts no comments — the point is to
- * agree on the rule before anything acts on it.
+ * The verdict is written back as one `waiting-on/*` label per pull request, so it can be
+ * filtered on in the GitHub UI. Nothing else is written: no comments, no closing.
+ *
+ * ## External pull requests only
+ *
+ * Only pull requests carrying `external-contribution` get a verdict, which
+ * `external-contributor-label.yml` sets when someone without write access opens one. A
+ * colleague's pull request has a team behind it that knows whose turn it is, and the label
+ * on it read as a reproach rather than help. Every other pull request loses its label, its
+ * item on the main project is archived, and it is left out of the report.
+ *
+ * The label lands seconds after the pull request opens, so the update for `opened` can run
+ * without it. The milestone label and the first bot comments follow within minutes and each
+ * starts another update, which then sees it.
  *
  * ## Why not `updated_at`
  *
@@ -43,15 +55,20 @@
  *   0. draft, converted by someone other than the author  -> author    (parked-by-us)
  *   1. draft                                              -> nobody    (wip-draft)
  *   2. carries `lifecycle/DoNotClose`                     -> nobody    (parked-by-label)
+ *   H. a person set a different `waiting-on/*` label, and
+ *      nobody has done anything since                     -> that one  (set-by-hand)
  *   3. review decision CHANGES_REQUESTED
  *        no author activity since that review             -> author    (changes-requested)
- *        author has answered it                           -> shopware  (re-review-pending)
+ *        author answered, a maintainer wrote after that   -> author    (author-turn)
+ *        author answered and has the last word            -> shopware  (re-review-pending)
  *   4. review decision APPROVED
  *        head conflicts with the base branch              -> author    (needs-rebase)
+ *        an unresolved thread where we wrote last         -> author    (open-question)
+ *        an unresolved thread where the author wrote last -> shopware  (open-thread-answered)
  *        mergeability not computed yet                    -> shopware  (mergeability-unknown)
  *        otherwise                                        -> shopware  (just-merge-it)
  *   5. at least one approval, decision still open         -> shopware  (second-review-missing)
- *   6. no review at all, ever                             -> shopware  (never-reviewed)
+ *   6. no review and no maintainer comment, ever          -> shopware  (never-reviewed)
  *   7. a maintainer acted after the author last did       -> author    (author-turn)
  *   8. otherwise                                          -> shopware  (our-turn)
  *
@@ -60,12 +77,33 @@
  * answered on 28 May, so the decision still reads CHANGES_REQUESTED while the ball is
  * ours; on #17314 the author last touched it in June and a maintainer asked for changes
  * on 1 September. Same field value, opposite answers — only the timestamp of the last
- * still-blocking review separates them.
+ * still-blocking review separates them. The answer is not final either: the decision stays
+ * CHANGES_REQUESTED for the whole conversation that follows, so once the author has replied
+ * the last word decides, as in step 7. On #20934 the author answered on 29 September and the
+ * thread went back and forth for two weeks; on 14 October a maintainer asked for one more
+ * change, and reading only the first reply had kept the ball on our side the whole time.
  *
  * Step 5 exists because `reviewDecision` is not an approval count. `trunk` requires two
  * approvals, so one approval reads as REVIEW_REQUIRED, indistinguishable from a pull
  * request nobody has opened. That is the state #9265 (approved 12 May 2025) and #19124
  * have been sitting in, and it is invisible in the GitHub UI's own filters.
+ *
+ * Step 6 needs silence on our side, not just the absence of a review. Feedback written as
+ * plain comments is no review in GitHub's terms: on #21029 two maintainers commented and
+ * nobody submitted a review, so `never-reviewed` kept it with us while the author owed the
+ * answer. Once we have said anything, steps 7 and 8 read the last word instead.
+ *
+ * The thread cases in step 4 exist because `trunk` requires every conversation to be
+ * resolved: an approval with a question still open does not merge. On #20750 two reviewers
+ * asked something inline, approved anyway, and the author never answered, so `just-merge-it`
+ * sent us to a merge button GitHub would not let us press. A thread only bots wrote in is
+ * not a question anyone has to answer and is left out.
+ *
+ * Step H lets a person overrule the rule without the next run undoing it, and without the
+ * label going stale either: the first comment, review or push after it hands the decision
+ * back to the rule. It only counts while the label is still on the pull request and only
+ * when it disagrees with the rule; agreeing with it would just hide the real reason. The
+ * job summary lists every override, since each one is a case the rule got wrong.
  *
  * Unknowns resolve towards us, never towards the contributor: a pull request we cannot
  * classify lands in `shopware` so the worst case is that we look at it again.
@@ -93,15 +131,21 @@
  * CONTRIBUTOR, which is fine for a report and not good enough to route a reminder on.
  */
 
+import { applyProjectChanges, fetchProject, parseTeamProjects, planProjectChanges, summarizeProjectChanges } from './waiting-on-project.ts';
+import { EXTERNAL_LABEL, parseChannels, planReminders, postSlackMessage, renderReminder, type Slack } from './waiting-on-slack.ts';
+
 export type WaitingOn = 'author' | 'shopware' | 'nobody';
 
 export type WaitingOnReason =
     | 'parked-by-us'
     | 'wip-draft'
     | 'parked-by-label'
+    | 'set-by-hand'
     | 'changes-requested'
     | 're-review-pending'
     | 'needs-rebase'
+    | 'open-question'
+    | 'open-thread-answered'
     | 'mergeability-unknown'
     | 'just-merge-it'
     | 'second-review-missing'
@@ -109,7 +153,8 @@ export type WaitingOnReason =
     | 'author-turn'
     | 'our-turn';
 
-/** What stage 3 would set. Defined here so the report shows the label it would apply; nothing writes it yet. */
+export const WAITING_ON_LABEL_PREFIX = 'waiting-on/';
+
 export const WAITING_ON_LABEL: Record<WaitingOn, string> = {
     author: 'waiting-on/author',
     shopware: 'waiting-on/shopware',
@@ -155,7 +200,15 @@ export type Activity = {
     readyForReviewAt?: string;
 };
 
-export type PullRequestFacts = Activity & {
+/** The newest last word in the unresolved review threads, split by who wrote it. */
+export type OpenThreads = {
+    lastOpenQuestionAt?: string;
+    lastOpenAnswerAt?: string;
+};
+
+export type PullRequestFacts = Activity & OpenThreads & {
+    /** The newest `waiting-on/*` label a person set, if it is still on the pull request. */
+    setByHand?: { waitingOn: WaitingOn; actor: string; at: string };
     createdAt: string;
     isDraft: boolean;
     isParked: boolean;
@@ -171,6 +224,8 @@ export type WaitingOnVerdict = {
     message: string;
     /** When the direction last flipped; a lower bound where the flip is not observable. */
     since: string;
+    /** Who overruled the rule, for `set-by-hand`. */
+    setBy?: string;
 };
 
 function latest(...timestamps: (string | undefined)[]): string | undefined {
@@ -178,6 +233,28 @@ function latest(...timestamps: (string | undefined)[]): string | undefined {
 }
 
 export function classifyPullRequest(facts: PullRequestFacts): WaitingOnVerdict {
+    const verdict = classifyByRule(facts);
+    const { setByHand } = facts;
+
+    if (
+        setByHand === undefined ||
+        setByHand.waitingOn === verdict.waitingOn ||
+        verdict.reason === 'parked-by-label' ||
+        (latest(facts.lastAuthorActivityAt, facts.lastMaintainerActivityAt) ?? '') > setByHand.at
+    ) {
+        return verdict;
+    }
+
+    return {
+        waitingOn: setByHand.waitingOn,
+        reason: 'set-by-hand',
+        message: `${setByHand.actor} set \`${WAITING_ON_LABEL[setByHand.waitingOn]}\` by hand, and nothing has happened since`,
+        since: setByHand.at,
+        setBy: setByHand.actor,
+    };
+}
+
+function classifyByRule(facts: PullRequestFacts): WaitingOnVerdict {
     const { createdAt, lastAuthorActivityAt, lastMaintainerActivityAt } = facts;
 
     if (facts.isDraft && facts.draftedByMaintainerAt) {
@@ -211,6 +288,15 @@ export function classifyPullRequest(facts: PullRequestFacts): WaitingOnVerdict {
         const blockedAt = facts.lastChangesRequestedAt;
 
         if (blockedAt && lastAuthorActivityAt && lastAuthorActivityAt > blockedAt) {
+            if (lastMaintainerActivityAt && lastMaintainerActivityAt > lastAuthorActivityAt) {
+                return {
+                    waitingOn: 'author',
+                    reason: 'author-turn',
+                    message: 'the author answered the requested changes and a maintainer wrote last',
+                    since: lastMaintainerActivityAt,
+                };
+            }
+
             return {
                 waitingOn: 'shopware',
                 reason: 're-review-pending',
@@ -234,6 +320,24 @@ export function classifyPullRequest(facts: PullRequestFacts): WaitingOnVerdict {
                 reason: 'needs-rebase',
                 message: 'is approved but conflicts with its base branch',
                 since: lastMaintainerActivityAt ?? createdAt,
+            };
+        }
+
+        if (facts.lastOpenQuestionAt) {
+            return {
+                waitingOn: 'author',
+                reason: 'open-question',
+                message: 'is approved, but a review thread still waits for the author to answer',
+                since: facts.lastOpenQuestionAt,
+            };
+        }
+
+        if (facts.lastOpenAnswerAt) {
+            return {
+                waitingOn: 'shopware',
+                reason: 'open-thread-answered',
+                message: 'is approved, and the author answered a review thread nobody has resolved',
+                since: facts.lastOpenAnswerAt,
             };
         }
 
@@ -263,7 +367,7 @@ export function classifyPullRequest(facts: PullRequestFacts): WaitingOnVerdict {
         };
     }
 
-    if (facts.reviewCount === 0) {
+    if (facts.reviewCount === 0 && !lastMaintainerActivityAt) {
         return {
             waitingOn: 'shopware',
             reason: 'never-reviewed',
@@ -364,37 +468,44 @@ export function summarizeActivity(events: TimelineEvent[], latestOpinionatedRevi
     return activity;
 }
 
+/** What the verdict is computed from; the sweep and the per-event update read the same. */
+export const PULL_REQUEST_FIELDS = `
+    id
+    number
+    title
+    url
+    createdAt
+    isDraft
+    authorAssociation
+    reviewDecision
+    mergeable
+    author { login __typename }
+    labels(first: 50) { nodes { name } }
+    approvals: reviews(states: APPROVED) { totalCount }
+    allReviews: reviews(first: 1) { totalCount }
+    latestOpinionatedReviews(first: 20) { nodes { state submittedAt } }
+    reviewThreads(last: 50) { nodes { isResolved comments(last: 3) { nodes { createdAt author { login __typename } } } } }
+    labelEvents: timelineItems(last: 20, itemTypes: [LABELED_EVENT]) {
+        nodes { ... on LabeledEvent { createdAt actor { login __typename } label { name } } }
+    }
+    timelineItems(last: 40, itemTypes: [ISSUE_COMMENT, PULL_REQUEST_REVIEW, PULL_REQUEST_COMMIT, READY_FOR_REVIEW_EVENT, CONVERT_TO_DRAFT_EVENT]) {
+        nodes {
+            __typename
+            ... on IssueComment { createdAt author { login __typename } }
+            ... on PullRequestReview { submittedAt author { login __typename } }
+            ... on PullRequestCommit { commit { committedDate author { user { login } } } }
+            ... on ReadyForReviewEvent { createdAt actor { login __typename } }
+            ... on ConvertToDraftEvent { createdAt actor { login __typename } }
+        }
+    }
+`;
+
 const OPEN_PULL_REQUESTS_QUERY = `
     query($owner: String!, $repo: String!, $after: String) {
         repository(owner: $owner, name: $repo) {
             pullRequests(states: OPEN, first: 15, after: $after) {
                 pageInfo { hasNextPage endCursor }
-                nodes {
-                    number
-                    title
-                    url
-                    createdAt
-                    isDraft
-                    authorAssociation
-                    reviewDecision
-                    mergeable
-                    author { login __typename }
-                    labels(first: 50) { nodes { name } }
-                    approvals: reviews(states: APPROVED) { totalCount }
-                    allReviews: reviews(first: 1) { totalCount }
-                    latestOpinionatedReviews(first: 20) { nodes { state submittedAt } }
-                    reviewThreads(last: 50) { nodes { comments(last: 3) { nodes { createdAt author { login __typename } } } } }
-                    timelineItems(last: 40, itemTypes: [ISSUE_COMMENT, PULL_REQUEST_REVIEW, PULL_REQUEST_COMMIT, READY_FOR_REVIEW_EVENT, CONVERT_TO_DRAFT_EVENT]) {
-                        nodes {
-                            __typename
-                            ... on IssueComment { createdAt author { login __typename } }
-                            ... on PullRequestReview { submittedAt author { login __typename } }
-                            ... on PullRequestCommit { commit { committedDate author { user { login } } } }
-                            ... on ReadyForReviewEvent { createdAt actor { login __typename } }
-                            ... on ConvertToDraftEvent { createdAt actor { login __typename } }
-                        }
-                    }
-                }
+                nodes { ${PULL_REQUEST_FIELDS} }
             }
         }
     }
@@ -418,10 +529,12 @@ type TimelineNode = {
 };
 
 type ReviewThreadNode = {
+    isResolved: boolean;
     comments: { nodes: { createdAt: string; author?: { login: string; __typename: string } | null }[] };
 };
 
-type PullRequestNode = {
+export type PullRequestNode = {
+    id: string;
     number: number;
     title: string;
     url: string;
@@ -437,7 +550,33 @@ type PullRequestNode = {
     latestOpinionatedReviews: { nodes: OpinionatedReview[] };
     reviewThreads: { nodes: ReviewThreadNode[] };
     timelineItems: { nodes: TimelineNode[] };
+    labelEvents: { nodes: LabeledEventNode[] };
 };
+
+type LabeledEventNode = {
+    createdAt: string;
+    actor?: { login: string; __typename: string } | null;
+    label: { name: string };
+};
+
+const LABEL_TO_WAITING_ON = new Map((Object.entries(WAITING_ON_LABEL) as [WaitingOn, string][]).map(([waitingOn, label]) => [label, waitingOn]));
+
+/**
+ * Our own label writes come from GITHUB_TOKEN as a Bot, so only a person shows up here. A
+ * label they set that is no longer on the pull request was removed since and does not count.
+ */
+export function findSetByHand(events: LabeledEventNode[], currentLabels: string[]): PullRequestFacts['setByHand'] {
+    const newest = events
+        .filter((event) => LABEL_TO_WAITING_ON.has(event.label.name) && event.actor && event.actor.__typename !== 'Bot' && !isNonHumanLogin(event.actor.login))
+        .sort((left, right) => left.createdAt.localeCompare(right.createdAt))
+        .at(-1);
+
+    if (newest === undefined || !currentLabels.includes(newest.label.name)) {
+        return undefined;
+    }
+
+    return { waitingOn: LABEL_TO_WAITING_ON.get(newest.label.name)!, actor: newest.actor!.login, at: newest.createdAt };
+}
 
 const TIMELINE_KINDS: Record<string, TimelineEvent['kind']> = {
     IssueComment: 'comment',
@@ -486,14 +625,36 @@ export function toReviewThreadEvents(nodes: ReviewThreadNode[]): TimelineEvent[]
     );
 }
 
+/** Who wrote last in each unresolved thread, people only; see the rule for why it matters. */
+export function summarizeOpenThreads(nodes: ReviewThreadNode[], authorLogin?: string): OpenThreads {
+    const open: OpenThreads = {};
+
+    for (const thread of nodes.filter((candidate) => !candidate.isResolved)) {
+        const last = toReviewThreadEvents([thread]).filter(isHuman).sort((left, right) => left.at.localeCompare(right.at)).at(-1);
+        if (last === undefined) {
+            continue;
+        }
+
+        if (last.actor === authorLogin) {
+            open.lastOpenAnswerAt = latest(open.lastOpenAnswerAt, last.at);
+        } else {
+            open.lastOpenQuestionAt = latest(open.lastOpenQuestionAt, last.at);
+        }
+    }
+
+    return open;
+}
+
 export function factsOf(node: PullRequestNode): PullRequestFacts {
     const events = [...toTimelineEvents(node.timelineItems.nodes), ...toReviewThreadEvents(node.reviewThreads.nodes)];
 
     return {
         ...summarizeActivity(events, node.latestOpinionatedReviews.nodes, node.author?.login),
+        ...summarizeOpenThreads(node.reviewThreads.nodes, node.author?.login),
         createdAt: node.createdAt,
         isDraft: node.isDraft,
         isParked: node.labels.nodes.some((label) => label.name === PARKED_LABEL),
+        setByHand: findSetByHand(node.labelEvents.nodes, node.labels.nodes.map((label) => label.name)),
         reviewDecision: node.reviewDecision,
         mergeable: node.mergeable,
         approvals: node.approvals.totalCount,
@@ -501,13 +662,23 @@ export function factsOf(node: PullRequestNode): PullRequestFacts {
     };
 }
 
-type GraphqlClient = {
+export type GraphqlClient = {
     graphql<T>(query: string, variables: Record<string, unknown>): Promise<T>;
 };
 
-type Core = {
+export type IssuesClient = {
+    rest: {
+        issues: {
+            addLabels(options: { owner: string; repo: string; issue_number: number; labels: string[] }): Promise<unknown>;
+            removeLabel(options: { owner: string; repo: string; issue_number: number; name: string }): Promise<unknown>;
+        };
+    };
+};
+
+export type Core = {
     info(message: string): void;
     warning(message: string): void;
+    error(message: string): void;
     setOutput(name: string, value: string): void;
     summary: {
         addRaw(text: string, addEOL?: boolean): unknown;
@@ -515,7 +686,7 @@ type Core = {
     };
 };
 
-type Context = {
+export type Context = {
     repo: { owner: string; repo: string };
 };
 
@@ -565,16 +736,20 @@ export async function resolveMergeability(github: GraphqlClient, core: Core, rep
 }
 
 export type Row = {
+    /** The GraphQL node id, which the project sync adds items by. */
+    id: string;
     number: number;
     title: string;
     url: string;
     author: string;
     authorAssociation: string;
+    labels: string[];
     waitingOn: WaitingOn;
     reason: WaitingOnReason;
     label: string;
     since: string;
     days: number;
+    setBy?: string;
 };
 
 /**
@@ -585,23 +760,31 @@ function isHumanAuthored(node: PullRequestNode): node is PullRequestNode & { aut
     return node.author !== null && node.author.__typename !== 'Bot' && !isNonHumanLogin(node.author.login);
 }
 
+function isExternal(node: PullRequestNode): boolean {
+    return node.labels.nodes.some((label) => label.name === EXTERNAL_LABEL);
+}
+
 export function buildRows(nodes: PullRequestNode[], now: Date): Row[] {
     return nodes
         .filter(isHumanAuthored)
+        .filter(isExternal)
         .map((node) => {
             const verdict = classifyPullRequest(factsOf(node));
 
             return {
+                id: node.id,
                 number: node.number,
                 title: node.title,
                 url: node.url,
                 author: node.author.login,
                 authorAssociation: node.authorAssociation,
+                labels: node.labels.nodes.map((label) => label.name),
                 waitingOn: verdict.waitingOn,
                 reason: verdict.reason,
                 label: WAITING_ON_LABEL[verdict.waitingOn],
                 since: verdict.since,
                 days: daysSince(verdict.since, now),
+                ...(verdict.setBy !== undefined ? { setBy: verdict.setBy } : {}),
             };
         })
         .sort((left, right) => right.days - left.days);
@@ -617,7 +800,7 @@ export function renderReport(rows: Row[]): string {
         byReason.set(row.reason, (byReason.get(row.reason) ?? 0) + 1);
     }
 
-    lines.push(`${rows.length} open pull request(s), bots excluded.`, '');
+    lines.push(`${rows.length} open external pull request(s), bots excluded.`, '');
     lines.push('| reason | count |', '| --- | --: |');
     for (const [reason, count] of [...byReason].sort((left, right) => right[1] - left[1])) {
         lines.push(`| \`${reason}\` | ${count} |`);
@@ -640,14 +823,105 @@ export function renderReport(rows: Row[]): string {
         lines.push('');
     }
 
+    const overridden = rows.filter((row) => row.setBy !== undefined);
+    if (overridden.length > 0) {
+        lines.push(`### Set by hand — ${overridden.length}`, '', 'Each of these is a case the rule decided differently; worth a look whether the rule should change.', '');
+        lines.push('| PR | label | set by | days |', '| --- | --- | --- | --: |');
+        for (const row of overridden) {
+            lines.push(`| [#${row.number}](${row.url}) | \`${row.label}\` | ${row.setBy} | ${row.days} |`);
+        }
+        lines.push('');
+    }
+
     return lines.join('\n');
 }
 
+export type LabelChange = {
+    number: number;
+    add?: string;
+    remove: string[];
+};
+
 /**
- * Nothing here is labelled, commented on or closed. The `rows` output carries the verdicts
- * as JSON so a later stage can consume them without this having to change.
+ * The label edits that bring every open pull request in line with its verdict. A pull
+ * request without a row — an internal one, or one a bot opened — loses any `waiting-on/*`
+ * label it carries.
  */
-export async function reportWaitingOn({ github, core, context }: { github: GraphqlClient; core: Core; context: Context }): Promise<void> {
+export function planLabelChanges(nodes: PullRequestNode[], rows: Row[]): LabelChange[] {
+    const targets = new Map(rows.map((row) => [row.number, row.label]));
+    const changes: LabelChange[] = [];
+
+    for (const node of nodes) {
+        const target = targets.get(node.number);
+        const current = node.labels.nodes.map((label) => label.name).filter((name) => name.startsWith(WAITING_ON_LABEL_PREFIX));
+
+        const add = target !== undefined && !current.includes(target) ? target : undefined;
+        const remove = current.filter((name) => name !== target);
+
+        if (add !== undefined || remove.length > 0) {
+            changes.push({ number: node.number, add, remove });
+        }
+    }
+
+    return changes;
+}
+
+const sleep = (milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+
+/**
+ * The first run touches every open pull request, so writes are spaced out to stay clear of
+ * GitHub's secondary rate limit on mutating requests.
+ */
+export async function applyLabelChanges(
+    github: IssuesClient,
+    core: Core,
+    repo: Context['repo'],
+    changes: LabelChange[],
+    pauseMilliseconds = 1000,
+): Promise<number[]> {
+    const failed: number[] = [];
+
+    for (const change of changes) {
+        // One pull request failing must not hide the rest.
+        try {
+            if (change.add !== undefined) {
+                await github.rest.issues.addLabels({ ...repo, issue_number: change.number, labels: [change.add] });
+                core.info(`Set \`${change.add}\` on #${change.number}`);
+                await sleep(pauseMilliseconds);
+            }
+
+            for (const stale of change.remove) {
+                await github.rest.issues.removeLabel({ ...repo, issue_number: change.number, name: stale });
+                core.info(`Removed \`${stale}\` from #${change.number}`);
+                await sleep(pauseMilliseconds);
+            }
+        } catch (error) {
+            failed.push(change.number);
+            core.error(`Failed to update the waiting-on label on #${change.number}: ${error instanceof Error ? error.message : String(error)}`);
+        }
+    }
+
+    return failed;
+}
+
+export type ReportOptions = {
+    dryRun?: boolean;
+    /**
+     * The organization project to mirror the verdicts into, with a client allowed to write it.
+     * `teams` is the JSON of WAITING_ON_TEAM_PROJECTS: a project per team label, which gets
+     * the pull requests carrying that label on top of the main project, which gets all of them.
+     */
+    project?: { github: GraphqlClient; number: number; teams?: string };
+    /** Where the reminders for external pull requests go; see waiting-on-slack.ts. */
+    reminders?: { slack: Slack; channels: string | undefined };
+};
+
+/**
+ * Labels every open pull request with its verdict and mirrors it into the project, unless
+ * `dryRun` is set. The `rows` output carries the verdicts as JSON so a later stage can
+ * consume them without this having to change.
+ */
+export async function reportWaitingOn({ github, core, context }: { github: GraphqlClient & IssuesClient; core: Core; context: Context }, { dryRun = false, project, reminders }: ReportOptions = {}): Promise<void> {
     const nodes = await fetchOpenPullRequests(github, context.repo);
     core.info(`Read ${nodes.length} open pull request(s).`);
 
@@ -668,7 +942,61 @@ export async function reportWaitingOn({ github, core, context }: { github: Graph
     }
     core.info(`Counted as human: ${[...humans].sort().join(', ')}`);
 
+    const changes = planLabelChanges(nodes, rows);
+    const failedLabels = dryRun ? [] : await applyLabelChanges(github, core, context.repo, changes);
+
     core.summary.addRaw(renderReport(rows));
+    core.summary.addRaw(`\n${changes.length} pull request(s) ${dryRun ? 'would have had their label changed (dry run)' : 'had their label changed'}.\n`);
+
+    const failedItems: string[] = [];
+    if (project !== undefined) {
+        const { owner, repo } = context.repo;
+        const targets = [
+            { number: project.number, rows, archive: true },
+            ...[...parseTeamProjects(project.teams)].map(([teamLabel, number]) => ({ number, rows: rows.filter((row) => row.labels.includes(teamLabel)), archive: false })),
+        ];
+
+        for (const target of targets) {
+            // A team's project missing a field must not keep the other projects from their sync.
+            try {
+                const { schema, items } = await fetchProject(project.github, core, owner, target.number, `${owner}/${repo}`);
+                const projectChanges = planProjectChanges(target.rows, items, { archive: target.archive });
+
+                failedItems.push(...(dryRun ? [] : await applyProjectChanges(project.github, core, schema, projectChanges)));
+                core.summary.addRaw(`\nProject ${owner}/${target.number}${dryRun ? ' (dry run, nothing written)' : ''}: ${summarizeProjectChanges(projectChanges)}.\n`);
+            } catch (error) {
+                failedItems.push(`project ${target.number}`);
+                core.error(error instanceof Error ? error.message : String(error));
+            }
+        }
+    }
+
+    const failedReminders: string[] = [];
+    if (reminders !== undefined) {
+        const boardUrl = project !== undefined ? `https://github.com/orgs/${context.repo.owner}/projects/${project.number}` : undefined;
+        const planned = planReminders(rows, parseChannels(reminders.channels), new Date());
+
+        for (const reminder of planned) {
+            // One channel failing must not keep the others from their reminders.
+            try {
+                await postSlackMessage(dryRun ? {} : reminders.slack, core, reminder.channel, renderReminder(reminder, boardUrl));
+            } catch (error) {
+                failedReminders.push(reminder.channel);
+                core.error(error instanceof Error ? error.message : String(error));
+            }
+        }
+        core.summary.addRaw(`\n${planned.reduce((sum, reminder) => sum + reminder.rows.length, 0)} external pull request(s) due for a Slack reminder${dryRun ? ' (dry run, nothing sent)' : ''}.\n`);
+    }
+
     await core.summary.write();
     core.setOutput('rows', JSON.stringify(rows));
+
+    const failures = [
+        ...(failedLabels.length > 0 ? [`the waiting-on label on ${failedLabels.map((number) => `#${number}`).join(', ')}`] : []),
+        ...(failedItems.length > 0 ? [`the project for ${failedItems.join(', ')}`] : []),
+        ...(failedReminders.length > 0 ? [`the Slack reminder for ${failedReminders.join(', ')}`] : []),
+    ];
+    if (failures.length > 0) {
+        throw new Error(`Failed to update ${failures.join(' and ')}`);
+    }
 }

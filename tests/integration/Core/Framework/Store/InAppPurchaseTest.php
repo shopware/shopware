@@ -62,7 +62,7 @@ class InAppPurchaseTest extends TestCase
         );
 
         static::assertFalse($iap->isActive('ExtensionName', 'inactivePurchase'));
-        static::assertEmpty($iap->formatPurchases());
+        static::assertCount(0, $iap->formatPurchases());
     }
 
     public function testRegisterPurchasesOverridesActivePurchases(): void

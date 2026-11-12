@@ -19,7 +19,6 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\OrderCollection;
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
@@ -76,7 +75,7 @@ class OrderRepositoryTest extends TestCase
     {
         $orderId = Uuid::randomHex();
         $defaultContext = Context::createDefaultContext();
-        $orderData = $this->getOrderData($orderId, $defaultContext);
+        $orderData = $this->getOrderData($orderId);
         $this->orderRepository->create($orderData, $defaultContext);
 
         $nestedCriteria2 = new Criteria();
@@ -84,7 +83,6 @@ class OrderRepositoryTest extends TestCase
 
         $criteria = new Criteria([$orderId]);
 
-        /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $defaultContext)->getEntities()->first();
 
         static::assertNotNull($order);
@@ -100,7 +98,7 @@ class OrderRepositoryTest extends TestCase
     {
         $orderId = Uuid::randomHex();
         $defaultContext = Context::createDefaultContext();
-        $orderData = $this->getOrderData($orderId, $defaultContext);
+        $orderData = $this->getOrderData($orderId);
         $orderData = \json_decode(\json_encode($orderData, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
         unset($orderData[0]['lineItems'][0]['price']['calculatedTaxes']);
@@ -128,7 +126,7 @@ class OrderRepositoryTest extends TestCase
     {
         $orderId = Uuid::randomHex();
         $defaultContext = Context::createDefaultContext();
-        $orderData = $this->getOrderData($orderId, $defaultContext);
+        $orderData = $this->getOrderData($orderId);
 
         unset($orderData[0]['orderCustomer']['customer']);
 
@@ -139,7 +137,7 @@ class OrderRepositoryTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $order = $this->orderRepository->searchIds($criteria, $defaultContext);
 
-        static::assertEmpty($order->getIds());
+        static::assertCount(0, $order->getIds());
     }
 
     public function testDeleteOrder(): void
@@ -244,7 +242,7 @@ class OrderRepositoryTest extends TestCase
     /**
      * @return array<array<mixed>>
      */
-    private function getOrderData(string $orderId, Context $context): array
+    private function getOrderData(string $orderId): array
     {
         $addressId = Uuid::randomHex();
         $orderLineItemId = Uuid::randomHex();

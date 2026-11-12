@@ -248,6 +248,8 @@ shopware:
                     - 'http://[::1]/callback'
         api_browser:
             auth_required: true
+        user_recovery:
+            enabled: true # Administration "forgot password" flow; set to false to disable it, e.g. when passwords are managed via SSO
         store:
             context_lifetime: 'P1D' # 1 day interval, see also https://www.php.net/manual/en/dateinterval.construct.php#refsect1-dateinterval.construct-parameters
             max_limit: 100
@@ -375,6 +377,17 @@ shopware:
                       interval: '60 seconds'
                     - limit: 10
                       interval: '90 seconds'
+            promotion_code:
+                enabled: true
+                policy: 'time_backoff'
+                reset: '24 hours'
+                limits:
+                    - limit: 50
+                      interval: '30 seconds'
+                    - limit: 100
+                      interval: '60 seconds'
+                    - limit: 200
+                      interval: '90 seconds'
             cart_add_line_item:
                 enabled: true
                 policy: 'system_config'
@@ -385,27 +398,21 @@ shopware:
             mcp_admin_api:
                 # Trusted automation (integrations / admin users), keyed per OAuth token, so a
                 # generous limit is acceptable. Kept higher than the Store API on purpose.
+                # A sliding window, not time_backoff: time_backoff is a lockout for repeated attempts,
+                # which allows a single request per interval once the first limit is used up.
                 enabled: true
-                policy: 'time_backoff'
-                reset: '1 hours'
-                limits:
-                    - limit: 300
-                      interval: '60 seconds'
-                    - limit: 1000
-                      interval: '10 minutes'
+                policy: 'sliding_window'
+                limit: 300
+                interval: '60 seconds'
             mcp_store_api:
                 # Tighter than the Admin API: this endpoint is customer/sales-channel facing and
                 # the rate-limit key (sales-channel context token) is cheap to rotate, so the
                 # effective protection is closer to per-IP. Still generous enough for an AI agent
                 # to browse, search and build a cart in a single session.
                 enabled: true
-                policy: 'time_backoff'
-                reset: '1 hours'
-                limits:
-                    - limit: 120
-                      interval: '60 seconds'
-                    - limit: 600
-                      interval: '10 minutes'
+                policy: 'sliding_window'
+                limit: 120
+                interval: '60 seconds'
             app_shop_verify:
                 enabled: true
                 policy: 'sliding_window'
@@ -450,6 +457,7 @@ shopware:
         url_upload_max_size: 0
         url_upload_timeout: 0.0
         external_link_timeout: 0.0
+        allowed_protocols: ['http', 'https', 'ftp']
         remote_thumbnails:
             enable: false
             pattern: '{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}'
@@ -534,6 +542,19 @@ shopware:
               custom_attributes:
                   - tags: ["a"]
                     attributes: ["data-url", "data-ajax-modal", "data-prev-url"]
+            - name: storybook
+              tags: ["a", "abbr", "address", "article", "aside", "b", "blockquote", "br", "button", "caption", "code", "dd", "del", "div", "dl", "dt", "em", "fieldset", "figcaption", "figure", "footer", "h1", "h2", "h3", "h4", "h5", "h6", "header", "hr", "i", "img", "input", "label", "li", "main", "nav", "ol", "option", "p", "pre", "q", "s", "section", "select", "small", "span", "strong", "sub", "summary", "sup", "table", "tbody", "td", "textarea", "tfoot", "th", "thead", "tr", "u", "ul"]
+              attributes: ["*.class", "*.title", "*.lang", "*.dir", "*.aria-label", "*.aria-hidden", "*.aria-current", "*.aria-expanded", "*.aria-pressed", "*.role", "a.href", "button.type", "button.disabled", "img.alt", "img.width", "img.height", "img.src", "input.type", "input.disabled", "input.checked", "input.placeholder", "input.value", "option.selected", "option.value"]
+              options:
+                  - key: HTML.Forms
+                    value: true
+                  - key: URI.Base
+                    value: '%env(APP_URL)%'
+                  - key: URI.MakeAbsolute
+                    value: true
+              custom_attributes:
+                  - tags: ["a", "abbr", "address", "article", "aside", "b", "blockquote", "br", "button", "caption", "code", "dd", "del", "div", "dl", "dt", "em", "fieldset", "figcaption", "figure", "footer", "h1", "h2", "h3", "h4", "h5", "h6", "header", "hr", "i", "img", "input", "label", "li", "main", "nav", "ol", "option", "p", "pre", "q", "s", "section", "select", "small", "span", "strong", "sub", "summary", "sup", "table", "tbody", "td", "textarea", "tfoot", "th", "thead", "tr", "u", "ul"]
+                    attributes: ["aria-label", "aria-hidden", "aria-current", "aria-expanded", "aria-pressed", "role"]
 
         fields:
             - name: product_translation.description
@@ -544,6 +565,8 @@ shopware:
               sets: ["basic", "media", "tidy", "HTML5"]
             - name: snippet.value
               sets: ["basic", "media", "bootstrap", "snippet", "HTML5"]
+            - name: storybook
+              sets: ["storybook"]
 
     logger:
         enforce_throw_exception: '%env(bool:default:defaults_bool_false:LOGGER_ENFORCE_THROW_EXCEPTION)%'

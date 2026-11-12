@@ -104,6 +104,21 @@ export default {
                 return ['bottom', 'right', 'left'].includes(value);
             },
         },
+        descriptionProperty: {
+            type: String,
+            required: false,
+            default: null,
+        },
+        descriptionFormatter: {
+            type: String,
+            required: false,
+            default: null,
+        },
+        descriptionFormatterArgs: {
+            type: Array,
+            required: false,
+            default: () => [],
+        },
         allowEntityCreation: {
             type: Boolean,
             required: false,
@@ -113,7 +128,7 @@ export default {
             type: String,
             required: false,
             default() {
-                return Shopware.Snippet.tc('global.sw-single-select.labelEntity');
+                return Shopware.Snippet.t('global.sw-single-select.labelEntity');
             },
         },
         advancedSelectionComponent: {
@@ -192,6 +207,16 @@ export default {
     },
 
     computed: {
+        descriptionFormatterFn() {
+            if (!this.descriptionFormatter) {
+                return null;
+            }
+
+            const formatter = Shopware.Filter.getByName(this.descriptionFormatter);
+
+            return typeof formatter === 'function' ? formatter : null;
+        },
+
         inputClasses() {
             return {
                 'is--expanded': this.isExpanded,
@@ -411,16 +436,14 @@ export default {
                 return Promise.resolve();
             }
 
-            const criteria = new Criteria(1, this.resultLimit);
-            criteria.addIncludes({
-                [this.entity]: ['id', 'name'],
-            });
+            const criteria = new Criteria(1, 1);
+            criteria.setTotalCountMode(0);
             criteria.addFilter(Criteria.equals('name', term));
 
-            return this.repository.search(criteria, this.context).then((response) => {
-                this.entityExists = response.total > 0;
+            return this.repository.searchIds(criteria, this.context).then((response) => {
+                this.entityExists = response.data.length > 0;
 
-                return response.total > 0;
+                return this.entityExists;
             });
         },
 
@@ -444,6 +467,25 @@ export default {
                     });
                 }
             }
+        },
+
+        displayDescriptionProperty(item) {
+            if (!this.descriptionProperty) {
+                return '';
+            }
+
+            const value =
+                this.getKey(item, this.descriptionProperty) ?? this.getKey(item, `translated.${this.descriptionProperty}`);
+
+            if (value === null || value === undefined) {
+                return '';
+            }
+
+            if (!this.descriptionFormatterFn) {
+                return value;
+            }
+
+            return this.descriptionFormatterFn(value, ...this.descriptionFormatterArgs);
         },
 
         displayLabelProperty(item) {

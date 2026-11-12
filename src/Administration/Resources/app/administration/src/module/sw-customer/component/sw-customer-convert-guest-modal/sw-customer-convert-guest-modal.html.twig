@@ -9,10 +9,10 @@
         {% block sw_customer_guest_convert_customer_modal_option_reset %}
         <div class="sw-customer-guest-convert-customer-modal__option sw-customer-guest-convert-customer-modal__option--reset">
             <p class="sw-customer-guest-convert-customer-modal__title">
-                {{ $tc('sw-customer.convertGuest.mail.title') }}
+                {{ $t('sw-customer.convertGuest.mail.title') }}
             </p>
             <p class="sw-customer-guest-convert-customer-modal__description">
-                {{ $tc('sw-customer.convertGuest.mail.description') }}
+                {{ $t('sw-customer.convertGuest.mail.description') }}
             </p>
             <mt-button
                 class="sw-customer-guest-convert-customer-modal__action"
@@ -20,7 +20,7 @@
                 variant="primary"
                 @click="sendRecoveryEmail"
             >
-                {{ $tc('sw-customer.convertGuest.mail.button') }}
+                {{ $t('sw-customer.convertGuest.mail.button') }}
             </mt-button>
         </div>
         {% endblock %}
@@ -28,10 +28,10 @@
         {% block sw_customer_guest_convert_customer_modal_option_manual %}
         <div class="sw-customer-guest-convert-customer-modal__option sw-customer-guest-convert-customer-modal__option--manual">
             <p class="sw-customer-guest-convert-customer-modal__title">
-                {{ $tc('sw-customer.convertGuest.manual.title') }}
+                {{ $t('sw-customer.convertGuest.manual.title') }}
             </p>
             <p class="sw-customer-guest-convert-customer-modal__description">
-                {{ $tc('sw-customer.convertGuest.manual.description') }}
+                {{ $t('sw-customer.convertGuest.manual.description') }}
             </p>
 
             <div class="sw-customer-guest-convert-customer-modal__manual-form">
@@ -50,7 +50,7 @@
                         type="submit"
                         :disabled="!password"
                     >
-                        {{ $tc('sw-customer.convertGuest.manual.button') }}
+                        {{ $t('sw-customer.convertGuest.manual.button') }}
                     </mt-button>
                 </form>
             </div>

@@ -199,7 +199,7 @@ export default class VariantsGenerator extends EventEmitter {
         // without changing existing configuration
         if (
             !this.product.variantListingConfig ||
-            (!this.product.variantListingConfig.displayParent &&
+            (typeof this.product.variantListingConfig.displayParent !== 'boolean' &&
                 !this.product.variantListingConfig.configuratorGroupConfig &&
                 !this.product.variantListingConfig.mainVariantId)
         ) {

@@ -656,7 +656,7 @@ class ImportExport
                 continue;
             }
 
-            if (!\array_key_exists($csvKey, $row) || empty($row[$csvKey])) {
+            if ($this->isMissingValue($row, $csvKey)) {
                 $row[$csvKey] = $mapping->getDefaultValue();
             }
         }
@@ -676,10 +676,20 @@ class ImportExport
                 continue;
             }
 
-            if (!\array_key_exists($csvKey, $row) || empty($row[$csvKey])) {
+            if ($this->isMissingValue($row, $csvKey)) {
                 throw ImportExportException::requiredByUser($csvKey);
             }
         }
+    }
+
+    /**
+     * CSV cells are strings, so `empty()` would treat `'0'` as missing.
+     *
+     * @param array<string, mixed> $row
+     */
+    private function isMissingValue(array $row, string $csvKey): bool
+    {
+        return !\array_key_exists($csvKey, $row) || $row[$csvKey] === null || $row[$csvKey] === '';
     }
 
     private function filterApiAwareFields(Config $config, Context $context): Config

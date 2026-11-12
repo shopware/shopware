@@ -62,7 +62,7 @@ class ElasticsearchAdminResetCommandTest extends TestCase
 
         $tasks = $this->connection->fetchAllAssociative('SELECT `index` FROM admin_elasticsearch_index_task');
 
-        static::assertEmpty($tasks);
+        static::assertCount(0, $tasks);
     }
 
     protected function getDiContainer(): ContainerInterface

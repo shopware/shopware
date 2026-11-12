@@ -3,7 +3,9 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Checkout\Customer\Extension\LoginRouteExtension;
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
@@ -26,7 +28,8 @@ class LoginRoute extends AbstractLoginRoute
     public function __construct(
         private readonly AccountService $accountService,
         private readonly RequestStack $requestStack,
-        private readonly RateLimiter $rateLimiter
+        private readonly RateLimiter $rateLimiter,
+        private readonly ExtensionDispatcher $extensions
     ) {
     }
 
@@ -38,6 +41,15 @@ class LoginRoute extends AbstractLoginRoute
     #[Route(path: '/store-api/account/login', name: 'store-api.account.login', methods: ['POST'])]
     public function login(#[\SensitiveParameter] RequestDataBag $data, SalesChannelContext $context): ContextTokenResponse
     {
+        return $this->extensions->publish(
+            name: LoginRouteExtension::NAME,
+            extension: new LoginRouteExtension($data, $context),
+            function: $this->_login(...),
+        );
+    }
+
+    private function _login(#[\SensitiveParameter] RequestDataBag $data, SalesChannelContext $context): ContextTokenResponse
+    {
         EmailIdnConverter::encodeDataBag($data);
         $email = (string) $data->get('email', $data->get('username'));
 
@@ -47,7 +59,7 @@ class LoginRoute extends AbstractLoginRoute
 
         if ($this->requestStack->getMainRequest() !== null) {
             $clientIpKey = (string) $this->requestStack->getMainRequest()->getClientIp();
-            $emailKey = strtolower($email);
+            $emailKey = mb_strtolower(mb_trim($email));
             $combinedKey = $emailKey . '-' . $clientIpKey;
 
             try {

@@ -72,8 +72,8 @@ class CustomerChangePasswordSubscriberTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('id', $customerId));
 
-        /** @var CustomerEntity $customer */
         $customer = $this->customerRepository->search($criteria, $context)->getEntities()->first();
+        static::assertInstanceOf(CustomerEntity::class, $customer);
 
         static::assertNotNull($customer->getPassword());
         static::assertNull($customer->getLegacyPassword());
@@ -103,8 +103,8 @@ class CustomerChangePasswordSubscriberTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('id', $customerId));
 
-        /** @var CustomerEntity $customer */
         $customer = $this->customerRepository->search($criteria, $context)->getEntities()->first();
+        static::assertInstanceOf(CustomerEntity::class, $customer);
 
         static::assertNull($customer->getPassword());
         static::assertNotNull($customer->getLegacyPassword());
@@ -129,7 +129,7 @@ class CustomerChangePasswordSubscriberTest extends TestCase
 
         // After login successfully, the context token will be set in the header
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
     }
 
     private function createCustomerWithLegacyPassword(string $email, string $password): string

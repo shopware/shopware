@@ -466,9 +466,29 @@
                     {% block sw_settings_tag_list_empty_state %}
                     <mt-empty-state
                         v-else
+                        centered
                         :icon="$route.meta.$module.icon"
-                        :headline="$t('sw-settings-tag.list.titleEmptyStateList')"
-                    />
+                        :headline="filterCount || isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-settings-tag.list.titleEmptyStateList')"
+                        :description="filterCount || isValidTerm(term) ? $t('sw-empty-state.messageNoResultSublineSimple') : ''"
+                    >
+                        <template
+                            v-if="!filterCount && !isValidTerm(term)"
+                            #button
+                        >
+                            <mt-button
+                                v-tooltip="{
+                                    message: $t('sw-privileges.tooltip.warning'),
+                                    disabled: acl.can('tag.creator'),
+                                    showOnDisabledElements: true
+                                }"
+                                variant="primary"
+                                :disabled="!acl.can('tag.creator')"
+                                @click="onDetail(null)"
+                            >
+                                {{ $t('sw-settings-tag.list.buttonAddTag') }}
+                            </mt-button>
+                        </template>
+                    </mt-empty-state>
                     {% endblock %}
 
                     {% block sw_settings_tag_list_detail_add_modal %}

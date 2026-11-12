@@ -117,9 +117,8 @@ class JsonFieldSerializer extends AbstractFieldSerializer
 
         $propertyKeys = array_map(static fn (Field $field) => $field->getPropertyName(), $field->getPropertyMapping());
 
-        // If a mapping is defined, you should not send properties that are undefined.
-        // Sending undefined fields will throw an UnexpectedFieldException
-        $keyDiff = array_diff(array_keys($data), $propertyKeys);
+        // If a mapping is defined, undefined properties are rejected unless the field explicitly allows extensions.
+        $keyDiff = $field->allowsAdditionalProperties() ? [] : array_diff(array_keys($data), $propertyKeys);
         if ($keyDiff !== []) {
             foreach ($keyDiff as $fieldName) {
                 $parameters->getContext()->getExceptions()->add(
@@ -181,6 +180,13 @@ class JsonFieldSerializer extends AbstractFieldSerializer
             }
         }
 
-        return $stack->getResultAsArray();
+        $result = $stack->getResultAsArray();
+
+        if ($field->allowsAdditionalProperties()) {
+            // The result stack contains only normalized mapped values; merge them into the original data to retain additional extension properties, while keeping normalized values for typed properties.
+            return array_replace($data, $result);
+        }
+
+        return $result;
     }
 }

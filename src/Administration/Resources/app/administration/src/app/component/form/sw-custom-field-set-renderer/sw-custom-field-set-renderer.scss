@@ -21,6 +21,14 @@
     }
 
     .sw-inherit-wrapper {
+        margin-bottom: var(--scale-size-32);
+
+        .sw-form-field-renderer,
+        .sw-form-field-renderer .mt-field--checkbox {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
         .sw-field--switch {
             margin-top: 0;
 

@@ -1,6 +1,5 @@
 {% block sw_order_detail_details %}
 <div class="sw-order-detail-details">
-
     {% block sw_order_detail_details_payment %}
     <sw-order-details-state-card
         v-if="transaction"
@@ -13,7 +12,6 @@
         @show-status-history="showStateHistoryModal = true"
         @save-edits="onSaveEdits"
     >
-
         {% block sw_order_detail_details_payment_billing_address %}
         <sw-order-address-selection
             class="sw-order-detail-details__billing-address"
@@ -42,7 +40,6 @@
             show-clearable-button
         />
         {% endblock %}
-
     </sw-order-details-state-card>
     {% endblock %}
 
@@ -58,7 +55,6 @@
         @show-status-history="showStateHistoryModal = true"
         @save-edits="onSaveEdits"
     >
-
         {% block sw_order_detail_details_shipping_address %}
         <sw-order-address-selection
             class="sw-order-detail-details__shipping-address"
@@ -128,6 +124,7 @@
             <template #message-add-data>
                 <span>{{ $t('sw-order.detailBase.addTrackingCode') }}</span>
             </template>
+
             <template #message-enter-valid-data>
                 <span>{{ $t('sw-order.detailBase.enterValidTrackingCode') }}</span>
             </template>
@@ -148,9 +145,7 @@
         @show-status-history="showStateHistoryModal = true"
         @save-edits="onSaveEdits"
     >
-
         {% block sw_order_detail_details_order_email %}
-
         <mt-text-field
             v-model="order.orderCustomer.email"
             class="sw-order-detail-details__email"
@@ -163,7 +158,6 @@
         {% endblock %}
 
         {% block sw_order_detail_details_order_phone_number %}
-
         <mt-text-field
             v-model="order.addresses.get(order.billingAddressId).phoneNumber"
             class="sw-order-detail-details__phone-number"
@@ -197,7 +191,6 @@
         {% endblock %}
 
         {% block sw_order_detail_details_order_affiliate %}
-
         <mt-text-field
             v-model="order.affiliateCode"
             class="sw-order-detail-details__affiliate-code"
@@ -207,7 +200,6 @@
         {% endblock %}
 
         {% block sw_order_detail_details_order_campaign %}
-
         <mt-text-field
             v-model="order.campaignCode"
             class="sw-order-detail-details__campaign-code"
@@ -226,10 +218,11 @@
             <template #hint>
                 <div class="sw-order-detail-details__field-hint">
                     <mt-icon
-                        size="12"
+                        size="var(--scale-size-12)"
                         name="solid-info-circle"
                         class="sw-order-detail-details__field-hint__icon"
                     />
+
                     <p>{{ $t('sw-order.detailBase.helpTextCustomerComment') }}</p>
                 </div>
             </template>
@@ -246,10 +239,11 @@
             <template #hint>
                 <div class="sw-order-detail-details__field-hint">
                     <mt-icon
-                        size="12"
+                        size="var(--scale-size-12)"
                         name="solid-info-circle"
                         class="sw-order-detail-details__field-hint__icon"
                     />
+
                     <p>{{ $t('sw-order.detailBase.helpTextInternalComment') }}</p>
                 </div>
             </template>
@@ -284,6 +278,7 @@
         position-identifier="sw-order-detail-base-custom-fields__after"
     />
     {% endblock %}
+
     {% block sw_order_detail_base_state_history_modal %}
     <sw-order-state-history-modal
         v-if="showStateHistoryModal"

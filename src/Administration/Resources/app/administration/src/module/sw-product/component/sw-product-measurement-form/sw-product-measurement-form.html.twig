@@ -10,13 +10,11 @@
             scope="local"
         >
             <template #link>
-                <sw-internal-link
-                    :router-link="{ name: 'sw.sales.channel.list' }"
-                    hide-icon
-                    inline
+                <router-link
+                    :to="{ name: 'sw.sales.channel.list' }"
                 >
                     {{ $t('sw-product.measurementForm.linkText') }}
-                </sw-internal-link>
+                </router-link>
             </template>
         </i18n-t>
     </div>

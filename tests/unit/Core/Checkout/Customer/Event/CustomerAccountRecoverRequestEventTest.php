@@ -46,5 +46,6 @@ class CustomerAccountRecoverRequestEventTest extends TestCase
         static::assertArrayHasKey('shopName', $flow->data());
         static::assertSame('my-reset-url', $flow->data()['resetUrl']);
         static::assertSame('my-shop-name', $flow->data()['shopName']);
+        static::assertTrue($flow->getData('sensitive'));
     }
 }

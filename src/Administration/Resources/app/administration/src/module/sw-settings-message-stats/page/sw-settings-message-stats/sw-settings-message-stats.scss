@@ -110,8 +110,10 @@
         line-height: var(--font-line-height-xs, 22px);
     }
 
-    &__empty-state-button {
-        margin-top: 24px;
+    &__empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 
     &__banner-container {

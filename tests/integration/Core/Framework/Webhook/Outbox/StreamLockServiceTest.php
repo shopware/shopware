@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Outbox\StreamLease;
 use Shopware\Core\Framework\Webhook\Outbox\StreamLockService;
+use Shopware\Core\Test\Integration\Builder\Webhook\WebhookBuilder;
 use Symfony\Component\Clock\MockClock;
 
 /**
@@ -281,7 +282,7 @@ class StreamLockServiceTest extends TestCase
 
     private function insertDeliveryRow(string $partitionKey, string $status, string $nextRetryAtModifier = ''): string
     {
-        $webhookId = $this->createWebhook();
+        $webhookId = Uuid::fromHexToBytes(WebhookBuilder::withoutOwner()->insert($this->connection));
         $eventLogId = Uuid::randomBytes();
         $now = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
@@ -311,20 +312,5 @@ class StreamLockServiceTest extends TestCase
         ]);
 
         return $eventLogId;
-    }
-
-    private function createWebhook(): string
-    {
-        $id = Uuid::randomBytes();
-        $this->connection->insert('webhook', [
-            'id' => $id,
-            'name' => 'test-hook',
-            'event_name' => 'product.written',
-            'url' => 'https://example.com/webhook',
-            'app_id' => null,
-            'created_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
-
-        return $id;
     }
 }

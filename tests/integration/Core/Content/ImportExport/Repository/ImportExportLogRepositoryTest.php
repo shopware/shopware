@@ -4,7 +4,7 @@ namespace Shopware\Tests\Integration\Core\Content\ImportExport\Repository;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileCollection;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogCollection;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
@@ -41,7 +41,7 @@ class ImportExportLogRepositoryTest extends TestCase
     private EntityRepository $profileRepository;
 
     /**
-     * @var EntityRepository<EntityCollection<ImportExportFileEntity>>
+     * @var EntityRepository<ImportExportFileCollection>
      */
     private EntityRepository $fileRepository;
 
@@ -76,7 +76,7 @@ class ImportExportLogRepositoryTest extends TestCase
         static::assertIsArray($record);
 
         $expect = $data[$id];
-        static::assertNotEmpty($record);
+        static::assertNotCount(0, $record);
         static::assertSame($id, $record['id']);
         static::assertSame($expect['activity'], $record['activity']);
         static::assertSame($expect['state'], $record['state']);
@@ -167,8 +167,8 @@ class ImportExportLogRepositoryTest extends TestCase
             static::assertCount(\count($requiredProperties), $e->getExceptions());
             $foundViolations = [];
 
-            /** @var WriteConstraintViolationException $violations */
             foreach ($e->getExceptions() as $violations) {
+                static::assertInstanceOf(WriteConstraintViolationException::class, $violations);
                 foreach ($violations->getViolations() as $violation) {
                     $foundViolations[] = $violation->getPropertyPath();
                 }
@@ -190,8 +190,8 @@ class ImportExportLogRepositoryTest extends TestCase
         foreach ($data as $expect) {
             $id = $expect['id'];
             $result = $this->logRepository->search(new Criteria([$id]), $this->context)->getEntities();
-            /** @var ImportExportLogEntity $ImportExportLog */
             $ImportExportLog = $result->get($id);
+            static::assertInstanceOf(ImportExportLogEntity::class, $ImportExportLog);
             static::assertCount(1, $result);
             static::assertSame($expect['activity'], $ImportExportLog->getActivity());
             static::assertSame($expect['state'], $ImportExportLog->getState());
@@ -201,6 +201,25 @@ class ImportExportLogRepositoryTest extends TestCase
             static::assertSame($expect['username'], $ImportExportLog->getUsername());
             static::assertSame($expect['profileName'], $ImportExportLog->getProfileName());
         }
+    }
+
+    public function testLogsLoadAsAssociationOfProfileAndUser(): void
+    {
+        $data = $this->prepareImportExportLogTestData();
+        $log = current($data);
+        $this->logRepository->create([$log], $this->context);
+
+        $criteria = (new Criteria([$log['profileId']]))->addAssociation('importExportLogs');
+        $profile = $this->profileRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertInstanceOf(ImportExportProfileEntity::class, $profile);
+        static::assertInstanceOf(ImportExportLogCollection::class, $profile->getImportExportLogs());
+        static::assertTrue($profile->getImportExportLogs()->has($log['id']));
+
+        $criteria = (new Criteria([$log['userId']]))->addAssociation('importExportLogEntries');
+        $user = $this->userRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($user);
+        static::assertInstanceOf(ImportExportLogCollection::class, $user->getImportExportLogEntries());
+        static::assertTrue($user->getImportExportLogEntries()->has($log['id']));
     }
 
     public function testImportExportLogReadNoResult(): void
@@ -259,7 +278,6 @@ class ImportExportLogRepositoryTest extends TestCase
 
     public function testImportExportLogUpdatePartial(): void
     {
-        $upsertData = [];
         $origDate = $data = $this->prepareImportExportLogTestData();
         $item = array_pop($data);
         static::assertNotNull($item);

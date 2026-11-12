@@ -27,8 +27,8 @@ export default function createHTTPClient(context) {
  * @deprecated tag:v6.8.0 - `CancelToken` and `Cancel` will be removed. Create an `AbortController`, pass its
  * `signal` in the request config and detect cancellations with `httpClient.isCancel(error)`.
  * @returns { CancelToken, isCancel, Cancel}
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const { CancelToken, isCancel, Cancel } = Axios;
 
 /**
@@ -231,7 +231,7 @@ function globalErrorHandlingInterceptor(client) {
  * @param {Object} data
  */
 function handleErrorStates({ status, errors, error = null, data }) {
-    // Get $tc for translations and bind the Vue component scope to make it working
+    // The Vue root is needed for router navigation in notification actions
     const viewRoot = Shopware.Application.view.root;
 
     // Handle sync-api errors
@@ -278,8 +278,8 @@ function handleErrorStates({ status, errors, error = null, data }) {
                 system: true,
                 autoClose: false,
                 growl: true,
-                title: Shopware.Snippet.tc('global.error-codes.FRAMEWORK__MISSING_PRIVILEGE_ERROR'),
-                message: `${Shopware.Snippet.tc('sw-privileges.error.description')} <br> ${missingPrivilegesMessage}`,
+                title: Shopware.Snippet.t('global.error-codes.FRAMEWORK__MISSING_PRIVILEGE_ERROR'),
+                message: `${Shopware.Snippet.t('sw-privileges.error.description')} <br> ${missingPrivilegesMessage}`,
             });
         });
     }
@@ -293,11 +293,11 @@ function handleErrorStates({ status, errors, error = null, data }) {
             system: true,
             autoClose: false,
             growl: true,
-            title: Shopware.Snippet.tc('sw-extension.errors.storeSessionExpired.title'),
-            message: Shopware.Snippet.tc('sw-extension.errors.storeSessionExpired.message'),
+            title: Shopware.Snippet.t('sw-extension.errors.storeSessionExpired.title'),
+            message: Shopware.Snippet.t('sw-extension.errors.storeSessionExpired.message'),
             actions: [
                 {
-                    label: Shopware.Snippet.tc('sw-extension.errors.storeSessionExpired.actionLabel'),
+                    label: Shopware.Snippet.t('sw-extension.errors.storeSessionExpired.actionLabel'),
                     method: () => {
                         viewRoot.$router.push({
                             name: 'sw.extension.my-extensions.account',
@@ -317,17 +317,17 @@ function handleErrorStates({ status, errors, error = null, data }) {
 
             blockingEntities = parameters.usages.reduce((message, usageObject) => {
                 const times = usageObject.count;
-                const timesSnippet = Shopware.Snippet.tc('global.default.xTimesIn', times);
-                const blockingEntitiesSnippet = Shopware.Snippet.tc(`global.entities.${usageObject.entityName}`, times[1]);
+                const timesSnippet = Shopware.Snippet.t('global.default.xTimesIn', times);
+                const blockingEntitiesSnippet = Shopware.Snippet.t(`global.entities.${usageObject.entityName}`, times[1]);
                 return `${message}<br>${timesSnippet} <b>${blockingEntitiesSnippet}</b>`;
             }, '');
 
             Shopware.Store.get('notification').createNotification({
                 variant: 'error',
-                title: Shopware.Snippet.tc('global.default.error'),
-                message: `${Shopware.Snippet.tc(
+                title: Shopware.Snippet.t('global.default.error'),
+                message: `${Shopware.Snippet.t(
                     'global.notification.messageDeleteFailed',
-                    { entityName: Shopware.Snippet.tc(`global.entities.${entityName}`) },
+                    { entityName: Shopware.Snippet.t(`global.entities.${entityName}`) },
                     0,
                 )}${blockingEntities}`,
             });

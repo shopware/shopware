@@ -6,15 +6,17 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Exception\LicenseDomainVerificationException;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed with the next major as it is unused
+ * @deprecated tag:v6.8.0 - Will be removed with the next major as it is unused
  *
  * @internal
  */
 #[Package('checkout')]
 #[CoversClass(LicenseDomainVerificationException::class)]
+#[DisabledFeatures(['v6.8.0.0'])]
 class LicenseDomainVerificationExceptionTest extends TestCase
 {
     public function testGetErrorCode(): void

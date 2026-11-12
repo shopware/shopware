@@ -64,7 +64,7 @@ class KernelPluginIntegrationTest extends TestCase
         $this->kernel = $this->makeKernel($loader);
         $this->kernel->boot();
 
-        static::assertEmpty($this->kernel->getPluginLoader()->getPluginInstances()->all());
+        static::assertCount(0, $this->kernel->getPluginLoader()->getPluginInstances()->all());
     }
 
     public function testInactive(): void
@@ -80,7 +80,7 @@ class KernelPluginIntegrationTest extends TestCase
         $this->kernel->boot();
 
         $plugins = $this->kernel->getPluginLoader()->getPluginInstances();
-        static::assertNotEmpty($plugins->all());
+        static::assertNotCount(0, $plugins->all());
 
         $testPlugin = $plugins->get(SwagTestPlugin::class);
         static::assertNotNull($testPlugin);
@@ -371,7 +371,7 @@ class KernelPluginIntegrationTest extends TestCase
         $container = $kernel->getContainer();
 
         $emptyPluginCollection = new PluginCollection();
-        $pluginRepoMock = $this->createMock(EntityRepository::class);
+        $pluginRepoMock = static::createStub(EntityRepository::class);
 
         $pluginRepoMock
             ->method('search')
@@ -382,20 +382,20 @@ class KernelPluginIntegrationTest extends TestCase
             $container->get('event_dispatcher'),
             $kernel->getPluginLoader()->getPluginInstances(),
             $container,
-            $this->createMock(MigrationCollectionLoader::class),
-            $this->createMock(AssetService::class),
-            $this->createMock(CommandExecutor::class),
-            $this->createMock(RequirementsValidator::class),
+            static::createStub(MigrationCollectionLoader::class),
+            static::createStub(AssetService::class),
+            static::createStub(CommandExecutor::class),
+            static::createStub(RequirementsValidator::class),
             new ArrayAdapter(),
             $container->getParameter('kernel.shopware_version'),
-            $this->createMock(SystemConfigService::class),
-            $this->createMock(CustomEntityPersister::class),
-            $this->createMock(CustomEntitySchemaUpdater::class),
-            $this->createMock(PluginService::class),
-            $this->createMock(VersionSanitizer::class),
-            $this->createMock(DefinitionInstanceRegistry::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(CustomEntityPersister::class),
+            static::createStub(CustomEntitySchemaUpdater::class),
+            static::createStub(PluginService::class),
+            static::createStub(VersionSanitizer::class),
+            static::createStub(DefinitionInstanceRegistry::class),
             new RequestStack(),
-            $this->createMock(CustomFieldSetPersister::class),
+            static::createStub(CustomFieldSetPersister::class),
             new NativeClock()
         );
     }

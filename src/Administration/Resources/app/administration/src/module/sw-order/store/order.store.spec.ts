@@ -293,6 +293,16 @@ describe('src/module/sw-order/store/order.store', () => {
         expect(store.cart.lineItems).toHaveLength(0);
     });
 
+    it.each([
+        null,
+        'too-short',
+    ])('rejects the context token %p when getting or cancelling the cart', (contextToken) => {
+        const salesChannelId = '1' as EntityKey<'sales_channel'>;
+
+        expect(() => store.getCart({ salesChannelId, contextToken })).toThrow('Invalid context token');
+        expect(() => store.cancelCart({ salesChannelId, contextToken })).toThrow('Invalid context token');
+    });
+
     it('updates order context', async () => {
         const context: ContextSwitchParameters = {
             currencyId: 'test' as EntityKey<'currency'>,

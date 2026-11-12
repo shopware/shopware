@@ -168,6 +168,7 @@ class ProductDefinition extends EntityDefinition
             (new FkField('cms_page_id', 'cmsPageId', CmsPageDefinition::class))->addFlags(new ApiAware(), new Inherited())->setDescription('Unique identity of CMS page.'),
             (new ReferenceVersionField(CmsPageDefinition::class))->addFlags(new Inherited(), new Required(), new ApiAware()),
             (new FkField('open_graph_media_id', 'openGraphMediaId', MediaDefinition::class))->addFlags(new ApiAware(), new Inherited())->setDescription('Media used as Open Graph image for social media sharing.'),
+            (new FkField('guarantee_terms_media_id', 'guaranteeTermsMediaId', MediaDefinition::class))->addFlags(new ApiAware(), new Inherited())->setDescription('Unique identity of the document with the producer commercial durability guarantee terms.'),
 
             (new PriceField('price', 'price'))->addFlags(new Inherited(), new Required(), new ApiCriteriaAware())->setDescription('Price of the product.'),
             (new NumberRangeField('product_number', 'productNumber'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING, false), new Required())->setDescription('Unique number assigned to individual products. Define rules for automatic assignment of every product creation as per your number range.'),
@@ -187,6 +188,7 @@ class ProductDefinition extends EntityDefinition
             (new StringField('manufacturer_number', 'manufacturerNumber'))->addFlags(new ApiAware(), new Inherited(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING, false))->setDescription('Unique number that describes the manufacturer.'),
             (new IntField('guarantee_months', 'guaranteeMonths'))->addFlags(new ApiAware(), new Inherited())->setDescription('Commercial durability guarantee duration in months.'),
             (new BoolField('guarantee_confirmed', 'guaranteeConfirmed'))->addFlags(new ApiAware(), new Inherited())->setDescription('Merchant confirmation that the producer commercial durability guarantee information is accurate and has been made available.'),
+            (new StringField('guarantee_terms_url', 'guaranteeTermsUrl', 2048))->addFlags(new ApiAware(), new Inherited())->setDescription('URL of the producer commercial durability guarantee terms.'),
             (new StringField('ean', 'ean'))->addFlags(new ApiAware(), new Inherited(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING, false))->setDescription('Indicates EAN of the product.'),
             (new IntField('purchase_steps', 'purchaseSteps', 1))->addFlags(new ApiAware(), new Inherited())->setDescription('Specifies the scales in which the item is to be offered. For example, a scale of 2 means that your customers can purchase 2, 4, 6 products, etc., but not 1, 3 or 5.'),
             (new IntField('max_purchase', 'maxPurchase'))->addFlags(new ApiAware(), new Inherited())->setDescription('Maximum number of items that can be purchased.'),
@@ -242,6 +244,8 @@ class ProductDefinition extends EntityDefinition
             (new ManyToOneAssociationField('cover', 'product_media_id', ProductMediaDefinition::class, 'id'))->addFlags(new ApiAware(), new Inherited())->setDescription('Main product image displayed in listings and detail pages'),
 
             (new ManyToOneAssociationField('openGraphMedia', 'open_graph_media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware(), new Inherited())->setDescription('Open Graph image for social media sharing'),
+
+            (new ManyToOneAssociationField('guaranteeTermsMedia', 'guarantee_terms_media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware(), new Inherited())->setDescription('Document with the producer commercial durability guarantee terms'),
 
             (new ManyToOneAssociationField('featureSet', 'product_feature_set_id', ProductFeatureSetDefinition::class, 'id'))->addFlags(new Inherited()),
 

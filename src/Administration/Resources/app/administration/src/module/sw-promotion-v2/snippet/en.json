@@ -65,7 +65,7 @@
                     },
                     "individual": {
                         "description": "Individual promotion codes",
-                        "emptyStateTitle": "No promotion codes generated yet.",
+                        "emptyStateTitle": "No promotion codes generated yet",
                         "generateButton": "Generate new codes",
                         "searchPlaceholder": "Search promotion codes...",
                         "addButton": "Add codes",

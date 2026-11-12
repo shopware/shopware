@@ -112,6 +112,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service(SalesChannelCmsPageLoader::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CmsPageDefaultChangeSubscriber::class)

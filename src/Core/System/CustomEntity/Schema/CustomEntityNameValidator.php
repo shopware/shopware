@@ -21,7 +21,7 @@ class CustomEntityNameValidator
     // Matches an unquoted MySQL/MariaDB identifier: [0-9,a-z,A-Z$_] plus bytes >= 0x80 (UTF-8).
     // It blocks whitespace and punctuation (backtick, quote, `;`, `()`, `-`, `.`, `/`) that would
     // otherwise make the generated CREATE statement invalid.
-    private const NAME_PATTERN = '/^[a-zA-Z0-9_$\x7f-\xff]+$/';
+    private const NAME_PATTERN = '/^[a-zA-Z0-9_$\x7f-\xff]+$/D';
 
     /**
      * @param list<string> $fieldNames

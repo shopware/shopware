@@ -6,6 +6,8 @@ import type { Plugin } from 'vite';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createRequire } from 'node:module';
+import { createHash } from 'node:crypto';
+import { parse, type SFCBlock } from '@vue/compiler-sfc';
 import type { transformShopwareSetupSfc as transformShopwareSetupSfcRuntime } from '../../vue-setup-transform';
 import { createVirtualSetupSourcemapContext } from './virtual-sfc-sourcemap';
 
@@ -21,10 +23,51 @@ type ShopwareSetupTransformResult = NonNullable<ReturnType<typeof transformShopw
 
 type Options = {
     administrationRoot: string;
+    /** Hot updates the scripts of setup SFCs, see `shopware-setup-hmr`. */
+    scriptHmr?: boolean;
 };
 
 function withoutQuery(id: string): string {
     return id.split('?')[0];
+}
+
+/**
+ * @private
+ * Module meta of a setup SFC, read by `shopware-setup-hmr`.
+ */
+export type ShopwareSetupHmrMeta = Pick<ShopwareSetupTransformResult, 'componentName' | 'mode'> & {
+    /** The authored file, which `@vitejs/plugin-vue` reports as changed when it is saved. */
+    file: string;
+    /**
+     * Hash of the generated scripts, not of the authored ones: an override's generated script also depends on
+     * which script locals its template reads. A template edit keeps it.
+     */
+    version: string;
+    /**
+     * Hash of what the Administration reads once at boot: the block names, and the plain `<script>` that
+     * registers the extension targets before Twig templates resolve.
+     */
+    structure: string;
+};
+
+function hash(value: unknown): string {
+    return createHash('sha256').update(JSON.stringify(value)).digest('hex');
+}
+
+function scripts(code: string, file: string): Array<[string, SFCBlock['attrs']] | null> {
+    const { descriptor } = parse(code, { filename: file, sourceMap: false });
+
+    return [descriptor.script, descriptor.scriptSetup].map((block) => block && [block.content, block.attrs]);
+}
+
+function describeForHmr(source: string, file: string, result: ShopwareSetupTransformResult): ShopwareSetupHmrMeta {
+    return {
+        componentName: result.componentName,
+        mode: result.mode,
+        file,
+        version: hash(scripts(result.code, file)),
+        structure: hash([result.ownedBlockNames, result.extendedBlockNames, scripts(source, file)[0]]),
+    };
 }
 
 /**
@@ -58,6 +101,21 @@ async function importShopwareSetupTransform(administrationRoot: string): Promise
     return transformModule.transformShopwareSetupSfc;
 }
 
+/** Renders a transform diagnostic as `file:line:column` plus its message, so editors can jump to it. */
+function formatTransformError(error: unknown, fileName: string, source: string): string {
+    // Duck-typed: the lazily required transform module may throw from another realm, where `instanceof` fails.
+    const { message: rawMessage, index } = (error ?? {}) as { message?: unknown; index?: unknown };
+    const message = typeof rawMessage === 'string' ? rawMessage : String(error);
+
+    if (typeof index !== 'number') {
+        return `[shopware-setup] ${fileName}\n${message}`;
+    }
+
+    const lines = source.slice(0, index).split('\n');
+
+    return `[shopware-setup] ${fileName}:${lines.length}:${lines[lines.length - 1].length + 1}\n${message}`;
+}
+
 /**
  * @private
  *
@@ -70,15 +128,16 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
     // One instance per extension, so this catches collisions within a build, not across extensions.
     const baseComponentFiles = new Map<string, string>();
     const virtualSourcemap = createVirtualSetupSourcemapContext(options.administrationRoot);
-    // resolveId has to run the transform to detect a setup SFC at all, so its result is stashed here for
-    // the matching load(). Keyed by source content: Vite's import-analysis re-resolves watched files after
-    // every transform and re-stashes, so an entry can predate the user's next edit - reusing it unverified
-    // would serve every edit one save late.
+    // resolveId has to run the transform to detect a setup SFC at all, and hotUpdate runs it for its
+    // diagnostics, so the result is stashed here for the matching load(). Keyed by source content: Vite's
+    // import-analysis re-resolves watched files after every transform and re-stashes, so an entry can
+    // predate the user's next edit - reusing it unverified would serve every edit one save late.
     const resolvedTransforms = new Map<string, { source: string; result: ShopwareSetupTransformResult }>();
     // Set from the resolved Vite config; the remap is pointless when the build emits no maps.
     let sourcemapsEnabled = true;
     // caveat: also rejections are cached
     let transformPromise: Promise<typeof transformShopwareSetupSfcRuntime> | null = null;
+    const transformOptions = { hotUpdates: options.scriptHmr };
 
     function loadShopwareSetupTransform(): Promise<typeof transformShopwareSetupSfcRuntime> {
         transformPromise ??= importShopwareSetupTransform(options.administrationRoot);
@@ -99,14 +158,33 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
         const transformShopwareSetupSfc = await loadShopwareSetupTransform();
         const source = await fs.readFile(fileName, 'utf8');
 
-        return { source, result: transformShopwareSetupSfc(source, fileName) };
+        return { source, result: transformShopwareSetupSfc(source, fileName, transformOptions) };
     }
 
     /** Transforms already-loaded module code; see {@link transformFile} for the read-from-disk variant. */
     async function transformSource(code: string, fileName: string): Promise<ShopwareSetupTransformResult | null> {
         const transformShopwareSetupSfc = await loadShopwareSetupTransform();
 
-        return transformShopwareSetupSfc(code, fileName);
+        return transformShopwareSetupSfc(code, fileName, transformOptions);
+    }
+
+    /**
+     * Transforms a saved file and returns its formatted diagnostic, or `null` when it compiles.
+     *
+     * A successful result is stashed for the `load` the hot update triggers, so a save is transformed once.
+     */
+    async function transformChangedFile(fileName: string, source: string): Promise<string | null> {
+        try {
+            const result = await transformSource(source, fileName);
+
+            if (result) {
+                resolvedTransforms.set(fileName, { source, result });
+            }
+
+            return null;
+        } catch (error) {
+            return formatTransformError(error, fileName, source);
+        }
     }
 
     function assertUniqueBaseComponent(result: ShopwareSetupTransformResult, fileName: string): void {
@@ -229,6 +307,7 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
             return {
                 code: result.code,
                 map: result.map,
+                meta: options.scriptHmr ? { shopwareSetupHmr: describeForHmr(source, originalFileName, result) } : undefined,
             };
         },
 
@@ -260,13 +339,35 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
          * from `getModulesByFile(<changed file>)` - `addWatchFile` alone does not link file and module,
          * so without this hook an edit invalidated nothing until the dev server was restarted.
          * Returning the virtual module makes Vite invalidate it and push the update to the client.
+         *
+         * It is also where a transform failure gets reported. Otherwise the transform runs only once a
+         * client requests the module (`resolveId`/`load`), so saving a file that does not compile printed
+         * nothing at all (issue #19562). A failure is reported here instead of pushing the update, which
+         * would make the client refetch the module, fail again in `load` and get it reported twice.
          */
-        hotUpdate({ file, modules }) {
+        async hotUpdate({ type, file, modules, read }) {
             if (!file.endsWith('.vue') || virtualSourcemap.isVirtualFileName(file) || isDependencyFile(file)) {
                 return undefined;
             }
 
             const virtualModule = this.environment.moduleGraph.getModuleById(virtualSourcemap.toVirtualFileName(file));
+
+            // Vite runs this hook once per environment (client and ssr); report only once.
+            if (type !== 'delete' && this.environment.name === 'client') {
+                const failure = await transformChangedFile(file, await read());
+
+                if (failure) {
+                    this.environment.logger.error(failure);
+                    this.environment.hot.send({ type: 'error', err: { message: failure, stack: '' } });
+
+                    // Without a pushed update nothing drops the cached transform, so a reload would serve stale code.
+                    if (virtualModule) {
+                        this.environment.moduleGraph.invalidateModule(virtualModule);
+                    }
+
+                    return [];
+                }
+            }
 
             if (!virtualModule) {
                 return undefined;

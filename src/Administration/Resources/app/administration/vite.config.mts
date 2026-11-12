@@ -2,41 +2,32 @@
  * @package framework
  */
 
-import { defineConfig, loadEnv } from 'vite';
-import { createHtmlPlugin } from 'vite-plugin-html';
-import { nodePolyfills } from 'vite-plugin-node-polyfills';
+import type { UserConfig, UserConfigFnPromise } from 'vite';
 import svgLoader from 'vite-svg-loader';
-import vue from '@vitejs/plugin-vue';
 import * as path from 'path';
 import * as fs from 'fs';
-import symfonyPlugin from 'vite-plugin-symfony';
 import colors from 'picocolors';
-import { getMainViteServerConfig, isInsideDockerContainer, loadExtensions } from './build/vite-plugins/utils';
+import {
+    getDevServerHttpsConfig,
+    getMainViteServerConfig,
+    isInsideDockerContainer,
+    loadExtensions,
+    readFeatureFlags,
+} from './build/vite-plugins/utils';
 import TwigPlugin from './build/vite-plugins/twigjs-plugin';
 import AssetPlugin from './build/vite-plugins/asset-plugin';
 import AssetPathPlugin from './build/vite-plugins/asset-path-plugin';
 import ImageDeprecationPlugin from './build/vite-plugins/image-deprecation';
 import AssetCssPostprocessPlugin from './build/vite-plugins/asset-css-postprocess-plugin';
 import ShopwareSetupPlugin from './build/vite-plugins/shopware-setup';
+import VirtualShopwareModulesPlugin from './build/vite-plugins/virtual-shopware-modules';
+import NodeEnvDefinePlugin from './build/vite-plugins/node-env-define';
+import AdminIndexHtmlPlugin from './build/vite-plugins/admin-index-html';
+import ExtglobCompatPlugin from './build/vite-plugins/extglob-compat';
+import ExtensionDevServerPlugin from './build/vite-plugins/extension-dev-server';
+import { isBundledDevActive, loadViteToolchain } from './build/vite-plugins/vite-toolchain';
 
 console.log(colors.yellow('# Compiling Administration with Vite configuration'));
-
-process.env = { ...process.env, ...loadEnv('', process.cwd()) };
-process.env.PROJECT_ROOT = process.env.PROJECT_ROOT || path.join(__dirname, '/../../../../../');
-
-process.env.SERVICE_REGISTRY_URL = process.env.SERVICE_REGISTRY_URL ?? 'https://registry.services.shopware.io';
-
-if (!process.env.APP_URL) {
-    console.log(colors.yellowBright('APP_URL is not defined. Dev-Mode will not work.'));
-}
-
-const viteExtensionServerMapping = getMainViteServerConfig();
-
-const flagsPath = path.join(process.env.PROJECT_ROOT, 'var', 'config_js_features.json');
-let featureFlags = {};
-if (fs.existsSync(flagsPath)) {
-    featureFlags = JSON.parse(fs.readFileSync(flagsPath, 'utf-8'));
-}
 
 const pageLoadingScreenPath = path.join(__dirname, '..', '..', 'shared', 'page-loading-screen');
 const pageLoadingScreen = {
@@ -45,16 +36,39 @@ const pageLoadingScreen = {
     markup: fs.readFileSync(path.join(pageLoadingScreenPath, 'page-loading-screen.html')),
 };
 
-// eslint-disable-next-line
-export default defineConfig(({ command }) => {
+export default (async ({ command }) => {
+    process.env.PROJECT_ROOT = process.env.PROJECT_ROOT || path.join(__dirname, '/../../../../../');
+
+    const toolchain = await loadViteToolchain();
+
+    process.env = { ...process.env, ...toolchain.vite.loadEnv('', process.cwd()) };
+    process.env.SERVICE_REGISTRY_URL = process.env.SERVICE_REGISTRY_URL ?? 'https://registry.services.shopware.io';
+
+    if (!process.env.APP_URL) {
+        console.log(colors.yellowBright('APP_URL is not defined. Dev-Mode will not work.'));
+    }
+
+    const viteExtensionServerMapping = getMainViteServerConfig();
+
     const isProd = command === 'build';
     const isDev = !isProd;
     const base = isProd ? '/bundles/administration/administration' : undefined;
-    const useSourceMap = (isDev && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1') || (isProd && process.env.GENERATE_SOURCEMAPS === 'true');
+    const useSourceMap =
+        (isDev && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1') ||
+        (isProd && process.env.GENERATE_SOURCEMAPS === 'true');
     const openBrowserForWatch = process.env.DISABLE_DEVSERVER_OPEN !== '1' && !isInsideDockerContainer();
+    const useBundledDev = isBundledDevActive(isDev);
 
     if (isProd) {
         console.log(colors.yellow('# Production mode activated 🚀'));
+    }
+
+    if (toolchain.isVite8) {
+        console.log(colors.yellow('# Vite 8 activated by the ADMIN_VITE_8 feature flag'));
+    }
+
+    if (useBundledDev) {
+        console.log(colors.yellow('# Experimental bundled dev mode activated'));
     }
 
     // We only load extensions here to display the successful injection
@@ -76,17 +90,22 @@ export default defineConfig(({ command }) => {
 
         logLevel: isProd ? 'warn' : 'info',
 
+        // Typed with Vite 6, which does not know the bundled dev mode
+        ...(useBundledDev ? { experimental: { bundledDev: true } as UserConfig['experimental'] } : {}),
+
         server: {
             open: openBrowserForWatch,
             host: process.env.HOST ? process.env.HOST : 'localhost',
             port: viteExtensionServerMapping.port,
+            https: getDevServerHttpsConfig(),
             proxy: {
                 '/api': {
                     target: process.env.APP_URL,
                     changeOrigin: true,
                     secure: false,
                 },
-                ...viteExtensionServerMapping.proxy,
+                // With Vite 8 the extensions are served by the ExtensionDevServerPlugin
+                ...(toolchain.isVite8 ? {} : viteExtensionServerMapping.proxy),
             },
             allowedHosts: true,
         },
@@ -104,9 +123,23 @@ export default defineConfig(({ command }) => {
                 ShopwareSetupPlugin({
                     administrationRoot: __dirname,
                 }),
+                VirtualShopwareModulesPlugin({
+                    administrationRoot: __dirname,
+                    consumer: 'host',
+                }),
 
                 // Twig.JS loads node modules, so we need to polyfill them
-                nodePolyfills({
+                toolchain.nodePolyfills({
+                    // In the unbundled dev mode of Vite 8, the globals are only provided via the pre-bundled
+                    // dependencies. Injecting them into every source module costs a lot of time on each server start.
+                    globals:
+                        toolchain.isVite8 && isDev && !useBundledDev
+                            ? {
+                                  Buffer: 'dev',
+                                  global: 'dev',
+                                  process: 'dev',
+                              }
+                            : undefined,
                     // To add only specific polyfills, add them here. If no option is passed, adds all polyfills
                     include: [
                         'path',
@@ -114,7 +147,8 @@ export default defineConfig(({ command }) => {
                     ],
                 }),
                 svgLoader(),
-                vue(),
+                toolchain.vue(),
+                ...(toolchain.isVite8 ? [ExtglobCompatPlugin()] : []),
             ];
 
             if (isDev) {
@@ -122,28 +156,19 @@ export default defineConfig(({ command }) => {
                 return [
                     ...sharedPlugins,
 
-                    // used to serve index.html and link index.vite.ts automatically
-                    createHtmlPlugin({
-                        minify: false,
-                        /**
-                         * After writing entry here, you will not need to add script tags in `index.html`,
-                         * the original tags need to be deleted
-                         * @default src/main.ts
-                         */
-                        entry: 'src/index.ts',
+                    ...(toolchain.isVite8 ? [ExtensionDevServerPlugin(toolchain, extensions, useBundledDev)] : []),
 
-                        /**
-                         * Data that needs to be injected into the index.html ejs template
-                         */
-                        inject: {
-                            data: {
-                                featureFlags: JSON.stringify(featureFlags),
-                                serviceRegistryUrl: process.env.SERVICE_REGISTRY_URL,
-                                analyticsGatewayUrl: process.env.PRODUCT_ANALYTICS_GATEWAY_URL,
-                                hideUpdateModule: ['1', 'true'].includes(process.env.SHOPWARE_AUTO_UPDATE_HIDE_MODULE ?? ''),
-                                pageLoadingScreen,
-                            },
-                        },
+                    ...(useBundledDev ? [NodeEnvDefinePlugin()] : []),
+
+                    AdminIndexHtmlPlugin({
+                        featureFlags: JSON.stringify(readFeatureFlags()),
+                        serviceRegistryUrl: process.env.SERVICE_REGISTRY_URL,
+                        analyticsGatewayUrl: process.env.PRODUCT_ANALYTICS_GATEWAY_URL,
+                        hideUpdateModule: [
+                            '1',
+                            'true',
+                        ].includes(process.env.SHOPWARE_AUTO_UPDATE_HIDE_MODULE ?? ''),
+                        pageLoadingScreen,
                     }),
                 ];
             }
@@ -153,7 +178,7 @@ export default defineConfig(({ command }) => {
                 ...sharedPlugins,
 
                 // We only use the symfony integration for build, as serving the Shared Worker doesn't work
-                symfonyPlugin(),
+                toolchain.symfonyPlugin(),
             ];
         })(),
 
@@ -184,6 +209,13 @@ export default defineConfig(({ command }) => {
             ],
         },
 
+        css: {
+            // Lightning CSS minifies the CSS since Vite 8. It fails on invalid rules, which esbuild and browsers just drop.
+            lightningcss: {
+                errorRecovery: true,
+            },
+        },
+
         optimizeDeps: {
             include: [
                 'vue-router',
@@ -193,14 +225,31 @@ export default defineConfig(({ command }) => {
                 'flatpickr/**/*',
                 'date-fns-tz',
             ],
+            // DIVE ships Vite-only import queries (`?raw`, `?url`) in its published build.
+            // esbuild cannot resolve those while pre-bundling, so the dependency has to stay
+            // in Vite's own pipeline.
+            exclude: ['@shopware-ag/dive'],
             // This avoids full-page reload but the browser can't process more requests in parallel
             holdUntilCrawlEnd: true,
-            esbuildOptions: {
-                // Node.js global to browser globalThis
-                define: {
-                    global: 'globalThis',
-                },
-            },
+            ...(toolchain.isVite8
+                ? {
+                      rolldownOptions: {
+                          transform: {
+                              // Node.js global to browser globalThis
+                              define: {
+                                  global: 'globalThis',
+                              },
+                          },
+                      },
+                  }
+                : {
+                      esbuildOptions: {
+                          // Node.js global to browser globalThis
+                          define: {
+                              global: 'globalThis',
+                          },
+                      },
+                  }),
         },
 
         worker: {
@@ -224,9 +273,8 @@ export default defineConfig(({ command }) => {
             manifest: true,
             sourcemap: useSourceMap,
             rollupOptions: {
-                // overwrite default .html entry
                 input: {
-                    administration: 'src/index.ts',
+                    administration: useBundledDev ? 'index.html' : 'src/index.ts',
                 },
                 output: {
                     entryFileNames: 'assets/[name]-[hash].js',
@@ -235,4 +283,4 @@ export default defineConfig(({ command }) => {
             chunkSizeWarningLimit: 5000,
         },
     };
-});
+}) satisfies UserConfigFnPromise;

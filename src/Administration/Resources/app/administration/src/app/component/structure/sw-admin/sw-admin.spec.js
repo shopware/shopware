@@ -19,7 +19,6 @@ async function createWrapper(isLoggedIn, forwardLogout = () => {}, route = 'sw.w
                 'sw-hidden-iframes': true,
                 'sw-modals-renderer': true,
                 'sw-in-app-purchase-checkout': true,
-                'sw-app-wrong-app-url-modal': true,
                 'router-view': true,
                 'sw-skip-link': true,
                 'sw-media-modal-renderer': true,
@@ -200,5 +199,28 @@ describe('src/app/component/structure/sw-admin/index.ts', () => {
         await flushPromises();
 
         expect(document.body.textContent).toContain('Jest snackbar');
+    });
+
+    it('should register an override again when the hot reload replaces its component', async () => {
+        const registrations = [];
+        const overrideComponent = (version) => ({
+            __hmrId: 'sw-admin-spec-override',
+            setup: () => {
+                registrations.push(version);
+                return () => null;
+            },
+        });
+        const initial = overrideComponent('initial');
+        globalThis.__VUE_HMR_RUNTIME__.createRecord(initial.__hmrId, initial);
+        Shopware.Component.registerOverrideComponent(initial);
+        wrapper = await createWrapper(false);
+
+        globalThis.__VUE_HMR_RUNTIME__.reload(initial.__hmrId, overrideComponent('edited'));
+        await flushPromises();
+
+        expect(registrations).toEqual([
+            'initial',
+            'edited',
+        ]);
     });
 });

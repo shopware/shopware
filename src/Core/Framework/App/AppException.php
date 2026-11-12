@@ -8,6 +8,8 @@ use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationRejectedException;
+use Shopware\Core\Framework\App\Exception\AppUrlFailedVerificationException;
+use Shopware\Core\Framework\App\Exception\AppValidationRefusedException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Exception\InvalidAppFlowActionVariableException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeStrategyNotFoundException;
@@ -15,7 +17,11 @@ use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
+use Shopware\Core\Framework\App\Url\VerificationState;
+use Shopware\Core\Framework\App\Url\VerificationStatus;
 use Shopware\Core\Framework\App\Validation\Error\Error;
+use Shopware\Core\Framework\App\Validation\Error\IncompatibleAppError;
+use Shopware\Core\Framework\App\Validation\Error\UnmetRequirementError;
 use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
@@ -30,6 +36,7 @@ class AppException extends HttpException
 {
     public const CANNOT_DELETE_COMPOSER_MANAGED = 'FRAMEWORK__APP_CANNOT_DELETE_COMPOSER_MANAGED';
     public const NOT_COMPATIBLE = 'FRAMEWORK__APP_NOT_COMPATIBLE';
+    public const VALIDATION_FAILED = 'FRAMEWORK__APP_VALIDATION_FAILED';
     public const NOT_FOUND = 'FRAMEWORK__APP_NOT_FOUND';
     public const ALREADY_INSTALLED = 'FRAMEWORK__APP_ALREADY_INSTALLED';
     public const REGISTRATION_FAILED = 'FRAMEWORK__APP_REGISTRATION_FAILED';
@@ -74,6 +81,8 @@ class AppException extends HttpException
     final public const INVALID_SHOP_ID_CONFIGURATION = 'FRAMEWORK__APP_INVALID_SHOP_ID_CONFIGURATION';
     final public const SHOP_ID_CHANGE_STRATEGY_NOT_FOUND = 'FRAMEWORK__APP_SHOP_ID_CHANGE_STRATEGY_NOT_FOUND';
     final public const APP_URL_INVALID = 'FRAMEWORK__APP_URL_INVALID';
+    final public const APP_URL_FAILED_VERIFICATION = 'FRAMEWORK__APP_URL_FAILED_VERIFICATION';
+    final public const APP_URL_VERIFICATION_UNAVAILABLE = 'FRAMEWORK__APP_URL_VERIFICATION_UNAVAILABLE';
     final public const MANIFEST_NOT_FOUND = 'FRAMEWORK__APP_MANIFEST_NOT_FOUND';
     final public const APP_REQUIREMENTS_NOT_MET = 'FRAMEWORK__APP_REQUIREMENTS_NOT_MET';
     final public const RE_REGISTRATION_FAILED = 'FRAMEWORK__APP_RE_REGISTRATION_FAILED';
@@ -95,11 +104,20 @@ class AppException extends HttpException
 
     public static function notCompatible(string $pluginName): self
     {
-        return new self(
+        return self::validationFailedFromError(new IncompatibleAppError($pluginName));
+    }
+
+    /**
+     * The error decides how the refusal is reported, so a check that already had its own API error
+     * code keeps reporting under it.
+     */
+    public static function validationFailedFromError(Error $error): AppValidationRefusedException
+    {
+        return new AppValidationRefusedException(
             Response::HTTP_BAD_REQUEST,
-            self::NOT_COMPATIBLE,
-            'App {{ name }} is not compatible with this Shopware version',
-            ['name' => $pluginName]
+            $error->getErrorCode(),
+            $error->getMessage(),
+            $error->getParameters()
         );
     }
 
@@ -639,6 +657,34 @@ class AppException extends HttpException
         );
     }
 
+    public static function appUrlFailedVerification(VerificationState $state): self
+    {
+        if ($state->is(VerificationStatus::SOFT_FAIL)) {
+            return new AppUrlFailedVerificationException(
+                Response::HTTP_SERVICE_UNAVAILABLE,
+                self::APP_URL_VERIFICATION_UNAVAILABLE,
+                'APP_URL "{{ appUrl }}" could not be reached. Try again later, or run bin/console app:url:verify for details.',
+                ['appUrl' => $state->appUrl]
+            );
+        }
+
+        if ($state->statusCode === null) {
+            return new AppUrlFailedVerificationException(
+                Response::HTTP_BAD_GATEWAY,
+                self::APP_URL_FAILED_VERIFICATION,
+                'APP_URL "{{ appUrl }}" could not be verified. Run bin/console app:url:verify for details.',
+                ['appUrl' => $state->appUrl]
+            );
+        }
+
+        return new AppUrlFailedVerificationException(
+            Response::HTTP_BAD_GATEWAY,
+            self::APP_URL_FAILED_VERIFICATION,
+            'APP_URL "{{ appUrl }}" did not answer the verification request as expected (HTTP {{ statusCode }}). Check that APP_URL points to this installation and is not blocked.',
+            ['appUrl' => $state->appUrl, 'statusCode' => $state->statusCode]
+        );
+    }
+
     public static function manifestNotFound(string $path): self
     {
         return new self(
@@ -677,23 +723,13 @@ class AppException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement in next major version as it is unused
+     */
     public static function requirementsNotMet(UnmetRequirement ...$violations): self
     {
-        $violationDetails = array_map(
-            fn (UnmetRequirement $v) => \sprintf(
-                'App "%s" - Requirement "%s": %s',
-                $v->appName,
-                $v->requirementName,
-                $v->actionableResolution
-            ),
-            $violations
-        );
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
 
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::APP_REQUIREMENTS_NOT_MET,
-            'The app requirements are not met: {{ violations }}',
-            ['violations' => implode('; ', $violationDetails)]
-        );
+        return self::validationFailedFromError(new UnmetRequirementError(...$violations));
     }
 }

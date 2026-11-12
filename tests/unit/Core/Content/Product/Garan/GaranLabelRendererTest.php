@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Garan\GaranLabelDurationFormatter;
+use Shopware\Core\Content\Product\Garan\GaranLabelInlineImage;
 use Shopware\Core\Content\Product\Garan\GaranLabelRenderer;
 use Shopware\Core\Content\Product\Garan\GaranLabelResolver;
 use Shopware\Core\Content\Product\Garan\GaranLabelTwigFilter;
@@ -143,14 +144,14 @@ class GaranLabelRendererTest extends TestCase
         $renderer = new GaranLabelRenderer($twig);
         $durationFormatter = new GaranLabelDurationFormatter();
 
-        /** @var StaticEntityRepository<ProductCollection> $productRepository */
-        $productRepository = new StaticEntityRepository([], new ProductDefinition());
+        $productRepository = StaticEntityRepository::of(ProductCollection::class, [], new ProductDefinition());
 
         // The templates measure their own values, so they need the filter the extension provides.
         $twig->addExtension(new GaranLabelTwigFilter(
             $durationFormatter,
             $productRepository,
             new GaranLabelResolver($durationFormatter, $renderer),
+            new GaranLabelInlineImage(),
         ));
 
         return $renderer;

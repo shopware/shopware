@@ -6,10 +6,14 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type HttpClientValue = any;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export type HttpHeaders = Record<string, HttpClientValue>;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export interface HttpRequestConfig<Data = HttpClientValue> {
     [key: string]: HttpClientValue;
     url?: string;
@@ -59,8 +63,8 @@ export interface HttpError<Data = HttpClientValue> extends Error {
 
 /**
  * @deprecated tag:v6.8.0 - Will be removed. Use `AbortController` and `AbortSignal` instead.
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface HttpCancelToken {
     promise: Promise<unknown>;
     reason?: unknown;

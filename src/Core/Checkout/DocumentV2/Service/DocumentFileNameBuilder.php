@@ -3,8 +3,8 @@
 namespace Shopware\Core\Checkout\DocumentV2\Service;
 
 use Psr\Clock\ClockInterface;
-use Shopware\Core\Checkout\Document\DocumentCollection;
-use Shopware\Core\Checkout\Document\DocumentEntity;
+use Shopware\Core\Checkout\DocumentV2\DocumentCollection;
+use Shopware\Core\Checkout\DocumentV2\DocumentEntity;
 use Shopware\Core\Framework\Log\Package;
 
 /**

@@ -97,7 +97,7 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
 
         const { wrapper } = await createWrapper();
 
-        const textEditor = wrapper.getComponent('.sw-text-editor');
+        const textEditor = wrapper.getComponent('.sw-category-detail-base__description');
 
         expect(textEditor.props('disabled')).toBe(false);
     });
@@ -105,7 +105,7 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
     it('should disable the text editor for the description', async () => {
         const { wrapper } = await createWrapper();
 
-        const textEditor = wrapper.getComponent('.sw-text-editor');
+        const textEditor = wrapper.getComponent('.sw-category-detail-base__description');
 
         expect(textEditor.props('disabled')).toBe(true);
     });

@@ -52,7 +52,6 @@ export default {
                 'billing-country-filter',
                 'customer-group-filter',
                 'shipping-country-filter',
-                'customer-group-filter',
                 'tag-filter',
                 'line-item-filter',
             ],
@@ -70,6 +69,10 @@ export default {
     },
 
     computed: {
+        hasActiveSearchOrFilter() {
+            return this.activeFilterNumber > 0 || this.isValidTerm(this.term);
+        },
+
         orderRepository() {
             return this.repositoryFactory.create('order');
         },
@@ -118,7 +121,9 @@ export default {
                     .getAssociation('deliveries')
                     .addAssociation('stateMachineState')
                     .addAssociation('shippingOrderAddress')
-                    .addAssociation('shippingMethod');
+                    .addAssociation('shippingMethod')
+                    .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'))
+                    .addSorting(Criteria.sort('id', 'ASC'));
             }
 
             return criteria;
@@ -233,6 +238,7 @@ export default {
                     placeholder: this.$t('sw-order.filters.promotionCodeFilter.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
+                    additionalFilters: [Criteria.equals('lineItems.type', 'promotion')],
                 },
                 'document-filter': {
                     property: 'documents',

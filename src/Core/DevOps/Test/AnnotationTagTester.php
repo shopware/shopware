@@ -187,7 +187,7 @@ class AnnotationTagTester
         // experimental code) but must be in ALL_CAPS format when present.
         match (true) {
             !isset($properties['stableVersion']) => throw new \InvalidArgumentException('Could not find property stableVersion in experimental annotation.'),
-            isset($properties['feature']) && !preg_match('/^(?:[A-Z]+(_[A-Z]+)*)+$/', $properties['feature']) => throw new \InvalidArgumentException('The value of feature-property can not be empty, contain white spaces and must be in ALL_CAPS format.'),
+            isset($properties['feature']) && !preg_match('/^(?:[A-Z]+(_[A-Z]+)*)+$/D', $properties['feature']) => throw new \InvalidArgumentException('The value of feature-property can not be empty, contain white spaces and must be in ALL_CAPS format.'),
             default => $this->validateVersion($properties['stableVersion'], AnnotationTagVersionSchema::PLATFORM_DEPRECATION_SCHEMA),
         };
     }

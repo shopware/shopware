@@ -117,8 +117,9 @@ function describeExistingSfc(vuePath: string, name: string): string {
  * Ordinary writes publish only the validated Vue draft. Replacing the legacy entry point is a
  * separate explicit phase; Twig is never deleted.
  *
- * `--write` runs against a clean working tree (see `findDirtyPaths`), so `git checkout` undoes
- * everything a partial run left behind — nothing here needs its own transaction.
+ * `--write` runs against a clean working tree without untracked files (see `findDirtyPaths`), so
+ * `git checkout . && git clean -f` undoes everything a partial run left behind — nothing here needs
+ * its own transaction.
  */
 function writeComponent(input: {
     sfc: string;
@@ -174,11 +175,12 @@ function findDirtyPaths(targetDir: string): string[] {
 
 async function runMigration(
     targetDir: string,
-    options: { write?: boolean; replaceOriginals?: boolean; scanRoot?: string } = {},
+    options: { write?: boolean; replaceOriginals?: boolean; scanRoot?: string; adminSrc?: string } = {},
 ): Promise<MigrationResult> {
     const write = options.write ?? false;
     const replaceOriginals = options.replaceOriginals ?? false;
-    const scanRoot = options.scanRoot ?? (isContained(ADMIN_SRC, targetDir) ? ADMIN_SRC : targetDir);
+    const adminSrc = options.adminSrc ?? ADMIN_SRC;
+    const scanRoot = options.scanRoot ?? (isContained(adminSrc, targetDir) ? adminSrc : targetDir);
     const index = collectComponentSourceIndex(scanRoot);
     const indexFiles = [...index.files.keys()]
         .filter(
@@ -319,6 +321,8 @@ async function runMigration(
                     vuePath,
                     lang: indexFile.endsWith('.ts') ? 'ts' : 'js',
                     templateImportRange: component.template.importRange,
+                    // Per component: a target above `src/` holds Administration and extension components alike.
+                    extensionTarget: !isContained(adminSrc, dir),
                 });
             } catch (error) {
                 report(name, dir, 'error', [errorText(error)]);

@@ -33,7 +33,7 @@ class EntitySearchToolIntegrationTest extends TestCase
         $criteriaBuilder = static::getContainer()->get(RequestCriteriaBuilder::class);
         \assert($criteriaBuilder instanceof RequestCriteriaBuilder);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
         $encoder = static::getContainer()->get(JsonEntityEncoder::class);
@@ -51,7 +51,7 @@ class EntitySearchToolIntegrationTest extends TestCase
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertTrue($data['success']);
-        static::assertNotEmpty($data['data']);
+        static::assertNotCount(0, $data['data']);
         static::assertGreaterThan(0, $data['_meta']['total']);
         static::assertSame(1, $data['_meta']['page']);
     }
@@ -136,6 +136,6 @@ class EntitySearchToolIntegrationTest extends TestCase
 
         static::assertTrue($data['success']);
         static::assertSame(0, $data['_meta']['total']);
-        static::assertEmpty($data['data']);
+        static::assertCount(0, $data['data']);
     }
 }

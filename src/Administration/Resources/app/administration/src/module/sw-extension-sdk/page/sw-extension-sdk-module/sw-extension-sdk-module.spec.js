@@ -65,8 +65,6 @@ async function createWrapper(back = null, push = jest.fn()) {
     });
 }
 
-jest.setTimeout(8000);
-
 describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
     /** @type Wrapper */
     let wrapper;
@@ -79,21 +77,32 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
         store.hiddenSmartBars = [];
     });
 
-    it('@slow should time out without menu item after 7000ms', async () => {
-        await new Promise((r) => {
-            setTimeout(r, 7100);
-        });
+    afterEach(() => {
+        jest.useRealTimers();
+    });
+
+    it('should time out without menu item after 7000ms', async () => {
+        // Replace the beforeEach wrapper: its loading timeout was scheduled with real timers
+        wrapper.unmount();
+        jest.useFakeTimers();
+        wrapper = await createWrapper();
+
+        await jest.advanceTimersByTimeAsync(7000);
+
         expect(wrapper.vm.timedOut).toBe(true);
     });
 
-    it('@slow should not time out with menu item', async () => {
+    it('should not time out with menu item', async () => {
+        wrapper.unmount();
+        jest.useFakeTimers();
+        wrapper = await createWrapper();
+
         const moduleId = await Shopware.Store.get('extensionSdkModules').addModule(mockModule);
         expect(typeof moduleId).toBe('string');
         expect(moduleId).toBe(wrapper.vm.id);
 
-        await new Promise((r) => {
-            setTimeout(r, 7100);
-        });
+        await jest.advanceTimersByTimeAsync(7000);
+
         expect(wrapper.vm.timedOut).toBe(false);
     });
 
@@ -115,7 +124,7 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
             onClickCallback: () => spy(),
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const smartBarButton = wrapper.find('button');
 
@@ -162,7 +171,7 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
         const initialInstance = wrapper.findComponent(iframeRendererStub);
 
         store.modules[0].locationId = 'jest-next';
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const rerenderedInstance = wrapper.findComponent(iframeRendererStub);
 

@@ -95,7 +95,7 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         $dispatchedMessages = $messageBus->getMessages();
 
-        static::assertNotEmpty($dispatchedMessages);
+        static::assertNotCount(0, $dispatchedMessages);
 
         $entitySyncMessage = $dispatchedMessages[0]->getMessage();
 
@@ -145,7 +145,7 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         $dispatchedMessages = $messageBus->getMessages();
 
-        static::assertNotEmpty($dispatchedMessages);
+        static::assertNotCount(0, $dispatchedMessages);
 
         $entitySyncMessage = $dispatchedMessages[0]->getMessage();
 
@@ -196,7 +196,7 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         $dispatchedMessages = $messageBus->getMessages();
 
-        static::assertNotEmpty($dispatchedMessages);
+        static::assertNotCount(0, $dispatchedMessages);
 
         $entitySyncMessage = $dispatchedMessages[0]->getMessage();
 
@@ -240,7 +240,6 @@ class IterateEntityMessageHandlerTest extends TestCase
             $logger,
         );
 
-        /** @var DefinitionInstanceRegistry $registry */
         $registry = static::getContainer()->get(DefinitionInstanceRegistry::class);
         $registry->register(new TestEntityDefinition());
 
@@ -304,7 +303,6 @@ class IterateEntityMessageHandlerTest extends TestCase
 
     private function setConsentAccepted(): void
     {
-        /** @var Connection $connection */
         $connection = static::getContainer()->get(Connection::class);
 
         $connection->executeStatement(
@@ -331,7 +329,6 @@ class IterateEntityMessageHandlerTest extends TestCase
 
     private function insertProductDeletion(string $id, \DateTimeImmutable $deletedAt): void
     {
-        /** @var Connection $connection */
         $connection = static::getContainer()->get(Connection::class);
         $qb = $connection->createQueryBuilder();
         $qb->insert('usage_data_entity_deletion');

@@ -19,11 +19,16 @@ use Shopware\Core\Checkout\Cart\Order\Transformer\CustomerTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\DeliveryTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\LineItemTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\TransactionTransformer;
+use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
+use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Checkout\CheckoutPermissions;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -281,9 +286,6 @@ class OrderConverter
         }
 
         $cart->addExtension(self::ORIGINAL_ORDER_NUMBER, new IdStruct($orderNumber));
-        /* NEXT-708 support:
-            - transactions
-        */
 
         $lineItems = LineItemTransformer::transformFlatToNested($order->getLineItems());
 
@@ -301,6 +303,12 @@ class OrderConverter
             $this->convertDeliveries($order->getPrimaryOrderDeliveryId(), $order->getDeliveries(), $lineItems)
         );
 
+        if ($order->getTransactions() !== null) {
+            $cart->setTransactions(
+                $this->convertTransactions($order->getPrimaryOrderTransactionId(), $order->getTransactions())
+            );
+        }
+
         $event = new OrderConvertedEvent($order, $cart, $context);
         $this->eventDispatcher->dispatch($event);
 
@@ -308,7 +316,7 @@ class OrderConverter
     }
 
     /**
-     * @param array<string, array<string, bool>|string> $overrideOptions
+     * @param array<string, array<string, bool>|string|null> $overrideOptions
      *
      * @throws InconsistentCriteriaIdsException
      */
@@ -339,7 +347,12 @@ class OrderConverter
             $orderShippingAddressId = $order->getDeliveries()?->first()?->getShippingOrderAddressId() ?? '';
         }
 
-        $orderAddresses = $this->orderAddressRepository->search(new Criteria(\array_filter([$orderBillingAddressId, $orderShippingAddressId])), $context)->getEntities();
+        $orderAddressCriteria = (new Criteria(\array_filter([$orderBillingAddressId, $orderShippingAddressId])))
+            ->addAssociation('country')
+            ->addAssociation('countryState')
+            ->addAssociation('salutation');
+
+        $orderAddresses = $this->orderAddressRepository->search($orderAddressCriteria, $context)->getEntities();
         $orderBillingAddress = $orderAddresses->get($orderBillingAddressId);
         $orderShippingAddress = $orderShippingAddressId ? $orderAddresses->get($orderShippingAddressId) : null;
 
@@ -375,6 +388,12 @@ class OrderConverter
 
         if ($shippingAddressId) {
             $options[SalesChannelContextService::SHIPPING_ADDRESS_ID] = $shippingAddressId;
+        }
+
+        // the order's own addresses are used whenever no customer address matches them, e.g. after the customer edited it
+        $options[SalesChannelContextService::BILLING_ADDRESS] = $this->toCustomerAddress($orderBillingAddress, $customerId);
+        if ($orderShippingAddress !== null) {
+            $options[SalesChannelContextService::SHIPPING_ADDRESS] = $this->toCustomerAddress($orderShippingAddress, $customerId);
         }
 
         $shippingMethodId = $order->getPrimaryOrderDelivery()?->getShippingMethodId();
@@ -430,6 +449,39 @@ class OrderConverter
         $this->eventDispatcher->dispatch($event);
 
         return $salesChannelContext;
+    }
+
+    private function toCustomerAddress(OrderAddressEntity $orderAddress, ?string $customerId): CustomerAddressEntity
+    {
+        $address = new CustomerAddressEntity();
+        $address->assign([
+            'id' => $orderAddress->getId(),
+            'countryId' => $orderAddress->getCountryId(),
+            'countryStateId' => $orderAddress->getCountryStateId(),
+            'salutationId' => $orderAddress->getSalutationId(),
+            'firstName' => $orderAddress->getFirstName(),
+            'lastName' => $orderAddress->getLastName(),
+            'zipcode' => $orderAddress->getZipcode(),
+            'city' => $orderAddress->getCity(),
+            'company' => $orderAddress->getCompany(),
+            'department' => $orderAddress->getDepartment(),
+            'title' => $orderAddress->getTitle(),
+            'street' => $orderAddress->getStreet(),
+            'phoneNumber' => $orderAddress->getPhoneNumber(),
+            'additionalAddressLine1' => $orderAddress->getAdditionalAddressLine1(),
+            'additionalAddressLine2' => $orderAddress->getAdditionalAddressLine2(),
+            'country' => $orderAddress->getCountry(),
+            'countryState' => $orderAddress->getCountryState(),
+            'salutation' => $orderAddress->getSalutation(),
+            'customFields' => $orderAddress->getCustomFields(),
+            'hash' => $orderAddress->getHash(),
+        ]);
+
+        if ($customerId !== null) {
+            $address->setCustomerId($customerId);
+        }
+
+        return $address;
     }
 
     private function convertDeliveries(?string $primaryOrderDeliveryId, OrderDeliveryCollection $orderDeliveries, LineItemCollection $lineItems): DeliveryCollection
@@ -512,6 +564,30 @@ class OrderConverter
         }
 
         return $cartDeliveries;
+    }
+
+    private function convertTransactions(?string $primaryOrderTransactionId, OrderTransactionCollection $orderTransactions): TransactionCollection
+    {
+        // Ensure the primary transaction is first, so `$transactions->first()` returns the primary transaction.
+        $keys = \array_filter(\array_unique([$primaryOrderTransactionId, ...$orderTransactions->getKeys()]));
+
+        $cartTransactions = new TransactionCollection();
+        foreach ($keys as $id) {
+            $orderTransaction = $orderTransactions->get($id);
+            if ($orderTransaction === null) {
+                continue;
+            }
+
+            $cartTransaction = new Transaction(
+                $orderTransaction->getAmount(),
+                $orderTransaction->getPaymentMethodId(),
+            );
+            $cartTransaction->addExtension(self::ORIGINAL_ID, new IdStruct($orderTransaction->getId()));
+
+            $cartTransactions->add($cartTransaction);
+        }
+
+        return $cartTransactions;
     }
 
     /**

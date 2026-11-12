@@ -84,7 +84,6 @@ class CustomerEmailUniqueValidatorTest extends TestCase
             $violations = $exception->getViolations();
             $violation = $violations->get(1);
 
-            static::assertNotEmpty($violation);
             static::assertSame($constraint->getMessage(), $violation->getMessageTemplate());
         }
     }
@@ -118,7 +117,6 @@ class CustomerEmailUniqueValidatorTest extends TestCase
             $violations = $exception->getViolations();
             $violation = $violations->get(1);
 
-            static::assertNotEmpty($violation);
             static::assertSame($constraint->getMessage(), $violation->getMessageTemplate());
         }
     }

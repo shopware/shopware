@@ -5,11 +5,11 @@ namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Config;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelEntity;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelEntity;
 use Shopware\Core\Checkout\DocumentV2\App\AppDocumentTypeConfig;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
@@ -21,6 +21,8 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\App\Feature\AppFeature;
 use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
@@ -50,57 +52,6 @@ class DocumentConfigLoaderTest extends TestCase
         $storage->method('forActiveApps')->willReturn([]);
 
         $this->documentTypeRegistry = new DocumentTypeRegistry([], $storage);
-    }
-
-    public function testLoadPicksMatchingSalesChannelRowWhenMultipleNonGlobalRowsReturned(): void
-    {
-        $matchingSalesChannelId = Uuid::randomHex();
-
-        $globalRow = $this->createBaseConfig(
-            global: true,
-            pageSize: 'A4',
-            companyName: 'Global GmbH',
-        );
-
-        $matchingRow = $this->createBaseConfig(
-            global: false,
-            pageSize: 'Letter',
-            companyName: 'Matching Channel GmbH',
-            salesChannelId: $matchingSalesChannelId,
-        );
-
-        $otherRow = $this->createBaseConfig(
-            global: false,
-            pageSize: 'A5',
-            companyName: 'Wrong Channel GmbH',
-        );
-
-        $documentRepo = new StaticEntityRepository(
-            [new DocumentBaseConfigCollection([$globalRow, $otherRow, $matchingRow])],
-            new DocumentBaseConfigDefinition(),
-        );
-
-        $countryRepo = new StaticEntityRepository(
-            [new CountryCollection([$this->createCountry()])],
-            new CountryDefinition(),
-        );
-
-        $loader = new DocumentConfigLoader(
-            $documentRepo,
-            $countryRepo,
-            $this->createMediaRepository(),
-            $this->createSystemConfigService(),
-            $this->documentTypeRegistry,
-        );
-
-        $bundle = $loader->load(
-            DocumentType::INVOICE->value,
-            $matchingSalesChannelId,
-            Context::createDefaultContext(),
-        );
-
-        static::assertSame('Letter', $bundle->config->pageSize);
-        static::assertSame('Matching Channel GmbH', $bundle->company->companyName);
     }
 
     public function testLoadSalesChannelFilenameInfixOverridesGlobalPerFormat(): void
@@ -443,6 +394,38 @@ class DocumentConfigLoaderTest extends TestCase
         static::assertSame($expectedSuffix, $bundle->config->filenameSuffix);
     }
 
+    public function testLoadSearchesOnlyTheGlobalAndTheSalesChannelRows(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+
+        $documentRepo = new StaticEntityRepository(
+            [new DocumentBaseConfigCollection([$this->createBaseConfig(global: true, pageSize: 'A4', companyName: 'Global GmbH')])],
+            new DocumentBaseConfigDefinition(),
+        );
+
+        $loader = new DocumentConfigLoader(
+            $documentRepo,
+            new StaticEntityRepository([new CountryCollection([$this->createCountry()])], new CountryDefinition()),
+            $this->createMediaRepository(),
+            $this->createSystemConfigService(),
+            $this->documentTypeRegistry,
+        );
+
+        $loader->load(DocumentType::INVOICE->value, $salesChannelId, Context::createDefaultContext());
+
+        static::assertCount(1, $documentRepo->searchedCriteria);
+        static::assertEquals(
+            [
+                new EqualsFilter('typeName', DocumentType::INVOICE->value),
+                new OrFilter([
+                    new EqualsFilter('global', true),
+                    new EqualsFilter('salesChannels.salesChannelId', $salesChannelId),
+                ]),
+            ],
+            $documentRepo->searchedCriteria[0]->getFilters(),
+        );
+    }
+
     public function testLoadFallsBackToGlobalWhenNoSalesChannelRowMatches(): void
     {
         $globalRow = $this->createBaseConfig(
@@ -451,14 +434,8 @@ class DocumentConfigLoaderTest extends TestCase
             companyName: 'Global GmbH',
         );
 
-        $unrelatedRow = $this->createBaseConfig(
-            global: false,
-            pageSize: 'A5',
-            companyName: 'Unrelated GmbH',
-        );
-
         $documentRepo = new StaticEntityRepository(
-            [new DocumentBaseConfigCollection([$globalRow, $unrelatedRow])],
+            [new DocumentBaseConfigCollection([$globalRow])],
             new DocumentBaseConfigDefinition(),
         );
 

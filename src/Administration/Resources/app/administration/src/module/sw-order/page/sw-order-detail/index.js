@@ -61,6 +61,8 @@ export default {
             isDisplayingLeavePageWarning: false,
             nextRoute: null,
             hasNewVersionId: false,
+            versionOrderId: null,
+            versionRequestId: 0,
             hasOrderDeepEdit: false,
             missingProductLineItems: [],
             promotionsToDelete: [],
@@ -217,7 +219,8 @@ export default {
             criteria
                 .getAssociation('deliveries')
                 .addAssociation('stateMachineState')
-                .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'));
+                .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'))
+                .addSorting(Criteria.sort('id', 'ASC'));
 
             criteria
                 .getAssociation('transactions')
@@ -244,6 +247,13 @@ export default {
 
     watch: {
         orderId() {
+            this.beforeDestroyComponent();
+
+            this.hasOrderDeepEdit = false;
+            this.missingProductLineItems = [];
+            this.promotionsToDelete = [];
+            this.deliveryDiscountsToDelete = [];
+
             this.createdComponent();
         },
 
@@ -264,6 +274,17 @@ export default {
 
     beforeRouteLeave(to, from, next) {
         if (this.isOrderEditing) {
+            this.nextRoute = next;
+            this.isDisplayingLeavePageWarning = true;
+
+            return;
+        }
+
+        next();
+    },
+
+    beforeRouteUpdate(to, from, next) {
+        if (to.params.id !== from.params.id && this.isOrderEditing) {
             this.nextRoute = next;
             this.isDisplayingLeavePageWarning = true;
 
@@ -305,6 +326,8 @@ export default {
 
         beforeDestroyComponent(useKeepalive = false) {
             Store.get('swOrderDetail').setOrderAddressIds(null);
+            Store.get('swOrderDetail').resetCustomer();
+            this.versionRequestId += 1;
 
             if (this.hasNewVersionId) {
                 const oldVersionContext = this.versionContext;
@@ -313,12 +336,12 @@ export default {
 
                 // clean up recently created version
                 if (useKeepalive) {
-                    this.orderRepository.deleteVersionWithKeepalive(this.orderId, oldVersionContext.versionId);
+                    this.orderRepository.deleteVersionWithKeepalive(this.versionOrderId, oldVersionContext.versionId);
 
                     return;
                 }
 
-                this.orderRepository.deleteVersion(this.orderId, oldVersionContext.versionId);
+                this.orderRepository.deleteVersion(this.versionOrderId, oldVersionContext.versionId);
             }
         },
 
@@ -379,6 +402,11 @@ export default {
                     this.hasOrderDeepEdit = false;
                     this.promotionsToDelete = [];
                     this.deliveryDiscountsToDelete = [];
+
+                    // Release the version before merging, so unloading the page cannot discard a version being merged.
+                    Store.get('swOrderDetail').versionContext = Shopware.Context.api;
+                    this.hasNewVersionId = false;
+
                     return this.orderRepository.mergeVersion(this.order.versionId);
                 })
                 .then(() => this.createNewVersionId())
@@ -559,16 +587,24 @@ export default {
             Store.get('swOrderDetail').setOrderAddressIds(null);
             this.hasNewVersionId = false;
 
-            return this.orderRepository
-                .createVersion(this.orderId)
-                .then((newContext) => {
-                    this.hasNewVersionId = true;
+            const orderId = this.orderId;
+            this.versionRequestId += 1;
+            const requestId = this.versionRequestId;
 
-                    Store.get('swOrderDetail').versionContext = newContext;
+            return this.orderRepository.createVersion(orderId).then((newContext) => {
+                if (requestId !== this.versionRequestId) {
+                    this.orderRepository.deleteVersion(orderId, newContext.versionId);
 
-                    return this.reloadEntityData(false);
-                })
-                .then(() => this.convertMissingProductLineItems());
+                    return null;
+                }
+
+                this.hasNewVersionId = true;
+                this.versionOrderId = orderId;
+
+                Store.get('swOrderDetail').versionContext = newContext;
+
+                return this.reloadEntityData(false).then(() => this.convertMissingProductLineItems());
+            });
         },
 
         updateOrderAddresses(mappings) {

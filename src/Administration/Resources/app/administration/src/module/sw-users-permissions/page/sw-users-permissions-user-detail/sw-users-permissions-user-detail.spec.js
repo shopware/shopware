@@ -6,6 +6,7 @@
 import { mount } from '@vue/test-utils';
 import TimezoneService from 'src/core/service/timezone.service';
 import EntityCollection from 'src/core/data/entity-collection.data';
+import useModuleIconColors, { USER_MODULE_ICON_COLORS_CONFIG_KEY } from 'src/app/composables/use-module-icon-colors';
 
 let wrapper;
 
@@ -22,6 +23,7 @@ async function createWrapper(
             stubs: {},
         },
     },
+    saveUser = () => Promise.resolve(),
 ) {
     wrapper = mount(
         await wrapTestComponent('sw-users-permissions-user-detail', {
@@ -29,6 +31,7 @@ async function createWrapper(
         }),
         {
             global: {
+                config: options.global.config,
                 directives: {
                     tooltip: {
                         beforeMount(el, binding) {
@@ -86,7 +89,7 @@ async function createWrapper(
                                             },
                                         });
                                     },
-                                    save: () => Promise.resolve(),
+                                    save: saveUser,
                                 };
                             }
 
@@ -186,7 +189,7 @@ async function createWrapper(
     );
 
     // wait until all loading promises are done
-    await wrapper.vm.$nextTick();
+    await flushPromises();
 
     return wrapper;
 }
@@ -472,6 +475,57 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         expect(wrapper.find('.sw-settings-user-detail__grid-theme').exists()).toBe(false);
     });
 
+    it('should show the module icon colors select only for the own user', async () => {
+        wrapper = await createWrapper('users_and_permissions.editor');
+
+        await wrapper.setData({
+            isLoading: false,
+            userId: 'current-user-id',
+            currentUser: { id: 'current-user-id' },
+            user: { id: 'current-user-id', localeId: '12345' },
+        });
+
+        expect(wrapper.find('.sw-settings-user-detail__grid-module-icon-colors').exists()).toBe(true);
+
+        await wrapper.setData({
+            userId: 'other-user-id',
+            user: { id: 'other-user-id', localeId: '12345' },
+        });
+
+        expect(wrapper.find('.sw-settings-user-detail__grid-module-icon-colors').exists()).toBe(false);
+    });
+
+    it('should map the module icon colors preference to the select options', async () => {
+        useModuleIconColors().enabled.value = true;
+
+        expect(wrapper.vm.userModuleIconColors).toBe('module');
+
+        wrapper.vm.userModuleIconColors = 'neutral';
+
+        expect(wrapper.vm.userModuleIconColorsSelection).toBe(false);
+        expect(wrapper.vm.userModuleIconColors).toBe('neutral');
+
+        useModuleIconColors().enabled.value = false;
+    });
+
+    it('should persist the selected module icon colors as a boolean on save', async () => {
+        Shopware.Application.$container.resetProviders();
+        Shopware.Application.addServiceProvider('localeHelper', () => ({ setLocaleWithId: () => Promise.resolve() }));
+        const upsert = jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
+        useModuleIconColors().enabled.value = true;
+
+        wrapper.vm.userModuleIconColors = 'neutral';
+        await wrapper.vm.saveUser();
+        await flushPromises();
+
+        expect(upsert).toHaveBeenCalledWith({
+            [USER_MODULE_ICON_COLORS_CONFIG_KEY]: { enabled: false },
+        });
+        expect(useModuleIconColors().enabled.value).toBe(false);
+        expect(wrapper.vm.userModuleIconColorsSelection).toBeNull();
+        expect(wrapper.vm.userModuleIconColors).toBe('neutral');
+    });
+
     it('should change the password', async () => {
         wrapper = await createWrapper('users_and_permissions.editor', {
             global: {
@@ -676,6 +730,38 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
 
         expect(wrapper.vm.isLoading).toBe(false);
         expect(saveSpy).not.toHaveBeenCalled();
+    });
+
+    it.each([
+        ['USER__USERNAME_NOT_UNIQUE', 'global.error-codes.USER__USERNAME_NOT_UNIQUE'],
+        ['OTHER_ERROR', 'sw-users-permissions.users.user-detail.notification.saveError.message'],
+    ])('shows the expected save notification for %s', async (code, message) => {
+        jest.spyOn(console, 'warn').mockImplementation(() => {});
+        const error = { response: { data: { errors: [{ code }] } } };
+        const save = jest.fn().mockRejectedValue(error);
+        const notification = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+        await wrapper.unmount();
+        wrapper = await createWrapper(
+            ['users_and_permissions.editor'],
+            {
+                global: {
+                    config: { errorHandler: jest.fn() },
+                    stubs: {
+                        'sw-verify-user-modal': {
+                            template: '<button class="confirm-save" @click="$emit(\'verified\')">Confirm</button>',
+                        },
+                    },
+                },
+            },
+            save,
+        );
+
+        await wrapper.find('.sw-settings-user-detail__save-action').trigger('click');
+        await wrapper.find('.confirm-save').trigger('click');
+        await flushPromises();
+
+        expect(notification).toHaveBeenCalledWith(expect.objectContaining({ message }));
+        expect(save).toHaveBeenCalled();
     });
 
     it('should stop loading when email validation fails', async () => {

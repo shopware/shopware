@@ -9,8 +9,9 @@
  * different shapes: which identifiers does a piece of code read, write, or declare, and how do nested
  * scopes shadow them. Two families:
  *
- * - Template-expression references (`references`): what a Vue expression reads / writes / a binding
- *   pattern declares, honoring template and JS scopes.
+ * - Template-expression references (`references`): what a Vue expression reads and what a binding
+ *   pattern declares, honoring template and JS scopes - as names, or as the occurrence sites a
+ *   rewriting pass needs.
  * - Setup-script references (`setup-references`): every occurrence of a top-level setup name that the
  *   base-mode rename pass must rewrite, with function-scope shadowing.
  *
@@ -23,14 +24,14 @@
  * @private
  */
 export {
+    type OccurrenceExpansion,
     addPatternNames,
-    collectExpressionReferences,
-    collectExpressionWriteTargets,
-    collectPatternReferences,
+    collectExpressionOccurrences,
+    collectPatternOccurrences,
     parseBindingPattern,
 } from './references';
 
 /**
  * @private
  */
-export { type SetupRenameExpansion, type SetupRenameTarget, collectSetupRenameTargets } from './setup-references';
+export { type SetupRenameTarget, collectSetupRenameTargets } from './setup-references';

@@ -119,6 +119,10 @@
                 "type": "boolean",
                 "description": "Whether configured APP_URL is externally reachable."
               },
+              "appUrlStatusCode": {
+                "type": ["integer", "null"],
+                "description": "HTTP status code APP_URL answered the failed verification request with, null when the verification passed or got no response."
+              },
               "appsRequireAppUrl": {
                 "type": "boolean",
                 "description": "True if at least one installed app requires a reachable APP_URL."
@@ -167,6 +171,20 @@
               "type": "object",
               "description": "Purchase entry.",
               "additionalProperties": true
+            }
+          },
+          "versionHistory": {
+            "type": "array",
+            "description": "Shopware versions this shop was installed with or updated to, oldest first, at most 24 entries.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "version": { "type": "string", "description": "Shopware version." },
+                "recordedAt": { "type": "string", "format": "date-time", "description": "Time the install or update finished." },
+                "type": { "type": "string", "enum": ["install", "update"], "description": "Whether the version was installed or reached by an update." }
+              },
+              "required": ["version", "recordedAt", "type"],
+              "additionalProperties": false
             }
           }
         },

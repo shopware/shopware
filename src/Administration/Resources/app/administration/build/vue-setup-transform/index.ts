@@ -12,17 +12,13 @@
  */
 
 import { lowerShopwareSetupBlock } from './lower';
-import { analyzeShopwareSetupScript, type ShopwareSetupScriptAnalysis } from './script-analyzer';
+import { analyzeShopwareSetupScript } from './script-analyzer';
 import { applySourceEdits, type AppliedSourceEdits } from './source-edits/apply-source-edits';
-import {
-    analyzeBaseTemplate,
-    analyzeOverrideTemplate,
-    emptyTemplateAnalysis,
-    type TemplateAnalysis,
-} from './template-analyzer';
+import { analyzeBaseTemplate, analyzeOverrideTemplate } from './template-analyzer';
 import { parseShopwareSetupSfc } from './sfc-parser';
 import type { ShopwareSetupBlock } from './utils/shopware-setup-block';
-import { ShopwareSetupTransformError } from './utils/transform-error';
+import { ShopwareSetupInternalError, ShopwareSetupTransformError } from './utils/transform-error';
+import { resolveErrorSource } from './utils/error-source';
 
 type ShopwareSetupTransformResult = {
     code: string;
@@ -39,57 +35,68 @@ type ShopwareSetupTransformResult = {
 };
 
 /**
- * Moves block-relative analyzer errors to the start of the original script body.
+ * Resolves the error's absolute offset against the original SFC. A position-less error is anchored
+ * to the script block so Vite and Jest still land in the right file region.
  */
-function withBlockOffset(error: unknown, block: ShopwareSetupBlock): unknown {
-    if (!(error instanceof ShopwareSetupTransformError) || error.index !== null) {
+function withAuthorLocation(error: unknown, source: string, filename: string, block: ShopwareSetupBlock | null): unknown {
+    if (!(error instanceof ShopwareSetupTransformError)) {
         return error;
     }
 
-    return new ShopwareSetupTransformError(error.message, block.contentStart);
+    const diagnostic = resolveErrorSource(source, filename, error.index ?? block?.contentStart ?? 0, error.endIndex);
+    error.loc = diagnostic.loc;
+    // Vite may catch this in the importer; supply the frame so it cannot highlight that file instead.
+    error.frame = diagnostic.frame;
+
+    return error;
 }
 
 /**
  * Converts a Shopware setup SFC into plain Vue-compatible code before Vue compiles it.
+ *
+ * `hotUpdates` is for output the dev server hot updates: each edit evaluates the module again, while
+ * components set up by the previous version stay mounted until the new one sets them up again.
  */
-function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): ShopwareSetupTransformResult | null {
-    const block = parseShopwareSetupSfc(source, filename);
-
-    if (!block) {
-        return null;
-    }
-
-    let analysis: ShopwareSetupScriptAnalysis;
-    let edits: ReturnType<typeof lowerShopwareSetupBlock>;
-    let templateAnalysis: TemplateAnalysis = emptyTemplateAnalysis();
+function transformShopwareSetupSfc(
+    source: string,
+    filename = 'anonymous.vue',
+    { hotUpdates = false }: { hotUpdates?: boolean } = {},
+): ShopwareSetupTransformResult | null {
+    let block: ShopwareSetupBlock | null = null;
 
     try {
-        analysis = analyzeShopwareSetupScript(block.content, {
+        block = parseShopwareSetupSfc(source, filename);
+
+        if (!block) {
+            return null;
+        }
+
+        const analysis = analyzeShopwareSetupScript(block.content, {
             mode: block.mode,
             lang: block.lang,
             scriptOffset: block.contentStart,
         });
-        templateAnalysis = analysis.mode === 'base' ? analyzeBaseTemplate(block) : analyzeOverrideTemplate(block, analysis);
+        const templateAnalysis =
+            analysis.mode === 'base' ? analyzeBaseTemplate(block) : analyzeOverrideTemplate(block, analysis);
 
-        edits = lowerShopwareSetupBlock(block, analysis, templateAnalysis);
+        const edits = lowerShopwareSetupBlock(block, analysis, templateAnalysis, { filename, hotUpdates });
+        const transformed = applySourceEdits(source, filename, edits);
+
+        return {
+            code: transformed.code,
+            map: transformed.map,
+            mode: block.mode,
+            // Exposed so the build integration can maintain a per-compilation registry and reject two
+            // SFCs that resolve to the same extendable component name. Cross-file enforcement lives with
+            // the loader/compilation layer; this transform stays a pure per-file step.
+            componentName: block.componentName,
+            filename,
+            ownedBlockNames: templateAnalysis.ownedBlockNames,
+            extendedBlockNames: templateAnalysis.extendedBlockNames,
+        };
     } catch (error) {
-        throw withBlockOffset(error, block);
+        throw withAuthorLocation(error, source, filename, block);
     }
-
-    const transformed = applySourceEdits(source, filename, edits);
-
-    return {
-        code: transformed.code,
-        map: transformed.map,
-        mode: block.mode,
-        // Exposed so the build integration can maintain a per-compilation registry and reject two
-        // SFCs that resolve to the same extendable component name. Cross-file enforcement lives with
-        // the loader/compilation layer; this transform stays a pure per-file step.
-        componentName: block.componentName,
-        filename,
-        ownedBlockNames: templateAnalysis.ownedBlockNames,
-        extendedBlockNames: templateAnalysis.extendedBlockNames,
-    };
 }
 
 /**
@@ -104,6 +111,7 @@ function validateShopwareSetupSfc(source: string, filename = 'anonymous.vue'): v
  */
 export {
     type ShopwareSetupTransformResult,
+    ShopwareSetupInternalError,
     ShopwareSetupTransformError,
     transformShopwareSetupSfc,
     validateShopwareSetupSfc,

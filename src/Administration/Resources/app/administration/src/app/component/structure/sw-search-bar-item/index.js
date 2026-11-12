@@ -45,6 +45,8 @@ export default {
         },
     },
 
+    emits: ['click-search-result'],
+
     props: {
         item: {
             type: Object,
@@ -97,12 +99,20 @@ export default {
             return module.manifest;
         },
 
+        customItemRoute() {
+            const searchType = Object.values(this.searchTypes).find((type) => {
+                return type.entityName === this.type && typeof type.itemRoute === 'function';
+            });
+
+            return searchType ? searchType.itemRoute(this.item) : null;
+        },
+
         detailRoute() {
             return this.moduleManifest?.routes?.detail?.name;
         },
 
         displayValue() {
-            if (!this.moduleManifest.hasOwnProperty('entityDisplayProperty')) {
+            if (!this.moduleManifest?.hasOwnProperty('entityDisplayProperty')) {
                 return this.item.hasOwnProperty('name') ? this.item.name : this.item.id;
             }
 
@@ -166,7 +176,16 @@ export default {
                 return false;
             }
 
-            return this.$t(`global.sw-search-bar-item.shortcuts.${name}`, action ? 2 : 1);
+            const shortcut = this.$t(`global.sw-search-bar-item.shortcuts.${name}`, action ? 2 : 1);
+
+            // `&nbsp;` is used as a placeholder in the snippets when a module has no
+            // shortcut for the requested state (e.g. adding a landing page reuses the
+            // category module which has no "add" shortcut). Don't render an empty box.
+            if (shortcut.trim() === '&nbsp;') {
+                return false;
+            }
+
+            return shortcut;
         },
 
         productDisplayName() {
@@ -256,6 +275,7 @@ export default {
 
         onClickSearchResult(entity, id, payload = {}) {
             this.recentlySearchService.add(this.currentUser.id, entity, id, payload);
+            this.$emit('click-search-result', entity, id, payload);
         },
     },
 };

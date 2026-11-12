@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Page\Account\Order;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
+use Shopware\Storefront\Checkout\Order\OrderProductAvailabilityResolver;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
 use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoadedEvent;
 use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader;
@@ -55,6 +57,7 @@ class AccountOrderPageLoaderTest extends TestCase
             $this->eventDispatcher,
             $this->orderRoute,
             $this->translator,
+            static::createStub(OrderProductAvailabilityResolver::class),
         );
     }
 
@@ -115,5 +118,50 @@ class AccountOrderPageLoaderTest extends TestCase
 
         static::assertInstanceOf(OrderRouteRequestEvent::class, $events[0]);
         static::assertInstanceOf(AccountOrderPageLoadedEvent::class, $events[1]);
+    }
+
+    #[DataProvider('pageParameterProvider')]
+    public function testLoadUsesNonNegativeOffsetForPageParameter(string $pageParameter, int $expectedOffset): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $this->orderRoute
+            ->expects($this->once())
+            ->method('load')
+            ->with(
+                static::isInstanceOf(Request::class),
+                $context,
+                static::callback(static fn (Criteria $criteria) => $criteria->getOffset() === $expectedOffset),
+            )
+            ->willReturn(new OrderRouteResponse(
+                new EntitySearchResult(
+                    OrderDefinition::ENTITY_NAME,
+                    0,
+                    new OrderCollection(),
+                    null,
+                    new Criteria(),
+                    Context::createDefaultContext()
+                )
+            ));
+
+        $this->genericPageLoader
+            ->expects($this->once())
+            ->method('load')
+            ->willReturn(new Page());
+
+        $this->translator
+            ->expects($this->once())
+            ->method('trans')
+            ->willReturn('translated');
+
+        $this->pageLoader->load(new Request(['p' => $pageParameter]), $context);
+    }
+
+    public static function pageParameterProvider(): \Generator
+    {
+        yield 'negative page falls back to the first page' => ['-5', 0];
+        yield 'zero page falls back to the first page' => ['0', 0];
+        yield 'non-numeric page falls back to the first page' => ['foo', 0];
+        yield 'valid page is converted to its offset' => ['3', 20];
     }
 }

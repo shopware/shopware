@@ -12,13 +12,18 @@ use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\Test\AppSystemTestBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -109,6 +114,27 @@ class HttpCacheIntegrationTest extends TestCase
         // cache miss as request hash differs, no store as it also differs from hash calculated from context
         $response = $kernel->handle($request);
         $this->assertCacheHeader('GET /: miss', $response);
+    }
+
+    public function testMaintenancePageIsRenderedAfterMaintenanceGotEnabledAgain(): void
+    {
+        $kernel = $this->getCacheKernel();
+
+        $appUrl = EnvironmentHelper::getVariable('APP_URL');
+        static::assertIsString($appUrl);
+
+        // maintenance is off, so the maintenance page sends the visitor back into the shop
+        $response = $kernel->handle($this->createRequest($appUrl . '/maintenance'));
+        static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+
+        $this->setMaintenanceMode(true);
+        // the next request starts from a fresh process in production, so the memoized domain data must not survive it
+        static::getContainer()->get('services_resetter')->reset();
+
+        // maintenance is on and the client is not allowlisted, so the maintenance page must be rendered
+        // instead of the redirect into the shop that got cached while maintenance was off
+        $response = $kernel->handle($this->createRequest($appUrl . '/maintenance'));
+        static::assertSame(Response::HTTP_SERVICE_UNAVAILABLE, $response->getStatusCode());
     }
 
     public function testCacheForAppScriptEndpointIsEnabledByDefault(): void
@@ -212,21 +238,16 @@ class HttpCacheIntegrationTest extends TestCase
         $route = '/storefront/script/custom-cache-config';
         $request = $this->createRequest(EnvironmentHelper::getVariable('APP_URL') . $route);
 
-        $this->addEventListener(static::getContainer()->get('event_dispatcher'), KernelEvents::RESPONSE, static function (ResponseEvent $event) use ($route): void {
+        $cacheHeaders = [];
+        EventHookDispatcher::fromContainer(static::getContainer())->on(KernelEvents::RESPONSE, static function (ResponseEvent $event) use ($route, &$cacheHeaders): void {
             if ($event->getRequest()->getPathInfo() !== $route) {
                 return;
             }
-            if (Feature::isActive('v6.8.0.0')) {
-                // with v6.8.0.0 cache policies drive the headers: the script's shared max age
-                // overrides the policy's s-maxage, invalidation states are removed
-                static::assertSame(5, $event->getResponse()->getMaxAge());
-                static::assertNull($event->getResponse()->headers->get(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER));
-
-                return;
-            }
-            static::assertSame(5, $event->getResponse()->getMaxAge());
-            static::assertSame('logged-in', $event->getResponse()->headers->get(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER));
-        }, -1501);
+            $cacheHeaders[] = [
+                $event->getResponse()->getMaxAge(),
+                $event->getResponse()->headers->get(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER),
+            ];
+        });
 
         $response = $kernel->handle($request);
         $this->assertCacheHeader(\sprintf('GET %s: miss, store', $route), $response);
@@ -235,6 +256,28 @@ class HttpCacheIntegrationTest extends TestCase
         $response = $kernel->handle($request);
         $this->assertCacheHeader(\sprintf('GET %s: fresh', $route), $response);
         static::assertFalse($response->headers->has(CacheStore::TAG_HEADER));
+
+        // with v6.8.0.0 cache policies drive the headers: the script's shared max age
+        // overrides the policy's s-maxage, invalidation states are removed
+        $expectedInvalidationStates = Feature::isActive('v6.8.0.0') ? null : 'logged-in';
+        static::assertSame([[5, $expectedInvalidationStates]], $cacheHeaders);
+    }
+
+    private function setMaintenanceMode(bool $maintenance): void
+    {
+        /** @var EntityRepository<SalesChannelCollection> $salesChannelRepository */
+        $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
+
+        $salesChannelId = $salesChannelRepository->searchIds(
+            (new Criteria())->addFilter(new EqualsFilter('domains.url', EnvironmentHelper::getVariable('APP_URL'))),
+            Context::createDefaultContext()
+        )->firstId();
+        static::assertNotNull($salesChannelId);
+
+        $salesChannelRepository->update(
+            [['id' => $salesChannelId, 'maintenance' => $maintenance, 'maintenanceIpAllowlist' => []]],
+            Context::createDefaultContext()
+        );
     }
 
     private function createRequest(?string $url = null): Request

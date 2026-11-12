@@ -72,7 +72,7 @@ checkout:
 
 engine:
   id: claude
-  model: claude-opus-4-8
+  model: claude-opus-5-5
   max-turns: 90
   env:
     # The repo's ANTHROPIC_API_KEY secret is empty; the real Quality-Initiative key is in

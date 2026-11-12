@@ -45,7 +45,7 @@ class CustomFieldRepositoryTest extends TestCase
         static::assertNotNull($events);
 
         $payloads = $events->getPayloads();
-        static::assertNotEmpty($payloads);
+        static::assertNotCount(0, $payloads);
 
         static::assertSame($attribute['id'], $payloads[0]['id']);
         static::assertSame($attribute['name'], $payloads[0]['name']);

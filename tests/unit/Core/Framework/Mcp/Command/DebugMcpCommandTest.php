@@ -31,7 +31,6 @@ use Symfony\Component\Console\Tester\CommandTester;
  */
 #[Package('framework')]
 #[CoversClass(DebugMcpCommand::class)]
-#[CoversClass(McpCapabilityCatalog::class)]
 class DebugMcpCommandTest extends TestCase
 {
     /**
@@ -189,30 +188,12 @@ class DebugMcpCommandTest extends TestCase
         static::assertSame($sorted, $positions, 'Detail rows must read Title, Type, Scope, Group, Handler.');
     }
 
-    /**
-     * @return iterable<string, array{array<string, mixed>}>
-     */
-    public static function malformedRequiredSchemaProvider(): iterable
+    public function testDetailViewRendersToolWithoutRequiredKey(): void
     {
-        yield 'required key omitted, as the SDK SchemaGenerator does when no parameter is required' => [
-            ['type' => 'object', 'properties' => ['limit' => ['type' => 'integer']]],
-        ];
-
-        yield 'required value is not an array, as unvalidated third-party registrations may carry' => [
-            ['type' => 'object', 'properties' => ['limit' => ['type' => 'integer']], 'required' => 'invalid'],
-        ];
-    }
-
-    /**
-     * @param array<string, mixed> $inputSchema
-     */
-    #[DataProvider('malformedRequiredSchemaProvider')]
-    public function testDetailViewRendersToolWithMalformedRequiredSchema(array $inputSchema): void
-    {
+        // the SDK SchemaGenerator omits 'required' when no parameter is required
         $registry = new Registry();
         $registry->registerTool(
-            // @phpstan-ignore argument.type (malformed schemas are not bound by the ToolInputSchema type alias at runtime)
-            new Tool('my-tool', null, $inputSchema, 'Does things', null),
+            new Tool('my-tool', null, ['type' => 'object', 'properties' => ['limit' => ['type' => 'integer']]], 'Does things', null),
             'Acme\\MyTool',
         );
 
@@ -344,7 +325,7 @@ class DebugMcpCommandTest extends TestCase
         static::assertSame(0, $tester->getStatusCode());
     }
 
-    public function testIntegrationOptionWithNullAllowlistShowsAllToolsAndNote(): void
+    public function testIntegrationOptionWithNullToolListShowsNoTools(): void
     {
         $registry = new Registry();
         $registry->registerTool(new Tool('tool-a', null, self::inputSchema(), null, null), 'Acme\\ToolA');
@@ -357,9 +338,10 @@ class DebugMcpCommandTest extends TestCase
         $tester->execute(['--integration' => 'SWIA-test-key']);
 
         $output = $tester->getDisplay();
-        static::assertStringContainsString('no tool restriction', $output);
-        static::assertStringContainsString('tool-a', $output);
-        static::assertStringContainsString('tool-b', $output);
+        static::assertStringContainsString('no tools allowed', $output);
+        static::assertStringNotContainsString('no tool restriction', $output);
+        static::assertStringNotContainsString('tool-a', $output);
+        static::assertStringNotContainsString('tool-b', $output);
         static::assertSame(0, $tester->getStatusCode());
     }
 
@@ -829,12 +811,52 @@ class DebugMcpCommandTest extends TestCase
         static::assertStringContainsString('tools', $output);
     }
 
+    public function testToolsClaimingTheReservedDiscoveryGroupAreReported(): void
+    {
+        $command = new DebugMcpCommand(
+            Server::builder(),
+            new Registry(),
+            static::createStub(McpAllowlistProvider::class),
+            new McpCapabilityCatalog(null, $this->stubPrivilegeProvider()),
+            demotedDiscoveryTools: ['store-api' => ['create_cart' => 'Acme\\CartTool']],
+        );
+
+        $tester = new CommandTester($command);
+        $tester->execute([]);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('Moved from the reserved "discovery" group', $output);
+        static::assertStringContainsString('create_cart (store-api, Acme\\CartTool)', $output);
+    }
+
+    public function testScopeOptionLimitsDiscoveryGroupWarningsToThatServer(): void
+    {
+        $command = new DebugMcpCommand(
+            Server::builder(),
+            new Registry(),
+            static::createStub(McpAllowlistProvider::class),
+            new McpCapabilityCatalog(null, $this->stubPrivilegeProvider()),
+            demotedDiscoveryTools: [
+                'api' => ['acme-admin-tool' => 'Acme\\AdminTool'],
+                'store-api' => ['create_cart' => 'Acme\\CartTool'],
+            ],
+        );
+
+        $tester = new CommandTester($command);
+        $tester->execute(['--scope' => 'api']);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('acme-admin-tool (api, Acme\\AdminTool)', $output);
+        static::assertStringNotContainsString('create_cart', $output);
+    }
+
     public function testNothingIsReportedWhenEveryCapabilityIsAssigned(): void
     {
         $tester = new CommandTester($this->makeCommand(new Registry()));
         $tester->execute([]);
 
         static::assertStringNotContainsString('exposed by no server', $tester->getDisplay());
+        static::assertStringNotContainsString('Moved from the reserved "discovery" group', $tester->getDisplay());
     }
 
     private function makeCommand(

@@ -144,8 +144,8 @@ class SeoUrlTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('seoUrls');
 
-        /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, $salesChannelContext->getContext())->getEntities()->first();
+        static::assertInstanceOf(ProductEntity::class, $product);
 
         static::assertInstanceOf(SeoUrlCollection::class, $product->getSeoUrls());
 
@@ -172,8 +172,8 @@ class SeoUrlTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('seoUrls');
 
-        /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, $salesChannelContext->getContext())->getEntities()->first();
+        static::assertInstanceOf(ProductEntity::class, $product);
 
         static::assertInstanceOf(SeoUrlCollection::class, $product->getSeoUrls());
 
@@ -423,8 +423,8 @@ class SeoUrlTest extends TestCase
         $criteria->setLimit(10);
         $criteria->getAssociation('seoUrls')->setLimit(10);
 
-        /** @var ProductEntity $product */
         $product = $productRepo->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        static::assertInstanceOf(ProductEntity::class, $product);
 
         static::assertInstanceOf(SeoUrlCollection::class, $product->getSeoUrls());
     }
@@ -466,10 +466,10 @@ class SeoUrlTest extends TestCase
             ->addFilter(new EqualsFilter('isCanonical', null));
 
         $products = $productRepo->search($criteria, Context::createDefaultContext())->getEntities();
-        static::assertNotEmpty($products);
+        static::assertNotCount(0, $products);
 
-        /** @var ProductEntity $product */
         $product = $products->first();
+        static::assertInstanceOf(ProductEntity::class, $product);
         static::assertInstanceOf(SeoUrlCollection::class, $product->getSeoUrls());
     }
 
@@ -586,11 +586,10 @@ class SeoUrlTest extends TestCase
             $criteria = new Criteria([$case['categoryId']]);
             $criteria->addAssociation('seoUrls');
 
-            /** @var CategoryEntity $category */
             $category = $categoryRepository->search($criteria, $context)->getEntities()->first();
+            static::assertInstanceOf(CategoryEntity::class, $category);
             static::assertSame($case['categoryId'], $category->getId());
 
-            /** @var SeoUrlCollection $seoUrls */
             $seoUrls = $category->getSeoUrls();
             static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);
 
@@ -610,7 +609,6 @@ class SeoUrlTest extends TestCase
                 continue;
             }
 
-            /** @var SeoUrlEntity $canonicalUrl */
             $canonicalUrl = $seoUrls
                 ->filterByProperty('isCanonical', true)
                 ->filterByProperty('salesChannelId', $salesChannelId)

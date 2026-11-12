@@ -29,7 +29,7 @@ class CommandExecutorTest extends TestCase
     private string $projectDir;
 
     /**
-     * @var array{root: array<string, mixed>, versions: array<string, array<string, mixed>>}
+     * @var array{root: array{name: string, pretty_version: string, version: string, reference: string|null, type: string, install_path: string, aliases: string[], dev: bool}, versions: array<string, array{pretty_version?: string, version?: string, reference?: string|null, type?: string, install_path?: string, aliases?: string[], dev_requirement: bool, replaced?: string[], provided?: string[]}>}
      */
     private array $installedVersionsBefore;
 

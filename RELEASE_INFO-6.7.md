@@ -9,6 +9,12 @@ Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED` while ano
 
 ## Core
 
+### Composer keeps locked packages when it adds or removes a plugin
+
+Installing, updating or uninstalling a plugin whose `executeComposerCommands()` returns `true` runs Composer with `--minimal-changes`.
+Packages in `composer.lock` keep their locked version, unless the plugin's constraints or a security advisory require another one.
+Before, Composer also updated the shared dependencies of the plugin, such as Symfony packages, to the newest allowed version.
+
 ### Attribute entities can generate the reverse side of a many-to-many association
 
 `Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToMany` now accepts `reversedBy`, `reverseApi` and `reverseOnDelete`:

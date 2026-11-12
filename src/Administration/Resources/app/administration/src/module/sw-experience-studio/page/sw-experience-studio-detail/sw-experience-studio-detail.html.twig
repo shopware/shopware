@@ -45,12 +45,7 @@
             {% endblock %}
 
             {% block sw_experience_studio_detail_workspace %}
-                <div
-                    ref="workspace"
-                    class="sw-experience-studio-detail__workspace"
-                    :class="{ 'is-resizing': isResizingElementSettings, 'has-rich-text-settings': selectedElementHasRichText }"
-                    :style="{ '--element-settings-width': elementSettingsWidth + 'px' }"
-                >
+                <div ref="workspace" class="sw-experience-studio-detail__workspace" :class="{ 'is-resizing': isResizingElementSettings, 'has-rich-text-settings': selectedElementHasRichText }" :style="{ '--element-settings-width': elementSettingsWidth + 'px' }">
                 {% block sw_experience_studio_detail_sidebar_tree %}
                     <sw-experience-studio-sidebar-tree
                         class="sw-experience-studio-detail__sidebar-tree"

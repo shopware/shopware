@@ -495,6 +495,10 @@ Plain-text resource responses are no longer accepted; wrap the content in a JSON
 Resources use the URI declared in `mcp.xml`; a non-empty `mimeType` in the response takes precedence over the configured MIME type.
 Invalid JSON, malformed messages or resource contents, and `{"success":false,"error":"..."}` responses produce MCP errors with details for the client.
 
+### App module pages receive the `color-scheme` parameter
+
+Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-module source>`) now receive the signed `color-scheme` query parameter with the resolved Administration theme, `light` or `dark`, like Admin SDK locations already do.
+
 ## Administration
 
 ### Deprecated the unused visibilities and sales channels in the sales channel detail

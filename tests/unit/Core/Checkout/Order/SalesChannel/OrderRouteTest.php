@@ -51,6 +51,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -356,15 +357,16 @@ class OrderRouteTest extends TestCase
         foreach ($paymentBoundPromotions as $paymentBound) {
             $promotion = new PromotionEntity();
             $promotion->setId(Uuid::randomHex());
-            $promotion->setCartRules(new RuleCollection());
 
+            $cartRules = new RuleCollection();
             if ($paymentBound) {
                 $cartRule = new RuleEntity();
                 $cartRule->setId(Uuid::randomHex());
                 $cartRule->setPayload(new AndRule([new OrRule([new AndRule([new PaymentMethodRule()])])]));
-                $promotion->getCartRules()?->add($cartRule);
+                $cartRules->add($cartRule);
             }
 
+            $promotion->setCartRules($cartRules);
             $promotions->add($promotion);
 
             $lineItem = new OrderLineItemEntity();
@@ -382,33 +384,9 @@ class OrderRouteTest extends TestCase
             ->method('getCustomer')
             ->willReturn($customer);
 
-        $orderRepository = static::createStub(EntityRepository::class);
-        $orderRepository
-            ->method('search')
-            ->willReturn(new EntitySearchResult(
-                OrderDefinition::ENTITY_NAME,
-                1,
-                new OrderCollection([$order]),
-                null,
-                new Criteria(),
-                Context::createDefaultContext()
-            ));
-
-        $promotionRepository = static::createStub(EntityRepository::class);
-        $promotionRepository
-            ->method('search')
-            ->willReturn(new EntitySearchResult(
-                PromotionDefinition::ENTITY_NAME,
-                $promotions->count(),
-                $promotions,
-                null,
-                new Criteria(),
-                Context::createDefaultContext()
-            ));
-
         $route = new OrderRoute(
-            $orderRepository,
-            $promotionRepository,
+            new StaticEntityRepository([new OrderCollection([$order])], new OrderDefinition()),
+            new StaticEntityRepository([$promotions], new PromotionDefinition()),
             static::createStub(RateLimiter::class),
             new EventDispatcher(),
             static::createStub(AccountService::class),

@@ -101,8 +101,7 @@ class McpOAuthMetadata
             throw McpException::oauthProtectedResourceMetadataUnavailable($resource, $exception);
         }
 
-        // `mcp/sdk` 0.9 always adds `bearer_methods_supported`, 0.8 only takes it as extra field under another constructor.
-        return $metadata->jsonSerialize() + ['bearer_methods_supported' => ['header']];
+        return $metadata->jsonSerialize();
     }
 
     /**

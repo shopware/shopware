@@ -12,6 +12,8 @@ function errorsOf(comment: string): string[] {
     return parseMarkers(comment).flatMap((match) => ('errors' in match ? match.errors : []));
 }
 
+const DEPRECATED_TEXT_ERROR = '@deprecated needs "- <text>" after the version, for example "- Use load instead".';
+
 describe('parseMarkers', () => {
     it('reads a deprecation from a JSDoc comment', () => {
         const comment = '*\n * Loads the sales channel.\n *\n * @deprecated tag:v6.8.0 - Use {@link load} instead.\n ';
@@ -20,7 +22,7 @@ describe('parseMarkers', () => {
     });
 
     it.each([
-        ['a one-line JSDoc comment', '* @deprecated tag:v6.8.0 '],
+        ['a one-line JSDoc comment', '* @deprecated tag:v6.8.0 - Will be removed '],
         ['a line comment', ' @deprecated tag:v6.8.0 - Will be removed'],
         ['a Twig comment', ' @deprecated tag:v6.8.0 - Will be removed '],
     ])('reads a deprecation from the content of %s', (_, comment) => {
@@ -84,6 +86,15 @@ describe('parseMarkers', () => {
         ['@deprecated tag:6.8.0', '"6.8.0" is not a version of the form vX.Y.Z, for example v6.8.0.'],
         ['@deprecated tag:v6.8', '"v6.8" is not a version of the form vX.Y.Z, for example v6.8.0.'],
         ['@deprecated tag:', '"" is not a version of the form vX.Y.Z, for example v6.8.0.'],
+        ['@deprecated tag:v6.8.0', DEPRECATED_TEXT_ERROR],
+        ['@deprecated tag:v6.8.0 removed soon', DEPRECATED_TEXT_ERROR],
+        ['@deprecated tag:v6.8.0 -', DEPRECATED_TEXT_ERROR],
+        ['@deprecated tag:v6.8.0 -- There is no replacement', DEPRECATED_TEXT_ERROR],
+        ['@deprecated tag:v6.8.0 -Use load instead', DEPRECATED_TEXT_ERROR],
+        ['@deprecated: tag:v6.8.0 - Use load instead', '"@deprecated" must not be followed by ":".'],
+        ['@deprecated:tag:v6.8.0 - Use load instead', '"@deprecated" must not be followed by ":".'],
+        ['@deprecated, tag:v6.8.0 - Use load instead', '"@deprecated" must not be followed by ",".'],
+        ['@bc-change: BecomesPrivate version:v6.8.0', '"@bc-change" must not be followed by ":".'],
         ['@deprecate tag:v6.8.0', '"@deprecate" is not a tag, did you mean "@deprecated"?'],
         ['@depreciated tag:v6.8.0', '"@depreciated" is not a tag, did you mean "@deprecated"?'],
         ['@Deprecated tag:v6.8.0', '"@Deprecated" is not a tag, did you mean "@deprecated"?'],
@@ -146,7 +157,16 @@ describe('parseMarkers', () => {
         ]);
     });
 
+    it('reports a stray punctuation mark together with the problems of the marker behind it', () => {
+        expect(errorsOf(' @deprecated: tag:v6.8')).toEqual([
+            '"@deprecated" must not be followed by ":".',
+            '"v6.8" is not a version of the form vX.Y.Z, for example v6.8.0.',
+            DEPRECATED_TEXT_ERROR,
+        ]);
+    });
+
     it.each([
+        ['an unknown tag followed by a colon', '*\n * @example: load()\n '],
         ['another tag', '*\n * @private\n * @param {string} id\n * @description Deprecated helpers.\n '],
         ['a tag inside a sentence', ' The old way is marked @deprecated and the kinds come from @bc-change.'],
         ['a link to the tag', ' See {@link deprecated} for details.'],
@@ -171,7 +191,7 @@ describe('parseTemplateMarkers', () => {
             '{# @bc-change BlockMoved version:v6.8.0 parent:sw_example_card_header #}',
             '{% block sw_example_card_title %}',
             '    <!-- @deprecated tag:v6.8.0 - Use the title prop instead -->',
-            '    {#- @deprecated tag:v6.9.0 -#}',
+            '    {#- @deprecated tag:v6.9.0 - Use the header slot instead -#}',
             '{% endblock %}',
         ].join('\n');
 

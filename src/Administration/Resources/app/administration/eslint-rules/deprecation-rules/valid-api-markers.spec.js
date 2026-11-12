@@ -91,6 +91,20 @@ function getLoadSalesChannelCriteria() {}
             errors: [{ message: '"v6.8.0.0" is not a version of the form vX.Y.Z, for example v6.8.0.' }],
         },
         {
+            name: 'a colon after the tag name',
+            code: '/** @deprecated: tag:v6.8.0 - Replaced by resetRelatedStores */',
+            errors: [{ message: '"@deprecated" must not be followed by ":".', line: 1, column: 5 }],
+        },
+        {
+            name: 'a deprecation without a text',
+            code: '/** @deprecated tag:v6.8.0 */',
+            errors: [
+                {
+                    message: '@deprecated needs "- <text>" after the version, for example "- Use load instead".',
+                },
+            ],
+        },
+        {
             name: 'a typo in the tag name',
             code: '/** @bc-chnage BecomesPrivate version:v6.8.0 */',
             errors: [{ message: '"@bc-chnage" is not a tag, did you mean "@bc-change"?', line: 1, column: 5 }],
@@ -197,7 +211,7 @@ const legacyTitle = 'title';
 </template>
 
 <script setup>
-/** @deprecated tag:6.8 */
+/** @deprecated tag:6.8 - Use the title prop instead */
 const legacyTitle = 'title';
 </script>`,
             errors: [

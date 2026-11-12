@@ -35,9 +35,11 @@ onDeleteItem(item, itemIndex) {
 
 - A tag counts when it starts a line of a JSDoc comment, a line comment, a Twig comment or an HTML comment.
   A mention inside a sentence is not a marker.
+- No punctuation follows the tag name, so `@deprecated:` and `@deprecated,` are reported.
 - The version has three parts, as in `coding-guidelines/core/backward-compatibility.md`.
 - A value ends at the next space, so it contains none.
   Write a type without spaces, as in `type:string|null`.
+- The text of a `@deprecated` is required and follows the version after `- ` on the same line.
 - The text of a `@bc-change` starts on the line after the marker.
 
 | Kind | Announces | Keys |

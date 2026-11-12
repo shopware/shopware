@@ -50,7 +50,10 @@ export type Marker =
 export type MarkerMatch = { offset: number; length: number } & ({ marker: Marker } | { errors: string[] });
 
 // The name has to end at a space, so `@change="onChange"` in commented-out markup is not a tag.
-const TAG_LINE = /^[ \t*]*@(?<name>[\w-]+)(?=[ \t]|$)[ \t]*(?<rest>.*?)[ \t]*$/gm;
+// It may also end at a stray ":" or ",", which is reported instead of letting `@deprecated:` pass as a plain comment.
+const TAG_LINE = /^[ \t*]*@(?<name>[\w-]+)(?:(?<stray>[:,])|(?=[ \t]|$))[ \t]*(?<rest>.*?)[ \t]*$/gm;
+const DEPRECATED_PARTS = /^(?<first>\S*)[ \t]*(?<text>.*)$/;
+const DEPRECATED_TEXT = /^-[ \t]+\S/;
 const TEMPLATE_COMMENT = /\{#-?(?<twig>[\s\S]*?)-?#\}|<!--(?<html>[\s\S]*?)-->/dg;
 const VERSION = /^v\d+\.\d+\.\d+$/;
 const KEY_VALUE = /^(?<key>[A-Za-z]+):(?<value>.+)$/;
@@ -88,15 +91,24 @@ function versionErrors(version: string): string[] {
     return VERSION.test(version) ? [] : [`"${version}" is not a version of the form vX.Y.Z, for example v6.8.0.`];
 }
 
+function textErrors(text: string): string[] {
+    return DEPRECATED_TEXT.test(text)
+        ? []
+        : ['@deprecated needs "- <text>" after the version, for example "- Use load instead".'];
+}
+
 function parseDeprecated(rest: string): Marker | string[] {
-    const [first = ''] = rest.split(/\s+/);
+    const { first = '', text = '' } = DEPRECATED_PARTS.exec(rest)?.groups ?? {};
 
     if (!first.startsWith('tag:')) {
         return ['@deprecated needs "tag:vX.Y.Z" directly after the tag name.'];
     }
 
     const version = first.slice('tag:'.length);
-    const errors = versionErrors(version);
+    const errors = [
+        ...versionErrors(version),
+        ...textErrors(text),
+    ];
 
     return errors.length > 0 ? errors : { tag: 'deprecated', version };
 }
@@ -176,9 +188,26 @@ const TAG_PARSERS: Record<Marker['tag'], (rest: string) => Marker | string[]> = 
     'bc-change': parseBcChange,
 };
 
-function parseTagLine(name: string, rest: string): Marker | string[] | null {
-    if (Object.hasOwn(TAG_PARSERS, name)) {
-        return TAG_PARSERS[name as Marker['tag']](rest);
+function isMarkerTag(name: string): name is Marker['tag'] {
+    return Object.hasOwn(TAG_PARSERS, name);
+}
+
+function parseMarkerTag(name: Marker['tag'], rest: string, stray: string | undefined): Marker | string[] {
+    const result = TAG_PARSERS[name](rest);
+
+    if (stray === undefined) {
+        return result;
+    }
+
+    return [
+        `"@${name}" must not be followed by "${stray}".`,
+        ...(Array.isArray(result) ? result : []),
+    ];
+}
+
+function parseTagLine(name: string, rest: string, stray: string | undefined): Marker | string[] | null {
+    if (isMarkerTag(name)) {
+        return parseMarkerTag(name, rest, stray);
     }
 
     const suggestion = nearMiss(name, Object.keys(TAG_PARSERS));
@@ -195,8 +224,8 @@ function parseTagLine(name: string, rest: string): Marker | string[] | null {
  */
 export function parseMarkers(comment: string): MarkerMatch[] {
     return [...comment.matchAll(TAG_LINE)].flatMap((match) => {
-        const { name = '', rest = '' } = match.groups ?? {};
-        const result = parseTagLine(name, rest);
+        const { name = '', rest = '', stray } = match.groups ?? {};
+        const result = parseTagLine(name, rest, stray);
 
         if (result === null) {
             return [];

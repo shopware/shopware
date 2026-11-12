@@ -55,7 +55,7 @@ class McpRateLimiterPolicyTest extends TestCase
             static fn (McpRateLimiter $limiter, Request $request) => $limiter->enforceForAdminApi($request),
             static function (): Request {
                 $request = new Request();
-                $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, 'token-id');
+                $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, 'SWIAINTEGRATIONPOLICYTEST000');
 
                 return $request;
             },

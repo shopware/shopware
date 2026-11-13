@@ -6,7 +6,7 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Thrown when a manifest is refused, so callers that only report validation problems can catch this
+ * Thrown when an app is refused, so callers that only report validation problems can catch this
  * without also catching every other way an installation can fail.
  *
  * @internal only for use by the app-system

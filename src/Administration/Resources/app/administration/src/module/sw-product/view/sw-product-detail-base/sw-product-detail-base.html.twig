@@ -196,6 +196,16 @@
         </sw-inherit-wrapper>
         {% endblock %}
 
+        {% block sw_product_detail_base_documents %}
+        <sw-product-document-form
+            v-if="mediaFormVisible"
+            :key="product.id"
+            class="sw-product-detail-base__documents"
+            :disabled="!acl.can('product.editor')"
+            @language-change="$emit('language-change', $event)"
+        />
+        {% endblock %}
+
         {% block sw_product_detail_base_media_modal %}
         <sw-media-modal-v2
             v-if="showMediaModal"

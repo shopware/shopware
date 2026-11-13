@@ -1,0 +1,24 @@
+{% block sw_product_document_language_value %}
+<span
+    class="sw-product-document-language-value"
+    :class="{ 'sw-product-document-language-value--fallback': !isDefaultLanguage && !isTranslated }"
+>
+    {% block sw_product_document_language_value_text %}
+    <span
+        class="sw-product-document-language-value__text"
+        :title="value"
+    >{{ value }}</span>
+    {% endblock %}
+    {% block sw_product_document_language_value_badge %}
+    <mt-badge
+        v-if="!isDefaultLanguage && isTranslated && languageCode"
+        v-tooltip="{ message: $t('sw-product.documentForm.changedForLanguage'), width: 'auto' }"
+        variant="neutral"
+        size="s"
+    >
+        {{ languageCode }}
+    </mt-badge>
+    {% endblock %}
+    <slot></slot>
+</span>
+{% endblock %}

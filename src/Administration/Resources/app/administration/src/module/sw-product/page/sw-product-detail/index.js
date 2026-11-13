@@ -272,6 +272,8 @@ export default {
 
             criteria.getAssociation('media').addSorting(Criteria.sort('position', 'ASC'));
             criteria.addAssociation('media.media');
+            criteria.getAssociation('documents').addSorting(Criteria.sort('position', 'ASC'));
+            criteria.addAssociation('documents.translations.media');
 
             criteria.getAssociation('prices').addSorting(Criteria.sort('quantityStart', 'ASC', true));
 
@@ -542,6 +544,7 @@ export default {
 
             Shopware.Store.get('swProductDetail').setLoading(['product', true]);
 
+            this.loadLanguage(Shopware.Context.api.languageId);
             await this.initProductMeasurementUnits();
 
             // initialize default state
@@ -1475,10 +1478,33 @@ export default {
         },
 
         async loadLanguage(newLanguageId) {
-            Shopware.Store.get('context').api.language = await this.languageRepository.get(newLanguageId, {
-                ...Shopware.Context.api,
-                inheritance: true,
-            });
+            if (!newLanguageId) {
+                return;
+            }
+
+            const criteria = new Criteria();
+            criteria.addAssociation('locale');
+            try {
+                const language = await this.languageRepository.get(
+                    newLanguageId,
+                    { ...Shopware.Context.api, inheritance: true },
+                    criteria,
+                );
+
+                if (newLanguageId !== Shopware.Context.api.languageId) {
+                    return;
+                }
+
+                Shopware.Store.get('swProductDetail').documentLanguage = language;
+                Shopware.Store.get('context').api.language = language;
+            } catch {
+                if (newLanguageId === Shopware.Context.api.languageId) {
+                    Shopware.Store.get('swProductDetail').documentLanguage = null;
+                    this.createNotificationError({
+                        message: this.$t('global.notification.notificationLoadingDataErrorMessage'),
+                    });
+                }
+            }
         },
 
         async initProductMeasurementUnits() {

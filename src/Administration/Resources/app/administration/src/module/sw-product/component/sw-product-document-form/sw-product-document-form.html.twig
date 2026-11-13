@@ -1,0 +1,338 @@
+{% block sw_product_document_form %}
+<sw-inherit-wrapper
+    v-if="product.documents"
+    :key="product.id"
+    ref="documentInheritance"
+    v-model:value="product.documents"
+    :inherited-value="parentProduct.documents"
+    :has-parent="!!product.parentId"
+    :disabled="!canEdit"
+    :custom-remove-inheritance-function="documentRemoveInheritanceFunction"
+    is-association
+>
+    <template #content="{ currentValue, isInherited, isInheritField, restoreInheritance, removeInheritance }">
+        <div
+            class="sw-product-document-form-wrapper"
+            :class="{ 'is--disabled': disabled || isInherited }"
+        >
+            <mt-card
+                class="sw-product-document-form"
+                position-identifier="sw-product-detail-base-documents"
+                :subtitle="$t('sw-product.documentForm.cardSubtitle')"
+                :class="{ 'sw-card__inherited': isInherited }"
+            >
+                <template #title>
+                {% block sw_product_document_form_title %}
+                    <slot name="title">
+                        {% block sw_product_detail_base_documents_card_title %}
+                        <div
+                            class="sw-inherit-wrapper__card-title"
+                            :class="{ 'sw-inherit-wrapper__card-title--inherited': isInherited }"
+                        >
+                            <sw-inheritance-switch
+                                v-if="isInheritField"
+                                :is-inherited="isInherited"
+                                :disabled="!canEdit"
+                                @inheritance-restore="onShowRestoreInheritanceModal"
+                                @inheritance-remove="removeInheritance"
+                            />
+                            <h3 class="mt-card__title">
+                                {{ $t('sw-product.documentForm.cardTitle', { count: currentValue.length }) }}
+                            </h3>
+                        </div>
+                        {% endblock %}
+                    </slot>
+                {% endblock %}
+                </template>
+
+                <template #headerRight>
+                {% block sw_product_document_form_add %}
+                    <sw-product-document-add-button
+                        v-if="currentValue.length"
+                        class="sw-product-document-form__add-button"
+                        :is-inherited="isInherited"
+                        :disabled="isInherited || !canAddDocuments"
+                        @documents-add="showUploadModal = true"
+                        @language-change="$emit('language-change', $event)"
+                    />
+                {% endblock %}
+                </template>
+
+                <template #grid>
+                {% block sw_product_document_form_language_hint %}
+
+                {% endblock %}
+                {% block sw_product_document_form_empty %}
+                    <div
+                        v-if="!currentValue.length"
+                        class="sw-product-document-form__empty-state"
+                    >
+                        <sw-product-document-empty-state
+                            :can-add-documents="!isInherited && canAddDocuments"
+                            @documents-add="showUploadModal = true"
+                            @language-change="$emit('language-change', $event)"
+                        />
+                    </div>
+                {% endblock %}
+
+                {% block sw_product_document_form_grid %}
+                    <sw-data-grid
+                        v-if="currentValue.length"
+                        :data-source="currentValue"
+                        :columns="documentColumns"
+                        :show-selection="true"
+                        :show-settings="true"
+                        :allow-inline-edit="false"
+                        :allow-column-edit="false"
+                        :compact-mode="true"
+                        :plain-appearance="false"
+                    >
+                    {% block sw_product_document_form_number %}
+                        <template #column-number="{ itemIndex }">
+                            {{ itemIndex + 1 }}
+                        </template>
+                    {% endblock %}
+                    {% block sw_product_document_form_position %}
+                        <template #column-position="{ item, itemIndex }">
+                            <sw-button-group class="sw-product-document-form__position">
+                                <mt-button
+                                    square
+                                    size="x-small"
+                                    :aria-label="$t('sw-product.documentForm.contextMoveDown')"
+                                    :disabled="!canEdit || isInherited || itemIndex === currentValue.length - 1"
+                                    variant="secondary"
+                                    @click="moveDocument(item, 1)"
+                                ><mt-icon
+                                    name="regular-chevron-down-xs"
+                                    size="var(--scale-size-12)"
+                                /></mt-button>
+                                <mt-button
+                                    square
+                                    size="x-small"
+                                    :aria-label="$t('sw-product.documentForm.contextMoveUp')"
+                                    :disabled="!canEdit || isInherited || itemIndex === 0"
+                                    variant="secondary"
+                                    @click="moveDocument(item, -1)"
+                                ><mt-icon
+                                    name="regular-chevron-up-xs"
+                                    size="var(--scale-size-12)"
+                                /></mt-button>
+                            </sw-button-group>
+                        </template>
+                    {% endblock %}
+                    {% block sw_product_document_form_name %}
+                        <template #column-title="{ item }">
+                            <sw-product-document-language-value
+                                :value="getTitle(item)"
+                                :is-translated="!!item.title"
+                            >
+                                {% block sw_product_document_form_variant_badge %}
+                                <sw-product-document-variant-badge
+                                    v-if="!isInherited"
+                                    :document="item"
+                                />
+                                {% endblock %}
+                            </sw-product-document-language-value>
+                        </template>
+                    {% endblock %}
+                    {% block sw_product_document_form_file %}
+                        <template #column-fileName="{ item }">
+                            <sw-product-document-language-value
+                                :value="getFileName(item)"
+                                :is-translated="!!item.mediaId"
+                            />
+                        </template>
+                    {% endblock %}
+                    {% block sw_product_document_form_type %}
+                        <template #column-fileType="{ item }">
+                            {{ getMedia(item)?.fileExtension?.toUpperCase() }}
+                        </template>
+                    {% endblock %}
+                    {% block sw_product_document_form_size %}
+                        <template #column-fileSize="{ item }">
+                            {{ getFileSize(item) }}
+                        </template>
+                    {% endblock %}
+                    {% block sw_product_document_form_actions %}
+                        <template #actions="{ item }">
+                            <sw-context-menu-item
+                                :disabled="!canEdit || isInherited"
+                                @click="openDocumentEditor(item)"
+                            >
+                                {{ getEditActionLabel(item) }}
+                            </sw-context-menu-item>
+                            {% block sw_product_document_form_action_download %}
+                            <sw-product-document-download :media="getMedia(item)" />
+                            {% endblock %}
+                            {% block sw_product_document_form_action_remove %}
+                            <sw-context-menu-item
+                                v-if="isDefaultLanguage || item.title || item.mediaId"
+                                variant="danger"
+                                :disabled="!canEdit || isInherited"
+                                @click="openRemoveDocumentModal(item)"
+                            >
+                                {{ getRemoveActionLabel() }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+                        </template>
+                    {% endblock %}
+                    </sw-data-grid>
+                {% endblock %}
+
+                </template>
+            </mt-card>
+
+        {% block sw_product_document_form_upload_listener %}
+            <sw-upload-listener
+                :upload-tag="uploadTag"
+                auto-upload
+                @media-upload-finish="successfulUpload"
+            />
+        {% endblock %}
+
+        {% block sw_product_document_form_upload_modal %}
+            <mt-modal-root
+                v-if="showUploadModal"
+                :is-open="showUploadModal"
+                @change="showUploadModal = $event"
+            >
+                <mt-modal
+                    class="sw-product-document-form__upload-modal"
+                    :title="$t('sw-product.documentForm.buttonAdd')"
+                    width="m"
+                >
+                    {% block sw_product_document_form_upload_input %}
+                    <sw-media-upload-v2
+                        :upload-tag="uploadTag"
+                        variant="regular"
+                        :allow-multi-select="true"
+                        :label="$t('sw-product.documentForm.fileUploadLabel')"
+                        required
+                        :extension-accept="allowedExtensions.join(',')"
+                        :max-file-size="maxFileSize"
+                        default-folder="product_document"
+                        :disabled="isInherited || !canAddDocuments"
+                        @media-upload-sidebar-open="showMediaModal = true; showUploadModal = false"
+                    />
+                    {% endblock %}
+                    <mt-text
+                        size="xs"
+                        color="color-text-secondary-default"
+                        class="sw-product-document-form__upload-hint"
+                    >
+                        <mt-icon
+                            name="solid-info-circle"
+                            size="var(--scale-size-12)"
+                        />
+                        {{ uploadHint }}
+                    </mt-text>
+                    <template #footer>
+                        <div class="sw-product-document-form__upload-footer">
+                            <mt-button
+                                size="small"
+                                variant="secondary"
+                                @click="showUploadModal = false"
+                            >
+                                {{ $t('global.default.cancel') }}
+                            </mt-button>
+                        </div>
+                    </template>
+                </mt-modal>
+            </mt-modal-root>
+        {% endblock %}
+
+        {% block sw_product_document_form_media_modal %}
+            <sw-media-modal-v2
+                v-if="showMediaModal && mediaFolderId !== undefined"
+                entity-context="product_document"
+                :initial-folder-id="mediaFolderId"
+                :file-accept="fileAccept"
+                @media-modal-selection-change="addDocuments($event, editingDocument)"
+                @modal-close="showMediaModal = false"
+            />
+        {% endblock %}
+
+        {% block sw_product_document_form_edit_modal %}
+            <sw-product-document-edit-modal
+                v-if="editingDocument"
+                v-model:document-title="documentTitle"
+                v-model:apply-to-variants="applyToVariants"
+                :document-id="editingDocument.id"
+                :allow-fallback="!isDefaultLanguage"
+                :language-name="contentLanguageName"
+                :is-adding-language-version="!isDefaultLanguage && !editingDocument.title && !editingDocument.mediaId"
+                :document-title-placeholder="documentTitlePlaceholder"
+                :editing-media="editingMedia"
+                :document-name-error="documentNameError"
+                :document-file-error="documentFileError"
+                :upload-tag="`${uploadTag}-replace-${editingDocument.id}-${documentEditSession}`"
+                :upload-hint="uploadHint"
+                :allowed-extensions="allowedExtensions"
+                :max-file-size="maxFileSize"
+                :can-edit="canEdit"
+                :is-saving-document="isSavingDocument"
+                :has-variants="hasVariants"
+                @close="closeDocumentEditor"
+                @save="applyDocumentEdit"
+                @upload="successfulUpload($event, editingDocument)"
+                @file-remove="removeEditingFile"
+                @media-select="showMediaModal = true"
+            />
+        {% endblock %}
+
+        {% block sw_product_document_form_remove_modal %}
+            <sw-product-document-remove-modal
+                v-if="removingDocument"
+                v-model:remove-from-variants="removeFromVariants"
+                :document-title="getTitle(removingDocument)"
+                :language-name="isDefaultLanguage ? '' : contentLanguageName"
+                :can-edit="canEdit"
+                :is-removing-document="isRemovingDocument"
+                :has-variants="hasVariants"
+                @close="closeRemoveDocumentModal"
+                @remove="removeDocument"
+            />
+        {% endblock %}
+
+        {% block sw_product_document_form_restore_inheritance_modal %}
+            <sw-modal
+                v-if="showRestoreInheritanceModal"
+                variant="small"
+                :title="$t('sw-product.documentForm.restoreInheritanceTitle')"
+                class="sw-product-document-form__restore-inheritance-modal"
+                @modal-close="onCloseRestoreInheritanceModal"
+            >
+                {% block sw_product_document_form_restore_inheritance_text %}
+                <p>{{ $t('sw-product.documentForm.restoreInheritanceDescription') }}</p>
+                {% endblock %}
+
+                <template #modal-footer>
+                    {% block sw_product_document_form_restore_inheritance_cancel %}
+                    <mt-button
+                        size="small"
+                        variant="secondary"
+                        @click="onCloseRestoreInheritanceModal"
+                    >
+                        {{ $t('global.default.cancel') }}
+                    </mt-button>
+                    {% endblock %}
+
+                    {% block sw_product_document_form_restore_inheritance_confirm %}
+                    <mt-button
+                        class="sw-product-document-form__confirm-restore-inheritance"
+                        size="small"
+                        variant="primary"
+                        :disabled="!canEdit"
+                        @click="onConfirmRestoreInheritance"
+                    >
+                        {{ $t('sw-product.documentForm.restoreInheritanceButton') }}
+                    </mt-button>
+                    {% endblock %}
+                </template>
+            </sw-modal>
+        {% endblock %}
+
+        </div>
+    </template>
+</sw-inherit-wrapper>
+{% endblock %}

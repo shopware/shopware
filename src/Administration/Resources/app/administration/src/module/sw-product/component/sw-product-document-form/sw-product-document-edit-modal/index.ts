@@ -11,6 +11,30 @@ export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {
+        allowFallback: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        languageName: {
+            type: String,
+            required: false,
+            default: '',
+        },
+
+        isAddingLanguageVersion: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        documentTitlePlaceholder: {
+            type: String,
+            required: false,
+            default: '',
+        },
+
         documentId: {
             type: String,
             required: true,

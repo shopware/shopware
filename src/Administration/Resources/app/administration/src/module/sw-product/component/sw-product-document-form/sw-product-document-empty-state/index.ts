@@ -8,7 +8,7 @@ import './sw-product-document-empty-state.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    emits: ['documents-add'],
+    emits: ['documents-add', 'language-change'],
 
     props: {
         canAddDocuments: {

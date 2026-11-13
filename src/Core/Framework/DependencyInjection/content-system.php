@@ -139,6 +139,8 @@ use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutRootSourceReader;
 use Shopware\Core\Framework\ContentSystem\Validation\StoredMappingValidator;
 use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
+use Shopware\Core\Framework\ContentSystem\Workspace\ContentWorkspaceDefinition;
+use Shopware\Core\Framework\ContentSystem\Workspace\ContentWorkspaceWriteValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
@@ -165,6 +167,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // Entity Definitions
     $services->set(ContentLayoutDefinition::class)
         ->tag('shopware.entity.definition');
+
+    $services->set(ContentWorkspaceDefinition::class)->tag('shopware.entity.definition');
+    $services->set(ContentWorkspaceWriteValidator::class)
+        ->args([service(ValidatorInterface::class)])
+        ->tag('kernel.event_subscriber');
 
     // Scaffolding Services
     $services->set(VirtualRootWrapper::class);
@@ -387,7 +394,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(SubTreeExtractor::class);
 
     // Entity Layout Services
-    $services->set(EntityLayoutResolver::class);
+    $services->set(EntityLayoutResolver::class)
+        ->args([
+            param('shopware.http_cache.ignored_url_parameters'),
+        ]);
     $services->set(EntityLayoutContextFactory::class)
         ->args([
             service(EntityLayoutResolver::class),
@@ -896,7 +906,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ContentPreviewPayloadStore::class)
         ->args([
-            service('cache.system'),
+            service('cache.content_system_preview'),
             service('validator'),
         ]);
 

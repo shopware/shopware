@@ -125,7 +125,7 @@ export interface ContentSystemElementTypeSpecification {
 /**
  * @private
  */
-export interface ContentSystemElementTypeResponse {
+interface ContentSystemElementTypeResponse {
     types: ContentSystemElementTypeSpecification[];
 }
 

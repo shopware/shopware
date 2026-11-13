@@ -26,6 +26,13 @@ use Symfony\Component\HttpFoundation\Request;
 class EntityLayoutResolver
 {
     /**
+     * @param list<string> $ignoredUrlParameters
+     */
+    public function __construct(private readonly array $ignoredUrlParameters)
+    {
+    }
+
+    /**
      * Returns only the content layout ID without loading the full assignment or contentLayout association.
      *
      * @param EntityRepository<covariant EntityCollection<covariant Entity>> $repository
@@ -52,7 +59,9 @@ class EntityLayoutResolver
         string $entityId,
         Request $request
     ): PlaceholderValues {
-        $scalarParameters = array_filter($request->query->all(), '\is_scalar');
+        // A value excluded from the HTTP cache key must not influence the rendered content.
+        $parameters = array_diff_key($request->query->all(), array_flip($this->ignoredUrlParameters));
+        $scalarParameters = array_filter($parameters, '\is_scalar');
 
         return PlaceholderValues::from(array_merge(
             [$entityIdField => $entityId],

@@ -10,7 +10,7 @@ import type { ContentSystemMappingCandidate } from 'src/core/service/api/content
  * @private
  * @sw-package discovery
  */
-export function isMappingConsumer(
+function isMappingConsumer(
     consumer: ContentElementContextConsumer | undefined,
 ): consumer is ContentElementContextConsumer & { source: NonNullable<ContentElementContextConsumer['source']> } {
     return typeof consumer?.source === 'object' && consumer.source !== null;

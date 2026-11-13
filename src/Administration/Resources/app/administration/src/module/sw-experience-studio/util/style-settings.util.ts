@@ -28,7 +28,7 @@ const STYLE_FIELD_ORDER = [
  * @private
  * @sw-package discovery
  */
-export const STYLE_BREAKPOINTS = [
+const STYLE_BREAKPOINTS = [
     'xs',
     'sm',
     'md',
@@ -41,7 +41,7 @@ export const STYLE_BREAKPOINTS = [
  * @private
  * @sw-package discovery
  */
-export function isBreakpointMapValue(value: unknown): value is Record<string, unknown> {
+function isBreakpointMapValue(value: unknown): value is Record<string, unknown> {
     return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 

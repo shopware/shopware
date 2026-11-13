@@ -17,9 +17,12 @@ class ContentSystemBindingSpecificationSchemaErrorTest extends TestCase
 {
     public function testReportsAggregatedViolationsAsAnAppValidationError(): void
     {
-        $error = new ContentSystemBindingSpecificationSchemaError(['First violation', 'Second violation']);
+        $error = new ContentSystemBindingSpecificationSchemaError(['Missing binding name', 'Invalid source']);
 
-        static::assertSame("The following content-system binding specifications are invalid:\n- First violation\n- Second violation", $error->getMessage());
+        static::assertSame(
+            "The following content-system binding specifications are invalid:\n- Missing binding name\n- Invalid source",
+            $error->getMessage(),
+        );
         static::assertSame(AppException::VALIDATION_FAILED, $error->getErrorCode());
         static::assertSame([], $error->getParameters());
 

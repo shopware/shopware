@@ -158,6 +158,7 @@ describe('Experience Studio detail mutation errors', () => {
         const payload = { elementId: 'element-1', propertyKey: 'media', rootSource: 'product', layout: [] };
         const vm = {
             draftMutationService: () => ({ mapProperty, unmapProperty }),
+            resolveMutationRootSource: () => null,
             createDraftMutationPayload: jest.fn(() => payload),
         };
 
@@ -172,8 +173,11 @@ describe('Experience Studio detail mutation errors', () => {
         const code = 'CONTENT_SYSTEM__PROPERTY_ALIAS_COLLISION';
         const snippetKey = 'sw-experience-studio.detail.mappingMutationErrors.propertyAliasCollision';
         const layout = [{ id: 'element-1', component: 'Sw:Content:Text' }];
+        const entity = { id: 'layout-1', layout };
         const vm = {
-            layout: { layout },
+            layout: entity,
+            openLayouts: [{ layout: entity, selectedElementId: 'element-1' }],
+            resolveMutationRootSource: () => null,
             allowSave: true,
             mutationQueue: Promise.resolve(),
             pendingMutationCount: 0,

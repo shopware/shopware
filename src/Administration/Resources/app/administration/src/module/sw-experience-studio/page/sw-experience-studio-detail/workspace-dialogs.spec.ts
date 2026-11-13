@@ -1,0 +1,213 @@
+import { DOMWrapper, mount } from '@vue/test-utils';
+import MtModal from '@shopware-ag/meteor-component-library/dist/esm/MtModal';
+import MtModalRoot from '@shopware-ag/meteor-component-library/dist/esm/MtModalRoot';
+import '../../store/experience-studio-workspace.store';
+import type { ExperienceStudioWorkspaceStore } from '../../store/experience-studio-workspace.store';
+import type { ContentWorkspace } from '../../types/workspace.types';
+
+/** @sw-package discovery */
+describe('Experience Studio workspace dialogs', () => {
+    let wrapper: Awaited<ReturnType<typeof createWrapper>>;
+    let store: ExperienceStudioWorkspaceStore;
+
+    async function createWrapper(methodOverrides: Record<string, (...args: never[]) => unknown> = {}) {
+        // Exercise the page's template and dialog handlers without booting the layout editor.
+        const component = (await wrapTestComponent('sw-experience-studio-detail', { sync: true })) as unknown as {
+            template: string;
+            data: () => Record<string, unknown>;
+            computed: Record<string, () => unknown>;
+            methods: Record<string, (...args: unknown[]) => unknown>;
+        };
+
+        const page = mount(
+            {
+                template: component.template,
+                inject: ['acl'],
+                data() {
+                    return { ...component.data(), isWorkspacePickerOpen: true };
+                },
+                computed: {
+                    ...component.computed,
+                    layoutId: () => '',
+                    availablePickerElements: () => [],
+                    previewEntityType: () => null,
+                },
+                methods: { ...component.methods, ...methodOverrides },
+            },
+            {
+                attachTo: document.body,
+                global: {
+                    provide: {
+                        shortcutService: { startEventListener: jest.fn(), stopEventListener: jest.fn() },
+                    },
+                    stubs: {
+                        'sw-page': { template: '<div><slot name="content" /></div>' },
+                        'sw-experience-studio-toolbar': true,
+                        'sw-experience-studio-canvas': true,
+                        'sw-experience-studio-element-picker': true,
+                        'sw-experience-studio-workspace-picker': await wrapTestComponent(
+                            'sw-experience-studio-workspace-picker',
+                            { sync: true },
+                        ),
+                        'sw-modal': await wrapTestComponent('sw-modal', { sync: true }),
+                        'mt-modal': MtModal,
+                        'mt-modal-root': MtModalRoot,
+                        'sw-avatar': true,
+                    },
+                },
+            },
+        );
+        await flushPromises();
+        await jest.advanceTimersByTimeAsync(0);
+
+        return page;
+    }
+
+    beforeEach(() => {
+        jest.spyOn(Shopware.Service('acl'), 'can').mockReturnValue(true);
+        jest.useFakeTimers({ doNotFake: ['setImmediate'] });
+        store = Shopware.Store.get('experienceStudioWorkspace' as never) as ExperienceStudioWorkspaceStore;
+        store.$reset();
+        jest.spyOn(store, 'load').mockResolvedValue();
+        store.activeWorkspace = { id: 'current', name: 'Current workspace' } as ContentWorkspace;
+        store.workspaces = [{ id: 'other', name: 'Shared workspace' }] as ContentWorkspace[];
+        store.total = 1;
+    });
+
+    afterEach(async () => {
+        wrapper?.unmount();
+        await jest.advanceTimersByTimeAsync(400);
+        jest.useRealTimers();
+        jest.restoreAllMocks();
+    });
+
+    it('creates and opens the first workspace for an editor without layout creation permission', async () => {
+        jest.spyOn(Shopware.Service('acl'), 'can').mockImplementation(
+            (key) => !key || ['experience_studio.viewer', 'experience_studio.editor'].includes(key),
+        );
+        store.activeWorkspace = null;
+        store.workspaces = [];
+        store.total = 0;
+        const create = jest.spyOn(store, 'create').mockResolvedValue({ id: 'first' } as ContentWorkspace);
+        const open = jest.fn().mockResolvedValue(undefined);
+        wrapper = await createWrapper({ openWorkspace: open });
+
+        expect(wrapper.get('sw-experience-studio-toolbar-stub').attributes('allow-save')).toBe('true');
+        expect(wrapper.get('sw-experience-studio-canvas-stub').attributes('allow-create')).toBe('false');
+        const button = document.body.querySelector<HTMLButtonElement>(
+            '.sw-experience-studio-workspace-picker__footer .mt-button--primary',
+        )!;
+        expect(button.disabled).toBe(false);
+        button.click();
+        await flushPromises();
+        await jest.advanceTimersByTimeAsync(400);
+
+        const dialog = new DOMWrapper(document.body).get('.sw-modal');
+        const input = dialog.get('input');
+        await input.setValue('First workspace');
+        await dialog.get('form').trigger('submit');
+        await flushPromises();
+
+        expect(create).toHaveBeenCalledWith('First workspace');
+        expect(open).toHaveBeenCalledWith('first');
+    });
+
+    it('keeps the modal backdrop and search interactive while a row action menu is open', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const modal = document.body.querySelector<HTMLElement>('.mt-modal')!;
+        const trigger = modal.querySelector<HTMLButtonElement>('.sw-experience-studio-workspace-picker__actions')!;
+        trigger.click();
+        await flushPromises();
+        await jest.advanceTimersByTimeAsync(0);
+
+        expect(trigger.getAttribute('aria-expanded')).toBe('true');
+        expect(document.body.style.pointerEvents).not.toBe('none');
+        expect(window.getComputedStyle(modal).pointerEvents).not.toBe('none');
+
+        const search = modal.querySelector<HTMLInputElement>('input')!;
+        search.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }));
+        search.focus();
+        await flushPromises();
+
+        expect(trigger.getAttribute('aria-expanded')).toBe('false');
+        expect(document.activeElement).toBe(search);
+    });
+
+    it('closes the workspace modal from its backdrop while a row action menu is open', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const modal = document.body.querySelector<HTMLElement>('.mt-modal')!;
+        const trigger = modal.querySelector<HTMLButtonElement>('.sw-experience-studio-workspace-picker__actions')!;
+        trigger.click();
+        await flushPromises();
+        await jest.advanceTimersByTimeAsync(0);
+
+        expect(document.body.style.pointerEvents).not.toBe('none');
+        const backdrop = document.body.querySelector<HTMLElement>('[data-testid="modal-backdrop"]')!;
+        backdrop.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }));
+        backdrop.click();
+        await flushPromises();
+        await jest.advanceTimersByTimeAsync(400);
+
+        expect(document.body.querySelector('.mt-modal')).toBeNull();
+        expect(document.body.querySelector('.mt-action-menu')).toBeNull();
+        expect(document.body.style.pointerEvents).not.toBe('none');
+    });
+
+    it.each([
+        [
+            'rename',
+            'sw-experience-studio.workspace.manager.rename',
+        ],
+        [
+            'delete',
+            'global.default.delete',
+        ],
+    ])('opens the %s dialog and returns to the list repeatedly using the real modal', async (action, label) => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        for (let attempt = 0; attempt < 2; attempt += 1) {
+            const trigger = document.body.querySelector<HTMLButtonElement>(
+                '.sw-experience-studio-workspace-picker__actions',
+            )!;
+            trigger.click();
+            await flushPromises();
+
+            const menuItem = Array.from(document.body.querySelectorAll<HTMLElement>('[role="menuitem"]')).find(
+                (item) => item.textContent?.trim() === label,
+            );
+            expect(menuItem).toBeDefined();
+            menuItem!.click();
+            await flushPromises();
+            await jest.advanceTimersByTimeAsync(400);
+
+            const dialog = document.body.querySelector<HTMLElement>('.sw-modal')!;
+            expect(dialog.querySelector('.sw-modal__title')?.textContent?.trim()).toBe(
+                action === 'rename'
+                    ? 'sw-experience-studio.workspace.manager.rename'
+                    : 'sw-experience-studio.workspace.manager.deleteTitle',
+            );
+            expect(dialog.querySelector<HTMLInputElement>('input')?.value).toBe(
+                action === 'rename' ? 'Shared workspace' : undefined,
+            );
+
+            const cancel = Array.from(dialog.querySelectorAll('button')).find(
+                (button) => button.textContent?.trim() === 'global.default.cancel',
+            )!;
+            cancel.click();
+            await flushPromises();
+            await jest.advanceTimersByTimeAsync(400);
+
+            expect(document.body.querySelector('.mt-modal__title')?.textContent?.trim()).toBe(
+                'sw-experience-studio.workspace.manager.manage',
+            );
+            expect(document.body.querySelector('.sw-experience-studio-workspace-picker__item')?.textContent).toContain(
+                'Shared workspace',
+            );
+        }
+    });
+});

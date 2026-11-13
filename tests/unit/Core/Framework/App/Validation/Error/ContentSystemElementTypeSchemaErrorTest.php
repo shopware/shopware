@@ -24,5 +24,7 @@ class ContentSystemElementTypeSchemaErrorTest extends TestCase
         static::assertSame(AppException::VALIDATION_FAILED, $error->getErrorCode());
         static::assertSame([], $error->getParameters());
         static::assertSame('Invalid element type schema in "/path/to/types": YAML syntax invalid', $error->getMessage());
+        static::assertSame(AppException::VALIDATION_FAILED, $error->getErrorCode());
+        static::assertSame([], $error->getParameters());
     }
 }

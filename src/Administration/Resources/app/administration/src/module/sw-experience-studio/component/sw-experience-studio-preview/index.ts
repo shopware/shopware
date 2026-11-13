@@ -6,7 +6,7 @@ const PREVIEW_RELOAD_DEBOUNCE_MS = 800;
 
 const { cloneDeep } = Shopware.Utils.object;
 
-type Viewport = 'mobile' | 'tablet-landscape' | 'desktop';
+type Viewport = 'mobile' | 'tablet-landscape' | 'desktop' | 'custom';
 
 type ContentSystemPreviewService = {
     previewEntityUrl: (payload: {
@@ -79,7 +79,7 @@ export default Shopware.Component.wrapComponentConfig({
             latestRequestId: 0,
             pendingScrollPosition: null as PreviewScrollPosition | null,
             scrollRequestSequence: 0,
-            debouncedLoadPreview: null as (() => void) | null,
+            debouncedLoadPreview: null as ReturnType<typeof Shopware.Utils.debounce> | null,
             previewMessageHandler: null as ((event: MessageEvent) => void) | null,
         };
     },
@@ -113,6 +113,9 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     beforeUnmount() {
+        this.debouncedLoadPreview?.cancel();
+        this.latestRequestId += 1;
+
         if (this.previewMessageHandler) {
             window.removeEventListener('message', this.previewMessageHandler);
         }
@@ -467,8 +470,13 @@ export default Shopware.Component.wrapComponentConfig({
                     return;
                 }
 
+                const scrollPosition = await this.requestActiveFrameScrollPosition();
+                if (requestId !== this.latestRequestId) {
+                    return;
+                }
+
                 this.previewLoadError = null;
-                this.pendingScrollPosition = await this.requestActiveFrameScrollPosition();
+                this.pendingScrollPosition = scrollPosition;
                 this.assignLoadingFrame(previewUrl);
             } catch {
                 if (requestId !== this.latestRequestId) {

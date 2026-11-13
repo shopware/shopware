@@ -9,9 +9,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
@@ -76,5 +80,48 @@ class IteratorFactoryTest extends TestCase
             $iterator->getQuery()->getSelectParts()
         );
         static::assertStringStartsWith('SELECT DISTINCT', $iterator->getQuery()->getSQL(), 'a translation of several languages is iterated once');
+    }
+
+    public function testFailsForTranslationsOfEntitiesWithoutTranslations(): void
+    {
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+
+        $parent = new class extends EntityDefinition {
+            public function getEntityName(): string
+            {
+                return 'broken';
+            }
+
+            protected function defineFields(): FieldCollection
+            {
+                return new FieldCollection([(new IdField('id', 'id'))->addFlags(new PrimaryKey())]);
+            }
+        };
+
+        $translation = new class extends EntityTranslationDefinition {
+            public EntityDefinition $parent;
+
+            public function getEntityName(): string
+            {
+                return 'broken_translation';
+            }
+
+            public function getParentDefinition(): EntityDefinition
+            {
+                return $this->parent;
+            }
+
+            protected function defineFields(): FieldCollection
+            {
+                return new FieldCollection([]);
+            }
+        };
+        $translation->parent = $parent;
+        $parent->compile($registry);
+        $translation->compile($registry);
+
+        $this->expectExceptionObject(DataAbstractionLayerException::missingParentForeignKey('broken'));
+
+        (new IteratorFactory(static::createStub(Connection::class), $registry))->createIterator($translation);
     }
 }

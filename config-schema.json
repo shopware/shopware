@@ -596,6 +596,9 @@
                 },
                 "mcp": {
                     "$ref": "#/definitions/rate_limiter_config"
+                },
+                "maintenance_password": {
+                    "$ref": "#/definitions/rate_limiter_config"
                 }
             },
             "title": "RateLimiter"

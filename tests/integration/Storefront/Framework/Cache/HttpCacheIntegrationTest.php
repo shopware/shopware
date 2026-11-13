@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
+use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
@@ -109,7 +110,7 @@ class HttpCacheIntegrationTest extends TestCase
             'layout' => [[
                 'id' => $ids->get('text'),
                 'component' => 'Sw:Content:Text',
-                'properties' => ['text' => 'Safe campaign {{campaign}} {{utm_source}}'],
+                'properties' => ['text' => [Defaults::LANGUAGE_SYSTEM => 'Safe campaign {{campaign}} {{utm_source}}']],
             ]],
         ]], $context);
         $path = '/cache-safe-' . $ids->get('landing-page');

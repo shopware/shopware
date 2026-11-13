@@ -123,11 +123,11 @@ The secret is then still in the copy's normal app data, and the copy prints it f
 ### Handing it over
 
 On the copy, `app:secret:recover --list <app-name>` prints every secret the copy holds for that app, newest first, with their ShopId and expiry.
-`app:secret:recover --start <app-name>` prints only the ones production needs, one per line with the app name in front.
+`app:secret:recover --start <app-name>` prints only the ones production needs, as JSON with the app name for each secret.
 If the copy kept secrets before it got a new ShopId, those are the kept ones; otherwise they are the secrets it currently uses.
 Both take `--all` instead of an app name.
 
-On production, `app:secret:recover --finish` reads those lines when they are pasted or piped in, never from the command line, so they stay out of the shell history.
+On production, `app:secret:recover --finish` reads that JSON when it is pasted or piped in, never from the command line, so they stay out of the shell history.
 For each app, it registers again, signed with each secret in turn, newest first, and stops at the first one the app accepts.
 Production gets a new secret, and the copy's secret stops working after the 60-second grace period.
 

@@ -21,6 +21,7 @@ use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\LineItemDownloadLoader;
 use Shopware\Core\Checkout\Cart\Order\OrderConversionContext;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
+use Shopware\Core\Checkout\Cart\Order\PositionStruct;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -65,7 +66,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
-use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
@@ -498,7 +498,7 @@ class OrderConverterTest extends TestCase
 
         $cart = $this->orderConverter->convertToCart($order, Context::createDefaultContext());
 
-        static::assertSame(3, $cart->getDeliveries()->first()?->getExtensionOfType(OrderConverter::ORIGINAL_POSITION, ArrayStruct::class)?->get('position'));
+        static::assertSame(3, $cart->getDeliveries()->first()?->getExtensionOfType(OrderConverter::ORIGINAL_POSITION, PositionStruct::class)?->getPosition());
     }
 
     #[DataProvider('convertToCartManipulatedOrderData')]

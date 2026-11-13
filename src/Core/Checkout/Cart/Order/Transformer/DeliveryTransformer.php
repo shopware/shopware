@@ -6,11 +6,11 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
+use Shopware\Core\Checkout\Cart\Order\PositionStruct;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
@@ -53,9 +53,12 @@ class DeliveryTransformer
     ): array {
         $output = [];
         foreach ($deliveries as $delivery) {
-            $deliveryData = self::transform($delivery, $lineItems, $stateId, $context, $addresses);
-            $deliveryData['position'] ??= \count($output) + 1;
-            $output[] = $deliveryData;
+            $output[] = self::transform($delivery, $lineItems, $stateId, $context, $addresses);
+        }
+
+        $nextPosition = max([0, ...array_column($output, 'position')]) + 1;
+        foreach (array_keys($output) as $index) {
+            $output[$index]['position'] ??= $nextPosition++;
         }
 
         return $output;
@@ -93,7 +96,7 @@ class DeliveryTransformer
             IdStruct::class
         )?->getId();
 
-        $originalPosition = $delivery->getExtensionOfType(OrderConverter::ORIGINAL_POSITION, ArrayStruct::class)?->get('position');
+        $originalPosition = $delivery->getExtensionOfType(OrderConverter::ORIGINAL_POSITION, PositionStruct::class)?->getPosition();
 
         $deliveryData = [
             'id' => self::getId($delivery),
@@ -104,7 +107,7 @@ class DeliveryTransformer
             'shippingCosts' => $delivery->getShippingCosts(),
             'positions' => [],
             'stateId' => $stateId,
-            'position' => \is_int($originalPosition) ? $originalPosition : null,
+            'position' => $originalPosition,
         ];
 
         if ($originalAddressId !== null && $originalAddressVersionId !== null) {

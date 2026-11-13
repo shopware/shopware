@@ -232,7 +232,6 @@ final class CartOrderConversionStub
                         ],
                         'originalPosition' => [
                             'position' => 0,
-                            'apiAlias' => null,
                             'extensions' => [],
                         ],
                     ],

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order\Transformer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -13,6 +14,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
+use Shopware\Core\Checkout\Cart\Order\PositionStruct;
 use Shopware\Core\Checkout\Cart\Order\Transformer\DeliveryTransformer;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -25,7 +27,6 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -172,22 +173,33 @@ class DeliveryTransformerTest extends TestCase
         static::assertSame([1, 2, 3], array_column($result, 'position'));
     }
 
-    public function testTransformCollectionKeepsTheOriginalPositionOfDeliveriesConvertedFromAnOrder(): void
+    /**
+     * @param list<int|null> $storedPositions
+     * @param list<int> $expectedPositions
+     */
+    #[DataProvider('storedPositionProvider')]
+    public function testTransformCollectionKeepsStoredPositionsAndNumbersNewDeliveriesAfterTheHighest(array $storedPositions, array $expectedPositions): void
     {
-        $primary = $this->createDelivery(10);
-        $primary->addExtension(OrderConverter::ORIGINAL_POSITION, new ArrayStruct(['position' => 2]));
-        $first = $this->createDelivery(5);
-        $first->addExtension(OrderConverter::ORIGINAL_POSITION, new ArrayStruct(['position' => 1]));
-        $discount = $this->createDelivery(-5);
+        $deliveries = new DeliveryCollection();
+        foreach ($storedPositions as $storedPosition) {
+            $delivery = $this->createDelivery(5);
+            if ($storedPosition !== null) {
+                $delivery->addExtension(OrderConverter::ORIGINAL_POSITION, new PositionStruct($storedPosition));
+            }
+            $deliveries->add($delivery);
+        }
 
-        $result = DeliveryTransformer::transformCollection(
-            new DeliveryCollection([$primary, $first, $discount]),
-            [],
-            Uuid::randomHex(),
-            Context::createDefaultContext()
-        );
+        $result = DeliveryTransformer::transformCollection($deliveries, [], Uuid::randomHex(), Context::createDefaultContext());
 
-        static::assertSame([2, 1, 3], array_column($result, 'position'));
+        static::assertSame($expectedPositions, array_column($result, 'position'));
+    }
+
+    public static function storedPositionProvider(): \Generator
+    {
+        yield 'stored positions in any order' => [[2, 1, null], [2, 1, 3]];
+        yield 'gap left by a deleted delivery' => [[1, 3, null], [1, 3, 4]];
+        yield 'order placed before positions were stored' => [[0, 0, null], [0, 0, 1]];
+        yield 'new delivery before the stored ones' => [[null, 1, 2], [3, 1, 2]];
     }
 
     public function createCart(): Cart

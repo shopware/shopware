@@ -41,7 +41,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
@@ -562,7 +561,7 @@ class OrderConverter
             $cartDelivery->addExtension(self::ORIGINAL_ID, new IdStruct($orderDelivery->getId()));
             $cartDelivery->addExtension(self::ORIGINAL_ADDRESS_ID, new IdStruct($orderDelivery->getShippingOrderAddressId()));
             $cartDelivery->addExtension(self::ORIGINAL_ADDRESS_VERSION_ID, new IdStruct($orderDelivery->getShippingOrderAddressVersionId()));
-            $cartDelivery->addExtension(self::ORIGINAL_POSITION, new ArrayStruct(['position' => $orderDelivery->getPosition()]));
+            $cartDelivery->addExtension(self::ORIGINAL_POSITION, new PositionStruct($orderDelivery->getPosition()));
 
             $cartDeliveries->add($cartDelivery);
         }

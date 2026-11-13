@@ -280,7 +280,7 @@ class AppManagerTest extends TestCase
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withInvalidConfig/manifest.xml');
 
-        $this->expectExceptionObject(AppException::invalidConfiguration('withInvalidConfig', new ConfigurationError(['test'])));
+        $this->expectExceptionObject(AppException::invalidConfiguration('withInvalidConfig', new ConfigurationError(['test'], 'withInvalidConfig')));
         $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
     }
 

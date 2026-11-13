@@ -13,6 +13,7 @@ module.exports = {
         'no-empty-listeners': require('./no-empty-listeners'),
         'no-vue-options-api': require('./no-vue-options-api'),
         'no-import-meta-glob-extglob': require('./no-import-meta-glob-extglob'),
+        'valid-api-markers': require('./valid-api-markers'),
         // The 6.8 codemods of `administration:upgrade-extensions`. The runner keys its config by rule name,
         // so a rule that serves a second codemod with other options is registered under a second name.
         'no-deprecated-components-6-8': require('./no-deprecated-components'),

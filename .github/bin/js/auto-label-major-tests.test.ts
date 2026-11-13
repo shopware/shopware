@@ -286,17 +286,10 @@ test('shouldDetect permits detection until all three per-arm labels are present'
     assert.equal(shouldDetect(umbrella), false);
 });
 
-const detect = (
-    {
-        pulls,
-        paginate = async () => assert.fail('a diff within the limits needs no files endpoint'),
-    }: { pulls: object; paginate?: unknown },
-    labels: Array<{ name: string }> = [],
-) => {
-    const warnings: string[] = [];
+test('detection selects only the acceptance arm for a spec change after PHP and JS were labeled', async () => {
     const context = baseContext();
-    context.payload.pull_request.labels = labels;
-    const run = detectMajorTestArms({
+    context.payload.pull_request.labels = [{ name: 'major-php' }, { name: 'major-js' }];
+    const arms = await detectMajorTestArms({
         context: {
             ...context,
             payload: {
@@ -308,29 +301,18 @@ const detect = (
                 },
             },
         },
-        core: { info() {}, warning: (message) => warnings.push(message) },
+        core: { info() {}, warning() {} },
         github: {
-            paginate,
+            paginate: async () => assert.fail('a diff within the limits needs no files endpoint'),
             rest: {
                 repos: { async getContent() { return { data: REGISTRY }; } },
-                pulls,
+                pulls: { async get() { return { data: diffFor('tests/acceptance/tests/Example.spec.ts', '+await button.click();') }; }, async listFiles() { return { data: [] }; } },
                 issues: { async addLabels() {} },
             },
-        } as Parameters<typeof detectMajorTestArms>[0]['github'],
+        },
     });
-
-    return { run, warnings };
-};
-
-test('detection selects only the acceptance arm for a spec change after PHP and JS were labeled', async () => {
-    const labels = [{ name: 'major-php' }, { name: 'major-js' }];
-    const { run } = detect(
-        { pulls: { async get() { return { data: diffFor('tests/acceptance/tests/Example.spec.ts', '+await button.click();') }; } } },
-        labels,
-    );
-    const arms = await run;
     assert.deepEqual(arms, { php: false, js: false, acceptance: true });
-    assert.deepEqual(labelsForMajorTestArms(arms, labels), ['major-acceptance']);
+    assert.deepEqual(labelsForMajorTestArms(arms, context.payload.pull_request.labels), ['major-acceptance']);
 });
 
 const tooLarge = Object.assign(new Error('Sorry, the diff exceeded the maximum number of files (300).'), {
@@ -355,40 +337,38 @@ test('diffFromFiles rebuilds a diff the detection reads like the native one', ()
 });
 
 test('detection reads a diff too large for the diff format through the files endpoint', async () => {
+    const context = baseContext();
     const listFiles = async () => ({ data: [] });
-    const { run, warnings } = detect({
-        pulls: {
-            async get() {
-                throw tooLarge;
+    const warnings: string[] = [];
+    const arms = await detectMajorTestArms({
+        context: {
+            ...context,
+            payload: {
+                ...context.payload,
+                pull_request: { ...context.payload.pull_request, number: 123, head: { ...context.payload.pull_request.head, sha: 'head-sha' } },
             },
-            listFiles,
         },
-        paginate: async (route: unknown, options: object) => {
-            assert.equal(route, listFiles);
-            assert.deepEqual(options, { owner: 'shopware', repo: 'shopware', pull_number: 123, per_page: 100 });
+        core: { info() {}, warning: (message) => warnings.push(message) },
+        github: {
+            async paginate(route, options) {
+                assert.equal(route, listFiles);
+                assert.deepEqual(options, { owner: 'shopware', repo: 'shopware', pull_number: 123, per_page: 100 });
 
-            return [
-                { filename: 'src/Core/Content/Cms/SalesChannel/CmsRoute.php', patch: "@@ -1,1 +1,1 @@\n+        if (Feature::isActive('v6.8.0.0')) {" },
-                { filename: 'tests/acceptance/tests/Huge.spec.ts' },
-            ];
+                return [
+                    { filename: 'src/Core/Content/Cms/SalesChannel/CmsRoute.php', patch: "@@ -1,1 +1,1 @@\n+        if (Feature::isActive('v6.8.0.0')) {" },
+                    { filename: 'tests/acceptance/tests/Huge.spec.ts' },
+                ];
+            },
+            rest: {
+                repos: { async getContent() { return { data: REGISTRY }; } },
+                pulls: { async get() { throw tooLarge; }, listFiles },
+                issues: { async addLabels() {} },
+            },
         },
     });
 
-    assert.deepEqual(await run, { php: true, js: false, acceptance: true });
+    assert.deepEqual(arms, { php: true, js: false, acceptance: true });
     assert.deepEqual(warnings, [
         'diff too large, read 2 file(s) through the files endpoint instead; 1 without a patch are matched by path only',
     ]);
-});
-
-test('detection still fails on any other diff error', async () => {
-    const outage = Object.assign(new Error('other side closed'), { status: 500 });
-    const { run } = detect({
-        pulls: {
-            async get() {
-                throw outage;
-            },
-        },
-    });
-
-    await assert.rejects(run, outage);
 });

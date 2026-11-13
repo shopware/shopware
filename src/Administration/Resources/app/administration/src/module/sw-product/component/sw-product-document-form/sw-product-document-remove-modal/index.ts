@@ -13,27 +13,34 @@ export default Shopware.Component.wrapComponentConfig({
             type: String,
             required: true,
         },
-
         languageName: {
             type: String,
             required: false,
             default: '',
         },
-
         canEdit: {
             type: Boolean,
             required: false,
             default: false,
         },
-
         isRemovingDocument: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        hasVariants: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        removeFromVariants: {
             type: Boolean,
             required: false,
             default: false,
         },
     },
 
-    emits: ['close', 'remove'],
+    emits: ['close', 'remove', 'update:removeFromVariants'],
 
     computed: {
         isDisabled(): boolean {

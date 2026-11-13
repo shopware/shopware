@@ -599,6 +599,7 @@
       "notificationSaveErrorProductNoAlreadyExists": "Product No. \"{productNo}\" is already assigned."
     },
     "documentForm": {
+      "variantOnly": "Variant only",
       "cardTitle": "Documents ({count})",
       "cardSubtitle": "Files customers can download on the product detail page in the Storefront.",
       "emptyState": "No documents yet",
@@ -625,13 +626,20 @@
       "nameHint": "Customers see this name on the product detail page.",
       "errorNameRequired": "Enter a name.",
       "errorFileRequired": "Select a file.",
+      "applyToVariants": "Also apply to variants where the document inheritance was removed",
+      "applyToVariantsHelp": "Variants that inherit the parent product's documents are updated automatically. This also updates variants where the inheritance was removed, as long as their copy of this document still has the same name and file.",
       "draftHint": "The changes are applied after saving the product.",
+      "errorLoadVariants": "The variant documents could not be loaded. Please try again.",
+      "saveSuccess": "Document \"{name}\" has been saved and updated in {count} variant. | Document \"{name}\" has been saved and updated in {count} variants.",
       "removeTitle": "Remove \"{name}\"?",
       "removeDescription": "The document is removed from the product in all languages. The file stays in the Media module.",
+      "removeFromVariants": "Also remove from variants where the document inheritance was removed",
+      "removeFromVariantsHelp": "Variants that inherit the parent product's documents lose it automatically. This also removes it from variants where the inheritance was removed, as long as their copy of this document still has the same name and file.",
       "errorLoadMedia": "The uploaded file could not be loaded. Please try again.",
       "errorPrivateMedia": "Product documents must use public media files.",
       "errorDocumentLimit": "You can add up to {count} documents per product.",
       "errorDocumentDuplicated": "This file is already assigned to the product.",
+      "languageHint": "Add documents in the default language. Switch the content language to translate their names and files.",
       "fileUploadLabel": "File upload",
       "uploadHint": "{extensions} or {lastExtension}, up to {size} MB each.",
       "unlinkToAdd": "Unlink the card to add documents for this variant."

@@ -3,13 +3,12 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -62,31 +61,24 @@ class IteratorFactory
             return new LastIdQuery($query);
         }
 
+        $id = $escaped . '.id';
+
+        if ($definition instanceof EntityTranslationDefinition) {
+            $translationField = $definition->getParentDefinition()->getTranslationField();
+            if ($translationField === null) {
+                throw DataAbstractionLayerException::missingParentForeignKey($definition->getParentDefinition()->getEntityName());
+            }
+
+            $id = $escaped . '.' . EntityDefinitionQueryHelper::escape($translationField->getReferenceField());
+            $query->distinct();
+        }
+
+        $query->select($id, 'LOWER(HEX(' . $id . '))');
         $query->setFirstResult(0);
         if ($lastId !== null) {
             $query->setFirstResult((int) $lastId['offset']);
         }
 
-        $columns = [];
-        foreach ($definition->getPrimaryKeys() as $field) {
-            if ($field instanceof StorageAware && !$field instanceof VersionField && !$field instanceof ReferenceVersionField) {
-                $columns[$field->getPropertyName()] = $escaped . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());
-            }
-        }
-
-        if (\count($columns) === 1) {
-            [$column] = array_values($columns);
-            $query->select($column, 'LOWER(HEX(' . $column . '))');
-
-            return new OffsetQuery($query);
-        }
-
-        // definitions with several primary keys, like translations, are iterated by their keys without the version,
-        // each key has the property names of its fields like the primary keys of written entities
-        foreach ($columns as $property => $column) {
-            $query->addSelect('LOWER(HEX(' . $column . ')) AS ' . EntityDefinitionQueryHelper::escape($property));
-        }
-
-        return new OffsetQuery($query->distinct(), fetchKeys: true);
+        return new OffsetQuery($query);
     }
 }

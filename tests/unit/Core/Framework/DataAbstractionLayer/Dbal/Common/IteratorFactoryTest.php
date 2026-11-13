@@ -3,13 +3,13 @@
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\OffsetQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -58,7 +58,7 @@ class IteratorFactoryTest extends TestCase
         static::assertSame(50, $iterator->getQuery()->getMaxResults());
     }
 
-    public function testIteratesDefinitionsWithoutIdByTheirPrimaryKeysWithoutVersion(): void
+    public function testIteratesTranslationsByTheIdOfTheirEntity(): void
     {
         $registry = new StaticDefinitionInstanceRegistry(
             [CategoryDefinition::class, CategoryTranslationDefinition::class],
@@ -66,16 +66,15 @@ class IteratorFactoryTest extends TestCase
             static::createStub(EntityWriteGatewayInterface::class)
         );
 
-        $factory = new IteratorFactory(static::createStub(Connection::class), $registry);
+        $connection = static::createStub(Connection::class);
+        $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
 
-        $iterator = $factory->createIterator($registry->get(CategoryTranslationDefinition::class), ['offset' => 100]);
+        $iterator = (new IteratorFactory($connection, $registry))->createIterator($registry->get(CategoryTranslationDefinition::class));
 
-        static::assertInstanceOf(OffsetQuery::class, $iterator);
         static::assertSame(
-            ['LOWER(HEX(`category_translation`.`category_id`)) AS `categoryId`', 'LOWER(HEX(`category_translation`.`language_id`)) AS `languageId`'],
-            $iterator->getQuery()->getSelectParts(),
-            'the keys have the property names of the primary keys of written entities'
+            ['`category_translation`.`category_id`', 'LOWER(HEX(`category_translation`.`category_id`))'],
+            $iterator->getQuery()->getSelectParts()
         );
-        static::assertSame(100, $iterator->getQuery()->getFirstResult());
+        static::assertStringStartsWith('SELECT DISTINCT', $iterator->getQuery()->getSQL(), 'a translation of several languages is iterated once');
     }
 }

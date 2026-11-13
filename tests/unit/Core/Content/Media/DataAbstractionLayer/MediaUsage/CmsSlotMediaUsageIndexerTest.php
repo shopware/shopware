@@ -12,6 +12,7 @@ use Shopware\Core\Content\Media\Cms\CmsElementMediaIdsProvider;
 use Shopware\Core\Content\Media\Cms\ImageCmsElementResolver;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\CmsSlotMediaIdResolver;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\CmsSlotMediaUsageIndexer;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
@@ -83,36 +84,18 @@ class CmsSlotMediaUsageIndexerTest extends TestCase
     public function testMapsTheMediaOfElementsToTheirSlotAndLayout(): void
     {
         $pageId = Uuid::randomBytes();
-        $versionId = Uuid::randomBytes();
+        $versionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
         $slotId = Uuid::randomBytes();
         $imageId = Uuid::randomHex();
 
         $this->connection->method('fetchAllAssociative')->willReturn([
-            ['cms_slot_version_id' => Uuid::fromBytesToHex($versionId), 'cms_page_id' => $pageId, 'cms_page_version_id' => $versionId, 'cms_slot_id' => $slotId, 'type' => 'image', 'config' => json_encode(['media' => ['source' => 'static', 'value' => $imageId]])],
+            ['cms_page_id' => $pageId, 'cms_page_version_id' => $versionId, 'cms_slot_id' => $slotId, 'cms_slot_version_id' => $versionId, 'type' => 'image', 'config' => json_encode(['media' => ['source' => 'static', 'value' => $imageId]])],
         ]);
 
         $this->indexer->handle(new EntityIndexingMessage([Uuid::fromBytesToHex($slotId)]));
 
-        static::assertSame([[$versionId, [$slotId]]], $this->getDeletes(), 'the previous usages of the slot are removed');
+        static::assertSame([[$versionId, [$slotId]]], $this->getDeletes(), 'the previous usages of the live slot are removed');
         static::assertSame([[$pageId, $versionId, $slotId, $versionId, Uuid::fromHexToBytes($imageId)]], $this->getInsertedRows(columns: 5));
-    }
-
-    public function testReplacesTheUsagesOfEachVersionOfTheSlotSeparately(): void
-    {
-        $pageId = Uuid::randomBytes();
-        $slotId = Uuid::randomBytes();
-        $liveVersionId = Uuid::randomBytes();
-        $draftVersionId = Uuid::randomBytes();
-        $config = json_encode(['media' => ['source' => 'static', 'value' => Uuid::randomHex()]]);
-
-        $this->connection->method('fetchAllAssociative')->willReturn([
-            ['cms_slot_version_id' => Uuid::fromBytesToHex($liveVersionId), 'cms_page_id' => $pageId, 'cms_page_version_id' => $liveVersionId, 'cms_slot_id' => $slotId, 'type' => 'image', 'config' => $config],
-            ['cms_slot_version_id' => Uuid::fromBytesToHex($draftVersionId), 'cms_page_id' => $pageId, 'cms_page_version_id' => $draftVersionId, 'cms_slot_id' => $slotId, 'type' => 'image', 'config' => $config],
-        ]);
-
-        $this->indexer->handle(new EntityIndexingMessage([Uuid::fromBytesToHex($slotId)]));
-
-        static::assertSame([[$liveVersionId, [$slotId]], [$draftVersionId, [$slotId]]], $this->getDeletes());
     }
 
     public function testDoesNothingWithoutSlots(): void

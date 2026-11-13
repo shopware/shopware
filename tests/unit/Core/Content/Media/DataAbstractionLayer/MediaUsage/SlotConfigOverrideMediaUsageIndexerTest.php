@@ -13,6 +13,7 @@ use Shopware\Core\Content\Media\Cms\CmsElementMediaIdsProvider;
 use Shopware\Core\Content\Media\Cms\ImageCmsElementResolver;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\CmsSlotMediaIdResolver;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\SlotConfigOverrideMediaUsageIndexer;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
@@ -90,7 +91,7 @@ class SlotConfigOverrideMediaUsageIndexerTest extends TestCase
 
         static::assertSame([$translation['id']], $this->getReplacedIds(), 'the previous usages of the category are removed');
         static::assertSame(
-            [[$translation['id'], Uuid::fromHexToBytes($translation['version_id']), $translation['language_id'], Uuid::fromHexToBytes($imageId)]],
+            [[$translation['id'], Uuid::fromHexToBytes(Defaults::LIVE_VERSION), $translation['language_id'], Uuid::fromHexToBytes($imageId)]],
             $this->getInsertedRows(columns: 4),
             'overrides of slots which are not known are ignored'
         );
@@ -117,12 +118,11 @@ class SlotConfigOverrideMediaUsageIndexerTest extends TestCase
     /**
      * @param array<string, mixed> $overrides
      *
-     * @return array{version_id: string, id: string, language_id: string, slot_config: string} the version id as hex like the query selects it
+     * @return array{id: string, language_id: string, slot_config: string}
      */
     private function createTranslation(array $overrides): array
     {
         return [
-            'version_id' => Uuid::randomHex(),
             'id' => Uuid::randomBytes(),
             'language_id' => Uuid::randomBytes(),
             'slot_config' => (string) json_encode($overrides),

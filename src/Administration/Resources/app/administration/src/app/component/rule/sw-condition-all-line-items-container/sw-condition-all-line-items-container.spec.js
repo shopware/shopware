@@ -3,6 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
+import RuleConditionService from 'src/app/service/rule-condition.service';
 
 const createCondition = jest.fn();
 const insertNodeIntoTree = jest.fn();
@@ -42,13 +43,13 @@ async function createWrapper(customProps = {}, customProvide = {}, customStubs =
                     ...customStubs,
                 },
                 provide: {
-                    conditionDataProviderService: {
+                    conditionDataProviderService: Object.assign(new RuleConditionService(), {
                         getByType: () => {
                             return {
                                 component: 'sw-condition-goods-price',
                             };
                         },
-                    },
+                    }),
                     createCondition,
                     insertNodeTree: {},
                     insertNodeIntoTree,
@@ -107,6 +108,28 @@ describe('src/app/component/rule/sw-condition-all-line-items-container', () => {
         expect(removeNodeFromTree).toHaveBeenCalled();
         expect(createCondition).toHaveBeenCalled();
         expect(insertNodeIntoTree).toHaveBeenCalled();
+    });
+
+    it('should keep the app script of a condition it unwraps', async () => {
+        const wrapper = await createWrapper();
+        const condition = { ...wrapper.props().condition };
+        const appScriptCondition = { id: 'app-script-condition-id' };
+        condition.children = new EntityCollection('', 'rule_condition', Shopware.Context.api, null, [
+            {
+                type: 'scriptRule',
+                scriptId: 'script-id',
+                appScriptCondition,
+                value: null,
+            },
+        ]);
+
+        await wrapper.setProps({ condition });
+
+        expect(createCondition).toHaveBeenLastCalledWith(
+            expect.objectContaining({ type: 'scriptRule', scriptId: 'script-id', appScriptCondition }),
+            'foo',
+            undefined,
+        );
     });
 
     it('should remove empty wrapper when children are deleted', async () => {

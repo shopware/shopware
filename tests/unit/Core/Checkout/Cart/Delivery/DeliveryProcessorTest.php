@@ -16,19 +16,33 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
+use Shopware\Core\Checkout\Cart\Order\IdStruct;
+use Shopware\Core\Checkout\Cart\Order\OrderConverter;
+use Shopware\Core\Checkout\Cart\Price\CashRounding;
+use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\PriceSelector;
+use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -187,6 +201,41 @@ class DeliveryProcessorTest extends TestCase
         static::assertNull($delivery->getRuleIds());
     }
 
+    public function testManualShippingCostsOnlyApplyToThePrimaryDeliveryOnRecalculation(): void
+    {
+        $primaryDelivery = $this->createOrderDelivery('primary-delivery', 0.0);
+        $secondDelivery = $this->createOrderDelivery('second-delivery', 4.99);
+
+        $original = new Cart('test');
+        $original->setDeliveries(new DeliveryCollection([$primaryDelivery, $secondDelivery]));
+        $original->addExtension(OrderConverter::ORIGINAL_PRIMARY_ORDER_DELIVERY, new IdStruct('primary-delivery'));
+
+        $behavior = new CartBehavior([CheckoutPermissions::SKIP_DELIVERY_PRICE_RECALCULATION => true]);
+        $toCalculate = new Cart('test');
+        $toCalculate->setBehavior($behavior);
+        $toCalculate->addExtension(
+            DeliveryProcessor::MANUAL_SHIPPING_COSTS,
+            new CalculatedPrice(7.0, 7.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_GROSS);
+        $context->method('getItemRounding')->willReturn(new CashRoundingConfig(decimals: 2, interval: 0.01, roundForNet: true));
+        $context->method('buildTaxRules')->willReturn(new TaxRuleCollection([new TaxRule(19)]));
+
+        $processor = new DeliveryProcessor(
+            static::createStub(DeliveryBuilder::class),
+            $this->createRealDeliveryCalculator(),
+            static::createStub(EntityRepository::class),
+            static::createStub(DeliveryRuleMatcher::class)
+        );
+        $processor->process(new CartDataCollection(), $original, $toCalculate, $context, $behavior);
+
+        static::assertCount(2, $toCalculate->getDeliveries());
+        static::assertSame(7.0, $primaryDelivery->getShippingCosts()->getTotalPrice());
+        static::assertSame(4.99, $secondDelivery->getShippingCosts()->getTotalPrice());
+    }
+
     private function createDelivery(): Delivery
     {
         return new Delivery(
@@ -195,6 +244,38 @@ class DeliveryProcessorTest extends TestCase
             new ShippingMethodEntity(),
             new ShippingLocation(new CountryEntity(), null, null),
             new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+        );
+    }
+
+    private function createOrderDelivery(string $orderDeliveryId, float $shippingCosts): Delivery
+    {
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_FIXED);
+        $shippingMethod->setTaxId(Uuid::randomHex());
+
+        $delivery = new Delivery(
+            new DeliveryPositionCollection(),
+            new DeliveryDate(new \DateTime(), new \DateTime()),
+            $shippingMethod,
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice($shippingCosts, $shippingCosts, new CalculatedTaxCollection(), new TaxRuleCollection()),
+        );
+        $delivery->addExtension(OrderConverter::ORIGINAL_ID, new IdStruct($orderDeliveryId));
+
+        return $delivery;
+    }
+
+    private function createRealDeliveryCalculator(): DeliveryCalculator
+    {
+        return new DeliveryCalculator(
+            new QuantityPriceCalculator(
+                new GrossPriceCalculator(new TaxCalculator(), new CashRounding()),
+                new NetPriceCalculator(new TaxCalculator(), new CashRounding())
+            ),
+            new PercentageTaxRuleBuilder(),
+            new CashRounding(),
+            new PriceSelector(new TaxCalculator(), new ExtensionDispatcher(new EventDispatcher())),
         );
     }
 }

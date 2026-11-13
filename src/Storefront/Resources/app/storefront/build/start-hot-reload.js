@@ -12,6 +12,7 @@ const path = require('node:path');
 const { spawn } = require('node:child_process');
 const createLiveReloadServer = require('./live-reload-server/index');
 const getBrowserUrl = require('./hmr-browser-url');
+const copyProxyResponseHead = require('./copy-proxy-response-head');
 
 const proxyPort = Number(process.env.STOREFRONT_PROXY_PORT) || 9998;
 const assetPort = Number(process.env.STOREFRONT_ASSETS_PORT) || 9999;
@@ -66,6 +67,7 @@ const proxyOptions = {
         },
         proxyRes: (proxyRes, req, res) => {
             let body = [];
+            copyProxyResponseHead(proxyRes, res, rewriteOriginUrls);
             // Set the cookie from the proxy response to the next proxy request
             if (proxyRes.headers['set-cookie']) {
                 res.setHeader('set-cookie', proxyRes.headers['set-cookie']);

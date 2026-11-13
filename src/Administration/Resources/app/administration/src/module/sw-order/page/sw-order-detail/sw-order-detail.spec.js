@@ -9,7 +9,7 @@ import { nextTick } from 'vue';
 
 async function createWrapper(
     order = {},
-    { routeName = 'sw.order.detail.general', routerPush = jest.fn(), repositoryOverrides = {} } = {},
+    { routeName = 'sw.order.detail.general', routerPush = jest.fn(), orderService = {}, orderRepository = {} } = {},
 ) {
     const repositoryFactoryMock = {
         search: () => Promise.resolve([]),
@@ -19,7 +19,7 @@ async function createWrapper(
         createVersion: () => Promise.resolve({ versionId: 'newVersionId' }),
         get: () => Promise.resolve(order),
         save: () => Promise.resolve({}),
-        ...repositoryOverrides,
+        ...orderRepository,
     };
 
     return mount(await wrapTestComponent('sw-order-detail', { sync: true }), {
@@ -114,7 +114,7 @@ async function createWrapper(
                 repositoryFactory: {
                     create: () => repositoryFactoryMock,
                 },
-                orderService: {},
+                orderService,
             },
         },
         props: {
@@ -154,7 +154,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
             deleteVersion: jest.fn(),
             deleteVersionWithKeepalive: jest.fn(),
         };
-        wrapper = await createWrapper({}, { repositoryOverrides: repository });
+        wrapper = await createWrapper({}, { orderRepository: repository });
         await flushPromises();
 
         expect(repository.get).toHaveBeenCalledWith(expect.any(String), Shopware.Context.api, expect.anything());
@@ -455,6 +455,17 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(criteria.getAssociation('transactions').hasAssociation('stateMachineState')).toBe(true);
     });
 
+    it('should load the shipping method and shipping address of every delivery', async () => {
+        const get = jest.fn(() => Promise.resolve({}));
+        wrapper = await createWrapper({}, { orderRepository: { get } });
+        await flushPromises();
+
+        const deliveries = get.mock.calls[0][2].getAssociation('deliveries');
+
+        expect(deliveries.hasAssociation('shippingMethod')).toBe(true);
+        expect(deliveries.getAssociation('shippingOrderAddress').hasAssociation('country')).toBe(true);
+    });
+
     it('should sort deliveries by shipping costs with a stable tiebreaker', async () => {
         wrapper = await createWrapper();
         const criteria = wrapper.vm.orderCriteria;
@@ -518,11 +529,13 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
         const deliveryDiscount = {
             id: 'deliveryId2',
+            shippingCosts: { totalPrice: -4.99 },
         };
 
         const deliveries = [
             {
                 id: 'deliveryId',
+                shippingCosts: { totalPrice: 4.99 },
             },
             deliveryDiscount,
         ];
@@ -565,11 +578,13 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
         const deliveryDiscount = {
             id: 'deliveryId2',
+            shippingCosts: { totalPrice: -4.99 },
         };
 
         const deliveries = [
             {
                 id: 'deliveryId',
+                shippingCosts: { totalPrice: 4.99 },
             },
             deliveryDiscount,
         ];
@@ -616,11 +631,13 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
         const deliveryDiscount = {
             id: 'deliveryId2',
+            shippingCosts: { totalPrice: -4.99 },
         };
 
         const deliveries = [
             {
                 id: 'deliveryId',
+                shippingCosts: { totalPrice: 4.99 },
             },
             deliveryDiscount,
         ];
@@ -693,6 +710,58 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
             { 'sw-version-id': undefined },
         );
     });
+
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should update the shipping address of the shipment the selection belongs to',
+        async () => {
+            global.activeAclRoles = ['order.editor'];
+            const updateOrderAddresses = jest.fn(() => Promise.resolve());
+            wrapper = await createWrapper(
+                {
+                    id: 'order123',
+                    primaryOrderDeliveryId: 'primary-shipment',
+                    lineItems: [
+                        {
+                            id: 'lineItemId',
+                            type: 'product',
+                            referencedId: 'productId',
+                            productId: 'productId',
+                            payload: {},
+                        },
+                    ],
+                    deliveries: [
+                        { id: 'primary-shipment', shippingCosts: { totalPrice: 4.99 } },
+                        { id: 'second-shipment', shippingCosts: { totalPrice: 4.99 } },
+                    ],
+                },
+                { orderService: { updateOrderAddresses } },
+            );
+            await flushPromises();
+
+            Shopware.Store.get('swOrderDetail').setOrderAddressIds({
+                orderAddressId: 'orderAddress2',
+                customerAddressId: 'customerAddress2',
+                type: 'shipping',
+                edited: false,
+                deliveryId: 'second-shipment',
+            });
+            await wrapper.find('.sw-order-detail__smart-bar-save-button').trigger('click');
+            await flushPromises();
+
+            expect(updateOrderAddresses).toHaveBeenCalledWith(
+                expect.any(String),
+                [
+                    {
+                        customerAddressId: 'customerAddress2',
+                        type: 'shipping',
+                        deliveryId: 'second-shipment',
+                    },
+                ],
+                {},
+                { 'sw-version-id': undefined },
+            );
+        },
+    );
 
     it('should skip order address update', async () => {
         wrapper = await createWrapper();

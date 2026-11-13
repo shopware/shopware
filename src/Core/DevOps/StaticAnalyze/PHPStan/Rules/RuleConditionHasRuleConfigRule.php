@@ -9,6 +9,7 @@ use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
+use Shopware\Core\Checkout\Cart\Rule\DeliveryContainerRule;
 use Shopware\Core\Checkout\Cart\Rule\GoodsCountRule;
 use Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule;
@@ -57,6 +58,7 @@ class RuleConditionHasRuleConfigRule implements Rule
         OrRule::class,
         XorRule::class,
         MatchAllLineItemsRule::class,
+        DeliveryContainerRule::class,
         ScriptRule::class,
         DateRangeRule::class,
         SimpleRule::class,

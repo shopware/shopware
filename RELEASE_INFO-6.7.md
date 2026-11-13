@@ -9,6 +9,44 @@ Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED` while ano
 
 ## Core
 
+### Attribute entities can generate the reverse side of a many-to-many association
+
+`Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToMany` now accepts `reversedBy`, `reverseApi` and `reverseOnDelete`:
+
+```php
+#[ManyToMany(entity: 'product', onDelete: OnDelete::CASCADE, api: true, reversedBy: 'attributeEntities', reverseApi: ['admin-api' => true, 'store-api' => false], reverseOnDelete: OnDelete::CASCADE)]
+public array $products = [];
+```
+
+When `reversedBy` is set, the target entity (`product` in the example) gains a reverse many-to-many association with that property name over the same mapping table, added as an entity extension and therefore available on the target struct through its extensions for loading and filtering.
+`reverseApi` and `reverseOnDelete` control the reverse association's API visibility and delete behaviour independently; when omitted, they mirror the forward association's `api` and `onDelete`.
+Without `reversedBy`, the relation stays one-sided as before.
+
+### Rules can be evaluated per cart delivery
+
+The new scope `Shopware\Core\Checkout\Cart\Rule\DeliveryRuleScope` extends `CartRuleScope` and carries the cart delivery a rule is evaluated for.
+The shipping address rules (`ShippingCountryRule`, `ShippingStateRule`, `ShippingZipCodeRule`, `ShippingStreetRule`, `ShippingCityRule`) and `ShippingMethodRule` read the delivery instead of the sales channel context when they are matched in that scope.
+Every other scope behaves as before.
+
+With the `v6.8.0.0` feature flag active, the `DeliveryProcessor` matches the rules a delivery's shipping method references (availability rule, price row rules, calculation rules) against each delivery and stores the matching ids on the delivery, available through `Delivery::getRuleIds()`.
+`DeliveryCalculator` and `DeliveryValidator` then select rule based price rows and check the availability rule per delivery.
+A cart with a single delivery gets the same result as before, and a delivery without matched rule ids keeps using the rule ids of the sales channel context.
+In a `DeliveryRuleScope` the shipping address rules read only the delivery's address and do not fall back to the customer's active shipping address.
+
+Custom rules that read `getShippingLocation()` or `getShippingMethod()` from the sales channel context should read them from `$scope->getDelivery()` when the scope is a `DeliveryRuleScope`, otherwise they decide by the context for every delivery.
+See `UPGRADE-6.8.md` for an example.
+
+### Rule conditions can apply to a single cart delivery
+
+The new container condition `deliveryContainer` (`Shopware\Core\Checkout\Cart\Rule\DeliveryContainerRule`) matches its conditions against the delivery of a `DeliveryRuleScope`.
+Inside it, the cart holds only the delivery's line items and the delivery itself, while the price and the cart data stay those of the whole cart.
+Core only matches rules for a single delivery with the `v6.8.0.0` feature flag active; until then, and in every other scope, its conditions read the whole cart.
+Custom conditions that read the cart's line items or deliveries work inside the container without changes.
+
+With the `v6.8.0.0` feature flag active, the rule builder offers "Whole cart" or "This delivery" on the cart weight, cart volume and free shipping item conditions.
+"This delivery" wraps the condition in the new container, "Whole cart" stays the default.
+The Administration doesn't offer rules using it for payment methods or promotions, because only shipping method availability and price rows evaluate a rule per delivery.
+
 ### Rule Builder: new "Item with longest side and girth" condition
 
 A new line item rule condition `LineItemDimensionLongestAndGirthRule` (`cartLineItemDimensionLongestAndGirth`) was added. It matches the cart against the longest side plus girth of each individual line item. It is calculated as `longest side + 2 * (shortest side + second shortest side)`. This condition allows for more precise shipping rules based on the dimensions of the items in the cart.
@@ -207,6 +245,36 @@ New sales channel contexts now decide tax-free delivery like the cart (`TaxDetec
 commercial customers only get "Tax-free (B2B)", all other customers only "Tax-free (B2C)".
 Cart and order taxes stay the same, but Rule Builder conditions like "Cart amount" can match differently than before for customers who only met the other setting.
 
+### MCP servers run on `mcp/sdk` 0.9 and `symfony/mcp-bundle` 0.15
+
+Shopware now requires `mcp/sdk` 0.9 and `symfony/mcp-bundle` 0.15.
+Plugins and bundles that register MCP tools are affected in these points:
+
+* A tool that declares an `outputSchema` has its `structuredContent` validated against it.
+  A result that does not match is sent as an error result with `isError: true`.
+  Return `new \stdClass()` for an empty object, since `[]` is sent as an array.
+* A tool whose `inputSchema` has a `properties` member that is not an object, or a `required` member that is not a list, is rejected when it is registered.
+* `#[CompletionProvider]` no longer takes `providerClass`; pass the class to `provider` instead.
+
+The SDK classes for an OAuth proxy, client registration and OIDC discovery were removed, see the [mcp/sdk 0.9.0 changelog](https://github.com/modelcontextprotocol/php-sdk/blob/v0.9.0/CHANGELOG.md).
+The MCP endpoints match the `Origin` header of browser clients exactly, including scheme and port.
+They accept the origins of `APP_URL` and of every sales channel domain.
+A loopback origin, for example the MCP Inspector on `http://localhost:6274`, is accepted only for a shop on a loopback host such as `localhost` or `*.localhost`.
+Clients without an `Origin` header, such as CLI clients and desktop apps, are not affected.
+Allow further origins with `shopware.mcp.allowed_origins`.
+An entry is an exact origin, an origin with `:*` for any port, or `*` for any origin:
+
+```yaml
+shopware:
+    mcp:
+        allowed_origins:
+            - 'https://chat.example.com'
+            - 'http://localhost:*'
+```
+
+The list can also come from an environment variable, for example `allowed_origins: '%env(csv:MCP_ALLOWED_ORIGINS)%'`.
+A rejected origin is logged as a warning in the `mcp` channel.
+
 ### ZUGFeRD e-invoices send the real unit code
 
 Product line items now store the `uneceCode` and the `purchaseUnit` of the product in their payload (`payload.uneceCode`, `payload.purchaseUnit`) when they are added to the cart, so orders keep the values the product had when the order was placed. Variants without their own unit store the parent's values.
@@ -273,9 +341,90 @@ A `0` is no longer replaced by the mapping's default value and satisfies a requi
 Empty cells behave as before.
 Check import files that relied on `0` being ignored.
 
+### Event once all line items of an add are in the cart
+
+`CartItemAddRoute` dispatches the new `Shopware\Core\Checkout\Cart\Event\LineItemsAddedBeforeCalculationEvent` once per add, after `BeforeLineItemAddedEvent` was dispatched for each line item and before the cart is calculated.
+Listeners that need every line item of an add, for example of a reorder, can use it to run once per add instead of once per line item.
+
+### Collection class for import/export files
+
+`import_export_file` entities are now loaded into an `ImportExportFileCollection` instead of a generic `EntityCollection`.
+Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations with `EntityRepository<ImportExportFileCollection>`.
+
 ### Deprecated `PluginZipImportCommand::$cacheClearer`
 
 The property is unused and will be removed in 6.8.
+
+### "Assign status" flow action picks the delivery and transaction of the flow
+
+The Flow Builder action "Assign status" (`action.set.order.state`) now changes the delivery and the transaction the flow carries as `orderDelivery` and `orderTransaction` data, if they belong to the order, for example on the delivery and transaction state triggers.
+Otherwise it changes the delivery with the highest shipping costs and the newest transaction, as before.
+With `v6.8.0.0`, it changes the primary delivery and the primary transaction of the order (`primaryOrderDeliveryId`, `primaryOrderTransactionId`) before it falls back, like the Administration, documents and order status rules do.
+Orders placed through the checkout get the same delivery and transaction either way, because their primary delivery has the highest shipping costs and their primary transaction is the newest one.
+
+### Delivery notes of a single delivery
+
+A delivery note can be generated for one delivery of an order.
+Pass the delivery id as `custom.orderDeliveryId` in the config of a `delivery_note` document operation, or as `orderDeliveryId` to the experimental `/api/_action/order/document-v2/create` route.
+The legacy route takes one operation per order, so request the notes of several deliveries of one order separately.
+The note then lists only the line items with a position in that delivery, prints their position quantities and uses the shipping address and shipping method of that delivery.
+A line item inside a container is listed together with the container and all its children; children shipped by another delivery show the quantity 0.
+A delivery of another order fails the operation with `DOCUMENT__ORDER_DELIVERY_NOT_FOUND`, or `DOCUMENT_V2__ORDER_DELIVERY_NOT_FOUND` in Document V2.
+Without the id, the note lists the whole order as before.
+
+Templates extending `@Framework/documents/delivery_note.html.twig` find the delivery in `orderDelivery` and the printed quantity of each listed line item, keyed by its id, in `deliveryLineItemQuantities`, which is `null` for a note of the whole order.
+
+### Delivery and transaction state flows know what changed
+
+The `state_enter.order_delivery.state.*` and `state_leave.order_delivery.state.*` triggers now carry the delivery whose state changed, the `order_transaction` ones the transaction.
+Flows and mail templates of these triggers get an `orderDelivery` variable with its positions and their line items, shipping method, state and shipping address, or an `orderTransaction` variable, and the id as `orderDeliveryId` or `orderTransactionId`.
+Add associations to the delivery through `mail-flow.data.order_delivery.criteria.event`.
+Events can expose a delivery to flows by implementing `Shopware\Core\Content\Flow\Dispatching\Aware\OrderDeliveryAware`.
+
+Webhooks of these triggers only add the id, so apps find the changed delivery or transaction in `order.deliveries` or `order.transactions` of the payload, without a new permission.
+On delivery transitions, `order.deliveries` now also contains the state and positions of each delivery.
+
+The listener dispatches the new `OrderDeliveryStateMachineStateChangeEvent` and `OrderTransactionStateMachineStateChangeEvent` for these transitions.
+They extend `OrderStateMachineStateChangeEvent`, so existing subscribers keep working, and add `getOrderDelivery()` and `getOrderTransaction()` with their id getters.
+
+### Orders with several deliveries keep their shipping costs and addresses
+
+When the Administration recalculated an order with several deliveries, every delivery got the shipping costs of the primary delivery.
+Each delivery now keeps its own shipping costs and only their taxes are recalculated.
+`DeliveryProcessor::MANUAL_SHIPPING_COSTS` only replaces the shipping costs of the primary delivery on such a recalculation.
+Carts restored from an order behave the same, for example when a customer changes the payment method of an order.
+Changing the shipping address of one delivery no longer changes the address of the other deliveries that shared it.
+Orders with a single delivery, with or without promotion shipping discounts, behave as before.
+
+### SEO URL routes can restrict the associations of the template
+
+`SeoUrlGenerator` now calls `SeoUrlRouteInterface::prepareCriteria()` after it added the associations the SEO URL template uses.
+A route can restrict these associations, for example with `$criteria->getAssociation('mainCategories')->addFilter(...)` when `$criteria->hasAssociation('mainCategories')`.
+`ProductPageSeoUrlRoute` uses this to load only the main category of the sales channel the URLs are generated for.
+
+### Guest cart extensions are kept on login
+
+When a guest logs in and their cart is merged into the customer's saved cart, the extensions of the guest cart are carried over.
+If both carts have an extension with the same name, the customer cart keeps its own value.
+To keep an extension out of the customer cart, remove it from the guest cart in a `BeforeCartMergeEvent` listener; to let the guest's value win, set it on the customer cart there.
+Decorating `CartRestorer` just to copy an extension over is no longer needed.
+
+### Promotion line items store the discount value in the cart currency
+
+`payload.value` of promotion line items with an absolute, fixed or fixed unit discount now contains the value in the cart currency, using the advanced price of the currency or the currency factor.
+Orders placed before this change still contain the default currency value.
+Extensions and headless frontends that convert `payload.value` into the cart currency themselves must remove that conversion.
+
+### Split cart delivery positions by quantity
+
+`Shopware\Core\Checkout\Cart\Delivery\DeliveryPositionSplitter::split()` splits a cart delivery position into a part with the given quantity and a remainder, each with its own line item clone, price, taxes and delivery date.
+Extensions that regroup deliveries, for example in a `DeliveryBuilder` decorator, can use it instead of recalculating partial positions themselves.
+Part prices are split like line items of promotion set groups and can differ from the whole position by rounding.
+It throws `CHECKOUT__CART_DELIVERY_POSITION_INVALID_SPLIT_QUANTITY`, `CHECKOUT__CART_DELIVERY_POSITION_NOT_SPLITTABLE` for line items with children and `CHECKOUT__CART_DELIVERY_POSITION_NOT_STACKABLE`.
+`DeliveryBuilder::resolveDeliveryDate()` returns the delivery or restock date for a quantity of a line item.
+
+`DeliveryPositionCollection::getWeight()` and `getVolume()` now count the position quantity instead of the line item quantity.
+For extensions that already build positions holding part of a line item, this changes weight and volume based shipping costs and the cart volume rule.
 
 ## API
 
@@ -303,6 +452,15 @@ HTML forms can continue to use POST with an override for PUT, PATCH and DELETE a
 ### Criteria on fields the API does not expose is a bad request
 
 A criteria that filters, sorts, queries or aggregates by a field the API does not expose (`FRAMEWORK__ACCESSOR_NOT_ALLOWED`) or by a runtime field (`FRAMEWORK__RUNTIME_FIELD_IN_CRITERIA`) is now answered with `400 Bad Request` instead of `500 Internal Server Error`.
+
+### Sales channel files in the Store API
+
+The new `GET /store-api/sales-channel-file/{fileName}` route returns a sales channel file that is enabled for the sales channel of the `sw-access-key`, for example `llms.txt`, `AGENTS.md` or `.well-known/ai-catalog.json`, with the content type of the file.
+Headless frontends can serve the responses under the same public paths, e.g. proxy `/llms.txt` to `/store-api/sales-channel-file/llms.txt`.
+Proxy all enabled files, as `llms.txt` links to `/robots.txt` and `/AGENTS.md`.
+For headless sales channels, the Store API links in `llms.txt` point to `APP_URL`.
+`.well-known/ai-catalog.json` lists the Store API MCP server for every sales channel type, with its URL pointing to `APP_URL`.
+Extensions can adjust or replace the response through the `SalesChannelFileRouteExtension`.
 
 ### Assign products to a sales channel by product group or category
 
@@ -342,6 +500,12 @@ Saving is not blocked.
 ### Sync API reports missing references as write errors
 
 Sync API writes that reference a missing entity or version now return a field-specific write error with HTTP 400 instead of exposing a database error as HTTP 500.
+
+### Installed extensions tell whether they can be removed
+
+Extensions returned by `GET /api/_action/extension/installed` have a new `allowRemove` flag, also available as `ExtensionStruct::isAllowRemove()`.
+It is `false` when Shopware can't delete the extension's files, for example for extensions that Composer installed outside `custom/plugins`, and for extensions that are only available in the store.
+Check it before calling `POST /api/_action/extension/remove/{type}/{technicalName}`.
 
 ### Refused removal of a Composer-managed app keeps it installed
 
@@ -393,6 +557,18 @@ Apps no longer trigger a deprecation when they install or update with inline cus
 `Resources/config/custom-fields.xml` stays the preferred format for new apps.
 If an app ships both, the file takes precedence, the inline definition is ignored, and Shopware logs a warning.
 
+### App MCP prompt and resource responses
+
+App MCP prompt responses are now decoded as JSON arrays of messages with a `user` or `assistant` role and `content`, for example `[{"role":"user","content":"Hello"}]`.
+App MCP resource responses must be JSON objects containing a `text` string or a base64-encoded `blob` string, for example `{"uri":"my-app://status","mimeType":"application/json","text":"{\"ok\":true}"}`.
+Plain-text resource responses are no longer accepted; wrap the content in a JSON object.
+Resources use the URI declared in `mcp.xml`; a non-empty `mimeType` in the response takes precedence over the configured MIME type.
+Invalid JSON, malformed messages or resource contents, and `{"success":false,"error":"..."}` responses produce MCP errors with details for the client.
+
+### App module pages receive the `color-scheme` parameter
+
+Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-module source>`) now receive the signed `color-scheme` query parameter with the resolved Administration theme, `light` or `dark`, like Admin SDK locations already do.
+
 ## Administration
 
 ### Order viewers no longer receive delete privileges
@@ -403,6 +579,21 @@ Existing `version:delete` grants are preserved because other modules and extensi
 Editor roles still require both grants to discard working versions.
 Custom roles without the `order.viewer` marker are unchanged.
 Extensions that require `order:delete` alongside `order.viewer` must explicitly restore that grant for the affected roles after the migration.
+### Deprecated the unused visibilities and sales channels in the sales channel detail
+
+Some sales channel detail components load the visibilities or sales channels of their products and currencies, although they only need one of them or none.
+With 6.8 they load less:
+
+- The *Currency* select of `sw-sales-channel-detail-base` loads the currencies without their `salesChannels`.
+- `sw-sales-channel-detail-products` loads only the visibility of the current sales channel, without its `salesChannel`.
+- `sw-sales-channel-products-assignment-single-products` loads the products without their `visibilities`.
+
+Extensions that read this data in these components should load it with their own request; see `UPGRADE-6.8.md`.
+
+### Deprecated the `defaultFolderRepository` computed property of `sw-cms-detail` and `sw-cms-list`
+
+The `defaultFolderRepository` computed property of `sw-cms-detail` and `sw-cms-list` is deprecated and will be removed.
+Use `mediaDefaultFolderService.getDefaultFolderId(entityName)` instead.
 
 ### Deprecated the `customFieldSetRepository` computed property of `sw-product-stream-detail`
 
@@ -417,6 +608,12 @@ Use `mediaDefaultFolderService.getDefaultFolderId(entityName)` instead.
 ### Deprecated the custom field set lookup of `sw-settings-listing-option-criteria-grid`
 
 The `customFieldSetIDs` data property, the `customFieldSetRelationsRepository` and `customFieldsRelationsCriteria` computed properties and the `fetchCustomFieldSetIds()` method of `sw-settings-listing-option-criteria-grid` are deprecated and will be removed without replacement.
+
+### Deprecated the sales channel lists of `sw-settings-search-live-search` and `sw-newsletter-recipient-list`
+
+The `salesChannels` data property, the `salesChannelRepository` computed property and the `fetchSalesChannels()` method of `sw-settings-search-live-search` are deprecated and will be removed without replacement.
+The `salesChannelFilters` data property of `sw-newsletter-recipient-list` is deprecated and will be removed without replacement.
+Their sales channel selects load their options themselves, so with the `V6_8_0_0` feature flag both components no longer load sales channels when they are created.
 
 ### Codemods for extensions in the extension tooling
 
@@ -485,12 +682,25 @@ bin/console administration:check-extensions -- --only=MyPlugin --fix
 
 To keep a rule off, set it to `'off'` in the `eslint.config.mjs` of your extension, or record the current findings with `--update-baseline`.
 
+### Meteor apps get their own path in the Administration watcher
+
+An extension that ships an Administration entry and a `meteor-app` used to get both dev servers under `/_internal_ext/<technical-name>/`.
+Both servers shared one proxy path, so the Administration only reached one of them.
+The watcher now serves meteor-apps under `/_internal_app/<technical-name>/`, also for extensions without an Administration entry.
+The Administration reads the new URL from `sw-plugin-dev.json`, so you only need to adjust tooling that calls the old URL of a meteor-app directly.
+
 ### The Administration watcher applies template edits without a page reload
 
 While `composer watch:admin` runs, saving the Twig template of a component or of a component override updates that component on the page and keeps its state.
 Components that extend it update as well.
 The watcher still reloads the page when it cannot apply an edit in place:
 for a Twig override of a component without a Twig template, for a template whose content another template file has as well, or for a component that has not been rendered yet.
+
+With the `ADMIN_VITE_8` feature flag, the watcher also applies script edits of native `.vue` components and `.override.vue` files of extensions without a page reload.
+This includes edits of the files such a component imports.
+The watcher remounts the edited component and the components an edited override changes.
+It reloads the page for edits it cannot apply in place:
+edits that change the blocks of a component, edits of a component built with `Component.extend()` or `Component.override()` or of a component that is not on the page, and updates that fail to render.
 
 ### Experimental: Vite 8 and HTTP/2 for the Administration behind the `ADMIN_VITE_8` feature flag
 
@@ -512,6 +722,11 @@ Browsers only use HTTP/2 over HTTPS, so put HTTPS in front of the watcher:
 * Run `shopware-cli project proxy up` and open `https://admin-watch.<project>.shopware.local`.
 * Or set `SHOPWARE_ADMIN_HTTPS_CERTIFICATE_FILE` and `SHOPWARE_ADMIN_HTTPS_KEY_FILE` to a certificate and its key, for example created with [mkcert](https://github.com/FiloSottile/mkcert).
   Relative paths are resolved from the project root.
+
+With the flag, the watcher serves the Administration code and the meteor-apps of extensions through its own port.
+The separate `Extensions` process and the port per extension are gone.
+The `vite.config` of an extension can no longer change the address of its dev server.
+The watcher ignores `server.port`, `server.host`, `server.ws` and the connection options of `server.hmr` (`protocol`, `host`, `port`, `clientPort`, `path` and `server`) there.
 
 ### Customer group registration SEO URLs for headless sales channels
 
@@ -536,6 +751,21 @@ If your extension overrides the Twig blocks `sw_condition_billing_zip_code_field
 ### Overrides keep their own methods and props across component builds
 
 Repeated `Component.build()` calls no longer remove methods, props or other options that an override defines from components built earlier. Components with three or more overrides, such as the base of a `Component.extend()` that is mounted after other builds, failed with `this.<method> is not a function` or lost props before. No changes to extensions are required.
+
+### `sw-chart` loads only the chart locale it needs
+
+`sw-chart` now loads the ApexCharts locale of the current Administration language on demand instead of importing all 33 locales up front.
+English uses the locale built into ApexCharts and loads nothing.
+The chart renders once the locale has loaded.
+`createdComponent()` and `loadLocaleConfig()` of `sw-chart` now return a promise.
+If your override reads `localeConfig` after calling the base method, await it:
+
+```js
+async loadLocaleConfig() {
+    await this.$super('loadLocaleConfig');
+    // this.localeConfig is set here
+}
+```
 
 ### Sales channel product assignment is no longer capped at 500 products
 
@@ -623,6 +853,14 @@ Check your Administration extensions for these changes:
 - `mt-radio-group-item`, `mt-radio-group-card-item`, `mt-radio-group-custom-item` and `mt-status-dot` have a new `disabled` prop.
 - New component `mt-extension-icon`.
 
+### Order detail shows every shipment in 6.8
+
+With the major feature flag `v6.8.0.0`, the order detail tells shipments and shipping discounts apart by their shipping costs.
+A delivery with negative shipping costs is a discount, every other delivery is a shipment.
+Until now, every delivery besides the primary one was shown as a shipping discount.
+The general tab lists the shipping costs of each shipment with its number and shipping method, and the details tab shows one delivery card per shipment, the primary delivery first.
+Overrides of the Twig blocks inside `sw_order_detail_details_shipping` of `sw-order-detail-details` render once per shipment, see `UPGRADE-6.8.md`.
+
 ## API
 
 To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`.
@@ -638,6 +876,28 @@ If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0
 For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
 
 ## Storefront
+
+### New shipping method blocks added
+
+The following new blocks have been added to the shipping method template in `storefront/component/shipping/shipping-method.html.twig` to match the payment method template structure:
+
+- `component_shipping_method_name`
+- `component_shipping_method_description_text`
+
+### Skip link for listing filters
+
+Category, landing and search pages with a filtered product listing now offer a "Skip to products" link in the skip-to-content bar, so keyboard users can jump past the filters to the products.
+The link targets the new `id="product-listing"` on `.cms-element-product-listing-wrapper` and is only shown from the `lg` breakpoint, where the filters are not collapsed into the off-canvas button.
+Themes that override the `product_listing` block in `storefront/component/product/listing.html.twig` without `parent()` must keep `id="product-listing"` on their wrapper, otherwise the link has no target.
+`storefront/component/skip-to-content.html.twig` has a new `productListing` parameter (default `null`) and the new block `component_skip_to_content_product_listing`.
+
+### AI usage preferences in robots.txt
+
+The robots.txt rules accept the `Content-Usage` directive of the [IETF AI preferences drafts](https://datatracker.ietf.org/doc/draft-ietf-aipref-attach/) and the `Content-Signal` directive of [Content Signals](https://contentsignals.org/).
+Both are rendered inside their `User-agent` block with the value unchanged, for example `Content-signal: search=yes, ai-train=no`.
+A path in front of the `Content-Usage` preference gets the domain path like `Allow` and `Disallow`, for example `Content-usage: /de/blog/ train-ai=n`.
+`RobotsDirectiveType` has the new cases `CONTENT_USAGE` and `CONTENT_SIGNAL`;
+extensions that handled these lines through `RobotsUnknownDirectiveEvent` no longer receive that event for them.
 
 ### Cookie provider removal postponed to 6.9
 
@@ -866,7 +1126,25 @@ bin/console seo:repair:link-category-takeover --apply --no-interaction <category
 The categories get their SEO URLs back, and their fallback URLs redirect to them.
 The command is deprecated and will be removed in 6.9.0.0.
 
+### `ThemeConfigChangedEvent` is dispatched after the theme is saved
+
+`ThemeService::updateTheme()` now dispatches `ThemeConfigChangedEvent` after the new theme configuration is written to the database.
+Before, it was dispatched before the write, so with the static theme config loader a theme save dumped and compiled the `theme.json` defaults instead of the saved values.
+Subscribers that load the theme while handling the event now get the saved configuration instead of the previous one.
+
+### Enabling maintenance mode again no longer traps visitors in a redirect loop
+
+When maintenance mode was switched off, the redirect from the maintenance page into the shop was stored in the HTTP cache.
+Switching maintenance mode on again then sent every visitor not on the IP allowlist back and forth between the shop and that cached redirect (`ERR_TOO_MANY_REDIRECTS`) until the entry expired.
+The redirect is no longer cached. A shop that is already in this state gets out of it by running `bin/console cache:clear:http`.
+
 ## Hosting & Configuration
+
+### Sitemaps skip inactive sales channels and `sitemap:generate` continues after a failure
+
+The scheduled sitemap task and `bin/console sitemap:generate` no longer generate sitemaps for inactive sales channels.
+`sitemap:generate` now continues with the other sales channels and languages when the generation of one fails, prints the error and exits with a failure code at the end.
+A sitemap generation that is locked by another process is still reported without failing the command.
 
 ### Readiness checks isolate their virtual requests
 

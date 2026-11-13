@@ -119,11 +119,7 @@ class CacheWatchDelayedCommand extends Command implements SignalableCommandInter
     }
 
     /**
-     * The watch loop only returns once a signal flips $shouldStop, so it cannot be reached in-process.
-     *
-     * @codeCoverageIgnore
-     *
-     * @see \Shopware\Tests\Integration\Core\Framework\Adapter\Command\CacheWatchDelayedCommandTest
+     * The watch loop only returns once a signal flips $shouldStop.
      *
      * @param callable(): array<string> $poll
      */

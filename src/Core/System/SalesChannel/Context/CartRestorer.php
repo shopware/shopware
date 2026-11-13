@@ -107,6 +107,8 @@ class CartRestorer
         $customerCart->setErrors($errors);
         $customerCartClone->setErrors($errors);
 
+        $customerCart->addExtensions(array_diff_key($guestCart->getExtensions(), $customerCart->getExtensions()));
+
         $mergedCart = $this->cartService->add($customerCart, $mergeableLineItems->getElements(), $customerContext);
 
         $this->eventDispatcher->dispatch(new CartMergedEvent($mergedCart, $customerContext, $customerCartClone));

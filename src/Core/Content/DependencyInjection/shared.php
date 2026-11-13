@@ -6,6 +6,7 @@ use Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerGroupProvider;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerProvider;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerRecoveryProvider;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\NewsletterRecipientProvider;
+use Shopware\Core\Content\Shared\MailFlow\DataProvider\OrderDeliveryProvider;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\OrderProvider;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\OrderTransactionProvider;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\ProductProvider;
@@ -74,6 +75,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('service_container'),
         ])
         ->tag('shopware.mail.data_provider', ['key' => 'order_transaction']);
+
+    $services->set(OrderDeliveryProvider::class)
+        ->args([
+            service('event_dispatcher'),
+            service('service_container'),
+        ])
+        ->tag('shopware.mail.data_provider', ['key' => 'order_delivery']);
 
     $services->set(SalesChannelProvider::class)
         ->args([

@@ -310,6 +310,14 @@ class AppRegistrationService
             throw AppException::registrationFailed($appName, 'The app server provided an invalid proof');
         }
 
+        if (!isset($data['secret']) || !\is_string($data['secret']) || $data['secret'] === '') {
+            throw AppException::registrationFailed($appName, 'The app server provided no secret');
+        }
+
+        if (!isset($data['confirmation_url']) || !\is_string($data['confirmation_url']) || $data['confirmation_url'] === '') {
+            throw AppException::registrationFailed($appName, 'The app server provided no confirmation URL');
+        }
+
         return $data;
     }
 

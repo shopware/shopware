@@ -18,8 +18,8 @@ final readonly class SubscriptionRefusals
     public array $allMissingPrivileges;
 
     /**
-     * @param list<string> $notHookable
-     * @param list<string> $notPermitted refused by a policy
+     * @param array<string, string> $notHookable the event of each refused subscription
+     * @param array<string, string> $notPermitted the event of each subscription refused by a policy
      * @param array<string, list<string>> $missingPrivileges
      */
     public function __construct(

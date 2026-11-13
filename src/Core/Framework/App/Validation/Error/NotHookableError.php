@@ -9,26 +9,27 @@ use Shopware\Core\Framework\Log\Package;
  * @internal only for use by the app-system
  *
  * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\App\Validation\HookableValidatorTest
  */
 #[Package('framework')]
 class NotHookableError implements Error
 {
-    private readonly string $message;
-
     /**
-     * @param list<string> $violations
+     * @param array<string, string> $webhooks
      */
-    public function __construct(array $violations)
+    public function __construct(private readonly array $webhooks)
     {
-        $this->message = \sprintf(
-            "The following webhooks are not hookable:\n- %s",
-            implode("\n- ", $violations)
-        );
     }
 
     public function getMessage(): string
     {
-        return $this->message;
+        $webhooks = [];
+        foreach ($this->webhooks as $name => $event) {
+            $webhooks[] = \sprintf('%s (%s)', $name, $event);
+        }
+
+        return \sprintf('Webhooks not hookable: %s', implode(', ', $webhooks));
     }
 
     public function getErrorCode(): string

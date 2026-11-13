@@ -197,8 +197,8 @@ class WriteAuthorizerTest extends TestCase
 
         $this->validator = static::createStub(SubscriptionValidator::class);
         $this->validator->method('validate')->willReturn(new SubscriptionRefusals(
-            notHookable: [$product->getDecodedPrimaryKey()['id']],
-            notPermitted: [$order->getDecodedPrimaryKey()['id']],
+            notHookable: [$product->getDecodedPrimaryKey()['id'] => 'product.written'],
+            notPermitted: [$order->getDecodedPrimaryKey()['id'] => 'order.written'],
             missingPrivileges: [$customer->getDecodedPrimaryKey()['id'] => ['customer:read']],
         ));
 

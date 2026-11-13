@@ -13,22 +13,16 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class MissingPermissionError implements Error
 {
-    private readonly string $message;
-
     /**
      * @param list<string> $violations
      */
-    public function __construct(array $violations)
+    public function __construct(private readonly array $violations)
     {
-        $this->message = \sprintf(
-            "The following permissions are missing:\n- %s",
-            implode("\n- ", $violations)
-        );
     }
 
     public function getMessage(): string
     {
-        return $this->message;
+        return \sprintf('Missing permissions: %s', implode(', ', $this->violations));
     }
 
     public function getErrorCode(): string

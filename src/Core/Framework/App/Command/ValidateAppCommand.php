@@ -7,6 +7,7 @@ use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\AppValidator;
 use Shopware\Core\Framework\App\Validation\Error\Error;
+use Shopware\Core\Framework\App\Validation\Error\Severity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -38,12 +39,10 @@ class ValidateAppCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
         $dir = $this->appDir; // validate all apps as default
-        $successMessage = 'all apps valid';
 
         $name = $input->getArgument('name');
 
         if ($name !== '' && \is_string($name)) {
-            $successMessage = 'app is valid';
             $dir = $this->getAppFolderByName($name, $io);
 
             if ($dir === null) {
@@ -51,19 +50,7 @@ class ValidateAppCommand extends Command
             }
         }
 
-        $invalids = $this->validate($dir);
-
-        if ($invalids !== []) {
-            foreach ($invalids as $invalid) {
-                $io->error($invalid);
-            }
-
-            return self::FAILURE;
-        }
-
-        $io->success($successMessage);
-
-        return self::SUCCESS;
+        return $this->validate($dir, $io);
     }
 
     protected function configure(): void
@@ -71,28 +58,34 @@ class ValidateAppCommand extends Command
         $this->addArgument('name', InputArgument::OPTIONAL, 'The name of the app, has also to be the name of the folder under which the app can be found under custom/apps.');
     }
 
-    /**
-     * @return list<string>
-     */
-    private function validate(string $appDir): array
+    private function validate(string $appDir, SymfonyStyle $io): int
     {
-        $context = Context::createCLIContext();
-        $invalids = [];
-
         try {
-            foreach ($this->getManifestsFromDir($appDir) as $manifest) {
-                $result = $this->appValidator->validate($manifest, $context);
-
-                if (!$result->isOk()) {
-                    $messages = implode("\n", array_map(static fn (Error $error): string => $error->getMessage(), $result->errors));
-                    $invalids[] = \sprintf("The app \"%s\" is invalid:\n\n%s", $manifest->getMetadata()->getName(), $messages);
-                }
-            }
+            $manifests = $this->getManifestsFromDir($appDir);
         } catch (AppXmlParsingException $e) {
-            $invalids[] = $e->getMessage();
+            $io->error($e->getMessage());
+
+            return self::FAILURE;
         }
 
-        return $invalids;
+        $context = Context::createCLIContext();
+        $invalidApps = 0;
+        $failures = 0;
+        $notices = 0;
+
+        foreach ($manifests as $manifest) {
+            $errors = $this->appValidator->validate($manifest, $context)->errors ?? [];
+            $this->printErrors($io, $manifest, $errors);
+
+            $appFailures = \count(array_filter($errors, static fn (Error $error): bool => $error->getSeverity() === Severity::Fail));
+            $failures += $appFailures;
+            $notices += \count($errors) - $appFailures;
+            $invalidApps += $appFailures > 0 ? 1 : 0;
+        }
+
+        $this->printSummary($io, \count($manifests), $invalidApps, $failures, $notices);
+
+        return $failures > 0 ? self::FAILURE : self::SUCCESS;
     }
 
     /**
@@ -145,5 +138,53 @@ class ValidateAppCommand extends Command
         }
 
         return $folders[0];
+    }
+
+    /**
+     * @param list<Error> $errors
+     */
+    private function printErrors(SymfonyStyle $io, Manifest $manifest, array $errors): void
+    {
+        if ($errors === []) {
+            return;
+        }
+
+        $io->newLine();
+        $io->writeln(\sprintf('<options=bold>%s</>', $manifest->getMetadata()->getName()));
+
+        foreach ($errors as $error) {
+            $label = $error->getSeverity() === Severity::Fail ? '<fg=red>error </>' : '<fg=yellow>notice</>';
+            $io->writeln(\sprintf('  %s  %s', $label, $error->getMessage()));
+        }
+    }
+
+    private function printSummary(SymfonyStyle $io, int $apps, int $invalidApps, int $failures, int $notices): void
+    {
+        if ($failures > 0) {
+            $io->newLine();
+            $io->writeln(\sprintf(
+                '<fg=red;options=bold>✖ %s, %s (%d of %s invalid)</>',
+                $this->pluralize($failures, 'error'),
+                $this->pluralize($notices, 'notice'),
+                $invalidApps,
+                $this->pluralize($apps, 'app')
+            ));
+
+            return;
+        }
+
+        if ($notices > 0) {
+            $io->newLine();
+            $io->writeln(\sprintf('<fg=green;options=bold>✔ 0 errors, %s</>', $this->pluralize($notices, 'notice')));
+
+            return;
+        }
+
+        $io->writeln(\sprintf('<fg=green;options=bold>✔ %s valid</>', $this->pluralize($apps, 'app')));
+    }
+
+    private function pluralize(int $count, string $noun): string
+    {
+        return \sprintf('%d %s%s', $count, $noun, $count === 1 ? '' : 's');
     }
 }

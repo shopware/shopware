@@ -60,9 +60,7 @@ class HookableValidatorTest extends TestCase
 
         static::assertCount(1, $validations);
         static::assertInstanceOf(NotHookableError::class, $validations[0]);
-        static::assertSame('The following webhooks are not hookable:
-- hook1: tax.written
-- hook2: test.event', $validations[0]->getMessage());
+        static::assertSame('Webhooks not hookable: hook1 (tax.written), hook2 (test.event)', $validations[0]->getMessage());
     }
 
     public function testValidateThrowsIfWebhooksMissingPermissions(): void
@@ -74,9 +72,7 @@ class HookableValidatorTest extends TestCase
 
         static::assertCount(1, $validations);
         static::assertInstanceOf(MissingPermissionError::class, $validations[0]);
-        static::assertSame('The following permissions are missing:
-- order:read
-- product:read', $validations[0]->getMessage());
+        static::assertSame('Missing permissions: order:read, product:read', $validations[0]->getMessage());
     }
 
     public function testCommercialLicenseWebhookIsNotPermittedForRegularApps(): void
@@ -88,8 +84,7 @@ class HookableValidatorTest extends TestCase
         static::assertCount(1, $validations);
         static::assertInstanceOf(WebhookNotPermittedError::class, $validations[0]);
         static::assertSame(
-            'This app is not permitted to subscribe to the following webhooks:
-- commercial-license: ' . CommercialLicenseProvidedEvent::NAME,
+            'Webhooks not permitted: commercial-license (' . CommercialLicenseProvidedEvent::NAME . ')',
             $validations[0]->getMessage()
         );
         static::assertSame(AppException::VALIDATION_FAILED, $validations[0]->getErrorCode());

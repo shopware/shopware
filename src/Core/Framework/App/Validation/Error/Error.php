@@ -18,4 +18,10 @@ interface Error
      * @return array<string, mixed>
      */
     public function getParameters(): array;
+
+    /**
+     * A failure means the app can't work as declared and refuses the installation.
+     * A notice means it can, and lets the installation proceed.
+     */
+    public function getSeverity(): Severity;
 }

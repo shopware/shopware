@@ -9,6 +9,7 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
 use Shopware\Core\Framework\App\Validation\AppRequirementsValidator;
+use Shopware\Core\Framework\App\Validation\Error\Severity;
 use Shopware\Core\Framework\App\Validation\Error\UnmetRequirementError;
 use Shopware\Core\Framework\App\Validation\Requirements\Requirement;
 use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
@@ -81,6 +82,7 @@ class AppRequirementsValidatorTest extends TestCase
         );
         static::assertSame(AppException::APP_REQUIREMENTS_NOT_MET, $error->getErrorCode());
         static::assertSame(['violations' => 'App "test-app" - Requirement "test-requirement": Fix the test requirement'], $error->getParameters());
+        static::assertSame(Severity::Fail, $error->getSeverity());
     }
 
     public function testValidateWithNotRequiredValidator(): void

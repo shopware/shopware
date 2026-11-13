@@ -181,7 +181,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->appManager->expects($this->once())
             ->method('install')
-            ->willThrowException(AppException::validationFailedFromError(new IncompatibleAppError('MyCoolService')));
+            ->willThrowException(AppException::validationFailedFromErrors([new IncompatibleAppError('MyCoolService')]));
 
         $this->logger
             ->expects($this->once())
@@ -212,7 +212,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->appManager->expects($this->once())
             ->method('install')
-            ->willThrowException(AppException::validationFailedFromError(new IncompatibleAppError('MyCoolService')));
+            ->willThrowException(AppException::validationFailedFromErrors([new IncompatibleAppError('MyCoolService')]));
 
         $this->appManager->expects($this->once())
             ->method('uninstall')
@@ -268,7 +268,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->appManager->expects($this->once())
             ->method('install')
-            ->willThrowException(AppException::validationFailedFromError(new IncompatibleAppError('MyCoolService')));
+            ->willThrowException(AppException::validationFailedFromErrors([new IncompatibleAppError('MyCoolService')]));
 
         $this->appManager->expects($this->never())->method('uninstall');
 
@@ -295,7 +295,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->appManager->expects($this->once())
             ->method('install')
-            ->willThrowException(AppException::validationFailedFromError(new IncompatibleAppError('MyCoolService')));
+            ->willThrowException(AppException::validationFailedFromErrors([new IncompatibleAppError('MyCoolService')]));
 
         $this->appManager->expects($this->once())
             ->method('uninstall')
@@ -553,7 +553,7 @@ class ServiceLifecycleTest extends TestCase
         $this->sourceResolver->expects($this->once())
             ->method('filesystemForVersion')
             ->with($this->appInfo)
-            ->willThrowException(AppException::validationFailedFromError(new IncompatibleAppError('MyCoolService')));
+            ->willThrowException(AppException::validationFailedFromErrors([new IncompatibleAppError('MyCoolService')]));
 
         $this->manifestFactory->expects($this->never())->method('createFromXmlFile');
         $this->appManager->expects($this->never())->method('update');
@@ -587,7 +587,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->appManager->expects($this->once())
             ->method('update')
-            ->willThrowException(AppException::validationFailedFromError(new IncompatibleAppError('MyCoolService')));
+            ->willThrowException(AppException::validationFailedFromErrors([new IncompatibleAppError('MyCoolService')]));
 
         $this->eventDispatcher->expects($this->never())->method('dispatch');
 

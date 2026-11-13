@@ -8,8 +8,6 @@ use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\RefreshableAppDryRun;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Validation\Error\Error;
-use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -29,8 +27,7 @@ class RefreshAppCommand extends Command
 {
     public function __construct(
         private readonly AppService $appService,
-        private readonly AppPrinter $appPrinter,
-        private readonly ManifestValidator $manifestValidator
+        private readonly AppPrinter $appPrinter
     ) {
         parent::__construct();
     }
@@ -85,14 +82,6 @@ class RefreshAppCommand extends Command
             }
         }
 
-        if (!$input->getOption('no-validate')) {
-            $hasViolations = $this->validateRefreshableApps($refreshableApps, $io, $context);
-
-            if ($hasViolations === 1) {
-                return self::FAILURE;
-            }
-        }
-
         $fails = $this->appService->doRefreshApps(
             new AppInstallParameters(activate: $input->getOption('activate'), acceptPermissions: true),
             $context,
@@ -101,37 +90,6 @@ class RefreshAppCommand extends Command
 
         $this->appPrinter->printInstalledApps($io, $context);
         $this->appPrinter->printIncompleteInstallations($io, $fails);
-
-        return self::SUCCESS;
-    }
-
-    private function validateRefreshableApps(RefreshableAppDryRun $refreshableApps, SymfonyStyle $io, Context $context): int
-    {
-        $refreshableManifests = array_merge(
-            $refreshableApps->getToBeInstalled(),
-            $refreshableApps->getToBeUpdated()
-        );
-
-        // validate refreshable apps
-        $invalids = [];
-        foreach ($refreshableManifests as $refreshableManifest) {
-            $result = $this->manifestValidator->validate($refreshableManifest, $context);
-
-            if (!$result->isOk()) {
-                $messages = implode("\n", array_map(static fn (Error $error): string => $error->getMessage(), $result->errors));
-                $invalids[] = \sprintf("The app \"%s\" is invalid:\n\n%s", $refreshableManifest->getMetadata()->getName(), $messages);
-            }
-        }
-
-        if ($invalids !== []) {
-            foreach ($invalids as $invalid) {
-                $io->error($invalid);
-            }
-
-            return self::FAILURE;
-        }
-
-        $io->success('all refreshable apps are valid');
 
         return self::SUCCESS;
     }

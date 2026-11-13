@@ -4,7 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Command;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Command\ValidateAppCommand;
-use Shopware\Core\Framework\App\Validation\ManifestValidator;
+use Shopware\Core\Framework\App\Validation\AppValidator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -40,7 +40,7 @@ class ValidateAppCommandTest extends TestCase
     {
         return new ValidateAppCommand(
             $appFolder,
-            static::getContainer()->get(ManifestValidator::class)
+            static::getContainer()->get(AppValidator::class)
         );
     }
 }

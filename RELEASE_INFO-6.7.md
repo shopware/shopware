@@ -432,7 +432,6 @@ bin/console administration:upgrade-extensions -- --only=MyPlugin --target=6.8 --
 For Shopware 6.8, it also migrates `sw-loader`, `sw-skeleton-bar`, `sw-progress-bar` and `sw-tabs` to their `mt-*` components, replaces `sw-select-number-field` and `sw-entity-many-to-many-select`, renames `resize-width` of `sw-popover`, removes the styling props of `sw-order-state-select-v2` and renames Twig blocks whose name changed.
 Where a change cannot be made safely, it writes a `TODO Codemod(6.8, <id>)` comment with the replacement above the spot, for example for `sw-text-editor` and for Twig blocks that are removed in 6.8.
 The report lists these spots under "Needs manual work" until they are resolved, and a second run does not write them again.
-The command now also checks an extension's own `vite.config.*`.
 
 `composer run admin:code-mods` is deprecated and will be removed with Shopware 6.8.
 It now prints a deprecation warning.

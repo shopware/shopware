@@ -1,0 +1,21 @@
+[
+    {
+        "group": "Break",
+        "rule": "block_missing",
+        "element": "component:sw-example-field-set/block:sw_example_field_set_tabs",
+        "states": ["major"],
+        "explanation": "The block is gone in the major state, so plugin template overrides of sw_example_field_set_tabs render nothing with v6.8.0.0 on.",
+        "fix": "pattern \"Rename\". Keep sw_example_field_set_tabs in the branch for v6.8.0.0 off and mark it {# @deprecated tag:v6.8.0 - Use {@link sw_example_field_set_mt_tabs} instead. #}.",
+        "possibleRename": "sw_example_field_set_mt_tabs",
+        "at": "src/app/component/form/sw-example-field-set/sw-example-field-set.html.twig:1"
+    },
+    {
+        "group": "Addition",
+        "rule": "block_added",
+        "element": "component:sw-example-field-set/block:sw_example_field_set_mt_tabs",
+        "states": ["major"],
+        "explanation": "A new public block that plugins can rely on from now on.",
+        "fix": "mark it @private if it is not meant for plugins.",
+        "at": "src/app/component/form/sw-example-field-set/sw-example-field-set.html.twig:4"
+    }
+]

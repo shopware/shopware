@@ -1617,6 +1617,15 @@ The unused property was removed.
 
 # Administration
 
+## Jest helper `test/_helper_/majorFeatureFlags` removed
+
+Extension Jest setups that require `src/Administration/Resources/app/administration/test/_helper_/majorFeatureFlags` must import `getMajorFeatureFlags`, `isMajorRun` and `loadFeatureConfig` from `src/Administration/Resources/app/administration/scripts/feature-flags` instead.
+`getMajorFeatureFlags` is a named export there, not the default export.
+
+```js
+const { getMajorFeatureFlags } = require(resolve(adminPath, 'scripts/feature-flags'));
+```
+
 ## Sales channel detail components load fewer visibilities and sales channels
 
 - `sw-sales-channel-detail-base`: the currencies of the *Currency* select are loaded without `salesChannels`.

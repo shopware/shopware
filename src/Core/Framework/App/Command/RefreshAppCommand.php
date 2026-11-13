@@ -9,6 +9,7 @@ use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\RefreshableAppDryRun;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -45,11 +46,13 @@ class RefreshAppCommand extends Command
                 'a',
                 InputOption::VALUE_NONE,
                 'Activate the app after installing it'
-            )->addOption(
+            )
+            /** @deprecated tag:v6.8.0 - has no effect and will be removed */
+            ->addOption(
                 'no-validate',
                 null,
                 InputOption::VALUE_NONE,
-                'Skip app validation.'
+                '[DEPRECATED] Has no effect.'
             );
     }
 
@@ -80,6 +83,13 @@ class RefreshAppCommand extends Command
 
                 return self::FAILURE;
             }
+        }
+
+        if ($input->getOption('no-validate')) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'The "--no-validate" option of the "app:refresh" command is deprecated and will be removed in v6.8.0.'
+            );
         }
 
         $fails = $this->appService->doRefreshApps(

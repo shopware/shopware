@@ -12,6 +12,7 @@ use Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
@@ -308,6 +309,8 @@ class RefreshAppCommandTest extends TestCase
 
     public function testRefreshWithLimitation(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $commandTester = new CommandTester($this->createCommand(__DIR__ . '/_fixtures'));
         $commandTester->execute(['-f' => true, '--no-validate' => true, 'name' => ['validationFailure']]);
 

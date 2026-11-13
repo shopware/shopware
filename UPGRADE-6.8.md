@@ -168,6 +168,11 @@ shopware:
         transports: ["webhook", "async", "low_priority"]
 ```
 
+## `--no-validate` removed from `app:install` and `app:refresh`
+
+The option had no effect since 6.7.
+Passing it now fails with an unknown-option error.
+
 ## Minimum value constraints added to quantity fields in ProductPriceDefinition
 
 The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now require a minimum value of `1`.

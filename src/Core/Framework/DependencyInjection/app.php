@@ -63,9 +63,9 @@ use Shopware\Core\Framework\App\Command\CheckShopIdCommand;
 use Shopware\Core\Framework\App\Command\CreateAppCommand;
 use Shopware\Core\Framework\App\Command\DeactivateAppCommand;
 use Shopware\Core\Framework\App\Command\InstallAppCommand;
+use Shopware\Core\Framework\App\Command\RecoverAppSecretsCommand;
 use Shopware\Core\Framework\App\Command\RefreshAppCommand;
 use Shopware\Core\Framework\App\Command\RotateAppSecretCommand;
-use Shopware\Core\Framework\App\Command\ShowRecoverableAppSecretsCommand;
 use Shopware\Core\Framework\App\Command\UninstallAppCommand;
 use Shopware\Core\Framework\App\Command\ValidateAppCommand;
 use Shopware\Core\Framework\App\Context\Gateway\AppContextGateway;
@@ -862,10 +862,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('console.command');
 
-    $services->set(ShowRecoverableAppSecretsCommand::class)
+    $services->set(RecoverAppSecretsCommand::class)
         ->args([
             service('app.repository'),
             service(AppRetainedSecretGateway::class),
+            service(AppSecretRotationService::class),
         ])
         ->tag('console.command');
 

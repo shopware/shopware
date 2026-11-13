@@ -71,6 +71,8 @@ class ContentSystemLayoutPresetRegistry extends AbstractContentSystemLayoutPrese
                 $dto->category,
                 $dto->priority,
                 $dto->illustration,
+                $dto->nameSnippet,
+                $dto->descriptionSnippet,
             );
         }
 

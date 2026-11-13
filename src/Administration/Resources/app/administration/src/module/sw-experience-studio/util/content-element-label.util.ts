@@ -10,6 +10,7 @@ export function getContentElementLabel(
     element: ContentElementNode,
     declaredProperties: Record<string, ContentSystemElementTypeProperty> | undefined,
     chain: readonly string[],
+    fallback?: string,
 ): string {
     const properties = element.properties ?? {};
     const nameKeys = [
@@ -27,14 +28,14 @@ export function getContentElementLabel(
         }
     }
 
-    return formatComponentName(element.component);
+    return fallback ?? formatComponentName(element.component);
 }
 
 /**
  * @private
  * @sw-package discovery
  */
-export function formatComponentName(component: string): string {
+function formatComponentName(component: string): string {
     const parts = component.split(':');
 
     return parts[parts.length - 1] || component;

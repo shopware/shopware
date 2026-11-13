@@ -1,5 +1,6 @@
 meta:
   label: "Grid Container"
+  labelSnippet: "sw-experience-studio.elements.grid-container.label"
   description: "The main element for creating responsive layouts. It is the central element to function as a wrapping element for other elements and to achieve certain layout effects."
   icon: "regular-view-grid"
   illustration: "grid-container"
@@ -15,6 +16,7 @@ properties:
   mode:
     type: string
     title: "Mode"
+    titleSnippet: "sw-experience-studio.elements.grid-container.mode.title"
     description: "Grid layout mode."
     default: "auto-fit"
     enum:
@@ -29,20 +31,27 @@ properties:
         options:
           - value: "auto-fit"
             label: "Auto fit"
+            labelSnippet: "sw-experience-studio.elements.grid-container.mode.options.auto-fit.label"
             icon: "regular-view-grid"
             description: "Automatically fits as many columns as possible."
+            descriptionSnippet: "sw-experience-studio.elements.grid-container.mode.options.auto-fit.description"
           - value: "max-content"
             label: "Max content"
+            labelSnippet: "sw-experience-studio.elements.grid-container.mode.options.max-content.label"
             icon: "regular-line-column-xs"
             description: "Size columns based on their maximum content size."
+            descriptionSnippet: "sw-experience-studio.elements.grid-container.mode.options.max-content.description"
           - value: "explicit"
             label: "Explicit"
+            labelSnippet: "sw-experience-studio.elements.grid-container.mode.options.explicit.label"
             icon: "regular-table"
             description: "Use explicit columns and rows configuration."
+            descriptionSnippet: "sw-experience-studio.elements.grid-container.mode.options.explicit.description"
 
   itemMinWidth:
     type: string
     title: "Item Min Width"
+    titleSnippet: "sw-experience-studio.elements.grid-container.itemMinWidth.title"
     description: "Minimum item width used in auto-fit and auto-fill mode."
     default: "400px"
     adminUI:
@@ -57,6 +66,7 @@ properties:
       - "integer"
       - "object"
     title: "Columns"
+    titleSnippet: "sw-experience-studio.elements.grid-container.columns.title"
     description: "Column count as a single integer or responsive object with breakpoint keys."
     adminUI:
       component: "responsive-number"
@@ -72,26 +82,31 @@ properties:
       xs:
         type: integer
         title: "Columns (XS)"
+        titleSnippet: "sw-experience-studio.elements.grid-container.columns.xs.title"
         description: "Column count on extra small breakpoint."
         enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
       sm:
         type: integer
         title: "Columns (SM)"
+        titleSnippet: "sw-experience-studio.elements.grid-container.columns.sm.title"
         description: "Column count on small breakpoint."
         enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
       md:
         type: integer
         title: "Columns (MD)"
+        titleSnippet: "sw-experience-studio.elements.grid-container.columns.md.title"
         description: "Column count on medium breakpoint."
         enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
       lg:
         type: integer
         title: "Columns (LG)"
+        titleSnippet: "sw-experience-studio.elements.grid-container.columns.lg.title"
         description: "Column count on large breakpoint."
         enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
       xl:
         type: integer
         title: "Columns (XL)"
+        titleSnippet: "sw-experience-studio.elements.grid-container.columns.xl.title"
         description: "Column count on extra large breakpoint."
         enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
@@ -100,6 +115,7 @@ properties:
       - "integer"
       - "object"
     title: "Rows"
+    titleSnippet: "sw-experience-studio.elements.grid-container.rows.title"
     description: "Row count as a single integer or responsive object with breakpoint keys."
     adminUI:
       component: "responsive-number"
@@ -115,32 +131,38 @@ properties:
       xs:
         type: integer
         title: "Rows (XS)"
+        titleSnippet: "sw-experience-studio.elements.grid-container.rows.xs.title"
         description: "Row count on extra small breakpoint."
         enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
       sm:
         type: integer
         title: "Rows (SM)"
+        titleSnippet: "sw-experience-studio.elements.grid-container.rows.sm.title"
         description: "Row count on small breakpoint."
         enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
       md:
         type: integer
         title: "Rows (MD)"
+        titleSnippet: "sw-experience-studio.elements.grid-container.rows.md.title"
         description: "Row count on medium breakpoint."
         enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
       lg:
         type: integer
         title: "Rows (LG)"
+        titleSnippet: "sw-experience-studio.elements.grid-container.rows.lg.title"
         description: "Row count on large breakpoint."
         enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
       xl:
         type: integer
         title: "Rows (XL)"
+        titleSnippet: "sw-experience-studio.elements.grid-container.rows.xl.title"
         description: "Row count on extra large breakpoint."
         enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
   fullWidth:
     type: boolean
     title: "Full Width"
+    titleSnippet: "sw-experience-studio.elements.grid-container.fullWidth.title"
     description: "Make the container fill the available width of the viewport."
     default: false
     adminUI:
@@ -149,6 +171,7 @@ properties:
   gap:
     type: integer
     title: "Gap"
+    titleSnippet: "sw-experience-studio.elements.grid-container.gap.title"
     description: "Gap size in px."
     default: 24
     adminUI:
@@ -158,6 +181,7 @@ properties:
   maxWidth:
     type: string
     title: "Max Width"
+    titleSnippet: "sw-experience-studio.elements.grid-container.maxWidth.title"
     description: "Maximum width of the container."
     default: "1400px"
     adminUI:
@@ -172,6 +196,7 @@ properties:
       - "string"
       - "object"
     title: "Padding"
+    titleSnippet: "sw-experience-studio.elements.grid-container.padding.title"
     description: "Breakpoint-aware inner spacing."
     adminUI:
       component: "box-spacing"
@@ -181,31 +206,37 @@ properties:
       xs:
         type: string
         title: "Padding (XS)"
+        titleSnippet: "sw-experience-studio.elements.grid-container.padding.xs.title"
         description: "Inner spacing on extra small breakpoint."
         default: null
       sm:
         type: string
         title: "Padding (SM)"
+        titleSnippet: "sw-experience-studio.elements.grid-container.padding.sm.title"
         description: "Inner spacing on small breakpoint."
         default: null
       md:
         type: string
         title: "Padding (MD)"
+        titleSnippet: "sw-experience-studio.elements.grid-container.padding.md.title"
         description: "Inner spacing on medium breakpoint."
         default: null
       lg:
         type: string
         title: "Padding (LG)"
+        titleSnippet: "sw-experience-studio.elements.grid-container.padding.lg.title"
         description: "Inner spacing on large breakpoint."
         default: null
       xl:
         type: string
         title: "Padding (XL)"
+        titleSnippet: "sw-experience-studio.elements.grid-container.padding.xl.title"
         description: "Inner spacing on extra large breakpoint."
         default: null
       xxl:
         type: string
         title: "Padding (XXL)"
+        titleSnippet: "sw-experience-studio.elements.grid-container.padding.xxl.title"
         description: "Inner spacing on extra extra large breakpoint."
         default: null
 
@@ -214,6 +245,7 @@ properties:
       - "string"
       - "object"
     title: "Margin"
+    titleSnippet: "sw-experience-studio.elements.grid-container.margin.title"
     description: "Breakpoint-aware outer spacing."
     adminUI:
       component: "box-spacing"
@@ -223,37 +255,44 @@ properties:
       xs:
         type: string
         title: "Margin (XS)"
+        titleSnippet: "sw-experience-studio.elements.grid-container.margin.xs.title"
         description: "Outer spacing on extra small breakpoint."
         default: "0 0 24px 0"
       sm:
         type: string
         title: "Margin (SM)"
+        titleSnippet: "sw-experience-studio.elements.grid-container.margin.sm.title"
         description: "Outer spacing on small breakpoint."
         default: "0 0 24px 0"
       md:
         type: string
         title: "Margin (MD)"
+        titleSnippet: "sw-experience-studio.elements.grid-container.margin.md.title"
         description: "Outer spacing on medium breakpoint."
         default: "0 0 24px 0"
       lg:
         type: string
         title: "Margin (LG)"
+        titleSnippet: "sw-experience-studio.elements.grid-container.margin.lg.title"
         description: "Outer spacing on large breakpoint."
         default: "0 0 24px 0"
       xl:
         type: string
         title: "Margin (XL)"
+        titleSnippet: "sw-experience-studio.elements.grid-container.margin.xl.title"
         description: "Outer spacing on extra large breakpoint."
         default: "0 0 24px 0"
       xxl:
         type: string
         title: "Margin (XXL)"
+        titleSnippet: "sw-experience-studio.elements.grid-container.margin.xxl.title"
         description: "Outer spacing on extra extra large breakpoint."
         default: "0 0 24px 0"
 
   align:
     type: string
     title: "Align Items"
+    titleSnippet: "sw-experience-studio.elements.grid-container.align.title"
     description: "Align items on cross-axis."
     default: "normal"
     enum:
@@ -269,23 +308,29 @@ properties:
         options:
           - value: "normal"
             label: "Normal"
+            labelSnippet: "sw-experience-studio.elements.grid-container.align.options.normal.label"
             icon: "regular-circle"
           - value: "start"
             label: "Start"
+            labelSnippet: "sw-experience-studio.elements.grid-container.align.options.start.label"
             icon: "regular-align-left"
           - value: "center"
             label: "Center"
+            labelSnippet: "sw-experience-studio.elements.grid-container.align.options.center.label"
             icon: "regular-align-center"
           - value: "end"
             label: "End"
+            labelSnippet: "sw-experience-studio.elements.grid-container.align.options.end.label"
             icon: "regular-align-right"
           - value: "stretch"
             label: "Stretch"
+            labelSnippet: "sw-experience-studio.elements.grid-container.align.options.stretch.label"
             icon: "regular-align-justify"
 
   alignContent:
     type: string
     title: "Align Content"
+    titleSnippet: "sw-experience-studio.elements.grid-container.alignContent.title"
     description: "Align content distribution."
     default: "normal"
     enum:
@@ -304,32 +349,41 @@ properties:
         options:
           - value: "normal"
             label: "Normal"
+            labelSnippet: "sw-experience-studio.elements.grid-container.alignContent.options.normal.label"
             icon: "regular-circle"
           - value: "start"
             label: "Start"
+            labelSnippet: "sw-experience-studio.elements.grid-container.alignContent.options.start.label"
             icon: "regular-align-left"
           - value: "center"
             label: "Center"
+            labelSnippet: "sw-experience-studio.elements.grid-container.alignContent.options.center.label"
             icon: "regular-align-center"
           - value: "end"
             label: "End"
+            labelSnippet: "sw-experience-studio.elements.grid-container.alignContent.options.end.label"
             icon: "regular-align-right"
           - value: "stretch"
             label: "Stretch"
+            labelSnippet: "sw-experience-studio.elements.grid-container.alignContent.options.stretch.label"
             icon: "regular-align-justify"
           - value: "spaceAround"
             label: "Space around"
+            labelSnippet: "sw-experience-studio.elements.grid-container.alignContent.options.spaceAround.label"
             icon: "regular-align-justify"
           - value: "spaceBetween"
             label: "Space between"
+            labelSnippet: "sw-experience-studio.elements.grid-container.alignContent.options.spaceBetween.label"
             icon: "regular-align-justify"
           - value: "spaceEvenly"
             label: "Space evenly"
+            labelSnippet: "sw-experience-studio.elements.grid-container.alignContent.options.spaceEvenly.label"
             icon: "regular-align-justify"
 
   justify:
     type: string
     title: "Justify Items"
+    titleSnippet: "sw-experience-studio.elements.grid-container.justify.title"
     description: "Justify items on main axis."
     default: "normal"
     enum:
@@ -345,23 +399,29 @@ properties:
         options:
           - value: "normal"
             label: "Normal"
+            labelSnippet: "sw-experience-studio.elements.grid-container.justify.options.normal.label"
             icon: "regular-circle"
           - value: "start"
             label: "Start"
+            labelSnippet: "sw-experience-studio.elements.grid-container.justify.options.start.label"
             icon: "regular-align-left"
           - value: "center"
             label: "Center"
+            labelSnippet: "sw-experience-studio.elements.grid-container.justify.options.center.label"
             icon: "regular-align-center"
           - value: "end"
             label: "End"
+            labelSnippet: "sw-experience-studio.elements.grid-container.justify.options.end.label"
             icon: "regular-align-right"
           - value: "stretch"
             label: "Stretch"
+            labelSnippet: "sw-experience-studio.elements.grid-container.justify.options.stretch.label"
             icon: "regular-align-justify"
 
   justifyContent:
     type: string
     title: "Justify Content"
+    titleSnippet: "sw-experience-studio.elements.grid-container.justifyContent.title"
     description: "Justify content distribution."
     default: "normal"
     enum:
@@ -380,32 +440,41 @@ properties:
         options:
           - value: "normal"
             label: "Normal"
+            labelSnippet: "sw-experience-studio.elements.grid-container.justifyContent.options.normal.label"
             icon: "regular-circle"
           - value: "start"
             label: "Start"
+            labelSnippet: "sw-experience-studio.elements.grid-container.justifyContent.options.start.label"
             icon: "regular-align-left"
           - value: "center"
             label: "Center"
+            labelSnippet: "sw-experience-studio.elements.grid-container.justifyContent.options.center.label"
             icon: "regular-align-center"
           - value: "end"
             label: "End"
+            labelSnippet: "sw-experience-studio.elements.grid-container.justifyContent.options.end.label"
             icon: "regular-align-right"
           - value: "stretch"
             label: "Stretch"
+            labelSnippet: "sw-experience-studio.elements.grid-container.justifyContent.options.stretch.label"
             icon: "regular-align-justify"
           - value: "spaceAround"
             label: "Space around"
+            labelSnippet: "sw-experience-studio.elements.grid-container.justifyContent.options.spaceAround.label"
             icon: "regular-align-justify"
           - value: "spaceBetween"
             label: "Space between"
+            labelSnippet: "sw-experience-studio.elements.grid-container.justifyContent.options.spaceBetween.label"
             icon: "regular-align-justify"
           - value: "spaceEvenly"
             label: "Space evenly"
+            labelSnippet: "sw-experience-studio.elements.grid-container.justifyContent.options.spaceEvenly.label"
             icon: "regular-align-justify"
 
   border:
     type: string
     title: "Border"
+    titleSnippet: "sw-experience-studio.elements.grid-container.border.title"
     description: "Border position."
     required: false
     enum:
@@ -416,11 +485,29 @@ properties:
       - "start"
     adminUI:
       component: "select"
+      props:
+        options:
+          - value: "all"
+            label: "All sides"
+            labelSnippet: "sw-experience-studio.elements.grid-container.border.options.all.label"
+          - value: "top"
+            label: "Top"
+            labelSnippet: "sw-experience-studio.elements.grid-container.border.options.top.label"
+          - value: "end"
+            label: "End"
+            labelSnippet: "sw-experience-studio.elements.grid-container.border.options.end.label"
+          - value: "bottom"
+            label: "Bottom"
+            labelSnippet: "sw-experience-studio.elements.grid-container.border.options.bottom.label"
+          - value: "start"
+            label: "Start"
+            labelSnippet: "sw-experience-studio.elements.grid-container.border.options.start.label"
       panel: "border"
 
   borderVariant:
     type: string
     title: "Border Variant"
+    titleSnippet: "sw-experience-studio.elements.grid-container.borderVariant.title"
     description: "Border color variant."
     required: false
     enum:
@@ -429,11 +516,23 @@ properties:
       - "secondarySubtle"
     adminUI:
       component: "select"
+      props:
+        options:
+          - value: "primary"
+            label: "Primary"
+            labelSnippet: "sw-experience-studio.elements.grid-container.borderVariant.options.primary.label"
+          - value: "secondary"
+            label: "Secondary"
+            labelSnippet: "sw-experience-studio.elements.grid-container.borderVariant.options.secondary.label"
+          - value: "secondarySubtle"
+            label: "Secondary subtle"
+            labelSnippet: "sw-experience-studio.elements.grid-container.borderVariant.options.secondarySubtle.label"
       panel: "border"
 
   borderFullWidth:
     type: boolean
     title: "Full Width Border"
+    titleSnippet: "sw-experience-studio.elements.grid-container.borderFullWidth.title"
     description: "Make the border fill the available width of the viewport."
     default: false
     adminUI:
@@ -442,6 +541,7 @@ properties:
   borderRadius:
     type: string
     title: "Rounded Corners"
+    titleSnippet: "sw-experience-studio.elements.grid-container.borderRadius.title"
     description: "Corner radius of the container."
     default: "0"
     enum:
@@ -457,23 +557,29 @@ properties:
         options:
           - value: "0"
             label: "Square"
+            labelSnippet: "sw-experience-studio.elements.grid-container.borderRadius.options.0.label"
             cornerRadius: "0"
           - value: "4px"
             label: "Small"
+            labelSnippet: "sw-experience-studio.elements.grid-container.borderRadius.options.4px.label"
             cornerRadius: "4px"
           - value: "8px"
             label: "Medium"
+            labelSnippet: "sw-experience-studio.elements.grid-container.borderRadius.options.8px.label"
             cornerRadius: "8px"
           - value: "16px"
             label: "Large"
+            labelSnippet: "sw-experience-studio.elements.grid-container.borderRadius.options.16px.label"
             cornerRadius: "16px"
           - value: "50%"
             label: "Round"
+            labelSnippet: "sw-experience-studio.elements.grid-container.borderRadius.options.50.label"
             cornerRadius: "50%"
 
   backgroundColor:
     type: string
     title: "Background Color"
+    titleSnippet: "sw-experience-studio.elements.grid-container.backgroundColor.title"
     description: "Optional background color of the container."
     default: null
     required: false
@@ -484,6 +590,7 @@ properties:
   backgroundOpacity:
     type: integer
     title: "Background Opacity"
+    titleSnippet: "sw-experience-studio.elements.grid-container.backgroundOpacity.title"
     description: "Opacity of the background color in percent."
     default: 100
     adminUI:
@@ -498,6 +605,7 @@ properties:
     type: Shopware\Core\Content\Media\MediaEntity
     required: false
     title: "Background Image"
+    titleSnippet: "sw-experience-studio.elements.grid-container.backgroundImage.title"
     description: "Optional background image of the container."
     resolvedBy: backgroundImageId
     adminUI:
@@ -507,6 +615,7 @@ properties:
   backgroundImageMode:
     type: string
     title: "Background Image Mode"
+    titleSnippet: "sw-experience-studio.elements.grid-container.backgroundImageMode.title"
     description: "How the background image is sized inside the container."
     default: "auto"
     enum:
@@ -515,6 +624,17 @@ properties:
       - "contain"
     adminUI:
       component: "select"
+      props:
+        options:
+          - value: "auto"
+            label: "Automatic"
+            labelSnippet: "sw-experience-studio.elements.grid-container.backgroundImageMode.options.auto.label"
+          - value: "cover"
+            label: "Cover"
+            labelSnippet: "sw-experience-studio.elements.grid-container.backgroundImageMode.options.cover.label"
+          - value: "contain"
+            label: "Contain"
+            labelSnippet: "sw-experience-studio.elements.grid-container.backgroundImageMode.options.contain.label"
       panel: "background"
       visibleWhen:
         field: "backgroundImage"
@@ -523,6 +643,7 @@ properties:
   backgroundFullWidth:
     type: boolean
     title: "Full Width Background"
+    titleSnippet: "sw-experience-studio.elements.grid-container.backgroundFullWidth.title"
     description: "Make the background fill the available width of the viewport."
     default: false
     adminUI:
@@ -531,6 +652,7 @@ properties:
   shadowOffsetX:
     type: integer
     title: "Shift Right"
+    titleSnippet: "sw-experience-studio.elements.grid-container.shadowOffsetX.title"
     description: "Horizontal shadow offset in px."
     default: 0
     adminUI:
@@ -544,6 +666,7 @@ properties:
   shadowOffsetY:
     type: integer
     title: "Shift Down"
+    titleSnippet: "sw-experience-studio.elements.grid-container.shadowOffsetY.title"
     description: "Vertical shadow offset in px."
     default: 0
     adminUI:
@@ -557,6 +680,7 @@ properties:
   shadowSpread:
     type: integer
     title: "Spread"
+    titleSnippet: "sw-experience-studio.elements.grid-container.shadowSpread.title"
     description: "Shadow spread in px."
     default: 0
     adminUI:
@@ -570,6 +694,7 @@ properties:
   shadowBlur:
     type: integer
     title: "Blur"
+    titleSnippet: "sw-experience-studio.elements.grid-container.shadowBlur.title"
     description: "Shadow blur in px."
     default: 0
     adminUI:
@@ -583,6 +708,7 @@ properties:
   shadowOpacity:
     type: integer
     title: "Opacity"
+    titleSnippet: "sw-experience-studio.elements.grid-container.shadowOpacity.title"
     description: "Opacity of the shadow color in percent."
     default: 100
     adminUI:
@@ -596,6 +722,7 @@ properties:
   shadowInset:
     type: boolean
     title: "Inset"
+    titleSnippet: "sw-experience-studio.elements.grid-container.shadowInset.title"
     description: "Render the shadow inside the container."
     default: false
     adminUI:
@@ -604,6 +731,7 @@ properties:
   shadowColor:
     type: string
     title: "Color"
+    titleSnippet: "sw-experience-studio.elements.grid-container.shadowColor.title"
     description: "Color of the shadow."
     default: "#000000"
     adminUI:

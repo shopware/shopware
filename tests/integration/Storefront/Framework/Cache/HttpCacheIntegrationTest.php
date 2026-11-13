@@ -90,6 +90,64 @@ class HttpCacheIntegrationTest extends TestCase
         $this->assertCacheHeader('GET /: fresh', $response);
     }
 
+    public function testIgnoredTrackingParameterCannotPoisonLandingPageContent(): void
+    {
+        $ids = new IdsCollection();
+        $context = Context::createDefaultContext();
+        $appUrl = EnvironmentHelper::getVariable('APP_URL');
+        static::assertIsString($appUrl);
+        $salesChannelId = static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT sales_channel_id FROM sales_channel_domain WHERE url = :url',
+            ['url' => $appUrl],
+        );
+        static::assertIsString($salesChannelId);
+        static::getContainer()->get('content_layout.repository')->create([[
+            'id' => $ids->get('layout'),
+            'name' => 'Cache-safe landing page',
+            'rootSource' => 'landing_page',
+            'version' => '1.0.0',
+            'layout' => [[
+                'id' => $ids->get('text'),
+                'component' => 'Sw:Content:Text',
+                'properties' => ['text' => 'Safe campaign {{campaign}} {{utm_source}}'],
+            ]],
+        ]], $context);
+        $path = '/cache-safe-' . $ids->get('landing-page');
+        static::getContainer()->get('landing_page.repository')->create([[
+            'id' => $ids->get('landing-page'),
+            'name' => 'Cache-safe landing page',
+            'url' => ltrim($path, '/'),
+            'active' => true,
+            'salesChannels' => [['id' => bin2hex($salesChannelId)]],
+        ]], $context);
+        static::getContainer()->get('landing_page_content_layout.repository')->create([[
+            'landingPageId' => $ids->get('landing-page'),
+            'contentLayoutId' => $ids->get('layout'),
+        ]], $context);
+
+        $kernel = $this->getCacheKernel();
+        $request = $this->createRequest($appUrl . $path . '?' . http_build_query([
+            'campaign' => 'summer',
+            'utm_source' => '<a href="https://example.test/phishing">Injected campaign</a>',
+        ], '', '&', \PHP_QUERY_RFC3986));
+        $request->attributes->set('sw-skip-transformer', true);
+        $response = $kernel->handle($request);
+        $content = (string) $response->getContent();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
+        static::assertStringEndsWith(': miss, store', explode(';', (string) $response->headers->get('x-symfony-cache'))[0]);
+        static::assertStringContainsString('Safe campaign summer', $content);
+
+        $cleanRequest = $this->createRequest($appUrl . $path . '?campaign=summer');
+        $cleanRequest->attributes->set('sw-skip-transformer', true);
+        $cachedResponse = $kernel->handle($cleanRequest);
+
+        static::assertSame(Response::HTTP_OK, $cachedResponse->getStatusCode());
+        static::assertStringEndsWith(': fresh', explode(';', (string) $cachedResponse->headers->get('x-symfony-cache'))[0]);
+        static::assertSame($content, $cachedResponse->getContent());
+        static::assertStringNotContainsString('https://example.test/phishing', $cachedResponse->getContent());
+    }
+
     public function testCacheHashCookieChange(): void
     {
         $kernel = $this->getCacheKernel();

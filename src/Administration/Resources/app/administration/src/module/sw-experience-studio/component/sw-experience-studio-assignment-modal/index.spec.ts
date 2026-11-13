@@ -1,3 +1,4 @@
+import { flushPromises, shallowMount } from '@vue/test-utils';
 import assignmentModalComponent from './index';
 
 type Assignment = {
@@ -28,6 +29,13 @@ describe('module/sw-experience-studio/component/sw-experience-studio-assignment-
         defaultConfigKey: 'core.content_system.default_category_content_layout',
     };
 
+    const landingPageAssignmentType = {
+        entity: 'landing_page',
+        assignmentEntity: 'landing_page_content_layout',
+        entityIdField: 'landingPageId',
+        defaultConfigKey: null,
+    };
+
     it('resolves the assignment type from the layout root source', () => {
         expect(computed.assignmentType.call({ rootSource: 'product' })).toEqual({
             entity: 'product',
@@ -35,7 +43,9 @@ describe('module/sw-experience-studio/component/sw-experience-studio-assignment-
             entityIdField: 'productId',
             defaultConfigKey: 'core.content_system.default_product_content_layout',
         });
-        expect(computed.assignmentType.call({ rootSource: 'landing_page' })).toBeNull();
+        expect(computed.assignmentType.call({ rootSource: 'category' })).toEqual(categoryAssignmentType);
+        expect(computed.assignmentType.call({ rootSource: 'landing_page' })).toEqual(landingPageAssignmentType);
+        expect(computed.assignmentType.call({ rootSource: 'unknown' })).toBeNull();
     });
 
     it('offers parent products and variants for selection', () => {
@@ -97,6 +107,85 @@ describe('module/sw-experience-studio/component/sw-experience-studio-assignment-
         expect(vm.isLoading).toBe(false);
     });
 
+    it('loads landing page assignments without reading or writing a default layout setting', async () => {
+        const getValues = jest.fn();
+        const saveValues = jest.fn();
+        const vm = {
+            layoutId: 'layout-1',
+            assignmentType: computed.assignmentType.call({ rootSource: 'landing_page' }),
+            assignmentRepository: {
+                search: jest.fn().mockResolvedValue(
+                    createCollection([
+                        {
+                            id: 'assignment-1',
+                            landingPageId: 'landing-page-1',
+                            salesChannelId: null,
+                            contentLayoutId: 'layout-1',
+                        },
+                    ]),
+                ),
+            },
+            acl: { can: () => true },
+            systemConfigApiService: { getValues, saveValues },
+            isLoading: false,
+            entityIds: [] as string[],
+            assignmentIdsByEntityId: {},
+            isDefault: false,
+            wasDefault: false,
+        };
+
+        await methods.loadAssignments.call(vm);
+        await methods.saveDefault.call({ ...vm, isDefault: true });
+
+        expect(vm.entityIds).toEqual(['landing-page-1']);
+        expect(vm.assignmentIdsByEntityId).toEqual({ 'landing-page-1': 'assignment-1' });
+        expect(vm.isDefault).toBe(false);
+        expect(vm.wasDefault).toBe(false);
+        expect(getValues).not.toHaveBeenCalled();
+        expect(saveValues).not.toHaveBeenCalled();
+    });
+
+    it('offers landing page selection without a default layout switch', async () => {
+        const landingPageRepository = {};
+        const assignmentRepository = { search: jest.fn().mockResolvedValue(createCollection([])) };
+        const create = jest.fn((entity: string) =>
+            entity === 'landing_page' ? landingPageRepository : assignmentRepository,
+        );
+        const wrapper = shallowMount(assignmentModalComponent, {
+            props: { layoutId: 'layout-1', rootSource: 'landing_page', allowEdit: true },
+            global: {
+                provide: {
+                    repositoryFactory: { create },
+                    systemConfigApiService: { getValues: jest.fn() },
+                    acl: { can: () => true },
+                },
+                stubs: {
+                    'mt-modal-root': { template: '<div><slot /></div>' },
+                    'mt-modal': { template: '<div><slot /><slot name="footer" /></div>' },
+                    'mt-switch': true,
+                    'mt-button': true,
+                    'sw-entity-multi-id-select': {
+                        name: 'sw-entity-multi-id-select',
+                        props: ['repository', 'label', 'disabled'],
+                        template: '<div />',
+                    },
+                },
+            },
+        });
+
+        try {
+            await flushPromises();
+
+            const select = wrapper.getComponent({ name: 'sw-entity-multi-id-select' });
+            expect(select.props('repository')).toBe(landingPageRepository);
+            expect(select.props('disabled')).toBeUndefined();
+            expect(create).toHaveBeenCalledWith('landing_page_content_layout');
+            expect(wrapper.findComponent({ name: 'mt-switch' }).exists()).toBe(false);
+        } finally {
+            wrapper.unmount();
+        }
+    });
+
     it('notifies and closes when loading the assignments fails', async () => {
         const emit = jest.fn();
         const createNotificationError = jest.fn();
@@ -121,11 +210,12 @@ describe('module/sw-experience-studio/component/sw-experience-studio-assignment-
         expect(vm.isLoading).toBe(false);
     });
 
-    it('deletes the assignments of deselected entities', async () => {
+    it.each(['category', 'landing_page'])('deletes the assignments of deselected entities (%s)', async (rootSource) => {
+        const assignmentType = computed.assignmentType.call({ rootSource }) as typeof categoryAssignmentType;
         const syncDeleted = jest.fn().mockResolvedValue(undefined);
         const vm = {
             layoutId: 'layout-1',
-            assignmentType: categoryAssignmentType,
+            assignmentType,
             assignmentRepository: { syncDeleted },
             assignmentIdsByEntityId: { 'category-1': 'assignment-1', 'category-2': 'assignment-2' },
             entityIds: ['category-2'],
@@ -136,46 +226,51 @@ describe('module/sw-experience-studio/component/sw-experience-studio-assignment-
         expect(syncDeleted).toHaveBeenCalledWith(['assignment-1'], expect.anything());
     });
 
-    it('creates assignments for newly selected entities and moves global assignments of other layouts', async () => {
-        const otherLayoutAssignment = {
-            id: 'assignment-other',
-            categoryId: 'category-moved',
-            salesChannelId: null,
-            contentLayoutId: 'layout-other',
-        };
-        const assignments = createCollection([otherLayoutAssignment]);
-        const saveAll = jest.fn().mockResolvedValue(undefined);
-        const search = jest.fn().mockResolvedValue(assignments);
-        const vm = {
-            layoutId: 'layout-1',
-            assignmentType: categoryAssignmentType,
-            assignmentRepository: {
-                search,
-                saveAll,
-                syncDeleted: jest.fn(),
-                create: jest.fn(() => ({ id: 'assignment-new' })),
-            },
-            assignmentIdsByEntityId: {},
-            entityIds: [
-                'category-moved',
-                'category-new',
-            ],
-        };
+    it.each(['category', 'landing_page'])(
+        'creates assignments for newly selected entities and moves global assignments of other layouts (%s)',
+        async (rootSource) => {
+            const assignmentType = computed.assignmentType.call({ rootSource }) as typeof categoryAssignmentType;
+            const entityIdField = assignmentType.entityIdField;
+            const otherLayoutAssignment = {
+                id: 'assignment-other',
+                [entityIdField]: 'category-moved',
+                salesChannelId: null,
+                contentLayoutId: 'layout-other',
+            };
+            const assignments = createCollection([otherLayoutAssignment]);
+            const saveAll = jest.fn().mockResolvedValue(undefined);
+            const search = jest.fn().mockResolvedValue(assignments);
+            const vm = {
+                layoutId: 'layout-1',
+                assignmentType,
+                assignmentRepository: {
+                    search,
+                    saveAll,
+                    syncDeleted: jest.fn(),
+                    create: jest.fn(() => ({ id: 'assignment-new' })),
+                },
+                assignmentIdsByEntityId: {},
+                entityIds: [
+                    'category-moved',
+                    'category-new',
+                ],
+            };
 
-        await methods.saveEntityAssignments.call(vm);
+            await methods.saveEntityAssignments.call(vm);
 
-        const [[criteria]] = search.mock.calls as [[{ filters: unknown[] }]];
-        expect(criteria.filters).toEqual([
-            { type: 'equalsAny', field: 'categoryId', value: 'category-moved|category-new' },
-            { type: 'equals', field: 'salesChannelId', value: null },
-        ]);
-        expect(vm.assignmentRepository.syncDeleted).not.toHaveBeenCalled();
-        expect(saveAll).toHaveBeenCalledWith(assignments, expect.anything());
-        expect([...assignments]).toEqual([
-            { ...otherLayoutAssignment, contentLayoutId: 'layout-1' },
-            { id: 'assignment-new', categoryId: 'category-new', salesChannelId: null, contentLayoutId: 'layout-1' },
-        ]);
-    });
+            const [[criteria]] = search.mock.calls as [[{ filters: unknown[] }]];
+            expect(criteria.filters).toEqual([
+                { type: 'equalsAny', field: entityIdField, value: 'category-moved|category-new' },
+                { type: 'equals', field: 'salesChannelId', value: null },
+            ]);
+            expect(vm.assignmentRepository.syncDeleted).not.toHaveBeenCalled();
+            expect(saveAll).toHaveBeenCalledWith(assignments, expect.anything());
+            expect([...assignments]).toEqual([
+                { ...otherLayoutAssignment, contentLayoutId: 'layout-1' },
+                { id: 'assignment-new', [entityIdField]: 'category-new', salesChannelId: null, contentLayoutId: 'layout-1' },
+            ]);
+        },
+    );
 
     it('sets the layout as the default of its type', async () => {
         const saveValues = jest.fn().mockResolvedValue(undefined);

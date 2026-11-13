@@ -1,5 +1,6 @@
 meta:
   label: "Tab Panel"
+  labelSnippet: "sw-experience-studio.elements.tabs-panel.label"
   description: "Tabbed panel that shows one tab at a time. The tab navigation is built from the tabs placed in its slot."
   icon: "regular-window"
   illustration: "tabs-panel"
@@ -15,6 +16,7 @@ properties:
   variant:
     type: string
     title: "Variant"
+    titleSnippet: "sw-experience-studio.elements.tabs-panel.variant.title"
     description: "Visual style of the tab navigation."
     default: "tabs"
     enum:
@@ -28,14 +30,18 @@ properties:
         options:
           - value: "tabs"
             label: "Tabs"
+            labelSnippet: "sw-experience-studio.elements.tabs-panel.variant.options.tabs.label"
           - value: "pills"
             label: "Pills"
+            labelSnippet: "sw-experience-studio.elements.tabs-panel.variant.options.pills.label"
           - value: "underline"
             label: "Underline"
+            labelSnippet: "sw-experience-studio.elements.tabs-panel.variant.options.underline.label"
 
   alignment:
     type: string
     title: "Alignment"
+    titleSnippet: "sw-experience-studio.elements.tabs-panel.alignment.title"
     description: "How the tab navigation is distributed over the available width."
     default: "start"
     enum:
@@ -46,8 +52,26 @@ properties:
       - "justified"
     adminUI:
       component: "select"
+      props:
+        options:
+          - value: "start"
+            label: "Start"
+            labelSnippet: "sw-experience-studio.elements.tabs-panel.alignment.options.start.label"
+          - value: "center"
+            label: "Center"
+            labelSnippet: "sw-experience-studio.elements.tabs-panel.alignment.options.center.label"
+          - value: "end"
+            label: "End"
+            labelSnippet: "sw-experience-studio.elements.tabs-panel.alignment.options.end.label"
+          - value: "fill"
+            label: "Fill"
+            labelSnippet: "sw-experience-studio.elements.tabs-panel.alignment.options.fill.label"
+          - value: "justified"
+            label: "Justified"
+            labelSnippet: "sw-experience-studio.elements.tabs-panel.alignment.options.justified.label"
       panel: "general"
       helpText: "Fill gives every tab the space its title needs, justified gives every tab the same width."
+      helpTextSnippet: "sw-experience-studio.elements.tabs-panel.alignment.helpText"
 
 slots:
   - name: tabs

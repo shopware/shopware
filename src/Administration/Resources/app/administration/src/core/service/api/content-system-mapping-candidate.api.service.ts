@@ -35,7 +35,7 @@ export interface ContentSystemMappingCandidate {
 /**
  * @private
  */
-export interface ContentSystemMappingCandidateResponse {
+interface ContentSystemMappingCandidateResponse {
     mappingCandidates: Record<string, ContentSystemMappingCandidate[]>;
 }
 

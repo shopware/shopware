@@ -17,6 +17,22 @@ use Symfony\Component\Validator\Validation;
 #[CoversClass(LayoutPresetSpecificationSerializer::class)]
 class LayoutPresetSpecificationSerializerTest extends TestCase
 {
+    public function testSnippetReferencesSurviveAppPersistence(): void
+    {
+        $serializer = $this->serializer();
+        $dto = $serializer->denormalize([
+            'name' => 'Text', 'nameSnippet' => 'plugin.preset.name',
+            'description' => 'A text preset.', 'descriptionSnippet' => 'plugin.preset.description',
+            'icon' => 'regular-star', 'layout' => [],
+        ]);
+        $persisted = json_encode($serializer->normalize($dto), \JSON_THROW_ON_ERROR);
+        $restored = $serializer->denormalize(json_decode($persisted, true, 512, \JSON_THROW_ON_ERROR));
+
+        static::assertSame('Text', $restored->name);
+        static::assertSame('plugin.preset.name', $restored->nameSnippet);
+        static::assertSame('plugin.preset.description', $restored->descriptionSnippet);
+    }
+
     #[DataProvider('illustrationProvider')]
     public function testRoundTripsTheIndependentIllustrationThroughAppJson(?string $illustration): void
     {

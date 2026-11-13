@@ -106,6 +106,21 @@ describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tre
         }
     });
 
+    it('uses the translated element type as the tree label when no name is authored', () => {
+        const vm = {
+            contentElement: { component: 'Sw:Media:Image', properties: {} },
+            elementTypeStore: { getByName: () => ({ label: 'Image', labelSnippet: 'element.image' }) },
+            $te: (key: string) => key === 'element.image',
+            $t: () => 'Bild',
+        };
+
+        expect(computed.label.call(vm)).toBe('Bild');
+        expect(
+            computed.label.call({ ...vm, contentElement: { ...vm.contentElement, properties: { title: 'Mein Bild' } } }),
+        ).toBe('Mein Bild');
+        expect(computed.label.call({ ...vm, elementTypeStore: { getByName: () => null } })).toBe('Image');
+    });
+
     it('uses configured type icon when available', () => {
         const vm = {
             contentElement: {

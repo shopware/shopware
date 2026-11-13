@@ -1,5 +1,6 @@
 meta:
   label: "Product Review Form"
+  labelSnippet: "sw-experience-studio.elements.product-review-form.label"
   description: "Lets a logged-in customer write or edit their review for the product; shows a login prompt to guests."
   icon: "regular-pencil-s"
   illustration: "product-review-form"
@@ -17,4 +18,5 @@ properties:
     type: Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult
     required: false
     title: "Reviews"
+    titleSnippet: "sw-experience-studio.elements.product-review-form.reviews.title"
     description: "Hydrated review result the form reads the product id, rating scale and the customer's own review from. Received as root-scoped context from the page, which loads it once, so the form adds no load of its own."

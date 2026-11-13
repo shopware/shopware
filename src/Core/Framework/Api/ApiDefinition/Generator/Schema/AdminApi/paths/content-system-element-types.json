@@ -40,6 +40,14 @@
                                                         "type": "string",
                                                         "description": "Human-readable description."
                                                     },
+                                                    "labelSnippet": {
+                                                        "type": "string",
+                                                        "description": "Optional Administration snippet key for the label; the English label remains available."
+                                                    },
+                                                    "descriptionSnippet": {
+                                                        "type": "string",
+                                                        "description": "Optional Administration snippet key for the description."
+                                                    },
                                                     "source": {
                                                         "type": "string",
                                                         "description": "Source identifier (e.g. core, plugin:MyPlugin, app:MyApp)."
@@ -137,6 +145,14 @@
                                                                 },
                                                                 "description": {
                                                                     "type": "string"
+                                                                },
+                                                                "titleSnippet": {
+                                                                    "type": "string",
+                                                                    "description": "Optional Administration snippet key for the property title."
+                                                                },
+                                                                "descriptionSnippet": {
+                                                                    "type": "string",
+                                                                    "description": "Optional Administration snippet key for the property description."
                                                                 },
                                                                 "adminUI": {
                                                                     "type": ["object", "null"]

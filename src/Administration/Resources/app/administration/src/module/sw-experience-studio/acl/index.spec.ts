@@ -1,62 +1,73 @@
+import PrivilegesService from 'src/app/service/privileges.service';
+
 /**
  * @sw-package discovery
  */
-
 describe('src/module/sw-experience-studio/acl/index.ts', () => {
-    type PrivilegeEntry = {
-        category: string;
-        parent: string | null;
-        key: string;
-        roles: Record<string, { privileges: string[]; dependencies: string[] }>;
-    };
+    let privileges: PrivilegesService;
+    let service: jest.SpyInstance;
 
-    const privileges = {
-        addPrivilegeMappingEntry: jest.fn<unknown, [PrivilegeEntry]>(),
-    };
+    beforeEach(() => {
+        privileges = new PrivilegesService();
+        service = jest
+            .spyOn(Shopware, 'Service')
+            .mockImplementation((() => privileges) as unknown as typeof Shopware.Service);
 
-    const originalShopwareService = Shopware.Service;
-
-    beforeAll(() => {
-        // The module chains its two registrations, so the mock returns itself.
-        Shopware.Service = (() => privileges) as unknown as typeof Shopware.Service;
+        jest.isolateModules(() => {
+            jest.requireActual('./index');
+        });
     });
 
-    // The module only runs side effects and has no export, so TypeScript rejects a literal dynamic import of it.
-    const aclModulePath: string = './index';
-
-    beforeEach(async () => {
-        jest.resetAllMocks();
-        jest.resetModules();
-        privileges.addPrivilegeMappingEntry.mockReturnValue(privileges);
-
-        await import(aclModulePath);
+    afterEach(() => {
+        service.mockRestore();
     });
 
-    afterAll(() => {
-        Shopware.Service = originalShopwareService;
+    it('lets viewers read landing pages and editors manage their layout assignments', () => {
+        const viewer = privileges.getPrivilegeRole('experience_studio.viewer');
+        const editor = privileges.getPrivilegeRole('experience_studio.editor');
+
+        expect(viewer?.privileges).toContain('landing_page:read');
+        expect(viewer?.privileges).toContain('landing_page_content_layout:read');
+        expect(viewer?.privileges).not.toContain('user:read');
+        expect(viewer?.privileges).not.toContain('media:read');
+        expect(viewer?.privileges).toContain('content_workspace:read');
+        for (const [operation, role] of [
+            ['create', 'editor'],
+            ['update', 'editor'],
+            ['delete', 'deleter'],
+        ]) {
+            expect(viewer?.privileges).not.toContain(`content_workspace:${operation}`);
+            expect(privileges.getPrivilegeRole(`experience_studio.${role}`)?.privileges).toContain(
+                `content_workspace:${operation}`,
+            );
+        }
+        expect(editor?.privileges).not.toContain('content_layout:create');
+        for (const operation of ['create', 'update', 'delete']) {
+            expect(editor?.privileges).toContain(`landing_page_content_layout:${operation}`);
+            expect(viewer?.privileges).not.toContain(`landing_page_content_layout:${operation}`);
+        }
+        expect(editor?.dependencies).toContain('experience_studio.viewer');
     });
 
     it('registers exactly the permission entry and the additional permission entry', () => {
-        const [
-            first,
-            second,
-        ] = privileges.addPrivilegeMappingEntry.mock.calls.map(([entry]) => entry);
+        const entries = privileges
+            .getPrivilegesMappings()
+            .map(({ category, parent, key }) => ({ category, parent, key }));
 
-        expect(privileges.addPrivilegeMappingEntry).toHaveBeenCalledTimes(2);
-        expect(first).toMatchObject({ category: 'permissions', parent: 'content', key: 'experience_studio' });
-        expect(second).toMatchObject({ category: 'additional_permissions', parent: null, key: 'experience_studio' });
+        expect(entries).toEqual([
+            { category: 'permissions', parent: 'content', key: 'experience_studio' },
+            { category: 'additional_permissions', parent: null, key: 'experience_studio' },
+        ]);
     });
 
     it('lets the editor role translate content layouts', () => {
-        const { editor } = privileges.addPrivilegeMappingEntry.mock.calls[0][0].roles;
-
-        expect(editor.privileges).toContain('content_layout:translate');
+        expect(privileges.getPrivilegeRole('experience_studio.editor')?.privileges).toContain('content_layout:translate');
     });
 
     it('registers a translator role holding only the translate privilege on top of the viewer', () => {
-        const { translator } = privileges.addPrivilegeMappingEntry.mock.calls[1][0].roles;
+        const translator = privileges.getPrivilegeRole('experience_studio.translator');
 
-        expect(translator.privileges).toEqual(['content_layout:translate']);
-        expect(translator.dependencies).toEqual(['experience_studio.viewer']);
+        expect(translator?.privileges).toEqual(['content_layout:translate']);
+        expect(translator?.dependencies).toEqual(['experience_studio.viewer']);
     });
 });

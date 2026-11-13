@@ -1,0 +1,47 @@
+.sw-experience-studio-workspace-picker {
+    &__footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: var(--scale-size-8);
+    }
+
+    &__list {
+        list-style: none;
+        padding: 0;
+    }
+
+    &__item {
+        display: flex;
+        flex: 1;
+        align-items: center;
+        gap: var(--scale-size-12);
+        min-width: 0;
+        padding: var(--scale-size-12);
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+        text-align: left;
+
+        &:hover,
+        &:focus-visible {
+            background: var(--color-background-secondary-default);
+        }
+    }
+
+    &__row {
+        display: flex;
+        align-items: center;
+        gap: var(--scale-size-8);
+    }
+
+    &__name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__actions,
+    &__item .mt-icon {
+        flex-shrink: 0;
+    }
+}

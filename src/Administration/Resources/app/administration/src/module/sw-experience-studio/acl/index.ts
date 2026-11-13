@@ -10,11 +10,13 @@ Shopware.Service('privileges')
             viewer: {
                 privileges: [
                     'content_layout:read',
+                    'content_workspace:read',
                     'property_group:read',
                     'property_group_option:read',
                     'sales_channel:read',
                     'product:read',
                     'category:read',
+                    'landing_page:read',
                     'product_content_layout:read',
                     'category_content_layout:read',
                     'landing_page_content_layout:read',
@@ -25,12 +27,17 @@ Shopware.Service('privileges')
                 privileges: [
                     'content_layout:update',
                     'content_layout:translate',
+                    'content_workspace:create',
+                    'content_workspace:update',
                     'product_content_layout:create',
                     'product_content_layout:update',
                     'product_content_layout:delete',
                     'category_content_layout:create',
                     'category_content_layout:update',
                     'category_content_layout:delete',
+                    'landing_page_content_layout:create',
+                    'landing_page_content_layout:update',
+                    'landing_page_content_layout:delete',
                 ],
                 dependencies: [
                     'experience_studio.viewer',
@@ -48,6 +55,7 @@ Shopware.Service('privileges')
             deleter: {
                 privileges: [
                     'content_layout:delete',
+                    'content_workspace:delete',
                 ],
                 dependencies: [
                     'experience_studio.viewer',

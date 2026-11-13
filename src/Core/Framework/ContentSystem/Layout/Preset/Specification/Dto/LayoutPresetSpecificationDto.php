@@ -34,6 +34,10 @@ final readonly class LayoutPresetSpecificationDto
         public int $priority = 0,
         #[Assert\NotBlank(allowNull: true)]
         public ?string $illustration = null,
+        #[Assert\NotBlank(allowNull: true)]
+        public ?string $nameSnippet = null,
+        #[Assert\NotBlank(allowNull: true)]
+        public ?string $descriptionSnippet = null,
     ) {
     }
 }

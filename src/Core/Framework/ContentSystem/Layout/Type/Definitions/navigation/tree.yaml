@@ -1,5 +1,6 @@
 meta:
   label: "Navigation Tree"
+  labelSnippet: "sw-experience-studio.elements.navigation-tree.label"
   description: "Renders a category navigation tree with links, folders, active item highlighting and optionally expandable sub-levels."
   icon: "regular-sitemap"
   illustration: "navigation-tree"
@@ -18,6 +19,7 @@ properties:
     type: Shopware\Core\Content\Category\Tree\Tree
     required: true
     title: "Navigation Tree"
+    titleSnippet: "sw-experience-studio.elements.navigation-tree.navigationTree.title"
     description: "Hydrated navigation tree provided by the navigation data loader."
     resolvedBy:
       navigation:
@@ -26,14 +28,17 @@ properties:
   activeId:
     type: string
     title: "Active category ID"
+    titleSnippet: "sw-experience-studio.elements.navigation-tree.activeId.title"
     description: "Category ID highlighted as the current page. On a layout rooted on a category the `{{categoryId}}` placeholder resolves per request, so it needs no editorial input. On any other root the placeholder stays literal and the navigation data loader highlights the navigation root instead. Read by that loader via its activeProperty config."
     default: "{{categoryId}}"
     adminUI:
       helpText: "Filled automatically on a category page — leave this as it is."
+      helpTextSnippet: "sw-experience-studio.elements.navigation-tree.activeId.helpText"
 
   displayType:
     type: string
     title: "Display type"
+    titleSnippet: "sw-experience-studio.elements.navigation-tree.displayType.title"
     description: "Whether sub-levels are fixed as rendered or can be opened and closed by the shopper."
     default: "static"
     enum:
@@ -41,20 +46,33 @@ properties:
       - "collapse"
     adminUI:
       component: "select"
+      props:
+        options:
+          - value: "static"
+            label: "Static"
+            labelSnippet: "sw-experience-studio.elements.navigation-tree.displayType.options.static.label"
+          - value: "collapse"
+            label: "Collapsible"
+            labelSnippet: "sw-experience-studio.elements.navigation-tree.displayType.options.collapse.label"
       helpText: "'Static' renders the tree as it is. 'Collapse' adds a plus button to every category whose sub-levels are rendered, so shoppers can open them. That mode renders the whole tree down to the navigation depth of the sales channel, which makes every page carrying the element heavier on a deep catalogue."
+      helpTextSnippet: "sw-experience-studio.elements.navigation-tree.displayType.helpText"
 
   expandAll:
     type: boolean
     title: "Expand all"
+    titleSnippet: "sw-experience-studio.elements.navigation-tree.expandAll.title"
     description: "Render all children instead of only the branch containing the active category."
     default: false
     adminUI:
       helpText: "When off, only the branch leading to the current category is expanded. When on, the tree expands to the navigation depth configured on the sales channel. In collapse mode this sets which branches start open."
+      helpTextSnippet: "sw-experience-studio.elements.navigation-tree.expandAll.helpText"
 
   ariaLabel:
     type: string
     translatable: true
     title: "Accessible label"
+    titleSnippet: "sw-experience-studio.elements.navigation-tree.ariaLabel.title"
     description: "Label of the navigation landmark for assistive technology."
     adminUI:
       helpText: "Helps screen reader users tell this navigation apart from others on the page."
+      helpTextSnippet: "sw-experience-studio.elements.navigation-tree.ariaLabel.helpText"

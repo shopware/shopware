@@ -1,5 +1,6 @@
 meta:
   label: "Product Variant Selection"
+  labelSnippet: "sw-experience-studio.elements.product-variant-selection.label"
   description: "Displays the selectable variants of a product on a product detail page."
   icon: "regular-variants"
   illustration: "product-variants"
@@ -16,6 +17,7 @@ properties:
     type: Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity
     required: false
     title: "Product"
+    titleSnippet: "sw-experience-studio.elements.product-variant-selection.product.title"
     description: "Hydrated product whose variants can be selected. Defaults to the current product but can be mapped to another product. Optional because a product context may be unavailable; without a product, the component renders its fallback message instead of failing."
     resolvedBy: productId
     mappable: true
@@ -30,4 +32,5 @@ properties:
     type: Shopware\Core\Content\Property\PropertyGroupCollection
     required: false
     title: "Configurator groups"
+    titleSnippet: "sw-experience-studio.elements.product-variant-selection.configuratorSettings.title"
     description: "Variant property groups and their available options, loaded for this element's resolved product after mapping or manual selection. Optional because they cannot be resolved without a product; when unavailable or empty, the component renders its fallback message."

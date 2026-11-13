@@ -21,6 +21,11 @@ function createFakeRepository(entity: unknown, readCalls: unknown[][] = []): Rep
 
             return Promise.resolve(entity);
         },
+        search: (...args: unknown[]) => {
+            readCalls.push(args);
+
+            return Promise.resolve([entity]);
+        },
         create: () => entity,
         save: () => Promise.resolve(),
     } as unknown as Repository<'content_layout'>;
@@ -73,14 +78,71 @@ describe('module/sw-experience-studio/util/content-layout-repository.util', () =
         });
     });
 
-    it('throws when the stored layout is not an array', async () => {
+    it.each(['get', 'search'])('%s throws when the stored layout is not an array', async (method) => {
         const repository = createContentLayoutRepository(
             createFakeRepository(createStoredEntity('not-an-array' as unknown as ContentElementNode[])),
         );
 
-        await expect(repository.get('layout-1', Shopware.Context.api, new Criteria(1, 1))).rejects.toThrow(
+        const result =
+            method === 'get'
+                ? repository.get('layout-1', Shopware.Context.api, new Criteria(1, 1))
+                : repository.search(new Criteria(1, 1), Shopware.Context.api);
+
+        await expect(result).rejects.toThrow(
             'content_layout entity "layout-1" has a non-array layout: expected an array, received string.',
         );
+    });
+
+    it('rejects a search result when a later entity has a malformed layout', async () => {
+        const repository = createContentLayoutRepository({
+            search: jest.fn().mockResolvedValue([
+                createStoredEntity([]),
+                { id: 'broken-layout', layout: {} },
+            ]),
+        } as unknown as Repository<'content_layout'>);
+
+        await expect(repository.search(new Criteria(1, 25), Shopware.Context.api)).rejects.toThrow(
+            'content_layout entity "broken-layout" has a non-array layout: expected an array, received object.',
+        );
+    });
+
+    it('returns valid search results unchanged and in repository order', async () => {
+        const first = createStoredEntity([]);
+        const second = { id: 'layout-2', layout: [{ id: 'text', component: 'Sw:Text:Text' }] };
+        const search = jest.fn().mockResolvedValue([second, first]);
+        const repository = createContentLayoutRepository({ search } as unknown as Repository<'content_layout'>);
+        const criteria = new Criteria(1, 25);
+
+        const entities = await repository.search(criteria, Shopware.Context.api);
+
+        expect(entities).toEqual([second, first]);
+        expect(entities[0]).toBe(second);
+        expect(entities[1]).toBe(first);
+        expect(search).toHaveBeenCalledWith(criteria, Shopware.Context.api);
+    });
+
+    it('returns an empty array when the search finds no layouts', async () => {
+        const repository = createContentLayoutRepository({
+            search: jest.fn().mockResolvedValue([]),
+        } as unknown as Repository<'content_layout'>);
+
+        await expect(repository.search(new Criteria(1, 25), Shopware.Context.api)).resolves.toEqual([]);
+    });
+
+    it.each([undefined, null])('search passes through a layout that is %s', async (layout) => {
+        const stored = { id: 'layout-1', layout };
+        const repository = createContentLayoutRepository(createFakeRepository(stored));
+
+        const entities = await repository.search(new Criteria(1, 25), Shopware.Context.api);
+
+        expect(entities[0]).toBe(stored);
+        expect(entities[0].layout).toBe(layout);
+    });
+
+    it('returns null when get finds no layout', async () => {
+        const repository = createContentLayoutRepository(createFakeRepository(null));
+
+        await expect(repository.get('missing-layout', Shopware.Context.api, new Criteria(1, 1))).resolves.toBeNull();
     });
 
     it('passes through an entity whose layout is absent', async () => {

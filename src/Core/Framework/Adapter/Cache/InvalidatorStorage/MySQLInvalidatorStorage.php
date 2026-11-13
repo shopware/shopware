@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Psr\Log\LoggerInterface;
@@ -83,17 +84,15 @@ class MySQLInvalidatorStorage extends AbstractInvalidatorStorage
             return [];
         }
 
-        $firstTagId = $rows[0]['id'];
-        $lastTagId = $rows[array_key_last($rows)]['id'];
-
-        $query = new RetryableQuery(
-            $this->connection,
-            $this->connection->prepare(\sprintf('DELETE FROM %s WHERE id BETWEEN :firstTagId AND :lastTagId', self::TABLE_NAME))
-        );
-        $query->execute([
-            'firstTagId' => $firstTagId,
-            'lastTagId' => $lastTagId,
-        ]);
+        foreach (array_chunk(array_column($rows, 'id'), 1000) as $ids) {
+            RetryableQuery::retryable($this->connection, function () use ($ids): void {
+                $this->connection->executeStatement(
+                    \sprintf('DELETE FROM %s WHERE id IN (:ids)', self::TABLE_NAME),
+                    ['ids' => $ids],
+                    ['ids' => ArrayParameterType::BINARY]
+                );
+            });
+        }
 
         return array_column($rows, 'tag');
     }

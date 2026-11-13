@@ -76,6 +76,7 @@ async function createWrapper(
                 },
                 conditionDataProviderService: {
                     getOperatorSet: () => [],
+                    isExistenceOnlyEntity: (entity) => entity === 'product_document',
                     allowedJsonAccessors: {
                         'json.test': {
                             value: 'json.test',
@@ -345,6 +346,28 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
 
         expect(wrapper.vm.fieldType).toBe('empty');
     });
+
+    it.each([
+        [0, 'global.default.yes', 'notEquals'],
+        [1, 'global.default.no', 'equals'],
+    ])(
+        'should emit an empty-change for the documents existence condition when picking option %i',
+        async (optionIndex, label, expectedType) => {
+            const wrapper = await createWrapper(['product_stream.viewer'], 'uuid', 'equals', 'product_document', true);
+            await wrapper.setProps({ fieldName: 'id' });
+            await flushPromises();
+
+            await wrapper.get('.sw-product-stream-value .sw-select__selection').trigger('click');
+            await flushPromises();
+
+            const option = new DOMWrapper(document.body).findAll('.sw-select-result').at(optionIndex);
+            expect(option.text()).toBe(label);
+            await option.trigger('click');
+            await flushPromises();
+
+            expect(wrapper.emitted('empty-change')).toEqual([[{ type: expectedType }]]);
+        },
+    );
 
     it('should able to show variant name if condition type is equalsAll and definition entity is product', async () => {
         const wrapper = await createWrapper([], 'uuid', 'equalsAll', 'product');

@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Sso\SsoUser;
 
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeCollection;
-use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Defaults;
@@ -110,8 +109,8 @@ class SsoUserInvitationMailService
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', 'admin_sso_user_invite'));
 
-        $result = $this->mailTemplateTypeRepository->search($criteria, $newContext)->getEntities()->first();
-        if (!$result instanceof MailTemplateTypeEntity) {
+        $mailTemplateTypeId = $this->mailTemplateTypeRepository->searchIds($criteria, $newContext)->firstId();
+        if ($mailTemplateTypeId === null) {
             throw SsoException::mailTemplateNotFound();
         }
 
@@ -120,7 +119,7 @@ class SsoUserInvitationMailService
             new MultiFilter(
                 MultiFilter::CONNECTION_AND,
                 [
-                    new EqualsFilter('mailTemplateTypeId', $result->getId()),
+                    new EqualsFilter('mailTemplateTypeId', $mailTemplateTypeId),
                     new EqualsFilter('systemDefault', true),
                 ]
             )

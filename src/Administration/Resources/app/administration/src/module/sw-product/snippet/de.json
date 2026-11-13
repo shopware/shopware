@@ -545,6 +545,12 @@
         "textHasCriteria": "Verfügt über mind. eine Produktbildzuordnung",
         "textNoCriteria": "Keine Produktbilder zugeordnet"
       },
+      "documentsFilter": {
+        "label": "Dokumente",
+        "placeholder": "Wähle einen Dokumentstatus ...",
+        "textHasCriteria": "Verfügt über mind. eine Produktdokumentzuordnung",
+        "textNoCriteria": "Keine Produktdokumente zugeordnet"
+      },
       "releaseDateFilter": {
         "label": "Erscheinungsdatum"
       },

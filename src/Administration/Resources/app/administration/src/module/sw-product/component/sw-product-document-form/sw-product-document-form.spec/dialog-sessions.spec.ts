@@ -3,12 +3,22 @@
  */
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import type { ComponentPublicInstance } from 'vue';
-import { createProduct, cleanupWrappers, createWrapper, createMedia, addMedia, clickButton, getDocuments } from './helpers';
+import {
+    mockSnackbar,
+    createProduct,
+    cleanupWrappers,
+    createWrapper,
+    createMedia,
+    addMedia,
+    clickButton,
+    getDocuments,
+} from './helpers';
 
 describe('sw-product-document-form dialog sessions', () => {
     const originalLanguage = Shopware.Context.api.languageId;
 
     beforeEach(() => {
+        mockSnackbar.mockClear();
         Object.assign(global, { activeAclRoles: ['product.editor'] });
         Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
         const store = Shopware.Store.get('swProductDetail');
@@ -44,6 +54,7 @@ describe('sw-product-document-form dialog sessions', () => {
         await flushPromises();
         expect(getDocuments()).toHaveLength(0);
         expect(notification).not.toHaveBeenCalled();
+        expect(mockSnackbar).not.toHaveBeenCalled();
     });
 
     it('keeps a pending add upload when an unrelated editor is opened and cancelled', async () => {
@@ -148,6 +159,7 @@ describe('sw-product-document-form dialog sessions', () => {
             expect(getDocuments()).toHaveLength(1);
             expect(getDocuments()![0].title).toBe('manual');
             expect(notification).not.toHaveBeenCalled();
+            expect(mockSnackbar).not.toHaveBeenCalled();
 
             settleNew();
             await flushPromises();

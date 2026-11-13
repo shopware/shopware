@@ -907,37 +907,29 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.vm.loadProduct).not.toHaveBeenCalled();
     });
 
-    it.each(['success', 'empty'])('should announce a save that finished with "%s"', async (response) => {
-        const store = Shopware.Store.get('swProductDetail');
-        store.documentSaveNotifications = [
-            { documentId: 'document', name: 'Battery safety data sheet', variantIds: ['first', 'second'] },
-        ];
-        const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
-        wrapper.vm.loadProduct = jest.fn();
-        wrapper.vm.updateSeoPromises = [];
+    it.each(['success', 'empty'])(
+        'emits save success without repeating document Apply notifications for "%s"',
+        async (response) => {
+            const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+            wrapper.vm.loadProduct = jest.fn();
+            wrapper.vm.updateSeoPromises = [];
+            Shopware.Utils.EventBus.emit = jest.fn();
 
-        Shopware.Utils.EventBus.emit = jest.fn();
+            wrapper.vm.onSaveFinished(response);
+            await flushPromises();
 
-        wrapper.vm.onSaveFinished(response);
-        await flushPromises();
-
-        expect(Shopware.Utils.EventBus.emit).toHaveBeenCalledWith('sw-product-detail-save-success');
-        expect(notificationSpy).toHaveBeenCalledWith(
-            expect.objectContaining({ variant: 'success', message: 'sw-product.documentForm.saveSuccess' }),
-        );
-        expect(store.documentSaveNotifications).toHaveLength(0);
-    });
+            expect(Shopware.Utils.EventBus.emit).toHaveBeenCalledWith('sw-product-detail-save-success');
+            expect(notificationSpy).not.toHaveBeenCalledWith(
+                expect.objectContaining({ variant: 'success', message: 'sw-product.documentForm.applySuccess' }),
+            );
+        },
+    );
 
     it('should not announce a save that failed', async () => {
-        const store = Shopware.Store.get('swProductDetail');
-        store.documentSaveNotifications = [
-            { documentId: 'document', name: 'Battery safety data sheet', variantIds: ['first', 'second'] },
-        ];
         const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
         wrapper.vm.loadProduct = jest.fn();
         wrapper.vm.createNotificationError = jest.fn();
         wrapper.vm.updateSeoPromises = [];
-
         Shopware.Utils.EventBus.emit = jest.fn();
 
         wrapper.vm.onSaveFinished({ response: { data: { errors: [{ detail: 'nope' }] } } });
@@ -945,7 +937,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
         expect(Shopware.Utils.EventBus.emit).not.toHaveBeenCalledWith('sw-product-detail-save-success');
         expect(notificationSpy).not.toHaveBeenCalledWith(expect.objectContaining({ variant: 'success' }));
-        expect(store.documentSaveNotifications).toHaveLength(1);
     });
 
     it('loads document language metadata when opening a product', async () => {
@@ -1068,38 +1059,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(languageSwitchInput).toHaveBeenCalledWith('default-language');
         expect(wrapper.getComponent({ ref: 'languageSwitch' }).props('abortChangeFunction')()).toBe(true);
         expect(Shopware.Store.get('swProductDetail').product).toBe(product);
-    });
-
-    it('does not announce discarded variant edits after changing language and saving again', async () => {
-        wrapper.unmount();
-        wrapper = await createWrapper(undefined, undefined, undefined, { hasChanges: false });
-        await flushPromises();
-        const store = Shopware.Store.get('swProductDetail');
-        const originalLanguage = Shopware.Context.api.languageId;
-        const draft = store.product;
-        store.documentSaveNotifications = [
-            { documentId: 'document', name: 'Discarded manual', variantIds: ['variant'] },
-        ];
-        const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
-        const saveEventSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
-
-        try {
-            // The language switch emits this change after the merchant chooses Discard changes.
-            wrapper.getComponent('sw-language-switch-stub').vm.$emit('on-change', 'another-language');
-            await flushPromises();
-            expect(store.product).not.toBe(draft);
-            expect(store.documentSaveNotifications).toHaveLength(0);
-
-            Object.assign(store.product, { prices: [], price: [], slotConfig: null });
-            await wrapper.get('.sw-product-detail__save-action').trigger('click');
-            await flushPromises();
-            expect(saveEventSpy).toHaveBeenCalledWith('sw-product-detail-save-success');
-            expect(notificationSpy).not.toHaveBeenCalledWith(
-                expect.objectContaining({ variant: 'success', message: 'sw-product.documentForm.saveSuccess' }),
-            );
-        } finally {
-            Shopware.Store.get('context').setApiLanguageId(originalLanguage);
-        }
     });
 
     it('should handle success response correctly', async () => {

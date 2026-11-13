@@ -9,25 +9,14 @@
  */
 
 const { createTodoRule } = require('./upgrade-helpers/create-todo-rule');
+const { propertyName } = require('./upgrade-helpers/member-usage');
 const data = require('./no-axios-cancel-token.data');
-
-function keyName(node) {
-    if (node.computed) {
-        return null;
-    }
-
-    if (node.type === 'MemberExpression') {
-        return node.property.type === 'Identifier' ? node.property.name : null;
-    }
-
-    return node.key.type === 'Identifier' ? node.key.name : (node.key.value ?? null);
-}
 
 module.exports = createTodoRule({
     ...data,
     visitors: (context, api) => ({
         MemberExpression(node) {
-            const name = keyName(node);
+            const name = propertyName(node);
 
             if (name === 'CancelToken') {
                 api.todo(node, data.cancelTokenMessage);
@@ -36,7 +25,7 @@ module.exports = createTodoRule({
             }
         },
         Property(node) {
-            const name = keyName(node);
+            const name = propertyName(node);
 
             if (node.parent.type === 'ObjectPattern') {
                 // `const { CancelToken } = Axios`
@@ -71,7 +60,7 @@ module.exports = createTodoRule({
 
             if (
                 callee.type === 'MemberExpression' &&
-                keyName(callee) === 'isCancel' &&
+                propertyName(callee) === 'isCancel' &&
                 callee.object.type === 'Identifier' &&
                 data.axiosObjects.includes(callee.object.name)
             ) {

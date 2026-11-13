@@ -22,9 +22,6 @@ const toCamel = (name) => name.replace(/-([a-z])/g, (_, letter) => letter.toUppe
 
 /**
  * The name of the last segment of an object expression: `product` for `this.product`, `this` for `this`.
- *
- * @param {object} node
- * @returns {string|null}
  */
 function lastName(node) {
     if (node.type === 'Identifier') {

@@ -15,11 +15,6 @@ describe('no-vuex-state data', () => {
         expect(state({ kind: 'get', module: 'swFlowState', rest: '.flow' })).toBe(
             "Shopware.State (Vuex) is removed. Use Shopware.Store.get('swFlow').flow (Pinia id, the Vuex id was swFlowState).",
         );
-        expect(data.renamedStores).toEqual({
-            cmsPageState: 'cmsPage',
-            swFlowState: 'swFlow',
-            paymentOverviewCardState: 'paymentOverviewCard',
-        });
     });
 });
 

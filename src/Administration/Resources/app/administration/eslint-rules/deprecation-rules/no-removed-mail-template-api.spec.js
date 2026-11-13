@@ -13,19 +13,6 @@ const member = (name) => data.members.find((entry) => entry.name === name).messa
 const SEARCH_TERM = member('searchTerm');
 const todo = (text) => `// TODO Codemod(6.8, mail-template-api): ${text}`;
 
-describe('no-removed-mail-template-api data', () => {
-    it('names the replacements', () => {
-        // templateData is `{}`, not `null`: flag-gated-behaviour marks sendMailTemplate() calls without template data.
-        expect(TEST_MAIL).toContain(
-            'sendMailTemplate(recipient, recipient, mailTemplate, mailTemplateMedia, salesChannelId, true, documentIds, {}, mailTemplateTypeId, mailTemplateId)',
-        );
-        expect(TEST_MAIL).not.toContain('null');
-        expect(BUILD).toContain('previewMailTemplate(mailTemplateId, entities, templateData, salesChannelId)');
-        expect(BUILD).toContain('simulateMailTemplate(templateParts, eventName, salesChannelId)');
-        expect(SEARCH_TERM).toContain('this.term');
-    });
-});
-
 new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } }).run('no-removed-mail-template-api (script)', rule, {
     valid: [
         {

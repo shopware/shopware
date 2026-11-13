@@ -6,6 +6,7 @@
  */
 
 const { walk, stringValue } = require('./component-tags');
+const { propertyName } = require('./member-usage');
 
 const cache = new WeakMap();
 
@@ -127,8 +128,16 @@ function serviceCall(node, aliases) {
     return service ? { service, method } : null;
 }
 
+/**
+ * `Shopware.Application.getContainer('factory')` or another `<x>.getContainer('factory')` call.
+ */
+function isFactoryContainer(node) {
+    return node?.type === 'CallExpression' && propertyName(node.callee) === 'getContainer' && stringValue(node.arguments[0]) === 'factory';
+}
+
 module.exports = {
     shopwareAliases,
     memberPath,
     serviceCall,
+    isFactoryContainer,
 };

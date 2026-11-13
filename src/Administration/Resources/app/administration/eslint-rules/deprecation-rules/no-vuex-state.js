@@ -10,21 +10,9 @@
 
 const { createTodoRule } = require('./upgrade-helpers/create-todo-rule');
 const { stringValue } = require('./upgrade-helpers/component-tags');
+const { propertyName } = require('./upgrade-helpers/member-usage');
+const { isFactoryContainer } = require('./upgrade-helpers/global-calls');
 const data = require('./no-vuex-state.data');
-
-/**
- * The key of a member access: `a.b` and `a['b']` → `b`.
- *
- * @param {object} node MemberExpression
- * @returns {string|null}
- */
-function propertyKey(node) {
-    if (node.type !== 'MemberExpression') {
-        return null;
-    }
-
-    return !node.computed && node.property.type === 'Identifier' ? node.property.name : stringValue(node.property);
-}
 
 function isObjectOf(parent, node) {
     return parent?.type === 'MemberExpression' && parent.object === node;
@@ -48,14 +36,9 @@ function splitPath(path) {
     return index > 0 ? { module: path.slice(0, index), name: path.slice(index + 1) } : { module: null, name: path ?? null };
 }
 
-/**
- * The form of a Vuex access `<root>.<key>…`.
- *
- * @param {object} access MemberExpression whose object is the Vuex root
- * @returns {object} see `stateMessage()` in the data file
- */
+/** The form of a Vuex access `<root>.<key>…`, as the `shape` of `stateMessage()` in the data file. */
 function shapeOf(access) {
-    const key = propertyKey(access);
+    const key = propertyName(access);
     const call = isCalleeOf(access.parent, access) ? access.parent : null;
     const argument = call ? stringValue(call.arguments[0]) : null;
 
@@ -65,10 +48,10 @@ function shapeOf(access) {
         case 'state':
             // `$store.state.swFlowState.flow`
             return isObjectOf(access.parent, access)
-                ? { kind: 'get', module: propertyKey(access.parent), rest: restOf(access.parent) }
+                ? { kind: 'get', module: propertyName(access.parent), rest: restOf(access.parent) }
                 : { kind: 'other' };
         case 'getters':
-            return { kind: 'getter', ...splitPath(isObjectOf(access.parent, access) ? propertyKey(access.parent) : null) };
+            return { kind: 'getter', ...splitPath(isObjectOf(access.parent, access) ? propertyName(access.parent) : null) };
         case 'commit':
         case 'dispatch':
             return { kind: key, ...splitPath(argument) };
@@ -85,16 +68,6 @@ function shapeOf(access) {
     }
 }
 
-function isFactoryContainer(node) {
-    const callee = node?.type === 'CallExpression' ? node.callee : null;
-
-    return (
-        callee?.type === 'MemberExpression' &&
-        propertyKey(callee) === 'getContainer' &&
-        stringValue(node.arguments[0]) === 'factory'
-    );
-}
-
 module.exports = createTodoRule({
     ...data,
     visitors: (context, api) => {
@@ -106,7 +79,7 @@ module.exports = createTodoRule({
                 return path;
             }
 
-            if (node.type === 'MemberExpression' && propertyKey(node) === 'state' && isFactoryContainer(node.object)) {
+            if (node.type === 'MemberExpression' && propertyName(node) === 'state' && isFactoryContainer(node.object)) {
                 return "Shopware.Application.getContainer('factory').state";
             }
 
@@ -142,7 +115,7 @@ module.exports = createTodoRule({
                 }
             },
             CallExpression(node) {
-                const callee = node.callee.type === 'Identifier' ? node.callee.name : propertyKey(node.callee);
+                const callee = node.callee.type === 'Identifier' ? node.callee.name : propertyName(node.callee);
 
                 if (Object.hasOwn(data.mapHelpers, callee ?? '')) {
                     api.todo(node, data.mapHelperMessage(callee, stringValue(node.arguments[0])));

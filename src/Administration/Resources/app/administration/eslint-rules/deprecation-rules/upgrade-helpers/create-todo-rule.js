@@ -12,7 +12,8 @@
  * - `calls: [{ service, method }]`: `this.<service>.<method>()`, `Shopware.Service('<service>').<method>()` and
  *   `<service>.<method>()`.
  * - `globals: [{ path }]`: member chains that start with `path`, also through `const { X } = Shopware`.
- * - `literals: [{ value }]`, `imports: [{ source }]`: string literals and import sources (string or RegExp).
+ * - `literals: [{ value }]`, `imports: [{ source }]`: string and template literals, where `${…}` reads as `*`, and
+ *   import sources (string or RegExp).
  * - `events: [{ component, name }]`: `@<name>` on the component's tag and `$emit('<name>')` in its overrides.
  * - `visitors`, `templateVisitors`: extra visitors that get `api.todo(node, message, scope)`.
  */
@@ -77,6 +78,7 @@ function createTodoRule(spec) {
     const literals = spec.literals ?? [];
     const imports = spec.imports ?? [];
     const events = spec.events ?? [];
+    const literalEntry = (text) => literals.find((candidate) => matches(candidate.value, text));
 
     /**
      * A unique name matches anywhere, except in an override of another core component that declares it itself:
@@ -218,13 +220,16 @@ function createTodoRule(spec) {
                     }
                 },
                 Literal(node) {
-                    if (typeof node.value !== 'string' || literals.length === 0) {
-                        return;
+                    const entry = typeof node.value === 'string' && node.parent.type !== 'ImportDeclaration' && literalEntry(node.value);
+
+                    if (entry) {
+                        todo(node, entry.message);
                     }
+                },
+                TemplateLiteral(node) {
+                    const entry = literalEntry(node.quasis.map((quasi) => quasi.value.cooked).join('*'));
 
-                    const entry = literals.find((candidate) => matches(candidate.value, node.value));
-
-                    if (entry && node.parent.type !== 'ImportDeclaration') {
+                    if (entry) {
                         todo(node, entry.message);
                     }
                 },

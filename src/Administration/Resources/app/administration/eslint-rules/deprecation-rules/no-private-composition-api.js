@@ -14,11 +14,7 @@ const data = require('./no-private-composition-api.data');
 const PRIVATE_NAMES = [...Object.keys(data.functions), data.overrideFunction];
 const COMPONENT_PATHS = ['Shopware.Component', 'Component'];
 
-/**
- * The private functions a `const { … } = Shopware.Component` declaration reads.
- *
- * @returns {Array<{ name: string, local: string, node: object }>}
- */
+/** The private functions a `const { … } = Shopware.Component` declaration reads, as `{ name, local, node }`. */
 function destructuredFunctions(declarator, api) {
     if (declarator.id.type !== 'ObjectPattern' || !declarator.init || !COMPONENT_PATHS.includes(api.memberPath(declarator.init))) {
         return [];

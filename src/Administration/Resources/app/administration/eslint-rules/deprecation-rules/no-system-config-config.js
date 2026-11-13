@@ -2,21 +2,17 @@
  * @sw-package framework
  *
  * Upgrade codemod `system-config-schema`: 6.8 removes the flat `config` data of `sw-system-config` and
- * `systemConfigApiService.getConfig()`. The factory marks the members and the service call. The visitors mark
- * - code that replaces `getConfig` of the service, in `addServiceProviderDecorator('systemConfigApiService', …)` or
- *   by assigning to `this.systemConfigApiService.getConfig`, because `sw-system-config` no longer merges its cards,
- * - the Admin API route, also inside template literals.
+ * `systemConfigApiService.getConfig()`. The factory marks the members, the service call and the route. The visitors
+ * mark code that replaces `getConfig` of the service, in `addServiceProviderDecorator('systemConfigApiService', …)` or
+ * by assigning to `this.systemConfigApiService.getConfig`, because `sw-system-config` no longer merges its cards.
  */
 
 const { createTodoRule } = require('./upgrade-helpers/create-todo-rule');
 const { stringValue } = require('./upgrade-helpers/component-tags');
+const { propertyName } = require('./upgrade-helpers/member-usage');
 const data = require('./no-system-config-config.data');
 
 const FUNCTION_TYPES = ['FunctionExpression', 'ArrowFunctionExpression'];
-
-function propertyKey(node) {
-    return node.computed ? stringValue(node.property) : node.property.name;
-}
 
 module.exports = createTodoRule({
     ...data,
@@ -24,14 +20,6 @@ module.exports = createTodoRule({
         const { service, method } = data.decorator;
         const decoratedServices = [];
         const receivers = [`this.${service}`, `Service(${service})`, service];
-
-        const checkRoute = (node, text) => {
-            const route = data.routes.find((entry) => entry.pattern.test(text));
-
-            if (route) {
-                api.todo(node, route.message);
-            }
-        };
 
         const isDecoratedService = (node) =>
             node.type === 'Identifier' &&
@@ -58,21 +46,13 @@ module.exports = createTodoRule({
             AssignmentExpression(node) {
                 const target = node.left;
 
-                if (target.type !== 'MemberExpression' || propertyKey(target) !== method) {
+                if (target.type !== 'MemberExpression' || propertyName(target) !== method) {
                     return;
                 }
 
                 if (isDecoratedService(target.object) || receivers.includes(api.memberPath(target.object))) {
                     api.todo(node, data.decorator.message);
                 }
-            },
-            Literal(node) {
-                if (typeof node.value === 'string' && node.parent.type !== 'ImportDeclaration') {
-                    checkRoute(node, node.value);
-                }
-            },
-            TemplateLiteral(node) {
-                checkRoute(node, node.quasis.map((quasi) => quasi.value.cooked).join('*'));
             },
         };
     },

@@ -5,22 +5,25 @@
  * accesses and destructuring in scripts, and the free identifiers of template expressions.
  */
 
+const { stringValue } = require('./component-tags');
+
 const OPTION_KINDS = ['computed', 'methods', 'watch', 'props', 'inject', 'provide', 'data', 'emits'];
 
-function propertyName(property) {
-    if (!property || property.type !== 'Property') {
+/**
+ * The key of an object property or a member access: `{ a: 1 }`, `{ 'a': 1 }`, `x.a` and `x['a']` → `a`.
+ */
+function propertyName(node) {
+    if (node?.type !== 'Property' && node?.type !== 'MemberExpression') {
         return null;
     }
 
-    if (!property.computed && property.key.type === 'Identifier') {
-        return property.key.name;
+    const key = node.type === 'Property' ? node.key : node.property;
+
+    if (!node.computed && key.type === 'Identifier') {
+        return key.name;
     }
 
-    if (property.key.type === 'Literal') {
-        return String(property.key.value);
-    }
-
-    return null;
+    return key.type === 'Literal' ? String(key.value) : stringValue(key);
 }
 
 /**

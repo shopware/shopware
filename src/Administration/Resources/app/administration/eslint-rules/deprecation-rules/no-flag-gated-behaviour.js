@@ -15,9 +15,6 @@ const data = require('./no-flag-gated-behaviour.data');
 
 /**
  * The names along a member chain: `media.thumbnails[0].url` → `['media', 'thumbnails', 'url']`.
- *
- * @param {object} node
- * @returns {string[]}
  */
 function chainNames(node) {
     if (node.type === 'Identifier') {

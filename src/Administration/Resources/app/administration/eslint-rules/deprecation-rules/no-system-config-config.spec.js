@@ -9,7 +9,7 @@ const data = require('./no-system-config-config.data');
 const member = (name) => data.members.find((entry) => entry.name === name).message;
 const CALL = data.calls[0].message;
 const DECORATOR = data.decorator.message;
-const ROUTE = data.routes[0].message;
+const ROUTE = data.literals[0].message;
 const scriptTodo = (text) => `// TODO Codemod(6.8, system-config-schema): ${text}`;
 const twigTodo = (text) => `{# TODO Codemod(6.8, system-config-schema): ${text} #}`;
 

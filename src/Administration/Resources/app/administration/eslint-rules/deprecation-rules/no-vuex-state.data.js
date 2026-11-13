@@ -23,9 +23,6 @@ const ANY_STORE = 'Shopware.Store.get(id)';
 
 /**
  * `Shopware.Store.get('<pinia id>')` for a Vuex module id, and the note on a renamed id.
- *
- * @param {string|null} module
- * @returns {{ store: string, note: string }}
  */
 function piniaStore(module) {
     if (!module) {
@@ -41,16 +38,10 @@ function piniaStore(module) {
 }
 
 /**
- * The text for a Vuex API, by the form the rule found.
- *
- * @param {string} label how the code reaches Vuex, e.g. `Shopware.State` or `this.$store`
- * @param {object} shape
- * @param {string} shape.kind `get`, `getter`, `commit`, `dispatch`, `registerModule`, `unregisterModule`, `watch`,
- *     `subscribe`, `subscribeAction`, `list` or `other`
- * @param {string|null} [shape.module] the Vuex module id, when it is a literal
- * @param {string|null} [shape.name] the getter, mutation or action
- * @param {string} [shape.rest] the property read from the store, e.g. `.flow`
- * @returns {string}
+ * The text for a Vuex API, by the form the rule found. `label` is how the code reaches Vuex, e.g. `Shopware.State`.
+ * `kind` is `get`, `getter`, `commit`, `dispatch`, `registerModule`, `unregisterModule`, `watch`, `subscribe`,
+ * `subscribeAction`, `list` or `other`; `module` (the Vuex module id) and `name` (getter, mutation or action) are set
+ * when they are literals; `rest` is the property read from the store, e.g. `.flow`.
  */
 function stateMessage(label, { kind, module = null, name = null, rest = '' }) {
     const { store, note } = piniaStore(module);
@@ -106,11 +97,7 @@ const mapHelpers = {
     mapVuexActions: 'mapActions',
 };
 
-/**
- * @param {string} helper e.g. `mapVuexState`
- * @param {string|null} module the namespace argument, when it is a literal
- * @returns {string}
- */
+/** The text for a `mapVuex*` helper; `module` is its namespace argument, when it is a literal. */
 function mapHelperMessage(helper, module) {
     const { store, note } = piniaStore(module);
 
@@ -123,8 +110,6 @@ function mapHelperMessage(helper, module) {
 module.exports = {
     id: 'vuex-state',
     description: 'Marks Vuex APIs, which 6.8 removes in favor of Pinia stores in Shopware.Store',
-    renamedStores,
-    removedStores,
     stateMessage,
     mapHelpers,
     mapHelperMessage,

@@ -8,7 +8,7 @@ const data = require('./no-order-promotion-toggle.data');
 
 const message = (name) => data.members.find((entry) => entry.name === name).message;
 const CALL = data.calls[0].message;
-const ROUTE = data.routes[0].message;
+const ROUTE = data.literals[0].message;
 const scriptTodo = (text) => `// TODO Codemod(6.8, order-promotion-toggle): ${text}`;
 
 new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } }).run('no-order-promotion-toggle (script)', rule, {

@@ -28,8 +28,7 @@ module.exports = {
     calls: [
         { service: 'orderService', method: 'toggleAutomaticPromotions', message: 'orderService.toggleAutomaticPromotions() is removed. Use orderService.applyAutomaticPromotions(orderId, versionId); it responds with { errors } instead of a cart.' },
     ],
-    /** Matched in string and template literals, because the route usually contains the order id. */
-    routes: [
-        { pattern: /\/toggleAutomaticPromotions\b/, message: 'The Admin API route /api/_action/order/{orderId}/toggleAutomaticPromotions is removed. Use /api/_action/order/{orderId}/applyAutomaticPromotions; it responds with { errors } instead of a cart.' },
+    literals: [
+        { value: /\/toggleAutomaticPromotions\b/, message: 'The Admin API route /api/_action/order/{orderId}/toggleAutomaticPromotions is removed. Use /api/_action/order/{orderId}/applyAutomaticPromotions; it responds with { errors } instead of a cart.' },
     ],
 };

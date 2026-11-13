@@ -16,9 +16,6 @@ const toKebab = (name) => name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCas
 
 /**
  * The attribute as written in the data table: `is-editing` for `:is-editing`, `@loading-change` for listeners.
- *
- * @param {object} attribute VAttribute
- * @returns {string|null}
  */
 function attributeKey(attribute) {
     if (!attribute.directive) {

@@ -31,8 +31,7 @@ module.exports = {
         method: 'getConfig',
         message: 'sw-system-config no longer merges cards from a decorated systemConfigApiService.getConfig(). Decorate getSchema(domain) instead and return tabs [{ name, title, cards }].',
     },
-    /** Matched in string and template literals. */
-    routes: [
-        { pattern: /system-config\/schema(?![\w-])/, message: 'The Admin API route /api/_action/system-config/schema is removed. Use /api/_action/system-config/get-schema; it returns tabs [{ name, title, cards }] instead of cards.' },
+    literals: [
+        { value: /system-config\/schema(?![\w-])/, message: 'The Admin API route /api/_action/system-config/schema is removed. Use /api/_action/system-config/get-schema; it returns tabs [{ name, title, cards }] instead of cards.' },
     ],
 };

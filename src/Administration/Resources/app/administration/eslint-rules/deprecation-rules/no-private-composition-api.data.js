@@ -22,10 +22,7 @@ const functions = {
     getOverrideComponents: `Shopware.Component.getOverrideComponents() is private in 6.8. ${OVERRIDE_SFC}`,
 };
 
-/**
- * @param {string|null} component the target of `overrideComponentSetup()(name, …)`, when it is a literal
- * @returns {string}
- */
+/** The text for `overrideComponentSetup()(name, …)`, with `component` = `name` when it is a literal. */
 function overrideMessage(component) {
     return (
         'The Composition API extension system is private in 6.8. ' +

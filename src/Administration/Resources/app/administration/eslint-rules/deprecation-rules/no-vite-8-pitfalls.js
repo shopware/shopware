@@ -25,9 +25,6 @@ const manifests = new Map();
 
 /**
  * `@scope/name/sub/path` → `{ name: '@scope/name', subpath: 'sub/path' }`.
- *
- * @param {string} specifier
- * @returns {{ name: string|null, subpath: string }}
  */
 function splitSpecifier(specifier) {
     const parts = specifier.split('/');
@@ -40,10 +37,6 @@ function splitSpecifier(specifier) {
     return { name: parts.slice(0, length).join('/'), subpath: parts.slice(length).join('/') };
 }
 
-/**
- * @param {string} file
- * @returns {object|null}
- */
 function readManifest(file) {
     if (!manifests.has(file)) {
         let manifest = null;
@@ -62,10 +55,6 @@ function readManifest(file) {
 
 /**
  * The `package.json` of `name` as seen from `directory`, falling back to the Administration's `node_modules`.
- *
- * @param {string} name
- * @param {string} directory
- * @returns {object|null}
  */
 function findManifest(name, directory) {
     const candidates = [];
@@ -109,9 +98,6 @@ function hasEsmTarget(exports) {
 
 /**
  * Whether a package ships only CommonJS according to its `package.json`.
- *
- * @param {object} manifest
- * @returns {boolean}
  */
 function isCommonJsOnly(manifest) {
     if (manifest.type === 'module' || manifest.module || manifest['jsnext:main'] || manifest.es2015) {
@@ -127,10 +113,6 @@ function isCommonJsOnly(manifest) {
 
 /**
  * Whether a default import of `specifier` from `directory` reads a CommonJS-only module.
- *
- * @param {string} specifier
- * @param {string} directory
- * @returns {boolean}
  */
 function importsCommonJs(specifier, directory) {
     // A query (`?raw`, `?url`) makes Vite load the file as an asset, not as a module.

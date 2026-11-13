@@ -8,34 +8,15 @@
  */
 
 const { createTodoRule } = require('./upgrade-helpers/create-todo-rule');
-const { stringValue } = require('./upgrade-helpers/component-tags');
+const { propertyName } = require('./upgrade-helpers/member-usage');
+const { isFactoryContainer } = require('./upgrade-helpers/global-calls');
 const data = require('./no-worker-notification.data');
-
-function keyName(node) {
-    if (node.computed) {
-        return stringValue(node.type === 'MemberExpression' ? node.property : node.key);
-    }
-
-    const key = node.type === 'MemberExpression' ? node.property : node.key;
-
-    return key.type === 'Identifier' ? key.name : stringValue(key);
-}
-
-/** `Shopware.Application.getContainer('factory')` and other `<x>.getContainer('factory')` calls. */
-function isFactoryContainer(node) {
-    return (
-        node.type === 'CallExpression' &&
-        node.callee.type === 'MemberExpression' &&
-        keyName(node.callee) === 'getContainer' &&
-        stringValue(node.arguments[0]) === 'factory'
-    );
-}
 
 module.exports = createTodoRule({
     ...data,
     visitors: (context, api) => ({
         MemberExpression(node) {
-            const name = keyName(node);
+            const name = propertyName(node);
 
             if (name === data.containerFactory && isFactoryContainer(node.object)) {
                 api.todo(node, data.containerMessage);
@@ -44,7 +25,7 @@ module.exports = createTodoRule({
             }
         },
         Property(node) {
-            if (keyName(node) !== data.configKey) {
+            if (propertyName(node) !== data.configKey) {
                 return;
             }
 

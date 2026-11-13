@@ -9,6 +9,7 @@
 
 const { createTodoRule } = require('./upgrade-helpers/create-todo-rule');
 const { stringValue } = require('./upgrade-helpers/component-tags');
+const { propertyName } = require('./upgrade-helpers/member-usage');
 const data = require('./no-product-advanced-mode.data');
 
 const MESSAGES = new Map(data.members.map((entry) => [entry.name, entry.message]));
@@ -25,15 +26,11 @@ function isStoreCall(node) {
     );
 }
 
-function propertyKey(node) {
-    return node.computed ? stringValue(node.property) : node.property.name;
-}
-
 module.exports = createTodoRule({
     ...data,
     visitors: (context, api) => ({
         MemberExpression(node) {
-            const name = propertyKey(node);
+            const name = propertyName(node);
 
             if (!name || node.object.type === 'ThisExpression') {
                 return;
@@ -43,7 +40,7 @@ module.exports = createTodoRule({
                 api.todo(node, MESSAGES.get(name));
             }
 
-            if (name === data.store.loadingKey && node.object.type === 'MemberExpression' && propertyKey(node.object) === 'loading') {
+            if (name === data.store.loadingKey && node.object.type === 'MemberExpression' && propertyName(node.object) === 'loading') {
                 api.todo(node, data.store.loadingMessage);
             }
         },
@@ -52,7 +49,7 @@ module.exports = createTodoRule({
 
             if (
                 node.callee.type === 'MemberExpression' &&
-                propertyKey(node.callee) === 'setLoading' &&
+                propertyName(node.callee) === 'setLoading' &&
                 argument?.type === 'ArrayExpression' &&
                 stringValue(argument.elements[0]) === data.store.loadingKey
             ) {

@@ -1,4 +1,5 @@
 import template from './sw-media-quickinfo-usage.html.twig';
+import { collectProductUsageOwners } from './product-usage.helper';
 import './sw-media-quickinfo-usage.scss';
 
 const { Application } = Shopware;
@@ -152,7 +153,9 @@ export default {
 
     methods: {
         async createdComponent() {
-            this.loadProductAssociations();
+            const item = this.item;
+            this.isLoading = true;
+            const productAssociations = this.loadProductAssociations();
             this.loadCategoryAssociations();
             this.loadManufacturerAssociations();
             this.loadMailTemplateAssociations();
@@ -161,11 +164,17 @@ export default {
             this.loadPaymentMethodAssociations();
             this.loadShippingMethodAssociations();
             this.loadLayoutAssociations();
-            await this.loadSlotConfigAssociations();
+            try {
+                await Promise.all([productAssociations, this.loadSlotConfigAssociations()]);
+            } finally {
+                if (this.item === item) {
+                    this.isLoading = false;
+                }
+            }
         },
 
         async loadSlotConfigAssociations() {
-            this.isLoading = true;
+            const item = this.item;
 
             const [
                 foundInProducts,
@@ -178,6 +187,10 @@ export default {
                 this.categoryRepository.search(this.slotConfigCriteria),
                 this.cmsPageRepository.search(this.cmsPageBlockConfigCriteria),
             ]);
+
+            if (this.item !== item) {
+                return;
+            }
 
             foundInProducts.forEach((foundInProduct) => {
                 if (this.products && !this.products.some((productMedia) => productMedia.product.id === foundInProduct.id)) {
@@ -198,12 +211,41 @@ export default {
                     this.layouts.push(foundInCmsPage);
                 }
             });
-
-            this.isLoading = false;
         },
 
-        loadProductAssociations() {
-            this.products = [...this.item.productMedia];
+        async loadProductAssociations() {
+            const item = this.item;
+            const productsById = collectProductUsageOwners(item);
+            this.products = [...productsById.values()].filter(Boolean).map((product) => ({ product }));
+
+            if (productsById.size === 0) {
+                return;
+            }
+
+            const criteria = new Criteria(1, productsById.size);
+            criteria.setTotalCountMode(0);
+            criteria.setIds([...productsById.keys()]);
+            criteria.addAssociation('options.group');
+
+            try {
+                const products = await this.productRepository.search(criteria, {
+                    ...Shopware.Context.api,
+                    inheritance: true,
+                });
+                if (this.item !== item) {
+                    return;
+                }
+
+                products.forEach((product) => productsById.set(product.id, product));
+                this.products.forEach(({ product }) => {
+                    if (!productsById.has(product.id)) {
+                        productsById.set(product.id, product);
+                    }
+                });
+                this.products = [...productsById.values()].filter(Boolean).map((product) => ({ product }));
+            } catch {
+                // Keep the directly loaded assignments if variant details are unavailable.
+            }
         },
 
         loadCategoryAssociations() {
@@ -272,7 +314,8 @@ export default {
 
         getProductUsage(product) {
             return {
-                name: product.translated.name,
+                name: product.translated.name || product.productNumber,
+                variations: product.variation,
                 tooltip: this.$t('sw-media.sidebar.usage.tooltipFoundInProducts'),
                 link: {
                     name: 'sw.product.detail',

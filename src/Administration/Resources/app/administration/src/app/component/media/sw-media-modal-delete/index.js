@@ -247,6 +247,7 @@ export default {
             const mediaAssociations = [
                 'categories',
                 'productMedia',
+                'productDocumentTranslations',
                 'productManufacturers',
                 'mailTemplateMedia',
                 'documentBaseConfigs',
@@ -258,7 +259,7 @@ export default {
             ];
 
             return mediaAssociations.some((association) => {
-                return mediaItem[association].length > 0;
+                return (mediaItem[association]?.length ?? 0) > 0;
             });
         },
     },

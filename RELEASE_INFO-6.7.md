@@ -436,7 +436,6 @@ Where a change cannot be made safely, it writes a `TODO Codemod(6.8, <id>)` comm
 The same comments mark code that uses APIs which are removed or private in 6.8 without a mechanical replacement:
 Vuex `Shopware.State`, axios `CancelToken`, `Shopware.WorkerNotification`, the Composition API extension system, removed service methods, mail template and CMS helpers, CommonJS default imports under Vite 8, and members removed from order, product, settings and media components.
 The report lists these spots under "Needs manual work" until they are resolved, and a second run does not write them again.
-The command now also checks an extension's own `vite.config.*`.
 
 `composer run admin:code-mods` is deprecated and will be removed with Shopware 6.8.
 It now prints a deprecation warning.

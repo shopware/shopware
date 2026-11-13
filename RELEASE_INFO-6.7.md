@@ -571,6 +571,14 @@ Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-
 
 ## Administration
 
+### Order viewers no longer receive delete privileges
+
+The `order.viewer` permission no longer grants `order:delete` or `version:delete`, and viewing an order no longer creates a working version.
+Existing viewer roles lose `order:delete` during the update unless they also have `order.editor` or `order.deleter`.
+Existing `version:delete` grants are preserved because other modules and extensions may require them.
+Editor roles still require both grants to discard working versions.
+Custom roles without the `order.viewer` marker are unchanged.
+Extensions that require `order:delete` alongside `order.viewer` must explicitly restore that grant for the affected roles after the migration.
 ### Deprecated the unused visibilities and sales channels in the sales channel detail
 
 Some sales channel detail components load the visibilities or sales channels of their products and currencies, although they only need one of them or none.

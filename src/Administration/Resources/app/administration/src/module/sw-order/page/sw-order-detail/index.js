@@ -586,6 +586,10 @@ export default {
             this.versionRequestId += 1;
             const requestId = this.versionRequestId;
 
+            if (!this.acl.can('order.editor')) {
+                return this.reloadEntityData(false);
+            }
+
             return this.orderRepository.createVersion(orderId).then((newContext) => {
                 if (requestId !== this.versionRequestId) {
                     this.orderRepository.deleteVersion(orderId, newContext.versionId);

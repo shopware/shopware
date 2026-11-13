@@ -51,8 +51,8 @@ class RecoverAppSecretsCommand extends Command
     {
         $this->addArgument('name', InputArgument::OPTIONAL, 'The name of the app');
         $this->addOption('list', null, InputOption::VALUE_NONE, 'On the copy: print every secret it holds, with ShopId and expiry. The output contains live app secrets.');
-        $this->addOption('start', null, InputOption::VALUE_NONE, 'On the copy: print the secrets the original shop needs, one per line with the app name in front. The output contains live app secrets.');
-        $this->addOption('finish', null, InputOption::VALUE_NONE, 'On the original shop: read the lines printed by --start from standard input and register with each app again');
+        $this->addOption('start', null, InputOption::VALUE_NONE, 'On the copy: print the secrets the original shop needs, as JSON. The output contains live app secrets.');
+        $this->addOption('finish', null, InputOption::VALUE_NONE, 'On the original shop: read the JSON printed by --start from standard input and register with each app again');
         $this->addOption('all', null, InputOption::VALUE_NONE, 'With --list or --start: all apps instead of one');
     }
 
@@ -164,13 +164,16 @@ class RecoverAppSecretsCommand extends Command
      */
     private function printHandover(array $rows, OutputInterface $output): void
     {
+        $handover = [];
         foreach ($this->groupByApp($rows) as $appName => $appRows) {
             $kept = array_filter($appRows, static fn (array $row): bool => $row['kept']);
 
             foreach ($kept !== [] ? $kept : $appRows as $row) {
-                $output->writeln($appName . ' ' . $row['secret'], OutputInterface::OUTPUT_RAW);
+                $handover[] = ['app' => $appName, 'secret' => $row['secret']];
             }
         }
+
+        $output->writeln(json_encode($handover, \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT), OutputInterface::OUTPUT_RAW);
     }
 
     /**
@@ -192,7 +195,7 @@ class RecoverAppSecretsCommand extends Command
     {
         $secretsByApp = $this->readHandover($input);
         if ($secretsByApp === null) {
-            $io->error('Every line must hold an app name and a secret, separated by a space.');
+            $io->error('Standard input must be the JSON printed by --start.');
 
             return self::FAILURE;
         }
@@ -238,19 +241,18 @@ class RecoverAppSecretsCommand extends Command
     {
         $stream = $input instanceof StreamableInputInterface ? $input->getStream() : null;
 
-        $secretsByApp = [];
-        foreach (explode("\n", (string) stream_get_contents($stream ?? \STDIN)) as $line) {
-            $line = trim($line);
-            if ($line === '') {
-                continue;
-            }
+        $handover = json_decode((string) stream_get_contents($stream ?? \STDIN), true);
+        if (!\is_array($handover) || !array_is_list($handover)) {
+            return null;
+        }
 
-            $parts = preg_split('/\s+/', $line);
-            if ($parts === false || \count($parts) !== 2) {
+        $secretsByApp = [];
+        foreach ($handover as $entry) {
+            if (!\is_array($entry) || !\is_string($entry['app'] ?? null) || !\is_string($entry['secret'] ?? null)) {
                 return null;
             }
 
-            $secretsByApp[$parts[0]][] = $parts[1];
+            $secretsByApp[$entry['app']][] = $entry['secret'];
         }
 
         return $secretsByApp;

@@ -67,7 +67,7 @@ const MUTATION_ERROR_SNIPPETS: Record<string, string> = {
     CONTENT_SYSTEM__MUTATION_SLOT_REQUIRED: 'sw-experience-studio.detail.mutationErrors.invalidStructure',
     CONTENT_SYSTEM__MUTATION_INVALID_WRAP_TARGETS: 'sw-experience-studio.detail.mutationErrors.invalidStructure',
     CONTENT_SYSTEM__INVALID_LAYOUT_STRUCTURE: 'sw-experience-studio.detail.mutationErrors.invalidStructure',
-    CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED: 'sw-experience-studio.detail.messageBindingRootSourceNotScoped',
+    CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED: 'sw-experience-studio.detail.mutationErrors.bindingRootSourceNotScoped',
 };
 
 type WorkspaceAction = { type: 'open'; id: string } | { type: 'create'; name: string } | { type: 'delete'; id: string };

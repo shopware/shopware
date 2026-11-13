@@ -1075,13 +1075,13 @@
         "targetNotFound": "The selected element is no longer available. Select an existing element before editing it.",
         "unknownElementType": "This element type is no longer available. Choose an available element type.",
         "invalidStructure": "This change is not valid for the current layout structure. Review the selected elements and their positions.",
+        "bindingRootSourceNotScoped": "This element is not available for this layout type. Choose a different element or preset.",
         "generic": "The layout edit could not be applied. Review your changes or contact your administrator."
       },
       "messageSaved": "Content layout saved successfully.",
       "messageSaveError": "The content layout could not be saved.",
       "messageSaveErrorDetail": "The content layout could not be saved: {detail}",
       "messageReloadError": "The content layout was saved but could not be reloaded.",
-      "messageBindingRootSourceNotScoped": "This element is not available for this layout type. Choose a different element or preset.",
       "messageDiagnoseError": "The layout could not be checked. Diagnostic results are unavailable."
     },
     "presets": {

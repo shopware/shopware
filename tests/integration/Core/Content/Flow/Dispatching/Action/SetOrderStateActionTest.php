@@ -11,10 +11,14 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
+use Shopware\Core\Content\Flow\Dispatching\BufferedFlowExecutor;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Content\Flow\FlowCollection;
 use Shopware\Core\Content\Test\Flow\OrderActionTrait;
@@ -22,9 +26,13 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
+use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\StateMachine\Transition;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
@@ -47,6 +55,11 @@ class SetOrderStateActionTest extends TestCase
     private EntityRepository $orderDeliveryRepository;
 
     /**
+     * @var EntityRepository<OrderTransactionCollection>
+     */
+    private EntityRepository $orderTransactionRepository;
+
+    /**
      * @var EntityRepository<FlowCollection>
      */
     private EntityRepository $flowRepository;
@@ -61,6 +74,7 @@ class SetOrderStateActionTest extends TestCase
 
         $this->customerRepository = static::getContainer()->get('customer.repository');
         $this->orderDeliveryRepository = static::getContainer()->get('order_delivery.repository');
+        $this->orderTransactionRepository = static::getContainer()->get('order_transaction.repository');
 
         $this->ids = new IdsCollection();
 
@@ -223,6 +237,213 @@ class SetOrderStateActionTest extends TestCase
         static::assertSame('shipped', $oderDeliveryForShippingCosts->getStateMachineState()?->getTechnicalName());
     }
 
+    public function testSetStateOnPrimaryOrderDeliveryWithLowerShippingCosts(): void
+    {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
+        $this->createCustomerAndLogin();
+
+        $orderId = $this->ids->get('order');
+        $primaryOrderDeliveryId = $this->ids->get('primary-delivery');
+        $otherOrderDeliveryId = $this->ids->get('other-delivery');
+
+        $this->createOrder($this->ids->get('customer'), [
+            'id' => $orderId,
+            'primaryOrderDeliveryId' => $primaryOrderDeliveryId,
+            'deliveries' => [
+                $this->generateOrderDeliveryPayload([
+                    'id' => $primaryOrderDeliveryId,
+                    'shippingCosts' => new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                ]),
+                $this->generateOrderDeliveryPayload([
+                    'id' => $otherOrderDeliveryId,
+                    'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                ]),
+            ],
+        ]);
+
+        $context = Generator::generateSalesChannelContext();
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $context->getContext())->getEntities()->first();
+        static::assertInstanceOf(OrderEntity::class, $order);
+
+        $flow = static::getContainer()->get(FlowFactory::class)->create(new CheckoutOrderPlacedEvent($context, $order));
+        $flow->setConfig(['order_delivery' => 'shipped']);
+
+        $action = new SetOrderStateAction(
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(OrderService::class),
+        );
+        $action->handleFlow($flow);
+
+        $criteria = new Criteria([$primaryOrderDeliveryId, $otherOrderDeliveryId]);
+        $criteria->addAssociation('stateMachineState');
+        $orderDeliveries = $this->orderDeliveryRepository->search($criteria, $context->getContext())->getEntities();
+
+        static::assertSame('shipped', $orderDeliveries->get($primaryOrderDeliveryId)?->getStateMachineState()?->getTechnicalName());
+        static::assertSame('open', $orderDeliveries->get($otherOrderDeliveryId)?->getStateMachineState()?->getTechnicalName());
+    }
+
+    public function testSetStateIgnoresPrimaryOrderDeliveryOfAnotherOrder(): void
+    {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
+        $this->createCustomerAndLogin();
+        $customerId = $this->ids->get('customer');
+
+        $ids = $this->ids;
+        $this->ids = new IdsCollection();
+        $this->createOrder($customerId, ['id' => $ids->get('other-order')]);
+        $otherOrderDeliveryId = $this->ids->get('delivery');
+        $this->ids = $ids;
+
+        $orderId = $this->ids->get('order');
+        $orderDeliveryId = $this->ids->get('own-delivery');
+
+        $this->createOrder($customerId, [
+            'id' => $orderId,
+            'primaryOrderDeliveryId' => $otherOrderDeliveryId,
+            'deliveries' => [
+                $this->generateOrderDeliveryPayload(['id' => $orderDeliveryId]),
+            ],
+        ]);
+
+        $context = Generator::generateSalesChannelContext();
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $context->getContext())->getEntities()->first();
+        static::assertInstanceOf(OrderEntity::class, $order);
+
+        $flow = static::getContainer()->get(FlowFactory::class)->create(new CheckoutOrderPlacedEvent($context, $order));
+        $flow->setConfig(['order_delivery' => 'shipped']);
+
+        $action = new SetOrderStateAction(
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(OrderService::class),
+        );
+        $action->handleFlow($flow);
+
+        $criteria = new Criteria([$orderDeliveryId, $otherOrderDeliveryId]);
+        $criteria->addAssociation('stateMachineState');
+        $orderDeliveries = $this->orderDeliveryRepository->search($criteria, $context->getContext())->getEntities();
+
+        static::assertSame('shipped', $orderDeliveries->get($orderDeliveryId)?->getStateMachineState()?->getTechnicalName());
+        static::assertSame('open', $orderDeliveries->get($otherOrderDeliveryId)?->getStateMachineState()?->getTechnicalName());
+    }
+
+    public function testSetStateOnPrimaryOrderTransactionThatIsNotTheNewest(): void
+    {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
+        $this->createCustomerAndLogin();
+
+        $orderId = $this->ids->get('order');
+        $primaryOrderTransactionId = $this->ids->get('primary-transaction');
+        $newestOrderTransactionId = $this->ids->get('newest-transaction');
+
+        $this->createOrder($this->ids->get('customer'), [
+            'id' => $orderId,
+            'primaryOrderTransactionId' => $primaryOrderTransactionId,
+            'transactions' => [
+                $this->generateOrderTransactionPayload([
+                    'id' => $primaryOrderTransactionId,
+                    'createdAt' => (new \DateTimeImmutable('-1 day'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                ]),
+                $this->generateOrderTransactionPayload(['id' => $newestOrderTransactionId]),
+            ],
+        ]);
+
+        $this->runOrderTransactionAction($orderId, OrderTransactionStates::STATE_PAID);
+
+        $criteria = new Criteria([$primaryOrderTransactionId, $newestOrderTransactionId]);
+        $criteria->addAssociation('stateMachineState');
+        $orderTransactions = $this->orderTransactionRepository->search($criteria, Context::createDefaultContext())->getEntities();
+
+        static::assertSame(OrderTransactionStates::STATE_PAID, $orderTransactions->get($primaryOrderTransactionId)?->getStateMachineState()?->getTechnicalName());
+        static::assertSame(OrderTransactionStates::STATE_OPEN, $orderTransactions->get($newestOrderTransactionId)?->getStateMachineState()?->getTechnicalName());
+    }
+
+    public function testSetStateIgnoresPrimaryOrderTransactionOfAnotherOrder(): void
+    {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
+        $this->createCustomerAndLogin();
+        $customerId = $this->ids->get('customer');
+        $otherOrderTransactionId = $this->ids->get('other-transaction');
+
+        $ids = $this->ids;
+        $this->ids = new IdsCollection();
+        $this->createOrder($customerId, [
+            'id' => $ids->get('other-order'),
+            'transactions' => [$this->generateOrderTransactionPayload(['id' => $otherOrderTransactionId])],
+        ]);
+        $this->ids = $ids;
+
+        $orderId = $this->ids->get('order');
+        $orderTransactionId = $this->ids->get('own-transaction');
+
+        $this->createOrder($customerId, [
+            'id' => $orderId,
+            'primaryOrderTransactionId' => $otherOrderTransactionId,
+            'transactions' => [$this->generateOrderTransactionPayload(['id' => $orderTransactionId])],
+        ]);
+
+        $this->runOrderTransactionAction($orderId, OrderTransactionStates::STATE_PAID);
+
+        $criteria = new Criteria([$orderTransactionId, $otherOrderTransactionId]);
+        $criteria->addAssociation('stateMachineState');
+        $orderTransactions = $this->orderTransactionRepository->search($criteria, Context::createDefaultContext())->getEntities();
+
+        static::assertSame(OrderTransactionStates::STATE_PAID, $orderTransactions->get($orderTransactionId)?->getStateMachineState()?->getTechnicalName());
+        static::assertSame(OrderTransactionStates::STATE_OPEN, $orderTransactions->get($otherOrderTransactionId)?->getStateMachineState()?->getTechnicalName());
+    }
+
+    public function testTransactionStateFlowSetsTheStateOfTheTransactionItWasTriggeredFor(): void
+    {
+        $this->flowRepository->create([[
+            'name' => 'Pay authorized transactions',
+            'eventName' => 'state_enter.order_transaction.state.authorized',
+            'active' => true,
+            'sequences' => [
+                [
+                    'actionName' => SetOrderStateAction::getName(),
+                    'config' => ['order_transaction' => OrderTransactionStates::STATE_PAID],
+                ],
+            ],
+        ]], Context::createDefaultContext());
+
+        $this->createCustomerAndLogin();
+
+        $triggeringOrderTransactionId = $this->ids->get('triggering-transaction');
+        $primaryOrderTransactionId = $this->ids->get('primary-transaction');
+
+        $this->createOrder($this->ids->get('customer'), [
+            'primaryOrderTransactionId' => $primaryOrderTransactionId,
+            'transactions' => [
+                $this->generateOrderTransactionPayload([
+                    'id' => $triggeringOrderTransactionId,
+                    'createdAt' => (new \DateTimeImmutable('-1 day'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                ]),
+                $this->generateOrderTransactionPayload(['id' => $primaryOrderTransactionId]),
+            ],
+        ]);
+
+        static::getContainer()->get(StateMachineRegistry::class)->transition(
+            new Transition(
+                OrderTransactionDefinition::ENTITY_NAME,
+                $triggeringOrderTransactionId,
+                StateMachineTransitionActions::ACTION_AUTHORIZE,
+                'stateId',
+            ),
+            Context::createDefaultContext(),
+        );
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
+
+        $criteria = new Criteria([$triggeringOrderTransactionId, $primaryOrderTransactionId]);
+        $criteria->addAssociation('stateMachineState');
+        $orderTransactions = $this->orderTransactionRepository->search($criteria, Context::createDefaultContext())->getEntities();
+
+        static::assertSame(OrderTransactionStates::STATE_PAID, $orderTransactions->get($triggeringOrderTransactionId)?->getStateMachineState()?->getTechnicalName());
+        static::assertSame(OrderTransactionStates::STATE_OPEN, $orderTransactions->get($primaryOrderTransactionId)?->getStateMachineState()?->getTechnicalName());
+    }
+
     /**
      * @param array<int|string, mixed> $payload
      *
@@ -252,6 +473,36 @@ class SetOrderStateActionTest extends TestCase
         );
 
         return $payload;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     *
+     * @return array<string, mixed>
+     */
+    private function generateOrderTransactionPayload(array $payload): array
+    {
+        return array_merge([
+            'paymentMethodId' => $this->getValidPaymentMethodId(),
+            'stateId' => $this->getStateId(OrderTransactionStates::STATE_OPEN, OrderTransactionStates::STATE_MACHINE),
+            'amount' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+        ], $payload);
+    }
+
+    private function runOrderTransactionAction(string $orderId, string $orderTransactionState): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $context->getContext())->getEntities()->first();
+        static::assertInstanceOf(OrderEntity::class, $order);
+
+        $flow = static::getContainer()->get(FlowFactory::class)->create(new CheckoutOrderPlacedEvent($context, $order));
+        $flow->setConfig(['order_transaction' => $orderTransactionState]);
+
+        $action = new SetOrderStateAction(
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(OrderService::class),
+        );
+        $action->handleFlow($flow);
     }
 
     private function prepareFlowSequences(string $orderState, string $orderDeliveryState, string $orderTransactionState): void

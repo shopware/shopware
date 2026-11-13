@@ -53,6 +53,7 @@ class DocumentGenerationRequestResolverTest extends TestCase
             'documentDate' => '2026-07-13T00:00:00.000+00:00',
             'deliveryDate' => '2026-07-15T00:00:00.000+00:00',
             'referencedDocumentId' => '018f5972f9ea72a0be49f7c39f72a2a2',
+            'orderDeliveryId' => '018f5972f9ea72a0be49f7c39f72a2a3',
         ]);
 
         $result = $this->resolveRequest($request);
@@ -65,6 +66,7 @@ class DocumentGenerationRequestResolverTest extends TestCase
         static::assertSame('2026-07-13T00:00:00.000+00:00', $result->documentDate);
         static::assertSame('2026-07-15T00:00:00.000+00:00', $result->deliveryDate);
         static::assertSame('018f5972f9ea72a0be49f7c39f72a2a2', $result->referencedDocumentId);
+        static::assertSame('018f5972f9ea72a0be49f7c39f72a2a3', $result->orderDeliveryId);
     }
 
     public function testResolveBuildsDocumentGenerationRequestFromPreviewPayload(): void
@@ -85,6 +87,7 @@ class DocumentGenerationRequestResolverTest extends TestCase
         static::assertNull($result->documentComment);
         static::assertNull($result->deliveryDate);
         static::assertNull($result->referencedDocumentId);
+        static::assertNull($result->orderDeliveryId);
     }
 
     #[DataProvider('malformedDateProvider')]
@@ -138,18 +141,28 @@ class DocumentGenerationRequestResolverTest extends TestCase
         yield 'date without time' => ['2026-07-13'];
     }
 
-    public function testResolveRejectsAMalformedReferencedDocumentId(): void
+    #[DataProvider('malformedIdProvider')]
+    public function testResolveRejectsAMalformedId(string $field): void
     {
         $request = $this->createRequest([
             'orderId' => '018f5972f9ea72a0be49f7c39f72a2a0',
             'documentType' => DocumentType::INVOICE->value,
             'format' => DocumentFormat::HTML->value,
-            'referencedDocumentId' => 'not-a-uuid',
+            $field => 'not-a-uuid',
         ]);
 
         $this->expectException(ConstraintViolationException::class);
 
         $this->resolveRequest($request);
+    }
+
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function malformedIdProvider(): \Generator
+    {
+        yield 'referencedDocumentId must be a UUID' => ['referencedDocumentId'];
+        yield 'orderDeliveryId must be a UUID' => ['orderDeliveryId'];
     }
 
     public function testResolveRejectsUnsupportedFormats(): void

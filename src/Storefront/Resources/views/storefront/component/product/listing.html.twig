@@ -44,7 +44,7 @@
                                 {% block element_product_listing_pagination_nav_top %}
                                     {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
                                         entities: searchResult,
-                                        fallbackUrl: paginationFallbackUrl,
+                                        fallbackUrl: paginationFallbackUrl ?? null,
                                         paginationLocation: 'top',
                                     } %}
                                 {% endblock %}

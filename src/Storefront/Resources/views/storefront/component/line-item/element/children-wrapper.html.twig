@@ -15,7 +15,7 @@
                                     </span>
                                 {% endblock %}
 
-                                {% if isChangeable %}
+                                {% if isChangeable ?? false %}
                                     {% block component_line_item_children_change_action %}
                                         <button class="line-item-change-button">
                                             {{ 'checkout.lineItemContainerChangeLink'|trans }}

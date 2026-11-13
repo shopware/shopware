@@ -64,7 +64,7 @@
                                            value="{{ redirectTo }}">
                                     <input type="hidden"
                                            name="redirectParameters"
-                                           value="{{ redirectParameters }}">
+                                           value="{{ redirectParameters ?? null }}">
                                 {% endblock %}
 
                                 {% block component_line_item_quantity_select %}

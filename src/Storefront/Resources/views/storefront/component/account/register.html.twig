@@ -41,7 +41,7 @@
 
                         <input type="hidden"
                                name="errorParameters"
-                               value="{{ errorParameters }}">
+                               value="{{ errorParameters ?? null }}">
                     {% endblock %}
 
                     {% block component_account_register_personal %}

@@ -6,6 +6,7 @@
 
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
+import EntityFactory from 'src/core/data/entity-factory.data';
 import { nextTick } from 'vue';
 
 async function createWrapper() {
@@ -67,6 +68,7 @@ async function createWrapper() {
                 'sw-text-editor': true,
 
                 'sw-product-media-form': true,
+                'sw-product-document-form': true,
                 'sw-entity-single-select': true,
                 'sw-help-text': true,
                 'sw-text-field': true,
@@ -85,6 +87,7 @@ async function createWrapper() {
                 },
             },
             provide: {
+                entityFactory: new EntityFactory(),
                 mediaDefaultFolderService: {
                     getDefaultFolderId: () => Promise.resolve('default-folder-id'),
                 },

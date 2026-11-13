@@ -1,0 +1,36 @@
+{% block sw_product_document_empty_state %}
+<div
+    class="sw-product-document-empty-state"
+    :class="{ 'sw-product-document-empty-state--translated': !isDefaultLanguage }"
+>
+    <mt-empty-state
+        centered
+        icon="regular-file-text"
+        :headline="$t('sw-product.documentForm.emptyState')"
+        :description="isDefaultLanguage ? $t('sw-product.documentForm.emptyDescription') : undefined"
+    >
+        <template
+            v-if="isDefaultLanguage"
+            #button
+        >
+            {% block sw_product_document_empty_state_add %}
+            <mt-button
+                :disabled="!canAddDocuments"
+                size="small"
+                variant="secondary"
+                @click="$emit('documents-add')"
+            >
+                {{ $t('sw-product.documentForm.buttonAdd') }}
+            </mt-button>
+            {% endblock %}
+        </template>
+    </mt-empty-state>
+
+    <mt-text
+        v-if="!isDefaultLanguage"
+        size="xs"
+    >
+        {{ $t('sw-product.documentForm.switchContentLanguage') }}
+    </mt-text>
+</div>
+{% endblock %}

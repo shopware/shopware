@@ -401,6 +401,8 @@ class SalesChannelEntity extends Entity
 
     public function getMaintenancePassword(): ?string
     {
+        $this->checkIfPropertyAccessIsAllowed('maintenancePassword');
+
         return $this->maintenancePassword;
     }
 
@@ -411,6 +413,8 @@ class SalesChannelEntity extends Entity
 
     public function getMaintenancePasswordGeneration(): ?string
     {
+        $this->checkIfPropertyAccessIsAllowed('maintenancePasswordGeneration');
+
         return $this->maintenancePasswordGeneration;
     }
 

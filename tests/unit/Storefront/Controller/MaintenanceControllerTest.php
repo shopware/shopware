@@ -139,6 +139,8 @@ class MaintenanceControllerTest extends TestCase
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame('/frontend.maintenance.password.page', $response->getTargetUrl());
         static::assertFalse($session->has('maintenance_access_' . self::SALES_CHANNEL_ID));
+        static::assertInstanceOf(Session::class, $session);
+        static::assertSame(['general.maintenancePasswordInvalid'], $session->getFlashBag()->get('danger'));
     }
 
     public function testMaintenancePasswordLongerThanShopwareMaximumDoesNotCreateSessionGrant(): void
@@ -180,13 +182,33 @@ class MaintenanceControllerTest extends TestCase
         static::assertSame('/frontend.maintenance.page', $response->getTargetUrl());
     }
 
+    public function testSinglePageRedirectsToMaintenancePageWhilePasswordIsRequired(): void
+    {
+        $maintenanceModeResolver = static::createStub(MaintenanceModeResolver::class);
+        $maintenanceModeResolver->method('isMaintenanceRequest')->willReturn(true);
+        $maintenancePageLoader = $this->createMock(MaintenancePageLoader::class);
+        $maintenancePageLoader->expects($this->never())->method('load');
+        $controller = $this->createMaintenanceController(
+            maintenanceModeResolver: $maintenanceModeResolver,
+            maintenancePageLoader: $maintenancePageLoader,
+        );
+        $request = new Request();
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_PASSWORD, password_hash('correct-password', \PASSWORD_DEFAULT));
+
+        $response = $controller->renderSinglePage('page-id', $request, Generator::generateSalesChannelContext());
+
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('/frontend.maintenance.page', $response->getTargetUrl());
+    }
+
     private function createMaintenanceController(
         ?RateLimiter $rateLimiter = null,
         ?MaintenanceModeResolver $maintenanceModeResolver = null,
+        ?MaintenancePageLoader $maintenancePageLoader = null,
     ): MaintenanceController {
         $controller = new MaintenanceController(
             static::createStub(SystemConfigService::class),
-            static::createStub(MaintenancePageLoader::class),
+            $maintenancePageLoader ?? static::createStub(MaintenancePageLoader::class),
             $maintenanceModeResolver ?? static::createStub(MaintenanceModeResolver::class),
             $rateLimiter ?? static::createStub(RateLimiter::class)
         );

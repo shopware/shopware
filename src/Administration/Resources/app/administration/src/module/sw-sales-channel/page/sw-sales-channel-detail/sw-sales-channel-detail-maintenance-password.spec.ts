@@ -116,11 +116,10 @@ async function createWrapper({ isSet = false }: { isSet?: boolean } = {}) {
 
     await flushPromises();
 
-    const maintenancePassword = () =>
-        wrapper.getComponent(routedViewProbe).props('maintenancePassword') as MaintenancePassword;
+    const maintenancePassword = () => wrapper.getComponent(routedViewProbe).props('maintenancePassword');
 
     const save = async () => {
-        wrapper.getComponent('.sw-sales-channel-detail__save-action').vm.$emit('click', new Event('click'));
+        await wrapper.get('.sw-sales-channel-detail__save-action').trigger('click');
         await flushPromises();
     };
 
@@ -128,10 +127,12 @@ async function createWrapper({ isSet = false }: { isSet?: boolean } = {}) {
 }
 
 describe('src/module/sw-sales-channel/page/sw-sales-channel-detail maintenance password', () => {
+    let createNotification: jest.SpyInstance;
+
     beforeEach(() => {
         mockGet.mockClear();
         mockSave.mockClear();
-        jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+        createNotification = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
     });
 
     afterEach(() => {
@@ -226,7 +227,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail maintenance p
 
         await save();
 
-        expect(Shopware.Store.get('notification').createNotification).toHaveBeenCalledWith(
+        expect(createNotification).toHaveBeenCalledWith(
             expect.objectContaining({ variant: 'error', message: 'The sales channel could not be updated.' }),
         );
     });

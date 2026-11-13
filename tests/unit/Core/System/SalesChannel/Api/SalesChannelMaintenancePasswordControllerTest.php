@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\System\SalesChannel\Api;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -15,6 +16,8 @@ use Shopware\Core\System\SalesChannel\Api\SalesChannelMaintenancePasswordControl
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -86,5 +89,94 @@ class SalesChannelMaintenancePasswordControllerTest extends TestCase
         $this->expectExceptionObject(SalesChannelException::maintenancePasswordInvalidSource());
 
         (new SalesChannelMaintenancePasswordController($repository))->status(Context::createDefaultContext(), Uuid::randomHex());
+    }
+
+    public function testSaveStoresAHashOfThePassword(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $repository = StaticEntityRepository::of(SalesChannelCollection::class, [[$salesChannelId]]);
+
+        $response = (new SalesChannelMaintenancePasswordController($repository))
+            ->save($this->createSaveRequest('a-valid-password'), $this->adminContext, $salesChannelId);
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        static::assertCount(1, $repository->updates);
+        $payload = $repository->updates[0][0];
+        static::assertSame($salesChannelId, $payload['id']);
+        static::assertIsString($payload['maintenancePassword']);
+        static::assertNotSame('a-valid-password', $payload['maintenancePassword']);
+        static::assertTrue(password_verify('a-valid-password', $payload['maintenancePassword']));
+    }
+
+    public function testSaveRemovesThePasswordForAnEmptyValue(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $repository = StaticEntityRepository::of(SalesChannelCollection::class, [[$salesChannelId]]);
+
+        (new SalesChannelMaintenancePasswordController($repository))
+            ->save($this->createSaveRequest(''), $this->adminContext, $salesChannelId);
+
+        static::assertSame([[['id' => $salesChannelId, 'maintenancePassword' => null]]], $repository->updates);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    #[DataProvider('invalidPasswordPayloadProvider')]
+    public function testSaveRejectsAnInvalidPassword(array $payload): void
+    {
+        $repository = StaticEntityRepository::of(SalesChannelCollection::class);
+        $request = new Request([], [], [], [], [], [], json_encode($payload, \JSON_THROW_ON_ERROR));
+
+        $this->expectExceptionObject(SalesChannelException::maintenancePasswordInvalidLength());
+
+        (new SalesChannelMaintenancePasswordController($repository))->save($request, $this->adminContext, Uuid::randomHex());
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function invalidPasswordPayloadProvider(): iterable
+    {
+        yield 'missing password' => [[]];
+        yield 'password is not a string' => [['password' => 123456789012]];
+        yield 'password is too short' => [['password' => str_repeat('a', 11)]];
+        yield 'password is too long' => [['password' => str_repeat('a', 4097)]];
+    }
+
+    public function testSaveThrowsForAnUnknownSalesChannel(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $repository = StaticEntityRepository::of(SalesChannelCollection::class, [[]]);
+
+        $this->expectExceptionObject(SalesChannelException::salesChannelNotFound($salesChannelId));
+
+        (new SalesChannelMaintenancePasswordController($repository))
+            ->save($this->createSaveRequest('a-valid-password'), $this->adminContext, $salesChannelId);
+    }
+
+    public function testSaveThrowsForAnInvalidSalesChannelId(): void
+    {
+        $repository = StaticEntityRepository::of(SalesChannelCollection::class);
+
+        $this->expectExceptionObject(SalesChannelException::salesChannelNotFound('not-a-uuid'));
+
+        (new SalesChannelMaintenancePasswordController($repository))
+            ->save($this->createSaveRequest('a-valid-password'), $this->adminContext, 'not-a-uuid');
+    }
+
+    public function testSaveIsOnlyAvailableForAdminApiSources(): void
+    {
+        $repository = StaticEntityRepository::of(SalesChannelCollection::class);
+
+        $this->expectExceptionObject(SalesChannelException::maintenancePasswordInvalidSource());
+
+        (new SalesChannelMaintenancePasswordController($repository))
+            ->save($this->createSaveRequest('a-valid-password'), Context::createDefaultContext(), Uuid::randomHex());
+    }
+
+    private function createSaveRequest(string $password): Request
+    {
+        return new Request([], [], [], [], [], [], json_encode(['password' => $password], \JSON_THROW_ON_ERROR));
     }
 }

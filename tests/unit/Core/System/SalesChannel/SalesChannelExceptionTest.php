@@ -25,6 +25,24 @@ class SalesChannelExceptionTest extends TestCase
         static::assertSame('Tool result "abc" not found. It may have expired or been stored by another caller.', $e->uri);
     }
 
+    public function testMaintenancePasswordInvalidLength(): void
+    {
+        $e = SalesChannelException::maintenancePasswordInvalidLength();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(SalesChannelException::MAINTENANCE_PASSWORD_INVALID_LENGTH, $e->getErrorCode());
+        static::assertSame('Maintenance password must be empty to disable it or contain between 12 and 4096 characters.', $e->getMessage());
+    }
+
+    public function testMaintenancePasswordInvalidSource(): void
+    {
+        $e = SalesChannelException::maintenancePasswordInvalidSource();
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $e->getStatusCode());
+        static::assertSame(SalesChannelException::MAINTENANCE_PASSWORD_INVALID_SOURCE, $e->getErrorCode());
+        static::assertSame('Only Admin API requests may change a sales channel maintenance password.', $e->getMessage());
+    }
+
     #[DataProvider('exceptionDataProvider')]
     public function testExceptions(ShopwareHttpException|SalesChannelException $exception, int $statusCode, string $errorCode, string $message): void
     {
@@ -38,20 +56,6 @@ class SalesChannelExceptionTest extends TestCase
      */
     public static function exceptionDataProvider(): iterable
     {
-        yield SalesChannelException::MAINTENANCE_PASSWORD_INVALID_LENGTH => [
-            'exception' => SalesChannelException::maintenancePasswordInvalidLength(),
-            'statusCode' => Response::HTTP_BAD_REQUEST,
-            'errorCode' => SalesChannelException::MAINTENANCE_PASSWORD_INVALID_LENGTH,
-            'message' => 'Maintenance password must be empty to disable it or contain between 12 and 4096 characters.',
-        ];
-
-        yield SalesChannelException::MAINTENANCE_PASSWORD_INVALID_SOURCE => [
-            'exception' => SalesChannelException::maintenancePasswordInvalidSource(),
-            'statusCode' => Response::HTTP_FORBIDDEN,
-            'errorCode' => SalesChannelException::MAINTENANCE_PASSWORD_INVALID_SOURCE,
-            'message' => 'Only Admin API requests may change a sales channel maintenance password.',
-        ];
-
         yield SalesChannelException::CRITERIA_TOO_MANY_NESTED_CRITERIA => [
             'exception' => SalesChannelException::tooManyNestedCriteria(100),
             'statusCode' => Response::HTTP_BAD_REQUEST,

@@ -188,8 +188,9 @@ export default {
                     };
 
                     if (typeof value !== 'string') {
+                        const active = value.active ?? true;
                         shortcut.functionName = value.method;
-                        shortcut.active = (typeof value.active === 'boolean' ? () => value.active : value.active).bind(this);
+                        shortcut.active = (typeof active === 'boolean' ? () => active : active).bind(this);
                     } else {
                         shortcut.functionName = value;
                         shortcut.active = () => true;

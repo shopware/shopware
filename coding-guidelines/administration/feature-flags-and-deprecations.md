@@ -50,12 +50,12 @@ Pass a registered major flag and a version like `v6.8.0.0`. Anything else could 
 The guard is the first statement, so no early return or condition skips it.
 
 `@private` symbols and identifiers starting with `_` are no public contract and need no guard.
-Neither do values, types, `data`, `watch`, `provide`, `inject`, store `state` and `getters`, which have no use to guard.
-A deprecated function that core itself runs on every instance, like a lifecycle hook, states why it has no guard:
+Neither do values, types, lifecycle hooks, `data`, `watch`, `provide`, `inject`, store `state` and `getters`, which core runs for every instance or have no use to guard.
+Any other deprecated function that core itself runs on every use states why it has no guard:
 
-```js
-// eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- Vue runs created() for every instance
-created() {},
+```ts
+// eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- the boot sequence runs it until Vuex is removed
+export default function initState() {}
 ```
 
 See the [ADR](../../adr/2026-08-10-administration-javascript-deprecation-guards.md).

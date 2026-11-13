@@ -2,9 +2,6 @@
  * @sw-package framework
  */
 
-const fs = require('fs');
-const path = require('path');
-
 const TAG_PATTERN = /@deprecated\s+tag:v(\d+\.\d+\.\d+(?:\.\d+)?)/;
 const WILL_BE_PRIVATE_PATTERN = /@deprecated\s+tag:\S+\s*-\s*will be @?private/i;
 const GUARD_NAME = 'triggerDeprecationOrThrow';
@@ -34,6 +31,21 @@ const UNGUARDED_SECTIONS = new Set([
     'getters',
 ]);
 
+// Vue runs these for every instance, so a guard there would fire on every use instead of on the legacy one.
+const LIFECYCLE_HOOKS = new Set([
+    'beforeCreate',
+    'created',
+    'beforeMount',
+    'mounted',
+    'beforeUpdate',
+    'updated',
+    'beforeUnmount',
+    'unmounted',
+    'activated',
+    'deactivated',
+    'errorCaptured',
+]);
+
 // Only a component config has these, so `export default { … }` of a plain object is no component.
 const COMPONENT_OPTIONS = new Set([
     'template',
@@ -51,14 +63,6 @@ const COMPONENT_OPTIONS = new Set([
     'created',
     'mounted',
 ]);
-
-const COMPONENT_FILE_SUFFIXES = [
-    '',
-    '.js',
-    '.ts',
-    '/index.js',
-    '/index.ts',
-];
 
 function keyName(node) {
     if (node?.type === 'Identifier') {
@@ -241,7 +245,10 @@ function guardedMembers(classNode) {
         return [constructor];
     }
 
-    const publicMethods = methods.filter((member) => member.kind !== 'constructor' && !keyName(member.key).startsWith('_'));
+    const publicMethods = methods.filter(
+        (member) =>
+            member.kind !== 'constructor' && member.key.type !== 'PrivateIdentifier' && !keyName(member.key).startsWith('_'),
+    );
     const guardsEveryMethod = publicMethods.length > 0 && publicMethods.every((member) => leadingGuard(member.value));
 
     return guardsEveryMethod ? publicMethods : [];
@@ -266,37 +273,6 @@ function componentConfigOf(node) {
 }
 
 /**
- * The relative import of a `Component.register('sw-x', () => import('./sw-x'))` or
- * `Component.extend('sw-x', 'sw-base', () => import('./sw-x'))` call, or `null` for any other statement.
- */
-function registeredImportSource(node) {
-    const call = node.type === 'ExpressionStatement' ? node.expression : null;
-    const isRegistration =
-        call?.type === 'CallExpression' &&
-        call.callee.type === 'MemberExpression' &&
-        ['register', 'extend'].includes(keyName(call.callee.property));
-    const loader = isRegistration ? call.arguments.at(-1) : null;
-    const source = isFunction(loader) && loader.body.type === 'ImportExpression' ? stringValue(loader.body.source) : null;
-
-    return source?.startsWith('.') ? source : null;
-}
-
-function resolveComponentFile(filename, source) {
-    const base = path.resolve(path.dirname(filename), source);
-
-    return (
-        COMPONENT_FILE_SUFFIXES.map((suffix) => `${base}${suffix}`).find((file) =>
-            fs.statSync(file, { throwIfNoEntry: false })?.isFile(),
-        ) ?? null
-    );
-}
-
-// A root option of a component config is indented by four spaces.
-function hasRootDeprecatedOption(file) {
-    return /^ {4}deprecated: \{/m.test(fs.readFileSync(file, 'utf8'));
-}
-
-/**
  * This rule enforces the runtime side of adr/2026-08-10-administration-javascript-deprecation-guards.md.
  * What a `@deprecated tag:` marker sits on decides what it requires:
  *
@@ -306,7 +282,7 @@ function hasRootDeprecatedOption(file) {
  * - A file header covers the component the file exports, or every export of any other file.
  *
  * The other way round, every `triggerDeprecationOrThrow('<flag>', …)` call needs a marker on a declaration that encloses
- * it, or in the file header.
+ * it, or in the file header, and the nearest one has to announce the major of the call's flag.
  */
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
@@ -333,11 +309,10 @@ module.exports = {
             missingComponentOption:
                 `The deprecated component needs a root "${OPTION_SNIPPET}" option, ` +
                 'so the deprecation plugin triggers it on creation.',
-            missingRegisteredComponentOption:
-                `The deprecated component registered here needs a root "${OPTION_SNIPPET}" option in {{file}}, ` +
-                'so the deprecation plugin triggers it on creation.',
             versionMismatch:
                 'The "deprecated" option of "{{name}}" has to use the version "{{version}}" that "@deprecated tag:" announces.',
+            markerFlagMismatch:
+                'This guard has to use the major flag "{{flag}}" that its nearest "@deprecated tag:{{announced}}" marker announces.',
             missingDeprecationMarker:
                 `This ${GUARD_NAME}() call needs a "@deprecated tag:" marker on the declaration it guards, ` +
                 'or on a comment right above it.',
@@ -399,13 +374,48 @@ module.exports = {
             );
         }
 
-        function hasDeprecationMarker(node) {
-            const isTagged = (comment) => TAG_PATTERN.test(comment.value);
-            const enclosing = [...sourceCode.getAncestors(node), node].filter((ancestor) => ancestor.type !== 'Program');
+        // Guards whose flag the declaration check already compared with the marker of their declaration.
+        const checkedGuards = new Set();
 
-            return (
-                enclosing.some((ancestor) => sourceCode.getCommentsBefore(ancestor).some(isTagged)) || headers.some(isTagged)
+        /**
+         * The marker of the declaration or statement closest to the node, or of the file header, as the version it
+         * announces. `null` when nothing encloses a marker.
+         */
+        function nearestMarkerVersion(node) {
+            const enclosing = [node, ...sourceCode.getAncestors(node).reverse()].filter(
+                (ancestor) => ancestor.type !== 'Program',
             );
+            const comments = [
+                ...enclosing.flatMap((ancestor) => sourceCode.getCommentsBefore(ancestor).reverse()),
+                ...headers,
+            ];
+            const match = comments.map((comment) => TAG_PATTERN.exec(comment.value)).find(Boolean);
+
+            return match ? match[1] : null;
+        }
+
+        function checkMarkerOfGuard(call) {
+            const flag = stringValue(call.arguments[0]);
+
+            if (flag === null || checkedGuards.has(call)) {
+                return;
+            }
+
+            const version = nearestMarkerVersion(call);
+
+            if (version === null) {
+                return context.report({ node: call, messageId: 'missingDeprecationMarker' });
+            }
+
+            const expected = toFlag(normalizeVersion(version));
+
+            if (toFlag(flag) !== expected) {
+                context.report({
+                    node: call,
+                    messageId: 'markerFlagMismatch',
+                    data: { flag: expected, announced: `v${version}` },
+                });
+            }
         }
 
         function report(declaration, messageId, data = {}, node = declaration.node) {
@@ -424,6 +434,8 @@ module.exports = {
             if (!guard) {
                 return report(declaration, 'missingGuard');
             }
+
+            checkedGuards.add(guard);
 
             const flag = stringValue(guard.arguments[0]);
 
@@ -454,16 +466,6 @@ module.exports = {
             }
         }
 
-        function checkRegisteredComponent(declaration, source) {
-            const file = resolveComponentFile(context.filename, source);
-
-            if (file && !hasRootDeprecatedOption(file)) {
-                report(declaration, 'missingRegisteredComponentOption', {
-                    file: path.relative(path.dirname(context.filename), file),
-                });
-            }
-        }
-
         function checkDeclaration(node, tag) {
             if (node.type.startsWith('TS')) {
                 return;
@@ -477,11 +479,6 @@ module.exports = {
             }
 
             const declaration = { node, name, tag };
-            const importSource = registeredImportSource(node);
-
-            if (importSource) {
-                return checkRegisteredComponent(declaration, importSource);
-            }
 
             if (componentConfig) {
                 return checkOption(
@@ -493,7 +490,9 @@ module.exports = {
 
             const section = node.type === 'Property' ? sectionOf(node) : '';
 
-            if (UNGUARDED_SECTIONS.has(section)) {
+            const isLifecycleHook = node.type === 'Property' && section === '' && LIFECYCLE_HOOKS.has(name);
+
+            if (UNGUARDED_SECTIONS.has(section) || isLifecycleHook) {
                 return;
             }
 
@@ -541,8 +540,8 @@ module.exports = {
             },
 
             CallExpression(call) {
-                if (isGuardCall(call) && stringValue(call.arguments[0]) !== null && !hasDeprecationMarker(call)) {
-                    context.report({ node: call, messageId: 'missingDeprecationMarker' });
+                if (isGuardCall(call)) {
+                    checkMarkerOfGuard(call);
                 }
             },
         };

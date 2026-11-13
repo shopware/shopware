@@ -1,4 +1,3 @@
-const path = require('path');
 const { RuleTester } = require('eslint');
 const rule = require('./require-deprecation-guard');
 
@@ -11,7 +10,6 @@ const ruleTester = new RuleTester({
 
 const guard = "Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'x is deprecated. Use y instead.');";
 const deprecated = '/** @deprecated tag:v6.8.0 - Use y instead. */';
-const registeringFile = path.join(__dirname, 'require-deprecation-guard.fixtures', 'index.js');
 
 ruleTester.run('require-deprecation-guard', rule, {
     valid: [
@@ -60,9 +58,24 @@ ruleTester.run('require-deprecation-guard', rule, {
             code: `export default { props: { ${deprecated} old: { type: String, deprecated: { version: 'v6.8.0.0', comment: 'x' } } } };`,
         },
         {
-            name: 'the registration of a component that has the deprecated option',
-            filename: registeringFile,
-            code: `${deprecated} Shopware.Component.register('sw-old', () => import('./guarded-component'));`,
+            name: 'the registration of a component, whose own file carries the marker and the option',
+            code: `${deprecated} Shopware.Component.register('sw-old', () => import('./sw-old'));`,
+        },
+        {
+            name: 'an inline component config of a registration, which is not covered',
+            code: `${deprecated} Shopware.Component.register('sw-old', { template });`,
+        },
+        {
+            name: 'a deprecated option that is no literal, whose version is not compared',
+            code: `${deprecated} export default { template, deprecated: LEGACY_OPTION };`,
+        },
+        {
+            name: 'a lifecycle hook, which core runs for every instance',
+            code: `export default { template, ${deprecated} created() { return 1; } };`,
+        },
+        {
+            name: 'a class that guards every public method and has an unguarded #private one',
+            code: `${deprecated} export class Old { run() { ${guard} } #load() { return 1; } }`,
         },
         {
             name: 'a value, which has no use to guard',
@@ -141,6 +154,15 @@ ruleTester.run('require-deprecation-guard', rule, {
             code: `export function format(value) {
                 // @deprecated tag:v6.8.0 - Remove the string form.
                 if (typeof value === 'string') { ${guard} }
+            }`,
+        },
+        {
+            name: 'a guard whose nearest marker matches, while the file header announces another major',
+            code: `/**\n * @sw-package framework\n * @deprecated tag:v6.9.0 - x\n */\n/** @private */\nexport function format(value) {
+                if (typeof value === 'string') {
+                    // @deprecated tag:v6.8.0 - Pass an object.
+                    ${guard}
+                }
             }`,
         },
         {
@@ -244,20 +266,22 @@ ruleTester.run('require-deprecation-guard', rule, {
             errors: [{ messageId: 'missingPropOption', data: { name: 'old', version: 'v6.8.0.0' } }],
         },
         {
-            name: 'the registration of a component without the deprecated option',
-            filename: registeringFile,
-            code: `${deprecated} Shopware.Component.register('sw-old', () => import('./unguarded-component'));`,
-            errors: [
-                {
-                    messageId: 'missingRegisteredComponentOption',
-                    data: { version: 'v6.8.0.0', file: path.join('unguarded-component', 'index.js') },
-                },
-            ],
-        },
-        {
             name: 'a guard without any deprecation marker',
             code: `export function format(value) { if (typeof value === 'string') { ${guard} } return value; }`,
             errors: [{ messageId: 'missingDeprecationMarker' }],
+        },
+        {
+            name: 'a guard below a statement-level marker of another major',
+            code: `export function format(value) {
+                // @deprecated tag:v6.9.0 - Pass an object.
+                ${guard}
+            }`,
+            errors: [{ messageId: 'markerFlagMismatch', data: { flag: 'V6_9_0_0', announced: 'v6.9.0' } }],
+        },
+        {
+            name: 'a lifecycle-named method of a class, which is no hook',
+            code: `export class Old { ${deprecated} mounted() { return 1; } }`,
+            errors: [{ messageId: 'missingGuard', data: { name: 'mounted', flag: 'V6_8_0_0' } }],
         },
         {
             name: 'a guard in an undeprecated method of a component',

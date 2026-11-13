@@ -24,8 +24,8 @@ use Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginUpdateAllCommand;
 use Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginUpdateCommand;
 use Shopware\Core\Framework\Plugin\Command\MakerCommand;
 use Shopware\Core\Framework\Plugin\Command\PluginCreateCommand;
-use Shopware\Core\Framework\Plugin\Command\PluginListCommand;
 use Shopware\Core\Framework\Plugin\Command\PluginDebugModeCommand;
+use Shopware\Core\Framework\Plugin\Command\PluginListCommand;
 use Shopware\Core\Framework\Plugin\Command\PluginRefreshCommand;
 use Shopware\Core\Framework\Plugin\Command\PluginZipImportCommand;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\AdminModuleGenerator;
@@ -197,8 +197,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(PluginDebugModeCommand::class)
         ->args([
             service('plugin.repository'),
-            service(ComposerPluginLoader::class),
             service(PluginLifecycleService::class),
+            service(CacheClearer::class),
         ])
         ->tag('console.command');
 

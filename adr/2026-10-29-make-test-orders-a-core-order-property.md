@@ -31,11 +31,13 @@ The core already has the pieces a cleaner version needs: states on the sales cha
 A test order is a property of the order, not of the request.
 `order.isTest` becomes a persisted boolean, API aware, written by the order converter in the same write as the order.
 No custom field, no second write.
+The field is write-protected to the system scope, so the Admin API, the Sync API and imports can flip it in neither direction: a test order never becomes a live one, and a live order never hides as a test order.
 
 The converter does not look at the request.
-It reads a `test-mode` state on the sales channel context.
-Cart, order, payment and templates read the same state.
-There are two ways to get it:
+It reads a `test-mode` state on the sales channel context, and so do payment handlers and templates.
+Cart calculation does not read it: a test checkout runs exactly like the live one, otherwise it tests nothing.
+Should a test-only cart behaviour ever be needed, it is a checkout permission granted next to the state, not a check on the state.
+There are two ways to get the state:
 
 * **Test session in a live shop.** An admin action issues a signed token and a link per sales channel domain.
   The token is reusable until it expires; its lifetime is the config parameter `shopware.checkout.test_session_token_ttl`, 15 minutes by default.
@@ -82,8 +84,14 @@ Deferred to later iterations: a sales channel setting that marks every order in 
 
 * Downstream code has one source of truth and gets it at the same time as the order.
   Flow listeners no longer race a second write, apps and webhooks get the flag with the order entity for free.
+* Test orders are never filtered out automatically.
+  API consumers and integrations see them like any other order, flagged, because an ERP sync is part of what a test order is there to test.
+  The places that leave them out are the ones named above, each with an explicit filter.
 * A new column and a migration, a new ACL permission, a storefront route for the exchange, a Store API header, a config parameter for the token lifetime, and a session attribute in the storefront.
-  Commercial needs a companion change if a converter or persister constructor changes.
+* Commercial follows in a companion PR, which also absorbs a changed converter or persister constructor.
+  The GMV collectors and the B2B budget subscriber skip flagged orders.
+  Subscriptions inherit the flag through the stored converted order, so renewals are test orders too; the subscription gets a badge and a filter.
+  Pending orders and quotes store the flag when they are requested, and the context restored to place them adds the state, like order assembly does.
 * The epic's acceptance criteria change in one point: test orders consume normal order numbers, only document numbers stay out of the productive ranges.
 * A test session on a shared browser marks orders as test orders until the session ends.
   The visible bar and "end test mode" limit that.

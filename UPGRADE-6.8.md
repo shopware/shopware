@@ -3212,6 +3212,12 @@ State-based invalidation is not supported anymore.
 +{# No replacement #}
 ```
 
+## Old shop ID format no longer read
+
+The system config key `core.app.shopId` was deprecated and is no longer read.
+A 6.7 migration copies the shop ID to `core.app.shopIdV2`, which holds it under `id` together with its fingerprints.
+Read `core.app.shopIdV2` instead.
+
 </details>
 
 # Hosting & Configuration

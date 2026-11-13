@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App\ShopId;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -20,6 +21,9 @@ use Symfony\Contracts\Service\ResetInterface;
 #[Package('framework')]
 class ShopIdProvider implements ResetInterface
 {
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, the old shop ID format is converted by a migration and no longer read
+     */
     final public const SHOP_ID_SYSTEM_CONFIG_KEY = 'core.app.shopId';
     final public const SHOP_ID_SYSTEM_CONFIG_KEY_V2 = 'core.app.shopIdV2';
 
@@ -72,7 +76,10 @@ class ShopIdProvider implements ResetInterface
 
     public function deleteShopId(): void
     {
-        $this->systemConfigService->delete(self::SHOP_ID_SYSTEM_CONFIG_KEY, null, true);
+        // @deprecated tag:v6.8.0 - remove the deletion of the old shop ID format
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->systemConfigService->delete(self::SHOP_ID_SYSTEM_CONFIG_KEY, null, true);
+        }
         $this->systemConfigService->delete(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2, null, false);
 
         $this->reset();
@@ -87,8 +94,11 @@ class ShopIdProvider implements ResetInterface
 
     private function setShopId(ShopId $shopId): void
     {
-        $oldShopId = $this->systemConfigService->get(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2)
-            ?? $this->systemConfigService->get(self::SHOP_ID_SYSTEM_CONFIG_KEY);
+        $oldShopId = $this->systemConfigService->get(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
+        // @deprecated tag:v6.8.0 - remove the fallback to the old shop ID format
+        if ($oldShopId === null && !Feature::isActive('v6.8.0.0')) {
+            $oldShopId = $this->systemConfigService->get(self::SHOP_ID_SYSTEM_CONFIG_KEY);
+        }
         if (\is_array($oldShopId)) {
             $oldShopId = ShopId::fromSystemConfig($oldShopId);
         } else {
@@ -117,6 +127,11 @@ class ShopIdProvider implements ResetInterface
         $shopIdV2 = $this->systemConfigService->get(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
         if (\is_array($shopIdV2)) {
             return ShopId::fromSystemConfig($shopIdV2);
+        }
+
+        // @deprecated tag:v6.8.0 - remove the fallback to the old shop ID format
+        if (Feature::isActive('v6.8.0.0')) {
+            return null;
         }
 
         /** @var ShopIdV1Config|null $shopIdV1 */

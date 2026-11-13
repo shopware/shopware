@@ -576,6 +576,11 @@ Invalid JSON, malformed messages or resource contents, and `{"success":false,"er
 
 Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-module source>`) now receive the signed `color-scheme` query parameter with the resolved Administration theme, `light` or `dark`, like Admin SDK locations already do.
 
+### Deprecated the old shop ID format
+
+The system config key `core.app.shopId` is deprecated and no longer read with Shopware 6.8.
+A migration copies the shop ID to `core.app.shopIdV2`, which holds it under `id` together with its fingerprints, so read that key instead.
+
 ## Administration
 
 ### Order viewers no longer receive delete privileges

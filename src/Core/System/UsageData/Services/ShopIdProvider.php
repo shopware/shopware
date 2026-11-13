@@ -4,6 +4,7 @@ namespace Shopware\Core\System\UsageData\Services;
 
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider as AppSystemShopIdProvider;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -21,8 +22,11 @@ readonly class ShopIdProvider
 
     public function getShopId(): string
     {
-        $shopId = $this->systemConfigService->get(AppSystemShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2)
-            ?? $this->systemConfigService->get(AppSystemShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY);
+        $shopId = $this->systemConfigService->get(AppSystemShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
+        // @deprecated tag:v6.8.0 - remove the fallback to the old shop ID format
+        if ($shopId === null && !Feature::isActive('v6.8.0.0')) {
+            $shopId = $this->systemConfigService->get(AppSystemShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY);
+        }
 
         if (\is_array($shopId)) {
             return ShopId::fromSystemConfig($shopId)->id;

@@ -16,7 +16,9 @@ use Shopware\Core\Framework\App\ShopId\ShopIdDeletedEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 
 /**
  * @internal
@@ -28,23 +30,7 @@ class ShopIdProviderTest extends TestCase
     public function testGeneratesNewShopIdV2WhenNoOldShopIdPresent(): void
     {
         $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->expects($matcher = $this->exactly(6))
-            ->method('get')
-            ->willReturnCallback(static function (...$parameters) use ($matcher) {
-                if ($matcher->numberOfInvocations() === 1 || $matcher->numberOfInvocations() === 3 || $matcher->numberOfInvocations() === 5) {
-                    static::assertSame(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, $parameters[0]);
-
-                    return null;
-                }
-
-                if ($matcher->numberOfInvocations() === 2 || $matcher->numberOfInvocations() === 4 || $matcher->numberOfInvocations() === 6) {
-                    static::assertSame(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, $parameters[0]);
-
-                    return null;
-                }
-
-                static::fail(\sprintf('SystemConfigService was not expected to be called more than %s times', $matcher->numberOfInvocations()));
-            });
+        $systemConfigService->method('get')->willReturn(null);
         $systemConfigService->expects($this->exactly(2))
             ->method('set')
             ->with(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, static::callback(static function (array $config): bool {
@@ -71,6 +57,26 @@ class ShopIdProviderTest extends TestCase
         static::assertSame($shopId->id, $shopIdChangedEvent->newShopId->id);
     }
 
+    public function testGeneratesNewShopIdInsteadOfReadingTheOldFormat(): void
+    {
+        $systemConfigService = new StaticSystemConfigService([
+            ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY => ['value' => '1234567890', 'app_url' => 'https://foo.bar'],
+        ]);
+
+        $provider = new ShopIdProvider(
+            $systemConfigService,
+            new CollectingEventDispatcher(),
+            static::createStub(Connection::class),
+            static::createStub(FingerprintGenerator::class),
+        );
+
+        static::assertNotSame('1234567890', $provider->getShopId()->id);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - remove together with the old shop ID format
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testUpgradesShopIdToV2IfShopIdInSystemConfigIsV1(): void
     {
         $shopIdV1Config = [
@@ -252,6 +258,30 @@ class ShopIdProviderTest extends TestCase
     }
 
     public function testDeletesShopId(): void
+    {
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->expects($this->once())
+            ->method('delete')
+            ->with(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
+
+        $provider = new ShopIdProvider(
+            $systemConfigService,
+            $eventDispatcher = new CollectingEventDispatcher(),
+            static::createStub(Connection::class),
+            static::createStub(FingerprintGenerator::class),
+        );
+
+        $provider->deleteShopId();
+
+        static::assertCount(1, $eventDispatcher->getEvents());
+        static::assertInstanceOf(ShopIdDeletedEvent::class, $eventDispatcher->getEvents()[0]);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - remove together with the old shop ID format
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testDeletesShopIdInTheOldFormat(): void
     {
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->expects($matcher = $this->exactly(2))

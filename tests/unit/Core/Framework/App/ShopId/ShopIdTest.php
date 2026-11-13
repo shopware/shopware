@@ -18,6 +18,9 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(ShopId::class)]
 class ShopIdTest extends TestCase
 {
+    /**
+     * @deprecated tag:v6.8.0 - remove together with the old shop ID format
+     */
     public function testCreatesShopIdFromValidV1Config(): void
     {
         $config = ['value' => '123456789', 'app_url' => 'https://foo.bar'];

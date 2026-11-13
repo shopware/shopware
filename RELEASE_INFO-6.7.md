@@ -9,6 +9,19 @@ Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED` while ano
 
 ## Core
 
+### Attribute entities can generate the reverse side of a many-to-many association
+
+`Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToMany` now accepts `reversedBy`, `reverseApi` and `reverseOnDelete`:
+
+```php
+#[ManyToMany(entity: 'product', onDelete: OnDelete::CASCADE, api: true, reversedBy: 'attributeEntities', reverseApi: ['admin-api' => true, 'store-api' => false], reverseOnDelete: OnDelete::CASCADE)]
+public array $products = [];
+```
+
+When `reversedBy` is set, the target entity (`product` in the example) gains a reverse many-to-many association with that property name over the same mapping table, added as an entity extension and therefore available on the target struct through its extensions for loading and filtering.
+`reverseApi` and `reverseOnDelete` control the reverse association's API visibility and delete behaviour independently; when omitted, they mirror the forward association's `api` and `onDelete`.
+Without `reversedBy`, the relation stays one-sided as before.
+
 ### Rules can be evaluated per cart delivery
 
 The new scope `Shopware\Core\Checkout\Cart\Rule\DeliveryRuleScope` extends `CartRuleScope` and carries the cart delivery a rule is evaluated for.
@@ -22,6 +35,17 @@ In a `DeliveryRuleScope` the shipping address rules read only the delivery's add
 
 Custom rules that read `getShippingLocation()` or `getShippingMethod()` from the sales channel context should read them from `$scope->getDelivery()` when the scope is a `DeliveryRuleScope`, otherwise they decide by the context for every delivery.
 See `UPGRADE-6.8.md` for an example.
+
+### Rule conditions can apply to a single cart delivery
+
+The new container condition `deliveryContainer` (`Shopware\Core\Checkout\Cart\Rule\DeliveryContainerRule`) matches its conditions against the delivery of a `DeliveryRuleScope`.
+Inside it, the cart holds only the delivery's line items and the delivery itself, while the price and the cart data stay those of the whole cart.
+Core only matches rules for a single delivery with the `v6.8.0.0` feature flag active; until then, and in every other scope, its conditions read the whole cart.
+Custom conditions that read the cart's line items or deliveries work inside the container without changes.
+
+With the `v6.8.0.0` feature flag active, the rule builder offers "Whole cart" or "This delivery" on the cart weight, cart volume and free shipping item conditions.
+"This delivery" wraps the condition in the new container, "Whole cart" stays the default.
+The Administration doesn't offer rules using it for payment methods or promotions, because only shipping method availability and price rows evaluate a rule per delivery.
 
 ### Rule Builder: new "Item with longest side and girth" condition
 
@@ -331,11 +355,59 @@ Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations
 
 The property is unused and will be removed in 6.8.
 
+### "Assign status" flow action picks the delivery and transaction of the flow
+
+The Flow Builder action "Assign status" (`action.set.order.state`) now changes the delivery and the transaction the flow carries as `orderDelivery` and `orderTransaction` data, if they belong to the order, for example on the delivery and transaction state triggers.
+Otherwise it changes the delivery with the highest shipping costs and the newest transaction, as before.
+With `v6.8.0.0`, it changes the primary delivery and the primary transaction of the order (`primaryOrderDeliveryId`, `primaryOrderTransactionId`) before it falls back, like the Administration, documents and order status rules do.
+Orders placed through the checkout get the same delivery and transaction either way, because their primary delivery has the highest shipping costs and their primary transaction is the newest one.
+
+### Delivery notes of a single delivery
+
+A delivery note can be generated for one delivery of an order.
+Pass the delivery id as `custom.orderDeliveryId` in the config of a `delivery_note` document operation, or as `orderDeliveryId` to the experimental `/api/_action/order/document-v2/create` route.
+The legacy route takes one operation per order, so request the notes of several deliveries of one order separately.
+The note then lists only the line items with a position in that delivery, prints their position quantities and uses the shipping address and shipping method of that delivery.
+A line item inside a container is listed together with the container and all its children; children shipped by another delivery show the quantity 0.
+A delivery of another order fails the operation with `DOCUMENT__ORDER_DELIVERY_NOT_FOUND`, or `DOCUMENT_V2__ORDER_DELIVERY_NOT_FOUND` in Document V2.
+Without the id, the note lists the whole order as before.
+
+Templates extending `@Framework/documents/delivery_note.html.twig` find the delivery in `orderDelivery` and the printed quantity of each listed line item, keyed by its id, in `deliveryLineItemQuantities`, which is `null` for a note of the whole order.
+
+### Delivery and transaction state flows know what changed
+
+The `state_enter.order_delivery.state.*` and `state_leave.order_delivery.state.*` triggers now carry the delivery whose state changed, the `order_transaction` ones the transaction.
+Flows and mail templates of these triggers get an `orderDelivery` variable with its positions and their line items, shipping method, state and shipping address, or an `orderTransaction` variable, and the id as `orderDeliveryId` or `orderTransactionId`.
+Add associations to the delivery through `mail-flow.data.order_delivery.criteria.event`.
+Events can expose a delivery to flows by implementing `Shopware\Core\Content\Flow\Dispatching\Aware\OrderDeliveryAware`.
+
+Webhooks of these triggers only add the id, so apps find the changed delivery or transaction in `order.deliveries` or `order.transactions` of the payload, without a new permission.
+On delivery transitions, `order.deliveries` now also contains the state and positions of each delivery.
+
+The listener dispatches the new `OrderDeliveryStateMachineStateChangeEvent` and `OrderTransactionStateMachineStateChangeEvent` for these transitions.
+They extend `OrderStateMachineStateChangeEvent`, so existing subscribers keep working, and add `getOrderDelivery()` and `getOrderTransaction()` with their id getters.
+
+### Orders with several deliveries keep their shipping costs and addresses
+
+When the Administration recalculated an order with several deliveries, every delivery got the shipping costs of the primary delivery.
+Each delivery now keeps its own shipping costs and only their taxes are recalculated.
+`DeliveryProcessor::MANUAL_SHIPPING_COSTS` only replaces the shipping costs of the primary delivery on such a recalculation.
+Carts restored from an order behave the same, for example when a customer changes the payment method of an order.
+Changing the shipping address of one delivery no longer changes the address of the other deliveries that shared it.
+Orders with a single delivery, with or without promotion shipping discounts, behave as before.
+
 ### SEO URL routes can restrict the associations of the template
 
 `SeoUrlGenerator` now calls `SeoUrlRouteInterface::prepareCriteria()` after it added the associations the SEO URL template uses.
 A route can restrict these associations, for example with `$criteria->getAssociation('mainCategories')->addFilter(...)` when `$criteria->hasAssociation('mainCategories')`.
 `ProductPageSeoUrlRoute` uses this to load only the main category of the sales channel the URLs are generated for.
+
+### Guest cart extensions are kept on login
+
+When a guest logs in and their cart is merged into the customer's saved cart, the extensions of the guest cart are carried over.
+If both carts have an extension with the same name, the customer cart keeps its own value.
+To keep an extension out of the customer cart, remove it from the guest cart in a `BeforeCartMergeEvent` listener; to let the guest's value win, set it on the customer cart there.
+Decorating `CartRestorer` just to copy an extension over is no longer needed.
 
 ### Promotion line items store the discount value in the cart currency
 
@@ -351,6 +423,17 @@ A listener can throw an exception to stop the replacement, and the media keeps i
 Presigned replacements dispatch it in `prepare()` with the file the client declares, before the upload, and again in `finalize()` with the stored file.
 The new optional `fileSize` of `POST /api/_action/media/presign-upload` fills the size in `prepare()`; without it, the size is `null`.
 With `shopware.cdn.path_cache_buster` disabled, a presigned upload of the same file name and extension has already overwritten the old file when `finalize()` stops it.
+
+### Split cart delivery positions by quantity
+
+`Shopware\Core\Checkout\Cart\Delivery\DeliveryPositionSplitter::split()` splits a cart delivery position into a part with the given quantity and a remainder, each with its own line item clone, price, taxes and delivery date.
+Extensions that regroup deliveries, for example in a `DeliveryBuilder` decorator, can use it instead of recalculating partial positions themselves.
+Part prices are split like line items of promotion set groups and can differ from the whole position by rounding.
+It throws `CHECKOUT__CART_DELIVERY_POSITION_INVALID_SPLIT_QUANTITY`, `CHECKOUT__CART_DELIVERY_POSITION_NOT_SPLITTABLE` for line items with children and `CHECKOUT__CART_DELIVERY_POSITION_NOT_STACKABLE`.
+`DeliveryBuilder::resolveDeliveryDate()` returns the delivery or restock date for a quantity of a line item.
+
+`DeliveryPositionCollection::getWeight()` and `getVolume()` now count the position quantity instead of the line item quantity.
+For extensions that already build positions holding part of a line item, this changes weight and volume based shipping costs and the cart volume rule.
 
 ## API
 
@@ -378,6 +461,15 @@ HTML forms can continue to use POST with an override for PUT, PATCH and DELETE a
 ### Criteria on fields the API does not expose is a bad request
 
 A criteria that filters, sorts, queries or aggregates by a field the API does not expose (`FRAMEWORK__ACCESSOR_NOT_ALLOWED`) or by a runtime field (`FRAMEWORK__RUNTIME_FIELD_IN_CRITERIA`) is now answered with `400 Bad Request` instead of `500 Internal Server Error`.
+
+### Sales channel files in the Store API
+
+The new `GET /store-api/sales-channel-file/{fileName}` route returns a sales channel file that is enabled for the sales channel of the `sw-access-key`, for example `llms.txt`, `AGENTS.md` or `.well-known/ai-catalog.json`, with the content type of the file.
+Headless frontends can serve the responses under the same public paths, e.g. proxy `/llms.txt` to `/store-api/sales-channel-file/llms.txt`.
+Proxy all enabled files, as `llms.txt` links to `/robots.txt` and `/AGENTS.md`.
+For headless sales channels, the Store API links in `llms.txt` point to `APP_URL`.
+`.well-known/ai-catalog.json` lists the Store API MCP server for every sales channel type, with its URL pointing to `APP_URL`.
+Extensions can adjust or replace the response through the `SalesChannelFileRouteExtension`.
 
 ### Assign products to a sales channel by product group or category
 
@@ -481,6 +573,10 @@ App MCP resource responses must be JSON objects containing a `text` string or a 
 Plain-text resource responses are no longer accepted; wrap the content in a JSON object.
 Resources use the URI declared in `mcp.xml`; a non-empty `mimeType` in the response takes precedence over the configured MIME type.
 Invalid JSON, malformed messages or resource contents, and `{"success":false,"error":"..."}` responses produce MCP errors with details for the client.
+
+### App module pages receive the `color-scheme` parameter
+
+Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-module source>`) now receive the signed `color-scheme` query parameter with the resolved Administration theme, `light` or `dark`, like Admin SDK locations already do.
 
 ## Administration
 
@@ -758,6 +854,14 @@ Check your Administration extensions for these changes:
 - `mt-radio-group-item`, `mt-radio-group-card-item`, `mt-radio-group-custom-item` and `mt-status-dot` have a new `disabled` prop.
 - New component `mt-extension-icon`.
 
+### Order detail shows every shipment in 6.8
+
+With the major feature flag `v6.8.0.0`, the order detail tells shipments and shipping discounts apart by their shipping costs.
+A delivery with negative shipping costs is a discount, every other delivery is a shipment.
+Until now, every delivery besides the primary one was shown as a shipping discount.
+The general tab lists the shipping costs of each shipment with its number and shipping method, and the details tab shows one delivery card per shipment, the primary delivery first.
+Overrides of the Twig blocks inside `sw_order_detail_details_shipping` of `sw-order-detail-details` render once per shipment, see `UPGRADE-6.8.md`.
+
 ## API
 
 To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`.
@@ -773,6 +877,13 @@ If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0
 For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
 
 ## Storefront
+
+### New shipping method blocks added
+
+The following new blocks have been added to the shipping method template in `storefront/component/shipping/shipping-method.html.twig` to match the payment method template structure:
+
+- `component_shipping_method_name`
+- `component_shipping_method_description_text`
 
 ### Skip link for listing filters
 

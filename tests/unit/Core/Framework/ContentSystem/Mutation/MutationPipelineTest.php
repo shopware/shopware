@@ -205,7 +205,7 @@ class MutationPipelineTest extends TestCase
             'el-1',
             'Sw:New',
             static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
-            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class)),
+            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), $registry),
             $inspector,
         );
 
@@ -237,7 +237,7 @@ class MutationPipelineTest extends TestCase
             $this->typeRegistry(),
             $incoming,
             static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
-            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class)),
+            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), $this->typeRegistry()),
         );
 
         $result = $this->pipeline($this->diagnosticsResolvingProduct())->run($attach, new StoredTree([]), null);
@@ -254,7 +254,7 @@ class MutationPipelineTest extends TestCase
             $this->typeRegistry(),
             [new StoredElement('preset-element', 'Sw:New')],
             static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
-            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class)),
+            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), $this->typeRegistry()),
             isNewScaffold: true,
         );
 

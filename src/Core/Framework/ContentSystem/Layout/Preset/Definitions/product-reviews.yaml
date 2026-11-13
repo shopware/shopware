@@ -1,5 +1,7 @@
 name: "Product reviews"
+nameSnippet: "sw-experience-studio.presets.product-reviews.name"
 description: "Rating summary, review list, sort and language filters and the submission form for a product, arranged in a grid."
+descriptionSnippet: "sw-experience-studio.presets.product-reviews.description"
 icon: "regular-star"
 illustration: "preset-product-reviews"
 category: "commerce"

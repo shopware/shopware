@@ -4,8 +4,7 @@
         flex-direction: column;
         width: 520px;
         max-width: calc(100vw - 24px);
-        height: 80dvh;
-        max-height: calc(100dvh - 24px);
+        max-height: min(80dvh, 100dvh - 24px);
         border: 1px solid var(--color-border-primary-default);
         border-radius: var(--border-radius-default);
         background: var(--color-elevation-surface-default);

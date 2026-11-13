@@ -19,6 +19,7 @@ export type ContentLayoutEntity = Omit<Entity<'content_layout'>, 'layout'> & {
 export type ContentLayoutRepository = {
     create: (context: apiContext) => ContentLayoutEntity;
     get: (id: string, context: apiContext, criteria: CriteriaType) => Promise<ContentLayoutEntity | null>;
+    search: (criteria: CriteriaType, context: apiContext) => Promise<ContentLayoutEntity[]>;
     save: (layout: ContentLayoutEntity, context: apiContext) => Promise<void>;
 };
 
@@ -37,19 +38,27 @@ export function createContentLayoutRepository(repository: Repository<'content_la
         },
 
         async get(id: string, context: apiContext, criteria: CriteriaType): Promise<ContentLayoutEntity | null> {
-            const entity = (await repository.get(id, context, criteria)) as ContentLayoutEntity | null;
+            const entity = await repository.get(id as EntityKey<'content_layout'>, context, criteria);
 
-            if (entity && entity.layout !== undefined && entity.layout !== null && !Array.isArray(entity.layout)) {
-                throw new Error(
-                    `content_layout entity "${entity.id}" has a non-array layout: expected an array, received ${typeof entity.layout}.`,
-                );
-            }
+            return entity ? validateContentLayout(entity) : null;
+        },
 
-            return entity;
+        async search(criteria: CriteriaType, context: apiContext): Promise<ContentLayoutEntity[]> {
+            return Array.from(await repository.search(criteria, context), validateContentLayout);
         },
 
         async save(layout: ContentLayoutEntity, context: apiContext): Promise<void> {
             await repository.save(layout, context);
         },
     };
+}
+
+function validateContentLayout(entity: Entity<'content_layout'>): ContentLayoutEntity {
+    if (entity.layout !== undefined && entity.layout !== null && !Array.isArray(entity.layout)) {
+        throw new Error(
+            `content_layout entity "${entity.id}" has a non-array layout: expected an array, received ${typeof entity.layout}.`,
+        );
+    }
+
+    return entity as ContentLayoutEntity;
 }

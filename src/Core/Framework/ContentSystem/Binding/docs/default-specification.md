@@ -19,21 +19,16 @@ A non-default specification is applied only through `bind-element` or an explici
 
 ## The core defaults
 
-Core ships no dedicated binding-specification directory and no authored inline `bindings:` entry. Every core binding specification is therefore a synthesized default, each from the `resolvedBy` properties of one file under `Layout/Type/Definitions/`:
+Core ships no dedicated binding-specification directory and no authored inline `bindings:` entry. Every core binding specification is therefore synthesized, each from the `resolvedBy` properties of one file under `Layout/Type/Definitions/`. Two examples:
 
-- `core:Sw:Media:Image` — `media` from the `mediaId` storage key, `media/image.yaml`
-- `core:Sw:Grid:Container` — `backgroundImage` from `backgroundImageId`, `grid/container.yaml`
-- `core:Sw:Media:Youtube` — `previewMedia` from `previewMediaId`, `media/youtube.yaml`
-- `core:Sw:Media:Vimeo` — `previewMedia` from `previewMediaId`, `media/vimeo.yaml`
-- `core:Sw:Media:Gallery` — `mediaItems` from `mediaIds`, `media/gallery.yaml`
-- `core:Sw:Product:Slider` — `products` from `productIds`, `product/slider.yaml`
-- `core:Sw:Navigation:Tree` — `navigationTree`, `navigation/tree.yaml`
+- `core:Sw:Media:Image`: `media` from the `mediaId` storage key, `media/image.yaml`
+- `core:Sw:Navigation:Breadcrumb`: `breadcrumb`, `navigation/breadcrumb.yaml`
 
-The first four wire the `entity` loader, their properties each being a `MediaEntity`. `Sw:Media:Gallery` and `Sw:Product:Slider` wire `entity_collection`, their properties being a `MediaCollection` and a `SalesChannelProductCollection`. `Sw:Navigation:Tree` is the odd one. Its `resolvedBy` is a tier-B loader block (`navigation: {rootId: main-navigation}`) rather than a bare storage key. It therefore wires the `navigation` loader and names no storage key at all.
+`Sw:Media:Image` wires the `entity` loader, its property being a `MediaEntity`. `Sw:Navigation:Breadcrumb` names no storage key, because its `resolvedBy` is a tier-B loader block. That block wires the `breadcrumb` loader, its `property` and `type` config values `!scoped` over the `product` and `category` root sources ([resolved-by.md](resolved-by.md)).
 
 ## Overriding a core default
 
-A plugin cannot override a *core* default; no replacement mechanism exists.
+A plugin cannot override a *core* default, because no replacement mechanism exists.
 
 ## Limits on a Synthesized Id
 

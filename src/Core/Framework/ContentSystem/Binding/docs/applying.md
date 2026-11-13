@@ -7,6 +7,8 @@
 
 Both modes seed `inputs` defaults the same way. Each entry with a default seeds that primitive property only when the element does not already carry the key. The test is a `StoredElement::property()` presence check, not a value check: an authored explicit `null` is a present `StoredValue`.
 
+A seeded `inputs` default takes the stored shape of its target property. `BindingApplicator` resolves the target through the element-type registry and wraps the default through `PropertyType::inStoredShape()`, the [one owner of that shape](../../docs/principles/translation.md#a-value-the-module-produces-is-declared-bare-and-wrapped-by-one-owner). A default for an unregistered `component` seeds bare, because no type declares its keys translatable. `TypeConsistentBindingSpecification` rejects a `null` default on a translatable target, because `null` is no valid language-map entry ([validation.md](validation.md)).
+
 These mutation operations drive the applicator, all through the same draft/persisted mutation machinery as every other structural edit:
 
 - `Mutation/Op/BindElement` applies a specification onto an existing element via `apply()`.

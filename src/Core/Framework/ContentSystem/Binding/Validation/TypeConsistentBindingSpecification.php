@@ -28,6 +28,8 @@ final class TypeConsistentBindingSpecification extends Constraint
 
     public string $resolvesEntryPropertyReferenceNotPrimitiveMessage = 'resolves config key "{{ configKey }}" must name a primitive property of type "{{ type }}", but "{{ property }}" is not';
 
+    public string $resolvesEntryPropertyReferenceCannotHoldReferencedTypeMessage = 'resolves config key "{{ configKey }}" must name a property of type "{{ type }}" that can hold a "{{ referencedType }}" value, but "{{ property }}" is declared "{{ declaredType }}"';
+
     public string $resolvesEntryRootSourceMapMessage = 'resolves entry "{{ key }}" config key "{{ configKey }}" must be a map of root source to string, with keys limited to {{ rootSources }}';
 
     public string $resolvesEntryRootSourceMapNotLiteralMessage = 'resolves entry "{{ key }}" config key "{{ configKey }}" is a map of root source to value, which only a literal config key of loader "{{ loader }}" may be';
@@ -41,6 +43,8 @@ final class TypeConsistentBindingSpecification extends Constraint
     public string $inputsEntryNotPrimitivePropertyMessage = 'inputs entry "{{ key }}" does not name a primitive property of type "{{ type }}"';
 
     public string $inputsEntryDefaultTypeMessage = 'inputs entry "{{ key }}" default value must match the declared type "{{ type }}"';
+
+    public string $inputsEntryNullDefaultOnTranslatableMessage = 'inputs entry "{{ key }}" targets a translatable property of type "{{ type }}", so its default may not be null: null is not a valid language-map entry';
 
     public function getTargets(): string
     {

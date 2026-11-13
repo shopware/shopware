@@ -6,6 +6,9 @@
 - Keep `affected()` a highlight hint, never the correctness output, and keep each op's affected set as [docs/operations.md](docs/operations.md) states it. Check: does an op narrow `affected()` below the elements whose resolution can change? [mutation.md](../docs/principles/mutation.md#the-affected-set-is-a-highlight-hint-derived-from-how-context-flows)
 - Report every loss: a detached subtree through `orphaned()`, a wiring key the op cannot carry through `droppedWiring()`, a value the op cannot carry through `droppedProperties()`. Discard or re-map none silently. Check: `MutationResponseTest` pins all three on the wire. [failure-and-loss.md](../docs/principles/failure-and-loss.md#the-module-drops-nothing-silently-and-reports-every-loss)
 - Fail a mutation payload defect as a typed `400` from a `ContentSystemException` factory, never a `500` or a silent save. List a new structural code in [Api/docs/mutation-errors.md](../Api/docs/mutation-errors.md) and keep it out of `CLIENT_DEFECT_CODES`. Check: is the code in that table?
+- Judge a property value an operation reads only through `PropertyType::admits()`, never a type table of its own. Check: does `ReplaceElement`, `UpdateElementProperties` or `TranslateElement` match a value outside `admits()`? [values.md](../docs/principles/values.md#a-rule-about-a-stored-value-has-one-owner-and-every-path-that-needs-the-rule-calls-that-owner)
+- Keep every operation but a type swap opaque to each property value it is not named for, so a [language map](../docs/principles/translation.md#translations-live-inline-in-the-element-tree-as-language-maps) carries verbatim. Check: does the change add a value-inspecting branch to a move, duplicate, attach, remove, unwrap or mapping operation?
+- Declare the privilege an operation needs in `writePrivilege()`, which `PersistedLayoutMutator::mutate()` checks before the layout load. Never pre-scope the context in a caller. Check: does a caller widen the context scope itself? [runners](docs/runners.md#persistedlayoutmutator)
 - Read the layout source only from `StoredTree::$rootSource` and retain it through `withRoots()`. Check: does a transform lose it or duplicate it in a constructor argument? [runners](docs/runners.md)
 
 ## Where to look
@@ -21,5 +24,6 @@
 - Binding specification resolution on insert, its error codes and statuses: [docs/operations.md](docs/operations.md#insertelement)
 - Type swap carry-over and which value wins over a type default: [docs/replace-element.md](docs/replace-element.md#what-it-carries-over)
 - Which resolutions become consumers on a fresh scaffold: [docs/consumer-mirroring.md](docs/consumer-mirroring.md#what-proves-a-consumer)
+- The translatable-key gate and write privilege of `translate-element`: [docs/translate-element.md](docs/translate-element.md)
 - Helpers every operation inherits: [docs/shared-primitives.md](docs/shared-primitives.md)
 - Explicit mapping/unmapping and source-dependent carry-over: [operations](docs/operations.md#mapproperty), [replace-element](docs/replace-element.md#what-it-carries-over), [mapping principles](../docs/principles/data-mapping.md)

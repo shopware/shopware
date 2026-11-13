@@ -37,6 +37,7 @@ class AclValidPermissionsHelperTest extends TestCase
         // custom permissions
         static::assertTrue($aclHelper->aclKeyValid('api_action_access-key_integration'));
         static::assertTrue($aclHelper->aclKeyValid('app'));
+        static::assertTrue($aclHelper->aclKeyValid('content_layout:translate'));
         static::assertFalse($aclHelper->aclKeyValid('you-dont-know-me'));
     }
 

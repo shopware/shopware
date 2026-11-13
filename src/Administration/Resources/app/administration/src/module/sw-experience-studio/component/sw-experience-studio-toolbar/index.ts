@@ -4,8 +4,6 @@ import { getStorefrontSalesChannelCriteria } from 'src/module/sw-experience-stud
 import template from './sw-experience-studio-toolbar.html.twig';
 import './sw-experience-studio-toolbar.scss';
 
-type Viewport = 'mobile' | 'tablet-landscape' | 'desktop';
-
 /**
  * @private
  * @sw-package discovery
@@ -14,20 +12,10 @@ export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {
-        layout: {
-            type: Object,
-            required: false,
-            default: null,
-        },
         isLoading: {
             type: Boolean,
             required: false,
             default: false,
-        },
-        currentViewport: {
-            type: String,
-            required: false,
-            default: 'desktop',
         },
         allowSave: {
             type: Boolean,
@@ -39,27 +27,11 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: null,
         },
-        previewEntityType: {
-            type: String,
-            required: false,
-            default: null,
+        changedLayouts: {
+            type: Array as PropType<Array<{ id: string; name: string }>>,
+            default: () => [],
         },
-        previewEntityId: {
-            type: String,
-            required: false,
-            default: null,
-        },
-        canUndo: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
-        canRedo: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
-        canManageAssignments: {
+        isSavingAll: {
             type: Boolean,
             required: false,
             default: false,
@@ -67,21 +39,21 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     emits: [
-        'back',
-        'viewport-change',
         'save',
+        'discard-layout',
         'preview-sales-channel-change',
-        'preview-entity-id-change',
-        'undo',
-        'redo',
-        'open-assignments',
     ],
 
-    computed: {
-        layoutName(): string {
-            const layout = this.layout as Entity<'content_layout'> | null;
+    data() {
+        return {
+            isReviewOpen: false,
+            reviewKeydownHandler: null as ((event: KeyboardEvent) => void) | null,
+        };
+    },
 
-            return layout?.name ?? '';
+    computed: {
+        reviewActionsDisabled(): boolean {
+            return !this.allowSave || this.isLoading || this.isSavingAll;
         },
 
         salesChannelCriteria(): CriteriaType {
@@ -89,37 +61,58 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
+    watch: {
+        'changedLayouts.length'(count: number): void {
+            if (count === 0) {
+                this.closeReview();
+            }
+        },
+    },
+
+    mounted(): void {
+        this.reviewKeydownHandler = (event: KeyboardEvent): void => {
+            if (this.isReviewOpen && event.key === 'Escape') {
+                event.preventDefault();
+                this.closeReview();
+            }
+        };
+        window.addEventListener('keydown', this.reviewKeydownHandler);
+    },
+
+    beforeUnmount(): void {
+        if (this.reviewKeydownHandler) {
+            window.removeEventListener('keydown', this.reviewKeydownHandler);
+        }
+    },
+
     methods: {
-        onBack(): void {
-            this.$emit('back');
+        toggleReview(): void {
+            if (this.isReviewOpen) {
+                this.closeReview();
+                return;
+            }
+            this.isReviewOpen = true;
+            void this.$nextTick(() => {
+                const panel = this.$refs.reviewPanel as HTMLElement | undefined;
+                panel?.focus();
+            });
         },
 
-        onViewportChange(viewport: Viewport): void {
-            this.$emit('viewport-change', viewport);
+        closeReview(): void {
+            if (!this.isReviewOpen) {
+                return;
+            }
+            this.isReviewOpen = false;
+            const trigger = this.$refs.reviewTrigger as { $el: HTMLButtonElement } | undefined;
+            trigger?.$el.focus();
         },
 
         onPreviewSalesChannelChange(salesChannelId: string | null): void {
             this.$emit('preview-sales-channel-change', salesChannelId);
         },
 
-        onPreviewEntityIdChange(entityId: string | null): void {
-            this.$emit('preview-entity-id-change', entityId);
-        },
-
         onSave(): void {
             this.$emit('save');
-        },
-
-        onUndo(): void {
-            this.$emit('undo');
-        },
-
-        onRedo(): void {
-            this.$emit('redo');
-        },
-
-        onOpenAssignments(): void {
-            this.$emit('open-assignments');
         },
     },
 });

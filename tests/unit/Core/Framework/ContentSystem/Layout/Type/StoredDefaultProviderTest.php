@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
@@ -36,6 +37,25 @@ class StoredDefaultProviderTest extends TestCase
         $registry->method('get')->willReturnCallback(static fn (string $name): ContentSystemElementTypeSpecification => $specs[$name]);
 
         static::assertSame(['withDefault' => 'seeded'], (new StoredDefaultProvider())->forType($registry, 'Sw:Mixed'));
+    }
+
+    #[TestDox('keys a translatable default under the anchor language and leaves a non-translatable one bare')]
+    public function testForTypeSeedsATranslatableDefaultUnderTheAnchorLanguage(): void
+    {
+        $specs = [
+            'Sw:Text' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Text')
+                ->primitive('title', 'string', default: 'Willkommen', translatable: true)
+                ->primitive('alignment', 'string', default: 'left')
+                ->build(),
+        ];
+
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('get')->willReturnCallback(static fn (string $name): ContentSystemElementTypeSpecification => $specs[$name]);
+
+        static::assertSame(
+            ['title' => [Defaults::LANGUAGE_SYSTEM => 'Willkommen'], 'alignment' => 'left'],
+            (new StoredDefaultProvider())->forType($registry, 'Sw:Text'),
+        );
     }
 
     #[TestDox('returns nested object member defaults')]

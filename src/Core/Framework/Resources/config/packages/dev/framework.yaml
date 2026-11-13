@@ -4,5 +4,8 @@ framework:
     cache:
         app: cache.adapter.array
         pools:
+            # Preview tokens must survive the API request that creates them.
+            cache.content_system_preview:
+                adapter: cache.adapter.filesystem
             cache.app_url_verification:
                 adapter: cache.adapter.filesystem

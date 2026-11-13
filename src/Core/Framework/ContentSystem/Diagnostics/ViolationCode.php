@@ -25,6 +25,7 @@ enum ViolationCode: string
     case OrphanedProvider = 'orphaned_provider';
     case UnfilledRequiredInput = 'unfilled_required_input';
     case UnknownStyleOption = 'unknown_style_option';
+    case DanglingLanguage = 'dangling_language';
     case InvalidMapping = 'invalid_mapping';
 
     public function scope(): ViolationScope
@@ -36,6 +37,7 @@ enum ViolationCode: string
             self::MismatchedReferenceType,
             self::MismatchedPropertyType,
             self::UnknownStyleOption,
+            self::DanglingLanguage,
             self::OrphanedProvider => ViolationScope::Intrinsic,
             self::UnresolvedRequired,
             self::AmbiguousRequired,
@@ -64,6 +66,7 @@ enum ViolationCode: string
             self::UnfilledRequiredInput,
             self::InvalidMapping => ViolationSeverity::Error,
             self::UnresolvedOptional,
+            self::DanglingLanguage,
             self::OrphanedProvider => ViolationSeverity::Warning,
         };
     }

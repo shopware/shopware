@@ -22,6 +22,7 @@ Produces a `LayoutAnalysis` for a layout element tree: per-element property reso
 | `MismatchedPropertyType` | Intrinsic | Error |
 | `UnknownStyleOption` | Intrinsic | Error |
 | `OrphanedProvider` | Intrinsic | Warning |
+| `DanglingLanguage` | Intrinsic | Warning |
 | `UnresolvedRequired` | Binding | Error |
 | `AmbiguousRequired` | Binding | Error |
 | `BrokenRequiredChain` | Binding | Error |
@@ -29,7 +30,7 @@ Produces a `LayoutAnalysis` for a layout element tree: per-element property reso
 | `InvalidMapping` | Binding | Error |
 | `UnresolvedOptional` | Binding | Warning |
 
-The per-violation reporting rules, `MismatchedReferenceType` and `UnfilledRequiredInput` included, are in [docs/violation-rules.md](docs/violation-rules.md).
+The per-violation reporting rules, `MismatchedReferenceType`, `DanglingLanguage` and `UnfilledRequiredInput` included, are in [docs/violation-rules.md](docs/violation-rules.md).
 
 ## Mapping checks
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem;
 
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\Binding\RootSourceConfigMap;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
@@ -73,6 +74,12 @@ class ContentSystemException extends HttpException
     public const MUTATION_SLOT_REQUIRED = 'CONTENT_SYSTEM__MUTATION_SLOT_REQUIRED';
     public const MUTATION_INVALID_WRAP_TARGETS = 'CONTENT_SYSTEM__MUTATION_INVALID_WRAP_TARGETS';
     public const MUTATION_UNKNOWN_TYPE = 'CONTENT_SYSTEM__MUTATION_UNKNOWN_TYPE';
+    public const MUTATION_PROPERTY_UNKNOWN = 'CONTENT_SYSTEM__MUTATION_PROPERTY_UNKNOWN';
+    public const MUTATION_PROPERTY_CONFLICT = 'CONTENT_SYSTEM__MUTATION_PROPERTY_CONFLICT';
+    public const MUTATION_PROPERTY_VALUE_REJECTED = 'CONTENT_SYSTEM__MUTATION_PROPERTY_VALUE_REJECTED';
+    public const MUTATION_PROPERTY_LANGUAGE_KEY_INVALID = 'CONTENT_SYSTEM__MUTATION_PROPERTY_LANGUAGE_KEY_INVALID';
+    public const MUTATION_PROPERTY_NOT_TRANSLATABLE = 'CONTENT_SYSTEM__MUTATION_PROPERTY_NOT_TRANSLATABLE';
+
     public const LAYOUT_VERSION_CONFLICT = 'CONTENT_SYSTEM__LAYOUT_VERSION_CONFLICT';
     public const INVALID_VERSION_TOKEN = 'CONTENT_SYSTEM__INVALID_VERSION_TOKEN';
     public const CONTENT_LAYOUT_NOT_FOUND = 'CONTENT_SYSTEM__CONTENT_LAYOUT_NOT_FOUND';
@@ -124,6 +131,7 @@ class ContentSystemException extends HttpException
     public const FIELD_SELECTION_NOT_SUPPORTED = 'CONTENT_SYSTEM__FIELD_SELECTION_NOT_SUPPORTED';
     public const UNSUPPORTED_PROPERTY_VALUE_TYPE = 'CONTENT_SYSTEM__UNSUPPORTED_PROPERTY_VALUE_TYPE';
     public const INVALID_ELEMENT_ID = 'CONTENT_SYSTEM__INVALID_ELEMENT_ID';
+    public const TRANSLATION_SHAPE_INVALID = 'CONTENT_SYSTEM__TRANSLATION_SHAPE_INVALID';
 
     /**
      * Error codes that mark a defect in client-supplied layout input rather than an internal fault. The
@@ -418,6 +426,26 @@ class ContentSystemException extends HttpException
             self::DUPLICATE_ELEMENT_ID,
             'Served forest is corrupt: element ID "{{ elementId }}" appears more than once, and element IDs must be unique across a forest. Re-save the layout through the DAL write, which rejects a repeated ID, and make sure no rendering listener that replaces the tree introduces one.',
             ['elementId' => $elementId]
+        );
+    }
+
+    /**
+     * A translatable property holds one value per language as a language map, and serving collapses that map
+     * to the request language before any rendering step runs. Where the collapse runs, a value that is not a
+     * language map, or whose selected entry does not match the declared primitive, is an internal fault rather
+     * than a client defect, and is deliberately absent from {@see self::CLIENT_DEFECT_CODES} — the same reading
+     * {@see invalidElementId()} and {@see duplicateElementId()} state. Every client-supplied path rejects the
+     * wrong shape earlier, the strict write with a 400 and the draft routes with a reported violation, so a wrong
+     * shape here means the write constraints were bypassed or a preparation listener introduced it after a
+     * conforming read.
+     */
+    public static function translationShapeInvalid(string $elementId, string $key, string $declaredType, string $actualType): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::TRANSLATION_SHAPE_INVALID,
+            'Property "{{ key }}" of element "{{ elementId }}" is declared {{ declaredType }} and must hold a language map of its primitive, but holds {{ actualType }}.',
+            ['elementId' => $elementId, 'key' => $key, 'declaredType' => $declaredType, 'actualType' => $actualType]
         );
     }
 
@@ -863,6 +891,79 @@ class ContentSystemException extends HttpException
         );
     }
 
+    /**
+     * A mutation structural error like {@see mutationTargetNotFound()}, deliberately outside {@see CLIENT_DEFECT_CODES}.
+     */
+    public static function mutationPropertyUnknown(string $elementId, string $key): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MUTATION_PROPERTY_UNKNOWN,
+            'Property "{{ key }}" is not a primitive property declared by the type of element "{{ elementId }}".',
+            ['elementId' => $elementId, 'key' => $key]
+        );
+    }
+
+    /**
+     * A mutation structural error like {@see mutationTargetNotFound()}, deliberately outside {@see CLIENT_DEFECT_CODES}.
+     */
+    public static function mutationPropertyConflict(string $elementId, string $key): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MUTATION_PROPERTY_CONFLICT,
+            'Property "{{ key }}" of element "{{ elementId }}" is both written and removed by the same update.',
+            ['elementId' => $elementId, 'key' => $key]
+        );
+    }
+
+    /**
+     * A mutation structural error like {@see mutationTargetNotFound()}, deliberately outside {@see CLIENT_DEFECT_CODES}.
+     */
+    public static function mutationPropertyValueRejected(string $elementId, string $key, string $actualType): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MUTATION_PROPERTY_VALUE_REJECTED,
+            'Value for property "{{ key }}" of element "{{ elementId }}" does not match its declared type, but is {{ actualType }}.',
+            ['elementId' => $elementId, 'key' => $key, 'actualType' => $actualType]
+        );
+    }
+
+    /**
+     * A mutation structural error like {@see mutationTargetNotFound()}, deliberately outside {@see CLIENT_DEFECT_CODES}.
+     */
+    public static function mutationPropertyLanguageKeyInvalid(string $elementId, string $key, string $languageKey): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MUTATION_PROPERTY_LANGUAGE_KEY_INVALID,
+            'Language key "{{ languageKey }}" of translatable property "{{ key }}" of element "{{ elementId }}" is not a language id in lowercase UUID hex.',
+            ['elementId' => $elementId, 'key' => $key, 'languageKey' => $languageKey]
+        );
+    }
+
+    /**
+     * A mutation structural error like {@see mutationTargetNotFound()}, deliberately outside {@see CLIENT_DEFECT_CODES}.
+     */
+    public static function mutationPropertyNotTranslatable(string $elementId, string $key): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MUTATION_PROPERTY_NOT_TRANSLATABLE,
+            'Property "{{ key }}" is not a translatable property declared by the type of element "{{ elementId }}".',
+            ['elementId' => $elementId, 'key' => $key]
+        );
+    }
+
+    /**
+     * @param list<string> $privileges
+     */
+    public static function missingPrivileges(array $privileges): MissingPrivilegeException
+    {
+        return new MissingPrivilegeException($privileges);
+    }
+
     public static function layoutVersionConflict(string $layoutId): self
     {
         return new self(
@@ -1136,6 +1237,22 @@ class ContentSystemException extends HttpException
             'Inline mapping path "{{ path }}" in property "{{ propertyKey }}" requires a layout with a bound root source.',
             ['path' => $path, 'propertyKey' => $propertyKey]
         );
+    }
+
+    // An inline mapping fault found in one entry of a translatable property's language map. It keeps the fault's
+    // status, code and parameters and names the entry's language, because one property holds a text per language.
+    public static function inlineMappingFaultInLanguageEntry(self $fault, string $languageId): self
+    {
+        // The fault's message is already rendered, so it is built without parameters: a second substitution pass
+        // would rewrite authored path text that the first pass produced.
+        $exception = new self(
+            $fault->getStatusCode(),
+            $fault->getErrorCode(),
+            $fault->getMessage() . ' Found in the entry for language "' . $languageId . '".',
+        );
+        $exception->parameters = [...$fault->getParameters(), 'languageId' => $languageId];
+
+        return $exception;
     }
 
     // Expansion budgets include authored literal text and escaped source values. Exceeding the output

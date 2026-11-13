@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mutation\Op;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\RootSourceConfigMap;
@@ -15,11 +16,13 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDa
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\AttachElement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 
 /**
  * @internal
@@ -131,6 +134,20 @@ class AttachElementTest extends TestCase
         static::assertNotSame('incoming', $result->roots[2]->id);
     }
 
+    #[TestDox('keeps a language-map property value on the reminted subtree unchanged')]
+    public function testAttachKeepsLanguageMapUnchanged(): void
+    {
+        $german = Uuid::randomHex();
+        $translations = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale', $german => 'Herbstschlussverkauf'];
+        $incoming = StoredElementBuilder::create('Sw:Card', 'incoming')->withProperty('text', $translations)->build();
+
+        $result = $this->attach($incoming)->apply(new StoredTree([]));
+
+        $carried = $result->roots[0]->property('text');
+        static::assertNotNull($carried);
+        static::assertObjectEquals(StoredValue::fromDecoded($translations), $carried);
+    }
+
     #[TestDox('wires and attributes the type default binding on the root and nested elements of an unwired subtree')]
     public function testAttachAppliesTypeDefaultBindingToUnwiredSubtree(): void
     {
@@ -160,7 +177,7 @@ class AttachElementTest extends TestCase
             $this->registry(),
             $incoming,
             $bindingRegistry,
-            new BindingApplicator($serializers),
+            new BindingApplicator($serializers, static::createStub(AbstractContentSystemElementTypeRegistry::class)),
         );
         $result = $attach->apply(new StoredTree([]));
 
@@ -191,7 +208,7 @@ class AttachElementTest extends TestCase
             $this->registry(),
             new StoredElement('incoming', 'Sw:Card'),
             $bindingRegistry,
-            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class)),
+            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), $this->registry()),
         );
 
         $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Card', 'media', 'incoming', 'category'));
@@ -241,7 +258,7 @@ class AttachElementTest extends TestCase
             $this->registry(),
             $element,
             static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
-            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class)),
+            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), $this->registry()),
             $parentElementId,
             $slot,
             $index,

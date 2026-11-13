@@ -113,6 +113,31 @@ present `StoredValue`. Every wired key's attribution is recorded into `attribute
 Keeps the same id. `affected = [elementId]`. `created` stays the empty default, because the element node is wired,
 not built. `orphaned`/`droppedWiring`/`droppedProperties` stay empty, because binding only adds wiring.
 
+## UpdateElementProperties
+
+Replaces each key in `$values` on one element and drops each key in `$removeKeys`, writing a value as supplied in its
+stored shape. Every property key named in neither list carries verbatim, unread. Rules, in this order, each a `400`:
+
+1. Target must exist (`mutationTargetNotFound`).
+2. The element's component must be registered (`mutationUnknownType`, via `requireRegistered`).
+3. Every key in `$values` and `$removeKeys` must name a primitive property the type declares
+   (`mutationPropertyUnknown`).
+4. A key present in both lists throws `mutationPropertyConflict`.
+5. Each `$values` entry must satisfy `PropertyType::admits()` for its declared type (`mutationPropertyValueRejected`,
+   carrying the element id, key and actual type).
+6. Every key of a translatable property's language map must be a language id in lowercase UUID hex
+   (`mutationPropertyLanguageKeyInvalid`, carrying the element id, property key and offending map key). Key existence
+   stays a `dangling_language` diagnostics warning.
+
+`affected = [elementId]`. `created` stays the empty default. `orphaned`, `droppedWiring` and `droppedProperties` stay
+empty.
+
+## TranslateElement
+
+Replaces the language maps of properties the element's type declares translatable, and its own edit changes nothing
+else in the tree. On the persisted route it writes in system scope once the caller's `content_layout:translate`
+privilege is checked. Key gate, rejection order and write privilege: [translate-element.md](translate-element.md).
+
 ## MapProperty
 
 Maps one declared property to an exactly catalogued typed source, deriving cardinality through `StoredMappingInspector`. Reads the source from `StoredTree::$rootSource`; a missing source is an internal precondition fault (`MAPPING_ROOT_SOURCE_MISSING`, 500), while request validation rejects missing/blank or unknown sources with 400. The target must exist and its type be registered. Ordinary destination/base-key collisions are rejected; an existing typed mapping at that property may be replaced. Authored properties and loader wiring remain available for fallback. `affected = [elementId]`; no fresh scaffold is reported.

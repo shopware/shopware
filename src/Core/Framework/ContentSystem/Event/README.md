@@ -15,8 +15,10 @@ child and a `RenderedElement` refuses a stored one, so a list of valid roots is 
 
 ## Key Classes
 
-- `ContentTreePreparationEvent` - Dispatched over the stored tree before every preparation step
+- `ContentTreePreparationEvent` - Dispatched over the stored tree before every preparation step, so each translatable property is still a whole language map
 - `RenderedTreeFinalizationEvent` - Dispatched after the render step and the [finishing steps](../docs/principles/README.md#glossary), over the rendered forest and before the duplicate-element-id check
+
+What each event's listener receives in each mode: [rendering.md](../docs/principles/rendering.md#the-two-tree-replacement-events-fire-at-fixed-points).
 
 ## Lifecycle
 

@@ -77,7 +77,7 @@ In code:
 
 ## One exception class holds a closed, pinned set of client-defect codes
 
-Each code has one factory that new callers reuse. The module has one exception class, and its `CLIENT_DEFECT_CODES` is the one list of codes that mark a client defect. `CLIENT_DEFECT_CODES` is a public constant that only grows. A test pins its exact membership. In one change, a new code enters the constant, the pinned list, the documentation and the administration's own enumeration of the codes it acts on. The administration's `structuralErrorCodes` lists the structural codes of the mutation operations. A change that adds a structural code of a mutation operation extends that list and [mutation-errors.md](../../Api/docs/mutation-errors.md) together. A changed value in `CLIENT_DEFECT_CODES` is a compatibility break to report. A rejection about an element carries that element's id.
+Each code has one factory that new callers reuse. The module has one exception class, and its `CLIENT_DEFECT_CODES` is the one list of codes that mark a client defect. `CLIENT_DEFECT_CODES` is a public constant that only grows. A test pins its exact membership. In one change, a new code enters the constant, the pinned list, the documentation and the administration's own enumeration of the codes it acts on. The administration's `MUTATION_ERROR_SNIPPETS` maps each mutation error code that has a specific message to a snippet. A change that adds a mutation error code that needs a specific message extends that map and [mutation-errors.md](../../Api/docs/mutation-errors.md) together. A changed value in `CLIENT_DEFECT_CODES` is a compatibility break to report. A rejection about an element carries that element's id.
 
 Why: The administration gives a specific message only to codes it lists, and others get a generic one. Two codes for one condition make each consumer match both. Without the element id, the editor must search for the element.
 
@@ -88,5 +88,5 @@ Exceptions: `unknownStyleBreakpoint()` and `invalidLoaderConfig()` each reuse th
 In code:
 
 - `ContentSystemException` holds the catalogue.
-- The administration's `structuralErrorCodes` lists the mutation error codes that it maps to a message.
+- The administration's `MUTATION_ERROR_SNIPPETS` maps each mutation error code it lists to a snippet.
 - See [client-defect-codes.md](../client-defect-codes.md).

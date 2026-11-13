@@ -16,6 +16,8 @@ final class InlineMappableType extends Constraint
 
     public string $exclusiveMessage = 'inlineMappable and mappable are mutually exclusive on one property';
 
+    public string $nestedMessage = 'inlineMappable is only valid on a top-level property, not on a member nested inside an object property';
+
     public function getTargets(): string
     {
         return self::CLASS_CONSTRAINT;

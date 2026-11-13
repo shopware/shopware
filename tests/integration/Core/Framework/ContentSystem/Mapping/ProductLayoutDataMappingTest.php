@@ -66,29 +66,25 @@ class ProductLayoutDataMappingTest extends TestCase
      * @param array<string, string> $query
      */
     #[DataProvider('ordinaryPlaceholderRenderingCases')]
-    public function testOrdinaryPlaceholdersAndMappingTokensKeepTheirSeparateRenderingRules(string $text, array $query, ?string $expected): void
+    public function testOrdinaryPlaceholdersAndMappingTokensKeepTheirSeparateRenderingRules(string $text, array $query, string $expected): void
     {
         $this->createProduct();
         $element = $this->textElement(mappedTo: null);
-        $element['properties']['text'] = $text;
+        $element['properties']['text'] = [Defaults::LANGUAGE_SYSTEM => $text];
         $this->persistLayout($element);
 
         $properties = $this->servedProperties($query);
 
-        if ($expected === null) {
-            static::assertArrayNotHasKey('text', $properties);
-        } else {
-            static::assertSame($expected, $properties['text'] ?? null);
-        }
+        static::assertSame($expected, $properties['text'] ?? null);
     }
 
     /**
-     * @return iterable<string, array{string, array<string, string>, string|null}>
+     * @return iterable<string, array{string, array<string, string>, string}>
      */
     public static function ordinaryPlaceholderRenderingCases(): iterable
     {
-        yield 'missing colon placeholder is omitted' => ['{{external:id}}', [], null];
-        yield 'padded known root ID is omitted' => ['{{ productId }}', [], null];
+        yield 'missing colon placeholder remains literal' => ['{{external:id}}', [], '{{external:id}}'];
+        yield 'padded known root ID remains literal' => ['{{ productId }}', [], '{{ productId }}'];
         yield 'valued colon placeholder resolves' => ['{{external:id}}', ['external:id' => 'Resolved'], 'Resolved'];
         yield 'embedded missing placeholder remains literal' => ['Hello {{external:id}}', [], 'Hello {{external:id}}'];
         yield 'inserted mapping-looking text is not expanded' => ['{{query}}', ['query' => '{{map:product.name}}'], '{{map:product.name}}'];
@@ -103,7 +99,7 @@ class ProductLayoutDataMappingTest extends TestCase
             'description' => str_repeat('x', 65536),
         ]], Context::createDefaultContext());
         $element = $this->textElement(mappedTo: null);
-        $element['properties']['text'] = str_repeat('{{map:product.description}}', 17);
+        $element['properties']['text'] = [Defaults::LANGUAGE_SYSTEM => str_repeat('{{map:product.description}}', 17)];
         $this->persistLayout($element);
 
         $this->browser->request('GET', '/store-api/content/product/' . $this->ids->get('product'));
@@ -193,7 +189,7 @@ class ProductLayoutDataMappingTest extends TestCase
         $element = [
             'id' => $this->ids->create('text'),
             'component' => 'Sw:Content:Text',
-            'properties' => ['text' => $mappedTo === null ? self::AUTHORED_TEXT : '{{map:' . $mappedTo . '}}'],
+            'properties' => ['text' => [Defaults::LANGUAGE_SYSTEM => $mappedTo === null ? self::AUTHORED_TEXT : '{{map:' . $mappedTo . '}}']],
         ];
 
         return $element;

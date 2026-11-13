@@ -1,5 +1,6 @@
 meta:
   label: "Product Review Filters"
+  labelSnippet: "sw-experience-studio.elements.product-review-filters.label"
   description: "Sort and language-filter controls that drive a product's review list."
   icon: "regular-filter-s"
   illustration: "product-review-filters"
@@ -16,4 +17,5 @@ properties:
     type: Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult
     required: false
     title: "Reviews"
+    titleSnippet: "sw-experience-studio.elements.product-review-filters.reviews.title"
     description: "Hydrated review result the controls read their counts and current sorting from. Received as root-scoped context from the page, which loads it once, so the controls add no load of their own."

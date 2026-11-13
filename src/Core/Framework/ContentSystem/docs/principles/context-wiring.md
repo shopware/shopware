@@ -20,14 +20,14 @@ In code:
 
 ## Preparation and resolution run in one fixed order
 
-The renderer captures authored mapping-token spans before placeholder substitution, then validates wiring and derives redistribution. Data resolution over the whole [forest](README.md#glossary) runs next, followed by consumed page-level requirements. Inline expansion then runs before context delivery and keyed selection. Page requirements include ordinary root consumers, whole-field mapping sources, and recognized inline paths. A loader therefore never receives delivered context or the page entity. The preparation event fires before this order starts, as [rendering.md](rendering.md#the-two-tree-replacement-events-fire-at-fixed-points) states.
+In FULL mode, [language reduction](translation.md#language-reduction-happens-on-the-server-and-nothing-downstream-receives-a-language-map) runs first, then `StoredTreePreparer` captures authored mapping-token spans in the reduced strings, then placeholder substitution runs. Wiring validation and redistribution follow. Data resolution over the whole [forest](README.md#glossary) runs next, followed by consumed page-level requirements. Inline expansion then runs before context delivery and keyed selection. Page requirements include ordinary root consumers, whole-field mapping sources, and recognized inline paths. A loader therefore never receives delivered context or the page entity. The preparation event fires before this order starts, as [rendering.md](rendering.md#the-two-tree-replacement-events-fire-at-fixed-points) states.
 
-Why: A provider may hand a loaded value to a child, so delivery before data resolution would find that value not yet loaded. Placeholder substitution never descends into a map.
+Why: A provider may hand a loaded value to a child, so delivery before data resolution would find that value not yet loaded. The token parser and placeholder substitution read strings only, and a translatable value is a [language map](README.md#glossary) until reduction selects its chain entry.
 
 In code:
 
+- `StoredTreePreparer::prepare()` runs reduction, span capture and substitution inside one FULL mode guard.
 - `ElementLowering::lower()` completes data loading and inline expansion before delivery and keyed selection.
-- `StoredTreePreparerTest` pins this order.
 - See [pipeline-steps.md](../pipeline-steps.md).
 
 ## The write gate computes each delivery rule it checks exactly as serving computes it

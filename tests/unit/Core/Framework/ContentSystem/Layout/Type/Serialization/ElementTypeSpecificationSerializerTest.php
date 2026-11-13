@@ -29,6 +29,40 @@ class ElementTypeSpecificationSerializerTest extends TestCase
         $this->serializer = new ElementTypeSpecificationSerializer();
     }
 
+    public function testSnippetReferencesSurviveAppPersistenceAndIntrospection(): void
+    {
+        $raw = [
+            'meta' => ['label' => 'Image', 'description' => 'An image.', 'labelSnippet' => 'plugin.image.label'],
+            'properties' => [
+                'size' => [
+                    'type' => 'object', 'title' => 'Size', 'description' => 'Image size.', 'titleSnippet' => 'plugin.image.size',
+                    'properties' => [
+                        'width' => ['type' => 'string', 'title' => 'Width', 'description' => 'Width.', 'titleSnippet' => 'plugin.image.width'],
+                    ],
+                    'adminUI' => ['helpText' => 'Help.', 'helpTextSnippet' => 'plugin.image.help'],
+                ],
+            ],
+        ];
+        $dto = $this->serializer->denormalize($raw);
+        $persisted = json_encode($this->serializer->normalize($dto), \JSON_THROW_ON_ERROR);
+        $restored = $this->serializer->denormalize(json_decode($persisted, true, 512, \JSON_THROW_ON_ERROR));
+        $schema = $restored->toContentSystemElementTypeSpecification('Plugin:Image', 'plugin:Plugin')->toSchema();
+
+        static::assertSame('Image', $schema['label']);
+        static::assertArrayHasKey('labelSnippet', $schema);
+        static::assertSame('plugin.image.label', $schema['labelSnippet']);
+        $size = $schema['properties']['size'];
+        static::assertSame('Size', $size['title']);
+        static::assertArrayHasKey('titleSnippet', $size);
+        static::assertSame('plugin.image.size', $size['titleSnippet']);
+        static::assertIsArray($size['properties']);
+        static::assertArrayHasKey('width', $size['properties']);
+        static::assertSame('plugin.image.width', $size['properties']['width']['titleSnippet']);
+        static::assertIsArray($size['adminUI']);
+        static::assertArrayHasKey('helpTextSnippet', $size['adminUI']);
+        static::assertSame('plugin.image.help', $size['adminUI']['helpTextSnippet']);
+    }
+
     #[DataProvider('illustrationProvider')]
     public function testRoundTripsTheIndependentIllustrationThroughAppJson(?string $illustration): void
     {

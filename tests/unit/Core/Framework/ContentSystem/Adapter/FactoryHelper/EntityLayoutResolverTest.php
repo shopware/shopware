@@ -28,7 +28,7 @@ class EntityLayoutResolverTest extends TestCase
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
-        $this->resolver = new EntityLayoutResolver();
+        $this->resolver = new EntityLayoutResolver(['utm_source', 'custom_tracking']);
     }
 
     #[TestDox('builds placeholder values from entity id field and scalar query parameters, ignoring non-scalar parameters')]
@@ -42,6 +42,22 @@ class EntityLayoutResolverTest extends TestCase
             ['productId' => 'product-id-1', 'color' => 'red'],
             $result->all()
         );
+    }
+
+    public function testCacheIgnoredQueryParametersCannotBecomePlaceholders(): void
+    {
+        $parameters = [
+            'utm_source' => '<a href="https://example.test/phishing">Campaign</a>',
+            'custom_tracking' => 'injected content',
+            'campaign' => 'summer',
+            'page' => 2,
+        ];
+        $request = new Request($parameters);
+
+        $result = $this->resolver->resolvePlaceholders('landingPageId', 'landing-page-id', $request);
+
+        static::assertSame(['landingPageId' => 'landing-page-id', 'campaign' => 'summer', 'page' => 2], $result->all());
+        static::assertSame($parameters, $request->query->all());
     }
 
     #[TestDox('returns layout ID when assignment exists')]

@@ -4,7 +4,7 @@
 
 The stateless draft mutation actions and the request envelope they share. Their response body is described in [mutation-response.md](mutation-response.md), their error model in [mutation-errors.md](mutation-errors.md), and applying a binding specification through a mutation in [mutation-binding.md](mutation-binding.md).
 
-Served by `Api/LayoutMutationController` under the path prefix `/api/_action/content-system/layout/`.
+Served by `Api/LayoutMutationController` under the path prefix `/api/_action/content-system/layout/`. Every route carries the ACL `content_layout:read`.
 
 Apply exactly one layout edit to an **unsaved** draft layout and return the re-resolved layout plus a diagnostics report, **without** persisting. This is the assemble step done server-side. The caller sends the current draft tree and one edit, and gets back the edited, freshly diagnosed tree, ready to feed straight into the next edit or into preview. Route names follow `api.action.content_system.layout.<op>`.
 
@@ -30,12 +30,14 @@ Every action shares one envelope and adds its own operation fields, bound via `#
 | `bind-element`      | `BindElementRequest` | `elementId` (required); `bindingSpecificationId` (required, source-qualified id `source:id` from the target element's type entry's [`bindingSpecifications`](../../Binding/docs/introspection.md) map on `content-system-element-types.json`)                                                                                       |
 | `map-property` | `MapPropertyRequest` | `elementId`, `propertyKey`, and `source` (required typed source reference); `rootSource` (required, non-blank registered source). The server derives cardinality and validates admission. |
 | `unmap-property` | `UnmapPropertyRequest` | `elementId`, `propertyKey` (required). Removes the typed mapping while preserving ordinary wiring. |
+| `update-element-properties` | `UpdateElementPropertiesRequest` | `elementId` (required); `values` (optional, keyed by property key, each naming a primitive property the type declares and admitting the given value, written as supplied); `removeKeys` (optional, unique declared primitive keys to drop). On the persisted route, a removed key that has a type default is stored with that default, because the write boundary seeds absent defaults; the response shows the tree before that seeding. At least one of `values` or `removeKeys` must be non-empty, enforced by `Validation/UpdateElementPropertiesNotEmpty`, which the persisted route's DTO shares. That 400 carries no error code, so a client identifies it by the `updateElementPropertiesEmpty` token in the message. |
+| `translate-element` | `TranslateElementRequest` | `elementId` (required); `values` (required non-empty, keyed by property key, each naming a property the type declares translatable and carrying a language map, written as supplied, see [translate-element.md](../../Mutation/docs/translate-element.md)) |
 
 `index` is clamped, never rejected: a null, negative, or out-of-range `index` appends at the end of the target list.
 
 `attach-element` is the inverse of the detachment a `replace` reports: hand its `orphaned` subtrees (or any copied subtree) back to `attach-element` to re-place them. Ids are server-generated, so the placed elements get fresh ids returned in `affectedElementIds`. Copied or detached authored elements preserve their mappings, selected entities, and deliberate unmapping; new ids alone do not trigger default mappings or consumer mirroring.
 
-`insert-preset` reads the named preset from the layout preset registry, decodes its payload through `DraftLayoutDecoder::decode()`, and places every root element the way `attach-element` places one subtree: ids are regenerated and each element's type default binding is fill-applied. The preset comes from the registry, never from the request, so the client names a preset and cannot alter its content. An unregistered `presetId` is a `404` (`layoutPresetNotFound`, see [mutation-errors.md](mutation-errors.md)).
+`insert-preset` reads the named preset from the layout preset registry, decodes its payload through `DraftLayoutDecoder::decode()`, and places every root element the way `attach-element` places one subtree: each element's type default binding is fill-applied, then its ids are regenerated. The preset comes from the registry, never from the request, so the client names a preset and cannot alter its content. An unregistered `presetId` is a `404` (`layoutPresetNotFound`, see [mutation-errors.md](mutation-errors.md)).
 
 Default mappings initialize only the explicit `freshlyScaffolded()` set: new elements, preset insertions, replacement scaffolds, and wrapping containers. Ordinary copies and reattachments preserve authored choices. Direct DAL/Admin CRUD/Sync writes do not seed mapping consumers. See [default mapping rules](../../Mapping/README.md#stored-mappings-and-rendering).
 

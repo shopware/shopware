@@ -40,6 +40,7 @@ Response:
       ],
       "storageSchema": {
         "<propertyName>": { "kind": "property", "type": "string", "required": true },
+        "<translatablePropertyName>": { "kind": "property", "type": "string", "required": false, "translatable": true },
         "<referenceStorageKey>": { "kind": "resolvedByStorage", "type": "string", "required": true }
       }
     }
@@ -63,7 +64,7 @@ Each type entry carries a folded `bindingSpecifications` catalogue. The response
 
 `properties` publishes the [hydrated](output-schema.md) output schema: what a rendered element of this type carries. `storageSchema` publishes the other half, what an element of this type **stores**, keyed by stored key. `Layout/Type/StoredSchemaResolver` derives it per type. It encodes as `{}` for a type that stores nothing. See [The Admin API exchanges `StoredElement`](../../../docs/principles/wire-contract.md#the-admin-api-exchanges-storedelement).
 
-Each entry is `{ kind, type, required }` plus an optional `default`. `kind` says where the key comes from:
+Each entry is `{ kind, type, required }` plus an optional `default` and an optional `translatable`, and `kind` says where the key comes from:
 
 | `kind` | The stored key is | `type` is |
 | --- | --- | --- |
@@ -74,6 +75,8 @@ Each entry is `{ kind, type, required }` plus an optional `default`. `kind` says
 A declared FQCN property gets no entry at all: nothing is stored under the reference key itself, only under its `resolvedBy` storage key.
 
 On `resolvedByStorage` and `config`, `type` is the config key's `referencedType`, not the type of the reference token. The token is always a string naming a property, while the value stored under it may be a list of ids. Neither carries a `default`: a config key's default is a default *token* (a property name), never a default stored value. Only a `property` entry has a `default`, and only when the declared property has one.
+
+`translatable` is present, and always `true`, only on a `property` entry whose declared property is translatable, and is omitted everywhere else. It tells a client that the stored value under that key is a [language map](../../../docs/principles/README.md#glossary) of values of `type`, not a bare value. `default` stays the declared scalar, and storage seeds it under the system language id, `Defaults::LANGUAGE_SYSTEM`. The hydrated `properties` schema publishes the same flag for every property as a plain boolean.
 
 One key claimed by more than one kind yields exactly one entry, by precedence `property` > `resolvedByStorage` > `config`. A declared property is the most specific statement about a stored key. Between `resolvedByStorage` and `config`, the `resolvedBy` shorthand's own storage key is the more specific.
 

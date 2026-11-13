@@ -313,11 +313,7 @@ function convertItem(sourceCode, item, activeRefs) {
             case 'warningtooltip':
                 return fail('a tooltip on sw-tabs-item');
             case 'class':
-                if (info.kind === 'bound') {
-                    fail('a bound :class on sw-tabs-item');
-                }
-
-                return;
+                return fail(info.kind === 'bound' ? 'a bound :class on sw-tabs-item' : 'a class on sw-tabs-item');
             case 'key':
                 return;
             default:

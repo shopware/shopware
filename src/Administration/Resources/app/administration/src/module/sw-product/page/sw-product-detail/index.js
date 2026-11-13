@@ -93,6 +93,10 @@ export default {
     },
 
     computed: {
+        isProductLoaded() {
+            return Boolean(this.productId) && this.product.id === this.productId;
+        },
+
         product() {
             return Shopware.Store.get('swProductDetail').product;
         },

@@ -107,7 +107,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          gh release download v0.14.0 --repo MalteJanz/ludtwig --pattern '*unknown-linux-gnu.tar.gz'
+          gh release download v0.15.0 --repo MalteJanz/ludtwig --pattern '*unknown-linux-gnu.tar.gz'
           tar xf ./*.tar.gz
           mv ./ludtwig /usr/local/bin
 

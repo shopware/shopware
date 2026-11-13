@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\UsageData\Services\ShopIdProvider;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 
 /**
@@ -17,6 +18,30 @@ use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 class ShopIdProviderTest extends TestCase
 {
     public function testReturnsShopIdFromSystemConfig(): void
+    {
+        $appShopIdProvider = $this->createMock(\Shopware\Core\Framework\App\ShopId\ShopIdProvider::class);
+        $appShopIdProvider->expects($this->never())
+            ->method('getShopId');
+
+        $providerToTest = new ShopIdProvider(
+            $appShopIdProvider,
+            new StaticSystemConfigService([
+                \Shopware\Core\Framework\App\ShopId\ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2 => [
+                    'id' => 'shop-id-from-system-config',
+                    'version' => 2,
+                    'fingerprints' => [],
+                ],
+            ])
+        );
+
+        static::assertSame('shop-id-from-system-config', $providerToTest->getShopId());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - remove together with the old shop ID format
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testReturnsShopIdInTheOldFormatFromSystemConfig(): void
     {
         $appShopIdProvider = $this->createMock(\Shopware\Core\Framework\App\ShopId\ShopIdProvider::class);
         $appShopIdProvider->expects($this->never())

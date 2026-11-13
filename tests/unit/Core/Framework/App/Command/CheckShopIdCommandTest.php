@@ -11,6 +11,7 @@ use Shopware\Core\Framework\App\ShopId\FingerprintMatch;
 use Shopware\Core\Framework\App\ShopId\FingerprintMismatch;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -23,10 +24,8 @@ class CheckShopIdCommandTest extends TestCase
 {
     public function testDisplaysHintThatNoShopIsExistsYet(): void
     {
-        $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->expects($this->exactly(2))
-            ->method('get')
-            ->willReturnOnConsecutiveCalls(null, null);
+        $systemConfigService = static::createStub(SystemConfigService::class);
+        $systemConfigService->method('get')->willReturn(null);
 
         $fingerprintGenerator = static::createStub(FingerprintGenerator::class);
 
@@ -41,6 +40,33 @@ class CheckShopIdCommandTest extends TestCase
     }
 
     public function testDisplaysShopId(): void
+    {
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->expects($this->once())
+            ->method('get')
+            ->willReturn(['id' => 'shop-id-v2', 'version' => 2, 'fingerprints' => []]);
+
+        $fingerprintGenerator = $this->createMock(FingerprintGenerator::class);
+        $fingerprintGenerator->expects($this->once())
+            ->method('matchFingerprints')
+            ->willReturn(new FingerprintComparisonResult([], [], 75));
+
+        $commandTester = new CommandTester(
+            new CheckShopIdCommand($systemConfigService, $fingerprintGenerator)
+        );
+
+        $commandTester->execute([]);
+
+        static::assertSame(Command::SUCCESS, $commandTester->getStatusCode());
+        static::assertStringContainsString('Shop ID: shop-id-v2', $commandTester->getDisplay());
+        static::assertStringContainsString('Version: 2', $commandTester->getDisplay());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - remove together with the old shop ID format
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testDisplaysShopIdInTheOldFormat(): void
     {
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->expects($this->exactly(2))

@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -58,8 +59,13 @@ class ShopIdProviderTest extends TestCase
         static::assertSame($_SERVER['APP_URL'], $shopIdConfig['fingerprints'][AppUrl::IDENTIFIER]);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - remove together with the old shop ID format
+     */
     public function testUpgradesShopIdToV2IfShopIdV1PresentInSystemConfig(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         static::assertNull($this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY));
         static::assertNull($this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2));
 
@@ -122,8 +128,13 @@ class ShopIdProviderTest extends TestCase
         static::assertSame($newAppUrl, $shopIdConfigAfterUpdate['fingerprints'][AppUrl::IDENTIFIER] ?? null);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - remove together with the old shop ID format
+     */
     public function testDeletesShopIdConfigV1AndShopIdConfigV2(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $this->systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, ['value' => '1234567890', 'app_url' => 'https://foo.bar']);
         $this->systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, ['value' => '1234567890', 'version' => 2, 'fingerprints' => ['app_url' => 'https://foo.bar']]);
 

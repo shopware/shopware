@@ -170,12 +170,8 @@ shopware:
 
 ## `--no-validate` removed from `app:install` and `app:refresh`
 
-The `--no-validate` option was removed from both commands. Drop it from any script that passes it.
-
-On `app:install` it already had no effect in 6.7: manifest findings that do not prevent an app from working, such as a webhook on an event the running Shopware version does not have, stopped refusing an installation. Findings that do prevent an app from working are refused during the installation itself and were never skippable.
-
-On `app:refresh` it skipped the validation the command ran before refreshing.
-The command no longer runs that validation, so the option has no effect there either.
+The option had no effect since 6.7.
+Passing it now fails with an unknown-option error.
 
 ## Minimum value constraints added to quantity fields in ProductPriceDefinition
 

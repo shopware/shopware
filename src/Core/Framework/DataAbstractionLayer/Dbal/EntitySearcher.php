@@ -33,8 +33,6 @@ class EntitySearcher implements EntitySearcherInterface
 {
     private const WINDOW_TOTAL = '_total';
 
-    private const WINDOW_SORT_PREFIX = '_total_sort_';
-
     public function __construct(
         private readonly Connection $connection,
         private readonly EntityDefinitionQueryHelper $queryHelper,
@@ -91,13 +89,12 @@ class EntitySearcher implements EntitySearcherInterface
             $this->queryHelper->addGroupBy($definition, $criteria, $context, $query, $table);
         }
 
-        $countQuery = $query;
         $countInQuery = $scored
             && $criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_EXACT
             && $criteria->getLimit() !== null;
 
         if ($countInQuery) {
-            $query = $this->buildWindowCountQuery($query);
+            $query->addSelect('COUNT(*) OVER() AS ' . EntityDefinitionQueryHelper::escape(self::WINDOW_TOTAL));
         }
 
         // add pagination
@@ -119,9 +116,13 @@ class EntitySearcher implements EntitySearcherInterface
 
         if ($countInQuery && $rows !== []) {
             $total = (int) $rows[0][self::WINDOW_TOTAL];
-            $rows = array_map($this->removeWindowCountColumns(...), $rows);
+            $rows = array_map(static function (array $row): array {
+                unset($row[self::WINDOW_TOTAL]);
+
+                return $row;
+            }, $rows);
         } else {
-            $total = $this->getTotalCount($criteria, $countQuery, $rows);
+            $total = $this->getTotalCount($criteria, $query, $rows);
         }
 
         if ($criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_NEXT_PAGES) {
@@ -236,44 +237,6 @@ class EntitySearcher implements EntitySearcherInterface
         $outer->setParameters($query->getParameters(), $query->getParameterTypes());
 
         return $outer;
-    }
-
-    private function buildWindowCountQuery(QueryBuilder $query): QueryBuilder
-    {
-        $wrapper = new QueryBuilder($this->connection);
-
-        foreach ($query->getOrderByPairs() as $i => [$expression, $direction]) {
-            $alias = $expression === Criteria::SCORE_FIELD ? Criteria::SCORE_FIELD : self::WINDOW_SORT_PREFIX . $i;
-            if ($alias !== Criteria::SCORE_FIELD) {
-                $query->addSelect($expression . ' AS ' . EntityDefinitionQueryHelper::escape($alias));
-            }
-
-            $wrapper->addOrderBy('counted.' . EntityDefinitionQueryHelper::escape($alias), $direction);
-        }
-
-        $query->resetOrderBy();
-
-        $wrapper->select('counted.*', 'COUNT(*) OVER() AS ' . EntityDefinitionQueryHelper::escape(self::WINDOW_TOTAL))
-            ->from(\sprintf('(%s)', $query->getSQL()), 'counted')
-            ->setParameters($query->getParameters(), $query->getParameterTypes());
-
-        return $wrapper;
-    }
-
-    /**
-     * @param array<string, mixed> $row
-     *
-     * @return array<string, mixed>
-     */
-    private function removeWindowCountColumns(array $row): array
-    {
-        unset($row[self::WINDOW_TOTAL]);
-
-        return array_filter(
-            $row,
-            static fn (string $column): bool => !str_starts_with($column, self::WINDOW_SORT_PREFIX),
-            \ARRAY_FILTER_USE_KEY
-        );
     }
 
     private function addTotalCountMode(Criteria $criteria, QueryBuilder $query): void

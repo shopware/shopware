@@ -130,7 +130,7 @@ class EntitySearcherTest extends TestCase
         $connection->expects($this->once())
             ->method('executeQuery')
             ->willReturn($this->createRowResult([
-                ['id' => Uuid::fromHexToBytes($id), '_score' => '300', '_total_sort_1' => 'Sport', '_total' => '42'],
+                ['id' => Uuid::fromHexToBytes($id), '_score' => '300', '_total' => '42'],
             ]));
 
         $criteria = new Criteria();

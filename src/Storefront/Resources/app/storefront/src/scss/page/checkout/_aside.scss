@@ -37,6 +37,34 @@
     text-align: right;
 }
 
+@include media-breakpoint-down(sm) {
+    .checkout-aside-summary-header {
+        overflow-wrap: anywhere;
+    }
+
+    .checkout-aside-summary-label,
+    .checkout-aside-summary-value {
+        flex: 0 0 100%;
+        max-width: 100%;
+        overflow-wrap: anywhere;
+    }
+
+    .checkout-aside-summary-label:not(.checkout-aside-summary-total) {
+        font-weight: $font-weight-bold;
+    }
+
+    .checkout-aside-summary-value {
+        padding-top: 0;
+        border-top: 0;
+        margin-top: 0;
+        text-align: left;
+
+        &.summary-net {
+            margin-top: 0;
+        }
+    }
+}
+
 .checkout-aside-action {
     margin-top: $spacer;
 }

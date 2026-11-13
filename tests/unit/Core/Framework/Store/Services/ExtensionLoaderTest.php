@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Store\Services;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -263,6 +264,80 @@ class ExtensionLoaderTest extends TestCase
         static::assertFalse($extension->isTheme());
         static::assertNull($extension->getInstalledAt());
         static::assertTrue($extension->isAllowUpdate());
+    }
+
+    /**
+     * @return iterable<string, array{bool, string, bool}>
+     */
+    public static function pluginRemovalProvider(): iterable
+    {
+        yield 'plugin in custom/plugins' => [false, 'custom/plugins/SomePlugin', true];
+        yield 'plugin in custom/plugins required via Composer' => [true, 'custom/plugins/SomePlugin', true];
+        yield 'plugin installed by Composer outside custom/plugins' => [true, 'vendor/store.shopware.com/someplugin', false];
+    }
+
+    #[DataProvider('pluginRemovalProvider')]
+    #[TestDox('A plugin can be removed unless Composer installed it outside custom/plugins: $_dataName')]
+    public function testPluginCanBeRemovedUnlessComposerInstalledItOutsideCustomPlugins(
+        bool $managedByComposer,
+        string $path,
+        bool $allowRemove,
+    ): void {
+        $plugin = $this->createPlugin('SomePlugin');
+        $plugin->assign(['managedByComposer' => $managedByComposer, 'path' => $path]);
+
+        $extension = $this->createLoader()
+            ->loadFromPluginCollection(Context::createDefaultContext(), new PluginCollection([$plugin]))
+            ->get('SomePlugin');
+
+        static::assertNotNull($extension);
+        static::assertSame($allowRemove, $extension->isAllowRemove());
+    }
+
+    /**
+     * @return iterable<string, array{bool, bool, bool}>
+     */
+    public static function appRemovalProvider(): iterable
+    {
+        yield 'app in custom/apps' => [false, false, true];
+        yield 'app installed by Composer' => [true, false, false];
+        yield 'installed app in custom/apps' => [false, true, true];
+        yield 'installed app installed by Composer' => [true, true, false];
+    }
+
+    #[DataProvider('appRemovalProvider')]
+    #[TestDox('An app can be removed unless Composer installed it: $_dataName')]
+    public function testAppCanBeRemovedUnlessComposerInstalledIt(bool $managedByComposer, bool $installed, bool $allowRemove): void
+    {
+        $manifest = Manifest::createFromXml(
+            (new Filesystem())->readFile(__DIR__ . '/_fixtures/LocalApp/manifest.xml')
+        );
+        $manifest->setManagedByComposer($managedByComposer);
+
+        $appLoader = static::createStub(AppLoader::class);
+        $appLoader->method('load')->willReturn(['LocalApp' => $manifest]);
+
+        $extension = $this->createLoader(
+            appLoader: $appLoader,
+            sourceResolver: new StaticSourceResolver(['LocalApp' => new StaticFilesystem()]),
+        )->loadFromAppCollection(
+            Context::createDefaultContext(),
+            new AppCollection($installed ? [$this->createApp('LocalApp')] : []),
+        )->get('LocalApp');
+
+        static::assertNotNull($extension);
+        static::assertSame($allowRemove, $extension->isAllowRemove());
+    }
+
+    #[TestDox('An installed app without files on the server cannot be removed')]
+    public function testInstalledAppWithoutFilesCannotBeRemoved(): void
+    {
+        $extension = $this->createLoader()
+            ->loadFromAppCollection(Context::createDefaultContext(), new AppCollection([$this->createApp('GoneApp')]))
+            ->get('GoneApp');
+
+        static::assertNotNull($extension);
+        static::assertFalse($extension->isAllowRemove());
     }
 
     private function createLoader(

@@ -105,6 +105,20 @@ class AppRetainedSecretGatewayTest extends TestCase
         static::assertSame(['newer-shop', 'older-shop'], $shopIds);
     }
 
+    public function testFindValidWithoutAnAppNameReturnsEveryApp(): void
+    {
+        $this->setAppSecrets('committed-secret', []);
+        $this->gateway->retainCandidates('old-shop');
+        $this->insertRetained('another-shop', 'another-app', 'foreign-secret', '2026-01-02 00:00:00.000');
+
+        $pairs = array_map(
+            static fn (array $row): string => $row['appName'] . '/' . $row['secret'],
+            $this->gateway->findValid(null)
+        );
+
+        static::assertSame(['test/committed-secret', 'another-app/foreign-secret'], $pairs);
+    }
+
     public function testExpiredRowsArePurgedOnRead(): void
     {
         $this->gateway->retainCandidates('old-shop');

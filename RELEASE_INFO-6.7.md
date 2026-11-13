@@ -569,22 +569,28 @@ Invalid JSON, malformed messages or resource contents, and `{"success":false,"er
 
 Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-module source>`) now receive the signed `color-scheme` query parameter with the resolved Administration theme, `light` or `dark`, like Admin SDK locations already do.
 
-### App secrets survive a ShopId deletion for 72 hours
+### Recover app registrations a shop copy took over
 
 When a shop is copied, for example to a staging environment, the copy can register the apps again and take over the production shop's registration, so production's app secret no longer works.
-Deleting the ShopId on the copy (`reinstall-apps`, `uninstall-apps`, `system:setup:staging`) used to lose the secret the app now trusts.
-Shopware now keeps the secrets of all registered apps for 72 hours before it deletes the ShopId, as long as the shop still passes the ShopId check.
+Giving the copy a new ShopId or removing its apps (`reinstall-apps`, `uninstall-apps`, `system:setup:staging`) used to lose the secret the app now trusts.
+Shopware now keeps the secrets of all registered apps for 72 hours before that, as long as the shop's fingerprints still match where it runs.
 
-Print them on the copy with `bin/console app:secret:recoverable <appName>`.
-Use `--raw` to print only the secrets, one per line.
-On the production shop, hand them to the rotation, which tries them before its own secrets:
+Hand them from the copy to production with `app:secret:recover`:
 
 ```bash
-bin/console app:secret:rotate <appName> --adopt-secrets < secrets.txt
+# on the copy: see every secret it holds, with ShopId and expiry
+bin/console app:secret:recover --list <appName>
+
+# on the copy: print the secrets production needs
+bin/console app:secret:recover --start <appName> > handover.txt
+
+# on production: register with the apps again
+bin/console app:secret:recover --finish < handover.txt
 ```
 
-`--adopt-secrets` reads the secrets from standard input, never from the command line, and requires an app name.
-The output of `app:secret:recoverable` contains live app secrets: moving them from the copy to production safely is up to the shop operator.
+`--list` and `--start` take `--all` instead of an app name.
+`--finish` reads the secrets from standard input, never from the command line.
+The output of `--list` and `--start` contains live app secrets: moving them from the copy to production safely is up to the shop operator.
 
 ## Administration
 

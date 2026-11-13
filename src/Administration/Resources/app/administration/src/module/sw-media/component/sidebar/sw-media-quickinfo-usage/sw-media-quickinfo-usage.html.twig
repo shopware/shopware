@@ -51,7 +51,17 @@
 
                 {% block sw_media_quickinfo_usage_item_label %}
                 <div class="sw-media-quickinfo-usage__label">
-                    {{ usage.name }}
+                    <sw-product-variant-info
+                        v-if="usage.variations?.length"
+                        :variations="usage.variations"
+                        :show-tooltip="false"
+                        seperator=", "
+                    >
+                        {{ usage.name }}
+                    </sw-product-variant-info>
+                    <template v-else>
+                        {{ usage.name }}
+                    </template>
                 </div>
                 {% endblock %}
             </li>

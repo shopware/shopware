@@ -82,7 +82,9 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
         register('sw-product', moduleMock);
         const productMediaMock = {
             id: '98hhh7gh31d2d23dj292hjd7b',
+            productId: 'product-media',
             product: {
+                id: 'product-media',
                 translated: { name: 'name test' },
             },
         };
@@ -127,7 +129,8 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
 
         register('sw-product', moduleMock);
         const productMediaMock = {
-            product: { translated: { name: 'product test' } },
+            productId: 'product-media',
+            product: { id: 'product-media', translated: { name: 'product test' } },
         };
 
         register('sw-category', moduleMock);

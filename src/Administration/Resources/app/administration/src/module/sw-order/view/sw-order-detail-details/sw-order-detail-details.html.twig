@@ -45,11 +45,12 @@
 
     {% block sw_order_detail_details_shipping %}
     <sw-order-details-state-card
-        v-if="delivery"
+        v-for="(shipment, index) in shipments"
+        :key="shipment.id"
         position="delivery"
-        :title="$t('sw-order.detailsTab.labelDeliveryCard')"
+        :title="shipmentCardTitle(index)"
         :order="order"
-        :entity="delivery"
+        :entity="shipment"
         :state-label="$t('sw-order.stateCard.headlineDeliveryState')"
         :disabled="!acl.can('order.editor') || undefined"
         @show-status-history="showStateHistoryModal = true"
@@ -59,11 +60,11 @@
         <sw-order-address-selection
             class="sw-order-detail-details__shipping-address"
             type="shipping"
-            :address="shippingAddress"
-            :address-id="selectedShippingAddressId"
+            :address="shipment.shippingOrderAddress"
+            :address-id="getSelectedShippingAddressId(shipment)"
             :disabled="!acl.can('order.editor') || undefined"
             :label="$t('sw-order.createBase.detailsBody.labelShippingAddress')"
-            @change-address="onChangeOrderAddress"
+            @change-address="onChangeShipmentAddress(shipment, $event)"
         />
         {% endblock %}
 
@@ -73,7 +74,7 @@
 
         {% block sw_order_detail_details_shipping_method_select %}
         <sw-entity-single-select
-            v-model:value="delivery.shippingMethodId"
+            v-model:value="shipment.shippingMethodId"
             entity="shipping_method"
             disabled
             :criteria="salesChannelCriteria"
@@ -104,7 +105,7 @@
 
         {% block sw_order_detail_details_shipping_date %}
         <mt-datepicker
-            v-model="delivery.shippingDateEarliest"
+            v-model="shipment.shippingDateEarliest"
             disabled
             hide-hint
             :label="$t('sw-order.detailDeliveries.labelDeliveryDate')"
@@ -113,12 +114,12 @@
 
         {% block sw_order_detail_details_shipping_tracking_codes %}
         <sw-multi-tag-select
-            v-model:value="delivery.trackingCodes"
+            v-model:value="shipment.trackingCodes"
             class="sw-order-user-card__tracking-code-select"
             :disabled="!acl.can('order.editor') || undefined"
             :placeholder="$t('sw-order.detailBase.placeholderTrackingCodeSelect')"
             :label="$t('sw-order.detailBase.labelTrackingCodes')"
-            :validate="validateTrackingCode"
+            :validate="(trackingCode) => validateTrackingCode(trackingCode, shipment)"
             @update:value="saveAndReload"
         >
             <template #message-add-data>

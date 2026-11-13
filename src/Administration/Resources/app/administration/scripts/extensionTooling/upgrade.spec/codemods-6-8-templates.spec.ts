@@ -172,7 +172,7 @@ describe('scripts/extensionTooling/upgrade 6.8 template codemods', () => {
                 CODEMOD_IDS.map((id) => [id, { changes: report(dryRun, id).changes, files: report(dryRun, id).files }]),
             ),
         ).toEqual({
-            'mt-components-6.8': { changes: 4, files: 1 },
+            'mt-components-6.8': { changes: 5, files: 2 },
             'mt-tabs': { changes: 3, files: 2 },
             'sw-text-editor': { changes: 1, files: 1 },
             'removed-form-components': { changes: 6, files: 5 },
@@ -212,6 +212,17 @@ describe('scripts/extensionTooling/upgrade 6.8 template codemods', () => {
         expect(source).toContain('<mt-tabs');
         expect(source).toContain('<template #content="{ active }">');
         expect(source).not.toContain('TODO Codemod');
+    });
+
+    it('writes at the right spot of a template with a byte order mark and keeps the mark', () => {
+        expect(readSource(projectRoot, 'component/acme-sync-badge/acme-sync-badge.html.twig')).toBe(
+            lines(
+                '\uFEFF{% block acme_sync_badge %}',
+                '<!-- TODO Codemod: Converted from sw-loader - please check if everything works correctly -->',
+                '<mt-loader v-if="isLoading" size="20px" />',
+                '{% endblock %}',
+            ),
+        );
     });
 
     // Runs last: it writes a second time into the project the other tests read.

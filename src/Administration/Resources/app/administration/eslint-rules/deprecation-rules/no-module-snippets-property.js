@@ -40,13 +40,7 @@ function isFile(file) {
     }
 }
 
-/**
- * The file a relative import resolves to, the way Vite resolves it.
- *
- * @param {string} importer
- * @param {string} source
- * @returns {string|null}
- */
+/** The file a relative import resolves to, the way Vite resolves it. */
 function resolveImport(importer, source) {
     if (!source.startsWith('./') && !source.startsWith('../')) {
         return null;

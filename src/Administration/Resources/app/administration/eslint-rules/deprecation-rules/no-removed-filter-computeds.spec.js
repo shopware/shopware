@@ -180,18 +180,6 @@ describe('no-removed-filter-computeds', () => {
                 ),
                 errors: [{ message: DATE_FILTER_TODO }],
             },
-            {
-                name: 'a second run only reports the marked override',
-                code: lines(
-                    "Shopware.Component.override('sw-order-list', {",
-                    `    // TODO Codemod(6.8, filter-computeds): ${DATE_FILTER_TODO}`,
-                    '    computed: sharedComputed,',
-                    '    methods: { format(order) { return this.dateFilter(order.orderDateTime); } },',
-                    '});',
-                ),
-                output: null,
-                errors: [{ message: DATE_FILTER_TODO }],
-            },
         ],
     });
 

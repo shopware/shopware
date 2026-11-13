@@ -14,6 +14,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTag\ProductTagDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -561,12 +562,17 @@ SQL,
         }
 
         $variantIds = $this->connection->fetchFirstColumn(
-            'SELECT LOWER(HEX(id)) FROM product WHERE parent_id IN (:ids) AND version_id = :versionId',
+            'SELECT LOWER(HEX(id)) FROM product WHERE parent_id IN (:ids) AND version_id = :versionId LIMIT ' . ProductIndexer::UPDATE_IDS_CHUNK_SIZE,
             ['ids' => Uuid::fromHexToBytesList($productIds), 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
             ['ids' => ArrayParameterType::BINARY]
         );
+        $variantIds = array_values(array_filter($variantIds, '\is_string'));
 
-        return array_merge($productIds, array_values(array_filter($variantIds, '\is_string')));
+        if (\count($productIds) + \count($variantIds) >= ProductIndexer::UPDATE_IDS_CHUNK_SIZE) {
+            return $productIds;
+        }
+
+        return array_merge($productIds, $variantIds);
     }
 
     /**

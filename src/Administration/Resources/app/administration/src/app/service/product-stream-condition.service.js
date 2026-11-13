@@ -23,6 +23,7 @@ export default function conditionService() {
         property_group: ['id'],
         product_visibility: ['id', 'salesChannel'],
         sales_channel: ['id'],
+        product_document: ['id'],
         product: [
             'id',
             'active',
@@ -55,8 +56,11 @@ export default function conditionService() {
             'coverId',
             'markAsTopseller',
             'type',
+            'documents',
         ],
     };
+
+    const existenceOnlyEntities = ['product_document'];
 
     if (!Shopware.Feature.isActive('v6.8.0.0')) {
         entityAllowedProperties.product.push('states');
@@ -290,6 +294,7 @@ export default function conditionService() {
 
     return {
         isPropertyInAllowList,
+        isExistenceOnlyEntity,
         addToGeneralAllowList,
         addToEntityAllowList,
         removeFromGeneralAllowList,
@@ -321,6 +326,14 @@ export default function conditionService() {
             allowedProperties.includes(property) ||
             (entityAllowedProperties.hasOwnProperty(definition) && entityAllowedProperties[definition].includes(property))
         );
+    }
+
+    /**
+     * @param {?string} entity
+     * @returns {boolean}
+     */
+    function isExistenceOnlyEntity(entity) {
+        return existenceOnlyEntities.includes(entity);
     }
 
     /**

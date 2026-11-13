@@ -879,6 +879,7 @@
         "lineItemDimensionWidthRule": "Item with width",
         "lineItemDimensionHeightRule": "Item with height",
         "lineItemDimensionLengthRule": "Item with length",
+        "lineItemDimensionLongestAndGirthRule": "Item with longest side and girth",
         "lineItemDimensionWeightRule": "Item with weight",
         "lineItemDimensionVolumeRule": "Item with volume",
         "lineItemListPriceRule": "Item with list price",
@@ -1276,6 +1277,11 @@
       "placeholderProduct": "Select a product...",
       "placeholderCategory": "Select a category..."
     },
+    "childSearch": {
+      "label": "Search entries",
+      "placeholder": "Search...",
+      "noResults": "No results found."
+    },
     "table": {
       "addHeading": "Add table heading",
       "cols": "Columns",
@@ -1416,8 +1422,9 @@
   "sw-license-violation": {
     "title": "Extension warning",
     "reload": "Reload",
-    "alertText": "We have detected a license violation for at least one of your extensions in this installation. To fix the license violation and avoid legal consequences, book a subscription or buy/rent the extension (according to inflicted violation type). You do not use the extension anymore? Then delete it via the \"Delete extension permanently\" button or via My Extensions. If none of these measures are taken, shopware AG reserves the right to charge penalty fees for any license violation.",
+    "alertText": "We have detected a license violation for at least one of your extensions in this installation. To fix the license violation and avoid legal consequences, book a subscription or buy/rent the extension (according to inflicted violation type). You do not use the extension anymore? Then remove it from your installation. If none of these measures are taken, shopware AG reserves the right to charge penalty fees for any license violation.",
     "deletePlugin": "Delete extension permanently",
+    "removeExternally": "Remove outside Administration, for example with Composer.",
     "messageDeleteConfirm": "Do you want to delete the extension \"{pluginName}\" completely?",
     "checkboxMessage": "I have taken notice of this message and eventually accruing consequences.",
     "closeModal": "Close notification",

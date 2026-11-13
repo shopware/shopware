@@ -542,6 +542,19 @@ shopware:
               custom_attributes:
                   - tags: ["a"]
                     attributes: ["data-url", "data-ajax-modal", "data-prev-url"]
+            - name: storybook
+              tags: ["a", "abbr", "address", "article", "aside", "b", "blockquote", "br", "button", "caption", "code", "dd", "del", "div", "dl", "dt", "em", "fieldset", "figcaption", "figure", "footer", "h1", "h2", "h3", "h4", "h5", "h6", "header", "hr", "i", "img", "input", "label", "li", "main", "nav", "ol", "option", "p", "pre", "q", "s", "section", "select", "small", "span", "strong", "sub", "summary", "sup", "table", "tbody", "td", "textarea", "tfoot", "th", "thead", "tr", "u", "ul"]
+              attributes: ["*.class", "*.title", "*.lang", "*.dir", "*.aria-label", "*.aria-hidden", "*.aria-current", "*.aria-expanded", "*.aria-pressed", "*.role", "a.href", "button.type", "button.disabled", "img.alt", "img.width", "img.height", "img.src", "input.type", "input.disabled", "input.checked", "input.placeholder", "input.value", "option.selected", "option.value"]
+              options:
+                  - key: HTML.Forms
+                    value: true
+                  - key: URI.Base
+                    value: '%env(APP_URL)%'
+                  - key: URI.MakeAbsolute
+                    value: true
+              custom_attributes:
+                  - tags: ["a", "abbr", "address", "article", "aside", "b", "blockquote", "br", "button", "caption", "code", "dd", "del", "div", "dl", "dt", "em", "fieldset", "figcaption", "figure", "footer", "h1", "h2", "h3", "h4", "h5", "h6", "header", "hr", "i", "img", "input", "label", "li", "main", "nav", "ol", "option", "p", "pre", "q", "s", "section", "select", "small", "span", "strong", "sub", "summary", "sup", "table", "tbody", "td", "textarea", "tfoot", "th", "thead", "tr", "u", "ul"]
+                    attributes: ["aria-label", "aria-hidden", "aria-current", "aria-expanded", "aria-pressed", "role"]
 
         fields:
             - name: product_translation.description
@@ -552,6 +565,8 @@ shopware:
               sets: ["basic", "media", "tidy", "HTML5"]
             - name: snippet.value
               sets: ["basic", "media", "bootstrap", "snippet", "HTML5"]
+            - name: storybook
+              sets: ["storybook"]
 
     logger:
         enforce_throw_exception: '%env(bool:default:defaults_bool_false:LOGGER_ENFORCE_THROW_EXCEPTION)%'
@@ -744,6 +759,9 @@ shopware:
         search_keyword:
             indexing: true
             relevant_keyword_count: 8
+    product_documents:
+        allowed_extensions: ["pdf", "docx", "jpg", "jpeg", "png"]
+        max_file_size: 20971520 # 20 MB
 
     webhook:
         #@experimental stableVersion:v6.8.0 feature:WEBHOOK_FAILURE_STRATEGY this is a temporary solution until webhooks are refactored with a circuit breaker implementation

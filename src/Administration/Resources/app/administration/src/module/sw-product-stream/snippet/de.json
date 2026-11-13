@@ -64,6 +64,7 @@
         "createdAt": "Erstelldatum",
         "description": "Beschreibung",
         "descriptionLong": "Langbeschreibung",
+        "documents": "Hat Dokumente",
         "ean": "GTIN/EAN",
         "gross": "Brutto",
         "group": "Eigenschaft",

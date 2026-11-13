@@ -20,9 +20,7 @@
     <twig:Slot name="top"></twig:Slot>
 
     {% if displayBuyButton and config('core.listing.allowBuyInListing') %}
-        {% set buyButtonFormData = { ("lineItems[#{product.id}][quantity]"): product.minPurchase }|merge(addToCartExtraFormData) %}
-
-        <twig:Sw:Product:BuyButton :product="product" :extraFormData="buyButtonFormData" />
+        <twig:Sw:Product:BuyButton :product="product" :extraFormData="addToCartExtraFormData" />
     {% else %}
         <a href="{{ seoUrl('frontend.detail.page', {productId: product.id}) }}"
            class="btn btn-light btn-detail">

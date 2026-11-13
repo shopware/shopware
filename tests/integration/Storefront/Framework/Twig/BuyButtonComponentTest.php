@@ -32,7 +32,7 @@ class BuyButtonComponentTest extends TestCase
 
     public function testRendersAddToCartFormForBuyableProduct(): void
     {
-        $product = $this->product(minPurchase: 2);
+        $product = $this->product();
 
         $html = $this->render(['product' => $product]);
 
@@ -42,19 +42,32 @@ class BuyButtonComponentTest extends TestCase
         static::assertStringNotContainsString('name="lineItems[' . $product->getId() . '][quantity]"', $html);
     }
 
-    public function testRendersQuantityPassedAsExtraFormData(): void
+    public function testRendersMinPurchaseAsQuantityFallback(): void
+    {
+        $product = $this->product(minPurchase: 2);
+
+        $html = $this->render(['product' => $product]);
+
+        static::assertMatchesRegularExpression(
+            '/name="lineItems\[' . $product->getId() . '\]\[quantity\]"\s+value="2"\s+data-quantity-fallback="true"/',
+            $html,
+        );
+    }
+
+    public function testRendersQuantityPassedAsExtraFormDataWithoutFallback(): void
     {
         $product = $this->product(minPurchase: 2);
 
         $html = $this->render([
             'product' => $product,
-            'extraFormData' => ['lineItems[' . $product->getId() . '][quantity]' => 2],
+            'extraFormData' => ['lineItems[' . $product->getId() . '][quantity]' => 4],
         ]);
 
         static::assertMatchesRegularExpression(
-            '/name="lineItems\[' . $product->getId() . '\]\[quantity\]"\s+value="2"/',
+            '/name="lineItems\[' . $product->getId() . '\]\[quantity\]"\s+value="4"/',
             $html,
         );
+        static::assertStringNotContainsString('data-quantity-fallback', $html);
     }
 
     public function testRendersNoFormForParentProductWithVariants(): void

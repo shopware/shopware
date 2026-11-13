@@ -26,8 +26,8 @@ layout:
             text: "<h1>{{map:product.name}}</h1>"
           style:
             col-span:
-              xs: 10
-              sm: 10
+              xs: 1
+              sm: 1
               md: 10
               lg: 10
               xl: 10
@@ -35,8 +35,8 @@ layout:
         - component: Sw:Product:Manufacturer
           style:
             col-span:
-              xs: 2
-              sm: 2
+              xs: 1
+              sm: 1
               md: 2
               lg: 2
               xl: 2

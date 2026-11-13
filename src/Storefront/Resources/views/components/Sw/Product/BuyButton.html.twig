@@ -77,6 +77,15 @@
                         {% endif %}
                         >
                 {% endfor %}
+
+                {% if product.minPurchase > 1 and formData["lineItems[#{product.id}][quantity]"] is not defined %}
+                    <input
+                        type="hidden"
+                        name="lineItems[{{ product.id }}][quantity]"
+                        value="{{ product.minPurchase }}"
+                        data-quantity-fallback="true"
+                        >
+                {% endif %}
             {% endblock %}
 
             {% block buy_button %}

@@ -1821,7 +1821,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('repository_url')->defaultNull()->end()
                 ->scalarNode('metadata_url')->defaultNull()->end()
                 ->scalarNode('archive_manifest_url')
-                    ->info('Manifest of the archive with all translations. Overriding `repository_url` without it downloads every file from that repository. `false` always downloads every file.')
+                    ->info('Manifest of the archive with all translations. When set, `translation:download` and `translation:install --all` download all locales as one archive.')
                     ->defaultNull()
                 ->end()
                 ->scalarNode('community_translations_url')->defaultNull()->end()

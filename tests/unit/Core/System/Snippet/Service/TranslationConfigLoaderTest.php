@@ -139,41 +139,11 @@ class TranslationConfigLoaderTest extends TestCase
         );
     }
 
-    public function testOverridingTheRepositoryUrlDropsTheShippedArchive(): void
+    public function testOverrideArchiveManifestUrl(): void
     {
-        $loader = new TestableTranslationConfigLoader(new Filesystem(), ['repository_url' => 'https://example.com/repo']);
-
-        static::assertNull($loader->load()->archiveManifestUrl);
-    }
-
-    public function testOverridingTheRepositoryUrlKeepsAnOverriddenArchive(): void
-    {
-        $loader = new TestableTranslationConfigLoader(new Filesystem(), [
-            'repository_url' => 'https://example.com/repo',
-            'archive_manifest_url' => 'https://example.com/manifest.json',
-        ]);
+        $loader = new TestableTranslationConfigLoader(new Filesystem(), ['archive_manifest_url' => 'https://example.com/manifest.json']);
 
         static::assertSame('https://example.com/manifest.json', (string) $loader->load()->archiveManifestUrl);
-    }
-
-    public function testFalseSwitchesTheShippedArchiveOff(): void
-    {
-        $loader = new TestableTranslationConfigLoader(new Filesystem(), ['archive_manifest_url' => false]);
-
-        static::assertNull($loader->load()->archiveManifestUrl);
-    }
-
-    public function testFalseSwitchesAnOverriddenArchiveOff(): void
-    {
-        $loader = new TestableTranslationConfigLoader(new Filesystem(), [
-            'repository_url' => 'https://example.com/repo',
-            'archive_manifest_url' => false,
-        ]);
-
-        $config = $loader->load();
-
-        static::assertNull($config->archiveManifestUrl);
-        static::assertSame('https://example.com/repo', (string) $config->repositoryUrl);
     }
 
     public function testConfigWithoutArchiveManifestUrlHasNoArchive(): void

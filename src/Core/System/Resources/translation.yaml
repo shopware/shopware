@@ -1,6 +1,5 @@
 repository-url: https://raw.githubusercontent.com/shopware/translations/main/translations
 metadata-url: https://raw.githubusercontent.com/shopware/translations/main/crowdin-metadata.json
-archive-manifest-url: https://github.com/shopware/translations/releases/latest/download/manifest.json
 community-translations-url: https://translate.shopware.com
 documentation-url-snippet-key: sw-settings-language.addModal.docsUrl
 completeness-threshold: 90

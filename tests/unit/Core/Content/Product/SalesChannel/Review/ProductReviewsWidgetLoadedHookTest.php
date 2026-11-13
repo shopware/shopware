@@ -7,6 +7,7 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
+use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentArchiveRoute;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\Garan\AbstractGaranLabelRoute;
 use Shopware\Core\Content\Product\SalesChannel\PurchaseLimit\AbstractProductPurchaseLimitRoute;
@@ -52,6 +53,7 @@ class ProductReviewsWidgetLoadedHookTest extends TestCase
             $this->productReviewLoaderMock,
             static::createStub(AbstractProductPurchaseLimitRoute::class),
             static::createStub(AbstractGaranLabelRoute::class),
+            static::createStub(ProductDocumentArchiveRoute::class),
         );
     }
 

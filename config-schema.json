@@ -618,6 +618,9 @@
                 },
                 "mcp": {
                     "$ref": "#/definitions/rate_limiter_config"
+                },
+                "product_documents_archive": {
+                    "$ref": "#/definitions/rate_limiter_config"
                 }
             },
             "title": "RateLimiter"

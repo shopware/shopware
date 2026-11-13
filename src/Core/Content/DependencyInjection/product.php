@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
+use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs;
 use Shopware\Core\Checkout\Cart\Price\PriceSelector;
@@ -52,6 +53,8 @@ use Shopware\Core\Content\Product\Api\ProductActionController;
 use Shopware\Core\Content\Product\Api\ProductNumberFkResolver;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
 use Shopware\Core\Content\Product\Cart\ProductLineItemCommandValidator;
+use Shopware\Core\Content\Product\Cleanup\CleanupProductDocumentArchivesTask;
+use Shopware\Core\Content\Product\Cleanup\CleanupProductDocumentArchivesTaskHandler;
 use Shopware\Core\Content\Product\Cleanup\CleanupProductKeywordDictionaryTask;
 use Shopware\Core\Content\Product\Cleanup\CleanupProductKeywordDictionaryTaskHandler;
 use Shopware\Core\Content\Product\Cleanup\CleanupUnusedDownloadMediaTask;
@@ -100,6 +103,8 @@ use Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingR
 use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
+use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentArchiver;
+use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentArchiveRoute;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\Garan\AbstractGaranLabelRoute;
 use Shopware\Core\Content\Product\SalesChannel\Garan\GaranLabelRoute;
@@ -163,12 +168,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symfony\Component\Filesystem\Filesystem;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
@@ -803,6 +810,29 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ExtensionDispatcher::class),
         ]);
 
+    $services->set(ProductDocumentArchiveRoute::class)
+        ->public()
+        ->args([
+            service('sales_channel.product.repository'),
+            service(ProductDocumentArchiver::class),
+            service(RateLimiter::class),
+            service(SystemConfigService::class),
+            service(ProductCloseoutFilterFactory::class),
+            service(ExtensionDispatcher::class),
+            service('logger'),
+        ]);
+
+    $services->set(ProductDocumentArchiver::class)
+        ->args([
+            service('product_document.repository'),
+            service('media.repository'),
+            service('shopware.filesystem.public'),
+            service('shopware.filesystem.private'),
+            service(Filesystem::class),
+            service(Psr17Factory::class),
+            service('lock.factory'),
+        ]);
+
     $services->set(ProductPurchaseLimitRoute::class)
         ->public()
         ->args([
@@ -936,6 +966,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('scheduled_task.repository'),
             service('logger'),
             service(UnusedMediaPurger::class),
+        ])
+        ->tag('messenger.message_handler');
+
+    $services->set(CleanupProductDocumentArchivesTask::class)
+        ->tag('shopware.scheduled.task');
+
+    $services->set(CleanupProductDocumentArchivesTaskHandler::class)
+        ->args([
+            service('scheduled_task.repository'),
+            service('logger'),
+            service('shopware.filesystem.private'),
+            service(ClockInterface::class),
         ])
         ->tag('messenger.message_handler');
 

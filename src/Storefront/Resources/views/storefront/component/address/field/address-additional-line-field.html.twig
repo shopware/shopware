@@ -4,9 +4,9 @@
     {% set path = 'additionalAddressLine' ~ index %}
 
     {% if formViolations.getViolations('/' ~ path) is not empty %}
-        {% set violationPath = formPath %}
-    {% elseif formViolations.getViolations("/#{prefix}/" ~ formPath) is not empty %}
-        {% set violationPath = "/#{prefix}/" ~ formPath %}
+        {% set violationPath = '/' ~ path %}
+    {% elseif formViolations.getViolations("/#{prefix}/" ~ path) is not empty %}
+        {% set violationPath = "/#{prefix}/" ~ path %}
     {% endif %}
 
     {% set additionalFieldAutocomplete = 'address-line' ~ (index + 1) %}

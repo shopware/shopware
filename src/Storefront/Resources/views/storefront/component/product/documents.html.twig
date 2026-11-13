@@ -1,0 +1,41 @@
+{% sw_extends '@Storefront/storefront/utilities/offcanvas.html.twig' %}
+
+{% block utilities_offcanvas_content %}
+    {% block component_product_documents_container %}
+        <div class="product-detail-documents tab-pane-container">
+            {% block component_product_documents_title %}
+                <h2 class="product-detail-documents-title">
+                    {{ 'detail.documentsTitle'|trans|sw_sanitize }}
+                </h2>
+            {% endblock %}
+
+            {% block component_product_documents_list %}
+                <ul class="product-detail-documents-list list-unstyled">
+                    {% for document in documents %}
+                        {% set media = document.media %}
+
+                        {% block component_product_documents_item %}
+                            <li class="product-detail-documents-item">
+                                {% block component_product_documents_item_icon %}
+                                    {% sw_icon 'file' style { size: 'sm' } %}
+                                {% endblock %}
+
+                                {% block component_product_documents_item_link %}
+                                    <a href="{{ media.url }}"
+                                       class="product-detail-documents-link"
+                                       target="_blank"
+                                       rel="noopener noreferrer"
+                                       download>
+                                        {% block component_product_documents_item_name %}
+                                            <span class="product-detail-documents-name">{{ document.translated.title ?: media.fileName }}</span>
+                                        {% endblock %}
+                                    </a>
+                                {% endblock %}
+                            </li>
+                        {% endblock %}
+                    {% endfor %}
+                </ul>
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}

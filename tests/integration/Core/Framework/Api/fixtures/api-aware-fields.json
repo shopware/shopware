@@ -780,6 +780,7 @@
     "product_document.customFields",
     "product_document.product",
     "product_document.translations",
+    "product_document.media",
     "product_document.createdAt",
     "product_document.updatedAt",
     "product_document.translated",

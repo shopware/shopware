@@ -684,7 +684,8 @@
           "preview": {
             "label": {
               "description": "Beschreibung",
-              "reviews": "Bewertungen"
+              "reviews": "Bewertungen",
+              "documents": "Dokumente"
             }
           }
         },

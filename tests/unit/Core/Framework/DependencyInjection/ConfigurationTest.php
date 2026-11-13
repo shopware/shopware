@@ -178,6 +178,20 @@ class ConfigurationTest extends TestCase
         ], $config['product_documents']);
     }
 
+    public function testTheLargestProductDocumentFileAcceptsAUnit(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [['product_documents' => ['max_file_size' => '5M']]]);
+
+        static::assertSame(5 * 1024 * 1024, $config['product_documents']['max_file_size']);
+    }
+
+    public function testTheLargestProductDocumentFileMustBePositive(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        (new Processor())->processConfiguration(new Configuration(), [['product_documents' => ['max_file_size' => '0']]]);
+    }
+
     public function testTranslationConfigTreeNode(): void
     {
         $configuration = new Configuration();

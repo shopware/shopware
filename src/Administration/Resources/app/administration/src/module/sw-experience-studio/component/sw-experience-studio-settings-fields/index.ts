@@ -679,8 +679,8 @@ export default Shopware.Component.wrapComponentConfig({
             return typeof entity === 'string' && entity.length > 0 ? entity : null;
         },
 
-        getEntityRepository(entityName: string): Repository<keyof EntitySchema.Entities> {
-            return this.repositoryFactory.create(entityName as keyof EntitySchema.Entities);
+        getEntityRepository(entityName: string): Repository<keyof EntitySchema.EntityKeys> {
+            return this.repositoryFactory.create(entityName as keyof EntitySchema.EntityKeys);
         },
 
         getEntityMultiCodec(field: SettingsFieldDefinition): EntityMultiCodec | null {

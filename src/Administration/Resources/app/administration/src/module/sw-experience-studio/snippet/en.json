@@ -7,6 +7,55 @@
       "moduleTitle": "Experience Studio",
       "createNewLayout": "Create new layout"
     },
+    "workspace": {
+      "saveAll": "Save all layouts",
+      "saved": "All open layouts were saved.",
+      "savePartialFailure": "Some layouts could not be saved: {layouts}",
+      "layoutPicker": {
+        "title": "Open a layout",
+        "searchLabel": "Search layouts",
+        "searchPlaceholder": "Enter a layout name...",
+        "emptyTitle": "No layouts found",
+        "emptyDescription": "Create a layout to start editing.",
+        "loadError": "The layout list could not be loaded.",
+        "open": "Open layout",
+        "activate": "Go to layout",
+        "deleteTitle": "Delete layout?",
+        "deleteDescription": "Permanently delete “{name}”? Unsaved changes to this layout will be lost.",
+        "deleteError": "The layout could not be deleted."
+      },
+      "layouts": {
+        "title": "Layouts",
+        "emptyTitle": "No layouts open",
+        "emptyDescription": "Open an existing layout or create a new one to start editing.",
+        "create": "Create",
+        "unsaved": "Unsaved changes",
+        "assignments": "Manage assignments for {name}",
+        "close": "Close {name}"
+      },
+      "closeDirty": {
+        "title": "Save changes?",
+        "description": "Save changes to {name} before closing it?"
+      },
+      "manager": {
+        "title": "Open a workspace",
+        "search": "Search workspaces",
+        "create": "New workspace",
+        "manage": "Manage workspaces",
+        "rename": "Rename workspace",
+        "name": "Workspace name",
+        "empty": "No workspaces yet. Create one to start arranging layouts.",
+        "loadError": "Workspaces could not be loaded.",
+        "saveError": "The canvas setup could not be saved. Retry before switching workspaces.",
+        "actionError": "The workspace could not be changed. Please try again.",
+        "retry": "Retry",
+        "missingReferences": "Some saved layouts or preview selections are no longer available. Available layouts were opened with valid preview defaults.",
+        "deleteTitle": "Delete workspace?",
+        "deleteDescription": "Delete “{name}”? Its layouts will remain available.",
+        "switchDirtyDescription": "Some open layouts have unsaved changes. Save or discard these layout changes before continuing. Canvas setup is saved automatically.",
+        "workspaceMissing": "This workspace was deleted. Open or create another workspace. Unsaved layout changes remain available in this session."
+      }
+    },
     "mapping": {
       "category": {
         "name": {
@@ -158,6 +207,8 @@
     },
     "detail": {
       "toolbar": {
+        "reviewChanges": "Review changes",
+        "discardLayout": "Discard changes to {name}",
         "undo": "Undo",
         "redo": "Redo",
         "viewportMobile": "Mobile",
@@ -167,8 +218,32 @@
         "previewEntityPlaceholder": "Select entity for preview",
         "previewSalesChannel": "Sales channel",
         "previewSalesChannelPlaceholder": "Select sales channel for preview",
-        "assignments": "Assignments",
         "save": "Save layout"
+      },
+      "canvas": {
+        "customViewport": "Custom",
+        "viewportToolbar": "Preview viewport",
+        "moveFrame": "Move preview frame. Use arrow keys to reposition.",
+        "closeFrame": "Close layout {name}",
+        "panelsToolbar": "Canvas panels",
+        "structure": "Structure",
+        "settings": "Settings",
+        "closePanel": "Close panel",
+        "contextMenu": "Canvas actions",
+        "zoomToolbar": "Canvas zoom controls",
+        "zoomOut": "Zoom out",
+        "zoomIn": "Zoom in",
+        "zoomTo100": "Zoom to 100%",
+        "resetZoom": "Reset zoom to 100%",
+        "fit": "Zoom to fit",
+        "resizeNorth": "Resize preview frame from the top",
+        "resizeNorthEast": "Resize preview frame from the top right",
+        "resizeEast": "Resize preview frame from the right",
+        "resizeSouthEast": "Resize preview frame from the bottom right",
+        "resizeSouth": "Resize preview frame from the bottom",
+        "resizeSouthWest": "Resize preview frame from the bottom left",
+        "resizeWest": "Resize preview frame from the left",
+        "resizeNorthWest": "Resize preview frame from the top left"
       },
       "assignmentModal": {
         "title": "Layout assignments",
@@ -179,7 +254,8 @@
         },
         "entitiesLabel": {
           "product": "Products",
-          "category": "Categories"
+          "category": "Categories",
+          "landing_page": "Landing pages"
         },
         "entitiesHelpText": "An entity that is already assigned to another layout is moved to this layout.",
         "messageSaved": "Layout assignments saved.",

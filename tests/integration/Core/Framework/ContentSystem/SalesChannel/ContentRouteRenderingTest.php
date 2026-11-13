@@ -825,6 +825,10 @@ class ContentRouteRenderingTest extends TestCase
         $poisoned = $original;
         static::assertIsArray($poisoned);
         unset($poisoned['Sw:Media:Image']);
+
+        // Finish the previous request's pending service reset before seeding the next request's cache.
+        // In the test environment, resetting cache.system clears its in-memory entries.
+        static::getKernel()->boot();
         static::assertTrue(
             $this->overwriteElementTypeCache($pool, $poisoned),
             'The element-type cache entry must be writable from the test.',

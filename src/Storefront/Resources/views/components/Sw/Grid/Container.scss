@@ -78,7 +78,7 @@
 
     @for $i from 1 through 12 {
         &.columns-#{$i} {
-            grid-template-columns: repeat(#{$i}, 1fr);
+            grid-template-columns: repeat(#{$i}, minmax(0, 1fr));
         }
 
         &.rows-#{$i} {
@@ -89,7 +89,7 @@
     @include media-breakpoint-up(sm) {
         @for $i from 1 through 12 {
             &.columns-sm-#{$i} {
-                grid-template-columns: repeat(#{$i}, 1fr);
+                grid-template-columns: repeat(#{$i}, minmax(0, 1fr));
             }
 
             &.rows-sm-#{$i} {
@@ -101,7 +101,7 @@
     @include media-breakpoint-up(md) {
         @for $i from 1 through 12 {
             &.columns-md-#{$i} {
-                grid-template-columns: repeat(#{$i}, 1fr);
+                grid-template-columns: repeat(#{$i}, minmax(0, 1fr));
             }
 
             &.rows-md-#{$i} {
@@ -113,7 +113,7 @@
     @include media-breakpoint-up(lg) {
         @for $i from 1 through 12 {
             &.columns-lg-#{$i} {
-                grid-template-columns: repeat(#{$i}, 1fr);
+                grid-template-columns: repeat(#{$i}, minmax(0, 1fr));
             }
 
             &.rows-lg-#{$i} {
@@ -125,7 +125,7 @@
     @include media-breakpoint-up(xl) {
         @for $i from 1 through 12 {
             &.columns-xl-#{$i} {
-                grid-template-columns: repeat(#{$i}, 1fr);
+                grid-template-columns: repeat(#{$i}, minmax(0, 1fr));
             }
 
             &.rows-xl-#{$i} {

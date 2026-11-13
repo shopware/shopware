@@ -28,34 +28,4 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail save vali
 
         expect(component.computed.selectedElementViolations.call(vm)).toEqual([violation]);
     });
-
-    it('shows current diagnostics only after save fails', async () => {
-        const saveError = new Error('Save failed');
-        const diagnoseLayout = jest.fn().mockResolvedValue(undefined);
-        const vm = {
-            layout: {
-                id: 'layout-1',
-                name: 'Landing page',
-                layout: [],
-            },
-            allowSave: true,
-            layoutRootSource: 'product',
-            layoutLoadCriteria: {},
-            layoutRepository: {
-                save: jest.fn().mockRejectedValue(saveError),
-                get: jest.fn(),
-            },
-            diagnoseLayout,
-            notifySaveError: jest.fn(),
-            showDiagnostics: false,
-            isLoading: false,
-        };
-
-        await component.methods.onSave.call(vm);
-
-        expect(vm.notifySaveError).toHaveBeenCalledWith(saveError);
-        expect(diagnoseLayout).toHaveBeenCalledTimes(1);
-        expect(vm.showDiagnostics).toBe(true);
-        expect(vm.isLoading).toBe(false);
-    });
 });

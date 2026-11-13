@@ -1,6 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 import type { Component } from 'vue';
+import canvasComponent from '../../../component/sw-experience-studio-canvas';
 import detailComponent from '../index';
+import '../../../store/experience-studio-workspace.store';
 
 const methods = (detailComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> }).methods;
 
@@ -26,6 +28,32 @@ describe('Experience Studio settings panel resizing', () => {
                 getBoundingClientRect: () => ({ width: workspaceWidth }),
             },
         },
+    });
+
+    it('opens settings when an element is selected', () => {
+        const openSettingsPanel = jest.fn();
+        const vm = {
+            selectedElementId: null,
+            syncActiveLayoutState: jest.fn(),
+            $refs: {
+                experienceStudioCanvas: { openSettingsPanel },
+            },
+        };
+
+        methods.onElementSelect.call(vm, 'element-id');
+
+        expect(vm.selectedElementId).toBe('element-id');
+        expect(openSettingsPanel).toHaveBeenCalledTimes(1);
+    });
+
+    it('resets the settings panel width when it closes', () => {
+        const vm = {
+            elementSettingsWidth: 640,
+        };
+
+        methods.onSettingsPanelClose.call(vm);
+
+        expect(vm.elementSettingsWidth).toBe(320);
     });
 
     it('resizes the element settings panel while preserving a minimum preview width', () => {
@@ -194,6 +222,7 @@ describe('Experience Studio settings panel resizing', () => {
                     mocks: { $route: { name: 'sw.experience.studio.detail', params: { id: 'layout-1' } } },
                     stubs: {
                         'sw-page': { template: '<div><slot name="content" /></div>' },
+                        'sw-experience-studio-canvas': canvasComponent,
                         'sw-experience-studio-toolbar': true,
                         'sw-experience-studio-sidebar-tree': true,
                         'sw-experience-studio-preview': true,
@@ -205,7 +234,9 @@ describe('Experience Studio settings panel resizing', () => {
         );
         const workspace = wrapper.get('.sw-experience-studio-detail__workspace');
         jest.spyOn(workspace.element, 'getBoundingClientRect').mockReturnValue({ width: 1200 } as DOMRect);
-        const separator = wrapper.get('[role="separator"]');
+        const canvas = wrapper.findComponent(canvasComponent as Component);
+        await canvas.setData({ isSettingsOpen: true });
+        const separator = canvas.get('[role="separator"]');
 
         await separator.trigger('keydown', { key: 'ArrowLeft' });
 
@@ -213,7 +244,9 @@ describe('Experience Studio settings panel resizing', () => {
         expect(separator.attributes('aria-valuemin')).toBe('320');
         expect(separator.attributes('aria-valuemax')).toBe('592');
         expect(separator.attributes('aria-valuenow')).toBe('340');
-        expect((workspace.element as HTMLElement).style.getPropertyValue('--element-settings-width')).toBe('340px');
+        expect((canvas.get('.sw-experience-studio-canvas__panel--settings').element as HTMLElement).style.width).toBe(
+            '340px',
+        );
 
         await separator.trigger('keydown', { key: 'ArrowRight' });
         expect(separator.attributes('aria-valuenow')).toBe('320');

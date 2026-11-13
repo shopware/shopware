@@ -12,10 +12,10 @@ const DEFAULT_LAYOUT_CONFIG_DOMAIN = 'core.content_system';
  * The default config keys mirror the Core `CONFIG_KEY_DEFAULT_CONTENT_LAYOUT` constants of the assignment definitions.
  */
 type LayoutAssignmentType = {
-    entity: 'product' | 'category';
-    assignmentEntity: 'product_content_layout' | 'category_content_layout';
-    entityIdField: 'productId' | 'categoryId';
-    defaultConfigKey: string;
+    entity: 'product' | 'category' | 'landing_page';
+    assignmentEntity: 'product_content_layout' | 'category_content_layout' | 'landing_page_content_layout';
+    entityIdField: 'productId' | 'categoryId' | 'landingPageId';
+    defaultConfigKey: string | null;
 };
 
 const LAYOUT_ASSIGNMENT_TYPES: Record<string, LayoutAssignmentType> = {
@@ -30,6 +30,12 @@ const LAYOUT_ASSIGNMENT_TYPES: Record<string, LayoutAssignmentType> = {
         assignmentEntity: 'category_content_layout',
         entityIdField: 'categoryId',
         defaultConfigKey: 'core.content_system.default_category_content_layout',
+    },
+    landing_page: {
+        entity: 'landing_page',
+        assignmentEntity: 'landing_page_content_layout',
+        entityIdField: 'landingPageId',
+        defaultConfigKey: null,
     },
 };
 
@@ -152,12 +158,13 @@ export default Shopware.Component.wrapComponentConfig({
 
             try {
                 const assignments = await repository.search(criteria, Shopware.Context.api);
-                const config = this.acl.can('system.system_config')
-                    ? ((await this.systemConfigApiService.getValues(DEFAULT_LAYOUT_CONFIG_DOMAIN)) as Record<
-                          string,
-                          unknown
-                      >)
-                    : {};
+                const config =
+                    assignmentType.defaultConfigKey && this.acl.can('system.system_config')
+                        ? ((await this.systemConfigApiService.getValues(DEFAULT_LAYOUT_CONFIG_DOMAIN)) as Record<
+                              string,
+                              unknown
+                          >)
+                        : {};
 
                 this.assignmentIdsByEntityId = Object.fromEntries(
                     assignments.map((assignment) => [
@@ -166,7 +173,8 @@ export default Shopware.Component.wrapComponentConfig({
                     ]),
                 );
                 this.entityIds = Object.keys(this.assignmentIdsByEntityId);
-                this.wasDefault = config[assignmentType.defaultConfigKey] === this.layoutId;
+                this.wasDefault =
+                    !!assignmentType.defaultConfigKey && config[assignmentType.defaultConfigKey] === this.layoutId;
                 this.isDefault = this.wasDefault;
             } catch {
                 this.createNotificationError({
@@ -270,7 +278,11 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async saveDefault(): Promise<void> {
-            if (!this.assignmentType || !this.acl.can('system.system_config') || this.isDefault === this.wasDefault) {
+            if (
+                !this.assignmentType?.defaultConfigKey ||
+                !this.acl.can('system.system_config') ||
+                this.isDefault === this.wasDefault
+            ) {
                 return;
             }
 

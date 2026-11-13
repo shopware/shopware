@@ -7,6 +7,55 @@
       "moduleTitle": "Experience Studio",
       "createNewLayout": "Neues Layout erstellen"
     },
+    "workspace": {
+      "saveAll": "Alle Layouts speichern",
+      "saved": "Alle geöffneten Layouts wurden gespeichert.",
+      "savePartialFailure": "Einige Layouts konnten nicht gespeichert werden: {layouts}",
+      "layoutPicker": {
+        "title": "Layout öffnen",
+        "searchLabel": "Layouts suchen",
+        "searchPlaceholder": "Layoutnamen eingeben...",
+        "emptyTitle": "Keine Layouts gefunden",
+        "emptyDescription": "Erstelle ein Layout, um mit der Bearbeitung zu beginnen.",
+        "loadError": "Die Layoutliste konnte nicht geladen werden.",
+        "open": "Layout öffnen",
+        "activate": "Layout anzeigen",
+        "deleteTitle": "Layout löschen?",
+        "deleteDescription": "Möchtest Du „{name}“ dauerhaft löschen? Ungespeicherte Änderungen an diesem Layout gehen verloren.",
+        "deleteError": "Das Layout konnte nicht gelöscht werden."
+      },
+      "layouts": {
+        "title": "Layouts",
+        "emptyTitle": "Keine Layouts geöffnet",
+        "emptyDescription": "Öffne ein vorhandenes Layout oder erstelle ein neues, um mit der Bearbeitung zu beginnen.",
+        "create": "Erstellen",
+        "unsaved": "Ungespeicherte Änderungen",
+        "assignments": "Zuweisungen für {name} verwalten",
+        "close": "{name} schließen"
+      },
+      "closeDirty": {
+        "title": "Änderungen speichern?",
+        "description": "Änderungen an {name} vor dem Schließen speichern?"
+      },
+      "manager": {
+        "title": "Arbeitsbereich öffnen",
+        "search": "Arbeitsbereiche durchsuchen",
+        "create": "Neuer Arbeitsbereich",
+        "manage": "Arbeitsbereiche verwalten",
+        "rename": "Arbeitsbereich umbenennen",
+        "name": "Name des Arbeitsbereichs",
+        "empty": "Noch keine Arbeitsbereiche vorhanden. Erstelle einen, um Layouts anzuordnen.",
+        "loadError": "Die Arbeitsbereiche konnten nicht geladen werden.",
+        "saveError": "Die Canvas-Konfiguration konnte nicht gespeichert werden. Versuche es erneut, bevor Du den Arbeitsbereich wechselst.",
+        "actionError": "Der Arbeitsbereich konnte nicht geändert werden. Bitte versuche es erneut.",
+        "retry": "Erneut versuchen",
+        "missingReferences": "Einige gespeicherte Layouts oder Vorschauauswahlen sind nicht mehr verfügbar. Verfügbare Layouts wurden mit gültigen Vorschauwerten geöffnet.",
+        "deleteTitle": "Arbeitsbereich löschen?",
+        "deleteDescription": "„{name}“ löschen? Die Layouts bleiben verfügbar.",
+        "switchDirtyDescription": "Einige geöffnete Layouts haben ungespeicherte Änderungen. Speichere oder verwerfe diese Layout-Änderungen, bevor Du fortfährst. Die Canvas-Konfiguration wird automatisch gespeichert.",
+        "workspaceMissing": "Dieser Arbeitsbereich wurde gelöscht. Öffne oder erstelle einen anderen Arbeitsbereich. Ungespeicherte Layout-Änderungen bleiben in dieser Sitzung verfügbar."
+      }
+    },
     "mapping": {
       "category": {
         "name": {
@@ -158,6 +207,8 @@
     },
     "detail": {
       "toolbar": {
+        "reviewChanges": "Änderungen prüfen",
+        "discardLayout": "Änderungen an {name} verwerfen",
         "undo": "Rückgängig",
         "redo": "Wiederholen",
         "viewportMobile": "Mobil",
@@ -167,8 +218,32 @@
         "previewEntityPlaceholder": "Entität für die Vorschau auswählen",
         "previewSalesChannel": "Verkaufskanal",
         "previewSalesChannelPlaceholder": "Verkaufskanal für die Vorschau auswählen",
-        "assignments": "Zuweisungen",
         "save": "Layout speichern"
+      },
+      "canvas": {
+        "customViewport": "Benutzerdefiniert",
+        "viewportToolbar": "Vorschau-Viewport",
+        "moveFrame": "Vorschau verschieben. Mit den Pfeiltasten positionieren.",
+        "closeFrame": "Layout {name} schließen",
+        "panelsToolbar": "Canvas-Bereiche",
+        "structure": "Struktur",
+        "settings": "Einstellungen",
+        "closePanel": "Bereich schließen",
+        "contextMenu": "Canvas-Aktionen",
+        "zoomToolbar": "Canvas-Zoomsteuerung",
+        "zoomOut": "Verkleinern",
+        "zoomIn": "Vergrößern",
+        "zoomTo100": "Auf 100 % zoomen",
+        "resetZoom": "Zoom auf 100 % zurücksetzen",
+        "fit": "Alle Layouts einpassen",
+        "resizeNorth": "Vorschau am oberen Rand skalieren",
+        "resizeNorthEast": "Vorschau an der oberen rechten Ecke skalieren",
+        "resizeEast": "Vorschau am rechten Rand skalieren",
+        "resizeSouthEast": "Vorschau an der unteren rechten Ecke skalieren",
+        "resizeSouth": "Vorschau am unteren Rand skalieren",
+        "resizeSouthWest": "Vorschau an der unteren linken Ecke skalieren",
+        "resizeWest": "Vorschau am linken Rand skalieren",
+        "resizeNorthWest": "Vorschau an der oberen linken Ecke skalieren"
       },
       "assignmentModal": {
         "title": "Layout-Zuweisungen",
@@ -179,7 +254,8 @@
         },
         "entitiesLabel": {
           "product": "Produkte",
-          "category": "Kategorien"
+          "category": "Kategorien",
+          "landing_page": "Landingpages"
         },
         "entitiesHelpText": "Eine Entität, die bereits einem anderen Layout zugewiesen ist, wird diesem Layout zugewiesen.",
         "messageSaved": "Layout-Zuweisungen gespeichert.",

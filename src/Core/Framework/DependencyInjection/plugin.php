@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DependencyInjection;
 
@@ -23,6 +25,7 @@ use Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginUpdateCommand;
 use Shopware\Core\Framework\Plugin\Command\MakerCommand;
 use Shopware\Core\Framework\Plugin\Command\PluginCreateCommand;
 use Shopware\Core\Framework\Plugin\Command\PluginListCommand;
+use Shopware\Core\Framework\Plugin\Command\PluginDebugModeCommand;
 use Shopware\Core\Framework\Plugin\Command\PluginRefreshCommand;
 use Shopware\Core\Framework\Plugin\Command\PluginZipImportCommand;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\AdminModuleGenerator;
@@ -188,6 +191,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('plugin.repository'),
             service(ComposerPluginLoader::class),
+        ])
+        ->tag('console.command');
+
+    $services->set(PluginDebugModeCommand::class)
+        ->args([
+            service('plugin.repository'),
+            service(ComposerPluginLoader::class),
+            service(PluginLifecycleService::class),
         ])
         ->tag('console.command');
 

@@ -30,7 +30,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
@@ -292,55 +291,6 @@ EOT,
     {
         $now = '2023-06-12 05:36:22.000';
 
-        yield 'NotEqualsFilter null on plain field' => [
-            new NotEqualsFilter('parentId', null),
-            [
-                'exists' => [
-                    'field' => 'parentId',
-                ],
-            ],
-        ];
-        yield 'NotEqualsFilter null on translated field' => [
-            new NotEqualsFilter('name', null),
-            [
-                'bool' => [
-                    'must_not' => [
-                        [
-                            'bool' => [
-                                'must_not' => [
-                                    ['exists' => ['field' => 'name.' . self::SECOND_LANGUAGE]],
-                                    ['exists' => ['field' => 'name.' . self::SECOND_LANGUAGE]],
-                                    ['exists' => ['field' => 'name.' . Defaults::LANGUAGE_SYSTEM]],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ];
-        yield 'NotEqualsFilter null on nested field' => [
-            new NotEqualsFilter('manufacturer.id', null),
-            [
-                'bool' => [
-                    'must_not' => [
-                        [
-                            'bool' => [
-                                'must_not' => [
-                                    [
-                                        'nested' => [
-                                            'path' => 'manufacturer',
-                                            'query' => [
-                                                'exists' => ['field' => 'manufacturer.id'],
-                                            ],
-                                        ],
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ];
         yield 'NotFilter field' => [
             new NotFilter('AND', [
                 new EqualsFilter('id', 'foo'),

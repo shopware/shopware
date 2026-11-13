@@ -83,7 +83,8 @@
               "helpText": "Displayed on viewports up to 767px."
             },
             "sw-logo-share": {
-              "label": "App & share icon"
+              "label": "App & share icon",
+              "helpText": "Used as the app icon when the shop is added to the home screen on iOS devices (apple-touch-icon). Recommended: PNG, 180 × 180 px."
             },
             "sw-logo-favicon": {
               "label": "Favicon"

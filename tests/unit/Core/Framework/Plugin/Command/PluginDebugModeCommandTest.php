@@ -116,8 +116,7 @@ class PluginDebugModeCommandTest extends TestCase
 
         $this->commandTester->execute(['--force' => true]);
 
-        $criteria = $this->pluginRepository->searchedCriteria[0];
-        $filters = $criteria->getFilters();
+        $filters = $this->pluginRepository->searchedCriteria[0]->getFilters();
 
         static::assertCount(1, $filters);
         static::assertInstanceOf(EqualsFilter::class, $filters[0]);
@@ -295,15 +294,13 @@ class PluginDebugModeCommandTest extends TestCase
         string $name,
         ?string $author,
         ?string $composerName = null,
-        bool $active = true,
-        bool $installed = true,
     ): PluginEntity {
         $plugin = new PluginEntity();
         $plugin->setId(Uuid::randomHex());
         $plugin->setName($name);
         $plugin->setLabel($name);
         $plugin->setVersion('1.0.0');
-        $plugin->setActive($active);
+        $plugin->setActive(true);
 
         if ($author !== null) {
             $plugin->setAuthor($author);
@@ -313,9 +310,7 @@ class PluginDebugModeCommandTest extends TestCase
             $plugin->setComposerName($composerName);
         }
 
-        if ($installed) {
-            $plugin->setInstalledAt(new \DateTimeImmutable());
-        }
+        $plugin->setInstalledAt(new \DateTimeImmutable());
 
         return $plugin;
     }

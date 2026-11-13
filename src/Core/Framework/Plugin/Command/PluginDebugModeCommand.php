@@ -84,6 +84,7 @@ class PluginDebugModeCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $context = Context::createCLIContext();
         $uninstall = (bool) $input->getOption('uninstall');
+        $force = (bool) $input->getOption('force');
 
         $plugins = $this->pluginRepo
             ->search($this->createCriteria($uninstall), $context)
@@ -105,11 +106,15 @@ class PluginDebugModeCommand extends Command
 
         $io->text(\sprintf('The following %d plugin(s) are not from Shopware:', \count($thirdPartyPlugins)));
         $io->listing(array_map(
-            static fn (PluginEntity $plugin): string => \sprintf('%s (%s)', $plugin->getName(), $plugin->getAuthor() ?? 'unknown author'),
+            static fn (PluginEntity $plugin): string => \sprintf(
+                '%s (%s)',
+                $plugin->getName(),
+                $plugin->getAuthor() ?? 'unknown author'
+            ),
             $thirdPartyPlugins
         ));
 
-        if (!$input->getOption('force') && !$io->confirm(\sprintf('Do you really want to %s these plugins?', $action), false)) {
+        if (!$force && !$io->confirm(\sprintf('Do you really want to %s these plugins?', $action), default: false)) {
             $io->note('Aborted.');
 
             return self::SUCCESS;
@@ -121,7 +126,7 @@ class PluginDebugModeCommand extends Command
         foreach ($thirdPartyPlugins as $plugin) {
             try {
                 if ($uninstall) {
-                    $this->pluginLifecycleService->uninstallPlugin($plugin, $context, true);
+                    $this->pluginLifecycleService->uninstallPlugin($plugin, $context, keepUserData: true);
                 } else {
                     $this->pluginLifecycleService->deactivatePlugin($plugin, $context);
                 }

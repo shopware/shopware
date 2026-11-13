@@ -58,7 +58,15 @@ class RegistryBindingSpecificationCanonicityTest extends TestCase
                     continue;
                 }
 
-                foreach (RootSourceConfigMap::branches($binding->config, $qualifiedId, $referenceKey) as $branchConfig) {
+                $branches = RootSourceConfigMap::branches($binding->config);
+
+                if ($branches === null) {
+                    $problems[] = \sprintf('%s.resolves[%s]: scoped config values name different root-source sets.', $qualifiedId, $referenceKey);
+
+                    continue;
+                }
+
+                foreach ($branches as $branchConfig) {
                     try {
                         $serializers->decode($binding->loader, $branchConfig);
                     } catch (ContentSystemException $exception) {

@@ -853,7 +853,7 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         static::assertCount(1, $violations);
         static::assertSame('bindings[' . self::ID . '].resolves[media].config.' . $configKey, $violations->get(0)->getPropertyPath());
         static::assertSame(
-            'resolves entry "media" config key "' . $configKey . '" is a map of root source to value, which only a literal config key of loader "entity" may be',
+            'resolves entry "media" config key "' . $configKey . '" is a map of root source to value, but only a literal config key of loader "entity" may be scoped',
             (string) $violations->get(0)->getMessage()
         );
     }

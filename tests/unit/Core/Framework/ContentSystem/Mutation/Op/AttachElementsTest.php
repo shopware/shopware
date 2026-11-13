@@ -7,6 +7,10 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\RootSourceConfigMap;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
@@ -95,6 +99,31 @@ class AttachElementsTest extends TestCase
 
         static::assertCount(1, $result->roots);
         static::assertSame([], $op->affected());
+    }
+
+    #[TestDox('names the id of the supplied element whose type default rejects the root source, after attaching the elements before it')]
+    public function testRejectionNamesTheSuppliedElementThatCannotBeScoped(): void
+    {
+        $default = new BindingSpecification(
+            'Sw:Card',
+            'Sw:Card',
+            'Card',
+            ['media' => new LoaderBinding('entity', ['entity' => [RootSourceConfigMap::MARKER => ['product' => 'media']]])],
+            [],
+            'core',
+        );
+        $bindingRegistry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
+        $bindingRegistry->method('all')->willReturn(['core:Sw:Card' => $default]);
+
+        $op = new AttachElements(
+            $this->registry(),
+            [new StoredElement('first', 'Sw:Block'), new StoredElement('second', 'Sw:Card')],
+            $bindingRegistry,
+            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), $this->registry()),
+        );
+
+        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Card', 'media', 'second', 'category'));
+        $op->apply(new StoredTree([], 'category'));
     }
 
     /**

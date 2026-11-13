@@ -16,7 +16,8 @@ use Shopware\Core\Framework\Log\Package;
  * given). It fill-applies each element's type default binding so a subtree authored without wiring (e.g. a preset
  * fragment) still resolves, while any wiring it already carries wins, then remints every id so a detached subtree
  * (e.g. a replace's orphans) or a copied subtree can be re-placed without collision. The binding runs before the
- * remint so a rejection names the element id the caller supplied; the two touch disjoint fields. The supplied
+ * remint so a rejection names the element id the caller supplied; the binding pass changes dataRequirements,
+ * properties and attributedSpecifications, the remint changes ids, and both rebuild slots to carry the children. The supplied
  * root's component must be a registered element type (mutationUnknownType), matching the type check
  * insert/replace/wrap run. The placed ids are minted server-side and come back in affected().
  * Copied and detached content retains its mapping choices. Preset insertion explicitly marks new scaffolds for

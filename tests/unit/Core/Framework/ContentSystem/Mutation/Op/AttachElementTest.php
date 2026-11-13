@@ -193,25 +193,32 @@ class AttachElementTest extends TestCase
     #[TestDox('names the element id the caller supplied when the type default binding rejects the root source')]
     public function testAttachRejectionNamesTheSuppliedElementId(): void
     {
-        $default = new BindingSpecification(
-            'Sw:Card',
-            'Sw:Card',
-            'Card',
-            ['media' => new LoaderBinding('entity', ['entity' => [RootSourceConfigMap::MARKER => ['product' => 'media']]])],
-            [],
-            'core',
-        );
-        $bindingRegistry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
-        $bindingRegistry->method('all')->willReturn(['core:Sw:Card' => $default]);
-
         $attach = new AttachElement(
             $this->registry(),
             new StoredElement('incoming', 'Sw:Card'),
-            $bindingRegistry,
+            $this->scopedCardDefaultRegistry(),
             new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), $this->registry()),
         );
 
         $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Card', 'media', 'incoming', 'category'));
+        $attach->apply(new StoredTree([], 'category'));
+    }
+
+    #[TestDox('names the nested element id the caller supplied when the type default of a descendant rejects the root source')]
+    public function testAttachRejectionNamesTheSuppliedNestedElementId(): void
+    {
+        $incoming = new StoredElement('incoming', 'Sw:Block', [], [], [
+            'content' => [new StoredElement('incoming-child', 'Sw:Card')],
+        ]);
+
+        $attach = new AttachElement(
+            $this->registry(),
+            $incoming,
+            $this->scopedCardDefaultRegistry(),
+            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), $this->registry()),
+        );
+
+        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Card', 'media', 'incoming-child', 'category'));
         $attach->apply(new StoredTree([], 'category'));
     }
 
@@ -264,6 +271,22 @@ class AttachElementTest extends TestCase
             $index,
             isNewScaffold: $isNewScaffold,
         );
+    }
+
+    private function scopedCardDefaultRegistry(): AbstractContentSystemBindingSpecificationRegistry
+    {
+        $default = new BindingSpecification(
+            'Sw:Card',
+            'Sw:Card',
+            'Card',
+            ['media' => new LoaderBinding('entity', ['entity' => [RootSourceConfigMap::MARKER => ['product' => 'media']]])],
+            [],
+            'core',
+        );
+        $registry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
+        $registry->method('all')->willReturn(['core:Sw:Card' => $default]);
+
+        return $registry;
     }
 
     private function registry(): AbstractContentSystemElementTypeRegistry

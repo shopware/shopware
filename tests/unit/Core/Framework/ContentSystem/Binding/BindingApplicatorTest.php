@@ -256,8 +256,8 @@ class BindingApplicatorTest extends TestCase
         static::assertTrue($result->property('mediaId')?->isNull());
     }
 
-    #[TestDox('propagates the error when a scoped config value has no entry for the layout\'s root source')]
-    public function testPropagatesScopedConfigWithoutRootSourceEntry(): void
+    #[TestDox('throws bindingRootSourceNotScoped naming the element when a scoped config value has no entry for the layout\'s root source')]
+    public function testThrowsWhenScopedConfigHasNoRootSourceEntry(): void
     {
         $element = new StoredElement('crumb-1', 'Sw:Navigation:Breadcrumb');
 
@@ -266,9 +266,8 @@ class BindingApplicatorTest extends TestCase
         $this->applicator($this->config())->apply($element, $this->scopedSpecification(), 'core:Sw:Navigation:Breadcrumb', 'landing_page');
     }
 
-    #[DataProvider('unscopedRootSourceProvider')]
-    #[TestDox('fill-only: leaves a key the element already wires untouched when its scoped config has no entry for the root source ($_dataName)')]
-    public function testFillOnlyIgnoresTheScopedConfigOfAnAlreadyWiredKey(?string $rootSource): void
+    #[TestDox('fill-only: never resolves the scoped config of a key the element already wires, so a root source the map does not name leaves the key untouched')]
+    public function testFillOnlyNeverResolvesTheScopedConfigOfAnAlreadyWiredKey(): void
     {
         $oldConfig = static::createStub(AbstractContentDataLoaderConfig::class);
         $element = StoredElementBuilder::create('Sw:Navigation:Breadcrumb', 'crumb-1')
@@ -276,7 +275,7 @@ class BindingApplicatorTest extends TestCase
             ->withAttributedSpecification('breadcrumb', 'core:old-spec')
             ->build();
 
-        $result = $this->applicator($this->config())->applyFillOnly($element, $this->scopedSpecification(), 'core:Sw:Navigation:Breadcrumb', $rootSource);
+        $result = $this->applicator($this->config())->applyFillOnly($element, $this->scopedSpecification(), 'core:Sw:Navigation:Breadcrumb', 'landing_page');
 
         static::assertSame(['breadcrumb'], array_keys($result->dataRequirements));
         static::assertSame($oldConfig, $result->dataRequirements['breadcrumb']->config);

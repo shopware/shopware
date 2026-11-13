@@ -1470,10 +1470,13 @@ class ContentSystemException extends HttpException
     /**
      * The 400 for applying a binding whose `!scoped` config value carries no entry for the layout's root source,
      * or onto a layout with no root source at all: no value can be picked, and dropping the key would hand the
-     * loader a config nobody declared. Thrown by {@see RootSourceConfigMap::collapse()}, naming the specification
-     * and the `resolves` key it would wire, plus the element when the binding is applied to one. A
-     * binding-application error like {@see bindingTypeMismatch()}, deliberately outside {@see CLIENT_DEFECT_CODES}.
-     * A null root source gets its own message, because `none` is the name of a real root source.
+     * loader a config nobody declared. Thrown by `BindingApplicator` when {@see RootSourceConfigMap::collapse()}
+     * returns null for a `resolves` entry, naming the specification and the `resolves` key it would wire, plus the
+     * element the binding is applied to. A null element id means that element does not exist for the caller yet:
+     * InsertElement scaffolds it under a server-minted id and reports the fault without it, like the null id of
+     * {@see bindingTypeMismatch()}. A binding-application error like {@see bindingTypeMismatch()}, deliberately
+     * outside {@see CLIENT_DEFECT_CODES}. A null root source gets its own message, because `none` is the name of a
+     * real root source.
      */
     public static function bindingRootSourceNotScoped(string $bindingSpecificationId, string $key, ?string $elementId, ?string $rootSource): self
     {

@@ -148,16 +148,28 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
             return;
         }
 
-        foreach (RootSourceConfigMap::branches($config, $id, $key) as $branchConfig) {
+        $branches = RootSourceConfigMap::branches($config);
+
+        if ($branches === null) {
+            $this->context->buildViolation($constraint->resolvesEntryRootSourceSetsDifferMessage)
+                ->setParameter('{{ key }}', $key)
+                ->setParameter('{{ sets }}', $this->describeRootSourceSets($config))
+                ->atPath($this->path($id, 'resolves[' . $key . '].config'))
+                ->addViolation();
+
+            return;
+        }
+
+        foreach ($branches as $branchConfig) {
             $this->validateConfigBranch($id, $key, $loader, $branchConfig, $declaredType, $type, $constraint);
         }
     }
 
     /**
      * A scoped map is admitted only on a Literal config key of a registered loader. An unregistered loader leaves
-     * the kind unknown, so that check is skipped and `decodeConfig()` reports the loader instead. Every scoped map
-     * of one config must name the same root sources: applying the binding collapses the whole config for one root
-     * source, so a key scoped over fewer root sources than its sibling would fail per request for the others.
+     * the kind unknown, so that check is skipped and `decodeConfig()` reports the loader instead. Whether the
+     * scoped maps of one config name the same root sources is checked by the caller through
+     * {@see RootSourceConfigMap::branches()}, only once every scoped map passed here.
      *
      * @param array<string, mixed> $config
      * @param list<string> $knownRootSources
@@ -165,18 +177,14 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
     private function validateScopedMaps(string $id, string $key, string $loader, array $config, array $knownRootSources, TypeConsistentBindingSpecification $constraint): bool
     {
         $valid = true;
-        $rootSourceSets = [];
 
         foreach ($config as $configKey => $value) {
+            $configKey = (string) $configKey;
             $map = RootSourceConfigMap::scopeMap($value);
 
             if ($map === null) {
                 if ($this->nestsScopedMap($value)) {
-                    $this->context->buildViolation($constraint->resolvesEntryNestedRootSourceMapMessage)
-                        ->setParameter('{{ key }}', $key)
-                        ->setParameter('{{ configKey }}', (string) $configKey)
-                        ->atPath($this->path($id, 'resolves[' . $key . '].config.' . $configKey))
-                        ->addViolation();
+                    $this->addConfigKeyViolation($constraint->resolvesEntryNestedRootSourceMapMessage, $id, $key, $configKey, []);
 
                     $valid = false;
                 }
@@ -184,13 +192,8 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
                 continue;
             }
 
-            if (!$this->admitsScopedMap($loader, (string) $configKey)) {
-                $this->context->buildViolation($constraint->resolvesEntryRootSourceMapNotLiteralMessage)
-                    ->setParameter('{{ key }}', $key)
-                    ->setParameter('{{ configKey }}', (string) $configKey)
-                    ->setParameter('{{ loader }}', $loader)
-                    ->atPath($this->path($id, 'resolves[' . $key . '].config.' . $configKey))
-                    ->addViolation();
+            if (!$this->admitsScopedMap($loader, $configKey)) {
+                $this->addConfigKeyViolation($constraint->resolvesEntryRootSourceMapNotLiteralMessage, $id, $key, $configKey, ['{{ loader }}' => $loader]);
 
                 $valid = false;
 
@@ -198,40 +201,56 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
             }
 
             if ($map !== [] && $this->onlyRootSourceKeys($map, $knownRootSources) && $this->allStringValues($map)) {
-                $rootSources = array_keys($map);
-                sort($rootSources);
-                $rootSourceSets[(string) $configKey] = $rootSources;
-
                 continue;
             }
 
-            $this->context->buildViolation($constraint->resolvesEntryRootSourceMapMessage)
-                ->setParameter('{{ key }}', $key)
-                ->setParameter('{{ configKey }}', (string) $configKey)
-                ->setParameter('{{ rootSources }}', implode(', ', $knownRootSources))
-                ->atPath($this->path($id, 'resolves[' . $key . '].config.' . $configKey))
-                ->addViolation();
-
-            $valid = false;
-        }
-
-        if (\count(array_unique($rootSourceSets, \SORT_REGULAR)) > 1) {
-            $sets = [];
-
-            foreach ($rootSourceSets as $configKey => $rootSources) {
-                $sets[] = $configKey . ': ' . implode(', ', $rootSources);
-            }
-
-            $this->context->buildViolation($constraint->resolvesEntryRootSourceSetsDifferMessage)
-                ->setParameter('{{ key }}', $key)
-                ->setParameter('{{ sets }}', implode('; ', $sets))
-                ->atPath($this->path($id, 'resolves[' . $key . '].config'))
-                ->addViolation();
+            $this->addConfigKeyViolation($constraint->resolvesEntryRootSourceMapMessage, $id, $key, $configKey, ['{{ rootSources }}' => implode(', ', $knownRootSources)]);
 
             $valid = false;
         }
 
         return $valid;
+    }
+
+    /**
+     * @param array<string, string> $parameters the message parameters beyond `{{ key }}` and `{{ configKey }}`
+     */
+    private function addConfigKeyViolation(string $message, string $id, string $key, string $configKey, array $parameters): void
+    {
+        $builder = $this->context->buildViolation($message)
+            ->setParameter('{{ key }}', $key)
+            ->setParameter('{{ configKey }}', $configKey)
+            ->atPath($this->path($id, 'resolves[' . $key . '].config.' . $configKey));
+
+        foreach ($parameters as $name => $value) {
+            $builder->setParameter($name, $value);
+        }
+
+        $builder->addViolation();
+    }
+
+    /**
+     * Each scoped config key with the root sources its map names, sorted, as `key: a, b; other: a`.
+     *
+     * @param array<string, mixed> $config
+     */
+    private function describeRootSourceSets(array $config): string
+    {
+        $sets = [];
+
+        foreach ($config as $configKey => $value) {
+            $map = RootSourceConfigMap::scopeMap($value);
+
+            if ($map === null) {
+                continue;
+            }
+
+            $rootSources = array_keys($map);
+            sort($rootSources);
+            $sets[] = $configKey . ': ' . implode(', ', $rootSources);
+        }
+
+        return implode('; ', $sets);
     }
 
     /**

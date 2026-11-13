@@ -7,9 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Binding\RootSourceConfigMap;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -18,10 +16,6 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(RootSourceConfigMap::class)]
 class RootSourceConfigMapTest extends TestCase
 {
-    private const SPECIFICATION_ID = 'core:Sw:Navigation:Breadcrumb';
-
-    private const KEY = 'breadcrumb';
-
     #[TestDox('scopeMap returns the inner map, and isScoped is true, for a scoped value')]
     public function testScopedValue(): void
     {
@@ -55,16 +49,30 @@ class RootSourceConfigMapTest extends TestCase
         yield 'the marker wrapping a non-array' => [[RootSourceConfigMap::MARKER => 'productId']];
     }
 
-    #[TestDox('collapse leaves non-scoped config values untouched')]
-    public function testCollapseLeavesNonScopedUntouched(): void
+    #[DataProvider('anyRootSourceProvider')]
+    #[TestDox('collapse returns a config without a scoped value unchanged for $_dataName')]
+    public function testCollapseLeavesNonScopedUntouched(?string $rootSource): void
     {
         $config = ['entity' => 'media', 'associations' => ['manufacturer'], 'referrer' => '{{x}}'];
 
-        static::assertSame($config, RootSourceConfigMap::collapse($config, 'product', self::SPECIFICATION_ID, self::KEY, 'crumb-1'));
+        static::assertSame($config, RootSourceConfigMap::collapse($config, $rootSource));
     }
 
-    #[TestDox('collapse picks the value for the given root source from each scoped map')]
-    public function testCollapsePicksRootSourceValue(): void
+    /**
+     * @return iterable<string, array{string|null}>
+     */
+    public static function anyRootSourceProvider(): iterable
+    {
+        yield 'a named root source' => ['product'];
+        yield 'a null root source' => [null];
+    }
+
+    /**
+     * @param array<string, mixed> $expected
+     */
+    #[DataProvider('collapsePicksProvider')]
+    #[TestDox('collapse picks the value for the given root source from each scoped map: $_dataName')]
+    public function testCollapsePicksRootSourceValue(string $rootSource, array $expected): void
     {
         $config = [
             'entity' => 'media',
@@ -72,37 +80,28 @@ class RootSourceConfigMapTest extends TestCase
             'type' => [RootSourceConfigMap::MARKER => ['product' => 'product', 'category' => 'category']],
         ];
 
-        static::assertSame(
-            ['entity' => 'media', 'property' => 'productId', 'type' => 'product'],
-            RootSourceConfigMap::collapse($config, 'product', self::SPECIFICATION_ID, self::KEY, 'crumb-1'),
-        );
+        static::assertSame($expected, RootSourceConfigMap::collapse($config, $rootSource));
+    }
 
-        static::assertSame(
-            ['entity' => 'media', 'property' => 'categoryId', 'type' => 'category'],
-            RootSourceConfigMap::collapse($config, 'category', self::SPECIFICATION_ID, self::KEY, 'crumb-1'),
-        );
+    /**
+     * @return iterable<string, array{string, array<string, mixed>}>
+     */
+    public static function collapsePicksProvider(): iterable
+    {
+        yield 'product' => ['product', ['entity' => 'media', 'property' => 'productId', 'type' => 'product']];
+        yield 'category' => ['category', ['entity' => 'media', 'property' => 'categoryId', 'type' => 'category']];
     }
 
     #[DataProvider('unscopedRootSourceProvider')]
-    #[TestDox('collapse throws, naming the specification, the key and the element, for $_dataName')]
-    public function testCollapseThrowsWithoutRootSourceEntry(?string $rootSource): void
+    #[TestDox('collapse returns null for $_dataName')]
+    public function testCollapseReturnsNullWithoutRootSourceEntry(?string $rootSource): void
     {
         $config = [
             'entity' => 'media',
             'property' => [RootSourceConfigMap::MARKER => ['product' => 'productId']],
         ];
 
-        try {
-            RootSourceConfigMap::collapse($config, $rootSource, self::SPECIFICATION_ID, self::KEY, 'crumb-1');
-            static::fail('collapse() must throw for a scoped key without an entry for the root source');
-        } catch (ContentSystemException $exception) {
-            static::assertSame(ContentSystemException::BINDING_ROOT_SOURCE_NOT_SCOPED, $exception->getErrorCode());
-            static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
-            static::assertSame(
-                ['bindingSpecificationId' => self::SPECIFICATION_ID, 'key' => self::KEY, 'elementId' => 'crumb-1', 'rootSource' => $rootSource],
-                $exception->getParameters()
-            );
-        }
+        static::assertNull(RootSourceConfigMap::collapse($config, $rootSource));
     }
 
     /**
@@ -119,69 +118,63 @@ class RootSourceConfigMapTest extends TestCase
     {
         $config = ['entity' => 'media', 'property' => 'mediaId'];
 
-        static::assertSame([$config], RootSourceConfigMap::branches($config, self::SPECIFICATION_ID, self::KEY));
+        static::assertSame([$config], RootSourceConfigMap::branches($config));
     }
 
     #[TestDox('branches returns a single empty branch for an empty config')]
     public function testBranchesReturnsSingleBranchForEmptyConfig(): void
     {
-        static::assertSame([[]], RootSourceConfigMap::branches([], self::SPECIFICATION_ID, self::KEY));
+        static::assertSame([[]], RootSourceConfigMap::branches([]));
     }
 
-    #[TestDox('branches returns one collapsed config per root source a scoped map names')]
-    public function testBranchesCollapsesOnePerRootSource(): void
+    #[TestDox('branches returns the config unchanged as its single branch when every scoped map is empty')]
+    public function testBranchesReturnsSingleBranchForEmptyScopedMaps(): void
     {
-        $config = [
-            'property' => [RootSourceConfigMap::MARKER => ['product' => 'productId', 'category' => 'categoryId']],
-            'type' => [RootSourceConfigMap::MARKER => ['product' => 'product', 'category' => 'category']],
-            'referrerCategoryProperty' => '{{referrerCategoryId}}',
-        ];
+        $config = ['entity' => 'media', 'property' => [RootSourceConfigMap::MARKER => []]];
 
-        static::assertSame([
-            ['property' => 'productId', 'type' => 'product', 'referrerCategoryProperty' => '{{referrerCategoryId}}'],
-            ['property' => 'categoryId', 'type' => 'category', 'referrerCategoryProperty' => '{{referrerCategoryId}}'],
-        ], RootSourceConfigMap::branches($config, self::SPECIFICATION_ID, self::KEY));
+        static::assertSame([$config], RootSourceConfigMap::branches($config));
     }
 
-    #[TestDox('each branch equals the collapse of the config for the same root source')]
-    public function testBranchesAgreeWithCollapseForEveryRootSource(): void
+    #[TestDox('branches returns one collapsed config per root source, in the order the scoped maps first name them')]
+    public function testBranchesCollapsesOnePerRootSource(): void
     {
         $config = [
             'entity' => 'media',
             'property' => [RootSourceConfigMap::MARKER => ['product' => 'productId', 'category' => 'categoryId', 'landing_page' => 'landingPageId']],
             'type' => [RootSourceConfigMap::MARKER => ['landing_page' => 'landing_page', 'product' => 'product', 'category' => 'category']],
             'variant' => [RootSourceConfigMap::MARKER => ['category' => 'narrow', 'landing_page' => 'wide', 'product' => 'square']],
+            'referrerCategoryProperty' => '{{referrerCategoryId}}',
         ];
 
-        $rootSources = ['product', 'category', 'landing_page'];
-
-        static::assertSame(
-            array_map(static fn (string $rootSource): array => RootSourceConfigMap::collapse($config, $rootSource, self::SPECIFICATION_ID, self::KEY, null), $rootSources),
-            RootSourceConfigMap::branches($config, self::SPECIFICATION_ID, self::KEY),
-        );
-        static::assertSame(
-            ['entity' => 'media', 'property' => 'landingPageId', 'type' => 'landing_page', 'variant' => 'wide'],
-            RootSourceConfigMap::branches($config, self::SPECIFICATION_ID, self::KEY)[2],
-        );
+        static::assertSame([
+            ['entity' => 'media', 'property' => 'productId', 'type' => 'product', 'variant' => 'square', 'referrerCategoryProperty' => '{{referrerCategoryId}}'],
+            ['entity' => 'media', 'property' => 'categoryId', 'type' => 'category', 'variant' => 'narrow', 'referrerCategoryProperty' => '{{referrerCategoryId}}'],
+            ['entity' => 'media', 'property' => 'landingPageId', 'type' => 'landing_page', 'variant' => 'wide', 'referrerCategoryProperty' => '{{referrerCategoryId}}'],
+        ], RootSourceConfigMap::branches($config));
     }
 
-    #[TestDox('branches throws like collapse, naming no element, for a key scoped over fewer root sources than its sibling')]
-    public function testBranchesThrowsForScopedMapsNamingDifferentRootSources(): void
+    /**
+     * @param array<string, mixed> $config
+     */
+    #[DataProvider('differentRootSourceSetsProvider')]
+    #[TestDox('branches returns null when a key is scoped over fewer root sources than its sibling: $_dataName')]
+    public function testBranchesReturnsNullForScopedMapsNamingDifferentRootSources(array $config): void
     {
-        $config = [
+        static::assertNull(RootSourceConfigMap::branches($config));
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function differentRootSourceSetsProvider(): iterable
+    {
+        yield 'the narrower map second' => [[
             'property' => [RootSourceConfigMap::MARKER => ['product' => 'productId', 'category' => 'categoryId']],
             'type' => [RootSourceConfigMap::MARKER => ['product' => 'product']],
-        ];
-
-        try {
-            RootSourceConfigMap::branches($config, self::SPECIFICATION_ID, self::KEY);
-            static::fail('branches() must throw for a scoped key without an entry for a root source a sibling names');
-        } catch (ContentSystemException $exception) {
-            static::assertSame(ContentSystemException::BINDING_ROOT_SOURCE_NOT_SCOPED, $exception->getErrorCode());
-            static::assertSame(
-                ['bindingSpecificationId' => self::SPECIFICATION_ID, 'key' => self::KEY, 'elementId' => null, 'rootSource' => 'category'],
-                $exception->getParameters()
-            );
-        }
+        ]];
+        yield 'the narrower map first' => [[
+            'type' => [RootSourceConfigMap::MARKER => ['product' => 'product']],
+            'property' => [RootSourceConfigMap::MARKER => ['product' => 'productId', 'category' => 'categoryId']],
+        ]];
     }
 }

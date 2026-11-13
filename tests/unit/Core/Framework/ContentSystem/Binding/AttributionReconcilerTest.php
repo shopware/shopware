@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Binding\AttributionReconciler;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\RootSourceConfigMap;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -160,6 +161,32 @@ class AttributionReconcilerTest extends TestCase
         $specification = $this->specification('spec-1', []);
 
         $config = new StubArrayLoaderConfig(['entity' => 'media']);
+        $element = StoredElementBuilder::create('card', 'elem-1')
+            ->withDataRequirement('product', 'entity', $config)
+            ->withAttributedSpecification('product', 'spec-1')
+            ->build();
+
+        $result = $this->reconciler(['spec-1' => $specification], $this->provider())
+            ->reconcile([$element]);
+
+        $reconciled = $result[0];
+        static::assertInstanceOf(StoredElement::class, $reconciled);
+        static::assertSame([], $reconciled->attributedSpecifications);
+        static::assertSame($element->dataRequirements, $reconciled->dataRequirements);
+    }
+
+    #[TestDox('drops attribution without throwing when the binding\'s scoped config values name different root-source sets, even for wiring equal to one root source\'s config')]
+    public function testDropsAttributionWhenScopedConfigNamesDifferentRootSourceSets(): void
+    {
+        $specification = $this->specification('spec-1', [
+            'product' => new LoaderBinding('entity', [
+                'entity' => 'media',
+                'property' => [RootSourceConfigMap::MARKER => ['product' => 'productId', 'category' => 'categoryId']],
+                'type' => [RootSourceConfigMap::MARKER => ['product' => 'product']],
+            ]),
+        ]);
+
+        $config = new StubArrayLoaderConfig(['entity' => 'media', 'property' => 'productId', 'type' => 'product']);
         $element = StoredElementBuilder::create('card', 'elem-1')
             ->withDataRequirement('product', 'entity', $config)
             ->withAttributedSpecification('product', 'spec-1')

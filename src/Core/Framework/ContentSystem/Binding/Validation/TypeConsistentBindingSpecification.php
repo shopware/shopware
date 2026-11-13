@@ -32,7 +32,7 @@ final class TypeConsistentBindingSpecification extends Constraint
 
     public string $resolvesEntryRootSourceMapMessage = 'resolves entry "{{ key }}" config key "{{ configKey }}" must be a map of root source to string, with keys limited to {{ rootSources }}';
 
-    public string $resolvesEntryRootSourceMapNotLiteralMessage = 'resolves entry "{{ key }}" config key "{{ configKey }}" is a map of root source to value, which only a literal config key of loader "{{ loader }}" may be';
+    public string $resolvesEntryRootSourceMapNotLiteralMessage = 'resolves entry "{{ key }}" config key "{{ configKey }}" is a map of root source to value, but only a literal config key of loader "{{ loader }}" may be scoped';
 
     public string $resolvesEntryNestedRootSourceMapMessage = 'resolves entry "{{ key }}" config key "{{ configKey }}" nests a scoped map inside its value, but a scoped map may only be the direct value of a config key';
 

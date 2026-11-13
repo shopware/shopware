@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem\Mutation\Op;
 
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
@@ -45,11 +46,7 @@ final class InsertElement extends AbstractLayoutMutation
     {
         $this->requireRegistered($this->registry, $this->type);
 
-        $bindingSpecificationId = $this->bindingSpecificationId;
-
-        $element = $bindingSpecificationId === null
-            ? $this->scaffoldWithDefault($this->type, $tree->rootSource)
-            : $this->scaffoldBoundElement($bindingSpecificationId, $tree->rootSource);
+        $element = $this->scaffold($tree->rootSource);
 
         $this->affected = [$element->id];
         $this->created = [$element->id];
@@ -72,7 +69,31 @@ final class InsertElement extends AbstractLayoutMutation
         return $tree->insertIntoSlot($this->parentElementId, $slot, $this->index, [$element]);
     }
 
-    private function scaffoldBoundElement(string $bindingSpecificationId, ?string $rootSource): StoredElement
+    /**
+     * Scaffolds a fresh element of the type, applies the named binding specification onto it when one is given,
+     * then fill-applies the type's default binding specification (resolved via
+     * {@see AbstractLayoutMutation::resolveDefaultSpecification()}), attributed to the default's own qualified id.
+     * The scaffold's id is minted per request and never reaches the caller, so a `bindingRootSourceNotScoped`
+     * raised here names no element, like the `bindingTypeMismatch` of a named specification of another type.
+     */
+    private function scaffold(?string $rootSource): StoredElement
+    {
+        $bindingSpecificationId = $this->bindingSpecificationId;
+        $specification = $bindingSpecificationId === null ? null : $this->namedSpecification($bindingSpecificationId);
+        $element = $this->scaffoldElement($this->registry, $this->type);
+
+        try {
+            if ($bindingSpecificationId !== null && $specification !== null) {
+                $element = $this->bindingApplicator->apply($element, $specification, $bindingSpecificationId, $rootSource);
+            }
+
+            return $this->applyDefaultBinding($this->bindingRegistry, $this->bindingApplicator, $element, $rootSource);
+        } catch (ContentSystemException $exception) {
+            throw $this->withoutElementId($exception);
+        }
+    }
+
+    private function namedSpecification(string $bindingSpecificationId): BindingSpecification
     {
         $specification = $this->bindingRegistry->get($bindingSpecificationId);
 
@@ -84,25 +105,27 @@ final class InsertElement extends AbstractLayoutMutation
             throw ContentSystemException::bindingTypeMismatch($bindingSpecificationId, $specification->type(), $this->type, null);
         }
 
-        return $this->applyDefaultBinding(
-            $this->bindingRegistry,
-            $this->bindingApplicator,
-            $this->bindingApplicator->apply($this->scaffoldElement($this->registry, $this->type), $specification, $bindingSpecificationId, $rootSource),
-            $rootSource,
-        );
+        return $specification;
     }
 
     /**
-     * Scaffolds a fresh element of $type and fill-applies its default binding specification (resolved via
-     * {@see AbstractLayoutMutation::resolveDefaultSpecification()}), attributed to the default's own qualified id.
+     * Re-throws a BINDING_ROOT_SOURCE_NOT_SCOPED fault without the scaffold's element id, reading the other
+     * parameters back from the caught exception. Every other ContentSystemException is returned unchanged.
      */
-    private function scaffoldWithDefault(string $type, ?string $rootSource): StoredElement
+    private function withoutElementId(ContentSystemException $exception): ContentSystemException
     {
-        return $this->applyDefaultBinding(
-            $this->bindingRegistry,
-            $this->bindingApplicator,
-            $this->scaffoldElement($this->registry, $type),
-            $rootSource,
-        );
+        if ($exception->getErrorCode() !== ContentSystemException::BINDING_ROOT_SOURCE_NOT_SCOPED) {
+            return $exception;
+        }
+
+        $bindingSpecificationId = $exception->getParameter('bindingSpecificationId');
+        $key = $exception->getParameter('key');
+        $rootSource = $exception->getParameter('rootSource');
+
+        if (!\is_string($bindingSpecificationId) || !\is_string($key) || !($rootSource === null || \is_string($rootSource))) {
+            return $exception;
+        }
+
+        return ContentSystemException::bindingRootSourceNotScoped($bindingSpecificationId, $key, null, $rootSource);
     }
 }

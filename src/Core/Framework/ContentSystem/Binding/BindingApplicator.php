@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem\Binding;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
 use Shopware\Core\Framework\ContentSystem\Binding\Validation\TypeConsistentBindingSpecification;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
@@ -85,7 +86,8 @@ final class BindingApplicator
         $dataRequirements = [];
 
         foreach ($resolves as $key => $binding) {
-            $config = RootSourceConfigMap::collapse($binding->config, $rootSource, $bindingSpecificationId, $key, $elementId);
+            $config = RootSourceConfigMap::collapse($binding->config, $rootSource)
+                ?? throw ContentSystemException::bindingRootSourceNotScoped($bindingSpecificationId, $key, $elementId, $rootSource);
             $dataRequirements[$key] = new DataRequirement($key, $binding->loader, $this->configSerializerProvider->decode($binding->loader, $config));
         }
 

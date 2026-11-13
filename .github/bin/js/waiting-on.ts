@@ -68,7 +68,7 @@
  *        mergeability not computed yet                    -> shopware  (mergeability-unknown)
  *        otherwise                                        -> shopware  (just-merge-it)
  *   5. at least one approval, decision still open
- *        an unresolved thread where we wrote last         -> author    (open-question)
+ *        an open thread where a non-approver wrote last   -> author    (open-question)
  *        otherwise                                        -> shopware  (second-review-missing)
  *   6. no review and no maintainer comment, ever          -> shopware  (never-reviewed)
  *   7. a maintainer acted after the author last did       -> author    (author-turn)
@@ -102,7 +102,8 @@
  * not a question anyone has to answer and is left out. Step 5 asks the same question, since
  * an open thread blocks the merge whatever the approval count: on #21823 one reviewer approved
  * while another's inline questions stayed open, and `second-review-missing` kept it with us
- * for twelve days.
+ * for twelve days. Only threads where someone who has not approved wrote last count there: a
+ * nit left by the reviewer who already approved should not hold back the second review.
  *
  * Step H lets a person overrule the rule without the next run undoing it, and without the
  * label going stale either: the first comment, review or push after it hands the decision
@@ -208,6 +209,8 @@ export type Activity = {
 /** The newest last word in the unresolved review threads, split by who wrote it. */
 export type OpenThreads = {
     lastOpenQuestionAt?: string;
+    /** Like `lastOpenQuestionAt`, leaving out threads whose last word came from someone who approved. */
+    lastQuestionFromNonApproverAt?: string;
     lastOpenAnswerAt?: string;
 };
 
@@ -364,12 +367,12 @@ function classifyByRule(facts: PullRequestFacts): WaitingOnVerdict {
     }
 
     if (facts.approvals >= 1) {
-        if (facts.lastOpenQuestionAt) {
+        if (facts.lastQuestionFromNonApproverAt) {
             return {
                 waitingOn: 'author',
                 reason: 'open-question',
                 message: 'has an approval, but a review thread still waits for the author to answer',
-                since: facts.lastOpenQuestionAt,
+                since: facts.lastQuestionFromNonApproverAt,
             };
         }
 
@@ -422,6 +425,7 @@ export type TimelineEvent = {
 export type OpinionatedReview = {
     state: string;
     submittedAt: string;
+    author?: { login: string } | null;
 };
 
 /**
@@ -497,7 +501,7 @@ export const PULL_REQUEST_FIELDS = `
     labels(first: 50) { nodes { name } }
     approvals: reviews(states: APPROVED) { totalCount }
     allReviews: reviews(first: 1) { totalCount }
-    latestOpinionatedReviews(first: 20) { nodes { state submittedAt } }
+    latestOpinionatedReviews(first: 20) { nodes { state submittedAt author { login } } }
     reviewThreads(last: 50) { nodes { isResolved comments(last: 3) { nodes { createdAt author { login __typename } } } } }
     labelEvents: timelineItems(last: 20, itemTypes: [LABELED_EVENT]) {
         nodes { ... on LabeledEvent { createdAt actor { login __typename } label { name } } }
@@ -640,7 +644,7 @@ export function toReviewThreadEvents(nodes: ReviewThreadNode[]): TimelineEvent[]
 }
 
 /** Who wrote last in each unresolved thread, people only; see the rule for why it matters. */
-export function summarizeOpenThreads(nodes: ReviewThreadNode[], authorLogin?: string): OpenThreads {
+export function summarizeOpenThreads(nodes: ReviewThreadNode[], authorLogin?: string, approvers: ReadonlySet<string> = new Set()): OpenThreads {
     const open: OpenThreads = {};
 
     for (const thread of nodes.filter((candidate) => !candidate.isResolved)) {
@@ -653,10 +657,17 @@ export function summarizeOpenThreads(nodes: ReviewThreadNode[], authorLogin?: st
             open.lastOpenAnswerAt = latest(open.lastOpenAnswerAt, last.at);
         } else {
             open.lastOpenQuestionAt = latest(open.lastOpenQuestionAt, last.at);
+            if (last.actor === undefined || !approvers.has(last.actor)) {
+                open.lastQuestionFromNonApproverAt = latest(open.lastQuestionFromNonApproverAt, last.at);
+            }
         }
     }
 
     return open;
+}
+
+function approversOf(reviews: OpinionatedReview[]): Set<string> {
+    return new Set(reviews.flatMap((review) => (review.state === 'APPROVED' && review.author ? [review.author.login] : [])));
 }
 
 export function factsOf(node: PullRequestNode): PullRequestFacts {
@@ -664,7 +675,7 @@ export function factsOf(node: PullRequestNode): PullRequestFacts {
 
     return {
         ...summarizeActivity(events, node.latestOpinionatedReviews.nodes, node.author?.login),
-        ...summarizeOpenThreads(node.reviewThreads.nodes, node.author?.login),
+        ...summarizeOpenThreads(node.reviewThreads.nodes, node.author?.login, approversOf(node.latestOpinionatedReviews.nodes)),
         createdAt: node.createdAt,
         isDraft: node.isDraft,
         isParked: node.labels.nodes.some((label) => label.name === PARKED_LABEL),

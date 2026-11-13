@@ -5,6 +5,7 @@ import {
     buildRows,
     classifyPullRequest,
     daysSince,
+    factsOf,
     findSetByHand,
     isHuman,
     isNonHumanLogin,
@@ -165,7 +166,7 @@ test('one open question outweighs an answered thread, and a conflict outweighs b
     assert.equal(classify({ ...open, mergeable: 'CONFLICTING' }).reason, 'needs-rebase');
 });
 
-test('a question the author left open outweighs a missing second approval', () => {
+test('a question left open for the author outweighs a missing second approval', () => {
     // Regression: this is #21823, approved once while another reviewer's inline questions
     // stayed open, so `second-review-missing` sent it back to us.
     const facts = {
@@ -174,6 +175,7 @@ test('a question the author left open outweighs a missing second approval', () =
         approvals: 1,
         lastMaintainerActivityAt: '2026-10-23T06:58:15Z',
         lastOpenQuestionAt: '2026-10-22T11:23:24Z',
+        lastQuestionFromNonApproverAt: '2026-10-22T11:23:24Z',
     } as const;
 
     const verdict = classify(facts);
@@ -181,7 +183,37 @@ test('a question the author left open outweighs a missing second approval', () =
     assert.equal(verdict.reason, 'open-question');
     assert.equal(verdict.since, '2026-10-22T11:23:24Z');
 
-    assert.equal(classify({ ...facts, lastOpenQuestionAt: undefined, lastOpenAnswerAt: '2026-10-24T00:00:00Z' }).reason, 'second-review-missing');
+    const answered = { ...facts, lastOpenQuestionAt: undefined, lastQuestionFromNonApproverAt: undefined, lastOpenAnswerAt: '2026-10-24T00:00:00Z' };
+    assert.equal(classify(answered).reason, 'second-review-missing');
+});
+
+test('a nit from the reviewer who already approved does not hold back the second review', () => {
+    const verdict = classify({
+        reviewDecision: 'REVIEW_REQUIRED',
+        reviewCount: 1,
+        approvals: 1,
+        lastMaintainerActivityAt: '2026-10-22T11:23:24Z',
+        lastOpenQuestionAt: '2026-10-22T11:23:24Z',
+    });
+
+    assert.equal(verdict.waitingOn, 'shopware');
+    assert.equal(verdict.reason, 'second-review-missing');
+});
+
+test('a push alone does not answer an open question before the second approval', () => {
+    const verdict = classify({
+        reviewDecision: 'REVIEW_REQUIRED',
+        reviewCount: 2,
+        approvals: 1,
+        lastMaintainerActivityAt: '2026-10-22T11:23:24Z',
+        lastOpenQuestionAt: '2026-10-22T11:23:24Z',
+        lastQuestionFromNonApproverAt: '2026-10-22T11:23:24Z',
+        lastAuthorActivityAt: '2026-10-25T08:00:00Z',
+    });
+
+    assert.equal(verdict.waitingOn, 'author');
+    assert.equal(verdict.reason, 'open-question');
+    assert.equal(verdict.since, '2026-10-22T11:23:24Z');
 });
 
 test('summarizeOpenThreads reads who wrote last in each unresolved thread and skips the rest', () => {
@@ -198,7 +230,63 @@ test('summarizeOpenThreads reads who wrote last in each unresolved thread and sk
         'littfed',
     );
 
-    assert.deepEqual(open, { lastOpenQuestionAt: '2026-09-25T07:38:17Z', lastOpenAnswerAt: '2026-10-09T09:00:00Z' });
+    assert.deepEqual(open, {
+        lastOpenQuestionAt: '2026-09-25T07:38:17Z',
+        lastQuestionFromNonApproverAt: '2026-09-25T07:38:17Z',
+        lastOpenAnswerAt: '2026-10-09T09:00:00Z',
+    });
+});
+
+test('summarizeOpenThreads sets threads where an approver wrote last apart', () => {
+    const comment = (login: string, createdAt: string) => ({ createdAt, author: { login, __typename: 'User' } });
+
+    const open = summarizeOpenThreads(
+        [
+            { isResolved: false, comments: { nodes: [comment('approver', '2026-10-22T11:00:00Z')] } },
+            { isResolved: false, comments: { nodes: [comment('other', '2026-10-21T09:00:00Z')] } },
+        ],
+        'contributor',
+        new Set(['approver']),
+    );
+
+    assert.deepEqual(open, { lastOpenQuestionAt: '2026-10-22T11:00:00Z', lastQuestionFromNonApproverAt: '2026-10-21T09:00:00Z' });
+    assert.equal(summarizeOpenThreads([{ isResolved: false, comments: { nodes: [comment('approver', '2026-10-22T11:00:00Z')] } }], 'contributor', new Set(['approver'])).lastQuestionFromNonApproverAt, undefined);
+});
+
+test('factsOf takes the approvers from the latest opinionated reviews', () => {
+    const comment = (login: string, createdAt: string) => ({ createdAt, author: { login, __typename: 'User' } });
+    const facts = factsOf({
+        id: 'PR_1',
+        number: 1,
+        title: 'a pull request',
+        url: 'https://github.com/shopware/shopware/pull/1',
+        createdAt: '2026-10-01T00:00:00Z',
+        isDraft: false,
+        authorAssociation: 'CONTRIBUTOR',
+        reviewDecision: 'REVIEW_REQUIRED',
+        mergeable: 'MERGEABLE',
+        author: { login: 'contributor', __typename: 'User' },
+        labels: { nodes: [] },
+        approvals: { totalCount: 1 },
+        allReviews: { totalCount: 2 },
+        latestOpinionatedReviews: {
+            nodes: [
+                { state: 'APPROVED', submittedAt: '2026-10-23T06:58:15Z', author: { login: 'approver' } },
+                { state: 'COMMENTED', submittedAt: '2026-10-22T11:23:24Z', author: { login: 'asker' } },
+            ],
+        },
+        reviewThreads: {
+            nodes: [
+                { isResolved: false, comments: { nodes: [comment('approver', '2026-10-23T06:58:00Z')] } },
+                { isResolved: false, comments: { nodes: [comment('asker', '2026-10-22T11:23:24Z')] } },
+            ],
+        },
+        timelineItems: { nodes: [] },
+        labelEvents: { nodes: [] },
+    } as unknown as Parameters<typeof factsOf>[0]);
+
+    assert.equal(facts.lastOpenQuestionAt, '2026-10-23T06:58:00Z');
+    assert.equal(facts.lastQuestionFromNonApproverAt, '2026-10-22T11:23:24Z');
 });
 
 test('unresolved mergeability lands on us rather than on the contributor', () => {

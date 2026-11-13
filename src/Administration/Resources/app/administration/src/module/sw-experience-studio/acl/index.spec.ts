@@ -50,9 +50,7 @@ describe('src/module/sw-experience-studio/acl/index.ts', () => {
     });
 
     it('registers exactly the permission entry and the additional permission entry', () => {
-        const entries = privileges
-            .getPrivilegesMappings()
-            .map(({ category, parent, key }) => ({ category, parent, key }));
+        const entries = privileges.getPrivilegesMappings().map(({ category, parent, key }) => ({ category, parent, key }));
 
         expect(entries).toEqual([
             { category: 'permissions', parent: 'content', key: 'experience_studio' },

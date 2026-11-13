@@ -22,7 +22,7 @@
                                     role="tablist">
                                     {% block element_product_description_reviews_tabs_navigation_description %}
                                         <li class="nav-item">
-                                            <a class="nav-link {% if (ratingSuccess != 1) and (ratingSuccess != -1) %}active{% endif %} product-detail-tab-navigation-link description-tab"
+                                            <a class="nav-link {% if (element.data.ratingSuccess != 1) and (element.data.ratingSuccess != -1) %}active{% endif %} product-detail-tab-navigation-link description-tab"
                                                id="{{ descriptionTabId }}"
                                                data-bs-toggle="tab"
                                                data-off-canvas-tabs="true"
@@ -55,7 +55,7 @@
                                     {% block element_product_description_reviews_tabs_navigation_review %}
                                         {% if config('core.listing.showReview') %}
                                             <li class="nav-item">
-                                                <a class="nav-link {% if (ratingSuccess == 1) or (ratingSuccess == -1) %}active{% endif %} product-detail-tab-navigation-link review-tab"
+                                                <a class="nav-link {% if (element.data.ratingSuccess == 1) or (element.data.ratingSuccess == -1) %}active{% endif %} product-detail-tab-navigation-link review-tab"
                                                    id="{{ reviewTabId }}"
                                                    data-bs-toggle="tab"
                                                    data-off-canvas-tabs="true"

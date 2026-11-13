@@ -58,18 +58,23 @@ readonly class AppRetainedSecretGateway
     }
 
     /**
-     * @return list<array{shopId: string, secret: string, expiresAt: \DateTimeImmutable}>
+     * @return list<array{appName: string, shopId: string, secret: string, expiresAt: \DateTimeImmutable}>
      */
-    public function findValid(string $appName): array
+    public function findValid(?string $appName): array
     {
         $this->purgeExpired();
 
-        $rows = $this->connection->fetchAllAssociative(
-            'SELECT shop_id, secret, expires_at FROM app_retained_secret WHERE app_name = :app_name ORDER BY expires_at DESC',
-            ['app_name' => $appName]
-        );
+        $sql = 'SELECT app_name, shop_id, secret, expires_at FROM app_retained_secret';
+        $params = [];
+        if ($appName !== null) {
+            $sql .= ' WHERE app_name = :app_name';
+            $params['app_name'] = $appName;
+        }
+
+        $rows = $this->connection->fetchAllAssociative($sql . ' ORDER BY expires_at DESC', $params);
 
         return array_map(static fn (array $row): array => [
+            'appName' => (string) $row['app_name'],
             'shopId' => (string) $row['shop_id'],
             'secret' => (string) $row['secret'],
             'expiresAt' => new \DateTimeImmutable((string) $row['expires_at']),

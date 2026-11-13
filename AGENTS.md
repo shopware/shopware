@@ -138,3 +138,4 @@ Only add the explicit three-form `zero | singular | plural` variant when the zer
 | **Prettier** (Admin)   | `composer format:admin`       | `composer format:admin:fix`                  |
 | **Dead code** (Admin)  | `composer fallow:admin`       | N/A - remove the unused code                 |
 | **GitHub Actions**     | `composer lint:actions`       | `composer lint:actions:fix`                  |
+| **JS/TS** (`.github`)  | `composer lint:github-scripts` | `composer lint:github-scripts:fix`          |

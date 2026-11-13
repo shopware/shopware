@@ -24,7 +24,7 @@ nightlies and the release gate. Change one and you change all three contexts.
 | `admin.yml` | ESLint, Stylelint and Jest for the Administration, and its build with Vite 8 (`ADMIN_VITE_8`) |
 | `storefront.yml` | ESLint, Stylelint, snippet and Twig lints, Jest and Vitest |
 | `acceptance.yml` | Playwright acceptance runs, reused by the label-triggered `acceptance-major.yml` PR entry point |
-| `lint-actions.yml` | actionlint, yamlfmt, zizmor, and the `.github/bin/js` tests |
+| `lint-actions.yml` | actionlint, yamlfmt, zizmor, and the tests, ESLint and Prettier checks for the scripts under `.github` |
 
 Composition, rather than duplication, is how the arms are built:
 
@@ -77,7 +77,8 @@ generated `<name>.lock.yml`, and run `gh aw compile`. Setup and the version pin
 live in [`.github/aw/README.md`](aw/README.md).
 
 Locally: `composer lint:actions` runs the workflow linters,
-`cd .github/bin/js && node --test` runs the automation-script tests.
+`cd .github/bin/js && node --test` runs the automation-script tests,
+`composer lint:github-scripts` lints and format-checks every TypeScript/JavaScript file under `.github`.
 
 ## Every workflow also runs in shopware-private
 
@@ -172,6 +173,8 @@ grows a branch worth getting wrong, move it out:
 - `composer lint:actions` — mandatory for any file under `.github/workflows/` or
   `.github/actions/`. `composer lint:actions:fix` applies the formatting.
 - `cd .github/bin/js && node --test` when you touched a script there.
+- `composer lint:github-scripts` when you touched a TypeScript/JavaScript file under `.github`.
+  `composer lint:github-scripts:fix` applies ESLint fixes and the Prettier formatting.
 - **Prove it ran.** Link a real run — `workflow_dispatch`, a draft PR, or a
   throwaway branch. For a new guard, also show it failing: a unit test over its
   decision function, or a run on a deliberately broken branch. A guard that has

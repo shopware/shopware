@@ -36,7 +36,13 @@
  * features that own a namespace; nothing closes it for the rest.
  */
 
-import { EXCLUDED_PATH_PREFIX, FEATURE_REGISTRY_PATH, splitDiffByFile } from './auto-label-major-tests.ts';
+import {
+    EXCLUDED_PATH_PREFIX,
+    FEATURE_REGISTRY_PATH,
+    type PullRequestDiffClient,
+    fetchDiff,
+    splitDiffByFile,
+} from './auto-label-major-tests.ts';
 
 export { FEATURE_REGISTRY_PATH };
 
@@ -78,22 +84,10 @@ type PullRequestContext = PullRequestDetectionContext & {
     };
 };
 
-export type PullRequestFile = {
-    filename: string;
-    patch?: string;
-};
-
 export type IssueEvent = {
     event: string;
     label?: { name: string };
     actor?: { type?: string } | null;
-};
-
-type ListFilesOptions = {
-    owner: string;
-    repo: string;
-    pull_number: number;
-    per_page: number;
 };
 
 type ListEventsOptions = {
@@ -103,35 +97,15 @@ type ListEventsOptions = {
     per_page: number;
 };
 
-type GitHubRestClient = {
-    paginate: {
-        (
-            route: (options: ListFilesOptions) => Promise<{ data: PullRequestFile[] }>,
-            options: ListFilesOptions,
-        ): Promise<PullRequestFile[]>;
-        (
-            route: (options: ListEventsOptions) => Promise<{ data: IssueEvent[] }>,
-            options: ListEventsOptions,
-        ): Promise<IssueEvent[]>;
-    };
+type GitHubRestClient = PullRequestDiffClient & {
+    paginate(
+        route: (options: ListEventsOptions) => Promise<{ data: IssueEvent[] }>,
+        options: ListEventsOptions,
+    ): Promise<IssueEvent[]>;
     rest: {
-        pulls: {
-            get(options: {
-                owner: string;
-                repo: string;
-                pull_number: number;
-                mediaType: { format: 'diff' };
-            }): Promise<{ data: unknown }>;
-            listFiles(options: ListFilesOptions): Promise<{ data: PullRequestFile[] }>;
-        };
         issues: {
             listEvents(options: ListEventsOptions): Promise<{ data: IssueEvent[] }>;
-            addLabels(options: {
-                owner: string;
-                repo: string;
-                issue_number: number;
-                labels: string[];
-            }): Promise<unknown>;
+            addLabels(options: { owner: string; repo: string; issue_number: number; labels: string[] }): Promise<unknown>;
         };
     };
 };
@@ -408,18 +382,11 @@ export function labelNamesFor(targetMajor: string, labels: MajorLabels): string[
     return names;
 }
 
-export function labelsForDiff(options: {
-    diff: string;
-    flags: FeatureFlag[];
-    majorPaths: string[];
-}): string[] {
+export function labelsForDiff(options: { diff: string; flags: FeatureFlag[]; majorPaths: string[] }): string[] {
     const { diff, flags, majorPaths } = options;
 
     return resolveInFlightMajors(flags).flatMap((targetMajor, index) =>
-        labelNamesFor(
-            targetMajor,
-            evaluateMajorLabels({ diff, flags, targetMajor, majorPaths, isNextMajor: index === 0 }),
-        ),
+        labelNamesFor(targetMajor, evaluateMajorLabels({ diff, flags, targetMajor, majorPaths, isNextMajor: index === 0 })),
     );
 }
 
@@ -438,7 +405,12 @@ export function shouldDetect(context: PullRequestDetectionContext): boolean {
         return false;
     }
 
-    return ['opened', 'reopened', 'synchronize', 'ready_for_review'].includes(context.payload.action);
+    return [
+        'opened',
+        'reopened',
+        'synchronize',
+        'ready_for_review',
+    ].includes(context.payload.action);
 }
 
 export function missingLabels(context: PullRequestContext, wanted: string[]): string[] {
@@ -454,74 +426,10 @@ export function missingLabels(context: PullRequestContext, wanted: string[]): st
  */
 export function withoutRemovedLabels(labels: string[], events: IssueEvent[]): string[] {
     const removed = new Set(
-        events
-            .filter(({ event, actor }) => event === 'unlabeled' && actor?.type !== 'Bot')
-            .map(({ label }) => label?.name),
+        events.filter(({ event, actor }) => event === 'unlabeled' && actor?.type !== 'Bot').map(({ label }) => label?.name),
     );
 
     return labels.filter((label) => !removed.has(label));
-}
-
-/** GitHub answers 406 `too_large` once a diff passes 300 files or 20,000 lines. */
-export function isDiffTooLarge(error: unknown): boolean {
-    const requestError = error as {
-        status?: number;
-        response?: { data?: { errors?: Array<{ field?: string; code?: string }> } };
-    } | undefined;
-
-    return (
-        requestError?.status === 406 &&
-        (requestError.response?.data?.errors ?? []).some((entry) => entry.field === 'diff' && entry.code === 'too_large')
-    );
-}
-
-/**
- * Rebuilds a unified diff from the files endpoint, in the shape `splitDiffByFile` reads.
- * GitHub omits the patch of a single oversized file; that file still counts for path matches.
- */
-export function diffFromFiles(files: PullRequestFile[]): string {
-    return files
-        .map(
-            ({ filename, patch }) =>
-                `diff --git a/${filename} b/${filename}\n--- a/${filename}\n+++ b/${filename}\n${patch ?? ''}`,
-        )
-        .join('\n');
-}
-
-async function fetchDiff({
-    github,
-    core,
-    context,
-}: {
-    github: GitHubRestClient;
-    core: CoreLogger;
-    context: PullRequestContext;
-}): Promise<string> {
-    const pullRequest = {
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-        pull_number: context.payload.pull_request.number,
-    };
-
-    try {
-        const { data } = await github.rest.pulls.get({ ...pullRequest, mediaType: { format: 'diff' } });
-
-        return String(data);
-    } catch (error) {
-        if (!isDiffTooLarge(error)) {
-            throw error;
-        }
-    }
-
-    // The files endpoint stops at 3,000 files; beyond that some markers go unseen.
-    const files = await github.paginate(github.rest.pulls.listFiles, { ...pullRequest, per_page: 100 });
-    const withoutPatch = files.filter(({ patch }) => patch === undefined).length;
-    core.warning(
-        `diff too large, read ${files.length} file(s) through the files endpoint instead` +
-            (withoutPatch > 0 ? `; ${withoutPatch} without a patch are matched by path only` : ''),
-    );
-
-    return diffFromFiles(files);
 }
 
 export async function detectMajorLabels(

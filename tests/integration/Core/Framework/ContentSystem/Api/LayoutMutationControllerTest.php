@@ -842,6 +842,23 @@ class LayoutMutationControllerTest extends TestCase
         static::assertContains(ContentSystemException::BINDING_TYPE_MISMATCH, array_column($body['errors'], 'code'));
     }
 
+    #[TestDox('rejects an insert whose type default is scoped by root sources that do not include the request root source with a 400 bindingRootSourceNotScoped')]
+    public function testInsertElementRejectsScopedDefaultWithUnnamedRootSource(): void
+    {
+        // The core breadcrumb wires its `breadcrumb` key with values scoped over product and category only.
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'insert-element', [
+            'layout' => [],
+            'type' => 'Sw:Navigation:Breadcrumb',
+            'rootSource' => 'none',
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(ContentSystemException::BINDING_ROOT_SOURCE_NOT_SCOPED, $body['errors'][0]['code'] ?? null, (string) $response->getContent());
+    }
+
     #[TestDox('rejects an update-element-properties request that writes nothing and removes nothing with a 400')]
     public function testUpdatePropertiesRejectsAnEmptyRequest(): void
     {

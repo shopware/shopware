@@ -221,7 +221,8 @@ abstract class AbstractLayoutMutation implements LayoutMutation
      * The type's default binding specification (`byType($type)` filtered by `isDefault()`), read as zero, one, or
      * more: zero returns null (nothing to fill-apply), one is returned, more than one throws — never a first-wins
      * pick. Shared by {@see InsertElement} and {@see ReplaceElement}, which auto-apply a type's default at scaffold, and
-     * by {@see AttachElement}, which applies it to every element of the attached cloned subtree.
+     * by {@see AttachElement}, which applies it to every element of the caller-supplied subtree before minting its
+     * new ids.
      */
     protected function resolveDefaultSpecification(AbstractContentSystemBindingSpecificationRegistry $bindingRegistry, string $type): ?BindingSpecification
     {

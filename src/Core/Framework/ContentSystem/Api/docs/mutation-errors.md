@@ -18,6 +18,7 @@ A resolvability problem (an unresolved required property, a broken context chain
 | `type` / `newType` / `containerType` is not a registered element type                                    | 400  | `mutationUnknownType`                             |
 | `bindingSpecificationId` is not a registered binding specification                                       | 400  | `bindingSpecificationNotFound`                    |
 | The binding specification's declared `type` does not match the target element's `component`              | 400  | `bindingTypeMismatch`                             |
+| A binding specification the edit applies, named or a type default, carries a `!scoped` config value, for a key the edit writes, with no entry for the layout's root source, or the layout has none (a type default skips a key the element already wires). An empty `rootSource` is read as none (the controller turns `""` into null), so the rejection reports the layout has no root source, with `rootSource` null | 400 | `bindingRootSourceNotScoped` |
 | `update-element-properties`: a key in `values` or `removeKeys` does not name a primitive property the type declares | 400 | `mutationPropertyUnknown` |
 | `update-element-properties`: a key is present in both `values` and `removeKeys`                           | 400  | `mutationPropertyConflict`                        |
 | `translate-element`: a key in `values` does not name a property the type declares translatable, undeclared keys included; the first offending key reports | 400 | `mutationPropertyNotTranslatable` |

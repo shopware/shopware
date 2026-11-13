@@ -8,7 +8,7 @@ Served by `Api/LayoutMutationController` under the path prefix `/api/_action/con
 
 Apply exactly one layout edit to an **unsaved** draft layout and return the re-resolved layout plus a diagnostics report, **without** persisting. This is the assemble step done server-side. The caller sends the current draft tree and one edit, and gets back the edited, freshly diagnosed tree, ready to feed straight into the next edit or into preview. Route names follow `api.action.content_system.layout.<op>`.
 
-Each response already carries diagnostics, so a caller need not diagnose again. `rootSource` selects context through `Adapter/RootSourceRegistry::resolveGated()` and is required for `map-property`. Other actions accept an omitted, null, or empty source for an unbound draft. See [mapping findings](diagnose-response.md#mapping-findings) for the checks available without a source. Non-empty names are checked without trimming.
+Each response already carries diagnostics, so a caller need not diagnose again. `rootSource` selects context through `Adapter/RootSourceRegistry::resolveGated()` and is required for `map-property`. Other actions accept an omitted, null, or empty source for an unbound draft, except when they apply a binding specification with a `!scoped` config value for a key the edit writes (`insert-element`, `replace-element`, `attach-element`, `insert-preset`, `bind-element`): those return `400` `bindingRootSourceNotScoped`. See [mapping findings](diagnose-response.md#mapping-findings) for the checks available without a source. Non-empty names are checked without trimming.
 
 `bind-element` and `insert-element` draw the specification from `Binding/Registry/AbstractContentSystemBindingSpecificationRegistry` and apply it through `Binding/BindingApplicator`.
 

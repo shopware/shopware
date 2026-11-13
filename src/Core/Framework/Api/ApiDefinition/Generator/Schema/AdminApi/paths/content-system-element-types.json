@@ -213,7 +213,7 @@
                                                                 },
                                                                 "default": {
                                                                     "type": "boolean",
-                                                                    "description": "Whether this is the type's synthesized default specification, derived as id === type. At most one default exists per type. Inserting or replacing an element with no explicit binding choice auto-applies the type's default (fill-only: it never overwrites already-wired or carried keys); an explicit binding choice applies on top and wins on shared keys."
+                                                                    "description": "Whether this is the type's synthesized default specification, derived as id === type. At most one default exists per type. Inserting or replacing an element with no explicit binding choice auto-applies the type's default (fill-only: it never overwrites already-wired or carried keys); on insert-element an explicit binding choice is applied first, the default fills after it, and the explicit choice wins shared keys."
                                                                 },
                                                                 "resolves": {
                                                                     "type": ["object", "array"],

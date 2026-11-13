@@ -58,7 +58,15 @@ class RegistryBindingSpecificationCanonicityTest extends TestCase
                     continue;
                 }
 
-                foreach ($this->configBranches($binding->config) as $branchConfig) {
+                $branches = RootSourceConfigMap::branches($binding->config);
+
+                if ($branches === null) {
+                    $problems[] = \sprintf('%s.resolves[%s]: scoped config values name different root-source sets.', $qualifiedId, $referenceKey);
+
+                    continue;
+                }
+
+                foreach ($branches as $branchConfig) {
                     try {
                         $serializers->decode($binding->loader, $branchConfig);
                     } catch (ContentSystemException $exception) {
@@ -127,40 +135,6 @@ class RegistryBindingSpecificationCanonicityTest extends TestCase
         static::assertInstanceOf(DatabaseBindingSpecificationLoader::class, $loader);
 
         return $loader;
-    }
-
-    /**
-     * @param array<string, mixed> $config
-     *
-     * @return list<array<string, mixed>>
-     */
-    private function configBranches(array $config): array
-    {
-        $rootSources = [];
-
-        foreach ($config as $value) {
-            $map = RootSourceConfigMap::scopeMap($value);
-
-            if ($map === null) {
-                continue;
-            }
-
-            foreach (array_keys($map) as $rootSource) {
-                $rootSources[$rootSource] = true;
-            }
-        }
-
-        if ($rootSources === []) {
-            return [$config];
-        }
-
-        $branches = [];
-
-        foreach (array_keys($rootSources) as $rootSource) {
-            $branches[] = RootSourceConfigMap::collapse($config, (string) $rootSource);
-        }
-
-        return $branches;
     }
 
     private function dataLoaderMap(): ContentSystemDataLoaderMap

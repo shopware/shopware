@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\RootSourceConfigMap;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -189,6 +190,38 @@ class AttachElementTest extends TestCase
         static::assertSame(['media' => 'core:Sw:Card'], $child->attributedSpecifications);
     }
 
+    #[TestDox('names the element id the caller supplied when the type default binding rejects the root source')]
+    public function testAttachRejectionNamesTheSuppliedElementId(): void
+    {
+        $attach = new AttachElement(
+            $this->registry(),
+            new StoredElement('incoming', 'Sw:Card'),
+            $this->scopedCardDefaultRegistry(),
+            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), $this->registry()),
+        );
+
+        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Card', 'media', 'incoming', 'category'));
+        $attach->apply(new StoredTree([], 'category'));
+    }
+
+    #[TestDox('names the nested element id the caller supplied when the type default of a descendant rejects the root source')]
+    public function testAttachRejectionNamesTheSuppliedNestedElementId(): void
+    {
+        $incoming = new StoredElement('incoming', 'Sw:Block', [], [], [
+            'content' => [new StoredElement('incoming-child', 'Sw:Card')],
+        ]);
+
+        $attach = new AttachElement(
+            $this->registry(),
+            $incoming,
+            $this->scopedCardDefaultRegistry(),
+            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), $this->registry()),
+        );
+
+        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Card', 'media', 'incoming-child', 'category'));
+        $attach->apply(new StoredTree([], 'category'));
+    }
+
     #[TestDox('detaches nothing: orphaned and dropped wiring stay empty')]
     public function testAttachDetachesNothing(): void
     {
@@ -238,6 +271,22 @@ class AttachElementTest extends TestCase
             $index,
             isNewScaffold: $isNewScaffold,
         );
+    }
+
+    private function scopedCardDefaultRegistry(): AbstractContentSystemBindingSpecificationRegistry
+    {
+        $default = new BindingSpecification(
+            'Sw:Card',
+            'Sw:Card',
+            'Card',
+            ['media' => new LoaderBinding('entity', ['entity' => [RootSourceConfigMap::MARKER => ['product' => 'media']]])],
+            [],
+            'core',
+        );
+        $registry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
+        $registry->method('all')->willReturn(['core:Sw:Card' => $default]);
+
+        return $registry;
     }
 
     private function registry(): AbstractContentSystemElementTypeRegistry

@@ -165,7 +165,7 @@ class OrderRoute extends AbstractOrderRoute
                 $changeable = true;
                 foreach ($promotions as $promotion) {
                     $changeable = $this->checkPromotion($promotion);
-                    if ($changeable === true) {
+                    if ($changeable === false) {
                         break;
                     }
                 }

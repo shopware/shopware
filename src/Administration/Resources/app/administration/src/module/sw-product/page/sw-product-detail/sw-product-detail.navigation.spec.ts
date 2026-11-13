@@ -2,7 +2,7 @@
  * @sw-package inventory
  */
 import { flushPromises, mount } from '@vue/test-utils';
-import { reactive } from 'vue';
+import { h, reactive } from 'vue';
 
 describe('sw-product-detail navigation', () => {
     beforeAll(() => {
@@ -21,29 +21,32 @@ describe('sw-product-detail navigation', () => {
                 advancedModeSetting: { value: { advancedMode: { enabled: true } } },
             });
             const route = reactive({ name: 'sw.product.detail.base', params: { id: 'variant' } });
-            const wrapper = mount(await wrapTestComponent('sw-product-detail', { sync: true }), {
-                props: { productId: 'variant' },
-                global: {
-                    mocks: { $route: route, $router: { push: jest.fn() } },
-                    provide: {
-                        repositoryFactory: { create: jest.fn() },
-                        mediaService: {},
-                        numberRangeService: {},
-                        seoUrlService: {},
-                        systemConfigApiService: {},
-                        customFieldDataProviderService: {},
-                        entityValidationService: {},
-                    },
-                    stubs: {
-                        'sw-page': { template: '<div><slot name="content" /></div>' },
-                        'sw-card-view': { template: '<div><slot /></div>' },
-                        'sw-language-info': true,
-                        'sw-inheritance-warning': true,
-                        'router-link': true,
-                        'router-view': true,
+            const component = await wrapTestComponent('sw-product-detail', { sync: true });
+            const wrapper = mount(
+                { render: () => h(component, { productId: route.params.id }) },
+                {
+                    global: {
+                        mocks: { $route: route, $router: { push: jest.fn() } },
+                        provide: {
+                            repositoryFactory: { create: jest.fn() },
+                            mediaService: {},
+                            numberRangeService: {},
+                            seoUrlService: {},
+                            systemConfigApiService: {},
+                            customFieldDataProviderService: {},
+                            entityValidationService: {},
+                        },
+                        stubs: {
+                            'sw-page': { template: '<div><slot name="content" /></div>' },
+                            'sw-card-view': { template: '<div><slot /></div>' },
+                            'sw-language-info': true,
+                            'sw-inheritance-warning': true,
+                            'router-link': true,
+                            'router-view': true,
+                        },
                     },
                 },
-            });
+            );
 
             try {
                 await flushPromises();
@@ -52,7 +55,6 @@ describe('sw-product-detail navigation', () => {
                 // Vue Router updates the destination before the repository returns the parent.
                 route.name = 'sw.product.detail.variants';
                 route.params.id = 'parent';
-                await wrapper.setProps({ productId: 'parent' });
                 await flushPromises();
 
                 expect(wrapper.find('[role="tablist"]').exists()).toBe(false);
@@ -71,7 +73,6 @@ describe('sw-product-detail navigation', () => {
 
                 // Opening another variant also waits for its own data.
                 route.params.id = 'another-variant';
-                await wrapper.setProps({ productId: 'another-variant' });
                 await flushPromises();
                 expect(wrapper.find('[role="tablist"]').exists()).toBe(false);
 

@@ -175,7 +175,7 @@ describe('module/sw-experience-studio/util/content-element-label.util', () => {
     it('returns the type-label fallback for an element without an authored label', () => {
         expect(
             getContentElementLabel(
-                { component: 'Sw:Media:Image', properties: {} } as ContentElementNode,
+                { id: 'element-1', component: 'Sw:Media:Image', properties: {} },
                 declare({ title: { translatable: false } }),
                 SYSTEM_CHAIN,
                 'Bild',
@@ -186,7 +186,7 @@ describe('module/sw-experience-studio/util/content-element-label.util', () => {
     it('prefers an authored label over the type-label fallback', () => {
         expect(
             getContentElementLabel(
-                { component: 'Sw:Media:Image', properties: { title: 'Mein Bild' } } as ContentElementNode,
+                { id: 'element-1', component: 'Sw:Media:Image', properties: { title: 'Mein Bild' } },
                 declare({ title: { translatable: false } }),
                 SYSTEM_CHAIN,
                 'Bild',
@@ -197,7 +197,7 @@ describe('module/sw-experience-studio/util/content-element-label.util', () => {
     it('returns the trailing component segment for an unnamed element without a type-label fallback', () => {
         expect(
             getContentElementLabel(
-                { component: 'Sw:Media:Image', properties: {} } as ContentElementNode,
+                { id: 'element-1', component: 'Sw:Media:Image', properties: {} },
                 undefined,
                 SYSTEM_CHAIN,
             ),

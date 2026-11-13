@@ -379,30 +379,34 @@ describe('src/app/component/structure/sw-page', () => {
             jest.restoreAllMocks();
         });
 
-        it('should show the title of the module owning the parent route', async () => {
+        it('should show the title of the module owning the parent route as a back link', async () => {
             registerModuleOwning('sw.product.list', 'sw-product.general.mainMenuItemGeneral');
 
             const wrapper = await createWrapper(productDetailRoute, {}, { $t: translate });
+            const backLink = wrapper.get('.smart-bar__back-link');
             const backButton = wrapper.get('.smart-bar__back-btn');
 
-            expect(backButton.text()).toBe('sw-product.general.mainMenuItemGeneral');
-            expect(backButton.classes()).toContain('smart-bar__back-btn--labeled');
-            expect(backButton.attributes('aria-label')).toBe(
+            expect(backLink.text()).toBe('sw-product.general.mainMenuItemGeneral');
+            expect(backLink.attributes('aria-label')).toBe(
                 'global.sw-page.backButtonTo(sw-product.general.mainMenuItemGeneral)',
             );
-            expect(backButton.attributes('title')).toBe(backButton.attributes('aria-label'));
+            expect(backLink.attributes('title')).toBe(backLink.attributes('aria-label'));
+            expect(backLink.attributes('href')).toContain('/sw/product/list');
+
+            expect(backButton.classes()).toContain('smart-bar__back-btn--compact');
+            expect(backButton.classes()).toContain('mt-button--secondary');
+            expect(backButton.attributes('aria-label')).toBe(backLink.attributes('aria-label'));
             expect(backButton.attributes('href')).toContain('/sw/product/list');
         });
 
-        it('should fall back to the icon-only button when no module owns the parent route', async () => {
+        it('should show only the icon button when no module owns the parent route', async () => {
             registerModuleOwning('sw.unrelated.list', 'sw-unrelated.general.mainMenuItemGeneral');
 
             const wrapper = await createWrapper(productDetailRoute, {}, { $t: translate });
             const backButton = wrapper.get('.smart-bar__back-btn');
 
-            expect(backButton.text()).toBe('');
-            expect(backButton.classes()).toContain('mt-button--tertiary');
-            expect(backButton.classes()).not.toContain('smart-bar__back-btn--labeled');
+            expect(wrapper.find('.smart-bar__back-link').exists()).toBe(false);
+            expect(backButton.classes()).not.toContain('smart-bar__back-btn--compact');
             expect(backButton.attributes('aria-label')).toBe('global.sw-page.backButton');
             expect(backButton.attributes('href')).toContain('/sw/product/list');
         });
@@ -418,14 +422,15 @@ describe('src/app/component/structure/sw-page', () => {
                 },
                 { $t: translate },
             );
-            const backButton = wrapper.get('.smart-bar__back-btn');
+            const backLink = wrapper.get('.smart-bar__back-link');
 
-            expect(backButton.text()).toBe('Main product');
-            expect(backButton.attributes('aria-label')).toBe('global.sw-page.backButtonTo(Main product)');
-            expect(backButton.attributes('href')).toContain('/sw/product/detail/parent');
+            expect(backLink.text()).toBe('Main product');
+            expect(backLink.attributes('aria-label')).toBe('global.sw-page.backButtonTo(Main product)');
+            expect(backLink.attributes('href')).toContain('/sw/product/detail/parent');
+            expect(wrapper.get('.smart-bar__back-btn').attributes('href')).toContain('/sw/product/detail/parent');
         });
 
-        it('should show the icon-only button for a back route without a label', async () => {
+        it('should show only the icon button for a back route without a label', async () => {
             registerModuleOwning('sw.product.list', 'sw-product.general.mainMenuItemGeneral');
 
             const wrapper = await createWrapper(
@@ -435,14 +440,15 @@ describe('src/app/component/structure/sw-page', () => {
             );
             const backButton = wrapper.get('.smart-bar__back-btn');
 
-            expect(backButton.text()).toBe('');
+            expect(wrapper.find('.smart-bar__back-link').exists()).toBe(false);
             expect(backButton.attributes('aria-label')).toBe('global.sw-page.backButton');
             expect(backButton.attributes('href')).toContain('/sw/product/list');
         });
 
-        it('should render no back button without a parent route or back route', async () => {
+        it('should render neither back link nor back button without a parent route or back route', async () => {
             const wrapper = await createWrapper({ name: 'index', path: '/', meta: {} });
 
+            expect(wrapper.find('.smart-bar__back-link').exists()).toBe(false);
             expect(wrapper.find('.smart-bar__back-btn').exists()).toBe(false);
         });
     });

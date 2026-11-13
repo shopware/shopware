@@ -67,28 +67,36 @@
                         custom
                     >
                         <!-- Rendered as a real link so open-in-new-tab and middle click keep working. -->
-                        <mt-button
-                            is="a"
-                            class="smart-bar__back-btn"
-                            :class="{ 'smart-bar__back-btn--labeled': backTitle }"
-                            variant="tertiary"
-                            size="default"
-                            :square="!backTitle"
+                        <a
+                            v-if="backTitle"
+                            class="smart-bar__back-link"
                             :href="href"
                             :aria-label="backButtonLabel"
                             :title="backButtonLabel"
                             @click="navigate"
                         >
                             <mt-icon
-                                name="regular-chevron-left-xs"
+                                name="solid-chevron-left"
                                 size="12px"
                             />
-                            <span
-                                v-if="backTitle"
-                                class="smart-bar__back-btn-label"
-                            >
-                                {{ backTitle }}
-                            </span>
+                            <span class="smart-bar__back-link-label">{{ backTitle }}</span>
+                        </a>
+                        <mt-button
+                            is="a"
+                            class="smart-bar__back-btn"
+                            :class="{ 'smart-bar__back-btn--compact': backTitle }"
+                            variant="secondary"
+                            size="default"
+                            square
+                            :href="href"
+                            :aria-label="backButtonLabel"
+                            :title="backButtonLabel"
+                            @click="navigate"
+                        >
+                            <mt-icon
+                                name="solid-chevron-left"
+                                size="12px"
+                            />
                         </mt-button>
                     </router-link>
                     {% endblock %}

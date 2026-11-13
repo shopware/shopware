@@ -20,6 +20,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollectio
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Salutation\SalutationEntity;
@@ -66,6 +67,7 @@ class CustomerEntityTest extends TestCase
         $lastLogin = new \DateTimeImmutable('2024-01-04 10:00:00');
         $birthday = new \DateTimeImmutable('1990-05-06');
         $lastOrderDate = new \DateTimeImmutable('2024-01-05 10:00:00');
+        $vatIdCountry = new CountryEntity();
 
         $customer = new CustomerEntity();
         $customer->setGroupId('group-id');
@@ -82,6 +84,8 @@ class CustomerEntityTest extends TestCase
         $customer->setEmail('ada@example.com');
         $customer->setTitle('Dr.');
         $customer->setVatIds(['DE123456789']);
+        $customer->setVatIdCountryId('vat-id-country-id');
+        $customer->setVatIdCountry($vatIdCountry);
         $customer->setActive(true);
         $customer->setDoubleOptInRegistration(true);
         $customer->setDoubleOptInEmailSentDate($emailSentDate);
@@ -141,6 +145,8 @@ class CustomerEntityTest extends TestCase
         static::assertSame('ada@example.com', $customer->getEmail());
         static::assertSame('Dr.', $customer->getTitle());
         static::assertSame(['DE123456789'], $customer->getVatIds());
+        static::assertSame('vat-id-country-id', $customer->getVatIdCountryId());
+        static::assertSame($vatIdCountry, $customer->getVatIdCountry());
         static::assertTrue($customer->getActive());
         static::assertTrue($customer->getDoubleOptInRegistration());
         static::assertSame($emailSentDate, $customer->getDoubleOptInEmailSentDate());

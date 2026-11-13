@@ -23,6 +23,12 @@ export default {
             type: Object,
             required: true,
         },
+
+        isVatIdRequired: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     computed: {
@@ -69,6 +75,17 @@ export default {
             if (newVal) {
                 this.customer.password = null;
             }
+        },
+
+        'customer.vatIds': {
+            deep: true,
+            handler() {
+                if (!this.customerVatIdsError) {
+                    return;
+                }
+
+                Shopware.Store.get('error').removeApiError(`customer.${this.customer.id}.vatIds`);
+            },
         },
     },
 

@@ -65,6 +65,18 @@
         }
     }
 
+    .sw-sales-channel-detail-base__maintenance-password {
+        display: flex;
+        flex-direction: column;
+        gap: var(--scale-size-16);
+        margin-bottom: var(--scale-size-32);
+
+        .mt-field--checkbox__container .mt-field--checkbox,
+        .mt-field {
+            margin-bottom: 0;
+        }
+    }
+
     .sw-sales-channel-detail-base__settings-link {
         display: grid;
         width: 100%;

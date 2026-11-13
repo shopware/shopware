@@ -1258,6 +1258,15 @@ If you used "Is equal to 0" to target line items without a list price, use "Is e
 ### Digital products can use external file assignment
 
 In the Administration, digital products can be saved without uploaded files when file assignment is handled externally. When editing a product, the option is enabled by default if it has no downloads and disabled if it has downloads.
+### Password protected sales channel maintenance mode
+
+Storefront operators can set a write-only password in a sales channel's maintenance settings to grant visitors session access while maintenance mode is active.
+Password access is rate limited, and changing the password revokes existing access grants.
+The password is set or removed via `POST /api/_action/sales-channel/{salesChannelId}/maintenance-password`.
+`GET` on the same route returns only whether a password is set, never the password or its hash.
+Visitors open the password form at `/maintenance/password` (route `frontend.maintenance.password.page`) via a button on the maintenance page.
+Clients allowed to bypass the maintenance mode, by the maintenance password or the IP allowlist, now receive the `sw-cache-hash=not-cacheable` cookie.
+Their responses are neither stored in nor served from the HTTP cache, so the shop is not delivered to other visitors from the cache.
 
 ### System configuration tabs
 

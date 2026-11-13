@@ -25,6 +25,24 @@ class SalesChannelExceptionTest extends TestCase
         static::assertSame('Tool result "abc" not found. It may have expired or been stored by another caller.', $e->uri);
     }
 
+    public function testMaintenancePasswordInvalidLength(): void
+    {
+        $e = SalesChannelException::maintenancePasswordInvalidLength();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(SalesChannelException::MAINTENANCE_PASSWORD_INVALID_LENGTH, $e->getErrorCode());
+        static::assertSame('Maintenance password must be empty to disable it or contain between 12 and 4096 characters.', $e->getMessage());
+    }
+
+    public function testMaintenancePasswordInvalidSource(): void
+    {
+        $e = SalesChannelException::maintenancePasswordInvalidSource();
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $e->getStatusCode());
+        static::assertSame(SalesChannelException::MAINTENANCE_PASSWORD_INVALID_SOURCE, $e->getErrorCode());
+        static::assertSame('Only Admin API requests may change a sales channel maintenance password.', $e->getMessage());
+    }
+
     #[DataProvider('exceptionDataProvider')]
     public function testExceptions(ShopwareHttpException|SalesChannelException $exception, int $statusCode, string $errorCode, string $message): void
     {

@@ -51,6 +51,8 @@ class SalesChannelException extends HttpException
     final public const SALES_CHANNEL_FILE_INVALID_TEMPLATE_OVERRIDES = 'FRAMEWORK__SALES_CHANNEL_FILE_INVALID_TEMPLATE_OVERRIDES';
     final public const SALES_CHANNEL_FILE_NOT_FOUND = 'FRAMEWORK__SALES_CHANNEL_FILE_NOT_FOUND';
     final public const SALES_CHANNEL_UNEXPECTED_COMBINED_PRIMARY_KEY = 'FRAMEWORK__SALES_CHANNEL_UNEXPECTED_COMBINED_PRIMARY_KEY';
+    final public const MAINTENANCE_PASSWORD_INVALID_LENGTH = 'SYSTEM__MAINTENANCE_PASSWORD_INVALID_LENGTH';
+    final public const MAINTENANCE_PASSWORD_INVALID_SOURCE = 'SYSTEM__MAINTENANCE_PASSWORD_INVALID_SOURCE';
     private const INVALID_UUID_MESSAGE_TEMPLATE = 'Provided %s is not a valid UUID';
 
     public static function tooManyNestedCriteria(int $limit): self
@@ -70,6 +72,24 @@ class SalesChannelException extends HttpException
             self::SALES_CHANNEL_DOES_NOT_EXISTS_EXCEPTION,
             'Sales channel with id "{{ salesChannelId }}" not found or not valid!.',
             ['salesChannelId' => $salesChannelId]
+        );
+    }
+
+    public static function maintenancePasswordInvalidLength(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MAINTENANCE_PASSWORD_INVALID_LENGTH,
+            'Maintenance password must be empty to disable it or contain between 12 and 4096 characters.'
+        );
+    }
+
+    public static function maintenancePasswordInvalidSource(): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::MAINTENANCE_PASSWORD_INVALID_SOURCE,
+            'Only Admin API requests may change a sales channel maintenance password.'
         );
     }
 

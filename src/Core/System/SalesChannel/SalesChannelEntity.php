@@ -122,6 +122,10 @@ class SalesChannelEntity extends Entity
      */
     protected ?array $maintenanceIpAllowlist = null;
 
+    protected ?string $maintenancePassword = null;
+
+    protected ?string $maintenancePasswordGeneration = null;
+
     /**
      * @deprecated tag:v6.8.0 - Will be removed, use $maintenanceIpAllowlist instead.
      *
@@ -393,6 +397,30 @@ class SalesChannelEntity extends Entity
     {
         $this->maintenanceIpAllowlist = $maintenanceIpAllowlist;
         $this->maintenanceIpWhitelist = $maintenanceIpAllowlist;
+    }
+
+    public function getMaintenancePassword(): ?string
+    {
+        $this->checkIfPropertyAccessIsAllowed('maintenancePassword');
+
+        return $this->maintenancePassword;
+    }
+
+    public function setMaintenancePassword(?string $maintenancePassword): void
+    {
+        $this->maintenancePassword = $maintenancePassword;
+    }
+
+    public function getMaintenancePasswordGeneration(): ?string
+    {
+        $this->checkIfPropertyAccessIsAllowed('maintenancePasswordGeneration');
+
+        return $this->maintenancePasswordGeneration;
+    }
+
+    public function setMaintenancePasswordGeneration(?string $maintenancePasswordGeneration): void
+    {
+        $this->maintenancePasswordGeneration = $maintenancePasswordGeneration;
     }
 
     /**

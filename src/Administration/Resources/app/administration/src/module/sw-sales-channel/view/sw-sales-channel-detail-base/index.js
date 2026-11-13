@@ -96,6 +96,12 @@ export default {
             required: false,
             default: () => [],
         },
+
+        maintenancePassword: {
+            type: Object,
+            required: false,
+            default: null,
+        },
     },
 
     data() {
@@ -624,6 +630,20 @@ export default {
             }
 
             this.productExport.feedLabel = value.toUpperCase();
+        },
+
+        onToggleMaintenancePassword(isEnabled) {
+            this.maintenancePassword.isEnabled = isEnabled;
+            this.maintenancePassword.error = null;
+
+            if (!isEnabled) {
+                this.maintenancePassword.value = '';
+            }
+        },
+
+        onChangeMaintenancePassword(value) {
+            this.maintenancePassword.value = value ?? '';
+            this.maintenancePassword.error = null;
         },
 
         onGenerateKeys() {

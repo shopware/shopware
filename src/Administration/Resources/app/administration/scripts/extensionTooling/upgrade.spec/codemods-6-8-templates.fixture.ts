@@ -27,6 +27,12 @@ export const TEMPLATE_CODEMOD_FIXTURE: Record<string, string[]> = {
         '</div>',
         '{% endblock %}',
     ],
+    // A template saved with a byte order mark
+    'component/acme-sync-badge/acme-sync-badge.html.twig': [
+        '\uFEFF{% block acme_sync_badge %}',
+        '<sw-loader v-if="isLoading" size="20px" />',
+        '{% endblock %}',
+    ],
     // mt-tabs
     'page/acme-bundle-detail/acme-bundle-detail.html.twig': [
         '{% block acme_bundle_detail %}',

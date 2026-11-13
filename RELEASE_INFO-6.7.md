@@ -525,6 +525,16 @@ To remove such an app, uninstall it and remove its package with Composer.
 The experimental `/store-api/cookie-groups` route now also returns `cookieHashes`, which maps each cookie name to a hash of its configuration, including the data of every group that lists it.
 Clients can compare these hashes to find out which cookies were added or changed when the configuration `hash` changes.
 
+### Price definitions are validated so that they can be read again
+
+A price definition written to a price definition field, for example `priceDefinition` of an order line item, is now rejected with a `400` if it could not be read again:
+
+- `quantity`: `taxRules` is missing or is not a list, or a tax rule is not an object or has no `percentage`. Send `taxRules` with `taxRate` and `percentage` for every rule, or `"taxRules": []` if no tax applies.
+- `currency-price`: an entry of `price` is not an object, has no valid `currencyId`, or has no `net`, `gross` or `linked`.
+
+Before, such a definition was stored and every later read of the entity failed, or a missing `percentage`, `net` or `gross` was read as 0. A numeric string as `price` of an `absolute` or as `percentage` of a `percentage` price definition, which was already accepted on write, can now be read as well.
+The same applies to `"quantity": null` and `"isCalculated": null` of a `quantity` price definition, which are now read as `1` and `false`.
+
 ## Features
 
 ### Disable the Administration password recovery flow

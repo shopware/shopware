@@ -545,6 +545,12 @@
         "textHasCriteria": "At least one product image assigned",
         "textNoCriteria": "No product images assigned"
       },
+      "documentsFilter": {
+        "label": "Documents",
+        "placeholder": "Select a document status...",
+        "textHasCriteria": "At least one product document assigned",
+        "textNoCriteria": "No product documents assigned"
+      },
       "releaseDateFilter": {
         "label": "Release date"
       },

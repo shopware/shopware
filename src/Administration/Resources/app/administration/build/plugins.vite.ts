@@ -24,6 +24,7 @@ import ExternalsPlugin from './vite-plugins/externals-plugin';
 import AssetCssPostprocessPlugin from './vite-plugins/asset-css-postprocess-plugin';
 import OverrideComponentRegisterPlugin from './vite-plugins/override-component-register';
 import ShopwareSetupPlugin from './vite-plugins/shopware-setup';
+import ShopwareSetupHmrPlugin from './vite-plugins/shopware-setup-hmr';
 import VirtualShopwareModulesPlugin from './vite-plugins/virtual-shopware-modules';
 import {
     createPluginDevJson,
@@ -56,6 +57,9 @@ const getBaseConfig = (
 ): UserConfig => {
     const extensionInfoDebug = debug(`vite:${extension.isPlugin ? 'plugin' : 'app'}:${extension.technicalName}`);
     const configInfoDebug = debug('vite:config');
+    // On Vite 6 an extension runs on its own dev server behind `/_internal_ext/`, and the Vue HMR record of an
+    // override there does not hold the definition the Administration mounted, so a script edit leaves the page stale.
+    const scriptHmr = toolchain.isVite8 && !isProd && !useBundledDev;
     const useSourceMap =
         (!isProd && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1') ||
         (isProd && process.env.GENERATE_SOURCEMAPS === 'true');
@@ -92,6 +96,7 @@ const getBaseConfig = (
             }),
             ShopwareSetupPlugin({
                 administrationRoot: path.dirname(__dirname),
+                scriptHmr,
             }),
             VirtualShopwareModulesPlugin({
                 administrationRoot: path.dirname(__dirname),
@@ -105,7 +110,17 @@ const getBaseConfig = (
                         },
                     },
                 },
+                // Ids are the HMR keys, the same file path in two extensions must not share one.
+                ...(scriptHmr
+                    ? {
+                          features: {
+                              componentIdGenerator: (filePath, _source, _isProduction, getHash) =>
+                                  `${extension.technicalName}-${getHash(filePath)}`,
+                          },
+                      }
+                    : {}),
             }),
+            ...(scriptHmr ? [ShopwareSetupHmrPlugin()] : []),
             ...(toolchain.isVite8 ? [ExtglobCompatPlugin({ warnOnRewrite: true })] : []),
             ExternalsPlugin(),
 

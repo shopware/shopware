@@ -103,6 +103,7 @@ export default {
                     extension,
                     mimeType,
                     mediaId: this.itemToReplace.id,
+                    fileSize: fileHandle.size,
                 }),
                 this.mediaPresignedUploadService.getImageDimensions(fileHandle),
             ]);

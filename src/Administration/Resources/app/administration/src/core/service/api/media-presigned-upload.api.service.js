@@ -49,7 +49,15 @@ class MediaPresignedUploadApiService extends ApiService {
     /**
      * @returns {Promise<{mediaId: EntityKey<'media'>, url: string, path: string, expiresAt: string, isDuplicate: boolean}>}
      */
-    prepareUpload({ fileName, extension, mimeType, mediaFolderId = null, isPrivate = false, mediaId = null }) {
+    prepareUpload({
+        fileName,
+        extension,
+        mimeType,
+        mediaFolderId = null,
+        isPrivate = false,
+        mediaId = null,
+        fileSize = null,
+    }) {
         return this.httpClient
             .post(
                 '/_action/media/presign-upload',
@@ -60,6 +68,7 @@ class MediaPresignedUploadApiService extends ApiService {
                     mediaFolderId,
                     private: isPrivate,
                     mediaId,
+                    fileSize,
                 }),
                 {
                     headers: this.getBasicHeaders(),
@@ -170,6 +179,7 @@ class MediaPresignedUploadApiService extends ApiService {
                             fileName,
                             extension,
                             mimeType,
+                            fileSize: fileHandle.size,
                             ...options,
                         }),
                         this.getImageDimensions(fileHandle),

@@ -173,7 +173,7 @@ class PresignedMediaUploadServiceTest extends TestCase
         // 1st search: findMedia (replace branch).
         [$repo, $service] = $this->createService([new MediaCollection([$media])]);
 
-        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->eventDispatcher->expects($this->once())->method('dispatch')->with(static::isInstanceOf(BeforeMediaFileReplacedEvent::class));
         $this->mediaFileCleanup->expects($this->never())->method('dispatchThumbnailGeneration');
         $this->extensionValidator->expects($this->once())->method('validate');
 
@@ -212,7 +212,7 @@ class PresignedMediaUploadServiceTest extends TestCase
 
         [$repo, $service] = $this->createService([new MediaCollection([$media])]);
 
-        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->eventDispatcher->expects($this->once())->method('dispatch')->with(static::isInstanceOf(BeforeMediaFileReplacedEvent::class));
         $this->mediaFileCleanup->expects($this->never())->method('dispatchThumbnailGeneration');
         $this->extensionValidator->expects($this->once())->method('validate');
 
@@ -238,6 +238,55 @@ class PresignedMediaUploadServiceTest extends TestCase
         static::assertSame($mediaId, $update['id']);
         static::assertInstanceOf(\DateTime::class, $update['uploadedAt']);
         static::assertGreaterThan($originalUploadedAt, $update['uploadedAt']);
+    }
+
+    /**
+     * @return iterable<string, array{int|null}>
+     */
+    public static function declaredFileSizes(): iterable
+    {
+        yield 'a declared size' => [5000];
+        yield 'no declared size' => [null];
+    }
+
+    #[DataProvider('declaredFileSizes')]
+    public function testAListenerCanStopAReplaceInPrepareBeforeAnythingIsStored(?int $fileSize): void
+    {
+        $context = Context::createDefaultContext();
+        $mediaId = '0189b0a1-0000-0000-0000-0000000000cc';
+
+        $events = [];
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener(BeforeMediaFileReplacedEvent::class, static function (BeforeMediaFileReplacedEvent $event) use (&$events): void {
+            $events[] = $event;
+
+            throw new \RuntimeException('The new file is not allowed.');
+        });
+
+        [$repo, $service] = $this->createService([new MediaCollection([$this->buildMedia($mediaId)])], $eventDispatcher);
+
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->extensionValidator->expects($this->once())->method('validate');
+        $this->presignedUrlGenerator->expects($this->never())->method('generate');
+        $this->mediaFileCleanup->expects($this->never())->method('removeOldMediaData');
+
+        try {
+            $service->prepare(new PresignedUploadPreparePayload(fileName: 'manual', extension: 'csv', mimeType: 'text/csv; charset=utf-8', mediaId: $mediaId, fileSize: $fileSize), $context);
+
+            static::fail('The replace was not stopped.');
+        } catch (\RuntimeException $exception) {
+            static::assertSame('The new file is not allowed.', $exception->getMessage());
+        }
+
+        // uploadedAt stays as it was
+        static::assertSame([], $repo->updates);
+
+        static::assertCount(1, $events);
+        static::assertSame($mediaId, $events[0]->mediaId);
+        static::assertSame('csv', $events[0]->fileExtension);
+        static::assertSame('text/csv', $events[0]->mimeType);
+        static::assertSame($fileSize, $events[0]->fileSize);
+        static::assertSame($context, $events[0]->getContext());
     }
 
     public function testFinalizeVerifiesAndUpdatesMedia(): void

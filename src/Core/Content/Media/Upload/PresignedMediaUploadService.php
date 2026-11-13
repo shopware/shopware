@@ -68,6 +68,17 @@ readonly class PresignedMediaUploadService
 
         $isReplace = $payload->mediaId !== null;
 
+        if ($isReplace) {
+            // rejects a declared file before it is uploaded; finalize checks the stored file again
+            $this->eventDispatcher->dispatch(new BeforeMediaFileReplacedEvent(
+                $mediaId,
+                $payload->extension,
+                FileInfoHelper::stripParameters($payload->mimeType),
+                $payload->fileSize,
+                $context,
+            ));
+        }
+
         $isDuplicate = false;
         if (!$isReplace) {
             $isDuplicate = $this->isFileNameTaken($mediaId, $payload->fileName, $payload->extension, $payload->private, $context);

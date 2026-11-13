@@ -345,9 +345,12 @@ Extensions and headless frontends that convert `payload.value` into the cart cur
 
 ### Event before a media file is replaced
 
-`Shopware\Core\Content\Media\Event\BeforeMediaFileReplacedEvent` is dispatched before an upload replaces the file of a media, while the old file still exists.
+`Shopware\Core\Content\Media\Event\BeforeMediaFileReplacedEvent` is dispatched before an upload replaces the file of a media.
 It carries the media ID and the extension, MIME type and size of the new file.
 A listener can throw an exception to stop the replacement, and the media keeps its old file.
+Presigned replacements dispatch it in `prepare()` with the file the client declares, before the upload, and again in `finalize()` with the stored file.
+The new optional `fileSize` of `POST /api/_action/media/presign-upload` fills the size in `prepare()`; without it, the size is `null`.
+With `shopware.cdn.path_cache_buster` disabled, a presigned upload of the same file name and extension has already overwritten the old file when `finalize()` stops it.
 
 ## API
 

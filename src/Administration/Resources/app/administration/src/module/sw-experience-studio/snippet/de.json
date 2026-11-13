@@ -128,6 +128,73 @@
         "panels": {
           "general": "Allgemein"
         }
+      },
+      "product-buy-button": {
+        "label": "Kaufen-Button",
+        "product": {
+          "title": "Produkt"
+        }
+      },
+      "product-cross-selling": {
+        "label": "Cross-Selling",
+        "crossSellings": {
+          "title": "Cross-Selling-Gruppen"
+        },
+        "variant": {
+          "title": "Tab-Stil",
+          "options": {
+            "tabs": {
+              "label": "Tabs"
+            },
+            "pills": {
+              "label": "Pillen"
+            },
+            "underline": {
+              "label": "Unterstrichen"
+            }
+          }
+        },
+        "itemSizing": {
+          "title": "Elementgröße",
+          "helpText": "„Fest“ verwendet eine feste Breite für Produktkarten und erlaubt überlappende Karten. „Anpassen“ passt die Karten so an, dass eine ganze Anzahl von Spalten die verfügbare Breite ausfüllt.",
+          "options": {
+            "fixed": {
+              "label": "Fest"
+            },
+            "fit": {
+              "label": "Anpassen"
+            }
+          }
+        },
+        "showNavigationArrows": {
+          "title": "Navigationspfeile anzeigen"
+        }
+      },
+      "product-delivery": {
+        "label": "Lieferinformationen",
+        "product": {
+          "title": "Produkt"
+        }
+      },
+      "product-price-display": {
+        "large": {
+          "title": "Großer Preis"
+        },
+        "showListPriceBadge": {
+          "title": "Listenpreis-Badge anzeigen"
+        }
+      },
+      "product-properties": {
+        "label": "Produkteigenschaften",
+        "product": {
+          "title": "Produkt"
+        }
+      },
+      "product-review-indicator": {
+        "label": "Bewertungsanzeige",
+        "reviews": {
+          "title": "Bewertungen"
+        }
       }
     },
     "list": {
@@ -289,6 +356,12 @@
       "messageSaveErrorDetail": "Das Inhaltslayout konnte nicht gespeichert werden: {detail}",
       "messageReloadError": "Das Inhaltslayout wurde gespeichert, konnte aber nicht neu geladen werden.",
       "messageDiagnoseError": "Das Layout konnte nicht überprüft werden. Diagnoseergebnisse sind nicht verfügbar."
+    },
+    "presets": {
+      "buy-box": {
+        "name": "Buybox",
+        "description": "Preis, Bewertung, Lieferinformationen, Variantenauswahl, Mengenauswahl und Kaufen-Button für ein Produkt, untereinander in einem Rastercontainer."
+      }
     }
   }
 }

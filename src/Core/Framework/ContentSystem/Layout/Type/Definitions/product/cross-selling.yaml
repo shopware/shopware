@@ -1,5 +1,6 @@
 meta:
   label: "Product Cross Selling"
+  labelSnippet: "sw-experience-studio.elements.product-cross-selling.label"
   description: "Displays the product's cross-selling groups as tabs, each with a product slider."
   icon: "regular-products"
   illustration: "product-cross-selling"
@@ -18,11 +19,13 @@ properties:
     type: Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementCollection
     required: false
     title: "Cross sellings"
+    titleSnippet: "sw-experience-studio.elements.product-cross-selling.crossSellings.title"
     description: "Active cross-selling groups of the current product, each with its resolved products. Received as root-scoped context from the page, which loads it once. Optional because a product context may be unavailable; without groups that contain products, the component renders nothing."
 
   variant:
     type: string
     title: "Tab Style"
+    titleSnippet: "sw-experience-studio.elements.product-cross-selling.variant.title"
     description: "Visual style of the tab navigation shown when the product has more than one cross-selling group."
     default: "underline"
     enum:
@@ -31,10 +34,22 @@ properties:
       - "underline"
     adminUI:
       component: "select"
+      props:
+        options:
+          - value: "tabs"
+            label: "Tabs"
+            labelSnippet: "sw-experience-studio.elements.product-cross-selling.variant.options.tabs.label"
+          - value: "pills"
+            label: "Pills"
+            labelSnippet: "sw-experience-studio.elements.product-cross-selling.variant.options.pills.label"
+          - value: "underline"
+            label: "Underline"
+            labelSnippet: "sw-experience-studio.elements.product-cross-selling.variant.options.underline.label"
 
   itemSizing:
     type: string
     title: "Item Sizing"
+    titleSnippet: "sw-experience-studio.elements.product-cross-selling.itemSizing.title"
     description: "How the product cards are sized. Fixed keeps a fixed card width and lets the next card peek in at the edge, fit sizes the cards so a whole number of columns fills the available width."
     default: "fixed"
     enum:
@@ -42,11 +57,21 @@ properties:
       - "fit"
     adminUI:
       component: "select"
+      props:
+        options:
+          - value: "fixed"
+            label: "Fixed"
+            labelSnippet: "sw-experience-studio.elements.product-cross-selling.itemSizing.options.fixed.label"
+          - value: "fit"
+            label: "Fit"
+            labelSnippet: "sw-experience-studio.elements.product-cross-selling.itemSizing.options.fit.label"
       helpText: "Fixed keeps a fixed product card width and allows overlapping cards. Fit sizes the cards so a whole number of columns fills the available width."
+      helpTextSnippet: "sw-experience-studio.elements.product-cross-selling.itemSizing.helpText"
 
   showNavigationArrows:
     type: boolean
     title: "Show Navigation Arrows"
+    titleSnippet: "sw-experience-studio.elements.product-cross-selling.showNavigationArrows.title"
     description: "Show the arrow buttons to scroll the sliders."
     default: true
     adminUI:

@@ -36,6 +36,7 @@ properties:
   large:
     type: boolean
     title: "Large price"
+    titleSnippet: "sw-experience-studio.elements.product-price-display.large.title"
     description: "Render the headline price at a larger size."
     default: false
     adminUI:
@@ -44,6 +45,7 @@ properties:
   showListPriceBadge:
     type: boolean
     title: "Show list price badge"
+    titleSnippet: "sw-experience-studio.elements.product-price-display.showListPriceBadge.title"
     description: "Render the list price badge."
     default: true
     adminUI:

@@ -1,5 +1,6 @@
 meta:
   label: "Product Properties"
+  labelSnippet: "sw-experience-studio.elements.product-properties.label"
   description: "Displays the current product's property groups and their selected options."
   icon: "regular-list"
   illustration: "product-properties"
@@ -16,6 +17,7 @@ properties:
     type: Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity
     required: false
     title: "Product"
+    titleSnippet: "sw-experience-studio.elements.product-properties.product.title"
     description: "Hydrated product that provides the property groups; resolved from the current product context. Optional because a product context may be unavailable, for example outside a product detail page. Without a product or properties, the component renders nothing."
     resolvedBy: productId
     mappable: true

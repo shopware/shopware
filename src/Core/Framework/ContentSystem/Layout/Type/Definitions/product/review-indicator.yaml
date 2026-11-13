@@ -1,5 +1,6 @@
 meta:
   label: "Product Review Indicator"
+  labelSnippet: "sw-experience-studio.elements.product-review-indicator.label"
   description: "Compact rating stars with a link showing the number of reviews. Clicking the link opens and scrolls to the product reviews on the page."
   icon: "regular-star"
   illustration: "product-review-indicator"
@@ -16,4 +17,5 @@ properties:
     type: Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult
     required: false
     title: "Reviews"
+    titleSnippet: "sw-experience-studio.elements.product-review-indicator.reviews.title"
     description: "Hydrated review result the indicator reads its average rating and review count from. Received as root-scoped context from the page, which loads it once, so the indicator shares the load with the other review elements."

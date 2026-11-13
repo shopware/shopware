@@ -1,5 +1,6 @@
 meta:
   label: "Product Buy Button"
+  labelSnippet: "sw-experience-studio.elements.product-buy-button.label"
   description: "Adds the current product to the shopping cart and opens the off-canvas cart."
   icon: "regular-shopping-cart"
   illustration: "product-buy-button"
@@ -16,6 +17,7 @@ properties:
     type: Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity
     required: false
     title: "Product"
+    titleSnippet: "sw-experience-studio.elements.product-buy-button.product.title"
     description: "Hydrated product that is added to the cart; resolved from the current product context. Optional because a product context may be unavailable, for example outside a product detail page. Without a buyable product, the component renders no buy button and shows a sold-out hint when the product is unavailable."
     resolvedBy: productId
     mappable: true

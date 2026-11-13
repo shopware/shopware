@@ -1,5 +1,6 @@
 meta:
   label: "Delivery information"
+  labelSnippet: "sw-experience-studio.elements.product-delivery.label"
   description: "Displays free shipping, the preorder release date, the available delivery time or the restock time for the current product."
   icon: "regular-truck"
   illustration: "product-delivery"
@@ -19,6 +20,7 @@ properties:
     type: Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity
     required: false
     title: "Product"
+    titleSnippet: "sw-experience-studio.elements.product-delivery.product.title"
     description: "Hydrated product that provides the shipping and delivery data; resolved from the current product context. Optional because a product context may be unavailable, for example outside a product detail page. When no delivery state applies, the component renders nothing."
     resolvedBy: productId
     mappable: true

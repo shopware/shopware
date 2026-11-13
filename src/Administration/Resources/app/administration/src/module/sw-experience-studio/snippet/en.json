@@ -128,6 +128,73 @@
         "panels": {
           "general": "General"
         }
+      },
+      "product-buy-button": {
+        "label": "Product Buy Button",
+        "product": {
+          "title": "Product"
+        }
+      },
+      "product-cross-selling": {
+        "label": "Product Cross Selling",
+        "crossSellings": {
+          "title": "Cross sellings"
+        },
+        "variant": {
+          "title": "Tab Style",
+          "options": {
+            "tabs": {
+              "label": "Tabs"
+            },
+            "pills": {
+              "label": "Pills"
+            },
+            "underline": {
+              "label": "Underline"
+            }
+          }
+        },
+        "itemSizing": {
+          "title": "Item Sizing",
+          "helpText": "Fixed keeps a fixed product card width and allows overlapping cards. Fit sizes the cards so a whole number of columns fills the available width.",
+          "options": {
+            "fixed": {
+              "label": "Fixed"
+            },
+            "fit": {
+              "label": "Fit"
+            }
+          }
+        },
+        "showNavigationArrows": {
+          "title": "Show Navigation Arrows"
+        }
+      },
+      "product-delivery": {
+        "label": "Delivery information",
+        "product": {
+          "title": "Product"
+        }
+      },
+      "product-price-display": {
+        "large": {
+          "title": "Large price"
+        },
+        "showListPriceBadge": {
+          "title": "Show list price badge"
+        }
+      },
+      "product-properties": {
+        "label": "Product Properties",
+        "product": {
+          "title": "Product"
+        }
+      },
+      "product-review-indicator": {
+        "label": "Product Review Indicator",
+        "reviews": {
+          "title": "Reviews"
+        }
       }
     },
     "list": {
@@ -289,6 +356,12 @@
       "messageSaveErrorDetail": "The content layout could not be saved: {detail}",
       "messageReloadError": "The content layout was saved but could not be reloaded.",
       "messageDiagnoseError": "The layout could not be checked. Diagnostic results are unavailable."
+    },
+    "presets": {
+      "buy-box": {
+        "name": "Buy box",
+        "description": "Price, rating, delivery information, variant selection, quantity selector and buy button for a product, stacked in a grid container."
+      }
     }
   }
 }

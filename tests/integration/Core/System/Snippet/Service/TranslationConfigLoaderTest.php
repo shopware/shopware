@@ -48,6 +48,7 @@ class TranslationConfigLoaderTest extends TestCase
             $config->repositoryUrl->__toString()
         );
         static::assertSame(['de-DE', 'en-GB'], $config->excludedLocales);
+        static::assertNull($config->archiveManifestUrl);
     }
 
     public function testConfigOverridesApplyAgainstShippedDefaults(): void

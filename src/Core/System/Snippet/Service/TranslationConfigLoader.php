@@ -72,7 +72,7 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
 
         $repositoryUrl = $this->getUrlFromConfigByType(self::REPOSITORY_URL, $config);
         $metadataUrl = $this->getUrlFromConfigByType(self::METADATA_URL, $config);
-        $archiveManifestUrl = $this->usesArchive($config)
+        $archiveManifestUrl = isset($config[self::ARCHIVE_MANIFEST_URL])
             ? $this->getUrlFromConfigByType(self::ARCHIVE_MANIFEST_URL, $config)
             : null;
         $communityTranslationsUrl = isset($config[self::COMMUNITY_TRANSLATIONS_URL])
@@ -126,19 +126,6 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
     protected function getConfigFilename(): string
     {
         return 'translation.yaml';
-    }
-
-    /**
-     * @param array<string, mixed> $config
-     */
-    private function usesArchive(array $config): bool
-    {
-        if (!isset($config[self::ARCHIVE_MANIFEST_URL]) || $config[self::ARCHIVE_MANIFEST_URL] === false) {
-            return false;
-        }
-
-        return ($this->translationConfig['repository_url'] ?? null) === null
-            || ($this->translationConfig['archive_manifest_url'] ?? null) !== null;
     }
 
     /**

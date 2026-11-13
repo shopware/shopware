@@ -1626,17 +1626,10 @@
                     "default": false
                 },
                 "archive_manifest_url": {
-                    "description": "Manifest of the archive with all translations. Overriding `repository_url` without it downloads every file from that repository. `false` always downloads every file.",
-                    "anyOf": [
-                        {
-                            "type": "string"
-                        },
-                        {
-                            "const": false
-                        },
-                        {
-                            "type": "null"
-                        }
+                    "description": "Manifest of the archive with all translations. When set, `translation:download` and `translation:install --all` download all locales as one archive.",
+                    "type": [
+                        "string",
+                        "null"
                     ],
                     "default": null
                 },

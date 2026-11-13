@@ -1074,6 +1074,10 @@ Invalid JSON, malformed messages or resource contents, and `{"success":false,"er
 
 Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-module source>`) now receive the signed `color-scheme` query parameter with the resolved Administration theme, `light` or `dark`, like Admin SDK locations already do.
 
+### Deprecated the old shop ID format
+
+The system config key `core.app.shopId` is deprecated, read the shop ID from `core.app.shopIdV2` instead.
+
 ## Administration
 
 ### Product list filters by product documents

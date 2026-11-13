@@ -1,17 +1,17 @@
 /**
  * @sw-package framework
  *
- * Resolves global and service access for the upgrade codemods:
- * `Shopware.X`, `const { X } = Shopware`, `Shopware.Service('<name>')`, `this.<service>` and injected services.
+ * Resolves the `Shopware` global for the upgrade codemods: `Shopware.X`, `const { X } = Shopware` and
+ * `const X = Shopware.X`.
  */
 
-const { walk, stringValue } = require('./component-tags');
+const { walk } = require('./component-tags');
 
 const cache = new WeakMap();
 
 /**
- * Local names bound to the `Shopware` global, mapped to their `Shopware.<path>`: `const { State, Service } = Shopware`
- * and `const State = Shopware.State`.
+ * Local names bound to the `Shopware` global, mapped to their `Shopware.<path>`: `const { Module } = Shopware`
+ * and `const Module = Shopware.Module`.
  */
 function shopwareAliases(ast) {
     if (cache.has(ast)) {
@@ -50,54 +50,21 @@ function shopwareAliases(ast) {
 }
 
 /**
- * The dotted path of a member chain.
- *
- * - `Shopware.State.get` → `Shopware.State.get`
- * - `State.get` with `const { State } = Shopware` → `Shopware.State.get`
- * - `this.mailService.send` → `this.mailService.send`
- * - `Shopware.Service('mailService').send` → `Service(mailService).send`
+ * The dotted path of a member chain: `Shopware.Module.register`, or `Module.register` with
+ * `const { Module } = Shopware` → `Shopware.Module.register`.
  */
 function memberPath(node, aliases) {
     if (node.type === 'Identifier') {
         return aliases.get(node.name) ?? node.name;
     }
 
-    if (node.type === 'ThisExpression') {
-        return 'this';
-    }
-
-    if (node.type === 'CallExpression') {
-        const callee = memberPath(node.callee, aliases);
-        const argument = stringValue(node.arguments[0]);
-
-        if ((callee === 'Shopware.Service' || callee === 'Service') && argument) {
-            return `Service(${argument})`;
-        }
-
-        return null;
-    }
-
-    if (node.type === 'ChainExpression') {
-        return memberPath(node.expression, aliases);
-    }
-
-    if (node.type !== 'MemberExpression') {
+    if (node.type !== 'MemberExpression' || node.computed || node.property.type !== 'Identifier') {
         return null;
     }
 
     const object = memberPath(node.object, aliases);
 
-    if (object === null) {
-        return null;
-    }
-
-    if (!node.computed && node.property.type === 'Identifier') {
-        return `${object}.${node.property.name}`;
-    }
-
-    const key = stringValue(node.property);
-
-    return key === null ? null : `${object}.${key}`;
+    return object === null ? null : `${object}.${node.property.name}`;
 }
 
 module.exports = {

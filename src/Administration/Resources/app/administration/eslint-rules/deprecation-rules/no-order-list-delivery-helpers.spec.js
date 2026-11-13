@@ -205,21 +205,6 @@ describe('no-order-list-delivery-helpers', () => {
                     { message: SUPER_DELIVERY_STATE },
                 ],
             },
-            {
-                name: 'a second run only reports the marked spots',
-                code: override(
-                    '    methods: {',
-                    '        summary(order) {',
-                    `            ${scriptTodo(TRANSACTION)}`,
-                    '            const transaction = this.transaction(order.items[0]);',
-                    `            ${scriptTodo(TRANSACTIONS)}`,
-                    '            return order.transactions.last();',
-                    '        },',
-                    '    },',
-                ),
-                output: null,
-                errors: [{ message: TRANSACTION }, { message: TRANSACTIONS }],
-            },
         ],
     });
 

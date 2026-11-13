@@ -94,6 +94,11 @@ function enclosingFunction(node) {
     return current ?? null;
 }
 
+/** The first segment of every association that `addAssociation()`/`getAssociation()` calls in these scripts load. */
+function addedAssociations(sources) {
+    return new Set(sources.flatMap((source) => [...source.matchAll(ASSOCIATION_CALL)].map((match) => match[2])));
+}
+
 function associationName(node) {
     if (node.type !== 'MemberExpression' || node.object.type === 'ThisExpression') {
         return null;
@@ -176,21 +181,11 @@ module.exports = {
         }
 
         const markedAssociations = new Set();
-        let addedAssociations = null;
+        let scriptAssociations = null;
         const scriptAddsAssociation = (association) => {
-            if (addedAssociations === null) {
-                addedAssociations = new Set();
-                walk(sourceCode.ast, (node) => {
-                    const method = node.type === 'CallExpression' && node.callee.type === 'MemberExpression' ? node.callee.property.name : null;
-                    const value = ['addAssociation', 'getAssociation'].includes(method) ? stringValue(node.arguments[0]) : null;
+            scriptAssociations ??= addedAssociations([sourceCode.text]);
 
-                    if (value) {
-                        addedAssociations.add(value.split('.')[0]);
-                    }
-                });
-            }
-
-            return addedAssociations.has(association);
+            return scriptAssociations.has(association);
         };
 
         const scriptVisitors = {
@@ -280,7 +275,7 @@ module.exports = {
 
             if (twig) {
                 const scripts = importingScripts(context);
-                const added = new Set(scripts.flatMap(({ source }) => [...source.matchAll(ASSOCIATION_CALL)].map((match) => match[2])));
+                const added = addedAssociations(scripts.map(({ source }) => source));
 
                 templateContext = {
                     overrides: templateTargets(context).includes(COMPONENT),

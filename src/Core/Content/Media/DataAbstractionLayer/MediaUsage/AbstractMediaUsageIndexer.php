@@ -114,21 +114,12 @@ abstract class AbstractMediaUsageIndexer extends EntityIndexer
     }
 
     /**
-     * @param list<array<string, string>|string> $primaryKeys primary keys of written entities, or of their translations
+     * @param list<array<string, string>|string> $primaryKeys primary keys of written translations
      *
-     * @return list<string> hex ids of the entities, or of the entities the translations belong to
+     * @return list<string> hex ids of the entities the translations belong to
      */
     protected function getOwnerIds(array $primaryKeys, string $ownerKey): array
     {
-        $ids = [];
-        foreach ($primaryKeys as $primaryKey) {
-            if (\is_string($primaryKey)) {
-                $ids[] = $primaryKey;
-            } elseif (isset($primaryKey[$ownerKey])) {
-                $ids[] = $primaryKey[$ownerKey];
-            }
-        }
-
-        return array_values(array_unique($ids));
+        return array_values(array_unique(array_column(array_filter($primaryKeys, \is_array(...)), $ownerKey)));
     }
 }

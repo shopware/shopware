@@ -11,12 +11,14 @@ use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTransla
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
+use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRoute;
 use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
 use Shopware\Core\Content\Media\SalesChannel\MediaRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Context;
@@ -148,6 +150,74 @@ class CacheInvalidationSubscriberTest extends TestCase
             );
 
         $subscriber->invalidateMedia($event);
+    }
+
+    public function testInvalidateMediaInvalidatesEveryPageShowingTheMedia(): void
+    {
+        $ids = [
+            'product' => Uuid::randomHex(),
+            'listing' => Uuid::randomHex(),
+            'stream' => Uuid::randomHex(),
+            'category' => Uuid::randomHex(),
+            'override-category' => Uuid::randomHex(),
+            'element-page' => Uuid::randomHex(),
+            'section-page' => Uuid::randomHex(),
+            'block-section' => Uuid::randomHex(),
+            'block-page' => Uuid::randomHex(),
+            'landing-page' => Uuid::randomHex(),
+            'override-variant' => Uuid::randomHex(),
+            'override-parent' => Uuid::randomHex(),
+        ];
+
+        // every lookup is answered by the table it reads
+        $results = [
+            'FROM product_category_tree' => [$ids['listing']],
+            'FROM product_stream_mapping' => [$ids['stream']],
+            'FROM category WHERE media_id' => [$ids['category']],
+            'FROM category_translation_media_usage' => [$ids['override-category']],
+            'FROM cms_page_media_usage' => [$ids['element-page']],
+            'FROM cms_section WHERE background_media_id' => [$ids['section-page']],
+            'FROM cms_block WHERE background_media_id' => [$ids['block-section']],
+            'FROM cms_section WHERE id IN' => [$ids['block-page']],
+            'FROM landing_page_translation_media_usage' => [$ids['landing-page']],
+            'FROM product_translation_media_usage' => [$ids['override-variant']],
+            'FROM product WHERE id IN' => [$ids['override-parent']],
+        ];
+
+        $this->connection->expects($this->once())->method('fetchAllAssociative')->willReturn([['product_id' => $ids['product'], 'variant_id' => null]]);
+        $this->connection->method('fetchFirstColumn')->willReturnCallback(static function (string $sql) use ($results): array {
+            foreach ($results as $table => $result) {
+                if (str_contains($sql, $table)) {
+                    return $result;
+                }
+            }
+
+            return [];
+        });
+
+        $tags = [];
+        $this->cacheInvalidator->expects($this->once())->method('invalidate')->willReturnCallback(static function (array $invalidated) use (&$tags): void {
+            $tags = $invalidated;
+        });
+
+        $this->createSubscriber()->invalidateMedia(new MediaIndexerEvent([Uuid::randomHex()], Context::createDefaultContext(), []));
+
+        foreach ([
+            EntityCacheKeyGenerator::buildProductTag($ids['product']),
+            ProductListingRoute::buildName($ids['listing']),
+            EntityCacheKeyGenerator::buildStreamTag($ids['stream']),
+            CategoryRoute::buildName($ids['category']),
+            CategoryRoute::buildName($ids['override-category']),
+            EntityCacheKeyGenerator::buildCmsTag($ids['element-page']),
+            EntityCacheKeyGenerator::buildCmsTag($ids['section-page']),
+            EntityCacheKeyGenerator::buildCmsTag($ids['block-page']),
+            LandingPageRoute::buildName($ids['landing-page']),
+            EntityCacheKeyGenerator::buildProductTag($ids['override-parent']),
+        ] as $tag) {
+            static::assertContains($tag, $tags);
+        }
+
+        static::assertNotContains(EntityCacheKeyGenerator::buildProductTag($ids['override-variant']), $tags, 'the detail page of a variant is tagged with its parent');
     }
 
     public function testInvalidateNavigationRouteWithSalesChannelSettings(): void

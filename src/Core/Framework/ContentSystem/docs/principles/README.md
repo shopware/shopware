@@ -10,6 +10,7 @@
 | FULL / SKELETON | Both run the one render path and produce the same structure. | FULL resolves data. SKELETON switches off the steps the [mode table](rendering.md#structure-is-a-function-independent-of-rendering-mode) lists. | [rendering.md](rendering.md) |
 | write gate / write boundary | Both sit on the DAL write path of a layout tree. | The write boundary (`LayoutWriteBoundary::apply()`) returns a new tree from its passes, while the write gate (`LayoutGate`, `StoredTreeConstraints`) only checks the tree. | [write-admission.md](write-admission.md), [drafts-and-gates.md](drafts-and-gates.md) |
 | client defect / internal fault | Both are defects that `ContentSystemException` throws. | A code a client causes through the element tree is a client defect (`CLIENT_DEFECT_CODES`), while a defect whose only possible cause is a core or plugin bug or data that bypassed the write gate is an internal fault. | [failure-and-loss.md](failure-and-loss.md) |
+| interface translation / content translation | Both make text appear in more than one language. | Interface translation resolves snippet keys for declaration text the Administration shows, while content translation stores per-language property values as language maps. | [extending.md](../extending.md#administration-translations), [translation.md](translation.md) |
 
 ## Glossary
 

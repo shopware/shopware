@@ -113,7 +113,8 @@
                                                                     }
                                                                 },
                                                                 "translatable": {
-                                                                    "type": "boolean"
+                                                                    "type": "boolean",
+                                                                    "description": "`true` means the property stores one value per language: its stored value is a language map, language id in lowercase UUID hex to a value of `type`, rather than a bare value of `type`."
                                                                 },
                                                                 "enum": {
                                                                     "type": ["array", "null"],

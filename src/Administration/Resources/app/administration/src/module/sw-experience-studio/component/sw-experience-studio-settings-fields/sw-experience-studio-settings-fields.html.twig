@@ -37,7 +37,7 @@
                         class="sw-experience-studio-settings-fields__mapping mt-field"
                     >
                         <span class="sw-experience-studio-settings-fields__mapping-label mt-field__label label">
-                            {{ field.property.title }}
+                            {{ getPropertyTitle(field.property) }}
                         </span>
 
                         <div class="sw-experience-studio-settings-fields__mapping-chip">
@@ -81,7 +81,7 @@
                             >
                                 <mt-slider
                                     class="sw-experience-studio-settings-fields__responsive-slider-input"
-                                    :label="field.property.title"
+                                    :label="getPropertyTitle(field.property)"
                                     :min="getResponsiveLimits(field.property).min"
                                     :max="getResponsiveLimits(field.property).max"
                                     :step="getResponsiveLimits(field.property).step"
@@ -95,7 +95,7 @@
                             <mt-switch
                                 v-else-if="getControlType(field.property) === 'switch'"
                                 v-bind="getControlProps(field.property)"
-                                :label="field.property.title"
+                                :label="getPropertyTitle(field.property)"
                                 :help-text="getPropertyHelpText(field.property)"
                                 :model-value="getResponsiveGlobalValue(field.key, field.property, field)"
                                 :disabled="!allowEdit || isResponsiveViewportMode(field.key, field) || undefined"
@@ -105,7 +105,7 @@
                             <mt-select
                                 v-else-if="getControlType(field.property) === 'select'"
                                 v-bind="getControlProps(field.property)"
-                                :label="field.property.title"
+                                :label="getPropertyTitle(field.property)"
                                 :help-text="getPropertyHelpText(field.property)"
                                 :model-value="getResponsiveGlobalValue(field.key, field.property, field)"
                                 :options="getSelectOptions(field.property)"
@@ -120,7 +120,7 @@
                                 <label
                                     class="sw-experience-studio-settings-fields__radio-panel-label mt-field__label label"
                                     :for="getRadioPanelLabelTargetId(field.key, field.property, field)"
-                                >{{ field.property.title }}</label>
+                                >{{ getPropertyTitle(field.property) }}</label>
 
                                 <sw-button-group class="sw-experience-studio-settings-fields__radio-panel-options">
                                     <mt-button
@@ -153,7 +153,7 @@
                             <sw-experience-studio-box-spacing-field
                                 v-else-if="getControlType(field.property) === 'box-spacing'"
                                 :field-key="field.key"
-                                :label="field.property.title"
+                                :label="getPropertyTitle(field.property)"
                                 :help-text="getPropertyHelpText(field.property)"
                                 :model-value="String(getResponsiveGlobalValue(field.key, field.property, field) ?? '')"
                                 :disabled="!allowEdit || isResponsiveViewportMode(field.key, field) || undefined"
@@ -163,7 +163,7 @@
                             <mt-text-field
                                 v-else
                                 v-bind="getControlProps(field.property)"
-                                :label="field.property.title"
+                                :label="getPropertyTitle(field.property)"
                                 :help-text="getPropertyHelpText(field.property)"
                                 :model-value="getResponsiveGlobalValue(field.key, field.property, field)"
                                 :disabled="!allowEdit || isResponsiveViewportMode(field.key, field) || undefined"
@@ -285,7 +285,7 @@
                     <template v-else>
                         <sw-experience-studio-inline-text-field
                             v-if="isInlineMappableField(field)"
-                            :label="field.property.title"
+                            :label="getPropertyTitle(field.property)"
                             :help-text="getPropertyHelpText(field.property)"
                             :value="String(getPropertyValue(field.key, field.property) ?? '')"
                             :candidates="inlineMappingCandidates"
@@ -296,7 +296,7 @@
                         <mt-switch
                             v-else-if="getControlType(field.property) === 'switch'"
                             v-bind="getControlProps(field.property)"
-                            :label="field.property.title"
+                            :label="getPropertyTitle(field.property)"
                             :help-text="getPropertyHelpText(field.property)"
                             :mark-count="0"
                             :model-value="getPropertyValue(field.key, field.property)"
@@ -307,7 +307,7 @@
                         <mt-number-field
                             v-else-if="getControlType(field.property) === 'number'"
                             v-bind="getControlProps(field.property)"
-                            :label="field.property.title"
+                            :label="getPropertyTitle(field.property)"
                             :help-text="getPropertyHelpText(field.property)"
                             :model-value="getPropertyValue(field.key, field.property)"
                             :disabled="!allowEdit || undefined"
@@ -318,7 +318,7 @@
                             v-else-if="getControlType(field.property) === 'slider'"
                             v-bind="getControlProps(field.property)"
                             class="sw-experience-studio-settings-fields__responsive-slider-input"
-                            :label="field.property.title"
+                            :label="getPropertyTitle(field.property)"
                             :help-text="getPropertyHelpText(field.property)"
                             :model-value="getPropertyValue(field.key, field.property)"
                             :disabled="!allowEdit || undefined"
@@ -328,7 +328,7 @@
                         <mt-colorpicker
                             v-else-if="getControlType(field.property) === 'color'"
                             v-bind="getControlProps(field.property)"
-                            :label="field.property.title"
+                            :label="getPropertyTitle(field.property)"
                             :help-text="getPropertyHelpText(field.property)"
                             :model-value="getPropertyValue(field.key, field.property)"
                             :disabled="!allowEdit || undefined"
@@ -338,7 +338,7 @@
                         <mt-select
                             v-else-if="getControlType(field.property) === 'select'"
                             v-bind="getControlProps(field.property)"
-                            :label="field.property.title"
+                            :label="getPropertyTitle(field.property)"
                             :help-text="getPropertyHelpText(field.property)"
                             :model-value="getPropertyValue(field.key, field.property)"
                             :options="getSelectOptions(field.property)"
@@ -353,7 +353,7 @@
                             <label
                                 class="sw-experience-studio-settings-fields__radio-panel-label mt-field__label label"
                                 :for="getRadioPanelLabelTargetId(field.key, field.property)"
-                            >{{ field.property.title }}</label>
+                            >{{ getPropertyTitle(field.property) }}</label>
 
                             <sw-button-group class="sw-experience-studio-settings-fields__radio-panel-options">
                                 <mt-button
@@ -387,7 +387,7 @@
                             v-else-if="getControlType(field.property) === 'entity' && getEntityName(field.property)"
                             v-bind="getControlProps(field.property)"
                             :entity="getEntityName(field.property)"
-                            :label="field.property.title"
+                            :label="getPropertyTitle(field.property)"
                             :help-text="getPropertyHelpText(field.property)"
                             :value="getPropertyValue(field.key, field.property)"
                             :disabled="!allowEdit || undefined"
@@ -398,7 +398,7 @@
                             v-else-if="getControlType(field.property) === 'entity-multi' && getEntityName(field.property) && getEntityMultiCodec(field)"
                             v-bind="getControlProps(field.property)"
                             :repository="getEntityRepository(getEntityName(field.property))"
-                            :label="field.property.title"
+                            :label="getPropertyTitle(field.property)"
                             :help-text="getPropertyHelpText(field.property)"
                             :value="getEntityMultiValue(field.key)"
                             :disabled="!allowEdit || undefined"
@@ -408,7 +408,7 @@
                         <sw-media-field
                             v-else-if="getControlType(field.property) === 'media'"
                             v-bind="getControlProps(field.property)"
-                            :label="field.property.title"
+                            :label="getPropertyTitle(field.property)"
                             :value="getPropertyValue(field.key, field.property)"
                             :disabled="!allowEdit || undefined"
                             @update:value="onUpdateField(field.key, $event)"
@@ -417,7 +417,7 @@
                         <sw-experience-studio-media-collection-field
                             v-else-if="getControlType(field.property) === 'media-collection'"
                             v-bind="getControlProps(field.property)"
-                            :label="field.property.title"
+                            :label="getPropertyTitle(field.property)"
                             :value="getRawPropertyValue(field.key)"
                             :disabled="!allowEdit || undefined"
                             @update:value="onUpdateField(field.key, $event)"
@@ -434,7 +434,7 @@
                         <sw-experience-studio-box-spacing-field
                             v-else-if="getControlType(field.property) === 'box-spacing'"
                             :field-key="field.key"
-                            :label="field.property.title"
+                            :label="getPropertyTitle(field.property)"
                             :help-text="getPropertyHelpText(field.property)"
                             :model-value="String(getPropertyValue(field.key, field.property) ?? '')"
                             :disabled="!allowEdit || undefined"
@@ -444,7 +444,7 @@
                         <mt-text-field
                             v-else
                             v-bind="getControlProps(field.property)"
-                            :label="field.property.title"
+                            :label="getPropertyTitle(field.property)"
                             :help-text="getPropertyHelpText(field.property)"
                             :model-value="getPropertyValue(field.key, field.property)"
                             :disabled="!allowEdit || undefined"
@@ -483,7 +483,7 @@
         :candidates="mappingModalCandidates"
         :is-loading="isLoadingMappingCandidates"
         :load-error="mappingCandidateLoadError"
-        :property-title="mappingModalField.property.title"
+        :property-title="getPropertyTitle(mappingModalField.property)"
         :current-path="getFieldMappingPath(mappingModalField)"
         @select="onSelectMapping"
         @close="onCloseMappingModal"

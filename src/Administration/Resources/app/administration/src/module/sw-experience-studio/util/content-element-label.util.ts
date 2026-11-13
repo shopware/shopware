@@ -4,7 +4,7 @@ import type { ContentElementNode } from 'src/core/service/content-element.types'
  * @private
  * @sw-package discovery
  */
-export function getContentElementLabel(element: ContentElementNode): string {
+export function getContentElementLabel(element: ContentElementNode, fallback?: string): string {
     const properties = element.properties ?? {};
     const nameKeys = [
         'name',
@@ -20,7 +20,7 @@ export function getContentElementLabel(element: ContentElementNode): string {
         }
     }
 
-    return formatComponentName(element.component);
+    return fallback ?? formatComponentName(element.component);
 }
 
 /**

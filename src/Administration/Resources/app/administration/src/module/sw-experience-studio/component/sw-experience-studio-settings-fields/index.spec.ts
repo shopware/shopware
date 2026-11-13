@@ -12,6 +12,53 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
         }
     ).methods;
 
+    it('translates explicit field, help and option references without changing option values', () => {
+        const translations: Record<string, string> = {
+            'plugin.title': 'Ausrichtung',
+            'plugin.help': 'Hilfe',
+            'plugin.option': 'Anfang',
+            'plugin.description': 'Beschreibung',
+        };
+        const context = {
+            $te: (key: string) => key in translations,
+            $t: (key: string) => translations[key],
+        };
+        const property = {
+            title: 'Alignment',
+            titleSnippet: 'plugin.title',
+            adminUI: {
+                helpText: 'Help',
+                helpTextSnippet: 'plugin.help',
+                props: {
+                    options: [
+                        {
+                            value: 'start',
+                            label: 'Start',
+                            labelSnippet: 'plugin.option',
+                            description: 'Description',
+                            descriptionSnippet: 'plugin.description',
+                        },
+                    ],
+                },
+            },
+        };
+
+        expect(methods.getPropertyTitle.call(context, property)).toBe('Ausrichtung');
+        expect(methods.getPropertyHelpText.call(context, property)).toBe('Hilfe');
+        expect(methods.getControlProps.call(context, property)).toEqual({
+            options: [
+                {
+                    value: 'start',
+                    label: 'Anfang',
+                    labelSnippet: 'plugin.option',
+                    description: 'Beschreibung',
+                    descriptionSnippet: 'plugin.description',
+                },
+            ],
+        });
+        expect(property.adminUI.props.options[0].label).toBe('Start');
+    });
+
     it('groups fields by panel while preserving their order', () => {
         const fields = [
             {
@@ -167,6 +214,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
             methods.getPanelTitle.call(
                 {
                     $t,
+                    $te: () => true,
                     getPanelSnippetKey,
                 },
                 {
@@ -175,6 +223,18 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
             ),
         ).toBe('Spacing');
         expect($t).toHaveBeenCalledWith('sw-experience-studio.elements.sw-grid-container.panels.spacing');
+    });
+
+    it('uses the technical panel name if its snippet is missing', () => {
+        expect(
+            methods.getPanelTitle.call(
+                {
+                    $te: () => false,
+                    getPanelSnippetKey: () => 'missing.key',
+                },
+                { technicalName: 'custom-panel' },
+            ),
+        ).toBe('custom panel');
     });
 
     it('expands only the general panel by default', () => {

@@ -110,7 +110,7 @@ class InfoControllerTest extends TestCase
     {
         $this->shopIdProvider->expects($this->never())->method('getShopId');
 
-        $spec = $this->alertTypeSpecification(priority: 100, illustration: 'content-text');
+        $spec = $this->alertTypeSpecification(priority: 100, illustration: 'content-text', labelSnippet: 'plugin.alert.label');
 
         $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
         $registry->method('all')->willReturn(['Sw:Alert' => $spec]);
@@ -129,6 +129,8 @@ class InfoControllerTest extends TestCase
         static::assertSame('core', $data['types'][0]['source']);
         static::assertSame(100, $data['types'][0]['priority']);
         static::assertSame('content-text', $data['types'][0]['illustration']);
+        static::assertSame('Alert', $data['types'][0]['label']);
+        static::assertSame('plugin.alert.label', $data['types'][0]['labelSnippet']);
 
         $schema = json_decode((string) file_get_contents(\dirname(__DIR__, 6) . '/src/Core/Framework/Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-element-types.json'), true, 512, \JSON_THROW_ON_ERROR);
         $responseSchema = Helper::toJSON($schema['paths']['/_info/content-system-element-types.json']['get']['responses']['200']['content']['application/json']['schema']);
@@ -149,6 +151,8 @@ class InfoControllerTest extends TestCase
             category: 'content',
             priority: 100,
             illustration: 'content-text',
+            nameSnippet: 'plugin.preset.name',
+            descriptionSnippet: 'plugin.preset.description',
         );
         $legacyPreset = new ContentSystemLayoutPresetSpecification('Sw:Legacy', 'Legacy', null, null, []);
         $registry = static::createStub(AbstractContentSystemLayoutPresetRegistry::class);
@@ -163,6 +167,10 @@ class InfoControllerTest extends TestCase
         static::assertSame('content', $data['presets'][0]['category']);
         static::assertSame(100, $data['presets'][0]['priority']);
         static::assertSame('content-text', $data['presets'][0]['illustration']);
+        static::assertSame('Text block', $data['presets'][0]['name']);
+        static::assertSame('plugin.preset.name', $data['presets'][0]['nameSnippet']);
+        static::assertSame('plugin.preset.description', $data['presets'][0]['descriptionSnippet']);
+        static::assertArrayNotHasKey('nameSnippet', $data['presets'][1]);
         static::assertNull($data['presets'][1]['category']);
         static::assertSame(0, $data['presets'][1]['priority']);
         static::assertNull($data['presets'][1]['illustration']);
@@ -860,7 +868,7 @@ class InfoControllerTest extends TestCase
         return new BindingSpecification('media-picker', $type, 'Media Picker', [], [], 'core');
     }
 
-    private function alertTypeSpecification(int $priority = 0, ?string $illustration = null): ContentSystemElementTypeSpecification
+    private function alertTypeSpecification(int $priority = 0, ?string $illustration = null, ?string $labelSnippet = null): ContentSystemElementTypeSpecification
     {
         return new ContentSystemElementTypeSpecification(
             name: 'Sw:Alert',
@@ -874,6 +882,7 @@ class InfoControllerTest extends TestCase
             source: 'core',
             priority: $priority,
             illustration: $illustration,
+            labelSnippet: $labelSnippet,
         );
     }
 

@@ -1,5 +1,7 @@
 name: "Image slider"
+nameSnippet: "sw-experience-studio.presets.image-slider.name"
 description: "A media gallery configured as an image slider, without thumbnail navigation, magnifier, or fullscreen view."
+descriptionSnippet: "sw-experience-studio.presets.image-slider.description"
 icon: "regular-image"
 illustration: "preset-image-slider"
 category: "content"

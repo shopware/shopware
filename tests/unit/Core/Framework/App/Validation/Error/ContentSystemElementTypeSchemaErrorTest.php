@@ -21,6 +21,8 @@ class ContentSystemElementTypeSchemaErrorTest extends TestCase
     {
         $error = new ContentSystemElementTypeSchemaError('/path/to/types', 'YAML syntax invalid');
 
+        static::assertSame(AppException::VALIDATION_FAILED, $error->getErrorCode());
+        static::assertSame([], $error->getParameters());
         static::assertSame('Invalid element type schema in "/path/to/types": YAML syntax invalid', $error->getMessage());
         static::assertSame(AppException::VALIDATION_FAILED, $error->getErrorCode());
         static::assertSame([], $error->getParameters());

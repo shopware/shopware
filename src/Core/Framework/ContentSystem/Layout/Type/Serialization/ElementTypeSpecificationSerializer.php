@@ -61,6 +61,8 @@ class ElementTypeSpecificationSerializer
             slots: $slots,
             priority: \array_key_exists('priority', $meta) ? $meta['priority'] : 0,
             illustration: $meta['illustration'] ?? null,
+            labelSnippet: $meta['labelSnippet'] ?? null,
+            descriptionSnippet: $meta['descriptionSnippet'] ?? null,
         );
     }
 
@@ -73,6 +75,13 @@ class ElementTypeSpecificationSerializer
             'label' => $dto->label,
             'description' => $dto->description,
         ];
+
+        if ($dto->labelSnippet !== null) {
+            $meta['labelSnippet'] = $dto->labelSnippet;
+        }
+        if ($dto->descriptionSnippet !== null) {
+            $meta['descriptionSnippet'] = $dto->descriptionSnippet;
+        }
 
         if ($dto->icon !== null) {
             $meta['icon'] = $dto->icon;
@@ -145,6 +154,8 @@ class ElementTypeSpecificationSerializer
             mappable: $propertyData['mappable'] ?? false,
             inlineMappable: $propertyData['inlineMappable'] ?? false,
             defaultMapping: $propertyData['defaultMapping'] ?? null,
+            titleSnippet: $propertyData['titleSnippet'] ?? null,
+            descriptionSnippet: $propertyData['descriptionSnippet'] ?? null,
         );
     }
 
@@ -227,6 +238,14 @@ class ElementTypeSpecificationSerializer
 
             if ($prop->description !== '') {
                 $propData['description'] = $prop->description;
+            }
+
+            if ($prop->titleSnippet !== null) {
+                $propData['titleSnippet'] = $prop->titleSnippet;
+            }
+
+            if ($prop->descriptionSnippet !== null) {
+                $propData['descriptionSnippet'] = $prop->descriptionSnippet;
             }
 
             if ($prop->enum !== null) {

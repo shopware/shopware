@@ -20,6 +20,7 @@ import {
     isMappableProperty,
 } from '../../util/element-mapping.util';
 import { isViewportSpecificBreakpointMap } from '../../util/style-settings.util';
+import { translateContentSystemText } from '../../util/content-system-translation.util';
 import template from './sw-experience-studio-settings-fields.html.twig';
 import './sw-experience-studio-settings-fields.scss';
 
@@ -237,7 +238,12 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         getPanelTitle(panel: SettingsFieldPanel): string {
-            return this.$t(this.getPanelSnippetKey(panel));
+            const key = this.getPanelSnippetKey(panel);
+            const fallbackLocale = Shopware.Context.app.fallbackLocale;
+
+            return this.$te(key) || (fallbackLocale && this.$te(key, fallbackLocale))
+                ? this.$t(key)
+                : (panel.technicalName ?? '').replace(/[-_]+/g, ' ');
         },
 
         isPanelExpandedByDefault(panel: SettingsFieldPanel): boolean {
@@ -729,8 +735,48 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
+        getPropertyTitle(property: ContentSystemElementTypeProperty): string {
+            return translateContentSystemText(property.titleSnippet, property.title, this.$te, this.$t);
+        },
+
         getControlProps(property: ContentSystemElementTypeProperty): Record<string, unknown> {
-            return getPropertyAdminUiProps(property);
+            const props = getPropertyAdminUiProps(property);
+            const translated = { ...props };
+            if (typeof props.placeholder === 'string') {
+                translated.placeholder = translateContentSystemText(
+                    props.placeholderSnippet,
+                    props.placeholder,
+                    this.$te,
+                    this.$t,
+                );
+            }
+            if (Array.isArray(props.options)) {
+                translated.options = props.options.map((option: unknown) => {
+                    if (typeof option !== 'object' || option === null) {
+                        return option;
+                    }
+                    const item = option as Record<string, unknown>;
+                    return {
+                        ...item,
+                        ...(typeof item.label === 'string'
+                            ? {
+                                  label: translateContentSystemText(item.labelSnippet, item.label, this.$te, this.$t),
+                              }
+                            : {}),
+                        ...(typeof item.description === 'string'
+                            ? {
+                                  description: translateContentSystemText(
+                                      item.descriptionSnippet,
+                                      item.description,
+                                      this.$te,
+                                      this.$t,
+                                  ),
+                              }
+                            : {}),
+                    };
+                });
+            }
+            return translated;
         },
 
         getPropertyHelpText(property: ContentSystemElementTypeProperty): string | undefined {
@@ -740,6 +786,9 @@ export default Shopware.Component.wrapComponentConfig({
                 return undefined;
             }
 
+            if (property.adminUI?.helpTextSnippet) {
+                return translateContentSystemText(property.adminUI.helpTextSnippet, helpText, this.$te, this.$t);
+            }
             return this.$te(helpText) ? this.$t(helpText) : helpText;
         },
 

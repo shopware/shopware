@@ -4,6 +4,41 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail presets',
     const methods = (detailComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> }).methods;
     const computed = (detailComponent as unknown as { computed: Record<string, (...args: unknown[]) => unknown> }).computed;
 
+    it('localizes picker text while keeping element and preset identifiers', () => {
+        const translations: Record<string, string> = {
+            'plugin.element': 'Bild',
+            'plugin.preset': 'Medien und Text',
+            'plugin.description': 'Eine Vorlage',
+        };
+        const vm = {
+            $te: (key: string) => key in translations,
+            $t: (key: string) => translations[key],
+            pendingAddElementPayload: { parentElementId: null, slotName: null },
+            getAvailableTypesForPayload: () => [{ name: 'Plugin:Image', label: 'Image', labelSnippet: 'plugin.element' }],
+            layoutPresetStore: {
+                allPresets: [
+                    {
+                        id: 'plugin.preset',
+                        name: 'Media and text',
+                        nameSnippet: 'plugin.preset',
+                        description: 'A preset',
+                        descriptionSnippet: 'plugin.description',
+                        payload: [],
+                    },
+                ],
+            },
+            isPresetAllowedForPayload: () => true,
+        };
+        const items = computed.availablePickerElements.call(vm) as Array<Record<string, unknown>>;
+
+        expect(items[0]).toMatchObject({ name: 'Plugin:Image', label: 'Bild' });
+        expect(items[1]).toMatchObject({ name: 'plugin.preset', label: 'Medien und Text', description: 'Eine Vorlage' });
+        delete translations['plugin.preset'];
+        expect((computed.availablePickerElements.call(vm) as Array<Record<string, unknown>>)[1].label).toBe(
+            'Media and text',
+        );
+    });
+
     it('allows any preset at the root but gates slot presets by their root component', () => {
         const allowed = new Set(['Sw:Content:Text']);
         const rootPayload = { parentElementId: null, slotName: null, anchorElement: null };

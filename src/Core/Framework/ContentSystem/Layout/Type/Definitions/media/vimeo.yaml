@@ -1,5 +1,6 @@
 meta:
   label: "Vimeo Video"
+  labelSnippet: "sw-experience-studio.elements.media-vimeo.label"
   description: "Embeds a Vimeo video with playback, privacy and consent options."
   icon: "regular-vimeo"
   illustration: "media-vimeo"
@@ -16,59 +17,69 @@ properties:
     type: string
     required: true
     title: "Video ID or URL"
+    titleSnippet: "sw-experience-studio.elements.media-vimeo.videoId.title"
     description: "The numeric Vimeo video id (e.g. '76979871') or a full Vimeo URL — the id is extracted automatically."
 
   videoTitle:
     type: string
     required: false
     title: "Video Title"
+    titleSnippet: "sw-experience-studio.elements.media-vimeo.videoTitle.title"
     description: "Accessible title for the video iframe."
 
   autoplay:
     type: boolean
     title: "Autoplay"
+    titleSnippet: "sw-experience-studio.elements.media-vimeo.autoplay.title"
     description: "Start playback automatically (muted, as required by browsers)."
     default: false
 
   loop:
     type: boolean
     title: "Loop"
+    titleSnippet: "sw-experience-studio.elements.media-vimeo.loop.title"
     description: "Restart the video when it ends."
     default: false
 
   showControls:
     type: boolean
     title: "Show Controls"
+    titleSnippet: "sw-experience-studio.elements.media-vimeo.showControls.title"
     description: "Display the player controls."
     default: true
 
   doNotTrack:
     type: boolean
     title: "Do Not Track"
+    titleSnippet: "sw-experience-studio.elements.media-vimeo.doNotTrack.title"
     description: "Enable Vimeo's do-not-track mode to block session tracking."
     default: false
 
   needsConfirmation:
     type: boolean
     title: "Load After Confirmation"
+    titleSnippet: "sw-experience-studio.elements.media-vimeo.needsConfirmation.title"
     description: "Load the video only after the visitor accepts the privacy notice (cookie consent)."
     default: false
 
   showByline:
     type: boolean
     title: "Show Byline"
+    titleSnippet: "sw-experience-studio.elements.media-vimeo.showByline.title"
     description: "Display the author's name on the video."
     default: true
 
   showTitle:
     type: boolean
     title: "Show Title"
+    titleSnippet: "sw-experience-studio.elements.media-vimeo.showTitle.title"
     description: "Display the video's title."
     default: true
 
   showPortrait:
     type: boolean
     title: "Show Portrait"
+    titleSnippet: "sw-experience-studio.elements.media-vimeo.showPortrait.title"
     description: "Display the author's portrait on the video."
     default: true
 
@@ -76,6 +87,7 @@ properties:
     type: string
     required: false
     title: "Accent Color"
+    titleSnippet: "sw-experience-studio.elements.media-vimeo.color.title"
     description: "Color of the player controls."
     default: null
     adminUI:
@@ -85,6 +97,7 @@ properties:
     type: Shopware\Core\Content\Media\MediaEntity
     required: false
     title: "Preview Image"
+    titleSnippet: "sw-experience-studio.elements.media-vimeo.previewMedia.title"
     description: "Poster image shown on the consent placeholder before the video loads."
     resolvedBy: previewMediaId
     adminUI:

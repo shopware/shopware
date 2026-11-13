@@ -1,5 +1,6 @@
 meta:
   label: "YouTube Video"
+  labelSnippet: "sw-experience-studio.elements.media-youtube.label"
   description: "Embeds a YouTube video with playback, privacy and consent options."
   icon: "regular-youtube"
   illustration: "media-youtube"
@@ -16,41 +17,48 @@ properties:
     type: string
     required: true
     title: "Video ID or URL"
+    titleSnippet: "sw-experience-studio.elements.media-youtube.videoId.title"
     description: "The YouTube video id (e.g. 'aqz-KE-bpKQ') or a full video URL (watch, youtu.be, embed or shorts) — the id is extracted automatically."
 
   videoTitle:
     type: string
     required: false
     title: "Video Title"
+    titleSnippet: "sw-experience-studio.elements.media-youtube.videoTitle.title"
     description: "Accessible title for the video iframe."
 
   autoplay:
     type: boolean
     title: "Autoplay"
+    titleSnippet: "sw-experience-studio.elements.media-youtube.autoplay.title"
     description: "Start playback automatically (muted, as required by browsers)."
     default: false
 
   loop:
     type: boolean
     title: "Loop"
+    titleSnippet: "sw-experience-studio.elements.media-youtube.loop.title"
     description: "Restart the video when it ends."
     default: false
 
   showControls:
     type: boolean
     title: "Show Controls"
+    titleSnippet: "sw-experience-studio.elements.media-youtube.showControls.title"
     description: "Display the player controls."
     default: true
 
   advancedPrivacyMode:
     type: boolean
     title: "Advanced Privacy Mode"
+    titleSnippet: "sw-experience-studio.elements.media-youtube.advancedPrivacyMode.title"
     description: "Use the youtube-nocookie host to prevent tracking until interaction."
     default: false
 
   needsConfirmation:
     type: boolean
     title: "Load After Confirmation"
+    titleSnippet: "sw-experience-studio.elements.media-youtube.needsConfirmation.title"
     description: "Load the video only after the visitor accepts the privacy notice (cookie consent)."
     default: false
 
@@ -58,6 +66,7 @@ properties:
     type: integer
     required: false
     title: "Start Time"
+    titleSnippet: "sw-experience-studio.elements.media-youtube.start.title"
     description: "Start playback at this offset in seconds."
     default: 0
     adminUI:
@@ -69,6 +78,7 @@ properties:
     type: integer
     required: false
     title: "End Time"
+    titleSnippet: "sw-experience-studio.elements.media-youtube.end.title"
     description: "Stop playback at this offset in seconds."
     default: 0
     adminUI:
@@ -80,6 +90,7 @@ properties:
     type: Shopware\Core\Content\Media\MediaEntity
     required: false
     title: "Preview Image"
+    titleSnippet: "sw-experience-studio.elements.media-youtube.previewMedia.title"
     description: "Poster image shown on the consent placeholder before the video loads."
     resolvedBy: previewMediaId
     adminUI:

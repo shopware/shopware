@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(ContentSystemBindingSpecificationSchemaError::class)]
 class ContentSystemBindingSpecificationSchemaErrorTest extends TestCase
 {
-    public function testReportsBindingViolationsAsValidationFailure(): void
+    public function testReportsAggregatedViolationsAsAnAppValidationError(): void
     {
         $error = new ContentSystemBindingSpecificationSchemaError(['Missing binding name', 'Invalid source']);
 
@@ -25,5 +25,9 @@ class ContentSystemBindingSpecificationSchemaErrorTest extends TestCase
         );
         static::assertSame(AppException::VALIDATION_FAILED, $error->getErrorCode());
         static::assertSame([], $error->getParameters());
+
+        $exception = AppException::validationFailedFromError($error);
+        static::assertSame(AppException::VALIDATION_FAILED, $exception->getErrorCode());
+        static::assertSame($error->getMessage(), $exception->getMessage());
     }
 }

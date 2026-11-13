@@ -1,5 +1,6 @@
 meta:
   label: "Product Reviews"
+  labelSnippet: "sw-experience-studio.elements.product-reviews.label"
   description: "Displays the product's rating summary and customer reviews with sorting, language filtering and pagination."
   icon: "regular-star"
   illustration: "product-reviews"
@@ -17,6 +18,7 @@ properties:
     type: Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult
     required: false
     title: "Reviews"
+    titleSnippet: "sw-experience-studio.elements.product-reviews.reviews.title"
     description: "Hydrated review result containing the review collection, rating matrix, per-language totals and the current customer's own review. Received as root-scoped context from the page, which loads it once, so a summary or filters element beside this one share the same load."
 
 slots:

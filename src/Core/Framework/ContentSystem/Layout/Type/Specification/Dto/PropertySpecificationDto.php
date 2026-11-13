@@ -50,6 +50,10 @@ final readonly class PropertySpecificationDto
         public bool $mappable = false,
         public bool $inlineMappable = false,
         public ?array $defaultMapping = null,
+        #[Assert\NotBlank(allowNull: true)]
+        public ?string $titleSnippet = null,
+        #[Assert\NotBlank(allowNull: true)]
+        public ?string $descriptionSnippet = null,
     ) {
     }
 
@@ -83,6 +87,8 @@ final readonly class PropertySpecificationDto
             $this->defaultMapping === null
                 ? null
                 : MappingSourceReference::fromArray($this->defaultMapping, 'defaultMapping'),
+            $this->titleSnippet,
+            $this->descriptionSnippet,
         );
     }
 }

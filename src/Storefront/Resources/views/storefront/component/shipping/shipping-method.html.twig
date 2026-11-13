@@ -38,11 +38,19 @@
 
                             {% block component_shipping_method_description %}
                                 <div class="shipping-method-description">
-                                    <strong>{{ shipping.translated.name }}</strong>
+                                    {% set shippingName = shipping.translated.name %}
+
+                                    {% block component_shipping_method_name %}
+                                        <strong class="shipping-method-name">{{ shippingName }}</strong>
+                                    {% endblock %}
+
                                     {% if shipping.translated.description and shipping.id is same as(selectedShippingMethodId) %}
                                         {% set shippingDescription = shipping.translated.description|raw %}
+                                        {% set shippingDescriptionTitle = shipping.translated.description|raw|striptags %}
 
-                                        <p class="mb-0" title="{{ shipping.translated.description|raw }}">{{ shippingDescription }}</p>
+                                        {% block component_shipping_method_description_text %}
+                                            <p class="mb-0" title="{{ shippingDescriptionTitle }}">{{ shippingDescription }}</p>
+                                        {% endblock %}
                                     {% endif %}
                                 </div>
                             {% endblock %}

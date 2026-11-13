@@ -3,7 +3,13 @@ import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { type ItemOnProject, planPullRequestSync, resolvePullRequestNumber, syncPullRequest, toItemsOnProjects } from './waiting-on-event.ts';
+import {
+    type ItemOnProject,
+    planPullRequestSync,
+    resolvePullRequestNumber,
+    syncPullRequest,
+    toItemsOnProjects,
+} from './waiting-on-event.ts';
 import type { Row } from './waiting-on.ts';
 
 const row = (overrides: Partial<Row> = {}): Row => ({
@@ -74,16 +80,32 @@ test('a closed pull request is archived on the main project and left alone on a 
 
 test('toItemsOnProjects reads the project and the field values of each item', () => {
     const items = toItemsOnProjects(
-        [{
-            id: 'ITEM_1',
-            isArchived: false,
-            project: { number: 43, owner: { login: 'shopware' } },
-            fieldValues: { nodes: [{ name: 'author', field: { name: 'Waiting on' } }, { date: '2026-09-01', field: { name: 'Waiting since' } }] },
-        }],
+        [
+            {
+                id: 'ITEM_1',
+                isArchived: false,
+                project: { number: 43, owner: { login: 'shopware' } },
+                fieldValues: {
+                    nodes: [
+                        { name: 'author', field: { name: 'Waiting on' } },
+                        { date: '2026-09-01', field: { name: 'Waiting since' } },
+                    ],
+                },
+            },
+        ],
         'PR_1',
     );
 
-    assert.deepEqual(items, [{ id: 'ITEM_1', pullRequestId: 'PR_1', values: { waitingOn: 'author', since: '2026-09-01' }, isArchived: false, owner: 'shopware', projectNumber: 43 }]);
+    assert.deepEqual(items, [
+        {
+            id: 'ITEM_1',
+            pullRequestId: 'PR_1',
+            values: { waitingOn: 'author', since: '2026-09-01' },
+            isArchived: false,
+            owner: 'shopware',
+            projectNumber: 43,
+        },
+    ]);
 });
 
 const pullRequestNode = (overrides: Record<string, unknown> = {}) => ({
@@ -104,6 +126,7 @@ const pullRequestNode = (overrides: Record<string, unknown> = {}) => ({
     latestOpinionatedReviews: { nodes: [] },
     reviewThreads: { nodes: [] },
     timelineItems: { nodes: [] },
+    labelEvents: { nodes: [] },
     ...overrides,
 });
 
@@ -113,8 +136,18 @@ const schema = {
             id: 'PROJECT',
             fields: {
                 nodes: [
-                    { id: 'F_WAITING', name: 'Waiting on', dataType: 'SINGLE_SELECT', options: [{ id: 'O_SHOPWARE', name: 'shopware' }] },
-                    { id: 'F_REASON', name: 'Reason', dataType: 'SINGLE_SELECT', options: [{ id: 'O_NEVER', name: 'never-reviewed' }] },
+                    {
+                        id: 'F_WAITING',
+                        name: 'Waiting on',
+                        dataType: 'SINGLE_SELECT',
+                        options: [{ id: 'O_SHOPWARE', name: 'shopware' }],
+                    },
+                    {
+                        id: 'F_REASON',
+                        name: 'Reason',
+                        dataType: 'SINGLE_SELECT',
+                        options: [{ id: 'O_NEVER', name: 'never-reviewed' }],
+                    },
                     { id: 'F_SINCE', name: 'Waiting since', dataType: 'DATE' },
                 ],
             },
@@ -126,7 +159,13 @@ function fakes(pullRequest: Record<string, unknown>, projectItems: unknown[]) {
     const labels: string[] = [];
     const removed: string[] = [];
     const writes: string[] = [];
-    const core = { info: () => {}, warning: () => {}, error: () => {}, setOutput: () => {}, summary: { addRaw: () => {}, write: async () => {} } };
+    const core = {
+        info: () => {},
+        warning: () => {},
+        error: () => {},
+        setOutput: () => {},
+        summary: { addRaw: () => {}, write: async () => {} },
+    };
     const github = {
         async graphql<T>(): Promise<T> {
             return { repository: { pullRequest } } as T;
@@ -167,20 +206,44 @@ const context = { repo: { owner: 'shopware', repo: 'shopware' } };
 test('syncPullRequest labels an open pull request and adds it to the main and its team project', async () => {
     const { labels, writes, core, github, projectGithub } = fakes(pullRequestNode(), []);
 
-    await syncPullRequest({ github, core, context }, { number: 1, project: { github: projectGithub, number: 69, teams: '{"domain/crm-after-sales":43,"domain/other":7}' } });
+    await syncPullRequest(
+        { github, core, context },
+        {
+            number: 1,
+            project: { github: projectGithub, number: 69, teams: '{"domain/crm-after-sales":43,"domain/other":7}' },
+        },
+    );
 
     assert.deepEqual(labels, ['waiting-on/shopware']);
-    assert.deepEqual(writes, ['add PROJECT', 'set NEW_ITEM', 'add PROJECT', 'set NEW_ITEM']);
+    assert.deepEqual(writes, [
+        'add PROJECT',
+        'set NEW_ITEM',
+        'add PROJECT',
+        'set NEW_ITEM',
+    ]);
 });
 
 test('syncPullRequest archives a closed pull request on the main project only and leaves its label', async () => {
     const onBoth = [
-        { id: 'ITEM_MAIN', isArchived: false, project: { number: 69, owner: { login: 'shopware' } }, fieldValues: { nodes: [] } },
-        { id: 'ITEM_TEAM', isArchived: false, project: { number: 43, owner: { login: 'shopware' } }, fieldValues: { nodes: [] } },
+        {
+            id: 'ITEM_MAIN',
+            isArchived: false,
+            project: { number: 69, owner: { login: 'shopware' } },
+            fieldValues: { nodes: [] },
+        },
+        {
+            id: 'ITEM_TEAM',
+            isArchived: false,
+            project: { number: 43, owner: { login: 'shopware' } },
+            fieldValues: { nodes: [] },
+        },
     ];
     const { labels, writes, core, github, projectGithub } = fakes(pullRequestNode({ state: 'MERGED' }), onBoth);
 
-    await syncPullRequest({ github, core, context }, { number: 1, project: { github: projectGithub, number: 69, teams: '{"domain/crm-after-sales":43}' } });
+    await syncPullRequest(
+        { github, core, context },
+        { number: 1, project: { github: projectGithub, number: 69, teams: '{"domain/crm-after-sales":43}' } },
+    );
 
     assert.deepEqual(labels, []);
     assert.deepEqual(writes, ['archive ITEM_MAIN']);
@@ -188,13 +251,28 @@ test('syncPullRequest archives a closed pull request on the main project only an
 
 test('syncPullRequest strips the label from an internal pull request and archives it on the main project only', async () => {
     const onBoth = [
-        { id: 'ITEM_MAIN', isArchived: false, project: { number: 69, owner: { login: 'shopware' } }, fieldValues: { nodes: [] } },
-        { id: 'ITEM_TEAM', isArchived: false, project: { number: 43, owner: { login: 'shopware' } }, fieldValues: { nodes: [] } },
+        {
+            id: 'ITEM_MAIN',
+            isArchived: false,
+            project: { number: 69, owner: { login: 'shopware' } },
+            fieldValues: { nodes: [] },
+        },
+        {
+            id: 'ITEM_TEAM',
+            isArchived: false,
+            project: { number: 43, owner: { login: 'shopware' } },
+            fieldValues: { nodes: [] },
+        },
     ];
-    const internal = pullRequestNode({ labels: { nodes: [{ name: 'domain/crm-after-sales' }, { name: 'waiting-on/shopware' }] } });
+    const internal = pullRequestNode({
+        labels: { nodes: [{ name: 'domain/crm-after-sales' }, { name: 'waiting-on/shopware' }] },
+    });
     const { labels, removed, writes, core, github, projectGithub } = fakes(internal, onBoth);
 
-    await syncPullRequest({ github, core, context }, { number: 1, project: { github: projectGithub, number: 69, teams: '{"domain/crm-after-sales":43}' } });
+    await syncPullRequest(
+        { github, core, context },
+        { number: 1, project: { github: projectGithub, number: 69, teams: '{"domain/crm-after-sales":43}' } },
+    );
 
     assert.deepEqual(labels, []);
     assert.deepEqual(removed, ['waiting-on/shopware']);
@@ -204,7 +282,10 @@ test('syncPullRequest strips the label from an internal pull request and archive
 test('syncPullRequest writes nothing in a dry run', async () => {
     const { labels, writes, core, github, projectGithub } = fakes(pullRequestNode(), []);
 
-    await syncPullRequest({ github, core, context }, { number: 1, dryRun: true, project: { github: projectGithub, number: 69 } });
+    await syncPullRequest(
+        { github, core, context },
+        { number: 1, dryRun: true, project: { github: projectGithub, number: 69 } },
+    );
 
     assert.deepEqual(labels, []);
     assert.deepEqual(writes, []);

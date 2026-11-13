@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 use Symfony\Component\Clock\NativeClock;
@@ -162,6 +163,25 @@ class SalesChannelDomainUtilTest extends TestCase
         $result = $util->handleRequest($request);
         static::assertSame('http://localhost/product/123', $result->storefrontUrl);
         static::assertSame(Response::HTTP_OK, $result->responseCode);
+    }
+
+    public function testHandleRequestMarksRequestsAndRedirectsAsNoStore(): void
+    {
+        $handledRequests = [];
+        $this->kernel->method('handle')->willReturnCallback(static function (Request $request) use (&$handledRequests): Response {
+            $handledRequests[] = $request;
+
+            return \count($handledRequests) === 1
+                ? new RedirectResponse('http://localhost/product/123', Response::HTTP_MOVED_PERMANENTLY)
+                : new Response();
+        });
+
+        $this->getUtil()->handleRequest(Request::create('http://localhost/'));
+
+        static::assertCount(2, $handledRequests);
+        foreach ($handledRequests as $request) {
+            static::assertTrue($request->attributes->getBoolean(PlatformRequest::ATTRIBUTE_NO_STORE));
+        }
     }
 
     public function testHandleRequestsDetectsLoop(): void

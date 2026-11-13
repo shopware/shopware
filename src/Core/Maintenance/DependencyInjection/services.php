@@ -32,6 +32,7 @@ use Shopware\Core\Maintenance\System\Command\SystemSetupCommand;
 use Shopware\Core\Maintenance\System\Command\SystemUpdateFinishCommand;
 use Shopware\Core\Maintenance\System\Command\SystemUpdatePrepareCommand;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
+use Shopware\Core\Maintenance\System\Service\DemoProductsCreator;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
 use Shopware\Core\Maintenance\User\Command\UserChangePasswordCommand;
@@ -51,6 +52,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services = $containerConfigurator->services();
 
     $services->set(DatabaseConnectionFactory::class);
+
+    $services->set(DemoProductsCreator::class)
+        ->args([
+            param('kernel.project_dir'),
+            service(SystemConfigService::class),
+        ])
+        ->tag('kernel.event_subscriber');
 
     $services->set(SystemInstallCommand::class)
         ->args([

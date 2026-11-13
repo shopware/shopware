@@ -360,8 +360,8 @@ The property is unused and will be removed in 6.8.
 Order deliveries have a new `position` field with the order of the cart deliveries when the order was placed, starting at 1.
 Extensions that build several cart deliveries in a deliberate order, for example by priority or release date, no longer need to persist that order themselves.
 Sort order deliveries by `position` to show them in that order; the primary delivery is still the one with the highest shipping costs.
-Recalculating an order keeps the stored positions, and deliveries added by the recalculation, such as shipping discounts, are numbered after the highest stored position.
-Deliveries of orders placed before this release have position `0`.
+Recalculating an order numbers the deliveries from 1 again in the order of their stored positions, like line items, with deliveries added by the recalculation, such as shipping discounts, last.
+Deliveries of orders placed before this release have position `0` until the order is recalculated.
 
 ### "Assign status" flow action picks the delivery and transaction of the flow
 
@@ -511,7 +511,7 @@ Clients can compare these hashes to find out which cookies were added or changed
 ### Order deliveries have a `position` field
 
 Order deliveries in the Admin API and Store API have a new integer `position` field with the order of the deliveries in the cart the order was placed from, starting at 1.
-Deliveries of orders placed before this release have position `0`.
+Deliveries of orders placed before this release have position `0` until the order is recalculated.
 
 ## Features
 

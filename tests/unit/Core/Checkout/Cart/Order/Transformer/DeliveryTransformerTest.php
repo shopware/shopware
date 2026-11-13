@@ -178,7 +178,7 @@ class DeliveryTransformerTest extends TestCase
      * @param list<int> $expectedPositions
      */
     #[DataProvider('storedPositionProvider')]
-    public function testTransformCollectionKeepsStoredPositionsAndNumbersNewDeliveriesAfterTheHighest(array $storedPositions, array $expectedPositions): void
+    public function testTransformCollectionRenumbersDeliveriesInTheOrderOfTheirStoredPositionsWithNewOnesLast(array $storedPositions, array $expectedPositions): void
     {
         $deliveries = new DeliveryCollection();
         foreach ($storedPositions as $storedPosition) {
@@ -197,8 +197,8 @@ class DeliveryTransformerTest extends TestCase
     public static function storedPositionProvider(): \Generator
     {
         yield 'stored positions in any order' => [[2, 1, null], [2, 1, 3]];
-        yield 'gap left by a deleted delivery' => [[1, 3, null], [1, 3, 4]];
-        yield 'order placed before positions were stored' => [[0, 0, null], [0, 0, 1]];
+        yield 'gap left by a deleted delivery' => [[3, 1, null], [2, 1, 3]];
+        yield 'order placed before positions were stored' => [[0, 0, null], [1, 2, 3]];
         yield 'new delivery before the stored ones' => [[null, 1, 2], [3, 1, 2]];
     }
 

@@ -56,9 +56,12 @@ class DeliveryTransformer
             $output[] = self::transform($delivery, $lineItems, $stateId, $context, $addresses);
         }
 
-        $nextPosition = max([0, ...array_column($output, 'position')]) + 1;
+        $storedPositions = array_map(static fn (array $deliveryData): int => $deliveryData['position'] ?? \PHP_INT_MAX, $output);
+        asort($storedPositions);
+        $ranks = array_flip(array_keys($storedPositions));
+
         foreach (array_keys($output) as $index) {
-            $output[$index]['position'] ??= $nextPosition++;
+            $output[$index]['position'] = $ranks[$index] + 1;
         }
 
         return $output;

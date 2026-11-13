@@ -9,10 +9,13 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver as CoreMaintenanceModeResolver;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\System\SalesChannel\Subscriber\SalesChannelMaintenancePasswordAccessSubscriber;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
 /**
  * @internal
@@ -100,6 +103,36 @@ class MaintenanceModeResolverTest extends TestCase
         $resolver = new MaintenanceModeResolver($this->getRequestStack($request), new CoreMaintenanceModeResolver(new EventDispatcher()));
 
         static::assertFalse($resolver->isMaintenanceRequest($request));
+    }
+
+    public function testValidMaintenancePasswordSessionGrantAllowsAccess(): void
+    {
+        $request = self::getRequest(false, false, false, false, true, true);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, 'sales-channel-id');
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_PASSWORD, 'stored-password-hash');
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_PASSWORD_GENERATION, 'generation-id');
+        $session = new Session(new MockArraySessionStorage());
+        $session->set('maintenance_access_sales-channel-id', 'stored-password-hash:generation-id');
+        $request->setSession($session);
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addSubscriber(new SalesChannelMaintenancePasswordAccessSubscriber());
+
+        $resolver = new MaintenanceModeResolver($this->getRequestStack($request), new CoreMaintenanceModeResolver($eventDispatcher));
+
+        static::assertFalse($resolver->isMaintenanceRequest($request));
+    }
+
+    public function testCurrentMaintenanceRequestTakesPrecedenceOverAnUnrelatedRequestStackMainRequest(): void
+    {
+        $staleMainRequest = self::getRequest(false, false, false, false, true, false);
+        $maintenanceRequest = self::getRequest(false, false, false, true, true, true);
+        $resolver = new MaintenanceModeResolver(
+            $this->getRequestStack($staleMainRequest),
+            new CoreMaintenanceModeResolver(new EventDispatcher())
+        );
+
+        static::assertTrue($resolver->isMaintenanceRequest($maintenanceRequest));
+        static::assertFalse($resolver->shouldRedirectToShop($maintenanceRequest));
     }
 
     /**

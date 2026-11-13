@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheAttribute;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheHeadersService;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\Adapter\Cache\Http\CachePolicyProviderFactory;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\Http\DefaultPolicies;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
+use Shopware\Core\Framework\Adapter\Cache\SalesChannelMaintenanceCacheTag;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
@@ -76,6 +78,7 @@ class CacheResponseSubscriberTest extends TestCase
             '6',
             $this->cacheHeadersService,
             $this->createCachePolicyProvider(),
+            static::createStub(CacheTagCollector::class),
         );
     }
 
@@ -94,6 +97,35 @@ class CacheResponseSubscriberTest extends TestCase
         ];
 
         static::assertSame($expected, CacheResponseSubscriber::getSubscribedEvents());
+    }
+
+    public function testAddsMaintenanceInvalidationTagToSalesChannelResponses(): void
+    {
+        $this->cartService->expects($this->never())->method('getCart');
+        $this->cacheHeadersService->expects($this->never())->method('applyCacheHeaders');
+
+        $context = Generator::generateSalesChannelContext();
+        $tagCollector = $this->createMock(CacheTagCollector::class);
+        $tagCollector->expects($this->once())
+            ->method('addTag')
+            ->with(SalesChannelMaintenanceCacheTag::build($context->getSalesChannelId()));
+
+        $subscriber = new CacheResponseSubscriber(
+            static::createStub(CartService::class),
+            100,
+            false,
+            new MaintenanceModeResolver($this->eventDispatcher),
+            null,
+            null,
+            static::createStub(CacheHeadersService::class),
+            $this->createCachePolicyProvider(),
+            $tagCollector,
+        );
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+
+        $subscriber->setResponseCache($this->createResponseEvent($request, new Response()));
     }
 
     public function testNoHeadersAreSetIfCacheIsDisabled(): void
@@ -392,14 +424,42 @@ class CacheResponseSubscriberTest extends TestCase
         $salesChannelRequest->cookies->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, 'foo');
         $salesChannelRequest->cookies->set(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE, 'logged-in');
 
-        $maintenanceRequest = clone $salesChannelRequest;
-        $maintenanceRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE, true);
-        $maintenanceRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST, \json_encode([self::IP, \JSON_THROW_ON_ERROR]));
-        $maintenanceRequest->server->set('REMOTE_ADDR', self::IP);
-
         yield 'no sales channel context' => [new Request()];
-        yield 'maintenance request' => [$maintenanceRequest];
         yield 'not found response' => [$salesChannelRequest, new Response('', Response::HTTP_NOT_FOUND)];
+    }
+
+    public function testClientAllowedDuringMaintenanceBypassesTheHttpCache(): void
+    {
+        // the cache hash would replace the not-cacheable cookie
+        $this->cartService->expects($this->never())->method('getCart');
+        $this->cacheHeadersService->expects($this->never())->method('applyCacheHash');
+
+        $request = $this->createAllowedMaintenanceRequest();
+        $response = new Response();
+
+        $this->subscriber->setResponseCache($this->createResponseEvent($request, $response));
+
+        $cookies = $response->headers->getCookies();
+        static::assertCount(1, $cookies);
+        static::assertSame(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $cookies[0]->getName());
+        static::assertSame(HttpCacheCookieEvent::NOT_CACHEABLE, $cookies[0]->getValue());
+        static::assertSame(HttpCacheCookieEvent::NOT_CACHEABLE, $response->headers->get(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE));
+    }
+
+    public function testClientAllowedDuringMaintenanceKeepsAnExistingNotCacheableCookie(): void
+    {
+        // the cache hash would replace the not-cacheable cookie
+        $this->cartService->expects($this->never())->method('getCart');
+        $this->cacheHeadersService->expects($this->never())->method('applyCacheHash');
+
+        $request = $this->createAllowedMaintenanceRequest();
+        $request->cookies->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, HttpCacheCookieEvent::NOT_CACHEABLE);
+        $response = new Response();
+
+        $this->subscriber->setResponseCache($this->createResponseEvent($request, $response));
+
+        static::assertCount(0, $response->headers->getCookies());
+        static::assertSame(HttpCacheCookieEvent::NOT_CACHEABLE, $response->headers->get(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE));
     }
 
     #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_REWORK'])]
@@ -535,6 +595,7 @@ class CacheResponseSubscriberTest extends TestCase
             $subscriberConfig['staleIfError'] ?? null,
             $this->cacheHeadersService,
             $policyProvider,
+            static::createStub(CacheTagCollector::class),
         );
 
         $request = new Request();
@@ -905,6 +966,7 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             $cacheHeadersService,
             $policyProvider,
+            static::createStub(CacheTagCollector::class),
         );
 
         $request = new Request();
@@ -1096,6 +1158,7 @@ class CacheResponseSubscriberTest extends TestCase
                 ['cacheable' => ['headers' => $headers], 'uncacheable' => ['headers' => ['cache_control' => ['private' => true]]]],
                 ['storefront' => ['cacheable' => 'cacheable', 'uncacheable' => 'uncacheable']],
             ),
+            static::createStub(CacheTagCollector::class),
         );
 
         $request = new Request();
@@ -1147,6 +1210,19 @@ class CacheResponseSubscriberTest extends TestCase
             null,
             static::createStub(CacheHeadersService::class),
             $this->createCachePolicyProvider(),
+            static::createStub(CacheTagCollector::class),
         );
+    }
+
+    private function createAllowedMaintenanceRequest(): Request
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        $request = new Request([], [], [PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $salesChannelContext]);
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE, true);
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST, \json_encode([self::IP], \JSON_THROW_ON_ERROR));
+        $request->server->set('REMOTE_ADDR', self::IP);
+
+        return $request;
     }
 }

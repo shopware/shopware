@@ -775,6 +775,41 @@
         />
         {% endblock %}
 
+        {% block sw_sales_channel_detail_base_maintenance_password %}
+        <div
+            v-if="maintenancePassword"
+            class="sw-sales-channel-detail-base__maintenance-password"
+        >
+            {% block sw_sales_channel_detail_base_maintenance_password_toggle %}
+            <mt-checkbox
+                :checked="maintenancePassword.isEnabled"
+                name="sw-field--maintenancePassword-isEnabled"
+                :label="$t('sw-sales-channel.detail.maintenancePasswordEnabled')"
+                :disabled="!acl.can('sales_channel.editor') || undefined"
+                @update:checked="onToggleMaintenancePassword"
+            />
+            {% endblock %}
+
+            {% block sw_sales_channel_detail_base_maintenance_password_field %}
+            <mt-password-field
+                v-if="maintenancePassword.isEnabled"
+                :model-value="maintenancePassword.value"
+                name="sw-field--maintenancePassword-value"
+                :label="$t('sw-sales-channel.detail.maintenancePassword')"
+                :placeholder="maintenancePassword.isSet
+                    ? $t('sw-sales-channel.detail.maintenancePasswordPlaceholderKeep')
+                    : $t('sw-sales-channel.detail.maintenancePasswordPlaceholder')"
+                :help-text="$t('sw-sales-channel.detail.maintenancePasswordHelpText')"
+                :error="maintenancePassword.error"
+                :disabled="!acl.can('sales_channel.editor') || undefined"
+                :required="!maintenancePassword.isSet"
+                autocomplete="new-password"
+                @update:model-value="onChangeMaintenancePassword"
+            />
+            {% endblock %}
+        </div>
+        {% endblock %}
+
         {% block sw_sales_channel_detail_base_settings_link %}
         <div class="sw-sales-channel-detail-base__settings-link">
             <router-link

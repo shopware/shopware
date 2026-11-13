@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Routing\Struct\DomainCollection;
 
 /**
- * @phpstan-type Domain = array{url: string, id: string, salesChannelId: string, typeId: string, snippetSetId: string, currencyId: string, languageId: string, themeId: string, maintenance: string, maintenanceIpAllowlist: string, locale: string, themeName: string, parentThemeName: string}
+ * @phpstan-type Domain = array{url: string, id: string, salesChannelId: string, typeId: string, snippetSetId: string, currencyId: string, languageId: string, themeId: string, maintenance: string, maintenanceIpAllowlist: string, maintenancePassword?: string|null, maintenancePasswordGeneration?: string|null, locale: string, themeName: string, parentThemeName: string}
  */
 #[Package('discovery')]
 abstract class AbstractDomainLoader

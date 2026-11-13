@@ -38,6 +38,20 @@ class SalesChannelExceptionTest extends TestCase
      */
     public static function exceptionDataProvider(): iterable
     {
+        yield SalesChannelException::MAINTENANCE_PASSWORD_INVALID_LENGTH => [
+            'exception' => SalesChannelException::maintenancePasswordInvalidLength(),
+            'statusCode' => Response::HTTP_BAD_REQUEST,
+            'errorCode' => SalesChannelException::MAINTENANCE_PASSWORD_INVALID_LENGTH,
+            'message' => 'Maintenance password must be empty to disable it or contain between 12 and 4096 characters.',
+        ];
+
+        yield SalesChannelException::MAINTENANCE_PASSWORD_INVALID_SOURCE => [
+            'exception' => SalesChannelException::maintenancePasswordInvalidSource(),
+            'statusCode' => Response::HTTP_FORBIDDEN,
+            'errorCode' => SalesChannelException::MAINTENANCE_PASSWORD_INVALID_SOURCE,
+            'message' => 'Only Admin API requests may change a sales channel maintenance password.',
+        ];
+
         yield SalesChannelException::CRITERIA_TOO_MANY_NESTED_CRITERIA => [
             'exception' => SalesChannelException::tooManyNestedCriteria(100),
             'statusCode' => Response::HTTP_BAD_REQUEST,

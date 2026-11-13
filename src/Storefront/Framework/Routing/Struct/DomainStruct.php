@@ -21,6 +21,8 @@ readonly class DomainStruct
         public string $locale,
         public ?string $themeName,
         public ?string $parentThemeName,
+        public ?string $maintenancePassword = null,
+        public ?string $maintenancePasswordGeneration = null,
     ) {
     }
 
@@ -43,6 +45,8 @@ readonly class DomainStruct
             locale: (string) $row['locale'],
             themeName: isset($row['themeName']) ? (string) $row['themeName'] : null,
             parentThemeName: isset($row['parentThemeName']) ? (string) $row['parentThemeName'] : null,
+            maintenancePassword: isset($row['maintenancePassword']) ? (string) $row['maintenancePassword'] : null,
+            maintenancePasswordGeneration: isset($row['maintenancePasswordGeneration']) ? (string) $row['maintenancePasswordGeneration'] : null,
         );
     }
 }

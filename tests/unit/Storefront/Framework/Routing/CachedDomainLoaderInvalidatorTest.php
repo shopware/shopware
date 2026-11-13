@@ -5,7 +5,9 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Routing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Adapter\Cache\SalesChannelMaintenanceCacheTag;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
@@ -34,23 +36,29 @@ class CachedDomainLoaderInvalidatorTest extends TestCase
     public function testInvalidateIsCalledForSalesChannelWrittenEvent(): void
     {
         $context = Context::createDefaultContext();
-
         $event = new EntityWrittenContainerEvent(
             $context,
-            new NestedEventCollection([new EntityWrittenEvent(SalesChannelDefinition::ENTITY_NAME, [], $context)]),
+            new NestedEventCollection([
+                new EntityWrittenEvent(
+                    SalesChannelDefinition::ENTITY_NAME,
+                    [new EntityWriteResult('sales-channel-id', [], SalesChannelDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_UPDATE)],
+                    $context
+                ),
+            ]),
             []
         );
 
         $mockedInvalidator = new MockedCacheInvalidator();
-
-        $invalidationSubscriber = new CachedDomainLoaderInvalidator(
-            $mockedInvalidator
-        );
+        $invalidationSubscriber = new CachedDomainLoaderInvalidator($mockedInvalidator);
 
         $invalidationSubscriber->invalidate($event);
 
         static::assertSame(
-            [CachedDomainLoader::CACHE_KEY, CachedDomainLoader::DOMAIN_COLLECTION_CACHE_KEY],
+            [
+                CachedDomainLoader::CACHE_KEY,
+                CachedDomainLoader::DOMAIN_COLLECTION_CACHE_KEY,
+                SalesChannelMaintenanceCacheTag::build('sales-channel-id'),
+            ],
             $mockedInvalidator->getForceInvalidatedTags()
         );
     }
@@ -66,10 +74,7 @@ class CachedDomainLoaderInvalidatorTest extends TestCase
         );
 
         $mockedInvalidator = new MockedCacheInvalidator();
-
-        $invalidationSubscriber = new CachedDomainLoaderInvalidator(
-            $mockedInvalidator
-        );
+        $invalidationSubscriber = new CachedDomainLoaderInvalidator($mockedInvalidator);
 
         $invalidationSubscriber->invalidate($event);
 
@@ -90,10 +95,7 @@ class CachedDomainLoaderInvalidatorTest extends TestCase
         );
 
         $mockedInvalidator = new MockedCacheInvalidator();
-
-        $invalidationSubscriber = new CachedDomainLoaderInvalidator(
-            $mockedInvalidator
-        );
+        $invalidationSubscriber = new CachedDomainLoaderInvalidator($mockedInvalidator);
 
         $invalidationSubscriber->invalidate($event);
 

@@ -122,6 +122,10 @@ class SalesChannelEntity extends Entity
      */
     protected ?array $maintenanceIpAllowlist = null;
 
+    protected ?string $maintenancePassword = null;
+
+    protected ?string $maintenancePasswordGeneration = null;
+
     /**
      * @deprecated tag:v6.8.0 - Will be removed, use $maintenanceIpAllowlist instead.
      *

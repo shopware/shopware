@@ -59,6 +59,7 @@ use Shopware\Core\Content\Sitemap\SalesChannel\SitemapFileRoute;
 use Shopware\Core\Framework\Adapter\Translation\ConstraintViolationTranslator;
 use Shopware\Core\Framework\App\Api\AppJWTGenerateRoute;
 use Shopware\Core\Framework\Gateway\Context\SalesChannel\ContextGatewayRoute;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Script\Api\ScriptResponseEncoder;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -310,6 +311,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SystemConfigService::class),
             service(MaintenancePageLoader::class),
             service(MaintenanceModeResolver::class),
+            service(RateLimiter::class),
         ])
         ->call('setContainer', [service('service_container')]);
 

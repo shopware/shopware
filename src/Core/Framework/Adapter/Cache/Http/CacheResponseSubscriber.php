@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Adapter\Cache\Http;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
+use Shopware\Core\Framework\Adapter\Cache\SalesChannelMaintenanceCacheTag;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -61,6 +64,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         private readonly ?string $staleIfError,
         private readonly CacheHeadersService $cacheHeadersService,
         private readonly CachePolicyProvider $policyProvider,
+        private readonly CacheTagCollector $cacheTagCollector,
     ) {
     }
 
@@ -87,6 +91,9 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             return;
         }
 
+        // toggling the maintenance mode or its password has to invalidate all cached pages of the sales channel
+        $this->cacheTagCollector->addTag(SalesChannelMaintenanceCacheTag::build($context->getSalesChannelId()));
+
         $this->cacheHeadersService->applyCacheHeaders($context, $response);
 
         $area = $this->isStoreApi($request) ? self::POLICY_AREA_STORE_API : self::POLICY_AREA_STOREFRONT;
@@ -101,6 +108,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         }
 
         if (!$this->maintenanceResolver->shouldBeCached($request)) {
+            $this->disableHttpCacheForClient($request, $response);
             $this->noCache($request, $response, $area);
 
             return;
@@ -401,6 +409,25 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             (array) $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []),
             true
         );
+    }
+
+    /**
+     * Clients allowed to bypass the maintenance mode (IP allowlist or maintenance password) see the shop.
+     * Their responses must neither be stored in nor served from the shared HTTP cache,
+     * otherwise the shop would be delivered to every other visitor.
+     */
+    private function disableHttpCacheForClient(Request $request, Response $response): void
+    {
+        $response->headers->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, HttpCacheCookieEvent::NOT_CACHEABLE);
+
+        if ($request->cookies->get(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE) === HttpCacheCookieEvent::NOT_CACHEABLE) {
+            return;
+        }
+
+        $cookie = Cookie::create(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, HttpCacheCookieEvent::NOT_CACHEABLE);
+        $cookie->setSecureDefault($request->isSecure());
+
+        $response->headers->setCookie($cookie);
     }
 
     private function isNoStoreRoute(Request $request): bool

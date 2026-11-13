@@ -24,6 +24,9 @@ const REQUIRED_BASE_FIELDS = [
 
 const REQUIRED_PRODUCT_EXPORT_FIELDS = ['name'];
 
+const MIN_MAINTENANCE_PASSWORD_LENGTH = 12;
+const MAX_MAINTENANCE_PASSWORD_LENGTH = 4096;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -69,6 +72,7 @@ export default {
             },
             /** @deprecated tag:v6.8.0 - Will be removed */
             agenticCommerceExportConfig: [],
+            maintenancePassword: this.getDefaultMaintenancePassword(),
         };
     },
 
@@ -353,6 +357,7 @@ export default {
                 .get(this.$route.params.id.toLowerCase(), Context.api, this.getLoadSalesChannelCriteria())
                 .then((entity) => {
                     this.salesChannel = entity;
+                    this.loadMaintenancePasswordStatus();
 
                     if (!this.salesChannel.maintenanceIpAllowlist) {
                         this.salesChannel.maintenanceIpAllowlist = [];
@@ -536,6 +541,10 @@ export default {
                 return;
             }
 
+            if (!this.validateMaintenancePassword()) {
+                return;
+            }
+
             if (!this.validateAgenticCommerceExportConfig()) {
                 this.isLoading = false;
                 return;
@@ -553,7 +562,119 @@ export default {
                 return;
             }
 
+            const maintenancePasswordSaveSuccessful = await this.saveMaintenancePassword();
+
+            if (!maintenancePasswordSaveSuccessful) {
+                return;
+            }
+
             this.loadEntityData();
+        },
+
+        getDefaultMaintenancePassword() {
+            return {
+                isEnabled: false,
+                isSet: false,
+                value: '',
+                error: null,
+            };
+        },
+
+        getMaintenancePasswordUrl() {
+            return `/_action/sales-channel/${this.salesChannel.id}/maintenance-password`;
+        },
+
+        async loadMaintenancePasswordStatus() {
+            this.maintenancePassword = this.getDefaultMaintenancePassword();
+
+            if (!this.salesChannel?.id) {
+                return;
+            }
+
+            try {
+                const { data } = await this.salesChannelRepository.httpClient.get(this.getMaintenancePasswordUrl(), {
+                    headers: this.salesChannelRepository.buildHeaders(),
+                });
+
+                this.maintenancePassword.isSet = data?.isSet === true;
+                this.maintenancePassword.isEnabled = this.maintenancePassword.isSet;
+            } catch (_error) {
+                this.createNotificationError({
+                    message: this.$t('sw-sales-channel.detail.maintenancePasswordLoadError'),
+                });
+            }
+        },
+
+        validateMaintenancePassword() {
+            const { isEnabled, isSet, value } = this.maintenancePassword;
+            this.maintenancePassword.error = null;
+
+            if (!isEnabled) {
+                return true;
+            }
+
+            // an empty field keeps an already stored password
+            if (value === '' && isSet) {
+                return true;
+            }
+
+            if (value === '') {
+                this.maintenancePassword.error = new ShopwareError({ code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3' });
+            } else {
+                const passwordLength = [...value].length;
+
+                if (passwordLength >= MIN_MAINTENANCE_PASSWORD_LENGTH && passwordLength <= MAX_MAINTENANCE_PASSWORD_LENGTH) {
+                    return true;
+                }
+
+                this.maintenancePassword.error = new ShopwareError({
+                    code: 'SYSTEM__MAINTENANCE_PASSWORD_INVALID_LENGTH',
+                    detail: this.$t('sw-sales-channel.detail.maintenancePasswordMinLength'),
+                });
+            }
+
+            this.createNotificationError({
+                message: this.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
+            });
+
+            return false;
+        },
+
+        async saveMaintenancePassword() {
+            const { isEnabled, isSet, value } = this.maintenancePassword;
+            let password = null;
+
+            if (isEnabled && value !== '') {
+                password = value;
+            } else if (!isEnabled && isSet) {
+                // an empty password removes the password protection
+                password = '';
+            }
+
+            if (password === null || !this.salesChannel?.id) {
+                return true;
+            }
+
+            try {
+                await this.salesChannelRepository.httpClient.post(
+                    this.getMaintenancePasswordUrl(),
+                    { password },
+                    { headers: this.salesChannelRepository.buildHeaders() },
+                );
+
+                return true;
+            } catch (error) {
+                const detail = error?.response?.data?.errors?.[0]?.detail;
+
+                this.createNotificationError({
+                    message:
+                        typeof detail === 'string' && detail.length > 0
+                            ? detail
+                            : this.$t('sw-sales-channel.detail.maintenancePasswordSaveError'),
+                });
+
+                return false;
+            }
         },
 
         /** @deprecated tag:v6.8.0 - Will be removed */

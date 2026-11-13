@@ -78,6 +78,43 @@ class MaintenanceControllerTest extends TestCase
         static::assertSame(503, $response->getStatusCode());
     }
 
+    public function testMaintenancePasswordProtectsPageUntilValidPasswordIsSubmitted(): void
+    {
+        $this->setMaintenanceMode(password: 'correct-horse-battery');
+
+        $browser = KernelLifecycleManager::createBrowser($this->getKernel());
+        $browser->followRedirects();
+        $browser->request('GET', EnvironmentHelper::getVariable('APP_URL') . '/maintenance');
+        $response = $browser->getResponse();
+
+        static::assertSame(503, $response->getStatusCode());
+        static::assertStringContainsString('maintenance/password', (string) $response->getContent());
+        static::assertStringNotContainsString('initial', (string) $response->getContent());
+
+        $browser->request('POST', EnvironmentHelper::getVariable('APP_URL') . '/maintenance/password', [
+            'password' => 'correct-horse-battery',
+        ]);
+
+        static::assertSame(200, $browser->getResponse()->getStatusCode());
+        static::assertStringNotContainsString('maintenance/password', (string) $browser->getResponse()->getContent());
+    }
+
+    public function testIncorrectMaintenancePasswordDoesNotGrantAccess(): void
+    {
+        $this->setMaintenanceMode(password: 'correct-horse-battery');
+
+        $browser = KernelLifecycleManager::createBrowser($this->getKernel());
+        $browser->followRedirects();
+        $browser->request('GET', EnvironmentHelper::getVariable('APP_URL') . '/maintenance');
+        $browser->request('POST', EnvironmentHelper::getVariable('APP_URL') . '/maintenance/password', [
+            'password' => 'incorrect-password',
+        ]);
+
+        static::assertSame(503, $browser->getResponse()->getStatusCode());
+        static::assertStringEndsWith('/maintenance/password', $browser->getRequest()->getUri());
+        static::assertStringContainsString('maintenance/password', (string) $browser->getResponse()->getContent());
+    }
+
     private function createData(): void
     {
         $page = [
@@ -124,7 +161,7 @@ class MaintenanceControllerTest extends TestCase
     /**
      * @param list<string>|null $allowlist
      */
-    private function setMaintenanceMode(?array $allowlist = null): void
+    private function setMaintenanceMode(?array $allowlist = null, ?string $password = null): void
     {
         /** @var EntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
@@ -146,6 +183,10 @@ class MaintenanceControllerTest extends TestCase
 
         if ($allowlist !== null) {
             $update['maintenanceIpAllowlist'] = $allowlist;
+        }
+
+        if ($password !== null) {
+            $update['maintenancePassword'] = $password;
         }
 
         $salesChannelRepository->update([$update], Context::createDefaultContext());

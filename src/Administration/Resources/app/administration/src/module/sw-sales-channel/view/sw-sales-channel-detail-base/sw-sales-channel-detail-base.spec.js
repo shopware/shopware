@@ -1173,6 +1173,27 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
+    it('should clear the typed maintenance password when the password protection is disabled', async () => {
+        const wrapper = await createWrapper();
+        const maintenancePassword = { isEnabled: true, isSet: false, value: 'a-valid-password', error: { code: 'x' } };
+        await wrapper.setProps({ maintenancePassword });
+
+        wrapper.vm.onToggleMaintenancePassword(false);
+
+        expect(maintenancePassword).toEqual({ isEnabled: false, isSet: false, value: '', error: null });
+    });
+
+    it('should reset the maintenance password error when the password changes', async () => {
+        const wrapper = await createWrapper();
+        const maintenancePassword = { isEnabled: true, isSet: false, value: '', error: { code: 'x' } };
+        await wrapper.setProps({ maintenancePassword });
+
+        wrapper.vm.onChangeMaintenancePassword('a-valid-password');
+
+        expect(maintenancePassword.value).toBe('a-valid-password');
+        expect(maintenancePassword.error).toBeNull();
+    });
+
     it.each([
         ['currencies', 'name'],
         ['shippingMethods', 'name'],

@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Framework\Demodata\Generator;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\PDO\Exception as DriverException;
+use Doctrine\DBAL\Exception\DeadlockException;
 use Faker\Factory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -273,6 +275,20 @@ class ProductGeneratorTest extends TestCase
         $this->generateProducts(41, statesUpdater: $statesUpdater);
     }
 
+    public function testRetriesTheBatchUpdatesAfterADeadlock(): void
+    {
+        $inheritanceUpdater = $this->createMock(InheritanceUpdater::class);
+        $inheritanceUpdater->expects($this->exactly(3))->method('update');
+
+        $products = $this->generateProducts(
+            41,
+            inheritanceUpdater: $inheritanceUpdater,
+            firstTransactionError: new DeadlockException(new DriverException('Deadlock detected'), null),
+        );
+
+        static::assertCount(41, $products);
+    }
+
     public function testAssignsProductsToTheLeastUsedLeafCategories(): void
     {
         $crowdedCategoryId = Uuid::randomHex();
@@ -349,6 +365,7 @@ class ProductGeneratorTest extends TestCase
         ?InheritanceUpdater $inheritanceUpdater = null,
         ?StatesUpdater $statesUpdater = null,
         ?SymfonyStyle $io = null,
+        ?\Throwable $firstTransactionError = null,
     ): array {
         $propertyGroupId = Uuid::randomHex();
         $salesChannelIds = $this->salesChannelIds;
@@ -363,7 +380,16 @@ class ProductGeneratorTest extends TestCase
         $connection->method('fetchAllKeyValue')->willReturn($categoryUsage);
         $connection->method('fetchFirstColumn')->willReturn($this->ruleIds, $this->manufacturerIds, $this->tagIds);
         $connection->method('fetchOne')->willReturn($this->instantDeliveryId);
-        $connection->method('transactional')->willReturnCallback(static fn (\Closure $callback) => $callback($connection));
+        $connection->method('transactional')->willReturnCallback(static function (\Closure $callback) use ($connection, &$firstTransactionError) {
+            if ($firstTransactionError !== null) {
+                $error = $firstTransactionError;
+                $firstTransactionError = null;
+
+                throw $error;
+            }
+
+            return $callback($connection);
+        });
 
         $taxEntity = (new TaxEntity())
             ->assign([

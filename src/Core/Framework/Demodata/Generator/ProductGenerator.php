@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -260,7 +261,7 @@ class ProductGenerator implements DemodataGeneratorInterface
             $all = [...$all, ...array_column($product['children'], 'id')];
         }
 
-        $this->connection->transactional(function () use ($all, $context): void {
+        RetryableTransaction::retryable($this->connection, function () use ($all, $context): void {
             $this->updater->update(ProductDefinition::ENTITY_NAME, $all, $context);
 
             if (!Feature::isActive('v6.8.0.0')) {

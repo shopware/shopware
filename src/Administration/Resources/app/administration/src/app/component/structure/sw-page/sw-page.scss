@@ -64,6 +64,7 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
     }
 
     .smart-bar__back-link {
+        position: relative;
         display: inline-flex;
         align-items: center;
         gap: var(--scale-size-6);
@@ -92,9 +93,17 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
         }
 
         &:focus-visible {
-            outline: var(--scale-size-2) solid var(--color-border-brand-default);
-            outline-offset: var(--scale-size-2);
+            outline: none;
+        }
+
+        &:focus-visible::before {
+            content: "";
+            position: absolute;
+            inset-block: var(--scale-size-12);
+            inset-inline: calc(var(--scale-size-6) * -1);
+            border: var(--scale-size-2) solid var(--color-border-brand-default);
             border-radius: var(--border-radius-button);
+            pointer-events: none;
         }
     }
 

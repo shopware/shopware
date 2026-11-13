@@ -4,8 +4,7 @@
  * Texts of the `axios-v1` codemod. With 6.8 the Administration HTTP client sends direct requests with axios v1 instead
  * of axios 0.x. axios v1 deprecates `CancelToken`, `useAxiosV1: false` keeps a request on the axios 0.x client that a
  * later major removes, and the version-specific fields of the client are not part of its contract. Taken from
- * `src/core/factory/http.factory.js`, `src/core/factory/http-client.types.ts` and
- * `src/core/service/api/message-queue.api.service.ts`.
+ * `src/core/factory/http.factory.js` and `src/core/factory/http-client.types.ts`.
  */
 
 const CANCEL_TOKEN =
@@ -42,11 +41,4 @@ module.exports = {
     internalFieldMessage: (field) =>
         `httpClient.${field} is not part of the HttpClient contract. Use ${internalFields[field]} instead; ` +
         'the HTTP client applies interceptors and defaults to both axios clients.',
-    consume: {
-        service: 'messageQueueService',
-        method: 'consume',
-        message:
-            'messageQueueService.consume() only takes an axios 0.x CancelToken for cancellation; it still works with ' +
-            'axios v1 in 6.8. Keep the token for this call and detect cancellation with httpClient.isCancel(error).',
-    },
 };

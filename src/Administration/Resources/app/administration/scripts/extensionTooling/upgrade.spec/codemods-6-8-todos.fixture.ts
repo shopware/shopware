@@ -526,7 +526,7 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
     },
     {
         id: 'flag-gated-behaviour',
-        behaviour: 'marks the media library sorting that an override declares',
+        behaviour: 'marks an override of the media library criteria, not the sorting it sets itself',
         files: {
             'src/extension/sw-media-library/index.js': [
                 "Shopware.Component.override('sw-media-library', {",
@@ -555,8 +555,7 @@ export const TODO_CODEMOD_CASES: UpgradeCase[] = [
             ],
         },
         spots: [
-            'src/extension/sw-media-library/index.js:15',
-            'src/extension/sw-media-library/index.js:5',
+            'src/extension/sw-media-library/index.js:14',
         ],
     },
 ];

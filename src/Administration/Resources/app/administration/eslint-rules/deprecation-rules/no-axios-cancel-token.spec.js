@@ -9,7 +9,6 @@ const data = require('./no-axios-cancel-token.data');
 const CANCEL = data.cancelTokenMessage;
 const IS_CANCEL = data.isCancelMessage;
 const V0 = data.useAxiosV0Message;
-const CONSUME = data.consume.message;
 const todo = (text) => `// TODO Codemod(6.8, axios-v1): ${text}`;
 
 new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } }).run('no-axios-cancel-token', rule, {
@@ -24,7 +23,7 @@ new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } })
         },
         { name: 'ignores useAxiosV1: true', code: "httpClient.request({ url: '/foo', useAxiosV1: true });" },
         { name: 'ignores the public interceptors and defaults', code: 'httpClient.interceptors.request.use(handler);\nhttpClient.defaults.headers.common.foo = 1;' },
-        { name: 'ignores consume() without a token', code: "this.messageQueueService.consume('async');" },
+        { name: 'ignores the CancelToken argument of messageQueueService.consume(), which 6.8 keeps', code: "this.messageQueueService.consume('async', token);" },
         { name: 'ignores other imports from axios', code: "import Axios, { AxiosError } from 'axios';" },
         { name: 'ignores isCancel of other objects', code: 'utils.isCancel(error);' },
     ],
@@ -86,12 +85,6 @@ new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } })
                 'const client = this.httpClient.axiosV1;',
             ].join('\n'),
             errors: [{ message: V0 }, { message: data.internalFieldMessage('interceptorsV0') }, { message: data.internalFieldMessage('axiosV1') }],
-        },
-        {
-            name: 'marks the token argument of messageQueueService.consume()',
-            code: "Shopware.Service('messageQueueService').consume('async', token);",
-            output: [todo(CONSUME), "Shopware.Service('messageQueueService').consume('async', token);"].join('\n'),
-            errors: [{ message: CONSUME }],
         },
     ],
 });

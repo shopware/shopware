@@ -4,7 +4,7 @@
  * Upgrade codemod `axios-v1`: 6.8 sends direct requests of the Administration HTTP client with axios v1. The rule marks
  * `CancelToken` (on any object, destructured or imported), `cancelToken` request options, `isCancel`/`Cancel` taken
  * from axios, `useAxiosV1: false`, the version-specific client fields `axiosV0`, `axiosV1`, `interceptorsV0`,
- * `interceptorsV1`, `defaultsV0`, `defaultsV1` and the token argument of `messageQueueService.consume()`.
+ * `interceptorsV1`, `defaultsV0` and `defaultsV1`.
  * The texts are in `no-axios-cancel-token.data.js`.
  */
 
@@ -76,17 +76,6 @@ module.exports = createTodoRule({
                 data.axiosObjects.includes(callee.object.name)
             ) {
                 api.todo(node, data.isCancelMessage);
-            }
-
-            const call = api.serviceCall(node);
-
-            if (
-                call &&
-                call.service === data.consume.service &&
-                call.method === data.consume.method &&
-                node.arguments.length > 1
-            ) {
-                api.todo(node, data.consume.message);
             }
         },
     }),

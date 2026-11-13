@@ -39,6 +39,7 @@ Stored properties without defaults remain optional, and additional dynamic or su
 Overrides such as `ArrayStruct::getVars()` retain their own return types.
 The address-manager controller uses `array_merge()` because PHPStan 2.3.5 drops unknown additional keys when unpacking these shapes.
 Object-valued fields retain their declared types; calling a setter does not narrow a `Page` property to a particular page subclass.
+`AddressEditorModalStruct::$page` temporarily uses PHPDoc to retain `AddressListingPage|null` until the announced native type narrowing in 6.8.
 TwigStan keeps unused loop-parent snapshots outside the context array to avoid exponential context growth.
 The analysis visitor widens `nestingLevel` to `int` at the recursive line-item include so analysis can converge without losing the other context types.
 The hint is injected during analysis because Ludtwig 0.14 does not recognize Twig's `types` tag.

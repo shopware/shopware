@@ -20,11 +20,11 @@ function inferStructVars(StructVarsFixture $struct, AddressEditorModalStruct $mo
 
     $parameters = array_merge(['postedAddress' => 'posted'], $modal->getVars());
     assertType('bool', $parameters['changeShipping']);
-    assertType('Shopware\Storefront\Page\Page|null', $parameters['page']);
+    assertType('Shopware\Storefront\Page\Address\Listing\AddressListingPage|null', $parameters['page']);
 
     $redirect = array_merge($modal->getVars(), ['redirectTo' => 'route']);
     assertType('bool', $redirect['changeShipping']);
-    assertType('Shopware\Storefront\Page\Page|null', $redirect['page']);
+    assertType('Shopware\Storefront\Page\Address\Listing\AddressListingPage|null', $redirect['page']);
     assertType('mixed', $redirect['dynamic'] ?? null);
     assertType('\'route\'', $redirect['redirectTo']);
 }

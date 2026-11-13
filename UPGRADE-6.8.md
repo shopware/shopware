@@ -2714,6 +2714,13 @@ Set `selectedPageObject` through `selectItem(page)` or `onSelectPage(pageId)` in
 
 <details>
 
+## Address editor modal page type
+
+`AddressEditorModalStruct::$page`, the return type of `getPage()` and the parameter of `setPage()` were narrowed from `?Page` to `?AddressListingPage`.
+Pass an `AddressListingPage` instance, a subclass instance or `null` to the setter.
+Update redeclared properties and getter overrides in subclasses to use a compatible type.
+Passing another `Page` type was already deprecated in 6.7 and rejected with `v6.8.0.0` enabled.
+
 ## Removal of CMS section background template variables
 
 The Twig variables `sectionBgImg` and `sectionBgImgMode` in `storefront/page/content/detail.html.twig` were deprecated and are removed in 6.8.0.0.

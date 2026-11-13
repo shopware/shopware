@@ -668,6 +668,15 @@ For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-
 
 ## Storefront
 
+### Address editor modal page type
+
+Passing a page other than `AddressListingPage` or its subclasses to `AddressEditorModalStruct::setPage()` was deprecated.
+Pass an `AddressListingPage` instance or `null` instead.
+Other page types still work with a deprecation warning while `v6.8.0.0` is disabled and throw when the flag is enabled.
+The struct's page property already declares `AddressListingPage|null` in PHPDoc for static analysis.
+In 6.8, the protected `$page` property, the return type of `getPage()` and the parameter of `setPage()` will be natively narrowed to `?AddressListingPage`.
+Extensions that redeclare the property or override the getter must prepare compatible declarations.
+
 ### Skip link for listing filters
 
 Category, landing and search pages with a filtered product listing now offer a "Skip to products" link in the skip-to-content bar, so keyboard users can jump past the filters to the products.

@@ -64,8 +64,6 @@ const config: Config = shopwareAdminJest({
         projectRoot: process.env.PROJECT_ROOT,
     },
 
-    globalTeardown: '<rootDir>test/globalTeardown.js',
-
     // Worker configuration - prevent OOM kills while maximizing parallelism
     // Memory limit per worker to prevent SIGSEGV crashes from memory pressure
     workerIdleMemoryLimit: '1GB',
@@ -161,6 +159,7 @@ const config: Config = shopwareAdminJest({
         '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec/*.spec.js',
         '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec/*.spec.ts',
         '<rootDir>/eslint-rules/**/*.spec.js',
+        '<rootDir>/eslint-rules/**/*.spec.ts',
         '<rootDir>/build/vite-plugins/**/*.spec.ts',
         '<rootDir>/build/vite-plugins/**/*.spec.js',
         '<rootDir>/build/vue-setup-transform/**/*.spec.ts',

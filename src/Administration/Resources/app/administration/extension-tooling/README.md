@@ -16,6 +16,7 @@ below).
 | `eslint.mjs` | Parameterized flat-config factory `shopwareAdminExtension(options)`. All plugins resolve from the Administration's `node_modules`. |
 | `jest.mjs` | Jest config factory `shopwareAdminJest(options)`: the Administration's test harness with every path resolved into the installed Administration. The Administration's own Jest config composes it too. |
 | `legacy-twig.mjs` | Lint preset for legacy `.html.twig` component templates (Twig-Vue processor). |
+| `codemods.mjs` | Flat-config factory `shopwareAdminCodemods(rules)` used by `administration:upgrade-extensions`. Enables only the given codemod rules. |
 | `host-modules.json` | Declares the bare modules the Administration host provides to extensions at runtime. v1: `vue` only — the Vite externals plugin replaces exactly the bare `vue` import. If a module is added there, it must be added here and to `tsconfig.base.json` `paths` in the same change. |
 
 The `shopware:*` modules (`shopware:utils`, `shopware:data`, `shopware:composables`, `shopware:mixins`,
@@ -123,6 +124,45 @@ generated configs.
 - A bridge that cannot be written (a read-only vendor directory, say) degrades to
   a warning — those sources stay covered by the root `tsconfig.json`.
 
+## Upgrading to a new Shopware major
+
+`administration:upgrade-extensions` runs the codemods that prepare your Administration code for a Shopware major.
+
+```bash
+bin/console administration:upgrade-extensions -- --only=MyPlugin                # preview, writes nothing
+bin/console administration:upgrade-extensions -- --only=MyPlugin --write        # apply
+bin/console administration:check-extensions -- --only=MyPlugin                  # check the result
+```
+
+In a platform checkout use `composer admin:upgrade-extensions -- …`.
+With shopware-cli use `shopware-cli project console administration:upgrade-extensions -- …`.
+
+- `--target=<major>` picks the Shopware major to prepare for.
+  It defaults to the newest major the installed Administration ships codemods for.
+  A run applies the codemods of that major and of every earlier one, so you can skip a major.
+- `--list` prints the codemods per major.
+- `--with=sfc-migration` also converts Options API components into native setup SFCs.
+  It writes a `.vue` draft next to each component and keeps the original files registered.
+  Switch the registration to the draft once you have reviewed it.
+  It only converts components whose `index.js`/`index.ts` exports the options with `export default`.
+- `--write` refuses an extension that has uncommitted or untracked changes.
+  Run `git checkout . && git clean -f` in the extension folder to undo a run.
+  `--skip-git-check` writes anyway, and then `git clean -f` can also delete files that existed before the run.
+- Without an interactive terminal, for example in CI or with `docker compose exec -T`, `--write` needs `--only` or `--all`.
+  A dry run without either previews every writable extension.
+- Vendor-installed extensions are only rewritten when you name them via `--only`.
+- The command finds extensions through `var/plugins.json`, which lists active plugins only.
+  An `--only` name that is not listed there is looked up as a folder in `custom/plugins`,
+  so you can upgrade a plugin before it is installed or activated.
+  `administration:check-extensions` has no such fallback, so activate the plugin and run `bin/console bundle:dump` before you check it.
+- Spec files are not rewritten.
+
+The report lists every spot a codemod found but could not rewrite safely.
+Fix those by hand, then run `administration:check-extensions`.
+The ESLint codemods run with their own config that enables only the codemod rules.
+Your extension's ESLint config does not change what gets rewritten.
+In `.html.twig` templates, `{{ … }}` is Twig syntax, so the `$tc` codemod only rewrites bindings like `:label="$tc(…)"` there.
+
 ## Native-setup components
 
 Native-setup authoring works out of the box — no extra config to copy. The
@@ -229,13 +269,21 @@ composer admin:test-extensions -- --only=MyPlugin -- --watch       # Jest option
 It runs every `jest.config.{js,ts,mjs,cjs}` it finds at the extension root, beside an Administration folder, or beside the extension's own tsconfig or ESLint config.
 Without `--only` or `--all`, an interactive terminal offers a picker of the extensions that have a Jest config.
 Elsewhere, and with `--all`, every such extension runs, vendor-installed ones included.
-`--no-vendors` leaves out the extensions under `vendor/`, in `--all` and in the picker; `--only` names extensions by extension or bundle name.
+`--only` names extensions by extension or bundle name.
+As in `check-extensions`, a failing vendor-installed extension does not fail the run: the report marks it with `!`.
+Pass `--strict-vendor` to fail on it.
 Each Jest run starts with a `▶ <extension> · <jest config>` line, and the report ends with one line per Jest config.
 A run in which no spec ran exits 1, so a CI job cannot pass without running a spec.
 Jest's `--watch` and `--watchAll` need exactly one Jest config, so name one extension via `--only`; otherwise the command exits 2.
-When Jest options go to more than one Jest config, the command adds `--passWithNoTests`,
-so a spec path or name filter fails the run only on a failing spec, not on an extension without a matching spec.
+When a spec filter goes to more than one Jest config, the command adds `--passWithNoTests`,
+so the filter fails the run only on a failing spec, not on an extension without a matching spec.
+A filter is a spec path pattern or an option such as `-t`, `--testPathPatterns`, `--onlyChanged`, `--changedSince` or `--shard`.
+Put a spec path pattern first or after an option written with `=`: after an option without `=`, the command reads it as that option's value.
+Other options, such as `--ci` or `--coverage`, leave it out, so an extension without specs still fails the run.
 The report marks such an extension with `–`, and the run still fails when no Jest config ran a spec; pass `--passWithNoTests` yourself to allow that.
+The command counts the specs with its own `--testResultsProcessor`, which replaces one set in the Jest config.
+It leaves out its own when the Jest config file or the Jest options name `testResultsProcessor`; that run then does not count its specs.
+A processor that comes in through a preset or an imported base config is not detected, so name it in the Jest config file itself.
 
 Which Jest runs a config depends on the config:
 

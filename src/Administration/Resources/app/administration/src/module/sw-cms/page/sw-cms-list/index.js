@@ -13,6 +13,7 @@ export default {
 
     inject: [
         'repositoryFactory',
+        'mediaDefaultFolderService',
         'acl',
         'feature',
         'systemConfigApiService',
@@ -51,6 +52,9 @@ export default {
             defaultProductId: '',
             newDefaultLayout: undefined,
             maxVisibleAssignedPages: 3,
+            isCompactLayout: false,
+            compactLayoutBreakpoint: 800,
+            layoutResizeObserver: null,
         };
     },
 
@@ -65,6 +69,7 @@ export default {
             return this.repositoryFactory.create('cms_page');
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed, use mediaDefaultFolderService.getDefaultFolderId() instead. */
         defaultFolderRepository() {
             return this.repositoryFactory.create('media_default_folder');
         },
@@ -186,7 +191,44 @@ export default {
         this.createdComponent();
     },
 
+    mounted() {
+        this.mountedComponent();
+    },
+
+    beforeUnmount() {
+        this.beforeUnmountComponent();
+    },
+
     methods: {
+        mountedComponent() {
+            this.registerLayoutResizeObserver();
+        },
+
+        beforeUnmountComponent() {
+            if (this.layoutResizeObserver) {
+                this.layoutResizeObserver.disconnect();
+                this.layoutResizeObserver = null;
+            }
+        },
+
+        /**
+         * The page type navigation needs the width of the page, not of the viewport, because the
+         * admin menu takes a different share of the viewport depending on its collapsed state.
+         */
+        registerLayoutResizeObserver() {
+            if (!(this.$el instanceof HTMLElement) || typeof ResizeObserver === 'undefined') {
+                return;
+            }
+
+            this.layoutResizeObserver = new ResizeObserver((entries) => {
+                entries.forEach((entry) => {
+                    this.isCompactLayout = entry.contentRect.width < this.compactLayoutBreakpoint;
+                });
+            });
+
+            this.layoutResizeObserver.observe(this.$el);
+        },
+
         async createdComponent() {
             if (this.acl.can('user_config:read')) {
                 await this.loadGridUserSettings().catch(() => {});
@@ -363,22 +405,7 @@ export default {
         },
 
         getDefaultFolderId() {
-            const criteria = new Criteria(1, 1);
-            criteria.addAssociation('folder');
-            criteria.addFilter(Criteria.equals('entity', 'cms_page'));
-
-            return this.defaultFolderRepository
-                .search(criteria, {
-                    cacheKey: ['media-default-folder', 'cms_page'],
-                })
-                .then((searchResult) => {
-                    const defaultFolder = searchResult.first();
-                    if (defaultFolder.folder?.id) {
-                        return defaultFolder.folder.id;
-                    }
-
-                    return null;
-                });
+            return this.mediaDefaultFolderService.getDefaultFolderId('cms_page');
         },
 
         onChangeLanguage(languageId) {

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  * @phpstan-type CookieEntryArray array{cookie?: string, value?: string, expiration?: string, snippet_name?: string, snippet_description?: string, hidden?: bool}
  * @phpstan-type CookieGroupArray array{isRequired?: bool, snippet_name?: string, snippet_description?: string, cookie?: string, value?: string, expiration?: string, entries?: list<CookieEntryArray>}
  *
- * @deprecated tag:v6.8.0 - Will be removed in 6.8.0. Use {@see CookieGroupCollectEvent} instead to introduce cookies.
+ * @deprecated tag:v6.9.0 - Will be removed in 6.9.0. Use {@see CookieGroupCollectEvent} instead to introduce cookies.
  */
 #[Package('discovery')]
 interface CookieProviderInterface
@@ -39,7 +39,7 @@ interface CookieProviderInterface
      *       ]
      *  ]
      *
-     * @deprecated tag:v6.8.0 - Will be removed in 6.8.0. Use {@see CookieGroupCollectEvent} instead to introduce cookies.
+     * @deprecated tag:v6.9.0 - Will be removed in 6.9.0. Use {@see CookieGroupCollectEvent} instead to introduce cookies.
      *
      * @return list<CookieGroupArray>
      */

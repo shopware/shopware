@@ -105,6 +105,23 @@ describe('scripts/extensionTooling/test CLI', () => {
             expect(stubJestRuns()[0].slice(2)).toEqual(jestOptions);
         });
 
+        it('leaves the results processor to a Jest config that sets its own', async () => {
+            jest.spyOn(console, 'log').mockImplementation(() => {});
+            const stubJestRuns = writeStubJestBin(fixture.administrationRoot);
+            const configPath = path.join(fixture.projectRoot, zeroConfigAdmin, 'jest.config.mjs');
+            writeFile(configPath, "export default { testResultsProcessor: 'jest-sonar-reporter' };");
+
+            await expect(runCli(['--only=ZeroConfig', '--', '--ci'])).resolves.toBe(0);
+
+            expect(stubJestRuns()).toEqual([
+                [
+                    '--config',
+                    configPath,
+                    '--ci',
+                ],
+            ]);
+        });
+
         it.each([
             [['--json']],
             [['--json', '--outputFile=results.json']],
@@ -149,7 +166,7 @@ describe('scripts/extensionTooling/test CLI', () => {
             expect(consoleLog.mock.calls.join('\n')).toContain(`▶ ZeroConfig · ${zeroConfigAdmin}/jest.config.mjs`);
         });
 
-        it('tests vendor extensions with --all and leaves them out with --no-vendors', async () => {
+        it('tests vendor extensions with --all', async () => {
             jest.spyOn(console, 'log').mockImplementation(() => {});
             const stubJestRuns = writeStubJestBin(fixture.administrationRoot, 1);
             writeFile(path.join(fixture.projectRoot, zeroConfigAdmin, 'jest.config.mjs'), 'export default {};');
@@ -160,19 +177,43 @@ describe('scripts/extensionTooling/test CLI', () => {
                 `${zeroConfigAdmin}/jest.config.mjs`,
                 `${vendorAdmin}/jest.config.mjs`,
             ]);
-
-            await expect(runCli(['--all', '--no-vendors'])).resolves.toBe(0);
-            expect(stubConfigPaths(fixture.projectRoot, stubJestRuns()).slice(2)).toEqual([
-                `${zeroConfigAdmin}/jest.config.mjs`,
-            ]);
         });
 
-        it('rejects --no-vendors together with --only as a usage error', async () => {
-            const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+        it('fails on a failing vendor Jest run only with --strict-vendor', async () => {
+            jest.spyOn(console, 'log').mockImplementation(() => {});
+            writeFailingJestBin({ reportsResults: true });
+            writeFile(path.join(fixture.projectRoot, vendorAdmin, 'jest.config.mjs'), 'export default {};');
 
-            await expect(runCli(['--only=ZeroConfig', '--no-vendors'])).resolves.toBe(2);
-            expect(consoleError.mock.calls.join('\n')).toContain('--no-vendors cannot be combined with --only');
+            await expect(runCli(['--all'])).resolves.toBe(0);
+            await expect(runCli(['--all', '--strict-vendor'])).resolves.toBe(1);
         });
+
+        it('fails when the only Jest run is a vendor one that fails before reporting a result', async () => {
+            const consoleLog = jest.spyOn(console, 'log').mockImplementation(() => {});
+            writeFailingJestBin({ reportsResults: false });
+            writeFile(path.join(fixture.projectRoot, vendorAdmin, 'jest.config.mjs'), 'export default {};');
+
+            await expect(runCli(['--all'])).resolves.toBe(1);
+            expect(consoleLog.mock.calls.join('\n')).toContain(
+                'Nothing was tested: no Jest config ran a spec, see the non-fatal vendor runs above.',
+            );
+        });
+
+        /** A Jest bin that exits 1, after one failed test or before Jest reports any result. */
+        function writeFailingJestBin({ reportsResults }: { reportsResults: boolean }): void {
+            writeFile(
+                path.join(fixture.administrationRoot, 'node_modules/jest/bin/jest.js'),
+                [
+                    ...(reportsResults
+                        ? [
+                              "const processor = process.argv.find((arg) => arg.startsWith('--testResultsProcessor='));",
+                              "require(processor.slice('--testResultsProcessor='.length))({ numPassedTests: 0, numFailedTests: 1 });",
+                          ]
+                        : []),
+                    'process.exitCode = 1;',
+                ].join('\n'),
+            );
+        }
     });
 
     /** Runs the CLI against the fixture; `args` are the tooling options and, after a `--`, the Jest options. */
@@ -266,18 +307,19 @@ describe('scripts/extensionTooling/test CLI', () => {
             expect(describeProject?.(suite!)).toBe('custom/plugins/Suite · 1 Jest config · own Jest not installed');
         });
 
-        it('lists no vendor extension under --no-vendors', async () => {
-            jest.spyOn(console, 'log').mockImplementation(() => {});
-            withInteractiveTerminal();
-            writeStubJestBin(fixture.administrationRoot, 1);
+        it('tests every extension and says so without a selection in a non-interactive terminal', async () => {
+            const consoleLog = jest.spyOn(console, 'log').mockImplementation(() => {});
+            Object.defineProperty(process.stdin, 'isTTY', { value: false, configurable: true });
+            const stubJestRuns = writeStubJestBin(fixture.administrationRoot, 1);
             writeFile(path.join(fixture.projectRoot, zeroConfigAdmin, 'jest.config.mjs'), 'export default {};');
-            writeFile(path.join(fixture.projectRoot, vendorAdmin, 'jest.config.mjs'), 'export default {};');
-            mockedPromptSelection.mockResolvedValue('all');
 
-            await expect(runInteractive(['--no-vendors'])).resolves.toBe(0);
+            await expect(runInteractive()).resolves.toBe(0);
 
-            const [listed] = mockedPromptSelection.mock.calls[0];
-            expect(listed.map((project) => project.name)).toEqual(['ZeroConfig']);
+            expect(mockedPromptSelection).not.toHaveBeenCalled();
+            expect(stubConfigPaths(fixture.projectRoot, stubJestRuns())).toEqual([`${zeroConfigAdmin}/jest.config.mjs`]);
+            expect(consoleLog.mock.calls.join('\n')).toContain(
+                'Not an interactive terminal and no selection given — testing all extensions.',
+            );
         });
 
         it('runs nothing and exits 0 when the picker is cancelled', async () => {

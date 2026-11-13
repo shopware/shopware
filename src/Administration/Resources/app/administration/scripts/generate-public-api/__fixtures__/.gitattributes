@@ -1,0 +1,2 @@
+# The expected output of a fixture is what the generator and the break check have to produce for it.
+**/expected/** linguist-generated=true

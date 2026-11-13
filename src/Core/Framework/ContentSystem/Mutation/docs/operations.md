@@ -18,7 +18,7 @@ With no parent it inserts at root; otherwise `$slot` is required (`mutationSlotR
 When `$bindingSpecificationId` is also given, the named specification is resolved **first**, before any tree change
 (unregistered → `bindingSpecificationNotFound`; `type()` ≠ `$type` → `bindingTypeMismatch`; both `400`, neither a
 client-defect code). It is then applied via `BindingApplicator::apply()` (overwrite) before the default is
-fill-applied (default underneath, explicit on top: [applying.md](../../Binding/docs/applying.md#applying-a-binding)), so a
+fill-applied (default underneath, explicit on top: [applying.md](../../Binding/docs/applying.md)), so a
 default key it wires is never resolved against the root source. Both steps precede insertion, so a bound insert is atomic: nothing is inserted on a `400`.
 
 ## RemoveElement
@@ -80,8 +80,8 @@ is bound.
 Splices a caller-supplied element subtree into a parent slot (or the root). It fill-applies the type default binding
 to every element of the subtree (`applyDefaultBindingToSubtree()`; wiring the subtree already carries wins, more than
 one default throws `bindingSpecificationDefaultAmbiguous` `409`), then replaces every id (`cloneWithNewIds()`). The
-binding runs before the id replacement ([applying.md](../../Binding/docs/applying.md#applying-a-binding)).
-The two steps touch disjoint fields, so the order does not change the placed subtree. It inverts the detachment a
+binding runs before the id replacement ([applying.md](../../Binding/docs/applying.md)).
+The binding pass changes data requirements, properties and attributed specifications, the remint changes ids, and both rebuild `slots` to carry the children. It inverts the detachment a
 replace reports through `orphaned`: it re-places a detached subtree, or a copied one, without trusting client ids.
 The supplied root's component must be a registered type, else `mutationUnknownType`, matching the check
 insert/replace/wrap run. No caller-supplied id is placed. The server-issued ids come back in
@@ -102,10 +102,12 @@ Applies a `Binding/Specification/BindingSpecification`'s wiring onto one element
 (`bindingSpecificationNotFound` if the id is not registered). The target element must exist
 (`mutationTargetNotFound`). The specification's declared `type` must equal the target's `component`
 (`bindingTypeMismatch` otherwise, for example a specification authored for one element type applied to another).
+Every `resolves` entry is resolved against the tree's root source, already-bound keys included. A `!scoped` config
+value with no entry for it, or no root source, throws `bindingRootSourceNotScoped` (`400`).
 
 The merge is delegated to `Binding/BindingApplicator`, shared with `Op/InsertElement`. Every `resolves` entry
 becomes a concrete `DataRequirement`, merged into the element's existing data requirements and **overwriting** the
-same key. Re-applying a binding over an already-bound key replaces its wiring rather than failing. Every `inputs`
+same key. Re-applying a binding over an already-bound key replaces its wiring. Every `inputs`
 entry with a default seeds that primitive property, but only into a key the element does not already carry.
 The presence gate is `StoredElement::property()`: `null` there means absence, because an authored `null` is a
 present `StoredValue`. Every wired key's attribution is recorded into `attributedSpecifications`, also merged and overwriting.

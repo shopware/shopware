@@ -1,3 +1,6 @@
+includes:
+    - src/Core/DevOps/StaticAnalyze/PHPStan/cms-elements.neon
+
 parameters:
     level: 5
     bootstrapFiles:

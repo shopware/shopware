@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Type\CmsElementDataPreparation;
 use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\AnalysisCompletionGuard;
 use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\RenderEventDataPreparation;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -17,6 +18,7 @@ $directory = $root . '/var/twigstan-report';
 $filesystem->mkdir($directory);
 
 try {
+    CmsElementDataPreparation::prepare($root, $root . '/vendor-bin/twigstan/bin/phpstan', $root . '/vendor-bin/twigstan/bootstrap.php');
     RenderEventDataPreparation::prepare($root, $output);
     $container = ContainerFactory::fromFile($root, $root . '/twigstan.php')->create();
     $result = $container->getByType(AnalyzeCommand::class)->analyze([], $output, $output->getErrorOutput(), false, false, null);
@@ -92,6 +94,7 @@ try {
     ));
     $filesystem->copy(dirname(__DIR__) . '/composer.lock', $directory . '/composer.lock', true);
     $filesystem->copy($root . '/var/cache/twigstan-listeners/context.json', $directory . '/listener-context.json', true);
+    $filesystem->copy($root . '/var/cache/phpstan-cms/context.json', $directory . '/cms-element-context.json', true);
     echo json_encode($report, \JSON_PRETTY_PRINT | \JSON_THROW_ON_ERROR), \PHP_EOL;
     AnalysisCompletionGuard::check($report);
 } catch (Throwable $exception) {

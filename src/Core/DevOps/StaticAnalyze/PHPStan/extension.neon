@@ -1,3 +1,6 @@
+includes:
+    - cms-elements.neon
+
 services:
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Type\CollectionHasSpecifyingExtension

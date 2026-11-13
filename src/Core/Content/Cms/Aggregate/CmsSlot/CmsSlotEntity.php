@@ -14,6 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @template TData of Struct = Struct
+ */
 #[Package('discovery')]
 class CmsSlotEntity extends Entity
 {
@@ -40,6 +43,9 @@ class CmsSlotEntity extends Entity
      */
     protected ?EntityCollection $translations = null;
 
+    /**
+     * @var TData|null
+     */
     protected ?Struct $data = null;
 
     protected bool $locked;
@@ -119,11 +125,17 @@ class CmsSlotEntity extends Entity
         $this->translations = $translations;
     }
 
+    /**
+     * @return TData|null
+     */
     public function getData(): ?Struct
     {
         return $this->data;
     }
 
+    /**
+     * @param TData $data
+     */
     public function setData(Struct $data): void
     {
         $this->data = $data;

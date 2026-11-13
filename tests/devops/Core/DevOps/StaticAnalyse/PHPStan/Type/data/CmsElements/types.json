@@ -1,0 +1,7 @@
+{
+    "types": {
+        "product-listing": "Shopware\\Core\\Content\\Cms\\SalesChannel\\Struct\\ProductListingStruct",
+        "text": "Shopware\\Core\\Content\\Cms\\SalesChannel\\Struct\\TextStruct"
+    },
+    "unresolved": []
+}

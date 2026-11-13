@@ -24,7 +24,12 @@ php vendor-bin/twigstan/bin/report.php
 
 The report is written to `var/twigstan-report/`.
 It includes diagnostics, collected contexts, source-template coverage, timing and the dependency lock file.
-The launchers first discover registered render listeners from the analysis container and infer their `setParameter()` value types with PHPStan.
+The shared Shopware PHPStan CMS extension infers slot data types from registered resolvers without executing them.
+Both `composer phpstan` and the TwigStan launchers prepare the mapping automatically.
+When invoking PHPStan directly, first run `php src/Core/DevOps/StaticAnalyze/cms-element-data.php` after the container bootstrap.
+`CmsSlotEntity<TData>` preserves these types through `getFirstElementOfType()`, `getElementsOfType()` and `getData()`.
+Inherited enrichment and local helpers are analyzed; unresolved mutations retain the general `Struct` type and are listed in `cms-element-context.json`.
+The launchers discover registered render listeners from the analysis container and infer their `setParameter()` value types with PHPStan.
 Conditional writes contribute optional fields, and listener priorities determine which writes replace earlier values.
 Controller route and scope listeners are applied at the render-event bridge, including constant template restrictions inferred from listener guards.
 The listener summary is a tracked dependency of controller analysis and is included in the report as `listener-context.json`.

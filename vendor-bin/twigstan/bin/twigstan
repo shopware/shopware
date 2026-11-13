@@ -1,6 +1,7 @@
 #!/usr/bin/env php
 <?php declare(strict_types=1);
 
+use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Type\CmsElementDataPreparation;
 use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\RenderEventDataPreparation;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -8,6 +9,8 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 require dirname(__DIR__) . '/bootstrap.php';
 $input = new ArgvInput();
 if (!$input->hasParameterOption(['--help', '-h', '--version', '-V']) && !\in_array($input->getFirstArgument(), ['help', 'list', 'completion'], true)) {
+    $root = dirname(__DIR__, 3);
+    CmsElementDataPreparation::prepare($root, $root . '/vendor-bin/twigstan/bin/phpstan', $root . '/vendor-bin/twigstan/bootstrap.php');
     RenderEventDataPreparation::prepare(dirname(__DIR__, 3), new ConsoleOutput());
 }
 $_composer_autoload_path = dirname(__DIR__) . '/vendor/autoload.php';

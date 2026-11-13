@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<container>
+    <services>
+        <service id="inherited" alias="inherited.actual">
+            <tag name="shopware.cms.data_resolver"/>
+        </service>
+        <service id="inherited.actual" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Type\CmsFixtures\InheritedResolver"/>
+        <service id="shape" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Type\CmsFixtures\HelperResolver">
+            <tag name="shopware.cms.data_resolver" priority="-10"/>
+        </service>
+        <service id="replaced" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Type\CmsFixtures\ReplacementResolver">
+            <tag name="shopware.cms.data_resolver" priority="100"/>
+        </service>
+        <service id="union" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Type\CmsFixtures\UnionResolver">
+            <tag name="shopware.cms.data_resolver"/>
+        </service>
+        <service id="opaque" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Type\CmsFixtures\AliasedResolver">
+            <tag name="shopware.cms.data_resolver"/>
+        </service>
+        <service id="external" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Type\CmsFixtures\ExternalHelperResolver">
+            <tag name="shopware.cms.data_resolver"/>
+        </service>
+        <service id="callable" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Type\CmsFixtures\CallableResolver">
+            <tag name="shopware.cms.data_resolver"/>
+        </service>
+        <service id="unregistered" class="NotAnInstalledResolver"/>
+    </services>
+</container>

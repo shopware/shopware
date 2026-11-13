@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<container>
+    <services>
+        <service id="inherited" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Type\CmsFixtures\InheritedResolver">
+            <tag name="shopware.cms.data_resolver"/>
+        </service>
+        <service id="dynamic" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Type\CmsFixtures\DynamicNameResolver">
+            <tag name="shopware.cms.data_resolver"/>
+        </service>
+    </services>
+</container>

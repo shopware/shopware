@@ -523,6 +523,7 @@
         "phpstan": [
             "Composer\\Config::disableProcessTimeout",
             "@php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php",
+            "@php src/Core/DevOps/StaticAnalyze/cms-element-data.php",
             "phpstan analyze --memory-limit=4G -vv"
         ],
         "phpstan-errors-by-area": [

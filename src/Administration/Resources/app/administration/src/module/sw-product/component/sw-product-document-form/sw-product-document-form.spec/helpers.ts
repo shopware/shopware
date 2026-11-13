@@ -1,11 +1,20 @@
 /**
  * @sw-package inventory
  */
+import type { Snackbar } from '@shopware-ag/meteor-component-library';
 import { shallowMount, type VueWrapper } from '@vue/test-utils';
 import type { ComponentPublicInstance } from 'vue';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import EntityFactory from 'src/core/data/entity-factory.data';
 import fileValidationService from 'src/app/service/file-validation.service';
+
+/** @private */
+export const mockSnackbar = jest.fn((config: Omit<Snackbar, 'id'>): Snackbar => ({ id: 'document-feedback', ...config }));
+
+jest.mock('src/app/composables/use-snackbar', () => ({
+    __esModule: true,
+    default: () => ({ addSnackbar: mockSnackbar, removeSnackbar: jest.fn() }),
+}));
 
 const wrappers: VueWrapper[] = [];
 /** @private */

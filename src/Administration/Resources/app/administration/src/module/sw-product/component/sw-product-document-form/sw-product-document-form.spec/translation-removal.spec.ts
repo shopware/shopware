@@ -1,10 +1,18 @@
 /**
  * @sw-package inventory
  */
-import type { VueWrapper } from '@vue/test-utils';
+import { config, type VueWrapper } from '@vue/test-utils';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
-import { withProductStates, cleanupWrappers, createWrapper, createMedia, clickButton, selectMedia } from './helpers';
+import {
+    mockSnackbar,
+    withProductStates,
+    cleanupWrappers,
+    createWrapper,
+    createMedia,
+    clickButton,
+    selectMedia,
+} from './helpers';
 
 describe('sw-product-document-form language-version removal', () => {
     const originalLanguageId = Shopware.Context.api.languageId;
@@ -92,6 +100,7 @@ describe('sw-product-document-form language-version removal', () => {
     }
 
     beforeEach(() => {
+        mockSnackbar.mockClear();
         Object.assign(global, { activeAclRoles: ['product.editor', 'media.viewer'] });
         Shopware.Context.api.languageId = germanLanguageId;
         Object.assign(Shopware.Store.get('context').api, {
@@ -109,6 +118,23 @@ describe('sw-product-document-form language-version removal', () => {
         cleanupWrappers();
     });
 
+    it('does not report success when loading variant documents fails', async () => {
+        const store = Shopware.Store.get('swProductDetail');
+        store.product = await loadProduct('Handbuch', germanMedia.id);
+        store.product.childCount = 1;
+        wrapper = await createWrapper(undefined, undefined, repository);
+        jest.spyOn(repository, 'search').mockRejectedValue(new Error('Variant lookup failed'));
+        const notification = mockSnackbar;
+
+        await wrapper.findAll('sw-context-menu-item-stub').at(-1)!.trigger('click');
+        await clickButton(wrapper, 'global.default.remove');
+        await flushPromises();
+
+        expect(notification).not.toHaveBeenCalledWith(expect.objectContaining({ variant: 'success' }));
+        expect(store.product.documents![0]).toMatchObject({ title: 'Handbuch', mediaId: germanMedia.id });
+        expect(wrapper.text()).toContain('sw-product.documentForm.removeLanguageVersionDescription');
+    });
+
     it.each([
         ['name', 'Handbuch', null],
         ['file', null, germanMedia.id],
@@ -116,8 +142,10 @@ describe('sw-product-document-form language-version removal', () => {
     ])('resets an overridden %s only on confirmation, without deleting the document', async (_field, title, mediaId) => {
         const store = Shopware.Store.get('swProductDetail');
         store.product = await loadProduct(title, mediaId);
+        const translate = jest.spyOn(config.global.mocks, '$t');
         wrapper = await createWrapper(undefined, undefined, repository);
         const document = store.product.documents![0];
+        const notification = mockSnackbar;
         const before = new ChangesetGenerator().generate(store.product);
         expect(wrapper.findAll('sw-context-menu-item-stub').at(-1)!.text()).toBe(
             'sw-product.documentForm.removeLanguageVersion',
@@ -126,9 +154,21 @@ describe('sw-product-document-form language-version removal', () => {
         expect(wrapper.text()).toContain('sw-product.documentForm.removeLanguageVersionDescription');
         await clickButton(wrapper, 'global.default.cancel');
         expect(new ChangesetGenerator().generate(store.product)).toEqual(before);
+        expect(notification).not.toHaveBeenCalled();
 
         await wrapper.findAll('sw-context-menu-item-stub').at(-1)!.trigger('click');
         await clickButton(wrapper, 'global.default.remove');
+        expect(notification).toHaveBeenCalledTimes(1);
+        expect(notification).toHaveBeenCalledWith(
+            expect.objectContaining({
+                variant: 'success',
+                message: 'sw-product.documentForm.removeLanguageVersionSuccess',
+            }),
+        );
+        expect(translate).toHaveBeenCalledWith('sw-product.documentForm.removeLanguageVersionSuccess', {
+            language: 'German',
+            name: title ?? 'Manual',
+        });
         expect(store.product.documents).toHaveLength(1);
         expect(document).toMatchObject({ title: null, mediaId: null, position: 4, customFields: { note: 'Keep this' } });
         expect(wrapper.find('.document-row').text()).toContain('Manual');

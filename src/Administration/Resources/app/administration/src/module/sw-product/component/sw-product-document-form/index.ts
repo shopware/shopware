@@ -1,6 +1,7 @@
 /**
  * @sw-package inventory
  */
+import useSnackbar from 'src/app/composables/use-snackbar';
 import type EntityFactory from 'src/core/data/entity-factory.data';
 import useNotification from 'src/app/composables/use-notification';
 import documentColumns, { allowedExtensions, maxFileSize, maxDocuments } from './document-form.config';
@@ -383,8 +384,15 @@ export default Shopware.Component.wrapComponentConfig({
                     updatedVariantIds = this.stageVariantDocumentChanges(variants, document, variantChanges);
                 }
                 this.applyDocumentChanges(document, changes);
-                const store = Shopware.Store.get('swProductDetail');
-                store.queueDocumentSaveNotification(document.id, this.getTitle(document), updatedVariantIds);
+                if (matchingMediaId) {
+                    useSnackbar().addSnackbar({
+                        variant: 'success',
+                        message: this.$t('sw-product.documentForm.applySuccess', {
+                            name: this.getTitle(document),
+                            count: updatedVariantIds.length,
+                        }),
+                    });
+                }
                 this.closeDocumentEditor();
             } catch {
                 if (isCurrentEdit()) {
@@ -444,19 +452,28 @@ export default Shopware.Component.wrapComponentConfig({
                 if (!isCurrentRemoval()) {
                     return;
                 }
-                if (mediaId) {
-                    this.stageVariantDocumentRemovals(variants, document);
-                }
+                const removedVariantIds = mediaId ? this.stageVariantDocumentRemovals(variants, document) : [];
+                const name = this.getTitle(document);
                 if (this.isDefaultLanguage) {
                     this.documents.remove(document.id);
                     updateDocumentPositions(this.documents);
+                    useSnackbar().addSnackbar({
+                        variant: 'success',
+                        message: this.$t('sw-product.documentForm.removeSuccess', {
+                            name,
+                            count: removedVariantIds.length,
+                        }),
+                    });
                 } else {
                     this.resetDocumentLanguageVersion(document);
+                    useSnackbar().addSnackbar({
+                        variant: 'success',
+                        message: this.$t('sw-product.documentForm.removeLanguageVersionSuccess', {
+                            language: this.contentLanguageName,
+                            name,
+                        }),
+                    });
                 }
-                const store = Shopware.Store.get('swProductDetail');
-                store.documentSaveNotifications = store.documentSaveNotifications.filter(
-                    (entry) => entry.documentId !== document.id,
-                );
                 this.closeRemoveDocumentModal();
             } catch {
                 if (isCurrentRemoval()) {
@@ -502,9 +519,9 @@ export default Shopware.Component.wrapComponentConfig({
                 let changed = false;
                 matching.forEach((copy) => {
                     const update = getDocumentTranslationChanges(copy, changes, context, this.isDefaultLanguage);
+                    const { title, mediaId } = copy;
                     this.applyDocumentChanges(copy, update);
-                    const origin = copy.getOrigin();
-                    if (origin.title !== copy.title || origin.mediaId !== copy.mediaId) {
+                    if (title !== copy.title || mediaId !== copy.mediaId) {
                         changed = true;
                     }
                 });
@@ -519,7 +536,7 @@ export default Shopware.Component.wrapComponentConfig({
             return updatedVariantIds;
         },
 
-        stageVariantDocumentRemovals(variants: Entity<'product'>[], original: Entity<'product_document'>): void {
+        stageVariantDocumentRemovals(variants: Entity<'product'>[], original: Entity<'product_document'>): string[] {
             const children =
                 this.product.children || new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api);
             const origin = this.product.getOrigin();
@@ -543,6 +560,7 @@ export default Shopware.Component.wrapComponentConfig({
             });
             this.product.children = children;
             origin.children = originChildren;
+            return candidates.map(({ variant }) => variant.id);
         },
 
         documentRemoveInheritanceFunction(
@@ -574,6 +592,10 @@ export default Shopware.Component.wrapComponentConfig({
         onConfirmRestoreInheritance(): void {
             this.onCloseRestoreInheritanceModal();
             (this.$refs.documentInheritance as DocumentInheritance).restoreInheritance();
+            useSnackbar().addSnackbar({
+                variant: 'success',
+                message: this.$t('sw-product.documentForm.restoreInheritanceSuccess'),
+            });
         },
 
         getEditActionLabel(document: Entity<'product_document'>): string {

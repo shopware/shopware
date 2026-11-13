@@ -6,12 +6,21 @@ import type { ComponentPublicInstance } from 'vue';
 import Entity from 'src/core/data/entity.data';
 import EntityFactory from 'src/core/data/entity-factory.data';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
-import { createProduct, cleanupWrappers, createWrapper, createMedia, clickButton, getDocuments } from './helpers';
+import {
+    mockSnackbar,
+    createProduct,
+    cleanupWrappers,
+    createWrapper,
+    createMedia,
+    clickButton,
+    getDocuments,
+} from './helpers';
 
 describe('sw-product-document-form inheritance', () => {
     const originalLanguage = Shopware.Context.api.languageId;
     const originalLanguageMetadata = Shopware.Store.get('context').api.language;
     beforeEach(() => {
+        mockSnackbar.mockClear();
         Object.assign(global, { activeAclRoles: ['product.editor'] });
         Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
         const store = Shopware.Store.get('swProductDetail');
@@ -23,6 +32,7 @@ describe('sw-product-document-form inheritance', () => {
         Shopware.Context.api.languageId = originalLanguage;
         Shopware.Store.get('context').api.language = originalLanguageMetadata;
         cleanupWrappers();
+        jest.restoreAllMocks();
     });
 
     it('copies assignments before editing a variant and restores inheritance', async () => {
@@ -54,6 +64,7 @@ describe('sw-product-document-form inheritance', () => {
         await clickButton(wrapper, 'global.default.apply');
         expect(parentDocument.title).toBe('Parent manual');
         expect(wrapper.text()).toContain('Variant manual');
+        const notification = mockSnackbar;
 
         await wrapper.get('.sw-inheritance-switch--is-not-inherited .mt-icon').trigger('click');
         expect(wrapper.find('.sw-product-document-form__restore-inheritance-modal').exists()).toBe(true);
@@ -62,10 +73,18 @@ describe('sw-product-document-form inheritance', () => {
         expect(wrapper.find('.sw-product-document-form__restore-inheritance-modal').exists()).toBe(false);
         expect(getDocuments()).toHaveLength(1);
 
+        expect(notification).not.toHaveBeenCalled();
         await wrapper.get('.sw-inheritance-switch--is-not-inherited .mt-icon').trigger('click');
         await clickButton(wrapper, 'sw-product.documentForm.restoreInheritanceButton');
         expect(getDocuments()).toHaveLength(0);
         expect(wrapper.text()).toContain('Parent manual');
+        expect(notification).toHaveBeenCalledTimes(1);
+        expect(notification).toHaveBeenCalledWith(
+            expect.objectContaining({
+                variant: 'success',
+                message: 'sw-product.documentForm.restoreInheritanceSuccess',
+            }),
+        );
     });
 
     it('copies all document translations when removing variant inheritance', async () => {

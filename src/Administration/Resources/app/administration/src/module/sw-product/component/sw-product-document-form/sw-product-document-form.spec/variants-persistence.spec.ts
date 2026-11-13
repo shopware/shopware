@@ -172,7 +172,6 @@ describe('sw-product-document-form variant persistence', () => {
             response: { status: 400 },
         });
         expect(new ChangesetGenerator().generate(store.product)).toEqual(beforeSave);
-        expect(store.documentSaveNotifications).toHaveLength(1);
         responses.addResponse({ method: 'POST', url: '_action/sync', status: 200, response: {} });
         await repository.save(store.product, Shopware.Context.api);
         const operations = [

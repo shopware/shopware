@@ -167,6 +167,7 @@ Support for this in the app SDKs is not part of this decision.
 | Keep the shop identity outside the copied database | Can itself be copied, and does not repair a takeover that already happened. |
 | Store app data by ShopId and URL together | Changes storage and how legitimate moves work, and copies can share a URL. |
 | Recover with `app:secret:rotate --adopt-secrets` | Mixes two jobs in one command: replacing the shop's own secret, and registering with secrets handed over from another shop. |
+| Name the steps `--release` (on the copy) and `--claim` (on production) instead of `--start` and `--finish` | Open. They say that the registration changes hands, where `--start` and `--finish` only say the order. |
 | Manual recovery only | Every takeover needs support work. It stays as the fallback. |
 | **Keep `staging-secret` for 72 hours, hand it over, manual otherwise (chosen)** | |
 

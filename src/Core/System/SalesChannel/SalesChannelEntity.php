@@ -399,6 +399,26 @@ class SalesChannelEntity extends Entity
         $this->maintenanceIpWhitelist = $maintenanceIpAllowlist;
     }
 
+    public function getMaintenancePassword(): ?string
+    {
+        return $this->maintenancePassword;
+    }
+
+    public function setMaintenancePassword(?string $maintenancePassword): void
+    {
+        $this->maintenancePassword = $maintenancePassword;
+    }
+
+    public function getMaintenancePasswordGeneration(): ?string
+    {
+        return $this->maintenancePasswordGeneration;
+    }
+
+    public function setMaintenancePasswordGeneration(?string $maintenancePasswordGeneration): void
+    {
+        $this->maintenancePasswordGeneration = $maintenancePasswordGeneration;
+    }
+
     /**
      * @deprecated tag:v6.8.0 - Will be removed, use getMaintenanceIpAllowlist() instead.
      *

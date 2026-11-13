@@ -640,16 +640,19 @@ export default {
             return false;
         },
 
-        async saveMaintenancePassword() {
+        getMaintenancePasswordToSave() {
             const { isEnabled, isSet, value } = this.maintenancePassword;
-            let password = null;
 
             if (isEnabled && value !== '') {
-                password = value;
-            } else if (!isEnabled && isSet) {
-                // an empty password removes the password protection
-                password = '';
+                return value;
             }
+
+            // an empty password removes the password protection
+            return !isEnabled && isSet ? '' : null;
+        },
+
+        async saveMaintenancePassword() {
+            const password = this.getMaintenancePasswordToSave();
 
             if (password === null || !this.salesChannel?.id) {
                 return true;

@@ -89,7 +89,7 @@ class MaintenanceControllerTest extends TestCase
 
         static::assertSame(503, $response->getStatusCode());
         static::assertStringContainsString('maintenance/password', (string) $response->getContent());
-        static::assertStringNotContainsString('initial', (string) $response->getContent());
+        static::assertStringNotContainsString('maintenance-page-cms-content', (string) $response->getContent());
 
         $browser->request('POST', EnvironmentHelper::getVariable('APP_URL') . '/maintenance/password', [
             'password' => 'correct-horse-battery',
@@ -138,7 +138,7 @@ class MaintenanceControllerTest extends TestCase
                                     'config' => [
                                         'content' => [
                                             'source' => 'static',
-                                            'value' => 'initial',
+                                            'value' => 'maintenance-page-cms-content',
                                         ],
                                     ],
                                 ],

@@ -3,24 +3,32 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { defineComponent, type PropType } from 'vue';
 
 const mockGet = jest.fn();
 const mockSave = jest.fn(() => Promise.resolve());
 
-/**
- * The part of the `sw-sales-channel-detail` page this suite drives. The page is a JavaScript component,
- * so `vm` carries no usable type on its own.
- */
-interface SalesChannelDetailVm {
-    maintenancePassword: {
-        isEnabled: boolean;
-        isSet: boolean;
-        value: string;
-        error: { code: string; detail?: string } | null;
-    };
-    onSave(): Promise<void>;
-    createNotificationError(notification: { message: string }): void;
+interface MaintenancePassword {
+    isEnabled: boolean;
+    isSet: boolean;
+    value: string;
+    error: { code: string; detail?: string } | null;
 }
+
+/**
+ * Stands in for the routed detail view and receives the same props, so the suite can change the
+ * maintenance password state the way the base view does.
+ */
+const routedViewProbe = defineComponent({
+    name: 'routed-view-probe',
+    props: {
+        maintenancePassword: {
+            type: Object as PropType<MaintenancePassword>,
+            required: true,
+        },
+    },
+    template: '<div class="routed-view-probe"></div>',
+});
 
 const salesChannelId = '1a2b3c4d';
 const maintenancePasswordUrl = `/_action/sales-channel/${salesChannelId}/maintenance-password`;
@@ -63,7 +71,10 @@ async function createWrapper({ isSet = false }: { isSet?: boolean } = {}) {
                 'sw-tabs': true,
                 'sw-tabs-item': true,
                 'mt-tabs': true,
-                'router-view': true,
+                'router-view': {
+                    setup: () => ({ routedViewProbe }),
+                    template: '<slot :Component="routedViewProbe" />',
+                },
                 'sw-skeleton': true,
                 'mt-banner': true,
             },
@@ -105,20 +116,33 @@ async function createWrapper({ isSet = false }: { isSet?: boolean } = {}) {
 
     await flushPromises();
 
-    return { vm: wrapper.vm as unknown as SalesChannelDetailVm, httpClient };
+    const maintenancePassword = () =>
+        wrapper.getComponent(routedViewProbe).props('maintenancePassword') as MaintenancePassword;
+
+    const save = async () => {
+        wrapper.getComponent('.sw-sales-channel-detail__save-action').vm.$emit('click', new Event('click'));
+        await flushPromises();
+    };
+
+    return { maintenancePassword, save, httpClient };
 }
 
 describe('src/module/sw-sales-channel/page/sw-sales-channel-detail maintenance password', () => {
     beforeEach(() => {
         mockGet.mockClear();
         mockSave.mockClear();
+        jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
     });
 
     it('should enable the password checkbox when a password is stored', async () => {
-        const { vm, httpClient } = await createWrapper({ isSet: true });
+        const { maintenancePassword, httpClient } = await createWrapper({ isSet: true });
 
         expect(httpClient.get).toHaveBeenCalledWith(maintenancePasswordUrl, { headers: {} });
-        expect(vm.maintenancePassword).toEqual({
+        expect(maintenancePassword()).toEqual({
             isEnabled: true,
             isSet: true,
             value: '',
@@ -127,19 +151,19 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail maintenance p
     });
 
     it('should keep the password checkbox disabled when no password is stored', async () => {
-        const { vm } = await createWrapper();
+        const { maintenancePassword } = await createWrapper();
 
-        expect(vm.maintenancePassword.isEnabled).toBe(false);
-        expect(vm.maintenancePassword.isSet).toBe(false);
+        expect(maintenancePassword().isEnabled).toBe(false);
+        expect(maintenancePassword().isSet).toBe(false);
     });
 
     it('should require a password when the protection is enabled without a stored password', async () => {
-        const { vm, httpClient } = await createWrapper();
-        vm.maintenancePassword.isEnabled = true;
+        const { maintenancePassword, save, httpClient } = await createWrapper();
+        maintenancePassword().isEnabled = true;
 
-        await vm.onSave();
+        await save();
 
-        expect(vm.maintenancePassword.error?.code).toBe('c1051bb4-d103-4f74-8988-acbcafc7fdc3');
+        expect(maintenancePassword().error?.code).toBe('c1051bb4-d103-4f74-8988-acbcafc7fdc3');
         expect(mockSave).not.toHaveBeenCalled();
         expect(httpClient.post).not.toHaveBeenCalled();
     });
@@ -148,23 +172,23 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail maintenance p
         ['too short', 'a'.repeat(11)],
         ['too long', 'a'.repeat(4097)],
     ])('should reject a password that is %s without saving', async (_, password) => {
-        const { vm, httpClient } = await createWrapper();
-        vm.maintenancePassword.isEnabled = true;
-        vm.maintenancePassword.value = password;
+        const { maintenancePassword, save, httpClient } = await createWrapper();
+        maintenancePassword().isEnabled = true;
+        maintenancePassword().value = password;
 
-        await vm.onSave();
+        await save();
 
-        expect(vm.maintenancePassword.error?.detail).toBe('sw-sales-channel.detail.maintenancePasswordMinLength');
+        expect(maintenancePassword().error?.detail).toBe('sw-sales-channel.detail.maintenancePasswordMinLength');
         expect(mockSave).not.toHaveBeenCalled();
         expect(httpClient.post).not.toHaveBeenCalled();
     });
 
     it('should save a new password after the sales channel was saved', async () => {
-        const { vm, httpClient } = await createWrapper();
-        vm.maintenancePassword.isEnabled = true;
-        vm.maintenancePassword.value = 'a-valid-password';
+        const { maintenancePassword, save, httpClient } = await createWrapper();
+        maintenancePassword().isEnabled = true;
+        maintenancePassword().value = 'a-valid-password';
 
-        await vm.onSave();
+        await save();
 
         expect(mockSave).toHaveBeenCalledTimes(1);
         expect(httpClient.post).toHaveBeenCalledWith(
@@ -175,34 +199,35 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail maintenance p
     });
 
     it('should keep the stored password when the field is left empty', async () => {
-        const { vm, httpClient } = await createWrapper({ isSet: true });
+        const { save, httpClient } = await createWrapper({ isSet: true });
 
-        await vm.onSave();
+        await save();
 
         expect(mockSave).toHaveBeenCalledTimes(1);
         expect(httpClient.post).not.toHaveBeenCalled();
     });
 
     it('should remove the stored password when the protection is disabled', async () => {
-        const { vm, httpClient } = await createWrapper({ isSet: true });
-        vm.maintenancePassword.isEnabled = false;
+        const { maintenancePassword, save, httpClient } = await createWrapper({ isSet: true });
+        maintenancePassword().isEnabled = false;
 
-        await vm.onSave();
+        await save();
 
         expect(httpClient.post).toHaveBeenCalledWith(maintenancePasswordUrl, { password: '' }, { headers: {} });
     });
 
     it('should show the API error when saving the password fails', async () => {
-        const { vm, httpClient } = await createWrapper();
-        const notifyError = jest.spyOn(vm, 'createNotificationError');
+        const { maintenancePassword, save, httpClient } = await createWrapper();
         httpClient.post.mockRejectedValueOnce({
             response: { data: { errors: [{ detail: 'The sales channel could not be updated.' }] } },
         });
-        vm.maintenancePassword.isEnabled = true;
-        vm.maintenancePassword.value = 'a-valid-password';
+        maintenancePassword().isEnabled = true;
+        maintenancePassword().value = 'a-valid-password';
 
-        await vm.onSave();
+        await save();
 
-        expect(notifyError).toHaveBeenCalledWith({ message: 'The sales channel could not be updated.' });
+        expect(Shopware.Store.get('notification').createNotification).toHaveBeenCalledWith(
+            expect.objectContaining({ variant: 'error', message: 'The sales channel could not be updated.' }),
+        );
     });
 });

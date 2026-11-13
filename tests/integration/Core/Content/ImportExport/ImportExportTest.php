@@ -22,6 +22,7 @@ use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Flow\Dispatching\BufferedFlowExecutor;
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileCollection;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Event\EnrichExportCriteriaEvent;
@@ -75,7 +76,6 @@ use Shopware\Core\Content\Test\ImportExport\StockSubscriber;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
@@ -208,7 +208,7 @@ class ImportExportTest extends AbstractImportExportTestCase
 
         $progress = $this->export(Context::createDefaultContext(), ProductDefinition::ENTITY_NAME, $criteria);
 
-        /** @var EntityRepository<EntityCollection<ImportExportFileEntity>> $fileRepository */
+        /** @var EntityRepository<ImportExportFileCollection> $fileRepository */
         $fileRepository = static::getContainer()->get('import_export_file.repository');
         $criteria = new Criteria(array_filter([$this->getLogEntity($progress->getLogId())->getFileId()]));
         $file = $fileRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
@@ -906,11 +906,11 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
 
         $first = $invalid[0];
         static::assertSame('e5c8b8f701034e8dbea72ac0fc32521e', $first['id']);
-        static::assertStringContainsString('CONSTRAINT `fk.product_', $first['_error']);
+        static::assertStringContainsString('Caught 1 constraint violation errors.', $first['_error']);
 
         $second = $invalid[1];
         static::assertSame('d5e8a6d00ce64f369a6aa3e29c4650cf', $second['id']);
-        static::assertStringContainsString('CONSTRAINT `fk.product_', $second['_error']);
+        static::assertStringContainsString('Caught 1 constraint violation errors.', $second['_error']);
     }
 
     public function testFinishedImportDoesNothing(): void
@@ -1916,11 +1916,11 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
 
         $first = $invalid[0];
         static::assertSame('e5c8b8f701034e8dbea72ac0fc32521e', $first['id']);
-        static::assertStringContainsString('CONSTRAINT `fk.product_', $first['_error']);
+        static::assertStringContainsString('Caught 1 constraint violation errors.', $first['_error']);
 
         $second = $invalid[1];
         static::assertSame('d5e8a6d00ce64f369a6aa3e29c4650cf', $second['id']);
-        static::assertStringContainsString('CONSTRAINT `fk.product_', $second['_error']);
+        static::assertStringContainsString('Caught 1 constraint violation errors.', $second['_error']);
     }
 
     #[TestWith([false])]

@@ -74,7 +74,6 @@ class SearchKeywordUpdaterTest extends TestCase
         $parent->setName('Parent product');
         $parent->setTranslated(['name' => 'Parent product']);
 
-        /** @var StaticEntityRepository<ProductCollection> $productRepository */
         $productRepository = new StaticEntityRepository([
             // products to index, the second (empty) search stops the iterator
             new ProductCollection([$child, $standalone]),
@@ -119,7 +118,6 @@ class SearchKeywordUpdaterTest extends TestCase
         $child = $this->createProduct($childId, Uuid::randomHex());
 
         // exactly the two searches of the product iterator: loading parent products would exhaust the repository and let it throw
-        /** @var StaticEntityRepository<ProductCollection> $productRepository */
         $productRepository = new StaticEntityRepository([
             new ProductCollection([$child]),
             new ProductCollection(),
@@ -144,8 +142,7 @@ class SearchKeywordUpdaterTest extends TestCase
         $parentLanguageId = Uuid::randomHex();
 
         $criteria = null;
-        /** @var StaticEntityRepository<ProductCollection> $productRepository */
-        $productRepository = new StaticEntityRepository([
+        $productRepository = StaticEntityRepository::of(ProductCollection::class, [
             function (Criteria $searchCriteria) use (&$criteria): ProductCollection {
                 $criteria = $searchCriteria;
 

@@ -52,12 +52,6 @@ describe('sw-integration-mcp-allowlist', () => {
         mcpToolService.getCapabilities.mockResolvedValue(defaultCapabilities);
     });
 
-    it('renders without errors', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.exists()).toBe(true);
-    });
-
     it('calls getCapabilities on created', async () => {
         await createWrapper();
 

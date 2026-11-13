@@ -80,6 +80,29 @@ class SystemSetupStagingCommandTest extends TestCase
         static::assertTrue($event->disableMailDelivery);
         static::assertSame(['MyDisabledExtension'], $event->extensionsToDisable);
         static::assertSame($systemConfigOverrides, $event->systemConfigOverrides);
+        static::assertFalse($event->reinstallApps);
+    }
+
+    public function testTheReinstallAppsOptionIsPassedOn(): void
+    {
+        $eventDispatcher = new CollectingEventDispatcher();
+
+        $command = new SystemSetupStagingCommand(
+            $eventDispatcher,
+            new StaticSystemConfigService(),
+            true,
+            [],
+            [],
+        );
+
+        $tester = new CommandTester($command);
+        $tester->execute(['--force' => null, '--reinstall-apps' => null], ['interactive' => false]);
+        $tester->assertCommandIsSuccessful();
+
+        $event = $eventDispatcher->getEvents()[0];
+
+        static::assertInstanceOf(SetupStagingEvent::class, $event);
+        static::assertTrue($event->reinstallApps);
     }
 
     public function testRunNoInteractionWithForce(): void

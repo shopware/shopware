@@ -1,6 +1,6 @@
 import type { ContentSystemElementTypeProperty } from 'src/core/service/api/content-system-element-type.api.service';
 import type { ContentElementNode } from 'src/core/service/content-element.types';
-import { formatComponentName, getContentElementLabel } from './content-element-label.util';
+import { getContentElementLabel } from './content-element-label.util';
 
 const SYSTEM_LANGUAGE_ID = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
 const GERMAN_LANGUAGE_ID = 'a1b2c3d4e5f60718293a4b5c6d7e8f90';
@@ -159,7 +159,48 @@ describe('module/sw-experience-studio/util/content-element-label.util', () => {
         ).toBe('System-language name');
     });
 
-    it('formats a namespaced component identifier into its trailing segment', () => {
-        expect(formatComponentName('Sw:Product:Slider')).toBe('Slider');
+    it('returns the type-label fallback when the only language map carries no chain language', () => {
+        expect(
+            getContentElementLabel(
+                makeElement({
+                    title: { [GERMAN_LANGUAGE_ID]: 'Hallo' },
+                }),
+                declare({ title: { translatable: true } }),
+                SYSTEM_CHAIN,
+                'Bild',
+            ),
+        ).toBe('Bild');
+    });
+
+    it('returns the type-label fallback for an element without an authored label', () => {
+        expect(
+            getContentElementLabel(
+                { component: 'Sw:Media:Image', properties: {} } as ContentElementNode,
+                declare({ title: { translatable: false } }),
+                SYSTEM_CHAIN,
+                'Bild',
+            ),
+        ).toBe('Bild');
+    });
+
+    it('prefers an authored label over the type-label fallback', () => {
+        expect(
+            getContentElementLabel(
+                { component: 'Sw:Media:Image', properties: { title: 'Mein Bild' } } as ContentElementNode,
+                declare({ title: { translatable: false } }),
+                SYSTEM_CHAIN,
+                'Bild',
+            ),
+        ).toBe('Mein Bild');
+    });
+
+    it('returns the trailing component segment for an unnamed element without a type-label fallback', () => {
+        expect(
+            getContentElementLabel(
+                { component: 'Sw:Media:Image', properties: {} } as ContentElementNode,
+                undefined,
+                SYSTEM_CHAIN,
+            ),
+        ).toBe('Image');
     });
 });

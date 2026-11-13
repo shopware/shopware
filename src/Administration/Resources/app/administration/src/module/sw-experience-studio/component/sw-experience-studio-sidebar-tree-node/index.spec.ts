@@ -14,8 +14,13 @@ describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tre
     const methods = (sidebarTreeNodeComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> })
         .methods;
 
-    it('labels the node through the declared properties of its type and the system-language chain', () => {
-        const labelMock = getContentElementLabel as jest.Mock;
+    const labelMock = getContentElementLabel as jest.Mock;
+
+    beforeEach(() => {
+        labelMock.mockReset();
+    });
+
+    it('labels the node through the declared properties of its type, the system-language chain and the translated type label', () => {
         labelMock.mockReturnValue('Headline');
         const contentElement = {
             id: 'element-1',
@@ -25,11 +30,37 @@ describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tre
             title: { translatable: true },
         };
         const elementTypeStore = {
-            getByName: (name: string) => (name === 'Sw:Content:Text' ? { properties: declaredProperties } : null),
+            getByName: (name: string) =>
+                name === 'Sw:Content:Text'
+                    ? { properties: declaredProperties, label: 'Text', labelSnippet: 'element.text' }
+                    : null,
         };
 
-        expect(computed.label.call({ contentElement, elementTypeStore })).toBe('Headline');
-        expect(labelMock).toHaveBeenCalledWith(contentElement, declaredProperties, [SYSTEM_LANGUAGE_ID]);
+        expect(
+            computed.label.call({
+                contentElement,
+                elementTypeStore,
+                $te: (key: string) => key === 'element.text',
+                $t: () => 'Fließtext',
+            }),
+        ).toBe('Headline');
+        expect(labelMock).toHaveBeenCalledWith(contentElement, declaredProperties, [SYSTEM_LANGUAGE_ID], 'Fließtext');
+    });
+
+    it('labels the node without declared properties and type label when its type is not in the store', () => {
+        const contentElement = {
+            id: 'element-1',
+            component: 'Sw:Content:Unknown',
+        };
+
+        computed.label.call({
+            contentElement,
+            elementTypeStore: { getByName: () => null },
+            $te: () => true,
+            $t: () => 'unused',
+        });
+
+        expect(labelMock).toHaveBeenCalledWith(contentElement, undefined, [SYSTEM_LANGUAGE_ID], undefined);
     });
 
     it('prevents drag events from reaching the draggable ancestor through control buttons', async () => {
@@ -104,21 +135,6 @@ describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tre
             wrapper.unmount();
             getStore.mockRestore();
         }
-    });
-
-    it('uses the translated element type as the tree label when no name is authored', () => {
-        const vm = {
-            contentElement: { component: 'Sw:Media:Image', properties: {} },
-            elementTypeStore: { getByName: () => ({ label: 'Image', labelSnippet: 'element.image' }) },
-            $te: (key: string) => key === 'element.image',
-            $t: () => 'Bild',
-        };
-
-        expect(computed.label.call(vm)).toBe('Bild');
-        expect(
-            computed.label.call({ ...vm, contentElement: { ...vm.contentElement, properties: { title: 'Mein Bild' } } }),
-        ).toBe('Mein Bild');
-        expect(computed.label.call({ ...vm, elementTypeStore: { getByName: () => null } })).toBe('Image');
     });
 
     it('uses configured type icon when available', () => {

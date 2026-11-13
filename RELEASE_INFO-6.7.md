@@ -343,6 +343,14 @@ A route can restrict these associations, for example with `$criteria->getAssocia
 Orders placed before this change still contain the default currency value.
 Extensions and headless frontends that convert `payload.value` into the cart currency themselves must remove that conversion.
 
+### Product documents
+
+Products can have documents, such as manuals, datasheets or certificates, in `product.documents`.
+Each document has a title and a file per language, which fall back separately like other translated fields.
+A variant without documents of its own gets those of its parent.
+The settings `shopware.product_documents.allowed_extensions` and `shopware.product_documents.max_file_size` limit the files, by default to PDF, DOCX, JPG and PNG up to 20 MB.
+The scheduled task `product_document.media.cleanup` deletes document files that no document uses.
+
 ## API
 
 ### Plain JSON becomes the default Admin API response format in 6.8
@@ -425,6 +433,12 @@ To remove such an app, uninstall it and remove its package with Composer.
 
 The experimental `/store-api/cookie-groups` route now also returns `cookieHashes`, which maps each cookie name to a hash of its configuration, including the data of every group that lists it.
 Clients can compare these hashes to find out which cookies were added or changed when the configuration `hash` changes.
+
+### Product documents in the API
+
+The Admin API has the new entities `product_document` and `product_document_translation`.
+`GET /api/_info/config` returns the document settings in `settings.productDocuments`.
+In the Store API, `documents.translations` of a product only contains the translations of the requested language and its fallbacks that have a public file.
 
 ## Features
 
@@ -758,6 +772,11 @@ Check your Administration extensions for these changes:
 - `mt-radio-group-item`, `mt-radio-group-card-item`, `mt-radio-group-custom-item` and `mt-status-dot` have a new `disabled` prop.
 - New component `mt-extension-icon`.
 
+### Product documents in the Administration
+
+Roles with product privileges get the matching product document privileges.
+Document files go into the new default media folder "Product Document Media".
+
 ## API
 
 To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`.
@@ -1027,6 +1046,11 @@ Subscribers that load the theme while handling the event now get the saved confi
 When maintenance mode was switched off, the redirect from the maintenance page into the shop was stored in the HTTP cache.
 Switching maintenance mode on again then sent every visitor not on the IP allowlist back and forth between the shop and that cached redirect (`ERR_TOO_MANY_REDIRECTS`) until the entry expired.
 The redirect is no longer cached. A shop that is already in this state gets out of it by running `bin/console cache:clear:http`.
+
+### Product documents in the Storefront
+
+The description and reviews element on the product page shows the documents of a product in a tab, rendered by `storefront/component/product/documents.html.twig`.
+Each document carries its file in the shopper's language in `media`.
 
 ## Hosting & Configuration
 

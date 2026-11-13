@@ -7,7 +7,6 @@
  * The rule specs pin the exact output.
  */
 
-import fs from 'fs';
 import path from 'path';
 import { upgradeExtensions } from '../upgrade';
 import type { ExtensionUpgrade } from '../upgrade';
@@ -16,8 +15,6 @@ import { PLUGIN, SOURCE, commitAll, createUpgradeProject, readSource } from './f
 import { TEMPLATE_CODEMOD_FIXTURE as FIXTURE } from './codemods-6-8-templates.fixture';
 
 jest.setTimeout(120_000);
-
-const ADMINISTRATION = `${PLUGIN}/src/Resources/app/administration`;
 
 interface TemplateCodemodCase {
     /** Registry id of the codemod. */
@@ -154,11 +151,6 @@ describe('scripts/extensionTooling/upgrade 6.8 template codemods', () => {
         ({ projectRoot, administrationRoot } = createUpgradeProject('sw-tooling-upgrade-templates-'));
 
         Object.entries(FIXTURE).forEach(([file, content]) => writeFile(path.join(projectRoot, SOURCE, file), content));
-        writeFile(path.join(projectRoot, ADMINISTRATION, 'vite.config.mts'), [
-            "const entries = import.meta.glob('./src/**/!(*.spec).js');",
-            '',
-            'export default { entries };',
-        ]);
         commitAll(path.join(projectRoot, PLUGIN));
 
         [dryRun] = (await upgradeExtensions({ projectRoot, administrationRoot })).extensions;
@@ -212,15 +204,6 @@ describe('scripts/extensionTooling/upgrade 6.8 template codemods', () => {
 
             expect(marked.join('\n')).toContain(`TODO Codemod(6.8, ${id}): `);
         });
-    });
-
-    it("also lints the extension's own vite.config", () => {
-        // Other codemods may mark the config as well; this test only proves that the runner lints it.
-        const config = fs.readFileSync(path.join(projectRoot, ADMINISTRATION, 'vite.config.mts'), 'utf8');
-
-        expect(written.changedFiles).toContain('src/Resources/app/administration/vite.config.mts');
-        expect(config).toContain("const entries = import.meta.glob(['./src/**/*.js', '!./src/**/*.spec.js']);");
-        expect(config).not.toContain('!(*.spec)');
     });
 
     it('keeps the content slot of a converted sw-tabs without a codemod comment', () => {

@@ -374,7 +374,7 @@ They extend `OrderStateMachineStateChangeEvent`, so existing subscribers keep wo
 Read them with `getDeliveryIndexes()` and `getTransactionIndexes()`, or as `deliveryIndexes` and `transactionIndexes` in the error parameters of the Store API cart.
 Each index counts from 0 and matches `Cart::getDeliveries()->getAt()` and `Cart::getTransactions()->getAt()`, and the `deliveries` and `transactions` lists of the Store API cart.
 The indexes are only valid for the calculation that raised the error and are not the `position` of an order delivery.
-The error id stays per method, so all deliveries blocked for one shipping method share one error; shipping discount deliveries are left out.
+The error id stays per method, so all deliveries blocked for one shipping method share one error; deliveries with negative shipping costs, like shipping discounts, are left out of the list.
 The list is empty when the error is not tied to a delivery or transaction.
 Errors from `PaymentMethodValidator` always have an empty list, because the validator runs before the cart transactions exist; the checkout gateway fills it.
 Pass `deliveryIndexes` or `transactionIndexes` when your extension raises these errors for specific deliveries or transactions.

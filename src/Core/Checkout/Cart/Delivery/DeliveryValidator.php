@@ -19,10 +19,6 @@ class DeliveryValidator implements CartValidatorInterface
         $blockedDeliveryIndexes = [];
 
         foreach (array_values($cart->getDeliveries()->getElements()) as $deliveryIndex => $delivery) {
-            if ($delivery->getShippingCosts()->getTotalPrice() < 0) {
-                continue;
-            }
-
             $shippingMethod = $delivery->getShippingMethod();
             $ruleId = $shippingMethod->getAvailabilityRuleId();
 
@@ -37,7 +33,10 @@ class DeliveryValidator implements CartValidatorInterface
             }
 
             $blockedShippingMethods[$shippingMethod->getId()] = $shippingMethod;
-            $blockedDeliveryIndexes[$shippingMethod->getId()][] = $deliveryIndex;
+
+            if ($delivery->getShippingCosts()->getTotalPrice() >= 0) {
+                $blockedDeliveryIndexes[$shippingMethod->getId()][] = $deliveryIndex;
+            }
         }
 
         foreach ($blockedShippingMethods as $shippingMethod) {
@@ -46,7 +45,7 @@ class DeliveryValidator implements CartValidatorInterface
                     id: $shippingMethod->getId(),
                     name: (string) $shippingMethod->getTranslation('name'),
                     reason: 'rule not matching or inactive',
-                    deliveryIndexes: $blockedDeliveryIndexes[$shippingMethod->getId()],
+                    deliveryIndexes: $blockedDeliveryIndexes[$shippingMethod->getId()] ?? [],
                 )
             );
         }

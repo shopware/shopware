@@ -264,6 +264,7 @@ class CheckoutGatewayRouteTest extends TestCase
             $this->createDelivery($this->createShippingMethod('Second shipping'), 100.00),
             $this->createDelivery($firstShippingMethod, 100.00),
             $this->createDelivery($firstShippingMethod, -100.00),
+            $this->createDelivery($this->createShippingMethod('Negative cost shipping'), -100.00),
         ]));
 
         $paymentMethodRoute = static::createStub(AbstractPaymentMethodRoute::class);
@@ -301,7 +302,7 @@ class CheckoutGatewayRouteTest extends TestCase
         }
 
         static::assertSame(['Bar' => [0, 2]], $transactionIndexes);
-        static::assertSame(['First shipping' => [0, 2], 'Second shipping' => [1]], $deliveryIndexes);
+        static::assertSame(['First shipping' => [0, 2], 'Second shipping' => [1], 'Negative cost shipping' => []], $deliveryIndexes);
     }
 
     public function testOnlyAvailableFlagIsSet(): void

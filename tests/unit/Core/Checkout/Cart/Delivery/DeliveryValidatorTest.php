@@ -54,6 +54,10 @@ class DeliveryValidatorTest extends TestCase
         $expressDelivery->getShippingMethod()->setTranslated(['name' => 'Express']);
         $shippingDiscount = $this->generateDeliveryDummy('');
         $shippingDiscount->setShippingCosts(new CalculatedPrice(-5, -5, new CalculatedTaxCollection(), new TaxRuleCollection()));
+        $negativeCostDelivery = $this->generateDeliveryDummy('');
+        $negativeCostDelivery->getShippingMethod()->setId('negative-cost-shipping-method-id');
+        $negativeCostDelivery->getShippingMethod()->setTranslated(['name' => 'Negative cost']);
+        $negativeCostDelivery->setShippingCosts(new CalculatedPrice(-5, -5, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         $cart = new Cart('test');
         $cart->setDeliveries(new DeliveryCollection([
@@ -62,6 +66,7 @@ class DeliveryValidatorTest extends TestCase
             $expressDelivery,
             $this->generateDeliveryDummy(''),
             $shippingDiscount,
+            $negativeCostDelivery,
         ]));
 
         $errors = new ErrorCollection();
@@ -73,7 +78,7 @@ class DeliveryValidatorTest extends TestCase
             $deliveryIndexes[$error->getName()] = $error->getDeliveryIndexes();
         }
 
-        static::assertSame(['Test' => [0, 3], 'Express' => [2]], $deliveryIndexes);
+        static::assertSame(['Test' => [0, 3], 'Express' => [2], 'Negative cost' => []], $deliveryIndexes);
     }
 
     public function testValidateDeliveryShippingMethodWithNoAvailabilityRuleShallBeValid(): void

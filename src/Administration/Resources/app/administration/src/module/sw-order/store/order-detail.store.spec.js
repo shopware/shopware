@@ -125,6 +125,33 @@ describe('src/module/sw-order/state/order-detail.store', () => {
         expect(state.orderAddressIds).toEqual([]);
     });
 
+    it('should keep the selections of shipments that share an order address apart', () => {
+        const firstShipmentSelection = {
+            orderAddressId: 'order-address',
+            customerAddressId: 'customer-address-1',
+            type: 'shipping',
+            edited: false,
+            deliveryId: 'first-shipment',
+        };
+        const secondShipmentSelection = {
+            ...firstShipmentSelection,
+            customerAddressId: 'customer-address-2',
+            deliveryId: 'second-shipment',
+        };
+
+        state.setOrderAddressIds(firstShipmentSelection);
+        state.setOrderAddressIds(secondShipmentSelection);
+
+        expect(state.orderAddressIds).toEqual([
+            firstShipmentSelection,
+            secondShipmentSelection,
+        ]);
+
+        state.setOrderAddressIds({ ...secondShipmentSelection, customerAddressId: 'order-address' });
+
+        expect(state.orderAddressIds).toEqual([firstShipmentSelection]);
+    });
+
     describe('loadCustomer', () => {
         const customerId = '0190d9275a6a72ae8b536849a4a02d85';
 

@@ -19,8 +19,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
@@ -170,11 +172,19 @@ class UnusedMediaPurger
             return $mediaIds;
         }
 
-        $maxUploadedAt = $this->clock->now()->sub(new \DateInterval(\sprintf('P%dD', $gracePeriodDays)));
-        $rangeFilter = new RangeFilter('uploadedAt', ['lt' => $maxUploadedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $gracePeriodStart = $this->clock->now()
+            ->sub(new \DateInterval(\sprintf('P%dD', $gracePeriodDays)))
+            ->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $criteria = new Criteria($mediaIds);
-        $criteria->addFilter($rangeFilter);
+        // a media without a file has no upload date, so its creation date counts
+        $criteria->addFilter(new OrFilter([
+            new RangeFilter('uploadedAt', ['lt' => $gracePeriodStart]),
+            new AndFilter([
+                new EqualsFilter('uploadedAt', null),
+                new RangeFilter('createdAt', ['lt' => $gracePeriodStart]),
+            ]),
+        ]));
 
         return $this->mediaRepo->searchIds($criteria, $context)->getIds();
     }

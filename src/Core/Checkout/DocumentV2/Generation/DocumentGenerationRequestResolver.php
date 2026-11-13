@@ -47,7 +47,8 @@ readonly class DocumentGenerationRequestResolver implements ValueResolverInterfa
          *     documentDate?: mixed,
          *     documentNumber?: mixed,
          *     deliveryDate?: mixed,
-         *     referencedDocumentId?: mixed
+         *     referencedDocumentId?: mixed,
+         *     orderDeliveryId?: mixed
          * } $payload
          */
         $payload = $request->toArray();
@@ -65,6 +66,7 @@ readonly class DocumentGenerationRequestResolver implements ValueResolverInterfa
             documentDate: $this->extractOptionalString($payload, 'documentDate'),
             deliveryDate: $this->extractOptionalString($payload, 'deliveryDate'),
             referencedDocumentId: $this->extractOptionalString($payload, 'referencedDocumentId'),
+            orderDeliveryId: $this->extractOptionalString($payload, 'orderDeliveryId'),
         );
     }
 
@@ -82,7 +84,8 @@ readonly class DocumentGenerationRequestResolver implements ValueResolverInterfa
             ->add('documentComment', new Type('string'))
             ->add('documentDate', new Type('string'), self::parseableAsDateTime())
             ->add('deliveryDate', new Type('string'), self::parseableAsDateTime())
-            ->add('referencedDocumentId', new Type('string'), new Uuid());
+            ->add('referencedDocumentId', new Type('string'), new Uuid())
+            ->add('orderDeliveryId', new Type('string'), new Uuid());
 
         if (\array_key_exists('formats', $payload)) {
             $definition->add('formats', new NotBlank(), new Type('array'), new Count(min: 1), new All(new Type('string')));

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -74,26 +75,24 @@ abstract class AbstractMediaUsageIndexer extends EntityIndexer
     abstract protected function getTableName(): string;
 
     /**
-     * Replaces the rows of the indexed versions of the entities, the rows of other versions are kept
+     * Replaces the rows of the live versions of the entities, only live versions are shown and cached
      *
-     * @param array<string, list<string>> $idsByVersion binary ids of the owner entities by the hex id of the indexed version
+     * @param list<string> $ids binary ids of the owner entities
      * @param list<array<string, string>> $rows rows to insert, the ids as bytes
      */
-    protected function replaceUsages(array $idsByVersion, array $rows): void
+    protected function replaceUsages(array $ids, array $rows): void
     {
-        RetryableTransaction::retryable($this->connection, function () use ($idsByVersion, $rows): void {
-            foreach ($idsByVersion as $versionId => $ids) {
-                $this->connection->executeStatement(
-                    \sprintf(
-                        'DELETE FROM `%s` WHERE %s IN (:ids) AND %s = :version',
-                        $this->getTableName(),
-                        EntityDefinitionQueryHelper::escape($this->getOwnerEntityName() . '_id'),
-                        EntityDefinitionQueryHelper::escape($this->getOwnerEntityName() . '_version_id')
-                    ),
-                    ['ids' => array_values(array_unique($ids)), 'version' => Uuid::fromHexToBytes($versionId)],
-                    ['ids' => ArrayParameterType::BINARY]
-                );
-            }
+        RetryableTransaction::retryable($this->connection, function () use ($ids, $rows): void {
+            $this->connection->executeStatement(
+                \sprintf(
+                    'DELETE FROM `%s` WHERE %s IN (:ids) AND %s = :version',
+                    $this->getTableName(),
+                    EntityDefinitionQueryHelper::escape($this->getOwnerEntityName() . '_id'),
+                    EntityDefinitionQueryHelper::escape($this->getOwnerEntityName() . '_version_id')
+                ),
+                ['ids' => $ids, 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+                ['ids' => ArrayParameterType::BINARY]
+            );
 
             // ids of deleted media can still be referenced in slot configs, their rows fail the foreign key and are ignored
             $queue = new MultiInsertQueryQueue($this->connection, ignoreErrors: true);

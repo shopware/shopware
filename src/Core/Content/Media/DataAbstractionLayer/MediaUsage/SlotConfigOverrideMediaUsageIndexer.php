@@ -4,10 +4,11 @@ namespace Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
@@ -42,21 +43,6 @@ class SlotConfigOverrideMediaUsageIndexer extends AbstractMediaUsageIndexer
         return $this->getTableName() . '.indexer';
     }
 
-    /**
-     * The translations are iterated by their primary keys, the messages contain the ids of the entities they belong to
-     */
-    public function iterate(?array $offset): ?EntityIndexingMessage
-    {
-        $iterator = $this->createIterator($offset);
-
-        $keys = $iterator->fetch();
-        if ($keys === []) {
-            return null;
-        }
-
-        return new EntityIndexingMessage($this->getOwnerIds(array_values($keys), $this->getOwnerKey()), $iterator->getOffset());
-    }
-
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
     {
         $ids = $this->getOwnerIds($event->getPrimaryKeysWithPropertyChange($this->getEntityName(), ['slotConfig']), $this->getOwnerKey());
@@ -74,16 +60,14 @@ class SlotConfigOverrideMediaUsageIndexer extends AbstractMediaUsageIndexer
 
         $translations = $this->connection->fetchAllAssociative(
             \sprintf(
-                'SELECT LOWER(HEX(%1$s)) AS version_id, %2$s AS id, language_id, slot_config FROM %3$s WHERE %2$s IN (:ids)',
-                EntityDefinitionQueryHelper::escape($entity . '_version_id'),
+                'SELECT %1$s AS id, language_id, slot_config FROM %2$s WHERE %1$s IN (:ids) AND %3$s = :version AND slot_config IS NOT NULL',
                 EntityDefinitionQueryHelper::escape($entity . '_id'),
-                EntityDefinitionQueryHelper::escape($entity . '_translation')
+                EntityDefinitionQueryHelper::escape($this->getEntityName()),
+                EntityDefinitionQueryHelper::escape($entity . '_version_id')
             ),
-            ['ids' => $ids],
+            ['ids' => $ids, 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
             ['ids' => ArrayParameterType::BINARY]
         );
-
-        $idsByVersion = FetchModeHelper::group($translations, static fn (array $translation): string => (string) $translation['id']);
 
         foreach ($translations as $key => $translation) {
             $overrides = json_decode((string) $translation['slot_config'], true);
@@ -113,14 +97,14 @@ class SlotConfigOverrideMediaUsageIndexer extends AbstractMediaUsageIndexer
             foreach ($mediaIds as $mediaId) {
                 $rows[] = [
                     $entity . '_id' => (string) $translation['id'],
-                    $entity . '_version_id' => Uuid::fromHexToBytes((string) $translation['version_id']),
+                    $entity . '_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
                     'language_id' => (string) $translation['language_id'],
                     'media_id' => Uuid::fromHexToBytes($mediaId),
                 ];
             }
         }
 
-        $this->replaceUsages($idsByVersion, $rows);
+        $this->replaceUsages($ids, $rows);
     }
 
     public function getDecorated(): EntityIndexer
@@ -134,7 +118,10 @@ class SlotConfigOverrideMediaUsageIndexer extends AbstractMediaUsageIndexer
     protected function createIterator(?array $offset): IterableQuery
     {
         $iterator = parent::createIterator($offset);
-        $iterator->getQuery()->andWhere('slot_config IS NOT NULL');
+        $iterator->getQuery()
+            ->andWhere('slot_config IS NOT NULL')
+            ->andWhere(EntityDefinitionQueryHelper::escape($this->getOwnerEntityName() . '_version_id') . ' = :version')
+            ->setParameter('version', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
 
         return $iterator;
     }
@@ -159,9 +146,20 @@ class SlotConfigOverrideMediaUsageIndexer extends AbstractMediaUsageIndexer
      */
     private function getOwnerKey(): string
     {
-        $reference = $this->definition->getParentDefinition()->getTranslationField()?->getReferenceField();
+        $parent = $this->definition->getParentDefinition();
+        $translationField = $parent->getTranslationField();
+        if ($translationField === null) {
+            /** @phpstan-ignore shopware.domainException (the definition of the translation is broken, which is an error of the DAL) */
+            throw DataAbstractionLayerException::missingParentForeignKey($parent->getEntityName());
+        }
 
-        return $this->definition->getFields()->getByStorageName((string) $reference)?->getPropertyName() ?? '';
+        $field = $this->definition->getFields()->getByStorageName($translationField->getReferenceField());
+        if ($field === null) {
+            /** @phpstan-ignore shopware.domainException (the definition of the translation is broken, which is an error of the DAL) */
+            throw DataAbstractionLayerException::fieldByStorageNameNotFound($this->definition->getEntityName(), $translationField->getReferenceField());
+        }
+
+        return $field->getPropertyName();
     }
 
     /**

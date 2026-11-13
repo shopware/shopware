@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage;
 use Doctrine\DBAL\ArrayParameterType;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation\CmsSlotTranslationDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * whose cache tag is invalidated when a media is replaced.
  * Deleting a slot, or the block or section containing it, removes its rows by the foreign key to the slot.
  * Section and block backgrounds are foreign keys of their own and are not mapped.
+ * Only the live versions are mapped, other versions are neither shown nor cached.
  *
  * @internal
  */
@@ -42,18 +43,15 @@ class CmsSlotMediaUsageIndexer extends AbstractMediaUsageIndexer
         if ($ids === []) {
             return;
         }
-        $parameters = ['ids' => $ids];
-        $types = ['ids' => ArrayParameterType::BINARY];
-
         $slots = $this->connection->fetchAllAssociative(
-            'SELECT LOWER(HEX(slot.version_id)) AS cms_slot_version_id, section.cms_page_id, section.cms_page_version_id, slot.id AS cms_slot_id, slot.type, translation.config
+            'SELECT section.cms_page_id, section.cms_page_version_id, slot.id AS cms_slot_id, slot.version_id AS cms_slot_version_id, slot.type, translation.config
              FROM cms_slot_translation AS translation
              INNER JOIN cms_slot AS slot ON slot.id = translation.cms_slot_id AND slot.version_id = translation.cms_slot_version_id
              INNER JOIN cms_block AS block ON block.id = slot.cms_block_id AND block.version_id = slot.cms_block_version_id
              INNER JOIN cms_section AS section ON section.id = block.cms_section_id AND section.version_id = block.cms_section_version_id
-             WHERE slot.id IN (:ids)',
-            $parameters,
-            $types
+             WHERE slot.id IN (:ids) AND slot.version_id = :version',
+            ['ids' => $ids, 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         $rows = [];
@@ -65,7 +63,7 @@ class CmsSlotMediaUsageIndexer extends AbstractMediaUsageIndexer
             }
         }
 
-        $this->replaceUsages(FetchModeHelper::group($slots, static fn (array $slot): string => (string) $slot['cms_slot_id']), $rows);
+        $this->replaceUsages($ids, $rows);
     }
 
     public function getDecorated(): EntityIndexer
@@ -94,7 +92,7 @@ class CmsSlotMediaUsageIndexer extends AbstractMediaUsageIndexer
             'cms_page_id' => (string) $slot['cms_page_id'],
             'cms_page_version_id' => (string) $slot['cms_page_version_id'],
             'cms_slot_id' => (string) $slot['cms_slot_id'],
-            'cms_slot_version_id' => Uuid::fromHexToBytes((string) $slot['cms_slot_version_id']),
+            'cms_slot_version_id' => (string) $slot['cms_slot_version_id'],
             'media_id' => $mediaId,
         ];
     }

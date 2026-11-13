@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -65,9 +64,10 @@ class DeliveryPositionCollection extends Collection
 
     public function getWeight(): float
     {
-        $weights = $this->getLineItems()->map(static function (LineItem $deliverable) {
-            if ($deliverable->getDeliveryInformation()) {
-                return (float) $deliverable->getDeliveryInformation()->getWeight() * $deliverable->getQuantity();
+        $weights = $this->map(static function (DeliveryPosition $position) {
+            $deliveryInformation = $position->getLineItem()->getDeliveryInformation();
+            if ($deliveryInformation) {
+                return (float) $deliveryInformation->getWeight() * $position->getQuantity();
             }
 
             return 0;
@@ -85,8 +85,8 @@ class DeliveryPositionCollection extends Collection
 
     public function getVolume(): float
     {
-        $volumes = $this->getLineItems()->map(static function (LineItem $deliverable) {
-            $information = $deliverable->getDeliveryInformation();
+        $volumes = $this->map(static function (DeliveryPosition $position) {
+            $information = $position->getLineItem()->getDeliveryInformation();
             if ($information === null) {
                 return 0;
             }
@@ -107,7 +107,7 @@ class DeliveryPositionCollection extends Collection
                 return 0;
             }
 
-            return ($length * $width * $height) * $deliverable->getQuantity();
+            return ($length * $width * $height) * $position->getQuantity();
         });
 
         return array_sum($volumes);

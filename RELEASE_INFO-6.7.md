@@ -408,6 +408,17 @@ A route can restrict these associations, for example with `$criteria->getAssocia
 Orders placed before this change still contain the default currency value.
 Extensions and headless frontends that convert `payload.value` into the cart currency themselves must remove that conversion.
 
+### Split cart delivery positions by quantity
+
+`Shopware\Core\Checkout\Cart\Delivery\DeliveryPositionSplitter::split()` splits a cart delivery position into a part with the given quantity and a remainder, each with its own line item clone, price, taxes and delivery date.
+Extensions that regroup deliveries, for example in a `DeliveryBuilder` decorator, can use it instead of recalculating partial positions themselves.
+Part prices are split like line items of promotion set groups and can differ from the whole position by rounding.
+It throws `CHECKOUT__CART_DELIVERY_POSITION_INVALID_SPLIT_QUANTITY`, `CHECKOUT__CART_DELIVERY_POSITION_NOT_SPLITTABLE` for line items with children and `CHECKOUT__CART_DELIVERY_POSITION_NOT_STACKABLE`.
+`DeliveryBuilder::resolveDeliveryDate()` returns the delivery or restock date for a quantity of a line item.
+
+`DeliveryPositionCollection::getWeight()` and `getVolume()` now count the position quantity instead of the line item quantity.
+For extensions that already build positions holding part of a line item, this changes weight and volume based shipping costs and the cart volume rule.
+
 ## API
 
 ### Plain JSON becomes the default Admin API response format in 6.8

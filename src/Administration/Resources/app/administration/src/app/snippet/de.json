@@ -937,6 +937,9 @@
             "6": "Samstag",
             "7": "Sonntag"
           }
+        },
+        "timezone": {
+          "label": "Zeitzone"
         }
       },
       "cartLineItemOfType": {

@@ -29,9 +29,9 @@ class LoginRouteTest extends TestCase
 {
     public function testRateLimiterIsCalledWithCorrectKeys(): void
     {
-        $email = 'Test@Example.COM';
+        $email = " \u{00A0}Test@Example.COM\u{3000}  ";
         $ip = '192.168.0.1';
-        $expectedEmailKey = strtolower($email);
+        $expectedEmailKey = 'test@example.com';
         $expectedCombinedKey = $expectedEmailKey . '-' . $ip;
 
         $ensureAcceptedCalls = [];
@@ -67,9 +67,9 @@ class LoginRouteTest extends TestCase
 
     public function testRateLimitersAreResetOnSuccessfulLogin(): void
     {
-        $email = 'user@example.com';
+        $email = " \u{00A0}user@example.com\u{3000}  ";
         $ip = '10.0.0.1';
-        $combinedKey = $email . '-' . $ip;
+        $combinedKey = 'user@example.com-' . $ip;
 
         $rateLimiter = $this->createMock(RateLimiter::class);
         $rateLimiter->expects($this->once())
@@ -94,7 +94,7 @@ class LoginRouteTest extends TestCase
 
         static::assertSame([
             [RateLimiter::LOGIN_CLIENT, $ip],
-            [RateLimiter::LOGIN_USER, $email],
+            [RateLimiter::LOGIN_USER, 'user@example.com'],
         ], $resetIfConfiguredCalls);
     }
 

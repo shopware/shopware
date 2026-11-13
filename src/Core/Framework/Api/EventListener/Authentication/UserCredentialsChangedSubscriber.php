@@ -7,6 +7,7 @@ use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\OAuth\AuthCodeRepository;
 use Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Log\Package;
@@ -41,11 +42,12 @@ class UserCredentialsChangedSubscriber implements EventSubscriberInterface
 
     public function onUserWritten(EntityWrittenEvent $event): void
     {
-        $payloads = $event->getPayloads();
-
-        foreach ($payloads as $payload) {
+        foreach ($event->getWriteResults() as $writeResult) {
+            $payload = $writeResult->getPayload();
             if ($this->userCredentialsChanged($payload)) {
-                $this->revokeUserTokens($payload['id']);
+                if ($writeResult->getOperation() !== EntityWriteResult::OPERATION_INSERT) {
+                    $this->revokeUserTokens($payload['id']);
+                }
                 $this->updateLastUpdatedPasswordTimestamp($payload['id']);
             }
         }

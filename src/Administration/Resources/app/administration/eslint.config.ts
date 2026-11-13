@@ -107,7 +107,11 @@ const limitRules = {
 };
 
 // Inline disables are blocked for these rules, so eslint-suppressions.json is the only way around them
-const rulesWithoutInlineDisable: string[] = Object.keys(limitRules);
+const rulesWithoutInlineDisable: string[] = [
+    ...Object.keys(limitRules),
+    'filename-rules/not-match',
+    'sw-core-rules/no-new-mixins',
+];
 
 /**
  * Shared rule policy applied to normal source files and TypeScript-specific overrides.
@@ -171,6 +175,7 @@ const baseRules = {
     // has no `--max-warnings`, so at warning level `Bad_Dir/index.vue` would pass CI.
     'sw-core-rules/native-setup-filename': 'error',
     'sw-deprecation-rules/private-feature-declarations': 'error',
+    'sw-deprecation-rules/valid-api-markers': 'error',
     'no-restricted-exports': 'off',
     'filename-rules/match': [
         2,
@@ -279,6 +284,10 @@ export default [
             '!scripts/extensionTooling/**/*',
             '!scripts/generate-shopware-modules/',
             '!scripts/generate-shopware-modules/**/*',
+            '!scripts/generate-public-api/',
+            '!scripts/generate-public-api/**/*',
+            // Fixture source trees are inputs of the generator, not Administration code.
+            'scripts/generate-public-api/__fixtures__/**/*',
             '!scripts/codemods/',
             '!scripts/codemods/sfc-migration/',
             '!scripts/codemods/sfc-migration/**/*',
@@ -815,6 +824,29 @@ export default [
                 'error',
                 { max: 1000 },
             ],
+            'sw-test-rules/no-vm-access': 'error',
+        },
+    },
+
+    // New source code is TypeScript, shared logic goes into composables
+    {
+        files: ['src/**/*.js'],
+        ignores: testFiles,
+        rules: {
+            'filename-rules/not-match': [
+                'error',
+                /\.js$/,
+            ],
+        },
+    },
+    {
+        files: [
+            'src/**/*.js',
+            'src/**/*.ts',
+        ],
+        ignores: testFiles,
+        rules: {
+            'sw-core-rules/no-new-mixins': 'error',
         },
     },
 

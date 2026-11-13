@@ -164,7 +164,7 @@ class ShopwareClass implements CustomShopwareProperties {
          * `sw-admin` renders every registered override once, hidden, at boot. Not for author use.
          */
         registerOverrideComponent: (component: DefineComponent<unknown, unknown, unknown>) => {
-            ShopwareClass.#overrideComponents.value.push(component);
+            ShopwareClass.#overrideComponents.value.push(Vue.markRaw(component));
         },
         /**
          * @private

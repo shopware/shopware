@@ -375,6 +375,7 @@ class RecalculationServiceTest extends TestCase
         $this->resetDataTimestamps($cart->getLineItems());
         foreach ($cart->getDeliveries() as $delivery) {
             $this->resetDataTimestamps($delivery->getPositions()->getLineItems());
+            $delivery->setRuleIds(null);
         }
         $cart->setRuleIds([]);
         // The behaviour will be set during the process, therefore we remove it here
@@ -1474,6 +1475,15 @@ class RecalculationServiceTest extends TestCase
         $orderAddressId = $order->getAddresses()->first()?->getId();
         static::assertIsString($orderAddressId);
 
+        static::getContainer()->get('order_address.repository')->update([
+            [
+                'id' => $orderAddressId,
+                'company' => 'ACME Corp',
+                'department' => 'Purchasing',
+                'additionalAddressLine1' => 'Building 2',
+            ],
+        ], $this->context->createWithVersionId($versionId));
+
         $firstName = 'Replace first name';
         $lastName = 'Replace last name';
         $street = 'Replace street';
@@ -1521,6 +1531,9 @@ class RecalculationServiceTest extends TestCase
         static::assertSame($street, $orderAddress->getStreet());
         static::assertSame($city, $orderAddress->getCity());
         static::assertSame($zipcode, $orderAddress->getZipcode());
+        static::assertNull($orderAddress->getCompany());
+        static::assertNull($orderAddress->getDepartment());
+        static::assertNull($orderAddress->getAdditionalAddressLine1());
     }
 
     public function testRecalculationControllerWithEmptyLineItems(): void

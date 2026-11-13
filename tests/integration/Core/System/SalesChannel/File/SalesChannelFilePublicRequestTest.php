@@ -105,7 +105,10 @@ class SalesChannelFilePublicRequestTest extends TestCase
         $catalog = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($catalog);
         static::assertSame('1.0', $catalog['specVersion']);
-        static::assertSame([], $catalog['entries']);
+        static::assertIsArray($catalog['entries']);
+        static::assertCount(1, $catalog['entries']);
+        static::assertStringEndsWith(':server:store-api-mcp', $catalog['entries'][0]['identifier'] ?? '');
+        static::assertStringEndsWith('/store-api/_mcp', $catalog['entries'][0]['url'] ?? '');
         static::assertStringNotContainsString('/api/_mcp', $content);
     }
 

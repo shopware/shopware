@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @deprecated tag:v6.8.0 - Will be removed without replacement
+ * @deprecated tag:v6.9.0 - Will be removed without replacement
  */
 #[Package('discovery')]
 class AppCookieProvider implements CookieProviderInterface
@@ -22,8 +22,9 @@ class AppCookieProvider implements CookieProviderInterface
     public function getCookieGroups(): array
     {
         Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'Use CookieGroupCollectEvent instead to introduce cookies')
+            'v6.9.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.9.0.0', 'Use CookieGroupCollectEvent instead to introduce cookies'),
+            silentUntil: 'v6.8.0.0',
         );
 
         return $this->inner->getCookieGroups();

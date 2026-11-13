@@ -15,7 +15,7 @@ export const ADMINISTRATION_ROOT = path.resolve(__dirname, '../..');
 
 const SNAPSHOT_DIRECTORY = path.join(ADMINISTRATION_ROOT, 'public-api');
 
-const GENERATED_FILE = /(?:\.d\.ts|\.api\.md|^index\.json)$/;
+const GENERATED_FILE = /(?:\.api\.md|^index\.json)$/;
 
 /** @private */
 export function generateCurrentSnapshot(): Snapshot {

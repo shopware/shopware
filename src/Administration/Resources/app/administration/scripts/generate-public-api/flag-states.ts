@@ -7,18 +7,29 @@
 import ts from 'typescript';
 import { isSameFlag, versionOfFlag } from '../feature-flags';
 
+/** @private */
+export const FLAG_STATES = [
+    'current',
+    'major',
+] as const;
+
+/** @private */
+export type FlagState = (typeof FLAG_STATES)[number];
+
 /**
  * @private
  *
  * The flag states in which an element exists.
  */
-export interface FlagStates {
-    current: boolean;
-    major: boolean;
+export type FlagStates = Record<FlagState, boolean>;
+
+/** @private */
+export function perState<T>(value: (state: FlagState) => T): Record<FlagState, T> {
+    return { current: value('current'), major: value('major') };
 }
 
 /** @private */
-export const BOTH_STATES: FlagStates = { current: true, major: true };
+export const BOTH_STATES: FlagStates = perState(() => true);
 
 /**
  * @private
@@ -35,9 +46,9 @@ export interface FlagContext {
 /** `null` when the value depends on something else than the major flags. */
 type Truth = boolean | null;
 
-type Truths = Record<keyof FlagStates, Truth>;
+type Truths = Record<FlagState, Truth>;
 
-const UNKNOWN: Truths = { current: null, major: null };
+const UNKNOWN: Truths = perState(() => null);
 
 const FEATURE_OBJECT = /(?:^|\.)\$?feature$/i;
 
@@ -60,12 +71,12 @@ export function createFlagContext(majorFlags: readonly string[]): FlagContext {
 
 /** @private */
 export function inBothStates(a: FlagStates, b: FlagStates): FlagStates {
-    return { current: a.current && b.current, major: a.major && b.major };
+    return perState((state) => a[state] && b[state]);
 }
 
 /** @private */
 export function inAnyState(a: FlagStates, b: FlagStates): FlagStates {
-    return { current: a.current || b.current, major: a.major || b.major };
+    return perState((state) => a[state] || b[state]);
 }
 
 function not(value: Truth): Truth {
@@ -85,7 +96,7 @@ function or(a: Truth, b: Truth): Truth {
 }
 
 function combine(a: Truths, b: Truths, operator: (a: Truth, b: Truth) => Truth): Truths {
-    return { current: operator(a.current, b.current), major: operator(a.major, b.major) };
+    return perState((state) => operator(a[state], b[state]));
 }
 
 function featureCheck(node: ts.CallExpression, flags: FlagContext): Truths {
@@ -116,9 +127,9 @@ export function conditionTruths(node: ts.Expression, flags: FlagContext): Truths
     }
 
     if (ts.isPrefixUnaryExpression(node) && node.operator === ts.SyntaxKind.ExclamationToken) {
-        const { current, major } = conditionTruths(node.operand, flags);
+        const operand = conditionTruths(node.operand, flags);
 
-        return { current: not(current), major: not(major) };
+        return perState((state) => not(operand[state]));
     }
 
     if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken) {
@@ -150,22 +161,18 @@ export function expressionTruths(expression: string, flags: FlagContext): Truths
  * own condition is off there, or an earlier branch is certainly taken.
  */
 export class ConditionChain {
-    private readonly taken: FlagStates = { current: false, major: false };
+    private taken: FlagStates = perState(() => false);
 
     public branch(condition: Truths): FlagStates {
-        const states = {
-            current: !this.taken.current && condition.current !== false,
-            major: !this.taken.major && condition.major !== false,
-        };
+        const states = perState((state) => !this.taken[state] && condition[state] !== false);
 
-        this.taken.current ||= condition.current === true;
-        this.taken.major ||= condition.major === true;
+        this.taken = perState((state) => this.taken[state] || condition[state] === true);
 
         return states;
     }
 
     public elseBranch(): FlagStates {
-        return this.branch({ current: true, major: true });
+        return this.branch(BOTH_STATES);
     }
 }
 

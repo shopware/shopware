@@ -12,10 +12,14 @@
 // silently becomes tracked API that the guard then defends forever.
 const FIXTURE_PATH_REGEX = /(\/(?:_mocks_|__fixtures__)\/|\.spec\/)/;
 
-export const isFixturePath = (filePath: string) => FIXTURE_PATH_REGEX.test(filePath);
-
 const isSourceFile = (extensionRegex: RegExp) => (filePath: string) =>
-    extensionRegex.test(filePath) && !isFixturePath(filePath);
+    extensionRegex.test(filePath) && !FIXTURE_PATH_REGEX.test(filePath);
+
+/**
+ * Every shipped file that can declare public API: scripts, SFCs and Twig templates without specs and
+ * declaration files.
+ */
+export const isPublicApiSourceFile = isSourceFile(/(?<!\.spec|\.d)\.(?:js|ts|vue|html\.twig)$/);
 
 /**
  * A native setup SFC declares its blocks as `<sw-block name="...">` and keeps its markup in the

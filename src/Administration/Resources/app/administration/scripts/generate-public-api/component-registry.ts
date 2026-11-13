@@ -1,7 +1,7 @@
 /**
  * @sw-package framework
  *
- * Finds the `Component.register`, `Component.extend` and `Component.override` calls and the files behind them.
+ * Finds the `Component.register` and `Component.extend` calls and the files behind them.
  */
 import ts from 'typescript';
 import { BOTH_STATES, ConditionChain, conditionTruths, inBothStates } from './flag-states';
@@ -11,40 +11,31 @@ import type { SourceTree } from './source-tree';
 const REGISTRATION_KINDS = [
     'register',
     'extend',
-    'override',
 ] as const;
-
-/** @private */
-export type RegistrationKind = (typeof REGISTRATION_KINDS)[number];
-
-/** @private */
-export type ComponentLanguage = 'js' | 'ts' | 'vue';
 
 /**
  * @private
  *
- * The files of a component. `source` is the file the registration imports, `sfc` the `.vue` file that it only
- * re-exports, and `template` its Twig template. `markup` is the one of them that holds the blocks, if any.
+ * One registration call. `source` is the file the registration imports, `sfc` the `.vue` file that it only
+ * re-exports, and `template` its Twig template. `states` are the flag states in which the call runs.
  */
-export interface ComponentSource {
+export interface Registration {
+    kind: (typeof REGISTRATION_KINDS)[number];
+    name: string;
+    extends: string | null;
+    language: 'js' | 'ts' | 'vue';
+    visibility: 'public' | 'private';
+    visibilitySource: 'default' | 'export' | 'registration';
+    registeredIn: string;
     source: string;
     sfc: string | null;
     template: string | null;
-    markup: string | null;
-    language: ComponentLanguage;
-    privateExport: boolean;
-}
-
-/** @private */
-export interface Registration extends ComponentSource {
-    kind: RegistrationKind;
-    name: string;
-    extendsName: string | null;
-    registeredIn: string;
-    privateRegistration: boolean;
     states: FlagStates;
 }
 
+type ComponentFiles = Pick<Registration, 'source' | 'sfc' | 'template' | 'language'> & { privateExport: boolean };
+
+// Only saves parsing the files without a registration. The syntax tree decides what counts as one.
 const REGISTRATION_CALL = new RegExp(`\\bComponent\\s*\\.\\s*(?:${REGISTRATION_KINDS.join('|')})\\s*\\(`);
 
 const COMPONENT_FACTORY = /(?:^|\.)Component$/;
@@ -117,22 +108,19 @@ function reExportedSfc(source: ts.SourceFile): ts.ExportDeclaration | undefined 
         );
 }
 
-function componentSource(file: string, tree: SourceTree): ComponentSource {
+function componentFiles(file: string, tree: SourceTree): ComponentFiles {
     if (file.endsWith('.vue')) {
-        return { source: file, sfc: null, template: null, markup: file, language: 'vue', privateExport: false };
+        return { source: file, sfc: null, template: null, language: 'vue', privateExport: false };
     }
 
     const source = parseScript(file, tree);
     const shim = reExportedSfc(source);
 
     if (shim) {
-        const sfc = resolveModule((shim.moduleSpecifier as ts.StringLiteral).text, file, tree);
-
         return {
             source: file,
-            sfc,
+            sfc: resolveModule((shim.moduleSpecifier as ts.StringLiteral).text, file, tree),
             template: null,
-            markup: sfc,
             language: 'vue',
             privateExport: hasPrivateTag(shim, source),
         };
@@ -140,26 +128,49 @@ function componentSource(file: string, tree: SourceTree): ComponentSource {
 
     const defaultExport = source.statements.find(ts.isExportAssignment);
 
-    const template = importedFile(source, '.html.twig', tree);
-
     return {
         source: file,
         sfc: null,
-        template,
-        markup: template,
+        template: importedFile(source, '.html.twig', tree),
         language: file.endsWith('.ts') ? 'ts' : 'js',
         privateExport: defaultExport !== undefined && hasPrivateTag(defaultExport, source),
     };
 }
 
-function lazyImport(config: ts.Node): string | undefined {
-    if (ts.isCallExpression(config) && config.expression.kind === ts.SyntaxKind.ImportKeyword) {
-        const [specifier] = config.arguments;
+/**
+ * @private
+ *
+ * The file that holds the blocks of a component, if any.
+ */
+export function markupOf({ language, source, sfc, template }: Registration): string | null {
+    return sfc ?? template ?? (language === 'vue' ? source : null);
+}
 
-        return ts.isStringLiteralLike(specifier) ? specifier.text : undefined;
+function literalText(node: ts.Node | undefined): string | undefined {
+    return node && ts.isStringLiteralLike(node) ? node.text : undefined;
+}
+
+/** The module of `() => import('./sw-example')`. */
+function lazyImport(config: ts.Expression): string | undefined {
+    const isLazyImport =
+        ts.isArrowFunction(config) &&
+        ts.isCallExpression(config.body) &&
+        config.body.expression.kind === ts.SyntaxKind.ImportKeyword;
+
+    return isLazyImport ? literalText(config.body.arguments[0]) : undefined;
+}
+
+function visibilityOf(
+    privateExport: boolean,
+    privateRegistration: boolean,
+): Pick<Registration, 'visibility' | 'visibilitySource'> {
+    if (privateExport) {
+        return { visibility: 'private', visibilitySource: 'export' };
     }
 
-    return ts.forEachChild(config, lazyImport);
+    return privateRegistration
+        ? { visibility: 'private', visibilitySource: 'registration' }
+        : { visibility: 'public', visibilitySource: 'default' };
 }
 
 /** The flag states in which the `if` statements around `node` let it run. */
@@ -185,7 +196,7 @@ function statementOf(node: ts.Node): ts.Node {
 }
 
 interface RegistrationCall {
-    kind: RegistrationKind;
+    kind: Registration['kind'];
     call: ts.CallExpression;
 }
 
@@ -196,40 +207,43 @@ function registrationOf(
     flags: FlagContext,
 ): Registration {
     const where = `${source.fileName}: Component.${kind}`;
-    const [name, ...rest] = call.arguments;
+    const [nameArgument, ...rest] = call.arguments;
+    const name = literalText(nameArgument);
     const config = rest.at(-1);
 
-    if (!name || !ts.isStringLiteralLike(name) || !config) {
+    if (name === undefined || !config) {
         throw new Error(`${where} needs a literal component name and a component, so the snapshot can name it.`);
     }
 
-    const extendsName = kind === 'extend' ? rest[0] : undefined;
+    const parent = kind === 'extend' ? literalText(rest[0]) : null;
 
-    if (kind === 'extend' && (!extendsName || !ts.isStringLiteralLike(extendsName))) {
-        throw new Error(`${where}('${name.text}') needs the name of the extended component as a literal.`);
+    if (parent === undefined) {
+        throw new Error(`${where}('${name}') needs the name of the extended component as a literal.`);
     }
 
     const specifier = lazyImport(config);
 
     if (specifier === undefined && !ts.isObjectLiteralExpression(config)) {
-        throw new Error(`${where}('${name.text}') has to pass an object literal or () => import('...').`);
+        throw new Error(`${where}('${name}') has to pass an object literal or () => import('...').`);
     }
 
+    const { privateExport, ...files } = componentFiles(
+        specifier === undefined ? source.fileName : resolveModule(specifier, source.fileName, tree),
+        tree,
+    );
+
     return {
-        ...componentSource(
-            specifier === undefined ? source.fileName : resolveModule(specifier, source.fileName, tree),
-            tree,
-        ),
+        ...files,
+        ...visibilityOf(privateExport, hasPrivateTag(statementOf(call), source)),
         kind,
-        name: name.text,
-        extendsName: extendsName && ts.isStringLiteralLike(extendsName) ? extendsName.text : null,
+        name,
+        extends: parent,
         registeredIn: source.fileName,
-        privateRegistration: hasPrivateTag(statementOf(call), source),
         states: guardStates(call, flags),
     };
 }
 
-function registrationKind(node: ts.Node): RegistrationKind | undefined {
+function registrationKind(node: ts.Node): Registration['kind'] | undefined {
     if (!ts.isCallExpression(node) || !ts.isPropertyAccessExpression(node.expression)) {
         return undefined;
     }

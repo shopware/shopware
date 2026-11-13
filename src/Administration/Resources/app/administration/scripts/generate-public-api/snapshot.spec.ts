@@ -8,6 +8,8 @@ const REGISTRY = 'src/module/sw-example/index.js';
 
 const CARD = 'src/module/sw-example/component/sw-example-card';
 
+const REPORT = 'module/sw-example/component/sw-example-card.api.md';
+
 /**
  * The snapshot of a source tree given as file contents. `sw-example-card` is registered unless `files`
  * brings its own registry.
@@ -42,7 +44,7 @@ function indexedComponents(files: Record<string, string>): Record<string, Indexe
 
 /** The lines of the `blocks` section of the card's report, without their indentation. */
 function blockLines(template: string): string[] {
-    const report = card(template)['module/sw-example/component/sw-example-card.api.md'];
+    const report = card(template)[REPORT];
     const [, section = ''] = /\nblocks\n([\s\S]*?)\n(?:\n|```)/.exec(report) ?? [];
 
     return section.split('\n').map((line) => line.trim());
@@ -50,13 +52,12 @@ function blockLines(template: string): string[] {
 
 describe('scripts/generate-public-api/snapshot', () => {
     describe('the files of a component', () => {
-        it('writes a contract, a report and an index entry beside the folder of the component', () => {
+        it('writes a report and an index entry beside the folder of the component', () => {
             const files = card('{% block sw_example_card %}{% block sw_example_card_title %}{% endblock %}{% endblock %}');
 
             expect(Object.keys(files).sort()).toEqual([
                 'index.json',
-                'module/sw-example/component/sw-example-card.api.md',
-                'module/sw-example/component/sw-example-card.d.ts',
+                REPORT,
             ]);
             expect(JSON.parse(files['index.json'])).toEqual({
                 components: {
@@ -73,24 +74,31 @@ describe('scripts/generate-public-api/snapshot', () => {
             });
         });
 
-        it('names the parent of every block in the contract', () => {
+        it('nests every block under its parent in the report', () => {
             const files = card('{% block sw_example_card %}{% block sw_example_card_title %}{% endblock %}{% endblock %}');
 
-            expect(files['module/sw-example/component/sw-example-card.d.ts']).toContain(
-                [
-                    '            blocks: {',
-                    '                sw_example_card: Block<null>;',
-                    "                sw_example_card_title: Block<'sw_example_card'>;",
-                    '            };',
-                ].join('\n'),
-            );
+            expect(files[REPORT]).toContain('blocks\n  sw_example_card\n    sw_example_card_title\n```');
         });
 
         it('prints a component without a template with no blocks', () => {
             const files = snapshot({ [`${CARD}/index.js`]: 'export default { render() {} };' });
 
-            expect(files['module/sw-example/component/sw-example-card.d.ts']).toContain('blocks: {};');
-            expect(files['module/sw-example/component/sw-example-card.api.md']).not.toContain('blocks');
+            expect(indexedComponents(files)['sw-example-card'].blocks).toEqual([]);
+            expect(files[REPORT]).not.toContain('blocks');
+        });
+
+        it('takes the registering file as the source of an object literal, even with a lazy import inside', () => {
+            const files = snapshot({
+                [REGISTRY]: [
+                    "Shopware.Component.register('sw-example-card', {",
+                    "    methods: { load: () => import('./component/sw-example-card') },",
+                    '});',
+                ].join('\n'),
+            });
+
+            const { file } = indexedComponents(files)['sw-example-card'];
+
+            expect(files[`${file}.api.md`]).toContain(`  source ${REGISTRY}\n`);
         });
 
         it('names a component after its registration when the source is not an index file', () => {
@@ -99,8 +107,7 @@ describe('scripts/generate-public-api/snapshot', () => {
                 'src/module/sw-example/component/card.ts': 'export default {};',
             });
 
-            expect(Object.keys(files)).toContain('module/sw-example/component/sw-example-card.d.ts');
-            expect(files['module/sw-example/component/sw-example-card.d.ts']).toContain("lang: 'ts';");
+            expect(files[REPORT]).toContain('component sw-example-card  public  ts\n');
         });
     });
 
@@ -118,17 +125,6 @@ describe('scripts/generate-public-api/snapshot', () => {
         });
 
         it('prints an extend child with its parent and the blocks of its own template', () => {
-            expect(files['module/sw-example/component/sw-example-tile.d.ts']).toContain(
-                [
-                    "kind: 'extend';",
-                    "lang: 'js';",
-                    "visibility: 'public';",
-                    "visibilitySource: 'default';",
-                    "extends: 'sw-example-card';",
-                ]
-                    .map((line) => `                ${line}`)
-                    .join('\n'),
-            );
             expect(files['module/sw-example/component/sw-example-tile.api.md']).toContain(
                 'component sw-example-tile  public  js\n  extends sw-example-card\n',
             );
@@ -160,7 +156,7 @@ describe('scripts/generate-public-api/snapshot', () => {
                     "import template from './sw-example-card.html.twig';\n\n/**\n * @private\n */\nexport default { template };",
             });
 
-            expect(files['module/sw-example/component/sw-example-card.api.md']).toContain(
+            expect(files[REPORT]).toContain(
                 [
                     'component sw-example-card  private  js  [private]',
                     '  registered src/module/sw-example/index.js  [private]',
@@ -172,9 +168,6 @@ describe('scripts/generate-public-api/snapshot', () => {
                     '  sw_example_card  [private]',
                 ].join('\n'),
             );
-            expect(files['module/sw-example/component/sw-example-card.d.ts']).toContain(
-                "        /** @private */\n        'sw-example-card': {",
-            );
             expect(indexedComponents(files)['sw-example-card'].visibility).toBe('private');
         });
 
@@ -184,7 +177,7 @@ describe('scripts/generate-public-api/snapshot', () => {
                     "/** @private */\nShopware.Component.register('sw-example-card', () => import('./component/sw-example-card'));",
             });
 
-            expect(files['module/sw-example/component/sw-example-card.d.ts']).toContain("visibilitySource: 'registration';");
+            expect(files[REPORT]).toContain('  visibility-source registration  [private]');
         });
 
         it('ignores a private tag in the file header of the registrations', () => {
@@ -198,7 +191,7 @@ describe('scripts/generate-public-api/snapshot', () => {
                 ].join('\n'),
             });
 
-            expect(files['module/sw-example/component/sw-example-card.d.ts']).toContain("visibility: 'public';");
+            expect(files[REPORT]).toContain('component sw-example-card  public  js\n');
         });
     });
 
@@ -220,13 +213,16 @@ describe('scripts/generate-public-api/snapshot', () => {
                 [`${CARD}/index.js`]: "/**\n * @private\n */\nexport { default } from './sw-example-card.vue';",
                 [`${CARD}/sw-example-card.vue`]: sfc,
             });
-            const contract = files['module/sw-example/component/sw-example-card.d.ts'];
 
-            expect(contract).toContain(
-                `// Source: ${CARD}/index.js\n// SFC: ${CARD}/sw-example-card.vue\n\ndeclare namespace AdminApi {`,
+            expect(files[REPORT]).toContain(
+                [
+                    'component sw-example-card  private  vue  [private]',
+                    `  registered ${REGISTRY}  [private]`,
+                    `  source ${CARD}/index.js  [private]`,
+                    `  sfc ${CARD}/sw-example-card.vue  [private]`,
+                    '  visibility-source export  [private]',
+                ].join('\n'),
             );
-            expect(contract).toContain("lang: 'vue';");
-            expect(contract).toContain("visibilitySource: 'export';");
             expect(indexedComponents(files)['sw-example-card'].blocks).toEqual([
                 'sw_example_card',
                 'sw_example_card_title',
@@ -240,7 +236,7 @@ describe('scripts/generate-public-api/snapshot', () => {
                 [`${CARD}/sw-example-card.vue`]: sfc,
             });
 
-            expect(files['module/sw-example/component/sw-example-card.api.md']).toContain(
+            expect(files[REPORT]).toContain(
                 `component sw-example-card  public  vue\n  registered ${REGISTRY}\n  source ${CARD}/sw-example-card.vue\n\nblocks`,
             );
         });
@@ -270,23 +266,6 @@ describe('scripts/generate-public-api/snapshot', () => {
                 'sw_example_card_new  [from v6.8.0]',
                 'sw_example_card_old  [until v6.8.0]',
             ]);
-        });
-
-        it('writes a major copy of the contract when the states differ', () => {
-            const files = card(`
-                {% block sw_example_card %}
-                <div v-if="!feature.isActive('V6_8_0_0')">{% block sw_example_card_old %}{% endblock %}</div>
-                {% endblock %}
-            `);
-
-            expect(files['module/sw-example/component/sw-example-card.d.ts']).toContain('sw_example_card_old');
-            expect(files['module/sw-example/component/sw-example-card.major.d.ts']).not.toContain('sw_example_card_old');
-            expect(files['module/sw-example/component/sw-example-card.major.d.ts']).toContain(
-                '// Flag state: major (v6.8.0.0 and every flag with `major: v6.8.0.0` on).',
-            );
-            expect(files['module/sw-example/component/sw-example-card.api.md']).toContain(
-                'Contract: `sw-example-card.d.ts` (current) and `sw-example-card.major.d.ts` (major).',
-            );
         });
 
         it.each([
@@ -352,9 +331,25 @@ describe('scripts/generate-public-api/snapshot', () => {
                 ].join('\n'),
             });
 
-            expect(files['module/sw-example/component/sw-example-card.api.md']).toContain(
-                '  sw_example_card  [until v6.8.0]',
+            expect(files[REPORT]).toContain('component sw-example-card  public  js  [until v6.8.0]');
+            expect(files[REPORT]).toContain('  sw_example_card  [until v6.8.0]');
+        });
+
+        it('leaves out the blocks that exist only where the component is not registered', () => {
+            const files = card(
+                `<div v-if="feature.isActive('v6.8.0.0')">{% block sw_example_card_new %}{% endblock %}</div>
+                {% block sw_example_card %}{% endblock %}`,
+                {
+                    [REGISTRY]: [
+                        "if (!Shopware.Feature.isActive('v6.8.0.0')) {",
+                        "    Shopware.Component.register('sw-example-card', () => import('./component/sw-example-card'));",
+                        '}',
+                    ].join('\n'),
+                },
             );
+
+            expect(indexedComponents(files)['sw-example-card'].blocks).toEqual(['sw_example_card']);
+            expect(files[REPORT]).not.toContain('sw_example_card_new');
         });
     });
 
@@ -367,13 +362,8 @@ describe('scripts/generate-public-api/snapshot', () => {
                 {% endblock %}
             `);
 
-            expect(files['module/sw-example/component/sw-example-card.d.ts']).toContain(
-                [
-                    "sw_example_card: Block<null | 'sw_example_card'>;",
-                    "sw_example_card_title: Block<'sw_example_card'>;",
-                ]
-                    .map((line) => `                ${line}`)
-                    .join('\n'),
+            expect(files[REPORT]).toContain(
+                'blocks\n  sw_example_card\n    sw_example_card\n    sw_example_card_title\n```',
             );
         });
 

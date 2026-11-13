@@ -26,17 +26,16 @@ The break check that blocks an unannounced break is not built yet.
 
 ### Files
 
-A component has two files, named after the component and placed beside its folder, without the leading `src/`.
-`src/module/sw-order/page/sw-order-detail/index.js` gives `public-api/module/sw-order/page/sw-order-detail.d.ts` and `.api.md`.
+A component has one report, named after the component and placed beside its folder, without the leading `src/`.
+`src/module/sw-order/page/sw-order-detail/index.js` gives `public-api/module/sw-order/page/sw-order-detail.api.md`.
 
 | File | Content |
 |---|---|
-| `<name>.d.ts` | The contract in the current flag state |
-| `<name>.major.d.ts` | The contract in the major flag state, only when it differs |
 | `<name>.api.md` | The report for reviewers, which merges both flag states |
 | `index.json` | The components with their file, visibility, parent and block names, for tools such as ESLint rules |
 
-All of them are marked as generated, so GitHub collapses them in a diff.
+The `.d.ts` contracts follow once they can be type-checked, see "Not covered yet".
+All files are marked as generated, so GitHub collapses them in a diff.
 Names and lines are sorted by code point, and the files contain no line numbers, so a change to a template only changes the lines of the blocks it touches.
 
 ```text
@@ -52,18 +51,8 @@ blocks
     sw_example_field_set_tabs  [until v6.8.0]
 ```
 
-```ts
-blocks: {
-    sw_example_field_set: Block<null>;
-    sw_example_field_set_content: Block<'sw_example_field_set'>;
-    sw_example_field_set_tabs: Block<'sw_example_field_set'>;
-};
-```
-
 - The report shows the blocks as a tree, two spaces per level, with the blocks of one parent sorted by name.
-- The contract maps every block to the block that directly encloses it, `null` at the top level.
-  A moved block is one changed line.
-- A block that the template declares under several parents is listed under each of them, and its contract entry names all of them: `Block<'sw_review_list' | 'sw_review_list_content'>`.
+- A block that the template declares under several parents is listed under each of them.
 - Twig blocks and `<sw-block name="...">` elements share one tree.
   A `.vue` component is found through the file that re-exports it, or through a registration that imports the `.vue` file directly.
   A bound `:name` has no literal name and is left out.
@@ -78,20 +67,24 @@ A break behind the major flag would be invisible in a single state.
   The marker names the release, so it stays readable in old commits.
 - Only `feature.isActive('<flag>')` with `!`, `&&` and `||` is evaluated, in both spellings of a flag, `v6.8.0.0` and `V6_8_0_0`.
   Any other condition can be true in both states.
-- A component that is registered inside `if (!Shopware.Feature.isActive('v6.8.0.0'))` has its blocks in the current state only.
+- A component that is registered inside `if (!Shopware.Feature.isActive('v6.8.0.0'))` exists in the current state only.
+  Its report marks the `component` line and its blocks `[until v6.8.0]`.
 
 ### Visibility
 
 Everything without `@private` is public.
 A component is private when the comment directly above its `export default`, or directly above its registration, has an `@private` tag.
-A private component stays in the snapshot: its report marks every line `[private]`, and its contract entry carries `/** @private */`.
+A private component stays in the snapshot, and its report marks every line `[private]`.
 
 ### Not covered yet
 
 - An extend child lists the blocks of its own template.
   The blocks it inherits from its parent follow with the extend chains.
 - A core `Component.override` adds no entry.
-- The other parts of a component, such as props, methods and slots, and the entry points `current.d.ts` and `major.d.ts` are missing, so the contracts cannot be type-checked yet.
+- The other parts of a component, such as props, methods and slots, are missing.
+- The `.d.ts` contracts are not generated yet.
+  They arrive together with the entry points `current.d.ts` and `major.d.ts`, so they can be type-checked from the start.
+  Until then, the fixture view `block-contract` is on the expected-fail list.
 
 The generator stops with an error in four cases: a block in a template that no registered component uses, a block tag in a place the HTML parser cannot see, a registration whose component name or import it cannot read, and a component name that is registered twice.
 
@@ -216,11 +209,12 @@ The expected snapshots hold whole files with every unit kind, while the generato
   The comparison takes the kind's sections of the `.api.md` reports, its members of the `.d.ts` contracts, its keys in `index.json` and the findings on its elements, and ignores the rest.
 - Once as `complete`, which compares every file and all findings.
 
-The blocks have three unit kinds, because they are built in three steps:
+The blocks have four unit kinds, because they are built in four steps:
 
 | Unit kind | Compares |
 |---|---|
-| `block-tree` | The block names, their parents and their flag states |
+| `block-tree` | The block names, their parents and their flag states in the reports and the index |
+| `block-contract` | The same in the `blocks` member of the `.d.ts` contracts |
 | `block-structure` | The crossings, and the `v-if` chain and scope markers of the blocks |
 | `block-findings` | The findings on blocks and crossings |
 
@@ -244,6 +238,7 @@ To build the next part:
    The generator reads the sources into the model of `model.ts`, and the printers turn the model into files, so a new part adds to the model and to each printer.
 3. Once some cases pass the kind, remove it from `views` and list the cases that still fail in `comparisons`.
    The part is done when its entries are gone.
+4. Run `composer admin:generate-public-api` and commit the changed files in `public-api/`.
 
 Run the comparisons in `src/Administration/Resources/app/administration`:
 

@@ -8,7 +8,15 @@ import { NodeTypes, parse } from '@vue/compiler-dom';
 import type { AttributeNode, DirectiveNode, ElementNode, TemplateChildNode } from '@vue/compiler-dom';
 import { parse as parseSfc } from '@vue/compiler-sfc';
 import { byCodePoint } from './code-point-order';
-import { BOTH_STATES, ConditionChain, expressionTruths, inAnyState, inBothStates } from './flag-states';
+import {
+    BOTH_STATES,
+    ConditionChain,
+    expressionTruths,
+    FLAG_STATES,
+    inAnyState,
+    inBothStates,
+    perState,
+} from './flag-states';
 import type { FlagContext, FlagStates } from './flag-states';
 
 /**
@@ -169,18 +177,15 @@ class BlockReader {
     }
 
     private openBlock(name: string, states: FlagStates): void {
-        const parentIn = (state: keyof FlagStates) =>
-            states[state] ? (this.open.findLast((block) => block.states[state])?.name ?? null) : undefined;
-        const current = parentIn('current');
-        const major = parentIn('major');
+        FLAG_STATES.filter((state) => states[state]).forEach((state) => {
+            const parent = this.open.findLast((block) => block.states[state])?.name ?? null;
 
-        if (current !== undefined) {
-            this.add(name, current, { current: true, major: major === current });
-        }
-
-        if (major !== undefined && major !== current) {
-            this.add(name, major, { current: false, major: true });
-        }
+            this.add(
+                name,
+                parent,
+                perState((other) => other === state),
+            );
+        });
 
         this.open.push({ name, states });
     }

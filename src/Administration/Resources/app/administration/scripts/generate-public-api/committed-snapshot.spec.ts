@@ -5,9 +5,7 @@
  * request. That only holds while the committed files match the sources.
  */
 import { ADMINISTRATION_ROOT, generateCurrentSnapshot, readCommittedSnapshot } from './committed-snapshot';
-import { GENERATE_COMMAND } from './print-shared';
-import { snapshotOf } from './snapshot';
-import { readSourceTree, sourceTreeOf } from './source-tree';
+import { GENERATE_COMMAND } from './print-report';
 
 function blockNames(files: Record<string, string>): Set<string> {
     const { components } = JSON.parse(files['index.json']) as { components: Record<string, { blocks: string[] }> };
@@ -16,11 +14,17 @@ function blockNames(files: Record<string, string>): Set<string> {
 }
 
 describe('scripts/generate-public-api/committed-snapshot', () => {
-    const { files } = generateCurrentSnapshot();
+    let files: Record<string, string>;
+    let committed: Record<string, string>;
+
+    beforeAll(() => {
+        files = generateCurrentSnapshot().files;
+        committed = readCommittedSnapshot().files;
+    });
 
     it('still has every block of the committed snapshot', () => {
         const blocks = blockNames(files);
-        const removed = [...blockNames(readCommittedSnapshot().files)].filter((block) => !blocks.has(block)).sort();
+        const removed = [...blockNames(committed)].filter((block) => !blocks.has(block)).sort();
 
         expect(
             removed,
@@ -31,7 +35,6 @@ describe('scripts/generate-public-api/committed-snapshot', () => {
     });
 
     it('matches the Administration sources', () => {
-        const committed = readCommittedSnapshot().files;
         const stale = [...new Set([...Object.keys(files), ...Object.keys(committed)])]
             .filter((file) => files[file] !== committed[file])
             .sort();
@@ -39,17 +42,6 @@ describe('scripts/generate-public-api/committed-snapshot', () => {
         expect(stale, `The snapshot in public-api/ is stale. Run \`${GENERATE_COMMAND}\` and commit the result.`).toEqual(
             [],
         );
-    });
-
-    it('is byte-identical in a second run', () => {
-        expect(generateCurrentSnapshot().files).toEqual(files);
-    });
-
-    it('does not depend on the order in which the source files are found', () => {
-        const tree = readSourceTree(ADMINISTRATION_ROOT);
-        const reversed = sourceTreeOf([...tree.files].reverse(), (file) => tree.read(file));
-
-        expect(snapshotOf(reversed, { majorFlags: ['v6.8.0.0'] })).toEqual(snapshotOf(tree, { majorFlags: ['v6.8.0.0'] }));
     });
 
     it('contains nothing that differs between two checkouts', () => {

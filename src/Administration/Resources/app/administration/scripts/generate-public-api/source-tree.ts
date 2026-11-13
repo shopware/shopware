@@ -3,7 +3,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { isFixturePath } from '../public-api-source-files';
+import { isPublicApiSourceFile } from '../public-api-source-files';
 import { byCodePoint } from './code-point-order';
 
 /**
@@ -17,10 +17,6 @@ export interface SourceTree {
     has(file: string): boolean;
     read(file: string): string;
 }
-
-const SOURCE_FILE = /\.(?:js|ts|vue|html\.twig)$/;
-
-const NOT_SHIPPED = /\.(?:spec\.(?:js|ts)|d\.ts)$/;
 
 /**
  * @private
@@ -56,7 +52,7 @@ export function readSourceTree(administrationRoot: string): SourceTree {
     const files = fs
         .readdirSync(path.join(administrationRoot, 'src'), { recursive: true, encoding: 'utf8' })
         .map((file) => `src/${file.split(path.sep).join('/')}`)
-        .filter((file) => SOURCE_FILE.test(file) && !NOT_SHIPPED.test(file) && !isFixturePath(file));
+        .filter(isPublicApiSourceFile);
 
     return sourceTreeOf(files, (file) => fs.readFileSync(path.join(administrationRoot, file), 'utf8'));
 }

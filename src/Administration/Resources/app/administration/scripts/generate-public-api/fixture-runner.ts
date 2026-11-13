@@ -105,13 +105,16 @@ const PART_LABELS: Record<keyof UnitKind, (value: string) => string> = {
  */
 const BLOCK_CONTEXT = { reportSection: 'block-context', contractMember: 'blockContext' } as const;
 
-// The block tree, the block structure and the findings on blocks are built in separate steps.
+// The block tree, its contract, the block structure and the findings on blocks are built in separate steps.
 const UNIT_KINDS: Record<string, UnitKind> = {
     'block-tree': {
         ...NO_PARTS,
         reportSections: ['blocks'],
-        contractMembers: ['blocks'],
         indexKeys: ['blocks'],
+    },
+    'block-contract': {
+        ...NO_PARTS,
+        contractMembers: ['blocks'],
     },
     'block-structure': {
         ...NO_PARTS,

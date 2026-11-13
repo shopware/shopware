@@ -1,10 +1,9 @@
 /**
  * @sw-package framework
  */
-import { byCodePoint } from './code-point-order';
 import { buildModel } from './model';
-import type { ComponentUnit, Model, SnapshotOptions } from './model';
-import { printContracts } from './print-contract';
+import type { SnapshotOptions } from './model';
+import { printIndex } from './print-index';
 import { printReport } from './print-report';
 import { readSourceTree } from './source-tree';
 import type { SourceTree } from './source-tree';
@@ -25,26 +24,6 @@ export interface Snapshot {
  */
 export type GenerateSnapshot = (administrationRoot: string, options: SnapshotOptions) => Snapshot;
 
-function printIndex({ components }: Model): string {
-    const entries = components.map(({ name, file, visibility, extends: parent, blocks }): [string, object] => [
-        name,
-        {
-            file,
-            visibility,
-            extends: parent,
-            blocks: [...new Set(blocks.map((block) => block.name))].sort(byCodePoint),
-        },
-    ]);
-
-    return `${JSON.stringify({ components: Object.fromEntries(entries) }, null, 4)}\n`;
-}
-
-function printComponent(unit: ComponentUnit, { flags }: Model): Record<string, string> {
-    const { files, hasMajorCopy } = printContracts(unit, flags);
-
-    return { ...files, [`${unit.file}.api.md`]: printReport(unit, flags, hasMajorCopy) };
-}
-
 /**
  * @private
  *
@@ -55,7 +34,9 @@ export function snapshotOf(tree: SourceTree, options: SnapshotOptions): Snapshot
     const model = buildModel(tree, options);
     const files: Record<string, string> = { 'index.json': printIndex(model) };
 
-    model.components.forEach((unit) => Object.assign(files, printComponent(unit, model)));
+    model.components.forEach((unit) => {
+        files[`${unit.file}.api.md`] = printReport(unit, model.flags);
+    });
 
     return { files };
 }

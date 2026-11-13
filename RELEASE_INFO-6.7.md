@@ -526,7 +526,7 @@ Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-
 The Administration no longer ships `blocks-list.json`.
 The block names are now in `public-api/index.json`, listed per component.
 All `blocks` arrays of that file together hold the names of the old list.
-The files beside it show the blocks of each component with their nesting, for the current release and for the next major.
+Beside it, one `.api.md` report per component shows its blocks with their nesting, for the current release and for the next major.
 
 Tools that read `blocks-list.json` have to read `public-api/index.json` instead.
 The format of the files in `public-api/` can still change while the snapshot is being built.

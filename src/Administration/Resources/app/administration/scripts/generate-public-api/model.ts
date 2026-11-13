@@ -5,9 +5,9 @@
  */
 import { isTemplateSourceFile } from '../public-api-source-files';
 import { byCodePoint } from './code-point-order';
-import { componentRegistrations } from './component-registry';
-import type { ComponentLanguage, Registration } from './component-registry';
-import { createFlagContext, inBothStates } from './flag-states';
+import { componentRegistrations, markupOf } from './component-registry';
+import type { Registration } from './component-registry';
+import { createFlagContext, FLAG_STATES, inBothStates } from './flag-states';
 import type { FlagContext, FlagStates } from './flag-states';
 import type { SourceTree } from './source-tree';
 import { templateBlocks } from './template-blocks';
@@ -22,47 +22,19 @@ export interface SnapshotOptions {
 /**
  * @private
  *
- * One registered component. `file` is the path of its snapshot files below `public-api/`, without extension,
- * and `states` are the flag states in which it is registered. `blocks` holds the blocks of its own markup.
+ * One registered component. `file` is the path of its snapshot files below `public-api/`, without extension.
+ * `blocks` holds the blocks of its own markup, limited to the flag states in which the component is registered.
  * The blocks an extend child inherits are not resolved yet.
  */
-export interface ComponentUnit {
-    name: string;
-    kind: 'register' | 'extend';
-    extends: string | null;
-    language: ComponentLanguage;
-    visibility: 'public' | 'private';
-    visibilitySource: 'default' | 'export' | 'registration';
-    registeredIn: string;
-    source: string;
-    sfc: string | null;
-    template: string | null;
+export type ComponentUnit = Registration & {
     file: string;
-    states: FlagStates;
     blocks: TemplateBlock[];
-}
+};
 
 /** @private */
 export interface Model {
     flags: FlagContext;
     components: ComponentUnit[];
-}
-
-type ComponentRegistration = Registration & { kind: ComponentUnit['kind'] };
-
-/**
- * @private
- *
- * The elements of a component that exist in a flag state, each with the states in which it exists. An element
- * of a component that is registered in one state only exists in that state at most.
- */
-export function existingElements<Element extends { states: FlagStates }>(
-    unit: ComponentUnit,
-    elements: Element[],
-): Element[] {
-    return elements
-        .map((element) => ({ ...element, states: inBothStates(unit.states, element.states) }))
-        .filter(({ states }) => states.current || states.major);
 }
 
 /**
@@ -84,40 +56,18 @@ function snapshotFile(name: string, source: string): string {
     ].join('/');
 }
 
-function visibilityOf({
-    privateExport,
-    privateRegistration,
-}: Registration): Pick<ComponentUnit, 'visibility' | 'visibilitySource'> {
-    if (privateExport) {
-        return { visibility: 'private', visibilitySource: 'export' };
-    }
-
-    return privateRegistration
-        ? { visibility: 'private', visibilitySource: 'registration' }
-        : { visibility: 'public', visibilitySource: 'default' };
+/** An element of a component that is registered in one flag state only exists in that state at most. */
+function existingIn<Element extends { states: FlagStates }>(states: FlagStates, elements: Element[]): Element[] {
+    return elements
+        .map((element) => ({ ...element, states: inBothStates(states, element.states) }))
+        .filter((element) => FLAG_STATES.some((state) => element.states[state]));
 }
 
-// A core override adds no component. Its blocks arrive with the extend chains.
-function addsComponent(registration: Registration): registration is ComponentRegistration {
-    return registration.kind !== 'override';
-}
-
-function componentUnit(registration: ComponentRegistration, blocks: TemplateBlock[]): ComponentUnit {
-    const { kind, name, extendsName, language, registeredIn, source, sfc, template, states } = registration;
-
+function componentUnit(registration: Registration, blocks: TemplateBlock[]): ComponentUnit {
     return {
-        name,
-        kind,
-        extends: extendsName,
-        language,
-        ...visibilityOf(registration),
-        registeredIn,
-        source,
-        sfc,
-        template,
-        file: snapshotFile(name, source),
-        states,
-        blocks,
+        ...registration,
+        file: snapshotFile(registration.name, registration.source),
+        blocks: existingIn(registration.states, blocks),
     };
 }
 
@@ -146,16 +96,10 @@ function assertUniqueNames(components: ComponentUnit[]): void {
  * The snapshot lists blocks per component, so the blocks of a template that no component uses would be missing
  * from it without anyone noticing.
  */
-function assertEveryBlockIsListed(
-    tree: SourceTree,
-    components: ComponentUnit[],
-    blocksOf: (markup: string) => TemplateBlock[],
-): void {
-    const listed = new Set(components.flatMap(({ blocks }) => blocks.map(({ name }) => name)));
-    const missing = tree.files.filter(isTemplateSourceFile).flatMap((markup) =>
-        blocksOf(markup)
-            .filter(({ name }) => !listed.has(name))
-            .map(({ name }) => `${name} in ${markup}`),
+function assertEveryBlockIsListed(blocksByTemplate: Map<string, TemplateBlock[]>, listedBlocks: TemplateBlock[]): void {
+    const listed = new Set(listedBlocks.map(({ name }) => name));
+    const missing = [...blocksByTemplate].flatMap(([template, blocks]) =>
+        blocks.filter(({ name }) => !listed.has(name)).map(({ name }) => `${name} in ${template}`),
     );
 
     if (missing.length > 0) {
@@ -168,27 +112,22 @@ function assertEveryBlockIsListed(
 /** @private */
 export function buildModel(tree: SourceTree, options: SnapshotOptions): Model {
     const flags = createFlagContext(options.majorFlags);
-    const blocksByMarkup = new Map<string, TemplateBlock[]>();
-    const blocksOf = (markup: string): TemplateBlock[] => {
-        let blocks = blocksByMarkup.get(markup);
+    const blocksByTemplate = new Map(
+        tree.files
+            .filter(isTemplateSourceFile)
+            .map((file): [string, TemplateBlock[]] => [file, templateBlocks(tree.read(file), file, flags)]),
+    );
+    const registrations = componentRegistrations(tree, flags);
+    const blocksOf = (registration: Registration): TemplateBlock[] =>
+        blocksByTemplate.get(markupOf(registration) ?? '') ?? [];
 
-        if (blocks === undefined) {
-            blocks = templateBlocks(tree.read(markup), markup, flags);
-            blocksByMarkup.set(markup, blocks);
-        }
+    assertEveryBlockIsListed(blocksByTemplate, registrations.flatMap(blocksOf));
 
-        return blocks;
-    };
-
-    const components = componentRegistrations(tree, flags)
-        .filter(addsComponent)
-        .map((registration) =>
-            componentUnit(registration, registration.markup === null ? [] : blocksOf(registration.markup)),
-        )
+    const components = registrations
+        .map((registration) => componentUnit(registration, blocksOf(registration)))
         .sort((a, b) => byCodePoint(a.name, b.name));
 
     assertUniqueNames(components);
-    assertEveryBlockIsListed(tree, components, blocksOf);
 
     return { flags, components };
 }

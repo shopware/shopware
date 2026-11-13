@@ -945,13 +945,15 @@ class ElasticsearchProductDefinitionTest extends TestCase
             [
                 [
                     'id' => $this->ids->get('document-1'),
+                    '_count' => 1,
                     'translations' => [
-                        ['languageId' => Defaults::LANGUAGE_SYSTEM],
-                        ['languageId' => $this->ids->get('language-de')],
+                        ['languageId' => Defaults::LANGUAGE_SYSTEM, '_count' => 1],
+                        ['languageId' => $this->ids->get('language-de'), '_count' => 1],
                     ],
                 ],
                 [
                     'id' => $this->ids->get('document-2'),
+                    '_count' => 1,
                     'translations' => [],
                 ],
             ],

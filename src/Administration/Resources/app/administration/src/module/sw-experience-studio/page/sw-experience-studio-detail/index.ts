@@ -31,7 +31,11 @@ import type {
     ContentLayoutRepository,
 } from 'src/module/sw-experience-studio/util/content-layout-repository.util';
 import { createContentLayoutRepository } from 'src/module/sw-experience-studio/util/content-layout-repository.util';
-import { getPropertyControlType } from 'src/module/sw-experience-studio/util/element-settings.util';
+import {
+    editingLanguageChain,
+    getPropertyControlType,
+    withLanguageEntry,
+} from 'src/module/sw-experience-studio/util/element-settings.util';
 import {
     findElementLocation,
     updateElementPropertiesInLayout,
@@ -1844,9 +1848,46 @@ export default Shopware.Component.wrapComponentConfig({
             );
         },
 
-        onElementSettingsChange(payload: { elementId: string; properties: Record<string, unknown> }): void {
+        onElementSettingsChange(payload: { elementId: string; propertyKey: string; value: unknown }): void {
+            const element = this.findElementById(payload.elementId);
+
+            if (!element) {
+                return;
+            }
+
+            this.writeElementPropertyValue(element, payload.propertyKey, payload.value);
+        },
+
+        writeElementPropertyValue(element: ContentElementNode, propertyKey: string, value: unknown): void {
+            if (!this.isTranslatableProperty(element.component, propertyKey)) {
+                this.applyLayoutMutation((layout) => {
+                    return updateElementPropertiesInLayout(layout, element.id, { [propertyKey]: value }) ? {} : false;
+                });
+
+                return;
+            }
+
             this.applyLayoutMutation((layout) => {
-                return updateElementPropertiesInLayout(layout, payload.elementId, payload.properties) ? {} : false;
+                const location = findElementLocation(layout, element.id);
+
+                if (!location) {
+                    return false;
+                }
+
+                // A translatable property takes a string, number or boolean; null would remove the entry.
+                if (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean') {
+                    this.notifyMutationError([]);
+
+                    return false;
+                }
+
+                const languageMap = withLanguageEntry(
+                    location.elements[location.index].properties?.[propertyKey],
+                    editingLanguageChain()[0],
+                    value,
+                );
+
+                return updateElementPropertiesInLayout(layout, element.id, { [propertyKey]: languageMap }) ? {} : false;
             });
         },
 
@@ -2188,6 +2229,26 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             return false;
+        },
+
+        findElementById(elementId: string): ContentElementNode | null {
+            if (!this.layout) {
+                return null;
+            }
+
+            const location = findElementLocation(this.layout.layout, elementId);
+
+            if (!location) {
+                return null;
+            }
+
+            return location.elements[location.index] ?? null;
+        },
+
+        isTranslatableProperty(component: string, propertyKey: string): boolean {
+            const typeSpecification = this.elementTypeStore.getByName(component);
+
+            return typeSpecification?.properties[propertyKey]?.translatable === true;
         },
 
         onUndo(): void {

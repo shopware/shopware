@@ -17,6 +17,7 @@ use Shopware\Core\Framework\ContentSystem\Api\MapPropertyRequest;
 use Shopware\Core\Framework\ContentSystem\Api\MoveElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\RemoveElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\ReplaceElementRequest;
+use Shopware\Core\Framework\ContentSystem\Api\TranslateElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\UnmapPropertyRequest;
 use Shopware\Core\Framework\ContentSystem\Api\UnwrapElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\WrapElementsRequest;
@@ -53,6 +54,7 @@ use Shopware\Core\Framework\ContentSystem\Mutation\Op\MapProperty;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\MoveElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\RemoveElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\TranslateElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\UnmapProperty;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\UnwrapElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\WrapElements;
@@ -213,6 +215,7 @@ class LayoutMutationControllerTest extends TestCase
         yield 'map property' => [static fn (LayoutMutationController $c): Response => $c->mapProperty(new MapPropertyRequest('el', 'text', ['type' => 'root', 'id' => 'product', 'path' => 'name'], 'product'), $context), MapProperty::class];
         yield 'unmap property' => [static fn (LayoutMutationController $c): Response => $c->unmapProperty(new UnmapPropertyRequest('el', 'text'), $context), UnmapProperty::class];
         yield 'bind' => [static fn (LayoutMutationController $c): Response => $c->bind(new BindElementRequest('el', 'source:spec'), $context), BindElement::class];
+        yield 'translate' => [static fn (LayoutMutationController $c): Response => $c->translate(new TranslateElementRequest('el', values: ['headline' => []]), $context), TranslateElement::class];
     }
 
     /**
@@ -265,7 +268,7 @@ class LayoutMutationControllerTest extends TestCase
             $this->elementCodec(),
             static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
             // BindingApplicator is final: a real instance over a stubbed serializer provider.
-            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class)),
+            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), static::createStub(AbstractContentSystemElementTypeRegistry::class)),
             static::createStub(AbstractContentSystemLayoutPresetRegistry::class),
             new PropertyMappingMutationFactory($typeRegistry, $mappingInspector),
             $mappingInspector,

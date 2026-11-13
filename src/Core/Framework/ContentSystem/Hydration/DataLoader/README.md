@@ -8,10 +8,10 @@ Data fetching for content elements. Elements declare `DataRequirement` objects w
 - `ContentDataLoaderResult` - Result with data and cache info
 - `LoaderTypeCapability` - VO describing one type a loader can produce
 - `LoaderConfigSpecification` - VO for a loader's declared config contract: an ordered `list<ConfigKeySpecification>`
-- `ConfigKeySpecification` - VO for one declared config key. `referencedType` is the type of the value a `PropertyReference` token points at, `mergesInto` names another declared key this key's resolved list is unioned into
+- `ConfigKeySpecification` - VO for one declared config key. `referencedType` is the type of the value a `PropertyReference` token points at, `mergesInto` names another declared key this key's resolved list is unioned into. `admitsReferencedValue()` matches a stored value against `referencedType`, and `admitsDeclaredPrimitive()` matches a declared type
 - `ConfigKeyKind` - Enum: what a config key's value names
 - `LoaderInputs` - The resolved inputs of one `load()` call: one entry per declared key. `has()`, `get()`, `string()`/`int()`/`bool()`/`stringList()` (throw when unresolved), `stringOrNull()`/`stringListOrNull()`; every accessor throws on an undeclared key
-- `LoaderInputResolver` - Builds `LoaderInputs` from a specification, the decoded config, and the element's stored properties, dereferencing each `PropertyReference` token (an absent or wrongly typed stored value resolves to null, never throws) and folding each `mergesInto` key into its target, target entries first
+- `LoaderInputResolver` - Builds `LoaderInputs` from a specification, the decoded config, and the element's stored properties, dereferencing each `PropertyReference` token and unioning each `mergesInto` key into its target, target entries first. An absent stored value, or one `admitsReferencedValue()` rejects, resolves to null and never throws. The stored properties are read after [language reduction](../../docs/principles/translation.md#language-reduction-happens-on-the-server-and-nothing-downstream-receives-a-language-map), so a translatable property yields its chain entry
 - `DataLoaderProvider` - Service locator dispatcher: `get($source)` throws if the source is not registered; `getSources()` lists every registered source identifier (used by the type resolver)
 
 ## Built-in Loaders

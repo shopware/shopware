@@ -1,8 +1,26 @@
 import type { ContentElementNode } from 'src/core/service/content-element.types';
+import type { ContentLayoutDraftMutationResponse } from 'src/core/service/api/content-system-layout-draft-mutation.api.service';
 import detailComponent from './index';
 
 describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
     const methods = (detailComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> }).methods;
+
+    const mutationResponse = (
+        layout: ContentElementNode[],
+        affectedElementIds: string[] = [],
+    ): ContentLayoutDraftMutationResponse => ({
+        layout,
+        resolutions: {},
+        diagnostics: {
+            wellFormed: true,
+            resolvable: true,
+            violations: [],
+        },
+        affectedElementIds,
+        orphaned: [],
+        droppedWiring: [],
+        droppedProperties: {},
+    });
 
     it('uses layout rootSource for draft mutation payloads', () => {
         const vm = {
@@ -247,19 +265,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
     });
 
     it('calls move mutation endpoint for move operations', async () => {
-        const moveElement = jest.fn().mockResolvedValue({
-            layout: [],
-            resolutions: {},
-            diagnostics: {
-                wellFormed: true,
-                resolvable: true,
-                violations: [],
-            },
-            affectedElementIds: [],
-            orphaned: [],
-            droppedWiring: [],
-            droppedProperties: {},
-        });
+        const moveElement = jest.fn().mockResolvedValue(mutationResponse([]));
         const vm = {
             draftMutationService: () => ({
                 moveElement,

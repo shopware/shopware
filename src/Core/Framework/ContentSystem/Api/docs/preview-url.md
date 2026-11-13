@@ -21,7 +21,7 @@ The `ContentPreviewRequest` envelope:
 | `entityId` | yes | Id of the entity to hydrate against; the entity must exist. |
 | `salesChannelId` | yes | Sales channel whose context is synthesized for rendering. |
 | `languageId`, `currencyId`, `domainId`, `customerId` | no | Override the synthesized sales channel context. |
-| `queryParameters` | no | Forwarded as request query; `elementId` selects a single element for partial preview. Member names must not be strings PHP casts to integers (`0`, `12`, `-3`) — the stored envelope is a string-keyed map. |
+| `queryParameters` | no | Forwarded as request query; `elementId` selects a single element for partial preview. Member names must not be strings PHP casts to integers (`0`, `12`, `-3`), because the stored envelope is a string-keyed map. |
 
 ## Response
 
@@ -39,17 +39,17 @@ Malformed requests and layouts are rejected with `400 Bad Request` (`ContentSyst
 |---|---|---|
 | Missing/invalid request field | 400 | `#[MapRequestPayload]` validation (forced to 400) |
 | A `queryParameters` member name PHP casts to an integer | 400 | `ContentPreviewRequest::rejectNonStringQueryParameterNames()`, through the same `#[MapRequestPayload]` validation |
-| An `includes` or `excludes` parameter in any of the attribute, query or request bag | 400 | `fieldSelectionNotSupported` — field selection is refused here as it is on the store-api content routes |
+| An `includes` or `excludes` parameter in any of the attribute, query or request bag | 400 | `fieldSelectionNotSupported`, as on the store-api content routes |
 | `entityType` matches no specification source | 400 | `unknownEntityType` |
 | Layout element missing a non-empty string `id`/`component`; a duplicate element `id`, nesting past the maximum depth, or a non-array nested child; or an element config that is a [client defect](../../docs/principles/README.md#glossary) | 400 | `invalidLayoutStructure` |
 | Layout has any intrinsic-scope error `LayoutDiagnostics` reports | 400 | `elementTypesInvalid` (via `DraftLayoutChecker`, which surfaces every intrinsic-scope error from `LayoutDiagnostics`; the message carries the violation, not its code) |
 | Collective validation fails or a per-file/per-row load step raises the matching `*_LOAD_FAILED` code for the element-type or style-option registry | 500 | `ELEMENT_TYPE_LOAD_FAILED` or `STYLE_OPTION_LOAD_FAILED` propagates from the registry read |
-| Data-loader source not registered | 500 | `ContentSystemException::dataLoaderNotRegistered` — thrown while resolving the loader for a source (`DataLoaderProvider`), outside any loader's `load()` |
+| Data-loader source not registered | 500 | `ContentSystemException::dataLoaderNotRegistered`, thrown while resolving the loader for a source (`DataLoaderProvider`), outside any loader's `load()` |
 | Non-degradable hydration fault (`\TypeError`, a database failure, any exception outside `ShopwareHttpException`) | 500 | propagates through `load()` by design |
 | Invalid sales channel id | 404 / 412 | `SalesChannelException` (not a `ContentSystemException`) |
 | Inline mapping exceeds 1 MiB per property or 4 MiB per render | 500 | `inlineMappingExpansionTooLarge` (`CONTENT_SYSTEM__INLINE_MAPPING_EXPANSION_TOO_LARGE`); no token is stored |
 | Inline token scanning or path validation fails in PCRE | 500 | `inlineMappingParsingFailed` (`CONTENT_SYSTEM__INLINE_MAPPING_PARSING_FAILED`); no token is stored |
-| An inline-mapped authored property exceeds 256 KiB | 400 | `inlineMappingInputTooLarge` |
+| An inline-mapped authored property, or one entry of its language map, exceeds 256 KiB | 400 | `inlineMappingInputTooLarge` |
 | The cache rejects the payload write | 500 | `ContentSystemException::previewPayloadStoreFailed` |
 
 Entity resolution and hydration run when the URL is created as well as when it is opened, so `unknownEntityType` and hydration faults are raised here too. A target entity that does not exist, or an unresolvable data requirement inside a loader, is no failure at all. The loader degrades that element to `notFound()` and the preview renders without it.

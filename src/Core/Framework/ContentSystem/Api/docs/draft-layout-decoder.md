@@ -1,6 +1,6 @@
 # Draft-Layout Decode
 
-Turns a request's raw layout array into stored elements in three steps: structural check, per-element `Layout/Codec/StoredElementCodec::decode()`, style normalization. Injected into the preview, diagnose, and both mutation controllers — [preview-url.md](preview-url.md), [diagnose.md](diagnose.md), [mutation.md](mutation.md), [persisted-mutation.md](persisted-mutation.md).
+Turns a request's raw layout array into stored elements in three steps: structural check, per-element `Layout/Codec/StoredElementCodec::decode()`, style normalization. Injected into the preview, diagnose, and both mutation controllers: [preview-url.md](preview-url.md), [diagnose.md](diagnose.md), [mutation.md](mutation.md), [persisted-mutation.md](persisted-mutation.md).
 
 Every decoded element's `style` is normalized through the same `Layout/StoredTreeStyleNormalizer` service `Layout/LayoutWriteBoundary` runs, on the strict and the lenient path alike. See [Draft and persisted paths decode and check through the same components](../../docs/principles/drafts-and-gates.md#draft-and-persisted-paths-decode-and-check-through-the-same-components).
 

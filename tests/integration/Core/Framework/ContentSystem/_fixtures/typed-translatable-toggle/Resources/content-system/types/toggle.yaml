@@ -1,0 +1,16 @@
+meta:
+  label: "Toggle"
+  description: "Fixture element carrying one translatable boolean property."
+  icon: "regular-toggle-on"
+  category: "content"
+  copilot:
+    summary: "Fixture element whose lone translatable property is a boolean."
+    hints:
+      - "Registered as an app element type."
+
+properties:
+  enabled:
+    type: boolean
+    translatable: true
+    title: "Enabled"
+    description: "Whether the element is enabled, per language."

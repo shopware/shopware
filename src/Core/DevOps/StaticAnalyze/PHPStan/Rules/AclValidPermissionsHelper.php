@@ -45,6 +45,7 @@ class AclValidPermissionsHelper
         'increment:manage',
         'message_queue_stats:read',
         'system:queue:process',
+        'content_layout:translate',
     ];
 
     /**

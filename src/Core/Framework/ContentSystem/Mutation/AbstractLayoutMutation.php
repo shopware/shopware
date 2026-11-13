@@ -6,10 +6,13 @@ use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\PropertyTypeConformanceValidator;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\AttachElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\InsertElement;
@@ -85,6 +88,11 @@ abstract class AbstractLayoutMutation implements LayoutMutation
     public function droppedProperties(): array
     {
         return $this->droppedProperties;
+    }
+
+    public function writePrivilege(): ?string
+    {
+        return null;
     }
 
     /**
@@ -168,6 +176,45 @@ abstract class AbstractLayoutMutation implements LayoutMutation
         }
 
         throw ContentSystemException::mutationUnknownType($type);
+    }
+
+    /**
+     * Every key of a translatable property's language map must be a language id in lowercase UUID hex, else
+     * `mutationPropertyLanguageKeyInvalid` names the first offending one. The rule is owned by
+     * {@see PropertyType::nonLanguageKeys()}, which the DAL write path asks too in
+     * {@see PropertyTypeConformanceValidator}, so the draft and persisted routes answer a malformed key the same way.
+     * A map key PHP holds as an integer, such as "42", is reported as the string it arrived as, and a
+     * non-translatable $type or a $value that is not a map holds none and is never rejected. Whether the id names
+     * an existing language stays a diagnostics warning ({@see ViolationCode::DanglingLanguage}), never a rejection.
+     */
+    protected function rejectNonLanguageKeys(string $elementId, string $key, PropertyType $type, StoredValue $value): void
+    {
+        $nonLanguageKeys = $type->nonLanguageKeys($value);
+
+        if ($nonLanguageKeys === []) {
+            return;
+        }
+
+        throw ContentSystemException::mutationPropertyLanguageKeyInvalid($elementId, $key, $nonLanguageKeys[0]);
+    }
+
+    /**
+     * Wraps a client-supplied property value. A value {@see StoredValue::fromDecoded()} refuses as a client defect,
+     * such as a non-finite float a JSON `1e400` decodes to, is the client's payload defect and answers
+     * `mutationPropertyValueRejected` (a 400) rather than the 500 the stored-column read keeps. Any other
+     * failure passes through unchanged.
+     */
+    protected function decodePropertyValue(string $elementId, string $key, mixed $value): StoredValue
+    {
+        try {
+            return StoredValue::fromDecoded($value);
+        } catch (ContentSystemException $exception) {
+            if (!ContentSystemException::isClientDefect($exception)) {
+                throw $exception;
+            }
+
+            throw ContentSystemException::mutationPropertyValueRejected($elementId, $key, get_debug_type($value));
+        }
     }
 
     /**

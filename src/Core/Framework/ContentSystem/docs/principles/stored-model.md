@@ -36,7 +36,7 @@ In code:
 
 ## The module seeds a property default at write time, never at serve time
 
-Creation and replacement write the property defaults of the element type in the stored shape. A binding writes the input defaults of its specification. On every write, the DAL [write boundary](README.md#terms-that-are-easy-to-confuse) seeds any property default whose key is still absent. It never seeds over a present value, including an authored null and a map that carries only some members. Serving and diagnostics do not apply declaration defaults; live mappings follow the [mapping outcome rules](data-mapping.md#admission-and-missing-data-are-separate-outcomes). A stored non-null value therefore satisfies a required primitive, and the declaration never does.
+Creation and replacement write the property defaults of the element type in the stored shape. A binding writes the input defaults of its specification. On every write, the DAL [write boundary](README.md#terms-that-are-easy-to-confuse) seeds any property default whose key is still absent. It never seeds over a present value, including an authored null and a map that carries only some members. Serving and diagnostics do not apply declaration defaults. Live mappings follow the [mapping outcome rules](data-mapping.md#admission-and-missing-data-are-separate-outcomes). A stored non-null value therefore satisfies a required primitive, a translatable one only through its [system-language entry](translation.md#a-required-translatable-property-is-filled-only-by-its-system-language-entry), and the declaration never does.
 
 Why: A serve-time default makes an unfilled required property look filled. It also lets a later declaration change what stored layouts render.
 
@@ -44,7 +44,7 @@ Exceptions: `defaultMapping` initializes source wiring through mutation runners,
 
 In code:
 
-- `StoredDefaultProvider` defines a property default as a primitive's declared default or the map of its nested members' defaults.
+- `StoredDefaultProvider` defines a property default as a primitive's declared default in its stored shape or the map of its nested members' defaults.
 - `AbstractLayoutMutation::storedDefaults()` seeds defaults on creation and replacement, and `BindingApplicator` seeds input defaults.
 - The write-boundary `LayoutDefaultSeeder` fills only an absent top-level key.
 - `LayoutDiagnostics` reads no default.

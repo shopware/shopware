@@ -2,6 +2,8 @@
 
 - Before planning or making a change, read the principle file for the area the change touches ([docs/principles/README.md](docs/principles/README.md#index) routes by task and by area). Check: does the change contradict a rule, a Why line or a Decided against line of that file?
 - Change a rule, its pinning test and the code it governs in the same commit. The pinning test is the enforcing class's test, unless the rule's In code list names another ([principle files](docs/principles/README.md#by-area)). Check: the test is in the diff.
+- Read a translatable property after preparation only as its reduced value ([language reduction](docs/principles/translation.md#language-reduction-happens-on-the-server-and-nothing-downstream-receives-a-language-map)). Check: in FULL mode no data loader, encoder or template in the diff reads a language map.
+- Credit a required translatable property only through its system-language entry ([translation principles](docs/principles/translation.md#a-required-translatable-property-is-filled-only-by-its-system-language-entry)). Check: a satisfaction check in the diff reads no other entry.
 - Update the Store API OpenAPI schema when changing an endpoint. Check: the matching file under [`Framework/Api/ApiDefinition/Generator/Schema/StoreApi/`](../Api/ApiDefinition/Generator/Schema/StoreApi/) is in the diff.
 - Register a domain service in its owning module's DI, never in `content-system.php`. Check: [Domain Placement](README.md#domain-placement) lists the class as domain-owned.
 

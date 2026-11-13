@@ -143,6 +143,7 @@ use Shopware\Core\Framework\ContentSystem\Workspace\ContentWorkspaceDefinition;
 use Shopware\Core\Framework\ContentSystem\Workspace\ContentWorkspaceWriteValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
+use Shopware\Core\System\Language\LanguageLoader;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
@@ -177,12 +178,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(VirtualRootWrapper::class);
     $services->set(StoredTreePreparer::class)
         ->args([
+            service(ContentSystemElementTypeRegistry::class),
             service(VirtualRootWrapper::class),
             service(PartialRenderer::class),
             service(DataLoaderConfigSerializerProvider::class),
             service(DataLoaderProvider::class),
             service(InlineMappingTokenParser::class),
-            service(ContentSystemElementTypeRegistry::class),
         ]);
 
     // Output Services
@@ -536,6 +537,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(DraftLayoutDecoder::class),
             service(StoredElementCodec::class),
+            service(ContentSystemElementTypeRegistry::class),
         ]);
 
     $services->set(LayoutPresetSpecificationSerializer::class);
@@ -698,6 +700,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(BindingApplicator::class)
         ->args([
             service(DataLoaderConfigSerializerProvider::class),
+            service(ContentSystemElementTypeRegistry::class),
         ]);
 
     // What an element type stores (as opposed to its hydrated properties): the storageSchema introspection fold
@@ -759,6 +762,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DataLoaderConfigSerializerProvider::class),
             service(ContentSystemStyleOptionRegistry::class),
             service(ContextPathResolver::class),
+            service(LanguageLoader::class),
             service(MappingConsumers::class),
             service(StoredMappingInspector::class),
         ]);

@@ -29,8 +29,9 @@ In code:
 
 A whole-field mapping is an optional, root-scoped, unaliased, non-redistributing consumer carrying a typed `source`.
 Its consumer-map key names the destination property. Ordinary wiring has no source. Inline mappings are authored
-tokens in opted-in top-level string properties, not stored consumers. `mappable` and `inlineMappable` are mutually
-exclusive. `defaultMapping` declares initial source wiring, not a second property type or a mandatory consumer.
+tokens in opted-in top-level string properties or in the entries of a translatable string property's
+[language map](README.md#glossary), not stored consumers. `mappable` and `inlineMappable` are mutually exclusive.
+`defaultMapping` declares initial source wiring, not a second property type or a mandatory consumer.
 
 Why: Ordinary root wiring and whole-field mappings share a container but have different admission and missing-value
 rules. Using path punctuation to distinguish them would misclassify whole-source and plugin references.

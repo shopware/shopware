@@ -134,7 +134,7 @@ class ContentSystemLayoutProvisionerTest extends TestCase
             $pipeline,
             static::createStub(AbstractContentSystemElementTypeRegistry::class),
             static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
-            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class)),
+            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), static::createStub(AbstractContentSystemElementTypeRegistry::class)),
             static::createStub(RootSourceRegistry::class),
             new StoredElementCodec(static::createStub(DataLoaderConfigSerializerProvider::class)),
             $this->layoutRepository,

@@ -187,7 +187,7 @@ class LandingPageControllerTest extends TestCase
                 'slots' => ['content' => [[
                     'id' => $this->ids->create('content-text'),
                     'component' => 'Sw:Content:Text',
-                    'properties' => ['text' => '{{map:landing_page.name}}'],
+                    'properties' => ['text' => [Defaults::LANGUAGE_SYSTEM => '{{map:landing_page.name}}']],
                 ]]],
             ]],
         ]], $context);

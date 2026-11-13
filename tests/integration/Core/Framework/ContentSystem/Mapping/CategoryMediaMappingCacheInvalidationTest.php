@@ -88,7 +88,7 @@ class CategoryMediaMappingCacheInvalidationTest extends TestCase
         ]);
         $textLayoutId = $this->createLayout([
             'id' => Uuid::randomHex(), 'component' => 'Sw:Content:Text',
-            'properties' => ['text' => '<p>{{map:category.name}}</p>'],
+            'properties' => ['text' => [Defaults::LANGUAGE_SYSTEM => '<p>{{map:category.name}}</p>']],
         ]);
         static::getContainer()->get('category_content_layout.repository')->create([
             ['id' => Uuid::randomHex(), 'categoryId' => $this->categoryId, 'contentLayoutId' => $imageLayoutId],

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Api;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\Binding\AttributionReconciler;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
@@ -61,7 +62,7 @@ class DraftLayoutStyleParityTest extends TestCase
         $raw = [[
             'id' => self::ELEMENT_ID,
             'component' => 'Sw:Content:Text',
-            'properties' => ['text' => '<p>Parity</p>'],
+            'properties' => ['text' => [Defaults::LANGUAGE_SYSTEM => '<p>Parity</p>']],
             'style' => ['align-self' => ['xs' => 'center']],
         ]];
 

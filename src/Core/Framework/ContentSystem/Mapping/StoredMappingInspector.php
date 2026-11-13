@@ -34,7 +34,8 @@ use Shopware\Core\Framework\Log\Package;
  * TWO KINDS OF MAPPING ARE JUDGED HERE, and they are found in different places. A whole-field mapping is a context
  * CONSUMER carrying a typed source, so it is declared and can be enumerated. An INLINE mapping is a `{{map:path}}`
  * token inside an `inlineMappable` string PROPERTY: nothing declares it, so {@see inspectElementInline()} scans the
- * text for it. Mapping-like text in other properties is literal and is not inspected.
+ * text for it, in each language entry of a translatable property. Mapping-like text in other properties is
+ * literal and is not inspected.
  *
  * The write gate and diagnose route share {@see inspect()}, so mappings in opted-in properties are judged by the
  * same rules. Preview reports mapping faults through diagnostics without blocking rendering.
@@ -117,31 +118,19 @@ final class StoredMappingInspector
             $declared = $this->typeRegistry->get($element->component)->properties();
 
             foreach ($element->properties() as $key => $value) {
-                if (!$value->isString()) {
-                    continue;
-                }
-
-                $text = $value->asString();
-                if (!$this->tokenParser->containsToken($text)) {
-                    continue;
-                }
-
                 $propertyKey = (string) $key;
                 $property = $declared[$propertyKey] ?? null;
                 if ($property === null || !$property->inlineMappable()) {
                     continue;
                 }
 
-                foreach ($this->tokenParser->parse($text) as $token) {
-                    $exception = $token->malformed
-                        ? ContentSystemException::malformedInlineMappingToken($token->path, $propertyKey)
-                        : ContentSystemException::inlineMappingRequiresRootSource($token->path, $propertyKey);
-                    $problems[] = new MappingProblem(
-                        $element->id,
-                        $propertyKey,
-                        $token->path,
-                        $exception,
-                    );
+                foreach ($property->type()->texts($value) as ['languageId' => $languageId, 'text' => $text]) {
+                    foreach ($this->tokenParser->parse($text) as $token) {
+                        $exception = $token->malformed
+                            ? ContentSystemException::malformedInlineMappingToken($token->path, $propertyKey)
+                            : ContentSystemException::inlineMappingRequiresRootSource($token->path, $propertyKey);
+                        $problems[] = $this->inlineProblem($element, $propertyKey, $token, $exception, $languageId);
+                    }
                 }
             }
         }
@@ -279,9 +268,10 @@ final class StoredMappingInspector
     /**
      * The inline counterpart of {@see inspectElement()}: scans opted-in string properties for `{{map:path}}` tokens.
      *
-     * The shape rule matches what the render path expands — top-level string properties only, containers untouched
-     * — because the gate and the expansion must agree on where a token counts. See
-     * `Mapping\Inline\InlineMappingExpander` for why that boundary is where it is.
+     * The shape rule matches what the render path expands: top-level string properties only, containers untouched,
+     * because the gate and the expansion must agree on where a token counts. See
+     * `Mapping\Inline\InlineMappingExpander` for why that boundary is where it is. A translatable property is
+     * judged in every language entry, because language reduction runs before expansion and may select any of them.
      *
      * @return list<MappingProblem>
      */
@@ -295,16 +285,6 @@ final class StoredMappingInspector
         $problems = [];
 
         foreach ($element->properties() as $key => $value) {
-            if (!$value->isString()) {
-                continue;
-            }
-
-            $text = $value->asString();
-
-            if (!$this->tokenParser->containsToken($text)) {
-                continue;
-            }
-
             $propertyKey = (string) $key;
             $property = $declared[$propertyKey] ?? null;
 
@@ -312,22 +292,42 @@ final class StoredMappingInspector
                 continue;
             }
 
-            foreach ($this->tokenParser->parse($text) as $token) {
-                $exception = $this->inlineFault(
-                    $propertyKey,
-                    $token,
-                    $rootSource
-                );
+            foreach ($property->type()->texts($value) as ['languageId' => $languageId, 'text' => $text]) {
+                foreach ($this->tokenParser->parse($text) as $token) {
+                    $exception = $this->inlineFault(
+                        $propertyKey,
+                        $token,
+                        $rootSource
+                    );
 
-                if ($exception === null) {
-                    continue;
+                    if ($exception === null) {
+                        continue;
+                    }
+
+                    $problems[] = $this->inlineProblem($element, $propertyKey, $token, $exception, $languageId);
                 }
-
-                $problems[] = new MappingProblem($element->id, $propertyKey, $token->path, $exception);
             }
         }
 
         return $problems;
+    }
+
+    /**
+     * A fault in a language-map entry names that entry's language, so the write rejection and the diagnose
+     * violation, which both read the exception message, tell the author which text to fix.
+     */
+    private function inlineProblem(
+        StoredElement $element,
+        string $propertyKey,
+        InlineMappingToken $token,
+        ContentSystemException $exception,
+        ?string $languageId,
+    ): MappingProblem {
+        if ($languageId !== null) {
+            $exception = ContentSystemException::inlineMappingFaultInLanguageEntry($exception, $languageId);
+        }
+
+        return new MappingProblem($element->id, $propertyKey, $token->path, $exception);
     }
 
     /**

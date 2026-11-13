@@ -841,7 +841,7 @@ class CriteriaParser
             return $bool;
         }
 
-        if ($filter instanceof NotEqualsFilter && $filter->getValue() === null) {
+        if ($filter instanceof NotEqualsFilter && $filter->getValue() === null && $this->canUseExistsShortcut($filter->getField(), $definition, $context)) {
             return $this->createNestedQuery(
                 new ExistsQuery($this->buildAccessor($definition, $filter->getField(), $context)),
                 $definition,
@@ -971,6 +971,15 @@ class CriteriaParser
         }
 
         return $this->helper->getField($fieldName, $definition, $root, false);
+    }
+
+    private function canUseExistsShortcut(string $fieldName, EntityDefinition $definition, Context $context): bool
+    {
+        if ($this->isCheapestPriceField($fieldName) || $this->isCheapestPriceField($fieldName, true)) {
+            return false;
+        }
+
+        return !$this->getField($definition, $this->buildAccessor($definition, $fieldName, $context)) instanceof TranslatedField;
     }
 
     private function getNestedPath(EntityDefinition $definition, string $accessor): ?string

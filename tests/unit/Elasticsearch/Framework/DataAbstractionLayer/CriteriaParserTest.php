@@ -292,6 +292,46 @@ EOT,
     {
         $now = '2023-06-12 05:36:22.000';
 
+        yield 'NotEqualsFilter null on translated field' => [
+            new NotEqualsFilter('name', null),
+            [
+                'bool' => [
+                    'must_not' => [
+                        [
+                            'bool' => [
+                                'must_not' => [
+                                    ['exists' => ['field' => 'name.' . self::SECOND_LANGUAGE]],
+                                    ['exists' => ['field' => 'name.' . self::SECOND_LANGUAGE]],
+                                    ['exists' => ['field' => 'name.' . Defaults::LANGUAGE_SYSTEM]],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+        yield 'NotEqualsFilter null on nested translated field' => [
+            new NotEqualsFilter('manufacturer.name', null),
+            [
+                'bool' => [
+                    'must_not' => [
+                        [
+                            'nested' => [
+                                'path' => 'manufacturer',
+                                'query' => [
+                                    'bool' => [
+                                        'must_not' => [
+                                            ['exists' => ['field' => 'manufacturer.name.' . self::SECOND_LANGUAGE]],
+                                            ['exists' => ['field' => 'manufacturer.name.' . Defaults::LANGUAGE_SYSTEM]],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
         yield 'NotFilter field' => [
             new NotFilter('AND', [
                 new EqualsFilter('id', 'foo'),

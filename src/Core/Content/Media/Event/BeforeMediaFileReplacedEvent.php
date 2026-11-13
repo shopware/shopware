@@ -8,11 +8,11 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * Dispatched before an upload replaces the file of a media.
- * A listener can throw an exception to stop the replace, and the media keeps its old file.
- * Presigned uploads dispatch it in `prepare()` with the declared file, and in `finalize()` with the stored one.
- * With `shopware.cdn.path_cache_buster` off, a presigned upload of the same file name and extension
- * has already overwritten the old file when `finalize()` stops it.
+ * Dispatched with the new file's values before an upload replaces a media's file.
+ * Throw to stop the replace; the media keeps its old file.
+ * Presigned uploads dispatch it in `prepare()` with the declared file and in `finalize()` with the stored one.
+ * With `shopware.cdn.path_cache_buster` off, a presigned upload of the same name and extension
+ * already overwrote the old file before `finalize()`.
  *
  * @codeCoverageIgnore
  */
@@ -20,9 +20,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 final class BeforeMediaFileReplacedEvent extends Event implements ShopwareEvent
 {
     /**
-     * @param string $fileExtension the extension of the new file
-     * @param string $mimeType the MIME type of the new file
-     * @param int|null $fileSize the size of the new file in bytes, null when a presigned upload didn't declare it
+     * @param int|null $fileSize in bytes, null if a presigned upload didn't declare it
      */
     public function __construct(
         public readonly string $mediaId,

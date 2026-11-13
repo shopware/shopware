@@ -69,7 +69,7 @@ readonly class PresignedMediaUploadService
         $isReplace = $payload->mediaId !== null;
 
         if ($isReplace) {
-            // rejects a declared file before it is uploaded; finalize checks the stored file again
+            // early check with the declared file; finalize() checks the stored one
             $this->eventDispatcher->dispatch(new BeforeMediaFileReplacedEvent(
                 $mediaId,
                 $payload->extension,
@@ -249,7 +249,7 @@ readonly class PresignedMediaUploadService
         try {
             $this->eventDispatcher->dispatch(new BeforeMediaFileReplacedEvent($media->getId(), $payload->extension, $mimeType, $fileSize, $context));
         } catch (\Throwable $e) {
-            // a rejected upload is removed, unless it already overwrote the old file on the same path
+            // delete the rejected upload, but never the file the media still points to
             if ($payload->path !== $media->getPath()) {
                 $this->presignedUrlGenerator->deleteFromStorage($payload->path, $media->isPrivate());
             }

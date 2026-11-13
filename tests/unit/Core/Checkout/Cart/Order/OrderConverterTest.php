@@ -319,6 +319,32 @@ class OrderConverterTest extends TestCase
         static::assertJsonStringEqualsJsonString($expectedJson, $actual);
     }
 
+    public function testConvertToOrderMakesTheDeliveryWithTheHighestShippingCostsThePrimaryOne(): void
+    {
+        $shipment = $this->getDeliveryCollection()->first();
+        static::assertInstanceOf(Delivery::class, $shipment);
+        $shipment->setShippingCosts(new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $shippingDiscount = clone $shipment;
+        $shippingDiscount->setShippingCosts(new CalculatedPrice(-5, -5, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $cart = $this->getCart();
+        $cart->setDeliveries(new DeliveryCollection([$shippingDiscount, $shipment]));
+
+        $result = $this->orderConverter->convertToOrder($cart, $this->getSalesChannelContext(true), new OrderConversionContext());
+
+        static::assertIsArray($result['deliveries']);
+        $primaryDeliveries = array_values(array_filter(
+            $result['deliveries'],
+            static fn (array $delivery): bool => ($delivery['id'] ?? null) === $result['primaryOrderDeliveryId'],
+        ));
+
+        static::assertCount(1, $primaryDeliveries);
+        $shippingCosts = $primaryDeliveries[0]['shippingCosts'];
+        static::assertInstanceOf(CalculatedPrice::class, $shippingCosts);
+        static::assertSame(10.0, $shippingCosts->getTotalPrice());
+    }
+
     /**
      * @param \Closure(): ShopwareHttpException $expectedException
      */

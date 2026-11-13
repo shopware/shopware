@@ -127,6 +127,65 @@ class OrderRouteTest extends TestCase
     }
 
     /**
+     * @param array<string, mixed> $query
+     * @param array<string, mixed> $body
+     */
+    #[DataProvider('checkPromotionProvider')]
+    public function testCheckPromotion(array $query, array $body, bool $expectPaymentChangeable): void
+    {
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context
+            ->method('getCustomer')
+            ->willReturn($customer);
+
+        $orderRepository = static::createStub(EntityRepository::class);
+        $orderRepository
+            ->method('search')
+            ->willReturn(new EntitySearchResult(
+                OrderDefinition::ENTITY_NAME,
+                1,
+                new OrderCollection([$order]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            ));
+
+        $route = new OrderRoute(
+            $orderRepository,
+            static::createStub(EntityRepository::class),
+            static::createStub(RateLimiter::class),
+            new EventDispatcher(),
+            static::createStub(AccountService::class),
+            new GuestAuthenticator(),
+            new NativeClock(),
+            new ExtensionDispatcher(new EventDispatcher())
+        );
+
+        $response = $route->load(new Request($query, $body), $context, new Criteria());
+
+        $expected = $expectPaymentChangeable ? [$order->getId() => true] : [];
+        static::assertSame($expected, $response->getPaymentsChangeable());
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, array<string, mixed>, bool}>
+     */
+    public static function checkPromotionProvider(): iterable
+    {
+        yield 'not requested' => [[], [], false];
+        yield 'query parameter' => [['checkPromotion' => 'true'], [], true];
+        yield 'request body' => [[], ['checkPromotion' => true], true];
+        yield 'request body false' => [[], ['checkPromotion' => false], false];
+        yield 'query parameter wins over request body' => [['checkPromotion' => 'false'], ['checkPromotion' => true], false];
+    }
+
+    /**
      * @param ?class-string<\Throwable> $exception
      */
     #[DataProvider('customerDataProvider')]

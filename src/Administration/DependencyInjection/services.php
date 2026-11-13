@@ -10,6 +10,7 @@ use Shopware\Administration\Command\DeleteExtensionLocalPublicFilesCommand;
 use Shopware\Administration\Command\GenerateEntitySchemaTypesCommand;
 use Shopware\Administration\Command\SetupExtensionToolingCommand;
 use Shopware\Administration\Command\TestExtensionsCommand;
+use Shopware\Administration\Command\UpgradeExtensionsCommand;
 use Shopware\Administration\Controller\AdminExtensionApiController;
 use Shopware\Administration\Controller\AdministrationController;
 use Shopware\Administration\Controller\AdminProductStreamController;
@@ -90,6 +91,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('console.command');
 
     $services->set(TestExtensionsCommand::class)
+        ->args([
+            service('kernel'),
+        ])
+        ->tag('console.command');
+
+    $services->set(UpgradeExtensionsCommand::class)
         ->args([
             service('kernel'),
         ])

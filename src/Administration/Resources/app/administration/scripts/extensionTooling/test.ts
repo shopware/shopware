@@ -17,12 +17,12 @@ import os from 'os';
 import path from 'path';
 import colors from 'picocolors';
 import type { StdioOptions } from 'child_process';
-import { filterSelectedProjects, normalizeSelection, selectedSetupWarnings } from './check';
+import { selectedSetupWarnings } from './check';
 import { CliUsageError, parseCli, renderHelp } from './cli';
 import type { CommandSpec } from './cli';
 import { promptSelection } from './select';
 import { discoverProjects, setupExtensionTooling } from './setup';
-import { isWithin, pluginsConfigPath, relativePosix } from './shared';
+import { filterSelectedProjects, isWithin, normalizeSelection, pluginsConfigPath, relativePosix } from './shared';
 import type { ExtensionToolingProject } from './shared';
 
 /** The config file names Jest itself looks for, in its own order of preference. */

@@ -56,8 +56,12 @@ describe('modules/sw-cms/elements/vimeo-video/component', () => {
         await import('src/module/sw-cms/elements/vimeo-video');
     });
 
-    it('mounts the component', async () => {
+    it('should embed the configured video with its title', async () => {
         const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
+        const iframe = wrapper.get('iframe');
+
+        expect(iframe.attributes('src')).toContain('https://player.vimeo.com/video/');
+        expect(iframe.attributes('src')).toContain('foo-bar?');
+        expect(iframe.attributes('title')).toBe('foo-bar');
     });
 });

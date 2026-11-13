@@ -20,6 +20,7 @@ use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\Privileges\Privileges;
+use Shopware\Core\Framework\App\Validation\Error\IncompatibleAppError;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -180,7 +181,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->appManager->expects($this->once())
             ->method('install')
-            ->willThrowException(AppException::notCompatible('MyCoolService'));
+            ->willThrowException(AppException::validationFailedFromError(new IncompatibleAppError('MyCoolService')));
 
         $this->logger
             ->expects($this->once())
@@ -211,7 +212,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->appManager->expects($this->once())
             ->method('install')
-            ->willThrowException(AppException::notCompatible('MyCoolService'));
+            ->willThrowException(AppException::validationFailedFromError(new IncompatibleAppError('MyCoolService')));
 
         $this->appManager->expects($this->once())
             ->method('uninstall')
@@ -267,7 +268,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->appManager->expects($this->once())
             ->method('install')
-            ->willThrowException(AppException::notCompatible('MyCoolService'));
+            ->willThrowException(AppException::validationFailedFromError(new IncompatibleAppError('MyCoolService')));
 
         $this->appManager->expects($this->never())->method('uninstall');
 
@@ -294,7 +295,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->appManager->expects($this->once())
             ->method('install')
-            ->willThrowException(AppException::notCompatible('MyCoolService'));
+            ->willThrowException(AppException::validationFailedFromError(new IncompatibleAppError('MyCoolService')));
 
         $this->appManager->expects($this->once())
             ->method('uninstall')
@@ -485,7 +486,6 @@ class ServiceLifecycleTest extends TestCase
         $this->appManager->expects($this->once())->method('uninstall')->with($app, $context);
 
         // update() looks the service up, then uninstall() looks it up again by name
-        /** @var StaticEntityRepository<AppCollection> $appRepo */
         $appRepo = new StaticEntityRepository([new AppCollection([$app]), new AppCollection([$app])]);
 
         $this->createLifecycle($appRepo)->update('MyCoolService', $context);
@@ -553,7 +553,7 @@ class ServiceLifecycleTest extends TestCase
         $this->sourceResolver->expects($this->once())
             ->method('filesystemForVersion')
             ->with($this->appInfo)
-            ->willThrowException(AppException::notCompatible('MyCoolService'));
+            ->willThrowException(AppException::validationFailedFromError(new IncompatibleAppError('MyCoolService')));
 
         $this->manifestFactory->expects($this->never())->method('createFromXmlFile');
         $this->appManager->expects($this->never())->method('update');
@@ -587,7 +587,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->appManager->expects($this->once())
             ->method('update')
-            ->willThrowException(AppException::notCompatible('MyCoolService'));
+            ->willThrowException(AppException::validationFailedFromError(new IncompatibleAppError('MyCoolService')));
 
         $this->eventDispatcher->expects($this->never())->method('dispatch');
 

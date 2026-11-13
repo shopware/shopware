@@ -3,6 +3,7 @@
 These rules apply to Jest, Vue Test Utils, and Administration unit/component tests.
 
 - Write Jest tests for new Administration features and bug fixes.
+- Snippet-only changes and new translations using existing error rendering need snippet linting, not tests that only assert translated text.
 - Put tests next to the code under test with a `.spec.ts` suffix for new TypeScript code.
 - Split very large tests into a `.spec/` directory grouped by behavior.
 - Test behavior, not Vue internals or implementation details.

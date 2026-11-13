@@ -59,7 +59,7 @@ describe('FormHandler Plugin', () => {
     });
 
     test('should init form handling', () => {
-        expect(formHandlerPlugin.formFields.length).toBe(5);
+        expect(formHandlerPlugin.formFields.length).toBe(window.Feature.isActive('v6.8.0.0') ? 7 : 5);
         expect(formHandlerPlugin.submitButtons.length).toBe(2);
         expect(form.getAttribute('novalidate')).toBeDefined();
     });

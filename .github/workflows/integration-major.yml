@@ -95,7 +95,7 @@ jobs:
           # no codecov-upload step: the major run's signal is the gate, not Test Analytics
       - name: Upload junit report for the failure tracking issue
         if: failure() && github.event_name != 'pull_request' && github.event_name != 'merge_group'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: junit-phpunit-major-${{ strategy.job-index }}
           path: junit.xml
@@ -122,7 +122,7 @@ jobs:
           shopware-repository: ${{ github.repository }}
 
       - name: Setup Node
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -136,10 +136,41 @@ jobs:
 
       - name: Upload Jest results
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: jest-admin-major-results
           path: build/artifacts/jest/administration.junit.xml
+          if-no-files-found: error
+
+  jest-storefront-major:
+    name: "Jest Storefront (major)"
+    if: (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-js') || contains(github.event.pull_request.labels.*.name, 'major-tests')) && (github.event.action != 'labeled' || contains(fromJSON('["major-php", "major-js", "major-tests"]'), github.event.label.name))
+    runs-on: ubuntu-24.04
+    env:
+      PROJECT_ROOT: ${{ github.workspace }}
+
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          mysql-version: skip
+          npm-version: 11.8.0
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+          install-storefront: true
+
+      - name: Run Jest Storefront with major features
+        working-directory: src/Storefront/Resources/app/storefront
+        # Coverage stays in the normal lane: removed helpers are intentionally untested here.
+        run: npm run unit -- --silent --coverage=false
+
+      - name: Upload Jest results
+        # Keep the report when tests fail so the failed major lane can be diagnosed.
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: jest-storefront-major-results
+          path: build/artifacts/jest/storefront.junit.xml
           if-no-files-found: error
 
   # single required/monitorable status for the whole major matrix
@@ -150,6 +181,7 @@ jobs:
     needs:
       - phpunit-major
       - jest-admin-major
+      - jest-storefront-major
     runs-on: Ubuntu-latest
     steps:
       - name: Decide whether the needed jobs succeeded or failed
@@ -165,6 +197,6 @@ jobs:
               || github.event_name == 'pull_request'
               && !contains(github.event.pull_request.labels.*.name, 'major-js')
               && !contains(github.event.pull_request.labels.*.name, 'major-tests')
-              && 'jest-admin-major'
+              && 'jest-admin-major,jest-storefront-major'
               || ''
             }}

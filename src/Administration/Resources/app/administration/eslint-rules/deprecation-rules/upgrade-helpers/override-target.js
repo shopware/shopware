@@ -97,17 +97,6 @@ function findOverrides(context) {
 }
 
 /**
- * The component whose override contains `node`, or `null`.
- */
-function targetAt(context, node) {
-    const match = findOverrides(context).find(
-        ({ options }) => options && options.range[0] <= node.range[0] && node.range[1] <= options.range[1],
-    );
-
-    return match ? match.target : null;
-}
-
-/**
  * Every component the linted file overrides or extends.
  */
 function fileTargets(context) {
@@ -117,6 +106,5 @@ function fileTargets(context) {
 module.exports = {
     unwrapOptions,
     findOverrides,
-    targetAt,
     fileTargets,
 };

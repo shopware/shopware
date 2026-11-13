@@ -100,35 +100,7 @@ function memberPath(node, aliases) {
     return key === null ? null : `${object}.${key}`;
 }
 
-/**
- * The service and method of a call like `this.mailService.send()`, `Shopware.Service('mailService').send()` or
- * `mailService.send()`.
- */
-function serviceCall(node, aliases) {
-    if (node.type !== 'CallExpression') {
-        return null;
-    }
-
-    const callee = node.callee.type === 'ChainExpression' ? node.callee.expression : node.callee;
-
-    if (callee.type !== 'MemberExpression') {
-        return null;
-    }
-
-    const receiver = memberPath(callee.object, aliases);
-    const method = !callee.computed && callee.property.type === 'Identifier' ? callee.property.name : stringValue(callee.property);
-
-    if (!receiver || !method) {
-        return null;
-    }
-
-    const service = /^Service\((.+)\)$/.exec(receiver)?.[1] ?? /^(?:this\.)?([A-Za-z_$][\w$]*)$/.exec(receiver)?.[1];
-
-    return service ? { service, method } : null;
-}
-
 module.exports = {
     shopwareAliases,
     memberPath,
-    serviceCall,
 };

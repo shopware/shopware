@@ -3,7 +3,7 @@
  */
 
 const { RuleTester } = require('eslint');
-const { shopwareAliases, memberPath, serviceCall } = require('./global-calls');
+const { shopwareAliases, memberPath } = require('./global-calls');
 
 const rule = {
     meta: { type: 'problem', schema: [] },
@@ -15,9 +15,7 @@ const rule = {
                 aliases = shopwareAliases(node);
             },
             'ExpressionStatement > CallExpression'(node) {
-                const call = serviceCall(node, aliases);
-
-                context.report({ node, message: call ? `service:${call.service}.${call.method}` : `path:${memberPath(node.callee, aliases)}` });
+                context.report({ node, message: `path:${memberPath(node.callee, aliases)}` });
             },
         };
     },
@@ -27,18 +25,22 @@ new RuleTester({ languageOptions: { ecmaVersion: 2022, sourceType: 'module' } })
     valid: [],
     invalid: [
         {
-            name: 'resolves services on this, Shopware.Service and injected identifiers',
+            name: 'resolves paths on this, Shopware.Service and injected identifiers',
             code: [
                 'this.mailService.send();',
                 "Shopware.Service('mailService').send();",
                 'mailService.send();',
             ].join('\n'),
-            errors: [{ message: 'service:mailService.send' }, { message: 'service:mailService.send' }, { message: 'service:mailService.send' }],
+            errors: [
+                { message: 'path:this.mailService.send' },
+                { message: 'path:Service(mailService).send' },
+                { message: 'path:mailService.send' },
+            ],
         },
         {
             name: 'resolves destructured Service',
             code: "const { Service } = Shopware; Service('orderService').toggle();",
-            errors: [{ message: 'service:orderService.toggle' }],
+            errors: [{ message: 'path:Service(orderService).toggle' }],
         },
         {
             name: 'resolves global paths through aliases',

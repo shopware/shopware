@@ -1,0 +1,43 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{# `tabId` must match the `tabId` (or content element id) of the Sw:Tabs:Tab pane this item opens. #}
+{% props
+    tabId,
+    title = '',
+    active = false,
+%}
+
+{% set navItemCVA = cva({
+    base: 'sw-tabs__nav-item nav-item',
+}) %}
+
+{% set navLinkCVA = cva({
+    base: 'sw-tabs__nav-link nav-link',
+    variants: {
+        active: {
+            true: 'active',
+        },
+    },
+}) %}
+
+{% set attributeDefaults = {
+    class: navItemCVA.apply({}),
+    role: 'presentation',
+} %}
+
+<li {{ attributes.defaults(attributeDefaults) }}>
+    <button {{ attributes.nested('link').defaults({
+        class: navLinkCVA.apply({ active }),
+        id: 'sw-tab-' ~ tabId,
+        type: 'button',
+        role: 'tab',
+        'data-bs-toggle': 'tab',
+        'data-bs-target': '#sw-tab-pane-' ~ tabId,
+        'aria-controls': 'sw-tab-pane-' ~ tabId,
+        'aria-selected': active ? 'true' : 'false',
+    }) }}>
+        {% block content %}{{ title }}{% endblock %}
+    </button>
+</li>

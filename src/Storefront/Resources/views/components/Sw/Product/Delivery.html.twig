@@ -1,0 +1,97 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    product = null,
+%}
+
+{% set deliveryCVA = cva({
+    base: 'sw-product-delivery',
+}) %}
+
+{% set attributeDefaults = {
+    class: deliveryCVA.apply({}),
+} %}
+
+{% set showFreeShipping = false %}
+{% set showPreorder = false %}
+{% set showDeliveryTime = false %}
+{% set showRestock = false %}
+
+{% if product %}
+    {% set digitalType = constant('Shopware\\Core\\Content\\Product\\ProductDefinition::TYPE_DIGITAL') %}
+    {% set isDigitalProduct = product.type === digitalType %}
+    {% set inStock = product.stock >= product.minPurchase or (isDigitalProduct and not product.isCloseout) %}
+
+    {% set showFreeShipping = product.shippingFree %}
+    {% set showPreorder = product.releaseDate and product.releaseDate|date('U') > 'now'|date('U') %}
+    {% set showDeliveryTime = not showPreorder and inStock and product.deliveryTime %}
+    {% set showRestock = not showPreorder and not inStock and not product.isCloseout and product.deliveryTime and product.restockTime %}
+{% endif %}
+
+{% if showFreeShipping or showPreorder or showDeliveryTime or showRestock %}
+    <div {{ attributes.defaults(attributeDefaults) }}>
+        {% if showFreeShipping %}
+            <p {{ attributes.nested('free-shipping').defaults({ class: 'sw-product-delivery__free-shipping mb-3' }) }}>
+                <twig:Sw:Badge
+                    variant="info"
+                    :dot="true"
+                    {{ ...attributes.nested('free-shipping-indicator').defaults({
+                        class: 'sw-product-delivery__indicator ms-0 me-1',
+                        'aria-hidden': 'true',
+                    }) }}
+                />
+                {{ 'general.deliveryShippingFree'|trans|sw_sanitize }}
+            </p>
+        {% endif %}
+
+        {% if showPreorder %}
+            <p {{ attributes.nested('preorder').defaults({ class: 'sw-product-delivery__preorder mb-3' }) }}>
+                <twig:Sw:Badge
+                    variant="warning"
+                    :dot="true"
+                    {{ ...attributes.nested('preorder-indicator').defaults({
+                        class: 'sw-product-delivery__indicator ms-0 me-1',
+                        'aria-hidden': 'true',
+                    }) }}
+                />
+                {{ 'general.deliveryShipping'|trans|sw_sanitize }} {{ product.releaseDate|format_date('long', locale=app.request.locale) }}
+            </p>
+        {% endif %}
+
+        {% if showDeliveryTime %}
+            <p {{ attributes.nested('delivery-time').defaults({ class: 'sw-product-delivery__delivery-time mb-3' }) }}>
+                <twig:Sw:Badge
+                    variant="success"
+                    :dot="true"
+                    {{ ...attributes.nested('delivery-time-indicator').defaults({
+                        class: 'sw-product-delivery__indicator ms-0 me-1',
+                        'aria-hidden': 'true',
+                    }) }}
+                />
+                {{ 'detail.deliveryTimeAvailable'|trans({
+                    '%name%': product.deliveryTime.translation('name'),
+                })|sw_sanitize }}
+            </p>
+        {% endif %}
+
+        {% if showRestock %}
+            <p {{ attributes.nested('restock').defaults({ class: 'sw-product-delivery__restock mb-3' }) }}>
+                <twig:Sw:Badge
+                    variant="warning"
+                    :dot="true"
+                    {{ ...attributes.nested('restock-indicator').defaults({
+                        class: 'sw-product-delivery__indicator ms-0 me-1',
+                        'aria-hidden': 'true',
+                    }) }}
+                />
+                {{ 'detail.deliveryTimeRestock'|trans({
+                    '%count%': product.restockTime,
+                    '%restockTime%': product.restockTime,
+                    '%name%': product.deliveryTime.translation('name'),
+                })|sw_sanitize }}
+            </p>
+        {% endif %}
+    </div>
+{% endif %}

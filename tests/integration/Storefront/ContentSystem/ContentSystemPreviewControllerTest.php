@@ -133,6 +133,7 @@ class ContentSystemPreviewControllerTest extends TestCase
         $containerId = Uuid::randomHex();
         $textId = Uuid::randomHex();
         $manufacturerId = Uuid::randomHex();
+        $buyButtonId = Uuid::randomHex();
 
         $token = $this->storePreviewRequest(new ContentPreviewRequest(
             layout: [[
@@ -148,6 +149,11 @@ class ContentSystemPreviewControllerTest extends TestCase
                     'id' => $manufacturerId,
                     'component' => 'Sw:Product:Manufacturer',
                     'properties' => [],
+                ], [
+                    'id' => $buyButtonId,
+                    'component' => 'Sw:Product:BuyButton',
+                    'properties' => [],
+                    'acceptsContext' => ['product' => ['type' => 'single', 'required' => false, 'scope' => 'root']],
                 ]]],
             ]],
             entityType: 'product',
@@ -182,6 +188,10 @@ class ContentSystemPreviewControllerTest extends TestCase
         // depend on the request global itself.
         static::assertStringContainsString('data-element-id="' . $manufacturerId . '"', $content);
         static::assertStringContainsString('Manufacturer not available', $content);
+        // The buy button stores no properties; its form can only name the product if its root-scope consumer
+        // received the page's product.
+        static::assertStringContainsString('data-element-id="' . $buyButtonId . '"', $content);
+        static::assertStringContainsString('name="lineItems[' . $productId . '][id]"', $content);
     }
 
     /**

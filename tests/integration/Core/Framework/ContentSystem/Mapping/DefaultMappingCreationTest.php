@@ -31,9 +31,10 @@ class DefaultMappingCreationTest extends TestCase
     {
         $body = $this->mutate($action, ['rootSource' => 'product', ...$payload]);
         $element = $action === 'insert-preset'
-            ? $body['layout'][0]['slots']['content'][2]
+            ? $this->findElement($body['layout'], self::COMPONENT)
             : $body['layout'][0];
 
+        static::assertIsArray($element);
         static::assertSame(self::COMPONENT, $element['component']);
         static::assertSame(['type' => 'root', 'id' => 'product'], $element['acceptsContext']['product']['source']);
         static::assertArrayHasKey('product', $element['dataRequirements']);
@@ -207,6 +208,29 @@ class DefaultMappingCreationTest extends TestCase
     private function layoutPayload(string $id, array $tree): array
     {
         return ['id' => $id, 'name' => 'Default mapping creation', 'version' => '1.0.0', 'rootSource' => 'product', 'layout' => $tree];
+    }
+
+    /**
+     * @param list<array<string, mixed>> $elements
+     *
+     * @return array<string, mixed>|null
+     */
+    private function findElement(array $elements, string $component): ?array
+    {
+        foreach ($elements as $element) {
+            if ($element['component'] === $component) {
+                return $element;
+            }
+
+            foreach ($element['slots'] ?? [] as $children) {
+                $found = $this->findElement($children, $component);
+                if ($found !== null) {
+                    return $found;
+                }
+            }
+        }
+
+        return null;
     }
 
     private function reload(string $id): ContentLayoutEntity

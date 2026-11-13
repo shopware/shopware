@@ -5,6 +5,8 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Aggregate\ProductContentLayou
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\CrossSellingDataLoader;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\CrossSellingLoaderConfig;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductConfiguratorDataLoader;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductConfiguratorLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
@@ -45,5 +47,15 @@ class ProductContentLayoutDefinitionTest extends TestCase
             new ProductConfiguratorLoaderConfig(productId: 'productId'),
             $configuratorSettings->config,
         );
+    }
+
+    public function testProvidesCrossSellingsAsPageDataRequirement(): void
+    {
+        $requirements = (new ProductContentLayoutDefinition())->getPageDataRequirements();
+        $crossSellings = array_values(array_filter($requirements, static fn (DataRequirement $requirement): bool => $requirement->key === 'crossSellings'));
+
+        static::assertCount(1, $crossSellings);
+        static::assertSame(CrossSellingDataLoader::SOURCE, $crossSellings[0]->source);
+        static::assertEquals(new CrossSellingLoaderConfig(property: 'productId'), $crossSellings[0]->config);
     }
 }

@@ -62,17 +62,17 @@ class ReviewsComponentTest extends TestCase
      */
     public function testNoReviewElementResolvesReviewsOnItsOwn(): void
     {
-        foreach (['Sw:Product:Reviews', 'Sw:Product:ReviewSummary', 'Sw:Product:ReviewFilters'] as $type) {
+        foreach (['Sw:Product:Reviews', 'Sw:Product:ReviewSummary', 'Sw:Product:ReviewFilters', 'Sw:Product:ReviewIndicator'] as $type) {
             static::assertArrayNotHasKey('core:' . $type, $this->bindings()->all(), $type);
         }
     }
 
-    public function testAllThreeElementsConsumeTheRootReviews(): void
+    public function testAllReviewElementsConsumeTheRootReviews(): void
     {
         $types = static::getContainer()->get(ContentSystemElementTypeRegistry::class);
         static::assertInstanceOf(AbstractContentSystemElementTypeRegistry::class, $types);
 
-        foreach (['Sw:Product:Reviews', 'Sw:Product:ReviewSummary', 'Sw:Product:ReviewFilters'] as $type) {
+        foreach (['Sw:Product:Reviews', 'Sw:Product:ReviewSummary', 'Sw:Product:ReviewFilters', 'Sw:Product:ReviewIndicator'] as $type) {
             $reviews = $types->get($type)->properties()['reviews'] ?? null;
             static::assertNotNull($reviews, $type);
 
@@ -290,6 +290,32 @@ class ReviewsComponentTest extends TestCase
         static::assertMatchesRegularExpression('/<option value="points"[^>]*selected/', $html);
     }
 
+    public function testIndicatorRendersAverageRatingAndReviewCountLink(): void
+    {
+        $html = $this->render('Sw:Product:ReviewIndicator', $this->reviewResult($this->matrix(five: 3, four: 2), new ProductReviewCollection(), total: 5, totalInCurrentLanguage: 5));
+
+        static::assertStringContainsString('data-component="Sw:Product:ReviewIndicator"', $html);
+        static::assertStringContainsString('sw-rating-stars', $html);
+        static::assertMatchesRegularExpression('/<button[^>]*sw-product-review-indicator__link[^>]*>\s*5 Reviews\s*<\/button>/', $html);
+    }
+
+    public function testIndicatorRendersNothingWithoutReviews(): void
+    {
+        static::assertSame('', trim($this->render('Sw:Product:ReviewIndicator', $this->reviewResult($this->matrix(), new ProductReviewCollection(), total: 0, totalInCurrentLanguage: 0))));
+        static::assertSame('', trim($this->render('Sw:Product:ReviewIndicator', null)));
+    }
+
+    public function testIndicatorRendersNothingWhenReviewsAreHiddenInTheStorefront(): void
+    {
+        $html = $this->render(
+            'Sw:Product:ReviewIndicator',
+            $this->reviewResult($this->matrix(five: 1), new ProductReviewCollection(), total: 1, totalInCurrentLanguage: 1),
+            props: ['showReview' => false],
+        );
+
+        static::assertSame('', trim($html));
+    }
+
     private function bindings(): AbstractContentSystemBindingSpecificationRegistry
     {
         $registry = static::getContainer()->get(ContentSystemBindingSpecificationRegistry::class);
@@ -298,7 +324,10 @@ class ReviewsComponentTest extends TestCase
         return $registry;
     }
 
-    private function render(string $component, ?ProductReviewResult $reviews, ?CustomerEntity $customer = null): string
+    /**
+     * @param array<string, mixed> $props
+     */
+    private function render(string $component, ?ProductReviewResult $reviews, ?CustomerEntity $customer = null, array $props = []): string
     {
         $twig = static::getContainer()->get('twig');
         static::assertInstanceOf(Environment::class, $twig);
@@ -317,8 +346,8 @@ class ReviewsComponentTest extends TestCase
 
         try {
             return $twig
-                ->createTemplate('{{ component(name, { reviews: reviews }) }}')
-                ->render(['name' => $component, 'reviews' => $reviews]);
+                ->createTemplate('{{ component(name, { reviews: reviews }|merge(props)) }}')
+                ->render(['name' => $component, 'reviews' => $reviews, 'props' => $props]);
         } finally {
             $requestStack->pop();
         }

@@ -35,3 +35,21 @@ properties:
     default: true
     adminUI:
       component: "switch"
+
+  large:
+    type: boolean
+    title: "Large price"
+    titleSnippet: "sw-experience-studio.elements.product-price-display.large.title"
+    description: "Render the headline price at a larger size."
+    default: false
+    adminUI:
+      component: "switch"
+
+  showListPriceBadge:
+    type: boolean
+    title: "Show list price badge"
+    titleSnippet: "sw-experience-studio.elements.product-price-display.showListPriceBadge.title"
+    description: "Render the list price badge."
+    default: true
+    adminUI:
+      component: "switch"

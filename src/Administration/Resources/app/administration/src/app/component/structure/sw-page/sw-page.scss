@@ -58,25 +58,56 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
 
     .sw-page__back-btn-container {
         grid-column: back-btn-start / back-btn-end;
+        display: flex;
+        align-items: center;
         min-width: 0;
     }
 
-    // Lets a long label shrink to its column and truncate, instead of pushing the heading aside.
-    .smart-bar__back-btn.smart-bar__back-btn--labeled {
-        max-width: 100%;
-        grid-template-columns: minmax(0, auto);
-        font-size: var(--font-size-m);
-        font-weight: var(--font-weight-regular);
+    .smart-bar__back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--scale-size-6);
+        min-width: 0;
+        margin-inline-end: var(--scale-size-24);
+        padding-block: var(--scale-size-16);
+        color: var(--color-text-secondary-default);
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-medium);
+        line-height: var(--font-line-height-xs);
+        text-decoration: none;
 
-        .mt-button__content {
-            grid-template-columns: auto minmax(0, auto);
+        .mt-icon {
+            flex: none;
+            color: var(--color-icon-secondary-default);
+        }
+
+        &:hover,
+        &:focus {
+            color: var(--color-text-secondary-default);
+            text-decoration: none;
+        }
+
+        &:hover .smart-bar__back-link-label {
+            text-decoration: underline;
+        }
+
+        &:focus-visible {
+            outline: var(--scale-size-2) solid var(--color-border-brand-default);
+            outline-offset: var(--scale-size-2);
+            border-radius: var(--border-radius-button);
         }
     }
 
-    .smart-bar__back-btn-label {
+    .smart-bar__back-link-label {
+        max-width: 240px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        text-underline-offset: 3px;
+    }
+
+    .smart-bar__back-btn.smart-bar__back-btn--compact {
+        display: none;
     }
 
     .smart-bar__content {
@@ -247,6 +278,14 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
             max-width: 25%;
         }
 
+        .smart-bar__back-link {
+            display: none;
+        }
+
+        .smart-bar__back-btn.smart-bar__back-btn--compact {
+            display: inline-grid;
+        }
+
         .sw-page__search-bar,
         .smart-bar__content {
             flex: 1;
@@ -278,22 +317,6 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
             .sw-page__top-bar {
                 justify-content: flex-end;
             }
-        }
-    }
-
-    // Too narrow for a label next to the heading: back to the square icon button.
-    @container sw-page (max-width: 960px) {
-        .smart-bar__back-btn.smart-bar__back-btn--labeled {
-            width: var(--scale-size-40);
-            padding-inline: 0;
-
-            .mt-button__content {
-                grid-template-columns: auto;
-            }
-        }
-
-        .smart-bar__back-btn-label {
-            display: none;
         }
     }
 }

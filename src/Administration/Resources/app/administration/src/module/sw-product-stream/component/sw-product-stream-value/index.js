@@ -199,6 +199,10 @@ export default {
                 return 'object';
             }
 
+            if (this.fieldName === 'id' && this.conditionDataProviderService.isExistenceOnlyEntity(this.definition.entity)) {
+                return 'empty';
+            }
+
             if (this.fieldDefinition.type === 'uuid') {
                 const isManyToOneFkField =
                     Object.keys(

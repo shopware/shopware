@@ -63,6 +63,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createProductExportSection())
                 ->append($this->createSsoLoginSection())
                 ->append($this->createProductTypesSection())
+                ->append($this->createProductDocumentsSection())
                 ->append($this->createMcpSection())
                 ->append($this->createAppSystemSection())
                 ->append($this->createWebhookSection())
@@ -1059,6 +1060,29 @@ class Configuration implements ConfigurationInterface
                         ->min(1)
                         ->defaultValue(8)
                     ->end()
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createProductDocumentsSection(): ArrayNodeDefinition
+    {
+        $rootNode = (new TreeBuilder('product_documents'))->getRootNode();
+        $rootNode
+            ->info('Settings for product documents, such as manuals or datasheets. They are checked when a document is saved.')
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->arrayNode('allowed_extensions')
+                    ->info('File types a document can have. A list in your own configuration replaces the core list.')
+                    ->performNoDeepMerging()
+                    ->prototype('scalar')->end()
+                ->end()
+                ->scalarNode('max_file_size')
+                    ->info('Largest file of a document, in bytes or with a unit, for example 20M. Default: 20M.')
+                    ->defaultValue(20 * 1024 * 1024)
+                    ->validate()->always()->then(static fn ($value) => MemorySizeCalculator::convertToBytes((string) $value))->end()
+                    ->validate()->ifTrue(static fn (int $value) => $value < 1)->thenInvalid('The largest file of a document must be at least 1 byte, %s given.')->end()
                 ->end()
             ->end();
 

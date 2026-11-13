@@ -134,4 +134,12 @@ describe('src/module/sw-cms/elements/product-description-reviews/component', () 
 
         expect(wrapper.find('.sw-cms-el-product-description-reviews__detail-title').text()).toBe('Product information');
     });
+
+    it('should show the documents tab', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.find('.sw-cms-el-product-description-reviews__documents-tab').text()).toBe(
+            'sw-cms.elements.productDescriptionReviews.preview.label.documents',
+        );
+    });
 });

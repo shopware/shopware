@@ -148,7 +148,7 @@
             <template v-if="feature.isActive('v6.8.0.0')">
                 {% block sw_product_detail_content_mt_tabs %}
                 <mt-tabs
-                    v-if="productId"
+                    v-if="productId && product.id === productId"
                     class="sw-product-detail-page__tabs"
                     position-identifier="sw-product-detail"
                     :default-item="$route.name"

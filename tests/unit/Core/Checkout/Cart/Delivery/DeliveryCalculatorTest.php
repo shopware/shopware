@@ -249,14 +249,14 @@ class DeliveryCalculatorTest extends TestCase
             'id' => $shippingMethodId,
             'name' => 'Test shipping',
             'reason' => 'no shipping costs found',
-            'deliveryIndex' => 0,
+            'deliveryIndexes' => [0],
         ], $error->getParameters());
     }
 
-    public function testBlockedShippingMethodErrorsReferenceTheirDelivery(): void
+    public function testBlockedShippingMethodErrorsReferenceTheirDeliveries(): void
     {
         $data = new CartDataCollection();
-        $deliveries = new DeliveryCollection();
+        $shippingMethods = [];
 
         foreach (['First shipping', 'Second shipping'] as $name) {
             $shippingMethod = new ShippingMethodEntity();
@@ -265,8 +265,14 @@ class DeliveryCalculatorTest extends TestCase
             $shippingMethod->setPrices(new ShippingMethodPriceCollection());
 
             $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-            $deliveries->add($this->createDeliveryWithCartTotal($shippingMethod, 10.0));
+            $shippingMethods[] = $shippingMethod;
         }
+
+        $deliveries = new DeliveryCollection([
+            $this->createDeliveryWithCartTotal($shippingMethods[0], 10.0),
+            $this->createDeliveryWithCartTotal($shippingMethods[1], 10.0),
+            $this->createDeliveryWithCartTotal($shippingMethods[0], 10.0),
+        ]);
 
         $cart = new Cart('test');
         $this->createRealDeliveryCalculator()->calculate($data, $cart, $deliveries, static::createStub(SalesChannelContext::class));
@@ -274,10 +280,10 @@ class DeliveryCalculatorTest extends TestCase
         $deliveryIndexes = [];
         foreach ($cart->getErrors() as $error) {
             static::assertInstanceOf(ShippingMethodBlockedError::class, $error);
-            $deliveryIndexes[$error->getName()] = $error->getDeliveryIndex();
+            $deliveryIndexes[$error->getName()] = $error->getDeliveryIndexes();
         }
 
-        static::assertSame(['First shipping' => 0, 'Second shipping' => 1], $deliveryIndexes);
+        static::assertSame(['First shipping' => [0, 2], 'Second shipping' => [1]], $deliveryIndexes);
     }
 
     public function testCalculateManualShippingCost(): void

@@ -29,9 +29,9 @@ class PaymentMethodBlockedErrorTest extends TestCase
             'id' => $error->getPaymentMethodId(),
             'name' => 'FOO',
             'reason' => 'BAR',
-            'transactionIndex' => null,
+            'transactionIndexes' => [],
         ], $error->getParameters());
-        static::assertNull($error->getTransactionIndex());
+        static::assertSame([], $error->getTransactionIndexes());
         static::assertSame('FOO', $error->getName());
         static::assertTrue($error->blockOrder());
         static::assertSame('payment-method-blocked-' . $error->getPaymentMethodId(), $error->getId());
@@ -39,7 +39,7 @@ class PaymentMethodBlockedErrorTest extends TestCase
         static::assertSame('payment-method-blocked', $error->getMessageKey());
     }
 
-    public function testReferencesTheTransactionWithoutChangingTheId(): void
+    public function testReferencesTheTransactionsWithoutChangingTheId(): void
     {
         $paymentMethodId = Uuid::randomHex();
 
@@ -47,11 +47,11 @@ class PaymentMethodBlockedErrorTest extends TestCase
             name: 'FOO',
             reason: 'BAR',
             id: $paymentMethodId,
-            transactionIndex: 1,
+            transactionIndexes: [0, 2],
         );
 
-        static::assertSame(1, $error->getTransactionIndex());
-        static::assertSame(1, $error->getParameters()['transactionIndex']);
+        static::assertSame([0, 2], $error->getTransactionIndexes());
+        static::assertSame([0, 2], $error->getParameters()['transactionIndexes']);
         static::assertSame('payment-method-blocked-' . $paymentMethodId, $error->getId());
     }
 }

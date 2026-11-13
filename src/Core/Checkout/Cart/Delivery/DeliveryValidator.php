@@ -15,7 +15,14 @@ class DeliveryValidator implements CartValidatorInterface
 {
     public function validate(Cart $cart, ErrorCollection $errors, SalesChannelContext $context): void
     {
+        $blockedShippingMethods = [];
+        $blockedDeliveryIndexes = [];
+
         foreach (array_values($cart->getDeliveries()->getElements()) as $deliveryIndex => $delivery) {
+            if ($delivery->getShippingCosts()->getTotalPrice() < 0) {
+                continue;
+            }
+
             $shippingMethod = $delivery->getShippingMethod();
             $ruleId = $shippingMethod->getAvailabilityRuleId();
 
@@ -29,12 +36,17 @@ class DeliveryValidator implements CartValidatorInterface
                 continue;
             }
 
+            $blockedShippingMethods[$shippingMethod->getId()] = $shippingMethod;
+            $blockedDeliveryIndexes[$shippingMethod->getId()][] = $deliveryIndex;
+        }
+
+        foreach ($blockedShippingMethods as $shippingMethod) {
             $errors->add(
                 new ShippingMethodBlockedError(
                     id: $shippingMethod->getId(),
                     name: (string) $shippingMethod->getTranslation('name'),
                     reason: 'rule not matching or inactive',
-                    deliveryIndex: $deliveryIndex,
+                    deliveryIndexes: $blockedDeliveryIndexes[$shippingMethod->getId()],
                 )
             );
         }

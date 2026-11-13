@@ -29,9 +29,9 @@ class ShippingMethodBlockedErrorTest extends TestCase
             'id' => $error->getShippingMethodId(),
             'name' => 'FOO',
             'reason' => 'BAR',
-            'deliveryIndex' => null,
+            'deliveryIndexes' => [],
         ], $error->getParameters());
-        static::assertNull($error->getDeliveryIndex());
+        static::assertSame([], $error->getDeliveryIndexes());
         static::assertSame('FOO', $error->getName());
         static::assertTrue($error->blockOrder());
         static::assertSame('shipping-method-blocked-' . $error->getShippingMethodId(), $error->getId());
@@ -39,7 +39,7 @@ class ShippingMethodBlockedErrorTest extends TestCase
         static::assertSame('shipping-method-blocked', $error->getMessageKey());
     }
 
-    public function testReferencesTheDeliveryWithoutChangingTheId(): void
+    public function testReferencesTheDeliveriesWithoutChangingTheId(): void
     {
         $shippingMethodId = Uuid::randomHex();
 
@@ -47,11 +47,11 @@ class ShippingMethodBlockedErrorTest extends TestCase
             name: 'FOO',
             id: $shippingMethodId,
             reason: 'BAR',
-            deliveryIndex: 1,
+            deliveryIndexes: [0, 2],
         );
 
-        static::assertSame(1, $error->getDeliveryIndex());
-        static::assertSame(1, $error->getParameters()['deliveryIndex']);
+        static::assertSame([0, 2], $error->getDeliveryIndexes());
+        static::assertSame([0, 2], $error->getParameters()['deliveryIndexes']);
         static::assertSame('shipping-method-blocked-' . $shippingMethodId, $error->getId());
     }
 }

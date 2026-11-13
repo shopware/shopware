@@ -241,7 +241,7 @@ class StorefrontCartFacadeTest extends TestCase
             'id' => $error->getShippingMethodId(),
             'name' => 'original-shipping-method-name',
             'reason' => 'reason',
-            'deliveryIndex' => null,
+            'deliveryIndexes' => [],
         ], $error->getParameters());
 
         $controlCart = $this->getCart();
@@ -280,7 +280,7 @@ class StorefrontCartFacadeTest extends TestCase
             'id' => $error->getPaymentMethodId(),
             'name' => 'original-payment-method-name',
             'reason' => 'reason',
-            'transactionIndex' => null,
+            'transactionIndexes' => [],
         ], $error->getParameters());
 
         $controlCart = $this->getCart();
@@ -371,7 +371,7 @@ class StorefrontCartFacadeTest extends TestCase
             'id' => $error->getShippingMethodId(),
             'name' => 'original-shipping-method-name',
             'reason' => 'reason',
-            'deliveryIndex' => null,
+            'deliveryIndexes' => [],
         ], $error->getParameters());
 
         static::assertCount(0, $errorCollection->filterInstance(PaymentMethodChangedError::class));
@@ -383,7 +383,7 @@ class StorefrontCartFacadeTest extends TestCase
             'id' => $error->getPaymentMethodId(),
             'name' => 'original-payment-method-name',
             'reason' => 'reason',
-            'transactionIndex' => null,
+            'transactionIndexes' => [],
         ], $error->getParameters());
 
         $controlCart = $this->getCart();

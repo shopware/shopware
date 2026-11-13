@@ -242,7 +242,7 @@ class CheckoutGatewayRouteTest extends TestCase
         static::assertSame('Shipping method Foo not available. Reason: not allowed', $error->getMessage());
     }
 
-    public function testBlockedMethodErrorsReferenceTheirDeliveryAndTransaction(): void
+    public function testBlockedMethodErrorsReferenceTheirDeliveriesAndTransactions(): void
     {
         $paymentMethod = new PaymentMethodEntity();
         $paymentMethod->setId(Uuid::randomHex());
@@ -253,12 +253,17 @@ class CheckoutGatewayRouteTest extends TestCase
         $amount = new CalculatedPrice(100.00, 100.00, new CalculatedTaxCollection(), new TaxRuleCollection());
         $cart = new Cart('hatoken');
         $cart->setTransactions(new TransactionCollection([
+            new Transaction($amount, $paymentMethod->getId()),
             new Transaction($amount, Uuid::randomHex()),
             new Transaction($amount, $paymentMethod->getId()),
         ]));
+
+        $firstShippingMethod = $this->createShippingMethod('First shipping');
         $cart->setDeliveries(new DeliveryCollection([
-            $this->createDelivery('First shipping'),
-            $this->createDelivery('Second shipping'),
+            $this->createDelivery($firstShippingMethod, 100.00),
+            $this->createDelivery($this->createShippingMethod('Second shipping'), 100.00),
+            $this->createDelivery($firstShippingMethod, 100.00),
+            $this->createDelivery($firstShippingMethod, -100.00),
         ]));
 
         $paymentMethodRoute = static::createStub(AbstractPaymentMethodRoute::class);
@@ -287,16 +292,16 @@ class CheckoutGatewayRouteTest extends TestCase
         $deliveryIndexes = [];
         foreach ($route->load(new Request(), $cart, $context)->getErrors() as $error) {
             if ($error instanceof PaymentMethodBlockedError) {
-                $transactionIndexes[$error->getName()] = $error->getTransactionIndex();
+                $transactionIndexes[$error->getName()] = $error->getTransactionIndexes();
             }
 
             if ($error instanceof ShippingMethodBlockedError) {
-                $deliveryIndexes[$error->getName()] = $error->getDeliveryIndex();
+                $deliveryIndexes[$error->getName()] = $error->getDeliveryIndexes();
             }
         }
 
-        static::assertSame(['Bar' => 1], $transactionIndexes);
-        static::assertSame(['First shipping' => 0, 'Second shipping' => 1], $deliveryIndexes);
+        static::assertSame(['Bar' => [0, 2]], $transactionIndexes);
+        static::assertSame(['First shipping' => [0, 2], 'Second shipping' => [1]], $deliveryIndexes);
     }
 
     public function testOnlyAvailableFlagIsSet(): void
@@ -360,18 +365,23 @@ class CheckoutGatewayRouteTest extends TestCase
         static::assertSame($response, $route->load($request, $cart, $context));
     }
 
-    private function createDelivery(string $shippingMethodName): Delivery
+    private function createShippingMethod(string $name): ShippingMethodEntity
     {
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
-        $shippingMethod->addTranslated('name', $shippingMethodName);
+        $shippingMethod->addTranslated('name', $name);
 
+        return $shippingMethod;
+    }
+
+    private function createDelivery(ShippingMethodEntity $shippingMethod, float $shippingCosts): Delivery
+    {
         return new Delivery(
             new DeliveryPositionCollection(),
             new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(100.00, 100.00, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice($shippingCosts, $shippingCosts, new CalculatedTaxCollection(), new TaxRuleCollection())
         );
     }
 }

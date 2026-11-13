@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Gateway\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
 use Shopware\Core\Checkout\Gateway\CheckoutGatewayInterface;
 use Shopware\Core\Checkout\Gateway\CheckoutGatewayResponse;
 use Shopware\Core\Checkout\Gateway\Command\Struct\CheckoutGatewayPayloadStruct;
@@ -88,35 +89,51 @@ class CheckoutGatewayRoute extends AbstractCheckoutGatewayRoute
                     id: $paymentMethod->getId(),
                     name: (string) $paymentMethod->getTranslation('name'),
                     reason: 'not allowed',
-                    transactionIndex: $this->findTransactionIndex($cart, $paymentMethod->getId()),
+                    transactionIndexes: $this->findTransactionIndexes($cart, $paymentMethod->getId()),
                 )
             );
         }
 
+        $blockedShippingMethods = [];
+        $blockedDeliveryIndexes = [];
+
         foreach (array_values($cart->getDeliveries()->getElements()) as $deliveryIndex => $delivery) {
+            if ($delivery->getShippingCosts()->getTotalPrice() < 0) {
+                continue;
+            }
+
             $shippingMethod = $delivery->getShippingMethod();
 
-            if (!\in_array($shippingMethod->getId(), $response->getAvailableShippingMethods()->getIds(), true)) {
-                $response->getCartErrors()->add(
-                    new ShippingMethodBlockedError(
-                        id: $shippingMethod->getId(),
-                        name: (string) $shippingMethod->getTranslation('name'),
-                        reason: 'not allowed',
-                        deliveryIndex: $deliveryIndex,
-                    )
-                );
+            if (\in_array($shippingMethod->getId(), $response->getAvailableShippingMethods()->getIds(), true)) {
+                continue;
             }
+
+            $blockedShippingMethods[$shippingMethod->getId()] = $shippingMethod;
+            $blockedDeliveryIndexes[$shippingMethod->getId()][] = $deliveryIndex;
+        }
+
+        foreach ($blockedShippingMethods as $shippingMethod) {
+            $response->getCartErrors()->add(
+                new ShippingMethodBlockedError(
+                    id: $shippingMethod->getId(),
+                    name: (string) $shippingMethod->getTranslation('name'),
+                    reason: 'not allowed',
+                    deliveryIndexes: $blockedDeliveryIndexes[$shippingMethod->getId()],
+                )
+            );
         }
     }
 
-    private function findTransactionIndex(Cart $cart, string $paymentMethodId): ?int
+    /**
+     * @return list<int>
+     */
+    private function findTransactionIndexes(Cart $cart, string $paymentMethodId): array
     {
-        foreach (array_values($cart->getTransactions()->getElements()) as $transactionIndex => $transaction) {
-            if ($transaction->getPaymentMethodId() === $paymentMethodId) {
-                return $transactionIndex;
-            }
-        }
+        $transactions = array_values($cart->getTransactions()->getElements());
 
-        return null;
+        return array_keys(array_filter(
+            $transactions,
+            static fn (Transaction $transaction) => $transaction->getPaymentMethodId() === $paymentMethodId,
+        ));
     }
 }

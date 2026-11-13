@@ -45,17 +45,24 @@ class DeliveryValidatorTest extends TestCase
         static::assertCount(0, $errors, 'A delivery without a valid availability rule id should be valid but an error is thrown.');
     }
 
-    public function testBlockedErrorsReferenceTheirDelivery(): void
+    public function testBlockedErrorsReferenceTheirDeliveries(): void
     {
-        $firstBlockedDelivery = $this->generateDeliveryDummy('');
-        $firstBlockedDelivery->getShippingMethod()->setId('first-blocked-shipping-method-id');
-        $firstBlockedDelivery->getShippingMethod()->setTranslated(['name' => 'First blocked']);
-        $lastBlockedDelivery = $this->generateDeliveryDummy('');
-        $lastBlockedDelivery->getShippingMethod()->setId('last-blocked-shipping-method-id');
-        $lastBlockedDelivery->getShippingMethod()->setTranslated(['name' => 'Last blocked']);
+        $validDelivery = $this->generateDeliveryDummy(null);
+        $validDelivery->getShippingMethod()->setId('valid-shipping-method-id');
+        $expressDelivery = $this->generateDeliveryDummy('');
+        $expressDelivery->getShippingMethod()->setId('express-shipping-method-id');
+        $expressDelivery->getShippingMethod()->setTranslated(['name' => 'Express']);
+        $shippingDiscount = $this->generateDeliveryDummy('');
+        $shippingDiscount->setShippingCosts(new CalculatedPrice(-5, -5, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         $cart = new Cart('test');
-        $cart->setDeliveries(new DeliveryCollection([$firstBlockedDelivery, $this->generateDeliveryDummy(null), $lastBlockedDelivery]));
+        $cart->setDeliveries(new DeliveryCollection([
+            $this->generateDeliveryDummy(''),
+            $validDelivery,
+            $expressDelivery,
+            $this->generateDeliveryDummy(''),
+            $shippingDiscount,
+        ]));
 
         $errors = new ErrorCollection();
         (new DeliveryValidator())->validate($cart, $errors, static::createStub(SalesChannelContext::class));
@@ -63,10 +70,10 @@ class DeliveryValidatorTest extends TestCase
         $deliveryIndexes = [];
         foreach ($errors as $error) {
             static::assertInstanceOf(ShippingMethodBlockedError::class, $error);
-            $deliveryIndexes[$error->getName()] = $error->getDeliveryIndex();
+            $deliveryIndexes[$error->getName()] = $error->getDeliveryIndexes();
         }
 
-        static::assertSame(['First blocked' => 0, 'Last blocked' => 2], $deliveryIndexes);
+        static::assertSame(['Test' => [0, 3], 'Express' => [2]], $deliveryIndexes);
     }
 
     public function testValidateDeliveryShippingMethodWithNoAvailabilityRuleShallBeValid(): void

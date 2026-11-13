@@ -13,13 +13,16 @@ class PaymentMethodBlockedError extends Error
 {
     private const KEY = 'payment-method-blocked';
 
+    /**
+     * @param list<int> $transactionIndexes
+     */
     #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'reason', newType: 'string')]
     #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'id', newType: 'string')]
     public function __construct(
         protected readonly string $name,
         protected readonly ?string $reason = null,
         protected readonly ?string $id = null,
-        protected readonly ?int $transactionIndex = null,
+        protected readonly array $transactionIndexes = [],
     ) {
         if ($id === null || $reason === null) {
             Feature::triggerDeprecationOrThrow(
@@ -43,7 +46,7 @@ class PaymentMethodBlockedError extends Error
             'id' => $this->id,
             'name' => $this->name,
             'reason' => $this->reason,
-            'transactionIndex' => $this->transactionIndex,
+            'transactionIndexes' => $this->transactionIndexes,
         ];
     }
 
@@ -64,9 +67,12 @@ class PaymentMethodBlockedError extends Error
         return $this->reason;
     }
 
-    public function getTransactionIndex(): ?int
+    /**
+     * @return list<int>
+     */
+    public function getTransactionIndexes(): array
     {
-        return $this->transactionIndex;
+        return $this->transactionIndexes;
     }
 
     public function getId(): string

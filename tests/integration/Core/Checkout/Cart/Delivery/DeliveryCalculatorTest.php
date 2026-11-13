@@ -183,7 +183,7 @@ class DeliveryCalculatorTest extends TestCase
             'id' => $shippingMethod->getId(),
             'name' => $shippingMethodName,
             'reason' => 'no shipping costs found',
-            'deliveryIndex' => 0,
+            'deliveryIndexes' => [0],
         ], $error->getParameters());
     }
 

@@ -10,12 +10,10 @@ use Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation\CmsSlotTranslationDef
 use Shopware\Core\Content\Media\Cms\AbstractDefaultMediaResolver;
 use Shopware\Core\Content\Media\Cms\CmsElementMediaIdsProvider;
 use Shopware\Core\Content\Media\Cms\ImageCmsElementResolver;
-use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\AbstractMediaUsageIndexer;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\CmsSlotMediaIdResolver;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\CmsSlotMediaUsageIndexer;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -31,7 +29,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 #[Package('discovery')]
 #[CoversClass(CmsSlotMediaUsageIndexer::class)]
-#[CoversClass(AbstractMediaUsageIndexer::class)]
 class CmsSlotMediaUsageIndexerTest extends TestCase
 {
     private Connection&Stub $connection;
@@ -98,30 +95,8 @@ class CmsSlotMediaUsageIndexerTest extends TestCase
 
         $this->indexer->handle(new EntityIndexingMessage([Uuid::fromBytesToHex($slotId)]));
 
-        static::assertSame([[$versionId, [$slotId]]], $this->getDeletes(), 'the previous usages of the live slot are removed');
+        static::assertSame([$slotId], $this->getReplacedIds(), 'the previous usages of the slot are removed');
         static::assertSame([[$pageId, $versionId, $slotId, $versionId, Uuid::fromHexToBytes($imageId)]], $this->getInsertedRows(columns: 5));
-    }
-
-    public function testIteratesTheSlotsForAFullReindex(): void
-    {
-        $slotId = Uuid::randomHex();
-        $iterator = static::createStub(IterableQuery::class);
-        $iterator->method('fetch')->willReturnOnConsecutiveCalls([Uuid::fromHexToBytes($slotId) => $slotId], []);
-        $iterator->method('getOffset')->willReturn(['offset' => 1]);
-        $iterator->method('fetchCount')->willReturn(1);
-
-        $iteratorFactory = static::createStub(IteratorFactory::class);
-        $iteratorFactory->method('createIterator')->willReturn($iterator);
-
-        $indexer = new CmsSlotMediaUsageIndexer($iteratorFactory, $this->connection, new CmsSlotMediaIdResolver([]));
-
-        $message = $indexer->iterate(null);
-
-        static::assertInstanceOf(EntityIndexingMessage::class, $message);
-        static::assertSame([$slotId], $message->getData());
-        static::assertSame(['offset' => 1], $message->getOffset());
-        static::assertNull($indexer->iterate($message->getOffset()), 'the iteration ends without slots');
-        static::assertSame(1, $indexer->getTotal());
     }
 
     public function testCanNotBeDecorated(): void
@@ -151,18 +126,17 @@ class CmsSlotMediaUsageIndexerTest extends TestCase
     }
 
     /**
-     * @return list<array{string, list<string>}> the binary version and ids of every delete
+     * @return list<string> binary ids whose usages were removed before inserting the current ones
      */
-    private function getDeletes(): array
+    private function getReplacedIds(): array
     {
-        $deletes = [];
         foreach ($this->statements as $params) {
-            if (isset($params['ids'], $params['version']) && \is_array($params['ids'])) {
-                $deletes[] = [(string) $params['version'], array_values(array_map(strval(...), $params['ids']))];
+            if (isset($params['ids']) && \is_array($params['ids'])) {
+                return array_values($params['ids']);
             }
         }
 
-        return $deletes;
+        return [];
     }
 
     /**

@@ -12,7 +12,6 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Media\Cms\AbstractDefaultMediaResolver;
 use Shopware\Core\Content\Media\Cms\CmsElementMediaIdsProvider;
 use Shopware\Core\Content\Media\Cms\ImageCmsElementResolver;
-use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\AbstractMediaUsageIndexer;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\CmsSlotMediaIdResolver;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\SlotConfigOverrideMediaUsageIndexer;
 use Shopware\Core\Defaults;
@@ -46,7 +45,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 #[Package('discovery')]
 #[CoversClass(SlotConfigOverrideMediaUsageIndexer::class)]
-#[CoversClass(AbstractMediaUsageIndexer::class)]
 class SlotConfigOverrideMediaUsageIndexerTest extends TestCase
 {
     private Connection&Stub $connection;

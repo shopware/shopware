@@ -1030,6 +1030,12 @@ The redirect is no longer cached. A shop that is already in this state gets out 
 
 ## Hosting & Configuration
 
+### Admin search reindexes products after queued inheritance updates
+
+With `ENABLE_OPENSEARCH_FOR_ADMIN_API`, the admin search index also reindexes the products whose inherited data the product indexer updates in the message queue.
+This covers the variants of product families with 50 or more products and every product during `bin/console dal:refresh:index`.
+Each batch of 50 products queues one admin search indexing message.
+
 ### Sitemaps skip inactive sales channels and `sitemap:generate` continues after a failure
 
 The scheduled sitemap task and `bin/console sitemap:generate` no longer generate sitemaps for inactive sales channels.

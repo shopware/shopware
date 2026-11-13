@@ -4,9 +4,7 @@ import {
     FEATURE_REGISTRY_PATH,
     MAJOR_PATHS_PATH,
     detectMajorLabels,
-    diffFromFiles,
     evaluateMajorLabels,
-    isDiffTooLarge,
     globToRegExp,
     labelNamesFor,
     labelsForDiff,
@@ -18,6 +16,7 @@ import {
     isReleaseBranch,
     shouldDetect,
     withoutRemovedLabels,
+    isIgnoredPath,
 } from './major-label.ts';
 
 const REGISTRY = `shopware:
@@ -227,7 +226,7 @@ test('a flag inside an XML config element is a behaviour change', () => {
 
 test('a flag as an object key is a behaviour change', () => {
     assert.deepEqual(
-        evaluate('src/Storefront/Resources/app/storefront/test/plugin/x.test.js', '+    Feature.init({ WEBHOOKS_REWORK: true });'),
+        evaluate('src/Storefront/Resources/app/storefront/src/plugin/x.plugin.js', '+    Feature.init({ WEBHOOKS_REWORK: true });'),
         { behaviour: true, cleanup: false },
     );
 });
@@ -444,6 +443,67 @@ test('withoutRemovedLabels keeps a label off once anyone has removed it', () => 
     assert.deepEqual(withoutRemovedLabels(['major/6.8'], []), ['major/6.8']);
 });
 
+test('withoutRemovedLabels ignores removals by bots, which race the label instead of overruling it', () => {
+    const events = [
+        { event: 'labeled', label: { name: 'major/6.8' } },
+        { event: 'unlabeled', label: { name: 'major/6.8' }, actor: { type: 'Bot' } },
+        { event: 'unlabeled', label: { name: 'major/6.8-cleanup' }, actor: { type: 'User' } },
+    ];
+    assert.deepEqual(withoutRemovedLabels(['major/6.8', 'major/6.8-cleanup'], events), ['major/6.8']);
+});
+
+test('isIgnoredPath skips tests, specs, prose and agent tooling but keeps shipped code', () => {
+    for (const path of [
+        '.github/workflows/php.yml',
+        '.agents/skills/sw-review/fixtures/diff.patch',
+        'tests/unit/Core/Checkout/Document/DocumentV2/RendererTest.php',
+        'src/Administration/Resources/app/administration/src/module/sw-order/page/index.spec.js',
+        'src/Storefront/Resources/app/storefront/test/plugin/listing.test.js',
+        'src/Administration/Resources/app/administration/src/core/__tests__/helper.ts',
+        'coding-guidelines/core/backward-compatibility.md',
+        'RELEASE_INFO-6.7.md',
+    ]) {
+        assert.equal(isIgnoredPath(path), true, path);
+    }
+    for (const path of [
+        'src/Core/Checkout/Document/DocumentV2/Renderer.php',
+        'src/Core/Test/TestDefaults.php',
+        'src/Storefront/Resources/views/storefront/base.html.twig',
+        'src/Administration/Resources/app/administration/src/app/service/documentV2.service.ts',
+    ]) {
+        assert.equal(isIgnoredPath(path), false, path);
+    }
+});
+
+test('flags and major paths inside tests do not label a pull request', () => {
+    assert.deepEqual(evaluate('tests/unit/Core/Cache/CacheKeyTest.php', "+#[DisabledFeatures(['v6.8.0.0'])]"), {
+        behaviour: false,
+        cleanup: false,
+    });
+    assert.deepEqual(
+        evaluate('src/Administration/Resources/app/administration/src/module/sw-cms/index.spec.js', "+    it.deprecated('v6.8.0.0', () => {});"),
+        { behaviour: false, cleanup: false },
+    );
+    assert.deepEqual(evaluate('tests/unit/Core/Checkout/Document/DocumentV2/RendererTest.php', '+    // test'), {
+        behaviour: false,
+        cleanup: false,
+    });
+});
+
+test('the Administration spelling of the major flag is a behaviour change', () => {
+    assert.deepEqual(
+        evaluate(
+            'src/Administration/Resources/app/administration/src/core/factory/module.factory.ts',
+            "+        if (!Shopware.Feature.isActive('V6_8_0_0')) {",
+        ),
+        { behaviour: true, cleanup: false },
+    );
+});
+
+test('the upgrade guide still labels by path although Markdown carries no markers', () => {
+    assert.deepEqual(evaluate('UPGRADE-6.8.md', '+## The sorter changes'), { behaviour: true, cleanup: false });
+});
+
 test('missingLabels drops labels the pull request already carries', () => {
     const context = {
         eventName: 'pull_request_target',
@@ -538,24 +598,6 @@ test('labelsForDiff emits nothing when no major is in flight', () => {
 const tooLarge = Object.assign(new Error('Sorry, the diff exceeded the maximum number of files (300).'), {
     status: 406,
     response: { data: { errors: [{ resource: 'PullRequest', field: 'diff', code: 'too_large' }] } },
-});
-
-test('isDiffTooLarge recognises only the too_large refusal', () => {
-    assert.equal(isDiffTooLarge(tooLarge), true);
-    assert.equal(isDiffTooLarge(Object.assign(new Error('Not Acceptable'), { status: 406 })), false);
-    assert.equal(isDiffTooLarge(Object.assign(new Error('other side closed'), { status: 500 })), false);
-    assert.equal(isDiffTooLarge(undefined), false);
-});
-
-test('diffFromFiles rebuilds a diff the detection reads like the native one', () => {
-    const diff = diffFromFiles([
-        { filename: 'src/Core/Framework/Feature.php', patch: '@@ -1,1 +1,1 @@\n+     * @deprecated tag:v6.8.0 - Will be removed' },
-        { filename: 'src/Core/Checkout/DocumentV2/Huge.php' },
-    ]);
-    assert.deepEqual(evaluateMajorLabels({ diff, flags: FLAGS, targetMajor: '6.8', majorPaths: PATHS, isNextMajor: true }), {
-        behaviour: true,
-        cleanup: true,
-    });
 });
 
 const detect = (github: object, labels: Array<{ name: string }> = []) => {

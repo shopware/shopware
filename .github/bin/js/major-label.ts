@@ -36,7 +36,13 @@
  * features that own a namespace; nothing closes it for the rest.
  */
 
-import { EXCLUDED_PATH_PREFIX, FEATURE_REGISTRY_PATH, splitDiffByFile } from './auto-label-major-tests.ts';
+import {
+    EXCLUDED_PATH_PREFIX,
+    FEATURE_REGISTRY_PATH,
+    type PullRequestDiffClient,
+    fetchDiff,
+    splitDiffByFile,
+} from './auto-label-major-tests.ts';
 
 export { FEATURE_REGISTRY_PATH };
 
@@ -78,21 +84,10 @@ type PullRequestContext = PullRequestDetectionContext & {
     };
 };
 
-export type PullRequestFile = {
-    filename: string;
-    patch?: string;
-};
-
 export type IssueEvent = {
     event: string;
     label?: { name: string };
-};
-
-type ListFilesOptions = {
-    owner: string;
-    repo: string;
-    pull_number: number;
-    per_page: number;
+    actor?: { type?: string } | null;
 };
 
 type ListEventsOptions = {
@@ -102,27 +97,12 @@ type ListEventsOptions = {
     per_page: number;
 };
 
-type GitHubRestClient = {
-    paginate: {
-        (
-            route: (options: ListFilesOptions) => Promise<{ data: PullRequestFile[] }>,
-            options: ListFilesOptions,
-        ): Promise<PullRequestFile[]>;
-        (
-            route: (options: ListEventsOptions) => Promise<{ data: IssueEvent[] }>,
-            options: ListEventsOptions,
-        ): Promise<IssueEvent[]>;
-    };
+type GitHubRestClient = PullRequestDiffClient & {
+    paginate(
+        route: (options: ListEventsOptions) => Promise<{ data: IssueEvent[] }>,
+        options: ListEventsOptions,
+    ): Promise<IssueEvent[]>;
     rest: {
-        pulls: {
-            get(options: {
-                owner: string;
-                repo: string;
-                pull_number: number;
-                mediaType: { format: 'diff' };
-            }): Promise<{ data: unknown }>;
-            listFiles(options: ListFilesOptions): Promise<{ data: PullRequestFile[] }>;
-        };
         issues: {
             listEvents(options: ListEventsOptions): Promise<{ data: IssueEvent[] }>;
             addLabels(options: {
@@ -203,6 +183,23 @@ export function parseMajorPaths(mapYaml: string): string[] {
     }
 
     return globs;
+}
+
+/**
+ * Tests, specs, prose and agent tooling name flags and deprecation tags to exercise or
+ * describe them, never to change what a major does: `#[DisabledFeatures(['v6.8.0.0'])]` in a
+ * test labelled every pull request that touched one. UPGRADE files still count by path.
+ */
+export function isIgnoredPath(path: string): boolean {
+    return (
+        path.startsWith(EXCLUDED_PATH_PREFIX) ||
+        path.startsWith('.agents/') ||
+        path.startsWith('tests/') ||
+        /\.(spec|test)\.[cm]?[jt]sx?$/.test(path) ||
+        /\/Resources\/app\/(administration|storefront)\/test\//.test(path) ||
+        path.includes('/__tests__/') ||
+        /\.md$/i.test(path)
+    );
 }
 
 function escapeRegExp(value: string): string {
@@ -320,14 +317,17 @@ export function evaluateMajorLabels(options: {
     isNextMajor: boolean;
 }): MajorLabels {
     const { diff, flags, targetMajor, majorPaths, isNextMajor } = options;
-    const files = splitDiffByFile(diff).filter(({ path }) => path && !path.startsWith(EXCLUDED_PATH_PREFIX));
+    const allFiles = splitDiffByFile(diff);
+    const files = allFiles.filter(({ path }) => path && !isIgnoredPath(path));
+    const touchesUpgradeGuide = allFiles.some(({ path }) => path === `UPGRADE-${targetMajor}.md`);
 
-    if (files.length === 0) {
+    if (files.length === 0 && !touchesUpgradeGuide) {
         return { behaviour: false, cleanup: false };
     }
 
     const version = escapeRegExp(targetMajor);
-    const versionFlag = escapeRegExp(`v${targetMajor}.0.0`);
+    // The Administration spells the same flag `V6_8_0_0`
+    const versionFlag = [`v${targetMajor}.0.0`, `V${targetMajor.replace('.', '_')}_0_0`].map(escapeRegExp).join('|');
     const relatedFlags = flags
         .filter((flag) => flag.major === `v${targetMajor}.0.0`)
         .filter((flag) => !/^v\d+\.\d+\.\d+\.\d+$/i.test(flag.name))
@@ -347,12 +347,12 @@ export function evaluateMajorLabels(options: {
         { kind: 'cleanup', pattern: new RegExp(`tag:v${version}\\.0(?!\\d)`, 'g') },
     ];
 
-    const behaviourPath = files.some(
-        ({ path }) =>
-            path === `UPGRADE-${targetMajor}.md` ||
-            (isNextMajor && path === FEATURE_REGISTRY_PATH) ||
-            pathMatchers.some((matcher) => matcher.test(path)),
-    );
+    const behaviourPath =
+        touchesUpgradeGuide ||
+        files.some(
+            ({ path }) =>
+                (isNextMajor && path === FEATURE_REGISTRY_PATH) || pathMatchers.some((matcher) => matcher.test(path)),
+        );
 
     const labels: MajorLabels = { behaviour: behaviourPath, cleanup: false };
 
@@ -426,75 +426,19 @@ export function missingLabels(context: PullRequestContext, wanted: string[]): st
     return wanted.filter((label) => !present.has(label));
 }
 
-/** Labels are only ever added: whoever removed one has overruled the detection for good. */
+/**
+ * Labels are only ever added: whoever removed one has overruled the detection for good.
+ * A bot never has: `srvaroa/labeler` rewrites the whole label set from a snapshot taken
+ * before this workflow added its label, and that removal shows up as `github-actions[bot]`.
+ */
 export function withoutRemovedLabels(labels: string[], events: IssueEvent[]): string[] {
     const removed = new Set(
-        events.filter(({ event }) => event === 'unlabeled').map(({ label }) => label?.name),
+        events
+            .filter(({ event, actor }) => event === 'unlabeled' && actor?.type !== 'Bot')
+            .map(({ label }) => label?.name),
     );
 
     return labels.filter((label) => !removed.has(label));
-}
-
-/** GitHub answers 406 `too_large` once a diff passes 300 files or 20,000 lines. */
-export function isDiffTooLarge(error: unknown): boolean {
-    const requestError = error as {
-        status?: number;
-        response?: { data?: { errors?: Array<{ field?: string; code?: string }> } };
-    } | undefined;
-
-    return (
-        requestError?.status === 406 &&
-        (requestError.response?.data?.errors ?? []).some((entry) => entry.field === 'diff' && entry.code === 'too_large')
-    );
-}
-
-/**
- * Rebuilds a unified diff from the files endpoint, in the shape `splitDiffByFile` reads.
- * GitHub omits the patch of a single oversized file; that file still counts for path matches.
- */
-export function diffFromFiles(files: PullRequestFile[]): string {
-    return files
-        .map(
-            ({ filename, patch }) =>
-                `diff --git a/${filename} b/${filename}\n--- a/${filename}\n+++ b/${filename}\n${patch ?? ''}`,
-        )
-        .join('\n');
-}
-
-async function fetchDiff({
-    github,
-    core,
-    context,
-}: {
-    github: GitHubRestClient;
-    core: CoreLogger;
-    context: PullRequestContext;
-}): Promise<string> {
-    const pullRequest = {
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-        pull_number: context.payload.pull_request.number,
-    };
-
-    try {
-        const { data } = await github.rest.pulls.get({ ...pullRequest, mediaType: { format: 'diff' } });
-
-        return String(data);
-    } catch (error) {
-        if (!isDiffTooLarge(error)) {
-            throw error;
-        }
-    }
-
-    // The files endpoint stops at 3,000 files; beyond that some markers go unseen.
-    const files = await github.paginate(github.rest.pulls.listFiles, { ...pullRequest, per_page: 100 });
-    const withoutPatch = files.filter(({ patch }) => patch === undefined).length;
-    core.warning(
-        `diff too large, read ${files.length} file(s) through the files endpoint instead` +
-            (withoutPatch > 0 ? `; ${withoutPatch} without a patch are matched by path only` : ''),
-    );
-
-    return diffFromFiles(files);
 }
 
 export async function detectMajorLabels(

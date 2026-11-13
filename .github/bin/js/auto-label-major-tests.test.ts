@@ -4,9 +4,11 @@ import {
     ADMINISTRATION_DEPRECATION_BASELINE_PATH,
     FEATURE_REGISTRY_PATH,
     detectMajorTestArms,
+    diffFromFiles,
     hasAcceptanceTestChanges,
     hasMajorJsMarkers,
     hasMajorMarkers,
+    isDiffTooLarge,
     labelsForMajorTestArms,
     parseMajorFlags,
     shouldDetect,
@@ -299,15 +301,74 @@ test('detection selects only the acceptance arm for a spec change after PHP and 
                 },
             },
         },
-        core: { info() {} },
+        core: { info() {}, warning() {} },
         github: {
+            paginate: async () => assert.fail('a diff within the limits needs no files endpoint'),
             rest: {
                 repos: { async getContent() { return { data: REGISTRY }; } },
-                pulls: { async get() { return { data: diffFor('tests/acceptance/tests/Example.spec.ts', '+await button.click();') }; } },
+                pulls: { async get() { return { data: diffFor('tests/acceptance/tests/Example.spec.ts', '+await button.click();') }; }, async listFiles() { return { data: [] }; } },
                 issues: { async addLabels() {} },
             },
         },
     });
     assert.deepEqual(arms, { php: false, js: false, acceptance: true });
     assert.deepEqual(labelsForMajorTestArms(arms, context.payload.pull_request.labels), ['major-acceptance']);
+});
+
+const tooLarge = Object.assign(new Error('Sorry, the diff exceeded the maximum number of files (300).'), {
+    status: 406,
+    response: { data: { errors: [{ resource: 'PullRequest', field: 'diff', code: 'too_large' }] } },
+});
+
+test('isDiffTooLarge recognises only the too_large refusal', () => {
+    assert.equal(isDiffTooLarge(tooLarge), true);
+    assert.equal(isDiffTooLarge(Object.assign(new Error('Not Acceptable'), { status: 406 })), false);
+    assert.equal(isDiffTooLarge(Object.assign(new Error('other side closed'), { status: 500 })), false);
+    assert.equal(isDiffTooLarge(undefined), false);
+});
+
+test('diffFromFiles rebuilds a diff the detection reads like the native one', () => {
+    const diff = diffFromFiles([
+        { filename: 'src/Core/Framework/Feature.php', patch: '@@ -1,1 +1,1 @@\n+     * @deprecated tag:v6.8.0 - Will be removed' },
+        { filename: 'tests/acceptance/tests/Huge.spec.ts' },
+    ]);
+    assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), true);
+    assert.equal(hasAcceptanceTestChanges(diff), true);
+});
+
+test('detection reads a diff too large for the diff format through the files endpoint', async () => {
+    const context = baseContext();
+    const listFiles = async () => ({ data: [] });
+    const warnings: string[] = [];
+    const arms = await detectMajorTestArms({
+        context: {
+            ...context,
+            payload: {
+                ...context.payload,
+                pull_request: { ...context.payload.pull_request, number: 123, head: { ...context.payload.pull_request.head, sha: 'head-sha' } },
+            },
+        },
+        core: { info() {}, warning: (message) => warnings.push(message) },
+        github: {
+            async paginate(route, options) {
+                assert.equal(route, listFiles);
+                assert.deepEqual(options, { owner: 'shopware', repo: 'shopware', pull_number: 123, per_page: 100 });
+
+                return [
+                    { filename: 'src/Core/Content/Cms/SalesChannel/CmsRoute.php', patch: "@@ -1,1 +1,1 @@\n+        if (Feature::isActive('v6.8.0.0')) {" },
+                    { filename: 'tests/acceptance/tests/Huge.spec.ts' },
+                ];
+            },
+            rest: {
+                repos: { async getContent() { return { data: REGISTRY }; } },
+                pulls: { async get() { throw tooLarge; }, listFiles },
+                issues: { async addLabels() {} },
+            },
+        },
+    });
+
+    assert.deepEqual(arms, { php: true, js: false, acceptance: true });
+    assert.deepEqual(warnings, [
+        'diff too large, read 2 file(s) through the files endpoint instead; 1 without a patch are matched by path only',
+    ]);
 });

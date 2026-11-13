@@ -847,6 +847,10 @@
           "any": "At least one",
           "all": "All"
         },
+        "deliveryCondition": {
+          "cart": "Whole cart",
+          "delivery": "This delivery"
+        },
         "AddAndCondition": "Add AND condition",
         "AddOrCondition": "Add OR condition",
         "AddSubCondition": "Add subconditions",
@@ -879,6 +883,7 @@
         "lineItemDimensionWidthRule": "Item with width",
         "lineItemDimensionHeightRule": "Item with height",
         "lineItemDimensionLengthRule": "Item with length",
+        "lineItemDimensionLongestAndGirthRule": "Item with longest side and girth",
         "lineItemDimensionWeightRule": "Item with weight",
         "lineItemDimensionVolumeRule": "Item with volume",
         "lineItemListPriceRule": "Item with list price",
@@ -1275,6 +1280,11 @@
       "placeholderEmail": "Enter email address...",
       "placeholderProduct": "Select a product...",
       "placeholderCategory": "Select a category..."
+    },
+    "childSearch": {
+      "label": "Search entries",
+      "placeholder": "Search...",
+      "noResults": "No results found."
     },
     "table": {
       "addHeading": "Add table heading",

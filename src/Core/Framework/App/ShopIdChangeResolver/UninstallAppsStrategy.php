@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -46,7 +47,10 @@ class UninstallAppsStrategy implements ShopIdChangeStrategy
     {
         $this->shopIdProvider->deleteShopId();
 
-        foreach ($this->appRepository->search(new Criteria(), $context)->getEntities() as $app) {
+        $criteria = new Criteria();
+        $criteria->addFilter(new NotEqualsFilter('appSecret', null));
+
+        foreach ($this->appRepository->search($criteria, $context)->getEntities() as $app) {
             // Delete the app locally only, to not inform the app server about the deactivation/deletion
             // as the app is still running in the old shop with the same shopId
             $this->appManager->delete($app, $context);

@@ -59,18 +59,30 @@ class SitemapGenerateCommand extends Command
 
         $salesChannels = $this->salesChannelLoader->loadSalesChannels($context, $salesChannelId);
 
+        $failures = 0;
+
         foreach ($salesChannels as $salesChannel) {
             foreach ($this->salesChannelLoader->getLanguageIds($salesChannel) as $languageId) {
-                $salesChannelContext = $this->salesChannelContextFactory->create('', $salesChannel->getId(), [SalesChannelContextService::LANGUAGE_ID => $languageId]);
-
                 $output->writeln(\sprintf('Generating sitemaps for sales channel %s (%s) with and language %s...', $salesChannel->getId(), $salesChannel->getName() ?? '', $languageId));
 
                 try {
+                    $salesChannelContext = $this->salesChannelContextFactory->create('', $salesChannel->getId(), [SalesChannelContextService::LANGUAGE_ID => $languageId]);
+
                     $this->generateSitemap($salesChannelContext, $input->getOption('force'));
                 } catch (AlreadyLockedException $exception) {
                     $output->writeln(\sprintf('ERROR: %s', $exception->getMessage()));
+                } catch (\Throwable $exception) {
+                    // one failing sales channel must not prevent the sitemaps of the others
+                    ++$failures;
+                    $output->writeln(\sprintf('ERROR: %s', $exception->getMessage()));
                 }
             }
+        }
+
+        if ($failures > 0) {
+            $output->writeln(\sprintf('Sitemap generation failed for %d sales channel language(s)', $failures));
+
+            return self::FAILURE;
         }
 
         $output->writeln('done!');

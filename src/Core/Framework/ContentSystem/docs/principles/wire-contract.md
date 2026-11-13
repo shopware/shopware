@@ -20,7 +20,7 @@ In code:
 
 ## The Admin API exchanges `StoredElement`
 
-Authoring clients read and write the `StoredElement` shape end to end, typed by the [administration's one element type](clients.md#the-administration-declares-one-element-type-typed-from-the-wire). Shoppers receive the `RenderedElement` shape, and no API accepts a `RenderedElement` as input. The Store API schemas describe exactly what a client can call, and the module deletes any schema definition that no route reaches.
+Authoring clients read and write the `StoredElement` shape end to end, typed by the [administration's one element type](clients.md#the-administration-declares-one-element-type-typed-from-the-wire). Shoppers receive the `RenderedElement` shape, and no API accepts a `RenderedElement` as input. A translatable property crosses the Admin API as its [language map](README.md#glossary) and reaches the Store API only as a [value derived from its chain entry](translation.md#language-reduction-happens-on-the-server-and-nothing-downstream-receives-a-language-map). The Store API schemas describe exactly what a client can call, and the module deletes any schema definition that no route reaches.
 
 Why: A client deriving storage keys duplicates server logic and diverges from it.
 

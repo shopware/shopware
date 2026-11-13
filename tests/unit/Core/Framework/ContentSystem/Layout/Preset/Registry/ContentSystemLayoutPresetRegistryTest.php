@@ -11,6 +11,7 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\LayoutPresetPayloadCompiler;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\AbstractContentSystemLayoutPresetLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\ContentSystemLayoutPresetRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\ContentSystemLayoutPresetSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\Dto\LayoutPresetSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Validation\ContentSystemLayoutPresetValidator;
 use Shopware\Core\Framework\Log\Package;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
  */
 #[Package('framework')]
 #[CoversClass(ContentSystemLayoutPresetRegistry::class)]
+#[CoversClass(ContentSystemLayoutPresetSpecification::class)]
 class ContentSystemLayoutPresetRegistryTest extends TestCase
 {
     #[TestDox('aggregates presets from multiple loaders keyed by id')]
@@ -38,6 +40,26 @@ class ContentSystemLayoutPresetRegistryTest extends TestCase
         static::assertCount(2, $all);
         static::assertArrayHasKey('core.text-block', $all);
         static::assertArrayHasKey('app.hero', $all);
+    }
+
+    public function testPresetSnippetReferencesReachTheApiRepresentation(): void
+    {
+        $dto = new LayoutPresetSpecificationDto(
+            name: 'Text',
+            description: 'Text preset.',
+            icon: 'regular-star',
+            layout: [],
+            nameSnippet: 'plugin.preset.name',
+            descriptionSnippet: 'plugin.preset.description',
+        );
+        $loader = static::createStub(AbstractContentSystemLayoutPresetLoader::class);
+        $loader->method('load')->willReturn(['plugin.text' => $dto]);
+
+        $schema = $this->registry([$loader])->get('plugin.text')->toArray();
+
+        static::assertSame('Text', $schema['name']);
+        static::assertSame('plugin.preset.name', $schema['nameSnippet']);
+        static::assertSame('plugin.preset.description', $schema['descriptionSnippet']);
     }
 
     #[TestDox('returns an empty array when no loaders are registered')]

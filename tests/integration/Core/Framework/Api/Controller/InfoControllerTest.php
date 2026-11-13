@@ -167,11 +167,13 @@ class InfoControllerTest extends TestCase
         static::assertArrayHasKey('private_allowed_mime_types_by_extension', $decodedResponse['settings']);
         static::assertIsArray($decodedResponse['settings']['private_allowed_mime_types_by_extension']);
         static::assertContains('application/pdf', $decodedResponse['settings']['private_allowed_mime_types_by_extension']['pdf']);
+        static::assertIsArray($decodedResponse['versionHistory']);
 
         // reset environment-based mismatch
         $decodedResponse['bundles'] = [];
         $decodedResponse['versionRevision'] = $expected['versionRevision'];
         $expected['settings']['firstMigrationDate'] = $decodedResponse['settings']['firstMigrationDate'];
+        $expected['versionHistory'] = $decodedResponse['versionHistory'];
         unset($decodedResponse['settings']['private_allowed_mime_types_by_extension']);
 
         static::assertSame($expected, $decodedResponse);
@@ -884,31 +886,14 @@ class InfoControllerTest extends TestCase
         static::assertStringContainsString('"bindingSpecifications":{}', $content);
     }
 
-    public function testContentSystemElementTypesStorageSchema(): void
+    public function testPublishesTranslatableFlagForTranslatableProperty(): void
     {
-        $client = $this->getBrowser();
-        $client->request(Request::METHOD_GET, '/api/_info/content-system-element-types.json');
-
-        $response = $client->getResponse();
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-
-        $content = $response->getContent();
-        static::assertIsString($content);
-
-        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertIsArray($data);
-        static::assertArrayHasKey('types', $data);
-        static::assertIsArray($data['types']);
-
-        $typesByName = [];
-        foreach ($data['types'] as $type) {
-            static::assertArrayHasKey('storageSchema', $type);
-            $typesByName[$type['name']] = $type;
-        }
+        [$typesByName] = $this->requestElementTypesWithStorageSchema();
 
         // content/text.yaml declares `text` as a translatable string with a default and no `required`, so the
-        // property tier publishes it as a non-required string carrying its default. The default itself is a
-        // long editorial paragraph, so only its presence and type are pinned.
+        // property tier publishes it as a non-required string carrying its default, flagged translatable so a
+        // client knows the stored value is a language map of that scalar. The default itself is a long
+        // editorial paragraph, so only its presence and type are pinned.
         static::assertArrayHasKey('Sw:Content:Text', $typesByName);
         $text = $typesByName['Sw:Content:Text']['storageSchema']['text'];
         static::assertSame('property', $text['kind']);
@@ -916,6 +901,25 @@ class InfoControllerTest extends TestCase
         static::assertFalse($text['required']);
         static::assertArrayHasKey('default', $text);
         static::assertIsString($text['default']);
+        static::assertTrue($text['translatable']);
+    }
+
+    public function testOmitsTranslatableFlagForPlainStringProperty(): void
+    {
+        [$typesByName] = $this->requestElementTypesWithStorageSchema();
+
+        // grid/container.yaml declares `mode` as a plain string, so the flag is omitted rather than published
+        // as false — the same treatment `default` gets where none is declared.
+        static::assertArrayHasKey('Sw:Grid:Container', $typesByName);
+        static::assertArrayNotHasKey(
+            'translatable',
+            $typesByName['Sw:Grid:Container']['storageSchema']['mode'],
+        );
+    }
+
+    public function testDerivesResolvedByStorageKeyFromMediaSpecification(): void
+    {
+        [$typesByName] = $this->requestElementTypesWithStorageSchema();
 
         // media/image.yaml declares `media` with `resolvedBy: mediaId`, so the storage key is derived from the
         // synthesized `core:Sw:Media:Image` specification's `resolves.media.config.property`, and its type is
@@ -928,6 +932,11 @@ class InfoControllerTest extends TestCase
 
         // The declared FQCN property is filled by the pipeline, never stored, so it contributes no entry.
         static::assertArrayNotHasKey('media', $typesByName['Sw:Media:Image']['storageSchema']);
+    }
+
+    public function testEncodesEmptyStorageSchemaAsObject(): void
+    {
+        [$typesByName, $content] = $this->requestElementTypesWithStorageSchema();
 
         // The quantity selector retains `resolvedBy: productId` alongside its default product mapping,
         // so manual product selection remains available after unmapping.
@@ -980,6 +989,35 @@ class InfoControllerTest extends TestCase
         static::assertArrayHasKey('type', $stats['stats']['messageTypeStats'][0]);
         static::assertSame('stdClass', $stats['stats']['messageTypeStats'][0]['type']);
         static::assertArrayHasKey('count', $stats['stats']['messageTypeStats'][0]);
+    }
+
+    /**
+     * @return array{array<string, array<string, mixed>>, string}
+     */
+    private function requestElementTypesWithStorageSchema(): array
+    {
+        $client = $this->getBrowser();
+        $client->request(Request::METHOD_GET, '/api/_info/content-system-element-types.json');
+
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($data);
+        static::assertArrayHasKey('types', $data);
+        static::assertIsArray($data['types']);
+
+        $typesByName = [];
+        foreach ($data['types'] as $type) {
+            static::assertIsArray($type);
+            static::assertArrayHasKey('storageSchema', $type);
+            $typesByName[$type['name']] = $type;
+        }
+
+        return [$typesByName, $content];
     }
 
     private function createApp(string $appId, string $aclRoleId): void

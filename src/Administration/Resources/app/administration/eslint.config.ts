@@ -981,6 +981,14 @@ export default [
         },
     },
 
+    // The missing-test baseline is a data inventory, kept readable with one entry per line.
+    {
+        files: ['src/meta/baseline.ts'],
+        rules: {
+            'max-lines': 'off',
+        },
+    },
+
     // Runtime code must not import what src/Administration/.gitattributes export-ignores:
     // a Composer dist install lacks those files, so its Administration build fails.
     {

@@ -51,8 +51,8 @@ class CartPromotionsSubscriberTest extends TestCase
 
         static::assertTrue($customerCart->hasExtension(CartExtension::KEY));
 
-        /** @var CartExtension $customerPromotions */
         $customerPromotions = $customerCart->getExtension(CartExtension::KEY);
+        static::assertInstanceOf(CartExtension::class, $customerPromotions);
 
         static::assertCount(2, $customerPromotions->getCodes());
         static::assertTrue($customerPromotions->hasCode('tenpercent'));
@@ -84,8 +84,8 @@ class CartPromotionsSubscriberTest extends TestCase
 
         static::assertTrue($customerCart->hasExtension(CartExtension::KEY));
 
-        /** @var CartExtension $customerPromotions */
         $customerPromotions = $customerCart->getExtension(CartExtension::KEY);
+        static::assertInstanceOf(CartExtension::class, $customerPromotions);
 
         static::assertCount(1, $customerPromotions->getCodes());
         static::assertTrue($customerPromotions->hasCode('tenpercent'));
@@ -118,8 +118,8 @@ class CartPromotionsSubscriberTest extends TestCase
         $subscriber = new CartPromotionsSubscriber();
         $subscriber->onBeforeCartMerge($event);
 
-        /** @var CartExtension $mergedPromotions */
         $mergedPromotions = $event->getCustomerCart()->getExtension(CartExtension::KEY);
+        static::assertInstanceOf(CartExtension::class, $mergedPromotions);
 
         static::assertTrue($mergedPromotions->isPromotionBlocked('foo'));
         static::assertTrue($mergedPromotions->isPromotionBlocked('bar'));
@@ -146,8 +146,8 @@ class CartPromotionsSubscriberTest extends TestCase
 
         static::assertTrue($customerCart->hasExtension(CartExtension::KEY));
 
-        /** @var CartExtension $customerPromotions */
         $customerPromotions = $customerCart->getExtension(CartExtension::KEY);
+        static::assertInstanceOf(CartExtension::class, $customerPromotions);
 
         static::assertCount(1, $customerPromotions->getCodes());
 

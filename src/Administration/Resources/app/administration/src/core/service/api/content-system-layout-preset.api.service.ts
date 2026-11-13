@@ -13,7 +13,9 @@ import ApiService from '../api.service';
 export interface ContentSystemLayoutPreset {
     id: string;
     name: string;
+    nameSnippet?: string;
     description: string | null;
+    descriptionSnippet?: string;
     icon: string | null;
     illustration: string | null;
     category: string | null;
@@ -24,7 +26,7 @@ export interface ContentSystemLayoutPreset {
 /**
  * @private
  */
-export interface ContentSystemLayoutPresetResponse {
+interface ContentSystemLayoutPresetResponse {
     presets: ContentSystemLayoutPreset[];
 }
 

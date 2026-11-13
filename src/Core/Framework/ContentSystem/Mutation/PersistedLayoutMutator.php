@@ -12,6 +12,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Mapping\DefaultMappingSeeder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Lock\LockFactory;
@@ -41,6 +42,14 @@ class PersistedLayoutMutator
 
     public function mutate(string $layoutId, ?string $expectedVersion, LayoutMutation $mutation, Context $context): MutationResult
     {
+        // A declared write privilege lets the write run in system scope, where the DAL checks no privilege, so it is
+        // checked before anything else: a caller lacking it gets the 403 ahead of any read, 404, 409 or 400.
+        $writePrivilege = $mutation->writePrivilege();
+
+        if ($writePrivilege !== null && !$context->isAllowed($writePrivilege)) {
+            throw ContentSystemException::missingPrivileges([$writePrivilege]);
+        }
+
         // Serialize concurrent writers for this layout id so the load → versionMatches → update span is atomic:
         // a second writer blocks here, then re-reads the now-bumped updatedAt and fails versionMatches with a 409
         // instead of silently clobbering the first edit (the lost-update window the optimistic token alone leaves open).
@@ -64,10 +73,7 @@ class PersistedLayoutMutator
             $mutated = $mutation->apply(new StoredTree($layout->getLayout(), $layout->getRootSource()));
             $mutated = $this->defaultMappingSeeder->seed($mutated, $mutation->freshlyScaffolded());
 
-            $this->contentLayoutRepository->update([[
-                'id' => $layoutId,
-                'layout' => $mutated->roots,
-            ]], $context);
+            $this->commit($layoutId, $mutated, $writePrivilege !== null, $context);
 
             $analysis = $this->diagnose($mutated, $context);
 
@@ -75,6 +81,26 @@ class PersistedLayoutMutator
         } finally {
             $lock->release();
         }
+    }
+
+    /**
+     * Scopes the write alone: {@see Context::scope()} switches the scope of the very context it is called on, so a
+     * context scoped by the caller would also carry the layout load and the post-commit diagnosis.
+     */
+    private function commit(string $layoutId, StoredTree $mutated, bool $systemScope, Context $context): void
+    {
+        $data = [[
+            'id' => $layoutId,
+            'layout' => $mutated->roots,
+        ]];
+
+        if (!$systemScope) {
+            $this->contentLayoutRepository->update($data, $context);
+
+            return;
+        }
+
+        $context->scope(Context::SYSTEM_SCOPE, fn (Context $scoped): EntityWrittenContainerEvent => $this->contentLayoutRepository->update($data, $scoped));
     }
 
     private function versionMatches(?string $expectedVersion, ?\DateTimeInterface $updatedAt): bool

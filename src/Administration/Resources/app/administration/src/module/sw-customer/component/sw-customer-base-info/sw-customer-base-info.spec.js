@@ -53,9 +53,10 @@ async function createWrapper() {
             provide: {
                 repositoryFactory: {
                     create: () => ({
-                        search: () =>
+                        searchIds: () =>
                             Promise.resolve({
                                 total: 2,
+                                data: ['order-id'],
                             }),
                         get: () => Promise.resolve(),
                     }),
@@ -127,6 +128,14 @@ describe('module/sw-customer/page/sw-customer-base-info', () => {
 
     it('should display turnover of user', async () => {
         expect(wrapper.find('.sw-customer-base__label-turnover').text()).toBe('£29.68');
+    });
+
+    it('should display the order count from the total of the id search', async () => {
+        const orders = wrapper
+            .findAll('.sw-description-list')
+            .find((list) => list.find('dt').text() === 'sw-customer.baseInfo.labelOrders');
+
+        expect(orders.find('dd').text()).toBe('2');
     });
 
     it('should hide some information when displayed in edit mode', async () => {

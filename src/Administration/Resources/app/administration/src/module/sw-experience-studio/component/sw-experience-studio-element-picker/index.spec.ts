@@ -1,4 +1,5 @@
 import { flushPromises, mount } from '@vue/test-utils';
+import { createI18n } from 'vue-i18n';
 import enSnippets from '../../snippet/en.json';
 import deSnippets from '../../snippet/de.json';
 import pickerComponent from './index';
@@ -6,6 +7,40 @@ import pickerComponent from './index';
 describe('module/sw-experience-studio/component/sw-experience-studio-element-picker', () => {
     const methods = (pickerComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> }).methods;
     const computed = (pickerComponent as unknown as { computed: Record<string, (...args: unknown[]) => unknown> }).computed;
+
+    it('uses a readable custom category when its snippet is missing', () => {
+        expect(methods.categoryHeadline.call({ $te: () => false }, 'my-category', 'missing.key')).toBe('my category');
+        expect(
+            methods.categoryHeadline.call({ $te: () => true, $t: () => 'Eigene Kategorie' }, 'my-category', 'custom.key'),
+        ).toBe('Eigene Kategorie');
+    });
+
+    it('uses the fallback locale for category headings', () => {
+        const previousFallbackLocale = Shopware.Context.app.fallbackLocale;
+        Shopware.Context.app.fallbackLocale = 'en-GB';
+        const i18n = createI18n({
+            legacy: false,
+            locale: 'fr-FR',
+            fallbackLocale: 'en-GB',
+            fallbackWarn: false,
+            messages: { 'fr-FR': {}, 'en-GB': enSnippets },
+        });
+
+        try {
+            expect(
+                methods.categoryHeadline.call(
+                    {
+                        $te: (key: string, locale?: 'en-GB' | 'fr-FR') => i18n.global.te(key, locale),
+                        $t: (key: string) => i18n.global.t(key),
+                    },
+                    'content',
+                    'sw-experience-studio.detail.elementPicker.categoryHeadlines.content',
+                ),
+            ).toBe(enSnippets['sw-experience-studio'].detail.elementPicker.categoryHeadlines.content);
+        } finally {
+            Shopware.Context.app.fallbackLocale = previousFallbackLocale;
+        }
+    });
 
     it('normalizes unknown and invalid categories to other', () => {
         const vm = {

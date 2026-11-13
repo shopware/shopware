@@ -1,5 +1,7 @@
 name: "Product detail page"
+nameSnippet: "sw-experience-studio.presets.product-detail-page.name"
 description: "Collection of components that make up the product detail page."
+descriptionSnippet: "sw-experience-studio.presets.product-detail-page.description"
 icon: "regular-box-alt"
 illustration: "preset-product-detail-page"
 category: "commerce"

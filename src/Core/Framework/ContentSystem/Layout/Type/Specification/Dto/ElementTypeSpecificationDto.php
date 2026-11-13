@@ -34,6 +34,10 @@ final readonly class ElementTypeSpecificationDto
         public int $priority = 0,
         #[Assert\NotBlank(allowNull: true)]
         public ?string $illustration = null,
+        #[Assert\NotBlank(allowNull: true)]
+        public ?string $labelSnippet = null,
+        #[Assert\NotBlank(allowNull: true)]
+        public ?string $descriptionSnippet = null,
     ) {
     }
 
@@ -61,6 +65,8 @@ final readonly class ElementTypeSpecificationDto
             $source,
             $this->priority,
             $this->illustration,
+            $this->labelSnippet,
+            $this->descriptionSnippet,
         );
     }
 }

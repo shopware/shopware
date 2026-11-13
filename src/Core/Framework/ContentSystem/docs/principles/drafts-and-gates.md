@@ -39,7 +39,7 @@ In code:
 
 ## Diagnostics report, gates check, and neither rewrites
 
-A diagnose pass reports every malformed element config as a per-element violation in a 200 body. The diagnose pass never throws on a malformed element config. The write gate is a pure reader of the tree that the write already decoded. It never reloads or rewrites that tree. When the write gate rejects the tree, the write returns a 400 and commits nothing.
+A diagnose pass reports every malformed element config as a per-element violation in a 200 body. The diagnose pass never throws on a malformed element config. The write gate is a pure reader of the tree that the write already decoded. It never reloads or rewrites that tree. When the write gate rejects the tree, the write returns a 400 and commits nothing. A [language map](README.md#glossary) key that names no `language` row is only a diagnostics warning, under the [key rule](translation.md#translations-live-inline-in-the-element-tree-as-language-maps).
 
 Why: A diagnose route that throws on the first defect hides the second defect from the editor. A rewriting gate stores changes without telling the editor.
 

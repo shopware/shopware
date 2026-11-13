@@ -25,6 +25,8 @@ framework:
                 adapter: cache.adapter.filesystem
             cache.rate_limiter:
                 adapter: cache.adapter.filesystem
+            cache.content_system_preview:
+                adapter: cache.adapter.filesystem
             cache.serializer:
                 adapter: cache.adapter.array
             cache.annotations:

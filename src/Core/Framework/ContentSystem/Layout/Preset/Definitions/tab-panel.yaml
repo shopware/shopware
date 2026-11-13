@@ -1,5 +1,7 @@
 name: "Tab panel"
+nameSnippet: "sw-experience-studio.presets.tab-panel.name"
 description: "A tab panel with two ready-made tabs, each holding a rich-text block."
+descriptionSnippet: "sw-experience-studio.presets.tab-panel.description"
 icon: "regular-window"
 illustration: "preset-tab-panel"
 category: "layout"

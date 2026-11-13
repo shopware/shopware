@@ -47,14 +47,18 @@ In code:
 
 At bind time, `resolvedBy` becomes a stored data requirement, and a config reference names a fixed, gate-validated stored property. An author may put a `{{placeholder}}` token into a `ConfigKeyKind::Literal` loader-config value. `StoredTreePreparer` substitutes that token in `RenderingMode::FULL`, as it substitutes a property string. A substituted value comes only from the page's route-derived entity id and from the query parameters that the specification source declares. No request value overrides a server-derived placeholder. No other render-time step substitutes or overrides any part of the loader configuration. No request selects an entity type, a property name, or a config key that the author did not mark with a token.
 
+Query parameters excluded from the HTTP cache key never become placeholder values.
+
 Why: A request value that reaches a loader through an unmarked key or an undeclared parameter picks a target no write-time gate checked. Limiting where a request value may enter is cheaper than guarding each case.
 
-Exceptions: `StoredTreePreparer` removes a `Literal` loader-config key whose whole value is one unresolved `{{token}}`. The key then resolves as absent and takes its declared default where it declares one. An unresolved ordinary placeholder embedded in other text stays literal; a whole-property unresolved placeholder becomes null. Placeholder keys beginning with `map:` after leading whitespace are reserved, so request values cannot replace mapping syntax. Mapping intent is parsed only from authored spans before substitution; see [data mapping](data-mapping.md#only-authored-token-spans-are-expanded).
+Exceptions: `StoredTreePreparer` removes a `Literal` loader-config key whose whole value is one unresolved ordinary placeholder. The key then resolves as absent and takes its declared default where it declares one. An unresolved placeholder embedded in other text, or forming a whole element property, stays verbatim. A placeholder key beginning with `map:` after leading whitespace is mapping syntax, and no request value replaces it. A lone `{{map:...}}` in loader config reaches the loader verbatim. Mapping intent is parsed only from [authored spans](data-mapping.md#only-authored-token-spans-are-expanded) before substitution.
 
 In code:
 
 - `BindingApplicator::apply()` writes a typed `DataRequirement`.
 - `TypeConsistentBindingSpecificationValidator` checks property references.
+- `EntityLayoutResolver::resolvePlaceholders()` excludes query parameters configured in `shopware.http_cache.ignored_url_parameters`, so values absent from the cache key cannot vary rendered content.
+- `EntityLayoutResolverTest::testCacheIgnoredQueryParametersCannotBecomePlaceholders` pins that exclusion and preserves the original request.
 - `StoredTreePreparer` substitutes a token in a property string and in the string value of a `Literal` loader-config key.
 - See [applying.md](../../Binding/docs/applying.md).
 
@@ -89,5 +93,5 @@ In code:
 
 ## Also true by construction
 
-- `StoredTreePreparer` substitutes a placeholder token in one pass at the property's own level, in [`RenderingMode::FULL`](README.md#terms-that-are-easy-to-confuse) only. An embedded unresolved ordinary token stays literal; a standalone unresolved property token becomes null. Placeholder values are otherwise made available to page loaders on the [virtual root](README.md#glossary): [pipeline-steps.md](../pipeline-steps.md)
+- `StoredTreePreparer` substitutes a placeholder token in one pass at the property's own level, in [`RenderingMode::FULL`](README.md#terms-that-are-easy-to-confuse) only. An unresolved token in an element property stays verbatim, unlike the [loader-config exception](#no-request-selects-what-a-loader-loads). Placeholder values are otherwise made available to page loaders on the [virtual root](README.md#glossary): [pipeline-steps.md](../pipeline-steps.md)
 - A loader-resolved value dedups by its source, configuration and value identity, without a value comparison. The DAL keeps no identity map, so two loads of one row return two instances that no value-level test can collapse. `ElementDataResolver` creates that identity at the load, because the resolved `LoaderInputs` do not outlive the call. `producedFingerprint` describes the value that the loader returned, not the value that the response finally carries. Any other object dedups by instance identity, a non-object by value equality, and every explicit null shares one `data` map entry: [Output/README.md](../../Output/README.md)

@@ -1,5 +1,6 @@
 meta:
   label: "Product Slider"
+  labelSnippet: "sw-experience-studio.elements.product-slider.label"
   description: "Displays a manually curated selection of products in a slider."
   icon: "regular-bulk-edit"
   illustration: "product-slider"
@@ -19,6 +20,7 @@ properties:
     type: Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection
     required: true
     title: "Products"
+    titleSnippet: "sw-experience-studio.elements.product-slider.products.title"
     description: "The products shown in the slider. Required because without products the slider will show an empty state."
     resolvedBy:
       loader: entity_collection
@@ -33,6 +35,7 @@ properties:
     type: string
     translatable: true
     title: "Title"
+    titleSnippet: "sw-experience-studio.elements.product-slider.title.title"
     description: "Optional headline shown above the slider."
     adminUI:
       component: "text"
@@ -40,6 +43,7 @@ properties:
   itemSizing:
     type: string
     title: "Item Sizing"
+    titleSnippet: "sw-experience-studio.elements.product-slider.itemSizing.title"
     description: "How the product cards are sized. Fixed keeps a fixed card width and lets the next card peek in at the edge, fit sizes the cards so a whole number of columns fills the available width."
     default: "fixed"
     enum:
@@ -47,11 +51,21 @@ properties:
       - "fit"
     adminUI:
       component: "select"
+      props:
+        options:
+          - value: "fixed"
+            label: "Fixed"
+            labelSnippet: "sw-experience-studio.elements.product-slider.itemSizing.options.fixed.label"
+          - value: "fit"
+            label: "Fit"
+            labelSnippet: "sw-experience-studio.elements.product-slider.itemSizing.options.fit.label"
       helpText: "Fixed keeps a fixed product card width and allows overlapping cards. Fit sizes the cards so a whole number of columns fills the available width."
+      helpTextSnippet: "sw-experience-studio.elements.product-slider.itemSizing.helpText"
 
   scrollBehaviour:
     type: string
     title: "Scroll Behaviour"
+    titleSnippet: "sw-experience-studio.elements.product-slider.scrollBehaviour.title"
     description: "How the slider behaves when scrolling. Snap always aligns the scroll position to the start of a product card, natural stops wherever the scrolling ends."
     default: "snap"
     enum:
@@ -59,11 +73,21 @@ properties:
       - "natural"
     adminUI:
       component: "select"
+      props:
+        options:
+          - value: "snap"
+            label: "Snap"
+            labelSnippet: "sw-experience-studio.elements.product-slider.scrollBehaviour.options.snap.label"
+          - value: "natural"
+            label: "Natural"
+            labelSnippet: "sw-experience-studio.elements.product-slider.scrollBehaviour.options.natural.label"
       helpText: "Snap locks the slider to the start of a product card. Natural stops the slider wherever scrolling ends."
+      helpTextSnippet: "sw-experience-studio.elements.product-slider.scrollBehaviour.helpText"
 
   showNavigationArrows:
     type: boolean
     title: "Show Navigation Arrows"
+    titleSnippet: "sw-experience-studio.elements.product-slider.showNavigationArrows.title"
     description: "Show the arrow buttons to scroll the slider."
     default: true
     adminUI:
@@ -72,6 +96,7 @@ properties:
   showScrollbar:
     type: boolean
     title: "Show Scrollbar"
+    titleSnippet: "sw-experience-studio.elements.product-slider.showScrollbar.title"
     description: "Show the horizontal scrollbar below the slider. The slider stays scrollable when the scrollbar is hidden."
     default: true
     adminUI:

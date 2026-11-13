@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mutation\Op;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\UnwrapElement;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 
 /**
@@ -112,6 +114,20 @@ class UnwrapElementTest extends TestCase
             array_map(static fn (StoredValue $value): mixed => $value->jsonSerialize(), $unwrap->droppedProperties())
         );
         static::assertSame(['hero', 'theme'], $unwrap->droppedWiring());
+    }
+
+    #[TestDox('hoists a child language-map property value out of the container unchanged')]
+    public function testUnwrapHoistsLanguageMapUnchanged(): void
+    {
+        $translations = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale', 'language-de' => 'Herbstschlussverkauf'];
+        $child = StoredElementBuilder::create('Sw:Block', 'kid')->withProperty('text', $translations)->build();
+        $container = StoredElementBuilder::create('Sw:Container', 'container')->withSlot('content', [$child])->build();
+
+        $result = (new UnwrapElement('container'))->apply(new StoredTree([$container]));
+
+        $carried = $result->roots[0]->property('text');
+        static::assertNotNull($carried);
+        static::assertObjectEquals(StoredValue::fromDecoded($translations), $carried, 'equals');
     }
 
     #[TestDox('removes an empty container and hoists nothing')]

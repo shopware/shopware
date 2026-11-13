@@ -1,5 +1,6 @@
 meta:
   label: "Breadcrumb"
+  labelSnippet: "sw-experience-studio.elements.navigation-breadcrumb.label"
   description: "Renders the breadcrumb path of the current product or category page."
   icon: "double-chevron-right-s"
   illustration: "navigation-breadcrumb"
@@ -15,6 +16,7 @@ properties:
     type: Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection
     required: false
     title: "Breadcrumb"
+    titleSnippet: "sw-experience-studio.elements.navigation-breadcrumb.breadcrumb.title"
     description: "Breadcrumb path of the current product or category page, resolved by the breadcrumb data loader from the page entity's id."
     resolvedBy:
       breadcrumb:
@@ -29,6 +31,7 @@ properties:
   showHome:
     type: boolean
     title: "Show home link"
+    titleSnippet: "sw-experience-studio.elements.navigation-breadcrumb.showHome.title"
     description: "Prepend a link to the shop home page in front of the breadcrumb path."
     default: false
     adminUI:

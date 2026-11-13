@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 final readonly class ContentSystemLayoutPresetSpecification
@@ -24,6 +22,8 @@ final readonly class ContentSystemLayoutPresetSpecification
         public ?string $category = null,
         public int $priority = 0,
         public ?string $illustration = null,
+        public ?string $nameSnippet = null,
+        public ?string $descriptionSnippet = null,
     ) {
     }
 
@@ -35,6 +35,8 @@ final readonly class ContentSystemLayoutPresetSpecification
         return [
             'id' => $this->id,
             'name' => $this->name,
+            ...($this->nameSnippet !== null ? ['nameSnippet' => $this->nameSnippet] : []),
+            ...($this->descriptionSnippet !== null ? ['descriptionSnippet' => $this->descriptionSnippet] : []),
             'description' => $this->description,
             'icon' => $this->icon,
             'illustration' => $this->illustration,

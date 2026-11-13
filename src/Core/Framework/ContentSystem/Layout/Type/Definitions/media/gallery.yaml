@@ -1,5 +1,6 @@
 meta:
   label: "Gallery"
+  labelSnippet: "sw-experience-studio.elements.media-gallery.label"
   description: "Media gallery element showing multiple images with thumbnail navigation."
   icon: "image-text"
   illustration: "media-gallery"
@@ -16,6 +17,7 @@ properties:
     required: true
     mappable: true
     title: "Media"
+    titleSnippet: "sw-experience-studio.elements.media-gallery.mediaItems.title"
     description: "The images to be shown in the gallery."
     resolvedBy: mediaIds
     adminUI:
@@ -25,6 +27,7 @@ properties:
   displayMode:
     type: string
     title: "Display Mode"
+    titleSnippet: "sw-experience-studio.elements.media-gallery.displayMode.title"
     description: "How the gallery images are sized."
     default: "auto"
     enum:
@@ -32,12 +35,21 @@ properties:
       - "fixedHeight"
     adminUI:
       component: "select"
+      props:
+        options:
+          - value: "auto"
+            label: "Automatic"
+            labelSnippet: "sw-experience-studio.elements.media-gallery.displayMode.options.auto.label"
+          - value: "fixedHeight"
+            label: "Fixed height"
+            labelSnippet: "sw-experience-studio.elements.media-gallery.displayMode.options.fixedHeight.label"
       panel: "general"
 
   maxHeight:
     type: integer
     required: false
     title: "Max Height"
+    titleSnippet: "sw-experience-studio.elements.media-gallery.maxHeight.title"
     description: "Maximum image height in px, used in fixed height mode."
     default: null
     adminUI:
@@ -50,6 +62,7 @@ properties:
   showThumbnailNav:
     type: boolean
     title: "Show Thumbnail Navigation"
+    titleSnippet: "sw-experience-studio.elements.media-gallery.showThumbnailNav.title"
     description: "Show the thumbnail navigation."
     default: true
     adminUI:
@@ -58,6 +71,7 @@ properties:
   thumbnailSize:
     type: integer
     title: "Thumbnail Size"
+    titleSnippet: "sw-experience-studio.elements.media-gallery.thumbnailSize.title"
     description: "Size of the thumbnails navigation images in px."
     default: 70
     adminUI:
@@ -70,6 +84,7 @@ properties:
   thumbnailNavigationPosition:
     type: string
     title: "Position"
+    titleSnippet: "sw-experience-studio.elements.media-gallery.thumbnailNavigationPosition.title"
     description: "Position of the thumbnail navigation."
     default: "left"
     enum:
@@ -77,6 +92,14 @@ properties:
       - "bottom"
     adminUI:
       component: "select"
+      props:
+        options:
+          - value: "left"
+            label: "Left"
+            labelSnippet: "sw-experience-studio.elements.media-gallery.thumbnailNavigationPosition.options.left.label"
+          - value: "bottom"
+            label: "Bottom"
+            labelSnippet: "sw-experience-studio.elements.media-gallery.thumbnailNavigationPosition.options.bottom.label"
       panel: "thumbnails"
       visibleWhen:
         field: "showThumbnailNav"
@@ -85,11 +108,13 @@ properties:
   thumbnailNavShowsMediaOnHover:
     type: boolean
     title: "Navigate on hover"
+    titleSnippet: "sw-experience-studio.elements.media-gallery.thumbnailNavShowsMediaOnHover.title"
     description: "Show the media belonging to a thumbnail when hovering it, without clicking it."
     default: false
     adminUI:
       panel: "thumbnails"
       helpText: "Accessibility: when active, the gallery switches media on hover alone, without any click. This could be triggered by accident."
+      helpTextSnippet: "sw-experience-studio.elements.media-gallery.thumbnailNavShowsMediaOnHover.helpText"
       visibleWhen:
         field: "showThumbnailNav"
         equals: true
@@ -97,6 +122,7 @@ properties:
   showNavigationArrows:
     type: boolean
     title: "Show Navigation Arrows"
+    titleSnippet: "sw-experience-studio.elements.media-gallery.showNavigationArrows.title"
     description: "Show the navigation arrows. Visible on extra small and small viewports by default."
     default: true
     adminUI:
@@ -105,6 +131,7 @@ properties:
   showMagnifier:
     type: boolean
     title: "Show Magnifier"
+    titleSnippet: "sw-experience-studio.elements.media-gallery.showMagnifier.title"
     description: "Show the magnifier when hovering over the images."
     default: true
     adminUI:
@@ -113,6 +140,7 @@ properties:
   showFullScreenGallery:
     type: boolean
     title: "Show Fullscreen Gallery"
+    titleSnippet: "sw-experience-studio.elements.media-gallery.showFullScreenGallery.title"
     description: "Show the fullscreen gallery when clicking on the images."
     default: true
     adminUI:
@@ -121,6 +149,7 @@ properties:
   autoplayVideos:
     type: boolean
     title: "Autoplay Videos"
+    titleSnippet: "sw-experience-studio.elements.media-gallery.autoplayVideos.title"
     description: "Automatically play videos shown in the gallery."
     default: true
     adminUI:

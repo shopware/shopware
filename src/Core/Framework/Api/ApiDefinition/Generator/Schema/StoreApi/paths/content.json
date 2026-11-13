@@ -6,7 +6,7 @@
             "get": {
                 "tags": ["Content"],
                 "summary": "Fetch rendered content layout",
-                "description": "Loads and renders content with full element trees. Supports product/{productId}, category/{categoryId}, and landing-page/{landingPageId} path patterns. Field selection is not supported: a request carrying an `includes` or `excludes` parameter is rejected with HTTP 400.",
+                "description": "Loads and renders content with full element trees. Scalar query parameters can supply placeholder values, except parameters configured in `shopware.http_cache.ignored_url_parameters`. Supports product/{productId}, category/{categoryId}, and landing-page/{landingPageId} path patterns. Field selection is not supported: a request carrying an `includes` or `excludes` parameter is rejected with HTTP 400.",
                 "operationId": "readContent",
                 "parameters": [
                     {
@@ -53,7 +53,7 @@
             "get": {
                 "tags": ["Content"],
                 "summary": "Fetch rendered content layout (decomposed format)",
-                "description": "Loads and renders content with decomposed format: skeletons + deduplicated data + assignments. Optimized for bandwidth efficiency. Field selection is not supported: a request carrying an `includes` or `excludes` parameter is rejected with HTTP 400.",
+                "description": "Loads and renders content with decomposed format: skeletons + deduplicated data + assignments. Scalar query parameters can supply placeholder values, except parameters configured in `shopware.http_cache.ignored_url_parameters`. Optimized for bandwidth efficiency. Field selection is not supported: a request carrying an `includes` or `excludes` parameter is rejected with HTTP 400.",
                 "operationId": "readContentDecomposed",
                 "parameters": [
                     {
@@ -144,7 +144,7 @@
             "get": {
                 "tags": ["Content"],
                 "summary": "Fetch content data only (without skeleton)",
-                "description": "Returns only the hydrated data and element-to-property assignments. Useful when client already has the skeleton and only needs refreshed data. Field selection is not supported: a request carrying an `includes` or `excludes` parameter is rejected with HTTP 400.",
+                "description": "Returns only the hydrated data and element-to-property assignments. Scalar query parameters can supply placeholder values, except parameters configured in `shopware.http_cache.ignored_url_parameters`. Useful when client already has the skeleton and only needs refreshed data. Field selection is not supported: a request carrying an `includes` or `excludes` parameter is rejected with HTTP 400.",
                 "operationId": "readContentData",
                 "parameters": [
                     {

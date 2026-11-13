@@ -3,9 +3,11 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mapping;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
@@ -259,6 +261,11 @@ class StoredMappingInspectorTest extends TestCase
         static::assertCount(1, $problems);
         static::assertSame(ContentSystemException::UNKNOWN_INLINE_MAPPING_PATH, $problems[0]->exception->getErrorCode());
         static::assertSame('category.internalNote', $problems[0]->sourceName);
+        // A bare string has no language, so its message names none.
+        static::assertSame(
+            ContentSystemException::unknownInlineMappingPath('category.internalNote', 'category')->getMessage(),
+            $problems[0]->exception->getMessage(),
+        );
     }
 
     public function testRejectsAnInlineCandidateReturnedUnderAnotherPathsKey(): void
@@ -358,12 +365,142 @@ class StoredMappingInspectorTest extends TestCase
         static::assertSame([], $this->inspector($this->textElementType(inlineMappable: false))->inspect([$element], 'category'));
     }
 
+    /**
+     * Language reduction may select any entry of a translatable property, so the gate judges each entry, including
+     * one stored under a language that no longer exists: key existence is not a write input.
+     */
+    #[DataProvider('foreignLanguageEntryProvider')]
+    #[TestDox('rejects a bad inline token in $_dataName of a translatable property')]
+    public function testRejectsABadInlineTokenInAnyLanguageEntry(string $languageId): void
+    {
+        $element = $this->elementWithLanguageMap([
+            Defaults::LANGUAGE_SYSTEM => 'Buy the {{map:category.name}} today',
+            $languageId => 'Kauf {{map:category.internalNote}} heute',
+        ]);
+
+        $problems = $this->inspector($this->textElementType(inlineMappable: true, translatable: true))->inspect([$element], 'category');
+
+        static::assertCount(1, $problems);
+        static::assertSame('element-1', $problems[0]->elementId);
+        static::assertSame('text', $problems[0]->propertyKey);
+        static::assertSame('category.internalNote', $problems[0]->sourceName);
+        static::assertSame(ContentSystemException::UNKNOWN_INLINE_MAPPING_PATH, $problems[0]->exception->getErrorCode());
+        static::assertSame(
+            ContentSystemException::unknownInlineMappingPath('category.internalNote', 'category')->getMessage()
+                . ' Found in the entry for language "' . $languageId . '".',
+            $problems[0]->exception->getMessage(),
+        );
+    }
+
+    #[TestDox('names the system language in the message of a fault in the system-language entry')]
+    public function testNamesTheSystemLanguageForAFaultInItsEntry(): void
+    {
+        $element = $this->elementWithLanguageMap([Defaults::LANGUAGE_SYSTEM => 'Buy the {{map:category}} today']);
+
+        $problems = $this->inspector($this->textElementType(inlineMappable: true, translatable: true))->inspect([$element], 'category');
+
+        static::assertCount(1, $problems);
+        static::assertStringEndsWith(
+            ' Found in the entry for language "' . Defaults::LANGUAGE_SYSTEM . '".',
+            $problems[0]->exception->getMessage(),
+        );
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function foreignLanguageEntryProvider(): iterable
+    {
+        yield 'a non-system language entry' => ['language-german'];
+
+        yield 'an entry under a deleted language' => ['language-deleted'];
+    }
+
+    #[TestDox('admits a translatable property whose every language entry holds a catalogued token')]
+    public function testAdmitsAWellFormedInlineTokenInEveryLanguageEntry(): void
+    {
+        $element = $this->elementWithLanguageMap([
+            Defaults::LANGUAGE_SYSTEM => 'Buy the {{map:category.name}} today',
+            'language-german' => 'Kauf {{map:category.name}} heute',
+        ]);
+
+        static::assertSame([], $this->inspector($this->textElementType(inlineMappable: true, translatable: true))->inspect([$element], 'category'));
+    }
+
+    #[TestDox('reports a token in a non-system language entry as requiring a root source when none is bound')]
+    public function testReportsATokenInALanguageEntryWithoutABoundRootSource(): void
+    {
+        $element = $this->elementWithLanguageMap([
+            Defaults::LANGUAGE_SYSTEM => 'Welcome',
+            'language-german' => 'Kauf {{map:category.name}} heute',
+        ]);
+
+        $problems = $this->inspector($this->textElementType(inlineMappable: true, translatable: true))->inspectInlineWithoutRootSource([$element]);
+
+        static::assertCount(1, $problems);
+        static::assertSame('text', $problems[0]->propertyKey);
+        static::assertSame(ContentSystemException::INLINE_MAPPING_REQUIRES_ROOT_SOURCE, $problems[0]->exception->getErrorCode());
+        static::assertSame(
+            ContentSystemException::inlineMappingRequiresRootSource(self::CATEGORY_NAME_PATH, 'text')->getMessage()
+                . ' Found in the entry for language "language-german".',
+            $problems[0]->exception->getMessage(),
+        );
+    }
+
+    #[TestDox('rejects a language entry over the authored-input cap')]
+    public function testRejectsALanguageEntryOverTheInputCap(): void
+    {
+        $element = $this->elementWithLanguageMap([
+            Defaults::LANGUAGE_SYSTEM => 'Welcome',
+            'language-german' => '{{map:category.name}}' . str_repeat('a', InlineMappingTokenParser::MAX_INPUT_BYTES),
+        ]);
+
+        $this->expectExceptionObject(ContentSystemException::inlineMappingInputTooLarge(InlineMappingTokenParser::MAX_INPUT_BYTES));
+
+        $this->inspector($this->textElementType(inlineMappable: true, translatable: true))->inspect([$element], 'category');
+    }
+
+    #[TestDox('applies the authored-input cap to each language entry, not to their sum')]
+    public function testAdmitsLanguageEntriesEachUnderTheInputCapWhoseSumIsOverIt(): void
+    {
+        $text = '{{map:category.name}}' . str_repeat('a', intdiv(InlineMappingTokenParser::MAX_INPUT_BYTES, 2) + 1);
+        $element = $this->elementWithLanguageMap([
+            Defaults::LANGUAGE_SYSTEM => $text,
+            'language-german' => $text,
+        ]);
+
+        static::assertSame([], $this->inspector($this->textElementType(inlineMappable: true, translatable: true))->inspect([$element], 'category'));
+    }
+
+    #[TestDox('treats mapping-looking text as literal in every entry of a translatable property that did not declare inlineMappable')]
+    public function testIgnoresATokenInATranslatablePropertyThatDidNotOptIn(): void
+    {
+        $element = $this->elementWithLanguageMap([
+            Defaults::LANGUAGE_SYSTEM => 'Buy the {{map:category.internalNote}} today',
+            'language-german' => 'Kauf {{map:category}} heute',
+        ]);
+
+        static::assertSame([], $this->inspector($this->textElementType(translatable: true))->inspect([$element], 'category'));
+    }
+
     private function elementWithText(string $text, string $id = 'element-1'): StoredElement
     {
         return new StoredElement(
             id: $id,
             component: 'Sw:Content:Text',
             properties: ['text' => StoredValue::ofString($text)],
+        );
+    }
+
+    /**
+     * @param array<string, string> $entries
+     */
+    private function elementWithLanguageMap(array $entries): StoredElement
+    {
+        return new StoredElement(
+            id: 'element-1',
+            component: 'Sw:Content:Text',
+            properties: ['text' => StoredValue::ofMap(array_map(StoredValue::ofString(...), $entries))],
         );
     }
 
@@ -388,10 +525,10 @@ class StoredMappingInspectorTest extends TestCase
         );
     }
 
-    private function textElementType(bool $mappable = false, bool $inlineMappable = false): ContentSystemElementTypeSpecification
+    private function textElementType(bool $mappable = false, bool $inlineMappable = false, bool $translatable = false): ContentSystemElementTypeSpecification
     {
         return ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')
-            ->primitive('text', 'string', mappable: $mappable, inlineMappable: $inlineMappable)
+            ->primitive('text', 'string', translatable: $translatable, mappable: $mappable, inlineMappable: $inlineMappable)
             ->build();
     }
 

@@ -1,5 +1,7 @@
 name: "Category page"
+nameSnippet: "sw-experience-studio.presets.category-page.name"
 description: "Collection of components that make up the category page."
+descriptionSnippet: "sw-experience-studio.presets.category-page.description"
 icon: "regular-boxes"
 illustration: "preset-category-page"
 category: "commerce"

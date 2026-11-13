@@ -3,6 +3,7 @@
 - Key binding specifications by `qualifiedId()` (`source:id`); throw `bindingSpecificationDuplicate` only for a duplicate within one source. Check: does one bare id from two sources still coexist? [custom-specifications.md](docs/custom-specifications.md#collision-detection)
 - Reject an authored `bindings:` key equal to the file's type name with `bindingSpecificationReservedId`, before duplicate detection. Check: does such a key raise the reserved-id error, not the duplicate error? [resolved-by.md](docs/resolved-by.md)
 - Keep a declaration's `inputs` default scalar or `null` in `WellFormedBindingSpecification`. Check: does an array default still fail validation? [validation.md](docs/validation.md)
+- Declare an `inputs` default for a translatable property bare and never `null`, and let `BindingApplicator` wrap it through `PropertyType::inStoredShape()`. Check: does a `null` default on a translatable target fail `TypeConsistentBindingSpecification`? [translation.md](../docs/principles/translation.md#a-value-the-module-produces-is-declared-bare-and-wrapped-by-one-owner)
 - Reconcile app rows as `ContentSystemBindingSpecificationPersister::persist()` does; override every lifecycle hook in the handler. Check: does a deactivated app's specification leave the registry? [extension-surface.md](../docs/principles/extension-surface.md#an-app-shipped-declaration-is-validated-and-reconciled-by-the-module-never-trusted-or-patched)
 
 ## Where to look

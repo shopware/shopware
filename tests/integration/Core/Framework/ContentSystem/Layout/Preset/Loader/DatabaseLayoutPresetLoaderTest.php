@@ -35,7 +35,10 @@ class DatabaseLayoutPresetLoaderTest extends TestCase
         $this->createPreset($ids->get('active-preset'), $ids->get('active-app'), 'AcmeActivePresets:Hero');
         $this->createPreset($ids->get('inactive-preset'), $ids->get('inactive-app'), 'AcmeInactivePresets:Hero');
 
-        static::assertSame(['AcmeActivePresets:Hero'], array_keys($this->loader()->load()));
+        $presets = $this->loader()->load();
+        static::assertSame(['AcmeActivePresets:Hero'], array_keys($presets));
+        static::assertSame('Hero', $presets['AcmeActivePresets:Hero']->name);
+        static::assertSame('acme.preset.hero.name', $presets['AcmeActivePresets:Hero']->nameSnippet);
     }
 
     public function testInsertPresetReturnsServerErrorForAnInvalidActiveAppRow(): void
@@ -87,7 +90,7 @@ class DatabaseLayoutPresetLoaderTest extends TestCase
             'id' => $presetId,
             'appId' => $appId,
             'name' => $presetName,
-            'schema' => ['name' => 'Hero', 'description' => 'A hero.', 'icon' => 'regular-star', 'layout' => []],
+            'schema' => ['name' => 'Hero', 'nameSnippet' => 'acme.preset.hero.name', 'description' => 'A hero.', 'icon' => 'regular-star', 'layout' => []],
             'hash' => 'hero-hash',
         ]], Context::createDefaultContext());
     }

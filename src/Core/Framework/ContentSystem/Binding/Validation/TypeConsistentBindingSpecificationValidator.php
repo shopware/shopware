@@ -10,6 +10,7 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
@@ -281,9 +282,11 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
     /**
      * Every config key of kind `propertyReference` (per the loader's config specification) whose configured value
      * is a string must name either an undeclared key (the resolvedBy storage key) or a declared primitive
-     * property of the declared type. A declared non-primitive property is a violation for every loader. Reaching
-     * this point means `decodeConfig()` and `resolveProducedType()` both succeeded, so the loader is a registered
-     * data loader and thus present in the map, so `configSpecificationFor()` cannot throw here.
+     * property of the declared type that can hold a value the key's `referencedType` admits
+     * ({@see ConfigKeySpecification::admitsDeclaredPrimitive()}). A declared non-primitive property is a violation
+     * for every loader. Reaching this point means `decodeConfig()` and
+     * `resolveProducedType()` both succeeded, so the loader is a registered data loader and thus present in the
+     * map, so `configSpecificationFor()` cannot throw here.
      *
      * @param array<string, mixed> $config
      */
@@ -304,15 +307,39 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
 
             $property = $type->properties()[$configured] ?? null;
 
-            if ($property === null || $property->type()->isPrimitive()) {
+            if ($property === null) {
                 continue;
             }
 
-            $this->context->buildViolation($constraint->resolvesEntryPropertyReferenceNotPrimitiveMessage)
+            $path = $this->path($id, 'resolves[' . $key . '].config.' . $configKey->name);
+
+            if (!$property->type()->isPrimitive()) {
+                $this->context->buildViolation($constraint->resolvesEntryPropertyReferenceNotPrimitiveMessage)
+                    ->setParameter('{{ configKey }}', $configKey->name)
+                    ->setParameter('{{ property }}', $configured)
+                    ->setParameter('{{ type }}', $type->name())
+                    ->atPath($path)
+                    ->addViolation();
+
+                continue;
+            }
+
+            $declared = $property->type()->type();
+
+            // The isPrimitive() gate above admits only a lone primitive type name.
+            \assert(\is_string($declared));
+
+            if ($configKey->admitsDeclaredPrimitive($declared)) {
+                continue;
+            }
+
+            $this->context->buildViolation($constraint->resolvesEntryPropertyReferenceCannotHoldReferencedTypeMessage)
                 ->setParameter('{{ configKey }}', $configKey->name)
                 ->setParameter('{{ property }}', $configured)
                 ->setParameter('{{ type }}', $type->name())
-                ->atPath($this->path($id, 'resolves[' . $key . '].config.' . $configKey->name))
+                ->setParameter('{{ referencedType }}', $configKey->referencedType)
+                ->setParameter('{{ declaredType }}', $property->type()->describe())
+                ->atPath($path)
                 ->addViolation();
         }
     }
@@ -402,6 +429,17 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
         }
 
         $default = $entry['default'];
+
+        // A translatable property stores one value per language, so a null default could never seed an entry.
+        if ($default === null && $property->type()->translatable()) {
+            $this->context->buildViolation($constraint->inputsEntryNullDefaultOnTranslatableMessage)
+                ->setParameter('{{ key }}', $key)
+                ->setParameter('{{ type }}', $type->name())
+                ->atPath($this->path($id, 'inputs[' . $key . '].default'))
+                ->addViolation();
+
+            return;
+        }
 
         if ($default === null) {
             return;

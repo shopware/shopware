@@ -36,6 +36,7 @@ export interface ContentSystemElementTypePropertyAdminUi {
     props?: Record<string, unknown>;
     entity?: string;
     helpText?: string;
+    helpTextSnippet?: string;
     panel?: string;
     visibleWhen?: ContentSystemElementAdminUiVisibleWhen;
     [key: string]: unknown;
@@ -65,7 +66,9 @@ export interface ContentSystemElementTypeProperty {
      */
     inlineMappable: boolean;
     title: string;
+    titleSnippet?: string;
     description: string;
+    descriptionSnippet?: string;
     adminUI: ContentSystemElementTypePropertyAdminUi | null;
     properties?: Record<string, ContentSystemElementTypeProperty> | null;
 }
@@ -102,7 +105,9 @@ export interface ContentSystemElementTypeBindingSpecification {
 export interface ContentSystemElementTypeSpecification {
     name: string;
     label: string;
+    labelSnippet?: string;
     description: string;
+    descriptionSnippet?: string;
     source: string;
     icon: string | null;
     illustration: string | null;
@@ -120,7 +125,7 @@ export interface ContentSystemElementTypeSpecification {
 /**
  * @private
  */
-export interface ContentSystemElementTypeResponse {
+interface ContentSystemElementTypeResponse {
     types: ContentSystemElementTypeSpecification[];
 }
 

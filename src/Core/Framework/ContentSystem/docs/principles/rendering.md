@@ -2,12 +2,6 @@
 
 Rendering turns a layout's stored elements into the elements a Store API response or a Twig template reads.
 
-`ContentPipeline::load()` runs the preparation event, placeholder substitution, the virtual root wrap and the
-[partial prune](README.md#glossary). It then runs the duplicate-id and wiring checks, data resolution, inline expansion, context delivery
-and the [finishing steps](README.md#glossary). It ends with the finalization event and a second duplicate-id check, in
-the order of [pipeline-steps.md](../pipeline-steps.md). [SKELETON](README.md#terms-that-are-easy-to-confuse) mode skips
-placeholder substitution, data resolution, inline expansion and context delivery.
-
 ## The render validates the whole stored forest in every mode
 
 Wiring validation and the duplicate-id check run on the whole [forest](README.md#glossary) before the partial prune,
@@ -42,6 +36,7 @@ slots or style from a property value.
 
 | Step on the render path | FULL | SKELETON |
 |---|---|---|
+| Language reduction | on | off |
 | Placeholder substitution | on | off |
 | Data resolution | on | off |
 | Inline mapping expansion | on | off |
@@ -51,7 +46,7 @@ Why: A client caches the skeleton and fills it with data later, so a structural 
 
 In code:
 
-- `StoredTreePreparer::prepare()` gates placeholder substitution on `RenderingMode::FULL`.
+- `StoredTreePreparer::prepare()` gates language reduction and placeholder substitution on `RenderingMode::FULL`.
 - `ElementLowering::lower()` gates data resolution on the same mode.
 - `RenderedTreeFactory` walks both modes in one traversal.
 - `ContentRouteRenderingTest` pins that the skeleton equals the full response minus the properties.
@@ -72,12 +67,17 @@ Exceptions: Product-domain `ProductVariantSelectionSubscriber` enriches variant 
 
 ## The two tree-replacement events fire at fixed points
 
-Neither event exposes the rendering mode. The preparation event fires first, before placeholder substitution, so
-substitution still reaches any placeholder that a listener adds. The finalization event fires after the finishing steps,
-in both modes. The pipeline checks each tree that an event hands back, under the
+Neither event exposes the rendering mode. The preparation event fires first, before [language reduction](README.md#glossary)
+and placeholder substitution. A preparation listener therefore receives each translatable property as its whole
+[language map](README.md#glossary). Substitution still reaches any placeholder that the listener adds. The
+finalization event fires after the finishing steps, in both modes. In FULL mode its listener receives a value derived from the chain
+entry of each translatable property of a registered type, under the
+[reduction rule](translation.md#language-reduction-happens-on-the-server-and-nothing-downstream-receives-a-language-map).
+In SKELETON mode it receives no property value.
+The pipeline checks each tree that an event hands back, under the
 [render checks](#the-render-validates-the-whole-stored-forest-in-every-mode).
 
-Why: A later event would show a listener content already substituted or pruned.
+Why: A later event would show a listener content already reduced, substituted or pruned.
 
 Exceptions: A returned tree that names an unregistered element type is [registry drift](wire-contract.md#structural-malformation-and-registry-drift-are-different-cases-on-read), on a returned tree as on a stored one.
 

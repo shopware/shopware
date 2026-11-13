@@ -55,4 +55,5 @@ In code:
 
 ## Also true by construction
 
+- No registered type carries `translatable` on a union, a non-primitive type or a nested member, because `TranslatableTypeValidator` fails the element type load: [translation.md](translation.md#translatable-is-valid-only-on-a-lone-primitive-type)
 - Only a primitive or all-primitive union constrains a value member by member. A bare `object`, class reference or union carrying one admits any value: [PropertyTypeConformanceValidator](../../Layout/Codec/PropertyTypeConformanceValidator.php)

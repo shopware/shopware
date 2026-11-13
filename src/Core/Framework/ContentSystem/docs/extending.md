@@ -10,6 +10,44 @@
 | **Event Listeners**       | Modify layout structure, enrich data, transform properties, cache tags — authored per [Event/Listener/docs/custom-listeners.md](../Event/Listener/docs/custom-listeners.md) |
 | **Mapping Sources** | Curated typed sources through tagged plugin providers and intentional core overrides through the public guarded registry — [source providers](../Mapping/docs/source-providers.md), [plugin overrides](../Mapping/docs/plugin-sources.md) |
 
+## Administration translations
+
+Element type, preset and style option declarations retain their English text for introspection.
+Use optional explicit Administration snippet keys to translate the text shown in Experience Studio.
+For example:
+
+```yaml
+meta:
+  label: "Image"
+  labelSnippet: "my-extension.elements.image.label"
+  description: "A responsive image."
+properties:
+  loading:
+    type: string
+    title: "Loading"
+    titleSnippet: "my-extension.elements.image.loading"
+    description: "Image loading strategy."
+    adminUI:
+      helpText: "Choose how the image loads."
+      helpTextSnippet: "my-extension.elements.image.loadingHelp"
+      props:
+        options:
+          - value: "lazy"
+            label: "Lazy"
+            labelSnippet: "my-extension.elements.image.loadingLazy"
+```
+
+Element metadata accepts `labelSnippet` and `descriptionSnippet`; properties, including nested properties, accept `titleSnippet` and `descriptionSnippet`.
+Presets accept `nameSnippet` and `descriptionSnippet` next to `name` and `description`.
+Style options accept `labelSnippet` and `descriptionSnippet` inside `adminUI`.
+For element and style controls, `adminUI.helpTextSnippet`, `adminUI.props.placeholderSnippet`, and `labelSnippet` and `descriptionSnippet` on `adminUI.props.options` translate the corresponding text.
+Only supported interface fields are translated; enum values, identifiers, defaults, preset payloads and agent metadata retain their original meaning.
+Existing `adminUI.helpText` values that are snippet keys continue to work.
+
+Provide the referenced keys through the usual Administration snippets for the core, plugin or app, under a namespace owned by the extension.
+The editor falls back to the authored English text when a key is missing or has no translation.
+Declarations without references continue to work unchanged.
+
 ## Layout presets
 
 Preset declarations place display metadata next to the `layout` shorthand at the top level.

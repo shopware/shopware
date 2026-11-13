@@ -17,8 +17,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * Single decode path from a draft layout (the unsaved tree as posted to the admin actions) to its element tree,
  * shared by the preview, diagnose, and mutation actions so the structural pre-decode gate cannot drift between
- * them. Every element must be an array with a non-empty string id and component, else a 400 invalidLayoutStructure
- * before any element is decoded. An element config defect (a client defect raised by the codec) is handled per
+ * them. Every element must be an array with a non-empty string id and component, and no slot child may carry an
+ * empty id or component, else a 400 invalidLayoutStructure before any element is decoded. An element config defect (a client defect raised by the codec) is handled per
  * caller: {@see decode()} aggregates it into the same 400 because the tree is unusable for rendering or
  * transformation, while {@see decodeLintable()} collects it as an invalid_config violation and keeps the rest of
  * the tree so it can still be diagnosed. Both decode one root at a time through {@see StoredElementCodec}, so the
@@ -126,7 +126,8 @@ class DraftLayoutDecoder
     }
 
     /**
-     * Structural pre-decode gate: every element must be an array with a non-empty string id and component.
+     * Structural pre-decode gate: every element must be an array with a non-empty string id and component, and
+     * no slot child may carry an empty id or component.
      * Aggregates all malformations into a single 400, before any element is decoded, so a malformed element is
      * a client error instead of a bare codec failure, and so {@see decodeLintable()} has an id to attribute a
      * per-element violation to.
@@ -160,6 +161,8 @@ class DraftLayoutDecoder
                 $violations->add($this->structuralViolation($path . '.component', 'Layout element component must be a non-empty string.', $component));
             }
 
+            $this->gateSlotChildren($element, $path, $violations);
+
             if (\is_string($id) && $id !== '' && \is_string($component) && $component !== '') {
                 $decodable[] = ['index' => $index, 'id' => $id, 'element' => $element];
             }
@@ -170,6 +173,46 @@ class DraftLayoutDecoder
         }
 
         return $decodable;
+    }
+
+    /**
+     * Slot-child half of the structural gate: the codec admits an empty id or component at every level so a stored
+     * blank value stays readable, while the write boundary refuses both at every level. A slot child carrying one
+     * is therefore refused here, like a top-level element.
+     *
+     * @param array<string, mixed> $element
+     */
+    private function gateSlotChildren(array $element, string $path, ConstraintViolationList $violations): void
+    {
+        $slots = $element['slots'] ?? null;
+
+        if (!\is_array($slots)) {
+            return;
+        }
+
+        foreach ($slots as $slotName => $children) {
+            if (!\is_array($children)) {
+                continue;
+            }
+
+            foreach ($children as $index => $child) {
+                if (!\is_array($child)) {
+                    continue;
+                }
+
+                $childPath = $path . '.slots.' . $slotName . '[' . $index . ']';
+
+                if (($child['id'] ?? null) === '') {
+                    $violations->add($this->structuralViolation($childPath . '.id', 'Layout element id must be a non-empty string.', ''));
+                }
+
+                if (($child['component'] ?? null) === '') {
+                    $violations->add($this->structuralViolation($childPath . '.component', 'Layout element component must be a non-empty string.', ''));
+                }
+
+                $this->gateSlotChildren($child, $childPath, $violations);
+            }
+        }
     }
 
     /**

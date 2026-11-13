@@ -33,6 +33,8 @@ Exceptions: A `resolvedBy` storage key is undeclared, and `matchesStoredValueSha
 
 In code:
 
+- `PropertyType::admits()` owns the acceptance of a value for a declared property.
+- `PropertyType::nonLanguageKeys()` owns the key rule of a language map, and `PropertyTypeConformanceValidator` and `AbstractLayoutMutation` both call it.
 - `StoredElementCodec::MAX_NESTING_DEPTH` owns the nesting bound.
 - `StoredTreeShapeConformanceTest` pins that the codec and the descriptor agree on `MAX_NESTING_DEPTH`.
 - See [Layout/Field/README.md](../../Layout/Field/README.md).
@@ -43,7 +45,7 @@ A present null and an absent key differ, and PHP tells them apart with `array_ke
 
 Why: An absent key read as a present null blocks default seeding. A present null read as absent gets a default seeded over it.
 
-Exceptions: `RenderedElementFactory` drops an authored null and keeps a lookup's null. A template prop with a null default and a type default of null both merge a present null and an absent key. `LayoutDiagnostics` counts an authored null as no value when it checks a required primitive or a configured property reference.
+Exceptions: `RenderedElementFactory` drops an authored null and keeps a lookup's null. A template prop with a null default and a type default of null both merge a present null and an absent key. `LayoutDiagnostics` counts an authored null as no value when it checks a required primitive or a configured property reference. A translatable property admits no null, under the [stored-shape rule](translation.md#translations-live-inline-in-the-element-tree-as-language-maps).
 
 In code:
 

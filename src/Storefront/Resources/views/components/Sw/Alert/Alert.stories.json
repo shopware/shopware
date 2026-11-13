@@ -21,6 +21,10 @@
         "size": {
           "control": "select",
           "options": ["sm", "md", "lg"]
+        },
+        "blocks.content": {
+            "control": "text",
+            "description": "HTML for the component's default content block."
         }
       },
     "stories": [
@@ -29,7 +33,8 @@
             "args": {
                 "text": "Lorem ipsum dolor sit amet.",
                 "variant": "primary",
-                "size": "md"
+                "size": "md",
+                "blocks.content": "<strong>Lorem ipsum</strong> dolor sit amet."
             },
             "parameters": {
                 "docs": {
@@ -37,6 +42,14 @@
                         "code": "<twig:Sw:Alert text=\"Lorem ipsum dolor sit amet.\" variant=\"primary\" size=\"md\" />"
                     }
                 }
+            }
+        },
+        {
+            "name": "Success",
+            "args": {
+                "text": "Your changes have been saved successfully.",
+                "variant": "success",
+                "size": "md"
             }
         }
     ]

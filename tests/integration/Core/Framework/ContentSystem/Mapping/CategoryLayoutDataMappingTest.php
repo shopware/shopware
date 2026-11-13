@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\Context;
@@ -99,7 +100,7 @@ class CategoryLayoutDataMappingTest extends TestCase
 
         $stored = $this->rawStoredRoots()[0]['slots']['content'][0];
 
-        static::assertSame('Authored copy {{map:category.name}}', $stored['properties']['text']);
+        static::assertSame([Defaults::LANGUAGE_SYSTEM => 'Authored copy {{map:category.name}}'], $stored['properties']['text']);
         static::assertArrayNotHasKey('acceptsContext', $stored);
         static::assertSame('Authored copy ' . self::CATEGORY_NAME, $this->servedText());
     }
@@ -254,7 +255,7 @@ class CategoryLayoutDataMappingTest extends TestCase
         $element = [
             'id' => $this->ids->create('text'),
             'component' => 'Sw:Content:Text',
-            'properties' => ['text' => $text ?? ($mappedTo === null ? self::AUTHORED_TEXT : '{{map:' . $mappedTo . '}}')],
+            'properties' => ['text' => [Defaults::LANGUAGE_SYSTEM => $text ?? ($mappedTo === null ? self::AUTHORED_TEXT : '{{map:' . $mappedTo . '}}')]],
         ];
 
         return $element;

@@ -65,6 +65,7 @@ A client derives the specifications applicable to an element from the `bindingSp
 | `mismatched_property_type`   | intrinsic | error      |
 | `unknown_style_option`       | intrinsic | error      |
 | `orphaned_provider`          | intrinsic | warning    |
+| `dangling_language`          | intrinsic | warning    |
 | `unresolved_required`        | binding   | error      |
 | `ambiguous_required`         | binding   | error      |
 | `broken_required_chain`      | binding   | error      |
@@ -74,7 +75,7 @@ A client derives the specifications applicable to an element from the `bindingSp
 
 `mismatched_reference_type` flags a stored reference wiring (any `dataRequirements` entry the element carries, not only one recorded in `attributedSpecifications`) whose resolved produced type is not assignable to the property's declared FQCN. It is intrinsic, not binding-scope: the mismatch is a property of the element's own stored wiring, independent of any bound `rootSource`. A config that fails to resolve (a client defect) is `invalid_config` instead. A config that resolves and fits produces no violation. It becomes a `stored` resolution instead (see the `origin` note above).
 
-`mismatched_property_type` flags a stored `properties` value that disagrees with the primitive type the element's type declares for that key, one violation per key, with `key` carrying the property name. `string` takes a string, `integer` an integer, `number` an integer or a float, `boolean` a boolean, and a union whose members are all primitive takes a value matching any member. `null` is accepted too, because whether a key may be absent or null is `unresolved_required`'s concern. A key declared as `object`, as an FQCN, or as a union carrying either constrains nothing and is never flagged. Nor is a `resolvedBy` storage key the type does not also declare as a property. Like `unknown_style_option`, it never appears on a DAL write: the write-path constraint pass refuses such a tree before the gate that produces these diagnostics runs.
+`mismatched_property_type` flags a stored `properties` value that disagrees with the primitive type the element's type declares for that key, one violation per key, with `key` carrying the property name. `string` takes a string, `integer` an integer, `number` an integer or a float, `boolean` a boolean, and a union whose members are all primitive takes a value matching any member. For a non-translatable declaration `null` is accepted too, because whether a key may be absent or null is `unresolved_required`'s concern. A translatable declaration admits only a non-empty language map of the declared primitive, so `null`, a bare value and the wire's empty `[]` are all flagged. A map key that names no existing language is `dangling_language`, a warning. Every write surface rejects a key that is not a language id in lowercase UUID hex (see [mutation-errors.md](mutation-errors.md)). A key declared as `object`, as an FQCN, or as a union carrying either constrains nothing and is never flagged. Nor is a `resolvedBy` storage key the type does not also declare as a property. Like `unknown_style_option`, it never appears on a DAL write: the write-path constraint pass refuses such a tree before the gate that produces these diagnostics runs.
 
 ## Mapping findings
 

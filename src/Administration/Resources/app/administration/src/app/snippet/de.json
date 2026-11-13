@@ -879,6 +879,7 @@
         "lineItemDimensionWidthRule": "Position mit Breite",
         "lineItemDimensionHeightRule": "Position mit Höhe",
         "lineItemDimensionLengthRule": "Position mit Länge",
+        "lineItemDimensionLongestAndGirthRule": "Position mit längster Seite und Gurtmaß",
         "lineItemDimensionWeightRule": "Position mit Gewicht",
         "lineItemDimensionVolumeRule": "Position mit Volumen",
         "lineItemListPriceRule": "Position mit Streichpreis",
@@ -1064,7 +1065,9 @@
       "custom_field": "Zusatzfeld | Zusatzfelder",
       "cart": "Warenkorb | Warenkörbe",
       "category": "Kategorie | Kategorien",
+      "category_content_layout": "Kategoriezuweisung | Kategoriezuweisungen",
       "cms_page": "Layout | Layouts",
+      "content_layout": "Layout | Layouts",
       "document": "Dokument | Dokumente",
       "property": "Eigenschaft | Eigenschaften",
       "country": "Land | Länder",
@@ -1095,6 +1098,7 @@
       "privacy": "Datenschutz",
       "plugin_manager": "Plugins",
       "product": "Produkt | Produkte",
+      "product_content_layout": "Produktzuweisung | Produktzuweisungen",
       "product_manufacturer": "Hersteller",
       "product_media": "Produktmedium | Produktmedien",
       "product_price": "Produktpreis | Produktpreise",
@@ -1121,6 +1125,7 @@
       "user": "Benutzer",
       "webhook": "Webhook | Webhooks",
       "landing_page": "Landingpage | Landingpages",
+      "landing_page_content_layout": "Landingpage-Zuweisung | Landingpage-Zuweisungen",
       "delivery_time": "Lieferzeit | Lieferzeiten",
       "import_export_profile": "Import/Export-Profil | Import/Export-Profile",
       "feature_set": "Template | Templates",
@@ -1311,6 +1316,11 @@
       "placeholderProduct": "Produkt auswählen ...",
       "placeholderCategory": "Kategorie auswählen ..."
     },
+    "childSearch": {
+      "label": "Einträge durchsuchen",
+      "placeholder": "Suchen ...",
+      "noResults": "Keine Ergebnisse gefunden."
+    },
     "table": {
       "addHeading": "Tabellenkopf hinzufügen",
       "cols": "Spalten",
@@ -1418,6 +1428,7 @@
     "reload": "Neu laden",
     "alertText": "Für mindestens eine der Erweiterungen in dieser Installation liegt eine Lizenzverletzung vor. Buche ein Abonnement für die Erweiterung nach oder kaufe/miete die Erweiterung (je nach Art des Verstoßes), um die Lizenzverletzung zu beheben und rechtliche Konsequenzen zu vermeiden.\nNutzt Du die Erweiterung nicht mehr? Dann lösche sie vollständig. Falls Du keinen dieser Schritte vollziehst, behält sich die shopware AG vor, Strafgebühren für die Lizenzverletzung zu berechnen.",
     "deletePlugin": "Erweiterung vollständig entfernen",
+    "removeExternally": "Entferne die Erweiterung außerhalb der Administration, zum Beispiel mit Composer.",
     "messageDeleteConfirm": "Möchtest Du die Erweiterung \"{pluginName}\" vollständig löschen?",
     "checkboxMessage": "Ich habe die Warnung gelesen und verstehe die möglichen Konsequenzen.",
     "closeModal": "Warnung schließen",

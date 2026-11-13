@@ -7,15 +7,18 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPayloadStore;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewRequest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -24,6 +27,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('framework')]
 class ContentSystemPreviewControllerTest extends TestCase
 {
+    use EnvTestBehaviour;
     use IntegrationTestBehaviour;
     use StorefrontControllerTestBehaviour;
 
@@ -45,7 +49,7 @@ class ContentSystemPreviewControllerTest extends TestCase
 
     protected function tearDown(): void
     {
-        $cache = static::getContainer()->get('cache.system');
+        $cache = static::getContainer()->get('cache.content_system_preview');
 
         foreach ($this->storedPreviewTokens as $token) {
             $cache->deleteItem(self::PREVIEW_CACHE_KEY_PREFIX . $token);
@@ -62,11 +66,44 @@ class ContentSystemPreviewControllerTest extends TestCase
         static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
     }
 
+    public function testPreviewCanBeOpenedByANewDevelopmentKernel(): void
+    {
+        $payload = new ContentPreviewRequest(
+            layout: [],
+            entityType: 'product',
+            entityId: $this->createProduct(),
+            salesChannelId: $this->getSalesChannelId(),
+        );
+        $request = Request::create($_SERVER['APP_URL'] . '/api/_action/content-system/preview/entity/url', Request::METHOD_POST);
+        $this->setEnvVars(['APP_ENV' => 'dev', 'SHOPWARE_CACHE_ID' => 'preview-cache-regression']);
+        $kernel = KernelLifecycleManager::createKernel(cacheId: 'preview-cache-regression');
+
+        try {
+            $kernel->boot();
+            $response = $kernel->getContainer()->get(ContentPreviewController::class)->previewUrl($payload, $request, Context::createDefaultContext());
+            $data = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
+            $url = $data['url'];
+            $kernel->shutdown();
+
+            $kernel = KernelLifecycleManager::createKernel(cacheId: 'preview-cache-regression');
+            $response = $kernel->handle(Request::create($url));
+
+            static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+            static::assertMatchesRegularExpression('/data-page-id="[0-9a-f]{32}"/', (string) $response->getContent());
+        } finally {
+            if (isset($url)) {
+                $kernel->getContainer()->get('cache.global_clearer')->getPool('cache.content_system_preview')
+                    ->deleteItem(self::PREVIEW_CACHE_KEY_PREFIX . basename($url));
+            }
+            $kernel->shutdown();
+        }
+    }
+
     #[TestDox('answers 500 for a stored envelope that does not decode into a preview request')]
     public function testUndecodableStoredEnvelopeIsServerError(): void
     {
         $token = Uuid::randomHex();
-        $cache = static::getContainer()->get('cache.system');
+        $cache = static::getContainer()->get('cache.content_system_preview');
         $item = $cache->getItem(self::PREVIEW_CACHE_KEY_PREFIX . $token);
         // An envelope with no entityType: only a validated envelope is ever written, so a malformed hit is
         // server-side state, not a defect in this caller's request.
@@ -107,7 +144,7 @@ class ContentSystemPreviewControllerTest extends TestCase
                 'slots' => ['content' => [[
                     'id' => $textId,
                     'component' => 'Sw:Content:Text',
-                    'properties' => ['text' => '<p>Preview body</p>'],
+                    'properties' => ['text' => [Defaults::LANGUAGE_SYSTEM => '<p>Preview body</p>']],
                 ], [
                     'id' => $manufacturerId,
                     'component' => 'Sw:Product:Manufacturer',
@@ -155,6 +192,52 @@ class ContentSystemPreviewControllerTest extends TestCase
         // received the page's product.
         static::assertStringContainsString('data-element-id="' . $buyButtonId . '"', $content);
         static::assertStringContainsString('name="lineItems[' . $productId . '][id]"', $content);
+    }
+
+    /**
+     * The envelope's `languageId` is what `ContentPreviewPageBuilder::build()` hands the context service, so it
+     * decides the language chain reduction runs against — the layout translation as well as the entity data
+     * language.
+     *
+     * The map carries three entries and the requested one sits in the middle, so the requested copy can only
+     * be reached by walking the chain: a selection that took the map's first entry would serve the anchor, and
+     * one that took its last would serve the unreachable entry. Draft maps travel through the payload store
+     * rather than a JSON column, so the authored order really is the order reduction sees.
+     */
+    #[TestDox('serves the layout translation the preview request languageId names')]
+    public function testPreviewLanguageIdSelectsTheLayoutTranslation(): void
+    {
+        $productId = $this->createProduct();
+        $languageId = $this->createSalesChannelLanguage();
+        $textId = Uuid::randomHex();
+
+        $token = $this->storePreviewRequest(new ContentPreviewRequest(
+            layout: [[
+                'id' => $textId,
+                'component' => 'Sw:Content:Text',
+                'properties' => ['text' => [
+                    Defaults::LANGUAGE_SYSTEM => '<p>Anchor copy</p>',
+                    $languageId => '<p>Requested language copy</p>',
+                    // A language id no `language` row carries, so it is on no chain and reachable by nothing.
+                    Uuid::randomHex() => '<p>Unreachable copy</p>',
+                ]],
+            ]],
+            entityType: 'product',
+            entityId: $productId,
+            salesChannelId: $this->getSalesChannelId(),
+            languageId: $languageId,
+        ));
+
+        $response = $this->request('GET', 'content-system/preview/' . $token, []);
+        $content = (string) $response->getContent();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
+        // The element really rendered, so the copy assertions below are about which entry was picked rather
+        // than about a blank content region.
+        static::assertStringContainsString('data-element-id="' . $textId . '"', $content);
+        static::assertStringContainsString('Requested language copy', $content);
+        static::assertStringNotContainsString('Anchor copy', $content);
+        static::assertStringNotContainsString('Unreachable copy', $content);
     }
 
     #[TestDox('renders a draft layout without elements as a page with an empty content region')]
@@ -287,6 +370,40 @@ class ContentSystemPreviewControllerTest extends TestCase
         $this->storedPreviewTokens[] = $token;
 
         return $token;
+    }
+
+    /**
+     * A child of the system language, added to the sales channel the preview renders against: the context
+     * factory refuses a language outside `sales_channel_language` before any content code runs. The
+     * many-to-many write adds the mapping row rather than replacing the existing languages.
+     */
+    private function createSalesChannelLanguage(): string
+    {
+        $languageId = Uuid::randomHex();
+        $localeId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        static::getContainer()->get('language.repository')->create([[
+            'id' => $languageId,
+            'name' => 'Preview language',
+            'parentId' => Defaults::LANGUAGE_SYSTEM,
+            'active' => true,
+            'locale' => [
+                'id' => $localeId,
+                'name' => 'Preview language',
+                'territory' => 'Preview territory',
+                // The language and region subtags must be real ISO codes; only the trailing subtag is free.
+                'code' => 'de-CH-preview',
+            ],
+            'translationCodeId' => $localeId,
+        ]], $context);
+
+        static::getContainer()->get('sales_channel.repository')->update([[
+            'id' => $this->getSalesChannelId(),
+            'languages' => [['id' => $languageId]],
+        ]], $context);
+
+        return $languageId;
     }
 
     private function createProduct(): string

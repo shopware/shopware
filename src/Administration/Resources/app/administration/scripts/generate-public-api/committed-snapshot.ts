@@ -6,9 +6,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { loadFeatureConfig } from '../../test/_helper_/majorFeatureFlags';
-import type { FeatureConfig } from '../../test/_helper_/majorFeatureFlags';
-import { isSameFlag, versionOfFlag } from './flag-states';
+import { loadFeatureConfig, majorFlagsOf } from '../feature-flags';
 import { generateSnapshot } from './snapshot';
 import type { Snapshot } from './snapshot';
 
@@ -18,33 +16,6 @@ export const ADMINISTRATION_ROOT = path.resolve(__dirname, '../..');
 const SNAPSHOT_DIRECTORY = path.join(ADMINISTRATION_ROOT, 'public-api');
 
 const GENERATED_FILE = /(?:\.d\.ts|\.api\.md|^index\.json)$/;
-
-/**
- * @private
- *
- * The flags that are on in the major state: the version flag of the next major, which is the lowest one that
- * is still off, and every flag that names it as its `major`.
- */
-export function majorFlagsOf(config: FeatureConfig): string[] {
-    const flags = config.shopware?.feature?.flags ?? [];
-    const [nextMajor] = flags
-        .filter((flag) => flag.default !== true)
-        .flatMap(({ name }) => {
-            const version = versionOfFlag(name);
-
-            return version ? [{ name, version }] : [];
-        })
-        .sort((a, b) => a.version[0] - b.version[0] || a.version[1] - b.version[1]);
-
-    if (nextMajor === undefined) {
-        throw new Error('feature.yaml has no version flag that is still off, so the next major is unknown.');
-    }
-
-    return [
-        nextMajor.name,
-        ...flags.filter(({ major }) => major !== undefined && isSameFlag(major, nextMajor.name)).map(({ name }) => name),
-    ];
-}
 
 /** @private */
 export function generateCurrentSnapshot(): Snapshot {

@@ -33,5 +33,7 @@ final class CoreCorsHeaderProvider implements CorsHeaderProviderInterface
     {
         $headers->addAllowed(...self::DEFAULT_HEADERS);
         $headers->addExposed(...self::DEFAULT_HEADERS);
+        // downloads name their file in it
+        $headers->addExposed('Content-Disposition');
     }
 }

@@ -45,6 +45,7 @@ use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterConfirmRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
+use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentArchiveRoute;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\Garan\GaranLabelRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
@@ -351,6 +352,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductReviewLoader::class),
             service(ProductPurchaseLimitRoute::class),
             service(GaranLabelRoute::class),
+            service(ProductDocumentArchiveRoute::class),
         ])
         ->call('setContainer', [service('service_container')]);
 

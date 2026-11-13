@@ -88,7 +88,7 @@ describe('sw-product-document-form', () => {
         const media = createMedia('reloaded');
         const document = repositoryFactory.create('product_document').create();
         Object.assign(document, {
-            title: 'Original manual',
+            title: null,
             translated: { title: 'Translated manual' },
             mediaId: media.id,
             translations: [{ mediaId: media.id, media }],

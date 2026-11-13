@@ -24,6 +24,7 @@ class ElasticsearchEntitySearchHydrator extends AbstractElasticsearchSearchHydra
      *             _id?: string,
      *             _score?: float,
      *             _source?: array<mixed>,
+     *             matched_queries?: array<string, float>,
      *             inner_hits?: array{inner?: array<mixed>}
      *         }>,
      *         total?: array{value: int}
@@ -47,7 +48,12 @@ class ElasticsearchEntitySearchHydrator extends AbstractElasticsearchSearchHydra
                 'primaryKey' => $id,
                 'data' => array_merge(
                     $hit['_source'] ?? [],
-                    ['id' => $id, '_score' => $hit['_score']]
+                    ['id' => $id, '_score' => $hit['_score']],
+                    // Explain mode only: pass the per-clause scores through for the admin
+                    // live-search preview; normal searches must not leak clause lists.
+                    $context->hasState(Context::ELASTICSEARCH_EXPLAIN_MODE) && isset($hit['matched_queries'])
+                        ? ['matched_queries' => $hit['matched_queries']]
+                        : [],
                 ),
             ];
         }

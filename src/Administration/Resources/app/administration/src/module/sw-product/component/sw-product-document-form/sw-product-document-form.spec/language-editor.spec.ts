@@ -147,7 +147,7 @@ describe('sw-product-document-form language editor', () => {
         expect(wrapper.find('.document-row').text()).toContain('english-manual.pdf');
     });
 
-    it('preserves a variant name override when applying only a new file', async () => {
+    it('preserves a customized variant when applying a new file', async () => {
         const store = Shopware.Store.get('swProductDetail');
         store.product.childCount = 1;
         const variant = createProduct();
@@ -172,7 +172,7 @@ describe('sw-product-document-form language editor', () => {
         await wrapper.get('.sw-product-document-form__apply-to-variants input').setValue(true);
         await clickButton(wrapper, 'global.default.apply');
         await flushPromises();
-        expect(copy).toMatchObject({ title: 'Variant name', mediaId: media.id });
+        expect(copy).toMatchObject({ title: 'Variant name', mediaId: null });
         expect(document).toMatchObject({ title: null, mediaId: media.id });
     });
 
@@ -242,7 +242,7 @@ describe('sw-product-document-form language editor', () => {
         const copy = repositoryFactory.create('product_document').create();
         Object.assign(copy, {
             productId: variant.id,
-            title: 'Variant name',
+            title: 'Handbuch',
             mediaId: media.id,
             translated: document.translated,
         });
@@ -253,7 +253,7 @@ describe('sw-product-document-form language editor', () => {
         ) as Entity<'product_document_translation'>;
         Object.assign(translation, {
             languageId: Shopware.Context.api.languageId,
-            title: 'Variant name',
+            title: 'Handbuch',
             mediaId: media.id,
             media,
         });
@@ -276,7 +276,7 @@ describe('sw-product-document-form language editor', () => {
         const postSpy = jest.spyOn(repository.httpClient, 'post').mockResolvedValue({ data: {} });
         await repository.save(store.product, Shopware.Context.api);
         const payload = JSON.stringify(postSpy.mock.calls[0][1]);
-        expect(payload).not.toContain('Variant name');
+        expect(payload).not.toContain('Handbuch');
         expect(payload).toContain(media.id);
     });
 

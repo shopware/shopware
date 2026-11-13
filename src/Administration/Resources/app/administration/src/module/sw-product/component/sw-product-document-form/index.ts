@@ -215,12 +215,12 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         getTitle(document: Entity<'product_document'>): string {
-            return document.translated?.title || document.title || this.getMedia(document)?.fileName || '';
+            return document.title || document.translated?.title || this.getMedia(document)?.fileName || '';
         },
 
         getFileSize(document: Entity<'product_document'>): string {
             const size = this.getMedia(document)?.fileSize;
-            return size === undefined ? '' : Shopware.Utils.format.fileSize(size);
+            return size == null ? '' : Shopware.Utils.format.fileSize(size);
         },
 
         getFileName(document: Entity<'product_document'>): string {
@@ -380,7 +380,7 @@ export default Shopware.Component.wrapComponentConfig({
                     if (!isCurrentEdit()) {
                         return;
                     }
-                    updatedVariantIds = this.stageVariantDocumentChanges(variants, matchingMediaId, variantChanges);
+                    updatedVariantIds = this.stageVariantDocumentChanges(variants, document, variantChanges);
                 }
                 this.applyDocumentChanges(document, changes);
                 const store = Shopware.Store.get('swProductDetail');
@@ -445,7 +445,7 @@ export default Shopware.Component.wrapComponentConfig({
                     return;
                 }
                 if (mediaId) {
-                    this.stageVariantDocumentRemovals(variants, mediaId);
+                    this.stageVariantDocumentRemovals(variants, document);
                 }
                 if (this.isDefaultLanguage) {
                     this.documents.remove(document.id);
@@ -490,12 +490,12 @@ export default Shopware.Component.wrapComponentConfig({
 
         stageVariantDocumentChanges(
             variants: Entity<'product'>[],
-            originalMediaId: EntityKey<'media'>,
+            original: Entity<'product_document'>,
             changes: DocumentChanges,
         ): string[] {
             const children =
                 this.product.children || new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api);
-            const candidates = getDocumentVariantCandidates(variants, children, originalMediaId);
+            const candidates = getDocumentVariantCandidates(variants, children, original);
             const updatedVariantIds: string[] = [];
             const context = this.documentContext;
             candidates.forEach(({ variant, matching }) => {
@@ -519,13 +519,13 @@ export default Shopware.Component.wrapComponentConfig({
             return updatedVariantIds;
         },
 
-        stageVariantDocumentRemovals(variants: Entity<'product'>[], mediaId: EntityKey<'media'>): void {
+        stageVariantDocumentRemovals(variants: Entity<'product'>[], original: Entity<'product_document'>): void {
             const children =
                 this.product.children || new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api);
             const origin = this.product.getOrigin();
             const originChildren =
                 origin.children || new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api);
-            const candidates = getDocumentVariantCandidates(variants, children, mediaId);
+            const candidates = getDocumentVariantCandidates(variants, children, original);
             candidates.forEach(({ variant, documents, matching }) => {
                 // Register loaded children in the origin so the changeset includes nested document deletions.
                 if (!variant.isNew() && !originChildren.has(variant.id)) {
@@ -574,6 +574,20 @@ export default Shopware.Component.wrapComponentConfig({
         onConfirmRestoreInheritance(): void {
             this.onCloseRestoreInheritanceModal();
             (this.$refs.documentInheritance as DocumentInheritance).restoreInheritance();
+        },
+
+        getEditActionLabel(document: Entity<'product_document'>): string {
+            if (!this.isDefaultLanguage && !document.title && !document.mediaId) {
+                return this.$t('sw-product.documentForm.addLanguageVersion', { language: this.contentLanguageName });
+            }
+
+            return this.$t('global.default.edit');
+        },
+
+        getRemoveActionLabel(): string {
+            return this.isDefaultLanguage
+                ? this.$t('global.default.remove')
+                : this.$t('sw-product.documentForm.removeLanguageVersion', { language: this.contentLanguageName });
         },
     },
 });

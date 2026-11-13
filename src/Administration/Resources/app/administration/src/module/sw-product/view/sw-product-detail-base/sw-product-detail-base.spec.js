@@ -88,6 +88,9 @@ async function createWrapper() {
             },
             provide: {
                 entityFactory: new EntityFactory(),
+                mediaDefaultFolderService: {
+                    getDefaultFolderId: () => Promise.resolve('default-folder-id'),
+                },
                 repositoryFactory: {
                     create: () => ({
                         search: () =>

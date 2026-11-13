@@ -159,6 +159,30 @@
               "presignedUploadSupported": {
                 "type": "boolean",
                 "description": "Whether presigned S3 upload is available. True when presigned upload is enabled and an S3 filesystem is configured."
+              },
+              "productDocuments": {
+                "type": "object",
+                "description": "The `shopware.product_documents` settings: allowed file types and file size.",
+                "properties": {
+                  "allowedExtensions": {
+                    "type": "array",
+                    "description": "File types a document can have, lower case.",
+                    "items": { "type": "string" }
+                  },
+                  "allowedMimeTypesByExtension": {
+                    "type": "object",
+                    "description": "Known MIME types for each allowed extension.",
+                    "additionalProperties": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    }
+                  },
+                  "maxFileSize": {
+                    "type": "integer",
+                    "description": "Max upload size in bytes: the configured size, lowered by PHP's upload limits unless uploads are presigned."
+                  }
+                },
+                "required": ["allowedExtensions", "allowedMimeTypesByExtension", "maxFileSize"]
               }
             },
             "required": ["firstMigrationDate"],
@@ -171,6 +195,20 @@
               "type": "object",
               "description": "Purchase entry.",
               "additionalProperties": true
+            }
+          },
+          "versionHistory": {
+            "type": "array",
+            "description": "Shopware versions this shop was installed with or updated to, oldest first, at most 24 entries.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "version": { "type": "string", "description": "Shopware version." },
+                "recordedAt": { "type": "string", "format": "date-time", "description": "Time the install or update finished." },
+                "type": { "type": "string", "enum": ["install", "update"], "description": "Whether the version was installed or reached by an update." }
+              },
+              "required": ["version", "recordedAt", "type"],
+              "additionalProperties": false
             }
           }
         },

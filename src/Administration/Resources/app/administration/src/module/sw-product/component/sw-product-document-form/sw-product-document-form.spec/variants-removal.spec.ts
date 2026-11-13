@@ -51,10 +51,15 @@ describe('sw-product-document-form removal', () => {
         const other = createMedia('other');
         const document = addPersistedDocument(store.product, media);
         addPersistedDocument(store.product, other, 1);
-        store.product.childCount = 4;
+        store.product.childCount = 5;
         const first = createVariant(media, other);
         const second = createVariant(media);
         const custom = createVariant(other);
+        custom.documents![0].title = media.fileName;
+        custom.documents![0].getOrigin().title = media.fileName;
+        const renamed = createVariant(media);
+        renamed.documents![0].title = 'Customized name';
+        renamed.documents![0].getOrigin().title = 'Customized name';
         const inherited = createProduct();
         const firstDocumentId = first.documents?.[0].id;
         const secondDocumentId = second.documents?.[0].id;
@@ -64,6 +69,7 @@ describe('sw-product-document-form removal', () => {
                 first,
                 second,
                 custom,
+                renamed,
                 inherited,
             ]),
         );
@@ -86,6 +92,8 @@ describe('sw-product-document-form removal', () => {
         expect(first.documents?.[0]).toMatchObject({ mediaId: other.id, position: 0 });
         expect(second.documents).toHaveLength(0);
         expect(custom.documents).toHaveLength(1);
+        expect(renamed.documents).toHaveLength(1);
+        expect(renamed.documents![0]).toMatchObject({ title: 'Customized name', mediaId: media.id });
         expect(inherited.documents).toHaveLength(0);
         const payload = new ChangesetGenerator().generate(store.product);
         expect(payload).toHaveProperty('deletionQueue.length', 3);

@@ -50,6 +50,31 @@ describe('sw-product-document-form editing', () => {
         expect(getDocuments()?.[0]).toMatchObject({ title: 'manual', position: 0, mediaId: replacement.id });
     });
 
+    it('displays an edited saved title and allows reverting it before saving the product', async () => {
+        const wrapper = await createWrapper();
+        await addMedia(wrapper, [createMedia()]);
+        const document = getDocuments()![0];
+        Object.assign(document, {
+            title: 'Original manual',
+            translated: { ...document.translated, title: 'Original manual' },
+            _isNew: false,
+        });
+        await flushPromises();
+
+        for (const title of ['Updated manual', 'Original manual']) {
+            await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
+            wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', title);
+            await clickButton(wrapper, 'global.default.apply');
+
+            expect(document.title).toBe(title);
+            expect(wrapper.get('.document-row').text()).toContain(title);
+
+            await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
+            expect(wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').props('modelValue')).toBe(title);
+            await clickButton(wrapper, 'global.default.cancel');
+        }
+    });
+
     it('shows each required field error on Save and clears it when corrected', async () => {
         const wrapper = await createWrapper();
         const media = createMedia();

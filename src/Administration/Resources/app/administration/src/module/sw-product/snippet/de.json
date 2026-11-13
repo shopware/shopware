@@ -545,6 +545,12 @@
         "textHasCriteria": "Verfügt über mind. eine Produktbildzuordnung",
         "textNoCriteria": "Keine Produktbilder zugeordnet"
       },
+      "documentsFilter": {
+        "label": "Dokumente",
+        "placeholder": "Wähle einen Dokumentstatus ...",
+        "textHasCriteria": "Verfügt über mind. eine Produktdokumentzuordnung",
+        "textNoCriteria": "Keine Produktdokumente zugeordnet"
+      },
       "releaseDateFilter": {
         "label": "Erscheinungsdatum"
       },
@@ -631,6 +637,7 @@
       "restoreInheritanceDescription": "Die Variante übernimmt wieder die Dokumente des übergeordneten Produkts – mit denselben Namen, Dateien und derselben Reihenfolge. Die Änderungen an dieser Variante gehen verloren.",
       "restoreInheritanceButton": "Vererbung wiederherstellen",
       "removeFromVariants": "Auch aus Varianten entfernen, bei denen die Dokumentvererbung aufgehoben wurde",
+      "removeFromVariantsHelp": "Varianten, die die Dokumente des übergeordneten Produkts erben, verlieren es automatisch. Dies entfernt es auch aus Varianten, bei denen die Vererbung aufgehoben wurde, solange ihre Kopie dieses Dokuments noch denselben Namen und dieselbe Datei hat.",
       "errorLoadMedia": "Die hochgeladene Datei konnte nicht geladen werden. Bitte versuche es erneut.",
       "errorPrivateMedia": "Produktdokumente müssen öffentliche Mediendateien verwenden.",
       "errorDocumentLimit": "Du kannst bis zu {count} Dokumente pro Produkt hinzufügen.",

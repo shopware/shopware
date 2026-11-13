@@ -545,6 +545,12 @@
         "textHasCriteria": "At least one product image assigned",
         "textNoCriteria": "No product images assigned"
       },
+      "documentsFilter": {
+        "label": "Documents",
+        "placeholder": "Select a document status...",
+        "textHasCriteria": "At least one product document assigned",
+        "textNoCriteria": "No product documents assigned"
+      },
       "releaseDateFilter": {
         "label": "Release date"
       },
@@ -631,6 +637,7 @@
       "restoreInheritanceDescription": "The variant gets the parent product's documents again, with the same names, files and order. The changes made for this variant are lost.",
       "restoreInheritanceButton": "Restore inheritance",
       "removeFromVariants": "Also remove from variants where the document inheritance was removed",
+      "removeFromVariantsHelp": "Variants that inherit the parent product's documents lose it automatically. This also removes it from variants where the inheritance was removed, as long as their copy of this document still has the same name and file.",
       "errorLoadMedia": "The uploaded file could not be loaded. Please try again.",
       "errorPrivateMedia": "Product documents must use public media files.",
       "errorDocumentLimit": "You can add up to {count} documents per product.",

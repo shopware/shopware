@@ -52,6 +52,12 @@ describe('sw-product-document-form language markers', () => {
         });
         getDocuments()?.add(document);
         wrapper = await createWrapper();
+        const actions = wrapper.findAll('sw-context-menu-item-stub');
+        expect(actions.map((action) => action.text())).toEqual([
+            nameTranslated || fileTranslated ? 'global.default.edit' : 'sw-product.documentForm.addLanguageVersion',
+            'sw-product.documentForm.contextDownload',
+            ...(nameTranslated || fileTranslated ? ['sw-product.documentForm.removeLanguageVersion'] : []),
+        ]);
         const values = wrapper.findAll('.sw-product-document-language-value');
         expect(values[0].text()).toContain(nameTranslated ? 'Deutscher Name' : 'English name');
         expect(values[1].text()).toContain(fileTranslated ? 'german-file.pdf' : 'english-file.pdf');
@@ -73,6 +79,9 @@ describe('sw-product-document-form language markers', () => {
         Object.assign(document, { title: 'Manual', mediaId: media.id, translations: [{ mediaId: media.id, media }] });
         getDocuments()?.add(document);
         wrapper = await createWrapper();
+        const actions = wrapper.findAll('sw-context-menu-item-stub');
+        expect(actions[0].text()).toBe('global.default.edit');
+        expect(actions.at(-1)!.text()).toBe('global.default.remove');
         expect(wrapper.find('.sw-product-document-language-value .mt-badge').exists()).toBe(false);
         expect(wrapper.find('.sw-product-document-language-value--fallback').exists()).toBe(false);
         expect(wrapper.get<HTMLButtonElement>('.sw-product-document-form__add-button button').element.disabled).toBe(false);

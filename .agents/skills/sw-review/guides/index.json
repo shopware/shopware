@@ -267,6 +267,7 @@
       "paths_any": [],
       "anchors_any": [
         "ResetInterface",
+        "kernel\\.reset",
         "#\\[AsDecorator",
         "decorates="
       ]

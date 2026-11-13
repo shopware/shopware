@@ -30,6 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
@@ -1312,6 +1313,25 @@ EOT,
                         ],
                     ],
                 ],
+            ],
+        ];
+
+        yield 'NotEqualsFilter null on nested association field' => [
+            new NotEqualsFilter('unit.id', null),
+            [
+                'nested' => [
+                    'path' => 'unit',
+                    'query' => [
+                        'exists' => ['field' => 'unit.id'],
+                    ],
+                ],
+            ],
+        ];
+
+        yield 'NotEqualsFilter null on field' => [
+            new NotEqualsFilter('test', null),
+            [
+                'exists' => ['field' => 'test'],
             ],
         ];
     }

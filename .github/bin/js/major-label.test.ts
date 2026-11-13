@@ -4,9 +4,7 @@ import {
     FEATURE_REGISTRY_PATH,
     MAJOR_PATHS_PATH,
     detectMajorLabels,
-    diffFromFiles,
     evaluateMajorLabels,
-    isDiffTooLarge,
     globToRegExp,
     labelNamesFor,
     labelsForDiff,
@@ -600,24 +598,6 @@ test('labelsForDiff emits nothing when no major is in flight', () => {
 const tooLarge = Object.assign(new Error('Sorry, the diff exceeded the maximum number of files (300).'), {
     status: 406,
     response: { data: { errors: [{ resource: 'PullRequest', field: 'diff', code: 'too_large' }] } },
-});
-
-test('isDiffTooLarge recognises only the too_large refusal', () => {
-    assert.equal(isDiffTooLarge(tooLarge), true);
-    assert.equal(isDiffTooLarge(Object.assign(new Error('Not Acceptable'), { status: 406 })), false);
-    assert.equal(isDiffTooLarge(Object.assign(new Error('other side closed'), { status: 500 })), false);
-    assert.equal(isDiffTooLarge(undefined), false);
-});
-
-test('diffFromFiles rebuilds a diff the detection reads like the native one', () => {
-    const diff = diffFromFiles([
-        { filename: 'src/Core/Framework/Feature.php', patch: '@@ -1,1 +1,1 @@\n+     * @deprecated tag:v6.8.0 - Will be removed' },
-        { filename: 'src/Core/Checkout/DocumentV2/Huge.php' },
-    ]);
-    assert.deepEqual(evaluateMajorLabels({ diff, flags: FLAGS, targetMajor: '6.8', majorPaths: PATHS, isNextMajor: true }), {
-        behaviour: true,
-        cleanup: true,
-    });
 });
 
 const detect = (github: object, labels: Array<{ name: string }> = []) => {

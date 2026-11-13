@@ -115,12 +115,7 @@ type GitHubRestClient = PullRequestDiffClient & {
             }): Promise<{ data: unknown }>;
         };
         issues: {
-            addLabels(options: {
-                owner: string;
-                repo: string;
-                issue_number: number;
-                labels: string[];
-            }): Promise<unknown>;
+            addLabels(options: { owner: string; repo: string; issue_number: number; labels: string[] }): Promise<unknown>;
         };
     };
 };
@@ -166,8 +161,10 @@ export function shouldDetect(context: PullRequestDetectionContext): boolean {
     // fork PRs included: pull_request_target runs base code only and reads the head as data
     const labels = (context.payload.pull_request.labels ?? []).map((label) => label.name);
 
-    return !labels.includes('major-tests') &&
-        ['major-php', 'major-js', 'major-acceptance'].some((label) => !labels.includes(label));
+    return (
+        !labels.includes('major-tests') &&
+        ['major-php', 'major-js', 'major-acceptance'].some((label) => !labels.includes(label))
+    );
 }
 
 export function parseMajorFlags(registryYaml: string): string[] {
@@ -249,13 +246,13 @@ export function hasMajorJsMarkers(diff: string, majorFlags: string[]): boolean {
 
     const jsFiles = files.filter(
         ({ path }) =>
-            (path.startsWith(ADMINISTRATION_SOURCE_PATH) || path.startsWith(ADMINISTRATION_TEST_PATH)
-                || path.startsWith(`${STOREFRONT_APP_PATH}src/`) || path.startsWith(`${STOREFRONT_APP_PATH}test/`)) &&
+            (path.startsWith(ADMINISTRATION_SOURCE_PATH) ||
+                path.startsWith(ADMINISTRATION_TEST_PATH) ||
+                path.startsWith(`${STOREFRONT_APP_PATH}src/`) ||
+                path.startsWith(`${STOREFRONT_APP_PATH}test/`)) &&
             !isMarkdownFile(path),
     );
-    const changedLines = jsFiles.flatMap(({ section }) =>
-        section.split('\n').filter((line) => /^[+-][^+-]/.test(line)),
-    );
+    const changedLines = jsFiles.flatMap(({ section }) => section.split('\n').filter((line) => /^[+-][^+-]/.test(line)));
 
     if (changedLines.length === 0) {
         return false;
@@ -286,10 +283,12 @@ export function labelsForMajorTestArms(arms: MajorTestArms, existingLabels: Pull
 
 /** GitHub answers 406 `too_large` once a diff passes 300 files or 20,000 lines. */
 export function isDiffTooLarge(error: unknown): boolean {
-    const requestError = error as {
-        status?: number;
-        response?: { data?: { errors?: Array<{ field?: string; code?: string }> } };
-    } | undefined;
+    const requestError = error as
+        | {
+              status?: number;
+              response?: { data?: { errors?: Array<{ field?: string; code?: string }> } };
+          }
+        | undefined;
 
     return (
         requestError?.status === 406 &&

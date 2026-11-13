@@ -16,16 +16,14 @@ interface CheckResult {
     hasUnpinnedDeps: boolean;
 }
 
-const semverPattern =
-    /^(\d+)\.(\d+)\.(\d+)(-[\w-]+(\.[\w-]+)*)?(\+[\w-]+(\.[\w-]+)*)?$/;
+const semverPattern = /^(\d+)\.(\d+)\.(\d+)(-[\w-]+(\.[\w-]+)*)?(\+[\w-]+(\.[\w-]+)*)?$/;
 
 const containsCommitishPattern = /[a-f0-9]{5,40}/;
 
-const containsSemverPattern =
-    /(\d+)\.(\d+)\.(\d+)(-[\w-]+(\.[\w-]+)*)?(\+[\w-]+(\.[\w-]+)*)?/;
+const containsSemverPattern = /(\d+)\.(\d+)\.(\d+)(-[\w-]+(\.[\w-]+)*)?(\+[\w-]+(\.[\w-]+)*)?/;
 
 function isUrl(version: string): boolean {
-    return version.includes("/");
+    return version.includes('/');
 }
 
 interface VersionIsPinnedOptions {
@@ -34,32 +32,36 @@ interface VersionIsPinnedOptions {
 }
 
 // source: https://github.com/raulfdm/pin-dependencies-checker/blob/main/lib/versionIsPinned.ts
-export function versionIsPinned(
-    version: string,
-    options?: VersionIsPinnedOptions,
-): boolean {
-    if (version === "" || version === "latest" || version === "*") {
+export function versionIsPinned(version: string, options?: VersionIsPinnedOptions): boolean {
+    if (version === '' || version === 'latest' || version === '*') {
         return false;
     }
 
-    const firstCharacter = version[0] ?? "";
+    const firstCharacter = version[0] ?? '';
 
-    if (["^", ">", "<", "~"].includes(firstCharacter)) {
+    if (
+        [
+            '^',
+            '>',
+            '<',
+            '~',
+        ].includes(firstCharacter)
+    ) {
         return false;
     }
 
-    if (version.startsWith("file:")) {
+    if (version.startsWith('file:')) {
         return true;
     }
 
-    if (version.startsWith("workspace:")) {
+    if (version.startsWith('workspace:')) {
         if (options?.ignoreWorkspaces) {
             return true;
         }
-        return semverPattern.test(version.substring("workspace:".length));
+        return semverPattern.test(version.substring('workspace:'.length));
     }
 
-    if (version.startsWith("catalog:")) {
+    if (version.startsWith('catalog:')) {
         if (options?.ignoreCatalog) {
             return true;
         }
@@ -69,17 +71,14 @@ export function versionIsPinned(
     }
 
     // Support package aliases: https://pnpm.io/aliases (Also works in npm and yarn)
-    if (version.startsWith("npm:")) {
-        const aliasedVersion = version.split("@").at(-1);
+    if (version.startsWith('npm:')) {
+        const aliasedVersion = version.split('@').at(-1);
         if (!aliasedVersion) return false;
         return semverPattern.test(aliasedVersion);
     }
 
     if (isUrl(version)) {
-        return (
-            containsSemverPattern.test(version) ||
-            containsCommitishPattern.test(version)
-        );
+        return containsSemverPattern.test(version) || containsCommitishPattern.test(version);
     }
 
     return semverPattern.test(version) || isUrl(version);
@@ -93,7 +92,7 @@ export function checkPackageJsonPinning(packageJsonPath: string): CheckResult {
         file: packageJsonPath,
         errors: [],
         warnings: [],
-        hasUnpinnedDeps: false
+        hasUnpinnedDeps: false,
     };
 
     try {
@@ -123,11 +122,12 @@ export function checkPackageJsonPinning(packageJsonPath: string): CheckResult {
         if (packageContent.peerDependencies) {
             for (const [depName, version] of Object.entries(packageContent.peerDependencies)) {
                 if (!versionIsPinned(version)) {
-                    result.warnings.push(`Unpinned peerDependency: ${depName}@${version} (peerDependencies can typically use ranges)`);
+                    result.warnings.push(
+                        `Unpinned peerDependency: ${depName}@${version} (peerDependencies can typically use ranges)`,
+                    );
                 }
             }
         }
-
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         result.errors.push(`Failed to read or parse ${packageJsonPath}: ${errorMessage}`);
@@ -159,7 +159,7 @@ function main(): void {
         if (result.errors.length > 0) {
             hasErrors = true;
             console.log(`❌ ${result.file}:`);
-            result.errors.forEach(error => console.log(`   ${error}`));
+            result.errors.forEach((error) => console.log(`   ${error}`));
             console.log();
         } else {
             console.log(`✅ ${result.file}: All dependencies are pinned`);
@@ -167,15 +167,15 @@ function main(): void {
 
         if (result.warnings.length > 0) {
             console.log(`⚠️  ${result.file} warnings:`);
-            result.warnings.forEach(warning => console.log(`   ${warning}`));
+            result.warnings.forEach((warning) => console.log(`   ${warning}`));
             console.log();
         }
     }
 
     // Summary
     const totalFiles = results.length;
-    const filesWithErrors = results.filter(r => r.hasUnpinnedDeps).length;
-    const filesWithWarnings = results.filter(r => r.warnings.length > 0).length;
+    const filesWithErrors = results.filter((r) => r.hasUnpinnedDeps).length;
+    const filesWithWarnings = results.filter((r) => r.warnings.length > 0).length;
 
     console.log('📊 Summary:');
     console.log(`   Total files checked: ${totalFiles}`);

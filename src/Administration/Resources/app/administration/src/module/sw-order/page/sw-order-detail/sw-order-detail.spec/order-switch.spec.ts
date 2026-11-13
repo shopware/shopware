@@ -68,6 +68,7 @@ async function createWrapper(orderRepository: ReturnType<typeof createOrderRepos
                     'sw-skeleton': true,
                 },
                 provide: {
+                    acl: { can: (privilege: string) => privilege === 'order.editor' },
                     repositoryFactory: {
                         create: () => orderRepository,
                     },
@@ -94,7 +95,6 @@ async function clickButton(wrapper: VueWrapper, label: string): Promise<void> {
 
 describe('src/module/sw-order/page/sw-order-detail order switch', () => {
     beforeEach(() => {
-        global.activeAclRoles = ['order.editor'];
         Shopware.Store.get('swOrderDetail').$reset();
     });
 

@@ -1,33 +1,20 @@
 /**
  * @sw-package framework
  *
- * Builds an upgrade codemod that only writes TODO comments, from a data table:
+ * Builds an upgrade codemod that only writes TODO comments, from a data table with `id` (registry id, part of the
+ * TODO tag), `description` and any of these matchers, each entry with a `message`:
  *
- * ```js
- * module.exports = createTodoRule({
- *     id: 'order-unused-components',                      // registry id, part of the TODO tag
- *     description: 'Removed order components',
- *     components: { 'sw-order-user-card': 'sw-order-user-card is removed without replacement.' },
- *     members: [{ component: 'sw-order-detail', name: 'isLoading', message: '…' }],
- *     calls: [{ service: 'orderService', method: 'toggleAutomaticPromotions', message: '…' }],
- *     globals: [{ path: 'Shopware.State', message: '…' }],
- *     literals: [{ value: '/_info/queue.json', message: '…' }],
- *     imports: [{ source: /^vuex$/, message: '…' }],
- *     events: [{ component: 'sw-media-grid', name: 'media-grid-selection-clear', message: '…' }],
- *     visitors: (context, api) => ({ CallExpression(node) { … api.todo(node, '…') } }),
- * });
- * ```
- *
- * - `components` match template tags and `Component.override/extend/build` calls with that name or base.
- * - `members` match declared option keys and `this.<name>` inside an override or extension of `component`
- *   (a string or a list), and free identifiers in templates that override it, `{{ … }}` of `.html.twig` included
- *   (see twig-interpolations.js). With `unique: true` the name
- *   matches anywhere. `kinds` limits the match to option kinds such as `['methods']`.
- * - `calls` match `this.<service>.<method>()`, `Shopware.Service('<service>').<method>()` and `<service>.<method>()`.
- * - `globals` match member chains that start with `path`, also through `const { X } = Shopware`.
- * - `literals` match string literals, `imports` match import sources (string or RegExp).
- * - `events` match `@<name>` listeners on the component's tag and `$emit('<name>')` in its overrides.
- * - `visitors` adds script visitors; `templateVisitors` adds template visitors. Both get `api.todo(node, message, scope)`.
+ * - `components: { name: message }`: template tags and `Component.override/extend/build` calls with that name or base.
+ * - `members: [{ component, name, unique?, kinds? }]`: declared option keys and `this.<name>` in overrides and
+ *   extensions of `component` (a name or a list), and free identifiers in templates that override it, `{{ … }}` of
+ *   `.html.twig` included. `unique: true` matches the name anywhere, `kinds` limits it to option kinds
+ *   like `['methods']`.
+ * - `calls: [{ service, method }]`: `this.<service>.<method>()`, `Shopware.Service('<service>').<method>()` and
+ *   `<service>.<method>()`.
+ * - `globals: [{ path }]`: member chains that start with `path`, also through `const { X } = Shopware`.
+ * - `literals: [{ value }]`, `imports: [{ source }]`: string literals and import sources (string or RegExp).
+ * - `events: [{ component, name }]`: `@<name>` on the component's tag and `$emit('<name>')` in its overrides.
+ * - `visitors`, `templateVisitors`: extra visitors that get `api.todo(node, message, scope)`.
  */
 
 const { reportTodo, isTwigFile } = require('./todo-comment');

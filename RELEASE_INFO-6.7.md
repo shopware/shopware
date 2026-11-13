@@ -581,7 +581,7 @@ Hand them from the copy to production with `app:secret:recover`:
 # on the copy: see every secret it holds, with ShopId and expiry
 bin/console app:secret:recover --list <appName>
 
-# on the copy: print the secrets production needs
+# on the copy: print the secrets production needs, as JSON
 bin/console app:secret:recover --start <appName> > handover.txt
 
 # on production: register with the apps again

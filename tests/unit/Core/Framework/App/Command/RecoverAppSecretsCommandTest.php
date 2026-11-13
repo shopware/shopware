@@ -45,7 +45,10 @@ class RecoverAppSecretsCommandTest extends TestCase
         $tester->execute(['name' => 'TestApp', '--start' => true]);
 
         static::assertSame(Command::SUCCESS, $tester->getStatusCode());
-        static::assertSame("TestApp kept-newer\nTestApp kept-older\n", $tester->getDisplay());
+        static::assertSame([
+            ['app' => 'TestApp', 'secret' => 'kept-newer'],
+            ['app' => 'TestApp', 'secret' => 'kept-older'],
+        ], json_decode($tester->getDisplay(), true, 512, \JSON_THROW_ON_ERROR));
     }
 
     public function testStartPrintsTheCurrentSecretsWhenNothingWasKept(): void
@@ -55,7 +58,10 @@ class RecoverAppSecretsCommandTest extends TestCase
         $tester->execute(['name' => 'TestApp', '--start' => true]);
 
         static::assertSame(Command::SUCCESS, $tester->getStatusCode());
-        static::assertSame("TestApp pending-secret\nTestApp current-secret\n", $tester->getDisplay());
+        static::assertSame([
+            ['app' => 'TestApp', 'secret' => 'pending-secret'],
+            ['app' => 'TestApp', 'secret' => 'current-secret'],
+        ], json_decode($tester->getDisplay(), true, 512, \JSON_THROW_ON_ERROR));
     }
 
     public function testStartWithAllPrintsTheSecretsOfEveryApp(): void
@@ -65,10 +71,12 @@ class RecoverAppSecretsCommandTest extends TestCase
         $tester->execute(['--start' => true, '--all' => true]);
 
         static::assertSame(Command::SUCCESS, $tester->getStatusCode());
-        static::assertSame(
-            "FirstApp kept-newer\nFirstApp kept-older\nSecondApp kept-newer\nSecondApp kept-older\n",
-            $tester->getDisplay()
-        );
+        static::assertSame([
+            ['app' => 'FirstApp', 'secret' => 'kept-newer'],
+            ['app' => 'FirstApp', 'secret' => 'kept-older'],
+            ['app' => 'SecondApp', 'secret' => 'kept-newer'],
+            ['app' => 'SecondApp', 'secret' => 'kept-older'],
+        ], json_decode($tester->getDisplay(), true, 512, \JSON_THROW_ON_ERROR));
     }
 
     public function testFailsWhenNoSecretIsFound(): void
@@ -115,7 +123,11 @@ class RecoverAppSecretsCommandTest extends TestCase
             });
 
         $tester = new CommandTester($this->createCommand([$firstApp, $secondApp], [], $rotationService));
-        $tester->setInputs(['FirstApp secret-newer', 'FirstApp secret-older', '', 'SecondApp secret-only']);
+        $tester->setInputs([json_encode([
+            ['app' => 'FirstApp', 'secret' => 'secret-newer'],
+            ['app' => 'FirstApp', 'secret' => 'secret-older'],
+            ['app' => 'SecondApp', 'secret' => 'secret-only'],
+        ], \JSON_THROW_ON_ERROR)]);
 
         $tester->execute(['--finish' => true]);
 
@@ -126,18 +138,18 @@ class RecoverAppSecretsCommandTest extends TestCase
         ], $calls);
     }
 
-    public function testFinishRefusesALineWithoutAppNameAndSecret(): void
+    public function testFinishRefusesInputThatIsNotTheHandoverJson(): void
     {
         $rotationService = $this->createMock(AppSecretRotationService::class);
         $rotationService->expects($this->never())->method('rotateNow');
 
         $tester = new CommandTester($this->createCommand([], [], $rotationService));
-        $tester->setInputs(['only-a-secret']);
+        $tester->setInputs(['[{"app": "TestApp"}]']);
 
         $tester->execute(['--finish' => true]);
 
         static::assertSame(Command::FAILURE, $tester->getStatusCode());
-        static::assertStringContainsString('app name and a secret', $tester->getDisplay());
+        static::assertStringContainsString('must be the JSON printed by --start', $tester->getDisplay());
     }
 
     public function testFinishReportsAnAppThatIsNotInstalled(): void
@@ -146,7 +158,7 @@ class RecoverAppSecretsCommandTest extends TestCase
         $rotationService->expects($this->never())->method('rotateNow');
 
         $tester = new CommandTester($this->createCommand([], [], $rotationService));
-        $tester->setInputs(['MissingApp some-secret']);
+        $tester->setInputs(['[{"app": "MissingApp", "secret": "some-secret"}]']);
 
         $tester->execute(['--finish' => true]);
 

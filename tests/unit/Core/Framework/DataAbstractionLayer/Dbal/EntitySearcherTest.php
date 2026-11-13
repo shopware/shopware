@@ -123,12 +123,76 @@ class EntitySearcherTest extends TestCase
         yield 'empty page past the end' => [10, 2, 0];
     }
 
-    private function createSearcher(Connection $connection): EntitySearcher
+    public function testScoredExactTotalCountIsReadFromTheSearchQuery(): void
+    {
+        $id = Uuid::randomHex();
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('executeQuery')
+            ->willReturn($this->createRowResult([
+                ['id' => Uuid::fromHexToBytes($id), '_score' => '300', '_total_sort_1' => 'Sport', '_total' => '42'],
+            ]));
+
+        $criteria = new Criteria();
+        $criteria->setLimit(1);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
+        $result = $this->createSearcher($connection, scored: true)
+            ->search($this->definition, $criteria, Context::createDefaultContext());
+
+        static::assertSame(42, $result->getTotal());
+        static::assertSame([$id], $result->getIds());
+        static::assertSame(['id' => $id, '_score' => '300'], $result->getDataOfId($id));
+    }
+
+    public function testScoredExactTotalCountFallsBackToTheCountQueryForAnEmptyPagePastTheEnd(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->exactly(2))
+            ->method('executeQuery')
+            ->willReturnOnConsecutiveCalls($this->createIdResult(0), $this->createCountResult(7));
+
+        $criteria = new Criteria();
+        $criteria->setOffset(10);
+        $criteria->setLimit(2);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
+        $result = $this->createSearcher($connection, scored: true)
+            ->search($this->definition, $criteria, Context::createDefaultContext());
+
+        static::assertSame(7, $result->getTotal());
+    }
+
+    public function testScoredSearchWithoutExactTotalCountReadsNoWindowTotal(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('executeQuery')
+            ->willReturn($this->createIdResult(2));
+
+        $criteria = new Criteria();
+        $criteria->setLimit(2);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
+
+        $result = $this->createSearcher($connection, scored: true)
+            ->search($this->definition, $criteria, Context::createDefaultContext());
+
+        static::assertSame(2, $result->getTotal());
+    }
+
+    private function createSearcher(Connection $connection, bool $scored = false): EntitySearcher
     {
         $criteriaQueryBuilder = static::createStub(CriteriaQueryBuilder::class);
         $criteriaQueryBuilder->method('build')->willReturnCallback(
-            function (QueryBuilder $query): QueryBuilder {
+            function (QueryBuilder $query) use ($scored): QueryBuilder {
                 $query->from(EntityDefinitionQueryHelper::escape('test_entity'));
+
+                if ($scored) {
+                    $query->addSelect('1 as _score');
+                    $query->addOrderBy(Criteria::SCORE_FIELD, 'DESC');
+                    $query->addOrderBy('`test_entity`.`name`', 'ASC');
+                    $query->addState(Criteria::SCORE_FIELD);
+                }
 
                 return $query;
             }
@@ -148,8 +212,16 @@ class EntitySearcherTest extends TestCase
             $ids[] = ['id' => Uuid::fromHexToBytes(Uuid::randomHex())];
         }
 
+        return $this->createRowResult($ids);
+    }
+
+    /**
+     * @param list<array<string, mixed>> $rows
+     */
+    private function createRowResult(array $rows): Result
+    {
         $result = static::createStub(Result::class);
-        $result->method('fetchAllAssociative')->willReturn($ids);
+        $result->method('fetchAllAssociative')->willReturn($rows);
 
         return $result;
     }

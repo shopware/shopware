@@ -37,7 +37,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 #[CoversClass(CartContextHasher::class)]
 class CartContextHasherTest extends TestCase
 {
-    public const EXPECTED_HASH = '4b23999825d79f8ef836181beb8c95beb298618d8edc35e7fea35b638cd533ac';
+    public const EXPECTED_HASH = 'dfbc62b1c8e6247ed5a89e099937fd94dde5a245c04b2e9cf57adf3e6ace5ac5';
 
     public EventDispatcher&MockObject $eventDispatcherMock;
 
@@ -176,7 +176,7 @@ class CartContextHasherTest extends TestCase
     public function testHashStructCoversEveryDelivery(): void
     {
         $this->cart->setDeliveries(new DeliveryCollection([
-            $this->createDelivery('express-shipping-method-id', 'other-address-id', ['line-item-id' => 2]),
+            $this->createDelivery('express-shipping-method-id', ['id' => 'other-address-id', 'hash' => 'main-street-hash', 'customFields' => ['checkedAt' => '10:00']], ['line-item-id' => 2]),
             $this->createDelivery('id', null, ['line-item-parent-id' => 1]),
         ]));
 
@@ -190,26 +190,27 @@ class CartContextHasherTest extends TestCase
 
         static::assertInstanceOf(CartContextHashStruct::class, $hashStruct);
         static::assertSame([
-            ['shippingMethod' => 'express-shipping-method-id', 'addressId' => 'other-address-id', 'positions' => ['line-item-id' => 2]],
-            ['shippingMethod' => 'id', 'addressId' => null, 'positions' => ['line-item-parent-id' => 1]],
+            ['shippingMethod' => 'express-shipping-method-id', 'address' => ['id' => 'other-address-id', 'hash' => 'main-street-hash'], 'positions' => ['line-item-id' => 2]],
+            ['shippingMethod' => 'id', 'address' => null, 'positions' => ['line-item-parent-id' => 1]],
         ], $hashStruct->getDeliveries());
     }
 
     /**
+     * @param array<string, mixed>|null $address
      * @param array<string, int> $positions
      */
     #[DataProvider('deliveryProvider')]
-    public function testHashMatchesOnlyUnchangedDeliveries(string $shippingMethodId, ?string $addressId, array $positions, bool $matches): void
+    public function testHashMatchesOnlyUnchangedDeliveries(string $shippingMethodId, ?array $address, array $positions, bool $matches): void
     {
         $hasher = new CartContextHasher(new EventDispatcher());
 
         $this->cart->setDeliveries(new DeliveryCollection([
-            $this->createDelivery('express-shipping-method-id', 'other-address-id', ['line-item-id' => 2]),
+            $this->createDelivery('express-shipping-method-id', ['id' => 'other-address-id', 'hash' => 'main-street-hash'], ['line-item-id' => 2]),
         ]));
         $hash = $hasher->generate($this->cart, $this->context);
 
         $this->cart->setDeliveries(new DeliveryCollection([
-            $this->createDelivery($shippingMethodId, $addressId, $positions),
+            $this->createDelivery($shippingMethodId, $address, $positions),
         ]));
 
         static::assertSame($matches, $hasher->isMatching($hash, $this->cart, $this->context));
@@ -217,27 +218,26 @@ class CartContextHasherTest extends TestCase
 
     public static function deliveryProvider(): \Generator
     {
-        yield 'rebuilt but unchanged delivery keeps the hash' => ['express-shipping-method-id', 'other-address-id', ['line-item-id' => 2], true];
-        yield 'shipping method of the delivery changed' => ['id', 'other-address-id', ['line-item-id' => 2], false];
-        yield 'address of the delivery changed' => ['express-shipping-method-id', 'another-address-id', ['line-item-id' => 2], false];
+        $address = ['id' => 'other-address-id', 'hash' => 'main-street-hash'];
+
+        yield 'rebuilt but unchanged delivery keeps the hash' => ['express-shipping-method-id', $address, ['line-item-id' => 2], true];
+        yield 'custom fields written on the address keep the hash' => ['express-shipping-method-id', [...$address, 'customFields' => ['checkedAt' => '10:00']], ['line-item-id' => 2], true];
+        yield 'shipping method of the delivery changed' => ['id', $address, ['line-item-id' => 2], false];
+        yield 'delivery goes to another address' => ['express-shipping-method-id', [...$address, 'id' => 'another-address-id'], ['line-item-id' => 2], false];
+        yield 'same address edited' => ['express-shipping-method-id', [...$address, 'hash' => 'side-street-hash'], ['line-item-id' => 2], false];
         yield 'address of the delivery removed' => ['express-shipping-method-id', null, ['line-item-id' => 2], false];
-        yield 'quantity of a position changed' => ['express-shipping-method-id', 'other-address-id', ['line-item-id' => 1], false];
-        yield 'position moved to another line item' => ['express-shipping-method-id', 'other-address-id', ['line-item-parent-id' => 2], false];
+        yield 'quantity of a position changed' => ['express-shipping-method-id', $address, ['line-item-id' => 1], false];
+        yield 'position moved to another line item' => ['express-shipping-method-id', $address, ['line-item-parent-id' => 2], false];
     }
 
     /**
+     * @param array<string, mixed>|null $address
      * @param array<string, int> $positions
      */
-    private function createDelivery(string $shippingMethodId, ?string $addressId, array $positions): Delivery
+    private function createDelivery(string $shippingMethodId, ?array $address, array $positions): Delivery
     {
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId($shippingMethodId);
-
-        $address = null;
-        if ($addressId !== null) {
-            $address = new CustomerAddressEntity();
-            $address->setId($addressId);
-        }
 
         $deliveryDate = new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable());
         $deliveryPositions = new DeliveryPositionCollection();
@@ -255,7 +255,7 @@ class CartContextHasherTest extends TestCase
             $deliveryPositions,
             $deliveryDate,
             $shippingMethod,
-            new ShippingLocation(new CountryEntity(), null, $address),
+            new ShippingLocation(new CountryEntity(), null, $address === null ? null : (new CustomerAddressEntity())->assign($address)),
             new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
         );
     }

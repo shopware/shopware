@@ -30,7 +30,7 @@ class BlockedShippingMethodSwitcher
         ?ShippingMethodCollection $shippingMethods = null
     ): ShippingMethodEntity {
         $originalShippingMethod = $salesChannelContext->getShippingMethod();
-        if (!$this->shippingMethodBlocked($errors, $originalShippingMethod)) {
+        if (!$this->isContextShippingMethodBlocked($errors, $salesChannelContext)) {
             return $originalShippingMethod;
         }
 
@@ -52,9 +52,10 @@ class BlockedShippingMethodSwitcher
         return $shippingMethod;
     }
 
-    private function shippingMethodBlocked(ErrorCollection $cartErrors, ShippingMethodEntity $contextShippingMethod): bool
+    public function isContextShippingMethodBlocked(ErrorCollection $errors, SalesChannelContext $salesChannelContext): bool
     {
-        foreach ($cartErrors as $error) {
+        $contextShippingMethod = $salesChannelContext->getShippingMethod();
+        foreach ($errors as $error) {
             if ($this->blocksContextShippingMethod($error, $contextShippingMethod)) {
                 return true;
             }

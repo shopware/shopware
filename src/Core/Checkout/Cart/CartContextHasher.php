@@ -45,9 +45,11 @@ class CartContextHasher
                 $positions[$position->getIdentifier()] = $position->getQuantity();
             }
 
+            $address = $delivery->getLocation()->getAddress();
+
             $struct->addDelivery([
                 'shippingMethod' => $delivery->getShippingMethod()->getId(),
-                'addressId' => $delivery->getLocation()->getAddress()?->getId(),
+                'address' => $address === null ? null : ['id' => $address->getId(), 'hash' => $address->getHash()],
                 'positions' => $positions,
             ]);
         }

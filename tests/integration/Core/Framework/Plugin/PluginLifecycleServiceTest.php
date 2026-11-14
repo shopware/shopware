@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Plugin\Exception\PluginComposerRequireException;
 use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\PluginCollection;
+use Shopware\Core\Framework\Plugin\PluginComposerDependencyService;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
@@ -309,15 +310,13 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get('service_container'),
             $this->container->get(MigrationCollectionLoader::class),
             $assetService,
-            $this->container->get(CommandExecutor::class),
+            $this->container->get(PluginComposerDependencyService::class),
             $this->container->get(RequirementsValidator::class),
             $this->container->get('cache.messenger.restart_workers_signal'),
             Kernel::SHOPWARE_FALLBACK_VERSION,
             $this->systemConfigService,
             $this->container->get(CustomEntityPersister::class),
             $this->container->get(CustomEntitySchemaUpdater::class),
-            $this->container->get(PluginService::class),
-            $this->container->get(VersionSanitizer::class),
             $this->container->get(DefinitionInstanceRegistry::class),
             new RequestStack(),
             $this->container->get(CustomFieldSetPersister::class),
@@ -503,6 +502,8 @@ class PluginLifecycleServiceTest extends TestCase
 
     public function testInstallationOfPluginWhichExecutesComposerCommandsWithPreviouslyInstalledPluginThatShipsVendorDirectory(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $this->addTestPluginToKernel(
             $this->fixturePath . 'plugins/SwagTestShipsVendorDirectory',
             'SwagTestShipsVendorDirectory'
@@ -852,15 +853,22 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get('service_container'),
             $this->container->get(MigrationCollectionLoader::class),
             $this->container->get(AssetService::class),
-            $this->container->get(CommandExecutor::class),
+            new PluginComposerDependencyService(
+                $this->pluginCollection,
+                $this->container->get(CommandExecutor::class),
+                $pluginService,
+                $this->container->get(VersionSanitizer::class),
+                $this->container->get('cache.messenger.restart_workers_signal'),
+                new NativeClock(),
+                false,
+                $this->container->getParameter('kernel.project_dir'),
+            ),
             $this->container->get(RequirementsValidator::class),
             $this->container->get('cache.messenger.restart_workers_signal'),
             Kernel::SHOPWARE_FALLBACK_VERSION,
             $this->systemConfigService,
             $this->container->get(CustomEntityPersister::class),
             $this->container->get(CustomEntitySchemaUpdater::class),
-            $pluginService,
-            $this->container->get(VersionSanitizer::class),
             $this->container->get(DefinitionInstanceRegistry::class),
             new RequestStack(),
             $this->container->get(CustomFieldSetPersister::class),

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
+use Shopware\Core\Framework\Plugin\PluginComposerDependencyService;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
@@ -38,9 +39,32 @@ abstract class AbstractPluginLifecycleCommand extends Command
     public function __construct(
         protected PluginLifecycleService $pluginLifecycleService,
         private readonly EntityRepository $pluginRepo,
-        protected CacheClearer $cacheClearer
+        protected CacheClearer $cacheClearer,
+        private readonly ?PluginComposerDependencyService $composerDependencyService = null,
     ) {
         parent::__construct();
+    }
+
+    protected function useSeparateComposerStep(Context $context): void
+    {
+        if ($this->composerDependencyService !== null) {
+            $context->addState(PluginLifecycleService::STATE_SEPARATE_COMPOSER_STEP);
+        }
+    }
+
+    protected function requireComposerDependency(PluginEntity $plugin, Context $context): bool
+    {
+        return $this->composerDependencyService?->requireDependency($plugin, $context) ?? false;
+    }
+
+    protected function removeRequiredComposerPackage(PluginEntity $plugin, Context $context): void
+    {
+        $this->composerDependencyService?->removePackage($plugin, $context);
+    }
+
+    protected function removeComposerDependency(PluginEntity $plugin, Context $context): void
+    {
+        $this->composerDependencyService?->removeDependency($plugin, $context);
     }
 
     protected function configureCommand(string $lifecycleMethod): void
@@ -172,6 +196,9 @@ abstract class AbstractPluginLifecycleCommand extends Command
         );
     }
 
+    /**
+     * @param array<string> $arguments
+     */
     private function parsePluginArgument(
         array $arguments,
         string $lifecycleMethod,
@@ -241,7 +268,7 @@ abstract class AbstractPluginLifecycleCommand extends Command
                 )
             );
 
-            return new PluginCollection([$pluginCollection->get($id)]);
+            return $pluginCollection->filter(static fn (PluginEntity $plugin) => $plugin->getId() === $id);
         }
 
         return $pluginCollection;

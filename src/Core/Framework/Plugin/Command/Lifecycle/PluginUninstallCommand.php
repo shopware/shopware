@@ -35,6 +35,7 @@ class PluginUninstallCommand extends AbstractPluginLifecycleCommand
     {
         $io = new SymfonyStyle($input, $output);
         $context = Context::createCLIContext();
+        $this->useSeparateComposerStep($context);
         $plugins = $this->prepareExecution(self::LIFECYCLE_METHOD, $io, $input, $context);
 
         if ($plugins === null) {
@@ -52,6 +53,7 @@ class PluginUninstallCommand extends AbstractPluginLifecycleCommand
             }
 
             $this->pluginLifecycleService->uninstallPlugin($plugin, $context, $keepUserData);
+            $this->removeComposerDependency($plugin, $context);
             ++$uninstalledPluginCount;
 
             $io->text(\sprintf('Plugin "%s" has been uninstalled successfully.', $plugin->getName()));

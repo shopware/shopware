@@ -37,6 +37,7 @@ use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginCollection;
+use Shopware\Core\Framework\Plugin\PluginComposerDependencyService;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
@@ -50,6 +51,7 @@ use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\CustomField\CustomFieldSetPersister;
 use Shopware\Core\System\CustomField\Xml\CustomFields;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Shopware\Tests\Unit\Core\Framework\Plugin\_fixtures\WebRequestPluginLifecycleService;
 use Symfony\Component\Cache\CacheItem;
@@ -108,6 +110,7 @@ class PluginLifecycleServiceTest extends TestCase
         $this->migrationLoaderMock = static::createStub(MigrationCollectionLoader::class);
         $this->requirementsValidatorMock = static::createStub(RequirementsValidator::class);
         $this->cacheItemPoolInterfaceMock = static::createStub(CacheItemPoolInterface::class);
+        $this->cacheItemPoolInterfaceMock->method('getItem')->willReturn(new CacheItem());
         $this->pluginServiceMock = static::createStub(PluginService::class);
         $this->commandExecutor = static::createStub(CommandExecutor::class);
 
@@ -169,6 +172,7 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginLifecycleService->installPlugin($pluginEntityMock, Context::createDefaultContext());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testInstallThrowsErrorAndResetsComposer(): void
     {
         $pluginEntityMock = $this->getPluginEntityMock();
@@ -202,6 +206,7 @@ class PluginLifecycleServiceTest extends TestCase
         static::assertNotNull($pluginEntityMock->getUpgradedAt());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testInstallPluginMajor(): void
     {
         $pluginEntityMock = $this->getPluginEntityMock();
@@ -227,6 +232,39 @@ class PluginLifecycleServiceTest extends TestCase
         $this->expectException(PluginComposerJsonInvalidException::class);
 
         $this->pluginLifecycleService->installPlugin($pluginEntityMock, $context);
+    }
+
+    public function testInstallRefusesToRunComposerItself(): void
+    {
+        $this->assertInstallRefusesToRunComposer(Context::createDefaultContext());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testInstallRefusesToRunComposerWhenTheCallerRunsTheComposerStep(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->addState(PluginLifecycleService::STATE_SEPARATE_COMPOSER_STEP);
+
+        $this->assertInstallRefusesToRunComposer($context);
+    }
+
+    public function testUninstallLeavesTheComposerRemovalToTheCaller(): void
+    {
+        $pluginEntityMock = $this->getPluginEntityMock();
+        $pluginEntityMock->setInstalledAt(new \DateTime());
+        $pluginEntityMock->setActive(false);
+        $pluginEntityMock->setManagedByComposer(true);
+        $pluginEntityMock->setComposerName('swag/mock-plugin');
+        $pluginEntityMock->setPath('custom/plugins/MockPlugin');
+
+        $commandExecutor = $this->createMock(CommandExecutor::class);
+        $commandExecutor->expects($this->never())->method('remove');
+        $this->pluginLifecycleService = $this->createService(commandExecutor: $commandExecutor);
+
+        $this->pluginMock->method('executeComposerCommands')->willReturn(true);
+        $this->pluginMock->expects($this->once())->method('uninstall');
+
+        $this->pluginLifecycleService->uninstallPlugin($pluginEntityMock, Context::createDefaultContext());
     }
 
     public function testInstallPluginAlreadyInstalled(): void
@@ -294,6 +332,7 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginLifecycleService->uninstallPlugin($pluginEntityMock, $context);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testUninstallPluginMajor(): void
     {
         $pluginEntityMock = $this->getPluginEntityMock();
@@ -312,6 +351,7 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginLifecycleService->uninstallPlugin($pluginEntityMock, $context);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testUninstallPluginMajorComposerException(): void
     {
         $pluginEntityMock = $this->getPluginEntityMock();
@@ -407,6 +447,7 @@ class PluginLifecycleServiceTest extends TestCase
         static::assertInstanceOf(PluginPostUpdateEvent::class, $returnedEvents[1]);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testUpdatePluginMajor(): void
     {
         $pluginEntityMock = $this->getPluginEntityMock();
@@ -464,6 +505,7 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginLifecycleService->updatePlugin($pluginEntityMock, $context);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testUpdatePluginWithComposerCommandExecutionDisabledAfterUpdate(): void
     {
         $plugin = $this->getPluginEntityMock();
@@ -512,6 +554,7 @@ class PluginLifecycleServiceTest extends TestCase
      * The service registers its response listener once per process, so this is the only test that uninstalls a
      * plugin outside the CLI: a second one would find the listener already registered by the first.
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testUninstallOutsideCliDefersComposerRemovalToTheResponseOfTheOriginalDispatcher(): void
     {
         $steps = new \ArrayObject();
@@ -1149,15 +1192,13 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container,
             $migrationLoader ?? $this->migrationLoaderMock,
             $assetService ?? static::createStub(AssetService::class),
-            $commandExecutor ?? $this->commandExecutor,
+            $this->createComposerDependencyService($commandExecutor ?? $this->commandExecutor, $pluginService ?? $this->pluginServiceMock),
             $requirementsValidator ?? $this->requirementsValidatorMock,
             $this->cacheItemPoolInterfaceMock,
             Kernel::SHOPWARE_FALLBACK_VERSION,
             static::createStub(SystemConfigService::class),
             static::createStub(CustomEntityPersister::class),
             static::createStub(CustomEntitySchemaUpdater::class),
-            $pluginService ?? $this->pluginServiceMock,
-            static::createStub(VersionSanitizer::class),
             static::createStub(DefinitionInstanceRegistry::class),
             $this->requestStackMock,
             $customFieldSetPersister ?? $this->customFieldSetPersister,
@@ -1177,19 +1218,48 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container,
             $this->migrationLoaderMock,
             static::createStub(AssetService::class),
-            $commandExecutor,
+            $this->createComposerDependencyService($commandExecutor, $pluginService),
             $this->requirementsValidatorMock,
             $this->cacheItemPoolInterfaceMock,
             Kernel::SHOPWARE_FALLBACK_VERSION,
             static::createStub(SystemConfigService::class),
             static::createStub(CustomEntityPersister::class),
             static::createStub(CustomEntitySchemaUpdater::class),
-            $pluginService,
-            static::createStub(VersionSanitizer::class),
             static::createStub(DefinitionInstanceRegistry::class),
             $this->requestStackMock,
             static::createStub(CustomFieldSetPersister::class),
             new MockClock(),
+        );
+    }
+
+    private function assertInstallRefusesToRunComposer(Context $context): void
+    {
+        $pluginEntityMock = $this->getPluginEntityMock();
+        $pluginEntityMock->setComposerName('swag/mock-plugin');
+
+        $commandExecutor = $this->createMock(CommandExecutor::class);
+        $commandExecutor->expects($this->never())->method('require');
+        $this->pluginLifecycleService = $this->createService(commandExecutor: $commandExecutor);
+
+        $this->pluginMock->expects($this->once())->method('executeComposerCommands')->willReturn(true);
+        $this->pluginMock->expects($this->never())->method('install');
+
+        $this->expectExceptionObject(PluginException::pluginComposerDependencyMissing('MockPlugin'));
+
+        $this->pluginLifecycleService->installPlugin($pluginEntityMock, $context);
+    }
+
+    private function createComposerDependencyService(CommandExecutor $commandExecutor, PluginService $pluginService): PluginComposerDependencyService
+    {
+        return new PluginComposerDependencyService(
+            $this->kernelPluginCollectionMock,
+            $commandExecutor,
+            $pluginService,
+            new VersionSanitizer(),
+            $this->cacheItemPoolInterfaceMock,
+            new NativeClock(),
+            (bool) $this->container->getParameter('shopware.deployment.cluster_setup'),
+            __DIR__,
         );
     }
 

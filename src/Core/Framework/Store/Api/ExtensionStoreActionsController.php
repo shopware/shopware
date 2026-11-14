@@ -6,6 +6,7 @@ use Composer\IO\NullIO;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -17,6 +18,7 @@ use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -123,9 +125,10 @@ class ExtensionStoreActionsController extends AbstractController
         name: 'api.extension.install',
         methods: [Request::METHOD_POST]
     )]
-    public function installExtension(string $type, string $technicalName, Context $context): Response
+    public function installExtension(string $type, string $technicalName, Request $request, Context $context): Response
     {
         $this->checkExtensionManagementAllowed();
+        $this->addComposerStepState($request, $context);
 
         $this->extensionLifecycleService->install($type, $technicalName, $context);
 
@@ -140,6 +143,7 @@ class ExtensionStoreActionsController extends AbstractController
     public function uninstallExtension(string $type, string $technicalName, Request $request, Context $context): Response
     {
         $this->checkExtensionManagementAllowed();
+        $this->addComposerStepState($request, $context);
 
         $this->extensionLifecycleService->uninstall(
             $type,
@@ -159,6 +163,7 @@ class ExtensionStoreActionsController extends AbstractController
     public function removeExtension(string $type, string $technicalName, Request $request, Context $context): Response
     {
         $this->checkExtensionManagementAllowed();
+        $this->addComposerStepState($request, $context);
 
         $this->extensionLifecycleService->remove(
             $type,
@@ -206,6 +211,7 @@ class ExtensionStoreActionsController extends AbstractController
     public function updateExtension(Request $request, string $type, string $technicalName, Context $context): Response
     {
         $this->checkExtensionManagementAllowed();
+        $this->addComposerStepState($request, $context);
 
         $allowNewPermissions = $request->request->getBoolean('allowNewPermissions');
 
@@ -214,10 +220,41 @@ class ExtensionStoreActionsController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
+    #[Route(
+        path: '/api/_action/extension/composer-require/{type}/{technicalName}',
+        name: 'api.extension.composer-require',
+        methods: [Request::METHOD_POST]
+    )]
+    public function composerRequireExtension(string $type, string $technicalName, Context $context): Response
+    {
+        $this->checkExtensionManagementAllowed();
+
+        return new JsonResponse(['composerRan' => $this->extensionLifecycleService->composerRequire($type, $technicalName, $context)]);
+    }
+
+    #[Route(
+        path: '/api/_action/extension/composer-remove/{type}/{technicalName}',
+        name: 'api.extension.composer-remove',
+        methods: [Request::METHOD_POST]
+    )]
+    public function composerRemoveExtension(string $type, string $technicalName, Context $context): Response
+    {
+        $this->checkExtensionManagementAllowed();
+
+        return new JsonResponse(['composerRan' => $this->extensionLifecycleService->composerRemove($type, $technicalName, $context)]);
+    }
+
     private function checkExtensionManagementAllowed(): void
     {
         if (!$this->runtimeExtensionManagementAllowed) {
             throw StoreException::extensionRuntimeExtensionManagementNotAllowed();
+        }
+    }
+
+    private function addComposerStepState(Request $request, Context $context): void
+    {
+        if ($request->request->getBoolean('separateComposerStep')) {
+            $context->addState(PluginLifecycleService::STATE_SEPARATE_COMPOSER_STEP);
         }
     }
 }

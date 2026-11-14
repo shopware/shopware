@@ -42,11 +42,14 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\TestsGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingCollector;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingWriter;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
+use Shopware\Core\Framework\Plugin\Composer\Message\CleanupOldVendorDirectoriesHandler;
 use Shopware\Core\Framework\Plugin\Composer\PackageProvider;
+use Shopware\Core\Framework\Plugin\Composer\WorkingCopy;
 use Shopware\Core\Framework\Plugin\ExtensionExtractor;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
+use Shopware\Core\Framework\Plugin\PluginComposerDependencyService;
 use Shopware\Core\Framework\Plugin\PluginDefinition;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
@@ -134,15 +137,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('service_container'),
             service(MigrationCollectionLoader::class),
             service(AssetService::class),
-            service(CommandExecutor::class),
+            service(PluginComposerDependencyService::class),
             service(RequirementsValidator::class),
             service('cache.messenger.restart_workers_signal'),
             param('kernel.shopware_version'),
             service(SystemConfigService::class),
             service(CustomEntityPersister::class),
             service(CustomEntitySchemaUpdater::class),
-            service(PluginService::class),
-            service(VersionSanitizer::class),
             service(DefinitionInstanceRegistry::class),
             service(RequestStack::class),
             service(CustomFieldSetPersister::class),
@@ -205,6 +206,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('plugin.repository'),
             service(CacheClearer::class),
             param('kernel.project_dir'),
+            service(PluginComposerDependencyService::class),
         ])
         ->tag('console.command');
 
@@ -221,6 +223,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(PluginLifecycleService::class),
             service('plugin.repository'),
             service(CacheClearer::class),
+            service(PluginComposerDependencyService::class),
         ])
         ->tag('console.command');
 
@@ -237,6 +240,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(PluginLifecycleService::class),
             service('plugin.repository'),
             service(CacheClearer::class),
+            service(PluginComposerDependencyService::class),
         ])
         ->tag('console.command');
 
@@ -245,6 +249,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(PluginService::class),
             service('plugin.repository'),
             service(PluginLifecycleService::class),
+            service(PluginComposerDependencyService::class),
         ])
         ->tag('console.command');
 
@@ -263,6 +268,34 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CommandExecutor::class)
         ->lazy()
         ->args([
+            param('kernel.project_dir'),
+            service(WorkingCopy::class),
+        ]);
+
+    $services->set(WorkingCopy::class)
+        ->args([
+            param('kernel.project_dir'),
+            service('filesystem'),
+            service('lock.factory'),
+            service('messenger.default_bus'),
+        ]);
+
+    $services->set(CleanupOldVendorDirectoriesHandler::class)
+        ->args([
+            service(WorkingCopy::class),
+        ])
+        ->tag('messenger.message_handler');
+
+    $services->set(PluginComposerDependencyService::class)
+        ->public()
+        ->args([
+            service(KernelPluginCollection::class),
+            service(CommandExecutor::class),
+            service(PluginService::class),
+            service(VersionSanitizer::class),
+            service('cache.messenger.restart_workers_signal'),
+            service(ClockInterface::class),
+            param('shopware.deployment.cluster_setup'),
             param('kernel.project_dir'),
         ]);
 

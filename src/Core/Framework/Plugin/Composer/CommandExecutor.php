@@ -20,6 +20,7 @@ class CommandExecutor
      */
     public function __construct(
         private readonly string $projectDir,
+        private readonly WorkingCopy $workingCopy,
         ?Application $application = null,
     ) {
         $this->application = $application ?? new Application();
@@ -28,8 +29,6 @@ class CommandExecutor
 
     public function require(string $pluginComposerName, string $pluginName): void
     {
-        $lockState = $this->lockComposerPackage();
-
         $output = new BufferedOutput();
         $input = new ArrayInput(
             [
@@ -45,14 +44,17 @@ class CommandExecutor
             ]
         );
 
-        try {
-            $exitCode = $this->application->run($input, $output);
-        } finally {
-            $this->unlockComposerPackage($lockState);
-        }
+        $exitCode = $this->workingCopy->run(function (string $composerJsonPath) use ($input, $output): int {
+            $lockState = $this->lockComposerPackage($composerJsonPath);
+
+            try {
+                return $this->runComposer($input, $output);
+            } finally {
+                $this->unlockComposerPackage($composerJsonPath, $lockState);
+            }
+        });
 
         if ($exitCode === Command::SUCCESS) {
-            // Composer reverts the files, when the require command fails. We don't need a reset on an error case
             $this->resetOpcache();
 
             return;
@@ -75,16 +77,23 @@ class CommandExecutor
             ]
         );
 
-        $exitCode = $this->application->run($input, $output);
+        $exitCode = $this->workingCopy->run(fn (): int => $this->runComposer($input, $output));
 
         if ($exitCode === Command::SUCCESS) {
-            // Composer reverts the files, when the remove command fails. We don't need a reset on an error case
             $this->resetOpcache();
 
             return;
         }
 
         throw PluginException::pluginComposerRemove($pluginName, $pluginComposerName, $output->fetch());
+    }
+
+    private function runComposer(ArrayInput $input, BufferedOutput $output): int
+    {
+        // the application keeps the Composer instance of its last run, which was created for another working copy
+        $this->application->resetComposer();
+
+        return $this->application->run($input, $output);
     }
 
     /**
@@ -100,9 +109,8 @@ class CommandExecutor
     /**
      * We lock the composer/composer package to the current version to prevent composer from updating itself.
      */
-    private function lockComposerPackage(): ?string
+    private function lockComposerPackage(string $composerJsonPath): ?string
     {
-        $composerJsonPath = $this->projectDir . '/composer.json';
         $composerJson = json_decode((string) file_get_contents($composerJsonPath), true, flags: \JSON_THROW_ON_ERROR);
 
         $before = $composerJson['require']['composer/composer'] ?? null;
@@ -130,13 +138,12 @@ class CommandExecutor
         return $before;
     }
 
-    private function unlockComposerPackage(?string $beforeState): void
+    private function unlockComposerPackage(string $composerJsonPath, ?string $lockState): void
     {
-        $composerJsonPath = $this->projectDir . '/composer.json';
         $composerJson = json_decode((string) file_get_contents($composerJsonPath), true, flags: \JSON_THROW_ON_ERROR);
 
-        if ($beforeState !== null) {
-            $composerJson['require']['composer/composer'] = $beforeState;
+        if ($lockState !== null) {
+            $composerJson['require']['composer/composer'] = $lockState;
         } else {
             unset($composerJson['require']['composer/composer']);
         }

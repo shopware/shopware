@@ -8,12 +8,16 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
+use Shopware\Core\Framework\Plugin\Composer\WorkingCopy;
 use Shopware\Core\Framework\Plugin\PluginException;
+use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Lock\Store\InMemoryStore;
 
 /**
  * @internal
@@ -42,6 +46,8 @@ class CommandExecutorTest extends TestCase
         $this->filesystem = new Filesystem();
         $this->projectDir = sys_get_temp_dir() . '/command-executor-' . bin2hex(random_bytes(6));
         $this->filesystem->dumpFile($this->projectDir . '/composer.json', self::COMPOSER_JSON);
+        $this->filesystem->dumpFile($this->projectDir . '/vendor/autoload.php', '<?php // live');
+        $this->filesystem->dumpFile($this->projectDir . '/vendor/composer/installed.php', '<?php return [];');
 
         $this->installedVersionsBefore = InstalledVersions::getAllRawData()[0];
         InstalledVersions::reload([
@@ -68,8 +74,14 @@ class CommandExecutorTest extends TestCase
             ],
         ]);
 
-        $this->application = new RecordingComposerApplication($this->projectDir . '/composer.json');
-        $this->executor = new CommandExecutor($this->projectDir, $this->application);
+        $this->application = new RecordingComposerApplication();
+        $workingCopy = new WorkingCopy(
+            $this->projectDir,
+            $this->filesystem,
+            new LockFactory(new InMemoryStore()),
+            new CollectingMessageBus(),
+        );
+        $this->executor = new CommandExecutor($this->projectDir, $workingCopy, $this->application);
     }
 
     protected function tearDown(): void
@@ -90,6 +102,15 @@ class CommandExecutorTest extends TestCase
         static::assertTrue($this->application->input->hasParameterOption('--no-scripts'));
     }
 
+    public function testRequireRunsComposerInTheWorkingCopy(): void
+    {
+        $this->executor->require('swag/test:1.0.0', 'SwagTest');
+
+        static::assertNotSame($this->projectDir . '/vendor', $this->application->vendorDirDuringRun);
+        static::assertStringStartsWith($this->projectDir . '/', $this->application->vendorDirDuringRun);
+        static::assertStringEqualsFile($this->projectDir . '/vendor/autoload.php', '<?php // written by Composer');
+    }
+
     public function testRequirePinsComposerItselfOnlyWhileComposerRuns(): void
     {
         $this->executor->require('swag/test:1.0.0', 'SwagTest');
@@ -108,7 +129,7 @@ class CommandExecutorTest extends TestCase
         $this->executor->require('swag/test:1.0.0', 'SwagTest');
     }
 
-    public function testRequireRestoresComposerJsonWhenComposerThrows(): void
+    public function testRequireLeavesTheProjectUntouchedWhenComposerThrows(): void
     {
         $this->application->exception = new \RuntimeException('Composer crashed');
 
@@ -120,6 +141,7 @@ class CommandExecutorTest extends TestCase
         }
 
         static::assertJsonStringEqualsJsonFile($this->projectDir . '/composer.json', self::COMPOSER_JSON);
+        static::assertStringEqualsFile($this->projectDir . '/vendor/autoload.php', '<?php // live');
     }
 
     public function testRemoveKeepsLockedDependenciesOfThePlugin(): void
@@ -156,16 +178,13 @@ class RecordingComposerApplication extends Application
      */
     public array $composerJsonDuringRun = [];
 
+    public string $vendorDirDuringRun = '';
+
     public int $exitCode = Command::SUCCESS;
 
     public string $outputToWrite = '';
 
     public ?\Throwable $exception = null;
-
-    public function __construct(private readonly string $composerJsonPath)
-    {
-        parent::__construct();
-    }
 
     public function run(?InputInterface $input = null, ?OutputInterface $output = null): int
     {
@@ -174,13 +193,19 @@ class RecordingComposerApplication extends Application
         }
 
         $this->input = $input;
-        $this->composerJsonDuringRun = json_decode((string) file_get_contents($this->composerJsonPath), true, flags: \JSON_THROW_ON_ERROR);
+        $composerJsonPath = (string) getenv('COMPOSER');
+        $this->composerJsonDuringRun = json_decode((string) file_get_contents($composerJsonPath), true, flags: \JSON_THROW_ON_ERROR);
+        $this->vendorDirDuringRun = (string) ($this->composerJsonDuringRun['config']['vendor-dir'] ?? '');
 
         if ($this->exception !== null) {
             throw $this->exception;
         }
 
         $output?->write($this->outputToWrite);
+
+        if ($this->exitCode === Command::SUCCESS) {
+            (new Filesystem())->dumpFile($this->vendorDirDuringRun . '/autoload.php', '<?php // written by Composer');
+        }
 
         return $this->exitCode;
     }

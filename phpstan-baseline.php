@@ -482,18 +482,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/src/Core/Framework/Parameter/AdditionalBundleParameters.php',
 ];
 $ignoreErrors[] = [
-    'rawMessage' => 'Method Shopware\\Core\\Framework\\Plugin\\Command\\Lifecycle\\AbstractPluginLifecycleCommand::parsePluginArgument() has parameter $arguments with no value type specified in iterable type array.',
-    'identifier' => 'missingType.iterableValue',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Framework/Plugin/Command/Lifecycle/AbstractPluginLifecycleCommand.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Parameter #1 $elements of class Shopware\\Core\\Framework\\Plugin\\PluginCollection constructor expects iterable<Shopware\\Core\\Framework\\Plugin\\PluginEntity>, array<int, Shopware\\Core\\Framework\\Plugin\\PluginEntity|null> given.',
-    'identifier' => 'argument.type',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Framework/Plugin/Command/Lifecycle/AbstractPluginLifecycleCommand.php',
-];
-$ignoreErrors[] = [
     'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
     'identifier' => 'shopware.domainException',
     'count' => 1,

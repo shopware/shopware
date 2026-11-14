@@ -340,6 +340,12 @@ Rows whose cells only contain `0` are imported instead of skipped.
 A `0` is no longer replaced by the mapping's default value and satisfies a required field.
 Empty cells behave as before.
 Check import files that relied on `0` being ignored.
+### Percentage conditions of dynamic product groups use the price/list price ratio
+
+Since 6.7.10.0, `cheapestPrice.percentage` compares the ratio of the price to the list price instead of the discount, so "at least 10 % off" is `lte 90`.
+The update converts the conditions on this field that dynamic product groups saved before the shop ran 6.7.10.0, for example `{"gte": 10}` to `{"lte": 90}`, and assigns the products of these groups again in the background.
+Conditions created or edited since then, and upper bounds of 100 or more without a lower bound such as "less than 100", are kept, so check them in the Administration.
+Criteria in extensions, apps or Store API requests that filter or sort on `cheapestPrice.percentage` are not converted; change them the same way.
 
 ### Event once all line items of an add are in the cart
 

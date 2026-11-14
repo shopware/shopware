@@ -67,6 +67,10 @@ class InheritanceUpdater
     {
         $bytes = array_map(static fn ($id) => Uuid::fromHexToBytes($id), $ids);
 
+        $root = EntityDefinitionQueryHelper::escape($definition->getEntityName());
+
+        $assignments = [];
+
         /** @var AssociationField $association */
         foreach ($associations as $association) {
             $reference = $association->getReferenceDefinition();
@@ -81,8 +85,8 @@ class InheritanceUpdater
 
             $versionKey = \substr($foreignKey, 0, -3) . '_version_id';
 
-            $sql = \sprintf(
-                'UPDATE #root# SET #property# = IFNULL(
+            $assignment = \sprintf(
+                '#property# = IFNULL(
                         (
                             SELECT #reference#.#entity_id#
                             FROM   #reference#
@@ -91,42 +95,46 @@ class InheritanceUpdater
                             LIMIT 1
                         ),
                         IFNULL(#root#.parent_id, #root#.id)
-                     )
-                     WHERE #root#.id IN (:ids)
-                     %s',
-                $definition->isVersionAware() ? 'AND #reference#.#entity_version_id# = #root#.version_id' : '',
-                $definition->isVersionAware() ? 'AND #root#.version_id = :version' : ''
+                     )',
+                $definition->isVersionAware() ? 'AND #reference#.#entity_version_id# = #root#.version_id' : ''
             );
 
             $parameters = [
-                '#root#' => EntityDefinitionQueryHelper::escape($definition->getEntityName()),
+                '#root#' => $root,
                 '#entity_id#' => EntityDefinitionQueryHelper::escape($foreignKey),
                 '#entity_version_id#' => EntityDefinitionQueryHelper::escape($versionKey),
                 '#property#' => EntityDefinitionQueryHelper::escape($association->getPropertyName()),
                 '#reference#' => EntityDefinitionQueryHelper::escape($reference->getEntityName()),
             ];
 
-            $params = ['ids' => $bytes];
-
-            if ($definition->isVersionAware()) {
-                $versionId = Uuid::fromHexToBytes($context->getVersionId());
-                $params['version'] = $versionId;
-            }
-
-            $sql = str_replace(
+            $assignments[] = str_replace(
                 array_keys($parameters),
                 $parameters,
-                $sql
+                $assignment
             );
-
-            RetryableQuery::retryable($this->connection, function () use ($params, $sql): void {
-                $this->connection->executeStatement(
-                    $sql,
-                    $params,
-                    ['ids' => ArrayParameterType::BINARY]
-                );
-            });
         }
+
+        $sql = \sprintf(
+            'UPDATE %s SET %s WHERE %s.id IN (:ids) %s',
+            $root,
+            implode(', ', $assignments),
+            $root,
+            $definition->isVersionAware() ? \sprintf('AND %s.version_id = :version', $root) : ''
+        );
+
+        $params = ['ids' => $bytes];
+
+        if ($definition->isVersionAware()) {
+            $params['version'] = Uuid::fromHexToBytes($context->getVersionId());
+        }
+
+        RetryableQuery::retryable($this->connection, function () use ($params, $sql): void {
+            $this->connection->executeStatement(
+                $sql,
+                $params,
+                ['ids' => ArrayParameterType::BINARY]
+            );
+        });
     }
 
     /**

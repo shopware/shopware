@@ -545,6 +545,52 @@ class WebhookDeliveryServiceTest extends TestCase
         Feature::withFeatureEnabled('WEBHOOKS_REWORK', fn () => $this->createService()->deliver($message));
     }
 
+    #[DataProvider('resultPlacementCases')]
+    public function testFailedDeliveryRowPlacementFollowsClassificationAndResultingState(
+        int $responseStatus,
+        ErrorClassification $classification,
+        EndpointState $resultingState,
+        string $expectedPlacement,
+        int $executionCount,
+    ): void {
+        [$message, $entry] = $this->prepareDelivery(new Response($responseStatus, [], '{"error":"fail"}'), $executionCount);
+
+        $this->webhookHealthService->expects($this->once())->method('recordFailure')
+            ->with($message->getWebhookId(), $classification, $executionCount, $entry)
+            ->willReturn($resultingState);
+        $this->webhookHealthService->expects($this->never())->method('recordLegacyFailure');
+        $this->webhookHealthService->expects($this->never())->method('recordSuccess');
+
+        foreach (['markPaused', 'markFailed', 'markPendingRetry', 'markSuccess'] as $placement) {
+            if ($placement === $expectedPlacement) {
+                continue;
+            }
+            $this->webhookOutboxStore->expects($this->never())->method($placement);
+        }
+        $this->webhookOutboxStore->expects($this->once())->method($expectedPlacement)
+            ->with($entry, ...match ($expectedPlacement) {
+                'markPendingRetry' => [static::anything(), static::isInstanceOf(DeliveryResponse::class)],
+                default => [static::isInstanceOf(DeliveryResponse::class)],
+            })
+            ->willReturn(true);
+        $this->logger->expects($this->never())->method('error');
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', fn () => $this->createService()->deliver($message));
+    }
+
+    /**
+     * @return iterable<string, array{int, ErrorClassification, EndpointState, string, int}>
+     */
+    public static function resultPlacementCases(): iterable
+    {
+        yield 'payload-class 400 fails the row' => [400, ErrorClassification::NonTransientPayload, EndpointState::Healthy, 'markFailed', 1];
+        yield 'any failure on DISABLED fails the row' => [500, ErrorClassification::TransientServer, EndpointState::Disabled, 'markFailed', 1];
+        yield 'transient on HEALTHY retries with backoff' => [500, ErrorClassification::TransientServer, EndpointState::Healthy, 'markPendingRetry', 1];
+        yield 'transient on HEALTHY past the retry budget fails the row' => [500, ErrorClassification::TransientServer, EndpointState::Healthy, 'markFailed', 6];
+        yield 'transient on HEALTHY passes the attempt number through' => [500, ErrorClassification::TransientServer, EndpointState::Healthy, 'markPendingRetry', 2];
+        yield 'unfollowed redirect (302 without Location) on HEALTHY fails the row' => [302, ErrorClassification::TransientRedirect, EndpointState::Healthy, 'markFailed', 1];
+    }
+
     #[DataProvider('retryAfterCases')]
     public function testRetryAfterOnlyAffectsRateLimits(Response $response, int $expectedDelay): void
     {

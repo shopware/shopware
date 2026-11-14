@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Mcp\Loader;
 
 use GuzzleHttp\Client;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Api\OAuth\OAuthResource;
 use Shopware\Core\Framework\App\AppSecretResolver;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
@@ -27,6 +28,8 @@ use Symfony\Component\Routing\RouterInterface;
 #[Package('framework')]
 class AppMcpCapabilityExecutor
 {
+    private const SCRIPT_ROUTE = 'api.script_endpoint';
+
     /**
      * @internal
      */
@@ -133,6 +136,13 @@ class AppMcpCapabilityExecutor
             $body = Json::encode(['arguments' => $arguments]);
             $subRequest = Request::create($url, 'POST', [], [], [], $server, $body);
             $subRequest->attributes->add($route);
+
+            // lets an app script subrequest accept the MCP-bound token of the parent, see ApiAuthenticationListener.
+            // Only the script route: `url` in mcp.xml may name any Admin API route.
+            $resource = $parent->attributes->get(OAuthResource::REQUEST_ATTRIBUTE);
+            if (\is_string($resource) && $resource !== '' && ($route['_route'] ?? null) === self::SCRIPT_ROUTE) {
+                $subRequest->attributes->set(OAuthResource::SUBREQUEST_ATTRIBUTE, $resource);
+            }
 
             if ($parent->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_PRE_AUTHENTICATED, false)) {
                 $subRequest->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, $parent->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID));

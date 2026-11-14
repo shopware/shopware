@@ -21,29 +21,29 @@ Headless clients get nothing.
 Core stores the customer's choice on the cart and applies it in the cart calculation.
 The context shipping method stays the default and is never touched by it.
 
-### A delivery is addressed by a key in its payload
+### A delivery is addressed by its identifier
 
-Whoever groups the positions into deliveries gives each delivery a stable key in its payload, `deliveryKey`.
-A warehouse id, a rule id, anything that names the same group of goods again in the next calculation.
-The selection is stored by that key.
+Each delivery has an `identifier` that names it within the cart and stays the same in the next calculation, like the id of a line item.
+Core's single delivery is `default`, an extension that splits the cart names its deliveries itself, for example by warehouse id.
+The selection is stored by that identifier.
 
-The index in `cart.deliveries` was the other option, since it's what the cart response exposes today.
+The index in `cart.deliveries` was the other option, since it's what the cart response exposed.
 But it shifts as soon as an item moves to another group, and a stored index then silently points at different goods.
-The key survives regrouping.
+The identifier survives regrouping.
 
-Core's own single delivery has no key, so in a shop without such an extension nothing can be addressed.
-That's fine, the context switch already covers the single delivery case.
+Shipping discount deliveries have an identifier too, but they only mirror the delivery they discount, so they can't be selected.
+Core's own delivery can, and a method selected for `default` wins over the context method until the selection is dropped, like for any other delivery.
 
 ### The selection lives on the cart
 
-The selection is a small cart extension, `deliveryKey => shippingMethodId`.
+The selection is a small cart extension, `identifier => shippingMethodId`.
 It's saved and loaded with the cart like every other cart extension and is part of the cart response, so a client sees what it picked.
-On login it's merged into the customer's saved cart per delivery key, and the guest's choice wins, because it's the one the customer just made at checkout.
+On login it's merged into the customer's saved cart per delivery, and the guest's choice wins, because it's the one the customer just made at checkout.
 
 ### The delivery processor applies it
 
 `DeliveryProcessor` loads the selected methods together with the context method.
-Right after the deliveries are built, and before anything prices or validates them, it replaces the method of each delivery whose key has a selection.
+Right after the deliveries are built, and before anything prices or validates them, it replaces the method of each delivery whose identifier has a selection.
 The positions that don't have a delivery time of their own then get the delivery time of the selected method, so the dates match what the customer picked.
 A position on its restock date stays on it, only the delivery time on top changes.
 
@@ -51,7 +51,7 @@ Availability isn't checked at this point.
 A selected method that's inactive or whose availability rule doesn't match stays on the delivery, and the existing validation blocks the cart with a `ShippingMethodBlockedError` for it.
 Switching silently to another method would ship the goods differently from what the customer chose.
 
-A selection is dropped when no delivery carries its key any more, or when its method can't be loaded because it was deleted.
+A selection is dropped when no delivery carries its identifier any more, or when its method can't be loaded because it was deleted.
 Order editing keeps the original deliveries and ignores the selection.
 
 ### Store API
@@ -60,20 +60,20 @@ Order editing keeps the original deliveries and ignores the selection.
 PATCH /store-api/checkout/cart/delivery
 {
     "deliveries": [
-        { "key": "warehouse-a", "shippingMethodId": "<id>" },
-        { "key": "warehouse-b", "shippingMethodId": null }
+        { "identifier": "warehouse-a", "shippingMethodId": "<id>" },
+        { "identifier": "warehouse-b", "shippingMethodId": null }
     ]
 }
 ```
 
 `null` drops the selection, so the delivery goes back to the context method.
-The route answers with the recalculated cart, a 404 for a key no delivery of the cart carries and a 400 for a method that isn't assigned to the sales channel.
+The route answers with the recalculated cart, a 404 for an identifier that names no delivery of the cart or a shipping discount delivery, and a 400 for a method that isn't assigned to the sales channel.
 
 ## Consequences
 
-- Extensions that split deliveries set `deliveryKey` while the deliveries are built, the same place they have to regroup to get per delivery rules.
-  A key set later in the calculation is too late for the selection.
-- Extensions don't need their own route, storage or restorer decoration for the choice any more.
+- Extensions that split deliveries only have to give them stable identifiers.
+  They don't need their own route, storage or restorer decoration for the choice any more.
+- A client that offers the context switch next to the choice has to drop the selection when the customer switches the context, otherwise the switch doesn't reach that delivery.
 - The cart hash has to cover each delivery's shipping method, so a selection changed between confirm and order invalidates it.
-- A cart without keyed deliveries behaves exactly as before; there's nothing to select and nothing is loaded.
+- A cart without a selection behaves exactly as before, nothing extra is loaded.
 - The selected method is still priced and validated per delivery like any other, so shipping costs, blocked errors and rules stay in one place.

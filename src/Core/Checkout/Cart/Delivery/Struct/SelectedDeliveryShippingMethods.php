@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * The shipping method the customer selected per delivery, by the delivery's {@see Delivery::DELIVERY_KEY}
+ * The shipping method the customer selected per delivery, by the delivery's {@see Delivery::getIdentifier()}
  */
 #[Package('checkout')]
 final class SelectedDeliveryShippingMethods extends Struct
@@ -28,19 +28,19 @@ final class SelectedDeliveryShippingMethods extends Struct
         return $this->shippingMethodIds;
     }
 
-    public function getShippingMethodId(string $deliveryKey): ?string
+    public function getShippingMethodId(string $identifier): ?string
     {
-        return $this->shippingMethodIds[$deliveryKey] ?? null;
+        return $this->shippingMethodIds[$identifier] ?? null;
     }
 
-    public function setShippingMethodId(string $deliveryKey, string $shippingMethodId): void
+    public function setShippingMethodId(string $identifier, string $shippingMethodId): void
     {
-        $this->shippingMethodIds[$deliveryKey] = $shippingMethodId;
+        $this->shippingMethodIds[$identifier] = $shippingMethodId;
     }
 
-    public function removeShippingMethodId(string $deliveryKey): void
+    public function removeShippingMethodId(string $identifier): void
     {
-        unset($this->shippingMethodIds[$deliveryKey]);
+        unset($this->shippingMethodIds[$identifier]);
     }
 
     /**

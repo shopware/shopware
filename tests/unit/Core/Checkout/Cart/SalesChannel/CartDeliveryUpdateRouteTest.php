@@ -60,7 +60,7 @@ class CartDeliveryUpdateRouteTest extends TestCase
         });
 
         $response = $this->createRoute()->update(
-            new Request([], ['deliveries' => [['key' => 'freight', 'shippingMethodId' => 'express']]]),
+            new Request([], ['deliveries' => [['identifier' => 'freight', 'shippingMethodId' => 'express']]]),
             $cart,
             Generator::generateSalesChannelContext(),
         );
@@ -80,7 +80,7 @@ class CartDeliveryUpdateRouteTest extends TestCase
         );
 
         $this->createRoute()->update(
-            new Request([], ['deliveries' => [['key' => 'parcel', 'shippingMethodId' => null]]]),
+            new Request([], ['deliveries' => [['identifier' => 'parcel', 'shippingMethodId' => null]]]),
             $cart,
             Generator::generateSalesChannelContext(),
         );
@@ -88,7 +88,7 @@ class CartDeliveryUpdateRouteTest extends TestCase
         static::assertSame(['freight' => 'express'], $this->getSelection($this->calculatedCart));
     }
 
-    public function testUnknownDeliveryKeyIsRejectedWithoutChangingTheSelection(): void
+    public function testUnknownIdentifierIsRejectedWithoutChangingTheSelection(): void
     {
         $cart = $this->createCart('parcel');
         $cart->addExtension(SelectedDeliveryShippingMethods::KEY, new SelectedDeliveryShippingMethods(['parcel' => 'pickup']));
@@ -96,20 +96,34 @@ class CartDeliveryUpdateRouteTest extends TestCase
         try {
             $this->createRoute()->update(
                 new Request([], ['deliveries' => [
-                    ['key' => 'parcel', 'shippingMethodId' => 'express'],
-                    ['key' => 'freight', 'shippingMethodId' => 'express'],
+                    ['identifier' => 'parcel', 'shippingMethodId' => 'express'],
+                    ['identifier' => 'freight', 'shippingMethodId' => 'express'],
                 ]]),
                 $cart,
                 Generator::generateSalesChannelContext(),
             );
 
-            static::fail('The unknown delivery key was accepted');
+            static::fail('The unknown identifier was accepted');
         } catch (CartException $exception) {
             static::assertEquals(CartException::deliveryNotFound('freight'), $exception);
         }
 
         static::assertSame(['parcel' => 'pickup'], $this->getSelection($cart));
         static::assertNull($this->calculatedCart);
+    }
+
+    public function testShippingDiscountDeliveryCannotBeSelected(): void
+    {
+        $cart = $this->createCart(Delivery::DEFAULT_IDENTIFIER);
+        $cart->getDeliveries()->add($this->createDelivery(Delivery::DEFAULT_IDENTIFIER . '-discount', -4.99));
+
+        $this->expectExceptionObject(CartException::deliveryNotFound(Delivery::DEFAULT_IDENTIFIER . '-discount'));
+
+        $this->createRoute()->update(
+            new Request([], ['deliveries' => [['identifier' => Delivery::DEFAULT_IDENTIFIER . '-discount', 'shippingMethodId' => 'express']]]),
+            $cart,
+            Generator::generateSalesChannelContext(),
+        );
     }
 
     public function testPublishesExtension(): void
@@ -157,25 +171,24 @@ class CartDeliveryUpdateRouteTest extends TestCase
         );
     }
 
-    private function createCart(string ...$deliveryKeys): Cart
+    private function createCart(string ...$identifiers): Cart
     {
-        $deliveries = new DeliveryCollection();
-        foreach ($deliveryKeys as $deliveryKey) {
-            $delivery = new Delivery(
-                new DeliveryPositionCollection(),
-                new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
-                new ShippingMethodEntity(),
-                new ShippingLocation(new CountryEntity(), null, null),
-                new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
-            );
-            $delivery->setPayloadValue(Delivery::DELIVERY_KEY, $deliveryKey);
-            $deliveries->add($delivery);
-        }
-
         $cart = new Cart('token');
-        $cart->setDeliveries($deliveries);
+        $cart->setDeliveries(new DeliveryCollection(array_map($this->createDelivery(...), $identifiers)));
 
         return $cart;
+    }
+
+    private function createDelivery(string $identifier, float $shippingCosts = 0.0): Delivery
+    {
+        return new Delivery(
+            new DeliveryPositionCollection(),
+            new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
+            new ShippingMethodEntity(),
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice($shippingCosts, $shippingCosts, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            $identifier,
+        );
     }
 
     /**

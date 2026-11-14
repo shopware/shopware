@@ -58,18 +58,17 @@ class CartDeliveryUpdateRoute
     private function _update(Request $request, Cart $cart, SalesChannelContext $context): CartResponse
     {
         return $this->cartLocker->locked($context, function () use ($request, $cart, $context) {
-            /** @var list<array{key: string, shippingMethodId?: string|null}> $deliveries */
+            /** @var list<array{identifier: string, shippingMethodId?: string|null}> $deliveries */
             $deliveries = $request->request->all('deliveries');
             $this->validator->validate(['deliveries' => $deliveries], $this->createValidationDefinition($context));
 
-            $deliveryKeys = [];
-            foreach ($cart->getDeliveries() as $delivery) {
-                $deliveryKeys[] = $delivery->getPayloadValue(Delivery::DELIVERY_KEY);
-            }
+            $shipmentIdentifiers = $cart->getDeliveries()
+                ->filter(static fn (Delivery $delivery) => $delivery->getShippingCosts()->getTotalPrice() >= 0)
+                ->map(static fn (Delivery $delivery) => $delivery->getIdentifier());
 
             foreach ($deliveries as $delivery) {
-                if (!\in_array($delivery['key'], $deliveryKeys, true)) {
-                    throw CartException::deliveryNotFound($delivery['key']);
+                if (!\in_array($delivery['identifier'], $shipmentIdentifiers, true)) {
+                    throw CartException::deliveryNotFound($delivery['identifier']);
                 }
             }
 
@@ -77,15 +76,15 @@ class CartDeliveryUpdateRoute
                 ?? new SelectedDeliveryShippingMethods();
 
             foreach ($deliveries as $delivery) {
-                $deliveryKey = $delivery['key'];
+                $identifier = $delivery['identifier'];
                 $shippingMethodId = $delivery['shippingMethodId'] ?? null;
                 if ($shippingMethodId === null) {
-                    $selection->removeShippingMethodId($deliveryKey);
+                    $selection->removeShippingMethodId($identifier);
 
                     continue;
                 }
 
-                $selection->setShippingMethodId($deliveryKey, $shippingMethodId);
+                $selection->setShippingMethodId($identifier, $shippingMethodId);
             }
 
             $cart->addExtension(SelectedDeliveryShippingMethods::KEY, $selection);
@@ -110,7 +109,7 @@ class CartDeliveryUpdateRoute
             ->addList(
                 'deliveries',
                 (new DataValidationDefinition())
-                    ->add('key', new NotBlank(), new Type('string'))
+                    ->add('identifier', new NotBlank(), new Type('string'))
                     ->add('shippingMethodId', new Type('string'), new EntityExists(
                         entity: ShippingMethodDefinition::ENTITY_NAME,
                         context: $context->getContext(),

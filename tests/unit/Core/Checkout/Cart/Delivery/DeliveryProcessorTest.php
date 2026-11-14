@@ -271,8 +271,8 @@ class DeliveryProcessorTest extends TestCase
     {
         $standard = $this->createShippingMethod();
         $express = $this->createShippingMethod();
-        $parcel = $this->createKeyedDelivery($standard, 'parcel');
-        $freight = $this->createKeyedDelivery($standard, 'freight');
+        $parcel = $this->createIdentifiedDelivery($standard, 'parcel');
+        $freight = $this->createIdentifiedDelivery($standard, 'freight');
 
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($express->getId()), $express);
@@ -300,8 +300,7 @@ class DeliveryProcessorTest extends TestCase
     {
         $standard = $this->createShippingMethod();
         $express = $this->createShippingMethod();
-        $parcel = $this->createKeyedDelivery($standard, 'parcel');
-        $unkeyed = $this->createKeyedDelivery($standard, null);
+        $parcel = $this->createIdentifiedDelivery($standard, 'parcel');
 
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($express->getId()), $express);
@@ -313,7 +312,7 @@ class DeliveryProcessorTest extends TestCase
         ]));
 
         $processor = new DeliveryProcessor(
-            new StaticDeliveryBuilder(new DeliveryCollection([$parcel, $unkeyed])),
+            new StaticDeliveryBuilder(new DeliveryCollection([$parcel])),
             static::createStub(DeliveryCalculator::class),
             static::createStub(EntityRepository::class),
             static::createStub(DeliveryRuleMatcher::class),
@@ -321,7 +320,6 @@ class DeliveryProcessorTest extends TestCase
         $processor->process($data, new Cart('test'), $toCalculate, Generator::generateSalesChannelContext(), new CartBehavior());
 
         static::assertSame($standard, $parcel->getShippingMethod());
-        static::assertSame($standard, $unkeyed->getShippingMethod());
         static::assertFalse($toCalculate->hasExtension(SelectedDeliveryShippingMethods::KEY));
     }
 
@@ -333,21 +331,16 @@ class DeliveryProcessorTest extends TestCase
         return $shippingMethod;
     }
 
-    private function createKeyedDelivery(ShippingMethodEntity $shippingMethod, ?string $deliveryKey): Delivery
+    private function createIdentifiedDelivery(ShippingMethodEntity $shippingMethod, string $identifier): Delivery
     {
-        $delivery = new Delivery(
+        return new Delivery(
             new DeliveryPositionCollection(),
             new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),
             new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            $identifier,
         );
-
-        if ($deliveryKey !== null) {
-            $delivery->setPayloadValue(Delivery::DELIVERY_KEY, $deliveryKey);
-        }
-
-        return $delivery;
     }
 
     private function createDelivery(): Delivery

@@ -71,7 +71,7 @@ class CartDeliveryUpdateRouteTest extends TestCase
 
         $this->createProducts();
 
-        // core builds a single delivery without a key, an extension grouping the positions sets one
+        // stands in for an extension that splits the cart into several deliveries
         $processor = static::getContainer()->get(DeliveryProcessor::class);
         $this->builderProperty = new \ReflectionProperty(DeliveryProcessor::class, 'builder');
         $this->originalBuilder = $this->builderProperty->getValue($processor);
@@ -81,6 +81,26 @@ class CartDeliveryUpdateRouteTest extends TestCase
     protected function tearDown(): void
     {
         $this->builderProperty->setValue(static::getContainer()->get(DeliveryProcessor::class), $this->originalBuilder);
+    }
+
+    public function testSelectionForTheDefaultDeliveryWinsOverTheContextShippingMethod(): void
+    {
+        $this->builderProperty->setValue(static::getContainer()->get(DeliveryProcessor::class), $this->originalBuilder);
+        $this->addProducts('p1', 'p2');
+
+        $this->browser->jsonRequest('PATCH', '/store-api/checkout/cart/delivery', [
+            'deliveries' => [['identifier' => Delivery::DEFAULT_IDENTIFIER, 'shippingMethodId' => $this->ids->get('express')]],
+        ]);
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), (string) $this->browser->getResponse()->getContent());
+
+        $deliveries = $this->getJson()['deliveries'];
+        static::assertCount(1, $deliveries);
+        static::assertSame(Delivery::DEFAULT_IDENTIFIER, $deliveries[0]['identifier']);
+        static::assertSame($this->ids->get('express'), $deliveries[0]['shippingMethod']['id']);
+        static::assertSame(15.0, (float) $deliveries[0]['shippingCosts']['totalPrice']);
+
+        $this->browser->request('GET', '/store-api/context');
+        static::assertSame($this->ids->get('standard'), $this->getJson()['shippingMethod']['id']);
     }
 
     public function testSelectedShippingMethodIsCalculatedForItsDelivery(): void
@@ -153,7 +173,7 @@ class CartDeliveryUpdateRouteTest extends TestCase
         static::assertSame([$this->ids->get('inactive')], $blockedIds);
     }
 
-    public function testUnknownDeliveryKeyIsRejected(): void
+    public function testUnknownIdentifierIsRejected(): void
     {
         $this->addProducts('p1');
 
@@ -228,7 +248,7 @@ class CartDeliveryUpdateRouteTest extends TestCase
     private function sendSelection(string $productKey, ?string $shippingMethodId): void
     {
         $this->browser->jsonRequest('PATCH', '/store-api/checkout/cart/delivery', [
-            'deliveries' => [['key' => $this->ids->get($productKey), 'shippingMethodId' => $shippingMethodId]],
+            'deliveries' => [['identifier' => $this->ids->get($productKey), 'shippingMethodId' => $shippingMethodId]],
         ]);
     }
 
@@ -248,7 +268,7 @@ class CartDeliveryUpdateRouteTest extends TestCase
     private function getDelivery(array $cart, string $productKey): array
     {
         foreach ($cart['deliveries'] as $delivery) {
-            if ($delivery['payload'][Delivery::DELIVERY_KEY] === $this->ids->get($productKey)) {
+            if ($delivery['identifier'] === $this->ids->get($productKey)) {
                 return $delivery;
             }
         }
@@ -364,8 +384,14 @@ class OneDeliveryPerLineItemBuilder extends DeliveryBuilder
             $lineItemCart->setLineItems(new LineItemCollection([$lineItem]));
 
             foreach (parent::build($lineItemCart, $data, $context, $cartBehavior) as $delivery) {
-                $delivery->setPayloadValue(Delivery::DELIVERY_KEY, $lineItem->getId());
-                $deliveries->add($delivery);
+                $deliveries->add(new Delivery(
+                    $delivery->getPositions(),
+                    $delivery->getDeliveryDate(),
+                    $delivery->getShippingMethod(),
+                    $delivery->getLocation(),
+                    $delivery->getShippingCosts(),
+                    $lineItem->getId(),
+                ));
             }
         }
 

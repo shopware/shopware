@@ -171,12 +171,12 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
 
         $applied = new SelectedDeliveryShippingMethods();
         foreach ($deliveries as $delivery) {
-            $deliveryKey = $delivery->getPayloadValue(Delivery::DELIVERY_KEY);
-            if (!\is_string($deliveryKey)) {
+            $identifier = $delivery->getIdentifier();
+            if ($identifier === null) {
                 continue;
             }
 
-            $shippingMethodId = $selected->getShippingMethodId($deliveryKey);
+            $shippingMethodId = $selected->getShippingMethodId($identifier);
             if ($shippingMethodId === null) {
                 continue;
             }
@@ -186,7 +186,7 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
                 continue;
             }
 
-            $applied->setShippingMethodId($deliveryKey, $shippingMethodId);
+            $applied->setShippingMethodId($identifier, $shippingMethodId);
 
             if ($delivery->getShippingMethod()->getId() !== $shippingMethodId) {
                 $this->builder->changeShippingMethod($delivery, $shippingMethod);

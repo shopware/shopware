@@ -392,7 +392,7 @@
                     "Cart"
                 ],
                 "summary": "Select the shipping method of cart deliveries",
-                "description": "Stores the shipping method the customer selected for single deliveries of the cart and returns the recalculated cart. A delivery is addressed by the `deliveryKey` of its `payload`, which the extension grouping the deliveries sets; deliveries without one cannot be addressed. The selection stays on the cart until the delivery disappears and does not change the shipping method of the context. A selected shipping method that is not available for the delivery blocks the cart with a `shipping-method-blocked` error.",
+                "description": "Stores the shipping method the customer selected for single deliveries of the cart and returns the recalculated cart. A delivery is addressed by its `identifier`, shipping discount deliveries cannot be selected. The selection stays on the cart until it is dropped or the delivery disappears, and it wins over the shipping method of the context, which the route does not change. A selected shipping method that is not available for the delivery blocks the cart with a `shipping-method-blocked` error.",
                 "operationId": "updateCartDeliveries",
                 "parameters": [
                     {
@@ -414,11 +414,11 @@
                                         "items": {
                                             "type": "object",
                                             "required": [
-                                                "key"
+                                                "identifier"
                                             ],
                                             "properties": {
-                                                "key": {
-                                                    "description": "The `deliveryKey` from the `payload` of the cart delivery.",
+                                                "identifier": {
+                                                    "description": "The `identifier` of the cart delivery.",
                                                     "type": "string"
                                                 },
                                                 "shippingMethodId": {
@@ -458,7 +458,7 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/404",
-                        "description": "One of the given keys does not reference a delivery of the current cart."
+                        "description": "One of the given identifiers does not reference a delivery of the current cart, or references a shipping discount delivery."
                     }
                 },
                 "security": [

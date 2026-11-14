@@ -406,6 +406,7 @@ class DeliveryBuilderTest extends TestCase
             self::createShippingMethod(3, 5),
             new ShippingLocation(new CountryEntity(), null, null),
             $price,
+            Delivery::DEFAULT_IDENTIFIER,
         );
 
         $express = self::createShippingMethod(1, 2);
@@ -440,6 +441,7 @@ class DeliveryBuilderTest extends TestCase
             $standard,
             new ShippingLocation(new CountryEntity(), null, null),
             new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER,
         );
 
         $builder->changeShippingMethod($delivery, self::createShippingMethod(1, 2));

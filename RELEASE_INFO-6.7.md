@@ -504,6 +504,14 @@ The route requires the `number_range:read` privilege.
 The number range detail page in the Administration uses it to show a warning when it loads or saves a number range with a colliding pattern.
 Saving is not blocked.
 
+### Store API OpenAPI schema lists missing entity fields
+
+The Store API OpenAPI schema now lists fields that the responses already contain: the GARAN fields of `Product` (`guaranteeMonths`, `guaranteeConfirmed`, `guaranteeTermsMediaId`, `guaranteeTermsUrl` and `guaranteeTermsMedia`), `Document.typeName` and `SalesChannelDomain.isExternalStorefront`.
+The scalar fields are required, because every response carries them; the guarantee fields are `null` when unset.
+`guaranteeTermsMedia` stays optional like every other association.
+`Document.typeName` lists the type names Shopware ships and stays open for the types plugins and apps add.
+If you generate types from the schema, regenerate them.
+
 ### Sync API reports missing references as write errors
 
 Sync API writes that reference a missing entity or version now return a field-specific write error with HTTP 400 instead of exposing a database error as HTTP 500.

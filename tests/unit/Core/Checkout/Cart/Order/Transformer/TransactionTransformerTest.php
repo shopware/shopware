@@ -49,7 +49,22 @@ class TransactionTransformerTest extends TestCase
             'id' => 'order-transaction-id',
             'paymentMethodId' => 'test',
             'amount' => $amount,
+            'payload' => [],
         ], $data);
+    }
+
+    public function testTransformCarriesThePayloadForNewAndExistingTransactions(): void
+    {
+        $transaction = new Transaction(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()), 'test');
+        $transaction->setPayload(['psp' => 'reference-1']);
+
+        $data = TransactionTransformer::transform($transaction, 'state', Context::createDefaultContext());
+        static::assertSame(['psp' => 'reference-1'], $data['payload']);
+
+        $transaction->addExtension(OrderConverter::ORIGINAL_ID, new IdStruct('order-transaction-id'));
+
+        $data = TransactionTransformer::transform($transaction, 'state', Context::createDefaultContext());
+        static::assertSame(['psp' => 'reference-1'], $data['payload']);
     }
 
     public function testTransformCollection(): void

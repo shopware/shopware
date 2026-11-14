@@ -173,13 +173,87 @@ class CheapestPricePercentageFilterTest extends TestCase
         static::assertNotContains($noListPriceId, $result->getIds());
     }
 
+    public function testParentWithVariantsDoesNotMatchNoMatterWhenItsVariantsWereCreated(): void
+    {
+        $createdTogetherId = Uuid::randomHex();
+        $createdTogetherVariantId = Uuid::randomHex();
+        $this->createProduct($createdTogetherId, 50.0, 100.0, children: [
+            ['id' => $createdTogetherVariantId, 'productNumber' => $createdTogetherVariantId, 'stock' => 10],
+        ]);
+
+        $createdStepwiseId = Uuid::randomHex();
+        $createdStepwiseVariantId = Uuid::randomHex();
+        $this->createProduct($createdStepwiseId, 50.0, 100.0);
+        $this->createVariant($createdStepwiseVariantId, $createdStepwiseId);
+
+        $criteria = new Criteria([$createdTogetherId, $createdTogetherVariantId, $createdStepwiseId, $createdStepwiseVariantId]);
+        $criteria->addFilter(new EqualsFilter('product.cheapestPrice.percentage', 50));
+
+        static::assertEqualsCanonicalizing(
+            [$createdTogetherVariantId, $createdStepwiseVariantId],
+            $this->searchIds($criteria)->getIds(),
+        );
+    }
+
+    public function testVariantsDoNotMatchWithAListPriceTheirParentNoLongerHas(): void
+    {
+        $parentId = Uuid::randomHex();
+        $variantId = Uuid::randomHex();
+
+        $this->createProduct($parentId, 50.0, 100.0);
+        $this->createVariant($variantId, $parentId);
+
+        static::getContainer()->get('product.repository')->update([[
+            'id' => $parentId,
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50.0, 'net' => 50.0, 'linked' => false]],
+        ]], $this->salesChannelContext->getContext());
+
+        $criteria = new Criteria([$parentId, $variantId]);
+        $criteria->addFilter(new RangeFilter('product.cheapestPrice.percentage', [RangeFilter::LT => 100]));
+
+        static::assertSame([], $this->searchIds($criteria)->getIds());
+    }
+
+    public function testParentDoesNotMatchByThePriceItHadBeforeItsVariantsGotADiscount(): void
+    {
+        $parentId = Uuid::randomHex();
+        $variantId = Uuid::randomHex();
+
+        $this->createProduct($parentId, 100.0, 100.0);
+        $this->createVariant($variantId, $parentId);
+
+        static::getContainer()->get('product.repository')->update([[
+            'id' => $parentId,
+            'price' => [[
+                'currencyId' => Defaults::CURRENCY,
+                'gross' => 75.0,
+                'net' => 75.0,
+                'linked' => false,
+                'listPrice' => ['gross' => 100.0, 'net' => 100.0, 'linked' => false],
+            ]],
+        ]], $this->salesChannelContext->getContext());
+
+        $notDiscounted = new Criteria([$parentId, $variantId]);
+        $notDiscounted->addFilter(new EqualsFilter('product.cheapestPrice.percentage', 100));
+
+        static::assertSame([], $this->searchIds($notDiscounted)->getIds());
+
+        $discounted = new Criteria([$parentId, $variantId]);
+        $discounted->addFilter(new RangeFilter('product.cheapestPrice.percentage', [RangeFilter::LT => 100]));
+
+        static::assertSame([$variantId], $this->searchIds($discounted)->getIds());
+    }
+
     private function searchIds(Criteria $criteria): IdSearchResult
     {
         return static::getContainer()->get('sales_channel.product.repository')
             ->searchIds($criteria, $this->salesChannelContext);
     }
 
-    private function createProduct(string $id, float $priceGross, ?float $listGross): void
+    /**
+     * @param list<array<string, mixed>> $children
+     */
+    private function createProduct(string $id, float $priceGross, ?float $listGross, array $children = []): void
     {
         $price = [
             'currencyId' => Defaults::CURRENCY,
@@ -211,6 +285,17 @@ class CheapestPricePercentageFilterTest extends TestCase
                     'visibility' => 30,
                 ],
             ],
+            'children' => $children,
+        ]], $this->salesChannelContext->getContext());
+    }
+
+    private function createVariant(string $id, string $parentId): void
+    {
+        static::getContainer()->get('product.repository')->create([[
+            'id' => $id,
+            'parentId' => $parentId,
+            'productNumber' => $id,
+            'stock' => 10,
         ]], $this->salesChannelContext->getContext());
     }
 }

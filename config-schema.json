@@ -576,7 +576,13 @@
                 "reset_password": {
                     "$ref": "#/definitions/rate_limiter_config"
                 },
+                "reset_password_client": {
+                    "$ref": "#/definitions/rate_limiter_config"
+                },
                 "user_recovery": {
+                    "$ref": "#/definitions/rate_limiter_config"
+                },
+                "user_recovery_client": {
                     "$ref": "#/definitions/rate_limiter_config"
                 },
                 "contact_form": {

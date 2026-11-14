@@ -5,7 +5,6 @@ import { updateSubscriber, register, handleGet } from '@shopware-ag/meteor-admin
 import get from 'lodash-es/get';
 import debounce from 'lodash-es/debounce';
 import cloneDeepWith from 'lodash-es/cloneDeepWith';
-import type { App } from 'vue';
 import { selectData } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/selectData';
 import MissingPrivilegesError from '@shopware-ag/meteor-admin-sdk/es/_internals/privileges/missing-privileges-error';
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -19,6 +18,26 @@ interface scopeInterface {
         uid: number;
     };
 }
+
+/**
+ * Everything publishing needs from whatever holds the data — an Options API instance plus a path, or
+ * a ref. Paths handed to `write` are relative to the published value, so neither side has to know
+ * how the other addresses it.
+ *
+ * @private
+ */
+export type PublishScope = {
+    /** Identity of the publisher, so publishing the same id twice can be told apart from updating it. */
+    uid: number | undefined;
+    /** The value being published. */
+    read: () => unknown;
+    /** Replaces the published value, or the property inside it that `segments` addresses. */
+    write: (segments: string[], value: unknown) => void;
+    /** Reports every deep change, once immediately. Returns the function that stops watching. */
+    watch: (callback: (value: unknown) => void) => () => void;
+    /** Registers the cleanup that stops publishing when the publisher goes away. */
+    onTeardown: (teardown: () => void) => void;
+};
 interface publishOptions {
     id: string;
     path: string;
@@ -27,6 +46,9 @@ interface publishOptions {
     deprecationMessage?: string;
     showDoubleRegistrationError?: boolean;
 }
+
+/** @private */
+export type publishScopedOptions = Omit<publishOptions, 'id' | 'path' | 'scope'>;
 
 type dataset = {
     id: string;
@@ -187,22 +209,25 @@ function parsePath(path: string): ParsedPath | null {
     return null;
 }
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export function publishData({
-    id,
-    path,
-    scope,
-    deprecated,
-    deprecationMessage,
-    showDoubleRegistrationError = true,
-}: publishOptions): () => void {
+/**
+ * Publishes whatever a `PublishScope` holds, and keeps publishing it until that scope tears down.
+ * `publishData()` and `usePublishedData()` both come through here; the only difference between them
+ * is how their scope reaches the data.
+ *
+ * @private
+ */
+export function publishScopedData(
+    id: string,
+    scope: PublishScope,
+    { deprecated, deprecationMessage, showDoubleRegistrationError = true }: publishScopedOptions = {},
+): () => void {
     if (unregisterPublishDataIds.includes(id)) {
         unregisterPublishDataIds = unregisterPublishDataIds.filter((value) => value !== id);
     }
     const registeredDataSet = publishedDataSets.find((s) => s.id === id);
 
     // Dataset registered from different scope? Prevent update.
-    if (registeredDataSet && registeredDataSet.scope !== scope?.$?.uid) {
+    if (registeredDataSet && registeredDataSet.scope !== scope.uid) {
         if (showDoubleRegistrationError) {
             console.error(`The dataset id "${id}" you tried to publish is already registered.`);
         }
@@ -211,8 +236,8 @@ export function publishData({
     }
 
     // Dataset registered from same scope? Update.
-    if (registeredDataSet && registeredDataSet.scope === scope?.$?.uid) {
-        register({ id: id, data: get(scope, path) }).catch(() => {});
+    if (registeredDataSet && registeredDataSet.scope === scope.uid) {
+        register({ id: id, data: scope.read() }).catch(() => {});
 
         return () => {};
     }
@@ -224,24 +249,17 @@ export function publishData({
             return;
         }
 
-        function setObject(transferObject: transferObject, prePath: string | null = null): void {
+        function setObject(transferObject: transferObject, prefix: string[] = []): void {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             if (typeof transferObject?.getIsDirty === 'function' && !transferObject.getIsDirty()) {
                 return;
             }
 
             Object.keys(transferObject).forEach((property) => {
-                let realPath: string;
-                if (prePath) {
-                    realPath = `${prePath}.${property}`;
-                } else {
-                    realPath = `${path}.${property}`;
-                }
-
-                const parsedPath = parsePath(realPath);
-                if (parsedPath === null) {
-                    return;
-                }
+                const segments = [
+                    ...prefix,
+                    property,
+                ];
 
                 if (
                     // @ts-expect-error
@@ -253,7 +271,7 @@ export function publishData({
                         {
                             [property]: Shopware.Utils.object.cloneDeep(transferObject[property]),
                         },
-                        realPath,
+                        segments,
                     );
 
                     return;
@@ -261,15 +279,13 @@ export function publishData({
 
                 if (Array.isArray(transferObject[property])) {
                     (transferObject[property] as Array<unknown>).forEach((c, index) => {
-                        setObject({ [index]: c }, realPath);
+                        setObject({ [index]: c }, segments);
                     });
 
                     return;
                 }
 
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                Shopware.Utils.object.get(scope, parsedPath.pathToLastSegment)[parsedPath.lastSegment] =
-                    transferObject[property];
+                scope.write(segments, transferObject[property]);
             });
         }
 
@@ -294,29 +310,12 @@ export function publishData({
             return;
         }
 
-        // Vue.set does not resolve path's therefore we need to resolve to the last child property
-        if (path.includes('.')) {
-            const properties = path.split('.');
-            const lastPath = properties.pop();
-            const newPath = properties.join('.');
-            if (!lastPath) {
-                return;
-            }
-
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            Shopware.Utils.object.get(scope, newPath)[lastPath] = value.data;
-
-            return;
-        }
-
-        // @ts-expect-error
-        scope[path] = value.data;
+        scope.write([], value.data);
     });
 
-    // Watch for Changes on the Reactive Vue property and automatically publish them
-    const unwatch = scope.$watch(
-        path,
-        debounce((value: App<Element>) => {
+    // Watch for changes on the reactive source and automatically publish them
+    const unwatch = scope.watch(
+        debounce((value: unknown) => {
             if (unregisterPublishDataIds.includes(id)) {
                 unregisterPublishDataIds = unregisterPublishDataIds.filter((v) => v !== id);
                 unwatch();
@@ -339,27 +338,21 @@ export function publishData({
             publishedDataSets.push({
                 id,
                 data: clonedValue,
-                scope: scope?.$?.uid,
+                scope: scope.uid,
                 deprecated,
                 deprecationMessage,
             });
         }, 750),
-        {
-            deep: true,
-            immediate: true,
-        },
     );
 
-    // @ts-expect-error - Defined in meteor-sdk-data.plugin.ts
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-    scope.dataSetUnwatchers.push(() => {
+    scope.onTeardown(() => {
         publishedDataSets = publishedDataSets.filter((value) => value.id !== id);
         unregisterPublishDataIds.push(id);
 
         unwatch();
     });
 
-    register({ id: id, data: get(scope, path) }).catch(() => {});
+    register({ id: id, data: scope.read() }).catch(() => {});
 
     // Return method to manually deregister the dataset
     return function unregisterPublishData() {
@@ -368,6 +361,52 @@ export function publishData({
 
         unwatch();
     };
+}
+
+/**
+ * A `PublishScope` over an Options API instance and a path into it. `write` re-joins the relative
+ * segments onto that path, so the instance is still addressed exactly as it was before the scope
+ * seam existed.
+ */
+function instanceScope(instance: scopeInterface, path: string): PublishScope {
+    return {
+        uid: instance?.$?.uid,
+
+        read: (): unknown => get(instance, path),
+
+        write: (segments, value) => {
+            const fullPath = [
+                path,
+                ...segments,
+            ].join('.');
+            const parsedPath = parsePath(fullPath);
+
+            // A single-segment path names a member of the instance itself, so there is no container
+            // to resolve first.
+            if (parsedPath === null) {
+                // @ts-expect-error - the path is the caller's contract, not something typed here
+                instance[fullPath] = value;
+
+                return;
+            }
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            Shopware.Utils.object.get(instance, parsedPath.pathToLastSegment)[parsedPath.lastSegment] = value;
+        },
+
+        watch: (callback) => instance.$watch(path, callback, { deep: true, immediate: true }),
+
+        onTeardown: (teardown) => {
+            // @ts-expect-error - Defined in meteor-sdk-data.plugin.ts
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            instance.dataSetUnwatchers.push(teardown);
+        },
+    };
+}
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export function publishData({ id, path, scope, ...options }: publishOptions): () => void {
+    return publishScopedData(id, instanceScope(scope, path), options);
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

@@ -7,6 +7,7 @@ use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Event\UpdateMediaPathEvent;
+use Shopware\Core\Content\Media\Event\BeforeMediaFileReplacedEvent;
 use Shopware\Core\Content\Media\Event\MediaPathChangedEvent;
 use Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaLocationBuilder;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -75,6 +76,16 @@ class FileSaver
 
         $this->extensionValidator->validate($mediaFile->getFileExtension(), $currentMedia->isPrivate(), $context, $mediaId);
         $this->fileContentValidationStrategy->validate($mediaFile);
+
+        if ($currentMedia->hasFile()) {
+            $this->eventDispatcher->dispatch(new BeforeMediaFileReplacedEvent(
+                $mediaId,
+                $mediaFile->getFileExtension(),
+                $mediaFile->getMimeType(),
+                $mediaFile->getFileSize(),
+                $context,
+            ));
+        }
 
         $this->cleanup->removeOldMediaData($currentMedia, $context);
 

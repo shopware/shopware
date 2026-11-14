@@ -435,6 +435,11 @@
                                         "type": "string",
                                         "pattern": "^[0-9a-f]{32}$",
                                         "description": "ID of an existing media entity to replace. If omitted, a new entity is created."
+                                    },
+                                    "fileSize": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "description": "Size of the file in bytes. Lets a replacement be rejected before the upload."
                                     }
                                 }
                             }

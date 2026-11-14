@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
 #[Package('checkout')]
@@ -37,7 +38,7 @@ class TaxRule extends Struct
     {
         return [
             'taxRate' => [new NotBlank(), new Type('numeric')],
-            'percentage' => [new Type('numeric')],
+            'percentage' => [new NotNull(), new Type('numeric')],
         ];
     }
 

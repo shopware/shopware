@@ -342,12 +342,35 @@ export default {
                     this.previewLoadingStates[entity.id] = false;
                 })
                 .catch((err) => {
-                    this.setErrorMessagesForEntity(entity, err.response.data.errors[0].detail);
+                    const error = err.response.data.errors[0];
+                    const seoUrlRouteNotFoundErrorCodes = [
+                        // @deprecated tag:v6.8.0 - FRAMEWORK__SEO_URL_ROUTE_NOT_FOUND code will be removed
+                        'FRAMEWORK__SEO_URL_ROUTE_NOT_FOUND',
+                        'CONTENT__SEO_URL_ROUTE_NOT_FOUND',
+                    ];
+
+                    if (seoUrlRouteNotFoundErrorCodes.includes(error.code)) {
+                        this.removeSeoUrlTemplatesOfRoute(entity.routeName);
+
+                        return;
+                    }
+
+                    this.setErrorMessagesForEntity(entity, error.detail);
 
                     this.previews[entity.id] = [];
 
                     this.previewLoadingStates[entity.id] = false;
                 });
+        },
+        removeSeoUrlTemplatesOfRoute(routeName) {
+            [
+                this.seoUrlTemplates,
+                this.defaultSeoUrlTemplates,
+            ].forEach((collection) => {
+                collection
+                    .filter((seoUrlTemplate) => seoUrlTemplate.routeName === routeName)
+                    .forEach((seoUrlTemplate) => collection.remove(seoUrlTemplate.id));
+            });
         },
         fetchSalesChannels() {
             const criteria = new Criteria(1, 25);

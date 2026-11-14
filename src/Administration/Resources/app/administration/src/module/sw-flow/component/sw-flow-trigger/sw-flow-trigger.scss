@@ -1,7 +1,17 @@
 .sw-flow-trigger {
     &__event-selection {
+        width: max-content;
         min-width: 100%;
-        max-width: 150%;
+        max-width: 35rem;
+
+        .sw-tree-item__element {
+            height: auto;
+            min-height: var(--scale-size-42);
+        }
+
+        .sw-tree .sw-tree__content .sw-tree-item__content {
+            white-space: normal;
+        }
     }
 
     &.overlay {

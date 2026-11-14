@@ -6,8 +6,12 @@ const INTEGRATION = 'integration-major-check';
 const ACCEPTANCE = 'acceptance-major / acceptance-major-check';
 const DOWNSTREAM = 'downstream-major-check';
 
-const run = (name: string, conclusion: string | null, startedAt: string, status = 'completed'): CheckRun =>
-    ({ name, status, conclusion, started_at: startedAt });
+const run = (name: string, conclusion: string | null, startedAt: string, status = 'completed'): CheckRun => ({
+    name,
+    status,
+    conclusion,
+    started_at: startedAt,
+});
 
 test('requiredLanes maps each major-test label to its lane', () => {
     assert.deepEqual(requiredLanes([]), []);
@@ -47,14 +51,20 @@ test('evaluateLane judges the most recent run, so a fixed re-run turns it green'
 });
 
 test('evaluateLane preserves a downstream failure after an unrelated label skips the lane', () => {
-    assert.equal(evaluateLane(DOWNSTREAM, [
-        run(DOWNSTREAM, 'failure', '2026-10-15T06:00:00Z'),
-        run(DOWNSTREAM, 'skipped', '2026-10-15T07:00:00Z'),
-    ]).state, 'failure');
+    assert.equal(
+        evaluateLane(DOWNSTREAM, [
+            run(DOWNSTREAM, 'failure', '2026-10-15T06:00:00Z'),
+            run(DOWNSTREAM, 'skipped', '2026-10-15T07:00:00Z'),
+        ]).state,
+        'failure',
+    );
 });
 
 test('evaluateLane reports a running lane as pending', () => {
-    assert.equal(evaluateLane(INTEGRATION, [run(INTEGRATION, null, '2026-10-15T07:00:00Z', 'in_progress')]).state, 'pending');
+    assert.equal(
+        evaluateLane(INTEGRATION, [run(INTEGRATION, null, '2026-10-15T07:00:00Z', 'in_progress')]).state,
+        'pending',
+    );
 });
 
 test('evaluateLane only looks at the lane it judges', () => {
@@ -69,8 +79,13 @@ function toolkit({ labels, runs }: Fixture) {
     const github = {
         rest: {
             pulls: {
-                get: async ({ pull_number }: { pull_number: number }) =>
-                    ({ data: { number: pull_number, head: { sha: `sha-${pull_number}` }, labels: labels[pull_number].map((name) => ({ name })) } }),
+                get: async ({ pull_number }: { pull_number: number }) => ({
+                    data: {
+                        number: pull_number,
+                        head: { sha: `sha-${pull_number}` },
+                        labels: labels[pull_number].map((name) => ({ name })),
+                    },
+                }),
             },
             checks: {
                 // Each call returns the next snapshot, the last one repeating, to simulate a lane finishing.
@@ -100,7 +115,13 @@ function toolkit({ labels, runs }: Fixture) {
     };
     const context = {
         repo: { owner: 'shopware', repo: 'shopware' },
-        payload: { merge_group: { head_ref: 'refs/heads/gh-readonly-queue/trunk/pr-20934-abc123', base_sha: 'base', head_sha: 'head' } },
+        payload: {
+            merge_group: {
+                head_ref: 'refs/heads/gh-readonly-queue/trunk/pr-20934-abc123',
+                base_sha: 'base',
+                head_sha: 'head',
+            },
+        },
     };
 
     return { toolkit: { github, core, context }, failures };
@@ -144,10 +165,12 @@ test('checkMajorLanes blocks a major-tests PR when only Commercial failed', asyn
         runs: {
             [`sha-20934 ${INTEGRATION}`]: [[run(INTEGRATION, 'success', '2026-10-15T06:00:00Z')]],
             [`sha-20934 ${ACCEPTANCE}`]: [[run(ACCEPTANCE, 'success', '2026-10-15T06:00:00Z')]],
-            [`sha-20934 ${DOWNSTREAM}`]: [[
-                run(DOWNSTREAM, 'failure', '2026-10-15T06:00:00Z'),
-                run(DOWNSTREAM, 'skipped', '2026-10-15T07:00:00Z'),
-            ]],
+            [`sha-20934 ${DOWNSTREAM}`]: [
+                [
+                    run(DOWNSTREAM, 'failure', '2026-10-15T06:00:00Z'),
+                    run(DOWNSTREAM, 'skipped', '2026-10-15T07:00:00Z'),
+                ],
+            ],
         },
     });
     await checkMajorLanes(kit, instant);
@@ -161,7 +184,14 @@ test('checkMajorLanes fails a lane still running at the deadline', async () => {
         labels: { 20934: ['major-acceptance'] },
         runs: { [`sha-20934 ${ACCEPTANCE}`]: [[run(ACCEPTANCE, null, '2026-10-15T07:00:00Z', 'in_progress')]] },
     });
-    await checkMajorLanes(kit, { timeoutMs: 3, pollIntervalMs: 1, now: () => clock, sleep: async (ms) => { clock += ms; } });
+    await checkMajorLanes(kit, {
+        timeoutMs: 3,
+        pollIntervalMs: 1,
+        now: () => clock,
+        sleep: async (ms) => {
+            clock += ms;
+        },
+    });
     assert.equal(failures.length, 1);
     assert.match(failures[0], /still in_progress/);
 });

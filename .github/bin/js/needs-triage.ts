@@ -37,7 +37,13 @@ export function isDomainLabel(name: string): boolean {
     return name.startsWith('domain/') || name.startsWith('service/');
 }
 
-export function evaluateNeedsTriage({ changedLabel, labels, isDraft, isClosed, title }: NeedsTriageInput): NeedsTriageVerdict {
+export function evaluateNeedsTriage({
+    changedLabel,
+    labels,
+    isDraft,
+    isClosed,
+    title,
+}: NeedsTriageInput): NeedsTriageVerdict {
     if (changedLabel !== undefined && !isDomainLabel(changedLabel.name)) {
         return { action: 'skip', reason: `label ${changedLabel.name} is no domain label` };
     }
@@ -125,7 +131,10 @@ export async function manageNeedsTriage({ github, core, context }: Toolkit): Pro
     const { data } = await github.rest.issues.listLabelsOnIssue(options);
     const { action, label } = context.payload;
     const verdict = evaluateNeedsTriage({
-        changedLabel: (action === 'labeled' || action === 'unlabeled') && label ? { name: label.name, removed: action === 'unlabeled' } : undefined,
+        changedLabel:
+            (action === 'labeled' || action === 'unlabeled') && label
+                ? { name: label.name, removed: action === 'unlabeled' }
+                : undefined,
         labels: data.map((label) => label.name),
         isDraft: item.draft ?? false,
         isClosed: item.state === 'closed',
@@ -145,7 +154,11 @@ export async function manageNeedsTriage({ github, core, context }: Toolkit): Pro
         }
     }
 
-    core.info(verdict.action === 'skip' ? `#${item.number}: skipped, ${verdict.reason}` : `#${item.number}: ${verdict.action} ${NEEDS_TRIAGE_LABEL}`);
+    core.info(
+        verdict.action === 'skip'
+            ? `#${item.number}: skipped, ${verdict.reason}`
+            : `#${item.number}: ${verdict.action} ${NEEDS_TRIAGE_LABEL}`,
+    );
 
     return verdict;
 }

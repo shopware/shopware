@@ -142,9 +142,7 @@ export async function waitForCodecovReport(
         await sleep(delay);
     }
 
-    throw new CodecovReportNotReadyError(
-        `Codecov report did not reach "complete" after ${delaysMs.length + 1} attempts`,
-    );
+    throw new CodecovReportNotReadyError(`Codecov report did not reach "complete" after ${delaysMs.length + 1} attempts`);
 }
 
 export interface GetDxCoveragePayload {

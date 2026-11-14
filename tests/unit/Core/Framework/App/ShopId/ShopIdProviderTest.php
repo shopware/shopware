@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
+use Shopware\Core\Framework\App\RetainedSecret\AppRetainedSecretGateway;
 use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\FingerprintGenerator;
@@ -59,6 +60,7 @@ class ShopIdProviderTest extends TestCase
             $eventDispatcher = new CollectingEventDispatcher(),
             static::createStub(Connection::class),
             static::createStub(FingerprintGenerator::class),
+            static::createStub(AppRetainedSecretGateway::class),
         );
 
         $shopId = $provider->getShopId();
@@ -111,6 +113,7 @@ class ShopIdProviderTest extends TestCase
             $eventDispatcher = new CollectingEventDispatcher(),
             static::createStub(Connection::class),
             static::createStub(FingerprintGenerator::class),
+            static::createStub(AppRetainedSecretGateway::class),
         );
 
         $upgradedShopId = $provider->getShopId();
@@ -155,6 +158,7 @@ class ShopIdProviderTest extends TestCase
             new CollectingEventDispatcher(),
             $connection,
             $fingerprintGenerator,
+            static::createStub(AppRetainedSecretGateway::class),
         );
 
         static::expectException(ShopIdChangeSuggestedException::class);
@@ -189,6 +193,7 @@ class ShopIdProviderTest extends TestCase
             new CollectingEventDispatcher(),
             $connection,
             $fingerprintGenerator,
+            static::createStub(AppRetainedSecretGateway::class),
         );
 
         try {
@@ -244,6 +249,7 @@ class ShopIdProviderTest extends TestCase
             $eventDispatcher = new CollectingEventDispatcher(),
             $connection,
             $fingerprintGenerator,
+            static::createStub(AppRetainedSecretGateway::class),
         );
 
         static::assertSame($shopId->id, $provider->getShopId()->id);
@@ -271,11 +277,85 @@ class ShopIdProviderTest extends TestCase
             $eventDispatcher = new CollectingEventDispatcher(),
             static::createStub(Connection::class),
             static::createStub(FingerprintGenerator::class),
+            static::createStub(AppRetainedSecretGateway::class),
         );
 
         $provider->deleteShopId();
 
         static::assertCount(1, $eventDispatcher->getEvents());
         static::assertInstanceOf(ShopIdDeletedEvent::class, $eventDispatcher->getEvents()[0]);
+    }
+
+    public function testRetainsAppSecretsBeforeDeletingWhenStoredShopIdIsOwned(): void
+    {
+        $calls = [];
+
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->expects($this->once())->method('get')
+            ->with(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2)
+            ->willReturn(ShopId::v2('stored-id', [AppUrl::IDENTIFIER => 'https://shop.test'])->toArray());
+        $systemConfigService->method('delete')
+            ->willReturnCallback(static function (string $key) use (&$calls): void {
+                $calls[] = 'delete:' . $key;
+            });
+
+        $gateway = $this->createMock(AppRetainedSecretGateway::class);
+        $gateway->expects($this->once())
+            ->method('retainCandidates')
+            ->willReturnCallback(static function (string $shopId) use (&$calls): void {
+                $calls[] = 'retain:' . $shopId;
+            });
+
+        $provider = new ShopIdProvider(
+            $systemConfigService,
+            new CollectingEventDispatcher(),
+            static::createStub(Connection::class),
+            $this->fingerprintGeneratorMatching(true),
+            $gateway,
+        );
+
+        $provider->deleteShopId();
+
+        static::assertSame([
+            'retain:stored-id',
+            'delete:' . ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY,
+            'delete:' . ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2,
+        ], $calls);
+    }
+
+    public function testRetainsNothingWhenFingerprintsMismatch(): void
+    {
+        $systemConfigService = static::createStub(SystemConfigService::class);
+        $systemConfigService->method('get')
+            ->willReturn(ShopId::v2('stored-id', [AppUrl::IDENTIFIER => 'https://other.test'])->toArray());
+
+        $gateway = $this->createMock(AppRetainedSecretGateway::class);
+        $gateway->expects($this->never())->method('retainCandidates');
+
+        $eventDispatcher = new CollectingEventDispatcher();
+        $provider = new ShopIdProvider(
+            $systemConfigService,
+            $eventDispatcher,
+            static::createStub(Connection::class),
+            $this->fingerprintGeneratorMatching(false),
+            $gateway,
+        );
+
+        $provider->deleteShopId();
+
+        static::assertCount(1, $eventDispatcher->getEvents());
+    }
+
+    private function fingerprintGeneratorMatching(bool $matching): FingerprintGenerator
+    {
+        $mismatches = $matching ? [] : [
+            AppUrl::IDENTIFIER => new FingerprintMismatch(AppUrl::IDENTIFIER, 'https://other.test', 'https://shop.test', 100),
+        ];
+
+        $fingerprintGenerator = static::createStub(FingerprintGenerator::class);
+        $fingerprintGenerator->method('matchFingerprints')
+            ->willReturn(new FingerprintComparisonResult([], $mismatches, $matching ? 100 : 0));
+
+        return $fingerprintGenerator;
     }
 }

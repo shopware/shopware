@@ -386,6 +386,82 @@ class AppSecretRotationServiceTest extends TestCase
         $this->service->rotateNow($appId, $context, AppSecretRotationService::TRIGGER_CLI);
     }
 
+    public function testAdoptedSecretsAreTriedBeforeEveryOtherCandidateInGivenOrder(): void
+    {
+        $appId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $app = $this->createAppOnIntegration($appId, Uuid::randomHex());
+        $app->setUnconfirmedAppSecrets(['pending-secret']);
+        $app->setAppSecret('committed-secret');
+        $this->setupAppLookup($app);
+        $this->setupResolvableManifest();
+
+        $tried = [];
+        $this->registrationService->method('reRegisterWithAppHeldSecret')
+            ->willReturnCallback(static function (Manifest $manifest, string $id, string $secretAccessKey, Context $context, string $appHeldSecret) use (&$tried): void {
+                $tried[] = $appHeldSecret;
+
+                throw AppException::appRegistrationRejected('TestApp', 'the app does not trust this secret');
+            });
+
+        try {
+            $this->service->rotateNow($appId, $context, AppSecretRotationService::TRIGGER_CLI, ['adopted-1', '', 'committed-secret', 'adopted-2']);
+            static::fail('Expected recovery to fail when every candidate is rejected');
+        } catch (AppException) {
+        }
+
+        static::assertSame(['adopted-1', 'committed-secret', 'adopted-2', 'pending-secret'], $tried);
+    }
+
+    public function testAcceptedAdoptedSecretCommitsWithoutTryingTheRest(): void
+    {
+        $appId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $app = $this->createAppOnIntegration($appId, Uuid::randomHex());
+        $app->setAppSecret('committed-secret');
+        $this->setupAppLookup($app);
+        $this->setupResolvableManifest();
+
+        $tried = [];
+        $this->registrationService->method('reRegisterWithAppHeldSecret')
+            ->willReturnCallback(static function (Manifest $manifest, string $id, string $secretAccessKey, Context $context, string $appHeldSecret) use (&$tried): void {
+                $tried[] = $appHeldSecret;
+
+                if ($appHeldSecret === 'adopted-1') {
+                    throw AppException::appRegistrationRejected('TestApp', 'the app does not trust this secret');
+                }
+            });
+
+        // only the switch onto the fresh integration is written; a revert would be a second update
+        $this->appRepository->expects($this->once())
+            ->method('update')
+            ->willReturn(static::createStub(EntityWrittenContainerEvent::class));
+
+        $this->service->rotateNow($appId, $context, AppSecretRotationService::TRIGGER_CLI, ['adopted-1', 'adopted-2']);
+
+        static::assertSame(['adopted-1', 'adopted-2'], $tried);
+    }
+
+    public function testAdoptedSecretsThatAreAllRejectedFailTheRecovery(): void
+    {
+        $appId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $app = $this->createAppOnIntegration($appId, Uuid::randomHex());
+        $app->setAppSecret('committed-secret');
+        $this->setupAppLookup($app);
+        $this->setupResolvableManifest();
+
+        $this->registrationService->method('reRegisterWithAppHeldSecret')
+            ->willThrowException(AppException::appRegistrationRejected('TestApp', 'the app does not trust this secret'));
+
+        $this->expectExceptionObject(AppException::appSecretRecoveryFailed('TestApp'));
+
+        $this->service->rotateNow($appId, $context, AppSecretRotationService::TRIGGER_CLI, ['adopted-1']);
+    }
+
     /**
      * Builds the service under test. The doubles a given test needs to assert on (a real mock with
      * expectations) are passed in; everything else falls back to the shared setUp double.

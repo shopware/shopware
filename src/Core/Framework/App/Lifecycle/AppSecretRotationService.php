@@ -74,11 +74,18 @@ class AppSecretRotationService
      * walks on to the next candidate — a refused signature and an unreachable app are indistinguishable — and
      * {@see AppException::appSecretRecoveryFailed} is thrown if none is accepted. No database transaction is
      * held open across the registration HTTP call.
+     *
+     * $adoptedSecrets are secrets an operator moved here from another shop that may hold the app's registration;
+     * they are tried before every other candidate.
+     *
+     * @param list<string> $adoptedSecrets
      */
     public function rotateNow(
         string $appId,
         Context $context,
-        string $trigger
+        string $trigger,
+        #[\SensitiveParameter]
+        array $adoptedSecrets = []
     ): void {
         $app = $this->loadApp($appId, $context);
 
@@ -98,7 +105,7 @@ class AppSecretRotationService
             throw AppException::appInstallationIncomplete($app->getName());
         }
 
-        $candidateSecrets = $this->candidateSecrets($app);
+        $candidateSecrets = $this->candidateSecrets($app, $adoptedSecrets);
         $unconfirmedBefore = $app->getUnconfirmedAppSecrets();
 
         $this->logger->info('Starting app secret rotation', [
@@ -206,12 +213,14 @@ class AppSecretRotationService
      * attempt left behind, then the committed secret as a fallback. An app that never registered holds
      * none — the single null candidate means one first-registration handshake, signed with nothing.
      *
+     * @param list<string> $adoptedSecrets
+     *
      * @return non-empty-list<string|null>
      */
-    private function candidateSecrets(AppEntity $app): array
+    private function candidateSecrets(AppEntity $app, array $adoptedSecrets): array
     {
         $candidates = array_values(array_unique(array_filter(
-            array_merge($app->getUnconfirmedAppSecrets() ?? [], [$app->getAppSecret()]),
+            array_merge($adoptedSecrets, $app->getUnconfirmedAppSecrets() ?? [], [$app->getAppSecret()]),
             static fn (?string $secret): bool => $secret !== null && $secret !== ''
         )));
 

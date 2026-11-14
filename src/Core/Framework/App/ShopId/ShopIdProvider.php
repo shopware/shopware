@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App\ShopId;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
+use Shopware\Core\Framework\App\RetainedSecret\AppRetainedSecretGateway;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -29,7 +30,8 @@ class ShopIdProvider implements ResetInterface
         private readonly SystemConfigService $systemConfigService,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly Connection $connection,
-        private readonly FingerprintGenerator $fingerprintGenerator
+        private readonly FingerprintGenerator $fingerprintGenerator,
+        private readonly AppRetainedSecretGateway $retainedSecrets,
     ) {
     }
 
@@ -72,6 +74,8 @@ class ShopIdProvider implements ResetInterface
 
     public function deleteShopId(): void
     {
+        $this->retainAppSecretsIfShopIdIsOwned();
+
         $this->systemConfigService->delete(self::SHOP_ID_SYSTEM_CONFIG_KEY, null, true);
         $this->systemConfigService->delete(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2, null, false);
 
@@ -106,17 +110,29 @@ class ShopIdProvider implements ResetInterface
         $this->shopId = $shopId;
     }
 
+    private function retainAppSecretsIfShopIdIsOwned(): void
+    {
+        $shopId = $this->fetchShopIdFromSystemConfig(migrateV1: false);
+        if ($shopId !== null && $this->fingerprintGenerator->matchFingerprints($shopId->fingerprints)->isMatching()) {
+            $this->retainedSecrets->retainCandidates($shopId->id);
+        }
+    }
+
     private function hasAppsRegisteredAtAppServers(): bool
     {
         return (int) $this->connection->fetchOne('SELECT COUNT(id) FROM app WHERE app_secret IS NOT NULL') > 0;
     }
 
-    private function fetchShopIdFromSystemConfig(): ?ShopId
+    private function fetchShopIdFromSystemConfig(bool $migrateV1 = true): ?ShopId
     {
         /** @var ShopIdV2Config|null $shopIdV2 */
         $shopIdV2 = $this->systemConfigService->get(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
         if (\is_array($shopIdV2)) {
             return ShopId::fromSystemConfig($shopIdV2);
+        }
+
+        if (!$migrateV1) {
+            return null;
         }
 
         /** @var ShopIdV1Config|null $shopIdV1 */

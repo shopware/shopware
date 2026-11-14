@@ -21,7 +21,7 @@ async function createWrapper() {
             global: {
                 stubs: {
                     'sw-container': await wrapTestComponent('sw-container'),
-                    'sw-loader': true,
+                    'mt-loader': true,
                 },
                 provide: {
                     extensionStoreActionService,

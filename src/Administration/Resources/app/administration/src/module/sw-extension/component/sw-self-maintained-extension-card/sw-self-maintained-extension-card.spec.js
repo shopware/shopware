@@ -13,7 +13,7 @@ async function createWrapper() {
 
                     'router-link': true,
                     'sw-context-menu-item': true,
-                    'sw-loader': true,
+                    'mt-loader': true,
                     'sw-meteor-card': await wrapTestComponent('sw-meteor-card', { sync: true }),
                     'sw-extension-icon': true,
                     'sw-extension-uninstall-modal': true,

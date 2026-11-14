@@ -72,9 +72,10 @@
             </div>
             {% endblock %}
 
-            <sw-loader
+            <mt-loader
                 v-if="showLoader"
                 class="sw-first-run-wizard-modal__loader"
+                :backdrop="false"
             />
         </sw-container>
     </div>

@@ -24,7 +24,7 @@ async function createWrapper({ route, props = {} } = {}) {
                 'router-link': true,
                 'sw-media-upload-v2': true,
                 'sw-media-library': true,
-                'sw-loader': true,
+                'mt-loader': true,
             },
             mocks: {
                 $route,

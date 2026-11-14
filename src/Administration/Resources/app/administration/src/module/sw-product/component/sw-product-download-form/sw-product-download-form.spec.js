@@ -74,7 +74,7 @@ async function createWrapper(hasError = false, mediaService = {}, configSettings
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
                 'sw-context-button': await wrapTestComponent('sw-context-button'),
                 'sw-field-error': true,
-                'sw-loader': true,
+                'mt-loader': true,
             },
             directives: {
                 draggable: {},

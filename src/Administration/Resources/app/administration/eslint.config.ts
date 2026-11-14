@@ -661,6 +661,8 @@ export default [
                         'sw-checkbox-field',
                         'sw-number-field',
                         'sw-password-field',
+                        'sw-loader',
+                        'sw-skeleton-bar',
                     ],
                 },
             ],

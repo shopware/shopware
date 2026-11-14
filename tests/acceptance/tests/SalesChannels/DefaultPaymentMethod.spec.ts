@@ -34,7 +34,7 @@ test(
         );
         const selectedText = defaultPaymentMethodField.locator('.sw-entity-single-select__selection-text');
         const paymentMethodOptions = AdminSalesChannelDetail.page.locator('.sw-select-result-list__content');
-        const loadingIndicator = defaultPaymentMethodField.locator('.sw-select__selection-indicators').locator('sw-loader');
+        const loadingIndicator = defaultPaymentMethodField.locator('.sw-select__selection-indicators').locator('.mt-loader');
 
         const defaultPaymentMethodId = DefaultSalesChannel.salesChannel.paymentMethodId;
         const paymentMethodResponse = await AdminApiContext.get(

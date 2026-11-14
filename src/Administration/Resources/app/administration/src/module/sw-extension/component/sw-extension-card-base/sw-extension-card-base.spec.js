@@ -12,8 +12,6 @@ async function createWrapper(propsData = {}, provide = {}) {
                 ...provide,
             },
             stubs: {
-                'sw-loader': true,
-
                 'sw-extension-icon': true,
                 'sw-context-menu-item': {
                     name: 'sw-context-menu-item',
@@ -122,6 +120,20 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         });
 
         expect(wrapper.vm.isInstalled).toBe(true);
+    });
+
+    it('should show a loader without backdrop while loading', async () => {
+        const wrapper = await createWrapper({ bulkLoading: true });
+
+        const loader = wrapper.find('.mt-loader');
+        expect(loader.exists()).toBe(true);
+        expect(loader.classes()).not.toContain('mt-loader--has-backdrop');
+    });
+
+    it('should not show a loader when nothing is loading', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.find('.mt-loader').exists()).toBe(false);
     });
 
     it('should not be installed', async () => {

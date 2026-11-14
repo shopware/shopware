@@ -118,7 +118,7 @@ async function createWrapper(privileges = [], repo = mockCustomFieldRepository()
                         template: '<div></div>',
                     },
                     'sw-pagination': await wrapTestComponent('sw-pagination'),
-                    'sw-loader': true,
+                    'mt-loader': true,
                     'sw-modal': true,
                     'sw-text-field': true,
                     'mt-number-field': true,

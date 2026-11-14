@@ -355,6 +355,13 @@ Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations
 
 The property is unused and will be removed in 6.8.
 
+### System config cache is invalidated per sales channel
+
+Saving the system config of one sales channel now only drops the cached config of that sales channel.
+A change of the global config still drops the cached config of all sales channels.
+`CachedSystemConfigLoader` tags each cached sales channel config additionally with `CachedSystemConfigLoader::buildSalesChannelTag($salesChannelId)`.
+Invalidating `CachedSystemConfigLoader::CACHE_TAG` still drops the whole cached config.
+
 ### "Assign status" flow action picks the delivery and transaction of the flow
 
 The Flow Builder action "Assign status" (`action.set.order.state`) now changes the delivery and the transaction the flow carries as `orderDelivery` and `orderTransaction` data, if they belong to the order, for example on the delivery and transaction state triggers.

@@ -101,7 +101,7 @@
                     "Cart"
                 ],
                 "summary": "Calculate shipping costs for the cart",
-                "description": "Calculates shipping costs for the current cart across available shipping methods.",
+                "description": "Calculates shipping costs for the current cart across available shipping methods. Each method is priced for the whole cart, shipping methods selected for single deliveries are ignored.",
                 "operationId": "readShippingCostsByCart",
                 "parameters": [
                     {

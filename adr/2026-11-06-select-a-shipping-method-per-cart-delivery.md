@@ -71,9 +71,13 @@ The route answers with the recalculated cart, a 404 for an identifier that names
 
 ## Consequences
 
-- Extensions that split deliveries only have to give them stable identifiers.
+- Extensions that split deliveries give them stable identifiers and split in the `DeliveryBuilder`.
+  The selection is applied right after the build, so deliveries a later processor regroups lose their selection in the same calculation.
   They don't need their own route, storage or restorer decoration for the choice any more.
 - A client that offers the context switch next to the choice has to drop the selection when the customer switches the context, otherwise the switch doesn't reach that delivery.
 - The cart hash has to cover each delivery's shipping method, so a selection changed between confirm and order invalidates it.
 - A cart without a selection behaves exactly as before, nothing extra is loaded.
-- The selected method is still priced and validated per delivery like any other, so shipping costs, blocked errors and rules stay in one place.
+- Rules matched for the whole cart keep seeing the context method, for example a payment method's availability rule or a promotion's cart condition.
+  Only rules matched per delivery see a selected method.
+- `/store-api/shipping-cost/cart` prices each method for the whole cart and ignores the selections, so a client can still show what every method costs.
+- The selected method is still priced and validated per delivery like any other, so shipping costs and blocked errors stay in one place.

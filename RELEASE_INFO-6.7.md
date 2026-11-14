@@ -445,7 +445,9 @@ The cart applies a shipping method the customer selected for a single delivery, 
 A delivery is selected by its `identifier`, shipping discount deliveries can not be selected.
 Core's own delivery is `default`, so a shipping method selected for it wins over the context shipping method until the selection is dropped.
 The selections are stored in the `delivery-shipping-methods` cart extension (`SelectedDeliveryShippingMethods`) and survive the login, where the guest's selection wins over the one saved on the customer's cart.
-`DeliveryProcessor` loads the selected shipping methods, puts them on their deliveries before they are priced and drops selections whose delivery is gone.
+`DeliveryProcessor` loads the selected shipping methods, puts them on their deliveries right after the `DeliveryBuilder` built them and drops selections whose delivery is gone.
+Extensions that split the cart into several deliveries do so in the `DeliveryBuilder`, deliveries a later processor regroups lose their selection.
+Rules matched for the whole cart, like the availability rule of a payment method, keep seeing the context shipping method.
 A selected shipping method that is not available blocks the cart with a `ShippingMethodBlockedError` instead of being replaced.
 `DeliveryBuilder::changeShippingMethod()` moves a delivery to another shipping method and gives positions without their own delivery time the delivery time of that method, counted from the restock for positions that wait for one.
 
@@ -569,6 +571,7 @@ It is `null` for order deliveries and order transactions that did not come from 
 The new `PATCH /store-api/checkout/cart/delivery` route stores the shipping method the customer selected for single deliveries of the cart and returns the recalculated cart.
 Each entry names a delivery by its `identifier`; `null` as `shippingMethodId` drops the selection.
 The route does not change the shipping method of the context, but a selection for the `default` delivery wins over it until it is dropped.
+`/store-api/shipping-cost/cart` keeps pricing each shipping method for the whole cart and ignores these selections.
 
 ```json
 {

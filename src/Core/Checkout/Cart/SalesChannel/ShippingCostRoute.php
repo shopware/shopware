@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\SelectedDeliveryShippingMethods;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingCost;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingCostCollection;
 use Shopware\Core\Checkout\Cart\Extension\ShippingCostRouteExtension;
@@ -94,8 +95,9 @@ class ShippingCostRoute extends AbstractShippingCostRoute
             }
 
             $shippingMethods = $this->loadShippingMethods($salesChannelContext, $availableShippingMethodIds);
+            $deliveriesFollowTheContext = !$cart->hasExtension(SelectedDeliveryShippingMethods::KEY);
             foreach ($shippingMethods as $shippingMethod) {
-                if ($shippingMethod->getId() === $salesChannelContext->getShippingMethod()->getId()) {
+                if ($deliveriesFollowTheContext && $shippingMethod->getId() === $salesChannelContext->getShippingMethod()->getId()) {
                     $deliveries = $cart->getDeliveries();
                 } else {
                     $deliveries = $this->resolveCartDeliveries(
@@ -143,6 +145,7 @@ class ShippingCostRoute extends AbstractShippingCostRoute
         $cart = clone $originalCart;
         // the what-if calculation must never address the customer's persisted cart
         $cart->setToken(Uuid::randomHex());
+        $cart->removeExtension(SelectedDeliveryShippingMethods::KEY);
 
         // Setting data to avoid loading them twice - and separate
         $cart->getData()->set('shipping-method-' . $shippingMethod->getId(), $shippingMethod);

@@ -33,6 +33,10 @@
                         "type": "string",
                         "pattern": "^[0-9a-f]{32}$"
                     },
+                    "identifier": {
+                        "description": "Unique identity of the delivery in the cart the order was placed from.",
+                        "type": "string"
+                    },
                     "shippingOrderAddressId": {
                         "description": "Unique identity of order's shipping address.",
                         "type": "string",

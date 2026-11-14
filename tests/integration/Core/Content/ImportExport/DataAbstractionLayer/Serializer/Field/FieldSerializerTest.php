@@ -69,6 +69,7 @@ class FieldSerializerTest extends TestCase
                 'translated' => [],
                 'orderId' => 'order-id',
                 'orderVersionId' => 'order-version-id',
+                'identifier' => null,
                 'shippingOrderAddressId' => 'shipping-order-address-id',
                 'shippingOrderAddressVersionId' => 'shipping-order-address-version-id',
                 'shippingMethodId' => 'shipping-method-id',

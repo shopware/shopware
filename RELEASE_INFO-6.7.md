@@ -426,6 +426,19 @@ It throws `CHECKOUT__CART_DELIVERY_POSITION_INVALID_SPLIT_QUANTITY`, `CHECKOUT__
 `DeliveryPositionCollection::getWeight()` and `getVolume()` now count the position quantity instead of the line item quantity.
 For extensions that already build positions holding part of a line item, this changes weight and volume based shipping costs and the cart volume rule.
 
+### Cart deliveries and transactions have an identifier
+
+`Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery` and `Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction` take a new last constructor argument `identifier`, read through `getIdentifier()`.
+It names the delivery or transaction within the cart like the id of a line item: it is unique in the cart, and the same delivery or transaction gets the same identifier again in the next calculation.
+Whoever builds a delivery or transaction sets it, for example an extension that splits deliveries per warehouse can use the warehouse id.
+The delivery and transaction core builds use `Delivery::DEFAULT_IDENTIFIER` and `Transaction::DEFAULT_IDENTIFIER` (`default`), and a shipping discount delivery gets the identifier of the delivery it discounts, followed by `-` and the id of the discount line item.
+A delivery or transaction without an identifier can not be addressed, and neither can the shipping discount delivery of such a delivery.
+
+The identifier is stored on the order delivery and order transaction and restored when an order is converted back to a cart, so editing or recalculating an order keeps it.
+Order deliveries and order transactions that did not come from a cart delivery or transaction have no identifier, for example those of orders placed before this release or the transaction a payment method change adds after checkout.
+Converting such an order to a cart names them by their order delivery or order transaction id.
+Not passing an identifier is deprecated, it becomes required in 6.8.
+
 ## API
 
 ### Plain JSON becomes the default Admin API response format in 6.8
@@ -534,6 +547,12 @@ A price definition written to a price definition field, for example `priceDefini
 
 Before, such a definition was stored and every later read of the entity failed, or a missing `percentage`, `net` or `gross` was read as 0. A numeric string as `price` of an `absolute` or as `percentage` of a `percentage` price definition, which was already accepted on write, can now be read as well.
 The same applies to `"quantity": null` and `"isCalculated": null` of a `quantity` price definition, which are now read as `1` and `false`.
+
+### Deliveries and transactions have an `identifier`
+
+Deliveries and transactions of the Store API cart have a new `identifier` field that names them within the cart and stays the same across calculations.
+Order deliveries and order transactions in the Admin API and Store API have a new `identifier` field with the identifier of the cart delivery or transaction the order was placed from.
+It is `null` for order deliveries and order transactions that did not come from the cart, for example those of orders placed before this release or the transaction a payment method change adds after checkout.
 
 ## Features
 

@@ -439,6 +439,18 @@ Order deliveries and order transactions that did not come from a cart delivery o
 Converting such an order to a cart names them by their order delivery or order transaction id.
 Not passing an identifier is deprecated, it becomes required in 6.8.
 
+### Customers can select a shipping method per cart delivery
+
+The cart applies a shipping method the customer selected for a single delivery, while the context shipping method stays the default for all others.
+A delivery is selected by its `identifier`, shipping discount deliveries can not be selected.
+Core's own delivery is `default`, so a shipping method selected for it wins over the context shipping method until the selection is dropped.
+The selections are stored in the `delivery-shipping-methods` cart extension (`SelectedDeliveryShippingMethods`) and survive the login, where the guest's selection wins over the one saved on the customer's cart.
+`DeliveryProcessor` loads the selected shipping methods, puts them on their deliveries right after the `DeliveryBuilder` built them and drops selections whose delivery is gone.
+Extensions that split the cart into several deliveries do so in the `DeliveryBuilder`, deliveries a later processor regroups lose their selection.
+Rules matched for the whole cart, like the availability rule of a payment method, keep seeing the context shipping method.
+A selected shipping method that is not available blocks the cart with a `ShippingMethodBlockedError` instead of being replaced.
+`DeliveryBuilder::changeShippingMethod()` moves a delivery to another shipping method and gives positions without their own delivery time the delivery time of that method, counted from the restock for positions that wait for one.
+
 ## API
 
 ### Plain JSON becomes the default Admin API response format in 6.8
@@ -553,6 +565,21 @@ The same applies to `"quantity": null` and `"isCalculated": null` of a `quantity
 Deliveries and transactions of the Store API cart have a new `identifier` field that names them within the cart and stays the same across calculations.
 Order deliveries and order transactions in the Admin API and Store API have a new `identifier` field with the identifier of the cart delivery or transaction the order was placed from.
 It is `null` for order deliveries and order transactions that did not come from the cart, for example those of orders placed before this release or the transaction a payment method change adds after checkout.
+
+### Select the shipping method of a cart delivery
+
+The new `PATCH /store-api/checkout/cart/delivery` route stores the shipping method the customer selected for single deliveries of the cart and returns the recalculated cart.
+Each entry names a delivery by its `identifier`; `null` as `shippingMethodId` drops the selection.
+The route does not change the shipping method of the context, but a selection for the `default` delivery wins over it until it is dropped.
+`/store-api/shipping-cost/cart` keeps pricing each shipping method for the whole cart and ignores these selections.
+
+```json
+{
+    "deliveries": [
+        { "identifier": "default", "shippingMethodId": "0190b1b8cbc173b7a8c4bd5c5e1e4e2d" }
+    ]
+}
+```
 
 ## Features
 

@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\SelectedDeliveryShippingMethods;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingCostCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
@@ -282,6 +283,39 @@ class ShippingCostRouteTest extends TestCase
         static::assertCount(1, $response->getShippingCosts());
         static::assertEqualsWithDelta(3.0, $response->getShippingCost($shippingMethod->getId())?->getTotalPrice(), 0.001);
         static::assertSame($deliveryDate, $response->getDeliveryDate($shippingMethod->getId()));
+    }
+
+    public function testShippingCostsCartIgnoresTheShippingMethodsSelectedPerDelivery(): void
+    {
+        $shippingMethod = $this->createShippingMethod('shipping-1');
+        $context = Generator::generateSalesChannelContext(shippingMethod: $shippingMethod);
+        $deliveryDate = new DeliveryDate(new \DateTimeImmutable('2024-01-01'), new \DateTimeImmutable('2024-01-03'));
+        $cart = $this->createCartWithDeliveries($this->createShippingMethod('selected'), $deliveryDate, 15.0);
+        $cart->addExtension(SelectedDeliveryShippingMethods::KEY, new SelectedDeliveryShippingMethods([Delivery::DEFAULT_IDENTIFIER => 'selected']));
+
+        $cartRuleLoader = $this->createMock(CartRuleLoader::class);
+        $cartRuleLoader
+            ->expects($this->once())
+            ->method('loadByCart')
+            ->with(
+                static::isInstanceOf(SalesChannelContext::class),
+                static::callback(static fn (Cart $whatIf): bool => !$whatIf->hasExtension(SelectedDeliveryShippingMethods::KEY)),
+                static::isInstanceOf(CartBehavior::class),
+                true,
+            )
+            ->willReturn(new RuleLoaderResult($this->createCartWithDeliveries($shippingMethod, $deliveryDate, 5.0), new RuleCollection()));
+
+        $route = new ShippingCostRoute(
+            $this->createShippingMethodRepositoryMock(new ShippingMethodCollection([$shippingMethod]), $context, [$shippingMethod->getId()]),
+            $cartRuleLoader,
+            static::createStub(AbstractCheckoutGatewayRoute::class),
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
+
+        $response = $route->shippingCostsCart($cart, $context, [$shippingMethod->getId()]);
+
+        static::assertEqualsWithDelta(5.0, $response->getShippingCost($shippingMethod->getId())?->getTotalPrice(), 0.001);
+        static::assertTrue($cart->hasExtension(SelectedDeliveryShippingMethods::KEY));
     }
 
     public function testShippingCostsCartSkipsShippingMethodsWithoutDelivery(): void

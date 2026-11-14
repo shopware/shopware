@@ -101,7 +101,7 @@
                     "Cart"
                 ],
                 "summary": "Calculate shipping costs for the cart",
-                "description": "Calculates shipping costs for the current cart across available shipping methods.",
+                "description": "Calculates shipping costs for the current cart across available shipping methods. Each method is priced for the whole cart, shipping methods selected for single deliveries are ignored.",
                 "operationId": "readShippingCostsByCart",
                 "parameters": [
                     {
@@ -377,6 +377,88 @@
                     "404": {
                         "$ref": "#/components/responses/404",
                         "description": "One of the given ids does not reference a line item of the current cart."
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/checkout/cart/delivery": {
+            "patch": {
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Select the shipping method of cart deliveries",
+                "description": "Stores the shipping method the customer selected for single deliveries of the cart and returns the recalculated cart. A delivery is addressed by its `identifier`, shipping discount deliveries cannot be selected. The selection stays on the cart until it is dropped or the delivery disappears, and it wins over the shipping method of the context, which the route does not change. A selected shipping method that is not available for the delivery blocks the cart with a `shipping-method-blocked` error.",
+                "operationId": "updateCartDeliveries",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "deliveries"
+                                ],
+                                "properties": {
+                                    "deliveries": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "required": [
+                                                "identifier"
+                                            ],
+                                            "properties": {
+                                                "identifier": {
+                                                    "description": "The `identifier` of the cart delivery.",
+                                                    "type": "string"
+                                                },
+                                                "shippingMethodId": {
+                                                    "description": "Identifier of the shipping method for this delivery. `null` drops the selection, and the delivery uses the shipping method of the context again.",
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "pattern": "^[0-9a-f]{32}$"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The recalculated cart. The selections are listed in the `delivery-shipping-methods` cart extension.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Cart"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The shipping method does not exist or is not assigned to the sales channel."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404",
+                        "description": "One of the given identifiers does not reference a delivery of the current cart, or references a shipping discount delivery."
                     }
                 },
                 "security": [

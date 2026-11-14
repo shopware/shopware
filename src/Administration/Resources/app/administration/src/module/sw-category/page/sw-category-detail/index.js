@@ -632,8 +632,6 @@ export default {
             this.isLoading = true;
 
             try {
-                await this.updateSeoUrls();
-
                 const response = await this.systemConfigApiService.getValues('core.cms');
 
                 this.defaultCategoryId = response['core.cms.default_category_cms_page'];
@@ -643,6 +641,8 @@ export default {
                 }
 
                 await this.categoryRepository.save(this.category, { ...Shopware.Context.api });
+
+                await this.updateSeoUrls();
 
                 this.isSaveSuccessful = true;
                 this.entryPointOverwriteConfirmed = false;
@@ -862,41 +862,40 @@ export default {
                 return Promise.resolve();
             }
 
-            const seoUrls = Shopware.Store.get('swSeoUrl').newOrModifiedUrls;
+            const seoUrls = Shopware.Store.get('swSeoUrl').newOrModifiedUrls.filter((seoUrl) => {
+                return seoUrl.foreignKey === this.category.id;
+            });
 
             return Promise.all(
                 seoUrls.map((seoUrl) => {
-                    if (seoUrl.seoPathInfo) {
-                        seoUrl.isModified = true;
-                        return this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId).catch((error) => {
-                            if (error.response?.data?.errors) {
-                                error.response.data.errors.forEach((apiError) => {
-                                    const messageKey = `global.error-codes.${apiError.detail}`;
-                                    const params = apiError.meta?.parameters || {};
-                                    const translatedMessage = this.$t(messageKey, params);
+                    seoUrl.isModified = !!seoUrl.seoPathInfo?.trim();
 
-                                    const errorMessage =
-                                        translatedMessage !== messageKey
-                                            ? translatedMessage
-                                            : apiError.detail ||
-                                              apiError.title ||
-                                              this.$t('global.notification.unspecifiedSaveErrorMessage');
+                    return this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId).catch((error) => {
+                        if (error.response?.data?.errors) {
+                            error.response.data.errors.forEach((apiError) => {
+                                const messageKey = `global.error-codes.${apiError.detail}`;
+                                const params = apiError.meta?.parameters || {};
+                                const translatedMessage = this.$t(messageKey, params);
 
-                                    this.createNotificationError({
-                                        message: errorMessage,
-                                    });
-                                });
-                            } else {
+                                const errorMessage =
+                                    translatedMessage !== messageKey
+                                        ? translatedMessage
+                                        : apiError.detail ||
+                                          apiError.title ||
+                                          this.$t('global.notification.unspecifiedSaveErrorMessage');
+
                                 this.createNotificationError({
-                                    message: error.message || this.$t('global.notification.unspecifiedSaveErrorMessage'),
+                                    message: errorMessage,
                                 });
-                            }
+                            });
+                        } else {
+                            this.createNotificationError({
+                                message: error.message || this.$t('global.notification.unspecifiedSaveErrorMessage'),
+                            });
+                        }
 
-                            return Promise.reject(error);
-                        });
-                    }
-
-                    return Promise.resolve();
+                        return Promise.reject(error);
+                    });
                 }),
             );
         },

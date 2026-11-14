@@ -64,6 +64,76 @@ class SeoUrlUpdater
     }
 
     /**
+     * Replaces the canonical SEO URL of one entity in one sales channel and language with the URL generated from its
+     * template, also when it is write-protected. Returns false and writes nothing when the template generates no URL there.
+     *
+     * @internal
+     */
+    public function resetToTemplate(string $routeName, string $id, string $salesChannelId, string $languageId, bool $isHeadless): bool
+    {
+        if ($routeName === '') {
+            return false;
+        }
+
+        $id = strtolower($id);
+        $salesChannelId = strtolower($salesChannelId);
+        $languageId = strtolower($languageId);
+
+        if ($isHeadless) {
+            $entityRoute = $this->findEntitySeoUrlRoute($routeName);
+            $route = $entityRoute === null ? null : new ConfiguredEntitySeoUrlRoute($entityRoute);
+        } else {
+            $route = $this->seoUrlRouteRegistry->findByRouteName($routeName);
+        }
+
+        if ($route === null) {
+            throw SeoException::seoUrlRouteNotFound($routeName);
+        }
+
+        $template = null;
+        foreach ($this->loadUrlTemplate($routeName, $isHeadless, true, $salesChannelId) as $config) {
+            if ($config['languageId'] === $languageId) {
+                $template = $config['template'];
+            }
+        }
+
+        if ($template === null) {
+            return false;
+        }
+
+        $context = Context::createDefaultContext();
+        $chain = $this->fetchLanguageChains($context)[$languageId] ?? null;
+        $criteria = new Criteria([$salesChannelId]);
+        $criteria->addAssociation('domains');
+        $salesChannel = $this->salesChannelRepository->search($criteria, $context)->getEntities()->first();
+
+        if ($chain === null || $salesChannel === null) {
+            return false;
+        }
+
+        $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
+        $languageContext->setConsiderInheritance(true);
+
+        $urls = [];
+        foreach ($this->seoUrlGenerator->generate([$id], $template, $route, $languageContext, $salesChannel) as $url) {
+            if (($url->getError() ?? '') !== '' || $url->getSeoPathInfo() === '') {
+                continue;
+            }
+
+            $url->setIsModified(false);
+            $urls[] = $url;
+        }
+
+        if ($urls === []) {
+            return false;
+        }
+
+        $this->seoUrlPersister->forceUpdateSeoUrls($languageContext, $routeName, [$id], $urls, $salesChannel);
+
+        return true;
+    }
+
+    /**
      * @param list<string> $ids
      */
     private function doUpdate(string $routeName, array $ids, bool $onlyChangedTemplate, ?string $templateSalesChannelId): void

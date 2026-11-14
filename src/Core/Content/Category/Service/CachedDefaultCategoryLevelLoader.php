@@ -6,6 +6,7 @@ use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEvents;
 use Shopware\Core\Content\Category\Event\CategoryLevelLoaderCacheKeyEvent;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
@@ -27,6 +28,7 @@ class CachedDefaultCategoryLevelLoader implements DefaultCategoryLevelLoaderInte
         private readonly TagAwareCacheInterface $cache,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly DefaultCategoryLevelLoaderInterface $inner,
+        private readonly EntityCacheKeyGenerator $cacheKeyGenerator,
     ) {
     }
 
@@ -106,13 +108,16 @@ class CachedDefaultCategoryLevelLoader implements DefaultCategoryLevelLoaderInte
 
     private function getCacheKey(string $rootId, SalesChannelContext $context, Criteria $criteria, int $depth): ?string
     {
+        $parts = [
+            'rootId' => $rootId,
+            'depth' => $depth,
+            'salesChannelId' => $context->getSalesChannelId(),
+            'languageId' => $context->getContext()->getLanguageId(),
+            'criteria' => $this->cacheKeyGenerator->getCriteriaHash($criteria),
+        ];
+
         $event = new CategoryLevelLoaderCacheKeyEvent(
-            [
-                'rootId' => $rootId,
-                'depth' => $depth,
-                'salesChannelId' => $context->getSalesChannelId(),
-                'languageId' => $context->getContext()->getLanguageId(),
-            ],
+            $parts,
             $rootId,
             $depth,
             $context,

@@ -37,7 +37,7 @@ rules:
 ### CI covers
 
 - Danger `MissingUnitTests` (a new `src/` class without a unit test or `@codeCoverageIgnore`), `TraitUsageInNewUnitTests`, `SingleCoversClassInTests`, `MissingPackageAttributeInTests`. Report TEST-001 for changed existing classes, which Danger does not see.
-- PHPStan `Rules/Tests`: `NoCreateMockWithoutExpectationsRule` (provable mocks without expectations), `NoKernelInUnitTestsRule` and `NoKernelLifecycleManagerInUnitTestsRule` (kernel or database in unit tests), `NoReflectionInUnitTestsRule` and `NoReflectionOnNonPublicMethodsRule`, `NoExpectExceptionMessageRule`, `NoAnyInvocationMatcherRule`, `NoUnreachableAssertionAfterExpectExceptionRule`, `NoFeatureSkipInUnitTestsRule`, `DataProviderRowArityRule`, `CoversAttributeRule`, `TestPackageMatchRule`; `CodeCoverageIgnoreEvaluationRule` for misused `@codeCoverageIgnore`.
+- PHPStan `Rules/Tests`: `NoCreateMockWithoutExpectationsRule` (provable mocks without expectations), `NoKernelInUnitTestsRule` and `NoKernelLifecycleManagerInUnitTestsRule` (kernel or database in unit tests), `NoRealFilesystemInUnitTestsRule` (temp directories and filesystem writes in unit tests), `NoReflectionInUnitTestsRule` and `NoReflectionOnNonPublicMethodsRule`, `NoExpectExceptionMessageRule`, `NoAnyInvocationMatcherRule`, `NoUnreachableAssertionAfterExpectExceptionRule`, `NoFeatureSkipInUnitTestsRule`, `DataProviderRowArityRule`, `CoversAttributeRule`, `TestPackageMatchRule`; `CodeCoverageIgnoreEvaluationRule` for misused `@codeCoverageIgnore`.
 
 ### Legitimate patterns
 

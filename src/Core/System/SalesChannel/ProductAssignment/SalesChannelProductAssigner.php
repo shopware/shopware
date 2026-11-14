@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\ProductAssignment\Api\SalesChannelProductAssignmentRequest;
@@ -75,7 +75,7 @@ class SalesChannelProductAssigner
         $remainingPages = self::MAX_PAGES_PER_CALL;
         foreach ($this->buildCriteria($request, $queuedIndexingContext) as $criteria) {
             $criteria->addFilter(
-                new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('visibilities.salesChannelId', $salesChannelId)])
+                new NotEqualsFilter('visibilities.salesChannelId', $salesChannelId)
             );
             $criteria->setLimit(self::CHUNK_SIZE);
 

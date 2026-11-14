@@ -36,6 +36,13 @@ describe('build/vue-setup-transform error locations', () => {
         expect(error.frame).toContain('1  |  <template><div /></template>');
     });
 
+    it('attributes the error to the SFC rather than to the module importing it', () => {
+        const error = captureTransformError('<template><div /></template>', 'sw-no-script.vue');
+
+        // Vite and Rollup fall back to the importer for an error without an id.
+        expect(error.id).toBe('sw-no-script.vue');
+    });
+
     it('resolves template diagnostics against the template rather than the script', () => {
         const source = stripIndent`
             <script setup>

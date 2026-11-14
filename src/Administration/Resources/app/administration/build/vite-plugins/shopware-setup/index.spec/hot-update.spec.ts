@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 
+import { ShopwareSetupInternalError } from '../../../vue-setup-transform';
 import { createPlugin, createVueFile, type HotUpdateOptions, spyOnTransform } from './helpers';
 
 describe('build/vite-plugins/shopware-setup hot updates', () => {
@@ -78,13 +79,11 @@ swDefinePublic({});
         expect(options.read).not.toHaveBeenCalled();
     });
 
-    it('reports a transform failure once, at its file location, instead of pushing the update', async () => {
+    it('reports a transform failure once instead of pushing the update', async () => {
         const plugin = createPlugin();
         const file = '/example/sw-broken-component.vue';
         const virtualId = `${file}.shopware-setup.vue`;
         const context = createHotUpdateContext([virtualId]);
-        const message =
-            '[shopware-setup] /example/sw-broken-component.vue:2:23\nUnable to parse Shopware setup script: Unexpected token, expected ","';
 
         // Without the report, a save with no browser attached printed nothing (issue #19562). A pushed
         // update would make a connected client refetch the module and Vite report the failure again.
@@ -92,9 +91,31 @@ swDefinePublic({});
 
         expect(result).toEqual([]);
         expect(context.environment.logger.error).toHaveBeenCalledTimes(1);
-        expect(context.environment.logger.error).toHaveBeenCalledWith(message);
-        expect(context.environment.hot.send).toHaveBeenCalledWith({ type: 'error', err: { message, stack: '' } });
+        expect(context.environment.hot.send).toHaveBeenCalledTimes(1);
         expect(context.environment.moduleGraph.invalidateModule).toHaveBeenCalledWith({ id: virtualId });
+    });
+
+    it('reports a transform failure with its location and code frame in the terminal and the overlay', async () => {
+        const plugin = createPlugin();
+        const file = '/example/sw-broken-component.vue';
+        const context = createHotUpdateContext([]);
+        const message = 'Unable to parse Shopware setup script: Unexpected token, expected ","';
+        const frame = [
+            '1  |  <script setup>',
+            '2  |  const broken = { a: 1 b: 2 };',
+            '   |                        ^',
+            '3  |  ',
+            '4  |  swDefinePublic({});',
+        ].join('\n');
+
+        await plugin.hotUpdate.call(context, createHotUpdateOptions(file, { source: brokenSource }));
+
+        // Vite's own coordinates (0-based column), so the save matches what a failing page load prints.
+        expect(context.environment.logger.error).toHaveBeenCalledWith(`[shopware-setup] ${file}:2:22\n${message}\n${frame}`);
+        expect(context.environment.hot.send).toHaveBeenCalledWith({
+            type: 'error',
+            err: { message, stack: '', id: file, loc: { file, line: 2, column: 22 }, frame },
+        });
     });
 
     it('reports a transform failure of a file no client has loaded yet', async () => {
@@ -112,18 +133,48 @@ swDefinePublic({});
         expect(context.environment.moduleGraph.invalidateModule).not.toHaveBeenCalled();
     });
 
-    it('reports a failure without a source offset by file name only', async () => {
+    it('reports a failure without a source location by file name only', async () => {
         const plugin = createPlugin();
+        const file = '/example/sw-my-component.vue';
         const context = createHotUpdateContext([]);
         const transformSpy = spyOnTransform().mockImplementation(() => {
             throw new Error('Transform unavailable');
         });
 
-        await plugin.hotUpdate.call(context, createHotUpdateOptions('/example/sw-my-component.vue'));
+        await plugin.hotUpdate.call(context, createHotUpdateOptions(file));
 
+        expect(context.environment.logger.error).toHaveBeenCalledWith(`[shopware-setup] ${file}\nTransform unavailable`);
+        expect(context.environment.hot.send).toHaveBeenCalledWith({
+            type: 'error',
+            err: { message: 'Transform unavailable', stack: '', id: file },
+        });
+
+        transformSpy.mockRestore();
+    });
+
+    it('reports an analyzer bug with its throw site in the terminal and the overlay', async () => {
+        const plugin = createPlugin();
+        const file = '/example/sw-my-component.vue';
+        const context = createHotUpdateContext([]);
+        const error = new ShopwareSetupInternalError('Overlapping Shopware setup source edits.', 0);
+        error.loc = { file, line: 1, column: 0 };
+        error.frame = '1  |  <template />';
+        const throwSite = (error.stack ?? '').slice(`${error.name}: ${error.message}\n`.length);
+        const transformSpy = spyOnTransform().mockImplementation(() => {
+            throw error;
+        });
+
+        await plugin.hotUpdate.call(context, createHotUpdateOptions(file));
+
+        // Unlike an author error, the fix for an analyzer bug goes where it was thrown.
+        expect(throwSite).toMatch(/^\s+at .*hot-update\.spec\.ts/);
         expect(context.environment.logger.error).toHaveBeenCalledWith(
-            '[shopware-setup] /example/sw-my-component.vue\nTransform unavailable',
+            `[shopware-setup] ${file}:1:0\n${error.message}\n${error.frame}\n${throwSite}`,
         );
+        expect(context.environment.hot.send).toHaveBeenCalledWith({
+            type: 'error',
+            err: { message: error.message, stack: throwSite, id: file, loc: error.loc, frame: error.frame },
+        });
 
         transformSpy.mockRestore();
     });

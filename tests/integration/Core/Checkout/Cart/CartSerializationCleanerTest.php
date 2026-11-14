@@ -215,7 +215,8 @@ class CartSerializationCleanerTest extends TestCase
             new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
             new ShippingMethodEntity(),
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(1.0, 1.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(1.0, 1.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
 
         return new DeliveryCollection([$delivery]);

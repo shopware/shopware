@@ -31,7 +31,8 @@ describe('codecovCommitUrl', () => {
     });
 });
 
-const networkError = () => new TypeError('fetch failed', { cause: Object.assign(new Error('read ECONNRESET'), { code: 'ECONNRESET' }) });
+const networkError = () =>
+    new TypeError('fetch failed', { cause: Object.assign(new Error('read ECONNRESET'), { code: 'ECONNRESET' }) });
 
 describe('isRetryable', () => {
     it('retries network errors, timeouts, 429 and 5xx', () => {
@@ -55,13 +56,13 @@ describe('describeError', () => {
 
     it('unpacks AggregateError causes', () => {
         const error = new TypeError('fetch failed', {
-            cause: new AggregateError([Object.assign(new Error('connect ECONNREFUSED ::1:443'), { code: 'ECONNREFUSED' })], ''),
+            cause: new AggregateError(
+                [Object.assign(new Error('connect ECONNREFUSED ::1:443'), { code: 'ECONNREFUSED' })],
+                '',
+            ),
         });
 
-        assert.equal(
-            describeError(error),
-            'fetch failed <- caused by: connect ECONNREFUSED ::1:443 [ECONNREFUSED]',
-        );
+        assert.equal(describeError(error), 'fetch failed <- caused by: connect ECONNREFUSED ::1:443 [ECONNREFUSED]');
     });
 });
 
@@ -81,8 +82,14 @@ describe('withRetry', () => {
 
         assert.equal(result, 'ok');
         assert.equal(operation.mock.callCount(), 3);
-        assert.deepEqual(sleep.mock.calls.map((c) => c.arguments[0]), [1_000, 2_000]);
-        assert.match(warn.mock.calls[0].arguments[0], /request failed \(attempt 1\/4\): fetch failed <- caused by: read ECONNRESET \[ECONNRESET\]; retrying in 1s/);
+        assert.deepEqual(
+            sleep.mock.calls.map((c) => c.arguments[0]),
+            [1_000, 2_000],
+        );
+        assert.match(
+            warn.mock.calls[0].arguments[0],
+            /request failed \(attempt 1\/4\): fetch failed <- caused by: read ECONNRESET \[ECONNRESET\]; retrying in 1s/,
+        );
     });
 
     it('gives up after the last attempt and keeps the original error as cause', async () => {
@@ -91,11 +98,14 @@ describe('withRetry', () => {
         });
         const sleep = mock.fn(async () => {});
 
-        await assert.rejects(withRetry('request', operation, sleep, [1, 1, 1], () => {}), (error: Error) => {
-            assert.equal(error.message, 'request failed after 4 attempt(s)');
-            assert.match(describeError(error), /ECONNRESET/);
-            return true;
-        });
+        await assert.rejects(
+            withRetry('request', operation, sleep, [1, 1, 1], () => {}),
+            (error: Error) => {
+                assert.equal(error.message, 'request failed after 4 attempt(s)');
+                assert.match(describeError(error), /ECONNRESET/);
+                return true;
+            },
+        );
         assert.equal(operation.mock.callCount(), 4);
     });
 
@@ -105,7 +115,10 @@ describe('withRetry', () => {
         });
         const sleep = mock.fn(async () => {});
 
-        await assert.rejects(withRetry('request', operation, sleep, [1, 1, 1], () => {}), /failed after 1 attempt/);
+        await assert.rejects(
+            withRetry('request', operation, sleep, [1, 1, 1], () => {}),
+            /failed after 1 attempt/,
+        );
         assert.equal(operation.mock.callCount(), 1);
         assert.equal(sleep.mock.callCount(), 0);
     });
@@ -119,7 +132,13 @@ describe('fetchCodecovCommit', () => {
             return jsonResponse(commit);
         });
 
-        const result = await fetchCodecovCommit('shopware', 'shopware', 'abc123', 'secret', fetchImpl as unknown as typeof fetch);
+        const result = await fetchCodecovCommit(
+            'shopware',
+            'shopware',
+            'abc123',
+            'secret',
+            fetchImpl as unknown as typeof fetch,
+        );
 
         assert.deepEqual(result, commit);
     });
@@ -203,15 +222,18 @@ describe('buildGetDxPayload', () => {
     });
 
     it('rejects a "complete" commit with no totals', () => {
-        assert.throws(
-            () => buildGetDxPayload('abc123', 'shopware', 'trunk', null, '2026-09-18T12:07:45Z'),
-            /has no totals/,
-        );
+        assert.throws(() => buildGetDxPayload('abc123', 'shopware', 'trunk', null, '2026-09-18T12:07:45Z'), /has no totals/);
     });
 });
 
 describe('pushCoverageToGetDx', () => {
-    const payload = buildGetDxPayload('abc123', 'shopware', 'trunk', { coverage: 78.4, lines: 100, hits: 78 }, '2026-09-18T12:07:45Z');
+    const payload = buildGetDxPayload(
+        'abc123',
+        'shopware',
+        'trunk',
+        { coverage: 78.4, lines: 100, hits: 78 },
+        '2026-09-18T12:07:45Z',
+    );
 
     it('POSTs the payload with a bearer token', async () => {
         const fetchImpl = mock.fn(async (url: string, init?: RequestInit) => {

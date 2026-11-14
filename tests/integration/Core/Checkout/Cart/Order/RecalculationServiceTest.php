@@ -26,11 +26,13 @@ use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -871,7 +873,8 @@ class RecalculationServiceTest extends TestCase
                 new DeliveryDate(new \DateTime(), new \DateTime()),
                 $shippingMethod,
                 new ShippingLocation(new CountryEntity(), null, $this->getCustomerAddress(Uuid::randomHex())),
-                new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection())
+                new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                Delivery::DEFAULT_IDENTIFIER
             ),
         ]));
 
@@ -953,6 +956,30 @@ class RecalculationServiceTest extends TestCase
         static::assertSame(-0.5, $newPromotionDelivery?->getShippingCosts()->getTotalPrice());
 
         static::assertNotSame($newPromotionDelivery->getId(), $promotionDelivery->getId());
+    }
+
+    public function testRecalculationKeepsTheIdentifiersOfDeliveriesAndTransactions(): void
+    {
+        ['orderId' => $orderId] = $this->persistCart($this->generateDemoCart());
+        $versionId = $this->createVersionedOrder($orderId);
+        $promotionId = $this->createShippingDiscount(5.0);
+
+        [$order] = $this->applyAutomaticPromotions($orderId, $versionId, $promotionId);
+        [$recalculatedOrder] = $this->applyAutomaticPromotions($orderId, $versionId, $promotionId);
+
+        $promotionLineItem = $order->getLineItems()?->filterByType(PromotionProcessor::LINE_ITEM_TYPE)->first();
+        static::assertNotNull($promotionLineItem);
+        $expectedDeliveryIdentifiers = [Delivery::DEFAULT_IDENTIFIER, Delivery::DEFAULT_IDENTIFIER . '-' . $promotionLineItem->getIdentifier()];
+
+        foreach ([$order, $recalculatedOrder] as $orderVersion) {
+            $deliveryIdentifiers = array_values($orderVersion->getDeliveries()?->map(static fn (OrderDeliveryEntity $orderDelivery) => $orderDelivery->getIdentifier()) ?? []);
+            sort($deliveryIdentifiers);
+            static::assertSame($expectedDeliveryIdentifiers, $deliveryIdentifiers);
+        }
+
+        $transactions = $this->fetchOrderWithTransactions($orderId, $this->context->createWithVersionId($versionId))->getTransactions();
+        static::assertNotNull($transactions);
+        static::assertSame([Transaction::DEFAULT_IDENTIFIER], array_values($transactions->map(static fn (OrderTransactionEntity $transaction) => $transaction->getIdentifier())));
     }
 
     public function testEditOrderWithFreeShippingPromotionKeepsDeliveryPositions(): void

@@ -177,7 +177,8 @@ class DeliveryValidatorTest extends TestCase
             $deliveryDate,
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
     }
 }

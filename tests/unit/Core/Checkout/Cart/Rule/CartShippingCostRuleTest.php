@@ -246,7 +246,8 @@ class CartShippingCostRuleTest extends TestCase
                     $deliveryDate,
                     new ShippingMethodEntity(),
                     new ShippingLocation(new CountryEntity(), null, null),
-                    $calculatedPrice
+                    $calculatedPrice,
+                    Delivery::DEFAULT_IDENTIFIER
                 ),
             ]
         ));

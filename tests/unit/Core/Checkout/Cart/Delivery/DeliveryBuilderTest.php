@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryTime;
@@ -166,6 +167,7 @@ class DeliveryBuilderTest extends TestCase
         $delivery = $deliveryCollection->first();
         static::assertNotNull($delivery);
 
+        static::assertSame(Delivery::DEFAULT_IDENTIFIER, $delivery->getIdentifier());
         static::assertSame($shippingMethod, $delivery->getShippingMethod());
         static::assertSame($deliveryLocation, $delivery->getLocation());
         static::assertEquals(
@@ -342,6 +344,28 @@ class DeliveryBuilderTest extends TestCase
             ]),
             DeliveryDate::createFromDeliveryTime(self::createDeliveryTime(2, 3)),
         ];
+    }
+
+    public function testResolveDeliveryDateChecksTheStockAgainstTheGivenQuantity(): void
+    {
+        $lineItem = (new LineItem('line-item-id', LineItem::CUSTOM_LINE_ITEM_TYPE, null, 5))
+            ->assign(['deliveryInformation' => new DeliveryInformation(3, 0.0, false, 2, self::createDeliveryTime(4, 5))]);
+
+        static::assertEquals(
+            DeliveryDate::createFromDeliveryTime(self::createDeliveryTime(4, 5)),
+            DeliveryBuilder::resolveDeliveryDate($lineItem, 3, null),
+        );
+        static::assertEquals(
+            DeliveryDate::createFromDeliveryTime(self::createDeliveryTime(6, 7)),
+            DeliveryBuilder::resolveDeliveryDate($lineItem, 4, null),
+        );
+    }
+
+    public function testResolveDeliveryDateReturnsNullWithoutDeliveryInformation(): void
+    {
+        $lineItem = new LineItem('line-item-id', LineItem::CUSTOM_LINE_ITEM_TYPE);
+
+        static::assertNull(DeliveryBuilder::resolveDeliveryDate($lineItem, 1, self::createDeliveryTime(1, 2)));
     }
 
     private static function createDeliveryTimeEntity(string $unit, int $min, int $max): DeliveryTimeEntity

@@ -319,6 +319,32 @@ class OrderConverterTest extends TestCase
         static::assertJsonStringEqualsJsonString($expectedJson, $actual);
     }
 
+    public function testConvertToOrderMakesTheDeliveryWithTheHighestShippingCostsThePrimaryOne(): void
+    {
+        $shipment = $this->getDeliveryCollection()->first();
+        static::assertInstanceOf(Delivery::class, $shipment);
+        $shipment->setShippingCosts(new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $shippingDiscount = clone $shipment;
+        $shippingDiscount->setShippingCosts(new CalculatedPrice(-5, -5, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $cart = $this->getCart();
+        $cart->setDeliveries(new DeliveryCollection([$shippingDiscount, $shipment]));
+
+        $result = $this->orderConverter->convertToOrder($cart, $this->getSalesChannelContext(true), new OrderConversionContext());
+
+        static::assertIsArray($result['deliveries']);
+        $primaryDeliveries = array_values(array_filter(
+            $result['deliveries'],
+            static fn (array $delivery): bool => ($delivery['id'] ?? null) === $result['primaryOrderDeliveryId'],
+        ));
+
+        static::assertCount(1, $primaryDeliveries);
+        $shippingCosts = $primaryDeliveries[0]['shippingCosts'];
+        static::assertInstanceOf(CalculatedPrice::class, $shippingCosts);
+        static::assertSame(10.0, $shippingCosts->getTotalPrice());
+    }
+
     /**
      * @param \Closure(): ShopwareHttpException $expectedException
      */
@@ -435,6 +461,34 @@ class OrderConverterTest extends TestCase
             'primaryOrderTransactionId' => 'not-loaded-transaction-id',
             'expectedTransactionIds' => ['order-transaction-cancelled-id', 'order-transaction-id', 'order-transaction-failed-id'],
         ];
+    }
+
+    public function testConvertToCartRestoresTheIdentifiersOfDeliveriesAndTransactions(): void
+    {
+        $order = $this->getOrder();
+        $order->getDeliveries()?->get('order-delivery-id')?->setIdentifier('warehouse-1');
+        foreach ($order->getTransactions() ?? [] as $orderTransaction) {
+            $orderTransaction->setIdentifier('identifier-of-' . $orderTransaction->getId());
+        }
+
+        $cart = $this->orderConverter->convertToCart($order, Context::createDefaultContext());
+
+        static::assertSame('warehouse-1', $cart->getDeliveries()->first()?->getIdentifier());
+        static::assertSame(
+            ['identifier-of-order-transaction-cancelled-id', 'identifier-of-order-transaction-id', 'identifier-of-order-transaction-failed-id'],
+            array_values($cart->getTransactions()->map(static fn (Transaction $transaction) => $transaction->getIdentifier()))
+        );
+    }
+
+    public function testConvertToCartNamesDeliveriesAndTransactionsOfOrdersWithoutIdentifiersByTheirIds(): void
+    {
+        $cart = $this->orderConverter->convertToCart($this->getOrder(), Context::createDefaultContext());
+
+        static::assertSame('order-delivery-id', $cart->getDeliveries()->first()?->getIdentifier());
+        static::assertSame(
+            ['order-transaction-cancelled-id', 'order-transaction-id', 'order-transaction-failed-id'],
+            array_values($cart->getTransactions()->map(static fn (Transaction $transaction) => $transaction->getIdentifier()))
+        );
     }
 
     public function testConvertToCartWithoutLoadedTransactions(): void
@@ -1170,7 +1224,8 @@ class OrderConverterTest extends TestCase
             new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
             $shippingMethod,
             $shippingLocation,
-            new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
         $deliveryCollection->add($delivery);
 

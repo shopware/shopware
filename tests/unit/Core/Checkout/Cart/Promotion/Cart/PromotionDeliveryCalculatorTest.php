@@ -34,6 +34,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\Stub\Rule\FalseRule;
@@ -130,7 +131,8 @@ class PromotionDeliveryCalculatorTest extends TestCase
             new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
             new ShippingMethodEntity(),
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(40.0, 40.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(40.0, 40.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
 
         $cart = new Cart('promotion-test');
@@ -174,7 +176,8 @@ class PromotionDeliveryCalculatorTest extends TestCase
             new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
             new ShippingMethodEntity(),
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(5.0, 5.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(5.0, 5.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
 
         $cart = new Cart('promotion-test');
@@ -234,7 +237,8 @@ class PromotionDeliveryCalculatorTest extends TestCase
             new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
             new ShippingMethodEntity(),
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(5.0, 5.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(5.0, 5.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
 
         $cart = new Cart('promotion-test');
@@ -275,7 +279,8 @@ class PromotionDeliveryCalculatorTest extends TestCase
             new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
             new ShippingMethodEntity(),
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(1.0, 1.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(1.0, 1.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
 
         $cart = new Cart('promotion-test');
@@ -320,7 +325,8 @@ class PromotionDeliveryCalculatorTest extends TestCase
             new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
             new ShippingMethodEntity(),
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
 
         $cart = new Cart('promotion-test');
@@ -362,7 +368,8 @@ class PromotionDeliveryCalculatorTest extends TestCase
             new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
             new ShippingMethodEntity(),
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
 
         $cart = new Cart('promotion-test');
@@ -423,7 +430,8 @@ class PromotionDeliveryCalculatorTest extends TestCase
             new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
             new ShippingMethodEntity(),
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
 
         $cart = new Cart('promotion-test');
@@ -491,7 +499,8 @@ class PromotionDeliveryCalculatorTest extends TestCase
             new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
             new ShippingMethodEntity(),
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
 
         // Prepare products to the cart
@@ -545,7 +554,8 @@ class PromotionDeliveryCalculatorTest extends TestCase
             new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
             new ShippingMethodEntity(),
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
 
         $cart = new Cart('promotion-test');
@@ -590,7 +600,8 @@ class PromotionDeliveryCalculatorTest extends TestCase
             new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
             new ShippingMethodEntity(),
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
 
         $cart = new Cart('promotion-test');
@@ -621,7 +632,8 @@ class PromotionDeliveryCalculatorTest extends TestCase
             new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
             new ShippingMethodEntity(),
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
 
         $cart = new Cart('promotion-test');
@@ -679,7 +691,8 @@ class PromotionDeliveryCalculatorTest extends TestCase
             new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
             new ShippingMethodEntity(),
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
 
         $cart = new Cart('promotion-test');
@@ -708,7 +721,8 @@ class PromotionDeliveryCalculatorTest extends TestCase
             new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
             new ShippingMethodEntity(),
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(40.0, 40.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(40.0, 40.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
 
         $cart = new Cart('promotion-test');
@@ -743,7 +757,8 @@ class PromotionDeliveryCalculatorTest extends TestCase
             new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
             new ShippingMethodEntity(),
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(40.0, 40.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(40.0, 40.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
 
         $cart = new Cart('promotion-test');
@@ -764,6 +779,71 @@ class PromotionDeliveryCalculatorTest extends TestCase
         static::assertInstanceOf(PromotionNotEligibleError::class, $error);
         static::assertSame('promotion-not-eligible', $error->getMessageKey());
         static::assertSame(['rule-id-1', 'rule-id-2'], $error->getRuleIds());
+    }
+
+    public function testShippingDiscountDeliveriesAreNamedAfterTheDiscountedDeliveryAndTheDiscount(): void
+    {
+        $this->quantityPriceCalculator
+            ->method('calculate')
+            ->willReturnCallback(static fn (QuantityPriceDefinition $definition): CalculatedPrice => new CalculatedPrice($definition->getPrice(), $definition->getPrice(), new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $cart = new Cart('promotion-test');
+        $cart->setDeliveries(new DeliveryCollection([
+            $this->createDelivery('warehouse-1', 10.0),
+            $this->createDelivery('warehouse-2', 10.0),
+        ]));
+
+        $spreadOverBothDeliveries = $this->getDiscountItem('discount-a')
+            ->setPayloadValue('code', 'code-a')
+            ->setPriceDefinition(new AbsolutePriceDefinition(-15.0));
+        $onTheFirstDelivery = $this->getDiscountItem('discount-b')
+            ->setPayloadValue('code', 'code-b')
+            ->setPriceDefinition(new AbsolutePriceDefinition(-2.0));
+
+        $this->promotionDeliveryCalculator->calculate(
+            new LineItemCollection([$spreadOverBothDeliveries, $onTheFirstDelivery]),
+            $cart,
+            $cart,
+            static::createStub(SalesChannelContext::class)
+        );
+
+        static::assertSame(
+            ['warehouse-1', 'warehouse-2', 'warehouse-1-discount-a', 'warehouse-2-discount-a', 'warehouse-1-discount-b'],
+            array_values($cart->getDeliveries()->map(static fn (Delivery $delivery) => $delivery->getIdentifier()))
+        );
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testShippingDiscountDeliveryOfADeliveryWithoutIdentifierHasNone(): void
+    {
+        $this->quantityPriceCalculator
+            ->method('calculate')
+            ->willReturnCallback(static fn (QuantityPriceDefinition $definition): CalculatedPrice => new CalculatedPrice($definition->getPrice(), $definition->getPrice(), new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $cart = new Cart('promotion-test');
+        $cart->setDeliveries(new DeliveryCollection([$this->createDelivery(null, 10.0)]));
+
+        $this->promotionDeliveryCalculator->calculate(
+            new LineItemCollection([$this->getDiscountItem('discount-a')->setPayloadValue('code', 'code-a')]),
+            $cart,
+            $cart,
+            static::createStub(SalesChannelContext::class)
+        );
+
+        static::assertCount(2, $cart->getDeliveries());
+        static::assertNull($cart->getDeliveries()->last()?->getIdentifier());
+    }
+
+    private function createDelivery(?string $identifier, float $shippingCosts): Delivery
+    {
+        return new Delivery(
+            new DeliveryPositionCollection(),
+            new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
+            new ShippingMethodEntity(),
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice($shippingCosts, $shippingCosts, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            $identifier
+        );
     }
 
     private function getDiscountItem(string $promotionId): LineItem

@@ -49,7 +49,7 @@ class StorefrontCartFacade
     ): Cart {
         $originalCart = $this->cartService->getCart($token, $originalContext, $caching, $taxed);
         $cartErrors = $originalCart->getErrors();
-        if (!$this->cartContainsBlockedMethods($cartErrors)) {
+        if (!$this->isContextMethodBlocked($cartErrors, $originalContext)) {
             return $originalCart;
         }
 
@@ -72,7 +72,7 @@ class StorefrontCartFacade
         $cart = $this->get($token, $context, $caching, $taxed);
         $gatewayResponse = $this->checkoutGatewayRoute->load($request, $cart, $context);
 
-        if ($this->cartContainsBlockedMethods($gatewayResponse->getErrors())) {
+        if ($this->isContextMethodBlocked($gatewayResponse->getErrors(), $context)) {
             $cart = $this->resolveBlockedMethodsFromGatewayResponse($cart, $context, $gatewayResponse);
             $gatewayResponse->setErrors($cart->getErrors());
         }
@@ -101,14 +101,14 @@ class StorefrontCartFacade
         $newCart = $this->calculator->calculate($originalCart, $updatedContext);
 
         // Recalculated cart successfully unblocked
-        if (!$this->cartContainsBlockedMethods($newCart->getErrors())) {
+        if (!$this->isContextMethodBlocked($newCart->getErrors(), $updatedContext)) {
             $this->cartPersister->save($newCart, $updatedContext);
             $this->updateSalesChannelContext($updatedContext, $originalContext);
 
             return $newCart;
         }
 
-        // Recalculated cart contains one or more blocked shipping/payment method, rollback changes
+        // The context's shipping or payment method is still blocked in the recalculated cart, rollback changes
         $this->removeSwitchNotices($originalCart->getErrors());
 
         return $originalCart;
@@ -132,10 +132,14 @@ class StorefrontCartFacade
         return $this->switchCartMethods($cart, $context, $contextShippingMethod, $contextPaymentMethod);
     }
 
-    private function cartContainsBlockedMethods(ErrorCollection $errors): bool
+    private function isContextMethodBlocked(ErrorCollection $errors, SalesChannelContext $context): bool
     {
+        if ($this->blockedShippingMethodSwitcher->isContextShippingMethodBlocked($errors, $context)) {
+            return true;
+        }
+
         foreach ($errors as $error) {
-            if ($error instanceof ShippingMethodBlockedError || $error instanceof PaymentMethodBlockedError) {
+            if ($error instanceof PaymentMethodBlockedError) {
                 return true;
             }
         }

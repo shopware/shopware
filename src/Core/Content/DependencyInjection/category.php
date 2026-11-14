@@ -85,6 +85,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('cache.object'),
             service('event_dispatcher'),
             service(CachedDefaultCategoryLevelLoader::class . '.inner'),
+            service(Connection::class),
         ])
         ->tag('kernel.event_subscriber');
 

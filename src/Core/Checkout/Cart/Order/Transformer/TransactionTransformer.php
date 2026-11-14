@@ -38,9 +38,9 @@ class TransactionTransformer
         Context $context
     ): array {
         $data = [
+            'identifier' => $transaction->getIdentifier(),
             'paymentMethodId' => $transaction->getPaymentMethodId(),
             'amount' => $transaction->getAmount(),
-            'payload' => $transaction->getPayload(),
         ];
 
         $id = $transaction->getExtensionOfType(OrderConverter::ORIGINAL_ID, IdStruct::class)?->getId();

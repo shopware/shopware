@@ -104,6 +104,7 @@ class DeliveryProcessorTest extends TestCase
             new ShippingMethodEntity(),
             new ShippingLocation(new CountryEntity(), null, null),
             new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER,
         );
 
         $builder = $this->createMock(DeliveryBuilder::class);
@@ -357,6 +358,7 @@ class DeliveryProcessorTest extends TestCase
             new ShippingMethodEntity(),
             new ShippingLocation(new CountryEntity(), null, null),
             new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER,
         );
     }
 
@@ -373,6 +375,7 @@ class DeliveryProcessorTest extends TestCase
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),
             new CalculatedPrice($shippingCosts, $shippingCosts, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            $orderDeliveryId,
         );
         $delivery->addExtension(OrderConverter::ORIGINAL_ID, new IdStruct($orderDeliveryId));
 

@@ -188,6 +188,7 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
             'paymentMethodId' => $paymentMethodId,
             'stateId' => static::getContainer()->get(InitialStateIdLoader::class)->get(OrderTransactionStates::STATE_MACHINE),
             'amount' => new CalculatedPrice(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
+            'payload' => '{}',
         ];
 
         $this->orderTransactionRepository->upsert([$transaction], $context);

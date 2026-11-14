@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -25,11 +26,12 @@ class TransactionTransformerTest extends TestCase
 {
     public function testTransform(): void
     {
-        $transaction = new Transaction(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()), 'test');
+        $transaction = new Transaction(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()), 'test', Transaction::DEFAULT_IDENTIFIER);
         $transaction->setValidationStruct(new ArrayStruct());
 
         $data = TransactionTransformer::transform($transaction, 'state', Context::createDefaultContext());
 
+        static::assertSame(Transaction::DEFAULT_IDENTIFIER, $data['identifier']);
         static::assertSame('test', $data['paymentMethodId']);
         static::assertSame($transaction->getAmount(), $data['amount']);
         static::assertSame('state', $data['stateId']);
@@ -39,7 +41,7 @@ class TransactionTransformerTest extends TestCase
     public function testTransformLeavesStateAndValidationDataOfAnOrderTransaction(): void
     {
         $amount = new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection());
-        $transaction = new Transaction($amount, 'test');
+        $transaction = new Transaction($amount, 'test', Transaction::DEFAULT_IDENTIFIER);
         $transaction->setValidationStruct(new ArrayStruct());
         $transaction->addExtension(OrderConverter::ORIGINAL_ID, new IdStruct('order-transaction-id'));
 
@@ -47,29 +49,15 @@ class TransactionTransformerTest extends TestCase
 
         static::assertSame([
             'id' => 'order-transaction-id',
+            'identifier' => Transaction::DEFAULT_IDENTIFIER,
             'paymentMethodId' => 'test',
             'amount' => $amount,
-            'payload' => [],
         ], $data);
-    }
-
-    public function testTransformCarriesThePayloadForNewAndExistingTransactions(): void
-    {
-        $transaction = new Transaction(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()), 'test');
-        $transaction->setPayload(['psp' => 'reference-1']);
-
-        $data = TransactionTransformer::transform($transaction, 'state', Context::createDefaultContext());
-        static::assertSame(['psp' => 'reference-1'], $data['payload']);
-
-        $transaction->addExtension(OrderConverter::ORIGINAL_ID, new IdStruct('order-transaction-id'));
-
-        $data = TransactionTransformer::transform($transaction, 'state', Context::createDefaultContext());
-        static::assertSame(['psp' => 'reference-1'], $data['payload']);
     }
 
     public function testTransformCollection(): void
     {
-        $transaction = new Transaction(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()), 'test');
+        $transaction = new Transaction(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()), 'test', Transaction::DEFAULT_IDENTIFIER);
         $transaction->setValidationStruct(new ArrayStruct());
 
         $data = TransactionTransformer::transformCollection(new TransactionCollection([$transaction]), 'state', Context::createDefaultContext());
@@ -79,5 +67,15 @@ class TransactionTransformerTest extends TestCase
         static::assertSame($transaction->getAmount(), $data['amount']);
         static::assertSame('state', $data['stateId']);
         static::assertSame($transaction->getValidationStruct()?->jsonSerialize(), $data['validationData']);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testTransformWritesNoIdentifierForATransactionWithoutOne(): void
+    {
+        $transaction = new Transaction(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()), 'test');
+
+        $data = TransactionTransformer::transform($transaction, 'state', Context::createDefaultContext());
+
+        static::assertNull($data['identifier']);
     }
 }

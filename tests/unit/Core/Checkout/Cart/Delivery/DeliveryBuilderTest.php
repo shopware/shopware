@@ -169,6 +169,7 @@ class DeliveryBuilderTest extends TestCase
         $delivery = $deliveryCollection->first();
         static::assertNotNull($delivery);
 
+        static::assertSame(Delivery::DEFAULT_IDENTIFIER, $delivery->getIdentifier());
         static::assertSame($shippingMethod, $delivery->getShippingMethod());
         static::assertSame($deliveryLocation, $delivery->getLocation());
         static::assertEquals(

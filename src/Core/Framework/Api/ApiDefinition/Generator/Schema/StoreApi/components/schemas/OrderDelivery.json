@@ -33,6 +33,10 @@
                         "type": "string",
                         "pattern": "^[0-9a-f]{32}$"
                     },
+                    "identifier": {
+                        "description": "Unique identity of the delivery in the cart the order was placed from.",
+                        "type": "string"
+                    },
                     "shippingOrderAddressId": {
                         "description": "Unique identity of order's shipping address.",
                         "type": "string",
@@ -126,12 +130,6 @@
                             }
                         },
                         "type": "object"
-                    },
-                    "payload": {
-                        "description": "Data extensions attached to the delivery in the cart. Core defines no keys. An empty payload is an empty array.",
-                        "type": ["object", "array"],
-                        "maxItems": 0,
-                        "additionalProperties": true
                     },
                     "customFields": {
                         "type": "object"

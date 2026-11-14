@@ -8,6 +8,10 @@
                 "type": "object",
                 "description": "A list of all cart errors, such as insufficient stocks, invalid addresses or vouchers.",
                 "properties": {
+                    "identifier": {
+                        "description": "Unique identity of the delivery within the cart, the same for the same delivery in the next calculation.",
+                        "type": "string"
+                    },
                     "deliveryDate": {
                         "type": "object",
                         "properties": {
@@ -50,9 +54,6 @@
                     },
                     "shippingMethod": {
                         "$ref": "#/components/schemas/ShippingMethod"
-                    },
-                    "payload": {
-                        "$ref": "#/components/schemas/OrderDelivery/properties/payload"
                     }
                 }
             }

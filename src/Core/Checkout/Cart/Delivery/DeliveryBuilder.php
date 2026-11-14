@@ -148,7 +148,8 @@ class DeliveryBuilder
             $this->getDeliveryDateByPositions($positions, $maxDeliveryDate),
             $shippingMethod,
             $context->getShippingLocation(),
-            new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
     }
 

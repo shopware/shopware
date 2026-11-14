@@ -31,6 +31,10 @@
                         "type": "string",
                         "pattern": "^[0-9a-f]{32}$"
                     },
+                    "identifier": {
+                        "description": "Unique identity of the transaction in the cart the order was placed from.",
+                        "type": "string"
+                    },
                     "paymentMethodId": {
                         "description": "Unique identity of payment method.",
                         "type": "string",
@@ -104,12 +108,6 @@
                         "description": "Unique identity of state.",
                         "type": "string",
                         "pattern": "^[0-9a-f]{32}$"
-                    },
-                    "payload": {
-                        "description": "Data extensions attached to the transaction in the cart. Core defines no keys. An empty payload is an empty array.",
-                        "type": ["object", "array"],
-                        "maxItems": 0,
-                        "additionalProperties": true
                     },
                     "customFields": {
                         "type": "object"

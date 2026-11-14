@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -65,10 +66,10 @@ class OrderTransactionDefinition extends EntityDefinition
             (new VersionField())->addFlags(new ApiAware()),
             (new FkField('order_id', 'orderId', OrderDefinition::class))->addFlags(new ApiAware(), new Required())->setDescription('Unique identity of an order.'),
             (new ReferenceVersionField(OrderDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new StringField('identifier', 'identifier'))->addFlags(new ApiAware())->setDescription('Unique identity of the transaction in the cart the order was placed from.'),
             (new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class))->addFlags(new ApiAware(), new Required())->setDescription('Unique identity of payment method.'),
             (new CalculatedPriceField('amount', 'amount'))->addFlags(new ApiAware(), new Required())->setDescription('Number of items of each product.'),
             (new JsonField('validation_data', 'validationData'))->addFlags(new ApiAware()),
-            (new JsonField('payload', 'payload', [], []))->addFlags(new ApiAware())->setDescription('Data extensions attached to the transaction in the cart.'),
 
             (new StateMachineStateField('state_id', 'stateId', OrderTransactionStates::STATE_MACHINE))->addFlags(new ApiAware(), new Required())->setDescription('Unique identity of state.'),
             (new ManyToOneAssociationField('stateMachineState', 'state_id', StateMachineStateDefinition::class, 'id'))->addFlags(new ApiAware())->setDescription('Current payment transaction state (e.g., open, paid, cancelled)'),

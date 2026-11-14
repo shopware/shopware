@@ -48,7 +48,6 @@ class CartException extends HttpException
     public const CART_INVALID_PRICE_DEFINITION_CODE = 'CHECKOUT__CART_MISSING_PRICE_DEFINITION';
     public const CART_MIXED_LINE_ITEM_TYPE_CODE = 'CHECKOUT__CART_MIXED_LINE_ITEM_TYPE';
     public const CART_PAYLOAD_KEY_NOT_FOUND_CODE = 'CHECKOUT__CART_PAYLOAD_KEY_NOT_FOUND';
-    public const CART_STRUCT_PAYLOAD_KEY_NOT_FOUND_CODE = 'CHECKOUT__CART_STRUCT_PAYLOAD_KEY_NOT_FOUND';
     public const CART_MISSING_DEFAULT_PRICE_COLLECTION_FOR_DISCOUNT_CODE = 'CHECKOUT__CART_MISSING_DEFAULT_PRICE_COLLECTION_FOR_DISCOUNT';
     public const CART_ABSOLUTE_DISCOUNT_MISSING_PRICE_COLLECTION_CODE = 'CHECKOUT__CART_ABSOLUTE_DISCOUNT_MISSING_PRICE_COLLECTION';
     public const CART_DISCOUNT_TYPE_NOT_SUPPORTED_CODE = 'CHECKOUT__CART_DISCOUNT_TYPE_NOT_SUPPORTED';
@@ -349,16 +348,6 @@ class CartException extends HttpException
             self::CART_PAYLOAD_KEY_NOT_FOUND_CODE,
             'Payload key "{{ key }}" in line item "{{ id }}" not found.',
             ['key' => $key, 'id' => $lineItemId]
-        );
-    }
-
-    public static function structPayloadKeyNotFound(string $key, string $struct): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::CART_STRUCT_PAYLOAD_KEY_NOT_FOUND_CODE,
-            'Payload key "{{ key }}" in {{ struct }} not found.',
-            ['key' => $key, 'struct' => $struct]
         );
     }
 

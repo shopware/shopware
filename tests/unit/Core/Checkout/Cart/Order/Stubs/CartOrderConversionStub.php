@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order\Stubs;
 
+use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -217,7 +218,7 @@ final class CartOrderConversionStub
                         'regulationPrice' => null,
                         'extensions' => [],
                     ],
-                    'payload' => [],
+                    'identifier' => 'order-delivery-id',
                     'extensions' => [
                         'originalId' => [
                             'id' => 'order-delivery-id',
@@ -249,7 +250,7 @@ final class CartOrderConversionStub
                     ],
                     'paymentMethodId' => 'order-transaction-cancelled-payment-method-id',
                     'validationStruct' => null,
-                    'payload' => [],
+                    'identifier' => 'order-transaction-cancelled-id',
                     'extensions' => [
                         'originalId' => [
                             'id' => 'order-transaction-cancelled-id',
@@ -271,7 +272,7 @@ final class CartOrderConversionStub
                     ],
                     'paymentMethodId' => 'order-transaction-payment-method-id',
                     'validationStruct' => null,
-                    'payload' => [],
+                    'identifier' => 'order-transaction-id',
                     'extensions' => [
                         'originalId' => [
                             'id' => 'order-transaction-id',
@@ -293,7 +294,7 @@ final class CartOrderConversionStub
                     ],
                     'paymentMethodId' => 'order-transaction-failed-payment-method-id',
                     'validationStruct' => null,
-                    'payload' => [],
+                    'identifier' => 'order-transaction-failed-id',
                     'extensions' => [
                         'originalId' => [
                             'id' => 'order-transaction-failed-id',
@@ -397,6 +398,7 @@ final class CartOrderConversionStub
                     ],
                 ],
                 'deliveries' => [[
+                    'identifier' => Delivery::DEFAULT_IDENTIFIER,
                     'positions' => [],
                     'shippingCosts' => [
                         'calculatedTaxes' => [],
@@ -410,7 +412,6 @@ final class CartOrderConversionStub
                         'unitPrice' => 1,
                     ],
                     'shippingMethodId' => 'shipping-method-id',
-                    'payload' => [],
                     'shippingOrderAddress' => [
                         'city' => 'billing-address-city',
                         'countryId' => 'billing-address-country-id',
@@ -551,6 +552,7 @@ final class CartOrderConversionStub
                 ],
             ],
             'deliveries' => [[
+                'identifier' => Delivery::DEFAULT_IDENTIFIER,
                 'positions' => [],
                 'shippingCosts' => [
                     'calculatedTaxes' => [],
@@ -564,7 +566,6 @@ final class CartOrderConversionStub
                     'unitPrice' => 1,
                 ],
                 'shippingMethodId' => 'shipping-method-id',
-                'payload' => [],
                 'shippingOrderAddress' => [
                     'city' => 'billing-address-city',
                     'countryId' => 'billing-address-country-id',

@@ -25,14 +25,11 @@ class OrderTransactionEntity extends Entity
 
     protected string $orderVersionId;
 
+    protected ?string $identifier = null;
+
     protected string $paymentMethodId;
 
     protected CalculatedPrice $amount;
-
-    /**
-     * @var array<string, scalar|array<array-key, mixed>|null>
-     */
-    protected array $payload = [];
 
     protected ?PaymentMethodEntity $paymentMethod = null;
 
@@ -141,6 +138,16 @@ class OrderTransactionEntity extends Entity
         $this->orderVersionId = $orderVersionId;
     }
 
+    public function getIdentifier(): ?string
+    {
+        return $this->identifier;
+    }
+
+    public function setIdentifier(?string $identifier): void
+    {
+        $this->identifier = $identifier;
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -165,21 +172,5 @@ class OrderTransactionEntity extends Entity
     public function setPrimaryOrder(?OrderEntity $primaryOrder): void
     {
         $this->primaryOrder = $primaryOrder;
-    }
-
-    /**
-     * @return array<string, scalar|array<array-key, mixed>|null>
-     */
-    public function getPayload(): array
-    {
-        return $this->payload;
-    }
-
-    /**
-     * @param array<string, scalar|array<array-key, mixed>|null> $payload
-     */
-    public function setPayload(array $payload): void
-    {
-        $this->payload = $payload;
     }
 }

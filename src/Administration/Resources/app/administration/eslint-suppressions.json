@@ -6357,11 +6357,6 @@
       "count": 1
     }
   },
-  "src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-config-product-listing-config-delete-modal/index.js": {
-    "filename-rules/not-match": {
-      "count": 1
-    }
-  },
   "src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-config-product-listing-config-sorting-grid/index.js": {
     "filename-rules/not-match": {
       "count": 1

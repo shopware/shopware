@@ -15,7 +15,7 @@ import type { Config } from 'jest';
 import { existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { isMajorRun, loadFeatureConfig } from './test/_helper_/majorFeatureFlags';
+import { isMajorRun, loadFeatureConfig } from './scripts/feature-flags';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 

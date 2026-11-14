@@ -5,7 +5,7 @@
 
 import type { DeprecationOptions } from 'src/core/feature';
 import { getDefaultActiveFeatureFlags } from './defaultActiveFeatureFlags';
-import normalizeFeatureFlag from './normalizeFeatureFlag';
+import { isSameFlag } from '../../scripts/feature-flags';
 import { location, ownFrames, usageSite } from './deprecationUsageSite';
 import { isBaselined, isListed, recordUsedBaselineEntry } from './deprecationBaseline';
 import { isBaselineUpdateRun } from './isBaselineUpdateRun';
@@ -166,9 +166,7 @@ export function shouldHandleDeprecationsThroughMock(
     isMajorActive: boolean,
     isMajorKnown: boolean,
 ): boolean {
-    const normalizedMajor = normalizeFeatureFlag(majorFlag);
-    const isActivatedByTest =
-        isMajorActive && !getDefaultActiveFeatureFlags().some((flag) => normalizeFeatureFlag(flag) === normalizedMajor);
+    const isActivatedByTest = isMajorActive && !getDefaultActiveFeatureFlags().some((flag) => isSameFlag(flag, majorFlag));
 
     return deprecations.isRecording && isMajorKnown && !isActivatedByTest;
 }

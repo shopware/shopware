@@ -31,6 +31,7 @@ use Shopware\Administration\System\SalesChannel\Subscriber\SalesChannelUserConfi
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Customer\Validation\CustomerEmailUniqueChecker;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\Http\Event\BeforeCacheControlEvent;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
@@ -162,6 +163,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('sales_channel.product.repository'),
             service(SalesChannelContextService::class),
             service(RequestCriteriaBuilder::class),
+            service(ProductListingLoader::class),
         ])
         ->call('setContainer', [service('service_container')]);
 

@@ -156,7 +156,7 @@ export function shouldActivateShim(overrideConfig: ComponentConfig): boolean {
 export function convertOptionsApiOverrideToCompositionApi<
     COMPONENT_NAME extends keyof ComponentPublicApiMapping & string = string,
 >(componentName: COMPONENT_NAME, optionsConfig: ComponentConfig): OverrideFn {
-    logDeprecationWarning(componentName);
+    reportShimDeprecation(componentName);
     checkUnsupportedFeatures(componentName, optionsConfig);
 
     return (previousState: ComponentState, props: ComponentState): ComponentState => {
@@ -708,11 +708,12 @@ function checkUnsupportedFeatures(componentName: string, config: ComponentConfig
 }
 
 /**
- * Logs deprecation warning when shim activates
+ * Reports the activated compatibility shim as deprecated: warns before 6.8, throws once V6_8_0_0 is active.
  */
-function logDeprecationWarning(componentName: string): void {
-    console.warn(
-        `[Deprecation Warning] Component "${componentName}" is being overridden with Options API patterns, ` +
+function reportShimDeprecation(componentName: string): void {
+    Shopware.Feature.triggerDeprecationOrThrow(
+        'V6_8_0_0',
+        `Component "${componentName}" is being overridden with Options API patterns, ` +
             `but the target uses Composition API. A compatibility shim has been activated. ` +
             `This is a temporary solution and may have limitations. ` +
             `Please migrate your override to use Shopware.Component.overrideComponentSetup(). ` +

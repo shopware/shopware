@@ -152,6 +152,24 @@ function writeCodemodConfig(administrationRoot: string, codemods: EslintCodemod[
     return configPath;
 }
 
+const VITE_CONFIG_NAMES = [
+    'js',
+    'mjs',
+    'cjs',
+    'ts',
+    'mts',
+    'cts',
+].map((extension) => `vite.config.${extension}`);
+
+/** An extension's own Vite config sits next to its `src` folder, so the source folders alone would miss it. */
+function viteConfigFiles(sourceDirectories: string[]): string[] {
+    const administrationDirectories = [...new Set(sourceDirectories.map((directory) => path.dirname(directory)))];
+
+    return administrationDirectories.flatMap((directory) =>
+        VITE_CONFIG_NAMES.map((name) => path.join(directory, name)).filter((file) => fs.existsSync(file)),
+    );
+}
+
 function runEslint(options: {
     administrationRoot: string;
     configPath: string;
@@ -177,7 +195,9 @@ function runEslint(options: {
             // A source folder with only snippets or styles must not abort the run for the other folders.
             '--no-error-on-unmatched-pattern',
             ...(options.fix ? ['--fix'] : []),
-            ...options.sourceDirectories.map((directory) => path.relative(options.extensionRoot, directory) || '.'),
+            ...[...options.sourceDirectories, ...viteConfigFiles(options.sourceDirectories)].map(
+                (entry) => path.relative(options.extensionRoot, entry) || '.',
+            ),
         ],
         { cwd: options.extensionRoot, encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 },
     );

@@ -185,6 +185,14 @@ The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physica
 Values that are already set are kept.
 Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
 
+### Opt-out attribute for MCP tools without privileges
+
+An Admin API MCP tool that reads no shop data can now declare `#[McpToolRequiresNoPrivilege(reason: '...')]` instead of `#[McpToolRequires]`.
+The new PHPStan rule `shopware.mcpAdminToolMissingRequires` reports an Admin API tool that declares neither attribute,
+and `shopware.mcpStoreApiToolAdminAcl` reports a Store API tool that uses Admin ACL privileges.
+Both rules are part of the rule set that extensions include.
+They only report when `parameters.symfony.containerXmlPath` points to a compiled container that registers the extension's tools.
+
 ### ZUGFeRD documents include `discount` line items
 
 ZUGFeRD and XRechnung documents now contain line items of type `discount` (`LineItem::DISCOUNT_LINE_ITEM`), as added by app scripts via `services.cart.discount()` / `services.cart.surcharge()` or by extensions.

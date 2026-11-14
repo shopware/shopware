@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Mcp\Tool;
 use Mcp\Capability\Attribute\McpTool;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
+use Shopware\Core\Framework\Mcp\Attribute\McpToolRequiresNoPrivilege;
 use Shopware\Core\Framework\Mcp\McpRequestedToolsetResolver;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 #[Package('framework')]
 #[McpTool(name: McpToolsetRegistry::LIST_TOOLSETS_TOOL, title: 'List Toolsets', description: 'List the MCP toolsets and whether each is enabled for the current session, either in the connect URL or with shopware-toolset-enable. Use this when no advertised tool fits the task: a toolset\'s tools become available once you enable it.')]
 #[McpToolGroup('discovery')]
+#[McpToolRequiresNoPrivilege(reason: 'Discovery meta-tool, it only returns capabilities the allowlist of the caller already permits.')]
 class ToolsetsListTool extends McpToolResponse
 {
     /**

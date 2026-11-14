@@ -1719,40 +1719,48 @@ const integrationRepository = Shopware.Service('repositoryFactory').create('inte
 await integrationRepository.save(integration);
 ```
 
-<details>
+## Removed Twig blocks with misleading names in CMS element configs
 
-### Block removals
+The following blocks of CMS element configs and of `sw-product-cross-selling-assignment` were named after other components and have been removed.
+Override the blocks listed below instead.
 
-Due to inappropriate block names, the following deprecated blocks have been removed. Use the respective replacements instead:
+### sw-cms-el-config-buy-box.html.twig
 
-#### sw-cms-el-config-buy-box.html.twig
+* `sw_cms_element_buy_box_config_product_variant_label` -> `sw_cms_element_buy_box_config_mt_product_variant_label`
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_buy_box_config_mt_product_select_result_label`
 
-* `sw_cms_element_buy_box_config_product_variant_label` -> `sw_cms_element_buy_box_config_product_selection_label`
-* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_buy_box_config_product_select_result_item_inner`
+### sw-cms-el-config-cross-selling.html.twig
 
-#### sw-cms-el-config-cross-selling.html.twig
+* `sw_entity_single_select_variant_selected_item` -> `sw_cms_element_cross_selling_config_mt_product_variant_label`
+* `sw_entity_single_select_variant_result_item` -> `sw_cms_element_cross_selling_config_mt_product_select_result_item`
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_cross_selling_config_mt_product_select_result_label`
 
-* `sw_entity_single_select_variant_selected_item` -> `sw_cms_element_cross_selling_config_content_products_selection_label`
-* `sw_entity_single_select_variant_result_item` -> `sw_cms_element_cross_selling_config_content_products_select_result_item`
-* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_cross_selling_config_content_products_select_result_item_inner`
+### sw-cms-el-config-image-slider.html.twig
 
-#### sw-cms-el-config-product-box.html.twig
+* `sw_cms_element_image_gallery_config_settings_display_mode` -> `sw_cms_element_image_slider_config_mt_settings_display_mode`
+* `sw_cms_element_image_gallery_config_settings_display_mode_select` -> `sw_cms_element_image_slider_config_mt_settings_display_mode_select`
+* `sw_cms_element_image_gallery_config_settings_min_height` -> `sw_cms_element_image_slider_config_mt_settings_min_height`
+* `sw_cms_element_image_gallery_config_settings_vertical_align` -> `sw_cms_element_image_slider_config_mt_settings_vertical_align`
+
+### sw-cms-el-config-product-box.html.twig
 
 * `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_box_config_product_select_result_item_inner`
 
-#### sw-cms-el-config-product-description-reviews.html.twig
+### sw-cms-el-config-product-description-reviews.html.twig
 
-* `sw_entity_single_select_variant_selected_item` -> `sw_cms_element_product_description_reviews_config_product_selection_label`
-* `sw_entity_single_select_variant_result_item` -> `sw_cms_element_product_description_reviews_config_product_select_result_item`
-* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_description_reviews_config_product_select_result_item_inner`
+* `sw_entity_single_select_variant_selected_item` -> `sw_cms_element_product_description_reviews_config_mt_product_variant_label`
+* `sw_entity_single_select_variant_result_item` -> `sw_cms_element_product_description_reviews_config_mt_product_select_result_item`
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_description_reviews_config_mt_product_select_result_label`
 
-#### sw-cms-el-config-product-slider.html.twig
+### sw-cms-el-config-product-slider.html.twig
 
-* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_slider_config_content_products_select_result_item_inner`
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_slider_config_mt_entity_single_select_base_results_list_result_label`
 
-#### sw-product-cross-selling-assignment.html.twig
+### sw-product-cross-selling-assignment.html.twig
 
 * `sw_entity_single_select_base_results_list_result_label` -> `sw_product_cross_selling_assignment_select_result_item_inner`
+
+<details>
 
 ## Migrating Options API overrides to the Composition API Extension System
 
@@ -2020,6 +2028,143 @@ An override that read it resolves the filter directly instead:
 Shopware.Filter.getByName('asset');
 ```
 
+## `sw-loader`, `sw-skeleton-bar` and `sw-progress-bar` are replaced by `mt-*`
+
+Use `mt-loader`, `mt-skeleton-bar` and `mt-progress-bar` instead of the deprecated `sw-loader`, `sw-skeleton-bar` and `sw-progress-bar`.
+The `mt-*` components are available in 6.7 already, so an extension can switch before the update.
+
+Keep these differences in mind:
+
+- `mt-progress-bar` takes `model-value` instead of `value` and emits `update:model-value` instead of `update:value`.
+- `mt-progress-bar` has no default for `max-value`.
+  Set `:max-value="100"` to keep the previous scale.
+- `mt-progress-bar` no longer updates the last user activity when its value changes.
+- `mt-loader` shows a backdrop by default.
+  Set `:backdrop="false"` to show the loader without it.
+- The CSS classes change from `.sw-loader*`, `.sw-skeleton-bar*` and `.sw-progress-bar*` to `.mt-loader*`, `.mt-skeleton-bar*` and `.mt-progress-bar*`.
+
+Before:
+
+```html
+<sw-loader v-if="isLoading" size="30px" />
+<sw-progress-bar :value="done" />
+```
+
+After:
+
+```html
+<mt-loader v-if="isLoading" size="30px" />
+<mt-progress-bar :model-value="done" :max-value="100" />
+```
+
+## `sw-text-editor` is replaced by `mt-text-editor`
+
+`sw-text-editor` and its sub-components `sw-text-editor-toolbar`, `sw-text-editor-toolbar-button`, `sw-text-editor-toolbar-table-button`, `sw-text-editor-table-toolbar` and `sw-text-editor-link-menu` have been removed.
+Use `mt-text-editor` instead, which is available in 6.7 already.
+
+Map the props, events and slots of `sw-text-editor` like this:
+
+| `sw-text-editor` | `mt-text-editor` |
+|---|---|
+| `value`, `v-model:value` | `model-value`, `v-model` |
+| `@update:value` | `@update:model-value` |
+| `button-config` | `custom-buttons` with `CustomButton` objects (`name`, `label`, `icon`, `action(editor)`, `children`, `position`) |
+| `allow-inline-data-mapping` | `:custom-buttons="[createTextEditorDataMappingButton(() => dataMappings)]"` |
+| `label` slot | `label` prop |
+| `is-inline-edit`, `label`, `placeholder`, `disabled`, `error` | Unchanged |
+| `vertical-align`, `sanitize-input`, `sanitize-field-name`, `sanitize-info-warn`, `enable-transparent-background` | No replacement |
+
+`createTextEditorDataMappingButton` is available through `Shopware.Component.getComponentHelper()`.
+The toolbar sub-components have no tag replacement.
+Configure the toolbar of `mt-text-editor` with `custom-buttons`, `excluded-buttons` and the `#button_<name>` slots instead.
+`mt-text-editor` supports tables itself and edits links with `sw-text-editor-toolbar-button-link` in its `#button_link` slot.
+
+Before:
+
+```html
+<sw-text-editor
+    v-model:value="item.text"
+    :label="$t('acme.label')"
+    sanitize-input
+    vertical-align="center"
+    @update:value="onChange"
+/>
+```
+
+After:
+
+```html
+<mt-text-editor
+    v-model="item.text"
+    :label="$t('acme.label')"
+    @update:model-value="onChange"
+/>
+```
+
+## Removed form components `sw-select-number-field`, `sw-entity-many-to-many-select` and `sw-help-sidebar`
+
+The deprecated Administration components `sw-select-number-field`, `sw-entity-many-to-many-select` and `sw-help-sidebar` have been removed.
+
+### Replace `sw-select-number-field` with `mt-select`
+
+Pass the options as `:options` with numeric values, and use `v-model` or `model-value` instead of `value`.
+An `options` array in the old format keeps working with `value-property="id"` and `label-property="name"`.
+Option names as locale objects need to be translated before they are passed to `mt-select`, and `aside` has no replacement.
+
+Before:
+
+```html
+<sw-select-number-field v-model:value="columns" :label="$t('acme.columns')">
+    <option value="1">1</option>
+    <option value="2">2</option>
+</sw-select-number-field>
+```
+
+After:
+
+```html
+<mt-select v-model="columns" :label="$t('acme.columns')" :options="[{ value: 1, label: '1' }, { value: 2, label: '2' }]" />
+```
+
+### Replace `sw-entity-many-to-many-select` with `sw-entity-multi-select`
+
+`sw-entity-multi-select` takes the same props, events and slots, except `local-mode`.
+In `local-mode`, both components only emit the updated entity collection, so the tag can be replaced.
+Without `local-mode`, `sw-entity-many-to-many-select` saved the association immediately.
+`sw-entity-multi-select` does not, so handle `update:entity-collection` and save the parent entity.
+
+Before:
+
+```html
+<sw-entity-many-to-many-select :entity-collection="product.tags" local-mode @update:entity-collection="setTags" />
+```
+
+After:
+
+```html
+<sw-entity-multi-select :entity-collection="product.tags" @update:entity-collection="setTags" />
+```
+
+### Remove `sw-help-sidebar`
+
+`sw-help-sidebar` has been removed without replacement.
+The help center content is part of `sw-help-center-v2`, which keeps the Twig blocks `sw_help_sidebar`, `sw_help_sidebar_support_content`, `sw_help_sidebar_support_documentation`, `sw_help_sidebar_support_create_support_request` and `sw_help_sidebar_support_placeholder`.
+Move overrides of `sw-help-sidebar` to `sw-help-center-v2`, and check their markup, because the entries are `mt-action-menu-item` components now.
+
+## `sw-popover` `resize-width` is replaced by `match-reference-width`
+
+The `resize-width` prop of `sw-popover` has been removed.
+Use `match-reference-width` instead, which `sw-popover` accepts since 6.7.6.0.
+
+`sw-popover` itself is deprecated in favor of `mt-floating-ui`.
+When you move to `mt-floating-ui`, keep these differences in mind:
+
+- Replace `v-if` with `:is-opened`, because `mt-floating-ui` is closed by default.
+- `popover-class` becomes `class`.
+- `popover-config-extension` roughly maps to `floating-ui-options`.
+- `z-index` has no replacement.
+- `mt-floating-ui` positions itself at its `#trigger` slot or `anchor-element` instead of the parent element.
+
 ## `sw-tabs` automatic wrapper switch deferred
 
 The previously announced automatic switch from the deprecated Administration `sw-tabs` wrapper to `mt-tabs` when the `v6.8.0.0` feature flag is active will not happen. `sw-tabs` keeps rendering its legacy implementation regardless of the feature flag and remains deprecated for removal in 6.9.
@@ -2032,7 +2177,7 @@ When an extension has already prepared for the Meteor API, it can opt in to the 
 
 Prefer migrating directly to `mt-tabs`. The opt-in only helps validate a prepared migration while retaining the wrapper; it does not replace the migration required before 6.9.
 
-The `mt-tabs` API uses an `items` prop instead of `sw-tabs-item` child components and does not support the legacy content slot. The codemod cannot fully convert this API difference; review every TODO it creates.
+The `mt-tabs` API uses an `items` prop instead of `sw-tabs-item` child components.
 
 ### Replace `sw-tabs` with `mt-tabs`
 
@@ -2050,52 +2195,81 @@ After:
 
 ### Replace `sw-tabs-item` children with the `items` prop
 
+Each `sw-tabs-item` becomes an entry of the Meteor `TabItem` type:
+
+| `sw-tabs-item` | `TabItem` |
+|---|---|
+| `name` | `name` |
+| Slot text or `title` | `label`; keep `$t(…)` as an expression, so that the label stays translated |
+| `route` | `name` with the route name and `onClick: () => $router.push(route)`; set `:default-item="$route.name"` on `mt-tabs` |
+| `has-error` | `hasError` |
+| `disabled` | `disabled` |
+| `has-warning` | `badge: 'warning'` |
+| `v-if` | Add the entry conditionally, for example `...(condition ? [item] : [])` |
+| `v-for` | Map the list to entries, for example in a computed property |
+| `@click` | `onClick` |
+| `active`, `active-tab`, `error-tooltip`, `warning-tooltip` | No replacement; `mt-tabs` tracks the active item itself |
+
+The `hidden` flag of `TabItem` is ignored by the Meteor Component Library version of 6.7, so add entries conditionally instead.
+
 Before:
 
 ```html
-<sw-tabs>
-    <template #default="{ active }">
-        <sw-tabs-item name="tab1">Tab 1</sw-tabs-item>
-        <sw-tabs-item name="tab2">Tab 2</sw-tabs-item>
-    </template>
+<sw-tabs position-identifier="acme-tabs">
+    <sw-tabs-item name="general">{{ $t('acme.tabs.general') }}</sw-tabs-item>
+    <sw-tabs-item :route="{ name: 'acme.detail.seo' }" :has-error="seoError">{{ $t('acme.tabs.seo') }}</sw-tabs-item>
 </sw-tabs>
 ```
 
 After:
 
 ```html
-<mt-tabs :items="[
-    {
-        label: 'Tab 1',
-        name: 'tab1',
-    },
-    {
-        label: 'Tab 2',
-        name: 'tab2',
-    },
-]" />
+<mt-tabs
+    position-identifier="acme-tabs"
+    small
+    :default-item="$route.name"
+    :items="[
+        { name: 'general', label: $t('acme.tabs.general') },
+        { name: 'acme.detail.seo', label: $t('acme.tabs.seo'), hasError: seoError, onClick: () => $router.push({ name: 'acme.detail.seo' }) },
+    ]"
+/>
 ```
 
-### Render content outside `mt-tabs`
+### Use the item name from `new-item-active`
 
-The legacy `content` slot is not supported. Store the active item from `new-item-active` and render the corresponding content outside the component.
+`mt-tabs` emits the name of the new active item, while `sw-tabs` emitted the `sw-tabs-item` component.
+Replace `$event.name` with `$event`, and adjust methods that receive the item.
+`new-item-active` of `sw-meteor-page` emits the name as well, because the component renders `mt-tabs` with 6.8.
 
 Before:
 
 ```html
-<sw-tabs>
+<sw-tabs position-identifier="acme-tabs" @new-item-active="onTab($event.name)" />
+```
+
+After:
+
+```html
+<mt-tabs position-identifier="acme-tabs" :items="items" @new-item-active="onTab($event)" />
+```
+
+### Set `small` and `position-identifier`
+
+`sw-tabs` rendered small tabs by default, `mt-tabs` does not.
+Add `small` to keep the previous size.
+`mt-tabs` requires `position-identifier`, because extensions add their tabs through it.
+
+### Keep the `content` slot
+
+The `content` slot still works with the Administration `mt-tabs`.
+It receives the name of the active item as `active`:
+
+```html
+<mt-tabs position-identifier="acme-tabs" default-item="general" :items="items">
     <template #content="{ active }">
         The current active item is {{ active }}
     </template>
-</sw-tabs>
-```
-
-After:
-
-```html
-<mt-tabs @new-item-active="setActiveItem" />
-
-The current active item is {{ activeItem }}
+</mt-tabs>
 ```
 
 ### Rename `is-vertical` to `vertical`
@@ -2131,6 +2305,10 @@ After:
 ## Removed Administration Twig blocks from legacy `sw-tabs` branches
 
 The affected core Administration components use `mt-tabs` in their `v6.8.0.0` branches. Their legacy `sw-tabs` fallback branches have been removed. Extensions can no longer extend these areas through the removed Twig blocks. Custom tab entries need to migrate to the new `mt-tabs` item API or to the tab item data provided by the corresponding Administration component.
+
+The legacy `sw-tabs` branches of `sw-meteor-page`, `sw-meteor-card`, `sw-extension-component-section`, `sw-cms-list`, `sw-generic-custom-entity-detail`, `sw-product-detail-variants`, `sw-users-permissions-role-detail` and `sw-settings-usage-data` have been removed as well.
+They contain no Twig blocks, but overrides that rely on their `sw-tabs` markup need to move to the `mt-tabs` items.
+`sw-tabs-item` children in the `page-tabs` slot of `sw-meteor-page` and in the `tabs` slot of `sw-meteor-card` keep working, because both components convert them into `mt-tabs` items.
 
 The following Twig blocks have been removed:
 
@@ -2186,8 +2364,10 @@ The following Twig blocks have been removed:
   - `sw_cms_element_buy_box_config_tab_option`
   - `sw_cms_element_buy_box_config_content_warning`
   - `sw_cms_element_buy_box_config_product_select`
+  - `sw_cms_element_buy_box_config_product_selection_label`
   - `sw_cms_element_buy_box_config_product_variant_label`
   - `sw_cms_element_buy_box_config_product_select_result_item`
+  - `sw_cms_element_buy_box_config_product_select_result_item_inner`
   - `sw_entity_single_select_base_results_list_result_label`
   - `sw_cms_element_buy_box_config_options`
 - `src/Administration/Resources/app/administration/src/module/sw-cms/elements/cross-selling/config/sw-cms-el-config-cross-selling.html.twig`
@@ -2196,8 +2376,11 @@ The following Twig blocks have been removed:
   - `sw_cms_element_cross_selling_config_content`
   - `sw_cms_element_cross_selling_config_content_warning_text`
   - `sw_cms_element_cross_selling_config_content_products`
+  - `sw_cms_element_cross_selling_config_content_products_selection_label`
   - `sw_entity_single_select_variant_selected_item`
+  - `sw_cms_element_cross_selling_config_content_products_select_result_item`
   - `sw_entity_single_select_variant_result_item`
+  - `sw_cms_element_cross_selling_config_content_products_select_result_item_inner`
   - `sw_entity_single_select_base_results_list_result_label`
   - `sw_cms_element_cross_selling_config_options`
   - `sw_cms_element_cross_selling_config_options_box_layout`
@@ -2273,8 +2456,11 @@ The following Twig blocks have been removed:
   - `sw_cms_element_product_description_reviews_config_content`
   - `sw_cms_element_product_description_reviews_warning`
   - `sw_cms_element_product_description_reviews_config_product_select`
+  - `sw_cms_element_product_description_reviews_config_product_selection_label`
   - `sw_entity_single_select_variant_selected_item`
+  - `sw_cms_element_product_description_reviews_config_product_select_result_item`
   - `sw_entity_single_select_variant_result_item`
+  - `sw_cms_element_product_description_reviews_config_product_select_result_item_inner`
   - `sw_entity_single_select_base_results_list_result_label`
   - `sw_cms_el_product_description_rating_config_options`
   - `sw_cms_el_product_description_rating_config_options_alignment`
@@ -2316,6 +2502,9 @@ The following Twig blocks have been removed:
   - `sw_cms_element_product_slider_config_content_product_stream_limit`
   - `sw_cms_element_product_slider_config_content_product_stream_preview_link`
   - `sw_cms_element_product_slider_config_content_products`
+  - `sw_cms_element_product_slider_config_content_products_selection_label`
+  - `sw_cms_element_product_slider_config_content_products_select_result_item`
+  - `sw_cms_element_product_slider_config_content_products_select_result_item_inner`
   - `sw_entity_single_select_base_results_list_result_label`
   - `sw_cms_element_product_slider_config_settings`
   - `sw_cms_element_product_slider_config_settings_display_mode`
@@ -2371,9 +2560,6 @@ The following Twig blocks have been removed:
   - `sw_import_export_tabs_import`
   - `sw_import_export_tabs_export`
   - `sw_import_export_tabs_profiles`
-- `src/Administration/Resources/app/administration/src/module/sw-mail-template/page/sw-mail-template-index/sw-mail-template-index.html.twig`
-  - `sw_mail_template_list_tabs_templates`
-  - `sw_mail_template_list_tabs_header_footer`
 - `src/Administration/Resources/app/administration/src/module/sw-media/component/sw-media-modal-v2/sw-media-modal-v2.html.twig`
   - `sw_media_modal_v2_tab_items`
   - `sw_media_modal_v2_tab_item_library`
@@ -2506,6 +2692,93 @@ The following Twig blocks have been removed:
   - `sw_theme_manager_detail_content_sections`
   - `sw_theme_manager_detail_content_fields`
 
+## Removed deprecated Administration Twig blocks
+
+The following Administration Twig blocks were deprecated in 6.7 and have been removed.
+
+- `sw-settings-snippet-set-list`: the snippet sets are listed by an `sw-entity-listing` now.
+  Extend `sw_settings_snippet_set_list_card_list_grid` instead of these blocks:
+  - `sw_settings_snippet_set_list_card_title`
+  - `sw_settings_snippet_set_list_card_list_container`
+  - `sw_settings_snippet_set_list_card_list_container_header`
+  - `sw_settings_snippet_set_list_card_list_container_header_btn_export`
+  - `sw_settings_snippet_set_list_card_list_container_header_btn_edit_set`
+  - `sw_settings_snippet_set_list_card_list_container_header_btn_split`
+  - `sw_settings_snippet_set_list_card_list_container_header_btn_add_set`
+  - `sw_settings_snippet_set_list_card_btn_copy_icon`
+  - `sw_settings_snippet_set_list_card_list_btn_copy_split`
+  - `sw_settings_snippet_set_list_card_btn_copy`
+  - `sw_settings_snippet_set_list_card_copy_context_menu`
+  - `sw_settings_snippet_set_list_card_copy_context_divider`
+  - `sw_settings_snippet_set_list_card_copy_context_menu_items`
+  - `sw_settings_snippet_set_list_card_list_grid_template`
+  - `sw_settings_snippet_set_list_card_list_grid_column_name`
+  - `sw_settings_snippet_set_list_card_list_grid_column_name_link`
+  - `sw_settings_snippet_set_list_card_list_grid_column_name_editor`
+  - `sw_settings_snippet_set_list_card_list_grid_column_changed`
+  - `sw_settings_snippet_set_list_card_list_grid_column_changed_date`
+  - `sw_settings_snippet_set_list_card_list_grid_column_base_file`
+  - `sw_settings_snippet_set_list_card_list_grid_column_base_file_editor`
+  - `sw_settings_snippet_set_list_card_list_grid_column_base_action`
+  - `sw_settings_snippet_set_list_card_list_grid_column_base_action_buttons`
+  - `sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_edit`
+  - `sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_clone`
+  - `sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_delete`
+  - `sw_settings_snippet_set_list_columns_delete_modal`
+  - `sw_settings_snippet_set_list_delete_modal_confirm_delete_text`
+  - `sw_settings_snippet_set_list_delete_modal_footer`
+  - `sw_settings_snippet_set_list_delete_modal_cancel`
+  - `sw_settings_snippet_set_list_delete_modal_confirm`
+  - `sw_settings_snippet_set_list_columns_clone_modal`
+  - `sw_settings_snippet_set_list_clone_modal_confirm_delete_text`
+  - `sw_settings_snippet_set_list_clone_modal_footer`
+  - `sw_settings_snippet_set_list_clone_modal_cancel`
+  - `sw_settings_snippet_set_list_clone_modal_confirm`
+  - `sw_settings_snippet_set_list_card_list_grid_pagination`
+  - `sw_settings_snippet_set_list_card_list_grid_pagination_bar`
+- `sw-settings-language-list`:
+  - `sw_settings_language_list_smart_bar_header_amount`, without replacement
+  - `sw_settings_language_list_content_list_column_id`, without replacement
+  - `sw_settings_language_list_content_list_delete_confirm_action`: the confirmation is part of `sw_settings_language_list_delete_modal` now
+  - the sidebar filter, without replacement: `sw_settings_language_list_grid_sidebar_filter`, `sw_settings_language_list_grid_sidebar_filter_header`, `sw_settings_language_list_grid_sidebar_filter_header_title`, `sw_settings_language_list_grid_sidebar_filter_header_icon`, `sw_settings_language_list_grid_sidebar_filter_header_icon_expanded`, `sw_settings_language_list_grid_sidebar_filter_header_icon_not_expanded`, `sw_settings_language_list_grid_sidebar_filter_content`, `sw_settings_language_list_grid_sidebar_filter_content_root_languages`, `sw_settings_language_list_grid_sidebar_filter_content_inherited_languages`
+- `sw-settings-language-detail`: `sw_settings_language_detail_content_language_info`, without replacement, because the language info banner is no longer shown
+- `sw-settings-search-excluded-search-terms`: `sw_settings_search_excluded_search_terms_empty_state_image`, extend `sw_settings_search_excluded_search_terms_empty_state` instead
+- `sw-settings-search-live-search`: `sw_settings_search_view_live_search_search_icon_wrapper` and `sw_settings_search_view_live_search_search_icon`, extend `sw_settings_search_view_live_search_input` instead
+- `sw-settings-search-searchable-content`: `sw_settings_search_searchable_show_example` and `sw_settings_search_searchable_show_example_link_element` -> `sw_settings_search_searchable_show_example_link`
+- `sw-settings-search-searchable-content-general`: `sw_settings_search_searchable_content_general_state_image`, extend `sw_settings_search_searchable_content_general_empty_state` instead
+- `sw-settings-search-searchable-content-customfields`: `sw_settings_search_searchable_content_customfields_state_image`, extend `sw_settings_search_searchable_content_customfields_empty_state` instead
+- `sw-settings-search-search-index`:
+  - `sw_settings_search_search_index_warning_top` -> `sw_settings_search_search_index_warning_bottom`
+  - `sw_settings_search_search_index_rebuild_progress_text`, extend `sw_settings_search_search_index_rebuild_progress_bar` instead, which shows the text as its label
+- `sw-product-packaging-form`: the dimension fields moved to `sw-product-measurement-form`:
+  - `sw_product_packaging_form_width_field` -> `sw_product_measurement_form_width_field`
+  - `sw_product_packaging_form_height_field` -> `sw_product_measurement_form_height_field`
+  - `sw_product_settings_form_length_field` -> `sw_product_measurement_form_length_field`
+  - `sw_product_settings_form_weight_field` -> `sw_product_measurement_form_weight_field`
+- `sw-bulk-edit-product`: `sw_bulk_edit_product_content_meansures_packaging_card` -> `sw_bulk_edit_product_content_measurement_card` or `sw_bulk_edit_product_content_selling_packaging_card`
+- Empty state images and actions, which are props of `mt-empty-state` now.
+  Extend the named empty state block instead:
+  - `sw-property-search`: `sw_property_search_empty_image` -> `sw_property_search_empty`
+  - `sw-product-properties`: `sw_product_properties_filled_state_body_empty_state_image` -> `sw_product_properties_filled_state_body_empty_state` and `sw_product_properties_empty_state_image` -> `sw_product_properties_empty_state`
+  - `sw-sales-channel-detail-products`: `sw_sales_channel_detail_products_card_section_primary_image` -> `sw_sales_channel_detail_products_card_section_primary_empty_state` and `sw_sales_channel_detail_products_empty_state_image` -> `sw_sales_channel_detail_products_empty_state`
+  - `sw-promotion-v2-list`: `sw_promotion_v2_list_empty_state_actions` -> `sw_promotion_v2_list_empty_state`
+- `sw-product-detail`: `sw_product_settings_mode`, without replacement.
+  The `sw-product-settings-mode` component and its blocks are removed as well.
+- `sw-promotion-v2-empty-state-hero`: the component and its blocks are removed without replacement.
+- `sw-integration-list`: `sw_integration_list_introduction`, without replacement
+- `sw-manufacturer-detail`: `sw_manufacturer_detail_sidebar`, without replacement
+- `sw-settings-mailer`: `sw_settings_mailer_headline_agent`, without replacement
+- `sw-import-export-new-profile-wizard-csv-page`: `sw_import_export_new_profile_wizard_csv_page_text`, extend `sw_import_export_new_profile_wizard_csv_page_csv_upload` instead
+- `sw-import-export-view-import`: `sw_import_export_view_import_activity_title`, extend `sw_import_export_view_import_activity` instead, whose card shows the title
+- `sw-import-export-view-export`: `sw_import_export_view_export_activity_title`, extend `sw_import_export_view_export_activity` instead, whose card shows the title
+- `sw-mail-template-index`: `sw_mail_template_list_content_card`.
+  The page renders `sw-mail-template-list` and `sw-mail-header-footer-list` in `sw_mail_template_list_router_view` now, override these components instead.
+- `sw-order-line-items-grid-sales-channel`: `sw_order_line_items_grid_sales_channel_line_item_filter`, its content moved into `sw_order_line_items_grid_sales_channel_header`
+- `sw-order-detail-details`:
+  - `sw_order_detail_details_shipping_costs` -> `sw_order_detail_general_line_items_summary_shipping_cost` in `sw-order-detail-general`
+  - `sw_order_detail_details_order_promotion`, without replacement
+- `sw-order-user-card`: the component was no longer used and has been removed with all its blocks.
+
 ## Removed translation of import/export profile label
 
 The translation of the import/export profile label has been removed.
@@ -2574,12 +2847,24 @@ Use the parent blocks instead
 The Storefront settings Administration page owns its settings fields directly.
 
 ## The following template blocks have been replaced due to typos or misleading names:
+
+The new names already exist in 6.7.17.0.
+
 * `sw_condiiton_date_range_field_to_date` -> `sw_condition_date_range_field_to_date`
 * `sw_cms_detail_stage_empty_stade_content` -> `sw_cms_detail_stage_empty_stage_content`
 * `sw_settings_listing_option_base_smart_content` -> `sw_settings_listing_option_base_content`
 * `sw_settings_listing_option_base_smart_content_general_info` -> `sw_settings_listing_option_base_content_general_info`
 * `sw_settings_listing_option_base_smart_bar_actions_grid` -> `sw_settings_listing_option_base_content_criteria_grid`
 * `sw_settings_listing_option_base_smart_bar_actions_grid_delete_modal` -> `sw_settings_listing_option_base_content_delete_modal`
+* `sw_settings_customer_group_detail_content_card_display_gross` -> `sw_settings_customer_group_detail_content_card_tax_display`
+* `sw_product_stream_filter` -> `sw_condition_base` in `sw-product-stream-filter`, which inherits the block from `sw-condition-base`
+* `sw_product_stream_filter_container` -> `sw_condition_base_content` in `sw-product-stream-filter`, which inherits the block from `sw-condition-base`
+
+The following blocks have no replacement that renders in 6.7 and 6.8:
+
+* `sw_settings_storefront_smtp_settings` in the Storefront component `sw-settings-storefront-index`: override `sw_settings_storefront_settings_icon_cache` and `sw_settings_storefront_settings_speculation_rules` instead.
+* `sw_theme_manager_detail_sidebar`, `sw_theme_manager_detail_sidebar_media` and `sw_theme_manager_detail_sidebar_media_items` in the Storefront component `sw-theme-manager-detail`: the media sidebar was replaced by a media modal.
+  Override `sw_theme_manager_detail_media_modal` instead.
 
 ## Removed .png and .jpg images
 
@@ -2682,14 +2967,21 @@ The new company settings are stored as flat system-config entries under `core.ba
 - `core.basicInformation.companyCountryId`
 - `core.basicInformation.companyLogoId`
 
-As part of this update, the following administration component parts have been deprecated:
-* `src/module/sw-settings-document/page/sw-settings-document-detail`:
-  * computed `expandButtonClass` was deprecated without replacement
-  * computed `collapseButtonClass` was deprecated without replacement
-  * property `sortBy` was deprecated without replacement
+As part of this update, the following Administration component members have been removed without replacement:
 
-* `src/module/sw-settings-document/page/sw-settings-document-list`
-  * computed `countryRepository` was deprecated without replacement
+* `src/module/sw-settings-document/page/sw-settings-document-list`:
+  * computed `expandButtonClass`
+  * computed `collapseButtonClass`
+  * data property `sortBy`
+* `src/module/sw-settings-document/page/sw-settings-document-detail`:
+  * computed `countryRepository`
+  * computed `documentTypeRepository`
+  * computed `documentBaseConfigSalesChannelRepository`
+  * data property `selectedType`
+  * data property `isSaveSuccessful`
+  * data property `isShowCountriesSelect`
+  * method `loadAvailableSalesChannel()`
+  * method `showOption()`
 
 ## Mail template preview component changes
 
@@ -2700,13 +2992,12 @@ The following legacy blocks are removed in Shopware 6.8:
 
 - `sw_mail_template_detail_preview_modal_footer`
 - `sw_mail_template_detail_preview_modal_footer_cancel`
-  * computed `documentTypeRepository` was deprecated without replacement
-  * computed `documentBaseConfigSalesChannelRepository` was deprecated without replacement
-  * property `selectedType` was deprecated without replacement
-  * property `isSaveSuccessful` was deprecated without replacement
-  * property `isShowCountriesSelect` was deprecated without replacement
-  * method `loadAvailableSalesChannel()` was deprecated without replacement
-  * method `showOption()` was deprecated without replacement
+
+## `$tc` is deprecated
+
+`$tc()`, the root instance `$tc()` and `Shopware.Snippet.tc()` were deprecated and are removed in 6.9.
+Use `$t()` and `Shopware.Snippet.t()` instead, which select the plural form from a number argument as well.
+The codemod `tc-translation` of `administration:upgrade-extensions` already rewrites them for 6.8, except in `{{ }}` interpolations of `.html.twig` templates.
 
 ## Deprecated unused methods in `sw-order-document-card`
 
@@ -2743,6 +3034,7 @@ bin/console administration:upgrade-extensions -- --only=YourPlugin --target=6.8 
 
 The old options map to the new ones like this: `-p`/`--plugin-name` becomes `--only`, `-v`/`--shopware-version` becomes `--target`, `-r`/`--shopware-root` becomes `--project-root`, `--fix` becomes `--write`, and `-G`/`--ignore-git` becomes `--skip-git-check`.
 `-s`/`--src` has no replacement, because the command finds the Administration source folders of an extension itself.
+For 6.8, it also migrates the Administration components and Twig block overrides described in this file where it can, and writes a `TODO Codemod(6.8, <id>)` comment above every spot that needs manual work.
 
 ## Removed `sw-cms-layout-modal` grid selection methods
 

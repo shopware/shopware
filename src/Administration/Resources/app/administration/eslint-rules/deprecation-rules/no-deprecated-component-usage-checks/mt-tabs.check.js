@@ -1,3 +1,19 @@
+const { quote, readContentExpression } = require('../utils/template-expressions');
+
+/**
+ * @param {Array<{ label: string, name: string }>} items JS source of each value
+ * @returns {string}
+ */
+function serializeItems(items) {
+    if (items.length === 0) {
+        return '[]';
+    }
+
+    const entries = items.map((item) => `    {\n        'label': ${item.label},\n        'name': ${item.name}\n    }`);
+
+    return `[\n${entries.join(',\n')}\n]`;
+}
+
 /** @param {RuleContext} context
  *  @param {VElement} node
  */
@@ -8,9 +24,6 @@ const handleMtTabs = (context, node) => {
     if (node.name !== mtComponentName) {
         return;
     }
-
-    // Get all comments from the template
-    const templateComments = context.getSourceCode().ast?.templateBody?.comments;
 
     // Check if component has attribute ":items"
     const itemsAttribute = node.startTag.attributes.find((attr) => {
@@ -57,22 +70,6 @@ const handleMtTabs = (context, node) => {
                 return attr.key?.name?.name === 'slot' && attr.key?.argument?.name === 'default';
             });
     });
-
-    // Check if component uses slot "content" with shorthand syntax, e.g. <template #content="{ active }">
-    const shorthandSyntaxContentSlot = node.children.find((child) => {
-        return child.type === 'VElement' &&
-            child.startTag &&
-            child.startTag.attributes.find((attr) => {
-                return attr.key?.name?.name === 'slot' && attr.key?.argument?.name === 'content';
-            });
-    });
-
-    // Check if there is a comment a line before the content slot
-    const commentBeforeContentSlot = templateComments.find((comment) => {
-        return comment.loc.end.line === shorthandSyntaxContentSlot?.startTag?.loc?.start?.line - 1;
-    });
-    // Check if the comment is a codemod comment
-    const isContentSlotCodemodComment = commentBeforeContentSlot?.value?.includes('TODO Codemod: The "content" slot is not used anymore. Please set the content manually outside the component.');
 
     // Check if component has children without a slot declaration
     const childrenWithoutSlot = node.children.find((child) => {
@@ -125,34 +122,16 @@ const handleMtTabs = (context, node) => {
                         routeAttributeFallbackValue = routeAttribute.value.value;
                     }
 
+                    // Keep $t(...) and $tc(...) labels as expressions, so the label is still translated
+                    const label = readContentExpression(context.getSourceCode(), child)?.code ?? quote(textContent ?? '');
+
                     return {
-                        name: nameAttributeValue ?? routeAttributeFallbackValue,
-                        textContent
+                        name: quote(nameAttributeValue ?? routeAttributeFallbackValue),
+                        label,
                     };
                 });
 
-                // Create new "items" property with the values from the previous slot children
-                const items = slotChildrenValues.map((child) => {
-                    // If label was a snippet ($tc or $t), just use the snippet as label
-                    // Examples:
-                    //  - {{ $tc('sw-cms.elements.general.config.tab.content') }}
-                    //  - {{ $t('sw-cms.elements.general.config.tab.example) }}
-                    // Read just the snippet and use it as label:
-                    // - sw-cms.elements.general.config.tab.content
-                    // - sw-cms.elements.general.config.tab.example
-                    const rawLabel = child.textContent.match(/\$tc\((.*)\)/)?.[1] || child.textContent.match(/\$t\((.*)\)/)?.[1] || child.textContent;
-                    // Remove quotes and trim the label
-                    const label = rawLabel.replace(/['"]+/g, '').trim();
-
-                    const item = {
-                        label: label,
-                        name: child?.name
-                    };
-
-                    return item;
-                });
-
-                const itemPropValue = JSON.stringify(items, null, 4).replace(/[\/\(\)\']/g, "\\'").replace(/"/g, "'");
+                const itemPropValue = serializeItems(slotChildrenValues);
 
                 // Add items array to mt-tabs component as a property
                 const rangeAfterStartTag = node.startTag?.range[0] + '<mt-tabs'.length;
@@ -160,21 +139,6 @@ const handleMtTabs = (context, node) => {
 
                 // Add a comment before the default slot to inform that this is not used anymore
                 yield fixer.insertTextBeforeRange(shorthandSyntaxSlot.startTag.range, `<!-- TODO Codemod: This slot is not used anymore. Please use the "items" property instead. -->\n`);
-            }
-        });
-    }
-
-    if (shorthandSyntaxContentSlot && !isContentSlotCodemodComment) {
-        context.report({
-            node,
-            message: `[${mtComponentName}] The "content" slot is not used anymore. Please set the content manually outside the component.`,
-            *fix(fixer) {
-                if (context.options.includes('disableFix')) return;
-
-                const indentation = ' '.repeat(shorthandSyntaxContentSlot.startTag?.loc?.start?.column);
-
-                // Add a comment before the content slot to inform that this is not used anymore
-                yield fixer.insertTextBeforeRange(shorthandSyntaxContentSlot.startTag.range, `<!-- TODO Codemod: The "content" slot is not used anymore. Please set the content manually outside the component. -->\n${indentation}`);
             }
         });
     }
@@ -224,34 +188,16 @@ const handleMtTabs = (context, node) => {
                         routeAttributeFallbackValue = routeAttribute.value.value;
                     }
 
+                    // Keep $t(...) and $tc(...) labels as expressions, so the label is still translated
+                    const label = readContentExpression(context.getSourceCode(), child)?.code ?? quote(textContent ?? '');
+
                     return {
-                        name: nameAttributeValue ?? routeAttributeFallbackValue,
-                        textContent
+                        name: quote(nameAttributeValue ?? routeAttributeFallbackValue),
+                        label,
                     };
                 });
 
-                // Create new "items" property with the values from the previous slot children
-                const items = slotChildrenValues.map((child) => {
-                    // If label was a snippet ($tc or $t), just use the snippet as label
-                    // Examples:
-                    //  - {{ $tc('sw-cms.elements.general.config.tab.content') }}
-                    //  - {{ $t('sw-cms.elements.general.config.tab.example) }}
-                    // Read just the snippet and use it as label:
-                    // - sw-cms.elements.general.config.tab.content
-                    // - sw-cms.elements.general.config.tab.example
-                    const rawLabel = child.textContent.match(/\$tc\((.*)\)/)?.[1] || child.textContent.match(/\$t\((.*)\)/)?.[1] || child.textContent;
-                    // Remove quotes and trim the label
-                    const label = rawLabel.replace(/['"]+/g, '').trim();
-
-                    const item = {
-                        label: label,
-                        name: child.name
-                    };
-
-                    return item;
-                });
-
-                const itemPropValue = JSON.stringify(items, null, 4).replace(/[\/\(\)\']/g, "\\'").replace(/"/g, "'");
+                const itemPropValue = serializeItems(slotChildrenValues);
                 const indentation = ' '.repeat(node.startTag.loc.start.column);
 
                 // Add items array to mt-tabs component as a property
@@ -323,12 +269,11 @@ const mtTabsValidTests = [
             </template>`
     },
     {
-        name: '"mt-tabs" should not be converted if the "content" slot is already commented',
+        name: '"mt-tabs" keeps the "content" slot, which the mt-tabs wrapper renders',
         filename: 'test.html.twig',
         code: `
             <template>
-                <mt-tabs>
-                    <!-- TODO Codemod: The "content" slot is not used anymore. Please set the content manually outside the component. -->
+                <mt-tabs :items="items">
                     <template #content="{ active }">
                         The current active item is {{ active }}
                     </template>
@@ -402,11 +347,11 @@ const mtTabsInvalidTests = [
             <template>
                 <mt-tabs :items="[
     {
-        'label': 'sw-cms.elements.general.config.tab.one',
+        'label': $tc('sw-cms.elements.general.config.tab.one'),
         'name': 'tab1'
     },
     {
-        'label': 'sw-cms.elements.general.config.tab.two',
+        'label': $tc('sw-cms.elements.general.config.tab.two'),
         'name': 'tab2'
     }
 ]">
@@ -461,42 +406,6 @@ const mtTabsInvalidTests = [
                 </mt-tabs>
             </template>`,
         errors: [{ message: '[mt-tabs] The default slot usage in mt-tabs was removed and replaced with the property "items".'}]
-    },
-    {
-        name: '"mt-tabs" wrong "content" slot usage - content should be set manually outside the component',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <mt-tabs>
-                    <template #content="{ active }">
-                        The current active item is {{ active }}
-                    </template>
-                </mt-tabs>
-            </template>`,
-        output: `
-            <template>
-                <mt-tabs>
-                    <!-- TODO Codemod: The "content" slot is not used anymore. Please set the content manually outside the component. -->
-                    <template #content="{ active }">
-                        The current active item is {{ active }}
-                    </template>
-                </mt-tabs>
-            </template>`,
-        errors: [{ message: '[mt-tabs] The "content" slot is not used anymore. Please set the content manually outside the component.'}]
-    },
-    {
-        name: '"mt-tabs" wrong "content" slot usage - content should be set manually outside the component [disableFix]',
-        filename: 'test.html.twig',
-        options: ['disableFix'],
-        code: `
-            <template>
-                <mt-tabs>
-                    <template #content="{ active }">
-                        The current active item is {{ active }}
-                    </template>
-                </mt-tabs>
-            </template>`,
-        errors: [{ message: '[mt-tabs] The "content" slot is not used anymore. Please set the content manually outside the component.'}]
     },
     {
         name: '"mt-tabs" property "isVertical" was renamed to "vertical"',
@@ -622,11 +531,11 @@ const mtTabsInvalidTests = [
             <template>
                 <mt-tabs :items="[
     {
-        'label': 'sw-product.detail.tabGeneral',
+        'label': $tc('sw-product.detail.tabGeneral'),
         'name': 'sw.product.detail.base'
     },
     {
-        'label': 'sw-product.detail.tabSpecifications',
+        'label': $tc('sw-product.detail.tabSpecifications'),
         'name': '{ name: \\'sw.product.detail.specifications\\', params: { id: $route.params.id } }'
     }
 ]"
@@ -656,10 +565,34 @@ const mtTabsInvalidTests = [
             { message: '[mt-tabs] The default slot usage in mt-tabs was removed and replaced with the property "items".' },
         ]
     },
+    {
+        name: '"mt-tabs" keeps double-quoted snippet labels as expressions in .vue files',
+        filename: 'test.vue',
+        code: `
+            <template>
+                <mt-tabs>
+                    <sw-tabs-item name="tab1">{{ $t("sw-cms.tab.one") }}</sw-tabs-item>
+                </mt-tabs>
+            </template>`,
+        output: `
+            <template>
+                <mt-tabs :items="[
+    {
+        'label': $t('sw-cms.tab.one'),
+        'name': 'tab1'
+    }
+]"><!-- TODO Codemod: This slot is not used anymore. Please use the "items" property instead. -->
+                    <sw-tabs-item name="tab1">{{ $t("sw-cms.tab.one") }}</sw-tabs-item>
+                </mt-tabs>
+            </template>`,
+        errors: [
+            { message: '[mt-tabs] The default slot usage in mt-tabs was removed and replaced with the property "items".' },
+        ]
+    },
 ];
 
 module.exports = {
     handleMtTabs,
     mtTabsValidTests,
-    mtTabsInvalidTests
+    mtTabsInvalidTests,
 };

@@ -5,6 +5,8 @@ namespace Shopware\Core\Content\DependencyInjection;
 use Doctrine\DBAL\Connection;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
+use Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation\LandingPageTranslationDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationDefinition;
@@ -19,6 +21,7 @@ use Shopware\Core\Content\Media\Api\MediaUploadController;
 use Shopware\Core\Content\Media\Api\MediaUploadV2Controller;
 use Shopware\Core\Content\Media\Api\MediaVideoCoverController;
 use Shopware\Core\Content\Media\Api\PresignedUploadController;
+use Shopware\Core\Content\Media\Cms\CmsElementMediaIdsProvider;
 use Shopware\Core\Content\Media\Cms\DefaultMediaResolver;
 use Shopware\Core\Content\Media\Cms\ImageCmsElementResolver;
 use Shopware\Core\Content\Media\Cms\Type\ImageGalleryTypeDataResolver;
@@ -37,6 +40,9 @@ use Shopware\Core\Content\Media\DataAbstractionLayer\MediaFileExtensionWriteVali
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderConfigurationIndexer;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderIndexer;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexer;
+use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\CmsSlotMediaIdResolver;
+use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\CmsSlotMediaUsageIndexer;
+use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\SlotConfigOverrideMediaUsageIndexer;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Media\File\FileContentValidationStrategy;
 use Shopware\Core\Content\Media\File\FileFetcher;
@@ -92,6 +98,7 @@ use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
 use Shopware\Core\Content\Media\Upload\PresignedUploadUrlGenerator;
 use Shopware\Core\Content\Media\Upload\PresignedUrlGeneratorInterface;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -592,6 +599,70 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
             service('event_dispatcher'),
             param('shopware.media.remote_thumbnails.enable'),
+        ]);
+
+    $services->set('shopware.cms.element_media_ids_provider.image', CmsElementMediaIdsProvider::class)
+        ->args([service(ImageCmsElementResolver::class), ['media']])
+        ->tag('shopware.cms.element_media_ids_provider');
+
+    $services->set('shopware.cms.element_media_ids_provider.image_slider', CmsElementMediaIdsProvider::class)
+        ->args([service(ImageSliderTypeDataResolver::class), ['sliderItems.*.mediaId']])
+        ->tag('shopware.cms.element_media_ids_provider');
+
+    $services->set('shopware.cms.element_media_ids_provider.image_gallery', CmsElementMediaIdsProvider::class)
+        ->args([service(ImageGalleryTypeDataResolver::class), ['sliderItems.*.mediaId']])
+        ->tag('shopware.cms.element_media_ids_provider');
+
+    $services->set('shopware.cms.element_media_ids_provider.video', CmsElementMediaIdsProvider::class)
+        ->args([service(VideoCmsElementResolver::class), ['media']])
+        ->tag('shopware.cms.element_media_ids_provider');
+
+    $services->set('shopware.cms.element_media_ids_provider.youtube_video', CmsElementMediaIdsProvider::class)
+        ->args([service(YoutubeVideoCmsElementResolver::class), ['previewMedia']])
+        ->tag('shopware.cms.element_media_ids_provider');
+
+    $services->set('shopware.cms.element_media_ids_provider.vimeo_video', CmsElementMediaIdsProvider::class)
+        ->args([service(VimeoVideoCmsElementResolver::class), ['previewMedia']])
+        ->tag('shopware.cms.element_media_ids_provider');
+
+    $services->set(CmsSlotMediaIdResolver::class)
+        ->args([
+            tagged_iterator('shopware.cms.element_media_ids_provider'),
+        ]);
+
+    $services->set(CmsSlotMediaUsageIndexer::class)
+        ->tag('shopware.entity_indexer')
+        ->args([
+            service(IteratorFactory::class),
+            service(Connection::class),
+            service(CmsSlotMediaIdResolver::class),
+        ]);
+
+    $services->set('category_translation_media_usage.indexer', SlotConfigOverrideMediaUsageIndexer::class)
+        ->tag('shopware.entity_indexer')
+        ->args([
+            service(IteratorFactory::class),
+            service(Connection::class),
+            service(CmsSlotMediaIdResolver::class),
+            service(CategoryTranslationDefinition::class),
+        ]);
+
+    $services->set('product_translation_media_usage.indexer', SlotConfigOverrideMediaUsageIndexer::class)
+        ->tag('shopware.entity_indexer')
+        ->args([
+            service(IteratorFactory::class),
+            service(Connection::class),
+            service(CmsSlotMediaIdResolver::class),
+            service(ProductTranslationDefinition::class),
+        ]);
+
+    $services->set('landing_page_translation_media_usage.indexer', SlotConfigOverrideMediaUsageIndexer::class)
+        ->tag('shopware.entity_indexer')
+        ->args([
+            service(IteratorFactory::class),
+            service(Connection::class),
+            service(CmsSlotMediaIdResolver::class),
+            service(LandingPageTranslationDefinition::class),
         ]);
 
     $services->set(MediaFolderConfigurationIndexer::class)

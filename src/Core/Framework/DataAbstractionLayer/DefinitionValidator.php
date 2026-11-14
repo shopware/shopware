@@ -127,6 +127,10 @@ class DefinitionValidator
         'mcp_tool_result_cache',
         'mcp_toolset_session',
         'mcp_list_version',
+        'cms_page_media_usage',
+        'category_translation_media_usage',
+        'product_translation_media_usage',
+        'landing_page_translation_media_usage',
         'webhook_delivery',
         'webhook_stream',
     ];

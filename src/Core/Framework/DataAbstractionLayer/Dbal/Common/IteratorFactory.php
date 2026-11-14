@@ -3,10 +3,12 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -59,7 +61,19 @@ class IteratorFactory
             return new LastIdQuery($query);
         }
 
-        $query->select($escaped . '.id', 'LOWER(HEX(' . $escaped . '.id))');
+        $id = $escaped . '.id';
+
+        if ($definition instanceof EntityTranslationDefinition) {
+            $translationField = $definition->getParentDefinition()->getTranslationField();
+            if ($translationField === null) {
+                throw DataAbstractionLayerException::missingParentForeignKey($definition->getParentDefinition()->getEntityName());
+            }
+
+            $id = $escaped . '.' . EntityDefinitionQueryHelper::escape($translationField->getReferenceField());
+            $query->distinct();
+        }
+
+        $query->select($id, 'LOWER(HEX(' . $id . '))');
         $query->setFirstResult(0);
         if ($lastId !== null) {
             $query->setFirstResult((int) $lastId['offset']);

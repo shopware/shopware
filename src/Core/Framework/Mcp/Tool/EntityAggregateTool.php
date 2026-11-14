@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Mcp\Tool;
 
 use Mcp\Capability\Attribute\McpTool;
 use Mcp\Capability\Attribute\Schema;
+use Mcp\Schema\ToolAnnotations;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
@@ -27,6 +28,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 #[McpTool(
     name: 'shopware-entity-aggregate',
     title: 'Entity Aggregate',
+    annotations: new ToolAnnotations(readOnlyHint: true, openWorldHint: false),
     description: 'The correct tool for count, sum, average, and other aggregate questions. Use this — not shopware-entity-search — for any \'how many\', \'total value\', or \'average\' query. Note: entity-search\'s _meta.total is pagination metadata, not a reporting count. Supports: count, avg, sum, min, max, terms, date-histogram. Returns only aggregation results, no entity rows. Pass aggregation definitions as Admin API criteria JSON.'
 )]
 #[McpToolDependsOn('shopware-entity-schema')]

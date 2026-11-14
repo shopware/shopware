@@ -183,13 +183,14 @@ jobs:
     name: tested-versions
     needs:
       - markdown-only-changes
-    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' && inputs.major != 'only' }}
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
     runs-on: ubuntu-24.04
     outputs:
       first-version: ${{ steps.versions.outputs.first-version }}
       latest-version: ${{ steps.versions.outputs.latest-version }}
       lts-first-version: ${{ steps.versions.outputs.lts-first-version }}
       lts-latest-version: ${{ steps.versions.outputs.lts-latest-version }}
+      matrix: ${{ steps.update-matrix.outputs.matrix }}
     steps:
       - name: Generate versions
         id: versions
@@ -197,23 +198,36 @@ jobs:
         with:
           github-token: ${{ github.token }}
 
+      # The major run updates the 6.7 sources only and enables the upcoming major flag afterwards,
+      # because a 6.6 shop cannot be updated to the next major. Remove the major variant once
+      # trunk is the next major (see https://github.com/shopware/shopware/issues/22865).
+      - name: Generate update matrix
+        id: update-matrix
+        env:
+          LTS_LATEST: ${{ steps.versions.outputs.lts-latest-version }}
+          FIRST: ${{ steps.versions.outputs.first-version }}
+          LATEST: ${{ steps.versions.outputs.latest-version }}
+          MAJOR: ${{ inputs.major == 'only' && 'true' || 'false' }}
+        run: |
+          set -euo pipefail
+          MATRIX=$(jq -cn --argjson major "$MAJOR" '{update: (
+            (if $major then [] else [{version: env.LTS_LATEST, type: "lts-latest"}] end)
+            + [{version: env.FIRST, type: "first"}, {version: env.LATEST, type: "latest"}]
+            | map(. + {major: $major}))}')
+          jq . <<<"$MATRIX"
+          # a missing source version must fail here instead of updating from an unknown version
+          jq -e '.update | length > 0 and all(.version != "")' <<<"$MATRIX" >/dev/null
+          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+
   acceptance-update:
     permissions:
       contents: read
       id-token: write
     needs: tested-update-versions
-    if: ${{ inputs.major != 'only' }}
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
-      matrix:
-        update:
-          - version: ${{ needs.tested-update-versions.outputs.lts-latest-version }}
-            type: lts-latest
-          - version: ${{ needs.tested-update-versions.outputs.first-version }}
-            type: first
-          - version: ${{ needs.tested-update-versions.outputs.latest-version }}
-            type: latest
+      matrix: ${{ fromJson(needs.tested-update-versions.outputs.matrix) }}
     env:
       SHOPWARE_HTTP_CACHE_ENABLED: 0
       BLUE_GREEN_DEPLOYMENT: 1
@@ -327,11 +341,51 @@ jobs:
         working-directory: new-shopware/tests/acceptance
         run: npx playwright test --project=Update --trace=on
 
+      # Until trunk is the next major, the real 6.7 -> 6.8 update is not possible: approximate it by
+      # enabling the major flag on the updated shop and running the next major's migrations.
+      - name: Enable the major flag and run the next major migrations
+        if: ${{ matrix.update.major }}
+        working-directory: old-shopware
+        run: |
+          set -euo pipefail
+          echo "V6_8_0_0=1" >> .env.local
+          bin/console cache:clear
+          bin/console database:migrate --all core.V6_8 | tee "${RUNNER_TEMP}/migrate-v6-8.log"
+
+      # database:migrate exits 0 when it finds no collection for the identifier
+      - name: Assert the next major migrations ran with the flag enabled
+        if: ${{ matrix.update.major }}
+        working-directory: old-shopware
+        run: |
+          set -euo pipefail
+          grep -F 'all migrations for identifier: "core.V6_8" executed' "${RUNNER_TEMP}/migrate-v6-8.log"
+          bin/console feature:list | tee "${RUNNER_TEMP}/features.log"
+          grep -E 'V6_8_0_0.*Enabled' "${RUNNER_TEMP}/features.log"
+
+      # separate output and report directories, so this run does not wipe the update test results
+      - name: Run post-update tests
+        working-directory: new-shopware/tests/acceptance
+        env:
+          SHOPWARE_UPDATE_MAJOR: ${{ matrix.update.major && '1' || '' }}
+          PLAYWRIGHT_HTML_OUTPUT_DIR: post-update-results/playwright-report
+        run: npx playwright test --project=PostUpdate --trace=on --output=post-update-results/test-results
+
+      # diagnostics only: the shop log and the home page response show why the shop stopped answering
+      - name: Show the shop log after a failure
+        if: failure()
+        working-directory: old-shopware
+        run: |
+          curl -sS -o /dev/null -w 'Storefront home page: %{http_code} after %{time_total}s\n' --max-time 120 "${APP_URL}" || true
+          tail -n 200 var/log/*.log || true
+
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
-          name: playwright-report-update-${{ matrix.update.type }}-${{ matrix.update.version }}
-          path: new-shopware/tests/acceptance/test-results/
+          name: playwright-report-update-${{ matrix.update.type }}-${{ matrix.update.version }}${{ matrix.update.major && '-major' || '' }}
+          path: |
+            new-shopware/tests/acceptance/test-results/
+            new-shopware/tests/acceptance/post-update-results/
+            old-shopware/var/log/
           retention-days: 3
 
       - name: Check if this run should attempt AWS operations
@@ -420,6 +474,6 @@ jobs:
           # the jobs that are irrelevant to it, but fail on unexpected skips otherwise
           allowed-skips: >-
             ${{ inputs.major == 'only' && (needs.markdown-only-changes.outputs.docs_only == 'true'
-                && 'acceptance-code-style, acceptance-update, acceptance' || 'acceptance-code-style, acceptance-update')
+                && 'acceptance-code-style, acceptance-update, acceptance' || 'acceptance-code-style')
               || (needs.markdown-only-changes.outputs.docs_only == 'true' && 'acceptance, acceptance-update' || '') }}
           jobs: ${{ toJSON(needs) }}

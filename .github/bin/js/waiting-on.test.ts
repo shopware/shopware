@@ -5,6 +5,7 @@ import {
     buildRows,
     classifyPullRequest,
     daysSince,
+    factsOf,
     findSetByHand,
     isHuman,
     isNonHumanLogin,
@@ -55,7 +56,11 @@ test('a draft that is still the authors own work waits for nobody', () => {
 });
 
 test(`\`${PARKED_LABEL}\` takes a pull request out of the report`, () => {
-    const verdict = classify({ isParked: true, reviewDecision: 'CHANGES_REQUESTED', lastChangesRequestedAt: '2026-06-02T00:00:00Z' });
+    const verdict = classify({
+        isParked: true,
+        reviewDecision: 'CHANGES_REQUESTED',
+        lastChangesRequestedAt: '2026-06-02T00:00:00Z',
+    });
 
     assert.equal(verdict.waitingOn, 'nobody');
     assert.equal(verdict.reason, 'parked-by-label');
@@ -128,7 +133,12 @@ test('an approved pull request that conflicts needs the author', () => {
 });
 
 test('an approved pull request that merges cleanly is only waiting for us', () => {
-    const verdict = classify({ reviewDecision: 'APPROVED', reviewCount: 2, approvals: 2, lastMaintainerActivityAt: '2026-08-01T00:00:00Z' });
+    const verdict = classify({
+        reviewDecision: 'APPROVED',
+        reviewCount: 2,
+        approvals: 2,
+        lastMaintainerActivityAt: '2026-08-01T00:00:00Z',
+    });
 
     assert.equal(verdict.waitingOn, 'shopware');
     assert.equal(verdict.reason, 'just-merge-it');
@@ -151,7 +161,12 @@ test('an approved pull request with a question the author left open is theirs', 
 });
 
 test('an approved pull request whose open threads the author answered is ours to resolve', () => {
-    const verdict = classify({ reviewDecision: 'APPROVED', reviewCount: 2, approvals: 2, lastOpenAnswerAt: '2026-10-08T09:00:00Z' });
+    const verdict = classify({
+        reviewDecision: 'APPROVED',
+        reviewCount: 2,
+        approvals: 2,
+        lastOpenAnswerAt: '2026-10-08T09:00:00Z',
+    });
 
     assert.equal(verdict.waitingOn, 'shopware');
     assert.equal(verdict.reason, 'open-thread-answered');
@@ -159,27 +174,155 @@ test('an approved pull request whose open threads the author answered is ours to
 });
 
 test('one open question outweighs an answered thread, and a conflict outweighs both', () => {
-    const open = { reviewDecision: 'APPROVED', reviewCount: 2, approvals: 2, lastOpenQuestionAt: '2026-10-01T00:00:00Z', lastOpenAnswerAt: '2026-10-08T00:00:00Z' } as const;
+    const open = {
+        reviewDecision: 'APPROVED',
+        reviewCount: 2,
+        approvals: 2,
+        lastOpenQuestionAt: '2026-10-01T00:00:00Z',
+        lastOpenAnswerAt: '2026-10-08T00:00:00Z',
+    } as const;
 
     assert.equal(classify(open).reason, 'open-question');
     assert.equal(classify({ ...open, mergeable: 'CONFLICTING' }).reason, 'needs-rebase');
 });
 
+test('a question left open for the author outweighs a missing second approval', () => {
+    // Regression: this is #21823, approved once while another reviewer's inline questions
+    // stayed open, so `second-review-missing` sent it back to us.
+    const facts = {
+        reviewDecision: 'REVIEW_REQUIRED',
+        reviewCount: 2,
+        approvals: 1,
+        lastMaintainerActivityAt: '2026-10-23T06:58:15Z',
+        lastOpenQuestionAt: '2026-10-22T11:23:24Z',
+        lastQuestionFromNonApproverAt: '2026-10-22T11:23:24Z',
+    } as const;
+
+    const verdict = classify(facts);
+    assert.equal(verdict.waitingOn, 'author');
+    assert.equal(verdict.reason, 'open-question');
+    assert.equal(verdict.since, '2026-10-22T11:23:24Z');
+
+    const answered = { ...facts, lastOpenQuestionAt: undefined, lastQuestionFromNonApproverAt: undefined, lastOpenAnswerAt: '2026-10-24T00:00:00Z' };
+    assert.equal(classify(answered).reason, 'second-review-missing');
+});
+
+test('a nit from the reviewer who already approved does not hold back the second review', () => {
+    const verdict = classify({
+        reviewDecision: 'REVIEW_REQUIRED',
+        reviewCount: 1,
+        approvals: 1,
+        lastMaintainerActivityAt: '2026-10-22T11:23:24Z',
+        lastOpenQuestionAt: '2026-10-22T11:23:24Z',
+    });
+
+    assert.equal(verdict.waitingOn, 'shopware');
+    assert.equal(verdict.reason, 'second-review-missing');
+});
+
+test('a push alone does not answer an open question before the second approval', () => {
+    const verdict = classify({
+        reviewDecision: 'REVIEW_REQUIRED',
+        reviewCount: 2,
+        approvals: 1,
+        lastMaintainerActivityAt: '2026-10-22T11:23:24Z',
+        lastOpenQuestionAt: '2026-10-22T11:23:24Z',
+        lastQuestionFromNonApproverAt: '2026-10-22T11:23:24Z',
+        lastAuthorActivityAt: '2026-10-25T08:00:00Z',
+    });
+
+    assert.equal(verdict.waitingOn, 'author');
+    assert.equal(verdict.reason, 'open-question');
+    assert.equal(verdict.since, '2026-10-22T11:23:24Z');
+});
+
 test('summarizeOpenThreads reads who wrote last in each unresolved thread and skips the rest', () => {
-    const comment = (login: string, createdAt: string, __typename = 'User') => ({ createdAt, author: { login, __typename } });
+    const comment = (login: string, createdAt: string, __typename = 'User') => ({
+        createdAt,
+        author: { login, __typename },
+    });
 
     const open = summarizeOpenThreads(
         [
             { isResolved: false, comments: { nodes: [comment('larskemper', '2026-09-25T07:38:17Z')] } },
-            { isResolved: false, comments: { nodes: [comment('vintagesucks', '2026-10-07T12:00:00Z'), comment('littfed', '2026-10-08T08:00:00Z')] } },
+            {
+                isResolved: false,
+                comments: {
+                    nodes: [comment('vintagesucks', '2026-10-07T12:00:00Z'), comment('littfed', '2026-10-08T08:00:00Z')],
+                },
+            },
             { isResolved: true, comments: { nodes: [comment('marcelbrode', '2026-10-09T08:00:00Z')] } },
-            { isResolved: false, comments: { nodes: [comment('littfed', '2026-10-09T09:00:00Z'), comment('Copilot', '2026-10-10T08:00:00Z', 'Bot')] } },
-            { isResolved: false, comments: { nodes: [comment('copilot-pull-request-reviewer', '2026-10-11T08:00:00Z', 'Bot')] } },
+            {
+                isResolved: false,
+                comments: {
+                    nodes: [comment('littfed', '2026-10-09T09:00:00Z'), comment('Copilot', '2026-10-10T08:00:00Z', 'Bot')],
+                },
+            },
+            {
+                isResolved: false,
+                comments: { nodes: [comment('copilot-pull-request-reviewer', '2026-10-11T08:00:00Z', 'Bot')] },
+            },
         ],
         'littfed',
     );
 
-    assert.deepEqual(open, { lastOpenQuestionAt: '2026-09-25T07:38:17Z', lastOpenAnswerAt: '2026-10-09T09:00:00Z' });
+    assert.deepEqual(open, {
+        lastOpenQuestionAt: '2026-09-25T07:38:17Z',
+        lastQuestionFromNonApproverAt: '2026-09-25T07:38:17Z',
+        lastOpenAnswerAt: '2026-10-09T09:00:00Z',
+    });
+});
+
+test('summarizeOpenThreads sets threads where an approver wrote last apart', () => {
+    const comment = (login: string, createdAt: string) => ({ createdAt, author: { login, __typename: 'User' } });
+
+    const open = summarizeOpenThreads(
+        [
+            { isResolved: false, comments: { nodes: [comment('approver', '2026-10-22T11:00:00Z')] } },
+            { isResolved: false, comments: { nodes: [comment('other', '2026-10-21T09:00:00Z')] } },
+        ],
+        'contributor',
+        new Set(['approver']),
+    );
+
+    assert.deepEqual(open, { lastOpenQuestionAt: '2026-10-22T11:00:00Z', lastQuestionFromNonApproverAt: '2026-10-21T09:00:00Z' });
+    assert.equal(summarizeOpenThreads([{ isResolved: false, comments: { nodes: [comment('approver', '2026-10-22T11:00:00Z')] } }], 'contributor', new Set(['approver'])).lastQuestionFromNonApproverAt, undefined);
+});
+
+test('factsOf takes the approvers from the latest opinionated reviews', () => {
+    const comment = (login: string, createdAt: string) => ({ createdAt, author: { login, __typename: 'User' } });
+    const facts = factsOf({
+        id: 'PR_1',
+        number: 1,
+        title: 'a pull request',
+        url: 'https://github.com/shopware/shopware/pull/1',
+        createdAt: '2026-10-01T00:00:00Z',
+        isDraft: false,
+        authorAssociation: 'CONTRIBUTOR',
+        reviewDecision: 'REVIEW_REQUIRED',
+        mergeable: 'MERGEABLE',
+        author: { login: 'contributor', __typename: 'User' },
+        labels: { nodes: [] },
+        approvals: { totalCount: 1 },
+        allReviews: { totalCount: 2 },
+        latestOpinionatedReviews: {
+            nodes: [
+                { state: 'APPROVED', submittedAt: '2026-10-23T06:58:15Z', author: { login: 'approver' } },
+                { state: 'COMMENTED', submittedAt: '2026-10-22T11:23:24Z', author: { login: 'asker' } },
+            ],
+        },
+        reviewThreads: {
+            nodes: [
+                { isResolved: false, comments: { nodes: [comment('approver', '2026-10-23T06:58:00Z')] } },
+                { isResolved: false, comments: { nodes: [comment('asker', '2026-10-22T11:23:24Z')] } },
+            ],
+        },
+        timelineItems: { nodes: [] },
+        labelEvents: { nodes: [] },
+    } as unknown as Parameters<typeof factsOf>[0]);
+
+    assert.equal(facts.lastOpenQuestionAt, '2026-10-23T06:58:00Z');
+    assert.equal(facts.lastQuestionFromNonApproverAt, '2026-10-22T11:23:24Z');
 });
 
 test('unresolved mergeability lands on us rather than on the contributor', () => {
@@ -263,7 +406,11 @@ test('the author writing last leaves it with us', () => {
 });
 
 test('timestamps decide, so a same-day flip turns on the time of day', () => {
-    const ours = classify({ reviewCount: 2, lastAuthorActivityAt: '2026-07-01T12:00:00Z', lastMaintainerActivityAt: '2026-07-01T09:00:00Z' });
+    const ours = classify({
+        reviewCount: 2,
+        lastAuthorActivityAt: '2026-07-01T12:00:00Z',
+        lastMaintainerActivityAt: '2026-07-01T09:00:00Z',
+    });
 
     assert.equal(ours.waitingOn, 'shopware');
     assert.equal(ours.reason, 'our-turn');
@@ -329,7 +476,11 @@ test('a service account posting as a plain User is not maintainer activity eithe
     // GitHub reports CLAassistant as a `User`, so only the login list catches it.
     assert.ok(NON_HUMAN_LOGINS.includes('CLAassistant'));
 
-    const activity = summarizeActivity([event({ kind: 'comment', at: '2026-07-31T00:00:00Z', actor: 'CLAassistant' })], [], 'GerDner');
+    const activity = summarizeActivity(
+        [event({ kind: 'comment', at: '2026-07-31T00:00:00Z', actor: 'CLAassistant' })],
+        [],
+        'GerDner',
+    );
 
     assert.equal(activity.lastMaintainerActivityAt, undefined);
 });
@@ -353,7 +504,11 @@ test('a review superseded by its author no longer blocks', () => {
 });
 
 test('the author converting their own pull request to a draft is not us parking it', () => {
-    const activity = summarizeActivity([event({ kind: 'convert-to-draft', at: '2026-08-01T00:00:00Z', actor: 'author' })], [], 'author');
+    const activity = summarizeActivity(
+        [event({ kind: 'convert-to-draft', at: '2026-08-01T00:00:00Z', actor: 'author' })],
+        [],
+        'author',
+    );
 
     assert.equal(activity.draftedByMaintainerAt, undefined);
     assert.equal(activity.lastAuthorActivityAt, '2026-08-01T00:00:00Z');
@@ -362,9 +517,20 @@ test('the author converting their own pull request to a draft is not us parking 
 test('toTimelineEvents reads each shape GitHub returns', () => {
     const events = toTimelineEvents([
         { __typename: 'IssueComment', createdAt: '2026-01-01T00:00:00Z', author: { login: 'codecov', __typename: 'Bot' } },
-        { __typename: 'PullRequestReview', submittedAt: '2026-01-02T00:00:00Z', author: { login: 'mitelg', __typename: 'User' } },
-        { __typename: 'PullRequestCommit', commit: { committedDate: '2026-01-03T00:00:00Z', author: { user: { login: 'aragon999' } } } },
-        { __typename: 'ConvertToDraftEvent', createdAt: '2026-01-04T00:00:00Z', actor: { login: 'marcelbrode', __typename: 'User' } },
+        {
+            __typename: 'PullRequestReview',
+            submittedAt: '2026-01-02T00:00:00Z',
+            author: { login: 'mitelg', __typename: 'User' },
+        },
+        {
+            __typename: 'PullRequestCommit',
+            commit: { committedDate: '2026-01-03T00:00:00Z', author: { user: { login: 'aragon999' } } },
+        },
+        {
+            __typename: 'ConvertToDraftEvent',
+            createdAt: '2026-01-04T00:00:00Z',
+            actor: { login: 'marcelbrode', __typename: 'User' },
+        },
         { __typename: 'LabeledEvent', createdAt: '2026-01-05T00:00:00Z' },
     ]);
 
@@ -379,26 +545,27 @@ test('toTimelineEvents reads each shape GitHub returns', () => {
     );
 });
 
-const node = (overrides: Record<string, unknown> = {}) => ({
-    id: 'PR_1',
-    number: 1,
-    title: 'a pull request',
-    url: 'https://github.com/shopware/shopware/pull/1',
-    createdAt: '2026-08-01T00:00:00Z',
-    isDraft: false,
-    authorAssociation: 'CONTRIBUTOR',
-    reviewDecision: null,
-    mergeable: 'MERGEABLE',
-    author: { login: 'someone', __typename: 'User' },
-    labels: { nodes: [{ name: 'external-contribution' }] },
-    approvals: { totalCount: 0 },
-    allReviews: { totalCount: 0 },
-    latestOpinionatedReviews: { nodes: [] },
-    reviewThreads: { nodes: [] },
-    timelineItems: { nodes: [] },
-    labelEvents: { nodes: [] },
-    ...overrides,
-}) as Parameters<typeof buildRows>[0][number];
+const node = (overrides: Record<string, unknown> = {}) =>
+    ({
+        id: 'PR_1',
+        number: 1,
+        title: 'a pull request',
+        url: 'https://github.com/shopware/shopware/pull/1',
+        createdAt: '2026-08-01T00:00:00Z',
+        isDraft: false,
+        authorAssociation: 'CONTRIBUTOR',
+        reviewDecision: null,
+        mergeable: 'MERGEABLE',
+        author: { login: 'someone', __typename: 'User' },
+        labels: { nodes: [{ name: 'external-contribution' }] },
+        approvals: { totalCount: 0 },
+        allReviews: { totalCount: 0 },
+        latestOpinionatedReviews: { nodes: [] },
+        reviewThreads: { nodes: [] },
+        timelineItems: { nodes: [] },
+        labelEvents: { nodes: [] },
+        ...overrides,
+    }) as Parameters<typeof buildRows>[0][number];
 
 test('buildRows drops bot-authored pull requests and sorts the oldest first', () => {
     const rows = buildRows(
@@ -411,7 +578,10 @@ test('buildRows drops bot-authored pull requests and sorts the oldest first', ()
         new Date('2026-09-10T00:00:00Z'),
     );
 
-    assert.deepEqual(rows.map((row) => row.number), [12, 10]);
+    assert.deepEqual(
+        rows.map((row) => row.number),
+        [12, 10],
+    );
     assert.equal(rows[0].label, WAITING_ON_LABEL.shopware);
     assert.equal(rows[0].days, 252);
 });
@@ -425,7 +595,11 @@ test('an app pushing a commit is not the author working, whatever the field type
     assert.equal(isNonHumanLogin('shopwareBot'), true);
     assert.equal(isNonHumanLogin('mitelg'), false);
 
-    const activity = summarizeActivity([event({ kind: 'commit', at: '2026-08-01T00:00:00Z', actor: 'dependabot[bot]' })], [], 'someone');
+    const activity = summarizeActivity(
+        [event({ kind: 'commit', at: '2026-08-01T00:00:00Z', actor: 'dependabot[bot]' })],
+        [],
+        'someone',
+    );
 
     assert.equal(activity.lastAuthorActivityAt, undefined);
 });
@@ -435,17 +609,28 @@ test('a lone reply inside a review thread is activity the timeline does not repo
     // reply, which produces no timeline item, and reading the timeline alone dated the
     // pull request to April.
     const events = toReviewThreadEvents([
-        { isResolved: true, comments: { nodes: [{ createdAt: '2026-07-21T09:00:00Z', author: { login: 'gecolay', __typename: 'User' } }] } },
-        { isResolved: true, comments: { nodes: [{ createdAt: '2026-07-21T12:24:31Z', author: { login: 'keulinho', __typename: 'User' } }] } },
+        {
+            isResolved: true,
+            comments: { nodes: [{ createdAt: '2026-07-21T09:00:00Z', author: { login: 'gecolay', __typename: 'User' } }] },
+        },
+        {
+            isResolved: true,
+            comments: { nodes: [{ createdAt: '2026-07-21T12:24:31Z', author: { login: 'keulinho', __typename: 'User' } }] },
+        },
     ]);
 
-    const activity = summarizeActivity(events, [{ state: 'CHANGES_REQUESTED', submittedAt: '2026-04-28T07:55:58Z' }], 'gecolay');
+    const activity = summarizeActivity(
+        events,
+        [{ state: 'CHANGES_REQUESTED', submittedAt: '2026-04-28T07:55:58Z' }],
+        'gecolay',
+    );
 
     assert.equal(activity.lastAuthorActivityAt, '2026-07-21T09:00:00Z');
     assert.equal(activity.lastMaintainerActivityAt, '2026-07-21T12:24:31Z');
 });
 
-const labelled = (number: number, ...names: string[]) => node({ number, labels: { nodes: ['external-contribution', ...names].map((name) => ({ name })) } });
+const labelled = (number: number, ...names: string[]) =>
+    node({ number, labels: { nodes: ['external-contribution', ...names].map((name) => ({ name })) } });
 
 test('planLabelChanges sets the verdict and swaps out a stale one', () => {
     const nodes = [labelled(1), labelled(2, 'waiting-on/author', 'component/core'), labelled(3, 'waiting-on/shopware')];
@@ -458,21 +643,39 @@ test('planLabelChanges sets the verdict and swaps out a stale one', () => {
 });
 
 test('buildRows leaves out internal pull requests', () => {
-    const rows = buildRows([node({ number: 1 }), node({ number: 2, labels: { nodes: [{ name: 'domain/crm-after-sales' }] } })], new Date('2026-09-10T00:00:00Z'));
+    const rows = buildRows(
+        [node({ number: 1 }), node({ number: 2, labels: { nodes: [{ name: 'domain/crm-after-sales' }] } })],
+        new Date('2026-09-10T00:00:00Z'),
+    );
 
-    assert.deepEqual(rows.map((row) => row.number), [1]);
+    assert.deepEqual(
+        rows.map((row) => row.number),
+        [1],
+    );
 });
 
 test('planLabelChanges strips the label from an internal pull request', () => {
-    const nodes = [node({ number: 5, labels: { nodes: [{ name: 'waiting-on/shopware' }, { name: 'domain/crm-after-sales' }] } })];
+    const nodes = [
+        node({ number: 5, labels: { nodes: [{ name: 'waiting-on/shopware' }, { name: 'domain/crm-after-sales' }] } }),
+    ];
 
-    assert.deepEqual(planLabelChanges(nodes, buildRows(nodes, new Date())), [{ number: 5, add: undefined, remove: ['waiting-on/shopware'] }]);
+    assert.deepEqual(planLabelChanges(nodes, buildRows(nodes, new Date())), [
+        { number: 5, add: undefined, remove: ['waiting-on/shopware'] },
+    ]);
 });
 
 test('planLabelChanges strips the label from a pull request a bot opened', () => {
-    const nodes = [node({ number: 4, author: { login: 'dependabot', __typename: 'Bot' }, labels: { nodes: [{ name: 'waiting-on/shopware' }] } })];
+    const nodes = [
+        node({
+            number: 4,
+            author: { login: 'dependabot', __typename: 'Bot' },
+            labels: { nodes: [{ name: 'waiting-on/shopware' }] },
+        }),
+    ];
 
-    assert.deepEqual(planLabelChanges(nodes, buildRows(nodes, new Date())), [{ number: 4, add: undefined, remove: ['waiting-on/shopware'] }]);
+    assert.deepEqual(planLabelChanges(nodes, buildRows(nodes, new Date())), [
+        { number: 4, add: undefined, remove: ['waiting-on/shopware'] },
+    ]);
 });
 
 test('applyLabelChanges carries on past a failing pull request and reports it', async () => {
@@ -512,7 +715,13 @@ test('applyLabelChanges carries on past a failing pull request and reports it', 
 const handSet = { waitingOn: 'author', actor: 'larskemper', at: '2026-10-10T09:00:00Z' } as const;
 
 test('a label a person set wins over a rule that disagrees, dated from when it was set', () => {
-    const verdict = classify({ reviewDecision: 'APPROVED', reviewCount: 2, approvals: 2, lastMaintainerActivityAt: '2026-10-07T12:00:00Z', setByHand: handSet });
+    const verdict = classify({
+        reviewDecision: 'APPROVED',
+        reviewCount: 2,
+        approvals: 2,
+        lastMaintainerActivityAt: '2026-10-07T12:00:00Z',
+        setByHand: handSet,
+    });
 
     assert.equal(verdict.waitingOn, 'author');
     assert.equal(verdict.reason, 'set-by-hand');
@@ -528,7 +737,12 @@ test('the first activity after a label set by hand gives the decision back to th
 });
 
 test('a label set by hand that agrees with the rule keeps the rules reason', () => {
-    const verdict = classify({ reviewDecision: 'CHANGES_REQUESTED', reviewCount: 1, lastChangesRequestedAt: '2026-10-01T00:00:00Z', setByHand: handSet });
+    const verdict = classify({
+        reviewDecision: 'CHANGES_REQUESTED',
+        reviewCount: 1,
+        lastChangesRequestedAt: '2026-10-01T00:00:00Z',
+        setByHand: handSet,
+    });
 
     assert.equal(verdict.reason, 'changes-requested');
 });
@@ -538,7 +752,11 @@ test(`\`${PARKED_LABEL}\` still wins over a label set by hand`, () => {
 });
 
 test('findSetByHand takes the newest waiting-on label a person set, while it is still there', () => {
-    const labeled = (name: string, createdAt: string, login: string, __typename = 'User') => ({ createdAt, actor: { login, __typename }, label: { name } });
+    const labeled = (name: string, createdAt: string, login: string, __typename = 'User') => ({
+        createdAt,
+        actor: { login, __typename },
+        label: { name },
+    });
     const events = [
         labeled('waiting-on/shopware', '2026-10-01T06:00:00Z', 'github-actions', 'Bot'),
         labeled('waiting-on/nobody', '2026-10-02T10:00:00Z', 'mitelg'),
@@ -547,7 +765,11 @@ test('findSetByHand takes the newest waiting-on label a person set, while it is 
         labeled('waiting-on/shopware', '2026-10-05T06:00:00Z', 'shopware-octo-sts-app', 'User'),
     ];
 
-    assert.deepEqual(findSetByHand(events, ['waiting-on/author']), { waitingOn: 'author', actor: 'larskemper', at: '2026-10-03T10:00:00Z' });
+    assert.deepEqual(findSetByHand(events, ['waiting-on/author']), {
+        waitingOn: 'author',
+        actor: 'larskemper',
+        at: '2026-10-03T10:00:00Z',
+    });
     assert.equal(findSetByHand(events, ['waiting-on/shopware']), undefined, 'a label removed since does not count');
     assert.equal(findSetByHand(events.slice(0, 1), ['waiting-on/shopware']), undefined, 'our own writes are not a person');
 });
@@ -560,7 +782,15 @@ test('buildRows keeps a label set by hand, so the sweep does not undo it, and th
                 approvals: { totalCount: 2 },
                 allReviews: { totalCount: 2 },
                 labels: { nodes: [{ name: 'external-contribution' }, { name: 'waiting-on/author' }] },
-                labelEvents: { nodes: [{ createdAt: '2026-09-02T00:00:00Z', actor: { login: 'larskemper', __typename: 'User' }, label: { name: 'waiting-on/author' } }] },
+                labelEvents: {
+                    nodes: [
+                        {
+                            createdAt: '2026-09-02T00:00:00Z',
+                            actor: { login: 'larskemper', __typename: 'User' },
+                            label: { name: 'waiting-on/author' },
+                        },
+                    ],
+                },
             }),
         ],
         new Date('2026-09-10T00:00:00Z'),
@@ -568,6 +798,12 @@ test('buildRows keeps a label set by hand, so the sweep does not undo it, and th
 
     assert.equal(rows[0].label, 'waiting-on/author');
     assert.equal(rows[0].setBy, 'larskemper');
-    assert.deepEqual(planLabelChanges([node({ labels: { nodes: [{ name: 'external-contribution' }, { name: 'waiting-on/author' }] } })], rows), []);
+    assert.deepEqual(
+        planLabelChanges(
+            [node({ labels: { nodes: [{ name: 'external-contribution' }, { name: 'waiting-on/author' }] } })],
+            rows,
+        ),
+        [],
+    );
     assert.match(renderReport(rows), /### Set by hand — 1/);
 });

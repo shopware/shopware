@@ -3,10 +3,11 @@
     {% block component_checkout_cart_alerts_notices %}
         {% for error in page.cart.errors.notices %}
             {% set snippetName = "checkout.#{error.messageKey}" %}
+            {% set parameters = error.parameters|reduce((parameters, value, key) => parameters|merge({('%' ~ key ~ '%'): value}), {}) %}
 
             {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                 type: 'info',
-                content: snippetName|trans({'%name%': error.name})|sw_sanitize
+                content: snippetName|trans(parameters)|sw_sanitize
             } %}
         {% endfor %}
     {% endblock %}
@@ -14,10 +15,11 @@
     {% block component_checkout_cart_alerts_warnings %}
         {% for error in page.cart.errors.warnings %}
             {% set snippetName = "error.#{error.messageKey}" %}
+            {% set parameters = error.parameters|reduce((parameters, value, key) => parameters|merge({('%' ~ key ~ '%'): value}), {}) %}
 
             {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                 type: 'warning',
-                content: snippetName|trans({'%name%': error.name})|sw_sanitize
+                content: snippetName|trans(parameters)|sw_sanitize
             } %}
         {% endfor %}
     {% endblock %}
@@ -25,10 +27,11 @@
     {% block component_checkout_cart_alerts_errors %}
         {% for error in page.cart.errors.errors %}
             {% set snippetName = "error.#{error.messageKey}" %}
+            {% set parameters = error.parameters|reduce((parameters, value, key) => parameters|merge({('%' ~ key ~ '%'): value}), {}) %}
 
             {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                 type: 'danger',
-                content: snippetName|trans({'%name%': error.name})|sw_sanitize
+                content: snippetName|trans(parameters)|sw_sanitize
             } %}
         {% endfor %}
     {% endblock %}

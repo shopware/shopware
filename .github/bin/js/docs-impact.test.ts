@@ -24,17 +24,21 @@ import {
 
 type Call = { method: string; params: Record<string, unknown> };
 
-function fakeGitHub(options: {
-    commits?: Array<{ sha: string; message: string }>;
-    associated?: Record<string, Array<{ number: number; merged_at: string | null }>>;
-    comments?: Array<{ id: number; body?: string; user?: { login: string } }>;
-    diffStatus?: number;
-} = {}) {
+function fakeGitHub(
+    options: {
+        commits?: Array<{ sha: string; message: string }>;
+        associated?: Record<string, Array<{ number: number; merged_at: string | null }>>;
+        comments?: Array<{ id: number; body?: string; user?: { login: string } }>;
+        diffStatus?: number;
+    } = {},
+) {
     const calls: Call[] = [];
-    const record = (method: string, result: unknown = {}) => async (params: Record<string, unknown>) => {
-        calls.push({ method, params });
-        return result;
-    };
+    const record =
+        (method: string, result: unknown = {}) =>
+        async (params: Record<string, unknown>) => {
+            calls.push({ method, params });
+            return result;
+        };
     const github = {
         rest: {
             repos: {
@@ -88,7 +92,17 @@ function fakeGitHub(options: {
             if (method === github.rest.issues.listComments) {
                 return options.comments ?? [];
             }
-            return [{ filename: 'src/a.php', status: 'modified', additions: 1, deletions: 1, blob_url: 'x', sha: 'y', patch: '@@ -1 +1 @@' }];
+            return [
+                {
+                    filename: 'src/a.php',
+                    status: 'modified',
+                    additions: 1,
+                    deletions: 1,
+                    blob_url: 'x',
+                    sha: 'y',
+                    patch: '@@ -1 +1 @@',
+                },
+            ];
         },
     };
 
@@ -111,7 +125,9 @@ const pushContext = (inputs?: { pr_number?: string; dry_run?: string | boolean }
     repo: { owner: 'shopware', repo: 'shopware' },
     sha: 'abc123',
     eventName: inputs ? 'workflow_dispatch' : 'push',
-    payload: inputs ? { inputs } : { before: 'aaa111', after: 'abc123', head_commit: { id: 'abc123', message: 'fix: last (#3)' } },
+    payload: inputs
+        ? { inputs }
+        : { before: 'aaa111', after: 'abc123', head_commit: { id: 'abc123', message: 'fix: last (#3)' } },
 });
 
 const BOT = { login: 'github-actions[bot]' };
@@ -170,7 +186,11 @@ test('buildComment writes a neutral note without any mention', () => {
 });
 
 test('buildComment marks the note as automated with a warning icon', () => {
-    assert.ok(buildComment('x').includes('_⚠️ Automated note: this change may be worth mentioning in the documentation. No action required._'));
+    assert.ok(
+        buildComment('x').includes(
+            '_⚠️ Automated note: this change may be worth mentioning in the documentation. No action required._',
+        ),
+    );
 });
 
 test('decorateHeadings puts an icon before each audience heading only', () => {
@@ -195,8 +215,14 @@ test('mergedPullRequests checks every commit of the push, not only the last', as
             { sha: 'c3', message: 'chore: bump deps (#23)' },
         ],
         associated: {
-            c1: [{ number: 21, merged_at: '2026-11-04' }, { number: 99, merged_at: null }],
-            c2: [{ number: 22, merged_at: '2026-11-04' }, { number: 21, merged_at: '2026-11-04' }],
+            c1: [
+                { number: 21, merged_at: '2026-11-04' },
+                { number: 99, merged_at: null },
+            ],
+            c2: [
+                { number: 22, merged_at: '2026-11-04' },
+                { number: 21, merged_at: '2026-11-04' },
+            ],
             c3: [{ number: 23, merged_at: '2026-11-04' }],
         },
     });
@@ -204,7 +230,10 @@ test('mergedPullRequests checks every commit of the push, not only the last', as
 
     assert.deepEqual(await mergedPullRequests({ github, context: pushContext(), core }), [21, 22]);
     assert.equal(calls.find((c) => c.method === 'compareCommitsWithBasehead')?.params.basehead, 'aaa111...abc123');
-    assert.equal(calls.some((c) => c.method === 'listPullRequestsAssociatedWithCommit' && c.params.commit_sha === 'c3'), false);
+    assert.equal(
+        calls.some((c) => c.method === 'listPullRequestsAssociatedWithCommit' && c.params.commit_sha === 'c3'),
+        false,
+    );
     assert.ok(messages.some((m) => m.startsWith('Skipping c3')));
 });
 
@@ -215,7 +244,10 @@ test('mergedPullRequests pages through a large push', async () => {
 
     await mergedPullRequests({ github, context: pushContext(), core });
 
-    assert.deepEqual(calls.filter((c) => c.method === 'compareCommitsWithBasehead').map((c) => c.params.page), [1, 2]);
+    assert.deepEqual(
+        calls.filter((c) => c.method === 'compareCommitsWithBasehead').map((c) => c.params.page),
+        [1, 2],
+    );
 });
 
 test('mergedPullRequests falls back to the head commit without a usable before', async () => {
@@ -225,7 +257,10 @@ test('mergedPullRequests falls back to the head commit without a usable before',
     context.payload = { ...context.payload, before: '0000000000000000000000000000000000000000' };
 
     assert.deepEqual(await mergedPullRequests({ github, context, core }), [3]);
-    assert.equal(calls.some((c) => c.method === 'compareCommitsWithBasehead'), false);
+    assert.equal(
+        calls.some((c) => c.method === 'compareCommitsWithBasehead'),
+        false,
+    );
 });
 
 test('dispatchDocsChecks starts one dry run per pull request until posting is enabled', async () => {
@@ -235,7 +270,10 @@ test('dispatchDocsChecks starts one dry run per pull request until posting is en
     ];
     const associated = { c1: [{ number: 1, merged_at: 'x' }], c2: [{ number: 2, merged_at: 'x' }] };
 
-    for (const [env, dryRun] of [[{}, 'true'], [{ SW_DOCS_IMPACT_POST: 'true' }, 'false']] as const) {
+    for (const [env, dryRun] of [
+        [{}, 'true'],
+        [{ SW_DOCS_IMPACT_POST: 'true' }, 'false'],
+    ] as const) {
         const { github, calls } = fakeGitHub({ commits, associated });
         const { core } = fakeCore();
 
@@ -243,7 +281,13 @@ test('dispatchDocsChecks starts one dry run per pull request until posting is en
 
         assert.deepEqual(
             calls.filter((c) => c.method === 'createWorkflowDispatch').map((c) => c.params),
-            [1, 2].map((n) => ({ owner: 'shopware', repo: 'shopware', workflow_id: 'sw-docs-impact.lock.yml', ref: 'trunk', inputs: { pr_number: String(n), dry_run: dryRun } })),
+            [1, 2].map((n) => ({
+                owner: 'shopware',
+                repo: 'shopware',
+                workflow_id: 'sw-docs-impact.lock.yml',
+                ref: 'trunk',
+                inputs: { pr_number: String(n), dry_run: dryRun },
+            })),
         );
     }
 });
@@ -288,7 +332,10 @@ test('collectAgentInput rejects a missing or invalid pr_number', async () => {
     const { core } = fakeCore();
 
     await assert.rejects(collectAgentInput({ github, context: pushContext({}), core }, dir), /Invalid pr_number/);
-    await assert.rejects(collectAgentInput({ github, context: pushContext({ pr_number: '4x' }), core }, dir), /Invalid pr_number/);
+    await assert.rejects(
+        collectAgentInput({ github, context: pushContext({ pr_number: '4x' }), core }, dir),
+        /Invalid pr_number/,
+    );
     assert.equal(calls.length, 0);
 });
 
@@ -351,11 +398,19 @@ test('postComment labels every audience of a mixed candidate', async () => {
         { items: [{ type: 'docs_candidate', audiences: 'developer,end-user', summary: 'Both' }] },
     );
 
-    assert.deepEqual(calls.find((c) => c.method === 'addLabels')?.params.labels, ['docs-candidate/developer', 'docs-candidate/end-user']);
+    assert.deepEqual(calls.find((c) => c.method === 'addLabels')?.params.labels, [
+        'docs-candidate/developer',
+        'docs-candidate/end-user',
+    ]);
 });
 
 test('postComment updates its earlier comment instead of adding another', async () => {
-    const { github, calls } = fakeGitHub({ comments: [{ id: 5, body: 'other', user: BOT }, { id: 6, body: `${COMMENT_MARKER}\nold`, user: BOT }] });
+    const { github, calls } = fakeGitHub({
+        comments: [
+            { id: 5, body: 'other', user: BOT },
+            { id: 6, body: `${COMMENT_MARKER}\nold`, user: BOT },
+        ],
+    });
     const { core } = fakeCore();
 
     await postComment(
@@ -364,12 +419,17 @@ test('postComment updates its earlier comment instead of adding another', async 
     );
 
     assert.equal(calls.find((c) => c.method === 'updateComment')?.params.comment_id, 6);
-    assert.equal(calls.some((c) => c.method === 'createComment'), false);
+    assert.equal(
+        calls.some((c) => c.method === 'createComment'),
+        false,
+    );
     assert.deepEqual(calls.find((c) => c.method === 'addLabels')?.params.labels, ['docs-candidate/developer']);
 });
 
 test('postComment never takes over a user comment that starts with the marker', async () => {
-    const { github, calls } = fakeGitHub({ comments: [{ id: 6, body: `${COMMENT_MARKER}\ncopied`, user: { login: 'mallory' } }] });
+    const { github, calls } = fakeGitHub({
+        comments: [{ id: 6, body: `${COMMENT_MARKER}\ncopied`, user: { login: 'mallory' } }],
+    });
     const { core } = fakeCore();
 
     await postComment(
@@ -377,7 +437,10 @@ test('postComment never takes over a user comment that starts with the marker', 
         { items: [{ type: 'docs_candidate', audiences: 'developer', summary: 'New event' }] },
     );
 
-    assert.equal(calls.some((c) => c.method === 'updateComment'), false);
+    assert.equal(
+        calls.some((c) => c.method === 'updateComment'),
+        false,
+    );
     assert.equal(calls.find((c) => c.method === 'createComment')?.params.issue_number, 9);
 });
 
@@ -387,7 +450,10 @@ test('postComment rejects malformed agent output', async () => {
     const context = pushContext({ pr_number: '9' });
 
     await assert.rejects(
-        postComment({ github, context, core }, { items: [{ type: 'docs_candidate', audiences: 'developer', summary: ' ' }] }),
+        postComment(
+            { github, context, core },
+            { items: [{ type: 'docs_candidate', audiences: 'developer', summary: ' ' }] },
+        ),
         /empty summary/,
     );
     await assert.rejects(
@@ -395,12 +461,15 @@ test('postComment rejects malformed agent output', async () => {
         /Unknown audience/,
     );
     await assert.rejects(
-        postComment({ github, context, core }, {
-            items: [
-                { type: 'docs_candidate', audiences: 'developer', summary: 'a' },
-                { type: 'docs_candidate', audiences: 'developer', summary: 'b' },
-            ],
-        }),
+        postComment(
+            { github, context, core },
+            {
+                items: [
+                    { type: 'docs_candidate', audiences: 'developer', summary: 'a' },
+                    { type: 'docs_candidate', audiences: 'developer', summary: 'b' },
+                ],
+            },
+        ),
         /at most one/,
     );
 });
@@ -410,7 +479,10 @@ test('postComment fails without a pr_number input', async () => {
     const { core } = fakeCore();
 
     await assert.rejects(
-        postComment({ github, context: pushContext({}), core }, { items: [{ type: 'docs_candidate', audiences: 'developer', summary: 'x' }] }),
+        postComment(
+            { github, context: pushContext({}), core },
+            { items: [{ type: 'docs_candidate', audiences: 'developer', summary: 'x' }] },
+        ),
         /Invalid pr_number/,
     );
 });
@@ -433,7 +505,10 @@ test('postComment in a dry run writes the comment to the step summary only', asy
         { items: [{ type: 'docs_candidate', audiences: 'developer', summary: 'New event' }] },
     );
 
-    assert.equal(calls.some((c) => ['createComment', 'updateComment', 'addLabels'].includes(c.method)), false);
+    assert.equal(
+        calls.some((c) => ['createComment', 'updateComment', 'addLabels'].includes(c.method)),
+        false,
+    );
     assert.equal(written.length, 1);
     assert.ok(written[0].includes('Dry run: comment for #9'));
     assert.ok(written[0].includes('New event'));
@@ -462,7 +537,10 @@ test('unlinkDeadDocsLinks turns dead docs links into plain text and checks each 
             '- See [the PR](https://github.com/shopware/shopware/pull/1)',
         ].join('\n'),
     );
-    assert.deepEqual(checked, ['https://docs.shopware.com/en/gone', 'https://developer.shopware.com/docs/rate-limiter.html']);
+    assert.deepEqual(checked, [
+        'https://docs.shopware.com/en/gone',
+        'https://developer.shopware.com/docs/rate-limiter.html',
+    ]);
 });
 
 test('postComment posts dead docs links as plain text', async () => {
@@ -471,7 +549,15 @@ test('postComment posts dead docs links as plain text', async () => {
 
     await postComment(
         { github, context: pushContext({ pr_number: '9' }), core },
-        { items: [{ type: 'docs_candidate', audiences: 'end-user', summary: '- **Adjust** [Products](https://docs.shopware.com/en/gone): a' }] },
+        {
+            items: [
+                {
+                    type: 'docs_candidate',
+                    audiences: 'end-user',
+                    summary: '- **Adjust** [Products](https://docs.shopware.com/en/gone): a',
+                },
+            ],
+        },
         async () => true,
     );
 
@@ -523,10 +609,26 @@ test('latestEndUserPages keeps the highest article version per page and maps it 
             'other/page/v1-0-0-0.md',
         ]),
         [
-            { source: 'shopware-6/migration-en/magento/v1-0-0-0.md', target: 'shopware-6/migration-en/magento.md', url: 'https://docs.shopware.com/en/migration-en/magento' },
-            { source: 'shopware-6/settings/index.md', target: 'shopware-6/settings.md', url: 'https://docs.shopware.com/en/shopware-6-en/settings' },
-            { source: 'shopware-6/settings/countries/v1-10-0-0.md', target: 'shopware-6/settings/countries.md', url: 'https://docs.shopware.com/en/shopware-6-en/settings/countries' },
-            { source: 'shopware-account/settings/user/v1-0-0.md', target: 'shopware-account/settings/user.md', url: 'https://docs.shopware.com/en/account-en/settings/user' },
+            {
+                source: 'shopware-6/migration-en/magento/v1-0-0-0.md',
+                target: 'shopware-6/migration-en/magento.md',
+                url: 'https://docs.shopware.com/en/migration-en/magento',
+            },
+            {
+                source: 'shopware-6/settings/index.md',
+                target: 'shopware-6/settings.md',
+                url: 'https://docs.shopware.com/en/shopware-6-en/settings',
+            },
+            {
+                source: 'shopware-6/settings/countries/v1-10-0-0.md',
+                target: 'shopware-6/settings/countries.md',
+                url: 'https://docs.shopware.com/en/shopware-6-en/settings/countries',
+            },
+            {
+                source: 'shopware-account/settings/user/v1-0-0.md',
+                target: 'shopware-account/settings/user.md',
+                url: 'https://docs.shopware.com/en/account-en/settings/user',
+            },
         ],
     );
 });
@@ -541,7 +643,10 @@ test('buildEndUserDocs writes one file per page with its URL on the first line',
     }
 
     assert.equal(buildEndUserDocs(content, out), 100);
-    assert.equal(readFileSync(join(out, 'shopware-6', 'page-7.md'), 'utf8'), 'URL: https://docs.shopware.com/en/shopware-6-en/page-7\n\nnew 7');
+    assert.equal(
+        readFileSync(join(out, 'shopware-6', 'page-7.md'), 'utf8'),
+        'URL: https://docs.shopware.com/en/shopware-6-en/page-7\n\nnew 7',
+    );
 });
 
 test('buildEndUserDocs refuses a suspiciously small content tree', () => {
@@ -554,21 +659,30 @@ test('buildEndUserDocs refuses a suspiciously small content tree', () => {
 
 test('warnIfEndUserDocsMissing warns in the log and the run summary only when the index is missing', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'docs-impact-'));
-    for (const [path, expected] of [[dir, 0], [join(dir, 'enduser-docs'), 1]] as const) {
+    for (const [path, expected] of [
+        [dir, 0],
+        [join(dir, 'enduser-docs'), 1],
+    ] as const) {
         const { core, messages } = fakeCore();
         const written: string[] = [];
         const summary = { addRaw: (text: string) => ({ write: async () => written.push(text) }) };
 
         await warnIfEndUserDocsMissing({ ...core, summary }, path);
 
-        assert.equal(messages.filter((m) => m.startsWith('warning: End-user documentation is unavailable')).length, expected);
+        assert.equal(
+            messages.filter((m) => m.startsWith('warning: End-user documentation is unavailable')).length,
+            expected,
+        );
         assert.equal(written.length, expected);
     }
 });
 
 test('the workflow lets the docs domains through output sanitization', () => {
     const workflow = readFileSync(new URL('../../workflows/sw-docs-impact.md', import.meta.url), 'utf8');
-    const domains = workflow.match(/^ {2}allowed-domains: \[(.*)\]$/m)?.[1].split(',').map((domain) => domain.trim());
+    const domains = workflow
+        .match(/^ {2}allowed-domains: \[(.*)\]$/m)?.[1]
+        .split(',')
+        .map((domain) => domain.trim());
 
     assert.deepEqual(domains, ['docs.shopware.com', 'developer.shopware.com']);
 });

@@ -410,11 +410,29 @@ Orders with a single delivery, with or without promotion shipping discounts, beh
 A route can restrict these associations, for example with `$criteria->getAssociation('mainCategories')->addFilter(...)` when `$criteria->hasAssociation('mainCategories')`.
 `ProductPageSeoUrlRoute` uses this to load only the main category of the sales channel the URLs are generated for.
 
+### Guest cart extensions are kept on login
+
+When a guest logs in and their cart is merged into the customer's saved cart, the extensions of the guest cart are carried over.
+If both carts have an extension with the same name, the customer cart keeps its own value.
+To keep an extension out of the customer cart, remove it from the guest cart in a `BeforeCartMergeEvent` listener; to let the guest's value win, set it on the customer cart there.
+Decorating `CartRestorer` just to copy an extension over is no longer needed.
+
 ### Promotion line items store the discount value in the cart currency
 
 `payload.value` of promotion line items with an absolute, fixed or fixed unit discount now contains the value in the cart currency, using the advanced price of the currency or the currency factor.
 Orders placed before this change still contain the default currency value.
 Extensions and headless frontends that convert `payload.value` into the cart currency themselves must remove that conversion.
+
+### Split cart delivery positions by quantity
+
+`Shopware\Core\Checkout\Cart\Delivery\DeliveryPositionSplitter::split()` splits a cart delivery position into a part with the given quantity and a remainder, each with its own line item clone, price, taxes and delivery date.
+Extensions that regroup deliveries, for example in a `DeliveryBuilder` decorator, can use it instead of recalculating partial positions themselves.
+Part prices are split like line items of promotion set groups and can differ from the whole position by rounding.
+It throws `CHECKOUT__CART_DELIVERY_POSITION_INVALID_SPLIT_QUANTITY`, `CHECKOUT__CART_DELIVERY_POSITION_NOT_SPLITTABLE` for line items with children and `CHECKOUT__CART_DELIVERY_POSITION_NOT_STACKABLE`.
+`DeliveryBuilder::resolveDeliveryDate()` returns the delivery or restock date for a quantity of a line item.
+
+`DeliveryPositionCollection::getWeight()` and `getVolume()` now count the position quantity instead of the line item quantity.
+For extensions that already build positions holding part of a line item, this changes weight and volume based shipping costs and the cart volume rule.
 
 ## API
 
@@ -432,6 +450,13 @@ The Admin API and Sync API return HTTP 400 with code `USER__USERNAME_WHITESPACE`
 Remove surrounding whitespace before submitting a username.
 Existing usernames are not changed automatically; updates that omit `username` remain possible.
 Duplicate usernames are reported with HTTP 400 and code `USER__USERNAME_NOT_UNIQUE`.
+
+### SSO logins can carry the `user-verified` scope
+
+The SSO re-authentication (`/api/oauth/sso/auth` with `usePromptLogin=1`) now sends `max_age=0` next to `prompt=login`, so the identity provider performs a fresh login and reports its time in the id token (`auth_time`).
+The following code exchange puts the `user-verified` scope on the access token when that authentication is at most five minutes old.
+A token exchange without `auth_time`, or with an older one, gets no `user-verified` scope; identity providers that omit the claim after `max_age=0` do not follow OpenID Connect Core.
+The user and role endpoints keep accepting SSO sessions without the scope for now.
 
 ### HTTP method overrides restricted to form actions
 
@@ -513,6 +538,16 @@ Clients can compare these hashes to find out which cookies were added or changed
 Order deliveries in the Admin API and Store API have a new integer `position` field with the order of the deliveries in the cart the order was placed from, starting at 1.
 Deliveries of orders placed before this release have position `0` until the order is recalculated.
 
+### Price definitions are validated so that they can be read again
+
+A price definition written to a price definition field, for example `priceDefinition` of an order line item, is now rejected with a `400` if it could not be read again:
+
+- `quantity`: `taxRules` is missing or is not a list, or a tax rule is not an object or has no `percentage`. Send `taxRules` with `taxRate` and `percentage` for every rule, or `"taxRules": []` if no tax applies.
+- `currency-price`: an entry of `price` is not an object, has no valid `currencyId`, or has no `net`, `gross` or `linked`.
+
+Before, such a definition was stored and every later read of the entity failed, or a missing `percentage`, `net` or `gross` was read as 0. A numeric string as `price` of an `absolute` or as `percentage` of a `percentage` price definition, which was already accepted on write, can now be read as well.
+The same applies to `"quantity": null` and `"isCalculated": null` of a `quantity` price definition, which are now read as `1` and `false`.
+
 ## Features
 
 ### Disable the Administration password recovery flow
@@ -566,6 +601,14 @@ Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-
 
 ## Administration
 
+### Order viewers no longer receive delete privileges
+
+The `order.viewer` permission no longer grants `order:delete` or `version:delete`, and viewing an order no longer creates a working version.
+Existing viewer roles lose `order:delete` during the update unless they also have `order.editor` or `order.deleter`.
+Existing `version:delete` grants are preserved because other modules and extensions may require them.
+Editor roles still require both grants to discard working versions.
+Custom roles without the `order.viewer` marker are unchanged.
+Extensions that require `order:delete` alongside `order.viewer` must explicitly restore that grant for the affected roles after the migration.
 ### Deprecated the unused visibilities and sales channels in the sales channel detail
 
 Some sales channel detail components load the visibilities or sales channels of their products and currencies, although they only need one of them or none.
@@ -863,6 +906,13 @@ If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0
 For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
 
 ## Storefront
+
+### New shipping method blocks added
+
+The following new blocks have been added to the shipping method template in `storefront/component/shipping/shipping-method.html.twig` to match the payment method template structure:
+
+- `component_shipping_method_name`
+- `component_shipping_method_description_text`
 
 ### Skip link for listing filters
 

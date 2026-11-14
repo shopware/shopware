@@ -100,18 +100,18 @@ function fakeGitHub(data: {
         queries,
         github: {
             rest: { search: { issuesAndPullRequests: search }, issues: { listEvents }, pulls: { listFiles } },
-            async paginate(route: unknown, options: Record<string, unknown>): Promise<any[]> {
+            async paginate<T>(route: unknown, options: Record<string, unknown>): Promise<T[]> {
                 if (route === search) {
                     const q = String(options.q);
                     queries.push(q);
 
-                    return (q.includes('is:merged') ? data.merged : data.open).map(item);
+                    return (q.includes('is:merged') ? data.merged : data.open).map(item) as T[];
                 }
                 if (route === listEvents) {
-                    return data.events[Number(options.issue_number)] ?? [];
+                    return (data.events[Number(options.issue_number)] ?? []) as T[];
                 }
                 if (route === listFiles) {
-                    return (data.files[Number(options.pull_number)] ?? []).map((filename) => ({ filename }));
+                    return (data.files[Number(options.pull_number)] ?? []).map((filename) => ({ filename })) as T[];
                 }
                 throw new Error('unexpected route');
             },

@@ -5,16 +5,17 @@ namespace Shopware\Core\Framework\Api\Acl;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Who acts: a user, an integration, or an app through its manifest.
+ * Who acts: a user, an integration, an app through its manifest, or an app through its integration.
  *
  * @internal
  *
  * @codeCoverageIgnore
  */
 #[Package('framework')]
-enum IdentityType
+enum IdentityType: string
 {
-    case User;
-    case Integration;
-    case App;
+    case User = 'user';
+    case Integration = 'integration';
+    case App = 'app';
+    case AppIntegration = 'app_integration';
 }

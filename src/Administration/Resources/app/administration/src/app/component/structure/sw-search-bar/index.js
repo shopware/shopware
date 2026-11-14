@@ -341,11 +341,13 @@ export default {
                 return this.$te(snippetKey) ? this.$t(snippetKey) : type;
             }
 
-            if (!this.$te(`global.entities.${type}`)) {
-                return this.currentSearchType;
+            const snippetKey = `global.entities.${type}`;
+            // $te only checks the active locale, while $t also resolves the fallback locale
+            if (!this.$te(snippetKey) && !this.$te(snippetKey, Context.app.fallbackLocale)) {
+                return type;
             }
 
-            return this.$t(`global.entities.${type}`, 2);
+            return this.$t(snippetKey, 2);
         },
 
         setFocus() {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Util;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Service\ResetInterface;
 
@@ -20,6 +21,13 @@ use Symfony\Contracts\Service\ResetInterface;
 #[Package('framework')]
 class HtmlSanitizer implements ResetInterface
 {
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed together with the repair of double-encoded entities
+     *
+     * One or more `&amp;` directly followed by a named, decimal or hexadecimal entity, e.g. `&amp;ouml;` or `&amp;amp;#246;`
+     */
+    private const DOUBLE_ENCODED_ENTITY_PATTERN = '/&amp;(?:amp;)*(#[0-9]+|#x[0-9a-f]+|[a-z][a-z0-9]*);/i';
+
     /**
      * @var \HTMLPurifier[]
      */
@@ -58,10 +66,12 @@ class HtmlSanitizer implements ResetInterface
             return $text;
         }
 
-        /** Fix double encoding
-         * @see \Shopware\Tests\Unit\Core\Framework\Util\HtmlSanitizerTest::testSanitizeHtmlEntities()
+        /**
+         * @deprecated tag:v6.8.0 - Double-encoded entities are no longer repaired, the sender has to send single-encoded HTML
          */
-        $text = htmlspecialchars_decode($text, \ENT_QUOTES | \ENT_HTML5);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $text = $this->collapseDoubleEncodedEntities($text);
+        }
 
         $options ??= [];
 
@@ -103,6 +113,35 @@ class HtmlSanitizer implements ResetInterface
     public function reset(): void
     {
         $this->purifiers = [];
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, double-encoded input is no longer repaired
+     *
+     * Repairs double-encoded input from a sender, e.g. `&amp;ouml;`, to `&ouml;`.
+     * Only the extra `&amp;` layers in front of a known entity are removed, the entity itself is left to HTMLPurifier.
+     * The result never contains a decoded `<`, `>` or `"`, so escaped text like `&lt;b&gt;` can't turn into markup.
+     */
+    private function collapseDoubleEncodedEntities(string $text): string
+    {
+        if (!str_contains($text, '&amp;')) {
+            return $text;
+        }
+
+        return preg_replace_callback(
+            self::DOUBLE_ENCODED_ENTITY_PATTERN,
+            static function (array $match): string {
+                $entity = '&' . $match[1] . ';';
+
+                // An unknown name like in `AT&amp;T;` is plain text, not an entity
+                if (html_entity_decode($entity, \ENT_QUOTES | \ENT_HTML5, 'UTF-8') === $entity) {
+                    return $match[0];
+                }
+
+                return $entity;
+            },
+            $text
+        ) ?? $text;
     }
 
     private function getBaseConfig(): \HTMLPurifier_Config

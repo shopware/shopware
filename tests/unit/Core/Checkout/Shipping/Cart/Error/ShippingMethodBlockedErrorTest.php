@@ -29,9 +29,9 @@ class ShippingMethodBlockedErrorTest extends TestCase
             'id' => $error->getShippingMethodId(),
             'name' => 'FOO',
             'reason' => 'BAR',
-            'deliveryIndexes' => [],
+            'deliveryIdentifiers' => [],
         ], $error->getParameters());
-        static::assertSame([], $error->getDeliveryIndexes());
+        static::assertSame([], $error->getDeliveryIdentifiers());
         static::assertSame('FOO', $error->getName());
         static::assertTrue($error->blockOrder());
         static::assertSame('shipping-method-blocked-' . $error->getShippingMethodId(), $error->getId());
@@ -47,11 +47,11 @@ class ShippingMethodBlockedErrorTest extends TestCase
             name: 'FOO',
             id: $shippingMethodId,
             reason: 'BAR',
-            deliveryIndexes: [0, 2],
+            deliveryIdentifiers: ['warehouse-1', 'warehouse-2'],
         );
 
-        static::assertSame([0, 2], $error->getDeliveryIndexes());
-        static::assertSame([0, 2], $error->getParameters()['deliveryIndexes']);
+        static::assertSame(['warehouse-1', 'warehouse-2'], $error->getDeliveryIdentifiers());
+        static::assertSame(['warehouse-1', 'warehouse-2'], $error->getParameters()['deliveryIdentifiers']);
         static::assertSame('shipping-method-blocked-' . $shippingMethodId, $error->getId());
     }
 }

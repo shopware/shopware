@@ -14,15 +14,12 @@ use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
-use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Checkout\Gateway\CheckoutGatewayInterface;
 use Shopware\Core\Checkout\Gateway\CheckoutGatewayResponse;
 use Shopware\Core\Checkout\Gateway\Command\Struct\CheckoutGatewayPayloadStruct;
 use Shopware\Core\Checkout\Gateway\Extension\CheckoutGatewayRouteExtension;
 use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute;
 use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRouteResponse;
-use Shopware\Core\Checkout\Payment\Cart\Error\PaymentMethodBlockedError;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
@@ -243,29 +240,18 @@ class CheckoutGatewayRouteTest extends TestCase
         static::assertSame('Shipping method Foo not available. Reason: not allowed', $error->getMessage());
     }
 
-    public function testBlockedMethodErrorsReferenceTheirDeliveriesAndTransactions(): void
+    public function testBlockedShippingMethodErrorsReferenceTheirDeliveries(): void
     {
-        $paymentMethod = new PaymentMethodEntity();
-        $paymentMethod->setId(Uuid::randomHex());
-        $paymentMethod->addTranslated('name', 'Bar');
-
-        $context = Generator::generateSalesChannelContext(paymentMethod: $paymentMethod);
-
-        $amount = new CalculatedPrice(100.00, 100.00, new CalculatedTaxCollection(), new TaxRuleCollection());
-        $cart = new Cart('hatoken');
-        $cart->setTransactions(new TransactionCollection([
-            new Transaction($amount, $paymentMethod->getId()),
-            new Transaction($amount, Uuid::randomHex()),
-            new Transaction($amount, $paymentMethod->getId()),
-        ]));
+        $context = Generator::generateSalesChannelContext();
 
         $firstShippingMethod = $this->createShippingMethod('First shipping');
+        $cart = new Cart('hatoken');
         $cart->setDeliveries(new DeliveryCollection([
-            $this->createDelivery($firstShippingMethod, 100.00),
-            $this->createDelivery($this->createShippingMethod('Second shipping'), 100.00),
-            $this->createDelivery($firstShippingMethod, 100.00),
-            $this->createDelivery($firstShippingMethod, -100.00),
-            $this->createDelivery($this->createShippingMethod('Negative cost shipping'), -100.00),
+            $this->createDelivery($firstShippingMethod, 100.00, 'first'),
+            $this->createDelivery($this->createShippingMethod('Second shipping'), 100.00, 'second'),
+            $this->createDelivery($firstShippingMethod, 100.00, 'third'),
+            $this->createDelivery($firstShippingMethod, -100.00, 'first-discount'),
+            $this->createDelivery($this->createShippingMethod('Negative cost shipping'), -100.00, 'negative-cost'),
         ]));
 
         $paymentMethodRoute = static::createStub(AbstractPaymentMethodRoute::class);
@@ -290,20 +276,17 @@ class CheckoutGatewayRouteTest extends TestCase
             new ExtensionDispatcher(new EventDispatcher()),
         );
 
-        $transactionIndexes = [];
-        $deliveryIndexes = [];
-        foreach ($route->load(new Request(), $cart, $context)->getErrors() as $error) {
-            if ($error instanceof PaymentMethodBlockedError) {
-                $transactionIndexes[$error->getName()] = $error->getTransactionIndexes();
-            }
-
-            if ($error instanceof ShippingMethodBlockedError) {
-                $deliveryIndexes[$error->getName()] = $error->getDeliveryIndexes();
-            }
+        $deliveryIdentifiers = [];
+        foreach ($route->load(new Request(), $cart, $context)->getErrors()->filterInstance(ShippingMethodBlockedError::class) as $error) {
+            static::assertInstanceOf(ShippingMethodBlockedError::class, $error);
+            $deliveryIdentifiers[$error->getName()] = $error->getDeliveryIdentifiers();
         }
 
-        static::assertSame(['Bar' => [0, 2]], $transactionIndexes);
-        static::assertSame(['First shipping' => [0, 2], 'Second shipping' => [1], 'Negative cost shipping' => []], $deliveryIndexes);
+        static::assertSame([
+            'First shipping' => ['first', 'third'],
+            'Second shipping' => ['second'],
+            'Negative cost shipping' => [],
+        ], $deliveryIdentifiers);
     }
 
     public function testOnlyAvailableFlagIsSet(): void
@@ -376,14 +359,15 @@ class CheckoutGatewayRouteTest extends TestCase
         return $shippingMethod;
     }
 
-    private function createDelivery(ShippingMethodEntity $shippingMethod, float $shippingCosts): Delivery
+    private function createDelivery(ShippingMethodEntity $shippingMethod, float $shippingCosts, string $identifier): Delivery
     {
         return new Delivery(
             new DeliveryPositionCollection(),
             new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice($shippingCosts, $shippingCosts, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice($shippingCosts, $shippingCosts, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            $identifier
         );
     }
 }

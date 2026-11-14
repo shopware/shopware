@@ -240,7 +240,7 @@ class CartRuleLoaderTest extends TestCase
                     '%id%' => 'shipping-method-id',
                     '%name%' => 'Standard',
                     '%reason%' => $reason,
-                    '%deliveryIndexes%' => [],
+                    '%deliveryIdentifiers%' => [],
                 ], $parameters);
 
                 return 'Die Versandart "Standard" ist für Ihren aktuellen Warenkorb gesperrt.';

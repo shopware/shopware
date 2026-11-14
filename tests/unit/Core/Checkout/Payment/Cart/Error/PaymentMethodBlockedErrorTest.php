@@ -29,29 +29,11 @@ class PaymentMethodBlockedErrorTest extends TestCase
             'id' => $error->getPaymentMethodId(),
             'name' => 'FOO',
             'reason' => 'BAR',
-            'transactionIndexes' => [],
         ], $error->getParameters());
-        static::assertSame([], $error->getTransactionIndexes());
         static::assertSame('FOO', $error->getName());
         static::assertTrue($error->blockOrder());
         static::assertSame('payment-method-blocked-' . $error->getPaymentMethodId(), $error->getId());
         static::assertSame(10, $error->getLevel());
         static::assertSame('payment-method-blocked', $error->getMessageKey());
-    }
-
-    public function testReferencesTheTransactionsWithoutChangingTheId(): void
-    {
-        $paymentMethodId = Uuid::randomHex();
-
-        $error = new PaymentMethodBlockedError(
-            name: 'FOO',
-            reason: 'BAR',
-            id: $paymentMethodId,
-            transactionIndexes: [0, 2],
-        );
-
-        static::assertSame([0, 2], $error->getTransactionIndexes());
-        static::assertSame([0, 2], $error->getParameters()['transactionIndexes']);
-        static::assertSame('payment-method-blocked-' . $paymentMethodId, $error->getId());
     }
 }

@@ -14,7 +14,7 @@ class ShippingMethodBlockedError extends Error
     private const KEY = 'shipping-method-blocked';
 
     /**
-     * @param list<int> $deliveryIndexes
+     * @param list<string> $deliveryIdentifiers
      */
     #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'reason', newType: 'string')]
     #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'id', newType: 'string')]
@@ -22,7 +22,7 @@ class ShippingMethodBlockedError extends Error
         protected readonly string $name,
         protected readonly ?string $id = null,
         protected readonly ?string $reason = null,
-        protected readonly array $deliveryIndexes = [],
+        protected readonly array $deliveryIdentifiers = [],
     ) {
         if ($id === null || $reason === null) {
             Feature::triggerDeprecationOrThrow(
@@ -51,7 +51,7 @@ class ShippingMethodBlockedError extends Error
             'id' => $this->id,
             'name' => $this->name,
             'reason' => $this->reason,
-            'deliveryIndexes' => $this->deliveryIndexes,
+            'deliveryIdentifiers' => $this->deliveryIdentifiers,
         ];
     }
 
@@ -73,11 +73,11 @@ class ShippingMethodBlockedError extends Error
     }
 
     /**
-     * @return list<int>
+     * @return list<string>
      */
-    public function getDeliveryIndexes(): array
+    public function getDeliveryIdentifiers(): array
     {
-        return $this->deliveryIndexes;
+        return $this->deliveryIdentifiers;
     }
 
     public function blockOrder(): bool

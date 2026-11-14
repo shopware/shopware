@@ -387,16 +387,14 @@ On delivery transitions, `order.deliveries` now also contains the state and posi
 The listener dispatches the new `OrderDeliveryStateMachineStateChangeEvent` and `OrderTransactionStateMachineStateChangeEvent` for these transitions.
 They extend `OrderStateMachineStateChangeEvent`, so existing subscribers keep working, and add `getOrderDelivery()` and `getOrderTransaction()` with their id getters.
 
-### Blocked shipping and payment method errors reference their deliveries and transactions
+### Blocked shipping method errors reference their deliveries
 
-`ShippingMethodBlockedError` now lists the cart deliveries blocked for its shipping method, `PaymentMethodBlockedError` the cart transactions paid with its payment method.
-Read them with `getDeliveryIndexes()` and `getTransactionIndexes()`, or as `deliveryIndexes` and `transactionIndexes` in the error parameters of the Store API cart.
-Each index counts from 0 and matches `Cart::getDeliveries()->getAt()` and `Cart::getTransactions()->getAt()`, and the `deliveries` and `transactions` lists of the Store API cart.
-The indexes are only valid for the calculation that raised the error and are not the `position` of an order delivery.
-The error id stays per method, so all deliveries blocked for one shipping method share one error; deliveries with negative shipping costs, like shipping discounts, are left out of the list.
-The list is empty when the error is not tied to a delivery or transaction.
-Errors from `PaymentMethodValidator` always have an empty list, because the validator runs before the cart transactions exist; the checkout gateway fills it.
-Pass `deliveryIndexes` or `transactionIndexes` when your extension raises these errors for specific deliveries or transactions.
+`ShippingMethodBlockedError` now lists the identifiers of the cart deliveries blocked for its shipping method.
+Read them with `getDeliveryIdentifiers()`, or as `deliveryIdentifiers` in the error parameters of the Store API cart, and match them against the `identifier` of the cart deliveries.
+The error id stays per method, so all deliveries blocked for one shipping method share one error.
+Deliveries without an identifier and deliveries with negative shipping costs, like shipping discounts, are left out of the list.
+The list is empty when the error is not tied to a delivery.
+Pass `deliveryIdentifiers` when your extension raises this error for specific deliveries.
 
 ### Orders with several deliveries keep their shipping costs and addresses
 

@@ -252,7 +252,7 @@ class DeliveryCalculatorTest extends TestCase
             'id' => $shippingMethodId,
             'name' => 'Test shipping',
             'reason' => 'no shipping costs found',
-            'deliveryIndexes' => [0],
+            'deliveryIdentifiers' => [Delivery::DEFAULT_IDENTIFIER],
         ], $error->getParameters());
     }
 
@@ -271,22 +271,24 @@ class DeliveryCalculatorTest extends TestCase
             $shippingMethods[] = $shippingMethod;
         }
 
-        $deliveries = new DeliveryCollection([
-            $this->createDeliveryWithCartTotal($shippingMethods[0], 10.0),
-            $this->createDeliveryWithCartTotal($shippingMethods[1], 10.0),
-            $this->createDeliveryWithCartTotal($shippingMethods[0], 10.0),
-        ]);
+        $first = $this->createDeliveryWithCartTotal($shippingMethods[0], 10.0);
+        $second = $this->createDeliveryWithCartTotal($shippingMethods[1], 10.0);
+        $third = $this->createDeliveryWithCartTotal($shippingMethods[0], 10.0);
+        $deliveries = new DeliveryCollection([$first, $second, $third]);
 
         $cart = new Cart('test');
         $this->createRealDeliveryCalculator()->calculate($data, $cart, $deliveries, static::createStub(SalesChannelContext::class));
 
-        $deliveryIndexes = [];
+        $deliveryIdentifiers = [];
         foreach ($cart->getErrors() as $error) {
             static::assertInstanceOf(ShippingMethodBlockedError::class, $error);
-            $deliveryIndexes[$error->getName()] = $error->getDeliveryIndexes();
+            $deliveryIdentifiers[$error->getName()] = $error->getDeliveryIdentifiers();
         }
 
-        static::assertSame(['First shipping' => [0, 2], 'Second shipping' => [1]], $deliveryIndexes);
+        static::assertSame([
+            'First shipping' => [$first->getIdentifier(), $third->getIdentifier()],
+            'Second shipping' => [$second->getIdentifier()],
+        ], $deliveryIdentifiers);
     }
 
     public function testCalculateManualShippingCost(): void

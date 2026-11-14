@@ -1,0 +1,145 @@
+{
+    "openapi": "3.2.0",
+    "info": {
+        "title": "Request default presence",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/defaults": {
+            "post": {
+                "x-dto-namespace": "App\\DTO",
+                "operationId": "createDefaults",
+                "x-dto-package": "framework",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DefaultsInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Accepted"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "DefaultsInput": {
+                "x-dto-inline": true,
+                "type": "object",
+                "required": [
+                    "id"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "default": "fallback"
+                    },
+                    "count": {
+                        "type": "integer",
+                        "default": 10
+                    },
+                    "active": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "comment": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "default": "fallback"
+                    },
+                    "source": {
+                        "type": "string",
+                        "enum": [
+                            "api"
+                        ]
+                    },
+                    "nested": {
+                        "type": "object",
+                        "properties": {
+                            "count": {
+                                "type": "integer",
+                                "default": 10
+                            }
+                        }
+                    },
+                    "shared": {
+                        "$ref": "#/components/schemas/SharedDefaults"
+                    },
+                    "tags": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": [
+                            "first",
+                            "first",
+                            "second"
+                        ]
+                    },
+                    "emptyTags": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": []
+                    },
+                    "options": {
+                        "type": "object",
+                        "additionalProperties": {},
+                        "default": {
+                            "mode": "fast",
+                            "nested": {
+                                "values": [
+                                    1,
+                                    false,
+                                    null
+                                ]
+                            },
+                            "label": "it's\\configured"
+                        }
+                    }
+                }
+            },
+            "SharedDefaults": {
+                "x-dto-namespace": "App\\Shared",
+                "x-dto-package": "framework",
+                "type": "object",
+                "properties": {
+                    "count": {
+                        "type": "integer",
+                        "default": 10
+                    },
+                    "nested": {
+                        "type": "object",
+                        "properties": {
+                            "active": {
+                                "type": "boolean",
+                                "default": true
+                            }
+                        }
+                    },
+                    "mode": {
+                        "$ref": "#/components/schemas/DefaultMode"
+                    }
+                }
+            },
+            "DefaultMode": {
+                "type": "string",
+                "enum": [
+                    "none",
+                    "exact"
+                ],
+                "default": "none"
+            }
+        }
+    }
+}

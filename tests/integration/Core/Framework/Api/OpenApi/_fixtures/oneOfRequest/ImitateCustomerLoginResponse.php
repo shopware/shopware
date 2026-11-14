@@ -1,0 +1,33 @@
+<?php declare(strict_types=1);
+
+/**
+ * This file is auto-generated.
+ * Do not edit manually.
+ *
+ * Last generated: 2026-07-07 00:00:00
+ */
+
+namespace App\DTO;
+
+use Shopware\Core\Framework\Api\Response\AbstractResponse;
+
+/**
+ * Returns context token
+ *
+ * @codeCoverageIgnore
+ */
+final class ImitateCustomerLoginResponse extends AbstractResponse
+{
+    /**
+     * Redirect URL if any
+     */
+    public string $redirectUrl;
+
+    /**
+     * @internal
+     */
+    public function __construct(
+    ) {
+        parent::__construct();
+    }
+}

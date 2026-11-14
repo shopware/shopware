@@ -436,12 +436,42 @@ It throws `CHECKOUT__CART_DELIVERY_POSITION_INVALID_SPLIT_QUANTITY`, `CHECKOUT__
 `DeliveryPositionCollection::getWeight()` and `getVolume()` now count the position quantity instead of the line item quantity.
 For extensions that already build positions holding part of a line item, this changes weight and volume based shipping costs and the cart volume rule.
 
+### Customers can select a shipping method per cart delivery
+
+The cart applies a shipping method the customer selected for a single delivery, while the context shipping method stays the default for all others.
+A delivery is addressed by the `deliveryKey` value of its payload (`Delivery::DELIVERY_KEY`).
+Core's own delivery has none, so extensions that split the cart into several deliveries set it on each delivery while the deliveries are built, for example in a decorated `DeliveryBuilder`.
+Use a value that names the same group of goods in every calculation, like a warehouse id.
+
+```php
+$delivery->setPayloadValue(Delivery::DELIVERY_KEY, $warehouseId);
+```
+
+The selections are stored in the `delivery-shipping-methods` cart extension (`SelectedDeliveryShippingMethods`) and survive the login, where the guest's selection wins over the one saved on the customer's cart.
+`DeliveryProcessor` loads the selected shipping methods, puts them on their deliveries before they are priced and drops selections whose delivery is gone.
+A selected shipping method that is not available blocks the cart with a `ShippingMethodBlockedError` instead of being replaced.
+`DeliveryBuilder::changeShippingMethod()` moves a delivery to another shipping method and gives positions without their own delivery time the delivery time of that method, counted from the restock for positions that wait for one.
+
 ## API
 
 ### Order deliveries and order transactions have a `payload` field
 
 Order deliveries and order transactions in the Admin API and Store API have a new `payload` field, and so do the deliveries and transactions of the Store API cart.
 It is an object, or an empty array when nothing is set.
+
+### Select the shipping method of a cart delivery
+
+The new `PATCH /store-api/checkout/cart/delivery` route stores the shipping method the customer selected for single deliveries of the cart and returns the recalculated cart.
+Each entry names a delivery by the `deliveryKey` of its `payload`; `null` as `shippingMethodId` drops the selection.
+The route does not change the shipping method of the context.
+
+```json
+{
+    "deliveries": [
+        { "key": "warehouse-a", "shippingMethodId": "0190b1b8cbc173b7a8c4bd5c5e1e4e2d" }
+    ]
+}
+```
 
 ### Plain JSON becomes the default Admin API response format in 6.8
 

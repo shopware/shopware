@@ -14,6 +14,12 @@ class Delivery extends Struct
     use PayloadTrait;
 
     /**
+     * Payload value that identifies a delivery across cart calculations.
+     * Whoever groups the positions into deliveries sets it, so choices stored for a delivery find it again.
+     */
+    final public const DELIVERY_KEY = 'deliveryKey';
+
+    /**
      * @var list<string>|null
      */
     private ?array $ruleIds = null;

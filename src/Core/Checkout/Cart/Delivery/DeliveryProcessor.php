@@ -7,12 +7,15 @@ use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\SelectedDeliveryShippingMethods;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
@@ -66,6 +69,13 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
             foreach ($original->getDeliveries() as $delivery) {
                 $id = $delivery->getShippingMethod()->getId();
 
+                if (!$data->has(self::buildKey($id))) {
+                    $ids[] = $id;
+                }
+            }
+
+            $selected = $original->getExtensionOfType(SelectedDeliveryShippingMethods::KEY, SelectedDeliveryShippingMethods::class);
+            foreach ($selected?->getShippingMethodIds() ?? [] as $id) {
                 if (!$data->has(self::buildKey($id))) {
                     $ids[] = $id;
                 }
@@ -134,6 +144,8 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
             }
 
             $deliveries = $this->builder->build($toCalculate, $data, $context, $behavior);
+            $this->applySelectedShippingMethods($data, $toCalculate, $deliveries);
+
             $manualShippingCosts = $original->getExtension(self::MANUAL_SHIPPING_COSTS);
 
             if ($manualShippingCosts instanceof CalculatedPrice) {
@@ -148,5 +160,45 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
 
             $toCalculate->setDeliveries($deliveries);
         }, 'cart');
+    }
+
+    private function applySelectedShippingMethods(CartDataCollection $data, Cart $cart, DeliveryCollection $deliveries): void
+    {
+        $selected = $cart->getExtensionOfType(SelectedDeliveryShippingMethods::KEY, SelectedDeliveryShippingMethods::class);
+        if ($selected === null) {
+            return;
+        }
+
+        $applied = new SelectedDeliveryShippingMethods();
+        foreach ($deliveries as $delivery) {
+            $deliveryKey = $delivery->getPayloadValue(Delivery::DELIVERY_KEY);
+            if (!\is_string($deliveryKey)) {
+                continue;
+            }
+
+            $shippingMethodId = $selected->getShippingMethodId($deliveryKey);
+            if ($shippingMethodId === null) {
+                continue;
+            }
+
+            $shippingMethod = $data->get(self::buildKey($shippingMethodId));
+            if (!$shippingMethod instanceof ShippingMethodEntity) {
+                continue;
+            }
+
+            $applied->setShippingMethodId($deliveryKey, $shippingMethodId);
+
+            if ($delivery->getShippingMethod()->getId() !== $shippingMethodId) {
+                $this->builder->changeShippingMethod($delivery, $shippingMethod);
+            }
+        }
+
+        if ($applied->getShippingMethodIds() === []) {
+            $cart->removeExtension(SelectedDeliveryShippingMethods::KEY);
+
+            return;
+        }
+
+        $cart->addExtension(SelectedDeliveryShippingMethods::KEY, $applied);
     }
 }

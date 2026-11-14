@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistListRequestHandler;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\Authentication\McpAuthenticationListener;
 use Shopware\Core\Framework\Mcp\Authentication\McpExceptionListener;
+use Shopware\Core\Framework\Mcp\Authentication\McpPrincipalResolver;
 use Shopware\Core\Framework\Mcp\Command\DebugMcpCommand;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Mcp\Context\StoreApiMcpContextProvider;
@@ -65,6 +66,7 @@ use Shopware\Core\Framework\Mcp\ScheduledTask\McpToolsetSessionCleanupTask;
 use Shopware\Core\Framework\Mcp\ScheduledTask\McpToolsetSessionCleanupTaskHandler;
 use Shopware\Core\Framework\Mcp\Session\McpSessionCleanupSubscriber;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
+use Shopware\Core\Framework\Mcp\Session\McpSessionPrincipalBinding;
 use Shopware\Core\Framework\Mcp\Tool\EntityAggregateTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityDeleteTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
@@ -169,6 +171,14 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(McpSessionIdValidator::class);
 
+    $services->set(McpPrincipalResolver::class);
+
+    $services->set(McpSessionPrincipalBinding::class)
+        ->args([
+            service('mcp.server.admin.session.store')->nullOnInvalid(),
+            service(McpPrincipalResolver::class),
+        ]);
+
     $services->set(McpRateLimiter::class)
         ->args([service(RateLimiter::class)]);
 
@@ -201,6 +211,7 @@ return static function (ContainerConfigurator $container): void {
             service('logger'),
             service(McpAllowlistFilter::class),
             service(McpListChangedNotifier::class),
+            service(McpSessionPrincipalBinding::class),
         ])
         ->tag('controller.service_arguments')
         ->tag('monolog.logger', ['channel' => 'mcp']);
@@ -251,6 +262,7 @@ return static function (ContainerConfigurator $container): void {
             service(McpSessionIdValidator::class),
             service('logger'),
             service('mcp.store_api.list_changed_notifier'),
+            service('mcp.server.store_api.session.store')->nullOnInvalid(),
         ])
         ->tag('controller.service_arguments')
         ->tag('monolog.logger', ['channel' => 'mcp']);

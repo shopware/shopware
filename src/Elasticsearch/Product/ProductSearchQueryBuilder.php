@@ -16,6 +16,16 @@ use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchTokenizer;
 
 /**
+ * Storefront entry point for product full-text search. Tokenizes the term,
+ * loads merchant search-field configuration, builds a DisMax of per-token
+ * `BoolQuery`s combined according to the per-config and/or-logic, and adds
+ * a fallback dis_max clause for the original (untokenized) term.
+ *
+ * @see Resources/doc/SEARCH_ARCHITECTURE.md §4.1 ("ProductSearchQueryBuilder
+ *      — the entry point for storefront product search") for the full pipeline
+ *      and the rationale behind tie_breaker, ranking multipliers, and the
+ *      fallback original-term clause.
+ *
  * @phpstan-type SearchConfig array{and_logic: string, field: string, tokenize: int, ranking: int, use_exact_subfield?: int}
  */
 #[Package('framework')]

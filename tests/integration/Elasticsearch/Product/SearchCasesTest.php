@@ -24,6 +24,17 @@ use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
+ * Living spec for the Elasticsearch product-search behaviour. Each scenario in
+ * the data providers documents a specific rule from the architecture doc:
+ * tokenization, analyzer chain emissions, exact-subfield boost, fuzziness,
+ * `core.search.minScore` cutoff, etc.
+ *
+ * @see ../../../src/Elasticsearch/Resources/doc/SEARCH_ARCHITECTURE.md
+ *
+ * If a rule documented in the architecture doc isn't covered here, add a
+ * scenario. If a scenario here doesn't have a corresponding rule, the doc is
+ * out of date.
+ *
  * @internal
  */
 #[Package('inventory')]

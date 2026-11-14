@@ -10,6 +10,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * Base class for Elasticsearch index definitions. Provides field-config primitives
+ * (`KEYWORD_FIELD`, `SEARCH_FIELD`, `SEARCH_FIELD_WITH_EXACT`, etc.) and the
+ * composable `buildTextFieldConfig()` helper.
+ *
+ * @see Resources/doc/SEARCH_ARCHITECTURE.md §2 ("Field types") and §10
+ *      ("Conventions for adding new search fields") for guidance on which flag
+ *      combinations to use when extending the mapping.
+ */
 #[Package('framework')]
 abstract class AbstractElasticsearchDefinition
 {

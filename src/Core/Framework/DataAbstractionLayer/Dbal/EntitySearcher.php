@@ -31,6 +31,8 @@ use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 #[Package('framework')]
 class EntitySearcher implements EntitySearcherInterface
 {
+    private const WINDOW_TOTAL = '_total';
+
     public function __construct(
         private readonly Connection $connection,
         private readonly EntityDefinitionQueryHelper $queryHelper,
@@ -80,10 +82,19 @@ class EntitySearcher implements EntitySearcherInterface
             $this->queryHelper->addIdCondition($criteria, $definition, $query);
         }
 
-        if ($query->hasState(Criteria::SCORE_FIELD) && $criteria->getGroupFields() !== []) {
+        $scored = $query->hasState(Criteria::SCORE_FIELD);
+        if ($scored && $criteria->getGroupFields() !== []) {
             $query = $this->buildScoreRankedQuery($query, $definition, $criteria, $context, $table, $fields);
         } else {
             $this->queryHelper->addGroupBy($definition, $criteria, $context, $query, $table);
+        }
+
+        $countInQuery = $scored
+            && $criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_EXACT
+            && $criteria->getLimit() !== null;
+
+        if ($countInQuery) {
+            $query->addSelect('COUNT(*) OVER() AS ' . EntityDefinitionQueryHelper::escape(self::WINDOW_TOTAL));
         }
 
         // add pagination
@@ -103,7 +114,16 @@ class EntitySearcher implements EntitySearcherInterface
         // execute and fetch ids
         $rows = $query->executeQuery()->fetchAllAssociative();
 
-        $total = $this->getTotalCount($criteria, $query, $rows);
+        if ($countInQuery && $rows !== []) {
+            $total = (int) $rows[0][self::WINDOW_TOTAL];
+            $rows = array_map(static function (array $row): array {
+                unset($row[self::WINDOW_TOTAL]);
+
+                return $row;
+            }, $rows);
+        } else {
+            $total = $this->getTotalCount($criteria, $query, $rows);
+        }
 
         if ($criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_NEXT_PAGES) {
             $rows = \array_slice($rows, 0, $criteria->getLimit());

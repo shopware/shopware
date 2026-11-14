@@ -63,6 +63,7 @@ use Shopware\Core\Content\Product\Cms\ProductSlider\ProductStreamProcessor;
 use Shopware\Core\Content\Product\Cms\ProductSlider\StaticProductProcessor;
 use Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceAccessorBuilder;
+use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceBlobPostUpdater;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceQuantitySelector;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductCategoryDenormalizer;
@@ -711,6 +712,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     $services->set(CheapestPriceQuantitySelector::class);
+
+    $services->set(CheapestPriceBlobPostUpdater::class)
+        ->args([
+            service(IteratorFactory::class),
+            service(Connection::class),
+            service(CheapestPriceUpdater::class),
+        ])
+        ->tag('shopware.entity_indexer');
 
     $services->set(RatingAverageUpdater::class)
         ->args([

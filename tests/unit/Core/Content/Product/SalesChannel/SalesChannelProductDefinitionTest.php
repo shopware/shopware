@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceField;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -34,6 +36,21 @@ class SalesChannelProductDefinitionTest extends TestCase
 
         static::assertSame(SalesChannelProductEntity::class, $definition->getEntityClass());
         static::assertSame(SalesChannelProductCollection::class, $definition->getCollectionClass());
+    }
+
+    public function testCheapestPriceReadsTheBlob(): void
+    {
+        $field = $this->createDefinition()->getFields()->get('cheapestPrice');
+        static::assertInstanceOf(CheapestPriceField::class, $field);
+        static::assertSame('cheapest_price_blob', $field->getStorageName());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testCheapestPriceKeepsTheLegacySourceOfTruth(): void
+    {
+        $field = $this->createDefinition()->getFields()->get('cheapestPrice');
+        static::assertInstanceOf(CheapestPriceField::class, $field);
+        static::assertSame('cheapest_price', $field->getStorageName());
     }
 
     public function testDefinesTheRuntimeCalculationFields(): void

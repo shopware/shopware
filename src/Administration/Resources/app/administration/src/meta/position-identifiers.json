@@ -83,6 +83,7 @@
  "sw-customer",
  "sw-customer-create-address-form",
  "sw-customer-create-base-form",
+ "sw-customer-create-custom-field-sets",
  "sw-customer-detail__before-content",
  "sw-customer-detail-addresses",
  "sw-customer-detail-base-custom-field-sets",

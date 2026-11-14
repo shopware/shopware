@@ -8,13 +8,13 @@ import useCmsState from './use-cms-state';
 import 'src/module/sw-cms/store/cms-page.store';
 import type { CmsElementConfig, CmsSlotConfig, RuntimeSlot } from 'src/module/sw-cms/service/cms.service';
 
-/** @private */
+/** @public */
 export interface UseCmsElementOptions {
     element: () => RuntimeSlot;
     defaultConfig?: () => Record<string, unknown> | null;
 }
 
-/** @private */
+/** @public */
 export type UseCmsElementReturn = ReturnType<typeof useCmsState> & {
     cmsElements: ComputedRef<Record<string, CmsElementConfig | undefined>>;
     config: ComputedRef<CmsSlotConfig>;
@@ -32,7 +32,7 @@ export type UseCmsElementReturn = ReturnType<typeof useCmsState> & {
  * element, and `setConfigValue` goes through the store action. Both take a path relative to the
  * element's `config`, e.g. `'media.value'`.
  *
- * @private
+ * @public
  */
 export default function useCmsElement(options: UseCmsElementOptions): UseCmsElementReturn {
     const cmsState = useCmsState();

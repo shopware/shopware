@@ -4,7 +4,7 @@
  * @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES
  */
 
-/** @private */
+/** @public */
 export type SalutationFilterEntityType = {
     salutation: {
         id: EntityKey<'salutation'>;
@@ -24,7 +24,7 @@ export type SalutationFilterEntityType = {
  *
  * Keep this and `src/app/mixin/salutation.mixin.ts` in sync — change both together.
  *
- * @private
+ * @public
  */
 export default function useSalutation(): {
     salutation: (entity: SalutationFilterEntityType, fallbackSnippet?: string) => string;

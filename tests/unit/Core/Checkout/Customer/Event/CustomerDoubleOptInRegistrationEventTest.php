@@ -56,4 +56,11 @@ class CustomerDoubleOptInRegistrationEventTest extends TestCase
         static::assertSame($context->getContext(), $event->getContext());
         static::assertSame('test-id', $event->getCustomerId());
     }
+
+    public function testTheMailRecipientCarriesTheResolvedName(): void
+    {
+        MailRecipientNameFixture::assertRecipientNames(
+            fn (CustomerEntity $customer, SalesChannelContext $context) => new CustomerDoubleOptInRegistrationEvent($customer, $context, 'https://example.com/confirm')
+        );
+    }
 }

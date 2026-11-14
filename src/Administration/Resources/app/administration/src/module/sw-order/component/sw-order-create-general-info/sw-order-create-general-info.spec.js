@@ -24,6 +24,7 @@ const context = {
     customer: {
         firstName: 'John',
         lastName: 'Doe',
+        displayName: 'John Doe',
         email: 'john@doe.dev',
     },
     currency: {

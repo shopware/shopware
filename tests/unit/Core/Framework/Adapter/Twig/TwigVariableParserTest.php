@@ -107,4 +107,26 @@ TWIG;
 
         static::assertSame($expected, $variables);
     }
+
+    public function testParserDoesNotConcatenateConditionalSetValues(): void
+    {
+        $template = <<<TWIG
+{% set url = product.cover ? product.cover.media.url : '' %}{{ url }}
+{% for option in product.options %}
+    {% set group = option.group ? option.group.name : '' %}{{ group }}
+{% endfor %}
+
+TWIG;
+
+        $parser = new TwigVariableParser(new Environment(new ArrayLoader([])));
+
+        $variables = $parser->parse($template);
+
+        static::assertContains('product.cover', $variables);
+        static::assertContains('product.cover.media.url', $variables);
+        static::assertContains('product.options.group', $variables);
+        static::assertContains('product.options.group.name', $variables);
+        static::assertNotContains('product.cover.product.cover.media.url', $variables);
+        static::assertNotContains('product.options.group.product.options.group.name', $variables);
+    }
 }

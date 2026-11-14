@@ -104,11 +104,18 @@ class TwigVariableParser
                 $names = $node->getNode('names');
                 $values = $node->getNode('values');
 
-                $resolvedValue = implode('.', $this->getVariables($values, $aliases));
+                $resolvedValues = $this->getVariables($values, $aliases);
 
                 foreach ($names as $nameNode) {
                     $varName = $nameNode->getAttribute('name');
-                    $aliases[$varName] = $resolvedValue;
+
+                    // Only alias when the value resolves to a single path. Several paths (e.g. a conditional
+                    // expression or a concatenation) must not be glued together into one bogus association.
+                    if (\count($resolvedValues) <= 1) {
+                        $aliases[$varName] = (string) (reset($resolvedValues) ?: '');
+                    } else {
+                        unset($aliases[$varName]);
+                    }
                 }
             }
 

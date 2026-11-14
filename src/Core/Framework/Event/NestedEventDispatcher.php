@@ -32,7 +32,7 @@ class NestedEventDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * @param callable $listener can not use native type declaration @see https://github.com/symfony/symfony/issues/42283
+     * @param callable|array{\Closure, string} $listener can not use native type declaration @see https://github.com/symfony/symfony/issues/42283
      */
     public function addListener(string $eventName, $listener, int $priority = 0): void // @phpstan-ignore-line
     {

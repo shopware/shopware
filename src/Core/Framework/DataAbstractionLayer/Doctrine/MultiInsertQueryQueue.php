@@ -90,7 +90,7 @@ class MultiInsertQueryQueue
     }
 
     /**
-     * @return array<array{query: string, values: list<string>, types: list<ParameterType>}>
+     * @return array<array{query: string, values: list<mixed>, types: list<ParameterType>}>
      */
     private function prepareQueries(): array
     {

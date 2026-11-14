@@ -1027,7 +1027,7 @@ class PaymentProcessorTest extends TestCase
         $requestDataBag = new RequestDataBag();
         $salesChannelContext = Generator::generateSalesChannelContext();
         $cart = new Cart(Uuid::randomHex());
-        $cart->getTransactions()->add(new Transaction(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()), 'payment-method-id'));
+        $cart->getTransactions()->add(new Transaction(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()), 'payment-method-id', Transaction::DEFAULT_IDENTIFIER));
 
         $handler = $this->createMock(AbstractPaymentHandler::class);
         $handler
@@ -1062,7 +1062,7 @@ class PaymentProcessorTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
         $salesChannelContext->getPaymentMethod()->setId('payment-method-id');
         $cart = new Cart(Uuid::randomHex());
-        $cart->getTransactions()->add(new Transaction(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()), 'payment-method-id'));
+        $cart->getTransactions()->add(new Transaction(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()), 'payment-method-id', Transaction::DEFAULT_IDENTIFIER));
 
         $paymentHandlerRegistry = $this->createMock(PaymentHandlerRegistry::class);
         $paymentHandlerRegistry->expects($this->once())
@@ -1088,7 +1088,7 @@ class PaymentProcessorTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
         $salesChannelContext->getPaymentMethod()->setId('payment-method-id');
         $cart = new Cart(Uuid::randomHex());
-        $cart->getTransactions()->add(new Transaction(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()), 'payment-method-id'));
+        $cart->getTransactions()->add(new Transaction(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()), 'payment-method-id', Transaction::DEFAULT_IDENTIFIER));
 
         $handler = $this->createMock(AbstractPaymentHandler::class);
         $handler

@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryTime;
@@ -166,6 +167,7 @@ class DeliveryBuilderTest extends TestCase
         $delivery = $deliveryCollection->first();
         static::assertNotNull($delivery);
 
+        static::assertSame(Delivery::DEFAULT_IDENTIFIER, $delivery->getIdentifier());
         static::assertSame($shippingMethod, $delivery->getShippingMethod());
         static::assertSame($deliveryLocation, $delivery->getLocation());
         static::assertEquals(

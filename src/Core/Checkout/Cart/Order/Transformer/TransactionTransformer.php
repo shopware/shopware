@@ -38,6 +38,7 @@ class TransactionTransformer
         Context $context
     ): array {
         $data = [
+            'identifier' => $transaction->getIdentifier(),
             'paymentMethodId' => $transaction->getPaymentMethodId(),
             'amount' => $transaction->getAmount(),
         ];

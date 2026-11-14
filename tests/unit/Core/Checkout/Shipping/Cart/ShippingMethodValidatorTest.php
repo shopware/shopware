@@ -59,7 +59,8 @@ class ShippingMethodValidatorTest extends TestCase
             $deliveryDate,
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
         $cart->setDeliveries(new DeliveryCollection([$delivery]));
         $context->expects($this->once())->method('getRuleIds')->willReturn(['1']);
@@ -88,7 +89,8 @@ class ShippingMethodValidatorTest extends TestCase
             $deliveryDate,
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
         $cart->setDeliveries(new DeliveryCollection([$delivery]));
         $context->expects($this->once())->method('getRuleIds')->willReturn(['1']);
@@ -119,7 +121,8 @@ class ShippingMethodValidatorTest extends TestCase
             $deliveryDate,
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
         $cart->setDeliveries(new DeliveryCollection([$delivery]));
         $context->expects($this->once())->method('getRuleIds')->willReturn(['1']);
@@ -151,7 +154,8 @@ class ShippingMethodValidatorTest extends TestCase
             $deliveryDate,
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
         $cart->setDeliveries(new DeliveryCollection([$delivery]));
         $context->expects($this->once())->method('getRuleIds')->willReturn(['2']);
@@ -184,7 +188,8 @@ class ShippingMethodValidatorTest extends TestCase
             $deliveryDate,
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
 
         $delivery2 = new Delivery(
@@ -192,7 +197,8 @@ class ShippingMethodValidatorTest extends TestCase
             $deliveryDate,
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            'second'
         );
 
         $cart->setDeliveries(new DeliveryCollection([$delivery, $delivery2]));

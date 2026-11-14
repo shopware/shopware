@@ -35,20 +35,21 @@ class TransactionProcessorTest extends TestCase
         static::assertCount(1, $transactions);
         $transaction = $transactions->first();
         static::assertNotNull($transaction);
+        static::assertSame(Transaction::DEFAULT_IDENTIFIER, $transaction->getIdentifier());
         static::assertSame(100.0, $transaction->getAmount()->getTotalPrice());
         static::assertSame($context->getPaymentMethod()->getId(), $transaction->getPaymentMethodId());
     }
 
     public function testProcessMovesTheKeptOrderTransactionToTheCartTotal(): void
     {
-        $orderTransaction = new Transaction($this->price(50.0), 'order-payment-method-id');
+        $orderTransaction = new Transaction($this->price(50.0), 'order-payment-method-id', 'order-transaction');
         $orderTransaction->addExtension(OrderConverter::ORIGINAL_ID, new IdStruct('order-transaction-id'));
 
         $cart = $this->cartWithTotal(100.0);
         $cart->setBehavior(new CartBehavior([CheckoutPermissions::KEEP_ORDER_TRANSACTION => true]));
         $cart->setTransactions(new TransactionCollection([
             $orderTransaction,
-            new Transaction($this->price(50.0), 'cancelled-payment-method-id'),
+            new Transaction($this->price(50.0), 'cancelled-payment-method-id', 'cancelled'),
         ]));
 
         $transactions = (new TransactionProcessor())->process($cart, Generator::generateSalesChannelContext());
@@ -57,6 +58,7 @@ class TransactionProcessorTest extends TestCase
         $transaction = $transactions->first();
         static::assertNotNull($transaction);
         static::assertSame(100.0, $transaction->getAmount()->getTotalPrice());
+        static::assertSame('order-transaction', $transaction->getIdentifier());
         static::assertSame('order-payment-method-id', $transaction->getPaymentMethodId());
         static::assertSame('order-transaction-id', $transaction->getExtensionOfType(OrderConverter::ORIGINAL_ID, IdStruct::class)?->getId());
         static::assertSame(50.0, $orderTransaction->getAmount()->getTotalPrice());

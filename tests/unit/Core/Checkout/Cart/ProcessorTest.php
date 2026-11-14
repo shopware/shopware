@@ -50,7 +50,7 @@ class ProcessorTest extends TestCase
 
         $cart = new Cart('test');
         $cart->setTransactions(new TransactionCollection([
-            new Transaction(new CalculatedPrice(50, 50, new CalculatedTaxCollection(), new TaxRuleCollection()), 'order-payment-method-id'),
+            new Transaction(new CalculatedPrice(50, 50, new CalculatedTaxCollection(), new TaxRuleCollection()), 'order-payment-method-id', Transaction::DEFAULT_IDENTIFIER),
         ]));
 
         $calculated = $processor->process(

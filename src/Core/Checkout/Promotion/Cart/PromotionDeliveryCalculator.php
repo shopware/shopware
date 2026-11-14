@@ -23,6 +23,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Checkout\Promotion\PromotionException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -282,7 +283,7 @@ class PromotionDeliveryCalculator
                     throw PromotionException::invalidPriceDefinition((string) $discountLineItem->getLabel(), $discountLineItem->getReferencedId());
                 }
 
-                $discountAdded = $this->calculateAbsolute($deliveries, $originalPriceDefinition, $context);
+                $discountAdded = $this->calculateAbsolute($deliveries, $originalPriceDefinition, $context, $discountLineItem->getId());
 
                 break;
             case PromotionDiscountEntity::TYPE_PERCENTAGE:
@@ -296,7 +297,7 @@ class PromotionDeliveryCalculator
                     $discountMaxValue = $discountLineItem->getPayloadValue('maxValue');
                 }
 
-                $discountAdded = $this->calculatePercentage($deliveries, $originalPriceDefinition, $context, $discountMaxValue);
+                $discountAdded = $this->calculatePercentage($deliveries, $originalPriceDefinition, $context, $discountMaxValue, $discountLineItem->getId());
 
                 break;
             case PromotionDiscountEntity::TYPE_FIXED_UNIT:
@@ -304,7 +305,7 @@ class PromotionDeliveryCalculator
                     throw PromotionException::invalidPriceDefinition((string) $discountLineItem->getLabel(), $discountLineItem->getReferencedId());
                 }
 
-                $discountAdded = $this->calculateFixedDiscount($deliveries, $originalPriceDefinition, $context, $notDiscountedShippingCosts);
+                $discountAdded = $this->calculateFixedDiscount($deliveries, $originalPriceDefinition, $context, $notDiscountedShippingCosts, $discountLineItem->getId());
 
                 break;
         }
@@ -315,7 +316,7 @@ class PromotionDeliveryCalculator
     /**
      * calculate the discount on all deliveries for a discount of type absolute
      */
-    private function calculateAbsolute(DeliveryCollection $deliveries, AbsolutePriceDefinition $definition, SalesChannelContext $context): bool
+    private function calculateAbsolute(DeliveryCollection $deliveries, AbsolutePriceDefinition $definition, SalesChannelContext $context, string $discountId): bool
     {
         $deliveryAdded = false;
         // get discount value
@@ -349,7 +350,7 @@ class PromotionDeliveryCalculator
                 // would reduce shipping costs under 0, only discount delivery shipping costs
                 $calculateDefinition = new QuantityPriceDefinition(-1 * $deliveryShippingPrice, $delivery->getShippingCosts()->getTaxRules());
                 // add a discount delivery item to the collection
-                $this->addDiscountDeliveryItem($deliveries, $delivery, $this->quantityPriceCalculator->calculate($calculateDefinition, $context));
+                $this->addDiscountDeliveryItem($deliveries, $delivery, $this->quantityPriceCalculator->calculate($calculateDefinition, $context), $discountId);
                 $deliveryAdded = true;
                 // reduce the discount value by shippingcosts (we may only reduce them to shippingcosts)
                 $reduceValue -= $deliveryShippingPrice;
@@ -360,7 +361,7 @@ class PromotionDeliveryCalculator
             // we may reduce shipping costs by reduceValue
             $calculateDefinition = new QuantityPriceDefinition(-1 * $reduceValue, $delivery->getShippingCosts()->getTaxRules());
             // add a discount delivery item to the collection
-            $this->addDiscountDeliveryItem($deliveries, $delivery, $this->quantityPriceCalculator->calculate($calculateDefinition, $context));
+            $this->addDiscountDeliveryItem($deliveries, $delivery, $this->quantityPriceCalculator->calculate($calculateDefinition, $context), $discountId);
             $deliveryAdded = true;
             // the amount of reduceValue has been added completely, set it to 0
             $reduceValue = 0;
@@ -372,7 +373,7 @@ class PromotionDeliveryCalculator
     /**
      * calculate the discount on all deliveries for a discount of type percentage
      */
-    private function calculatePercentage(DeliveryCollection $deliveries, PercentagePriceDefinition $definition, SalesChannelContext $context, string $maxValue): bool
+    private function calculatePercentage(DeliveryCollection $deliveries, PercentagePriceDefinition $definition, SalesChannelContext $context, string $maxValue, string $discountId): bool
     {
         $deliveryAdded = false;
         $reduceValue = abs($definition->getPercentage());
@@ -402,7 +403,7 @@ class PromotionDeliveryCalculator
 
             $calculateDefinition = new QuantityPriceDefinition(-1 * $discountPrice, $delivery->getShippingCosts()->getTaxRules());
             // add a discount delivery item to the collection
-            $this->addDiscountDeliveryItem($deliveries, $delivery, $this->quantityPriceCalculator->calculate($calculateDefinition, $context));
+            $this->addDiscountDeliveryItem($deliveries, $delivery, $this->quantityPriceCalculator->calculate($calculateDefinition, $context), $discountId);
             $deliveryAdded = true;
         }
 
@@ -412,7 +413,7 @@ class PromotionDeliveryCalculator
     /**
      * calculate the discount on all deliveries for a discount of type fixed
      */
-    private function calculateFixedDiscount(DeliveryCollection $deliveries, AbsolutePriceDefinition $definition, SalesChannelContext $context, float $notDiscountedShippingCosts): bool
+    private function calculateFixedDiscount(DeliveryCollection $deliveries, AbsolutePriceDefinition $definition, SalesChannelContext $context, float $notDiscountedShippingCosts, string $discountId): bool
     {
         $deliveryAdded = false;
         $fixedPrice = abs($definition->getPrice());
@@ -450,7 +451,7 @@ class PromotionDeliveryCalculator
                 // would reduce shipping costs under 0, only discount delivery shipping costs
                 $calculateDefinition = new QuantityPriceDefinition(-1 * $deliveryShippingPrice, $delivery->getShippingCosts()->getTaxRules());
                 // add a discount delivery item to the collection
-                $this->addDiscountDeliveryItem($deliveries, $delivery, $this->quantityPriceCalculator->calculate($calculateDefinition, $context));
+                $this->addDiscountDeliveryItem($deliveries, $delivery, $this->quantityPriceCalculator->calculate($calculateDefinition, $context), $discountId);
                 $deliveryAdded = true;
                 // reduce the discount value by shippingcosts (we may only reduce them to shippingcosts)
                 $dynamicDiscountPriceValue -= $deliveryShippingPrice;
@@ -461,7 +462,7 @@ class PromotionDeliveryCalculator
             // we may reduce shipping costs by reduceValue
             $calculateDefinition = new QuantityPriceDefinition(-1 * $dynamicDiscountPriceValue, $delivery->getShippingCosts()->getTaxRules());
             // add a discount delivery item to the collection
-            $this->addDiscountDeliveryItem($deliveries, $delivery, $this->quantityPriceCalculator->calculate($calculateDefinition, $context));
+            $this->addDiscountDeliveryItem($deliveries, $delivery, $this->quantityPriceCalculator->calculate($calculateDefinition, $context), $discountId);
             $deliveryAdded = true;
             // the amount of reduceValue has been added completely, set it to 0
             $dynamicDiscountPriceValue = 0;
@@ -473,7 +474,7 @@ class PromotionDeliveryCalculator
     /**
      * add a discount delivery item to DeliveryCollection $deliveries
      */
-    private function addDiscountDeliveryItem(DeliveryCollection $deliveries, Delivery $delivery, CalculatedPrice $price): void
+    private function addDiscountDeliveryItem(DeliveryCollection $deliveries, Delivery $delivery, CalculatedPrice $price, string $discountId): void
     {
         if ($price->getTotalPrice() >= 0) {
             return;
@@ -482,14 +483,18 @@ class PromotionDeliveryCalculator
         $idStruct = $delivery->getExtensionOfType(OrderConverter::ORIGINAL_ADDRESS_ID, IdStruct::class);
         $versionIdStruct = $delivery->getExtensionOfType(OrderConverter::ORIGINAL_ADDRESS_VERSION_ID, IdStruct::class);
 
+        $identifier = $delivery->getIdentifier();
+
         // Own empty positions: never share the base delivery's order_delivery_position rows.
-        $delivery = new Delivery(
+        // @deprecated tag:v6.8.0 - Remove Feature::silent(), every base delivery has an identifier
+        $delivery = Feature::silent('v6.8.0.0', static fn (): Delivery => new Delivery(
             new DeliveryPositionCollection(),
             $delivery->getDeliveryDate(),
             $delivery->getShippingMethod(),
             $delivery->getLocation(),
-            $price
-        );
+            $price,
+            $identifier === null ? null : $identifier . '-' . $discountId
+        ));
 
         if ($idStruct instanceof IdStruct) {
             $delivery->addExtension(OrderConverter::ORIGINAL_ADDRESS_ID, $idStruct);

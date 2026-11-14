@@ -30,6 +30,7 @@ use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -64,6 +65,7 @@ class DeliveryTransformerTest extends TestCase
 
         static::assertEquals(
             [
+                'identifier' => Delivery::DEFAULT_IDENTIFIER,
                 'shippingMethodId' => $delivery->getShippingMethod()->getId(),
                 'shippingCosts' => $delivery->getShippingCosts(),
                 'positions' => [],
@@ -103,6 +105,7 @@ class DeliveryTransformerTest extends TestCase
         static::assertEquals(
             [
                 'id' => 'deliveryId',
+                'identifier' => Delivery::DEFAULT_IDENTIFIER,
                 'shippingMethodId' => $delivery->getShippingMethod()->getId(),
                 'shippingCosts' => $delivery->getShippingCosts(),
                 'positions' => [],
@@ -142,6 +145,7 @@ class DeliveryTransformerTest extends TestCase
 
         static::assertEquals(
             [
+                'identifier' => Delivery::DEFAULT_IDENTIFIER,
                 'shippingMethodId' => $delivery->getShippingMethod()->getId(),
                 'shippingCosts' => $delivery->getShippingCosts(),
                 'positions' => [],
@@ -153,6 +157,24 @@ class DeliveryTransformerTest extends TestCase
             ],
             $result[0]
         );
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testTransformLeavesOutTheIdentifierOfADeliveryWithoutOne(): void
+    {
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setId(Uuid::randomHex());
+        $delivery = new Delivery(
+            new DeliveryPositionCollection(),
+            new DeliveryDate(new \DateTime(), new \DateTime()),
+            $shippingMethod,
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
+
+        $result = DeliveryTransformer::transform($delivery, [], Uuid::randomHex(), Context::createDefaultContext());
+
+        static::assertArrayNotHasKey('identifier', $result);
     }
 
     public function createCart(): Cart
@@ -180,7 +202,8 @@ class DeliveryTransformerTest extends TestCase
             $deliveryDate,
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
         $cart->setDeliveries(new DeliveryCollection([$delivery]));
         $cart->setCustomerComment('customerCommentTest');

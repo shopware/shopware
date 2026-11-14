@@ -95,6 +95,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         }
 
         $criteria?->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria?->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
         $binaryStreamId = Uuid::fromHexToBytes($streamId);
 
@@ -330,7 +331,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
         foreach ($languageContexts as $languageContext) {
             $languageMatches = $languageContext->enableInheritance(
-                fn (Context $context): array => $this->repository->searchIds($criteria, $context)->getIds()
+                fn (Context $context): array => $this->searchIds($criteria, $context)
             );
 
             foreach ($languageMatches as $id) {
@@ -339,6 +340,25 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         }
 
         return array_keys($matches);
+    }
+
+    /**
+     * OpenSearch returns at most one result window of ids, a stream with more matches is loaded from the database.
+     *
+     * @return list<string>
+     */
+    private function searchIds(Criteria $criteria, Context $context): array
+    {
+        $result = $this->repository->searchIds($criteria, $context);
+
+        if (!$criteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE) || $result->getTotal() <= \count($result->getIds())) {
+            return $result->getIds();
+        }
+
+        $criteria = clone $criteria;
+        $criteria->removeState(Criteria::STATE_ELASTICSEARCH_AWARE);
+
+        return $this->repository->searchIds($criteria, $context)->getIds();
     }
 
     /**

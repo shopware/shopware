@@ -4,6 +4,7 @@
  * @sw-package fundamentals@framework
  */
 import { mount } from '@vue/test-utils';
+import { reactive } from 'vue';
 import PrivilegesService from 'src/app/service/privileges.service';
 import AppAclService from 'src/app/service/app-acl.service';
 
@@ -38,8 +39,11 @@ async function createWrapper(
         featureActive = false,
         routerPush = jest.fn(),
         routeName = 'sw.users.permissions.role.detail.general',
+        route = null,
+        roleGet = null,
+        userService = {},
     } = options;
-    const $route = {
+    const $route = route ?? {
         name: routeName,
         params: isNewRole ? {} : { id: '12345789' },
     };
@@ -113,16 +117,18 @@ async function createWrapper(
                                 isNew: () => true,
                                 name: '',
                             }),
-                            get: () =>
-                                Promise.resolve({
-                                    isNew: isNew,
-                                    name: 'demoRole',
-                                    privileges: privileges,
-                                }),
+                            get:
+                                roleGet ??
+                                (() =>
+                                    Promise.resolve({
+                                        isNew: isNew,
+                                        name: 'demoRole',
+                                        privileges: privileges,
+                                    })),
                             save: roleSaveFunction,
                         }),
                     },
-                    userService: {},
+                    userService,
                     privileges: privilegesService,
                     appAclService: appAclService,
                     ssoSettingsService: {
@@ -818,5 +824,57 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
         await flushPromises();
 
         expect(saveFunction).toHaveBeenCalled();
+    });
+
+    it('should load the new role when the route id changes', async () => {
+        const route = reactive({ name: 'sw.users.permissions.role.detail.general', params: { id: 'first-id' } });
+        const roleGet = jest.fn((id) => Promise.resolve({ id, isNew, name: id, privileges: [] }));
+        wrapper = await createWrapper({}, { route, roleGet });
+        await flushPromises();
+
+        expect(roleGet).toHaveBeenLastCalledWith('first-id');
+        expect(wrapper.find('h2').text()).toBe('first-id');
+
+        route.params.id = 'second-id';
+        await flushPromises();
+
+        expect(roleGet).toHaveBeenCalledTimes(2);
+        expect(roleGet).toHaveBeenLastCalledWith('second-id');
+        expect(wrapper.find('h2').text()).toBe('second-id');
+    });
+
+    it('should load a newly created role only once after saving', async () => {
+        const route = reactive({ name: 'sw.users.permissions.role.detail.general', params: {} });
+        const routerPush = jest.fn(({ params }) => {
+            route.params = params;
+        });
+        const roleGet = jest.fn((id) => Promise.resolve({ id, isNew, name: id, privileges: [] }));
+        const roleSave = jest.fn((role) => {
+            role.id = 'new-id';
+
+            return Promise.resolve();
+        });
+        const userService = { getUser: () => Promise.resolve({ data: {} }) };
+        wrapper = await createWrapper(
+            { aclPrivileges: ['users_and_permissions.editor'] },
+            { route, roleGet, routerPush, userService },
+            { isSso: true },
+            roleSave,
+        );
+        await flushPromises();
+
+        expect(wrapper.find('h2').text()).toBe('sw-users-permissions.roles.general.labelCreateNewRole');
+
+        await wrapper.find('.sw-users-permissions-role-detail__button-save').trigger('click');
+        await flushPromises();
+
+        expect(roleSave).toHaveBeenCalledTimes(1);
+        expect(routerPush).toHaveBeenCalledWith({
+            name: 'sw.users.permissions.role.detail',
+            params: { id: 'new-id' },
+        });
+        expect(roleGet).toHaveBeenCalledTimes(1);
+        expect(roleGet).toHaveBeenLastCalledWith('new-id');
+        expect(wrapper.find('h2').text()).toBe('new-id');
     });
 });

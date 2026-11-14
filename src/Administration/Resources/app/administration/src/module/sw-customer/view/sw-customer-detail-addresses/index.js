@@ -111,6 +111,21 @@ export default {
     },
 
     watch: {
+        customer(customer, previousCustomer) {
+            this.activeCustomer = customer;
+
+            if (customer?.id === previousCustomer?.id) {
+                return;
+            }
+
+            this.currentAddress = null;
+            this.showAddAddressModal = false;
+            this.showEditAddressModal = false;
+            this.showDeleteAddressModal = false;
+            this.defaultShippingAddressId = null;
+            this.defaultBillingAddressId = null;
+        },
+
         currentAddress(newValue, oldValue) {
             if (newValue || !oldValue) {
                 return;

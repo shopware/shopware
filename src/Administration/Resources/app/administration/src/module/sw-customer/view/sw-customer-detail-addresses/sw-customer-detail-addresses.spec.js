@@ -68,6 +68,7 @@ async function createWrapper() {
                             <td v-for="item in collection">
                                 <slot name="column-lastName" v-bind="{ item }"></slot>
                                 <slot name="actions" v-bind="{ item }"></slot>
+                                <slot name="action-modals" v-bind="{ item }"></slot>
                             </td>
                         </tbody>
                     </table>
@@ -393,5 +394,86 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
 
         expect(wrapper.getComponent('.sw-customer-address-form').props('disabled')).toBe(false);
         expect(wrapper.getComponent('.sw-customer-address-form-options').props('disabled')).toBe(false);
+    });
+
+    it('should show the addresses of the new customer when the customer is replaced while the view stays mounted', async () => {
+        await wrapper.setProps({
+            customer: {
+                id: '2',
+                addresses: [
+                    {
+                        id: '2',
+                        lastName: 'Schmidt',
+                        firstName: 'Erika',
+                        city: 'Hamburg',
+                        street: 'Jungfernstieg 1',
+                        zipcode: '20095',
+                    },
+                ],
+            },
+        });
+
+        const cells = wrapper.findAll('td');
+        expect(cells).toHaveLength(1);
+        expect(cells.at(0).text()).toContain('Schmidt');
+        expect(cells.at(0).text()).not.toContain('Nguyen');
+    });
+
+    it('should recreate the address grid and drop the address state of the previous customer when the customer is replaced', async () => {
+        const createCustomer = (id, lastName) => ({
+            id,
+            defaultShippingAddressId: `${id}-shipping-address-id`,
+            defaultBillingAddressId: `${id}-billing-address-id`,
+            addresses: [{ id: `${id}-address-id`, lastName }],
+        });
+        const clickContextMenuItem = async (text) => {
+            await wrapper
+                .findAll('.sw-context-menu-item')
+                .find((item) => item.text() === text)
+                .trigger('click');
+        };
+
+        await wrapper.setProps({ customerEditMode: true, customer: createCustomer('1', 'Nguyen') });
+        const previousGrid = wrapper.find('table').element;
+
+        await clickContextMenuItem('global.default.delete');
+        expect(wrapper.find('.sw-customer-detail-addresses__confirm-delete-text').exists()).toBe(true);
+
+        await clickContextMenuItem('global.default.edit');
+        const formOptions = wrapper.findComponent('.sw-customer-address-form-options');
+        formOptions.vm.$emit('default-address-change', {
+            name: 'shipping-address',
+            id: '1-address-id',
+            value: true,
+        });
+        formOptions.vm.$emit('default-address-change', {
+            name: 'billing-address',
+            id: '1-address-id',
+            value: true,
+        });
+
+        const nextCustomer = createCustomer('2', 'Schmidt');
+        await wrapper.setProps({ customer: nextCustomer });
+
+        expect(wrapper.find('table').element).not.toBe(previousGrid);
+        expect(wrapper.find('.sw-modal').exists()).toBe(false);
+
+        await clickContextMenuItem('global.default.edit');
+        await wrapper.findByText('button', 'global.default.cancel').trigger('click');
+
+        expect(nextCustomer.defaultShippingAddressId).toBe('2-shipping-address-id');
+        expect(nextCustomer.defaultBillingAddressId).toBe('2-billing-address-id');
+
+        await wrapper.setProps({ customer: createCustomer('1', 'Nguyen') });
+
+        expect(wrapper.find('.sw-customer-detail-addresses__confirm-delete-text').exists()).toBe(false);
+    });
+
+    it('should keep the address grid when the same customer is reloaded', async () => {
+        const previousGrid = wrapper.find('table').element;
+
+        await wrapper.setProps({ customer: { ...wrapper.props('customer') } });
+
+        expect(wrapper.find('table').element).toBe(previousGrid);
     });
 });

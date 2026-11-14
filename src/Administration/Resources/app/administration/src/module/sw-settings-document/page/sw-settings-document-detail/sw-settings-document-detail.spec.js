@@ -145,7 +145,7 @@ const repositoryMockFactory = (entity) => {
     return false;
 };
 
-const createWrapper = async (customOptions, privileges = [], isDocumentGenerationReworkActive = false) => {
+const createWrapper = async (customOptions, privileges = [], isDocumentGenerationReworkActive = false, extra = {}) => {
     return mount(
         await wrapTestComponent('sw-settings-document-detail', {
             sync: true,
@@ -169,7 +169,9 @@ const createWrapper = async (customOptions, privileges = [], isDocumentGeneratio
                 `,
                     },
                     'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
+                    ...extra.stubs,
                 },
+                mocks: extra.mocks,
                 provide: {
                     repositoryFactory: {
                         create: (entity) => repositoryMockFactory(entity),
@@ -917,4 +919,80 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
             translate.mockRestore();
         },
     );
+
+    it('should load the new document config when the documentConfigId changes', async () => {
+        const getSpy = jest.spyOn(documentBaseConfigRepositoryMock, 'get');
+        const wrapper = await createWrapper({ props: { documentConfigId: 'documentId' } });
+        await flushPromises();
+        expect(wrapper.find('.sw-settings-document-detail__multi-select').attributes('value')).toBe('pdf');
+        getSpy.mockClear();
+
+        await wrapper.setProps({ documentConfigId: 'documentConfigWithDocumentFileTypes' });
+        await flushPromises();
+
+        expect(getSpy).toHaveBeenCalledTimes(1);
+        expect(getSpy).toHaveBeenCalledWith('documentConfigWithDocumentFileTypes', expect.anything(), expect.anything());
+        expect(wrapper.find('.sw-settings-document-detail__multi-select').attributes('value')).toBe('pdf,html');
+        getSpy.mockRestore();
+    });
+
+    it('should drop the sales channel and due date state of the previous config when creating a new one', async () => {
+        const createSpy = jest.spyOn(documentBaseConfigRepositoryMock, 'create').mockReturnValueOnce({
+            salesChannels: new Shopware.Data.EntityCollection('source', 'entity', Shopware.Context.api),
+        });
+        const previous = { salesChannelId: 'prevId', salesChannel: { id: 'prevId', translated: { name: 'Previous' } } };
+        const multiSelectStub = {
+            props: ['value', 'options'],
+            data: () => ({ previous }),
+            template: '<div><slot name="result-item" :item="previous" :isSelected="() => false" /></div>',
+        };
+        const wrapper = await createWrapper({ props: { documentConfigId: 'documentConfigWithDocumentType' } }, [], false, {
+            stubs: { 'sw-multi-select': multiSelectStub },
+        });
+        await flushPromises();
+        await wrapper.setData({
+            paymentDueDateIsValid: false,
+            isShowDisplayNoteDelivery: true,
+            isShowDivergentDeliveryAddress: true,
+            documentConfigSalesChannels: ['prevId'],
+            alreadyAssignedSalesChannelIdsToType: ['prevId'],
+            documentConfigSalesChannelOptionsCollection: [previous],
+        });
+
+        await wrapper.setProps({ documentConfigId: null });
+        await flushPromises();
+
+        const salesChannelSelect = wrapper.findComponent('#documentSalesChannel');
+        expect(wrapper.text()).not.toContain('sw-settings-document.errors.invalidDueDateFormat');
+        expect(wrapper.find('.sw-settings-document-detail__field_additional_note_delivery').exists()).toBe(false);
+        expect(wrapper.find('.sw-settings-document-detail__field_divergent_delivery_address').exists()).toBe(false);
+        expect(salesChannelSelect.props('value')).toEqual([]);
+        expect(salesChannelSelect.props('options')).toEqual([]);
+        expect(salesChannelSelect.find('sw-select-result').attributes('disabled')).toBe('false');
+        createSpy.mockRestore();
+    });
+
+    it('should load the document config only once when saving a new config replaces the route', async () => {
+        const newId = 'newDocumentConfigId';
+        const createSpy = jest
+            .spyOn(documentBaseConfigRepositoryMock, 'create')
+            .mockReturnValueOnce({ id: newId, isNew: () => true });
+        const getSpy = jest.spyOn(documentBaseConfigRepositoryMock, 'get');
+        const router = { replace: jest.fn() };
+        const wrapper = await createWrapper({}, ['document.editor'], false, { mocks: { $router: router } });
+        await flushPromises();
+        getSpy.mockClear();
+        router.replace.mockImplementationOnce(async ({ params }) => {
+            await wrapper.setProps({ documentConfigId: params.id });
+        });
+
+        await wrapper.find('.sw-settings-document-detail__save-action').trigger('click');
+        await flushPromises();
+
+        expect(router.replace).toHaveBeenCalledWith({ name: 'sw.settings.document.detail', params: { id: newId } });
+        expect(getSpy).toHaveBeenCalledTimes(1);
+        expect(getSpy).toHaveBeenCalledWith(newId, expect.anything(), expect.anything());
+        createSpy.mockRestore();
+        getSpy.mockRestore();
+    });
 });

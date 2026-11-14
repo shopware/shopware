@@ -87,6 +87,12 @@ export default Component.wrapComponentConfig({
         },
     },
 
+    watch: {
+        taxProviderId(): void {
+            this.createdComponent();
+        },
+    },
+
     created() {
         this.createdComponent();
     },

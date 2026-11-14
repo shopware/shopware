@@ -24,5 +24,10 @@ module.exports = {
         'no-sw-popover-resize-width': require('./no-sw-popover-resize-width'),
         'no-renamed-twig-blocks': require('./no-renamed-twig-blocks'),
         'no-removed-twig-blocks': require('./no-removed-twig-blocks'),
+        'no-removed-filter-computeds': require('./no-removed-filter-computeds'),
+        'no-order-list-delivery-helpers': require('./no-order-list-delivery-helpers'),
+        'no-module-snippets-property': require('./no-module-snippets-property'),
+        'no-removed-image-assets': require('./no-removed-image-assets'),
+        'no-removed-snippet-keys': require('./no-removed-snippet-keys'),
     },
 };

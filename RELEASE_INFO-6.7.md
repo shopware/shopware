@@ -663,6 +663,8 @@ bin/console administration:upgrade-extensions -- --only=MyPlugin --target=6.8 --
 `--with=sfc-migration` additionally converts Options API components into native setup SFCs.
 
 For Shopware 6.8, it also migrates `sw-loader`, `sw-skeleton-bar`, `sw-progress-bar` and `sw-tabs` to their `mt-*` components, replaces `sw-select-number-field` and `sw-entity-many-to-many-select`, renames `resize-width` of `sw-popover`, removes the styling props of `sw-order-state-select-v2` and renames Twig blocks whose name changed.
+In scripts and templates, it adds the removed `dateFilter` and `assetFilter` computeds to overrides that still read them, replaces the delivery and transaction helpers of `sw-order-list` with `primaryOrderDelivery` and `primaryOrderTransaction`, and points removed `.png`/`.jpg` images and snippet keys to their replacements.
+It also removes the `snippets` property of `Shopware.Module.register()`, which throws with the `v6.8.0.0` feature flag, when the server loads these snippet files already.
 Where a change cannot be made safely, it writes a `TODO Codemod(6.8, <id>)` comment with the replacement above the spot, for example for `sw-text-editor` and for Twig blocks that are removed in 6.8.
 The report lists these spots under "Needs manual work" until they are resolved, and a second run does not write them again.
 

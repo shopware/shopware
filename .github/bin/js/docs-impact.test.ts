@@ -514,7 +514,8 @@ test('postComment in a dry run writes the comment to the step summary only', asy
     assert.ok(written[0].includes('New event'));
 });
 
-test('unlinkDeadDocsLinks turns dead docs links into plain text and checks each URL once', async () => {
+test('unlinkDeadDocsLinks turns dead docs links into plain text, checks each URL once and warns', async () => {
+    const { core, messages } = fakeCore();
     const checked: string[] = [];
     const isDead = async (url: string) => {
         checked.push(url);
@@ -529,7 +530,7 @@ test('unlinkDeadDocsLinks turns dead docs links into plain text and checks each 
     ].join('\n');
 
     assert.equal(
-        await unlinkDeadDocsLinks(summary, isDead),
+        await unlinkDeadDocsLinks(summary, isDead, core),
         [
             '- **Adjust** Products: a',
             '- **Adjust** Products again: b',
@@ -540,6 +541,9 @@ test('unlinkDeadDocsLinks turns dead docs links into plain text and checks each 
     assert.deepEqual(checked, [
         'https://docs.shopware.com/en/gone',
         'https://developer.shopware.com/docs/rate-limiter.html',
+    ]);
+    assert.deepEqual(messages, [
+        'warning: Removed the link to https://docs.shopware.com/en/gone: the page returns 404 or 410',
     ]);
 });
 
@@ -605,10 +609,17 @@ test('latestEndUserPages keeps the highest article version per page and maps it 
             'shopware-6/settings/index.md',
             'shopware-account/settings/user/v1-0-0.md',
             'shopware-6/migration-en/magento/v1-0-0-0.md',
+            'shopware-6/shopware-en/settings/importexport/v1-4-0-0.md',
+            'shopware-6/en/shopware-6-en/tutorials-and-faq/reset-admin-password/v1-0-0.md',
             'shopware-6/settings/countries/notes.md',
             'other/page/v1-0-0-0.md',
         ]),
         [
+            {
+                source: 'shopware-6/en/shopware-6-en/tutorials-and-faq/reset-admin-password/v1-0-0.md',
+                target: 'shopware-6/en/shopware-6-en/tutorials-and-faq/reset-admin-password.md',
+                url: 'https://docs.shopware.com/en/en/shopware-6-en/tutorials-and-faq/reset-admin-password',
+            },
             {
                 source: 'shopware-6/migration-en/magento/v1-0-0-0.md',
                 target: 'shopware-6/migration-en/magento.md',
@@ -623,6 +634,11 @@ test('latestEndUserPages keeps the highest article version per page and maps it 
                 source: 'shopware-6/settings/countries/v1-10-0-0.md',
                 target: 'shopware-6/settings/countries.md',
                 url: 'https://docs.shopware.com/en/shopware-6-en/settings/countries',
+            },
+            {
+                source: 'shopware-6/shopware-en/settings/importexport/v1-4-0-0.md',
+                target: 'shopware-6/shopware-en/settings/importexport.md',
+                url: 'https://docs.shopware.com/en/shopware-en/settings/importexport',
             },
             {
                 source: 'shopware-account/settings/user/v1-0-0.md',

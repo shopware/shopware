@@ -7,7 +7,7 @@ import { mount } from '@vue/test-utils';
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
-async function createWrapper({ customerRepositorySaveMock, languageRepositorySearchIdsMock } = {}) {
+async function createWrapper({ customerRepositorySaveMock, languageRepositorySearchIdsMock, customFieldSets = [] } = {}) {
     return mount(await wrapTestComponent('sw-customer-create', { sync: true }), {
         global: {
             stubs: {
@@ -21,10 +21,13 @@ async function createWrapper({ customerRepositorySaveMock, languageRepositorySea
                 'sw-language-switch': true,
                 'sw-customer-address-form': true,
                 'sw-customer-base-form': true,
-                'sw-card-view': true,
+                'sw-card-view': {
+                    template: '<div><slot></slot></div>',
+                },
                 'sw-button-process': await wrapTestComponent('sw-button-process'),
                 'sw-loader': true,
                 'router-link': true,
+                'sw-custom-field-set-renderer': true,
             },
             provide: {
                 numberRangeService: {},
@@ -35,6 +38,9 @@ async function createWrapper({ customerRepositorySaveMock, languageRepositorySea
                         }),
                 },
                 customerValidationService: {},
+                customFieldDataProviderService: {
+                    getCustomFieldSets: jest.fn(() => Promise.resolve(customFieldSets)),
+                },
                 repositoryFactory: {
                     create: (entity) => {
                         if (entity === 'customer') {
@@ -304,5 +310,22 @@ describe('module/sw-customer/page/sw-customer-create', () => {
                 template: 'This value should not be blank.',
             });
         }
+    });
+
+    it('should not render the custom field card when there are no customer custom field sets', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-customer-create__custom-field-sets').exists()).toBe(false);
+    });
+
+    it('should render the customer custom field sets for the new customer', async () => {
+        const customFieldSets = [{ id: 'set-1', name: 'customer_set', customFields: [{ id: 'field-1' }] }];
+        const wrapper = await createWrapper({ customFieldSets });
+        await flushPromises();
+
+        expect(wrapper.vm.customFieldDataProviderService.getCustomFieldSets).toHaveBeenCalledWith('customer');
+
+        expect(wrapper.find('.sw-customer-create__custom-field-sets sw-custom-field-set-renderer-stub').exists()).toBe(true);
     });
 });

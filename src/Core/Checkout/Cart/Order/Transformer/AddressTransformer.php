@@ -14,8 +14,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *     department?: non-empty-string,
  *     salutationId?: non-empty-string,
  *     title?: non-empty-string,
- *     firstName?: non-empty-string,
- *     lastName?: non-empty-string,
+ *     firstName: string,
+ *     lastName: string,
  *     street?: non-empty-string,
  *     zipcode?: non-empty-string,
  *     city?: non-empty-string,
@@ -32,8 +32,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *     department: non-empty-string|null,
  *     salutationId: non-empty-string|null,
  *     title: non-empty-string|null,
- *     firstName: non-empty-string|null,
- *     lastName: non-empty-string|null,
+ *     firstName: string,
+ *     lastName: string,
  *     street: non-empty-string|null,
  *     zipcode: non-empty-string|null,
  *     city: non-empty-string|null,
@@ -78,6 +78,9 @@ class AddressTransformer
         });
 
         $addressArray['id'] = Uuid::randomHex();
+
+        $addressArray['firstName'] = $address->getFirstName();
+        $addressArray['lastName'] = $address->getLastName();
 
         $customFields = $address->getCustomFields();
         if ($customFields !== null && $customFields !== []) {

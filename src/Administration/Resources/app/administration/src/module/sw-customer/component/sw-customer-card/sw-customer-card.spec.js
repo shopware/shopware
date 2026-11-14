@@ -11,11 +11,12 @@ const customer = {
     vatIds: ['9f8f091c-db81-4ef3-862c-9c554a34cdc4'],
 };
 
-async function createWrapper() {
+async function createWrapper(props = {}) {
     return mount(await wrapTestComponent('sw-customer-card', { sync: true }), {
         props: {
             customer: {},
             title: '',
+            ...props,
         },
         global: {
             provide: {
@@ -44,6 +45,12 @@ async function createWrapper() {
                 'sw-loader': true,
             },
         },
+    });
+}
+
+function nameFieldsRequired(wrapper) {
+    return ['firstName', 'lastName'].map((field) => {
+        return wrapper.find(`label[for="sw-field--customer-${field}"]`).classes('is--required');
     });
 }
 
@@ -99,5 +106,34 @@ describe('module/sw-customer/page/sw-customer-card', () => {
         });
 
         expect(wrapper.find('[label="sw-customer.card.labelVatId"]').exists()).toBeFalsy();
+    });
+
+    it('should keep the contact person required for a private account', async () => {
+        const wrapper = await createWrapper({
+            customer: { ...customer, accountType: 'private' },
+            companyNamesRequired: false,
+            editMode: true,
+        });
+
+        expect(nameFieldsRequired(wrapper)).toEqual([true, true]);
+    });
+
+    it('should make the contact person optional for a company account when the settings allow it', async () => {
+        const wrapper = await createWrapper({
+            customer: { ...customer, accountType: 'business' },
+            companyNamesRequired: false,
+            editMode: true,
+        });
+
+        expect(nameFieldsRequired(wrapper)).toEqual([false, false]);
+    });
+
+    it('should keep the contact person required for a company account by default', async () => {
+        const wrapper = await createWrapper({
+            customer: { ...customer, accountType: 'business' },
+            editMode: true,
+        });
+
+        expect(nameFieldsRequired(wrapper)).toEqual([true, true]);
     });
 });

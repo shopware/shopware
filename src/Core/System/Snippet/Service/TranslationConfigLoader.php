@@ -27,6 +27,8 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
 
     private const METADATA_URL = 'metadata-url';
 
+    private const ARCHIVE_MANIFEST_URL = 'archive-manifest-url';
+
     private const COMMUNITY_TRANSLATIONS_URL = 'community-translations-url';
 
     private const DOCUMENTATION_URL_SNIPPET_KEY = 'documentation-url-snippet-key';
@@ -37,6 +39,7 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
     private const OVERRIDE_KEY_MAP = [
         'repository_url' => self::REPOSITORY_URL,
         'metadata_url' => self::METADATA_URL,
+        'archive_manifest_url' => self::ARCHIVE_MANIFEST_URL,
         'community_translations_url' => self::COMMUNITY_TRANSLATIONS_URL,
         'documentation_url_snippet_key' => self::DOCUMENTATION_URL_SNIPPET_KEY,
         'completeness_threshold' => 'completeness-threshold',
@@ -69,6 +72,9 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
 
         $repositoryUrl = $this->getUrlFromConfigByType(self::REPOSITORY_URL, $config);
         $metadataUrl = $this->getUrlFromConfigByType(self::METADATA_URL, $config);
+        $archiveManifestUrl = isset($config[self::ARCHIVE_MANIFEST_URL])
+            ? $this->getUrlFromConfigByType(self::ARCHIVE_MANIFEST_URL, $config)
+            : null;
         $communityTranslationsUrl = isset($config[self::COMMUNITY_TRANSLATIONS_URL])
             ? $this->getUrlFromConfigByType(self::COMMUNITY_TRANSLATIONS_URL, $config)
             : null;
@@ -108,6 +114,7 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
             $documentationUrlSnippetKey,
             $pseudoLocales,
             $completenessThreshold,
+            $archiveManifestUrl,
         );
     }
 

@@ -5,7 +5,9 @@ namespace Shopware\Core\System\Snippet\Command;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Command\Util\TranslationCommandHelper;
+use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataCollection;
 use Shopware\Core\System\Snippet\DataTransfer\TranslationUpdate\TranslationInstallPlan;
+use Shopware\Core\System\Snippet\Service\TranslationArchiveLoader;
 use Shopware\Core\System\Snippet\Service\TranslationMetadataStore;
 use Shopware\Core\System\Snippet\Service\TranslationUpdater;
 use Shopware\Core\System\Snippet\SnippetException;
@@ -32,6 +34,7 @@ class InstallTranslationCommand extends Command
         private readonly TranslationConfig $config,
         private readonly TranslationMetadataStore $metadataStore,
         private readonly TranslationUpdater $translationUpdater,
+        private readonly TranslationArchiveLoader $archiveLoader,
     ) {
         parent::__construct();
     }
@@ -80,6 +83,10 @@ class InstallTranslationCommand extends Command
             TranslationCommandHelper::printLocalesInstalledFromExistingFiles($output, $plan->localesToLink);
         }
 
+        if ($input->getOption('all')) {
+            $plan = $this->downloadFromArchive($plan, $metadata, $output);
+        }
+
         $this->installWithProgressBar($plan, $activate, $output);
 
         if ($metadata->getLocalesRequiringUpdate() !== []) {
@@ -112,6 +119,46 @@ class InstallTranslationCommand extends Command
         $this->installWithProgressBar($plan, $activate, $output);
 
         return self::SUCCESS;
+    }
+
+    private function downloadFromArchive(TranslationInstallPlan $plan, MetadataCollection $metadata, OutputInterface $output): TranslationInstallPlan
+    {
+        if ($plan->localesToDownload === [] || $this->config->archiveManifestUrl === null) {
+            return $plan;
+        }
+
+        try {
+            $this->archiveLoader->download($plan->localesToDownload, $this->newestUpdatedAt($plan->localesToDownload, $metadata));
+        } catch (SnippetException $e) {
+            TranslationCommandHelper::printArchiveUnavailable($output, $e);
+
+            return $plan;
+        }
+
+        TranslationCommandHelper::printDownloadedFromArchive($output);
+
+        return new TranslationInstallPlan(
+            localesToLink: [...$plan->localesToDownload, ...$plan->localesToLink],
+            unavailableLocales: $plan->unavailableLocales,
+        );
+    }
+
+    /**
+     * @param list<string> $locales
+     */
+    private function newestUpdatedAt(array $locales, MetadataCollection $metadata): ?\DateTimeInterface
+    {
+        $newestUpdatedAt = null;
+
+        foreach ($locales as $locale) {
+            $updatedAt = $metadata->get($locale)?->updatedAt;
+
+            if ($updatedAt !== null && ($newestUpdatedAt === null || $updatedAt > $newestUpdatedAt)) {
+                $newestUpdatedAt = $updatedAt;
+            }
+        }
+
+        return $newestUpdatedAt;
     }
 
     private function installWithProgressBar(TranslationInstallPlan $plan, bool $activate, OutputInterface $output): void

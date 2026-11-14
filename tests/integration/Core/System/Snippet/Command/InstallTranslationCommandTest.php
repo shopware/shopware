@@ -19,6 +19,7 @@ use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
 use Shopware\Core\System\Snippet\Command\InstallTranslationCommand;
 use Shopware\Core\System\Snippet\DataTransfer\Language\Language;
+use Shopware\Core\System\Snippet\Service\TranslationArchiveLoader;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Shopware\Core\System\Snippet\Service\TranslationMetadataStore;
 use Shopware\Core\System\Snippet\Service\TranslationUpdater;
@@ -255,6 +256,7 @@ class InstallTranslationCommandTest extends TestCase
             $this->config,
             $metadataStore,
             new TranslationUpdater($this->translationLoader, $metadataStore),
+            static::getContainer()->get(TranslationArchiveLoader::class),
         );
 
         $tester = new CommandTester($command);

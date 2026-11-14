@@ -1172,6 +1172,21 @@ The redirect is no longer cached. A shop that is already in this state gets out 
 
 ## Hosting & Configuration
 
+### Translations can be downloaded as one archive
+
+`bin/console translation:download` and `bin/console translation:install --all` download all locales as one archive when `shopware.translation.archive_manifest_url` is set.
+The translations repository publishes the manifest of its latest archive at `https://github.com/shopware/translations/releases/latest/download/manifest.json`.
+
+```yaml
+shopware:
+    translation:
+        archive_manifest_url: 'https://github.com/shopware/translations/releases/latest/download/manifest.json'
+```
+
+When the archive cannot be used, both commands download every file of each locale as before.
+`translation:install --all` also downloads every file when the archive is older than the translation metadata.
+Decorators of `AbstractTranslationLoader::download()` are not called for the locales that come from the archive.
+
 ### Sitemaps skip inactive sales channels and `sitemap:generate` continues after a failure
 
 The scheduled sitemap task and `bin/console sitemap:generate` no longer generate sitemaps for inactive sales channels.

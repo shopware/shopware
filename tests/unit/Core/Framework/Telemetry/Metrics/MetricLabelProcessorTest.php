@@ -66,6 +66,20 @@ class MetricLabelProcessorTest extends TestCase
         static::assertSame(['status' => 'anything'], $result);
     }
 
+    public function testOpenPolicyIgnoresConfiguredValues(): void
+    {
+        // values on an open label are inert: bounding an open label is an explicit policy
+        // override (`policy: replace|discard` plus `allowed_values`) in a later config source
+        $processor = new MetricLabelProcessor('other', static::createStub(LoggerInterface::class), 'prod');
+        $config = new MetricConfig('test', 'desc', Type::COUNTER, true, [], [
+            'entity_group' => new LabelConfig(allowedValues: ['product'], policy: LabelPolicy::OPEN),
+        ]);
+
+        $result = $processor->process($config, ['entity_group' => 'customer']);
+
+        static::assertSame(['entity_group' => 'customer'], $result);
+    }
+
     public function testAllowedValuePassesThrough(): void
     {
         $processor = new MetricLabelProcessor('other', static::createStub(LoggerInterface::class), 'prod');
@@ -158,6 +172,22 @@ class MetricLabelProcessorTest extends TestCase
         $result = $processor->process($config, []);
 
         static::assertSame([], $result);
+    }
+
+    public function testReplacementIsSilentInDev(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->never())->method('notice');
+        $logger->expects($this->never())->method('log');
+
+        $processor = new MetricLabelProcessor('other', $logger, 'dev');
+        $config = new MetricConfig('test', 'desc', Type::COUNTER, true, [], [
+            'method' => new LabelConfig(allowedValues: ['GET']),
+        ]);
+
+        $result = $processor->process($config, ['method' => 'PATCH']);
+
+        static::assertSame(['method' => 'other'], $result);
     }
 
     public function testCustomReplacementValue(): void

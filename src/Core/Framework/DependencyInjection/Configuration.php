@@ -1604,6 +1604,17 @@ class Configuration implements ConfigurationInterface
                     ->end()
                     ->booleanNode('enabled')->defaultFalse()->end()
                     ->scalarNode('replace_unknown_label_values_with')->defaultValue('other')->end()
+                    ->arrayNode('mappings')
+                        ->useAttributeAsKey('name')
+                        // keys are free-form identifiers (route names, FQCN prefixes, ...): the default key
+                        // normalization would rewrite `store-api.*` to `store_api.*` and break the lookup
+                        ->normalizeKeys(false)
+                        ->arrayPrototype()
+                            ->useAttributeAsKey('key')
+                            ->normalizeKeys(false)
+                            ->scalarPrototype()->end()
+                        ->end()
+                    ->end()
                     ->arrayNode('definitions')
                         ->useAttributeAsKey('name')
                         ->arrayPrototype()
@@ -1623,24 +1634,38 @@ class Configuration implements ConfigurationInterface
                                     ->useAttributeAsKey('label_name')
                                     ->arrayPrototype()
                                         ->validate()
+                                            // the only invalid shape is an empty declaration; cross-source combinations
+                                            // should never fail the build, so third-party config cannot break a shop on a core
+                                            // update that changes how a label is served (see the ADR)
                                             ->ifTrue(static function (array $label): bool {
-                                                $hasAllowedValues = isset($label['allowed_values']) && $label['allowed_values'] !== [];
-                                                $hasPolicy = isset($label['policy']);
+                                                $hasValues = ($label['allowed_values'] ?? []) !== [] || ($label['add_allowed_values'] ?? []) !== [];
 
-                                                if ($hasPolicy && $label['policy'] === LabelPolicy::OPEN->value && $hasAllowedValues) {
-                                                    return true;
-                                                }
-                                                if (!$hasAllowedValues && !$hasPolicy) {
-                                                    return true;
-                                                }
-
-                                                return false;
+                                                return !$hasValues && !isset($label['policy']);
                                             })
-                                            ->thenInvalid('Each label must have either "allowed_values" or "policy: open", but not both. Missing both is also invalid.')
+                                            ->thenInvalid('Each label must declare values ("allowed_values" and/or "add_allowed_values") or a "policy".')
+                                        ->end()
+                                        ->validate()
+                                            // fold to the effective state: a present `allowed_values` is the complete,
+                                            // final list and locks the label - all `add_allowed_values` contributions
+                                            // are discarded; otherwise the deduplicated contributions are the list.
+                                            // The fold is policy-agnostic; on a `policy: open` label the folded values
+                                            // are inert at runtime and only visible in debug:config
+                                            ->always(static function (array $label): array {
+                                                if (($label['allowed_values'] ?? []) !== []) {
+                                                    $label['add_allowed_values'] = [];
+                                                } elseif (($label['add_allowed_values'] ?? []) !== []) {
+                                                    $label['add_allowed_values'] = array_values(array_unique($label['add_allowed_values']));
+                                                }
+
+                                                return $label;
+                                            })
                                         ->end()
                                         ->children()
                                             ->arrayNode('allowed_values')
                                                 ->performNoDeepMerging()
+                                                ->scalarPrototype()->end()
+                                            ->end()
+                                            ->arrayNode('add_allowed_values')
                                                 ->scalarPrototype()->end()
                                             ->end()
                                             ->enumNode('policy')

@@ -117,6 +117,7 @@ use Shopware\Core\Framework\Routing\Validation\RouteBlocklistService;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
+use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelMappingRegistry;
 use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\Framework\Util\Backtrace\BacktraceCollector;
 use Shopware\Core\Framework\Util\HtmlPurifierConfigProvider;
@@ -420,6 +421,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(DomainResolver::class)
         ->args([
+            service(LabelMappingRegistry::class),
             service(EntityGroupResolver::class),
         ]);
 

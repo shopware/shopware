@@ -7,9 +7,13 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelMappingRegistry;
 use Shopware\Core\System\SalesChannel\Telemetry\SalesChannelTypeResolver;
 
 /**
+ * Resolver mechanics against a synthetic table; the shipped `sales_channel_type` table is covered by
+ * {@see \Shopware\Tests\Integration\Core\Framework\Telemetry\ShippedLabelMappingsTest}.
+ *
  * @internal
  */
 #[Package('checkout')]
@@ -19,16 +23,18 @@ class SalesChannelTypeResolverTest extends TestCase
     #[DataProvider('typeProvider')]
     public function testResolve(string $typeId, string $expected): void
     {
-        static::assertSame($expected, (new SalesChannelTypeResolver())->resolve($typeId));
+        $resolver = new SalesChannelTypeResolver(new LabelMappingRegistry([
+            SalesChannelTypeResolver::MAPPING => [
+                Defaults::SALES_CHANNEL_TYPE_STOREFRONT => 'storefront',
+            ],
+        ], 'other'));
+
+        static::assertSame($expected, $resolver->resolve($typeId));
     }
 
     public static function typeProvider(): \Generator
     {
-        yield 'storefront' => [Defaults::SALES_CHANNEL_TYPE_STOREFRONT, 'storefront'];
-        yield 'api' => [Defaults::SALES_CHANNEL_TYPE_API, 'api'];
-        yield 'product comparison' => [Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON, 'product_comparison'];
-        yield 'agentic commerce' => [Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE, 'agentic_commerce'];
-
+        yield 'configured type id' => [Defaults::SALES_CHANNEL_TYPE_STOREFRONT, 'storefront'];
         yield 'unknown type id falls back to other' => ['unknown-type-id', 'other'];
         yield 'empty type id falls back to other' => ['', 'other'];
     }

@@ -391,7 +391,7 @@ They extend `OrderStateMachineStateChangeEvent`, so existing subscribers keep wo
 
 `ShippingMethodBlockedError` now lists the identifiers of the cart deliveries blocked for its shipping method.
 Read them with `getDeliveryIdentifiers()`, or as `deliveryIdentifiers` in the error parameters of the Store API cart, and match them against the `identifier` of the cart deliveries.
-The error id stays per method, so all deliveries blocked for one shipping method share one error.
+The error id does not change, so a shipping method blocked for several deliveries raises one error that lists all of them.
 Deliveries without an identifier and deliveries with negative shipping costs, like shipping discounts, are left out of the list.
 The list is empty when the error is not tied to a delivery.
 Pass `deliveryIdentifiers` when your extension raises this error for specific deliveries.

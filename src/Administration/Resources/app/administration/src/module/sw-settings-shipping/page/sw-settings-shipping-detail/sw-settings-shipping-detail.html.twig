@@ -1,6 +1,11 @@
 
 {% block sw_settings_shipping_detail %}
 <sw-page class="sw-settings-shipping-detail">
+    {% block sw_settings_shipping_detail_search_bar %}
+    <template v-if="adminEsEnable" #search-bar>
+        <sw-search-bar initial-search-type="shipping_method" />
+    </template>
+    {% endblock %}
 
     {% block sw_settings_shipping_detail_header %}
     <template #smart-bar-header>

@@ -1,5 +1,11 @@
 {% block sw_product_stream_detail %}
 <sw-page class="sw-product-stream-detail">
+    {% block sw_product_stream_detail_search_bar %}
+    <template v-if="adminEsEnable" #search-bar>
+        <sw-search-bar initial-search-type="product_stream" />
+    </template>
+    {% endblock %}
+
     {% block sw_product_stream_detail_header %}
     <template #smart-bar-header>
         <h2 v-if="productStream.name">

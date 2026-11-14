@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
@@ -42,6 +43,60 @@ class DeliveryValidatorTest extends TestCase
         $validator->validate($cart, $errors, $context);
 
         static::assertCount(0, $errors, 'A delivery without a valid availability rule id should be valid but an error is thrown.');
+    }
+
+    public function testBlockedErrorsReferenceTheirDeliveries(): void
+    {
+        $validDelivery = $this->generateDeliveryDummy(null, 'valid');
+        $validDelivery->getShippingMethod()->setId('valid-shipping-method-id');
+        $expressDelivery = $this->generateDeliveryDummy('', 'express');
+        $expressDelivery->getShippingMethod()->setId('express-shipping-method-id');
+        $expressDelivery->getShippingMethod()->setTranslated(['name' => 'Express']);
+        $shippingDiscount = $this->generateDeliveryDummy('', 'first-discount');
+        $shippingDiscount->setShippingCosts(new CalculatedPrice(-5, -5, new CalculatedTaxCollection(), new TaxRuleCollection()));
+        $negativeCostDelivery = $this->generateDeliveryDummy('', 'negative-cost');
+        $negativeCostDelivery->getShippingMethod()->setId('negative-cost-shipping-method-id');
+        $negativeCostDelivery->getShippingMethod()->setTranslated(['name' => 'Negative cost']);
+        $negativeCostDelivery->setShippingCosts(new CalculatedPrice(-5, -5, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $cart = new Cart('test');
+        $cart->setDeliveries(new DeliveryCollection([
+            $this->generateDeliveryDummy('', 'first'),
+            $validDelivery,
+            $expressDelivery,
+            $this->generateDeliveryDummy('', 'second'),
+            $shippingDiscount,
+            $negativeCostDelivery,
+        ]));
+
+        $errors = new ErrorCollection();
+        (new DeliveryValidator())->validate($cart, $errors, static::createStub(SalesChannelContext::class));
+
+        $deliveryIdentifiers = [];
+        foreach ($errors as $error) {
+            static::assertInstanceOf(ShippingMethodBlockedError::class, $error);
+            $deliveryIdentifiers[$error->getName()] = $error->getDeliveryIdentifiers();
+        }
+
+        static::assertSame(['Test' => ['first', 'second'], 'Express' => ['express'], 'Negative cost' => []], $deliveryIdentifiers);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testBlockedErrorLeavesOutDeliveriesWithoutIdentifier(): void
+    {
+        $cart = new Cart('test');
+        $cart->setDeliveries(new DeliveryCollection([
+            $this->generateDeliveryDummy('', null),
+            $this->generateDeliveryDummy('', 'warehouse'),
+        ]));
+
+        $errors = new ErrorCollection();
+        (new DeliveryValidator())->validate($cart, $errors, static::createStub(SalesChannelContext::class));
+
+        $error = $errors->first();
+        static::assertCount(1, $errors);
+        static::assertInstanceOf(ShippingMethodBlockedError::class, $error);
+        static::assertSame(['warehouse'], $error->getDeliveryIdentifiers());
     }
 
     public function testValidateDeliveryShippingMethodWithNoAvailabilityRuleShallBeValid(): void
@@ -125,7 +180,7 @@ class DeliveryValidatorTest extends TestCase
         static::assertCount(0, $errors, 'Without the major flag the context rule ids decide for every delivery.');
     }
 
-    private function generateDeliveryDummy(?string $availabilityRuleId): Delivery
+    private function generateDeliveryDummy(?string $availabilityRuleId, ?string $identifier = Delivery::DEFAULT_IDENTIFIER): Delivery
     {
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId('shipping-method-id');
@@ -140,7 +195,8 @@ class DeliveryValidatorTest extends TestCase
             $deliveryDate,
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            $identifier
         );
     }
 }

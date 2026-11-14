@@ -4,24 +4,50 @@ namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 #[Package('checkout')]
 class Delivery extends Struct
 {
+    final public const DEFAULT_IDENTIFIER = 'default';
+
+    protected ?string $identifier = null;
+
     /**
      * @var list<string>|null
      */
     private ?array $ruleIds = null;
 
+    /**
+     * @param string|null $identifier names the delivery within the cart: unique in the cart and the same for the same delivery in the next calculation
+     */
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'identifier', newType: 'string', description: 'The parameter loses its null default and becomes required.')]
     public function __construct(
         protected DeliveryPositionCollection $positions,
         protected DeliveryDate $deliveryDate,
         protected ShippingMethodEntity $shippingMethod,
         protected ShippingLocation $location,
-        protected CalculatedPrice $shippingCosts
+        protected CalculatedPrice $shippingCosts,
+        ?string $identifier = null,
     ) {
+        if ($identifier === null) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Not passing $identifier to ' . static::class . ' is deprecated, it will be required in v6.8.0.0.');
+        }
+
+        $this->identifier = $identifier;
+    }
+
+    /**
+     * Null for deliveries built without an identifier, which can not be addressed
+     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'string')]
+    public function getIdentifier(): ?string
+    {
+        return $this->identifier;
     }
 
     public function getPositions(): DeliveryPositionCollection

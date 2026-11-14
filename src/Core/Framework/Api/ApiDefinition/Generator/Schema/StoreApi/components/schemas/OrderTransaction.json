@@ -31,6 +31,10 @@
                         "type": "string",
                         "pattern": "^[0-9a-f]{32}$"
                     },
+                    "identifier": {
+                        "description": "Unique identity of the transaction in the cart the order was placed from.",
+                        "type": "string"
+                    },
                     "paymentMethodId": {
                         "description": "Unique identity of payment method.",
                         "type": "string",

@@ -29,11 +29,29 @@ class ShippingMethodBlockedErrorTest extends TestCase
             'id' => $error->getShippingMethodId(),
             'name' => 'FOO',
             'reason' => 'BAR',
+            'deliveryIdentifiers' => [],
         ], $error->getParameters());
+        static::assertSame([], $error->getDeliveryIdentifiers());
         static::assertSame('FOO', $error->getName());
         static::assertTrue($error->blockOrder());
         static::assertSame('shipping-method-blocked-' . $error->getShippingMethodId(), $error->getId());
         static::assertSame(10, $error->getLevel());
         static::assertSame('shipping-method-blocked', $error->getMessageKey());
+    }
+
+    public function testReferencesTheDeliveriesWithoutChangingTheId(): void
+    {
+        $shippingMethodId = Uuid::randomHex();
+
+        $error = new ShippingMethodBlockedError(
+            name: 'FOO',
+            id: $shippingMethodId,
+            reason: 'BAR',
+            deliveryIdentifiers: ['warehouse-1', 'warehouse-2'],
+        );
+
+        static::assertSame(['warehouse-1', 'warehouse-2'], $error->getDeliveryIdentifiers());
+        static::assertSame(['warehouse-1', 'warehouse-2'], $error->getParameters()['deliveryIdentifiers']);
+        static::assertSame('shipping-method-blocked-' . $shippingMethodId, $error->getId());
     }
 }

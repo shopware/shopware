@@ -77,6 +77,7 @@ class OrderDeliveryDefinition extends EntityDefinition
 
             (new FkField('order_id', 'orderId', OrderDefinition::class))->addFlags(new ApiAware(), new Required())->setDescription('Unique identity of order.'),
             (new ReferenceVersionField(OrderDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new StringField('identifier', 'identifier'))->addFlags(new ApiAware())->setDescription('Unique identity of the delivery in the cart the order was placed from.'),
 
             (new FkField('shipping_order_address_id', 'shippingOrderAddressId', OrderAddressDefinition::class))->addFlags(new ApiAware(), new Required())->setDescription('Unique identity of order\'s shipping address.'),
             (new ReferenceVersionField(OrderAddressDefinition::class, 'shipping_order_address_version_id'))->addFlags(new ApiAware(), new Required()),

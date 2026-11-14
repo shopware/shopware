@@ -1615,6 +1615,18 @@ The `$operator` parameter of `\Shopware\Core\Framework\DataAbstractionLayer\Sear
 
 The unused property was removed.
 
+## Cart deliveries and transactions require an identifier
+
+The `identifier` constructor argument of `Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery` and `Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction` became required, and `getIdentifier()` returns a `string`.
+Pass an identifier that is unique within the cart and stays the same for the same delivery or transaction in the next calculation:
+
+```php
+new Delivery($positions, $deliveryDate, $shippingMethod, $location, $shippingCosts, $warehouseId);
+new Transaction($amount, $paymentMethodId, $giftCardId);
+```
+
+Subclasses that override `getIdentifier()` declare the `string` return type.
+
 # Administration
 
 ## Sales channel detail components load fewer visibilities and sales channels

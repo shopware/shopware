@@ -78,6 +78,10 @@
                         "items": {
                             "type": "object",
                             "properties": {
+                                "identifier": {
+                                    "description": "Unique identity of the transaction within the cart, the same for the same transaction in the next calculation.",
+                                    "type": "string"
+                                },
                                 "paymentMethodId": {
                                     "type": "string"
                                 },

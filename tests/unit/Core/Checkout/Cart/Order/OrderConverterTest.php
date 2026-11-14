@@ -463,6 +463,34 @@ class OrderConverterTest extends TestCase
         ];
     }
 
+    public function testConvertToCartRestoresTheIdentifiersOfDeliveriesAndTransactions(): void
+    {
+        $order = $this->getOrder();
+        $order->getDeliveries()?->get('order-delivery-id')?->setIdentifier('warehouse-1');
+        foreach ($order->getTransactions() ?? [] as $orderTransaction) {
+            $orderTransaction->setIdentifier('identifier-of-' . $orderTransaction->getId());
+        }
+
+        $cart = $this->orderConverter->convertToCart($order, Context::createDefaultContext());
+
+        static::assertSame('warehouse-1', $cart->getDeliveries()->first()?->getIdentifier());
+        static::assertSame(
+            ['identifier-of-order-transaction-cancelled-id', 'identifier-of-order-transaction-id', 'identifier-of-order-transaction-failed-id'],
+            array_values($cart->getTransactions()->map(static fn (Transaction $transaction) => $transaction->getIdentifier()))
+        );
+    }
+
+    public function testConvertToCartNamesDeliveriesAndTransactionsOfOrdersWithoutIdentifiersByTheirIds(): void
+    {
+        $cart = $this->orderConverter->convertToCart($this->getOrder(), Context::createDefaultContext());
+
+        static::assertSame('order-delivery-id', $cart->getDeliveries()->first()?->getIdentifier());
+        static::assertSame(
+            ['order-transaction-cancelled-id', 'order-transaction-id', 'order-transaction-failed-id'],
+            array_values($cart->getTransactions()->map(static fn (Transaction $transaction) => $transaction->getIdentifier()))
+        );
+    }
+
     public function testConvertToCartWithoutLoadedTransactions(): void
     {
         $cart = $this->orderConverter->convertToCart($this->getOrder('order-no-transactions'), Context::createDefaultContext());
@@ -1196,7 +1224,8 @@ class OrderConverterTest extends TestCase
             new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
             $shippingMethod,
             $shippingLocation,
-            new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
         $deliveryCollection->add($delivery);
 

@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersister;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -241,6 +242,7 @@ class StorefrontCartFacadeTest extends TestCase
             'id' => $error->getShippingMethodId(),
             'name' => 'original-shipping-method-name',
             'reason' => 'reason',
+            'deliveryIdentifiers' => [Delivery::DEFAULT_IDENTIFIER],
         ], $error->getParameters());
 
         $controlCart = $this->getCart();
@@ -360,8 +362,8 @@ class StorefrontCartFacadeTest extends TestCase
         );
         $returnedCart = $cartFacade->get('', $salesChannelContext);
 
-        static::assertCount(0, $errorCollection->filterInstance(ShippingMethodChangedError::class));
-        $filtered = $errorCollection->filterInstance(ShippingMethodBlockedError::class);
+        static::assertCount(0, $returnedCart->getErrors()->filterInstance(ShippingMethodChangedError::class));
+        $filtered = $returnedCart->getErrors()->filterInstance(ShippingMethodBlockedError::class);
         static::assertCount(1, $filtered);
         $error = $filtered->first();
         static::assertInstanceOf(ShippingMethodBlockedError::class, $error);
@@ -369,10 +371,11 @@ class StorefrontCartFacadeTest extends TestCase
             'id' => $error->getShippingMethodId(),
             'name' => 'original-shipping-method-name',
             'reason' => 'reason',
+            'deliveryIdentifiers' => [Delivery::DEFAULT_IDENTIFIER],
         ], $error->getParameters());
 
-        static::assertCount(0, $errorCollection->filterInstance(PaymentMethodChangedError::class));
-        $filtered = $errorCollection->filterInstance(PaymentMethodBlockedError::class);
+        static::assertCount(0, $returnedCart->getErrors()->filterInstance(PaymentMethodChangedError::class));
+        $filtered = $returnedCart->getErrors()->filterInstance(PaymentMethodBlockedError::class);
         static::assertCount(1, $filtered);
         $error = $filtered->first();
         static::assertInstanceOf(PaymentMethodBlockedError::class, $error);
@@ -735,6 +738,7 @@ class StorefrontCartFacadeTest extends TestCase
                     id: 'original-shipping-method-id',
                     name: 'original-shipping-method-name',
                     reason: 'reason',
+                    deliveryIdentifiers: [Delivery::DEFAULT_IDENTIFIER],
                 )
             );
         }

@@ -264,7 +264,8 @@ class Generator extends TestCase
             $deliveryDate,
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),
-            $calculatedPrice
+            $calculatedPrice,
+            Delivery::DEFAULT_IDENTIFIER
         );
 
         $cart->addDeliveries(new DeliveryCollection([$delivery]));

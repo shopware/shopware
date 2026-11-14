@@ -118,7 +118,8 @@ class DeliveryCalculatorTest extends TestCase
             new DeliveryDate(new \DateTime(), new \DateTime()),
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
 
         $this->deliveryCalculator->calculate(new CartDataCollection(), new Cart('test'), new DeliveryCollection([$delivery]), $context);
@@ -167,6 +168,7 @@ class DeliveryCalculatorTest extends TestCase
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),
             $costs,
+            Delivery::DEFAULT_IDENTIFIER,
         );
 
         $data = new CartDataCollection();
@@ -183,6 +185,7 @@ class DeliveryCalculatorTest extends TestCase
             'id' => $shippingMethod->getId(),
             'name' => $shippingMethodName,
             'reason' => 'no shipping costs found',
+            'deliveryIdentifiers' => [Delivery::DEFAULT_IDENTIFIER],
         ], $error->getParameters());
     }
 
@@ -219,6 +222,7 @@ class DeliveryCalculatorTest extends TestCase
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),
             $costs,
+            Delivery::DEFAULT_IDENTIFIER,
         );
 
         $this->deliveryCalculator->calculate(new CartDataCollection(), new Cart('test'), new DeliveryCollection([$delivery]), $context);
@@ -2017,7 +2021,8 @@ class DeliveryCalculatorTest extends TestCase
                 new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
                 $shippingMethod,
                 new ShippingLocation(new CountryEntity(), new CountryStateEntity(), null),
-                new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
+                new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                Delivery::DEFAULT_IDENTIFIER
             ),
         ]);
 

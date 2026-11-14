@@ -403,7 +403,8 @@ class ShippingCostRouteTest extends TestCase
                 $deliveryDate,
                 $shippingMethod,
                 new ShippingLocation(new CountryEntity()),
-                new CalculatedPrice($shippingCost, $shippingCost, new CalculatedTaxCollection(), new TaxRuleCollection())
+                new CalculatedPrice($shippingCost, $shippingCost, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                Delivery::DEFAULT_IDENTIFIER
             );
         }
 

@@ -554,7 +554,8 @@ class OrderConverter
                     $orderDelivery->getShippingOrderAddress()->getCountryState(),
                     null
                 ),
-                $orderDelivery->getShippingCosts()
+                $orderDelivery->getShippingCosts(),
+                $orderDelivery->getIdentifier() ?? $orderDelivery->getId()
             );
             $cartDelivery->addExtension(self::ORIGINAL_ID, new IdStruct($orderDelivery->getId()));
             $cartDelivery->addExtension(self::ORIGINAL_ADDRESS_ID, new IdStruct($orderDelivery->getShippingOrderAddressId()));
@@ -581,6 +582,7 @@ class OrderConverter
             $cartTransaction = new Transaction(
                 $orderTransaction->getAmount(),
                 $orderTransaction->getPaymentMethodId(),
+                $orderTransaction->getIdentifier() ?? $orderTransaction->getId(),
             );
             $cartTransaction->addExtension(self::ORIGINAL_ID, new IdStruct($orderTransaction->getId()));
 

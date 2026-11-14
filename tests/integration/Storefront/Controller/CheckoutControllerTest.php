@@ -971,7 +971,8 @@ class CheckoutControllerTest extends TestCase
                     new CalculatedTaxCollection(),
                     new TaxRuleCollection()
                 ),
-                $paymentMethodId
+                $paymentMethodId,
+                Transaction::DEFAULT_IDENTIFIER
             ),
         ]);
     }

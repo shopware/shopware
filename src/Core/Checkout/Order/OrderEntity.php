@@ -410,6 +410,14 @@ class OrderEntity extends Entity implements DocumentSourceEntity
         return $this->primaryOrderDeliveryId;
     }
 
+    /**
+     * Returns the deliveries that are not shipping discounts, the primary delivery first
+     */
+    public function getShipments(): OrderDeliveryCollection
+    {
+        return ($this->deliveries ?? new OrderDeliveryCollection())->getShipments($this->primaryOrderDeliveryId);
+    }
+
     public function setPrimaryOrderDeliveryId(?string $primaryOrderDeliveryId): void
     {
         $this->primaryOrderDeliveryId = $primaryOrderDeliveryId;

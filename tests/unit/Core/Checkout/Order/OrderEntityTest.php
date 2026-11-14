@@ -4,6 +4,11 @@ namespace Shopware\Tests\Unit\Core\Checkout\Order;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -80,6 +85,33 @@ class OrderEntityTest extends TestCase
         $order->setLineItems($collection);
 
         static::assertSame($collection, $order->getLineItems());
+    }
+
+    public function testGetShipmentsPutsThePrimaryDeliveryFirst(): void
+    {
+        $order = new OrderEntity();
+        $order->setDeliveries(new OrderDeliveryCollection([
+            $this->createDelivery('express', 9.99),
+            $this->createDelivery('discount', -2.0),
+            $this->createDelivery('standard', 4.95),
+        ]));
+        $order->setPrimaryOrderDeliveryId('standard');
+
+        static::assertSame(['standard', 'express'], array_values($order->getShipments()->getIds()));
+    }
+
+    public function testGetShipmentsIsEmptyWithoutLoadedDeliveries(): void
+    {
+        static::assertCount(0, (new OrderEntity())->getShipments());
+    }
+
+    private function createDelivery(string $id, float $shippingCosts): OrderDeliveryEntity
+    {
+        $delivery = new OrderDeliveryEntity();
+        $delivery->setId($id);
+        $delivery->setShippingCosts(new CalculatedPrice($shippingCosts, $shippingCosts, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        return $delivery;
     }
 
     private function createLineItem(string $id, ?string $parentId, int $position): OrderLineItemEntity

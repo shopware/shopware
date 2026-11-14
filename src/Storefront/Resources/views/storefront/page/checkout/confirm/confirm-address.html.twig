@@ -21,9 +21,11 @@
             {% endif %}
         {% endif %}
 
+        {% set shipments = order.shipments %}
     {% else %}
         {% set billingAddress = context.customer.activeBillingAddress %}
         {% set shippingAddress = context.customer.activeShippingAddress %}
+        {% set shipments = page.cart.deliveries.shipments %}
     {% endif %}
 
     {% block page_checkout_confirm_address %}
@@ -47,9 +49,21 @@
 
                                 {% block page_checkout_confirm_address_shipping_data %}
                                     <div class="confirm-address-shipping">
-                                        {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {
-                                            address: shippingAddress
-                                        } %}
+                                        {% if shipments|length > 1 %}
+                                            {% block page_checkout_confirm_address_shipping_shipments %}
+                                                {% for shipment in shipments %}
+                                                    {% sw_include '@Storefront/storefront/component/checkout/shipment.html.twig' with {
+                                                        shipment: shipment,
+                                                        shipmentNumber: loop.index,
+                                                        currencyIsoCode: page.order.currency.isoCode ?? null,
+                                                    } %}
+                                                {% endfor %}
+                                            {% endblock %}
+                                        {% else %}
+                                            {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {
+                                                address: shippingAddress
+                                            } %}
+                                        {% endif %}
                                     </div>
                                 {% endblock %}
 
@@ -92,7 +106,7 @@
 
                             {% block page_checkout_confirm_address_billing_data %}
                                 <div class="confirm-address-billing mb-3">
-                                    {% if billingAddress.id is same as(shippingAddress.id) and not page.isHideShippingAddress()%}
+                                    {% if billingAddress.id is same as(shippingAddress.id) and not page.isHideShippingAddress() and shipments|length <= 1 %}
                                         {% block page_checkout_confirm_address_billing_data_equal %}
                                             <p>
                                                 {{ 'checkout.addressEqualText'|trans|sw_sanitize }}

@@ -26,6 +26,7 @@
                 {% set orderPaymentState = order.transactions.last.stateMachineState.technicalName %}
             {% endif %}
             {% set isPaymentNeeded = orderPaymentState in states and orderState != ORDER_STATE_CANCELLED %}
+            {% set shipments = order.shipments %}
 
             <div class="row flex-wrap">
                 {% block page_account_order_item_heading %}
@@ -231,10 +232,12 @@
                                     <strong class="order-table-header-label">
                                         {{ 'account.orderShippingStatus'|trans|sw_sanitize }}{{ 'account.colonCharacter'|trans|sw_sanitize }}
                                     </strong>
-                                    {% if feature('v6.8.0.0') %}
+                                    {% if shipments|length > 1 %}
+                                        <span class="order-table-body-value">{{ shipments|map(shipment => shipment.stateMachineState.translated.name)|reduce((names, name) => name in names ? names : names|merge([name]), [])|join(', ') }}</span>
+                                    {% elseif feature('v6.8.0.0') %}
                                         <span class="order-table-body-value">{{ order.primaryOrderDelivery.stateMachineState.translated.name }}</span>
                                     {% else %}
-                                        <span class="order-table-body-value">{{ order.deliveries|first.stateMachineState.translated.name }}</span>
+                                        <span class="order-table-body-value">{{ (shipments|first ?: order.deliveries.first).stateMachineState.translated.name }}</span>
                                     {% endif %}
                                 </div>
                             {% endif %}
@@ -273,7 +276,9 @@
                                     <strong class="order-table-header-label">
                                         {{ 'account.orderShippingMethod'|trans|sw_sanitize }}{{ 'account.colonCharacter'|trans|sw_sanitize }}
                                     </strong>
-                                    {% if feature('v6.8.0.0') %}
+                                    {% if shipments|length > 1 %}
+                                        <span class="order-table-body-value">{{ shipments.shippingMethods|map(shippingMethod => shippingMethod.translated.name)|join(', ') }}</span>
+                                    {% elseif feature('v6.8.0.0') %}
                                         <span class="order-table-body-value">{{ order.primaryOrderDelivery.shippingMethod.translated.name }}</span>
                                     {% else %}
                                         <span class="order-table-body-value">{{ order.deliveries|first.shippingMethod.translated.name }}</span>

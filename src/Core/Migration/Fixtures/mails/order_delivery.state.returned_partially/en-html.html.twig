@@ -4,7 +4,24 @@
         {% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/>
         <br/>
         the status of your delivery at {{ salesChannel.translated.name }} (Number: {{ order.orderNumber }}) on {{ order.orderDateTime|format_datetime('medium', 'short', locale='en-GB') }} has changed.<br/>
-        <strong>The new status is as follows: {{ order.deliveries.first.stateMachineState.translated.name }}.</strong><br/>
+        {% set shipments = order.shipments %}
+        {% set changedShipment = orderDelivery is defined and orderDelivery ? shipments.get(orderDelivery.id) : null %}
+        {% if shipments|length > 1 and changedShipment %}
+            {% set changedShipmentNumber = null %}
+            {% for shipment in shipments %}{% if shipment.id == changedShipment.id %}{% set changedShipmentNumber = loop.index %}{% endif %}{% endfor %}
+            {% set shipmentAddress = changedShipment.shippingOrderAddress %}
+            <strong>The new status of shipment {{ changedShipmentNumber }} ({{ changedShipment.shippingMethod.translated.name }}) is as follows: {{ changedShipment.stateMachineState.translated.name }}.</strong><br/>
+            {% if shipmentAddress.company %}{{ shipmentAddress.company }}, {% endif %}{{ shipmentAddress.firstName }} {{ shipmentAddress.lastName }}, {{ shipmentAddress.street }}, {{ shipmentAddress.zipcode }} {{ shipmentAddress.city }}, {{ shipmentAddress.country.translated.name }}<br/>
+        {% elseif shipments|length > 1 %}
+            <strong>The status of your shipments is as follows:</strong><br/>
+            {% for shipment in shipments %}
+                {% set shipmentAddress = shipment.shippingOrderAddress %}
+                Shipment {{ loop.index }} ({{ shipment.shippingMethod.translated.name }}): {{ shipment.stateMachineState.translated.name }}<br/>
+                {% if shipmentAddress.company %}{{ shipmentAddress.company }}, {% endif %}{{ shipmentAddress.firstName }} {{ shipmentAddress.lastName }}, {{ shipmentAddress.street }}, {{ shipmentAddress.zipcode }} {{ shipmentAddress.city }}, {{ shipmentAddress.country.translated.name }}<br/>
+            {% endfor %}
+        {% else %}
+            <strong>The new status is as follows: {{ (shipments|first ?: order.deliveries.first).stateMachineState.translated.name }}.</strong><br/>
+        {% endif %}
         <br/>
         You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl('frontend.account.order.single.page', { 'deepLinkCode': order.deepLinkCode }, salesChannel.domains|first.url) }}
         </br>

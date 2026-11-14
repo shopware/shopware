@@ -22,6 +22,8 @@
         {% endif %}
     {% endif %}
 
+    {% set shipments = order.shipments %}
+
     <div class="row">
         {% block page_checkout_finish_address_shipping %}
             {% if hasDelivery %}
@@ -36,7 +38,19 @@
 
                             {% block page_checkout_finish_address_shipping_data %}
                                 <div class="finish-address-shipping">
-                                    {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {address: shippingAddress} %}
+                                    {% if shipments|length > 1 %}
+                                        {% block page_checkout_finish_address_shipping_shipments %}
+                                            {% for shipment in shipments %}
+                                                {% sw_include '@Storefront/storefront/component/checkout/shipment.html.twig' with {
+                                                    shipment: shipment,
+                                                    shipmentNumber: loop.index,
+                                                    currencyIsoCode: order.currency.isoCode ?? null,
+                                                } %}
+                                            {% endfor %}
+                                        {% endblock %}
+                                    {% else %}
+                                        {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {address: shippingAddress} %}
+                                    {% endif %}
                                 </div>
                             {% endblock %}
                         </div>

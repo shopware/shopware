@@ -50,6 +50,8 @@
                                 {% else %}
                                     <small>({{ activeShipping.shippingMethod.translated.name }})</small>
                                 {% endif %}
+                            {% elseif activeShipping.shippingCosts.totalPrice >= 0 %}
+                                <small>({{ activeShipping.shippingMethod.translated.name }})</small>
                             {% endif %}
                         </span>
 

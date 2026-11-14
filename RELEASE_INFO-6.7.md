@@ -355,6 +355,14 @@ Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations
 
 The property is unused and will be removed in 6.8.
 
+### Order deliveries keep the order of the cart deliveries
+
+Order deliveries have a new `position` field with the order of the cart deliveries when the order was placed, starting at 1.
+Extensions that build several cart deliveries in a deliberate order, for example by priority or release date, no longer need to persist that order themselves.
+Sort order deliveries by `position` to show them in that order; the primary delivery is still the one with the highest shipping costs.
+Recalculating an order numbers the deliveries from 1 again in the order of their stored positions, like line items, with deliveries added by the recalculation, such as shipping discounts, last.
+Deliveries of orders placed before this release have position `0` until the order is recalculated.
+
 ### "Assign status" flow action picks the delivery and transaction of the flow
 
 The Flow Builder action "Assign status" (`action.set.order.state`) now changes the delivery and the transaction the flow carries as `orderDelivery` and `orderTransaction` data, if they belong to the order, for example on the delivery and transaction state triggers.
@@ -524,6 +532,11 @@ To remove such an app, uninstall it and remove its package with Composer.
 
 The experimental `/store-api/cookie-groups` route now also returns `cookieHashes`, which maps each cookie name to a hash of its configuration, including the data of every group that lists it.
 Clients can compare these hashes to find out which cookies were added or changed when the configuration `hash` changes.
+
+### Order deliveries have a `position` field
+
+Order deliveries in the Admin API and Store API have a new integer `position` field with the order of the deliveries in the cart the order was placed from, starting at 1.
+Deliveries of orders placed before this release have position `0` until the order is recalculated.
 
 ### Price definitions are validated so that they can be read again
 

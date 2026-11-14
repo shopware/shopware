@@ -21,6 +21,7 @@ use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\LineItemDownloadLoader;
 use Shopware\Core\Checkout\Cart\Order\OrderConversionContext;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
+use Shopware\Core\Checkout\Cart\Order\PositionStruct;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -319,6 +320,26 @@ class OrderConverterTest extends TestCase
         static::assertJsonStringEqualsJsonString($expectedJson, $actual);
     }
 
+    public function testConvertToOrderNumbersTheDeliveriesInCartOrderBeforeTheMostExpensiveOneBecomesPrimary(): void
+    {
+        $deliveries = new DeliveryCollection();
+        foreach ([1.0, 5.0, -1.0] as $shippingCosts) {
+            $delivery = $this->getDeliveryCollection()->first();
+            static::assertInstanceOf(Delivery::class, $delivery);
+            $delivery->setShippingCosts(new CalculatedPrice($shippingCosts, $shippingCosts, new CalculatedTaxCollection(), new TaxRuleCollection()));
+            $deliveries->add($delivery);
+        }
+
+        $cart = $this->getCart();
+        $cart->setDeliveries($deliveries);
+
+        $result = $this->orderConverter->convertToOrder($cart, $this->getSalesChannelContext(true), new OrderConversionContext());
+
+        static::assertIsArray($result['deliveries']);
+        static::assertSame([2, 1, 3], array_column($result['deliveries'], 'position'));
+        static::assertSame($result['deliveries'][0]['id'], $result['primaryOrderDeliveryId']);
+    }
+
     public function testConvertToOrderMakesTheDeliveryWithTheHighestShippingCostsThePrimaryOne(): void
     {
         $shipment = $this->getDeliveryCollection()->first();
@@ -468,6 +489,16 @@ class OrderConverterTest extends TestCase
         $cart = $this->orderConverter->convertToCart($this->getOrder('order-no-transactions'), Context::createDefaultContext());
 
         static::assertCount(0, $cart->getTransactions());
+    }
+
+    public function testConvertToCartCarriesTheStoredPositionOfTheDeliveries(): void
+    {
+        $order = $this->getOrder();
+        $order->getDeliveries()?->first()?->setPosition(3);
+
+        $cart = $this->orderConverter->convertToCart($order, Context::createDefaultContext());
+
+        static::assertSame(3, $cart->getDeliveries()->first()?->getExtensionOfType(OrderConverter::ORIGINAL_POSITION, PositionStruct::class)?->getPosition());
     }
 
     #[DataProvider('convertToCartManipulatedOrderData')]

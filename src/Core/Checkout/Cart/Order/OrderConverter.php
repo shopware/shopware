@@ -76,6 +76,8 @@ class OrderConverter
 
     final public const ORIGINAL_PRIMARY_ORDER_TRANSACTION = 'originalPrimaryOrderTransaction';
 
+    final public const ORIGINAL_POSITION = 'originalPosition';
+
     final public const ADMIN_EDIT_ORDER_PERMISSIONS = [
         CheckoutPermissions::ALLOW_PRODUCT_PRICE_OVERWRITES => true,
         CheckoutPermissions::SKIP_PRODUCT_RECALCULATION => true,
@@ -559,6 +561,7 @@ class OrderConverter
             $cartDelivery->addExtension(self::ORIGINAL_ID, new IdStruct($orderDelivery->getId()));
             $cartDelivery->addExtension(self::ORIGINAL_ADDRESS_ID, new IdStruct($orderDelivery->getShippingOrderAddressId()));
             $cartDelivery->addExtension(self::ORIGINAL_ADDRESS_VERSION_ID, new IdStruct($orderDelivery->getShippingOrderAddressVersionId()));
+            $cartDelivery->addExtension(self::ORIGINAL_POSITION, new PositionStruct($orderDelivery->getPosition()));
 
             $cartDeliveries->add($cartDelivery);
         }

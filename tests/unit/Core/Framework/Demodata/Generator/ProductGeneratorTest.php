@@ -3,10 +3,13 @@
 namespace Shopware\Tests\Unit\Core\Framework\Demodata\Generator;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\PDO\Exception as DriverException;
+use Doctrine\DBAL\Exception\DeadlockException;
 use Faker\Factory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
@@ -19,6 +22,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxEntity;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -29,39 +33,49 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 #[CoversClass(ProductGenerator::class)]
 class ProductGeneratorTest extends TestCase
 {
+    /**
+     * @var list<string>
+     */
+    private array $tagIds;
+
+    /**
+     * @var list<string>
+     */
+    private array $ruleIds;
+
+    /**
+     * @var list<string>
+     */
+    private array $manufacturerIds;
+
+    /**
+     * @var list<string>
+     */
+    private array $salesChannelIds;
+
+    private string $instantDeliveryId;
+
+    protected function setUp(): void
+    {
+        $this->tagIds = array_map(static fn () => Uuid::randomHex(), range(1, 9));
+        $this->ruleIds = [Uuid::randomHex()];
+        $this->manufacturerIds = [Uuid::randomHex()];
+        $this->salesChannelIds = [Uuid::randomHex(), Uuid::randomHex()];
+        $this->instantDeliveryId = Uuid::randomHex();
+    }
+
     public function testProductGeneration(): void
     {
         $productCount = 41;
 
-        $tagIds = [
-            Uuid::randomHex(),
-            Uuid::randomHex(),
-            Uuid::randomHex(),
-            Uuid::randomHex(),
-            Uuid::randomHex(),
-            Uuid::randomHex(),
-            Uuid::randomHex(),
-            Uuid::randomHex(),
-            Uuid::randomHex(),
-        ];
-
-        $ruleIds = [
-            Uuid::randomHex(),
-        ];
-
-        $manufacturerIds = [
-            Uuid::randomHex(),
-        ];
-
-        $salesChannelIds = [
-            Uuid::randomHex(),
-            Uuid::randomHex(),
-        ];
+        $tagIds = $this->tagIds;
+        $ruleIds = $this->ruleIds;
+        $salesChannelIds = $this->salesChannelIds;
+        $instantDeliveryId = $this->instantDeliveryId;
 
         $properties = [
             [
                 'id' => Uuid::randomHex(),
-                'property_group_id' => Uuid::randomHex(),
             ],
         ];
 
@@ -69,50 +83,6 @@ class ProductGeneratorTest extends TestCase
             Uuid::randomHex(),
             Uuid::randomHex(),
         ];
-
-        $instantDeliveryId = Uuid::randomHex();
-
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')
-            ->willReturnCallback(static function () use ($salesChannelIds, $properties, $categoryIds) {
-                $sqlStatement = \func_get_arg(0);
-
-                if (\str_contains($sqlStatement, 'sales_channel')) {
-                    return \array_map(static fn (string $id) => ['id' => $id], $salesChannelIds);
-                }
-
-                if (\str_contains($sqlStatement, 'property_group_option')) {
-                    return $properties;
-                }
-
-                if (\str_contains($sqlStatement, 'category')) {
-                    return \array_map(static fn (string $id) => ['id' => $id], $categoryIds);
-                }
-
-                return null;
-            });
-        $connection->method('fetchFirstColumn')->willReturn($ruleIds, $manufacturerIds, $tagIds);
-        $connection->method('fetchOne')->willReturn($instantDeliveryId);
-
-        $registry = static::createStub(DefinitionInstanceRegistry::class);
-
-        $taxEntity = (new TaxEntity())
-            ->assign([
-                '_uniqueIdentifier' => 'tax_0',
-                'taxRate' => 10,
-                'id' => Uuid::randomHex(),
-            ]);
-
-        $taxRepository = new StaticEntityRepository([
-            new EntitySearchResult(
-                'tax',
-                1,
-                new TaxCollection([$taxEntity]),
-                null,
-                new Criteria(),
-                Context::createDefaultContext(),
-            ),
-        ]);
 
         $mediaIds = [
             Uuid::randomHex(),
@@ -128,52 +98,23 @@ class ProductGeneratorTest extends TestCase
             Uuid::randomHex(),
         ];
 
-        $mediaRepository = new StaticEntityRepository([
-            $mediaIds,
-            $mediaProductDownloadIds,
-        ]);
-
-        $productRepository = new StaticEntityRepository([]);
-
-        $registry->method('getRepository')->willReturnCallback(static function () use ($taxRepository, $mediaRepository, &$productRepository) {
-            $entityName = \func_get_arg(0);
-
-            return match ($entityName) {
-                'tax' => $taxRepository,
-                'media' => $mediaRepository,
-                'product' => $productRepository,
-                default => null,
-            };
-        });
-
         $inheritanceUpdater = $this->createMock(InheritanceUpdater::class);
         $inheritanceUpdater->expects($this->exactly(3))->method('update');
-
-        $statesUpdater = $this->createMock(StatesUpdater::class);
-        $statesUpdater->expects($this->exactly(3))->method('update');
-
-        $productGenerator = new ProductGenerator($connection, $registry, $inheritanceUpdater, $statesUpdater);
-
-        $generator = Factory::create();
-        $generator->addProvider(new Commerce($generator));
-
-        $context = static::createStub(DemodataContext::class);
-        $context->method('getFaker')->willReturn($generator);
 
         $io = $this->createMock(SymfonyStyle::class);
         $io->expects($this->once())->method('progressStart')->with($productCount);
         $io->expects($this->exactly((int) ($productCount / 20)))->method('progressAdvance');
         $io->expects($this->once())->method('progressFinish');
 
-        $context->method('getConsole')->willReturn($io);
-
-        $productGenerator->generate($productCount, $context);
-
-        $products = [];
-
-        foreach ($productRepository->creates as $productBatches) {
-            $products = [...$products, ...\array_values($productBatches)];
-        }
+        $products = $this->generateProducts(
+            $productCount,
+            categoryUsage: array_fill_keys($categoryIds, 0),
+            mediaIds: $mediaIds,
+            downloadMediaIds: $mediaProductDownloadIds,
+            optionIds: array_column($properties, 'id'),
+            inheritanceUpdater: $inheritanceUpdater,
+            io: $io,
+        );
 
         static::assertCount($productCount, $products);
 
@@ -315,5 +256,186 @@ class ProductGeneratorTest extends TestCase
                 static::assertSame($instantDeliveryId, $product['deliveryTimeId']);
             }
         }
+    }
+
+    public function testSkipsProductStatesWithTheV68Flag(): void
+    {
+        $statesUpdater = $this->createMock(StatesUpdater::class);
+        $statesUpdater->expects($this->never())->method('update');
+
+        $this->generateProducts(41, statesUpdater: $statesUpdater);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testUpdatesProductStatesPerBatchWithoutTheV68Flag(): void
+    {
+        $statesUpdater = $this->createMock(StatesUpdater::class);
+        $statesUpdater->expects($this->exactly(3))->method('update');
+
+        $this->generateProducts(41, statesUpdater: $statesUpdater);
+    }
+
+    public function testRetriesTheBatchUpdatesAfterADeadlock(): void
+    {
+        $inheritanceUpdater = $this->createMock(InheritanceUpdater::class);
+        $inheritanceUpdater->expects($this->exactly(3))->method('update');
+
+        $products = $this->generateProducts(
+            41,
+            inheritanceUpdater: $inheritanceUpdater,
+            firstTransactionError: new DeadlockException(new DriverException('Deadlock detected'), null),
+        );
+
+        static::assertCount(41, $products);
+    }
+
+    public function testAssignsProductsToTheLeastUsedLeafCategories(): void
+    {
+        $crowdedCategoryId = Uuid::randomHex();
+        $emptyCategoryIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
+
+        $products = $this->generateProducts(
+            20,
+            categoryUsage: [$crowdedCategoryId => 100, ...array_fill_keys($emptyCategoryIds, 0)],
+        );
+
+        $assigned = [];
+        foreach ($products as $product) {
+            static::assertIsArray($product['categories']);
+            $assigned = [...$assigned, ...array_column($product['categories'], 'id')];
+        }
+
+        static::assertEqualsCanonicalizing($emptyCategoryIds, array_values(array_unique($assigned)));
+    }
+
+    public function testUsesTheAvailableMediaWhenThereAreFewerThanAProductRequests(): void
+    {
+        $mediaId = Uuid::randomHex();
+        $downloadMediaId = Uuid::randomHex();
+
+        $products = $this->generateProducts(41, mediaIds: [$mediaId], downloadMediaIds: [$downloadMediaId]);
+
+        static::assertIsArray($products[0]['media']);
+        static::assertSame([$mediaId], array_column($products[0]['media'], 'mediaId'));
+        static::assertIsArray($products[20]['downloads']);
+        static::assertSame([$downloadMediaId], array_column($products[20]['downloads'], 'mediaId'));
+    }
+
+    public function testCreatesOnlyPhysicalProductsWithoutDownloadMedia(): void
+    {
+        $products = $this->generateProducts(41);
+
+        foreach ($products as $product) {
+            static::assertArrayNotHasKey('downloads', $product);
+            static::assertSame(ProductDefinition::TYPE_PHYSICAL, $product['type']);
+        }
+    }
+
+    public function testAssignsFourToTenDistinctPropertyOptions(): void
+    {
+        $optionIds = array_map(static fn () => Uuid::randomHex(), range(1, 20));
+
+        $products = $this->generateProducts(41, optionIds: $optionIds);
+
+        foreach ($products as $product) {
+            static::assertIsArray($product['properties']);
+            $assigned = array_column($product['properties'], 'id');
+
+            static::assertGreaterThanOrEqual(4, \count($assigned));
+            static::assertLessThanOrEqual(10, \count($assigned));
+            static::assertSame(array_values(array_unique($assigned)), $assigned);
+            static::assertSame([], array_diff($assigned, $optionIds));
+        }
+    }
+
+    /**
+     * @param array<string, int> $categoryUsage
+     * @param list<string> $mediaIds
+     * @param list<string> $downloadMediaIds
+     * @param list<string> $optionIds
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function generateProducts(
+        int $count,
+        array $categoryUsage = [],
+        array $mediaIds = [],
+        array $downloadMediaIds = [],
+        array $optionIds = [],
+        ?InheritanceUpdater $inheritanceUpdater = null,
+        ?StatesUpdater $statesUpdater = null,
+        ?SymfonyStyle $io = null,
+        ?\Throwable $firstTransactionError = null,
+    ): array {
+        $propertyGroupId = Uuid::randomHex();
+        $salesChannelIds = $this->salesChannelIds;
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')
+            ->willReturnCallback(static fn (string $sql): array => match (true) {
+                \str_contains($sql, 'sales_channel') => array_map(static fn (string $id) => ['id' => $id], $salesChannelIds),
+                \str_contains($sql, 'property_group_option') => array_map(static fn (string $id) => ['id' => $id, 'property_group_id' => $propertyGroupId], $optionIds),
+                default => [],
+            });
+        $connection->method('fetchAllKeyValue')->willReturn($categoryUsage);
+        $connection->method('fetchFirstColumn')->willReturn($this->ruleIds, $this->manufacturerIds, $this->tagIds);
+        $connection->method('fetchOne')->willReturn($this->instantDeliveryId);
+        $connection->method('transactional')->willReturnCallback(static function (\Closure $callback) use ($connection, &$firstTransactionError) {
+            if ($firstTransactionError !== null) {
+                $error = $firstTransactionError;
+                $firstTransactionError = null;
+
+                throw $error;
+            }
+
+            return $callback($connection);
+        });
+
+        $taxEntity = (new TaxEntity())
+            ->assign([
+                '_uniqueIdentifier' => 'tax_0',
+                'taxRate' => 10,
+                'id' => Uuid::randomHex(),
+            ]);
+
+        $taxRepository = new StaticEntityRepository([
+            new EntitySearchResult(
+                'tax',
+                1,
+                new TaxCollection([$taxEntity]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext(),
+            ),
+        ]);
+        $mediaRepository = new StaticEntityRepository([$mediaIds, $downloadMediaIds]);
+        $productRepository = new StaticEntityRepository([]);
+
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('getRepository')->willReturnCallback(static fn (string $entity) => match ($entity) {
+            'tax' => $taxRepository,
+            'media' => $mediaRepository,
+            default => $productRepository,
+        });
+
+        $faker = Factory::create();
+        $faker->addProvider(new Commerce($faker));
+
+        $context = static::createStub(DemodataContext::class);
+        $context->method('getFaker')->willReturn($faker);
+        $context->method('getConsole')->willReturn($io ?? static::createStub(SymfonyStyle::class));
+
+        $productGenerator = new ProductGenerator(
+            $connection,
+            $registry,
+            $inheritanceUpdater ?? static::createStub(InheritanceUpdater::class),
+            $statesUpdater ?? static::createStub(StatesUpdater::class),
+        );
+        $productGenerator->generate($count, $context);
+
+        /** @var list<array<string, mixed>> $products */
+        $products = array_merge(...$productRepository->creates);
+
+        return $products;
     }
 }

@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataException;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Demodata\DemodataService;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -34,6 +36,11 @@ class ProductGenerator implements DemodataGeneratorInterface
     private SymfonyStyle $io;
 
     private Generator $faker;
+
+    /**
+     * @var \SplMinHeap<array{int, string}>
+     */
+    private \SplMinHeap $categoryUsage;
 
     /**
      * @internal
@@ -73,6 +80,9 @@ class ProductGenerator implements DemodataGeneratorInterface
         }
 
         $properties = $this->getProperties();
+        $propertyOptionIds = array_merge(...array_values($properties));
+
+        $this->categoryUsage = $this->getCategoryUsage();
 
         $this->io->progressStart($count);
 
@@ -109,15 +119,15 @@ class ProductGenerator implements DemodataGeneratorInterface
             if ($mediaIds) {
                 $product['cover'] = ['mediaId' => Random::getRandomArrayElement($mediaIds)];
 
-                $product['media'] = array_map(static fn (string $id): array => ['mediaId' => $id], $this->faker->randomElements($mediaIds, random_int(2, 5)));
+                $product['media'] = array_map(static fn (string $id): array => ['mediaId' => $id], $this->faker->randomElements($mediaIds, min(\count($mediaIds), random_int(2, 5))));
             }
 
-            $product['properties'] = $this->buildProperties($properties);
+            $product['properties'] = $this->buildProperties($propertyOptionIds);
 
             if ($i % 40 === 0) {
                 $combination = $this->faker->randomElement($combinations);
                 $product = [...$product, ...$this->buildVariants($combination, $prices, $taxes)];
-            } elseif ($i % 20 === 0) {
+            } elseif ($i % 20 === 0 && $downloadMediaIds !== []) {
                 $product = [...$product, ...$this->buildDownloads($downloadMediaIds, $instantDeliveryId)];
             }
 
@@ -215,7 +225,7 @@ class ProductGenerator implements DemodataGeneratorInterface
      */
     private function buildDownloads(array $downloadMediaIds, ?string $instantDeliveryId): array
     {
-        $mediaIds = $this->faker->randomElements($downloadMediaIds, random_int(1, 3), false);
+        $mediaIds = $this->faker->randomElements($downloadMediaIds, min(\count($downloadMediaIds), random_int(1, 3)), false);
 
         $downloads = [];
         foreach ($mediaIds as $position => $mediaId) {
@@ -251,8 +261,15 @@ class ProductGenerator implements DemodataGeneratorInterface
             $all = [...$all, ...array_column($product['children'], 'id')];
         }
 
-        $this->updater->update(ProductDefinition::ENTITY_NAME, $all, $context);
-        $this->statesUpdater?->update($all, $context);
+        RetryableTransaction::retryable($this->connection, function () use ($all, $context): void {
+            $this->updater->update(ProductDefinition::ENTITY_NAME, $all, $context);
+
+            if (!Feature::isActive('v6.8.0.0')) {
+                Feature::silent('v6.8.0.0', function () use ($all, $context): void {
+                    $this->statesUpdater?->update($all, $context);
+                });
+            }
+        });
 
         $context->removeState(EntityIndexerRegistry::DISABLE_INDEXING);
     }
@@ -375,7 +392,7 @@ class ProductGenerator implements DemodataGeneratorInterface
      */
     private function getProperties(): array
     {
-        $options = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id, LOWER(HEX(property_group_id)) as property_group_id FROM property_group_option LIMIT 5000');
+        $options = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id, LOWER(HEX(property_group_id)) as property_group_id FROM property_group_option');
 
         $grouped = [];
         foreach ($options as $option) {
@@ -418,39 +435,61 @@ class ProductGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @return list<array{id: string}>
+     * @return \SplMinHeap<array{int, string}>
      */
-    private function getCategoryIds(): array
+    private function getCategoryUsage(): \SplMinHeap
     {
-        /** @var list<array{id: string}> $result */
-        $result = $this->connection->fetchAllAssociative('
-            SELECT LOWER(HEX(category.id)) as id
+        $usage = $this->connection->fetchAllKeyValue('
+            SELECT LOWER(HEX(category.id)) as id, COUNT(pc.product_id) as product_count
             FROM category
              LEFT JOIN product_category pc
                ON pc.category_id = category.id
             WHERE category.child_count = 0
-            GROUP BY category.id
-            ORDER BY COUNT(pc.product_id) ASC
-            LIMIT ' . $this->faker->numberBetween(1, 3));
+            GROUP BY category.id');
 
-        return $result;
+        /** @var \SplMinHeap<array{int, string}> $heap */
+        $heap = new \SplMinHeap();
+        foreach ($usage as $id => $productCount) {
+            $heap->insert([(int) $productCount, (string) $id]);
+        }
+
+        return $heap;
     }
 
     /**
-     * @param array<string, list<string>> $properties
-     *
-     * @return array<array{id: string}>
+     * @return list<array{id: string}>
      */
-    private function buildProperties(array $properties): array
+    private function getCategoryIds(): array
     {
-        $productProperties = [];
-        foreach ($properties as $options) {
-            $productProperties = array_merge($productProperties, $this->faker->randomElements($options, min(\count($options), 3)));
+        $leastUsed = [];
+        $count = min($this->categoryUsage->count(), $this->faker->numberBetween(1, 3));
+        for ($i = 0; $i < $count; ++$i) {
+            $leastUsed[] = $this->categoryUsage->extract();
         }
 
-        $productProperties = \array_slice($productProperties, 0, random_int(4, 10));
+        foreach ($leastUsed as [$productCount, $id]) {
+            $this->categoryUsage->insert([$productCount + 1, $id]);
+        }
 
-        return array_map(static fn ($config) => ['id' => (string) $config], $productProperties);
+        return array_map(static fn (array $category): array => ['id' => $category[1]], $leastUsed);
+    }
+
+    /**
+     * @param list<string> $optionIds
+     *
+     * @return list<array{id: string}>
+     */
+    private function buildProperties(array $optionIds): array
+    {
+        $count = min(\count($optionIds), random_int(4, 10));
+
+        $picked = [];
+        while (\count($picked) < $count) {
+            $id = $optionIds[random_int(0, \count($optionIds) - 1)];
+            $picked[$id] = ['id' => $id];
+        }
+
+        return array_values($picked);
     }
 
     private function getInstantDeliveryId(): ?string

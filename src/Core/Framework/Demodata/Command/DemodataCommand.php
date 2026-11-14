@@ -75,6 +75,7 @@ class DemodataCommand extends Command
         $this->addOption('order-attributes', null, InputOption::VALUE_OPTIONAL, 'Order attribute count');
         $this->addOption('customer-attributes', null, InputOption::VALUE_OPTIONAL, 'Customer attribute count');
         $this->addOption('media-attributes', null, InputOption::VALUE_OPTIONAL, 'Media attribute count');
+        $this->addOption('property-options', null, InputOption::VALUE_OPTIONAL, 'Option count per property group (default: predefined options per group)');
         $this->addOption('multiplier', null, InputOption::VALUE_OPTIONAL, 'Applies to all counts');
         $this->addOption('reset-defaults', null, InputOption::VALUE_NONE, 'Set all counts to 0 unless specified');
     }
@@ -105,7 +106,7 @@ class DemodataCommand extends Command
         $request->add(RuleDefinition::class, $this->getCount($input, 'rules'));
         $request->add(MediaDefinition::class, $this->getCount($input, 'media'));
         $request->add(CustomerDefinition::class, $this->getCount($input, 'customers'));
-        $request->add(PropertyGroupDefinition::class, $this->getCount($input, 'properties'));
+        $request->add(PropertyGroupDefinition::class, $this->getCount($input, 'properties'), ['options' => $this->getCount($input, 'property-options')]);
         $request->add(CategoryDefinition::class, $this->getCount($input, 'categories'));
         $request->add(ProductManufacturerDefinition::class, $this->getCount($input, 'manufacturers'));
         $request->add(ProductDefinition::class, $this->getCount($input, 'products'));

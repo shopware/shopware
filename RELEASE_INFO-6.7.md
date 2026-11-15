@@ -15,6 +15,11 @@ The theme is compiled after the commit.
 For that, `ThemeService::updateTheme()` skips the compile when the context has the new state `ThemeService::STATE_SKIP_COMPILE`.
 Classes overriding `updateTheme()` without calling the parent method should handle that state.
 
+### Variants no longer keep an outdated cheapest price
+
+If an indexed product gets a parent assigned, this could result in the display of deprecated information for discounts/prices. Going forward the indexer will remove those during indexing.
+Run `bin/console dal:refresh:index --only=product.indexer` once to repair existing variants.
+
 ## Core
 
 ### Cart deliveries and transactions carry a payload into the order

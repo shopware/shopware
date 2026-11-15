@@ -2,6 +2,12 @@
 
 ## Core
 
+### Variants no longer keep an outdated cheapest price
+
+If an indexed product gets a parent assigned, this could result in the display of deprecated information for discounts/prices.
+Going forward the indexer will remove those during indexing.
+Run `bin/console dal:refresh:index --only=product.indexer` once to repair existing variants.
+
 ### Moving a category re-indexes its products
 
 Changing the `parentId` of a category now queues the product indexer for all products assigned to that category or one of its descendants.

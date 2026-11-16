@@ -19,6 +19,7 @@ const nodeContainsLeadingBlockComment = (node) => {
 
     return leadingComment.value.includes('@private') ||
         leadingComment.value.includes('@deprecated tag:') ||
+        leadingComment.value.includes('@bc-change BecomesPrivate') ||
         (isJsDoc && leadingComment.value.includes('@public'));
 };
 
@@ -31,7 +32,7 @@ function findComments(node) {
 }
 
 /**
- * This rule validates that new features are either private, deprecated to be private in the future
+ * This rule validates that new features are either private, announced to become private in the future
  * or explicitly marked as public API with a JSDoc `@public` tag.
  *
  * Invalid:
@@ -50,7 +51,7 @@ function findComments(node) {
  * class Example {}
  *
  * \**
- *  * @deprecated tag:v6.X.0 - Will be @private
+ *  * @bc-change BecomesPrivate version:v6.8.0
  *  *\
  * class Example {}
  *
@@ -60,7 +61,7 @@ function findComments(node) {
  * Component.register('foo', {});
  *
  * \**
- *  * @deprecated tag:v6.X.0 - Will be @private
+ *  * @bc-change BecomesPrivate version:v6.8.0
  *  *\
  * Shopware.Component.register('bar', {});
  *
@@ -70,7 +71,7 @@ function findComments(node) {
  * Module.register('foo', {});
  *
  * \**
- *  * @deprecated tag:v6.X.0 - Will be @private
+ *  * @bc-change BecomesPrivate version:v6.8.0
  *  *\
  * Shopware.Module.register('bar', {});
  *
@@ -80,7 +81,7 @@ function findComments(node) {
  * export const foo = 'foo';
  *
  * \**
- *  * @deprecated tag:v6.X.0 - Will be @private
+ *  * @bc-change BecomesPrivate version:v6.8.0
  *  *\
  * export default foo;
  *
@@ -114,7 +115,7 @@ module.exports = {
 
                 context.report({
                     node,
-                    message: 'New exports need to be private. Old exports should be @deprecated tag:v6.X.0 - Will be private',
+                    message: 'New exports need to be private. Old exports should be marked @bc-change BecomesPrivate version:vX.Y.Z',
                 });
             },
             ExportNamedDeclaration(node) {
@@ -124,7 +125,7 @@ module.exports = {
 
                 context.report({
                     node,
-                    message: 'New exports need to be private. Old exports should be @deprecated tag:v6.X.0 - Will be private',
+                    message: 'New exports need to be private. Old exports should be marked @bc-change BecomesPrivate version:vX.Y.Z',
                 });
             },
             ExpressionStatement(node) {
@@ -168,7 +169,7 @@ module.exports = {
 
                 context.report({
                     node,
-                    message: 'New features need to be private. Old features should be @deprecated tag:v6.X.0 - Will be private',
+                    message: 'New features need to be private. Old features should be marked @bc-change BecomesPrivate version:vX.Y.Z',
                 });
             },
         };

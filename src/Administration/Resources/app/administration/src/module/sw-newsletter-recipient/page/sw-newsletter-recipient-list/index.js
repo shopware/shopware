@@ -10,7 +10,7 @@ const {
 /**
  * @sw-package after-sales
  *
- * @deprecated tag:v6.8.0 - Will be private
+ * @bc-change BecomesPrivate version:v6.8.0
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

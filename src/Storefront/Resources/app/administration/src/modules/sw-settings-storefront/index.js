@@ -3,7 +3,7 @@
  */
 
 /**
- * @deprecated tag:v6.8.0 - Will be @private
+ * @bc-change BecomesPrivate version:v6.8.0
  */
 Shopware.Component.register('sw-settings-storefront-index', () => import('./page/sw-settings-storefront-index'));
 

@@ -1364,6 +1364,26 @@ describe('CookieConfiguration plugin tests', () => {
             registerEventsSpy.mockRestore();
         });
 
+        test('openRequestConsentOffCanvas registers events on the singleton offcanvas when another offcanvas exists', () => {
+            const hardCodedOffcanvas = document.createElement('div');
+            hardCodedOffcanvas.className = 'offcanvas offcanvas-end';
+            document.body.prepend(hardCodedOffcanvas);
+
+            const registerEventsSpy = jest.spyOn(plugin, '_registerConsentOffcanvasEvents');
+            const openSpy = jest.spyOn(AjaxOffCanvas, 'open').mockImplementation((_route, _reload, callback) => {
+                callback();
+            });
+
+            plugin.openRequestConsentOffCanvas('/test-route', 'test-cookie');
+
+            const offcanvas = document.querySelector('.js-offcanvas-singleton');
+            expect(registerEventsSpy).toHaveBeenCalledWith(offcanvas, 'test-cookie');
+
+            hardCodedOffcanvas.remove();
+            openSpy.mockRestore();
+            registerEventsSpy.mockRestore();
+        });
+
         test('openRequestConsentOffCanvas handles missing parameters', () => {
             const openSpy = jest.spyOn(AjaxOffCanvas, 'open');
 
@@ -1412,18 +1432,12 @@ describe('CookieConfiguration plugin tests', () => {
             const preventDefault = jest.fn();
             const event = { preventDefault };
 
-            // Mock querySelector to return an element in the callback
+            // Mock _getOffCanvas to return an element in the callback
             const mockOffcanvasElement = {
                 addEventListener: jest.fn(),
             };
 
-            const originalQuerySelector = document.querySelector;
-            document.querySelector = jest.fn((selector) => {
-                if (selector === '.offcanvas') {
-                    return mockOffcanvasElement;
-                }
-                return originalQuerySelector.call(document, selector);
-            });
+            const getOffCanvasSpy = jest.spyOn(plugin, '_getOffCanvas').mockReturnValue(mockOffcanvasElement);
 
             const openOffCanvasSpy = jest.spyOn(plugin, 'openOffCanvas').mockImplementation((callback) => {
                 // Simulate callback execution which would run querySelector
@@ -1438,14 +1452,13 @@ describe('CookieConfiguration plugin tests', () => {
             expect(mockOffcanvasElement.addEventListener).toHaveBeenCalledWith('hidden.bs.offcanvas', expect.any(Function), { once: true });
 
             // Restore
-            document.querySelector = originalQuerySelector;
+            getOffCanvasSpy.mockRestore();
             openOffCanvasSpy.mockRestore();
         });
 
         test('openRequestConsentOffCanvas callback with no offcanvas element', () => {
             // Test lines 375-380 coverage - callback when offcanvas not found
-            const originalQuerySelector = document.querySelector;
-            document.querySelector = jest.fn(() => null); // No offcanvas found
+            const getOffCanvasSpy = jest.spyOn(plugin, '_getOffCanvas').mockReturnValue(false); // No offcanvas found
 
             const registerEventsSpy = jest.spyOn(plugin, '_registerConsentOffcanvasEvents');
             const openSpy = jest.spyOn(AjaxOffCanvas, 'open').mockImplementation((_route, _reload, callback) => {
@@ -1459,7 +1472,7 @@ describe('CookieConfiguration plugin tests', () => {
             expect(registerEventsSpy).not.toHaveBeenCalled();
 
             // Restore
-            document.querySelector = originalQuerySelector;
+            getOffCanvasSpy.mockRestore();
             openSpy.mockRestore();
             registerEventsSpy.mockRestore();
         });
@@ -1469,8 +1482,7 @@ describe('CookieConfiguration plugin tests', () => {
             const preventDefault = jest.fn();
             const event = { preventDefault };
 
-            const originalQuerySelector = document.querySelector;
-            document.querySelector = jest.fn(() => null); // No offcanvas found
+            const getOffCanvasSpy = jest.spyOn(plugin, '_getOffCanvas').mockReturnValue(false); // No offcanvas found
 
             const openOffCanvasSpy = jest.spyOn(plugin, 'openOffCanvas').mockImplementation((callback) => {
                 // Simulate callback execution
@@ -1484,7 +1496,7 @@ describe('CookieConfiguration plugin tests', () => {
             expect(openOffCanvasSpy).toHaveBeenCalled();
 
             // Restore
-            document.querySelector = originalQuerySelector;
+            getOffCanvasSpy.mockRestore();
             openOffCanvasSpy.mockRestore();
         });
     });

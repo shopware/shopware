@@ -98,8 +98,8 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
             'id' => 1,
         ], \JSON_THROW_ON_ERROR));
 
-        $content = $browser->getResponse()->getContent();
-        static::assertNotFalse($content, 'Store API MCP response was empty');
+        $content = $browser->getInternalResponse()->getContent();
+        static::assertNotSame('', $content, 'Store API MCP response was empty');
 
         $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($response);
@@ -112,6 +112,27 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
             $instructions,
             'Store API server instructions must point clients at shopware-tool-search when no advertised tool matches the requested action.',
         );
+    }
+
+    public function testStoreApiInitializeDeclaresToolsListChanged(): void
+    {
+        $browser = $this->createSalesChannelBrowser();
+        $browser->request('POST', '/store-api/_mcp', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
+            'jsonrpc' => '2.0',
+            'method' => 'initialize',
+            'params' => [
+                'protocolVersion' => '2025-06-18',
+                'capabilities' => new \stdClass(),
+                'clientInfo' => ['name' => 'store-api-mcp-discovery-test', 'version' => '1.0'],
+            ],
+            'id' => 1,
+        ], \JSON_THROW_ON_ERROR));
+
+        $response = json_decode($browser->getInternalResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($response);
+
+        // shopware-toolset-enable queues notifications/tools/list_changed on this era.
+        static::assertTrue($response['result']['capabilities']['tools']['listChanged'] ?? null);
     }
 
     public function testStoreApiToolResultsGoThroughTheResultRenderer(): void
@@ -226,8 +247,8 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
         );
 
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), 'Store API MCP endpoint returned non-200');
-        $content = $browser->getResponse()->getContent();
-        static::assertNotFalse($content, 'Store API MCP response was empty');
+        $content = $browser->getInternalResponse()->getContent();
+        static::assertNotSame('', $content, 'Store API MCP response was empty');
 
         // A request issued right after a toolset-enable also drains the queued
         // notifications/tools/list_changed. Per the MCP spec those multiple messages are delivered

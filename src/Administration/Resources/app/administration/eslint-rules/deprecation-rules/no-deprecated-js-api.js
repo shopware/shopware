@@ -3,7 +3,7 @@
  */
 
 const { loadRegistry } = require('./registry/load-registry');
-const { selectedUsages } = require('./registry/filter-migrations');
+const { filterMigrations, selectedUsages } = require('./registry/filter-migrations');
 const { appendRegistryContext } = require('./registry/format-migration-message');
 const { FIX_OPTION_SCHEMA, canAutoFix } = require('./registry/fix-policy');
 const { withRunLevel } = require('./registry/run-level');
@@ -74,6 +74,34 @@ function getMemberName(node) {
  */
 function getObjectOptionReplacement(sourceCode, property, optionName) {
     return `${optionName}() { return ${sourceCode.getText(property.value)}; }`;
+}
+
+const COMPONENT_OVERRIDE_CALLS = new Set([
+    'Component.override',
+    'Component.extend',
+    'Shopware.Component.override',
+    'Shopware.Component.extend',
+]);
+
+/**
+ * Returns the component a `Component.override('<name>', …)` or `Component.extend('<new>', '<name>', …)` call
+ * customizes, or null for other calls.
+ *
+ * @example
+ * getOverriddenComponent(callOf("Shopware.Component.extend('acme-select', 'sw-select-number-field', {})")); // 'sw-select-number-field'
+ */
+function getOverriddenComponent(node) {
+    if (!COMPONENT_OVERRIDE_CALLS.has(getMemberName(node.callee))) {
+        return null;
+    }
+
+    const target = node.arguments[getMemberPropertyName(node.callee) === 'extend' ? 1 : 0];
+
+    if (target?.type === 'TemplateLiteral' && target.expressions.length === 0) {
+        return target.quasis[0].value.cooked;
+    }
+
+    return target?.type === 'Literal' && typeof target.value === 'string' ? target.value : null;
 }
 
 const COMPONENT_OPTION_CALLS = new Set([
@@ -164,9 +192,12 @@ module.exports = withRunLevel({
 
     create(context) {
         const registry = loadRegistry();
-        const objectOptionUsages = selectedUsages(registry.jsApiMigrations, 'replace-object-option');
-        const memberCallUsages = selectedUsages(registry.jsApiMigrations, 'member-call');
-        const packageImportUsages = selectedUsages(registry.packageMigrations, 'rename-package');
+        const objectOptionUsages = selectedUsages(registry.jsApiMigrations, 'replace-object-option', context);
+        const memberCallUsages = selectedUsages(registry.jsApiMigrations, 'member-call', context);
+        const packageImportUsages = selectedUsages(registry.packageMigrations, 'rename-package', context);
+        const overriddenComponentMigrations = filterMigrations(registry.componentApiMigrations, context).filter(
+            (migration) => migration.overrideHint,
+        );
 
         /**
          * Finds the rename-package usage a module source names, either the package itself or one of its subpaths.
@@ -279,6 +310,16 @@ module.exports = withRunLevel({
                     context.report({
                         node: node.callee.property,
                         message: buildMessage(match.migration, match.usage),
+                    });
+                }
+
+                const overridden = getOverriddenComponent(node);
+                const componentMigration = overriddenComponentMigrations.find(({ component }) => component === overridden);
+
+                if (componentMigration) {
+                    context.report({
+                        node,
+                        message: appendRegistryContext([componentMigration.overrideHint], componentMigration),
                     });
                 }
             },

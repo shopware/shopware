@@ -14,6 +14,8 @@ const {
 } = require('./codemod-comment');
 const ast = require('./template-ast');
 const { containsTwig, getInnerSource, getRemovalRange, slotContentToValue, toPropAttribute } = require('./slot-content');
+const { readContentExpression, toAttributeExpression } = require('./template-expressions');
+const { getTemplateOwner } = require('./template-owner');
 
 /**
  * Names what an attribute passes to the element, in the shape registry steps declare as `produces`.
@@ -189,6 +191,9 @@ function createComponentUsageRuleApi(context, node, migration, usage, { assumeCo
         isConverted() {
             return assumeConverted || isConvertedFrom(sourceCode, node, migration.component);
         },
+        getOverrideTargets() {
+            return getTemplateOwner(context).targets;
+        },
         ast: {
             findMatchingPropAttribute: ast.findMatchingPropAttribute,
             hasMatchingPropAttribute: ast.hasMatchingPropAttribute,
@@ -216,6 +221,8 @@ function createComponentUsageRuleApi(context, node, migration, usage, { assumeCo
             },
             getRemovalRange: (node) => getRemovalRange(sourceCode.text, node),
             toPropAttribute,
+            readContentExpression: (element) => readContentExpression(sourceCode, element),
+            toAttributeExpression,
         },
     };
 }

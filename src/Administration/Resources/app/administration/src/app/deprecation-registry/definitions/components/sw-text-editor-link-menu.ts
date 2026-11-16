@@ -14,7 +14,14 @@ export default componentMigration({
     references: [
         upgradeGuide('UPGRADE-6.7.md#component-replacement-with-meteor-component-library'),
     ],
+    overrideHint:
+        'sw-text-editor-link-menu is removed with sw-text-editor. mt-text-editor edits links with sw-text-editor-toolbar-button-link in its #button_link slot.',
     onConvert: [
-        renameComponent({ from: 'sw-text-editor-link-menu', to: 'mt-text-editor', fix: 'manual' }),
+        renameComponent({
+            from: 'sw-text-editor-link-menu',
+            to: 'mt-text-editor',
+            fix: 'manual',
+            message: 'mt-text-editor edits links with sw-text-editor-toolbar-button-link in its #button_link slot.',
+        }),
     ],
 });

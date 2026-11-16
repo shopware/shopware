@@ -14,7 +14,15 @@ export default componentMigration({
     references: [
         upgradeGuide('UPGRADE-6.7.md#component-replacement-with-meteor-component-library'),
     ],
+    overrideHint:
+        'sw-text-editor is removed. Use mt-text-editor: v-model:value → v-model, @update:value → @update:model-value, button-config → custom-buttons, allow-inline-data-mapping → createTextEditorDataMappingButton() from Shopware.Component.getComponentHelper() in custom-buttons. sanitize-*, vertical-align and enable-transparent-background have no replacement.',
     onConvert: [
-        renameComponent({ from: 'sw-text-editor', to: 'mt-text-editor', fix: 'manual' }),
+        renameComponent({
+            from: 'sw-text-editor',
+            to: 'mt-text-editor',
+            fix: 'manual',
+            message:
+                'Use mt-text-editor: v-model:value → v-model, @update:value → @update:model-value, button-config → custom-buttons, allow-inline-data-mapping → createTextEditorDataMappingButton() from Shopware.Component.getComponentHelper() in custom-buttons. sanitize-*, vertical-align and enable-transparent-background have no replacement.',
+        }),
     ],
 });

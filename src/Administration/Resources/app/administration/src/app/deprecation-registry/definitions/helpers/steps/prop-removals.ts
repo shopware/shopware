@@ -101,6 +101,12 @@ function planReplacement(api: ComponentUsageRuleApi, step: ReplacePropStep, attr
         return { manualReason: step.with.objectVBindReason };
     }
 
+    const manualReason = step.with.manualReason?.(api, attribute);
+
+    if (manualReason) {
+        return { manualReason };
+    }
+
     return {
         produces: step.with.produces,
         fix: (fixer) => step.with.fix(api, attribute, fixer),

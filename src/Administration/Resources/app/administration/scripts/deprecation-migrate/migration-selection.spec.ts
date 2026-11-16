@@ -50,7 +50,7 @@ describe('scripts/deprecation-migrate/migration-selection', () => {
 
         it('rejects an unknown run level', () => {
             expect(() => parseArgs(['--all', '--level', 'all'])).toThrow(
-                '--level requires one of: manual, safe, review, partial.',
+                '--level requires one of: manual, safe, marked, review, partial.',
             );
             expect(() => parseArgs(['--all', '--level'])).toThrow('--level requires one of');
         });

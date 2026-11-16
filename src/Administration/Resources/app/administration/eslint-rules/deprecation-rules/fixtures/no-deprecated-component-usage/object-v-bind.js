@@ -49,7 +49,7 @@ const objectVBindInvalidTests = [
     {
         name: 'does not fix renamed props when object v-bind can hide replacement props',
         filename: 'test.html.twig',
-        code: '<template><mt-progress-bar v-bind="progressProps" value="50" /></template>',
+        code: '<template><mt-progress-bar v-bind="progressProps" value="50" :max-value="100" /></template>',
         output: null,
         errors: [
             {

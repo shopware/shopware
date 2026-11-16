@@ -5,7 +5,10 @@
 import sw_alert from './sw-alert';
 import sw_alert_deprecated from './sw-alert-deprecated';
 import sw_popover from './sw-popover';
+import sw_popover_resize_width from './sw-popover-resize-width';
 import sw_tabs from './sw-tabs';
+import sw_tabs_conversion from './sw-tabs-conversion';
+import sw_tabs_position_identifier from './sw-tabs-position-identifier';
 import sw_select_field from './sw-select-field';
 import sw_select_number_field from './sw-select-number-field';
 import sw_textarea_field from './sw-textarea-field';
@@ -34,13 +37,19 @@ import sw_loader from './sw-loader';
 import sw_checkbox_field from './sw-checkbox-field';
 import sw_entity_listing from './sw-entity-listing';
 import sw_empty_state from './sw-empty-state';
+import sw_entity_many_to_many_select from './sw-entity-many-to-many-select';
+import sw_help_sidebar from './sw-help-sidebar';
+import sw_order_state_select_v2 from './sw-order-state-select-v2';
 import type { ComponentMigration } from '../helpers';
 
 export default [
     sw_alert_deprecated,
     sw_alert,
     sw_popover,
+    sw_popover_resize_width,
     sw_tabs,
+    sw_tabs_conversion,
+    sw_tabs_position_identifier,
     sw_select_number_field,
     sw_select_field,
     sw_textarea_field,
@@ -69,4 +78,7 @@ export default [
     sw_checkbox_field,
     sw_entity_listing,
     sw_empty_state,
+    sw_entity_many_to_many_select,
+    sw_help_sidebar,
+    sw_order_state_select_v2,
 ] satisfies ComponentMigration[];

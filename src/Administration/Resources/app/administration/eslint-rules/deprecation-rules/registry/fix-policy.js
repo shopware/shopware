@@ -19,6 +19,19 @@ const FIX_OPTION_SCHEMA = [
 ];
 
 /**
+ * Returns the object option of a deprecation rule, or an empty object: `{ fix, activatedComponents }`
+ * of no-deprecated-components, `{ ids, level }` of the upgrade codemods.
+ *
+ * @example
+ * getObjectOption({ options: [{ ids: ['component.sw-tabs'] }] }); // { ids: ['component.sw-tabs'] }
+ */
+function getObjectOption(context) {
+    const [option] = context.options ?? [];
+
+    return option && typeof option === 'object' ? option : {};
+}
+
+/**
  * Tells whether the rule runs report-only, from either option form: `'disableFix'` or
  * `{ fix: false }` (used by no-deprecated-components, whose options are an object).
  *
@@ -26,7 +39,7 @@ const FIX_OPTION_SCHEMA = [
  * isFixDisabled({ options: ['disableFix'] }); // true
  */
 function isFixDisabled(context) {
-    return context.options.includes('disableFix') || context.options[0]?.fix === false;
+    return context.options.includes('disableFix') || getObjectOption(context).fix === false;
 }
 
 /**
@@ -43,5 +56,6 @@ function canAutoFix(context, usage) {
 module.exports = {
     FIX_OPTION_SCHEMA,
     canAutoFix,
+    getObjectOption,
     isFixDisabled,
 };

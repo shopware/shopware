@@ -14,13 +14,16 @@ describe('src/app/deprecation-registry/definitions/components', () => {
         expectWellFormedMigrations(componentMigrations);
     });
 
-    it('targets each deprecated component once', () => {
+    it('converts each deprecated component at most once', () => {
         const components = componentMigrations.map((migration) => migration.component);
+        const converted = componentMigrations
+            .filter((migration) => migration.usage.some(isComponentStep))
+            .map((migration) => migration.component);
 
         components.forEach((component) => {
             expect(component).toMatch(/^sw-[a-z0-9-]+$/);
         });
-        expect(new Set(components).size).toBe(components.length);
+        expect(new Set(converted).size).toBe(converted.length);
     });
 
     it.each(componentMigrations.map((migration) => [migration.id, migration]))(
@@ -34,18 +37,19 @@ describe('src/app/deprecation-registry/definitions/components', () => {
             expect(componentSteps.length).toBeLessThanOrEqual(1);
             componentSteps.forEach((usage) => {
                 expect(usage.from).toBe(migration.component);
-                expect(usage.to).toMatch(/^mt-[a-z0-9-]+$/);
+                expect(usage.to).toMatch(/^(mt|sw)-[a-z0-9-]+$/);
             });
         },
     );
 
-    it.each(componentMigrations.filter((migration) => migration.replacement).map((migration) => [migration.id, migration]))(
-        'converts "%s" to its replacement in the first step',
-        (_id, migration) => {
-            const [firstStep] = migration.usage;
+    it.each(
+        componentMigrations
+            .filter((migration) => migration.replacement && migration.usage.some(isComponentStep))
+            .map((migration) => [migration.id, migration]),
+    )('converts "%s" to its replacement in the first step', (_id, migration) => {
+        const [firstStep] = migration.usage;
 
-            expect(isComponentStep(firstStep)).toBe(true);
-            expect(isComponentStep(firstStep) && firstStep.to).toBe(migration.replacement);
-        },
-    );
+        expect(isComponentStep(firstStep)).toBe(true);
+        expect(isComponentStep(firstStep) && firstStep.to).toBe(migration.replacement);
+    });
 });

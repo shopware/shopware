@@ -3,13 +3,20 @@
 namespace Shopware\Tests\Unit\Core\System\SalesChannel\Context;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersister;
+use Shopware\Core\Checkout\Cart\Event\BeforeCartMergeEvent;
+use Shopware\Core\Checkout\Cart\Event\CartMergedEvent;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
@@ -260,5 +267,116 @@ class CartRestorerTest extends TestCase
         $result = $cartRestorer->restoreByToken($token, 'myCustomer', $salesChannelContext);
         static::assertSame($token, $result->getToken());
         static::assertTrue($eventIsThrown);
+    }
+
+    /**
+     * @param array<string, Struct> $guestExtensions
+     * @param array<string, Struct> $customerExtensions
+     * @param array<string, Struct> $expectedExtensions
+     */
+    #[DataProvider('extensionMergeProvider')]
+    public function testMergeCarriesGuestCartExtensionsTheCustomerCartLacks(
+        array $guestExtensions,
+        array $customerExtensions,
+        array $expectedExtensions,
+    ): void {
+        $guestCart = $this->createGuestCart();
+        $guestCart->setExtensions($guestExtensions);
+
+        $customerCart = new Cart('customerToken');
+        $customerCart->setExtensions($customerExtensions);
+
+        $mergedEvent = $this->restoreAndCaptureMergedEvent($guestCart, $customerCart);
+
+        static::assertSame($expectedExtensions, $mergedEvent->getCart()->getExtensions());
+        static::assertEquals($customerExtensions, $mergedEvent->getPreviousCart()->getExtensions());
+    }
+
+    public static function extensionMergeProvider(): \Generator
+    {
+        $guestChoice = new ArrayStruct(['shippingMethodId' => 'guest']);
+        $customerChoice = new ArrayStruct(['shippingMethodId' => 'customer']);
+
+        yield 'guest extension is added to the customer cart' => [
+            ['delivery-choice' => $guestChoice],
+            [],
+            ['delivery-choice' => $guestChoice],
+        ];
+
+        yield 'customer extension is kept when the guest cart has none' => [
+            [],
+            ['delivery-choice' => $customerChoice],
+            ['delivery-choice' => $customerChoice],
+        ];
+
+        yield 'customer value wins when both carts have the extension' => [
+            ['delivery-choice' => $guestChoice],
+            ['delivery-choice' => $customerChoice],
+            ['delivery-choice' => $customerChoice],
+        ];
+    }
+
+    public function testMergeSkipsGuestExtensionRemovedBeforeTheMerge(): void
+    {
+        $guestCart = $this->createGuestCart();
+        $guestCart->addExtension('managed-carts', new ArrayStruct());
+
+        $this->eventDispatcher->addListener(
+            BeforeCartMergeEvent::class,
+            static fn (BeforeCartMergeEvent $event) => $event->getGuestCart()->removeExtension('managed-carts'),
+        );
+
+        $mergedEvent = $this->restoreAndCaptureMergedEvent($guestCart, new Cart('customerToken'));
+
+        static::assertFalse($mergedEvent->getCart()->hasExtension('managed-carts'));
+    }
+
+    private function createGuestCart(): Cart
+    {
+        $guestCart = new Cart('guestToken');
+        $guestCart->add(new LineItem('guest-item', LineItem::PRODUCT_LINE_ITEM_TYPE));
+
+        return $guestCart;
+    }
+
+    private function restoreAndCaptureMergedEvent(Cart $guestCart, Cart $customerCart): CartMergedEvent
+    {
+        $currentContext = Generator::generateSalesChannelContext(token: $guestCart->getToken());
+        $this->persister->expects($this->once())->method('load')->willReturn([
+            'token' => $customerCart->getToken(),
+            'expired' => false,
+        ]);
+        $this->salesChannelContextFactory->expects($this->once())->method('create')->willReturn(
+            Generator::generateSalesChannelContext(token: $customerCart->getToken())
+        );
+
+        $this->cartService->method('getCart')->willReturnCallback(
+            static fn (string $token) => $token === $guestCart->getToken() ? $guestCart : $customerCart
+        );
+        $this->cartService->method('add')->willReturnArgument(0);
+
+        $mergedEvent = null;
+        $this->eventDispatcher->addListener(
+            CartMergedEvent::class,
+            static function (CartMergedEvent $event) use (&$mergedEvent): void {
+                $mergedEvent = $event;
+            }
+        );
+
+        $cartRestorer = new CartRestorer(
+            $this->salesChannelContextFactory,
+            $this->persister,
+            $this->cartService,
+            static::createStub(CartCalculator::class),
+            $this->cartPersister,
+            $this->eventDispatcher,
+            $this->requestStack
+        );
+
+        $cartRestorer->restore('myCustomer', $currentContext);
+
+        static::assertInstanceOf(CartMergedEvent::class, $mergedEvent);
+
+        return $mergedEvent;
     }
 }

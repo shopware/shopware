@@ -83,8 +83,7 @@
                         "schema": {
                             "type": "string",
                             "enum": [
-                                "plugin",
-                                "app"
+                                "plugin"
                             ]
                         }
                     },

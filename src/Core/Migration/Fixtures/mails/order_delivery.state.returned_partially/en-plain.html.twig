@@ -1,8 +1,8 @@
 {% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},
 
 the status of your delivery at {{ salesChannel.translated.name }} (Number: {{ order.orderNumber }}) on {{ order.orderDateTime|format_datetime('medium', 'short', locale='en-GB') }}  has changed.
-{% set shipments = order.shipments %}
-{% set changedShipment = orderDelivery is defined and orderDelivery ? shipments.get(orderDelivery.id) : null %}
+{% set shipments = order.shipments is defined ? order.shipments : order.deliveries|filter(delivery => delivery.shippingCosts.totalPrice >= 0)|sort((a, b) => b.shippingCosts.unitPrice <=> a.shippingCosts.unitPrice) %}
+{% set changedShipment = orderDelivery is defined and orderDelivery ? shipments|filter(shipment => shipment.id == orderDelivery.id)|first : null %}
 {% if shipments|length > 1 and changedShipment %}
 {% set changedShipmentNumber = null %}
 {% for shipment in shipments %}{% if shipment.id == changedShipment.id %}{% set changedShipmentNumber = loop.index %}{% endif %}{% endfor %}

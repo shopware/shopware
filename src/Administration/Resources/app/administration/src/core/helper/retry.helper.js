@@ -20,8 +20,12 @@ export default class RetryHelper {
     }
 
     static isRetryable(error) {
-        const status = error?.response?.status;
+        if (!error?.isAxiosError || error.code === 'ERR_CANCELED') {
+            return false;
+        }
 
-        return status === undefined || status === 429 || status >= 500;
+        const status = error.response?.status;
+
+        return status === undefined || status === 408 || status === 429 || status >= 500;
     }
 }

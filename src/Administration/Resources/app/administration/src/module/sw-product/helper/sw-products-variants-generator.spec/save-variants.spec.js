@@ -2,6 +2,7 @@
  * @sw-package inventory
  */
 
+import { AxiosError } from 'axios';
 import VariantsGenerator from 'src/module/sw-product/helper/sw-products-variants-generator';
 
 function createVariants(count) {
@@ -24,7 +25,7 @@ describe('src/module/sw-product/helper/sw-products-variants-generator saveVarian
 
     it('should reject when a chunk still fails after the retries', async () => {
         jest.useFakeTimers();
-        const error = new Error('timeout of 30000ms exceeded');
+        const error = new AxiosError('timeout of 30000ms exceeded', AxiosError.ECONNABORTED);
         const generator = new VariantsGenerator();
         const sync = jest.fn(() => Promise.reject(error));
         generator.syncService = { sync };
@@ -40,7 +41,7 @@ describe('src/module/sw-product/helper/sw-products-variants-generator saveVarian
 
     it('should reject without retrying when the server rejects a chunk as invalid', async () => {
         jest.useFakeTimers();
-        const error = Object.assign(new Error('Request failed with status code 400'), {
+        const error = Object.assign(new AxiosError('Request failed with status code 400'), {
             response: { status: 400, data: { errors: [{ code: 'CONTENT__DUPLICATE_PRODUCT_NUMBER' }] } },
         });
         const generator = new VariantsGenerator();

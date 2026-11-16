@@ -1,5 +1,9 @@
 .sw-product-document-add-button__trigger {
     display: inline-flex;
+
+    .mt-button {
+        pointer-events: none;
+    }
 }
 
 // Meteor teleports the floating content outside the component root.

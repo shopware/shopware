@@ -1,3 +1,5 @@
+import { composerErrorSnippets } from './composer-error-snippets';
+
 type MappedError = {
     title: string;
     message: string;
@@ -44,10 +46,7 @@ const errorCodes: { [key: string]: StoreError } = {
         'global.default.error',
         'sw-extension.errors.messagePluginRequirementMismatch',
     ),
-    FRAMEWORK__PLUGIN_COMPOSER_OPERATION_IN_PROGRESS: new StoreError(
-        'global.default.error',
-        'sw-extension.errors.messageComposerOperationInProgress',
-    ),
+    ...composerErrorSnippets,
 };
 
 function getNotification(error: StoreApiException): MappedError {

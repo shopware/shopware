@@ -106,6 +106,11 @@
       "pluginDeactivatedHint": "Extension deactivated.",
       "messagePluginRequirementMismatch": "The extension has technical requirements that are not compatible with those of the installed Shopware version. Please contact the manufacturer.",
       "messageComposerOperationInProgress": "Another extension is being installed, updated or removed right now. Try again once that has finished.",
+      "messageComposerRequireFailed": "The packages the extension needs could not be installed. Contact your hosting provider or a developer.",
+      "messageComposerRemoveFailed": "The packages the extension no longer needs could not be removed. Contact your hosting provider or a developer.",
+      "messageComposerWorkingCopyNotPossible": "Extensions cannot be installed, updated or removed with the current setup of this shop. Contact your hosting provider or a developer.",
+      "messageComposerWorkingCopyInterrupted": "An earlier installation, update or removal of an extension was interrupted. Until your hosting provider or a developer has checked the files of this shop, no extension can be installed, updated or removed.",
+      "messageComposerDependencyMissing": "This page is outdated. Reload it and try again.",
       "appIsNotCompatible": "Extension \"{name}\" is not compatible with this Shopware version",
       "appValidationFailed": "The app has validation errors",
       "appLicenseCouldNotBeVerified": {

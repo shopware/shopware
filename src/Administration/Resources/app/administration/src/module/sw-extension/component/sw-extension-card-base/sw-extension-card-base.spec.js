@@ -1,8 +1,11 @@
 import { mount } from '@vue/test-utils';
+import 'src/module/sw-extension/service';
+import 'src/module/sw-extension/mixin/sw-extension-error.mixin';
 
 async function createWrapper(propsData = {}, provide = {}) {
     return mount(await wrapTestComponent('sw-extension-card-base', { sync: true }), {
         global: {
+            mixins: [Shopware.Mixin.getByName('sw-extension-error')],
             provide: {
                 shopwareExtensionService: {
                     getOpenLink: () => null,
@@ -69,6 +72,13 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
                     },
                 },
             }),
+        });
+    });
+
+    beforeEach(() => {
+        jest.spyOn(Shopware.Application, 'getApplicationRoot').mockReturnValue({
+            $t: (key) => key,
+            $router: { push: jest.fn() },
         });
     });
 
@@ -287,5 +297,43 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
 
         await wrapper.vm.updateExtension(false);
         expect(wrapper.get('.sw-extension-permissions-modal').exists()).toBe(true);
+    });
+
+    describe.each([
+        ['update', 'updateExtension', (wrapper) => wrapper.vm.updateExtension(false)],
+        ['uninstall', 'uninstallExtension', (wrapper) => wrapper.vm.closeModalAndUninstallExtension(false)],
+    ])('a failed %s', (_action, serviceMethod, runAction) => {
+        it.each([
+            ['FRAMEWORK__PLUGIN_COMPOSER_OPERATION_IN_PROGRESS', 'messageComposerOperationInProgress'],
+            ['FRAMEWORK__PLUGIN_COMPOSER_REQUIRE', 'messageComposerRequireFailed'],
+            ['FRAMEWORK__PLUGIN_COMPOSER_REMOVE', 'messageComposerRemoveFailed'],
+            ['FRAMEWORK__PLUGIN_COMPOSER_WORKING_COPY_NOT_POSSIBLE', 'messageComposerWorkingCopyNotPossible'],
+            ['FRAMEWORK__PLUGIN_COMPOSER_WORKING_COPY_INTERRUPTED', 'messageComposerWorkingCopyInterrupted'],
+            ['FRAMEWORK__PLUGIN_COMPOSER_DEPENDENCY_MISSING', 'messageComposerDependencyMissing'],
+        ])('notifies with the own message for %s', async (code, snippetKey) => {
+            const wrapper = await createWrapper(
+                { extension: { installedAt: '845618651', permissions: [] } },
+                {
+                    shopwareExtensionService: {
+                        getOpenLink: () => null,
+                        [serviceMethod]: async () => {
+                            const error = new Error();
+                            error.response = {
+                                data: { errors: [{ code, title: 'Internal Server Error', detail: 'Composer output' }] },
+                            };
+
+                            throw error;
+                        },
+                    },
+                },
+            );
+            wrapper.vm.createNotificationError = jest.fn();
+
+            await runAction(wrapper);
+
+            expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith(
+                expect.objectContaining({ message: `sw-extension.errors.${snippetKey}` }),
+            );
+        });
     });
 });

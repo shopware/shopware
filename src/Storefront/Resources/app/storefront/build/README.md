@@ -31,6 +31,59 @@ php bin/console assets:install
 php bin/console theme:compile --sync
 ```
 
+## Production JavaScript SBOMs
+
+Production Vite builds generate CycloneDX 1.6 JSON reports for the JavaScript they emit.
+Every bundle receives its own component-build report, covering all of its component entries, bundled vendor chunks, and dynamic imports together.
+The shared `shopware.ts` build receives a separate report.
+Vite-built dedicated and shared Web Workers, including nested and inline workers, are included in the owning bundle's report.
+
+| Build target | Report path relative to the bundle |
+| --- | --- |
+| Shared Shopware module | `Resources/sbom/storefront/shopware.cdx.json` |
+| Storefront or extension components | `Resources/sbom/storefront/components.cdx.json` |
+
+Run `npm run build:shopware` or `npm run build:components` from the Storefront app directory, or use the full production build.
+The component orchestrator automatically adds SBOM generation to custom extension configurations, including configurations that do not use the shared factory.
+The shared factory and the core `vite.components.config.mts` also generate reports when built directly in production mode.
+Production builds using custom modes, such as `vite build --mode staging`, also generate reports.
+Development mode, builds with `NODE_ENV=development`, and the dev server do not generate reports.
+
+Reports describe bundled npm packages and their exact resolved versions, regardless of whether they were installed as development dependencies.
+Fully tree-shaken packages and unused installed packages are excluded.
+Build tools are recorded separately in metadata.
+Root names identify the bundle and build target; a release version is included when the owning Composer project declares it.
+Plugins with resources below `src/Resources` use the plugin's Composer metadata above `src`.
+The build package's placeholder npm version is not used as the Shopware release version.
+
+File components identify emitted JavaScript files and their SHA-256 hashes.
+Worker files and their bundled packages are included alongside the main chunks.
+Inline worker packages are associated with the JavaScript file containing the worker code, without listing a separate worker file that was never emitted.
+The `shopware:sbom:output-directory` metadata property records the corresponding output directory relative to the bundle root.
+Vendor imports rewritten through the import map still count as bundled code.
+Externally supplied modules, such as `shopware` in component builds, are listed as `shopware:sbom:external-module` metadata properties and are not counted as bundled npm packages.
+
+Custom output directories do not change the canonical report directory.
+Explicit relative `rolldownOptions.output.dir` paths follow the bundler's working directory, including a configured `rolldownOptions.cwd`.
+For multiple JavaScript outputs, the first report keeps the standard filename and later reports use `<target>-<output number>-<format>.cdx.json`, for example `components-2-cjs.cdx.json`.
+Builds remove previous reports for their target, including when the component orchestrator skips a bundle with no buildable components.
+Production watch rebuilds replace these reports and retain stable output names, including after a failed build is corrected.
+Reports are persisted after assets are written; generation or persistence failures fail the build.
+The files stay under `Resources/sbom/storefront`, outside public assets and build sources.
+The `assets:install` command does not publish these reports.
+Extension packaging must retain this directory after removing build sources and `node_modules`.
+The CLI's packaging/merging of these reports is a separate integration.
+
+### Coverage boundaries
+
+These reports cover Vite-generated JavaScript, not the entire Storefront or extension package.
+The production command also runs webpack, whose JavaScript needs separate accounting.
+Copied JavaScript, CSS, static assets, and dependencies supplied by external providers are outside the bundled npm inventory.
+Workers loaded from external URLs or copied without being built by Vite require separate accounting.
+Virtual or generated modules appear in `shopware:sbom:virtual-module` metadata when observed, but the build cannot infer an npm package origin for arbitrary generated code.
+Linked packages resolved outside `node_modules` also require separate provenance accounting.
+Each report includes these coverage limits in its metadata.
+
 ## Dev server flow
 
 Start from project root:
@@ -100,6 +153,11 @@ When the dev server stops, Shopware falls back to production assets/import map.
   - creates virtual entry ids for plain CSS
 
 ### Vite plugins
+
+- `vite/storefront-sbom.mjs`
+  - adapts `rollup-plugin-sbom` to retained output modules and explicit per-bundle identities
+  - preserves dependency relationships, external-module metadata, and final JavaScript file hashes
+  - persists reports in the bundle's canonical `Resources/sbom/storefront` directory
 
 - `vite/component-map-plugin.ts`
   - rewrites entry-chunk vendor imports back to bare specifiers

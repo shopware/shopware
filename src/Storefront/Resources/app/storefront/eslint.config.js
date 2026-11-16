@@ -19,7 +19,7 @@ module.exports = tseslint.config(
     { ...js.configs.recommended, ignores: ['**/*.json'] },
 
     {
-        files: ['**/*.{js,ts}'],
+        files: ['**/*.{js,mjs,ts,mts}'],
         plugins: {
             jest: jestPlugin,
         },
@@ -57,7 +57,7 @@ module.exports = tseslint.config(
     },
 
     {
-        files: ['**/*.ts'],
+        files: ['**/*.{ts,mts}'],
         extends: [
             ...tseslint.configs.recommended,
             ...tseslint.configs.recommendedTypeChecked,

@@ -63,6 +63,9 @@ function mockCriteria() {
         addSorting(sorting) {
             this.sortings.push(sorting);
         },
+        setTotalCountMode(mode) {
+            this.totalCountMode = mode;
+        },
     };
 }
 

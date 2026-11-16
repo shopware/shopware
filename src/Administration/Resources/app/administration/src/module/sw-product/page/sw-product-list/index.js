@@ -3,6 +3,7 @@
  */
 
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
+import { finishTotalCount, startTotalCount } from './total-count';
 import template from './sw-product-list.html.twig';
 import './sw-product-list.scss';
 
@@ -33,6 +34,7 @@ export default {
             isLoading: false,
             isBulkLoading: false,
             total: 0,
+            totalCountKey: null,
             product: null,
             cloning: false,
             productEntityVariantModal: false,
@@ -349,6 +351,8 @@ export default {
                 criteria.resetSorting();
             }
 
+            const totalCount = startTotalCount(this, criteria);
+
             try {
                 if (this.term) {
                     const variants = await this.productRepository.search(variantCriteria, {
@@ -356,12 +360,7 @@ export default {
                         inheritance: true,
                     });
                     if (variants.length > 0) {
-                        const parentIds = [];
-
-                        variants.forEach((variant) => {
-                            parentIds.push(variant.parentId);
-                        });
-
+                        const parentIds = Array.from(variants, (variant) => variant.parentId);
                         criteria.addQuery(Criteria.equalsAny('id', parentIds), searchRankingPoint.HIGH_SEARCH_RANKING);
                     }
                 }
@@ -369,7 +368,7 @@ export default {
                 const currencyCriteria = new Criteria(1, 500);
                 currencyCriteria.addSorting(Criteria.sort('name', 'ASC', false));
 
-                const result = await Promise.all([
+                const [products, currencies] = await Promise.all([
                     this.productRepository.search(criteria),
                     this.repositoryFactory.create('currency').search(currencyCriteria, Shopware.Context.api, {
                         cacheKey: ['shared-data', 'currencies', Shopware.Context.api.languageId ?? 'default'],
@@ -377,10 +376,10 @@ export default {
                     }),
                 ]);
 
-                const products = result[0];
-                const currencies = result[1];
+                if (!finishTotalCount(this, totalCount, products)) {
+                    return;
+                }
 
-                this.total = products.total;
                 this.products = products;
 
                 this.currencies = currencies;
@@ -415,6 +414,11 @@ export default {
 
         updateTotal({ total }) {
             this.total = total;
+        },
+
+        onRefresh() {
+            this.totalCountKey = null;
+            this.getList();
         },
 
         onChangeLanguage(languageId) {

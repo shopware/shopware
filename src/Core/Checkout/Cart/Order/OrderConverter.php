@@ -558,6 +558,7 @@ class OrderConverter
                 ),
                 $orderDelivery->getShippingCosts()
             );
+            $cartDelivery->setPayload($orderDelivery->getPayload());
             $cartDelivery->addExtension(self::ORIGINAL_ID, new IdStruct($orderDelivery->getId()));
             $cartDelivery->addExtension(self::ORIGINAL_ADDRESS_ID, new IdStruct($orderDelivery->getShippingOrderAddressId()));
             $cartDelivery->addExtension(self::ORIGINAL_ADDRESS_VERSION_ID, new IdStruct($orderDelivery->getShippingOrderAddressVersionId()));
@@ -585,6 +586,7 @@ class OrderConverter
                 $orderTransaction->getAmount(),
                 $orderTransaction->getPaymentMethodId(),
             );
+            $cartTransaction->setPayload($orderTransaction->getPayload());
             $cartTransaction->addExtension(self::ORIGINAL_ID, new IdStruct($orderTransaction->getId()));
 
             $cartTransactions->add($cartTransaction);

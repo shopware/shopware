@@ -126,12 +126,47 @@ async function createWrapper(
 describe('src/module/sw-order/page/sw-order-detail', () => {
     let wrapper;
 
+    beforeEach(() => {
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
+    });
+
     afterEach(() => {
         if (wrapper) {
             window.removeEventListener('pagehide', wrapper.vm.onPageHide);
         }
 
         Shopware.Store.get('shopwareApps').selectedIds = [];
+    });
+
+    it('should load the live order without writing or cleaning up a version for viewers', async () => {
+        global.activeAclRoles = ['order.viewer'];
+        const lineItem = {
+            id: 'lineItemId',
+            type: 'product',
+            productId: null,
+            referencedId: 'deletedProductId',
+            payload: {},
+        };
+        const repository = {
+            createVersion: jest.fn(),
+            get: jest.fn().mockResolvedValue({ lineItems: [lineItem] }),
+            save: jest.fn(),
+            deleteVersion: jest.fn(),
+            deleteVersionWithKeepalive: jest.fn(),
+        };
+        wrapper = await createWrapper({}, { orderRepository: repository });
+        await flushPromises();
+
+        expect(repository.get).toHaveBeenCalledWith(expect.any(String), Shopware.Context.api, expect.anything());
+        expect(repository.createVersion).not.toHaveBeenCalled();
+        expect(repository.save).not.toHaveBeenCalled();
+        expect(lineItem.type).toBe('product');
+
+        window.dispatchEvent(new Event('pagehide'));
+        wrapper.unmount();
+
+        expect(repository.deleteVersion).not.toHaveBeenCalled();
+        expect(repository.deleteVersionWithKeepalive).not.toHaveBeenCalled();
     });
 
     it('should select the displayed order for app action buttons', async () => {

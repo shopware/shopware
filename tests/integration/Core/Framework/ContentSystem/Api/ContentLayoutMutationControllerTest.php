@@ -756,7 +756,6 @@ class ContentLayoutMutationControllerTest extends TestCase
         // bump updated_at with a successful op so the before/after comparison is a real timestamp, not null == null
         $this->mutate('insert-element', $layoutId, ['type' => TestElementTypeLoader::RESOLVABLE, 'expectedVersion' => null]);
         $before = $this->reload($layoutId)->getUpdatedAt();
-        static::assertInstanceOf(\DateTimeInterface::class, $before);
 
         $this->request('insert-element', $layoutId, [
             'type' => 'Sw:Content:Text',
@@ -765,6 +764,7 @@ class ContentLayoutMutationControllerTest extends TestCase
         ]);
         $response = $this->getBrowser()->getResponse();
 
+        static::assertInstanceOf(\DateTimeInterface::class, $before);
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
 
         $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -786,9 +786,7 @@ class ContentLayoutMutationControllerTest extends TestCase
         // bump updated_at with a successful op so the before/after comparison is a real timestamp, not null == null
         $this->mutate('insert-element', $layoutId, ['type' => TestElementTypeLoader::RESOLVABLE, 'expectedVersion' => null]);
         $before = $this->reload($layoutId)->getUpdatedAt();
-        static::assertInstanceOf(\DateTimeInterface::class, $before);
         $idsBefore = $this->layoutIds($layoutId);
-        static::assertCount(2, $idsBefore);
 
         $this->request('insert-element', $layoutId, [
             'type' => 'Sw:Navigation:Breadcrumb',
@@ -796,6 +794,8 @@ class ContentLayoutMutationControllerTest extends TestCase
         ]);
         $response = $this->getBrowser()->getResponse();
 
+        static::assertInstanceOf(\DateTimeInterface::class, $before);
+        static::assertCount(2, $idsBefore);
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
 
         $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);

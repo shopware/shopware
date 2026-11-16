@@ -256,52 +256,6 @@ class BindingApplicatorTest extends TestCase
         static::assertTrue($result->property('mediaId')?->isNull());
     }
 
-    #[TestDox('throws bindingRootSourceNotScoped naming the element id the caller reports when a scoped config value has no entry for the layout\'s root source')]
-    public function testThrowsWhenScopedConfigHasNoRootSourceEntry(): void
-    {
-        $element = new StoredElement('crumb-1', 'Sw:Navigation:Breadcrumb');
-
-        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', 'reported-crumb', 'landing_page'));
-
-        $this->applicator($this->config())->apply($element, $this->scopedSpecification(), 'core:Sw:Navigation:Breadcrumb', 'reported-crumb', 'landing_page');
-    }
-
-    #[TestDox('fill-only: never resolves the scoped config of a key the element already wires, so a root source the map does not name leaves the key untouched')]
-    public function testFillOnlyNeverResolvesTheScopedConfigOfAnAlreadyWiredKey(): void
-    {
-        $oldConfig = static::createStub(AbstractContentDataLoaderConfig::class);
-        $element = StoredElementBuilder::create('Sw:Navigation:Breadcrumb', 'crumb-1')
-            ->withDataRequirement('breadcrumb', 'breadcrumb', $oldConfig)
-            ->withAttributedSpecification('breadcrumb', 'core:old-spec')
-            ->build();
-
-        $result = $this->applicator($this->config())->applyFillOnly($element, $this->scopedSpecification(), 'core:Sw:Navigation:Breadcrumb', $element->id, 'landing_page');
-
-        static::assertSame(['breadcrumb'], array_keys($result->dataRequirements));
-        static::assertSame($oldConfig, $result->dataRequirements['breadcrumb']->config);
-        static::assertSame(['breadcrumb' => 'core:old-spec'], $result->attributedSpecifications);
-    }
-
-    #[DataProvider('unscopedRootSourceProvider')]
-    #[TestDox('fill-only: throws naming the element id the caller reports when the scoped config of a key it would wire has no entry for the root source ($_dataName)')]
-    public function testFillOnlyThrowsForTheScopedConfigOfAnUnwiredKey(?string $rootSource): void
-    {
-        $element = new StoredElement('crumb-1', 'Sw:Navigation:Breadcrumb');
-
-        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', 'reported-crumb', $rootSource));
-
-        $this->applicator($this->config())->applyFillOnly($element, $this->scopedSpecification(), 'core:Sw:Navigation:Breadcrumb', 'reported-crumb', $rootSource);
-    }
-
-    /**
-     * @return iterable<string, array{string|null}>
-     */
-    public static function unscopedRootSourceProvider(): iterable
-    {
-        yield 'no root source' => [null];
-        yield 'a root source the map does not name' => ['landing_page'];
-    }
-
     #[TestDox('seeds a later input default after an input that declares no default')]
     public function testSeedsLaterInputDefaultAfterInputWithoutDefault(): void
     {
@@ -367,6 +321,53 @@ class BindingApplicatorTest extends TestCase
         $result = $this->applicator($this->config(), $this->typeRegistry([]))->apply($element, $this->textSpecification(), 'core:text-seed', $element->id, null);
 
         static::assertSame('Autumn sale', $result->property('text')?->jsonSerialize());
+    }
+
+    #[TestDox('fill-only: never resolves the scoped config of a key the element already wires, so a root source the map does not name leaves the key untouched')]
+    public function testFillOnlyNeverResolvesTheScopedConfigOfAnAlreadyWiredKey(): void
+    {
+        $oldConfig = static::createStub(AbstractContentDataLoaderConfig::class);
+        $element = StoredElementBuilder::create('Sw:Navigation:Breadcrumb', 'crumb-1')
+            ->withDataRequirement('breadcrumb', 'breadcrumb', $oldConfig)
+            ->withAttributedSpecification('breadcrumb', 'core:old-spec')
+            ->build();
+
+        $result = $this->applicator($this->config())->applyFillOnly($element, $this->scopedSpecification(), 'core:Sw:Navigation:Breadcrumb', $element->id, 'landing_page');
+
+        static::assertSame(['breadcrumb'], array_keys($result->dataRequirements));
+        static::assertSame($oldConfig, $result->dataRequirements['breadcrumb']->config);
+        static::assertSame(['breadcrumb' => 'core:old-spec'], $result->attributedSpecifications);
+    }
+
+    #[DataProvider('unscopedRootSourceProvider')]
+    #[TestDox('throws bindingRootSourceNotScoped naming the element id the caller reports when a scoped config value has no entry for the layout\'s root source ($_dataName)')]
+    public function testThrowsWhenScopedConfigHasNoRootSourceEntry(?string $rootSource): void
+    {
+        $element = new StoredElement('crumb-1', 'Sw:Navigation:Breadcrumb');
+
+        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', 'reported-crumb', $rootSource));
+
+        $this->applicator($this->config())->apply($element, $this->scopedSpecification(), 'core:Sw:Navigation:Breadcrumb', 'reported-crumb', $rootSource);
+    }
+
+    #[DataProvider('unscopedRootSourceProvider')]
+    #[TestDox('fill-only: throws naming the element id the caller reports when the scoped config of a key it would wire has no entry for the root source ($_dataName)')]
+    public function testFillOnlyThrowsForTheScopedConfigOfAnUnwiredKey(?string $rootSource): void
+    {
+        $element = new StoredElement('crumb-1', 'Sw:Navigation:Breadcrumb');
+
+        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', 'reported-crumb', $rootSource));
+
+        $this->applicator($this->config())->applyFillOnly($element, $this->scopedSpecification(), 'core:Sw:Navigation:Breadcrumb', 'reported-crumb', $rootSource);
+    }
+
+    /**
+     * @return iterable<string, array{string|null}>
+     */
+    public static function unscopedRootSourceProvider(): iterable
+    {
+        yield 'no root source' => [null];
+        yield 'a root source the map does not name' => ['landing_page'];
     }
 
     private function scopedSpecification(): BindingSpecification

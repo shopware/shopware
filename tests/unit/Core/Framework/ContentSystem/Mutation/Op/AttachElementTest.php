@@ -3,12 +3,12 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mutation\Op;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
-use Shopware\Core\Framework\ContentSystem\Binding\RootSourceConfigMap;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -23,6 +23,7 @@ use Shopware\Core\Framework\ContentSystem\Mutation\Op\AttachElement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
+use Shopware\Tests\Unit\Core\Framework\ContentSystem\Fixture\ScopedDefaultBindingFixture;
 
 /**
  * @internal
@@ -204,8 +205,18 @@ class AttachElementTest extends TestCase
         $attach->apply(new StoredTree([], 'category'));
     }
 
-    #[TestDox('names the nested element id the caller supplied when the type default of a descendant rejects the root source')]
-    public function testAttachRejectionNamesTheSuppliedNestedElementId(): void
+    /**
+     * @return iterable<string, array{bool}>
+     */
+    public static function nestedRejectionScaffoldProvider(): iterable
+    {
+        yield 'attach-element names the supplied nested element' => [false];
+        yield 'a preset insertion names the payload id of the nested element' => [true];
+    }
+
+    #[DataProvider('nestedRejectionScaffoldProvider')]
+    #[TestDox('names the nested element id the caller supplied when the type default of a descendant rejects the root source: $_dataName')]
+    public function testAttachRejectionNamesTheSuppliedNestedElementId(bool $isNewScaffold): void
     {
         $incoming = new StoredElement('incoming', 'Sw:Block', [], [], [
             'content' => [new StoredElement('incoming-child', 'Sw:Card')],
@@ -216,23 +227,7 @@ class AttachElementTest extends TestCase
             $incoming,
             $this->scopedCardDefaultRegistry(),
             new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), $this->registry()),
-        );
-
-        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Card', 'media', 'incoming-child', 'category'));
-        $attach->apply(new StoredTree([], 'category'));
-    }
-
-    #[TestDox('names the payload id of the nested child when the type default binding of a preset element rejects the root source')]
-    public function testPresetAttachRejectionNamesThePayloadIdOfTheNestedChild(): void
-    {
-        $attach = new AttachElement(
-            $this->registry(),
-            new StoredElement('incoming', 'Sw:Block', [], [], [
-                'content' => [new StoredElement('incoming-child', 'Sw:Card')],
-            ]),
-            $this->scopedCardDefaultRegistry(),
-            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), $this->registry()),
-            isNewScaffold: true,
+            isNewScaffold: $isNewScaffold,
         );
 
         $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Card', 'media', 'incoming-child', 'category'));
@@ -292,16 +287,8 @@ class AttachElementTest extends TestCase
 
     private function scopedCardDefaultRegistry(): AbstractContentSystemBindingSpecificationRegistry
     {
-        $default = new BindingSpecification(
-            'Sw:Card',
-            'Sw:Card',
-            'Card',
-            ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId', 'associations' => [RootSourceConfigMap::MARKER => ['product' => ['thumbnails']]]])],
-            [],
-            'core',
-        );
         $registry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
-        $registry->method('all')->willReturn(['core:Sw:Card' => $default]);
+        $registry->method('all')->willReturn(['core:Sw:Card' => ScopedDefaultBindingFixture::mediaScopedToProduct('Sw:Card', 'Card')]);
 
         return $registry;
     }

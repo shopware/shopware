@@ -35,6 +35,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
+use Shopware\Tests\Unit\Core\Framework\ContentSystem\Fixture\ScopedDefaultBindingFixture;
 
 /**
  * @internal
@@ -256,14 +257,7 @@ class InsertElementTest extends TestCase
     public function testInsertNamedSpecificationWinsSharedKeyOverUnresolvableScopedDefault(): void
     {
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
-        $default = new BindingSpecification(
-            'Sw:Media:Image',
-            'Sw:Media:Image',
-            'Image',
-            ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId', 'associations' => [RootSourceConfigMap::MARKER => ['product' => ['thumbnails']]]])],
-            [],
-            'core',
-        );
+        $default = ScopedDefaultBindingFixture::mediaScopedToProduct('Sw:Media:Image', 'Image');
         $named = new BindingSpecification(
             'gallery-pick',
             'Sw:Media:Image',
@@ -289,65 +283,6 @@ class InsertElementTest extends TestCase
         static::assertSame(['media' => 'core:gallery-pick', 'cover' => 'core:gallery-pick'], $result->roots[0]->attributedSpecifications);
     }
 
-    #[TestDox('keeps a default-only key under the default attribution while the shared key carries the named specification')]
-    public function testInsertDefaultOnlyKeyLandsWithDefaultAttributionUnderNamedSpecification(): void
-    {
-        $config = static::createStub(AbstractContentDataLoaderConfig::class);
-        $default = new BindingSpecification(
-            'Sw:Media:Image',
-            'Sw:Media:Image',
-            'Image',
-            [
-                'media' => new LoaderBinding('entity', ['entity' => 'media']),
-                'gallery' => new LoaderBinding('entity_collection', ['entity' => 'media', 'property' => 'mediaIds', 'associations' => [RootSourceConfigMap::MARKER => ['product' => ['thumbnails']]]]),
-            ],
-            [],
-            'core',
-        );
-        $named = new BindingSpecification('gallery-pick', 'Sw:Media:Image', 'Gallery pick', ['media' => new LoaderBinding('entity', ['entity' => 'media'])], [], 'core');
-
-        $insert = new InsertElement(
-            $this->registryWith('Sw:Media:Image'),
-            'Sw:Media:Image',
-            $this->bindingRegistry(['core:Sw:Media:Image' => $default, 'core:gallery-pick' => $named]),
-            $this->applicator($config),
-            'core:gallery-pick',
-        );
-        $result = $insert->apply(new StoredTree([], 'product'));
-
-        static::assertSame(['media', 'gallery'], array_keys($result->roots[0]->dataRequirements));
-        static::assertSame(['media' => 'core:gallery-pick', 'gallery' => 'core:Sw:Media:Image'], $result->roots[0]->attributedSpecifications);
-    }
-
-    #[TestDox('rejects a default-only scoped key whose root source is unnamed even when a named specification wires the other keys, naming the default and no element')]
-    public function testInsertNamedSpecificationStillRejectsDefaultOnlyScopedKeyWithUnnamedRootSource(): void
-    {
-        $default = new BindingSpecification(
-            'Sw:Media:Image',
-            'Sw:Media:Image',
-            'Image',
-            [
-                'media' => new LoaderBinding('entity', ['entity' => 'media']),
-                'gallery' => new LoaderBinding('entity_collection', ['entity' => 'media', 'property' => 'mediaIds', 'associations' => [RootSourceConfigMap::MARKER => ['product' => ['thumbnails']]]]),
-            ],
-            [],
-            'core',
-        );
-        $named = new BindingSpecification('gallery-pick', 'Sw:Media:Image', 'Gallery pick', ['media' => new LoaderBinding('entity', ['entity' => 'media'])], [], 'core');
-
-        $insert = new InsertElement(
-            $this->registryWith('Sw:Media:Image'),
-            'Sw:Media:Image',
-            $this->bindingRegistry(['core:Sw:Media:Image' => $default, 'core:gallery-pick' => $named]),
-            $this->applicator(static::createStub(AbstractContentDataLoaderConfig::class)),
-            'core:gallery-pick',
-        );
-
-        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Media:Image', 'gallery', null, 'category'));
-
-        $insert->apply(new StoredTree([], 'category'));
-    }
-
     #[TestDox('stores the named specification input default when the type default declares the same input with a default')]
     public function testInsertNamedSpecificationInputDefaultWinsOverTypeDefaultInput(): void
     {
@@ -366,55 +301,13 @@ class InsertElementTest extends TestCase
         static::assertSame('from-named', $result->roots[0]->property('title')?->jsonSerialize());
     }
 
-    #[TestDox('still rejects a scoped default key whose root source is unnamed when no bindingSpecificationId is given, naming no element')]
-    public function testInsertWithoutNamedSpecificationRejectsScopedDefaultWithUnnamedRootSource(): void
+    #[TestDox('keeps a default-only key under the default attribution while the shared key carries the named specification')]
+    public function testInsertDefaultOnlyKeyLandsWithDefaultAttributionUnderNamedSpecification(): void
     {
-        $default = new BindingSpecification(
-            'Sw:Media:Image',
-            'Sw:Media:Image',
-            'Image',
-            ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId', 'associations' => [RootSourceConfigMap::MARKER => ['product' => ['thumbnails']]]])],
-            [],
-            'core',
-        );
+        $result = $this->insertWithProductScopedGalleryDefault()->apply(new StoredTree([], 'product'));
 
-        $insert = new InsertElement(
-            $this->registryWith('Sw:Media:Image'),
-            'Sw:Media:Image',
-            $this->bindingRegistry(['core:Sw:Media:Image' => $default]),
-            $this->unboundApplicator(),
-        );
-
-        // The scaffolded element never reaches the caller, so the error names no element.
-        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Media:Image', 'media', null, 'category'));
-
-        $insert->apply(new StoredTree([], 'category'));
-    }
-
-    #[TestDox('rejects a named specification whose own scoped key has no entry for the tree root source, naming that specification and no element')]
-    public function testInsertRejectsNamedSpecificationWhoseScopedKeyCannotResolve(): void
-    {
-        $named = new BindingSpecification(
-            'gallery-pick',
-            'Sw:Media:Image',
-            'Gallery pick',
-            ['cover' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId', 'associations' => [RootSourceConfigMap::MARKER => ['product' => ['thumbnails']]]])],
-            [],
-            'core',
-        );
-
-        $insert = new InsertElement(
-            $this->registryWith('Sw:Media:Image'),
-            'Sw:Media:Image',
-            $this->bindingRegistry(['core:gallery-pick' => $named]),
-            $this->unboundApplicator(),
-            'core:gallery-pick',
-        );
-
-        // The scaffolded element never reaches the caller, so the error names no element.
-        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:gallery-pick', 'cover', null, 'category'));
-
-        $insert->apply(new StoredTree([], 'category'));
+        static::assertSame(['media', 'gallery'], array_keys($result->roots[0]->dataRequirements));
+        static::assertSame(['media' => 'core:gallery-pick', 'gallery' => 'core:Sw:Media:Image'], $result->roots[0]->attributedSpecifications);
     }
 
     /**
@@ -493,6 +386,60 @@ class InsertElementTest extends TestCase
             'product',
             new PropertyType(SalesChannelProductEntity::class, false, null, 'ignored-default'),
         ];
+    }
+
+    #[TestDox('rejects a default-only scoped key whose root source is unnamed even when a named specification wires the other keys, naming the default and no element')]
+    public function testInsertNamedSpecificationStillRejectsDefaultOnlyScopedKeyWithUnnamedRootSource(): void
+    {
+        $insert = $this->insertWithProductScopedGalleryDefault();
+
+        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Media:Image', 'gallery', null, 'category'));
+
+        $insert->apply(new StoredTree([], 'category'));
+    }
+
+    #[TestDox('still rejects a scoped default key whose root source is unnamed when no bindingSpecificationId is given, naming no element')]
+    public function testInsertWithoutNamedSpecificationRejectsScopedDefaultWithUnnamedRootSource(): void
+    {
+        $default = ScopedDefaultBindingFixture::mediaScopedToProduct('Sw:Media:Image', 'Image');
+
+        $insert = new InsertElement(
+            $this->registryWith('Sw:Media:Image'),
+            'Sw:Media:Image',
+            $this->bindingRegistry(['core:Sw:Media:Image' => $default]),
+            $this->unboundApplicator(),
+        );
+
+        // The scaffolded element never reaches the caller, so the error names no element.
+        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Media:Image', 'media', null, 'category'));
+
+        $insert->apply(new StoredTree([], 'category'));
+    }
+
+    #[TestDox('rejects a named specification whose own scoped key has no entry for the tree root source, naming that specification and no element')]
+    public function testInsertRejectsNamedSpecificationWhoseScopedKeyCannotResolve(): void
+    {
+        $named = new BindingSpecification(
+            'gallery-pick',
+            'Sw:Media:Image',
+            'Gallery pick',
+            ['cover' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId', 'associations' => [RootSourceConfigMap::MARKER => ['product' => ['thumbnails']]]])],
+            [],
+            'core',
+        );
+
+        $insert = new InsertElement(
+            $this->registryWith('Sw:Media:Image'),
+            'Sw:Media:Image',
+            $this->bindingRegistry(['core:gallery-pick' => $named]),
+            $this->unboundApplicator(),
+            'core:gallery-pick',
+        );
+
+        // The scaffolded element never reaches the caller, so the error names no element.
+        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:gallery-pick', 'cover', null, 'category'));
+
+        $insert->apply(new StoredTree([], 'category'));
     }
 
     #[TestDox('rejects an unregistered type with a 400')]
@@ -604,6 +551,34 @@ class InsertElementTest extends TestCase
             'seeder' => $this->rawProperties($seeded[0]),
             'insert' => $this->rawProperties($result->roots[0]),
         ];
+    }
+
+    /**
+     * An insert of the named `gallery-pick` specification over a type default whose `gallery` key is scoped to the
+     * `product` root source only: it resolves under a `product` tree and has no entry under any other root source.
+     */
+    private function insertWithProductScopedGalleryDefault(): InsertElement
+    {
+        $default = new BindingSpecification(
+            'Sw:Media:Image',
+            'Sw:Media:Image',
+            'Image',
+            [
+                'media' => new LoaderBinding('entity', ['entity' => 'media']),
+                'gallery' => new LoaderBinding('entity_collection', ['entity' => 'media', 'property' => 'mediaIds', 'associations' => [RootSourceConfigMap::MARKER => ['product' => ['thumbnails']]]]),
+            ],
+            [],
+            'core',
+        );
+        $named = new BindingSpecification('gallery-pick', 'Sw:Media:Image', 'Gallery pick', ['media' => new LoaderBinding('entity', ['entity' => 'media'])], [], 'core');
+
+        return new InsertElement(
+            $this->registryWith('Sw:Media:Image'),
+            'Sw:Media:Image',
+            $this->bindingRegistry(['core:Sw:Media:Image' => $default, 'core:gallery-pick' => $named]),
+            $this->applicator(static::createStub(AbstractContentDataLoaderConfig::class)),
+            'core:gallery-pick',
+        );
     }
 
     private function registryWith(string $type): AbstractContentSystemElementTypeRegistry

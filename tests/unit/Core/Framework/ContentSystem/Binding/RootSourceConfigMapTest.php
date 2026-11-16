@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(RootSourceConfigMap::class)]
 class RootSourceConfigMapTest extends TestCase
 {
-    #[TestDox('scopeMap returns the inner map, and isScoped is true, for a scoped value')]
+    #[TestDox('returns the inner map, and reports the value as scoped')]
     public function testScopedValue(): void
     {
         $inner = ['product' => 'productId', 'category' => 'categoryId'];
@@ -27,7 +27,7 @@ class RootSourceConfigMapTest extends TestCase
     }
 
     #[DataProvider('nonScopedValueProvider')]
-    #[TestDox('scopeMap returns null, and isScoped is false, for $_dataName')]
+    #[TestDox('returns null, and reports the value as not scoped, for $_dataName')]
     public function testNonScopedValue(mixed $value): void
     {
         static::assertNull(RootSourceConfigMap::scopeMap($value));
@@ -50,7 +50,7 @@ class RootSourceConfigMapTest extends TestCase
     }
 
     #[DataProvider('anyRootSourceProvider')]
-    #[TestDox('collapse returns a config without a scoped value unchanged for $_dataName')]
+    #[TestDox('returns a config without a scoped value unchanged for $_dataName')]
     public function testCollapseLeavesNonScopedUntouched(?string $rootSource): void
     {
         $config = ['entity' => 'media', 'associations' => ['manufacturer'], 'referrer' => '{{x}}'];
@@ -71,7 +71,7 @@ class RootSourceConfigMapTest extends TestCase
      * @param array<string, mixed> $expected
      */
     #[DataProvider('collapsePicksProvider')]
-    #[TestDox('collapse picks the value for the given root source from each scoped map: $_dataName')]
+    #[TestDox('picks the value for the given root source from each scoped map: $_dataName')]
     public function testCollapsePicksRootSourceValue(string $rootSource, array $expected): void
     {
         $config = [
@@ -92,50 +92,7 @@ class RootSourceConfigMapTest extends TestCase
         yield 'category' => ['category', ['entity' => 'media', 'property' => 'categoryId', 'type' => 'category']];
     }
 
-    #[DataProvider('unscopedRootSourceProvider')]
-    #[TestDox('collapse returns null for $_dataName')]
-    public function testCollapseReturnsNullWithoutRootSourceEntry(?string $rootSource): void
-    {
-        $config = [
-            'entity' => 'media',
-            'property' => [RootSourceConfigMap::MARKER => ['product' => 'productId']],
-        ];
-
-        static::assertNull(RootSourceConfigMap::collapse($config, $rootSource));
-    }
-
-    /**
-     * @return iterable<string, array{string|null}>
-     */
-    public static function unscopedRootSourceProvider(): iterable
-    {
-        yield 'a root source the scoped map has no entry for' => ['category'];
-        yield 'a null root source' => [null];
-    }
-
-    #[TestDox('branches returns the config as a single branch when it carries no scoped map')]
-    public function testBranchesReturnsSingleBranchForUnscopedConfig(): void
-    {
-        $config = ['entity' => 'media', 'property' => 'mediaId'];
-
-        static::assertSame([$config], RootSourceConfigMap::branches($config));
-    }
-
-    #[TestDox('branches returns a single empty branch for an empty config')]
-    public function testBranchesReturnsSingleBranchForEmptyConfig(): void
-    {
-        static::assertSame([[]], RootSourceConfigMap::branches([]));
-    }
-
-    #[TestDox('branches returns the config unchanged as its single branch when every scoped map is empty')]
-    public function testBranchesReturnsSingleBranchForEmptyScopedMaps(): void
-    {
-        $config = ['entity' => 'media', 'property' => [RootSourceConfigMap::MARKER => []]];
-
-        static::assertSame([$config], RootSourceConfigMap::branches($config));
-    }
-
-    #[TestDox('branches returns one collapsed config per root source, in the order the scoped maps first name them')]
+    #[TestDox('returns one collapsed config per root source, in the order the scoped maps first name them')]
     public function testBranchesCollapsesOnePerRootSource(): void
     {
         $config = [
@@ -156,8 +113,49 @@ class RootSourceConfigMapTest extends TestCase
     /**
      * @param array<string, mixed> $config
      */
+    #[DataProvider('singleBranchConfigProvider')]
+    #[TestDox('returns the config as its single branch for $_dataName')]
+    public function testBranchesReturnsSingleBranch(array $config): void
+    {
+        static::assertSame([$config], RootSourceConfigMap::branches($config));
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function singleBranchConfigProvider(): iterable
+    {
+        yield 'a config without a scoped map' => [['entity' => 'media', 'property' => 'mediaId']];
+        yield 'an empty config' => [[]];
+        yield 'a config whose scoped maps are all empty' => [['entity' => 'media', 'property' => [RootSourceConfigMap::MARKER => []]]];
+    }
+
+    #[DataProvider('unscopedRootSourceProvider')]
+    #[TestDox('returns null for $_dataName')]
+    public function testCollapseReturnsNullWithoutRootSourceEntry(?string $rootSource): void
+    {
+        $config = [
+            'entity' => 'media',
+            'property' => [RootSourceConfigMap::MARKER => ['product' => 'productId']],
+        ];
+
+        static::assertNull(RootSourceConfigMap::collapse($config, $rootSource));
+    }
+
+    /**
+     * @return iterable<string, array{string|null}>
+     */
+    public static function unscopedRootSourceProvider(): iterable
+    {
+        yield 'a root source the scoped map has no entry for' => ['category'];
+        yield 'a null root source' => [null];
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
     #[DataProvider('differentRootSourceSetsProvider')]
-    #[TestDox('branches returns null when a key is scoped over fewer root sources than its sibling: $_dataName')]
+    #[TestDox('returns null when a key is scoped over fewer root sources than its sibling: $_dataName')]
     public function testBranchesReturnsNullForScopedMapsNamingDifferentRootSources(array $config): void
     {
         static::assertNull(RootSourceConfigMap::branches($config));

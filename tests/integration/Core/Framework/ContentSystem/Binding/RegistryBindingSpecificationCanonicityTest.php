@@ -10,7 +10,6 @@ use Shopware\Core\Framework\ContentSystem\Binding\Registry\ContentSystemBindingS
 use Shopware\Core\Framework\ContentSystem\Binding\RootSourceConfigMap;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMapResolver;
@@ -32,52 +31,50 @@ class RegistryBindingSpecificationCanonicityTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    #[TestDox('every registered binding specification carries only canonical loader bindings that decode through their loader serializer')]
-    public function testEveryRegisteredSpecificationIsCanonicalAndDecodable(): void
+    #[TestDox('serves only loader bindings whose loader is a registered data-loader source')]
+    public function testEveryRegisteredLoaderBindingNamesARegisteredDataLoaderSource(): void
     {
         $map = $this->dataLoaderMap();
+        $bindings = $this->registeredLoaderBindings();
+
+        $unregisteredLoaders = array_map(
+            static fn (LoaderBinding $binding): string => $binding->loader,
+            array_filter($bindings, static fn (LoaderBinding $binding): bool => !isset($map->sourceToConfigSpecifications[$binding->loader])),
+        );
+
+        static::assertNotSame([], $bindings, 'The integration environment must register at least one loader binding.');
+        static::assertSame([], $unregisteredLoaders);
+    }
+
+    #[TestDox('serves only loader bindings whose scoped config values name one root-source set')]
+    public function testEveryRegisteredLoaderBindingNamesOneRootSourceSet(): void
+    {
+        $bindings = $this->registeredLoaderBindings();
+
+        $conflicting = array_keys(array_filter(
+            $bindings,
+            static fn (LoaderBinding $binding): bool => RootSourceConfigMap::branches($binding->config) === null,
+        ));
+
+        static::assertNotSame([], $bindings, 'The integration environment must register at least one loader binding.');
+        static::assertSame([], $conflicting);
+    }
+
+    #[TestDox('serves only loader bindings whose config decodes through their loader serializer')]
+    public function testEveryRegisteredLoaderBindingConfigDecodesThroughItsSerializer(): void
+    {
         $serializers = $this->configSerializers();
+        $bindings = $this->registeredLoaderBindings();
 
-        $all = $this->registry()->all();
+        $decoded = [];
 
-        static::assertNotSame([], $all, 'The integration environment must register at least one binding specification.');
-
-        // One aggregate assertion over a runtime-dynamic set (the registry cannot be a static data provider): each
-        // non-canonical or non-decodable loader binding contributes a diagnostic line, and the empty-list assertion
-        // fails with every offender named at once. A no-throw decode is the canonicality assertion.
-        $problems = [];
-        $checked = 0;
-
-        foreach ($all as $qualifiedId => $specification) {
-            foreach ($specification->resolves() as $referenceKey => $binding) {
-                ++$checked;
-
-                if (!isset($map->sourceToConfigSpecifications[$binding->loader])) {
-                    $problems[] = \sprintf('%s.resolves[%s]: loader "%s" is not a registered data-loader source.', $qualifiedId, $referenceKey, $binding->loader);
-
-                    continue;
-                }
-
-                $branches = RootSourceConfigMap::branches($binding->config);
-
-                if ($branches === null) {
-                    $problems[] = \sprintf('%s.resolves[%s]: scoped config values name different root-source sets.', $qualifiedId, $referenceKey);
-
-                    continue;
-                }
-
-                foreach ($branches as $branchConfig) {
-                    try {
-                        $serializers->decode($binding->loader, $branchConfig);
-                    } catch (ContentSystemException $exception) {
-                        $problems[] = \sprintf('%s.resolves[%s]: config does not decode through loader "%s": %s', $qualifiedId, $referenceKey, $binding->loader, $exception->getMessage());
-                    }
-                }
+        foreach ($bindings as $binding) {
+            foreach (RootSourceConfigMap::branches($binding->config) ?? [] as $branchConfig) {
+                $decoded[] = $serializers->decode($binding->loader, $branchConfig);
             }
         }
 
-        static::assertGreaterThan(0, $checked, 'At least one canonical loader binding must be checked.');
-        static::assertSame([], $problems);
+        static::assertNotSame([], $decoded, 'At least one loader binding config branch must decode.');
     }
 
     #[TestDox('the synthesized core:Sw:Media:Image default is served with its canonical entity wiring, no inputs, and is the type default')]
@@ -119,6 +116,22 @@ class RegistryBindingSpecificationCanonicityTest extends TestCase
         return new ContentSystemBindingSpecificationRegistry(
             [$this->yamlLoader(), $this->databaseLoader()],
         );
+    }
+
+    /**
+     * @return array<string, LoaderBinding> every loader binding of every registered specification, keyed `qualifiedId.resolves[referenceKey]`
+     */
+    private function registeredLoaderBindings(): array
+    {
+        $bindings = [];
+
+        foreach ($this->registry()->all() as $qualifiedId => $specification) {
+            foreach ($specification->resolves() as $referenceKey => $binding) {
+                $bindings[\sprintf('%s.resolves[%s]', $qualifiedId, $referenceKey)] = $binding;
+            }
+        }
+
+        return $bindings;
     }
 
     private function yamlLoader(): YamlBindingSpecificationLoader

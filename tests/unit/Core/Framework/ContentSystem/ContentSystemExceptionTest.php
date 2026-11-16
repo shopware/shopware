@@ -343,6 +343,7 @@ class ContentSystemExceptionTest extends TestCase
         // stored-column read keeps the fault status.
         yield 'an invalid element id as a client defect despite its 500' => [ContentSystemException::invalidElementId('12', 'reads as an integer'), true];
         yield 'a box-spacing input failure as a client defect' => [ContentSystemException::boxSpacingInvalidValue('trim', 'x'), true];
+        yield 'a binding root source not scoped as an internal fault' => [ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', 'crumb-1', 'none'), false];
         // Only a content-system exception can be a client defect, whatever its message says.
         yield 'a non content-system throwable as an internal fault' => [new \RuntimeException('boom'), false];
     }

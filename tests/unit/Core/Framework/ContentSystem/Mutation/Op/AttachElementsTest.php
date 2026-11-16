@@ -8,9 +8,6 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
-use Shopware\Core\Framework\ContentSystem\Binding\RootSourceConfigMap;
-use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
-use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
@@ -18,6 +15,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\AttachElements;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Tests\Unit\Core\Framework\ContentSystem\Fixture\ScopedDefaultBindingFixture;
 
 /**
  * @internal
@@ -111,20 +109,12 @@ class AttachElementsTest extends TestCase
         yield 'a preset insertion names the payload id of the element' => [true, 'second'];
     }
 
-    #[TestDox('names the offending element when the type default of a later element rejects the root source: $_dataName')]
     #[DataProvider('rejectionElementIdProvider')]
+    #[TestDox('names the offending element when the type default of a later element rejects the root source: $_dataName')]
     public function testRejectionNamesTheOffendingElement(bool $isNewScaffold, string $expectedElementId): void
     {
-        $default = new BindingSpecification(
-            'Sw:Card',
-            'Sw:Card',
-            'Card',
-            ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId', 'associations' => [RootSourceConfigMap::MARKER => ['product' => ['thumbnails']]]])],
-            [],
-            'core',
-        );
         $bindingRegistry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
-        $bindingRegistry->method('all')->willReturn(['core:Sw:Card' => $default]);
+        $bindingRegistry->method('all')->willReturn(['core:Sw:Card' => ScopedDefaultBindingFixture::mediaScopedToProduct('Sw:Card', 'Card')]);
 
         $op = new AttachElements(
             $this->registry(),

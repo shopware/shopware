@@ -9,7 +9,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
-use Shopware\Core\Framework\ContentSystem\Binding\RootSourceConfigMap;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -44,6 +43,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeRegistry;
+use Shopware\Tests\Unit\Core\Framework\ContentSystem\Fixture\ScopedDefaultBindingFixture;
 
 /**
  * @internal
@@ -653,14 +653,7 @@ class ReplaceElementTest extends TestCase
     #[TestDox('rejects a new type whose default scopes a key by root sources that do not include the tree root source, naming the replaced element')]
     public function testReplaceRejectsScopedDefaultWithUnnamedRootSource(): void
     {
-        $default = new BindingSpecification(
-            'Sw:New',
-            'Sw:New',
-            'New',
-            ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId', 'associations' => [RootSourceConfigMap::MARKER => ['product' => ['thumbnails']]]])],
-            [],
-            'core',
-        );
+        $default = ScopedDefaultBindingFixture::mediaScopedToProduct('Sw:New', 'New');
         $replace = new ReplaceElement(
             $this->registry(),
             'el',

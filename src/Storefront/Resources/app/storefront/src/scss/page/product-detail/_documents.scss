@@ -7,18 +7,27 @@
     display: flex;
     align-items: flex-start;
     gap: $spacer-sm;
-    margin-bottom: $spacer-sm;
+    margin-bottom: $spacer-sm * 1.5;
+    font-size: $font-size-sm;
     break-inside: avoid;
 
     .icon {
         flex-shrink: 0;
         align-self: flex-start;
+        width: 1rem;
+        height: $font-size-sm * $line-height-base;
+
+        > svg {
+            top: 0;
+        }
     }
 }
 
 .product-detail-documents-link {
     min-width: 0;
     overflow-wrap: anywhere;
+    text-decoration-thickness: from-font;
+    text-underline-offset: 0.1875em;
 }
 
 @include media-breakpoint-up(md) {

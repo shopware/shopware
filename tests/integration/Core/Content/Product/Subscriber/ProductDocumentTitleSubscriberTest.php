@@ -38,4 +38,27 @@ class ProductDocumentTitleSubscriberTest extends TestCase
         $document = $repository->search(new Criteria([$ids->get('document')]), $context)->getEntities()->first();
         static::assertSame('operating-manual', $document?->getTitle());
     }
+
+    public function testOnlyAnotherFileRenamesASavedDocument(): void
+    {
+        $ids = new IdsCollection();
+        $context = Context::createDefaultContext();
+        static::getContainer()->get('product.repository')->create([(new ProductBuilder($ids, 'drill'))->price(10)->build()], $context);
+        static::getContainer()->get('media.repository')->create([
+            ['id' => $ids->create('manual'), 'fileName' => 'operating-manual', 'fileExtension' => 'pdf', 'fileSize' => 1024],
+            ['id' => $ids->create('sheet'), 'fileName' => 'safety-data-sheet', 'fileExtension' => 'pdf', 'fileSize' => 1024],
+        ], $context);
+
+        /** @var EntityRepository<ProductDocumentCollection> $repository */
+        $repository = static::getContainer()->get('product_document.repository');
+        $repository->create([['id' => $ids->create('document'), 'productId' => $ids->get('drill'), 'mediaId' => $ids->get('manual'), 'title' => 'Manual']], $context);
+
+        $repository->update([['id' => $ids->get('document'), 'mediaId' => $ids->get('manual')]], $context);
+        $document = $repository->search(new Criteria([$ids->get('document')]), $context)->getEntities()->first();
+        static::assertSame('Manual', $document?->getTitle());
+
+        $repository->update([['id' => $ids->get('document'), 'mediaId' => $ids->get('sheet')]], $context);
+        $document = $repository->search(new Criteria([$ids->get('document')]), $context)->getEntities()->first();
+        static::assertSame('safety-data-sheet', $document?->getTitle());
+    }
 }

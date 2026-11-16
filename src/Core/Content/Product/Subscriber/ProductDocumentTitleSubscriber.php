@@ -8,12 +8,13 @@ use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDo
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * A document created without a title gets the name of its file, without the extension, as title in the default language.
+ * A new or replaced file saved without a title names the document after the file, without the extension, in the default language.
  * Translations in other languages keep their empty title and fall back to that one.
  *
  * @internal
@@ -42,19 +43,26 @@ final class ProductDocumentTitleSubscriber implements EventSubscriberInterface
         $systemLanguageId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
         $untitledTranslations = [];
+        $updatedTranslations = [];
         foreach ($event->getCommandsForEntity(ProductDocumentTranslationDefinition::ENTITY_NAME) as $command) {
             $payload = $command->getPayload();
             $mediaId = $payload['media_id'] ?? null;
 
-            if ($command instanceof InsertCommand
-                && $command->getPrimaryKey()['language_id'] === $systemLanguageId
-                && ($payload['title'] ?? null) === null
-                && \is_string($mediaId)
+            if ($command->getPrimaryKey()['language_id'] !== $systemLanguageId
+                || ($payload['title'] ?? null) !== null
+                || !\is_string($mediaId)
             ) {
+                continue;
+            }
+
+            if ($command instanceof InsertCommand) {
                 $untitledTranslations[] = [$command, $mediaId];
+            } elseif ($command instanceof UpdateCommand) {
+                $updatedTranslations[] = [$command, $mediaId];
             }
         }
 
+        $untitledTranslations = [...$untitledTranslations, ...$this->filterReplacedFiles($updatedTranslations)];
         if ($untitledTranslations === []) {
             return;
         }
@@ -71,5 +79,41 @@ final class ProductDocumentTitleSubscriber implements EventSubscriberInterface
                 $command->addPayload('title', mb_substr($fileName, 0, self::MAX_TITLE_LENGTH));
             }
         }
+    }
+
+    /**
+     * @param list<array{UpdateCommand, string}> $translations
+     *
+     * @return list<array{UpdateCommand, string}>
+     */
+    private function filterReplacedFiles(array $translations): array
+    {
+        if ($translations === []) {
+            return [];
+        }
+
+        $storedTranslations = $this->connection->fetchAllAssociative(
+            'SELECT `product_document_id`, `product_document_version_id`, `language_id`, `media_id` FROM `product_document_translation` WHERE `product_document_id` IN (:ids)',
+            ['ids' => array_values(array_unique(array_map(static fn (array $translation): string => $translation[0]->getPrimaryKey()['product_document_id'], $translations)))],
+            ['ids' => ArrayParameterType::BINARY],
+        );
+
+        $storedMediaIds = [];
+        foreach ($storedTranslations as $storedTranslation) {
+            $storedMediaIds[self::createTranslationKey($storedTranslation)] = $storedTranslation['media_id'];
+        }
+
+        return array_values(array_filter(
+            $translations,
+            static fn (array $translation): bool => ($storedMediaIds[self::createTranslationKey($translation[0]->getPrimaryKey())] ?? null) !== $translation[1],
+        ));
+    }
+
+    /**
+     * @param array<string, mixed> $primaryKey
+     */
+    private static function createTranslationKey(array $primaryKey): string
+    {
+        return $primaryKey['product_document_id'] . $primaryKey['product_document_version_id'] . $primaryKey['language_id'];
     }
 }

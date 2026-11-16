@@ -217,6 +217,7 @@
       "summaryLabelAmountTotal": "Total including VAT",
       "summaryLabelAmountTotalRounded": "Rounded total including VAT",
       "summaryLabelShippingCosts": "shipping costs",
+      "summaryLabelShipmentShippingCosts": "shipping costs of shipment {count} ({shippingMethod})",
       "discountLabelShippingCosts": "discount shipping costs",
       "summaryLabelTaxes": "{taxRate}% VAT",
       "labelOrderStatus": "Order status",

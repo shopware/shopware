@@ -41,6 +41,9 @@ export default {
     data() {
         return {
             liveSearchTerm: '',
+            /**
+             * @deprecated tag:v6.8.0 - Will be removed, the sales channel select loads its options itself
+             */
             salesChannels: [],
             salesChannelId: this.currentSalesChannelId,
             productSortings: [],
@@ -52,6 +55,9 @@ export default {
     },
 
     computed: {
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, the sales channel select loads its options itself
+         */
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
         },
@@ -110,7 +116,9 @@ export default {
 
     methods: {
         createdComponent() {
-            this.fetchSalesChannels();
+            if (!Shopware.Feature.isActive('V6_8_0_0')) {
+                this.fetchSalesChannels();
+            }
             this.fetchProductSortings();
             this.liveSearchTerm = this.searchTerms;
             this.liveSearchResults = this.searchResults;
@@ -148,6 +156,9 @@ export default {
                 });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, the sales channel select loads its options itself
+         */
         fetchSalesChannels() {
             this.salesChannelRepository.search(new Criteria(1, 25)).then((response) => {
                 this.salesChannels = response;

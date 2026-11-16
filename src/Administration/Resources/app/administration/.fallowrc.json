@@ -21,7 +21,6 @@
             "enablers": ["jest"],
             "entryPointRole": "test",
             "entryPoints": [
-                "test/globalTeardown.js",
                 "test/_setup/*.{js,ts}",
                 "test/_mocks_/*.js",
                 "test/transformer/*.js",
@@ -56,7 +55,11 @@
             "toolingDependencies": ["jsdoc", "docdash"]
         }
     ],
-    "ignorePatterns": ["!build/**", "scripts/codemods/sfc-migration/__fixtures__/**"],
+    "ignorePatterns": [
+        "!build/**",
+        "scripts/codemods/sfc-migration/__fixtures__/**",
+        "scripts/generate-public-api/__fixtures__/**"
+    ],
     "ignoreFindings": ["build/vite-plugins/**/_fixtures/**"],
     "ignoreDependencies": [
         "shopware:*",

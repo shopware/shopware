@@ -30,6 +30,7 @@ class SetupStagingEvent
         public readonly array $domainMappings = [],
         public readonly array $extensionsToDisable = [],
         public readonly array $systemConfigOverrides = [],
+        public readonly bool $reinstallApps = false,
     ) {
     }
 }

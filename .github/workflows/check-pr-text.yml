@@ -1,0 +1,62 @@
+name: Check PR text
+# Judges the text of the pull request: the title for its conventional shape, the description for
+# authored content. Danger judges the code; it does not react to edits of the text.
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - edited
+      - synchronize
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  title:
+    # an edit reruns the check only when the title changed
+    if: ${{ github.event.action != 'edited' || github.event.changes.title != null }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # 6.1.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          subjectPattern: ^.*(?<!…)$ # PR title needs to match regex, so ensure it does not end with ellipsis
+          subjectPatternError: |
+            PR title ends with "…", probably because it was shortened by GitHub.
+            Make sure the title is descriptive enough, as it will be used as the commit message.
+
+  description:
+    # an edit reruns the check only when the description changed
+    if: ${{ github.event.action != 'edited' || github.event.changes.body != null }}
+    runs-on: ubuntu-24.04
+    steps:
+      # The base ref, never the PR head: a fork PR must not be able to edit the
+      # module that judges it, nor the template it is judged against.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          sparse-checkout: |
+            .github/bin/js
+            .github/PULL_REQUEST_TEMPLATE.md
+
+      # Absent wherever the rule has not landed yet, e.g. a release branch it was
+      # never backported to.
+      - id: rule
+        run: |
+          if [ -f .github/bin/js/pull-request-description.ts ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No description rule on ${GITHUB_BASE_REF:-the base branch} yet, nothing to check."
+          fi
+
+      - if: steps.rule.outputs.present == 'true'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const { checkPullRequestDescription } = await import('${{ github.workspace }}/.github/bin/js/pull-request-description.ts')
+            checkPullRequestDescription({ core, context })

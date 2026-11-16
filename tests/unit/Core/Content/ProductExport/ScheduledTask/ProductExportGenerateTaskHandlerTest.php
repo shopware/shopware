@@ -11,11 +11,13 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportGenerateTaskHandler;
+use Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportPartialGeneration;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\Clock\NativeClock;
+use Symfony\Component\Messenger\Envelope;
 
 /**
  * @internal
@@ -25,15 +27,12 @@ use Symfony\Component\Clock\NativeClock;
 class ProductExportGenerateTaskHandlerTest extends TestCase
 {
     /**
-     * @param array{id: string, generated_at: ?string, next_generation_at: ?string, interval: int, is_running: bool, updated_at: ?string, created_at: ?string} $productExportRow
+     * @param array{id: string, sales_channel_id: string, generated_at: ?string, next_generation_at: ?string, interval: int, is_running: bool, updated_at: ?string, created_at: ?string} $productExportRow
      */
     #[DataProvider('shouldBeRunDataProvider')]
     public function testShouldBeRun(array $productExportRow, bool $expectedResult, bool $expectsReset): void
     {
         $connection = $this->createMock(Connection::class);
-
-        $connection->method('fetchFirstColumn')
-            ->willReturn([Uuid::randomHex()]);
 
         $connection->method('fetchAllAssociative')
             ->willReturn([$productExportRow]);
@@ -74,7 +73,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         $connection = $this->createMock(Connection::class);
 
         $connection->expects($this->once())
-            ->method('fetchFirstColumn')
+            ->method('fetchAllAssociative')
             ->with(
                 static::stringContains('`type_id` IN (:typeIds)'),
                 ['typeIds' => Uuid::fromHexToBytesList(ProductExportEntity::ALLOWED_SALES_CHANNEL_TYPE_IDS)],
@@ -91,6 +90,38 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         );
 
         $handler->run();
+    }
+
+    public function testLoadsTheExportsOfAllSalesChannelsWithOneQuery(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('fetchFirstColumn');
+        $connection->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([
+                ['sales_channel_id' => 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4'] + self::productExportRow(false, null, 0),
+                ['id' => 'b1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4', 'sales_channel_id' => 'c1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4'] + self::productExportRow(false, null, 0),
+            ]);
+
+        $messageBus = new CollectingMessageBus();
+
+        $handler = new ProductExportGenerateTaskHandler(
+            static::createStub(EntityRepository::class),
+            static::createStub(LoggerInterface::class),
+            $connection,
+            $messageBus,
+            new NativeClock(),
+        );
+
+        $handler->run();
+
+        static::assertEquals(
+            [
+                new ProductExportPartialGeneration('afdd4e21be6b4ad59656fb856d0375e5', 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4'),
+                new ProductExportPartialGeneration('b1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4', 'c1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4'),
+            ],
+            array_map(static fn (Envelope $envelope): object => $envelope->getMessage(), $messageBus->getMessages())
+        );
     }
 
     public static function shouldBeRunDataProvider(): \Generator
@@ -146,12 +177,13 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
     }
 
     /**
-     * @return array{id: string, generated_at: ?string, next_generation_at: ?string, interval: int, is_running: bool, updated_at: ?string, created_at: ?string}
+     * @return array{id: string, sales_channel_id: string, generated_at: ?string, next_generation_at: ?string, interval: int, is_running: bool, updated_at: ?string, created_at: ?string}
      */
     private static function productExportRow(bool $isRunning, ?string $generatedAt, int $interval, ?string $updatedAt = null, ?string $nextGenerationAt = null, ?string $createdAt = null): array
     {
         return [
             'id' => 'afdd4e21be6b4ad59656fb856d0375e5',
+            'sales_channel_id' => 'f1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4',
             'generated_at' => $generatedAt,
             'next_generation_at' => $nextGenerationAt,
             'interval' => $interval,

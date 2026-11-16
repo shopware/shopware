@@ -42,7 +42,6 @@ class Uuid
 
         $bytes[6] = \chr((\ord($bytes[6]) & 0x0F) | 0x70);
         $bytes[8] = \chr((\ord($bytes[8]) & 0x3F) | 0x80);
-        \assert(!empty($bytes));
 
         return $bytes;
     }

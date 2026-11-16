@@ -13,6 +13,7 @@ import { syncRef } from '@vueuse/core';
 import type { ComponentInternalInstance, SetupContext, PublicProps } from '@vue/runtime-core';
 import { shouldActivateShim, convertOptionsApiOverrideToCompositionApi } from '../options-composition-shim';
 import type { OverrideFn } from '../options-composition-shim';
+import type { IndexedAwaitedComponentConfig } from 'src/core/factory/async-component.factory';
 import {
     createDataScope,
     createOverrideLocalState,
@@ -23,6 +24,7 @@ import {
     setDataScopeForInstance,
 } from './data-scope-helper';
 import type { ExtendableSetupState, OverrideLocalState } from './data-scope-helper';
+import { registerSetupOverrideForHmr, trackSetupHmrComponent } from './script-hmr';
 
 /**
  * @private
@@ -237,6 +239,30 @@ const createPreviousStateForOverride = <TPublicState extends object, TPrivateSta
     );
 };
 
+// Every instance of a base processes the pending overrides, the conversion has to happen once so
+// a later instance does not add the same override again.
+const convertedPendingOverrides = new WeakMap<object, Promise<OverrideFn | null>>();
+
+function convertPendingOverride(
+    componentName: string,
+    pendingOverride: IndexedAwaitedComponentConfig,
+): Promise<OverrideFn | null> {
+    let converted = convertedPendingOverrides.get(pendingOverride);
+
+    if (!converted) {
+        converted = pendingOverride
+            .config()
+            .then((config) =>
+                typeof config !== 'boolean' && shouldActivateShim(config)
+                    ? convertOptionsApiOverrideToCompositionApi(componentName, config)
+                    : null,
+            );
+        convertedPendingOverrides.set(pendingOverride, converted);
+    }
+
+    return converted;
+}
+
 /**
  * @private
  *
@@ -273,6 +299,8 @@ export function createExtendableSetup<
         private?: TPrivateSetupResult;
     },
 ): ExtendableSetupState<Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult> {
+    trackSetupHmrComponent(options.name as string);
+
     const componentContext = options.context ? options.context : (getComponentContext() as TContext);
     const propKeys = new Set(Object.keys(options.props));
     const modelBindings = new Set(options.modelBindings ?? []);
@@ -344,12 +372,9 @@ export function createExtendableSetup<
                 const pendingOverrides = overrideRegistry.get(options.name as string)!;
                 await Promise.all(
                     pendingOverrides.map(async (pendingOverride) => {
-                        const resolvedConfig = await pendingOverride.config();
-                        if (typeof resolvedConfig !== 'boolean' && shouldActivateShim(resolvedConfig)) {
-                            const compositionOverride = convertOptionsApiOverrideToCompositionApi(
-                                options.name as string,
-                                resolvedConfig,
-                            );
+                        const compositionOverride = await convertPendingOverride(options.name as string, pendingOverride);
+
+                        if (compositionOverride && !_overridesMap[options.name].includes(compositionOverride)) {
                             _overridesMap[options.name].push(compositionOverride);
                         }
                     }),
@@ -519,13 +544,19 @@ export function overrideComponentSetup<TOriginalComponent>() {
             context: SetupContext,
         ) => ReturnType<OverrideFn>,
     ): void {
+        // Cast required: typed generics → internal OverrideFn (parameter types are contravariant)
+        const callback = override as unknown as OverrideFn;
+
+        if (registerSetupOverrideForHmr(String(componentName), callback, _overridesMap)) {
+            return;
+        }
+
         // Initialize the overrides array for this component if it doesn't exist
         if (!_overridesMap[componentName]) {
             _overridesMap[componentName] = reactive([]);
         }
 
-        // Cast required: typed generics → internal OverrideFn (parameter types are contravariant)
-        _overridesMap[componentName].push(override as unknown as OverrideFn);
+        _overridesMap[componentName].push(callback);
     };
 }
 

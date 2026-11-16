@@ -66,6 +66,12 @@ Application.addServiceProvider('extensionErrorService', () => {
                 title: 'global.default.error',
                 message: 'sw-extension.errors.appIsNotCompatible',
             },
+            FRAMEWORK__APP_VALIDATION_FAILED: {
+                title: 'sw-extension.errors.appValidationFailed',
+            },
+            FRAMEWORK__APP_INVALID_CONFIGURATION: {
+                title: 'sw-extension.errors.appValidationFailed',
+            },
         },
         {
             title: 'global.default.error',

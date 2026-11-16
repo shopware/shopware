@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Mcp\Notification;
 
+use Mcp\Exception\SessionStoreException;
 use Mcp\Schema\Notification\PromptListChangedNotification;
 use Mcp\Schema\Notification\ResourceListChangedNotification;
 use Mcp\Schema\Notification\ToolListChangedNotification;
@@ -144,7 +145,17 @@ class McpListChangedNotifier
             return null;
         }
 
-        if (!$sessionStore->exists($uuid)) {
+        try {
+            if (!$sessionStore->exists($uuid)) {
+                return null;
+            }
+        } catch (SessionStoreException $exception) {
+            // The SDK answers such a request with a 503. syncSession() compares the versions again on the next one.
+            $this->logger->warning('Skipping MCP list_changed notification while the session store is unavailable.', [
+                'sessionId' => $sessionId,
+                'exception' => $exception,
+            ]);
+
             return null;
         }
 

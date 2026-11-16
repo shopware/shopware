@@ -375,6 +375,7 @@ class RecalculationServiceTest extends TestCase
         $this->resetDataTimestamps($cart->getLineItems());
         foreach ($cart->getDeliveries() as $delivery) {
             $this->resetDataTimestamps($delivery->getPositions()->getLineItems());
+            $delivery->setRuleIds(null);
         }
         $cart->setRuleIds([]);
         // The behaviour will be set during the process, therefore we remove it here

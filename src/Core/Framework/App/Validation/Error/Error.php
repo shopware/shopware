@@ -11,4 +11,11 @@ use Shopware\Core\Framework\Log\Package;
 interface Error
 {
     public function getMessage(): string;
+
+    public function getErrorCode(): string;
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getParameters(): array;
 }

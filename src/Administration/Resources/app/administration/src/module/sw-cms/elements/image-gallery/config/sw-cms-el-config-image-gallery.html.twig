@@ -129,6 +129,7 @@
                         <template #default="{ isInherited}">
                             <mt-select
                                 v-model="element.config.displayMode.value"
+                                :hide-clearable-button="true"
                                 class="sw-cms-el-config-image-gallery__setting-display-mode"
                                 :help-text="$t('sw-cms.elements.imageGallery.config.helpText.displayMode')"
                                 :options="displayModeValueOptions"
@@ -181,6 +182,7 @@
                             <template #default="{ isInherited }">
                                 <mt-select
                                     v-model="element.config.navigationArrows.value"
+                                    :hide-clearable-button="true"
                                     :options="navigationArrowsValueOptions"
                                     :disabled="isInherited"
                                     @update:model-value="emitUpdateEl"
@@ -200,6 +202,7 @@
                             <template #default="{ isInherited }">
                                 <mt-select
                                     v-model="element.config.navigationDots.value"
+                                    :hide-clearable-button="true"
                                     :options="navigationDotsValueOptions"
                                     :disabled="isInherited"
                                     @update:model-value="emitUpdateEl"
@@ -219,6 +222,7 @@
                             <template #default="{ isInherited }">
                                 <mt-select
                                     v-model="element.config.galleryPosition.value"
+                                    :hide-clearable-button="true"
                                     :options="galleryPositionValueOptions"
                                     :disabled="isInherited"
                                     @update:model-value="emitUpdateEl"
@@ -463,6 +467,7 @@
                                 <template #default="{ isInherited}">
                                     <mt-select
                                         v-model="element.config.displayMode.value"
+                                        :hide-clearable-button="true"
                                         class="sw-cms-el-config-image-gallery__setting-display-mode"
                                         :help-text="$t('sw-cms.elements.imageGallery.config.helpText.displayMode')"
                                         :options="displayModeValueOptions"
@@ -515,6 +520,7 @@
                                     <template #default="{ isInherited }">
                                         <mt-select
                                             v-model="element.config.navigationArrows.value"
+                                            :hide-clearable-button="true"
                                             :options="navigationArrowsValueOptions"
                                             :disabled="isInherited"
                                             @update:model-value="emitUpdateEl"
@@ -534,6 +540,7 @@
                                     <template #default="{ isInherited }">
                                         <mt-select
                                             v-model="element.config.navigationDots.value"
+                                            :hide-clearable-button="true"
                                             :options="navigationDotsValueOptions"
                                             :disabled="isInherited"
                                             @update:model-value="emitUpdateEl"
@@ -553,6 +560,7 @@
                                     <template #default="{ isInherited }">
                                         <mt-select
                                             v-model="element.config.galleryPosition.value"
+                                            :hide-clearable-button="true"
                                             :options="galleryPositionValueOptions"
                                             :disabled="isInherited"
                                             @update:model-value="emitUpdateEl"

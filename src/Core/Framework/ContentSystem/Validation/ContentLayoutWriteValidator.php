@@ -110,11 +110,11 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
             }
         }
 
-        // Step 3: resolvability against the declared root source (the create payload value, else the committed row
-        // read through LayoutRootSourceReader). On the create path membership was already gated in step 2; on a
-        // layout-only edit the committed source is gated here before resolve() — a source de-registered after the
-        // layout was written surfaces as the unknownRootSource 400 instead of the resolve() 500. After this,
-        // resolve() is never handed an unregistered id on either path.
+        // Step 3: resolvability against the declared root source (the create payload value, else the one the
+        // serializer stored on the tree, else the committed row read through LayoutRootSourceReader). On the create
+        // path membership was already gated in step 2; on a layout-only edit the committed source is gated here
+        // before resolve() — a source de-registered after the layout was written surfaces as the unknownRootSource
+        // 400 instead of the resolve() 500. After this, resolve() is never handed an unregistered id on either path.
         //
         // resolvability() re-runs the analysis; its intrinsic checks are root-context-independent, so it recomputes
         // step 1's intrinsic errors identically and we discard them, keeping only bindingErrors(). The redundant
@@ -125,7 +125,7 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
         if ($tree !== null) {
             $rootSource = $setsRootSource
                 ? $payload[ContentLayoutDefinition::ROOT_SOURCE_FIELD]
-                : $this->rootSourceReader->read($command->getDecodedPrimaryKey()['id'] ?? null, $event->getCommands(), $context);
+                : $tree->rootSource ?? $this->rootSourceReader->read($command->getDecodedPrimaryKey()['id'] ?? null, $event->getCommands(), $context);
 
             if (\is_string($rootSource)) {
                 if (!$setsRootSource && !\in_array($rootSource, $this->rootSourceRegistry->knownRootSources(), true)) {

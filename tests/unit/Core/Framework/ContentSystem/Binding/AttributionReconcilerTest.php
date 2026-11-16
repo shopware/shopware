@@ -3,10 +3,12 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Binding;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Binding\AttributionReconciler;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\RootSourceConfigMap;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -57,7 +59,7 @@ class AttributionReconcilerTest extends TestCase
             ->build();
 
         $result = $this->reconciler(['spec-1' => $specification], $this->provider())
-            ->reconcile([$element]);
+            ->reconcile([$element], null);
 
         $reconciled = $result[0];
         static::assertInstanceOf(StoredElement::class, $reconciled);
@@ -79,7 +81,7 @@ class AttributionReconcilerTest extends TestCase
             ->build();
 
         $result = $this->reconciler(['spec-1' => $specification], $this->provider())
-            ->reconcile([$element]);
+            ->reconcile([$element], null);
 
         $reconciled = $result[0];
         static::assertInstanceOf(StoredElement::class, $reconciled);
@@ -105,7 +107,7 @@ class AttributionReconcilerTest extends TestCase
             ->build();
 
         $result = $this->reconciler(['spec-1' => $specification], $this->provider())
-            ->reconcile([$parent]);
+            ->reconcile([$parent], null);
 
         $reconciledParent = $result[0];
         static::assertInstanceOf(StoredElement::class, $reconciledParent);
@@ -128,7 +130,7 @@ class AttributionReconcilerTest extends TestCase
             ->build();
 
         $result = $this->reconciler(['spec-1' => $specification], $this->provider())
-            ->reconcile([$element]);
+            ->reconcile([$element], null);
 
         $reconciled = $result[0];
         static::assertInstanceOf(StoredElement::class, $reconciled);
@@ -146,7 +148,7 @@ class AttributionReconcilerTest extends TestCase
             ->build();
 
         $result = $this->reconciler([], $this->provider())
-            ->reconcile([$element]);
+            ->reconcile([$element], null);
 
         $reconciled = $result[0];
         static::assertInstanceOf(StoredElement::class, $reconciled);
@@ -166,7 +168,7 @@ class AttributionReconcilerTest extends TestCase
             ->build();
 
         $result = $this->reconciler(['spec-1' => $specification], $this->provider())
-            ->reconcile([$element]);
+            ->reconcile([$element], null);
 
         $reconciled = $result[0];
         static::assertInstanceOf(StoredElement::class, $reconciled);
@@ -193,7 +195,7 @@ class AttributionReconcilerTest extends TestCase
             ->build();
 
         $result = $this->reconciler(['spec-1' => $specification], $this->provider())
-            ->reconcile([$element]);
+            ->reconcile([$element], null);
 
         $reconciled = $result[0];
         static::assertInstanceOf(StoredElement::class, $reconciled);
@@ -229,7 +231,7 @@ class AttributionReconcilerTest extends TestCase
 
         $this->expectExceptionObject($expected);
 
-        $reconciler->reconcile([$element]);
+        $reconciler->reconcile([$element], null);
     }
 
     #[TestDox('rethrows a non-client-defect ContentSystemException instead of dropping the key')]
@@ -256,7 +258,44 @@ class AttributionReconcilerTest extends TestCase
 
         $this->expectExceptionObject($internalFault);
 
-        $reconciler->reconcile([$element]);
+        $reconciler->reconcile([$element], null);
+    }
+
+    /**
+     * @param array<string, string> $expected
+     */
+    #[TestDox('compares a scoped binding only with the branch for the layout\'s root source, dropping the attribution without an entry for it')]
+    #[DataProvider('scopedRootSources')]
+    public function testComparesScopedBindingWithRootSourceBranch(?string $rootSource, array $expected): void
+    {
+        $specification = $this->specification('spec-1', [
+            'product' => new LoaderBinding('entity', [
+                'property' => [RootSourceConfigMap::MARKER => ['product' => 'productId', 'category' => 'categoryId']],
+            ]),
+        ]);
+
+        $element = StoredElementBuilder::create('card', 'elem-1')
+            ->withDataRequirement('product', 'entity', new StubArrayLoaderConfig(['property' => 'productId']))
+            ->withAttributedSpecification('product', 'spec-1')
+            ->build();
+
+        $result = $this->reconciler(['spec-1' => $specification], $this->provider())
+            ->reconcile([$element], $rootSource);
+
+        $reconciled = $result[0];
+        static::assertInstanceOf(StoredElement::class, $reconciled);
+        static::assertSame($expected, $reconciled->attributedSpecifications);
+    }
+
+    /**
+     * @return iterable<string, array{string|null, array<string, string>}>
+     */
+    public static function scopedRootSources(): iterable
+    {
+        yield 'matching root source' => ['product', ['product' => 'spec-1']];
+        yield 'root source wired differently' => ['category', []];
+        yield 'root source without an entry' => ['landing_page', []];
+        yield 'no root source' => [null, []];
     }
 
     /**

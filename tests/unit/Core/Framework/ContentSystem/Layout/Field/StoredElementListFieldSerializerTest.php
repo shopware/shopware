@@ -30,6 +30,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredDefaultProvider;
+use Shopware\Core\Framework\ContentSystem\Validation\LayoutRootSourceReader;
 use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -181,6 +182,7 @@ class StoredElementListFieldSerializerTest extends TestCase
             new ViolationConstraintMapper(),
             $boundary,
             $this->treeConstraints(),
+            static::createStub(LayoutRootSourceReader::class),
         );
 
         $this->expectExceptionObject($failure);
@@ -222,6 +224,7 @@ class StoredElementListFieldSerializerTest extends TestCase
             new ViolationConstraintMapper(),
             $this->boundary($seeder),
             $this->treeConstraints(),
+            static::createStub(LayoutRootSourceReader::class),
         );
 
         try {
@@ -665,6 +668,7 @@ class StoredElementListFieldSerializerTest extends TestCase
             new ViolationConstraintMapper(),
             $this->boundary($this->passthroughSeeder()),
             new StoredTreeConstraints($registry, new StyleOptionConstraintDeriver()),
+            static::createStub(LayoutRootSourceReader::class),
         );
     }
 
@@ -717,6 +721,7 @@ class StoredElementListFieldSerializerTest extends TestCase
             new ViolationConstraintMapper(),
             $this->boundary($this->passthroughSeeder()),
             $this->treeConstraints(),
+            static::createStub(LayoutRootSourceReader::class),
         );
     }
 
@@ -736,6 +741,7 @@ class StoredElementListFieldSerializerTest extends TestCase
             new ViolationConstraintMapper(),
             $this->boundary($this->passthroughSeeder()),
             $this->treeConstraints(),
+            static::createStub(LayoutRootSourceReader::class),
         );
     }
 
@@ -754,6 +760,7 @@ class StoredElementListFieldSerializerTest extends TestCase
             new ViolationConstraintMapper(),
             $this->boundary(new LayoutDefaultSeeder($registry, new StoredDefaultProvider())),
             $this->treeConstraints(),
+            static::createStub(LayoutRootSourceReader::class),
         );
     }
 
@@ -820,6 +827,7 @@ class StoredElementListFieldSerializerTest extends TestCase
             new ViolationConstraintMapper(),
             $boundary,
             $this->treeConstraints(),
+            static::createStub(LayoutRootSourceReader::class),
         );
     }
 

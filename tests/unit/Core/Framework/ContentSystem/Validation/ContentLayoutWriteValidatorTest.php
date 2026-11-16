@@ -100,6 +100,25 @@ class ContentLayoutWriteValidatorTest extends TestCase
         static::assertCount(0, $event->getExceptions()->getExceptions());
     }
 
+    #[TestDox('re-validates a layout-only edit against the root source the serializer stored on the tree, without reading it again')]
+    public function testLayoutOnlyEditResolvesAgainstMemoizedRootSource(): void
+    {
+        $registry = $this->createMock(RootSourceRegistry::class);
+        $registry->method('knownRootSources')->willReturn(['category', 'none']);
+        $registry->expects($this->once())->method('resolve')->with('category')->willReturn([]);
+
+        $reader = $this->createMock(LayoutRootSourceReader::class);
+        $reader->expects($this->never())->method('read');
+
+        $validator = $this->validator(registry: $registry, reader: $reader);
+
+        $command = $this->layoutUpdate(['layout' => []]);
+        $event = new PreWriteValidationEvent($this->writeWithMemoFor([$command], 'category'), [$command]);
+        $validator->preValidate($event);
+
+        static::assertCount(0, $event->getExceptions()->getExceptions());
+    }
+
     #[TestDox('bypasses every check and drains memo when skip flag is set')]
     public function testSkipFlagBypassesValidationAndDrainsMemo(): void
     {
@@ -393,7 +412,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
      *
      * @param list<WriteCommand> $commands
      */
-    private function writeWithMemoFor(array $commands): WriteContext
+    private function writeWithMemoFor(array $commands, ?string $rootSource = null): WriteContext
     {
         $writeContext = WriteContext::createFromContext(Context::createDefaultContext());
         $memo = new LayoutWriteContext($writeContext);
@@ -403,7 +422,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
                 continue;
             }
 
-            $memo->remember($command->getEntityName(), $command->getDecodedPrimaryKey()['id'], $this->tree());
+            $memo->remember($command->getEntityName(), $command->getDecodedPrimaryKey()['id'], $this->tree($rootSource));
         }
 
         $writeContext->getContext()->addExtension(LayoutWriteContext::EXTENSION_NAME, $memo);
@@ -419,9 +438,9 @@ class ContentLayoutWriteValidatorTest extends TestCase
         return $memo;
     }
 
-    private function tree(): StoredTree
+    private function tree(?string $rootSource = null): StoredTree
     {
-        return new StoredTree([new StoredElement('el-1', 'Sw:Block')]);
+        return new StoredTree([new StoredElement('el-1', 'Sw:Block')], $rootSource);
     }
 
     /**

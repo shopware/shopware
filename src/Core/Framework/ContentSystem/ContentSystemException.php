@@ -65,6 +65,7 @@ class ContentSystemException extends HttpException
     public const LAYOUT_PRESET_UNKNOWN_REFERENCE = 'CONTENT_SYSTEM__LAYOUT_PRESET_UNKNOWN_REFERENCE';
     public const LAYOUT_PRESET_TOO_MANY_REFERENCES = 'CONTENT_SYSTEM__LAYOUT_PRESET_TOO_MANY_REFERENCES';
     public const UNKNOWN_ENTITY_TYPE = 'CONTENT_SYSTEM__UNKNOWN_ENTITY_TYPE';
+    public const SCOPED_BINDING_CONFIG_UNRESOLVED = 'CONTENT_SYSTEM__SCOPED_BINDING_CONFIG_UNRESOLVED';
     public const UNKNOWN_LOADER_ENTITY = 'CONTENT_SYSTEM__UNKNOWN_LOADER_ENTITY';
     public const ENTITY_TYPE_RESOLUTION_UNSUPPORTED = 'CONTENT_SYSTEM__ENTITY_TYPE_RESOLUTION_UNSUPPORTED';
     public const INVALID_LAYOUT_STRUCTURE = 'CONTENT_SYSTEM__INVALID_LAYOUT_STRUCTURE';
@@ -798,6 +799,24 @@ class ContentSystemException extends HttpException
             self::LAYOUT_PRESETS_INVALID,
             'Layout preset validation failed: {{ reason }}',
             ['reason' => self::violationMessages($violations)]
+        );
+    }
+
+    /**
+     * @param list<string> $configKeys
+     */
+    public static function scopedBindingConfigUnresolved(string $bindingSpecificationId, string $key, array $configKeys, ?string $rootSource): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SCOPED_BINDING_CONFIG_UNRESOLVED,
+            'Binding specification "{{ bindingSpecificationId }}" cannot wire "{{ key }}" for root source "{{ rootSource }}": the config {{ configKeys }} has no entry for it',
+            [
+                'bindingSpecificationId' => $bindingSpecificationId,
+                'key' => $key,
+                'configKeys' => implode(', ', $configKeys),
+                'rootSource' => $rootSource ?? '(unbound)',
+            ]
         );
     }
 

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteBoundary;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteContext;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
+use Shopware\Core\Framework\ContentSystem\Validation\LayoutRootSourceReader;
 use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -42,7 +43,8 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
         private readonly StoredTreeCodec $treeCodec,
         private readonly ViolationConstraintMapper $violationMapper,
         private readonly LayoutWriteBoundary $writeBoundary,
-        private readonly StoredTreeConstraints $treeConstraints
+        private readonly StoredTreeConstraints $treeConstraints,
+        private readonly LayoutRootSourceReader $rootSourceReader,
     ) {
         parent::__construct($validator, $definitionRegistry);
     }
@@ -90,7 +92,7 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
         }
 
         try {
-            $tree = $this->writeBoundary->apply($tree);
+            $tree = $this->writeBoundary->apply(new StoredTree($tree->roots, $this->rootSource($data, $parameters)));
         } catch (ContentSystemException $exception) {
             if (!ContentSystemException::isClientDefect($exception)) {
                 throw $exception;
@@ -217,6 +219,18 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
     protected function getCachedConstraints(Field $field): array
     {
         return $this->getConstraints($field);
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    private function rootSource(array $data, WriteParameterBag $parameters): ?string
+    {
+        if (\is_string($data['rootSource'] ?? null)) {
+            return $data['rootSource'];
+        }
+
+        return $this->rootSourceReader->read($data['id'] ?? null, [], $parameters->getContext()->getContext());
     }
 
     /**

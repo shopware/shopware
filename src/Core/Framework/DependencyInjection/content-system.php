@@ -203,6 +203,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ViolationConstraintMapper::class),
             service(LayoutWriteBoundary::class),
             service(StoredTreeConstraints::class),
+            service(LayoutRootSourceReader::class),
         ])
         ->tag('shopware.field_serializer');
 

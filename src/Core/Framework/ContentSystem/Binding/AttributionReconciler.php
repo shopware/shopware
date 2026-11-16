@@ -36,7 +36,7 @@ class AttributionReconciler
     /**
      * Per-reconcile() memo of the specification side of the honesty comparison, keyed by "specificationId:key".
      *
-     * @var array<string, array{source: string, encoded: list<array<int|string, mixed>>}|null>
+     * @var array<string, array{source: string, encoded: array<int|string, mixed>}|null>
      */
     private array $specWiringCache = [];
 
@@ -49,23 +49,24 @@ class AttributionReconciler
 
     /**
      * @param list<StoredElement> $forest
+     * @param string|null $rootSource the root source of the layout the forest is stored in, which selects the branch of a scoped binding
      *
      * @return list<StoredElement>
      */
-    public function reconcile(array $forest): array
+    public function reconcile(array $forest, ?string $rootSource): array
     {
         $this->specWiringCache = [];
 
         $reconciled = [];
 
         foreach ($forest as $element) {
-            $reconciled[] = $this->reconcileElement($element);
+            $reconciled[] = $this->reconcileElement($element, $rootSource);
         }
 
         return $reconciled;
     }
 
-    private function reconcileElement(StoredElement $element): StoredElement
+    private function reconcileElement(StoredElement $element, ?string $rootSource): StoredElement
     {
         if ($element->slots === [] && $element->attributedSpecifications === []) {
             return $element;
@@ -73,18 +74,18 @@ class AttributionReconciler
 
         $slots = [];
         foreach ($element->slots as $name => $children) {
-            $slots[$name] = array_map($this->reconcileElement(...), $children);
+            $slots[$name] = array_map(fn (StoredElement $child): StoredElement => $this->reconcileElement($child, $rootSource), $children);
         }
 
         return $element
             ->withSlots($slots)
-            ->withAttributedSpecifications($this->reconcileElementAttributions($element));
+            ->withAttributedSpecifications($this->reconcileElementAttributions($element, $rootSource));
     }
 
     /**
      * @return array<string, string>
      */
-    private function reconcileElementAttributions(StoredElement $element): array
+    private function reconcileElementAttributions(StoredElement $element, ?string $rootSource): array
     {
         $attributions = $element->attributedSpecifications;
 
@@ -103,7 +104,7 @@ class AttributionReconciler
             }
 
             try {
-                $honest = $this->isHonestForElement($specificationId, $key, $requirement);
+                $honest = $this->isHonestForElement($specificationId, $key, $requirement, $rootSource);
             } catch (ContentSystemException $exception) {
                 throw $this->withElementId($exception, $element->id);
             }
@@ -137,9 +138,9 @@ class AttributionReconciler
         return ContentSystemException::configSerializerNotRegistered($source, $elementId);
     }
 
-    private function isHonestForElement(string $specificationId, string $key, DataRequirement $requirement): bool
+    private function isHonestForElement(string $specificationId, string $key, DataRequirement $requirement, ?string $rootSource): bool
     {
-        $specWiring = $this->specWiring($specificationId, $key);
+        $specWiring = $this->specWiring($specificationId, $key, $rootSource);
 
         if ($specWiring === null) {
             return false;
@@ -149,12 +150,13 @@ class AttributionReconciler
             $this->configSerializerProvider->encode($requirement->source, $requirement->config)
         );
 
-        return $specWiring['source'] === $requirement->source && \in_array($elementEncoded, $specWiring['encoded'], true);
+        return $specWiring['source'] === $requirement->source && $elementEncoded === $specWiring['encoded'];
     }
 
     /**
      * The specification side of the honesty comparison: the binding's source plus its canonicalized encoded
-     * config, or null when the specification or its binding for $key no longer exists.
+     * config for the layout's root source, or null when the specification or its binding for $key no longer
+     * exists, or when the binding cannot wire $key for that root source.
      *
      * Null is an answer, not a missing collaborator: an attribution names a specification the registry
      * assembles at runtime from element-type directories and active app rows, and no write gate checks that
@@ -164,9 +166,9 @@ class AttributionReconciler
      * leave a live attribution with nothing behind it, and "nothing claims this wiring" is exactly the
      * comparison's negative result.
      *
-     * @return array{source: string, encoded: list<array<int|string, mixed>>}|null
+     * @return array{source: string, encoded: array<int|string, mixed>}|null
      */
-    private function specWiring(string $specificationId, string $key): ?array
+    private function specWiring(string $specificationId, string $key, ?string $rootSource): ?array
     {
         $cacheKey = $specificationId . ':' . $key;
 
@@ -186,14 +188,16 @@ class AttributionReconciler
             return $this->specWiringCache[$cacheKey] = null;
         }
 
-        $source = $binding->loader;
-        $encoded = [];
-
-        foreach (RootSourceConfigMap::branches($binding->config) as $branch) {
-            $configObject = $this->configSerializerProvider->decode($source, $branch);
-            $encoded[] = $this->configCanonicalizer->canonicalize($this->configSerializerProvider->encode($source, $configObject));
+        if (RootSourceConfigMap::unresolvedKeys($binding->config, $rootSource) !== []) {
+            return $this->specWiringCache[$cacheKey] = null;
         }
 
-        return $this->specWiringCache[$cacheKey] = ['source' => $source, 'encoded' => $encoded];
+        $source = $binding->loader;
+        $configObject = $this->configSerializerProvider->decode($source, RootSourceConfigMap::collapse($binding->config, $rootSource));
+
+        return $this->specWiringCache[$cacheKey] = [
+            'source' => $source,
+            'encoded' => $this->configCanonicalizer->canonicalize($this->configSerializerProvider->encode($source, $configObject)),
+        ];
     }
 }

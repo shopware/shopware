@@ -7,9 +7,11 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
+use Shopware\Core\Framework\ContentSystem\Binding\RootSourceConfigMap;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingInput;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
@@ -318,6 +320,70 @@ class BindingApplicatorTest extends TestCase
         $result = $this->applicator($this->config(), $this->typeRegistry([]))->apply($element, $this->textSpecification(), 'core:text-seed');
 
         static::assertSame('Autumn sale', $result->property('text')?->jsonSerialize());
+    }
+
+    #[TestDox('rejects a scoped config key without an entry for the root source instead of wiring an incomplete config')]
+    public function testRejectsScopedConfigWithoutEntryForRootSource(): void
+    {
+        $element = new StoredElement('crumb-1', 'Sw:Navigation:Breadcrumb');
+
+        $this->expectExceptionObject(ContentSystemException::scopedBindingConfigUnresolved('core:breadcrumb', 'breadcrumb', ['property'], 'landing_page'));
+
+        $this->applicator(static::createStub(AbstractContentDataLoaderConfig::class))
+            ->apply($element, $this->scopedSpecification(), 'core:breadcrumb', 'landing_page');
+    }
+
+    #[TestDox('fill-only: rejects a scoped config key when the layout has no root source')]
+    public function testFillOnlyRejectsScopedConfigWithoutRootSource(): void
+    {
+        $element = new StoredElement('crumb-1', 'Sw:Navigation:Breadcrumb');
+
+        $this->expectExceptionObject(ContentSystemException::scopedBindingConfigUnresolved('core:breadcrumb', 'breadcrumb', ['property'], null));
+
+        $this->applicator(static::createStub(AbstractContentDataLoaderConfig::class))
+            ->applyFillOnly($element, $this->scopedSpecification(), 'core:breadcrumb');
+    }
+
+    #[TestDox('fill-only leaves an already wired key alone, even when its scoped config has no entry for the root source')]
+    public function testFillOnlyIgnoresScopedConfigOfAlreadyWiredKey(): void
+    {
+        $config = static::createStub(AbstractContentDataLoaderConfig::class);
+        $element = StoredElementBuilder::create('Sw:Navigation:Breadcrumb', 'crumb-1')
+            ->withDataRequirement('breadcrumb', 'breadcrumb', $config)
+            ->build();
+
+        $result = $this->applicator(static::createStub(AbstractContentDataLoaderConfig::class))
+            ->applyFillOnly($element, $this->scopedSpecification(), 'core:breadcrumb', 'landing_page');
+
+        static::assertEquals(['breadcrumb' => new DataRequirement('breadcrumb', 'breadcrumb', $config)], $result->dataRequirements);
+        static::assertSame([], $result->attributedSpecifications);
+    }
+
+    #[TestDox('wires a scoped config key collapsed to the root source entry')]
+    public function testWiresScopedConfigForRootSourceWithEntry(): void
+    {
+        $config = static::createStub(AbstractContentDataLoaderConfig::class);
+        $serializers = $this->createMock(DataLoaderConfigSerializerProvider::class);
+        $serializers->expects($this->once())
+            ->method('decode')
+            ->with('breadcrumb', ['property' => '{{productId}}'])
+            ->willReturn($config);
+
+        $result = (new BindingApplicator($serializers, $this->imageRegistry()))->apply(new StoredElement('crumb-1', 'Sw:Navigation:Breadcrumb'), $this->scopedSpecification(), 'core:breadcrumb', 'product');
+
+        static::assertEquals(['breadcrumb' => new DataRequirement('breadcrumb', 'breadcrumb', $config)], $result->dataRequirements);
+    }
+
+    private function scopedSpecification(): BindingSpecification
+    {
+        return new BindingSpecification(
+            'breadcrumb',
+            'Sw:Navigation:Breadcrumb',
+            'Breadcrumb',
+            ['breadcrumb' => new LoaderBinding('breadcrumb', ['property' => [RootSourceConfigMap::MARKER => ['product' => '{{productId}}']]])],
+            [],
+            'core',
+        );
     }
 
     private function boundImageElement(AbstractContentDataLoaderConfig $oldConfig): StoredElement

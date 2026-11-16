@@ -62,22 +62,20 @@ final class RootSourceConfigMap
     /**
      * @param array<string, mixed> $config
      *
-     * @return list<array<string, mixed>>
+     * @return list<string> the scoped config keys {@see collapse()} leaves out for the root source
      */
-    public static function branches(array $config): array
+    public static function unresolvedKeys(array $config, ?string $rootSource): array
     {
-        $rootSources = array_unique(array_merge(...array_map(
-            static fn (mixed $value): array => array_keys(self::scopeMap($value) ?? []),
-            array_values($config)
-        )));
+        $keys = [];
 
-        if ($rootSources === []) {
-            return [$config];
+        foreach ($config as $key => $value) {
+            $map = self::scopeMap($value);
+
+            if ($map !== null && ($rootSource === null || !\array_key_exists($rootSource, $map))) {
+                $keys[] = (string) $key;
+            }
         }
 
-        return array_map(
-            static fn (string $rootSource): array => self::collapse($config, $rootSource),
-            array_values($rootSources),
-        );
+        return $keys;
     }
 }

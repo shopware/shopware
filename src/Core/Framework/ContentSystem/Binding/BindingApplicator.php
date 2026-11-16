@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem\Binding;
 
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Validation\TypeConsistentBindingSpecification;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
@@ -53,7 +54,7 @@ final class BindingApplicator
         $existingDataRequirements = $element->dataRequirements;
         $wiredKeys = array_diff(array_keys($specification->resolves()), array_keys($existingDataRequirements));
 
-        $dataRequirements = $existingDataRequirements + $this->resolveDataRequirements($specification, $rootSource);
+        $dataRequirements = $existingDataRequirements + $this->resolveDataRequirements($specification, $rootSource, $wiredKeys);
         $properties = array_replace($this->seedInputDefaults($element, $specification), $element->properties());
         $attributedSpecifications = $element->attributedSpecifications + $this->attributionFor($wiredKeys, $bindingSpecificationId);
 
@@ -74,13 +75,23 @@ final class BindingApplicator
     }
 
     /**
+     * @param array<string>|null $keys
+     *
      * @return array<string, DataRequirement>
      */
-    private function resolveDataRequirements(BindingSpecification $specification, ?string $rootSource): array
+    private function resolveDataRequirements(BindingSpecification $specification, ?string $rootSource, ?array $keys = null): array
     {
         $dataRequirements = [];
+        $resolves = $specification->resolves();
+        $bindings = $keys === null ? $resolves : array_intersect_key($resolves, array_flip($keys));
 
-        foreach ($specification->resolves() as $key => $binding) {
+        foreach ($bindings as $key => $binding) {
+            $unresolvedKeys = RootSourceConfigMap::unresolvedKeys($binding->config, $rootSource);
+
+            if ($unresolvedKeys !== []) {
+                throw ContentSystemException::scopedBindingConfigUnresolved($specification->qualifiedId(), $key, $unresolvedKeys, $rootSource);
+            }
+
             $config = RootSourceConfigMap::collapse($binding->config, $rootSource);
             $dataRequirements[$key] = new DataRequirement($key, $binding->loader, $this->configSerializerProvider->decode($binding->loader, $config));
         }

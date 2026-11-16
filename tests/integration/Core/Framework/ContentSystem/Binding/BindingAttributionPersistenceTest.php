@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Binding;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Controller\SyncController;
@@ -35,6 +36,8 @@ class BindingAttributionPersistenceTest extends TestCase
     use AdminFunctionalTestBehaviour;
 
     private const CORE_MEDIA_BINDING_ID = 'core:Sw:Media:Image';
+
+    private const CORE_BREADCRUMB_BINDING_ID = 'core:Sw:Navigation:Breadcrumb';
 
     private IdsCollection $ids;
 
@@ -152,6 +155,49 @@ class BindingAttributionPersistenceTest extends TestCase
         static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
         static::assertSame([], $this->reload($layoutId)->getLayout()[0]->attributedSpecifications);
+    }
+
+    /**
+     * @param array<string, string> $expected
+     */
+    #[TestDox('keeps a scoped binding\'s attribution only when the layout\'s root source wires it the same way, on create and on update')]
+    #[DataProvider('breadcrumbRootSources')]
+    public function testReconciliationComparesScopedBindingWithLayoutRootSource(string $rootSource, array $expected): void
+    {
+        $context = Context::createDefaultContext();
+        $layoutId = $this->ids->get('layout');
+        $element = [
+            'id' => $this->ids->get('element'),
+            'component' => 'Sw:Navigation:Breadcrumb',
+            'properties' => [],
+            'dataRequirements' => [
+                'breadcrumb' => ['source' => 'breadcrumb', 'config' => ['property' => '{{productId}}', 'type' => 'product', 'referrerCategoryProperty' => '{{referrerCategoryId}}']],
+            ],
+            'attributedSpecifications' => ['breadcrumb' => self::CORE_BREADCRUMB_BINDING_ID],
+        ];
+
+        $this->repository()->create([[
+            'id' => $layoutId,
+            'name' => 'reconcile-scoped-' . $layoutId,
+            'version' => '1.0.0',
+            'rootSource' => $rootSource,
+            'layout' => [$element],
+        ]], $context);
+
+        static::assertSame($expected, $this->reload($layoutId)->getLayout()[0]->attributedSpecifications);
+
+        $this->repository()->update([['id' => $layoutId, 'layout' => [$element]]], $context);
+
+        static::assertSame($expected, $this->reload($layoutId)->getLayout()[0]->attributedSpecifications);
+    }
+
+    /**
+     * @return iterable<string, array{string, array<string, string>}>
+     */
+    public static function breadcrumbRootSources(): iterable
+    {
+        yield 'product layout' => ['product', ['breadcrumb' => self::CORE_BREADCRUMB_BINDING_ID]];
+        yield 'category layout' => ['category', []];
     }
 
     #[TestDox('drops a dangling attribution whose specification id no longer resolves from the registry, keeping the wiring intact')]

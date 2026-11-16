@@ -661,6 +661,13 @@ class ContentSystemExceptionTest extends TestCase
             'Sw:Unknown:Type',
         ];
 
+        yield 'scoped binding config unresolved' => [
+            ContentSystemException::scopedBindingConfigUnresolved('core:Sw:Navigation:Breadcrumb', 'breadcrumb', ['property', 'type'], null),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__SCOPED_BINDING_CONFIG_UNRESOLVED',
+            'Binding specification "core:Sw:Navigation:Breadcrumb" cannot wire "breadcrumb" for root source "(unbound)": the config property, type has no entry for it',
+        ];
+
         yield 'unknown entity type' => [
             ContentSystemException::unknownEntityType('mystery_entity'),
             Response::HTTP_BAD_REQUEST,

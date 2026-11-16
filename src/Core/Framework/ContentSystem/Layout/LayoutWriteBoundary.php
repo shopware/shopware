@@ -37,7 +37,7 @@ final class LayoutWriteBoundary
 
         $styled = $this->styleNormalizer->normalize($tree->withRoots($seeded))->roots;
 
-        return $tree->withRoots($this->elements($this->attributionReconciler->reconcile($styled)));
+        return $tree->withRoots($this->elements($this->attributionReconciler->reconcile($styled, $tree->rootSource)));
     }
 
     /**

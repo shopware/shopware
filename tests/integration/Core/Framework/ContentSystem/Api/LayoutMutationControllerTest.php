@@ -47,6 +47,46 @@ class LayoutMutationControllerTest extends TestCase
         static::assertSame([], $body['orphaned']);
     }
 
+    #[TestDox('rejects inserting an element whose default binding has no scoped config entry for the layout root source')]
+    #[DataProvider('rootSourcesWithoutBreadcrumbEntry')]
+    public function testInsertRejectsScopedBindingConfigWithoutEntryForRootSource(?string $rootSource): void
+    {
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'insert-element', [
+            'layout' => [],
+            'type' => 'Sw:Navigation:Breadcrumb',
+            'rootSource' => $rootSource,
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::SCOPED_BINDING_CONFIG_UNRESOLVED, array_column($body['errors'], 'code'));
+    }
+
+    /**
+     * @return iterable<string, array{string|null}>
+     */
+    public static function rootSourcesWithoutBreadcrumbEntry(): iterable
+    {
+        yield 'no root source' => [null];
+        yield 'root source without entry' => ['none'];
+    }
+
+    #[TestDox('wires the breadcrumb default binding collapsed to the layout root source')]
+    public function testInsertWiresScopedBindingConfigForRootSourceWithEntry(): void
+    {
+        $body = $this->mutate('insert-element', [
+            'layout' => [],
+            'type' => 'Sw:Navigation:Breadcrumb',
+            'rootSource' => 'category',
+        ]);
+
+        $config = $body['layout'][0]['dataRequirements']['breadcrumb']['config'];
+        static::assertSame('{{categoryId}}', $config['property']);
+        static::assertSame('category', $config['type']);
+    }
+
     #[TestDox('removes an element and returns the trimmed layout')]
     public function testRemoveElement(): void
     {

@@ -7,6 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -60,21 +62,21 @@ class ShipmentMailTemplatesTest extends TestCase
     }
 
     #[DataProvider('templateProvider')]
-    public function testRendersAnOrderWithOneShipmentAlikeWithoutOrderShipments(string $type, string $variant): void
+    public function testRendersAnOrderWithOneShipmentTheSameOnThePreviousVersion(string $type, string $variant): void
     {
         $order = $this->loadOrder($this->createOrder(false));
 
         static::assertSame(
             $this->render($type, $variant, ['order' => $order]),
-            $this->render($type, $variant, ['order' => self::withoutShipments($order)])
+            $this->render($type, $variant, ['order' => self::asOnThePreviousVersion($order)])
         );
     }
 
     #[DataProvider('templateProvider')]
-    public function testRendersAnOrderWithSeveralShipmentsWithoutOrderShipments(string $type, string $variant): void
+    public function testRendersAnOrderWithSeveralShipmentsOnThePreviousVersion(string $type, string $variant): void
     {
         $order = $this->loadOrder($this->createOrder(true));
-        $data = ['order' => self::withoutShipments($order)];
+        $data = ['order' => self::asOnThePreviousVersion($order)];
 
         if (str_starts_with($type, 'order_delivery.')) {
             $data['orderDelivery'] = $order->getDeliveries()?->firstWhere(
@@ -86,22 +88,45 @@ class ShipmentMailTemplatesTest extends TestCase
     }
 
     /**
-     * The order as workers of the previous version load it: every getter of the order entity, but no getShipments()
+     * The order as workers of the previous version load it: its deliveries have no getShipments()
      */
-    private static function withoutShipments(OrderEntity $order): object
+    private static function asOnThePreviousVersion(OrderEntity $order): object
     {
-        return new class($order) {
-            public function __construct(private readonly OrderEntity $order)
+        /** @implements \IteratorAggregate<string, OrderDeliveryEntity> */
+        $deliveries = new class($order->getDeliveries() ?? new OrderDeliveryCollection()) implements \IteratorAggregate {
+            public function __construct(private readonly OrderDeliveryCollection $deliveries)
             {
+            }
+
+            public function getIterator(): \Traversable
+            {
+                return $this->deliveries->getIterator();
+            }
+
+            public function first(): ?OrderDeliveryEntity
+            {
+                return $this->deliveries->first();
+            }
+        };
+
+        return new class($order, $deliveries) {
+            public function __construct(
+                private readonly OrderEntity $order,
+                private readonly object $deliveries,
+            ) {
             }
 
             public function __isset(string $name): bool
             {
-                return $name !== 'shipments' && method_exists($this->order, 'get' . ucfirst($name));
+                return method_exists($this->order, 'get' . ucfirst($name));
             }
 
             public function __get(string $name): mixed
             {
+                if ($name === 'deliveries') {
+                    return $this->deliveries;
+                }
+
                 // @phpstan-ignore method.dynamicName
                 return $this->order->{'get' . ucfirst($name)}();
             }

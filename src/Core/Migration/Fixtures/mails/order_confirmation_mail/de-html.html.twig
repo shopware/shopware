@@ -106,7 +106,7 @@
         {% endfor %}
     </table>
 
-    {% set shipments = order.shipments is defined ? order.shipments : order.deliveries|filter(delivery => delivery.shippingCosts.totalPrice >= 0)|sort((a, b) => b.shippingCosts.unitPrice <=> a.shippingCosts.unitPrice) %}
+    {% set shipments = order.deliveries|filter(delivery => delivery.shippingCosts.totalPrice >= 0)|sort((a, b) => [b.id == order.primaryOrderDeliveryId, b.shippingCosts.unitPrice, a.id] <=> [a.id == order.primaryOrderDeliveryId, a.shippingCosts.unitPrice, b.id]) %}
     {% set delivery = shipments|first %}
 
     {% set displayRounded = order.totalRounding.interval != 0.01 or order.totalRounding.decimals != order.itemRounding.decimals %}

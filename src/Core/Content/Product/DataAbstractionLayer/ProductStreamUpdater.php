@@ -10,6 +10,7 @@ use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStr
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamWriteResultHelper;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException as DeprecatedUnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -34,6 +35,11 @@ use Symfony\Component\Messenger\MessageBusInterface;
 class ProductStreamUpdater extends AbstractProductStreamUpdater
 {
     public const INDEXER_NAME = 'product_stream_mapping.indexer';
+
+    /**
+     * Stays inside the default OpenSearch result window (`max_result_window`) of the product index
+     */
+    private const SEARCH_PAGE_SIZE = 10000;
 
     /**
      * @internal
@@ -95,7 +101,6 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         }
 
         $criteria?->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-        $criteria?->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
         $binaryStreamId = Uuid::fromHexToBytes($streamId);
 
@@ -343,22 +348,26 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
     }
 
     /**
-     * OpenSearch returns at most one result window of ids, a stream with more matches is loaded from the database.
+     * OpenSearch returns at most one result window per request, so a whole stream is loaded page by page.
+     * Searches for a known list of products (`updateProducts`) run without OpenSearch and fit into one request.
      *
      * @return list<string>
      */
     private function searchIds(Criteria $criteria, Context $context): array
     {
-        $result = $this->repository->searchIds($criteria, $context);
-
-        if ($result->getTotal() <= \count($result->getIds())) {
-            return $result->getIds();
+        if (!$criteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE)) {
+            return $this->repository->searchIds($criteria, $context)->getIds();
         }
 
-        $oCriteria = clone $criteria;
-        $oCriteria->removeState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $iterator = new RepositoryIterator($this->repository, $context, (clone $criteria)->setLimit(self::SEARCH_PAGE_SIZE));
 
-        return $this->repository->searchIds($oCriteria, $context)->getIds();
+        $ids = [];
+        while (($page = $iterator->fetchIds()) !== null) {
+            /** @var list<string> $page */
+            array_push($ids, ...$page);
+        }
+
+        return $ids;
     }
 
     /**

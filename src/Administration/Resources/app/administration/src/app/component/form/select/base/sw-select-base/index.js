@@ -142,9 +142,7 @@ export default {
         },
 
         /**
-         * Moves the focus to the element before this select, like the browser's own SHIFT+TAB would.
-         * It only focuses: the previous element may be a link or a button, which must not be activated.
-         * A previous select gets its selection wrapper focused, which expands it like TAB into it does.
+         * Moves the focus to the previous focusable element, like the browser's SHIFT+TAB.
          */
         focusPreviousFormElement() {
             const focusableSelector = 'a, button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])';
@@ -162,6 +160,7 @@ export default {
                 return;
             }
 
+            // A previous select only expands when its selection gets the focus, not its search input
             (previous.closest('.sw-select__selection') ?? previous).focus();
         },
 

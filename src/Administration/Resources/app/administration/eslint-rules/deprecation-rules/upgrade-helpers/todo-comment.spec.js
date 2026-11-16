@@ -104,6 +104,27 @@ vueTester.run('todo-comment (template)', templateRule, {
             output: null,
             errors: [{ message: 'sw-old is removed.' }],
         },
+        {
+            name: 'writes the TODO above a multi-line start tag that ends on the line of the finding',
+            filename: 'test.vue',
+            code: '<template>\n    <a\n        href="#"\n    ><sw-old /></a>\n</template>',
+            output: '<template>\n    <!-- TODO Codemod(6.8, test): sw-old is removed. -->\n    <a\n        href="#"\n    ><sw-old /></a>\n</template>',
+            errors: [{ message: 'sw-old is removed.' }],
+        },
+        {
+            name: 'writes the TODO above the outermost of nested multi-line start tags',
+            filename: 'test.html.twig',
+            code: '<template>\n<div\n    class="acme"\n><a\n    href="#"\n><sw-old /></a></div>\n</template>',
+            output: '<template>\n{# TODO Codemod(6.8, test): sw-old is removed. #}\n<div\n    class="acme"\n><a\n    href="#"\n><sw-old /></a></div>\n</template>',
+            errors: [{ message: 'sw-old is removed.' }],
+        },
+        {
+            name: 'reports without a fix when the TODO is already above the multi-line start tag',
+            filename: 'test.html.twig',
+            code: '<template>\n{# TODO Codemod(6.8, test): sw-old is removed. #}\n<a\n    href="#"\n><sw-old /></a>\n</template>',
+            output: null,
+            errors: [{ message: 'sw-old is removed.' }],
+        },
     ],
 });
 

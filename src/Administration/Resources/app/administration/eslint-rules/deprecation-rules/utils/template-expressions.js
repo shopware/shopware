@@ -12,10 +12,10 @@ const TWIG_PATTERN = /{%|%}|{#|#}/;
 const MUSTACHE_PATTERN = /^{{([\s\S]*)}}$/;
 
 /**
- * Quotes a text as a single-quoted JS string.
+ * Quotes a text as a single-quoted JS string for a double-quoted attribute, so `"` becomes `\x22`.
  */
 function quote(text) {
-    return `'${text.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+    return `'${text.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\x22')}'`;
 }
 
 function isExpression(code) {

@@ -589,6 +589,36 @@ const mtTabsInvalidTests = [
             { message: '[mt-tabs] The default slot usage in mt-tabs was removed and replaced with the property "items".' },
         ]
     },
+    {
+        name: '"mt-tabs" escapes double quotes of text labels, so the items attribute stays valid',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-tabs>
+                    <sw-tabs-item name="tab1">Tab "A"</sw-tabs-item>
+                    <sw-tabs-item name="tab2">Tab &quot;B&quot;</sw-tabs-item>
+                </mt-tabs>
+            </template>`,
+        output: `
+            <template>
+                <mt-tabs :items="[
+    {
+        'label': 'Tab \\x22A\\x22',
+        'name': 'tab1'
+    },
+    {
+        'label': 'Tab \\x22B\\x22',
+        'name': 'tab2'
+    }
+]"><!-- TODO Codemod: This slot is not used anymore. Please use the "items" property instead. -->
+                    <sw-tabs-item name="tab1">Tab "A"</sw-tabs-item>
+                    <sw-tabs-item name="tab2">Tab &quot;B&quot;</sw-tabs-item>
+                </mt-tabs>
+            </template>`,
+        errors: [
+            { message: '[mt-tabs] The default slot usage in mt-tabs was removed and replaced with the property "items".' },
+        ]
+    },
 ];
 
 module.exports = {

@@ -33,6 +33,31 @@ describe('sw-product-document-form dialog sessions', () => {
         cleanupWrappers();
     });
 
+    it.each([
+        [1, 1, false],
+        [1, 2, true],
+        [2, 2, false],
+    ] as const)(
+        'keeps the upload modal open: %s of %s successful uploads → %s',
+        async (successAmount, totalAmount, staysOpen) => {
+            const repository = repositoryFactory.create('media');
+            const media = createMedia();
+            jest.spyOn(repository, 'get').mockResolvedValue(media);
+            const wrapper = await createWrapper(repository);
+            await clickButton(wrapper, 'sw-product.documentForm.buttonAdd');
+
+            wrapper.getComponent<ComponentPublicInstance>('sw-upload-listener-stub').vm.$emit('media-upload-finish', {
+                targetId: media.id,
+                successAmount,
+                totalAmount,
+            });
+            await flushPromises();
+
+            expect(getDocuments()?.[0].mediaId).toBe(media.id);
+            expect(wrapper.find('.sw-product-document-form__upload-modal').exists()).toBe(staysOpen);
+        },
+    );
+
     it.each([false, true])('ignores a media lookup after leaving the tab (reject: %s)', async (reject) => {
         const repository = repositoryFactory.create('media');
         const media = createMedia();

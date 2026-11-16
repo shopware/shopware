@@ -14,6 +14,7 @@ export default [
         property: 'position',
         label: 'sw-product.documentForm.columnPosition',
         width: '110px',
+        align: 'center',
     },
     {
         property: 'title',
@@ -24,7 +25,8 @@ export default [
     {
         property: 'fileName',
         label: 'sw-product.documentForm.columnFileName',
-        width: '190px',
+        primary: true,
+        width: '300px',
     },
     {
         property: 'fileType',
@@ -39,7 +41,11 @@ export default [
         visible: false,
         align: 'right',
     },
-].map((column) => ({ ...column, sortable: false, resizable: false }));
+].map((column) => ({
+    ...column,
+    sortable: false,
+    allowResize: !['number', 'position'].includes(column.property),
+}));
 
 // Epic defaults until validation configuration is exposed by the backend.
 /** @private */
@@ -52,5 +58,3 @@ export const allowedExtensions = [
 ];
 /** @private */
 export const maxFileSize = 20 * 1024 * 1024;
-/** @private */
-export const maxDocuments = 10;

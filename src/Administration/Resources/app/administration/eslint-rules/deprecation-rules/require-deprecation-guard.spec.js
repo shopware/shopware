@@ -66,8 +66,8 @@ ruleTester.run('require-deprecation-guard', rule, {
             code: `${deprecated} Shopware.Component.register('sw-old', { template });`,
         },
         {
-            name: 'a deprecated option that is no literal, whose version is not compared',
-            code: `${deprecated} export default { template, deprecated: LEGACY_OPTION };`,
+            name: 'a malformed marker, which valid-api-markers reports instead',
+            code: '/** @deprecated tag:v6.8.0.0 - x */ export function oldFunction() { return 1; }',
         },
         {
             name: 'a lifecycle hook, which core runs for every instance',
@@ -282,6 +282,24 @@ ruleTester.run('require-deprecation-guard', rule, {
             name: 'a lifecycle-named method of a class, which is no hook',
             code: `export class Old { ${deprecated} mounted() { return 1; } }`,
             errors: [{ messageId: 'missingGuard', data: { name: 'mounted', flag: 'V6_8_0_0' } }],
+        },
+        {
+            name: 'a component whose deprecated option is no object literal',
+            code: `${deprecated} export default { template, deprecated: LEGACY_OPTION };`,
+            errors: [{ messageId: 'nonLiteralOption', data: { name: 'component', version: 'v6.8.0.0' } }],
+        },
+        {
+            name: 'a prop whose deprecated option has no string version',
+            code: `export default { props: { ${deprecated} old: { type: String, deprecated: { version: VERSION, comment: 'x' } } } };`,
+            errors: [{ messageId: 'nonLiteralOption', data: { name: 'old', version: 'v6.8.0.0' } }],
+        },
+        {
+            name: 'a guard below a malformed marker only',
+            code: `export function format(value) {
+                // @deprecated tag:v6.8.0.0 - Pass an object.
+                ${guard}
+            }`,
+            errors: [{ messageId: 'missingDeprecationMarker' }],
         },
         {
             name: 'a guard in an undeprecated method of a component',

@@ -2,7 +2,11 @@
  * @sw-package framework
  */
 
-const TAG_PATTERN = /@deprecated\s+tag:v(\d+\.\d+\.\d+(?:\.\d+)?)/;
+const { createJiti } = require('jiti');
+
+// The marker grammar is TypeScript so the public API generator can reuse it, jiti loads it into this CommonJS plugin.
+const { parseMarkers } = createJiti(__filename)('./utils/api-markers.ts');
+
 const WILL_BE_PRIVATE_PATTERN = /@deprecated\s+tag:\S+\s*-\s*will be @?private/i;
 const GUARD_NAME = 'triggerDeprecationOrThrow';
 const GUARD_SNIPPET = `Shopware.Feature.${GUARD_NAME}('{{flag}}', '…')`;
@@ -138,20 +142,32 @@ function toFlag(value) {
 }
 
 /**
+ * The version of the first well-formed `@deprecated tag:vX.Y.Z - …` marker in a comment text, like `v6.8.0`, or
+ * `null`. A malformed marker counts as none, `valid-api-markers` reports it.
+ */
+function deprecatedVersion(text) {
+    return (
+        parseMarkers(text)
+            .map((match) => match.marker)
+            .find((marker) => marker?.tag === 'deprecated')?.version ?? null
+    );
+}
+
+/**
  * The deprecation the comments announce, or `null` when they announce none or only take something out of the
  * public API, like "Will be private", which keeps it working.
  */
 function parseTag(comments) {
     const text = comments.map((comment) => comment.value).join('\n');
-    const match = TAG_PATTERN.exec(text);
+    const announced = deprecatedVersion(text);
 
-    if (!match || text.includes('@private') || WILL_BE_PRIVATE_PATTERN.test(text)) {
+    if (!announced || text.includes('@private') || WILL_BE_PRIVATE_PATTERN.test(text)) {
         return null;
     }
 
-    const version = normalizeVersion(match[1]);
+    const version = normalizeVersion(announced);
 
-    return { announced: `v${match[1]}`, version, flag: toFlag(version) };
+    return { announced, version, flag: toFlag(version) };
 }
 
 // The value is what has to carry the guard.
@@ -309,6 +325,9 @@ module.exports = {
             missingComponentOption:
                 `The deprecated component needs a root "${OPTION_SNIPPET}" option, ` +
                 'so the deprecation plugin triggers it on creation.',
+            nonLiteralOption:
+                `The "deprecated" option of "{{name}}" has to be written as "${OPTION_SNIPPET}" with a string version, ` +
+                'so it can be compared with the marker.',
             versionMismatch:
                 'The "deprecated" option of "{{name}}" has to use the version "{{version}}" that "@deprecated tag:" announces.',
             markerFlagMismatch:
@@ -389,9 +408,7 @@ module.exports = {
                 ...enclosing.flatMap((ancestor) => sourceCode.getCommentsBefore(ancestor).reverse()),
                 ...headers,
             ];
-            const match = comments.map((comment) => TAG_PATTERN.exec(comment.value)).find(Boolean);
-
-            return match ? match[1] : null;
+            return comments.map((comment) => deprecatedVersion(comment.value)).find(Boolean) ?? null;
         }
 
         function checkMarkerOfGuard(call) {
@@ -413,7 +430,7 @@ module.exports = {
                 context.report({
                     node: call,
                     messageId: 'markerFlagMismatch',
-                    data: { flag: expected, announced: `v${version}` },
+                    data: { flag: expected, announced: version },
                 });
             }
         }
@@ -461,7 +478,11 @@ module.exports = {
 
             const version = stringValue(findProperty(option, 'version')?.value);
 
-            if (version !== null && normalizeVersion(version) !== declaration.tag.version) {
+            if (version === null) {
+                return report(declaration, 'nonLiteralOption', {}, option);
+            }
+
+            if (normalizeVersion(version) !== declaration.tag.version) {
                 report(declaration, 'versionMismatch', {}, option);
             }
         }

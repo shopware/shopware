@@ -247,8 +247,9 @@ of them has to announce the major of the flag. A guard of a deprecated argument 
 `// @deprecated tag:vX.Y.Z - …` comment right above it. Such a marker on a statement inside a body is a reminder
 for the removal and no announcement of a public element.
 
-Not covered: the inline config of a `Component.register('sw-x', { … })` call, and the version of a `deprecated`
-option that is not a string literal.
+The `deprecated` option is an object literal with a string `version`, so the rule can compare it with the marker.
+A marker counts once it follows the grammar of `valid-api-markers`, which reports any other.
+The inline config of a `Component.register('sw-x', { … })` call is not covered.
 
 Two exceptions are temporary until `@bc-change` markers replace them:
 markers like "Will be private" are skipped, and a deprecation of a single parameter takes an

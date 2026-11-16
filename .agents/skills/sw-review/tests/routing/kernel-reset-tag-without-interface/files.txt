@@ -1,0 +1,2 @@
+src/Storefront/DependencyInjection/theme.php
+tests/unit/Storefront/DependencyInjection/ThemeServiceConfigTest.php

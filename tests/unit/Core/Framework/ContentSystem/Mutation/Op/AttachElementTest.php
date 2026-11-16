@@ -191,37 +191,22 @@ class AttachElementTest extends TestCase
         static::assertSame(['media' => 'core:Sw:Card'], $child->attributedSpecifications);
     }
 
-    #[TestDox('names the element id the caller supplied when the type default binding rejects the root source')]
-    public function testAttachRejectionNamesTheSuppliedElementId(): void
-    {
-        $attach = new AttachElement(
-            $this->registry(),
-            new StoredElement('incoming', 'Sw:Card'),
-            $this->scopedCardDefaultRegistry(),
-            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), $this->registry()),
-        );
-
-        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Card', 'media', 'incoming', 'category'));
-        $attach->apply(new StoredTree([], 'category'));
-    }
-
     /**
-     * @return iterable<string, array{bool}>
+     * @return iterable<string, array{StoredElement, bool, string}>
      */
-    public static function nestedRejectionScaffoldProvider(): iterable
+    public static function rejectionElementIdProvider(): iterable
     {
-        yield 'attach-element names the supplied nested element' => [false];
-        yield 'a preset insertion names the payload id of the nested element' => [true];
+        yield 'attach-element names the supplied element' => [new StoredElement('incoming', 'Sw:Card'), false, 'incoming'];
+
+        $nested = new StoredElement('incoming', 'Sw:Block', [], [], ['content' => [new StoredElement('incoming-child', 'Sw:Card')]]);
+        yield 'attach-element names the supplied nested element' => [$nested, false, 'incoming-child'];
+        yield 'a preset insertion names the payload id of the nested element' => [$nested, true, 'incoming-child'];
     }
 
-    #[DataProvider('nestedRejectionScaffoldProvider')]
-    #[TestDox('names the nested element id the caller supplied when the type default of a descendant rejects the root source: $_dataName')]
-    public function testAttachRejectionNamesTheSuppliedNestedElementId(bool $isNewScaffold): void
+    #[DataProvider('rejectionElementIdProvider')]
+    #[TestDox('names the element id the caller supplied when the type default of that element rejects the root source: $_dataName')]
+    public function testAttachRejectionNamesTheSuppliedElementId(StoredElement $incoming, bool $isNewScaffold, string $expectedElementId): void
     {
-        $incoming = new StoredElement('incoming', 'Sw:Block', [], [], [
-            'content' => [new StoredElement('incoming-child', 'Sw:Card')],
-        ]);
-
         $attach = new AttachElement(
             $this->registry(),
             $incoming,
@@ -230,7 +215,7 @@ class AttachElementTest extends TestCase
             isNewScaffold: $isNewScaffold,
         );
 
-        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Card', 'media', 'incoming-child', 'category'));
+        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Card', 'media', $expectedElementId, 'category'));
         $attach->apply(new StoredTree([], 'category'));
     }
 

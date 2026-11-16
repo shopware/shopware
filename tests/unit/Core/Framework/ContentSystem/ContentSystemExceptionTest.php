@@ -139,37 +139,26 @@ class ContentSystemExceptionTest extends TestCase
         static::assertSame($expected, $actual);
     }
 
-    #[TestDox('carries an absent root source as null in the binding-root-source-not-scoped parameters')]
-    public function testBindingRootSourceNotScopedCarriesAbsentRootSourceAsNull(): void
+    #[DataProvider('bindingRootSourceNotScopedParametersProvider')]
+    #[TestDox('carries $_dataName in the binding-root-source-not-scoped parameters')]
+    public function testBindingRootSourceNotScopedCarriesItsArgumentsAsParameters(?string $elementId, ?string $rootSource): void
     {
-        $exception = ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', 'crumb-1', null);
+        $exception = ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', $elementId, $rootSource);
 
         static::assertSame(
-            ['bindingSpecificationId' => 'core:Sw:Navigation:Breadcrumb', 'key' => 'breadcrumb', 'elementId' => 'crumb-1', 'rootSource' => null],
+            ['bindingSpecificationId' => 'core:Sw:Navigation:Breadcrumb', 'key' => 'breadcrumb', 'elementId' => $elementId, 'rootSource' => $rootSource],
             $exception->getParameters()
         );
     }
 
-    #[TestDox('carries a named root source verbatim in the binding-root-source-not-scoped parameters')]
-    public function testBindingRootSourceNotScopedCarriesNamedRootSourceVerbatim(): void
+    /**
+     * @return iterable<string, array{?string, ?string}>
+     */
+    public static function bindingRootSourceNotScopedParametersProvider(): iterable
     {
-        $exception = ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', 'crumb-1', 'none');
-
-        static::assertSame(
-            ['bindingSpecificationId' => 'core:Sw:Navigation:Breadcrumb', 'key' => 'breadcrumb', 'elementId' => 'crumb-1', 'rootSource' => 'none'],
-            $exception->getParameters()
-        );
-    }
-
-    #[TestDox('carries an absent element as null in the binding-root-source-not-scoped parameters')]
-    public function testBindingRootSourceNotScopedCarriesAbsentElementAsNull(): void
-    {
-        $exception = ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', null, 'none');
-
-        static::assertSame(
-            ['bindingSpecificationId' => 'core:Sw:Navigation:Breadcrumb', 'key' => 'breadcrumb', 'elementId' => null, 'rootSource' => 'none'],
-            $exception->getParameters()
-        );
+        yield 'an absent root source as null' => ['crumb-1', null];
+        yield 'a named root source verbatim' => ['crumb-1', 'none'];
+        yield 'an absent element as null' => [null, 'none'];
     }
 
     #[DataProvider('configSerializerMessageFormProvider')]

@@ -835,22 +835,13 @@ class LayoutMutationControllerTest extends TestCase
     public function testInsertElementRejectsScopedDefaultWithUnscopedRootSource(array $rootSourcePayload, ?string $expectedRootSource): void
     {
         // The core breadcrumb wires its `breadcrumb` key with values scoped over product and category only.
-        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'insert-element', [
+        $parameters = $this->rootSourceNotScopedParameters('insert-element', [
             'layout' => [],
             'type' => 'Sw:Navigation:Breadcrumb',
             ...$rootSourcePayload,
         ]);
-        $response = $this->getBrowser()->getResponse();
 
-        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
-
-        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame(ContentSystemException::BINDING_ROOT_SOURCE_NOT_SCOPED, $body['errors'][0]['code'] ?? null, (string) $response->getContent());
-
-        $parameters = $body['errors'][0]['meta']['parameters'] ?? [];
-        static::assertArrayHasKey('rootSource', $parameters, (string) $response->getContent());
         static::assertSame($expectedRootSource, $parameters['rootSource']);
-        static::assertArrayHasKey('elementId', $parameters, (string) $response->getContent());
         static::assertNull($parameters['elementId']);
     }
 
@@ -873,19 +864,9 @@ class LayoutMutationControllerTest extends TestCase
     #[DataProvider('scopedDefaultRoutes')]
     public function testBindingRoutesRejectScopedDefaultWithoutRootSource(string $operation, array $payload): void
     {
-        // The core breadcrumb wires its `breadcrumb` key with values scoped over product and category only.
-        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . $operation, $payload);
-        $response = $this->getBrowser()->getResponse();
+        $parameters = $this->rootSourceNotScopedParameters($operation, $payload);
 
-        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
-
-        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame(ContentSystemException::BINDING_ROOT_SOURCE_NOT_SCOPED, $body['errors'][0]['code'] ?? null, (string) $response->getContent());
-
-        $parameters = $body['errors'][0]['meta']['parameters'] ?? [];
-        static::assertArrayHasKey('elementId', $parameters, (string) $response->getContent());
         static::assertSame('crumb-1', $parameters['elementId']);
-        static::assertArrayHasKey('rootSource', $parameters, (string) $response->getContent());
         static::assertNull($parameters['rootSource']);
     }
 
@@ -1113,6 +1094,28 @@ class LayoutMutationControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
         return json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     *
+     * @return array<string, mixed> the `meta.parameters` of the first error
+     */
+    private function rootSourceNotScopedParameters(string $operation, array $payload): array
+    {
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . $operation, $payload);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(ContentSystemException::BINDING_ROOT_SOURCE_NOT_SCOPED, $body['errors'][0]['code'] ?? null, (string) $response->getContent());
+
+        $parameters = $body['errors'][0]['meta']['parameters'] ?? [];
+        static::assertArrayHasKey('rootSource', $parameters, (string) $response->getContent());
+        static::assertArrayHasKey('elementId', $parameters, (string) $response->getContent());
+
+        return $parameters;
     }
 
     private function secondLanguageId(): string

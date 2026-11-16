@@ -704,12 +704,7 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
     {
         $validator = $this->validatorWithRootSources(['product', 'category', 'landing_page']);
 
-        $dto = new BindingSpecificationDto(
-            type: 'image',
-            label: 'label',
-            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId', 'variant' => [RootSourceConfigMap::MARKER => ['product' => 'wide', 'category' => 'narrow']]]]],
-            inputs: [],
-        );
+        $dto = $this->entityLoaderDto(['entity' => 'media', 'property' => 'mediaId', 'variant' => [RootSourceConfigMap::MARKER => ['product' => 'wide', 'category' => 'narrow']]]);
 
         static::assertCount(0, $this->validateWith($dto, $validator));
     }
@@ -719,17 +714,12 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
     {
         $validator = $this->validatorWithRootSources(['product', 'category', 'landing_page']);
 
-        $dto = new BindingSpecificationDto(
-            type: 'image',
-            label: 'label',
-            resolves: ['media' => ['loader' => 'entity', 'config' => [
-                'entity' => 'media',
-                'property' => 'mediaId',
-                'variant' => [RootSourceConfigMap::MARKER => ['product' => 'wide', 'category' => 'narrow']],
-                'format' => [RootSourceConfigMap::MARKER => ['category' => 'png', 'product' => 'jpg']],
-            ]]],
-            inputs: [],
-        );
+        $dto = $this->entityLoaderDto([
+            'entity' => 'media',
+            'property' => 'mediaId',
+            'variant' => [RootSourceConfigMap::MARKER => ['product' => 'wide', 'category' => 'narrow']],
+            'format' => [RootSourceConfigMap::MARKER => ['category' => 'png', 'product' => 'jpg']],
+        ]);
 
         static::assertCount(0, $this->validateWith($dto, $validator));
     }
@@ -743,12 +733,7 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
     {
         $validator = $this->validatorWithRootSources(['product', 'category', 'landing_page']);
 
-        $dto = new BindingSpecificationDto(
-            type: 'image',
-            label: 'label',
-            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId', 'variant' => $value]]],
-            inputs: [],
-        );
+        $dto = $this->entityLoaderDto(['entity' => 'media', 'property' => 'mediaId', 'variant' => $value]);
 
         $violations = $this->validateWith($dto, $validator);
 
@@ -775,17 +760,12 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
     {
         $validator = $this->validatorWithRootSources(['product', 'category', 'landing_page']);
 
-        $dto = new BindingSpecificationDto(
-            type: 'image',
-            label: 'label',
-            resolves: ['media' => ['loader' => 'entity', 'config' => [
-                'entity' => 'media',
-                'property' => 'mediaId',
-                'variant' => [RootSourceConfigMap::MARKER => ['product' => 'wide', 'category' => 'narrow']],
-                'format' => [RootSourceConfigMap::MARKER => ['product' => 'jpg']],
-            ]]],
-            inputs: [],
-        );
+        $dto = $this->entityLoaderDto([
+            'entity' => 'media',
+            'property' => 'mediaId',
+            'variant' => [RootSourceConfigMap::MARKER => ['product' => 'wide', 'category' => 'narrow']],
+            'format' => [RootSourceConfigMap::MARKER => ['product' => 'jpg']],
+        ]);
 
         $violations = $this->validateWith($dto, $validator);
 
@@ -811,16 +791,7 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
             },
         ]);
 
-        $dto = new BindingSpecificationDto(
-            type: 'image',
-            label: 'label',
-            resolves: ['media' => ['loader' => 'entity', 'config' => [
-                'entity' => 'media',
-                'property' => 'mediaId',
-                'variant' => [RootSourceConfigMap::MARKER => $variants],
-            ]]],
-            inputs: [],
-        );
+        $dto = $this->entityLoaderDto(['entity' => 'media', 'property' => 'mediaId', 'variant' => [RootSourceConfigMap::MARKER => $variants]]);
 
         $violations = $this->validateWith($dto, $validator);
 
@@ -846,12 +817,7 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
     {
         $validator = $this->validatorWithRootSources(['product', 'category', 'landing_page']);
 
-        $dto = new BindingSpecificationDto(
-            type: 'image',
-            label: 'label',
-            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId', 'variant' => [RootSourceConfigMap::MARKER => ['product' => 'wide', 'bogus' => 'narrow']]]]],
-            inputs: [],
-        );
+        $dto = $this->entityLoaderDto(['entity' => 'media', 'property' => 'mediaId', 'variant' => [RootSourceConfigMap::MARKER => ['product' => 'wide', 'bogus' => 'narrow']]]);
 
         $violations = $this->validateWith($dto, $validator);
 
@@ -865,12 +831,7 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
     {
         $validator = $this->validatorWithRootSources(['product', 'category', 'landing_page']);
 
-        $dto = new BindingSpecificationDto(
-            type: 'image',
-            label: 'label',
-            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId', 'variant' => [RootSourceConfigMap::MARKER => ['product' => ['wide']]]]]],
-            inputs: [],
-        );
+        $dto = $this->entityLoaderDto(['entity' => 'media', 'property' => 'mediaId', 'variant' => [RootSourceConfigMap::MARKER => ['product' => ['wide']]]]);
 
         $violations = $this->validateWith($dto, $validator);
 
@@ -884,12 +845,7 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
     {
         $validator = $this->validatorWithRootSources(['product', 'category', 'landing_page']);
 
-        $dto = new BindingSpecificationDto(
-            type: 'image',
-            label: 'label',
-            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId', 'variant' => [RootSourceConfigMap::MARKER => []]]]],
-            inputs: [],
-        );
+        $dto = $this->entityLoaderDto(['entity' => 'media', 'property' => 'mediaId', 'variant' => [RootSourceConfigMap::MARKER => []]]);
 
         $violations = $this->validateWith($dto, $validator);
 
@@ -907,12 +863,7 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
     {
         $validator = $this->validatorWithRootSources(['product', 'category', 'landing_page']);
 
-        $dto = new BindingSpecificationDto(
-            type: 'image',
-            label: 'label',
-            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', $configKey => [RootSourceConfigMap::MARKER => ['product' => 'mediaId', 'category' => 'mediaId']]]]],
-            inputs: [],
-        );
+        $dto = $this->entityLoaderDto(['entity' => 'media', $configKey => [RootSourceConfigMap::MARKER => ['product' => 'mediaId', 'category' => 'mediaId']]]);
 
         $violations = $this->validateWith($dto, $validator);
 
@@ -929,16 +880,11 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
     {
         $validator = $this->validatorWithRootSources(['product', 'category', 'landing_page']);
 
-        $dto = new BindingSpecificationDto(
-            type: 'image',
-            label: 'label',
-            resolves: ['media' => ['loader' => 'entity', 'config' => [
-                'entity' => 'media',
-                'property' => [RootSourceConfigMap::MARKER => ['product' => 'mediaId']],
-                'variant' => ['size' => [RootSourceConfigMap::MARKER => ['product' => 'wide']]],
-            ]]],
-            inputs: [],
-        );
+        $dto = $this->entityLoaderDto([
+            'entity' => 'media',
+            'property' => [RootSourceConfigMap::MARKER => ['product' => 'mediaId']],
+            'variant' => ['size' => [RootSourceConfigMap::MARKER => ['product' => 'wide']]],
+        ]);
 
         $violations = $this->validateWith($dto, $validator);
 
@@ -974,12 +920,7 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
     {
         $validator = $this->validatorWithRootSources(['product', 'category', 'landing_page']);
 
-        $dto = new BindingSpecificationDto(
-            type: 'image',
-            label: 'label',
-            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId', 'associations' => ['manufacturer', 'cover']]]],
-            inputs: [],
-        );
+        $dto = $this->entityLoaderDto(['entity' => 'media', 'property' => 'mediaId', 'associations' => ['manufacturer', 'cover']]);
 
         static::assertCount(0, $this->validateWith($dto, $validator));
     }
@@ -1109,6 +1050,19 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         $mapResolver->method('resolve')->willReturn($map);
 
         return new TypeConsistentBindingSpecificationValidator($registry, $provider, $rootContextMapper, $mapResolver, static::createStub(RootSourceRegistry::class));
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    private function entityLoaderDto(array $config): BindingSpecificationDto
+    {
+        return new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'entity', 'config' => $config]],
+            inputs: [],
+        );
     }
 
     /**

@@ -339,35 +339,32 @@ class BindingApplicatorTest extends TestCase
         static::assertSame(['breadcrumb' => 'core:old-spec'], $result->attributedSpecifications);
     }
 
+    /**
+     * @param \Closure(BindingApplicator, StoredElement, BindingSpecification, ?string): StoredElement $applyWith
+     */
     #[DataProvider('unscopedRootSourceProvider')]
-    #[TestDox('throws bindingRootSourceNotScoped naming the element id the caller reports when a scoped config value has no entry for the layout\'s root source ($_dataName)')]
-    public function testThrowsWhenScopedConfigHasNoRootSourceEntry(?string $rootSource): void
+    #[TestDox('throws bindingRootSourceNotScoped naming the element id the caller reports when the scoped config of a key it would wire has no entry for the root source: $_dataName')]
+    public function testThrowsWhenScopedConfigOfAKeyToWireHasNoRootSourceEntry(\Closure $applyWith, ?string $rootSource): void
     {
         $element = new StoredElement('crumb-1', 'Sw:Navigation:Breadcrumb');
 
         $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', 'reported-crumb', $rootSource));
 
-        $this->applicator($this->config())->apply($element, $this->scopedSpecification(), 'core:Sw:Navigation:Breadcrumb', 'reported-crumb', $rootSource);
-    }
-
-    #[DataProvider('unscopedRootSourceProvider')]
-    #[TestDox('fill-only: throws naming the element id the caller reports when the scoped config of a key it would wire has no entry for the root source ($_dataName)')]
-    public function testFillOnlyThrowsForTheScopedConfigOfAnUnwiredKey(?string $rootSource): void
-    {
-        $element = new StoredElement('crumb-1', 'Sw:Navigation:Breadcrumb');
-
-        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', 'reported-crumb', $rootSource));
-
-        $this->applicator($this->config())->applyFillOnly($element, $this->scopedSpecification(), 'core:Sw:Navigation:Breadcrumb', 'reported-crumb', $rootSource);
+        $applyWith($this->applicator($this->config()), $element, $this->scopedSpecification(), $rootSource);
     }
 
     /**
-     * @return iterable<string, array{string|null}>
+     * @return iterable<string, array{\Closure(BindingApplicator, StoredElement, BindingSpecification, ?string): StoredElement, string|null}>
      */
     public static function unscopedRootSourceProvider(): iterable
     {
-        yield 'no root source' => [null];
-        yield 'a root source the map does not name' => ['landing_page'];
+        $apply = static fn (BindingApplicator $applicator, StoredElement $element, BindingSpecification $specification, ?string $rootSource): StoredElement => $applicator->apply($element, $specification, 'core:Sw:Navigation:Breadcrumb', 'reported-crumb', $rootSource);
+        $applyFillOnly = static fn (BindingApplicator $applicator, StoredElement $element, BindingSpecification $specification, ?string $rootSource): StoredElement => $applicator->applyFillOnly($element, $specification, 'core:Sw:Navigation:Breadcrumb', 'reported-crumb', $rootSource);
+
+        yield 'apply with no root source' => [$apply, null];
+        yield 'apply with a root source the map does not name' => [$apply, 'landing_page'];
+        yield 'fill-only apply of an unwired key with no root source' => [$applyFillOnly, null];
+        yield 'fill-only apply of an unwired key with a root source the map does not name' => [$applyFillOnly, 'landing_page'];
     }
 
     private function scopedSpecification(): BindingSpecification

@@ -49,7 +49,7 @@ class RootSourceConfigMapTest extends TestCase
         yield 'the marker wrapping a non-array' => [[RootSourceConfigMap::MARKER => 'productId']];
     }
 
-    #[DataProvider('anyRootSourceProvider')]
+    #[DataProvider('namedOrNullRootSourceProvider')]
     #[TestDox('returns a config without a scoped value unchanged for $_dataName')]
     public function testCollapseLeavesNonScopedUntouched(?string $rootSource): void
     {
@@ -61,9 +61,9 @@ class RootSourceConfigMapTest extends TestCase
     /**
      * @return iterable<string, array{string|null}>
      */
-    public static function anyRootSourceProvider(): iterable
+    public static function namedOrNullRootSourceProvider(): iterable
     {
-        yield 'a named root source' => ['product'];
+        yield 'a named root source' => ['category'];
         yield 'a null root source' => [null];
     }
 
@@ -130,8 +130,8 @@ class RootSourceConfigMapTest extends TestCase
         yield 'a config whose scoped maps are all empty' => [['entity' => 'media', 'property' => [RootSourceConfigMap::MARKER => []]]];
     }
 
-    #[DataProvider('unscopedRootSourceProvider')]
-    #[TestDox('returns null for $_dataName')]
+    #[DataProvider('namedOrNullRootSourceProvider')]
+    #[TestDox('returns null when the scoped map has no entry for $_dataName')]
     public function testCollapseReturnsNullWithoutRootSourceEntry(?string $rootSource): void
     {
         $config = [
@@ -140,15 +140,6 @@ class RootSourceConfigMapTest extends TestCase
         ];
 
         static::assertNull(RootSourceConfigMap::collapse($config, $rootSource));
-    }
-
-    /**
-     * @return iterable<string, array{string|null}>
-     */
-    public static function unscopedRootSourceProvider(): iterable
-    {
-        yield 'a root source the scoped map has no entry for' => ['category'];
-        yield 'a null root source' => [null];
     }
 
     /**

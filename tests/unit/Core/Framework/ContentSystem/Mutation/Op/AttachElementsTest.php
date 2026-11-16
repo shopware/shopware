@@ -101,17 +101,17 @@ class AttachElementsTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{bool, string}>
+     * @return iterable<string, array{bool}>
      */
     public static function rejectionElementIdProvider(): iterable
     {
-        yield 'attach-element names the supplied element' => [false, 'second'];
-        yield 'a preset insertion names the payload id of the element' => [true, 'second'];
+        yield 'attach-element names the supplied element' => [false];
+        yield 'a preset insertion names the payload id of the element' => [true];
     }
 
     #[DataProvider('rejectionElementIdProvider')]
     #[TestDox('names the offending element when the type default of a later element rejects the root source: $_dataName')]
-    public function testRejectionNamesTheOffendingElement(bool $isNewScaffold, string $expectedElementId): void
+    public function testRejectionNamesTheOffendingElement(bool $isNewScaffold): void
     {
         $bindingRegistry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
         $bindingRegistry->method('all')->willReturn(['core:Sw:Card' => ScopedDefaultBindingFixture::mediaScopedToProduct('Sw:Card', 'Card')]);
@@ -124,7 +124,7 @@ class AttachElementsTest extends TestCase
             isNewScaffold: $isNewScaffold,
         );
 
-        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Card', 'media', $expectedElementId, 'category'));
+        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Card', 'media', 'second', 'category'));
         $op->apply(new StoredTree([], 'category'));
     }
 

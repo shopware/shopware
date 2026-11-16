@@ -225,9 +225,7 @@ class InsertElementTest extends TestCase
     public function testInsertExplicitBindingAppliesBeforeDefaultFill(): void
     {
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
-        // The default declares the shared key last. Explicit-first puts the shared key first in the attribution
-        // map and the default-only key after it; applying the default first would leave the default's own key
-        // order, with the shared key last.
+        // The default declares the shared key last, so only explicit-first yields the ['media', 'gallery'] order.
         $default = new BindingSpecification(
             'Sw:Media:Image',
             'Sw:Media:Image',
@@ -398,48 +396,51 @@ class InsertElementTest extends TestCase
         $insert->apply(new StoredTree([], 'category'));
     }
 
-    #[TestDox('still rejects a scoped default key whose root source is unnamed when no bindingSpecificationId is given, naming no element')]
-    public function testInsertWithoutNamedSpecificationRejectsScopedDefaultWithUnnamedRootSource(): void
+    /**
+     * @param array<string, BindingSpecification> $specifications
+     */
+    #[DataProvider('unresolvableScopedSpecificationProvider')]
+    #[TestDox('rejects a specification whose scoped key has no entry for the tree root source, naming that specification and no element: $_dataName')]
+    public function testInsertRejectsSpecificationWhoseScopedKeyCannotResolve(array $specifications, ?string $bindingSpecificationId, string $expectedSpecificationId, string $expectedKey): void
     {
-        $default = ScopedDefaultBindingFixture::mediaScopedToProduct('Sw:Media:Image', 'Image');
-
         $insert = new InsertElement(
             $this->registryWith('Sw:Media:Image'),
             'Sw:Media:Image',
-            $this->bindingRegistry(['core:Sw:Media:Image' => $default]),
+            $this->bindingRegistry($specifications),
             $this->unboundApplicator(),
+            $bindingSpecificationId,
         );
 
-        // The scaffolded element never reaches the caller, so the error names no element.
-        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Media:Image', 'media', null, 'category'));
+        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped($expectedSpecificationId, $expectedKey, null, 'category'));
 
         $insert->apply(new StoredTree([], 'category'));
     }
 
-    #[TestDox('rejects a named specification whose own scoped key has no entry for the tree root source, naming that specification and no element')]
-    public function testInsertRejectsNamedSpecificationWhoseScopedKeyCannotResolve(): void
+    /**
+     * @return iterable<string, array{array<string, BindingSpecification>, ?string, string, string}>
+     */
+    public static function unresolvableScopedSpecificationProvider(): iterable
     {
-        $named = new BindingSpecification(
-            'gallery-pick',
-            'Sw:Media:Image',
-            'Gallery pick',
-            ['cover' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId', 'associations' => [RootSourceConfigMap::MARKER => ['product' => ['thumbnails']]]])],
-            [],
-            'core',
-        );
+        yield 'the type default when no bindingSpecificationId is given' => [
+            ['core:Sw:Media:Image' => ScopedDefaultBindingFixture::mediaScopedToProduct('Sw:Media:Image', 'Image')],
+            null,
+            'core:Sw:Media:Image',
+            'media',
+        ];
 
-        $insert = new InsertElement(
-            $this->registryWith('Sw:Media:Image'),
-            'Sw:Media:Image',
-            $this->bindingRegistry(['core:gallery-pick' => $named]),
-            $this->unboundApplicator(),
+        yield 'a named specification' => [
+            ['core:gallery-pick' => new BindingSpecification(
+                'gallery-pick',
+                'Sw:Media:Image',
+                'Gallery pick',
+                ['cover' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId', 'associations' => [RootSourceConfigMap::MARKER => ['product' => ['thumbnails']]]])],
+                [],
+                'core',
+            )],
             'core:gallery-pick',
-        );
-
-        // The scaffolded element never reaches the caller, so the error names no element.
-        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:gallery-pick', 'cover', null, 'category'));
-
-        $insert->apply(new StoredTree([], 'category'));
+            'core:gallery-pick',
+            'cover',
+        ];
     }
 
     #[TestDox('rejects an unregistered type with a 400')]

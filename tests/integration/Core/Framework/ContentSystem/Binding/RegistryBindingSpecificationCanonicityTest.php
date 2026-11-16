@@ -66,15 +66,16 @@ class RegistryBindingSpecificationCanonicityTest extends TestCase
         $serializers = $this->configSerializers();
         $bindings = $this->registeredLoaderBindings();
 
-        $decoded = [];
+        $decoded = 0;
 
         foreach ($bindings as $binding) {
             foreach (RootSourceConfigMap::branches($binding->config) ?? [] as $branchConfig) {
-                $decoded[] = $serializers->decode($binding->loader, $branchConfig);
+                $serializers->decode($binding->loader, $branchConfig);
+                ++$decoded;
             }
         }
 
-        static::assertNotSame([], $decoded, 'At least one loader binding config branch must decode.');
+        static::assertGreaterThan(0, $decoded, 'At least one loader binding config branch must decode.');
     }
 
     #[TestDox('the synthesized core:Sw:Media:Image default is served with its canonical entity wiring, no inputs, and is the type default')]

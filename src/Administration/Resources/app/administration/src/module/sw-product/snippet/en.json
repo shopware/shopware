@@ -93,12 +93,12 @@
         "linkText": "settings"
       },
       "displayPrices": {
-        "title": "Display prices",
-        "description": "These prices will be shown to customers if filled"
+        "title": "Selling price",
+        "description": "Shown to customers."
       },
       "purchasePrices": {
         "title": "Purchase price",
-        "description": "Not shown to customers. Might be relevant for internal calculations."
+        "description": "Not shown to customers. For internal calculations only."
       }
     },
     "seoForm": {

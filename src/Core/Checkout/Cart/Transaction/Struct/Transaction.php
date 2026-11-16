@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Transaction\Struct;
 
+use Shopware\Core\Checkout\Cart\PayloadTrait;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
@@ -12,6 +13,8 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class Transaction extends Struct
 {
+    use PayloadTrait;
+
     final public const DEFAULT_IDENTIFIER = 'default';
 
     protected ?string $identifier = null;
@@ -71,6 +74,14 @@ class Transaction extends Struct
     public function setValidationStruct(?Struct $validationStruct): void
     {
         $this->validationStruct = $validationStruct;
+    }
+
+    public function jsonSerialize(): array
+    {
+        $data = parent::jsonSerialize();
+        $data['payload'] = $this->getUnprotectedPayload();
+
+        return $data;
     }
 
     public function getApiAlias(): string

@@ -53,6 +53,14 @@ class TransactionTest extends TestCase
         static::assertNull($transaction->getIdentifier());
     }
 
+    public function testProtectedPayloadValuesStayOutOfTheSerializedStruct(): void
+    {
+        $transaction = $this->createTransaction(Transaction::DEFAULT_IDENTIFIER);
+        $transaction->setPayload(['installments' => 3, 'psp' => 'ref-1'], ['psp' => true]);
+
+        static::assertSame(['installments' => 3], $transaction->jsonSerialize()['payload']);
+    }
+
     private function createTransaction(?string $identifier): Transaction
     {
         return new Transaction(

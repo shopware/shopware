@@ -351,14 +351,14 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
     {
         $result = $this->repository->searchIds($criteria, $context);
 
-        if (!$criteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE) || $result->getTotal() <= \count($result->getIds())) {
+        if ($result->getTotal() <= \count($result->getIds())) {
             return $result->getIds();
         }
 
-        $criteria = clone $criteria;
-        $criteria->removeState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $oCriteria = clone $criteria;
+        $oCriteria->removeState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
-        return $this->repository->searchIds($criteria, $context)->getIds();
+        return $this->repository->searchIds($oCriteria, $context)->getIds();
     }
 
     /**

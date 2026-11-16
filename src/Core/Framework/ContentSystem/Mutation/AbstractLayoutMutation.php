@@ -255,7 +255,7 @@ abstract class AbstractLayoutMutation implements LayoutMutation
         BindingApplicator $bindingApplicator,
         StoredElement $element,
         ?string $reportedElementId,
-        ?string $rootSource = null,
+        ?string $rootSource,
     ): StoredElement {
         $default = $this->resolveDefaultSpecification($bindingRegistry, $element->component);
 
@@ -274,7 +274,7 @@ abstract class AbstractLayoutMutation implements LayoutMutation
         AbstractContentSystemBindingSpecificationRegistry $bindingRegistry,
         BindingApplicator $bindingApplicator,
         StoredElement $element,
-        ?string $rootSource = null,
+        ?string $rootSource,
     ): StoredElement {
         $bound = $this->applyDefaultBinding($bindingRegistry, $bindingApplicator, $element, $element->id, $rootSource);
 

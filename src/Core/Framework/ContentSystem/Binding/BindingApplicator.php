@@ -39,7 +39,7 @@ final class BindingApplicator
      * $reportedElementId is the element id a `bindingRootSourceNotScoped` rejection names. The caller decides it,
      * because only the caller knows whether the element's id exists for the client: null names no element.
      */
-    public function apply(StoredElement $element, BindingSpecification $specification, string $bindingSpecificationId, ?string $reportedElementId, ?string $rootSource = null): StoredElement
+    public function apply(StoredElement $element, BindingSpecification $specification, string $bindingSpecificationId, ?string $reportedElementId, ?string $rootSource): StoredElement
     {
         $dataRequirements = array_replace($element->dataRequirements, $this->resolveDataRequirements($specification->resolves(), $rootSource, $bindingSpecificationId, $reportedElementId));
         $properties = array_replace($this->seedInputDefaults($element, $specification), $element->properties());
@@ -56,7 +56,7 @@ final class BindingApplicator
      * config value of a key the element already wires never reaches {@see RootSourceConfigMap::collapse()}.
      * $reportedElementId is the element id a rejection names, as in {@see self::apply()}.
      */
-    public function applyFillOnly(StoredElement $element, BindingSpecification $specification, string $bindingSpecificationId, ?string $reportedElementId, ?string $rootSource = null): StoredElement
+    public function applyFillOnly(StoredElement $element, BindingSpecification $specification, string $bindingSpecificationId, ?string $reportedElementId, ?string $rootSource): StoredElement
     {
         $existingDataRequirements = $element->dataRequirements;
         $unwired = array_diff_key($specification->resolves(), $existingDataRequirements);

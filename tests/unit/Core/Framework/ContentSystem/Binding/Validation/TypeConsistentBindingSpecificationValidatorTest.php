@@ -797,6 +797,45 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         );
     }
 
+    /**
+     * @param array<string, string> $variants
+     */
+    #[DataProvider('scopedBranchOrderProvider')]
+    #[TestDox('flags the config violation of the one root-source branch that fails to decode when it is $_dataName')]
+    public function testResolvesEntryScopedMapValidatesEveryRootSourceBranch(array $variants): void
+    {
+        $validator = $this->validatorFailingDecodeForVariant('broken', ContentSystemException::invalidFieldValueType('variant', 'string', 'integer'));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'entity', 'config' => [
+                'entity' => 'media',
+                'property' => 'mediaId',
+                'variant' => [RootSourceConfigMap::MARKER => $variants],
+            ]]],
+            inputs: [],
+        );
+
+        $violations = $this->validateWith($dto, $validator);
+
+        static::assertCount(1, $violations);
+        static::assertSame('bindings[' . self::ID . '].resolves[media].config', $violations->get(0)->getPropertyPath());
+        static::assertSame(
+            'resolves entry "media" config is invalid: Field variant expected string, got integer',
+            (string) $violations->get(0)->getMessage()
+        );
+    }
+
+    /**
+     * @return iterable<string, array{array<string, string>}>
+     */
+    public static function scopedBranchOrderProvider(): iterable
+    {
+        yield 'the second branch' => [['category' => 'narrow', 'product' => 'broken']];
+        yield 'the first branch' => [['product' => 'broken', 'category' => 'narrow']];
+    }
+
     #[TestDox('flags a scoped map whose key is not a registered root source as a violation')]
     public function testResolvesEntryScopedMapUnknownKeyIsViolation(): void
     {
@@ -1089,6 +1128,36 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
             $mapResolver,
             $rootSourceRegistry,
         );
+    }
+
+    /**
+     * Decode succeeds for every config except the one whose `variant` is $brokenVariant, which throws $exception.
+     */
+    private function validatorFailingDecodeForVariant(string $brokenVariant, ContentSystemException $exception): TypeConsistentBindingSpecificationValidator
+    {
+        $registry = $this->registryServing($this->imageType());
+
+        $provider = static::createStub(DataLoaderConfigSerializerProvider::class);
+        $provider->method('decode')->willReturnCallback(
+            static function (string $source, array $data) use ($brokenVariant, $exception): AbstractContentDataLoaderConfig {
+                if (($data['variant'] ?? null) === $brokenVariant) {
+                    throw $exception;
+                }
+
+                return static::createStub(AbstractContentDataLoaderConfig::class);
+            }
+        );
+
+        $rootContextMapper = static::createStub(RootContextMapper::class);
+        $rootContextMapper->method('resolveType')->willReturn(MediaEntity::class);
+
+        $mapResolver = static::createStub(AbstractContentSystemDataLoaderMapResolver::class);
+        $mapResolver->method('resolve')->willReturn($this->map(['entity' => $this->loaderSpec()]));
+
+        $rootSourceRegistry = static::createStub(RootSourceRegistry::class);
+        $rootSourceRegistry->method('entityRootSources')->willReturn(['product', 'category', 'landing_page']);
+
+        return new TypeConsistentBindingSpecificationValidator($registry, $provider, $rootContextMapper, $mapResolver, $rootSourceRegistry);
     }
 
     private function validatorFailingProducedTypeWith(ContentSystemException $exception): TypeConsistentBindingSpecificationValidator

@@ -11,7 +11,9 @@ index, or appended to the root. `requireRegistered`; scaffolds via `scaffoldElem
 type's default binding specification, after the named one when `$bindingSpecificationId` is given
 (`resolveDefaultSpecification()`, `byType(type)` filtered by `isDefault()`). Zero is a no-op, one is fill-applied and
 attributed to its own qualified id via `BindingApplicator::applyFillOnly()`, more than one throws
-`bindingSpecificationDefaultAmbiguous` `409`.
+`bindingSpecificationDefaultAmbiguous` `409`. A `!scoped` config value of a key the default or the named
+specification writes, with no entry for the tree's root source or with no root source, throws
+`bindingRootSourceNotScoped` `400` with a null element id, because the scaffold's id is minted per request.
 With no parent it inserts at root; otherwise `$slot` is required (`mutationSlotRequired`), the parent must exist
 (`mutationTargetNotFound`), then it inserts into the slot. `affected = [newId]`; `created = [newId]`; `freshlyScaffolded = [newId]`.
 
@@ -80,7 +82,10 @@ is bound.
 Splices a caller-supplied element subtree into a parent slot (or the root). It fill-applies the type default binding
 to every element of the subtree (`applyDefaultBindingToSubtree()`; wiring the subtree already carries wins, more than
 one default throws `bindingSpecificationDefaultAmbiguous` `409`), then replaces every id (`cloneWithNewIds()`). The
-binding runs before the id replacement ([applying.md](../../Binding/docs/applying.md)).
+binding runs before the id replacement ([applying.md](../../Binding/docs/applying.md)). A `!scoped` config value of a
+default key the element does not wire yet, with no entry for the tree's root source or with no root source, throws
+`bindingRootSourceNotScoped` `400` naming the id of the element it is about. With `isNewScaffold` (preset insertion)
+that is the id from the preset payload the preset catalog returns, before the ids are reminted.
 The binding pass changes data requirements, properties and attributed specifications, the remint changes ids, and both rebuild `slots` to carry the children. It inverts the detachment a
 replace reports through `orphaned`: it re-places a detached subtree, or a copied one, without trusting client ids.
 The supplied root's component must be a registered type, else `mutationUnknownType`, matching the check

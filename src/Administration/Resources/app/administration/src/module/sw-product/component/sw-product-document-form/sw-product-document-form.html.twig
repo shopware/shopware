@@ -79,6 +79,7 @@
                     <sw-data-grid
                         v-if="currentValue.length"
                         ref="documentGrid"
+                        identifier="sw-product-document-grid"
                         :data-source="getPaginatedDocuments(currentValue)"
                         :columns="documentColumns"
                         :show-selection="true"

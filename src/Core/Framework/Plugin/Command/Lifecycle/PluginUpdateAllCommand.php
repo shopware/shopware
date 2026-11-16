@@ -7,8 +7,10 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Command\ConsoleCommandProcessRunner;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginComposerDependencyService;
+use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -32,6 +34,7 @@ class PluginUpdateAllCommand extends Command
         private readonly EntityRepository $pluginRepository,
         private readonly PluginLifecycleService $pluginLifecycleService,
         private readonly ?PluginComposerDependencyService $composerDependencyService = null,
+        private readonly ?ConsoleCommandProcessRunner $commandRunner = null,
     ) {
         parent::__construct();
     }
@@ -64,15 +67,24 @@ class PluginUpdateAllCommand extends Command
 
         $this->pluginService->refreshPlugins($context, new ConsoleIO($composerInput, $output, $helperSet));
 
-        $plugins = $this->pluginRepository->search(new Criteria(), $context)->getEntities();
+        $plugins = $this->pluginRepository->search(new Criteria(), $context)->getEntities()
+            ->filter(static fn (PluginEntity $plugin): bool => $plugin->getUpgradeVersion() !== null && $plugin->getActive());
+
+        $isComposerPackageRequired = false;
+        foreach ($plugins as $plugin) {
+            if ($this->composerDependencyService?->requireDependency($plugin, $context)) {
+                $isComposerPackageRequired = true;
+            }
+        }
+
+        if ($isComposerPackageRequired) {
+            \assert($this->commandRunner !== null);
+
+            return $this->commandRunner->run($this, $input, [], $output);
+        }
 
         foreach ($plugins as $plugin) {
-            if ($plugin->getUpgradeVersion() === null || $plugin->getActive() === false) {
-                continue;
-            }
-
             $currentVersion = $plugin->getVersion();
-            $this->composerDependencyService?->requireDependency($plugin, $context);
             $this->pluginLifecycleService->updatePlugin($plugin, $context);
             $this->composerDependencyService?->removeDependency($plugin, $context);
             $output->writeln(\sprintf('Updated plugin %s from version %s to version %s', $plugin->getName(), $currentVersion, $plugin->getVersion()));

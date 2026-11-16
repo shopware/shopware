@@ -46,6 +46,8 @@ class PluginException extends HttpException
     public const COMPOSER_OPERATION_IN_PROGRESS = 'FRAMEWORK__PLUGIN_COMPOSER_OPERATION_IN_PROGRESS';
     public const COMPOSER_WORKING_COPY_NOT_POSSIBLE = 'FRAMEWORK__PLUGIN_COMPOSER_WORKING_COPY_NOT_POSSIBLE';
     public const COMPOSER_WORKING_COPY_INTERRUPTED = 'FRAMEWORK__PLUGIN_COMPOSER_WORKING_COPY_INTERRUPTED';
+    public const PHP_BINARY_NOT_FOUND = 'FRAMEWORK__PLUGIN_PHP_BINARY_NOT_FOUND';
+    public const COMPOSER_STEP_REPEATED_IN_CHILD_PROCESS = 'FRAMEWORK__PLUGIN_COMPOSER_STEP_REPEATED_IN_CHILD_PROCESS';
     /**
      * @deprecated tag:v6.8.0 - Will be removed with the next major, as it is unused
      */
@@ -355,6 +357,26 @@ class PluginException extends HttpException
             self::COMPOSER_WORKING_COPY_INTERRUPTED,
             'An earlier Composer operation for plugins stopped while it replaced the vendor directory, composer.json or composer.lock. Check that they match, then delete "{{ markerFile }}".',
             ['markerFile' => $markerFile]
+        );
+    }
+
+    public static function phpBinaryNotFound(string $commandName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::PHP_BINARY_NOT_FOUND,
+            'The PHP binary to run "{{ commandName }}" after the Composer step was not found.',
+            ['commandName' => $commandName]
+        );
+    }
+
+    public static function composerStepRepeatedInChildProcess(string $commandName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::COMPOSER_STEP_REPEATED_IN_CHILD_PROCESS,
+            'The process that "{{ commandName }}" started after the Composer step ran the Composer step again. It stops here instead of starting another process.',
+            ['commandName' => $commandName]
         );
     }
 

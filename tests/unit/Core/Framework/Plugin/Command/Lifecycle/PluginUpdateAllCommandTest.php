@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Command\ConsoleCommandProcessRunner;
 use Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginUpdateAllCommand;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Plugin\PluginCollection;
@@ -17,6 +18,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\HelperSet;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -148,7 +151,7 @@ class PluginUpdateAllCommandTest extends TestCase
         $composerDependencyService->expects($this->once())->method('requireDependency')->willReturnCallback(static function () use (&$callOrder): bool {
             $callOrder[] = 'composer require';
 
-            return true;
+            return false;
         });
         $composerDependencyService->expects($this->once())->method('removeDependency')->willReturnCallback(static function () use (&$callOrder): bool {
             $callOrder[] = 'composer remove';
@@ -171,6 +174,44 @@ class PluginUpdateAllCommandTest extends TestCase
         (new CommandTester($command))->execute([]);
 
         static::assertSame(['composer require', 'update', 'composer remove'], $callOrder);
+    }
+
+    public function testRunsTheUpdatesInAProcessOfItsOwnWhenAPackageWasRequired(): void
+    {
+        $pluginRepository = new StaticEntityRepository([new PluginCollection([
+            $this->createPlugin('First', true, '2.0.0'),
+            $this->createPlugin('Second', true, '2.0.0'),
+            $this->createPlugin('NotUpdatable'),
+            $this->createPlugin('NotActive', false, '2.0.0'),
+        ])]);
+
+        $requiredPluginNames = [];
+        $composerDependencyService = $this->createMock(PluginComposerDependencyService::class);
+        $composerDependencyService->expects($this->exactly(2))->method('requireDependency')->willReturnCallback(static function (PluginEntity $plugin) use (&$requiredPluginNames): bool {
+            $requiredPluginNames[] = $plugin->getName();
+
+            return $plugin->getName() === 'First';
+        });
+        $composerDependencyService->expects($this->never())->method('removeDependency');
+        $pluginLifecycleService = $this->createMock(PluginLifecycleService::class);
+        $pluginLifecycleService->expects($this->never())->method('updatePlugin');
+        $commandRunner = $this->createMock(ConsoleCommandProcessRunner::class);
+        $commandRunner
+            ->expects($this->once())
+            ->method('run')
+            ->with(
+                static::isInstanceOf(PluginUpdateAllCommand::class),
+                static::isInstanceOf(InputInterface::class),
+                [],
+                static::isInstanceOf(OutputInterface::class),
+            )
+            ->willReturn(7);
+
+        $command = new PluginUpdateAllCommand(static::createStub(PluginService::class), $pluginRepository, $pluginLifecycleService, $composerDependencyService, $commandRunner);
+        $command->setHelperSet(new HelperSet());
+
+        static::assertSame(7, (new CommandTester($command))->execute([]));
+        static::assertSame(['First', 'Second'], $requiredPluginNames);
     }
 
     private function createPlugin(string $name, bool $active = true, ?string $upgradeVersion = null): PluginEntity

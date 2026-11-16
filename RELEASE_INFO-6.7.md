@@ -487,9 +487,10 @@ It is an object, or an empty array when nothing is set.
 Plugins whose `executeComposerCommands()` returns `true` get their Composer package through two new routes, `api.extension.composer-require` (`POST /api/_action/extension/composer-require/{type}/{technicalName}`) and `api.extension.composer-remove` (`POST /api/_action/extension/composer-remove/{type}/{technicalName}`).
 Call `composer-require` before the install or update request, and `composer-remove` after the uninstall or update request.
 Both answer with `composerRan`, which is `true` when Composer changed the project in that request.
+In PHP, `PluginComposerDependencyService::requireDependency()` and `removeDependency()` do the same.
 The install, update, uninstall and remove routes accept `separateComposerStep: true` in the request body, so they leave Composer to these routes.
 The Administration and the `plugin:install`, `plugin:update`, `plugin:update:all`, `plugin:uninstall` and `store:download` commands already do this.
-In PHP, `PluginComposerDependencyService::requireDependency()` and `removeDependency()` do the same.
+When the Composer step changed the project, `plugin:install`, `plugin:update`, `plugin:update:all` and `store:download` run the lifecycle in a child `bin/console` process, so the lifecycle code of a plugin can use the packages the step added.
 
 Composer now runs in a copy of `vendor/`, `composer.json` and `composer.lock` next to the live ones.
 The copy replaces them only after Composer succeeded, and a message removes the replaced `vendor/` directory afterwards.

@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Command\ConsoleCommandProcessRunner;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginComposerDependencyService;
 use Shopware\Core\Framework\Plugin\PluginEntity;
@@ -25,6 +26,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\NullOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -41,6 +43,7 @@ abstract class AbstractPluginLifecycleCommand extends Command
         private readonly EntityRepository $pluginRepo,
         protected CacheClearer $cacheClearer,
         private readonly ?PluginComposerDependencyService $composerDependencyService = null,
+        private readonly ?ConsoleCommandProcessRunner $commandRunner = null,
     ) {
         parent::__construct();
     }
@@ -52,14 +55,75 @@ abstract class AbstractPluginLifecycleCommand extends Command
         }
     }
 
-    protected function requireComposerDependency(PluginEntity $plugin, Context $context): bool
-    {
-        return $this->composerDependencyService?->requireDependency($plugin, $context) ?? false;
+    /**
+     * Requires the packages of all given plugins and returns those whose package was actually required.
+     * A passed `$pluginsWithRequiredPackage` keeps the plugins required so far when a later require throws.
+     */
+    protected function requireComposerDependencies(
+        PluginCollection $plugins,
+        Context $context,
+        PluginCollection $pluginsWithRequiredPackage = new PluginCollection(),
+    ): PluginCollection {
+        foreach ($plugins as $plugin) {
+            if ($this->composerDependencyService?->requireDependency($plugin, $context)) {
+                $pluginsWithRequiredPackage->add($plugin);
+            }
+        }
+
+        return $pluginsWithRequiredPackage;
     }
 
-    protected function removeRequiredComposerPackage(PluginEntity $plugin, Context $context): void
+    /**
+     * Runs the lifecycle part of the command in a child process, which loads the classes of the packages just required.
+     */
+    protected function runInChildProcess(InputInterface $input, OutputInterface $output, PluginCollection $plugins): int
     {
-        $this->composerDependencyService?->removePackage($plugin, $context);
+        \assert($this->commandRunner !== null);
+
+        return $this->commandRunner->run(
+            $this,
+            $input,
+            array_values($plugins->map(static fn (PluginEntity $plugin): string => $plugin->getName())),
+            $output
+        );
+    }
+
+    protected function removeComposerPackagesOfPluginsNotInstalled(
+        PluginCollection $pluginsWithRequiredPackage,
+        SymfonyStyle $io,
+        Context $context
+    ): void {
+        // a criteria without IDs would search all plugins
+        if ($pluginsWithRequiredPackage->count() === 0 || $this->composerDependencyService === null) {
+            return;
+        }
+
+        // runs while another error is on its way to the user, so a failure here is reported and never thrown
+        try {
+            $currentPlugins = $this->pluginRepo->search(new Criteria($pluginsWithRequiredPackage->getIds()), $context)->getEntities();
+        } catch (\Throwable $exception) {
+            $io->error(\sprintf('Could not check which plugins are installed: %s', $exception->getMessage()));
+
+            return;
+        }
+
+        $removedPluginNames = [];
+        foreach ($currentPlugins as $plugin) {
+            if ($plugin->getInstalledAt() !== null) {
+                continue;
+            }
+
+            try {
+                $this->composerDependencyService->removePackage($plugin, $context);
+                $removedPluginNames[] = $plugin->getName();
+            } catch (\Throwable $exception) {
+                $io->error(\sprintf('Could not remove the Composer package of plugin "%s": %s', $plugin->getName(), $exception->getMessage()));
+            }
+        }
+
+        if ($removedPluginNames !== []) {
+            $io->note(\sprintf('Removed the Composer packages of the plugins that are not installed: %s', implode(', ', $removedPluginNames)));
+        }
     }
 
     protected function removeComposerDependency(PluginEntity $plugin, Context $context): void

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationDefinition;
 use Shopware\Core\Framework\Plugin\BundleConfigGenerator;
 use Shopware\Core\Framework\Plugin\Command\BundleDumpCommand;
+use Shopware\Core\Framework\Plugin\Command\ConsoleCommandProcessRunner;
 use Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginActivateCommand;
 use Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginDeactivateCommand;
 use Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginInstallCommand;
@@ -207,6 +208,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CacheClearer::class),
             param('kernel.project_dir'),
             service(PluginComposerDependencyService::class),
+            service(ConsoleCommandProcessRunner::class),
         ])
         ->tag('console.command');
 
@@ -224,6 +226,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('plugin.repository'),
             service(CacheClearer::class),
             service(PluginComposerDependencyService::class),
+            service(ConsoleCommandProcessRunner::class),
         ])
         ->tag('console.command');
 
@@ -250,6 +253,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('plugin.repository'),
             service(PluginLifecycleService::class),
             service(PluginComposerDependencyService::class),
+            service(ConsoleCommandProcessRunner::class),
         ])
         ->tag('console.command');
 
@@ -264,6 +268,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     // Composer
     $services->set(PackageProvider::class);
+
+    $services->set(ConsoleCommandProcessRunner::class)
+        ->args([
+            param('kernel.project_dir'),
+        ]);
 
     $services->set(CommandExecutor::class)
         ->lazy()

@@ -7,7 +7,7 @@ import type Repository from 'src/core/data/repository.data';
 export async function loadDocumentVariants(
     repository: Repository<'product'>,
     productId: string,
-    mediaId: string,
+    mediaId: string | string[],
     context: typeof Shopware.Context.api,
 ): Promise<Entity<'product'>[]> {
     const { Criteria } = Shopware.Data;
@@ -19,7 +19,11 @@ export async function loadDocumentVariants(
         criteria.setTotalCountMode(0);
         criteria.addSorting(Criteria.sort('id'));
         criteria.addFilter(Criteria.equals('parentId', productId));
-        criteria.addFilter(Criteria.equals('documents.mediaId', mediaId));
+        criteria.addFilter(
+            Array.isArray(mediaId)
+                ? Criteria.equalsAny('documents.mediaId', mediaId)
+                : Criteria.equals('documents.mediaId', mediaId),
+        );
         criteria.addAssociation('documents.translations.media');
         criteria.getAssociation('documents').addSorting(Criteria.sort('position', 'ASC'));
         result = await repository.search(criteria, context);

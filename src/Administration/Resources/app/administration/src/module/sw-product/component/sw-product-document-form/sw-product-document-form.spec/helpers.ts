@@ -3,7 +3,7 @@
  */
 import type { Snackbar } from '@shopware-ag/meteor-component-library';
 import { shallowMount, type VueWrapper } from '@vue/test-utils';
-import type { ComponentPublicInstance } from 'vue';
+import { defineComponent, type ComponentPublicInstance } from 'vue';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import EntityFactory from 'src/core/data/entity-factory.data';
 import fileValidationService from 'src/app/service/file-validation.service';
@@ -122,16 +122,22 @@ export async function createWrapper(
                 'mt-card': {
                     template: '<section><slot name="title"/><slot name="headerRight"/><slot name="grid"/></section>',
                 },
-                'sw-data-grid': {
+                'sw-data-grid': defineComponent({
                     props: ['dataSource'],
-                    template: `<div><div v-for="(item, itemIndex) in dataSource" :key="item.id" class="document-row">
+                    data: () => ({ hasSelection: false }),
+                    methods: {
+                        resetSelection() {
+                            this.hasSelection = false;
+                        },
+                    },
+                    template: `<div><slot v-if="hasSelection" name="bulk"/><div v-for="(item, itemIndex) in dataSource" :key="item.id" class="document-row">
                         <slot name="column-title" v-bind="{ item }"/>
                         <slot name="column-fileName" v-bind="{ item }"/>
                         <slot name="column-fileSize" v-bind="{ item }"/>
                         <slot name="column-position" v-bind="{ item, itemIndex }"/>
                         <slot name="actions" v-bind="{ item }"/>
                     </div></div>`,
-                },
+                }),
                 'mt-modal-root': { template: '<div><slot/></div>' },
                 'mt-modal': { template: '<div class="upload-modal"><slot/><slot name="footer"/></div>' },
                 'sw-modal': { template: '<div class="modal"><slot/><slot name="modal-footer"/></div>' },

@@ -15,4 +15,11 @@
     color: var(--color-text-inverse-default);
     font-size: var(--font-size-xs);
     line-height: var(--font-line-height-xs);
+
+    .mt-link,
+    .mt-link:hover,
+    .mt-link:focus-visible,
+    .mt-link:active {
+        color: var(--color-text-brand-inverse);
+    }
 }

@@ -78,6 +78,7 @@
                 {% block sw_product_document_form_grid %}
                     <sw-data-grid
                         v-if="currentValue.length"
+                        ref="documentGrid"
                         :data-source="currentValue"
                         :columns="documentColumns"
                         :show-selection="true"
@@ -86,7 +87,20 @@
                         :allow-column-edit="false"
                         :compact-mode="true"
                         :plain-appearance="false"
+                        :is-record-selectable="(item) => canEdit && !isInherited && (isDefaultLanguage || !!item.title || !!item.mediaId)"
+                        @select-item="onDocumentSelectionChange"
+                        @select-all-items="onDocumentSelectionChange"
                     >
+                        <template #bulk>
+                            <mt-link
+                                as="button"
+                                variant="critical"
+                                :disabled="!canEdit || isInherited || !selectedDocuments.length"
+                                @click="openRemoveDocumentModal(selectedDocuments)"
+                            >
+                                {{ getRemoveActionLabel() }}
+                            </mt-link>
+                        </template>
                     {% block sw_product_document_form_number %}
                         <template #column-number="{ itemIndex }">
                             {{ itemIndex + 1 }}
@@ -298,9 +312,10 @@
 
         {% block sw_product_document_form_remove_modal %}
             <sw-product-document-remove-modal
-                v-if="removingDocument"
+                v-if="removingDocuments.length"
                 v-model:remove-from-variants="removeFromVariants"
-                :document-title="getTitle(removingDocument)"
+                :document-title="getTitle(removingDocuments[0])"
+                :document-count="removingDocuments.length"
                 :language-name="isDefaultLanguage ? '' : contentLanguageName"
                 :can-edit="canEdit"
                 :is-removing-document="isRemovingDocument"

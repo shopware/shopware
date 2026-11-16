@@ -260,7 +260,7 @@ class InsertElementTest extends TestCase
             'Sw:Media:Image',
             'Sw:Media:Image',
             'Image',
-            ['media' => new LoaderBinding('entity', ['entity' => [RootSourceConfigMap::MARKER => ['product' => 'media']]])],
+            ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId', 'associations' => [RootSourceConfigMap::MARKER => ['product' => ['thumbnails']]]])],
             [],
             'core',
         );
@@ -299,7 +299,7 @@ class InsertElementTest extends TestCase
             'Image',
             [
                 'media' => new LoaderBinding('entity', ['entity' => 'media']),
-                'gallery' => new LoaderBinding('entity_collection', ['entity' => [RootSourceConfigMap::MARKER => ['product' => 'media']]]),
+                'gallery' => new LoaderBinding('entity_collection', ['entity' => 'media', 'property' => 'mediaIds', 'associations' => [RootSourceConfigMap::MARKER => ['product' => ['thumbnails']]]]),
             ],
             [],
             'core',
@@ -328,7 +328,7 @@ class InsertElementTest extends TestCase
             'Image',
             [
                 'media' => new LoaderBinding('entity', ['entity' => 'media']),
-                'gallery' => new LoaderBinding('entity_collection', ['entity' => [RootSourceConfigMap::MARKER => ['product' => 'media']]]),
+                'gallery' => new LoaderBinding('entity_collection', ['entity' => 'media', 'property' => 'mediaIds', 'associations' => [RootSourceConfigMap::MARKER => ['product' => ['thumbnails']]]]),
             ],
             [],
             'core',
@@ -373,7 +373,7 @@ class InsertElementTest extends TestCase
             'Sw:Media:Image',
             'Sw:Media:Image',
             'Image',
-            ['media' => new LoaderBinding('entity', ['entity' => [RootSourceConfigMap::MARKER => ['product' => 'media']]])],
+            ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId', 'associations' => [RootSourceConfigMap::MARKER => ['product' => ['thumbnails']]]])],
             [],
             'core',
         );
@@ -387,6 +387,32 @@ class InsertElementTest extends TestCase
 
         // The scaffolded element never reaches the caller, so the error names no element.
         $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Media:Image', 'media', null, 'category'));
+
+        $insert->apply(new StoredTree([], 'category'));
+    }
+
+    #[TestDox('rejects a named specification whose own scoped key has no entry for the tree root source, naming that specification and no element')]
+    public function testInsertRejectsNamedSpecificationWhoseScopedKeyCannotResolve(): void
+    {
+        $named = new BindingSpecification(
+            'gallery-pick',
+            'Sw:Media:Image',
+            'Gallery pick',
+            ['cover' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId', 'associations' => [RootSourceConfigMap::MARKER => ['product' => ['thumbnails']]]])],
+            [],
+            'core',
+        );
+
+        $insert = new InsertElement(
+            $this->registryWith('Sw:Media:Image'),
+            'Sw:Media:Image',
+            $this->bindingRegistry(['core:gallery-pick' => $named]),
+            $this->unboundApplicator(),
+            'core:gallery-pick',
+        );
+
+        // The scaffolded element never reaches the caller, so the error names no element.
+        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:gallery-pick', 'cover', null, 'category'));
 
         $insert->apply(new StoredTree([], 'category'));
     }

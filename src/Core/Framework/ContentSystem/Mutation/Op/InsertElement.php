@@ -79,18 +79,15 @@ final class InsertElement extends AbstractLayoutMutation
     private function scaffold(?string $rootSource): StoredElement
     {
         $bindingSpecificationId = $this->bindingSpecificationId;
-        $specification = $bindingSpecificationId === null ? null : $this->namedSpecification($bindingSpecificationId);
-        $element = $this->scaffoldElement($this->registry, $this->type);
 
-        try {
-            if ($bindingSpecificationId !== null && $specification !== null) {
-                $element = $this->bindingApplicator->apply($element, $specification, $bindingSpecificationId, $rootSource);
-            }
-
-            return $this->applyDefaultBinding($this->bindingRegistry, $this->bindingApplicator, $element, $rootSource);
-        } catch (ContentSystemException $exception) {
-            throw $this->withoutElementId($exception);
+        if ($bindingSpecificationId === null) {
+            return $this->applyDefaultBinding($this->bindingRegistry, $this->bindingApplicator, $this->scaffoldElement($this->registry, $this->type), null, $rootSource);
         }
+
+        $specification = $this->namedSpecification($bindingSpecificationId);
+        $element = $this->bindingApplicator->apply($this->scaffoldElement($this->registry, $this->type), $specification, $bindingSpecificationId, null, $rootSource);
+
+        return $this->applyDefaultBinding($this->bindingRegistry, $this->bindingApplicator, $element, null, $rootSource);
     }
 
     private function namedSpecification(string $bindingSpecificationId): BindingSpecification
@@ -106,26 +103,5 @@ final class InsertElement extends AbstractLayoutMutation
         }
 
         return $specification;
-    }
-
-    /**
-     * Re-throws a BINDING_ROOT_SOURCE_NOT_SCOPED fault without the scaffold's element id, reading the other
-     * parameters back from the caught exception. Every other ContentSystemException is returned unchanged.
-     */
-    private function withoutElementId(ContentSystemException $exception): ContentSystemException
-    {
-        if ($exception->getErrorCode() !== ContentSystemException::BINDING_ROOT_SOURCE_NOT_SCOPED) {
-            return $exception;
-        }
-
-        $bindingSpecificationId = $exception->getParameter('bindingSpecificationId');
-        $key = $exception->getParameter('key');
-        $rootSource = $exception->getParameter('rootSource');
-
-        if (!\is_string($bindingSpecificationId) || !\is_string($key) || !($rootSource === null || \is_string($rootSource))) {
-            return $exception;
-        }
-
-        return ContentSystemException::bindingRootSourceNotScoped($bindingSpecificationId, $key, null, $rootSource);
     }
 }

@@ -15,8 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * Re-derives each element's {@see StoredElement::$attributedSpecifications} at the DAL write boundary.
- * A dropped attribution (diverged wiring, missing specification, missing binding, or a binding whose scoped
- * config values name different root-source sets) is never an error.
+ * A dropped attribution (diverged wiring, missing specification, or missing binding) is never an error.
  *
  * Honesty comparison correctness depends on every config serializer honoring its round-trip contract
  * ({@see AbstractContentDataLoaderConfigSerializer}): `encode(decode($x))` must be stable and equal to
@@ -155,8 +154,9 @@ class AttributionReconciler
 
     /**
      * The specification side of the honesty comparison: the binding's source plus its canonicalized encoded
-     * config, or null when the specification or its binding for $key no longer exists, or when the binding's
-     * scoped config values name different root-source sets, so its configs cannot be enumerated.
+     * config, or null when the specification or its binding for $key no longer exists. A binding whose scoped config
+     * values name different root-source sets has no enumerable configs; only a specification that bypassed
+     * validation carries one, so it throws as an internal fault.
      *
      * Null is an answer, not a missing collaborator: an attribution names a specification the registry
      * assembles at runtime from element-type directories and active app rows, and no write gate checks that
@@ -191,7 +191,10 @@ class AttributionReconciler
         $branches = RootSourceConfigMap::branches($binding->config);
 
         if ($branches === null) {
-            return $this->specWiringCache[$cacheKey] = null;
+            throw ContentSystemException::bindingSpecificationCanonicalizationFailed(
+                $specificationId,
+                \sprintf('the scoped config values of key "%s" name different root-source sets.', $key),
+            );
         }
 
         $source = $binding->loader;

@@ -175,8 +175,8 @@ class AttributionReconcilerTest extends TestCase
         static::assertSame($element->dataRequirements, $reconciled->dataRequirements);
     }
 
-    #[TestDox('drops attribution without throwing when the binding\'s scoped config values name different root-source sets, even for wiring equal to one root source\'s config')]
-    public function testDropsAttributionWhenScopedConfigNamesDifferentRootSourceSets(): void
+    #[TestDox('throws bindingSpecificationCanonicalizationFailed when the attributed binding\'s scoped config values name different root-source sets')]
+    public function testThrowsWhenScopedConfigNamesDifferentRootSourceSets(): void
     {
         $specification = $this->specification('spec-1', [
             'product' => new LoaderBinding('entity', [
@@ -192,13 +192,12 @@ class AttributionReconcilerTest extends TestCase
             ->withAttributedSpecification('product', 'spec-1')
             ->build();
 
-        $result = $this->reconciler(['spec-1' => $specification], $this->provider())
-            ->reconcile([$element]);
+        $this->expectExceptionObject(ContentSystemException::bindingSpecificationCanonicalizationFailed(
+            'spec-1',
+            'the scoped config values of key "product" name different root-source sets.',
+        ));
 
-        $reconciled = $result[0];
-        static::assertInstanceOf(StoredElement::class, $reconciled);
-        static::assertSame([], $reconciled->attributedSpecifications);
-        static::assertSame($element->dataRequirements, $reconciled->dataRequirements);
+        $this->reconciler(['spec-1' => $specification], $this->provider())->reconcile([$element]);
     }
 
     #[TestDox('drops only the key whose wiring diverged, keeping every other key\'s attribution independently')]

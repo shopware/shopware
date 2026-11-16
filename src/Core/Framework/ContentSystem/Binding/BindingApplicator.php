@@ -35,9 +35,13 @@ final class BindingApplicator
     ) {
     }
 
-    public function apply(StoredElement $element, BindingSpecification $specification, string $bindingSpecificationId, ?string $rootSource = null): StoredElement
+    /**
+     * $reportedElementId is the element id a `bindingRootSourceNotScoped` rejection names. The caller decides it,
+     * because only the caller knows whether the element's id exists for the client: null names no element.
+     */
+    public function apply(StoredElement $element, BindingSpecification $specification, string $bindingSpecificationId, ?string $reportedElementId, ?string $rootSource = null): StoredElement
     {
-        $dataRequirements = array_replace($element->dataRequirements, $this->resolveDataRequirements($specification->resolves(), $rootSource, $bindingSpecificationId, $element->id));
+        $dataRequirements = array_replace($element->dataRequirements, $this->resolveDataRequirements($specification->resolves(), $rootSource, $bindingSpecificationId, $reportedElementId));
         $properties = array_replace($this->seedInputDefaults($element, $specification), $element->properties());
         $attributedSpecifications = array_replace($element->attributedSpecifications, $this->attributionFor(array_keys($specification->resolves()), $bindingSpecificationId));
 
@@ -50,13 +54,14 @@ final class BindingApplicator
      * existing-wins idiom {@see LayoutDefaultSeeder} uses for property seeding: the element's own value always wins
      * over a wired/seeded one. Only the entries that get written are resolved against the root source, so a scoped
      * config value of a key the element already wires never reaches {@see RootSourceConfigMap::collapse()}.
+     * $reportedElementId is the element id a rejection names, as in {@see self::apply()}.
      */
-    public function applyFillOnly(StoredElement $element, BindingSpecification $specification, string $bindingSpecificationId, ?string $rootSource = null): StoredElement
+    public function applyFillOnly(StoredElement $element, BindingSpecification $specification, string $bindingSpecificationId, ?string $reportedElementId, ?string $rootSource = null): StoredElement
     {
         $existingDataRequirements = $element->dataRequirements;
         $unwired = array_diff_key($specification->resolves(), $existingDataRequirements);
 
-        $dataRequirements = $existingDataRequirements + $this->resolveDataRequirements($unwired, $rootSource, $bindingSpecificationId, $element->id);
+        $dataRequirements = $existingDataRequirements + $this->resolveDataRequirements($unwired, $rootSource, $bindingSpecificationId, $reportedElementId);
         $properties = array_replace($this->seedInputDefaults($element, $specification), $element->properties());
         $attributedSpecifications = $element->attributedSpecifications + $this->attributionFor(array_keys($unwired), $bindingSpecificationId);
 
@@ -81,13 +86,13 @@ final class BindingApplicator
      *
      * @return array<string, DataRequirement>
      */
-    private function resolveDataRequirements(array $resolves, ?string $rootSource, string $bindingSpecificationId, string $elementId): array
+    private function resolveDataRequirements(array $resolves, ?string $rootSource, string $bindingSpecificationId, ?string $reportedElementId): array
     {
         $dataRequirements = [];
 
         foreach ($resolves as $key => $binding) {
             $config = RootSourceConfigMap::collapse($binding->config, $rootSource)
-                ?? throw ContentSystemException::bindingRootSourceNotScoped($bindingSpecificationId, $key, $elementId, $rootSource);
+                ?? throw ContentSystemException::bindingRootSourceNotScoped($bindingSpecificationId, $key, $reportedElementId, $rootSource);
             $dataRequirements[$key] = new DataRequirement($key, $binding->loader, $this->configSerializerProvider->decode($binding->loader, $config));
         }
 

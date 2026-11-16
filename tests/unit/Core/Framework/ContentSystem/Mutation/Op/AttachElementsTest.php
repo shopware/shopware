@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mutation\Op;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
@@ -101,14 +102,24 @@ class AttachElementsTest extends TestCase
         static::assertSame([], $op->affected());
     }
 
-    #[TestDox('names the id of the supplied element whose type default rejects the root source, after attaching the elements before it')]
-    public function testRejectionNamesTheSuppliedElementThatCannotBeScoped(): void
+    /**
+     * @return iterable<string, array{bool, string}>
+     */
+    public static function rejectionElementIdProvider(): iterable
+    {
+        yield 'attach-element names the supplied element' => [false, 'second'];
+        yield 'a preset insertion names the payload id of the element' => [true, 'second'];
+    }
+
+    #[TestDox('names the offending element when the type default of a later element rejects the root source: $_dataName')]
+    #[DataProvider('rejectionElementIdProvider')]
+    public function testRejectionNamesTheOffendingElement(bool $isNewScaffold, string $expectedElementId): void
     {
         $default = new BindingSpecification(
             'Sw:Card',
             'Sw:Card',
             'Card',
-            ['media' => new LoaderBinding('entity', ['entity' => [RootSourceConfigMap::MARKER => ['product' => 'media']]])],
+            ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId', 'associations' => [RootSourceConfigMap::MARKER => ['product' => ['thumbnails']]]])],
             [],
             'core',
         );
@@ -120,9 +131,10 @@ class AttachElementsTest extends TestCase
             [new StoredElement('first', 'Sw:Block'), new StoredElement('second', 'Sw:Card')],
             $bindingRegistry,
             new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), $this->registry()),
+            isNewScaffold: $isNewScaffold,
         );
 
-        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Card', 'media', 'second', 'category'));
+        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Card', 'media', $expectedElementId, 'category'));
         $op->apply(new StoredTree([], 'category'));
     }
 

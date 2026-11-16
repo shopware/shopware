@@ -844,6 +844,29 @@ class LayoutMutationControllerTest extends TestCase
         static::assertSame(ContentSystemException::BINDING_ROOT_SOURCE_NOT_SCOPED, $body['errors'][0]['code'] ?? null, (string) $response->getContent());
     }
 
+    #[TestDox('reads an empty rootSource as none, rejecting an insert whose type default is scoped with a 400 bindingRootSourceNotScoped whose rootSource and elementId are null')]
+    public function testInsertElementWithEmptyRootSourceRejectsScopedDefaultAsNoRootSource(): void
+    {
+        // The core breadcrumb wires its `breadcrumb` key with values scoped over product and category only.
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'insert-element', [
+            'layout' => [],
+            'type' => 'Sw:Navigation:Breadcrumb',
+            'rootSource' => '',
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(ContentSystemException::BINDING_ROOT_SOURCE_NOT_SCOPED, $body['errors'][0]['code'] ?? null, (string) $response->getContent());
+
+        $parameters = $body['errors'][0]['meta']['parameters'] ?? [];
+        static::assertArrayHasKey('rootSource', $parameters, (string) $response->getContent());
+        static::assertNull($parameters['rootSource']);
+        static::assertArrayHasKey('elementId', $parameters, (string) $response->getContent());
+        static::assertNull($parameters['elementId']);
+    }
+
     #[TestDox('rejects an update-element-properties request that writes nothing and removes nothing with a 400')]
     public function testUpdatePropertiesRejectsAnEmptyRequest(): void
     {

@@ -127,7 +127,7 @@ class BindElementTest extends TestCase
             'spec-1',
             'Sw:Product',
             'Product binding',
-            ['product' => new LoaderBinding('entity', ['entity' => [RootSourceConfigMap::MARKER => ['product' => 'media']]])],
+            ['product' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId', 'associations' => [RootSourceConfigMap::MARKER => ['product' => ['thumbnails']]]])],
             [],
             'core',
         );

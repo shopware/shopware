@@ -1394,8 +1394,10 @@ class ContentSystemException extends HttpException
 
     // The load-time 500 for any sugar that cannot expand deterministically (unrecognized resolves shape, mixed
     // loader/source keys, ambiguous or zero eligible tier-A sources, ambiguous or zero entity-name derivation,
-    // unknown tier-B config key). The reason carries the mechanical fix the author must apply. Deliberately not in
-    // CLIENT_DEFECT_CODES, for the same reason as bindingSpecificationUnknownType.
+    // unknown tier-B config key). The reason carries the mechanical fix the author must apply. Also the write-time
+    // 500 of AttributionReconciler for a binding whose scoped config values name different root-source sets, which
+    // only a specification that bypassed validation can carry. Deliberately not in CLIENT_DEFECT_CODES, for the same
+    // reason as bindingSpecificationUnknownType.
     public static function bindingSpecificationCanonicalizationFailed(string $id, string $reason): self
     {
         return new self(
@@ -1472,9 +1474,10 @@ class ContentSystemException extends HttpException
      * or onto a layout with no root source at all: no value can be picked, and dropping the key would hand the
      * loader a config nobody declared. Thrown by `BindingApplicator` when {@see RootSourceConfigMap::collapse()}
      * returns null for a `resolves` entry, naming the specification and the `resolves` key it would wire, plus the
-     * element the binding is applied to. A null element id means that element does not exist for the caller yet:
-     * InsertElement scaffolds it under a server-minted id and reports the fault without it, like the null id of
-     * {@see bindingTypeMismatch()}. A binding-application error like {@see bindingTypeMismatch()}, deliberately
+     * element id the caller of the applicator decides to report. A null element id means that element has no id the
+     * client knows: InsertElement scaffolds it under a server-minted id and reports the fault without one, like the
+     * null id of {@see bindingTypeMismatch()}. On a preset insertion the id is the element's id from the preset
+     * payload the preset catalog returns, before the ids are reminted. A binding-application error like {@see bindingTypeMismatch()}, deliberately
      * outside {@see CLIENT_DEFECT_CODES}. A null root source gets its own message, because `none` is the name of a
      * real root source.
      */

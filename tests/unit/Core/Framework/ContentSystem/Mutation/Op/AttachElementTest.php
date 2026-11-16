@@ -222,6 +222,23 @@ class AttachElementTest extends TestCase
         $attach->apply(new StoredTree([], 'category'));
     }
 
+    #[TestDox('names the payload id of the nested child when the type default binding of a preset element rejects the root source')]
+    public function testPresetAttachRejectionNamesThePayloadIdOfTheNestedChild(): void
+    {
+        $attach = new AttachElement(
+            $this->registry(),
+            new StoredElement('incoming', 'Sw:Block', [], [], [
+                'content' => [new StoredElement('incoming-child', 'Sw:Card')],
+            ]),
+            $this->scopedCardDefaultRegistry(),
+            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), $this->registry()),
+            isNewScaffold: true,
+        );
+
+        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Card', 'media', 'incoming-child', 'category'));
+        $attach->apply(new StoredTree([], 'category'));
+    }
+
     #[TestDox('detaches nothing: orphaned and dropped wiring stay empty')]
     public function testAttachDetachesNothing(): void
     {
@@ -279,7 +296,7 @@ class AttachElementTest extends TestCase
             'Sw:Card',
             'Sw:Card',
             'Card',
-            ['media' => new LoaderBinding('entity', ['entity' => [RootSourceConfigMap::MARKER => ['product' => 'media']]])],
+            ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId', 'associations' => [RootSourceConfigMap::MARKER => ['product' => ['thumbnails']]]])],
             [],
             'core',
         );

@@ -657,7 +657,7 @@ class ReplaceElementTest extends TestCase
             'Sw:New',
             'Sw:New',
             'New',
-            ['media' => new LoaderBinding('entity', ['entity' => [RootSourceConfigMap::MARKER => ['product' => 'media']]])],
+            ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId', 'associations' => [RootSourceConfigMap::MARKER => ['product' => ['thumbnails']]]])],
             [],
             'core',
         );

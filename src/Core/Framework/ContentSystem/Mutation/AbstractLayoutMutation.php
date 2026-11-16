@@ -245,10 +245,16 @@ abstract class AbstractLayoutMutation implements LayoutMutation
         );
     }
 
+    /**
+     * Fill-applies the type's default binding specification onto $element. $reportedElementId is the element id a
+     * rejection names: the element's own id when the caller knows it, null when the element exists for the caller
+     * under no id of its own yet.
+     */
     protected function applyDefaultBinding(
         AbstractContentSystemBindingSpecificationRegistry $bindingRegistry,
         BindingApplicator $bindingApplicator,
         StoredElement $element,
+        ?string $reportedElementId,
         ?string $rootSource = null,
     ): StoredElement {
         $default = $this->resolveDefaultSpecification($bindingRegistry, $element->component);
@@ -257,16 +263,20 @@ abstract class AbstractLayoutMutation implements LayoutMutation
             return $element;
         }
 
-        return $bindingApplicator->applyFillOnly($element, $default, $default->qualifiedId(), $rootSource);
+        return $bindingApplicator->applyFillOnly($element, $default, $default->qualifiedId(), $reportedElementId, $rootSource);
     }
 
+    /**
+     * {@see self::applyDefaultBinding()} on every element of the subtree; a rejection names the id of the element it
+     * is about.
+     */
     protected function applyDefaultBindingToSubtree(
         AbstractContentSystemBindingSpecificationRegistry $bindingRegistry,
         BindingApplicator $bindingApplicator,
         StoredElement $element,
         ?string $rootSource = null,
     ): StoredElement {
-        $bound = $this->applyDefaultBinding($bindingRegistry, $bindingApplicator, $element, $rootSource);
+        $bound = $this->applyDefaultBinding($bindingRegistry, $bindingApplicator, $element, $element->id, $rootSource);
 
         $slots = [];
         foreach ($bound->slots as $name => $children) {

@@ -6,10 +6,11 @@ import { mount } from '@vue/test-utils';
 
 import 'src/app/component/form/select/base/sw-single-select';
 
-const createWrapper = async (props = {}, attrs = {}) => {
+const createWrapper = async (props = {}, attrs = {}, attachTo = undefined) => {
     const wrapper = mount(await wrapTestComponent('sw-select-base', { sync: true }), {
         props,
         attrs,
+        attachTo,
         global: {
             stubs: {
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
@@ -133,5 +134,92 @@ describe('components/sw-select-base', () => {
         } finally {
             document.elementsFromPoint = originalElementsFromPoint;
         }
+    });
+
+    describe('SHIFT+TAB out of an expanded select', () => {
+        let wrappers = [];
+
+        function appendContainer() {
+            const container = document.createElement('div');
+            document.body.appendChild(container);
+
+            return container;
+        }
+
+        function appendElement(html) {
+            appendContainer().innerHTML = html;
+
+            return document.body.lastElementChild.firstElementChild;
+        }
+
+        async function createAttachedSelect() {
+            const wrapper = await createWrapper({}, {}, appendContainer());
+            wrappers.push(wrapper);
+
+            return wrapper;
+        }
+
+        async function pressShiftTab(wrapper) {
+            const selection = wrapper.find('.sw-select__selection');
+            await selection.trigger('click');
+            await selection.trigger('keydown', { key: 'Tab', shiftKey: true });
+            await flushPromises();
+        }
+
+        beforeEach(() => {
+            // jsdom renders no layout, so every element would count as hidden
+            jest.spyOn(Element.prototype, 'getClientRects').mockReturnValue([{}]);
+        });
+
+        afterEach(() => {
+            wrappers.forEach((wrapper) => wrapper.unmount());
+            wrappers = [];
+            document.body.innerHTML = '';
+            jest.restoreAllMocks();
+        });
+
+        it('should focus the previous link without clicking it', async () => {
+            const link = appendElement('<a href="#/sw/product/index">Products</a>');
+            const onClick = jest.fn((event) => event.preventDefault());
+            link.onclick = onClick;
+            const wrapper = await createAttachedSelect();
+
+            await pressShiftTab(wrapper);
+
+            expect(document.activeElement).toBe(link);
+            expect(onClick).not.toHaveBeenCalled();
+        });
+
+        it('should skip previous elements that are hidden, disabled or out of the tab order', async () => {
+            const input = appendElement('<input type="text">');
+            const hiddenLink = appendElement('<a href="#/hidden">Hidden</a>');
+            hiddenLink.getClientRects = () => [];
+            appendElement('<button type="button" disabled>Disabled</button>');
+            appendElement('<button type="button" tabindex="-1">Decrease</button>');
+            const wrapper = await createAttachedSelect();
+
+            await pressShiftTab(wrapper);
+
+            expect(document.activeElement).toBe(input);
+        });
+
+        it('should treat an element with disabled="false" as focusable', async () => {
+            const link = appendElement('<a href="#/sw/product/index" disabled="false">Go back</a>');
+            const wrapper = await createAttachedSelect();
+
+            await pressShiftTab(wrapper);
+
+            expect(document.activeElement).toBe(link);
+        });
+
+        it('should expand a previous select by focusing its selection', async () => {
+            const previousSelect = await createAttachedSelect();
+            const wrapper = await createAttachedSelect();
+
+            await pressShiftTab(wrapper);
+
+            expect(wrapper.find('.sw-select__selection').attributes('aria-expanded')).toBe('false');
+            expect(previousSelect.find('.sw-select__selection').attributes('aria-expanded')).toBe('true');
+        });
     });
 });

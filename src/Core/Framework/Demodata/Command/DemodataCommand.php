@@ -80,16 +80,10 @@ class DemodataCommand extends Command
         $this->addOption('reset-defaults', null, InputOption::VALUE_NONE, 'Set all counts to 0 unless specified');
 
         $this->setHelp(<<<'HELP'
-            Large product counts generate faster in several processes at the same time:
-
-              1. Generate the base data once, without products and the entities that need them:
-                 <info>bin/console framework:demodata --products=0 --product-streams=0 --orders=0 --reviews=0</info>
-              2. Start several product-only runs at the same time:
-                 <info>for i in 1 2 3 4; do bin/console framework:demodata --reset-defaults --products=12500 & done; wait</info>
-              3. Generate the entities that need products:
-                 <info>bin/console framework:demodata --reset-defaults --product-streams=10 --orders=60 --reviews=20</info>
-
-            Every product-only run needs <info>--reset-defaults</info>, otherwise each run creates its own base data.
+            Tips:
+              * Start several product-only runs at the same time to generate many products faster:
+                <info>for i in 1 2 3 4; do bin/console framework:demodata --reset-defaults --products=12500 & done; wait</info>
+              * Use <info>--reset-defaults</info> for these runs, otherwise every run generates its own base data.
             HELP);
     }
 

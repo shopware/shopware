@@ -58,5 +58,3 @@ export const allowedExtensions = [
 ];
 /** @private */
 export const maxFileSize = 20 * 1024 * 1024;
-/** @private */
-export const maxDocuments = 10;

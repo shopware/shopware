@@ -116,59 +116,35 @@ describe('sw-product-document-form', () => {
         expect(wrapper.emitted('language-change')).toEqual([[Shopware.Context.api.systemLanguageId]]);
     });
 
-    it('accepts the tenth document and rejects additional media from the same selection', async () => {
+    it('adds all selected documents when the selection exceeds ten documents', async () => {
         const wrapper = await createWrapper();
         await addMedia(
             wrapper,
             Array.from({ length: 9 }, (_, index) => createMedia(`manual-${index}`)),
         );
-        const lastMedia = createMedia('tenth');
-        const excessMedia = createMedia('eleventh');
+        const media = [createMedia('tenth'), createMedia('eleventh'), createMedia('twelfth')];
         const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
 
-        await addMedia(wrapper, [lastMedia, excessMedia, createMedia('twelfth')]);
+        await addMedia(wrapper, media);
 
-        expect(wrapper.findAll('.document-row')).toHaveLength(10);
-        expect(getDocuments()?.[9].mediaId).toBe(lastMedia.id);
-        expect(getDocuments()?.some((document) => document.mediaId === excessMedia.id)).toBe(false);
-        expect(wrapper.get('.sw-product-document-form__add-button button').attributes('disabled')).toBeDefined();
-        expect(notificationSpy).toHaveBeenCalledTimes(1);
-        expect(notificationSpy).toHaveBeenCalledWith(
-            expect.objectContaining({ variant: 'error', message: 'sw-product.documentForm.errorDocumentLimit' }),
-        );
+        expect(wrapper.findAll('.document-row')).toHaveLength(12);
+        expect(
+            Array.from(getDocuments()!)
+                .slice(9)
+                .map((document) => document.mediaId),
+        ).toEqual(media.map((file) => file.id));
+        expect(wrapper.get('.sw-product-document-form__add-button button').attributes('disabled')).toBeUndefined();
+        expect(notificationSpy).not.toHaveBeenCalled();
     });
 
-    it('rejects a completed upload when the draft already contains ten documents', async () => {
-        const media = createMedia('uploaded eleventh');
-        const repository = repositoryFactory.create('media');
-        jest.spyOn(repository, 'get').mockResolvedValue(media);
-        const wrapper = await createWrapper(repository);
-        await addMedia(
-            wrapper,
-            Array.from({ length: 10 }, (_, index) => createMedia(`manual-${index}`)),
-        );
-        const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
-
-        wrapper
-            .getComponent<ComponentPublicInstance>('sw-upload-listener-stub')
-            .vm.$emit('media-upload-finish', { targetId: media.id });
-        await flushPromises();
-
-        expect(getDocuments()).toHaveLength(10);
-        expect(getDocuments()?.some((document) => document.mediaId === media.id)).toBe(false);
-        expect(notificationSpy).toHaveBeenCalledWith(
-            expect.objectContaining({ variant: 'error', message: 'sw-product.documentForm.errorDocumentLimit' }),
-        );
-    });
-
-    it('accepts a completed upload as the tenth document and disables further uploads', async () => {
+    it.each([9, 10])('accepts a completed upload after %s documents and keeps uploading enabled', async (count) => {
         const media = createMedia('uploaded manual');
         const repository = repositoryFactory.create('media');
         jest.spyOn(repository, 'get').mockResolvedValue(media);
         const wrapper = await createWrapper(repository);
         await addMedia(
             wrapper,
-            Array.from({ length: 9 }, (_, index) => createMedia(`manual-${index}`)),
+            Array.from({ length: count }, (_, index) => createMedia(`manual-${index}`)),
         );
         await clickButton(wrapper, 'sw-product.documentForm.buttonAdd');
 
@@ -177,10 +153,9 @@ describe('sw-product-document-form', () => {
             .vm.$emit('media-upload-finish', { targetId: media.id });
         await flushPromises();
 
-        expect(wrapper.findAll('.document-row')).toHaveLength(10);
-        expect(wrapper.text()).toContain('uploaded manual');
-        expect(getDocuments()?.[9].mediaId).toBe(media.id);
-        expect(wrapper.get<HTMLButtonElement>('.sw-media-upload-v2__button.upload').element.disabled).toBe(true);
+        expect(wrapper.findAll('.document-row')).toHaveLength(count + 1);
+        expect(getDocuments()?.[count].mediaId).toBe(media.id);
+        expect(wrapper.get<HTMLButtonElement>('.sw-media-upload-v2__button.upload').element.disabled).toBe(false);
     });
 
     it('does not attach a late upload to the next product after navigation', async () => {

@@ -4,7 +4,7 @@
 import useSnackbar from 'src/app/composables/use-snackbar';
 import type EntityFactory from 'src/core/data/entity-factory.data';
 import useNotification from 'src/app/composables/use-notification';
-import documentColumns, { allowedExtensions, maxFileSize, maxDocuments } from './document-form.config';
+import documentColumns, { allowedExtensions, maxFileSize } from './document-form.config';
 import {
     resetDocumentTranslation,
     getDocumentTranslationChanges,
@@ -63,7 +63,6 @@ export default Shopware.Component.wrapComponentConfig({
             documentValidationSubmitted: false,
             allowedExtensions: [...allowedExtensions],
             maxFileSize,
-            maxDocuments,
         };
     },
 
@@ -114,7 +113,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         canAddDocuments(): boolean {
-            return this.canEdit && this.isDefaultLanguage && this.documents.length < this.maxDocuments;
+            return this.canEdit && this.isDefaultLanguage;
         },
 
         isDefaultLanguage(): boolean {
@@ -295,13 +294,6 @@ export default Shopware.Component.wrapComponentConfig({
                     this.replacementMedia = media;
                     this.documentFileRemoved = false;
                     continue;
-                }
-
-                if (this.documents.length >= this.maxDocuments) {
-                    useNotification().createNotificationError({
-                        message: this.$t('sw-product.documentForm.errorDocumentLimit', { count: this.maxDocuments }),
-                    });
-                    break;
                 }
 
                 const document = this.documentRepository.create(Shopware.Context.api);

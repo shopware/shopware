@@ -66,7 +66,7 @@ class ProductGeneratorTest extends TestCase
 
     public function testProductGeneration(): void
     {
-        $productCount = 41;
+        $productCount = 201;
 
         $tagIds = $this->tagIds;
         $ruleIds = $this->ruleIds;
@@ -103,7 +103,7 @@ class ProductGeneratorTest extends TestCase
 
         $io = $this->createMock(SymfonyStyle::class);
         $io->expects($this->once())->method('progressStart')->with($productCount);
-        $io->expects($this->exactly((int) ($productCount / 20)))->method('progressAdvance');
+        $io->expects($this->exactly((int) ($productCount / 100)))->method('progressAdvance');
         $io->expects($this->once())->method('progressFinish');
 
         $products = $this->generateProducts(
@@ -272,7 +272,7 @@ class ProductGeneratorTest extends TestCase
         $statesUpdater = $this->createMock(StatesUpdater::class);
         $statesUpdater->expects($this->exactly(3))->method('update');
 
-        $this->generateProducts(41, statesUpdater: $statesUpdater);
+        $this->generateProducts(201, statesUpdater: $statesUpdater);
     }
 
     public function testRetriesTheBatchUpdatesAfterADeadlock(): void
@@ -281,12 +281,12 @@ class ProductGeneratorTest extends TestCase
         $inheritanceUpdater->expects($this->exactly(3))->method('update');
 
         $products = $this->generateProducts(
-            41,
+            201,
             inheritanceUpdater: $inheritanceUpdater,
             firstTransactionError: new DeadlockException(new DriverException('Deadlock detected'), null),
         );
 
-        static::assertCount(41, $products);
+        static::assertCount(201, $products);
     }
 
     public function testAssignsProductsToTheLeastUsedLeafCategories(): void

@@ -133,7 +133,7 @@ class ProductGenerator implements DemodataGeneratorInterface
 
             $payload[] = $product;
 
-            if (\count($payload) >= 20) {
+            if (\count($payload) >= 100) {
                 $this->io->progressAdvance(\count($payload));
                 $this->write($payload, $context);
                 $payload = [];

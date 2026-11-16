@@ -22,7 +22,7 @@
         {% endif %}
     {% endif %}
 
-    {% set shipments = order.shipments %}
+    {% set shipments = order.deliveries.shipments(order.primaryOrderDeliveryId) %}
 
     <div class="row">
         {% block page_checkout_finish_address_shipping %}

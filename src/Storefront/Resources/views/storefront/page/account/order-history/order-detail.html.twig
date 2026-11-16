@@ -5,7 +5,7 @@
         {% set showTaxPrice = false %}
     {% endif %}
     {% set showSubtotal = config('core.cart.showSubtotal') %}
-    {% set shipments = order.shipments %}
+    {% set shipments = order.deliveries.shipments(order.primaryOrderDeliveryId) %}
 
     <div class="order-item-detail">
         <div class="collapse"

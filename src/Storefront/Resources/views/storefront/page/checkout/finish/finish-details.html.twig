@@ -114,7 +114,7 @@
                             {% endblock %}
 
                             {% block page_checkout_finish_order_dispatch_method %}
-                                {% set shipments = page.order.shipments %}
+                                {% set shipments = page.order.deliveries.shipments(page.order.primaryOrderDeliveryId) %}
 
                                 {% if shipments|length > 1 %}
                                     {% block page_checkout_finish_order_dispatch_method_shipments %}

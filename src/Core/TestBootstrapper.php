@@ -4,6 +4,8 @@ namespace Shopware\Core;
 
 use Composer\Autoload\ClassLoader;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\ConnectionException;
+use Doctrine\DBAL\Exception\TableNotFoundException;
 use Shopware\Core\DevOps\StaticAnalyze\StaticAnalyzeKernel;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Log\Package;
@@ -38,6 +40,8 @@ class TestBootstrapper
     private bool $loadEnvFile = true;
 
     private bool $commercialEnabled = false;
+
+    private ?\Throwable $lastKernelPluginLookupException = null;
 
     private ?OutputInterface $output = null;
 
@@ -307,6 +311,8 @@ class TestBootstrapper
 
     public function getPluginPath(string $pluginName): ?string
     {
+        $this->lastKernelPluginLookupException = null;
+
         // Prefer the kernel plugin loader as it knows Composer-managed plugin paths once Shopware can access the kernel/database.
         // Some tooling calls getPluginPath()/getClassLoader() without bootstrapping the application, so keep the legacy filesystem fallback for local plugins.
         $pluginPath = $this->getPluginPathFromKernelPluginLoader($pluginName);
@@ -321,7 +327,10 @@ class TestBootstrapper
     {
         try {
             $pluginInfos = $this->getKernel()->getPluginLoader()->getPluginInfos();
-        } catch (\Throwable) {
+        } catch (\Throwable $exception) {
+            // Remembered so that a plugin missing from the filesystem fallback as well reports the real cause
+            $this->lastKernelPluginLookupException = $exception;
+
             return null;
         }
 
@@ -382,7 +391,12 @@ class TestBootstrapper
         foreach ($this->activePlugins as $pluginName) {
             $pluginPath = $this->getPluginPath($pluginName);
             if (!$pluginPath) {
-                throw new \RuntimeException(\sprintf('Could not find plugin: %s', $pluginName));
+                $message = \sprintf('Could not find plugin: %s', $pluginName);
+                if ($this->lastKernelPluginLookupException !== null) {
+                    $message .= \sprintf('. The kernel plugin lookup failed before: %s', $this->lastKernelPluginLookupException->getMessage());
+                }
+
+                throw new \RuntimeException($message, 0, $this->lastKernelPluginLookupException);
             }
             $plugin = json_decode((string) file_get_contents($pluginPath . '/composer.json'), true, 512, \JSON_THROW_ON_ERROR);
 
@@ -447,8 +461,12 @@ class TestBootstrapper
             $connection->executeQuery('SELECT 1 FROM `plugin` LIMIT 1')->fetchAllAssociative();
 
             return true;
-        } catch (\Throwable) {
+        } catch (TableNotFoundException|ConnectionException) {
+            // The test database or its schema does not exist yet, so it gets installed
             return false;
+        } catch (\Throwable $exception) {
+            // Anything else, e.g. a missing environment variable, must not be mistaken for a missing database, as installing drops it
+            throw new \RuntimeException(\sprintf('Could not check whether the test database is installed: %s', $exception->getMessage()), 0, $exception);
         }
     }
 

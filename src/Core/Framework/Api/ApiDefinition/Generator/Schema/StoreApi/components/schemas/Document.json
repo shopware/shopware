@@ -11,7 +11,8 @@
                     "documentTypeId",
                     "orderId",
                     "config",
-                    "deepLinkCode"
+                    "deepLinkCode",
+                    "typeName"
                 ],
                 "properties": {
                     "id": {
@@ -21,6 +22,29 @@
                     "documentTypeId": {
                         "type": "string",
                         "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "typeName": {
+                        "description": "Technical name of the document type. The listed values are the types Shopware ships; plugins and apps add their own.",
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "enum": [
+                                    "invoice",
+                                    "delivery_note",
+                                    "credit_note",
+                                    "storno",
+                                    "zugferd_invoice",
+                                    "zugferd_embedded_invoice",
+                                    "zugferd_credit_note",
+                                    "zugferd_embedded_credit_note",
+                                    "zugferd_cancellation_invoice",
+                                    "zugferd_embedded_cancellation_invoice"
+                                ]
+                            },
+                            {
+                                "type": "string"
+                            }
+                        ]
                     },
                     "referencedDocumentId": {
                         "type": "string",

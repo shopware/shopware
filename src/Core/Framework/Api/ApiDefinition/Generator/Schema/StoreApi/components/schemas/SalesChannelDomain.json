@@ -12,7 +12,8 @@
                     "salesChannelId",
                     "languageId",
                     "currencyId",
-                    "snippetSetId"
+                    "snippetSetId",
+                    "isExternalStorefront"
                 ],
                 "properties": {
                     "id": {
@@ -48,6 +49,10 @@
                     },
                     "hreflangUseOnlyLocale": {
                         "description": "This is used to toggle the language configurations, say between DE and DE-DE for instance.",
+                        "type": "boolean"
+                    },
+                    "isExternalStorefront": {
+                        "description": "Whether the domain points to an external (headless) storefront.",
                         "type": "boolean"
                     },
                     "customFields": {

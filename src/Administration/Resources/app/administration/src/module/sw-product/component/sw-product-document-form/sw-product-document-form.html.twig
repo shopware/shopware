@@ -122,25 +122,41 @@
                     {% endblock %}
                     {% block sw_product_document_form_name %}
                         <template #column-title="{ item }">
-                            <sw-product-document-language-value
-                                :value="getTitle(item)"
-                                :is-translated="!!item.title"
+                            <mt-link
+                                as="a"
+                                class="sw-product-document-form__edit-link"
+                                :disabled="!canEdit || isInherited"
+                                @click="openDocumentEditor(item)"
+                                @keydown.enter="openDocumentEditor(item)"
                             >
+                                <sw-product-document-language-value
+                                    :value="getTitle(item)"
+                                    :is-translated="!!item.title"
+                                >
                                 {% block sw_product_document_form_variant_badge %}
-                                <sw-product-document-variant-badge
-                                    v-if="!isInherited"
-                                    :document="item"
-                                />
+                                    <sw-product-document-variant-badge
+                                        v-if="!isInherited"
+                                        :document="item"
+                                    />
                                 {% endblock %}
-                            </sw-product-document-language-value>
+                                </sw-product-document-language-value>
+                            </mt-link>
                         </template>
                     {% endblock %}
                     {% block sw_product_document_form_file %}
                         <template #column-fileName="{ item }">
-                            <sw-product-document-language-value
-                                :value="getFileName(item)"
-                                :is-translated="!!item.mediaId"
-                            />
+                            <mt-link
+                                as="a"
+                                class="sw-product-document-form__edit-link"
+                                :disabled="!canEdit || isInherited"
+                                @click="openDocumentEditor(item)"
+                                @keydown.enter="openDocumentEditor(item)"
+                            >
+                                <sw-product-document-language-value
+                                    :value="getFileName(item)"
+                                    :is-translated="!!item.mediaId"
+                                />
+                            </mt-link>
                         </template>
                     {% endblock %}
                     {% block sw_product_document_form_type %}

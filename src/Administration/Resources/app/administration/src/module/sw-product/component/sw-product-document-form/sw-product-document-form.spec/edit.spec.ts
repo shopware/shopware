@@ -32,6 +32,43 @@ describe('sw-product-document-form editing', () => {
         cleanupWrappers();
     });
 
+    it.each([
+        [0, 'click'],
+        [1, 'click'],
+        [0, 'keydown.enter'],
+        [1, 'keydown.enter'],
+    ] as const)('opens the editor from document text cell %s using %s', async (cell, event) => {
+        const wrapper = await createWrapper();
+        await addMedia(wrapper, [createMedia()]);
+        await wrapper.findAll('.sw-product-document-form__edit-link')[cell].trigger(event);
+
+        expect(wrapper.find('.sw-product-document-form__edit-content').exists()).toBe(true);
+        expect(wrapper.get<HTMLInputElement>('.sw-product-document-form__name-input input').element.value).toBe('manual');
+        await clickButton(wrapper, 'global.default.cancel');
+        expect(getDocuments()?.[0].title).toBe('manual');
+    });
+
+    it.each(['read-only', 'inherited'])('disables document text links for %s documents', async (state) => {
+        const wrapper = await createWrapper();
+        await addMedia(wrapper, [createMedia()]);
+        const store = Shopware.Store.get('swProductDetail');
+        if (state === 'inherited') {
+            store.parentProduct = store.product;
+            store.product = createProduct();
+        } else {
+            Object.assign(global, { activeAclRoles: ['product.viewer'] });
+        }
+        const readonly = await createWrapper(undefined, undefined, undefined, { isInherited: state === 'inherited' });
+        const links = readonly.findAll('.sw-product-document-form__edit-link');
+        expect(links).toHaveLength(2);
+        for (const link of links) {
+            expect(link.attributes('aria-disabled')).toBe('true');
+            await link.trigger('click');
+            await link.trigger('keydown.enter');
+        }
+        expect(readonly.find('.sw-product-document-form__edit-content').exists()).toBe(false);
+    });
+
     it('applies a replacement while preserving the title and position, and supports cancelling', async () => {
         const wrapper = await createWrapper();
         const original = createMedia();

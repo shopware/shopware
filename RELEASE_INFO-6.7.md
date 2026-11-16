@@ -355,6 +355,21 @@ Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations
 
 The property is unused and will be removed in 6.8.
 
+### Cart guards cover every cart delivery
+
+A cart can carry more than one delivery, each with its own shipping method and shipping address, while the `SalesChannelContext` keeps the customer's default shipping method and address.
+Three checks that only looked at the context now cover every delivery of the cart:
+
+- `AddressValidator` validates the shipping address of every delivery against the sales channel countries and their shipping availability.
+  It adds one `ShippingAddressBlockedError` per blocked country, carrying the id of the first affected address.
+- The cart hash that `/store-api/checkout/order` compares with the submitted `hash` includes the shipping method, the address and the positions of every delivery.
+  Place the order with the `hash` of the latest cart response, a hash fetched before a delivery or the shipping address changed is rejected with `CHECKOUT__CART_HASH_MISMATCH`.
+- The Storefront switches the context shipping method only when the blocked shipping method is the context's one.
+  A `ShippingMethodBlockedError` for the shipping method of another delivery stays in the cart and blocks the order until the extension that created that delivery resolves it.
+  Errors created without a shipping method id switch the context shipping method as before.
+
+A cart with a single delivery is only affected by the hash: a shipping address changed after the confirm page was loaded is now detected.
+
 ### "Assign status" flow action picks the delivery and transaction of the flow
 
 The Flow Builder action "Assign status" (`action.set.order.state`) now changes the delivery and the transaction the flow carries as `orderDelivery` and `orderTransaction` data, if they belong to the order, for example on the delivery and transaction state triggers.
@@ -443,6 +458,13 @@ Remove surrounding whitespace before submitting a username.
 Existing usernames are not changed automatically; updates that omit `username` remain possible.
 Duplicate usernames are reported with HTTP 400 and code `USER__USERNAME_NOT_UNIQUE`.
 
+### SSO logins can carry the `user-verified` scope
+
+The SSO re-authentication (`/api/oauth/sso/auth` with `usePromptLogin=1`) now sends `max_age=0` next to `prompt=login`, so the identity provider performs a fresh login and reports its time in the id token (`auth_time`).
+The following code exchange puts the `user-verified` scope on the access token when that authentication is at most five minutes old.
+A token exchange without `auth_time`, or with an older one, gets no `user-verified` scope; identity providers that omit the claim after `max_age=0` do not follow OpenID Connect Core.
+The user and role endpoints keep accepting SSO sessions without the scope for now.
+
 ### HTTP method overrides restricted to form actions
 
 POST requests can now override their method only to PUT, PATCH or DELETE through the `X-HTTP-Method-Override` header or `_method` parameter.
@@ -517,6 +539,16 @@ To remove such an app, uninstall it and remove its package with Composer.
 
 The experimental `/store-api/cookie-groups` route now also returns `cookieHashes`, which maps each cookie name to a hash of its configuration, including the data of every group that lists it.
 Clients can compare these hashes to find out which cookies were added or changed when the configuration `hash` changes.
+
+### Price definitions are validated so that they can be read again
+
+A price definition written to a price definition field, for example `priceDefinition` of an order line item, is now rejected with a `400` if it could not be read again:
+
+- `quantity`: `taxRules` is missing or is not a list, or a tax rule is not an object or has no `percentage`. Send `taxRules` with `taxRate` and `percentage` for every rule, or `"taxRules": []` if no tax applies.
+- `currency-price`: an entry of `price` is not an object, has no valid `currencyId`, or has no `net`, `gross` or `linked`.
+
+Before, such a definition was stored and every later read of the entity failed, or a missing `percentage`, `net` or `gross` was read as 0. A numeric string as `price` of an `absolute` or as `percentage` of a `percentage` price definition, which was already accepted on write, can now be read as well.
+The same applies to `"quantity": null` and `"isCalculated": null` of a `quantity` price definition, which are now read as `1` and `false`.
 
 ## Features
 

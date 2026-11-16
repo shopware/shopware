@@ -7,7 +7,8 @@ const { createJiti } = require('jiti');
 // The marker grammar is TypeScript so the public API generator can reuse it, jiti loads it into this CommonJS plugin.
 const { parseMarkers } = createJiti(__filename)('./utils/api-markers.ts');
 
-const WILL_BE_PRIVATE_PATTERN = /@deprecated\s+tag:\S+\s*-\s*will be @?private/i;
+// Temporary: "Will be private" becomes `@bc-change BecomesPrivate`, which needs no guard.
+const WILL_BE_PRIVATE_PATTERN =/@deprecated\s+tag:\S+\s*-\s*will be @?private/i;
 const GUARD_NAME = 'triggerDeprecationOrThrow';
 const GUARD_SNIPPET = `Shopware.Feature.${GUARD_NAME}('{{flag}}', '…')`;
 const OPTION_SNIPPET = "deprecated: { version: '{{version}}', comment: '…' }";

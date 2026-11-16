@@ -344,29 +344,28 @@ class OrderRouteTest extends TestCase
     }
 
     /**
-     * @param list<bool> $paymentBoundPromotions
+     * @param list<'cartRules'|'orderRules'|'personaRules'|null> $paymentRuleFields
      */
     #[DataProvider('paymentChangeablePromotionProvider')]
-    public function testPaymentChangeableWithPromotions(array $paymentBoundPromotions, bool $expectedChangeable): void
+    public function testPaymentChangeableWithPromotions(array $paymentRuleFields, bool $expectedChangeable): void
     {
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());
 
         $lineItems = new OrderLineItemCollection();
         $promotions = new PromotionCollection();
-        foreach ($paymentBoundPromotions as $paymentBound) {
+        foreach ($paymentRuleFields as $paymentRuleField) {
             $promotion = new PromotionEntity();
             $promotion->setId(Uuid::randomHex());
+            $promotion->setCartRules(new RuleCollection());
 
-            $cartRules = new RuleCollection();
-            if ($paymentBound) {
-                $cartRule = new RuleEntity();
-                $cartRule->setId(Uuid::randomHex());
-                $cartRule->setPayload(new AndRule([new OrRule([new AndRule([new PaymentMethodRule()])])]));
-                $cartRules->add($cartRule);
+            if ($paymentRuleField !== null) {
+                $paymentRule = new RuleEntity();
+                $paymentRule->setId(Uuid::randomHex());
+                $paymentRule->setPayload(new AndRule([new OrRule([new AndRule([new PaymentMethodRule()])])]));
+                $promotion->assign([$paymentRuleField => new RuleCollection([$paymentRule])]);
             }
 
-            $promotion->setCartRules($cartRules);
             $promotions->add($promotion);
 
             $lineItem = new OrderLineItemEntity();
@@ -401,15 +400,17 @@ class OrderRouteTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{list<bool>, bool}>
+     * @return iterable<string, array{list<'cartRules'|'orderRules'|'personaRules'|null>, bool}>
      */
     public static function paymentChangeablePromotionProvider(): iterable
     {
         yield 'no promotion' => [[], true];
-        yield 'only plain promotion' => [[false], true];
-        yield 'only payment bound promotion' => [[true], false];
-        yield 'payment bound promotion first' => [[true, false], false];
-        yield 'plain promotion first' => [[false, true], false];
+        yield 'only plain promotion' => [[null], true];
+        yield 'only payment bound promotion' => [['cartRules'], false];
+        yield 'payment bound promotion first' => [['cartRules', null], false];
+        yield 'plain promotion first' => [[null, 'cartRules'], false];
+        yield 'payment rule in order rules' => [[null, 'orderRules'], false];
+        yield 'payment rule in persona rules' => [[null, 'personaRules'], false];
     }
 
     /**

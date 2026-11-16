@@ -54,7 +54,7 @@ class ProductDocumentTitleSubscriberTest extends TestCase
 
     public function testANewDocumentWithoutTitleIsNamedAfterItsFile(): void
     {
-        $translation = $this->newTranslation(Defaults::LANGUAGE_SYSTEM, ['media_id' => $this->ids->getBytes('manual')]);
+        $translation = $this->createInsertCommand(Defaults::LANGUAGE_SYSTEM, ['media_id' => $this->ids->getBytes('manual')]);
 
         $this->write([$translation], [$this->ids->getBytes('manual') => 'operating-manual']);
 
@@ -63,31 +63,34 @@ class ProductDocumentTitleSubscriberTest extends TestCase
 
     public function testAGivenTitleIsKept(): void
     {
-        $translation = $this->newTranslation(Defaults::LANGUAGE_SYSTEM, ['title' => 'Manual', 'media_id' => $this->ids->getBytes('manual')]);
+        $translation = $this->createInsertCommand(Defaults::LANGUAGE_SYSTEM, ['title' => 'Manual', 'media_id' => $this->ids->getBytes('manual')]);
 
         $this->write([$translation], [$this->ids->getBytes('manual') => 'operating-manual']);
 
         static::assertSame('Manual', $translation->getPayload()['title']);
     }
 
-    public function testReplacingTheFileKeepsTheTitle(): void
+    public function testReplacingTheFileRenamesTheDocument(): void
     {
-        $translation = new UpdateCommand(
-            $this->definition,
-            ['media_id' => $this->ids->getBytes('manual-v2')],
-            $this->primaryKey(Defaults::LANGUAGE_SYSTEM),
-            static::createStub(EntityExistence::class),
-            '/0'
-        );
+        $translation = $this->createUpdateCommand(['media_id' => $this->ids->getBytes('manual-v2')]);
 
-        $this->write([$translation], [$this->ids->getBytes('manual-v2') => 'operating-manual-v2']);
+        $this->write([$translation], [$this->ids->getBytes('manual-v2') => 'operating-manual-v2'], storedMediaId: $this->ids->getBytes('manual'));
+
+        static::assertSame('operating-manual-v2', $translation->getPayload()['title']);
+    }
+
+    public function testSavingTheSameFileKeepsTheTitle(): void
+    {
+        $translation = $this->createUpdateCommand(['media_id' => $this->ids->getBytes('manual')]);
+
+        $this->write([$translation], [$this->ids->getBytes('manual') => 'operating-manual'], storedMediaId: $this->ids->getBytes('manual'));
 
         static::assertArrayNotHasKey('title', $translation->getPayload());
     }
 
     public function testTranslationsInOtherLanguagesKeepAnEmptyTitle(): void
     {
-        $translation = $this->newTranslation($this->ids->get('german'), ['media_id' => $this->ids->getBytes('handbuch')]);
+        $translation = $this->createInsertCommand($this->ids->get('german'), ['media_id' => $this->ids->getBytes('handbuch')]);
 
         $this->write([$translation], [$this->ids->getBytes('handbuch') => 'bedienungsanleitung']);
 
@@ -96,7 +99,7 @@ class ProductDocumentTitleSubscriberTest extends TestCase
 
     public function testAFileWithoutNameLeavesTheTitleEmpty(): void
     {
-        $translation = $this->newTranslation(Defaults::LANGUAGE_SYSTEM, ['media_id' => $this->ids->getBytes('manual')]);
+        $translation = $this->createInsertCommand(Defaults::LANGUAGE_SYSTEM, ['media_id' => $this->ids->getBytes('manual')]);
 
         $this->write([$translation], []);
 
@@ -105,7 +108,7 @@ class ProductDocumentTitleSubscriberTest extends TestCase
 
     public function testALongFileNameIsShortenedToTheLengthOfATitle(): void
     {
-        $translation = $this->newTranslation(Defaults::LANGUAGE_SYSTEM, ['media_id' => $this->ids->getBytes('manual')]);
+        $translation = $this->createInsertCommand(Defaults::LANGUAGE_SYSTEM, ['media_id' => $this->ids->getBytes('manual')]);
 
         $this->write([$translation], [$this->ids->getBytes('manual') => str_repeat('ä', 300)]);
 
@@ -115,12 +118,26 @@ class ProductDocumentTitleSubscriberTest extends TestCase
     /**
      * @param array<string, mixed> $payload
      */
-    private function newTranslation(string $languageId, array $payload): InsertCommand
+    private function createInsertCommand(string $languageId, array $payload): InsertCommand
     {
         return new InsertCommand(
             $this->definition,
             $payload,
-            $this->primaryKey($languageId),
+            $this->createPrimaryKey($languageId),
+            static::createStub(EntityExistence::class),
+            '/0'
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private function createUpdateCommand(array $payload): UpdateCommand
+    {
+        return new UpdateCommand(
+            $this->definition,
+            $payload,
+            $this->createPrimaryKey(Defaults::LANGUAGE_SYSTEM),
             static::createStub(EntityExistence::class),
             '/0'
         );
@@ -129,7 +146,7 @@ class ProductDocumentTitleSubscriberTest extends TestCase
     /**
      * @return array<string, string>
      */
-    private function primaryKey(string $languageId): array
+    private function createPrimaryKey(string $languageId): array
     {
         return [
             'product_document_id' => $this->ids->getBytes('document'),
@@ -142,10 +159,13 @@ class ProductDocumentTitleSubscriberTest extends TestCase
      * @param list<WriteCommand> $commands
      * @param array<string, string> $fileNames file name by binary media id, as the database returns them
      */
-    private function write(array $commands, array $fileNames): void
+    private function write(array $commands, array $fileNames, ?string $storedMediaId = null): void
     {
         $connection = static::createStub(Connection::class);
         $connection->method('fetchAllKeyValue')->willReturn($fileNames);
+        $connection->method('fetchAllAssociative')->willReturn(
+            $storedMediaId === null ? [] : [$this->createPrimaryKey(Defaults::LANGUAGE_SYSTEM) + ['media_id' => $storedMediaId]],
+        );
 
         $event = EntityWriteEvent::create(WriteContext::createFromContext(Context::createDefaultContext()), $commands);
         (new ProductDocumentTitleSubscriber($connection))->setTitleFromFileName($event);

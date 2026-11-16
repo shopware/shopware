@@ -654,6 +654,8 @@ export default Shopware.Component.wrapComponentConfig({
 
         onConfirmRestoreInheritance(): void {
             this.onCloseRestoreInheritanceModal();
+            (this.$refs.documentGrid as DocumentGrid | undefined)?.resetSelection();
+            this.selectedDocuments = [];
             (this.$refs.documentInheritance as DocumentInheritance).restoreInheritance();
             useSnackbar().addSnackbar({
                 variant: 'success',

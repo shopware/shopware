@@ -618,8 +618,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(taxId).toBe('taxRate2');
     });
 
-    it('should display tax rates using the current locale', async () => {
+    it('should display tax rates using the current and default locale', async () => {
         Shopware.Store.get('session').currentLocale = 'de-DE';
+        jest.spyOn(config.global.mocks, '$te').mockReturnValue(false);
 
         const wrapper = await createWrapper(
             {},
@@ -633,7 +634,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     {
                         value: 'taxRate1',
                         name: 'Rate 1',
-                        taxRate: 7.7,
+                        taxRate: 7.12345,
                     },
                     {
                         value: 'taxRate2',
@@ -649,8 +650,15 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         const taxField = wrapper.find('.sw-bulk-edit-change-field-taxId');
         const percentageSpace = '\u00A0';
         expect(taxField.findAll('.sw-form-field-renderer__option').map((option) => option.text())).toEqual([
-            expect.stringContaining(`(7,7${percentageSpace}%)`),
-            expect.stringContaining(`(19${percentageSpace}%)`),
+            `Rate 1 (7,123${percentageSpace}%)`,
+            `Rate 2 (19${percentageSpace}%)`,
+        ]);
+
+        Shopware.Store.get('session').currentLocale = undefined;
+        await flushPromises();
+        expect(taxField.findAll('.sw-form-field-renderer__option').map((option) => option.text())).toEqual([
+            'Rate 1 (7.123%)',
+            'Rate 2 (19%)',
         ]);
     });
 

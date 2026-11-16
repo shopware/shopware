@@ -118,7 +118,9 @@ test.describe('Newsletter recipient promotion', () => {
 
                 await ShopCustomer.presses(StorefrontOffCanvasCart.goToCheckoutButton);
                 if (customerType === 'Guest') {
-                    await StorefrontAccountLogin.page.waitForURL('**/checkout/register', { waitUntil: 'commit' });
+                    await StorefrontAccountLogin.page.waitForURL((url) => url.pathname.endsWith('/checkout/register'), {
+                        waitUntil: 'commit',
+                    });
                     await ShopCustomer.expects(StorefrontAccountLogin.registerEmailInput).toBeVisible();
                     await ShopCustomer.attemptsTo(Register({ email: customer.email, isGuest: true }));
                 }

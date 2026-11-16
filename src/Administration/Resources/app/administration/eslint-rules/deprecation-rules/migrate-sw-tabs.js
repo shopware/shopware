@@ -18,6 +18,7 @@
  * `sw-meteor-card`, stays untouched.
  */
 
+const espree = require('espree');
 const { reportTodo, lineIndentation } = require('./upgrade-helpers/todo-comment');
 const { walk, elementName, findAttribute, normalizedName } = require('./upgrade-helpers/component-tags');
 const { fail, attempt } = require('./upgrade-helpers/unconvertible');
@@ -123,6 +124,31 @@ function eventReferences(root) {
     });
 
     return references;
+}
+
+/**
+ * Whether JS source reads one of the names, without property keys.
+ */
+function readsName(code, names) {
+    if (names.length === 0) {
+        return false;
+    }
+
+    const keys = new Set();
+    let reads = false;
+
+    // walk() visits a node before its children, so the keys are known when their identifiers come up
+    walk(espree.parse(`[${code}]`, { ecmaVersion: 'latest' }), (node) => {
+        if (node.type === 'MemberExpression' && !node.computed) {
+            keys.add(node.property);
+        } else if (node.type === 'Property' && !node.computed && !node.shorthand) {
+            keys.add(node.key);
+        } else if (node.type === 'Identifier' && !keys.has(node) && names.includes(node.name)) {
+            reads = true;
+        }
+    });
+
+    return reads;
 }
 
 /**
@@ -237,7 +263,7 @@ function staticRouteName(route) {
  *
  * @returns {{ code: string, hasRoute: boolean }}
  */
-function convertItem(sourceCode, item, activeRefs) {
+function convertItem(sourceCode, item, activeRefs, slotNames) {
     let name = null;
     let route = null;
     let title = null;
@@ -366,10 +392,16 @@ function convertItem(sourceCode, item, activeRefs) {
         properties.push(`onClick: ${onClick}`);
     }
 
-    const code = `{ ${properties.join(', ')} }`;
+    const object = `{ ${properties.join(', ')} }`;
+    const code = condition ? `...(${wrap(condition)} ? [${object}] : [])` : object;
+
+    // mt-tabs has no default slot, so its variables don't exist in `items`
+    if (readsName(code, slotNames)) {
+        fail('the slot props of sw-tabs in a sw-tabs-item');
+    }
 
     return {
-        code: condition ? `...(${wrap(condition)} ? [${code}] : [])` : code,
+        code,
         hasRoute: route !== null,
     };
 }
@@ -435,6 +467,7 @@ function analyze(sourceCode, element) {
     const defaultNodes = [];
     let defaultTemplate = null;
     let activeRefs = [];
+    let slotNames = [];
 
     element.children.forEach((child) => {
         if (child.type !== 'VElement') {
@@ -471,6 +504,7 @@ function analyze(sourceCode, element) {
 
         defaultTemplate = child;
         activeRefs = activeReferences(slot.directive);
+        slotNames = child.variables.map((variable) => variable.id.name);
     });
 
     const itemNodes = defaultTemplate ? defaultTemplate.children : defaultNodes;
@@ -512,7 +546,7 @@ function analyze(sourceCode, element) {
             fail(`a <${node.rawName ?? node.name}> element in sw-tabs`);
         }
 
-        items.push(convertItem(sourceCode, node, activeRefs));
+        items.push(convertItem(sourceCode, node, activeRefs, slotNames));
     });
 
     const hasRoutes = items.some((item) => item.hasRoute);

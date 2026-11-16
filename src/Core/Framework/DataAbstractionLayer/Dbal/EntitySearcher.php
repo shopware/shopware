@@ -93,8 +93,9 @@ class EntitySearcher implements EntitySearcherInterface
             && $criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_EXACT
             && $criteria->getLimit() !== null;
 
+        $countQuery = $query;
         if ($countInQuery) {
-            $query->addSelect('COUNT(*) OVER() AS ' . EntityDefinitionQueryHelper::escape(self::WINDOW_TOTAL));
+            $query = $this->buildWindowTotalQuery($query, $fields);
         }
 
         // add pagination
@@ -109,6 +110,7 @@ class EntitySearcher implements EntitySearcherInterface
 
         if ($criteria->getTitle()) {
             $query->setTitle($criteria->getTitle() . '::search-ids');
+            $countQuery->setTitle($criteria->getTitle() . '::search-ids');
         }
 
         // execute and fetch ids
@@ -122,7 +124,7 @@ class EntitySearcher implements EntitySearcherInterface
                 return $row;
             }, $rows);
         } else {
-            $total = $this->getTotalCount($criteria, $query, $rows);
+            $total = $this->getTotalCount($criteria, $countQuery, $rows);
         }
 
         if ($criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_NEXT_PAGES) {
@@ -235,6 +237,36 @@ class EntitySearcher implements EntitySearcherInterface
         ), 'ranked')->andWhere('ranked._rn = 1');
 
         $outer->setParameters($query->getParameters(), $query->getParameterTypes());
+
+        return $outer;
+    }
+
+    /**
+     * @param array<string, Field> $fields keyed by storage name
+     */
+    private function buildWindowTotalQuery(QueryBuilder $query, array $fields): QueryBuilder
+    {
+        $outer = new QueryBuilder($this->connection);
+
+        foreach ($query->getOrderByPairs() as $i => [$expression, $direction]) {
+            $alias = Criteria::SCORE_FIELD;
+            if ($expression !== Criteria::SCORE_FIELD) {
+                $alias = '_sort_' . $i;
+                $query->addSelect($expression . ' as ' . EntityDefinitionQueryHelper::escape($alias));
+            }
+
+            $outer->addOrderBy('counted.' . EntityDefinitionQueryHelper::escape($alias), $direction);
+        }
+
+        $query->resetOrderBy();
+
+        foreach ([...array_keys($fields), Criteria::SCORE_FIELD] as $column) {
+            $outer->addSelect('counted.' . EntityDefinitionQueryHelper::escape($column));
+        }
+
+        $outer->addSelect('COUNT(*) OVER() AS ' . EntityDefinitionQueryHelper::escape(self::WINDOW_TOTAL))
+            ->from('(' . $query->getSQL() . ')', 'counted')
+            ->setParameters($query->getParameters(), $query->getParameterTypes());
 
         return $outer;
     }

@@ -362,6 +362,21 @@ A change of the global config still drops the cached config of all sales channel
 `CachedSystemConfigLoader` tags each cached sales channel config additionally with `CachedSystemConfigLoader::buildSalesChannelTag($salesChannelId)`.
 Invalidating `CachedSystemConfigLoader::CACHE_TAG` still drops the whole cached config.
 
+### Cart guards cover every cart delivery
+
+A cart can carry more than one delivery, each with its own shipping method and shipping address, while the `SalesChannelContext` keeps the customer's default shipping method and address.
+Three checks that only looked at the context now cover every delivery of the cart:
+
+- `AddressValidator` validates the shipping address of every delivery against the sales channel countries and their shipping availability.
+  It adds one `ShippingAddressBlockedError` per blocked country, carrying the id of the first affected address.
+- The cart hash that `/store-api/checkout/order` compares with the submitted `hash` includes the shipping method, the address and the positions of every delivery.
+  Place the order with the `hash` of the latest cart response, a hash fetched before a delivery or the shipping address changed is rejected with `CHECKOUT__CART_HASH_MISMATCH`.
+- The Storefront switches the context shipping method only when the blocked shipping method is the context's one.
+  A `ShippingMethodBlockedError` for the shipping method of another delivery stays in the cart and blocks the order until the extension that created that delivery resolves it.
+  Errors created without a shipping method id switch the context shipping method as before.
+
+A cart with a single delivery is only affected by the hash: a shipping address changed after the confirm page was loaded is now detected.
+
 ### "Assign status" flow action picks the delivery and transaction of the flow
 
 The Flow Builder action "Assign status" (`action.set.order.state`) now changes the delivery and the transaction the flow carries as `orderDelivery` and `orderTransaction` data, if they belong to the order, for example on the delivery and transaction state triggers.
@@ -450,6 +465,13 @@ Remove surrounding whitespace before submitting a username.
 Existing usernames are not changed automatically; updates that omit `username` remain possible.
 Duplicate usernames are reported with HTTP 400 and code `USER__USERNAME_NOT_UNIQUE`.
 
+### SSO logins can carry the `user-verified` scope
+
+The SSO re-authentication (`/api/oauth/sso/auth` with `usePromptLogin=1`) now sends `max_age=0` next to `prompt=login`, so the identity provider performs a fresh login and reports its time in the id token (`auth_time`).
+The following code exchange puts the `user-verified` scope on the access token when that authentication is at most five minutes old.
+A token exchange without `auth_time`, or with an older one, gets no `user-verified` scope; identity providers that omit the claim after `max_age=0` do not follow OpenID Connect Core.
+The user and role endpoints keep accepting SSO sessions without the scope for now.
+
 ### HTTP method overrides restricted to form actions
 
 POST requests can now override their method only to PUT, PATCH or DELETE through the `X-HTTP-Method-Override` header or `_method` parameter.
@@ -525,6 +547,16 @@ To remove such an app, uninstall it and remove its package with Composer.
 The experimental `/store-api/cookie-groups` route now also returns `cookieHashes`, which maps each cookie name to a hash of its configuration, including the data of every group that lists it.
 Clients can compare these hashes to find out which cookies were added or changed when the configuration `hash` changes.
 
+### Price definitions are validated so that they can be read again
+
+A price definition written to a price definition field, for example `priceDefinition` of an order line item, is now rejected with a `400` if it could not be read again:
+
+- `quantity`: `taxRules` is missing or is not a list, or a tax rule is not an object or has no `percentage`. Send `taxRules` with `taxRate` and `percentage` for every rule, or `"taxRules": []` if no tax applies.
+- `currency-price`: an entry of `price` is not an object, has no valid `currencyId`, or has no `net`, `gross` or `linked`.
+
+Before, such a definition was stored and every later read of the entity failed, or a missing `percentage`, `net` or `gross` was read as 0. A numeric string as `price` of an `absolute` or as `percentage` of a `percentage` price definition, which was already accepted on write, can now be read as well.
+The same applies to `"quantity": null` and `"isCalculated": null` of a `quantity` price definition, which are now read as `1` and `false`.
+
 ## Features
 
 ### Disable the Administration password recovery flow
@@ -555,6 +587,15 @@ Amounts that carry a single value instead of a net and gross pair, such as absol
 
 The customer group detail page offers both settings separately. Plugins customize the selection through the new extension point `Shopware\Core\Checkout\Cart\Extension\PriceSelectorExtension` (`price-selector.select.pre` and `.post`), for example to apply charm-price rounding to derived gross prices. `GrossPriceCalculator` now grosses up uncalculated prices over several tax rules so that its own tax split returns the given net value; prices with a single tax rule are unchanged. Background and trade-offs are documented in the ADR `adr/2026-08-11-decouple-price-calculation-basis-from-tax-display.md`.
 
+### Open a product in the Storefront from the Administration
+
+The product detail page has a new "Open in Storefront" action in the context menu of its smart bar.
+It opens a modal to select one of the Storefront sales channels the product is assigned to.
+For the selected sales channel it shows the product URLs, or the reason why the sales channel cannot show the product, for example an inactive sales channel or product, a missing domain, or a sold-out clearance sale product.
+Sales channels in maintenance mode get a hint.
+If the IP address of the Administration user is not on the maintenance allowlist, the modal explains that it cannot load the product URLs.
+The `product.viewer` role now includes the `sales_channel_domain:read` privilege, which the modal needs to load the domains; a migration adds it to existing roles.
+
 ## App System
 
 ### Inline `<custom-fields>` in `manifest.xml` stay supported
@@ -578,6 +619,14 @@ Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-
 
 ## Administration
 
+### Order viewers no longer receive delete privileges
+
+The `order.viewer` permission no longer grants `order:delete` or `version:delete`, and viewing an order no longer creates a working version.
+Existing viewer roles lose `order:delete` during the update unless they also have `order.editor` or `order.deleter`.
+Existing `version:delete` grants are preserved because other modules and extensions may require them.
+Editor roles still require both grants to discard working versions.
+Custom roles without the `order.viewer` marker are unchanged.
+Extensions that require `order:delete` alongside `order.viewer` must explicitly restore that grant for the affected roles after the migration.
 ### Deprecated the unused visibilities and sales channels in the sales channel detail
 
 Some sales channel detail components load the visibilities or sales channels of their products and currencies, although they only need one of them or none.
@@ -1138,6 +1187,10 @@ Switching maintenance mode on again then sent every visitor not on the IP allowl
 The redirect is no longer cached. A shop that is already in this state gets out of it by running `bin/console cache:clear:http`.
 
 ## Hosting & Configuration
+
+### Password recovery is rate limited per IP
+
+Customer and admin password recovery requests are now also limited per client IP (`reset_password_client`, `user_recovery_client`), so setups behind a proxy or a headless frontend must configure trusted proxies to keep the real client IP
 
 ### Sitemaps skip inactive sales channels and `sitemap:generate` continues after a failure
 

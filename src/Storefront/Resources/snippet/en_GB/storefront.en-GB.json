@@ -552,6 +552,8 @@
     "collapseTriggerMore": "Show more",
     "collapseTriggerLess": "Show less",
     "product-not-found": "The product could not be found.",
+    "label": "An item in your shopping cart has no name and cannot be ordered.",
+    "price": "An item in your shopping cart has no price and cannot be ordered.",
     "salutation-missing": "A salutation is missing from your profile, please choose one during checkout.",
     "salutation-missing-profile": "There's no salutation configured in your profile, please set one <a href=\"%url%\">here</a>.",
     "salutation-missing-billing-address": "There's no salutation configured for your active billing address, please set one <a href=\"%url%\">here</a>.",

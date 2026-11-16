@@ -14,15 +14,23 @@ const added = (name: string) => ({ name, removed: false });
 const removed = (name: string) => ({ name, removed: true });
 
 test('a domain or service label next to needs-triage removes needs-triage', () => {
-    assert.deepEqual(evaluateNeedsTriage(openItem({ labels: ['domain/framework', NEEDS_TRIAGE_LABEL] })), { action: 'remove' });
-    assert.deepEqual(evaluateNeedsTriage(openItem({ labels: ['service/storefront', 'bug', NEEDS_TRIAGE_LABEL] })), { action: 'remove' });
+    assert.deepEqual(evaluateNeedsTriage(openItem({ labels: ['domain/framework', NEEDS_TRIAGE_LABEL] })), {
+        action: 'remove',
+    });
+    assert.deepEqual(evaluateNeedsTriage(openItem({ labels: ['service/storefront', 'bug', NEEDS_TRIAGE_LABEL] })), {
+        action: 'remove',
+    });
 });
 
 test('assigning a domain label removes needs-triage from drafts and closed items too', () => {
     const labels = ['domain/framework', NEEDS_TRIAGE_LABEL];
 
-    assert.deepEqual(evaluateNeedsTriage(openItem({ changedLabel: added('domain/framework'), labels, isDraft: true })), { action: 'remove' });
-    assert.deepEqual(evaluateNeedsTriage(openItem({ changedLabel: added('domain/framework'), labels, isClosed: true })), { action: 'remove' });
+    assert.deepEqual(evaluateNeedsTriage(openItem({ changedLabel: added('domain/framework'), labels, isDraft: true })), {
+        action: 'remove',
+    });
+    assert.deepEqual(evaluateNeedsTriage(openItem({ changedLabel: added('domain/framework'), labels, isClosed: true })), {
+        action: 'remove',
+    });
 });
 
 test('an open item without a domain label gets needs-triage', () => {
@@ -43,15 +51,21 @@ test('a label that is no domain label changes nothing', () => {
 });
 
 test('removing the last domain label adds needs-triage again', () => {
-    assert.deepEqual(evaluateNeedsTriage(openItem({ changedLabel: removed('domain/framework'), labels: ['bug'] })), { action: 'add' });
+    assert.deepEqual(evaluateNeedsTriage(openItem({ changedLabel: removed('domain/framework'), labels: ['bug'] })), {
+        action: 'add',
+    });
 });
 
 test('an added domain label that is gone again adds nothing, its removal decides', () => {
-    assert.deepEqual(evaluateNeedsTriage(openItem({ changedLabel: added('domain/framework'), labels: ['bug'] })), { action: 'keep' });
+    assert.deepEqual(evaluateNeedsTriage(openItem({ changedLabel: added('domain/framework'), labels: ['bug'] })), {
+        action: 'keep',
+    });
 });
 
 test('removing one of two domain labels keeps the item triaged', () => {
-    assert.deepEqual(evaluateNeedsTriage(openItem({ changedLabel: removed('domain/framework'), labels: ['service/sbp'] })), { action: 'keep' });
+    assert.deepEqual(evaluateNeedsTriage(openItem({ changedLabel: removed('domain/framework'), labels: ['service/sbp'] })), {
+        action: 'keep',
+    });
 });
 
 test('removing the last domain label from a draft adds nothing', () => {

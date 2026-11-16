@@ -20,6 +20,7 @@ async function createWrapper(options = {}) {
                 },
                 repositoryFactory: {
                     create: () => ({
+                        searchIds: jest.fn(() => Promise.resolve({ total: 1, data: ['1'] })),
                         search: jest.fn(() =>
                             Promise.resolve([
                                 {

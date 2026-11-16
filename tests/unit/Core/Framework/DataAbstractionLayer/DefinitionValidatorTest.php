@@ -476,6 +476,7 @@ class DefinitionValidatorTest extends TestCase
         }
         static::assertArrayHasKey('entity', $metas);
         static::assertArrayHasKey('mapping', $metas);
+        static::assertArrayHasKey('fields', $metas['entity']);
         $untranslated = array_map(static fn (array $field): array => ['translated' => false] + $field, $metas['entity']['fields']);
 
         $violations = $this->createValidatorWithTable(

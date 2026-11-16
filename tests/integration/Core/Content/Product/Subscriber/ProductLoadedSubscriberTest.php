@@ -1126,7 +1126,6 @@ class ProductLoadedSubscriberTest extends TestCase
             ->getEntities()
             ->first();
 
-        /** @var PropertyGroupOptionCollection $options */
         $options = $productEntity->getOptions();
 
         static::assertInstanceOf(PropertyGroupOptionCollection::class, $options);

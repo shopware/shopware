@@ -420,7 +420,6 @@ class CacheClearerTest extends TestCase
         $pruneableAdapter = $this->createMock(PruneableInterface::class);
         $pruneableAdapter->expects($this->once())->method('prune');
 
-        /** @var CacheItemPoolInterface&Stub $nonPruneableAdapter */
         $nonPruneableAdapter = static::createStub(CacheItemPoolInterface::class);
 
         $cacheClearer = new CacheClearer(

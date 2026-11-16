@@ -117,8 +117,7 @@ class AccountOrderPageLoader
 
     private function createCriteria(Request $request): Criteria
     {
-        $page = RequestParamHelper::get($request, 'p');
-        $page = $page ? (int) $page : 1;
+        $page = max((int) RequestParamHelper::get($request, 'p'), 1);
 
         $criteria = (new Criteria())
             ->addSorting(new FieldSorting('order.createdAt', FieldSorting::DESCENDING))

@@ -15,6 +15,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Filesystem\Filesystem;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 
@@ -26,6 +27,8 @@ use Twig\Loader\ArrayLoader;
 class DocsAppEventCommand extends Command
 {
     private const EVENT_DOCUMENT_PATH = __DIR__ . '/../../Resources/generated/webhook-events-reference.md';
+
+    private const EVENT_JSON_PATH = __DIR__ . '/../../Resources/generated/webhook-events-reference.json';
 
     private const EVENTS_TEMPLATE = __DIR__ . '/../../Resources/templates/hookable-events-list.md.twig';
 
@@ -41,7 +44,8 @@ class DocsAppEventCommand extends Command
         private readonly HookableEventCollector $hookableEventCollector,
         private readonly PolicyRegistry $policies,
         private readonly iterable $hookableEventDescribers,
-        private readonly Environment $twig
+        private readonly Environment $twig,
+        private readonly Filesystem $filesystem
     ) {
         parent::__construct();
     }
@@ -71,9 +75,25 @@ class DocsAppEventCommand extends Command
         }
     }
 
+    public function renderJson(): string
+    {
+        $events = array_filter(
+            $this->hookableEventCollector->getHookableEventNamesWithPrivileges(Context::createCLIContext(), null),
+            fn (string $eventName) => $this->policies->permitsSubscription($eventName, Subscriber::none()),
+            \ARRAY_FILTER_USE_KEY
+        );
+
+        return json_encode($events, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES | \JSON_THROW_ON_ERROR) . \PHP_EOL;
+    }
+
     public function getListEventPath(): string
     {
         return self::EVENT_DOCUMENT_PATH;
+    }
+
+    public function getJsonEventPath(): string
+    {
+        return self::EVENT_JSON_PATH;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -82,14 +102,13 @@ class DocsAppEventCommand extends Command
 
         $io->section('Generates documentation for all events that can be registered as webhook');
 
-        file_put_contents(
-            $this->getListEventPath(),
-            $this->render()
-        );
+        $this->filesystem->dumpFile($this->getListEventPath(), $this->render());
+
+        $this->filesystem->dumpFile($this->getJsonEventPath(), $this->renderJson());
 
         $io->success('All events were generated successfully');
 
-        $io->note($this->getListEventPath());
+        $io->note([$this->getListEventPath(), $this->getJsonEventPath()]);
 
         return self::SUCCESS;
     }

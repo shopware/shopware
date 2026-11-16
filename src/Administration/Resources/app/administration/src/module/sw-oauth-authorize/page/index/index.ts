@@ -132,10 +132,7 @@ export default Component.wrapComponentConfig({
 
         async loadShopName() {
             try {
-                const values = (await this.systemConfigApiService.getValues('core.basicInformation')) as Record<
-                    string,
-                    unknown
-                >;
+                const values = await this.systemConfigApiService.getValues('core.basicInformation');
                 const shopName = values['core.basicInformation.shopName'];
 
                 this.shopName = typeof shopName === 'string' && shopName.length > 0 ? shopName : 'Shopware';

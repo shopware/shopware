@@ -341,13 +341,6 @@ A `0` is no longer replaced by the mapping's default value and satisfies a requi
 Empty cells behave as before.
 Check import files that relied on `0` being ignored.
 
-### Cheapest price container stores the sales channel visibility only once
-
-`product.cheapest_price` repeated the sales channel ids of a variant in every price entry, which made the stored container of large variant families several megabytes big.
-The `CheapestPriceContainer` now stores them once per product family, plus once for each variant whose visibility differs, and the price entries returned by `getValue()` and `getPricesForVariant()` no longer contain the `sales_channel_ids` key.
-Use `CheapestPriceContainer::getSalesChannelIdsForVariant()` to read the sales channel ids of a variant; it returns `null` for containers written before this change.
-Run `bin/console dal:refresh:index --only=product.indexer` to shrink existing containers; until then they resolve as before.
-
 ### Event once all line items of an add are in the cart
 
 `CartItemAddRoute` dispatches the new `Shopware\Core\Checkout\Cart\Event\LineItemsAddedBeforeCalculationEvent` once per add, after `BeforeLineItemAddedEvent` was dispatched for each line item and before the cart is calculated.

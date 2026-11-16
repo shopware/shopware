@@ -133,7 +133,10 @@ class CheapestPriceUpdaterTest extends TestCase
         $rulePrices = $container->getPricesForVariant($variantId);
         static::assertArrayHasKey('default', $rulePrices);
         static::assertArrayNotHasKey('sales_channel_ids', $rulePrices['default']);
-        static::assertSame($salesChannelIds, $container->getSalesChannelIdsForVariant($variantId));
+        static::assertSame(
+            ['parent' => [], 'variants' => $salesChannelIds === [] ? [] : [$variantId => $salesChannelIds]],
+            $container->getVars()['salesChannelIds']
+        );
     }
 
     #[TestDox('The sales channel ids of the parent are written once, not into every price entry')]
@@ -172,9 +175,9 @@ class CheapestPriceUpdaterTest extends TestCase
                 static::assertIsArray($price);
                 static::assertArrayNotHasKey('sales_channel_ids', $price);
             }
-
-            static::assertSame($salesChannelIds, $container->getSalesChannelIdsForVariant($variantId));
         }
+
+        static::assertSame(['parent' => $salesChannelIds, 'variants' => []], $container->getVars()['salesChannelIds']);
     }
 
     #[TestDox('A variant with own visibility keeps its own sales channel ids')]
@@ -205,8 +208,10 @@ class CheapestPriceUpdaterTest extends TestCase
         static::assertCount(1, $writtenPrices);
         $container = Serialization::assertUnserializedInstanceOf(CheapestPriceContainer::class, $writtenPrices[0]);
 
-        static::assertSame([$parentSalesChannelId], $container->getSalesChannelIdsForVariant($inheritingVariantId));
-        static::assertSame([$variantSalesChannelId], $container->getSalesChannelIdsForVariant($ownVariantId));
+        static::assertSame(
+            ['parent' => [$parentSalesChannelId], 'variants' => [$ownVariantId => [$variantSalesChannelId]]],
+            $container->getVars()['salesChannelIds']
+        );
     }
 
     public static function salesChannelVisibilityProvider(): \Generator

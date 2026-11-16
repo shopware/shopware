@@ -211,18 +211,6 @@ class CheapestPriceContainer extends Struct
     }
 
     /**
-     * @return list<string>|null
-     */
-    public function getSalesChannelIdsForVariant(string $variantId): ?array
-    {
-        if ($this->salesChannelIds === null) {
-            return null;
-        }
-
-        return $this->salesChannelIds['variants'][$variantId] ?? $this->salesChannelIds['parent'];
-    }
-
-    /**
      * @return list<string>
      */
     public function getRuleIds(): array
@@ -314,9 +302,14 @@ class CheapestPriceContainer extends Struct
 
     private function isVariantAvailableInSalesChannel(string $variantId, string $salesChannelId): bool
     {
-        $salesChannelIds = $this->getSalesChannelIdsForVariant($variantId);
+        // containers written before the visibility was stored once per product carry it in every price entry
+        if ($this->salesChannelIds === null) {
+            return true;
+        }
 
-        return $salesChannelIds === null || \in_array($salesChannelId, $salesChannelIds, true);
+        $salesChannelIds = $this->salesChannelIds['variants'][$variantId] ?? $this->salesChannelIds['parent'];
+
+        return \in_array($salesChannelId, $salesChannelIds, true);
     }
 
     /**

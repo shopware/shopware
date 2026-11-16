@@ -183,36 +183,6 @@ class CheapestPriceContainerSalesChannelTest extends TestCase
         static::assertArrayNotHasKey('sales_channel_ids', $container->getValue());
     }
 
-    public function testGetSalesChannelIdsForVariant(): void
-    {
-        $container = new CheapestPriceContainer([
-            'variant1' => [
-                'default' => $this->createPrice(50.0, 42.02),
-            ],
-            'variant2' => [
-                'default' => $this->createPrice(100.0, 84.03),
-            ],
-            'sales_channel_ids' => [
-                'parent' => ['salesChannel1', 'salesChannel2'],
-                'variants' => ['variant2' => ['salesChannel3']],
-            ],
-        ]);
-
-        static::assertSame(['salesChannel1', 'salesChannel2'], $container->getSalesChannelIdsForVariant('variant1'));
-        static::assertSame(['salesChannel3'], $container->getSalesChannelIdsForVariant('variant2'));
-    }
-
-    public function testGetSalesChannelIdsForVariantIsNullWithoutStoredVisibility(): void
-    {
-        $container = new CheapestPriceContainer([
-            'variant1' => [
-                'default' => $this->createPrice(50.0, 42.02, ['salesChannel1']),
-            ],
-        ]);
-
-        static::assertNull($container->getSalesChannelIdsForVariant('variant1'));
-    }
-
     public function testContainerSerializedBeforeVisibilityPropertyStillFiltersBySalesChannel(): void
     {
         $currentSalesChannelId = Uuid::randomHex();

@@ -2,6 +2,7 @@
  * @sw-package discovery
  */
 import { mount, RouterLinkStub, type VueWrapper } from '@vue/test-utils';
+import type Criteria from 'src/core/data/criteria.data';
 
 function createMedia(overrides: Record<string, unknown> = {}) {
     return {
@@ -26,11 +27,15 @@ function createMedia(overrides: Record<string, unknown> = {}) {
 describe('sw-media-quickinfo-usage products', () => {
     let wrapper: VueWrapper;
     const product = { id: 'product', translated: { name: 'Operating manual product' } };
-    const documentUsage = { productDocument: { productId: product.id, product } };
+    const searchDocuments = jest.fn<Promise<ProductResult>, [Criteria]>();
+    type ProductResult = (typeof product)[] & { total?: number };
+    let documentRequests: ReturnType<Criteria['parse']>[];
     const modules = Shopware.Module.getModuleRegistry();
     const originalProductModule = modules.get('sw-product');
 
     beforeEach(() => {
+        searchDocuments.mockReset().mockResolvedValue([]);
+        documentRequests = [];
         modules.delete('sw-product');
         /** @private */
         Shopware.Module.register('sw-product', {
@@ -50,34 +55,31 @@ describe('sw-media-quickinfo-usage products', () => {
         }
     });
 
-    async function createWrapper(
-        item: ReturnType<typeof createMedia>,
-        slotProducts: (typeof product)[] = [],
-        inheritedProducts: Record<string, unknown>[] | (() => Promise<Record<string, unknown>[]>) = [],
-    ) {
+    async function createWrapper(item = createMedia(), slotProducts: (typeof product)[] = []) {
         wrapper = mount(await wrapTestComponent('sw-media-quickinfo-usage', { sync: true }), {
             props: { item },
             global: {
                 stubs: {
                     'router-link': RouterLinkStub,
                     'sw-loader': true,
-                    'sw-product-variant-info': await wrapTestComponent('sw-product-variant-info', { sync: true }),
                 },
                 provide: {
                     repositoryFactory: {
                         create: (entity: string) => ({
-                            search: (criteria: { parse: () => { ids?: string[] } }, context?: { inheritance?: boolean }) => {
+                            search: (criteria: Criteria) => {
                                 if (entity !== 'product') {
                                     return Promise.resolve([]);
                                 }
-                                if (!context?.inheritance) {
-                                    return Promise.resolve(slotProducts);
+                                if (
+                                    criteria.filters.some(
+                                        (filter) =>
+                                            filter.type === 'equals' && filter.field === 'documents.translations.mediaId',
+                                    )
+                                ) {
+                                    documentRequests.push(criteria.parse());
+                                    return searchDocuments(criteria);
                                 }
-                                return typeof inheritedProducts === 'function'
-                                    ? inheritedProducts()
-                                    : Promise.resolve(
-                                          inheritedProducts.filter(({ id }) => criteria.parse().ids?.includes(id as string)),
-                                      );
+                                return Promise.resolve(slotProducts);
                             },
                         }),
                     },
@@ -88,183 +90,131 @@ describe('sw-media-quickinfo-usage products', () => {
         return wrapper;
     }
 
-    it('links a document file to the product that uses it', async () => {
-        await createWrapper(createMedia({ productDocumentTranslations: [documentUsage] }));
+    it('finds document usages across all translations without embedded media assignments', async () => {
+        searchDocuments.mockResolvedValue([product]);
+        await createWrapper();
 
-        expect(wrapper.text()).toContain(product.translated.name);
+        expect(documentRequests[0].filter).toEqual([
+            { type: 'equals', field: 'documents.translations.mediaId', value: 'media' },
+        ]);
         expect(wrapper.getComponent(RouterLinkStub).props('to')).toEqual({
             name: 'sw.product.detail',
             params: { id: product.id },
         });
+        expect(wrapper.text()).toContain(product.translated.name);
     });
 
-    it('lists each product once across document assignments and languages', async () => {
+    it('lists each product once across images, documents and CMS content without mutating the media', async () => {
         const otherProduct = { id: 'other-product', translated: { name: 'Other product' } };
-        const translations = [
-            documentUsage,
-            documentUsage,
-            { productDocument: { productId: otherProduct.id, product: otherProduct } },
-        ];
-        const item = createMedia({ productDocumentTranslations: translations });
-        await createWrapper(item);
+        const productMedia = [{ productId: product.id, product }];
+        const item = createMedia({ productMedia });
+        searchDocuments.mockResolvedValue([product, otherProduct]);
+        await createWrapper(item, [product, otherProduct]);
+
+        expect(wrapper.findAllComponents(RouterLinkStub)).toHaveLength(2);
+        expect(wrapper.text()).toContain(otherProduct.translated.name);
+        expect(item.productMedia).toBe(productMedia);
+        expect(item.productMedia).toHaveLength(1);
+    });
+
+    it('links the product returned by the document query instead of a product embedded in the media', async () => {
+        const wrongProduct = { id: 'wrong-product', translated: { name: 'Wrong product' } };
+        searchDocuments.mockResolvedValue([product]);
+        await createWrapper(
+            createMedia({
+                productDocumentTranslations: [{ productDocument: { productId: product.id, product: wrongProduct } }],
+            }),
+        );
+
+        expect(wrapper.findAllComponents(RouterLinkStub)).toHaveLength(1);
+        expect(wrapper.getComponent(RouterLinkStub).props('to')).toEqual({
+            name: 'sw.product.detail',
+            params: { id: product.id },
+        });
+        expect(wrapper.text()).not.toContain(wrongProduct.translated.name);
+    });
+
+    it('loads document usages beyond the first 25 products', async () => {
+        const firstPage = Array.from({ length: 25 }, (_, index) => ({
+            id: `product-${index}`,
+            translated: { name: `Product ${index}` },
+        }));
+        searchDocuments
+            .mockResolvedValueOnce(Object.assign(firstPage, { total: 26 }))
+            .mockResolvedValueOnce(Object.assign([product], { total: 26 }));
+        await createWrapper();
+
+        expect(documentRequests.map(({ page }) => page)).toEqual([1, 2]);
+        expect(documentRequests[0].sort).toEqual([{ field: 'id', order: 'ASC', naturalSorting: false }]);
+        expect(wrapper.findAllComponents(RouterLinkStub)).toHaveLength(26);
+        expect(wrapper.text()).toContain(product.translated.name);
+    });
+
+    it('preserves loaded document and CMS usages if the next document page fails', async () => {
+        const cmsProduct = { id: 'cms-product', translated: { name: 'CMS product' } };
+        searchDocuments
+            .mockResolvedValueOnce(Object.assign([product], { total: 2 }))
+            .mockRejectedValueOnce(new Error('Next page unavailable'));
+        await createWrapper(createMedia(), [cmsProduct]);
 
         expect(wrapper.findAllComponents(RouterLinkStub)).toHaveLength(2);
         expect(wrapper.text()).toContain(product.translated.name);
-        expect(wrapper.text()).toContain(otherProduct.translated.name);
-        expect(item.productDocumentTranslations).toBe(translations);
-        expect(item.productMedia).toHaveLength(0);
-    });
-
-    it('shows inherited product names and options for variants', async () => {
-        const firstVariant = {
-            id: 'variant-1',
-            parentId: product.id,
-            productNumber: 'SW-100-1',
-            translated: { name: null },
-            variation: [],
-        };
-        const secondVariant = {
-            id: 'variant-2',
-            parentId: product.id,
-            productNumber: 'SW-100-2',
-            translated: { name: null },
-            variation: [],
-        };
-        await createWrapper(
-            createMedia({
-                productDocumentTranslations: [
-                    documentUsage,
-                    { productDocument: { productId: firstVariant.id, product: firstVariant } },
-                    { productDocument: { productId: secondVariant.id, product: secondVariant } },
-                ],
-            }),
-            [],
-            [
-                product,
-                { ...secondVariant, translated: product.translated, variation: [{ group: 'Color', option: 'Blue' }] },
-                { ...firstVariant, translated: product.translated, variation: [{ group: 'Color', option: 'Tan' }] },
-            ],
-        );
-
-        const links = wrapper.findAllComponents(RouterLinkStub);
-        expect(links).toHaveLength(3);
-        expect(links[0].text()).toBe(product.translated.name);
-        expect(links[1].text()).toContain(product.translated.name);
-        expect(links[1].text()).toContain('Color: Tan');
-        expect(links[2].text()).toContain(product.translated.name);
-        expect(links[2].text()).toContain('Color: Blue');
-        expect(wrapper.text()).not.toContain(firstVariant.productNumber);
-        expect(wrapper.text()).not.toContain(secondVariant.productNumber);
-    });
-
-    it('does not duplicate a product also using the file as an image and in CMS content', async () => {
-        const productMedia = [{ productId: product.id, product }];
-        const item = createMedia({ productMedia, productDocumentTranslations: [documentUsage] });
-        await createWrapper(item, [product]);
-
-        expect(wrapper.findAllComponents(RouterLinkStub)).toHaveLength(1);
-        expect(item.productMedia).toBe(productMedia);
-        expect(productMedia).toHaveLength(1);
-    });
-
-    it('distinguishes a parent product and variant using the same image', async () => {
-        const variant = {
-            id: 'variant',
-            parentId: product.id,
-            productNumber: 'SW-100-1',
-            translated: { name: null },
-            variation: [],
-        };
-        await createWrapper(
-            createMedia({
-                productMedia: [
-                    { productId: product.id, product },
-                    { productId: variant.id, product: variant },
-                ],
-            }),
-            [],
-            [
-                product,
-                { ...variant, translated: product.translated, variation: [{ group: 'Color', option: 'Tan' }] },
-            ],
-        );
-
-        const links = wrapper.findAllComponents(RouterLinkStub);
-        expect(links).toHaveLength(2);
-        expect(links[0].text()).toBe(product.translated.name);
-        expect(links[1].text()).toContain(product.translated.name);
-        expect(links[1].text()).toContain('Color: Tan');
-        expect(links[1].props('to')).toEqual({ name: 'sw.product.detail', params: { id: variant.id } });
-    });
-
-    it('links the saved assignment owners when embedded products resolve to another variant', async () => {
-        const imageOwner = { id: 'image-owner', translated: { name: 'Image owner' } };
-        const documentOwner = { id: 'document-owner', translated: { name: 'Document owner' } };
-        const wrongVariant = { id: 'wrong-variant', translated: { name: 'Wrong variant' } };
-        await createWrapper(
-            createMedia({
-                productMedia: [{ productId: imageOwner.id, product: wrongVariant }],
-                productDocumentTranslations: [
-                    { productDocument: { productId: documentOwner.id, product: wrongVariant } },
-                ],
-            }),
-            [],
-            [imageOwner, documentOwner],
-        );
-
-        const links = wrapper.findAllComponents(RouterLinkStub);
-        expect(links.map((link) => link.props('to'))).toEqual([
-            { name: 'sw.product.detail', params: { id: imageOwner.id } },
-            { name: 'sw.product.detail', params: { id: documentOwner.id } },
-        ]);
-        expect(wrapper.text()).toContain(imageOwner.translated.name);
-        expect(wrapper.text()).toContain(documentOwner.translated.name);
-        expect(wrapper.text()).not.toContain(wrongVariant.translated.name);
+        expect(wrapper.text()).toContain(cmsProduct.translated.name);
+        expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
     });
 
     it('clears document usages when selecting another media file', async () => {
-        await createWrapper(createMedia({ productDocumentTranslations: [documentUsage] }));
+        searchDocuments.mockResolvedValueOnce([product]).mockResolvedValue([]);
+        await createWrapper();
         expect(wrapper.findAllComponents(RouterLinkStub)).toHaveLength(1);
 
         await wrapper.setProps({ item: createMedia({ id: 'unused-media' }) });
         await flushPromises();
+
+        expect(documentRequests[1].filter).toEqual([
+            { type: 'equals', field: 'documents.translations.mediaId', value: 'unused-media' },
+        ]);
         expect(wrapper.findAllComponents(RouterLinkStub)).toHaveLength(0);
         expect(wrapper.text()).not.toContain(product.translated.name);
     });
 
-    it('keeps direct usages when loading product details fails', async () => {
-        await createWrapper(createMedia({ productDocumentTranslations: [documentUsage] }), [], () =>
-            Promise.reject(new Error('Product details unavailable')),
-        );
+    it('preserves image and CMS usages when the document search fails', async () => {
+        const cmsProduct = { id: 'cms-product', translated: { name: 'CMS product' } };
+        searchDocuments.mockRejectedValue(new Error('Document usages unavailable'));
+        await createWrapper(createMedia({ productMedia: [{ productId: product.id, product }] }), [cmsProduct]);
 
-        expect(wrapper.findAllComponents(RouterLinkStub)).toHaveLength(1);
+        expect(wrapper.findAllComponents(RouterLinkStub)).toHaveLength(2);
         expect(wrapper.text()).toContain(product.translated.name);
+        expect(wrapper.text()).toContain(cmsProduct.translated.name);
         expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
     });
 
-    it('preserves CMS usages when product details finish loading later', async () => {
+    it('merges CMS and document usages after the document search finishes', async () => {
         const cmsProduct = { id: 'cms-product', translated: { name: 'CMS product' } };
-        let resolveProducts!: (products: Record<string, unknown>[]) => void;
-        const pending = new Promise<Record<string, unknown>[]>((resolve) => {
+        let resolveProducts!: (products: ProductResult) => void;
+        const pending = new Promise<ProductResult>((resolve) => {
             resolveProducts = resolve;
         });
-        await createWrapper(createMedia({ productDocumentTranslations: [documentUsage] }), [cmsProduct], () => pending);
+        searchDocuments.mockReturnValue(pending);
+        await createWrapper(createMedia(), [cmsProduct]);
+        expect(wrapper.find('sw-loader-stub').exists()).toBe(true);
 
-        resolveProducts([{ ...product, translated: { name: 'Loaded product' } }]);
+        resolveProducts([product]);
         await flushPromises();
 
-        const links = wrapper.findAllComponents(RouterLinkStub);
-        expect(links).toHaveLength(2);
-        expect(links[0].text()).toBe('Loaded product');
-        expect(links[1].text()).toBe('CMS product');
+        expect(wrapper.findAllComponents(RouterLinkStub)).toHaveLength(2);
+        expect(wrapper.text()).toContain(product.translated.name);
+        expect(wrapper.text()).toContain(cmsProduct.translated.name);
+        expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
     });
 
-    it('ignores product details for a previously selected media file', async () => {
-        let resolveProducts!: (products: Record<string, unknown>[]) => void;
-        const pending = new Promise<Record<string, unknown>[]>((resolve) => {
+    it('ignores document results for a previously selected media file', async () => {
+        let resolveProducts!: (products: ProductResult) => void;
+        const pending = new Promise<ProductResult>((resolve) => {
             resolveProducts = resolve;
         });
-        await createWrapper(createMedia({ productDocumentTranslations: [documentUsage] }), [], () => pending);
+        searchDocuments.mockReturnValueOnce(pending).mockResolvedValue([]);
+        await createWrapper();
         await wrapper.setProps({ item: createMedia({ id: 'unused-media' }) });
         await flushPromises();
 
@@ -273,24 +223,5 @@ describe('sw-media-quickinfo-usage products', () => {
 
         expect(wrapper.findAllComponents(RouterLinkStub)).toHaveLength(0);
         expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
-    });
-
-    it('preserves image usages when document associations were not loaded', async () => {
-        await createWrapper(
-            createMedia({ productMedia: [{ productId: product.id, product }], productDocumentTranslations: undefined }),
-        );
-
-        expect(wrapper.findAllComponents(RouterLinkStub)).toHaveLength(1);
-        expect(wrapper.text()).toContain(product.translated.name);
-    });
-
-    it('ignores document translations without a loaded product', async () => {
-        await createWrapper(
-            createMedia({
-                productDocumentTranslations: [{ productDocument: null }, { productDocument: {} }],
-            }),
-        );
-
-        expect(wrapper.findAllComponents(RouterLinkStub)).toHaveLength(0);
     });
 });

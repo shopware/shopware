@@ -1,0 +1,7 @@
+Public API check passed: no breaks.
+
+Info (1)
+  class_missing  component:sw-example-panel/class:sw-example-panel__title  current, major
+    The CSS class sw-example-panel__title is no longer in the template, so plugin styles and selectors that use it stop matching.
+    Fix: mention it in the upgrade notes if plugins are likely to style it.
+    At: src/app/component/base/sw-example-panel/sw-example-panel.html.twig:12

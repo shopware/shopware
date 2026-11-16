@@ -176,6 +176,7 @@ const baseRules = {
     'sw-core-rules/native-setup-filename': 'error',
     'sw-deprecation-rules/private-feature-declarations': 'error',
     'sw-deprecation-rules/no-manual-deprecation-notices': 'error',
+    'sw-deprecation-rules/valid-api-markers': 'error',
     'no-restricted-exports': 'off',
     'filename-rules/match': [
         2,
@@ -284,6 +285,10 @@ export default [
             '!scripts/extensionTooling/**/*',
             '!scripts/generate-shopware-modules/',
             '!scripts/generate-shopware-modules/**/*',
+            '!scripts/generate-public-api/',
+            '!scripts/generate-public-api/**/*',
+            // Fixture source trees are inputs of the generator, not Administration code.
+            'scripts/generate-public-api/__fixtures__/**/*',
             '!scripts/codemods/',
             '!scripts/codemods/sfc-migration/',
             '!scripts/codemods/sfc-migration/**/*',

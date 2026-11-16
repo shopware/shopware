@@ -144,73 +144,90 @@ class InheritanceUpdater
     {
         $bytes = array_map(static fn ($id) => Uuid::fromHexToBytes($id), $ids);
 
+        $root = EntityDefinitionQueryHelper::escape($definition->getEntityName());
+
+        $inherited = [];
+        $own = [];
+
         /** @var ManyToOneAssociationField $association */
         foreach ($associations as $association) {
             if (!$association instanceof ManyToOneAssociationField) {
                 continue;
             }
 
-            $parameters = [
-                '#root#' => EntityDefinitionQueryHelper::escape($definition->getEntityName()),
-                '#field#' => EntityDefinitionQueryHelper::escape($association->getStorageName()),
-                '#property#' => EntityDefinitionQueryHelper::escape($association->getPropertyName()),
-            ];
+            $field = EntityDefinitionQueryHelper::escape($association->getStorageName());
+            $property = EntityDefinitionQueryHelper::escape($association->getPropertyName());
 
-            $sql = 'UPDATE #root# as #root#, #root# as parent
-                    SET #root#.#property# = IFNULL(#root#.#field#, parent.#field#)
-                    WHERE #root#.parent_id = parent.id
-                    AND #root#.parent_id IS NOT NULL
-                    AND #root#.id IN (:ids)';
-
-            $params = ['ids' => $bytes];
-
-            if ($definition->isVersionAware()) {
-                $sql .= 'AND #root#.version_id = parent.version_id
-                         AND #root#.version_id = :version';
-                $versionId = Uuid::fromHexToBytes($context->getVersionId());
-                $params['version'] = $versionId;
-            }
-
-            $sql = str_replace(
-                array_keys($parameters),
-                $parameters,
-                $sql
-            );
-
-            RetryableQuery::retryable($this->connection, function () use ($sql, $params): void {
-                $this->connection->executeStatement(
-                    $sql,
-                    $params,
-                    ['ids' => ArrayParameterType::BINARY]
-                );
-            });
-
-            $sql = 'UPDATE #root# AS #root#
-                    SET #root#.#property# = #root#.#field#
-                    WHERE #root#.parent_id IS NULL
-                    AND #root#.id IN (:ids)';
-
-            $params = ['ids' => $bytes];
-
-            if ($definition->isVersionAware()) {
-                $sql .= 'AND #root#.version_id = :version';
-                $versionId = Uuid::fromHexToBytes($context->getVersionId());
-                $params['version'] = $versionId;
-            }
-
-            $sql = str_replace(
-                array_keys($parameters),
-                array_values($parameters),
-                $sql
-            );
-
-            RetryableQuery::retryable($this->connection, function () use ($sql, $params): void {
-                $this->connection->executeStatement(
-                    $sql,
-                    $params,
-                    ['ids' => ArrayParameterType::BINARY]
-                );
-            });
+            $inherited[] = \sprintf('%s.%s = IFNULL(%s.%s, parent.%s)', $root, $property, $root, $field, $field);
+            $own[] = \sprintf('%s.%s = %s.%s', $root, $property, $root, $field);
         }
+
+        if ($inherited === []) {
+            return;
+        }
+
+        $versionId = $definition->isVersionAware() ? Uuid::fromHexToBytes($context->getVersionId()) : null;
+
+        $sql = \sprintf(
+            'UPDATE %s as %s, %s as parent
+             SET %s
+             WHERE %s.parent_id = parent.id
+             AND %s.parent_id IS NOT NULL
+             AND %s.id IN (:ids)',
+            $root,
+            $root,
+            $root,
+            implode(', ', $inherited),
+            $root,
+            $root,
+            $root
+        );
+
+        $params = ['ids' => $bytes];
+
+        if ($versionId !== null) {
+            $sql .= \sprintf(
+                ' AND %s.version_id = parent.version_id
+                  AND %s.version_id = :version',
+                $root,
+                $root
+            );
+            $params['version'] = $versionId;
+        }
+
+        RetryableQuery::retryable($this->connection, function () use ($sql, $params): void {
+            $this->connection->executeStatement(
+                $sql,
+                $params,
+                ['ids' => ArrayParameterType::BINARY]
+            );
+        });
+
+        $sql = \sprintf(
+            'UPDATE %s AS %s
+             SET %s
+             WHERE %s.parent_id IS NULL
+             AND %s.id IN (:ids)',
+            $root,
+            $root,
+            implode(', ', $own),
+            $root,
+            $root
+        );
+
+        $params = ['ids' => $bytes];
+
+        if ($versionId !== null) {
+            $sql .= \sprintf(' AND %s.version_id = :version', $root);
+            $params['version'] = $versionId;
+        }
+
+        RetryableQuery::retryable($this->connection, function () use ($sql, $params): void {
+            $this->connection->executeStatement(
+                $sql,
+                $params,
+                ['ids' => ArrayParameterType::BINARY]
+            );
+        });
     }
 }

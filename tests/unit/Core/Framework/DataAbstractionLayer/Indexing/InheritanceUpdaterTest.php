@@ -7,10 +7,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -84,6 +86,23 @@ class InheritanceUpdaterTest extends TestCase
         static::assertSame([], $this->captureStatements(InheritanceUpdaterRootTestDefinition::class, []));
     }
 
+    public function testUpdateResolvesEveryInheritedToOneAssociationInOneStatementPerParentage(): void
+    {
+        $statements = $this->captureStatements(InheritanceUpdaterManyToOneTestDefinition::class, [Uuid::randomHex()]);
+
+        static::assertCount(2, $statements, 'Inherited to-one associations need one statement for parented rows and one for root rows.');
+
+        [$parented, $root] = $statements;
+
+        static::assertStringContainsString('`tax` = IFNULL(`inheritance_to_one`.`tax_id`, parent.`tax_id`)', $parented['sql']);
+        static::assertStringContainsString('`unit` = IFNULL(`inheritance_to_one`.`unit_id`, parent.`unit_id`)', $parented['sql']);
+        static::assertStringContainsString('parent_id IS NOT NULL', $parented['sql']);
+
+        static::assertStringContainsString('`tax` = `inheritance_to_one`.`tax_id`', $root['sql']);
+        static::assertStringContainsString('`unit` = `inheritance_to_one`.`unit_id`', $root['sql']);
+        static::assertStringContainsString('parent_id IS NULL', $root['sql']);
+    }
+
     /**
      * @param class-string<EntityDefinition> $definition
      * @param list<string> $ids
@@ -106,6 +125,7 @@ class InheritanceUpdaterTest extends TestCase
         $registry = new StaticDefinitionInstanceRegistry(
             [
                 InheritanceUpdaterRootTestDefinition::class,
+                InheritanceUpdaterManyToOneTestDefinition::class,
                 InheritanceUpdaterUnversionedTestDefinition::class,
                 InheritanceUpdaterReferenceTestDefinition::class,
             ],
@@ -138,6 +158,29 @@ class InheritanceUpdaterRootTestDefinition extends EntityDefinition
             (new OneToManyAssociationField('prices', InheritanceUpdaterReferenceTestDefinition::class, 'inheritance_root_id'))->addFlags(new Inherited()),
             (new OneToOneAssociationField('details', 'id', 'inheritance_root_id', InheritanceUpdaterReferenceTestDefinition::class, false))->addFlags(new Inherited()),
             (new OneToManyAssociationField('labels', InheritanceUpdaterReferenceTestDefinition::class, 'custom_root_id'))->addFlags(new Inherited('custom_root_id')),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class InheritanceUpdaterManyToOneTestDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'inheritance_to_one';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            new VersionField(),
+            new FkField('tax_id', 'taxId', InheritanceUpdaterReferenceTestDefinition::class),
+            new FkField('unit_id', 'unitId', InheritanceUpdaterReferenceTestDefinition::class),
+            (new ManyToOneAssociationField('tax', 'tax_id', InheritanceUpdaterReferenceTestDefinition::class))->addFlags(new Inherited()),
+            (new ManyToOneAssociationField('unit', 'unit_id', InheritanceUpdaterReferenceTestDefinition::class))->addFlags(new Inherited()),
         ]);
     }
 }

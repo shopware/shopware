@@ -48,7 +48,7 @@ class ProductIndexer extends EntityIndexer
      * @deprecated tag:v6.8.0 - Will be removed, as product states are deprecated.
      */
     final public const STATES_UPDATER = 'product.states';
-    private const UPDATE_IDS_CHUNK_SIZE = 50;
+    final public const UPDATE_IDS_CHUNK_SIZE = 50;
 
     /**
      * @internal

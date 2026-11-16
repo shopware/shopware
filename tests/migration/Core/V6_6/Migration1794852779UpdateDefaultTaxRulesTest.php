@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Migration\Core\V6_7;
+namespace Shopware\Tests\Migration\Core\V6_6;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
@@ -10,7 +10,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Migration\V6_7\Migration1794852779UpdateDefaultTaxRules;
+use Shopware\Core\Migration\V6_6\Migration1794852779UpdateDefaultTaxRules;
 use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**

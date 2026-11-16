@@ -145,6 +145,36 @@ class MySQLInvalidatorStorageTest extends TestCase
         static::assertSame(['tag2'], $result);
     }
 
+    public function testLoadAndDeleteDoesNotWaitForTagsLockedByAnotherTransaction(): void
+    {
+        // with only a few rows MySQL still uses the primary key, so use enough rows to make it consider a full table scan
+        $expected = [];
+        for ($i = 1; $i <= 20; ++$i) {
+            $this->connection->insert('invalidation_tags', ['id' => Uuid::fromHexToBytes(\sprintf('01900000000070008000%012x', $i * 2)), 'tag' => 'tag' . $i]);
+            $expected[] = 'tag' . $i;
+        }
+
+        // a parallel request stores a tag but did not commit yet
+        $connection2 = MySQLFactory::create();
+        $connection2->beginTransaction();
+        $connection2->insert('invalidation_tags', ['id' => Uuid::fromHexToBytes(\sprintf('01900000000070008000%012x', 21)), 'tag' => 'locked']);
+
+        $this->connection->executeStatement('SET SESSION innodb_lock_wait_timeout = 1');
+
+        try {
+            $tags = $this->storage->loadAndDelete();
+        } finally {
+            $this->connection->executeStatement('SET SESSION innodb_lock_wait_timeout = DEFAULT');
+            $connection2->commit();
+        }
+
+        static::assertSame($expected, $tags);
+
+        $result = $this->connection->fetchFirstColumn('SELECT tag FROM invalidation_tags');
+
+        static::assertSame(['locked'], $result);
+    }
+
     public function testLoadAndDeleteWithParallelDelete(): void
     {
         // create a separate connection to simulate parallel request
@@ -204,7 +234,7 @@ class MySQLInvalidatorStorageTest extends TestCase
 
         $connection->expects($this->atLeastOnce())
             ->method('executeStatement')
-            ->with('DELETE FROM invalidation_tags WHERE id IN (:ids)', ['ids' => ['id1', 'id2']], ['ids' => ArrayParameterType::BINARY])
+            ->with('DELETE /*+ INDEX(invalidation_tags PRIMARY) */ FROM invalidation_tags WHERE id IN (:ids)', ['ids' => ['id1', 'id2']], ['ids' => ArrayParameterType::BINARY])
             ->willThrowException($e);
 
         $connection->expects($this->once())

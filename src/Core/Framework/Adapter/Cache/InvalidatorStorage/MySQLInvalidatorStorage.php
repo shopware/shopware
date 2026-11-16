@@ -86,8 +86,9 @@ class MySQLInvalidatorStorage extends AbstractInvalidatorStorage
 
         foreach (array_chunk(array_column($rows, 'id'), 1000) as $ids) {
             RetryableQuery::retryable($this->connection, function () use ($ids): void {
+                // without the hint MySQL scans the whole table when the ids cover most of it, and waits for rows locked by other transactions
                 $this->connection->executeStatement(
-                    \sprintf('DELETE FROM %s WHERE id IN (:ids)', self::TABLE_NAME),
+                    \sprintf('DELETE /*+ INDEX(%1$s PRIMARY) */ FROM %1$s WHERE id IN (:ids)', self::TABLE_NAME),
                     ['ids' => $ids],
                     ['ids' => ArrayParameterType::BINARY]
                 );

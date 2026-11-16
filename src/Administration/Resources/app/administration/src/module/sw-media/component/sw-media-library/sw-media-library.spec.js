@@ -236,9 +236,7 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
             expect(context?.inheritance).not.toBe(true);
             const associations = criteria.parse().associations;
             expect(associations).not.toHaveProperty('productDocumentTranslations.limit');
-            expect(associations).toHaveProperty(
-                'productDocumentTranslations.associations.productDocument.associations.product',
-            );
+            expect(associations.productDocumentTranslations).not.toHaveProperty('associations');
             expect(associations.productMedia.limit).toBe(25);
         } finally {
             wrapper?.unmount();
@@ -334,7 +332,6 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
                     'total-count-mode': 1,
                 },
                 productDocumentTranslations: {
-                    associations: expect.any(Object),
                     'total-count-mode': 1,
                 },
                 categories: { limit: 25, 'total-count-mode': 1 },
@@ -385,7 +382,6 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
                     'total-count-mode': 1,
                 },
                 productDocumentTranslations: {
-                    associations: expect.any(Object),
                     'total-count-mode': 1,
                 },
                 categories: { limit: 25, 'total-count-mode': 1 },

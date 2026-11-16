@@ -8,7 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
-use Shopware\Core\Framework\Plugin\Composer\WorkingCopy;
+use Shopware\Core\Framework\Plugin\Composer\ComposerWorkingCopy;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\Console\Command\Command;
@@ -75,7 +75,7 @@ class CommandExecutorTest extends TestCase
         ]);
 
         $this->application = new RecordingComposerApplication();
-        $workingCopy = new WorkingCopy(
+        $workingCopy = new ComposerWorkingCopy(
             $this->projectDir,
             $this->filesystem,
             new LockFactory(new InMemoryStore()),

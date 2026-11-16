@@ -20,7 +20,7 @@ class CommandExecutor
      */
     public function __construct(
         private readonly string $projectDir,
-        private readonly WorkingCopy $workingCopy,
+        private readonly ComposerWorkingCopy $workingCopy,
         ?Application $application = null,
     ) {
         $this->application = $application ?? new Application();

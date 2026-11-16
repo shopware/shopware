@@ -5,9 +5,9 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Composer\Message;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Composer\ComposerWorkingCopy;
 use Shopware\Core\Framework\Plugin\Composer\Message\CleanupOldVendorDirectories;
 use Shopware\Core\Framework\Plugin\Composer\Message\CleanupOldVendorDirectoriesHandler;
-use Shopware\Core\Framework\Plugin\Composer\WorkingCopy;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Lock\LockFactory;
@@ -28,7 +28,7 @@ class CleanupOldVendorDirectoriesHandlerTest extends TestCase
         $filesystem->dumpFile($projectDir . '/vendor/autoload.php', 'live');
 
         $handler = new CleanupOldVendorDirectoriesHandler(
-            new WorkingCopy($projectDir, $filesystem, new LockFactory(new InMemoryStore()), new CollectingMessageBus())
+            new ComposerWorkingCopy($projectDir, $filesystem, new LockFactory(new InMemoryStore()), new CollectingMessageBus())
         );
 
         try {

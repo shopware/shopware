@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Plugin\Composer\Message;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Composer\WorkingCopy;
+use Shopware\Core\Framework\Plugin\Composer\ComposerWorkingCopy;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
@@ -13,7 +13,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler]
 final readonly class CleanupOldVendorDirectoriesHandler
 {
-    public function __construct(private WorkingCopy $workingCopy)
+    public function __construct(private ComposerWorkingCopy $workingCopy)
     {
     }
 

@@ -16,7 +16,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
  * @internal
  */
 #[Package('framework')]
-class WorkingCopy
+class ComposerWorkingCopy
 {
     public const LOCK_KEY = 'plugin-composer-working-copy';
 

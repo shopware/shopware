@@ -42,9 +42,9 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\TestsGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingCollector;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingWriter;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
+use Shopware\Core\Framework\Plugin\Composer\ComposerWorkingCopy;
 use Shopware\Core\Framework\Plugin\Composer\Message\CleanupOldVendorDirectoriesHandler;
 use Shopware\Core\Framework\Plugin\Composer\PackageProvider;
-use Shopware\Core\Framework\Plugin\Composer\WorkingCopy;
 use Shopware\Core\Framework\Plugin\ExtensionExtractor;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
@@ -269,10 +269,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->lazy()
         ->args([
             param('kernel.project_dir'),
-            service(WorkingCopy::class),
+            service(ComposerWorkingCopy::class),
         ]);
 
-    $services->set(WorkingCopy::class)
+    $services->set(ComposerWorkingCopy::class)
         ->args([
             param('kernel.project_dir'),
             service('filesystem'),
@@ -282,7 +282,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(CleanupOldVendorDirectoriesHandler::class)
         ->args([
-            service(WorkingCopy::class),
+            service(ComposerWorkingCopy::class),
         ])
         ->tag('messenger.message_handler');
 

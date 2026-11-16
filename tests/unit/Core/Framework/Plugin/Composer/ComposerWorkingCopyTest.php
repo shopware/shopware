@@ -7,8 +7,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Composer\ComposerWorkingCopy;
 use Shopware\Core\Framework\Plugin\Composer\Message\CleanupOldVendorDirectories;
-use Shopware\Core\Framework\Plugin\Composer\WorkingCopy;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\Filesystem\Filesystem;
@@ -20,8 +20,8 @@ use Symfony\Component\Messenger\Envelope;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(WorkingCopy::class)]
-class WorkingCopyTest extends TestCase
+#[CoversClass(ComposerWorkingCopy::class)]
+class ComposerWorkingCopyTest extends TestCase
 {
     private Filesystem $filesystem;
 
@@ -31,7 +31,7 @@ class WorkingCopyTest extends TestCase
 
     private CollectingMessageBus $messageBus;
 
-    private WorkingCopy $workingCopy;
+    private ComposerWorkingCopy $workingCopy;
 
     protected function setUp(): void
     {
@@ -44,7 +44,7 @@ class WorkingCopyTest extends TestCase
 
         $this->lockFactory = new LockFactory(new InMemoryStore());
         $this->messageBus = new CollectingMessageBus();
-        $this->workingCopy = new WorkingCopy($this->projectDir, $this->filesystem, $this->lockFactory, $this->messageBus);
+        $this->workingCopy = new ComposerWorkingCopy($this->projectDir, $this->filesystem, $this->lockFactory, $this->messageBus);
     }
 
     protected function tearDown(): void
@@ -198,7 +198,7 @@ class WorkingCopyTest extends TestCase
 
     public function testRefusesWhileAnotherOperationRuns(): void
     {
-        $lock = $this->lockFactory->createLock(WorkingCopy::LOCK_KEY);
+        $lock = $this->lockFactory->createLock(ComposerWorkingCopy::LOCK_KEY);
         $lock->acquire();
 
         $this->expectExceptionObject(PluginException::composerOperationInProgress());
@@ -247,7 +247,7 @@ class WorkingCopyTest extends TestCase
     public function testRemoveOldVendorDirectoriesWaitsForARunningOperation(): void
     {
         $this->filesystem->mkdir($this->projectDir . '/.vendor-old-replaced');
-        $lock = $this->lockFactory->createLock(WorkingCopy::LOCK_KEY);
+        $lock = $this->lockFactory->createLock(ComposerWorkingCopy::LOCK_KEY);
         $lock->acquire();
 
         $this->workingCopy->removeOldVendorDirectories();

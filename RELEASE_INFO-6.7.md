@@ -9,6 +9,16 @@ Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED` while ano
 
 ## Core
 
+### Cart deliveries and transactions carry a payload into the order
+
+Cart deliveries and transactions have a `payload`, which the order stores in the new `payload` field of `order_delivery` and `order_transaction` and keeps through order edits.
+Their payload methods work like the ones of line items.
+`setPayloadValue($key, $value, protected: true)` keeps a key out of the Store API cart response, but Store API order responses still contain it.
+Unlike a line item payload, it does not survive the next cart calculation.
+Keep your state on line items or in a cart extension, and write the delivery payload in a cart processor after the `DeliveryProcessor`.
+At checkout, a payment handler can set the transaction payload in its `validate()` method, which receives the calculated cart right before the order is written.
+Any other extension sets it on the converted order data in the `CartConvertedEvent`.
+
 ### Attribute entities can generate the reverse side of a many-to-many association
 
 `Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToMany` now accepts `reversedBy`, `reverseApi` and `reverseOnDelete`:
@@ -443,6 +453,11 @@ For extensions that already build positions holding part of a line item, this ch
 
 ## API
 
+### Order deliveries and order transactions have a `payload` field
+
+Order deliveries and order transactions in the Admin API and Store API have a new `payload` field, and so do the deliveries and transactions of the Store API cart.
+It is an object, or an empty array when nothing is set.
+
 ### Plain JSON becomes the default Admin API response format in 6.8
 
 Admin API entity requests without an `Accept` header now use the JSON:API default instead of returning HTTP 415.
@@ -579,6 +594,15 @@ Tax providers replace the calculated taxes afterwards and keep the displayed fla
 Amounts that carry a single value instead of a net and gross pair, such as absolute or fixed-price promotion discounts, manual shipping costs and credits, also keep the displayed flavour, so under a `net` basis their net value differs slightly per country.
 
 The customer group detail page offers both settings separately. Plugins customize the selection through the new extension point `Shopware\Core\Checkout\Cart\Extension\PriceSelectorExtension` (`price-selector.select.pre` and `.post`), for example to apply charm-price rounding to derived gross prices. `GrossPriceCalculator` now grosses up uncalculated prices over several tax rules so that its own tax split returns the given net value; prices with a single tax rule are unchanged. Background and trade-offs are documented in the ADR `adr/2026-08-11-decouple-price-calculation-basis-from-tax-display.md`.
+
+### Open a product in the Storefront from the Administration
+
+The product detail page has a new "Open in Storefront" action in the context menu of its smart bar.
+It opens a modal to select one of the Storefront sales channels the product is assigned to.
+For the selected sales channel it shows the product URLs, or the reason why the sales channel cannot show the product, for example an inactive sales channel or product, a missing domain, or a sold-out clearance sale product.
+Sales channels in maintenance mode get a hint.
+If the IP address of the Administration user is not on the maintenance allowlist, the modal explains that it cannot load the product URLs.
+The `product.viewer` role now includes the `sales_channel_domain:read` privilege, which the modal needs to load the domains; a migration adds it to existing roles.
 
 ## App System
 
@@ -1197,6 +1221,10 @@ Switching maintenance mode on again then sent every visitor not on the IP allowl
 The redirect is no longer cached. A shop that is already in this state gets out of it by running `bin/console cache:clear:http`.
 
 ## Hosting & Configuration
+
+### Password recovery is rate limited per IP
+
+Customer and admin password recovery requests are now also limited per client IP (`reset_password_client`, `user_recovery_client`), so setups behind a proxy or a headless frontend must configure trusted proxies to keep the real client IP
 
 ### Sitemaps skip inactive sales channels and `sitemap:generate` continues after a failure
 

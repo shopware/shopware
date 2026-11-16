@@ -48,6 +48,7 @@ use Shopware\Core\Content\Flow\Dispatching\Storer\LanguageStorer;
 use Shopware\Core\Content\Flow\Dispatching\Storer\MailStorer;
 use Shopware\Core\Content\Flow\Dispatching\Storer\MessageStorer;
 use Shopware\Core\Content\Flow\Dispatching\Storer\NewsletterRecipientStorer;
+use Shopware\Core\Content\Flow\Dispatching\Storer\OrderDeliveryStorer;
 use Shopware\Core\Content\Flow\Dispatching\Storer\OrderStorer;
 use Shopware\Core\Content\Flow\Dispatching\Storer\OrderTransactionStorer;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ProductStorer;
@@ -78,6 +79,7 @@ use Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerGroupProvider;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerProvider;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerRecoveryProvider;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\NewsletterRecipientProvider;
+use Shopware\Core\Content\Shared\MailFlow\DataProvider\OrderDeliveryProvider;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\OrderProvider;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\OrderTransactionProvider;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\ProductProvider;
@@ -402,6 +404,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('order_transaction.repository'),
             service('event_dispatcher'),
             service(OrderTransactionProvider::class),
+        ])
+        ->tag('flow.storer');
+
+    $services->set(OrderDeliveryStorer::class)
+        ->args([
+            service(OrderDeliveryProvider::class),
         ])
         ->tag('flow.storer');
 

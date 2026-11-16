@@ -26,7 +26,10 @@ export default {
         purchasePrices: {
             type: Array,
             required: false,
-            deprecated: { version: 'v6.8.0.0', comment: 'Use sw-purchase-price-field separately.' },
+            deprecated: {
+                version: 'v6.8.0.0',
+                comment: 'Use sw-purchase-price-field separately.',
+            },
         },
 
         defaultPrice: {
@@ -103,7 +106,10 @@ export default {
             type: Boolean,
             required: false,
             default: false,
-            deprecated: { version: 'v6.8.0.0', comment: 'Use sw-purchase-price-field separately.' },
+            deprecated: {
+                version: 'v6.8.0.0',
+                comment: 'Use sw-purchase-price-field separately.'
+            },
         },
 
         hideRegulationPrices: {

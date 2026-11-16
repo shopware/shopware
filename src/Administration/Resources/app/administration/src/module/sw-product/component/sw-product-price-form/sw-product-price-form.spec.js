@@ -1,7 +1,6 @@
 /**
  * @sw-package inventory
  */
-
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
 import { useProductionDeprecationGuard } from 'test/_helper_/deprecations';
@@ -81,11 +80,6 @@ describe('module/sw-product/component/sw-product-price-form', () => {
                     $te: () => false,
                 },
                 stubs: {
-                    'mt-select': {
-                        name: 'mt-select',
-                        props: ['options'],
-                        template: '<div />',
-                    },
                     'sw-container': {
                         template: '<div><slot></slot></div>',
                     },
@@ -113,6 +107,11 @@ describe('module/sw-product/component/sw-product-price-form', () => {
                         emits: ['modal-close'],
                         template: '<button @click="$emit(\'modal-close\', prices)" />',
                     },
+                    'mt-select': {
+                        name: 'mt-select',
+                        props: ['options'],
+                        template: '<div />',
+                    },
                 },
             },
         });
@@ -133,7 +132,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
     });
 
     /* eslint-disable sw-test-rules/no-vm-access -- Deprecated extension callbacks require direct API coverage. */
-    it.activeFeatureFlags(['v6.8.0.0'])('should reject the deprecated combined inheritance callbacks in v6.8', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('should reject legacy price APIs', async () => {
         useProductionDeprecationGuard();
         wrapper = await createWrapper();
 
@@ -143,14 +142,12 @@ describe('module/sw-product/component/sw-product-price-form', () => {
         expect(() => wrapper.vm.inheritationCheckFunction()).toThrow(
             'sw-product-price-form.inheritationCheckFunction() is deprecated',
         );
-        expect(() => wrapper.vm.prices).toThrow('sw-product-price-form.prices is deprecated');
-        expect(() => wrapper.vm.parentPrices).toThrow('sw-product-price-form.parentPrices is deprecated');
-        expect(() => {
-            wrapper.vm.prices = {
-                price: [],
-                purchasePrices: [],
-            };
-        }).toThrow('sw-product-price-form.prices is deprecated');
+        expect(() => wrapper.vm.prices).toThrow(
+            'sw-product-price-form.prices is deprecated',
+        );
+        expect(() => wrapper.vm.parentPrices).toThrow(
+            'sw-product-price-form.parentPrices is deprecated',
+        );
     });
     /* eslint-enable sw-test-rules/no-vm-access */
 

@@ -57,18 +57,6 @@ export default {
             return Shopware.Store.get('swProductDetail').parentProduct;
         },
 
-        displayPricesInherited() {
-            return !!this.parentProduct.id && this.isPriceInherited(this.product.price);
-        },
-
-        displayPrices() {
-            if (this.displayPricesInherited) {
-                return this.parentProduct.price;
-            }
-
-            return this.product.price;
-        },
-
         taxes() {
             return Shopware.Store.get('swProductDetail').taxes;
         },
@@ -78,7 +66,14 @@ export default {
         },
 
         currentLocale() {
-            return Shopware.Store.get('session').currentLocale ?? 'en-GB';
+            return Shopware.Store.get('session').currentLocale;
+        },
+
+        taxRateFormatter() {
+            return new Intl.NumberFormat(this.currentLocale, {
+                style: 'percent',
+                maximumFractionDigits: 3,
+            });
         },
 
         ...mapPropertyErrors('product', ['taxId', 'price', 'purchasePrices']),
@@ -153,17 +148,24 @@ export default {
             };
         },
 
-        taxRateOptions() {
-            const formatter = new Intl.NumberFormat(this.currentLocale, {
-                style: 'percent',
-                maximumFractionDigits: 3,
-            });
+        displayPricesInherited() {
+            return !!this.parentProduct.id && this.isPriceInherited(this.product.price);
+        },
 
+        displayPrices() {
+            if (this.displayPricesInherited) {
+                return this.parentProduct.price;
+            }
+
+            return this.product.price;
+        },
+
+        taxRateOptions() {
             return this.taxes.map((tax) => {
                 return {
                     id: tax.id,
                     value: tax.id,
-                    label: `${this.getTaxLabel(tax)} (${formatter.format(tax.taxRate / 100)})`,
+                    label: this.getTaxLabel(tax),
                 };
             });
         },
@@ -233,11 +235,14 @@ export default {
         },
 
         getTaxLabel(tax) {
-            if (this.$te(`global.tax-rates.${tax.name}`)) {
-                return this.$t(`global.tax-rates.${tax.name}`);
+            if (!tax) {
+                return '';
             }
 
-            return tax.name;
+            const translationKey = `global.tax-rates.${tax.name}`;
+            const label = this.$te(translationKey) ? this.$t(translationKey) : tax.name;
+
+            return `${label} (${this.taxRateFormatter.format(tax.taxRate / 100)})`;
         },
 
         updatePrices(index) {

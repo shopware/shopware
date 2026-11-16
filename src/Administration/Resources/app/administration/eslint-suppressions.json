@@ -1064,11 +1064,6 @@
       "count": 1
     }
   },
-  "src/app/component/form/sw-purchase-price-field/sw-purchase-price-field.spec.js": {
-    "sw-test-rules/no-vm-access": {
-      "count": 2
-    }
-  },
   "src/app/component/form/sw-radio-field/index.js": {
     "filename-rules/not-match": {
       "count": 1

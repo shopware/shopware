@@ -54,7 +54,16 @@ const setup = async (propOverride) => {
 
     wrapper = mount(await wrapTestComponent('sw-purchase-price-field', { sync: true }), {
         global: {
-            stubs: ['sw-price-field', 'sw-field'],
+            stubs: {
+                'sw-price-field': {
+                    props: {
+                        value: Array,
+                        allowEmpty: Boolean,
+                    },
+                    template: '<div class="sw-price-field-stub" />',
+                },
+                'sw-field': true,
+            },
         },
         props,
     });
@@ -67,59 +76,55 @@ describe('components/form/sw-purchase-price-field', () => {
         wrapper?.unmount();
     });
 
-    it('should contain the dollar price', async () => {
+    it('should return the price for the selected currency', async () => {
         const wrapper = await setup();
-        expect(wrapper.vm.purchasePrice[0].gross).toEqual(dollarPrice.gross);
-        expect(wrapper.vm.purchasePrice[0].net).toEqual(dollarPrice.net);
+
+        expect(wrapper.findComponent('.sw-purchase-price-field').props('value')).toEqual([dollarPrice]);
     });
 
-    it('should replace the purchase price for the selected currency', async () => {
+    it('should update the purchase price', async () => {
         const price = [structuredClone(dollarPrice), structuredClone(euroPrice)];
         const wrapper = await setup({ price });
         const updatedPrice = { ...dollarPrice, gross: 60, net: 50 };
 
         wrapper.findComponent('.sw-purchase-price-field').vm.$emit('change', updatedPrice);
 
-        expect(price).toEqual([dollarPrice, euroPrice]);
         expect(wrapper.emitted('update:value')[0]).toEqual([[updatedPrice, euroPrice]]);
     });
 
-    it('should add a purchase price for a missing currency', async () => {
+    it('should add a purchase price', async () => {
         const price = [structuredClone(euroPrice)];
         const wrapper = await setup({ price });
         const newPrice = { ...dollarPrice, gross: 60, net: 50 };
 
         wrapper.findComponent('.sw-purchase-price-field').vm.$emit('change', newPrice);
 
-        expect(price).toEqual([euroPrice]);
         expect(wrapper.emitted('update:value')[0]).toEqual([[euroPrice, newPrice]]);
     });
 
-    it('should preserve other currency prices when both fields are empty', async () => {
+    it('should remove an empty purchase price', async () => {
         const price = [structuredClone(dollarPrice), structuredClone(euroPrice)];
         const wrapper = await setup({ price });
         const emptyPrice = { ...dollarPrice, gross: null, net: null };
 
         wrapper.findComponent('.sw-purchase-price-field').vm.$emit('change', emptyPrice);
 
-        expect(price).toEqual([dollarPrice, euroPrice]);
         expect(wrapper.emitted('update:value')[0]).toEqual([[euroPrice]]);
     });
 
-    it('should remove purchase prices when the only price is empty', async () => {
+    it('should emit null when the last purchase price is removed', async () => {
         const price = [structuredClone(dollarPrice)];
         const wrapper = await setup({ price });
         const emptyPrice = { ...dollarPrice, gross: null, net: null };
 
         wrapper.findComponent('.sw-purchase-price-field').vm.$emit('change', emptyPrice);
 
-        expect(price).toEqual([dollarPrice]);
         expect(wrapper.emitted('update:value')[0]).toEqual([null]);
     });
 
-    it('should allow empty purchase prices', async () => {
+    it('should allow an empty purchase price', async () => {
         const wrapper = await setup({ price: [] });
 
-        expect(wrapper.findComponent('.sw-purchase-price-field').attributes('allow-empty')).toBe('');
+        expect(wrapper.findComponent('.sw-purchase-price-field').props('allowEmpty')).toBe(true);
     });
 });

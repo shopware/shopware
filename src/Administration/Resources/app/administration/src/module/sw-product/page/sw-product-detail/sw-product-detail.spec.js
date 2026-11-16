@@ -244,7 +244,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     /* eslint-disable sw-test-rules/no-vm-access -- Deprecated extension callbacks require direct API coverage. */
-    it.activeFeatureFlags(['v6.8.0.0'])('should reject the deprecated price callbacks in v6.8', () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('should reject legacy price callbacks', () => {
         useProductionDeprecationGuard();
 
         expect(() => wrapper.vm.syncVariantPriceInheritance()).toThrow(

@@ -93,12 +93,12 @@
         "linkText": "Einstellungen"
       },
       "displayPrices": {
-        "title": "Verkaufspreise",
-        "description": "Diese Preise werden Kunden angezeigt, sofern sie ausgefüllt sind."
+        "title": "Verkaufspreis",
+        "description": "Für Kunden sichtbar."
       },
       "purchasePrices": {
         "title": "Einkaufspreis",
-        "description": "Wird Kunden nicht angezeigt. Kann für interne Berechnungen relevant sein."
+        "description": "Für Kunden nicht sichtbar. Nur für die interne Kalkulation."
       }
     },
     "seoForm": {

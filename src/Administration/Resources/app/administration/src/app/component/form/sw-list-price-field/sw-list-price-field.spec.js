@@ -83,7 +83,7 @@ describe('components/form/sw-list-price-field', () => {
         wrapper?.unmount();
     });
 
-    it.activeFeatureFlags(['v6.8.0.0'])('should reject the deprecated purchasePrices prop in v6.8', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('should reject legacy purchasePrices', async () => {
         useProductionDeprecationGuard();
 
         await expect(setup({ purchasePrices: [] })).rejects.toThrow(
@@ -91,7 +91,7 @@ describe('components/form/sw-list-price-field', () => {
         );
     });
 
-    it.activeFeatureFlags(['v6.8.0.0'])('should reject the deprecated hidePurchasePrices prop in v6.8', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('should reject legacy hidePurchasePrices', async () => {
         useProductionDeprecationGuard();
 
         await expect(setup({ hidePurchasePrices: true })).rejects.toThrow(

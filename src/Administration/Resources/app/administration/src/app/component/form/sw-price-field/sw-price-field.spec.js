@@ -1,11 +1,9 @@
 /**
  * @sw-package framework
  */
-
 import { mount } from '@vue/test-utils';
 import 'src/app/component/form/sw-price-field';
 
-// mock data
 const dollarPrice = {
     currencyId: 'a435755c6c4f4fb4b81ec32b4c07e06e',
     net: 250,
@@ -45,7 +43,6 @@ const defaultPrice = {
 
 let wrapper;
 
-// initial component setup
 const setup = async (propOverride) => {
     const props = {
         value: [structuredClone(dollarPrice), structuredClone(euroPrice)],

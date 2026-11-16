@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
 use Composer\Factory;
+use Composer\InstalledVersions;
 use Composer\IO\NullIO;
 use Composer\Semver\Constraint\Constraint;
 use Doctrine\DBAL\Connection;
@@ -20,6 +21,8 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
+use Shopware\Core\Framework\Plugin\Composer\ComposerWorkingCopy;
+use Shopware\Core\Framework\Plugin\Composer\Message\CleanupOldVendorDirectories;
 use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerRequireException;
 use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
@@ -47,12 +50,16 @@ use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\CustomField\CustomFieldSetPersister;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
+use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use SwagTestPlugin\Migration\Migration1536761533TestMigration;
 use SwagTestPlugin\SwagTestPlugin;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Lock\Store\InMemoryStore;
+use Symfony\Component\Messenger\Envelope;
 
 /**
  * @internal
@@ -535,6 +542,65 @@ class PluginLifecycleServiceTest extends TestCase
         \ComposerAutoloaderInitPluginTestShipsVendorDirectory::getLoader()->unregister();
     }
 
+    public function testRequiringThePackageOfAPluginReplacesTheVendorDirectoryOfTheProject(): void
+    {
+        $this->addTestPluginToKernel(
+            $this->fixturePath . 'plugins/SwagTestExecuteComposerCommands',
+            'SwagTestExecuteComposerCommands'
+        );
+        $this->pluginService->refreshPlugins($this->context, new NullIO());
+        $plugin = $this->pluginService->getPluginByName('SwagTestExecuteComposerCommands', $this->context);
+
+        $filesystem = new Filesystem();
+        $projectDir = sys_get_temp_dir() . '/plugin-composer-require-' . bin2hex(random_bytes(6));
+        $this->createComposerProject($filesystem, $projectDir);
+        $vendorInodeBefore = fileinode($projectDir . '/vendor');
+
+        $kernelInstalledVersions = require $this->container->getParameter('kernel.project_dir') . '/vendor/composer/installed.php';
+        $workingDirectory = getcwd();
+        $messageBus = new CollectingMessageBus();
+        $projectWorkingCopy = new ComposerWorkingCopy($projectDir, $filesystem, new LockFactory(new InMemoryStore()), $messageBus);
+        $composerDependencyService = new PluginComposerDependencyService(
+            $this->pluginCollection,
+            new CommandExecutor($projectDir, $projectWorkingCopy),
+            $this->pluginService,
+            $this->container->get(VersionSanitizer::class),
+            $this->container->get('cache.messenger.restart_workers_signal'),
+            new NativeClock(),
+            false,
+            $projectDir,
+        );
+
+        try {
+            InstalledVersions::reload(require $projectDir . '/vendor/composer/installed.php');
+
+            static::assertTrue($composerDependencyService->requireDependency($plugin, $this->context));
+
+            static::assertNotSame($vendorInodeBefore, fileinode($projectDir . '/vendor'));
+            static::assertFileExists($projectDir . '/vendor/swag/test-execute-composer-commands/composer.json');
+            $projectInstalledVersions = require $projectDir . '/vendor/composer/installed.php';
+            static::assertArrayHasKey('swag/test-execute-composer-commands', $projectInstalledVersions['versions']);
+            static::assertStringContainsString('"swag/test-execute-composer-commands": "1.0.0"', (string) file_get_contents($projectDir . '/composer.json'));
+            static::assertStringContainsString('"name": "swag/test-execute-composer-commands"', (string) file_get_contents($projectDir . '/composer.lock'));
+
+            $oldVendorDirectories = glob($projectDir . '/.vendor-old-*');
+            static::assertIsArray($oldVendorDirectories);
+            static::assertCount(1, $oldVendorDirectories);
+            static::assertSame($vendorInodeBefore, fileinode($oldVendorDirectories[0]));
+            static::assertEquals([new Envelope(new CleanupOldVendorDirectories())], $messageBus->getMessages());
+
+            $projectWorkingCopy->removeOldVendorDirectories();
+
+            static::assertSame([], glob($projectDir . '/.vendor-old-*'));
+        } finally {
+            InstalledVersions::reload($kernelInstalledVersions);
+            if ($workingDirectory !== false) {
+                chdir($workingDirectory);
+            }
+            $filesystem->remove($projectDir);
+        }
+    }
+
     public function testPluginInstallFailureTriggersUninstall(): void
     {
         $plugin = $this->getPlugin($this->context);
@@ -553,6 +619,33 @@ class PluginLifecycleServiceTest extends TestCase
             static::assertSame($expectedException, $actualException);
             static::assertNull($plugin->getInstalledAt());
         }
+    }
+
+    private function createComposerProject(Filesystem $filesystem, string $projectDir): void
+    {
+        $filesystem->mirror(
+            $this->fixturePath . 'plugins/SwagTestExecuteComposerCommands',
+            $projectDir . '/custom/plugins/SwagTestExecuteComposerCommands'
+        );
+        $filesystem->dumpFile($projectDir . '/composer.json', json_encode([
+            'name' => 'swag/test-project',
+            'repositories' => [
+                ['packagist.org' => false],
+                ['type' => 'path', 'url' => 'custom/plugins/*', 'options' => ['symlink' => true]],
+                ['type' => 'package', 'package' => ['name' => 'composer/composer', 'version' => '2.11.1', 'type' => 'metapackage']],
+                ['type' => 'package', 'package' => ['name' => 'shopware/core', 'version' => '6.7.0.0', 'type' => 'metapackage']],
+            ],
+        ], \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES));
+        $filesystem->dumpFile($projectDir . '/vendor/autoload.php', '<?php');
+        $filesystem->dumpFile($projectDir . '/vendor/composer/installed.json', '{"packages": [], "dev": false}');
+        $filesystem->dumpFile($projectDir . '/vendor/composer/installed.php', <<<'PHP'
+<?php return [
+    'root' => ['name' => 'swag/test-project', 'pretty_version' => 'dev-main', 'version' => 'dev-main', 'reference' => null, 'type' => 'project', 'install_path' => __DIR__ . '/../../', 'aliases' => [], 'dev' => false],
+    'versions' => [
+        'composer/composer' => ['pretty_version' => '2.11.1', 'version' => '2.11.1.0', 'reference' => null, 'type' => 'metapackage', 'install_path' => null, 'aliases' => [], 'dev_requirement' => false],
+    ],
+];
+PHP);
     }
 
     private function installNotSupportedPlugin(string $name): PluginEntity

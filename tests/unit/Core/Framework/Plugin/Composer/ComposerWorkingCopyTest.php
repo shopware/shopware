@@ -10,11 +10,14 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Composer\ComposerWorkingCopy;
 use Shopware\Core\Framework\Plugin\Composer\Message\CleanupOldVendorDirectories;
 use Shopware\Core\Framework\Plugin\PluginException;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\Store\InMemoryStore;
 use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
@@ -23,6 +26,8 @@ use Symfony\Component\Messenger\Envelope;
 #[CoversClass(ComposerWorkingCopy::class)]
 class ComposerWorkingCopyTest extends TestCase
 {
+    use EnvTestBehaviour;
+
     private Filesystem $filesystem;
 
     private string $projectDir;
@@ -224,6 +229,134 @@ class ComposerWorkingCopyTest extends TestCase
         $this->workingCopy->run(static fn (): int => 0);
     }
 
+    public function testRefusesWhenTheEnvironmentSetsTheVendorDirectory(): void
+    {
+        $this->setEnvVars(['COMPOSER_VENDOR_DIR' => $this->projectDir . '/vendor']);
+
+        $this->expectExceptionObject(PluginException::composerWorkingCopyNotPossible('the environment variable COMPOSER_VENDOR_DIR is set, which Composer prefers to the vendor directory of the working copy'));
+
+        try {
+            $this->workingCopy->run(static fn (): int => 0);
+        } finally {
+            $this->assertLiveProjectIsUntouched();
+        }
+    }
+
+    public function testRefusesAVendorDirectoryOnAnotherDevice(): void
+    {
+        $workingCopy = $this->createWorkingCopyWithDevices(vendorDeviceId: 2, projectDeviceId: 1);
+
+        $this->expectExceptionObject(PluginException::composerWorkingCopyNotPossible(\sprintf('"%s/vendor" is a mount point', $this->projectDir)));
+
+        try {
+            $workingCopy->run(static fn (): int => 0);
+        } finally {
+            $this->assertLiveProjectIsUntouched();
+        }
+    }
+
+    #[DataProvider('provideUnreadableDevices')]
+    public function testRefusesWhenTheDeviceCannotBeRead(?int $vendorDeviceId, ?int $projectDeviceId): void
+    {
+        $workingCopy = $this->createWorkingCopyWithDevices($vendorDeviceId, $projectDeviceId);
+
+        $this->expectExceptionObject(PluginException::composerWorkingCopyNotPossible(\sprintf('the device of "%1$s/vendor" or of "%1$s" cannot be read', $this->projectDir)));
+
+        try {
+            $workingCopy->run(static fn (): int => 0);
+        } finally {
+            $this->assertLiveProjectIsUntouched();
+        }
+    }
+
+    /**
+     * @return iterable<string, array{?int, ?int}>
+     */
+    public static function provideUnreadableDevices(): iterable
+    {
+        yield 'vendor directory that cannot be read' => [null, 1];
+        yield 'project directory that cannot be read' => [1, null];
+    }
+
+    public function testRefusesWhenTheEnvironmentSetsTheBinDirectory(): void
+    {
+        $this->setEnvVars(['COMPOSER_BIN_DIR' => $this->projectDir . '/bin']);
+
+        $this->expectExceptionObject(PluginException::composerWorkingCopyNotPossible('the environment variable COMPOSER_BIN_DIR is set, which makes Composer write the binaries outside of the working copy'));
+
+        try {
+            $this->workingCopy->run(static fn (): int => 0);
+        } finally {
+            $this->assertLiveProjectIsUntouched();
+        }
+    }
+
+    #[DataProvider('provideConfiguredBinDirectories')]
+    public function testRefusesAConfiguredBinDirectory(string $binDirectory): void
+    {
+        $this->filesystem->dumpFile($this->projectDir . '/composer.json', \sprintf('{"config": {"bin-dir": "%s"}}', $binDirectory));
+
+        $this->expectExceptionObject(PluginException::composerWorkingCopyNotPossible('composer.json configures a binary directory, which makes Composer write the binaries outside of the working copy'));
+
+        $this->workingCopy->run(static fn (): int => 0);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function provideConfiguredBinDirectories(): iterable
+    {
+        yield 'directory below the vendor directory' => ['vendor/bin'];
+        yield 'directory beside the vendor directory' => ['bin'];
+    }
+
+    public function testRefusesAProjectDirectoryThatIsNotWritable(): void
+    {
+        $this->filesystem->chmod($this->projectDir, 0555);
+
+        try {
+            if (is_writable($this->projectDir)) {
+                static::markTestSkipped('The permissions of a directory do not apply to the current user.');
+            }
+
+            $this->expectExceptionObject(PluginException::composerWorkingCopyNotPossible(\sprintf('"%s" is not writable', $this->projectDir)));
+
+            $this->workingCopy->run(static fn (): int => 0);
+        } finally {
+            $this->filesystem->chmod($this->projectDir, 0755);
+        }
+    }
+
+    public function testRestoresTheOriginalStateWhenTheStagedVendorDirectoryCannotBeMovedIn(): void
+    {
+        $filesystem = new class extends Filesystem {
+            public function rename(string $origin, string $target, bool $overwrite = false): void
+            {
+                if (str_contains($origin, '.vendor-staging-')) {
+                    /** @phpstan-ignore shopware.domainException */
+                    throw new IOException('Cannot move the staged vendor directory');
+                }
+
+                parent::rename($origin, $target, $overwrite);
+            }
+        };
+        $workingCopy = new ComposerWorkingCopy($this->projectDir, $filesystem, $this->lockFactory, $this->messageBus);
+
+        $this->expectExceptionObject(PluginException::composerWorkingCopyNotPossible('Cannot move the staged vendor directory'));
+
+        try {
+            $workingCopy->run(function (string $composerJson): int {
+                $this->filesystem->dumpFile(self::stagedVendorDir($composerJson) . '/autoload.php', 'staged');
+
+                return 0;
+            });
+        } finally {
+            $this->assertLiveProjectIsUntouched();
+            static::assertFileDoesNotExist($this->projectDir . '/.composer-swap-in-progress');
+            static::assertSame([], $this->messageBus->getMessages());
+        }
+    }
+
     public function testRefusesASymlinkedVendorDirectory(): void
     {
         $this->filesystem->rename($this->projectDir . '/vendor', $this->projectDir . '/shared-vendor');
@@ -262,6 +395,27 @@ class ComposerWorkingCopyTest extends TestCase
         static::assertIsString($config['vendor-dir']);
 
         return $config['vendor-dir'];
+    }
+
+    private function createWorkingCopyWithDevices(?int $vendorDeviceId, ?int $projectDeviceId): ComposerWorkingCopy
+    {
+        return new class($this->projectDir, $this->filesystem, $this->lockFactory, $this->messageBus, $vendorDeviceId, $projectDeviceId) extends ComposerWorkingCopy {
+            public function __construct(
+                string $projectDir,
+                Filesystem $filesystem,
+                LockFactory $lockFactory,
+                MessageBusInterface $messageBus,
+                private readonly ?int $vendorDeviceId,
+                private readonly ?int $projectDeviceId,
+            ) {
+                parent::__construct($projectDir, $filesystem, $lockFactory, $messageBus);
+            }
+
+            protected function deviceOf(string $path): ?int
+            {
+                return basename($path) === 'vendor' ? $this->vendorDeviceId : $this->projectDeviceId;
+            }
+        };
     }
 
     private function assertLiveProjectIsUntouched(): void

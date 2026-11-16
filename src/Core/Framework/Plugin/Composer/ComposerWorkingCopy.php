@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Plugin\Composer;
 
 use Composer\Autoload\ClassLoader;
 use Composer\Json\JsonManipulator;
+use Composer\Util\Platform;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Composer\Message\CleanupOldVendorDirectories;
 use Shopware\Core\Framework\Plugin\PluginException;
@@ -119,6 +120,16 @@ class ComposerWorkingCopy
         }
     }
 
+    /**
+     * @return int|null the id of the device that holds the path, `null` when it cannot be read
+     */
+    protected function deviceOf(string $path): ?int
+    {
+        $stat = stat($path);
+
+        return $stat === false ? null : $stat['dev'];
+    }
+
     private function vendorDir(): string
     {
         return $this->projectDir . '/vendor';
@@ -131,10 +142,22 @@ class ComposerWorkingCopy
             throw PluginException::composerWorkingCopyInterrupted($swapMarkerPath);
         }
 
+        if (Platform::getEnv('COMPOSER_VENDOR_DIR') !== false) {
+            throw PluginException::composerWorkingCopyNotPossible('the environment variable COMPOSER_VENDOR_DIR is set, which Composer prefers to the vendor directory of the working copy');
+        }
+
+        if (Platform::getEnv('COMPOSER_BIN_DIR') !== false) {
+            throw PluginException::composerWorkingCopyNotPossible('the environment variable COMPOSER_BIN_DIR is set, which makes Composer write the binaries outside of the working copy');
+        }
+
         $composerJson = json_decode((string) file_get_contents($this->projectDir . '/composer.json'), true, flags: \JSON_THROW_ON_ERROR);
         $configuredVendorDir = \is_array($composerJson) ? ($composerJson['config']['vendor-dir'] ?? 'vendor') : 'vendor';
         if ($configuredVendorDir !== 'vendor') {
             throw PluginException::composerWorkingCopyNotPossible(\sprintf('composer.json configures the vendor directory "%s"', $configuredVendorDir));
+        }
+
+        if (\is_array($composerJson) && isset($composerJson['config']['bin-dir'])) {
+            throw PluginException::composerWorkingCopyNotPossible('composer.json configures a binary directory, which makes Composer write the binaries outside of the working copy');
         }
 
         $vendorDir = $this->vendorDir();
@@ -146,9 +169,13 @@ class ComposerWorkingCopy
             throw PluginException::composerWorkingCopyNotPossible(\sprintf('"%s" is not writable', $this->projectDir));
         }
 
-        $vendorDirStat = stat($vendorDir);
-        $projectDirStat = stat($this->projectDir);
-        if ($vendorDirStat === false || $projectDirStat === false || $vendorDirStat['dev'] !== $projectDirStat['dev']) {
+        $vendorDeviceId = $this->deviceOf($vendorDir);
+        $projectDeviceId = $this->deviceOf($this->projectDir);
+        if ($vendorDeviceId === null || $projectDeviceId === null) {
+            throw PluginException::composerWorkingCopyNotPossible(\sprintf('the device of "%s" or of "%s" cannot be read', $vendorDir, $this->projectDir));
+        }
+
+        if ($vendorDeviceId !== $projectDeviceId) {
             throw PluginException::composerWorkingCopyNotPossible(\sprintf('"%s" is a mount point', $vendorDir));
         }
     }

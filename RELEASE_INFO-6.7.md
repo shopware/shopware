@@ -495,7 +495,7 @@ When the Composer step changed the project, `plugin:install`, `plugin:update`, `
 Composer now runs in a copy of `vendor/`, `composer.json` and `composer.lock` next to the live ones.
 The copy replaces them only after Composer succeeded, and a message removes the replaced `vendor/` directory afterwards.
 This needs free disk space for one copy of `vendor/`.
-A `vendor/` directory that is a mount point or a symlink, or a custom `vendor-dir`, makes the Composer step fail with `FRAMEWORK__PLUGIN_COMPOSER_WORKING_COPY_NOT_POSSIBLE` instead of changing the live files.
+The Composer step fails with `FRAMEWORK__PLUGIN_COMPOSER_WORKING_COPY_NOT_POSSIBLE` instead of changing the live files when `vendor/` is a mount point or a symlink, when the project directory is not writable, when `config.vendor-dir` is not `vendor`, or when `config.bin-dir`, `COMPOSER_VENDOR_DIR` or `COMPOSER_BIN_DIR` is set.
 
 Without `separateComposerStep`, the lifecycle routes still run Composer themselves, and a deprecation is triggered.
 From 6.8 they no longer run Composer: install and update fail with `FRAMEWORK__PLUGIN_COMPOSER_DEPENDENCY_MISSING` when the package is missing.

@@ -44,6 +44,8 @@ export default Shopware.Component.wrapComponentConfig({
 
     data() {
         return {
+            page: 1,
+            limit: 10,
             showUploadModal: false,
             showMediaModal: false,
             showRestoreInheritanceModal: false,
@@ -89,6 +91,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         documents(): EntityCollection<'product_document'> {
             return this.product.documents as EntityCollection<'product_document'>;
+        },
+
+        pageOffset(): number {
+            return (this.page - 1) * this.limit;
         },
 
         productRepository() {
@@ -181,7 +187,12 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     watch: {
+        'documents.length'() {
+            const lastPage = Math.max(1, Math.ceil(this.documents.length / this.limit));
+            this.page = Math.min(this.page, lastPage);
+        },
         product() {
+            this.page = 1;
             this.showUploadModal = false;
             this.onCloseRestoreInheritanceModal();
             this.closeDocumentEditor();
@@ -204,6 +215,26 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
+        getPaginatedDocuments(documents: EntityCollection<'product_document'>): Entity<'product_document'>[] {
+            return documents.slice(this.pageOffset, this.pageOffset + this.limit);
+        },
+
+        getDocumentSelectionFilter(isInherited: boolean): (document: Entity<'product_document'>) => boolean {
+            return (document) =>
+                this.canEdit && !isInherited && (this.isDefaultLanguage || !!document.title || !!document.mediaId);
+        },
+
+        canMoveDocument(document: Entity<'product_document'>, offset: number): boolean {
+            const index = this.documents.indexOf(document);
+            const newIndex = index + offset;
+            return index >= 0 && newIndex >= 0 && newIndex < this.documents.length;
+        },
+
+        onPageChange({ page, limit }: { page: number; limit: number }): void {
+            this.page = page;
+            this.limit = limit;
+        },
+
         canChangeDocuments(): boolean {
             const inheritance = this.$refs.documentInheritance as DocumentInheritance | undefined;
             return this.canEdit && inheritance?.isInherited === false;
@@ -233,7 +264,15 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async successfulUpload(
-            { targetId }: { targetId: EntityKey<'media'> },
+            {
+                targetId,
+                successAmount = 1,
+                totalAmount = 1,
+            }: {
+                targetId: EntityKey<'media'>;
+                successAmount?: number;
+                totalAmount?: number;
+            },
             editingDocument: Entity<'product_document'> | null = null,
         ): Promise<void> {
             const product = this.product;
@@ -249,7 +288,11 @@ export default Shopware.Component.wrapComponentConfig({
             try {
                 const media = await this.mediaRepository.get(targetId, Shopware.Context.api);
                 if (isCurrentUpload() && media) {
+                    const documentCount = this.documents.length;
                     this.addDocuments([media], editingDocument);
+                    if (!editingDocument && this.documents.length > documentCount && successAmount === totalAmount) {
+                        this.showUploadModal = false;
+                    }
                 }
             } catch {
                 if (isCurrentUpload()) {
@@ -308,15 +351,12 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         moveDocument(document: Entity<'product_document'>, offset: number): void {
-            if (!this.canChangeDocuments()) {
+            if (!this.canChangeDocuments() || !this.canMoveDocument(document, offset)) {
                 return;
             }
 
             const oldIndex = this.documents.indexOf(document);
             const newIndex = oldIndex + offset;
-            if (oldIndex < 0 || newIndex < 0 || newIndex >= this.documents.length) {
-                return;
-            }
 
             this.documents.moveItem(oldIndex, newIndex);
             updateDocumentPositions(this.documents);

@@ -127,7 +127,8 @@ describe('sw-product-document-form', () => {
 
         await addMedia(wrapper, media);
 
-        expect(wrapper.findAll('.document-row')).toHaveLength(12);
+        expect(getDocuments()).toHaveLength(12);
+        expect(wrapper.findAll('.document-row')).toHaveLength(10);
         expect(
             Array.from(getDocuments()!)
                 .slice(9)
@@ -137,7 +138,7 @@ describe('sw-product-document-form', () => {
         expect(notificationSpy).not.toHaveBeenCalled();
     });
 
-    it.each([9, 10])('accepts a completed upload after %s documents and keeps uploading enabled', async (count) => {
+    it.each([9, 10])('accepts a completed upload after %s documents and allows adding more', async (count) => {
         const media = createMedia('uploaded manual');
         const repository = repositoryFactory.create('media');
         jest.spyOn(repository, 'get').mockResolvedValue(media);
@@ -153,9 +154,11 @@ describe('sw-product-document-form', () => {
             .vm.$emit('media-upload-finish', { targetId: media.id });
         await flushPromises();
 
-        expect(wrapper.findAll('.document-row')).toHaveLength(count + 1);
+        expect(getDocuments()).toHaveLength(count + 1);
+        expect(wrapper.findAll('.document-row')).toHaveLength(10);
         expect(getDocuments()?.[count].mediaId).toBe(media.id);
-        expect(wrapper.get<HTMLButtonElement>('.sw-media-upload-v2__button.upload').element.disabled).toBe(false);
+        expect(wrapper.find('.sw-media-upload-v2__button.upload').exists()).toBe(false);
+        expect(wrapper.get('.sw-product-document-form__add-button button').attributes('disabled')).toBeUndefined();
     });
 
     it('does not attach a late upload to the next product after navigation', async () => {

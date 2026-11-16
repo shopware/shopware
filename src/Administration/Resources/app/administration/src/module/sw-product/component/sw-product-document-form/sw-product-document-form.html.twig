@@ -79,7 +79,7 @@
                     <sw-data-grid
                         v-if="currentValue.length"
                         ref="documentGrid"
-                        :data-source="currentValue"
+                        :data-source="getPaginatedDocuments(currentValue)"
                         :columns="documentColumns"
                         :show-selection="true"
                         :show-settings="true"
@@ -87,10 +87,18 @@
                         :allow-column-edit="false"
                         :compact-mode="true"
                         :plain-appearance="false"
-                        :is-record-selectable="(item) => canEdit && !isInherited && (isDefaultLanguage || !!item.title || !!item.mediaId)"
+                        :is-record-selectable="getDocumentSelectionFilter(isInherited)"
                         @select-item="onDocumentSelectionChange"
                         @select-all-items="onDocumentSelectionChange"
                     >
+                        <template #pagination>
+                            <sw-pagination
+                                :page="page"
+                                :limit="limit"
+                                :total="currentValue.length"
+                                @page-change="onPageChange"
+                            />
+                        </template>
                         <template #bulk>
                             <mt-link
                                 as="button"
@@ -103,17 +111,17 @@
                         </template>
                     {% block sw_product_document_form_number %}
                         <template #column-number="{ itemIndex }">
-                            {{ itemIndex + 1 }}
+                            {{ pageOffset + itemIndex + 1 }}
                         </template>
                     {% endblock %}
                     {% block sw_product_document_form_position %}
-                        <template #column-position="{ item, itemIndex }">
+                        <template #column-position="{ item }">
                             <sw-button-group class="sw-product-document-form__position">
                                 <mt-button
                                     square
                                     size="x-small"
                                     :aria-label="$t('sw-product.documentForm.contextMoveDown')"
-                                    :disabled="!canEdit || isInherited || itemIndex === currentValue.length - 1"
+                                    :disabled="!canEdit || isInherited || !canMoveDocument(item, 1)"
                                     variant="secondary"
                                     @click="moveDocument(item, 1)"
                                 ><mt-icon
@@ -124,7 +132,7 @@
                                     square
                                     size="x-small"
                                     :aria-label="$t('sw-product.documentForm.contextMoveUp')"
-                                    :disabled="!canEdit || isInherited || itemIndex === 0"
+                                    :disabled="!canEdit || isInherited || !canMoveDocument(item, -1)"
                                     variant="secondary"
                                     @click="moveDocument(item, -1)"
                                 ><mt-icon
@@ -277,6 +285,7 @@
                 entity-context="product_document"
                 :initial-folder-id="mediaFolderId"
                 :file-accept="fileAccept"
+                :allow-multi-select="!editingDocument"
                 @media-modal-selection-change="addDocuments($event, editingDocument)"
                 @modal-close="showMediaModal = false"
             />

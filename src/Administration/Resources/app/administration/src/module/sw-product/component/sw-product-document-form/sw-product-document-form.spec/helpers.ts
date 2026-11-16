@@ -131,12 +131,13 @@ export async function createWrapper(
                         },
                     },
                     template: `<div><slot v-if="hasSelection" name="bulk"/><div v-for="(item, itemIndex) in dataSource" :key="item.id" class="document-row">
+                        <span class="document-number"><slot name="column-number" v-bind="{ itemIndex }"/></span>
                         <slot name="column-title" v-bind="{ item }"/>
                         <slot name="column-fileName" v-bind="{ item }"/>
                         <slot name="column-fileSize" v-bind="{ item }"/>
                         <slot name="column-position" v-bind="{ item, itemIndex }"/>
                         <slot name="actions" v-bind="{ item }"/>
-                    </div></div>`,
+                    </div><slot name="pagination"/></div>`,
                 }),
                 'mt-modal-root': { template: '<div><slot/></div>' },
                 'mt-modal': { template: '<div class="upload-modal"><slot/><slot name="footer"/></div>' },
@@ -144,6 +145,7 @@ export async function createWrapper(
                 'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch', { sync: true }),
                 'i18n-t': { template: '<span><slot name="language"/></span>' },
                 'sw-upload-listener': true,
+                'sw-pagination': await wrapTestComponent('sw-pagination', { sync: true }),
                 'sw-media-upload-v2': await wrapTestComponent('sw-media-upload-v2', { sync: true }),
                 'sw-media-preview-v2': true,
                 'sw-field-error': await wrapTestComponent('sw-field-error', { sync: true }),

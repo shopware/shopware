@@ -264,7 +264,7 @@ export function createJestRunner(administrationRoot: string, stdio: StdioOptions
 
             // Jest that fails before it reports any result, e.g. on a broken config, ran no test.
             const crashed = exitCode !== 0 && resultsFile !== undefined && !fs.existsSync(resultsFile);
-            const testCount = crashed ? 0 : resultsFile && readTestCount(resultsFile);
+            const testCount = crashed ? 0 : resultsFile === undefined ? undefined : readTestCount(resultsFile);
 
             return { exitCode: exitCode ?? 1, testCount };
         } finally {

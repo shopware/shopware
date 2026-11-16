@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { componentMigration, renameComponent, upgradeGuide } from '../helpers';
+import { componentMigration, numberOptionsToOptionsProp, renameComponent, upgradeGuide } from '../helpers';
 
 export default componentMigration({
     id: 'component.sw-select-number-field',
@@ -14,7 +14,10 @@ export default componentMigration({
     references: [
         upgradeGuide('UPGRADE-6.7.md#removal-of-sw-select-field'),
     ],
+    overrideHint:
+        'sw-select-number-field is removed. Its replacement mt-select is a Meteor component, which can not be overridden; move the customization to the templates that render it.',
     onConvert: [
-        renameComponent({ from: 'sw-select-number-field', to: 'mt-select', fix: 'manual' }),
+        renameComponent({ from: 'sw-select-number-field', to: 'mt-select' }),
+        numberOptionsToOptionsProp(),
     ],
 });

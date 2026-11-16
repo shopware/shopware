@@ -28,7 +28,7 @@ module.exports = withRunLevel({
     },
 
     create(context) {
-        const migrations = filterMigrations(loadRegistry().componentApiMigrations);
+        const migrations = filterMigrations(loadRegistry().componentApiMigrations, context);
 
         return defineTemplateBodyVisitor(context, {
             VElement(node) {

@@ -19,5 +19,15 @@ module.exports = {
         'no-empty-listeners': require('./no-empty-listeners'),
         'no-vue-options-api': require('./no-vue-options-api'),
         'no-import-meta-glob-extglob': require('./no-import-meta-glob-extglob'),
+        // The 6.8 codemods of `administration:upgrade-extensions`, each the registry rules for its migration ids.
+        // The runner keys its config by rule name, so every codemod is registered under a name of its own.
+        'upgrade-mt-components-6-8': require('./registry-codemod'),
+        'upgrade-mt-tabs': require('./registry-codemod'),
+        'upgrade-sw-text-editor': require('./registry-codemod'),
+        'upgrade-removed-form-components': require('./registry-codemod'),
+        'upgrade-order-state-select-props': require('./registry-codemod'),
+        'upgrade-sw-popover': require('./registry-codemod'),
+        'upgrade-twig-block-renames': require('./registry-codemod'),
+        'upgrade-twig-block-removals': require('./registry-codemod'),
     },
 };

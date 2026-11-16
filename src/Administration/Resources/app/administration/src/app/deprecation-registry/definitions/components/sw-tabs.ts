@@ -5,11 +5,9 @@
 import {
     childElementsToArrayProp,
     componentMigration,
-    flagSlotForManualMove,
     fromAttribute,
     fromText,
     removeProp,
-    renameComponent,
     renameProp,
     upgradeGuide,
 } from '../helpers';
@@ -21,17 +19,9 @@ export default componentMigration({
     deprecatedIn: '6.7.0',
     removedIn: '6.9.0',
     description:
-        'The legacy sw-tabs component is replaced by mt-tabs. Simple component and prop renames can be automated, but default/content slot migrations require manual review because mt-tabs expects tab metadata through the items prop and content outside the component.',
+        'The legacy sw-tabs component is replaced by mt-tabs, which takes the tab metadata through the items prop instead of sw-tabs-item children.',
     references: [
         upgradeGuide('UPGRADE-6.8.md#sw-tabs-automatic-wrapper-switch-deferred'),
-    ],
-    onConvert: [
-        renameComponent({
-            from: 'sw-tabs',
-            to: 'mt-tabs',
-            fix: 'manual',
-            message: 'Migrate tab metadata to the items prop and move tab panel content outside of mt-tabs.',
-        }),
     ],
     onEveryUsage: [
         renameProp({
@@ -50,11 +40,6 @@ export default componentMigration({
                 hasError: fromAttribute('has-error'),
                 disabled: fromAttribute('disabled'),
             },
-        }),
-        flagSlotForManualMove({
-            slot: 'content',
-            message: 'Move content slot markup out of mt-tabs and render it next to the active tab state.',
-            hint: 'The "content" slot is not used anymore. Please set the content manually outside the component.',
         }),
     ],
 });

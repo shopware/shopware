@@ -123,7 +123,8 @@ function planItemsProp(
             return { manualReason: `${itemCode.manualReason} ${manualMove}` };
         }
 
-        itemCodes.push(itemCode);
+        // Double-quoted strings of an expression become single-quoted, so the attribute can hold them
+        itemCodes.push({ ...itemCode, code: api.ast.toAttributeExpression(itemCode.code) ?? itemCode.code });
     }
 
     // Static text is written with &quot;, so a double quote can only come from an expression

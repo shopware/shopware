@@ -14,7 +14,14 @@ export default componentMigration({
     references: [
         upgradeGuide('UPGRADE-6.7.md#component-replacement-with-meteor-component-library'),
     ],
+    overrideHint:
+        'sw-text-editor-toolbar-button is removed with sw-text-editor. Add toolbar buttons to mt-text-editor with custom-buttons or a #button_<name> slot.',
     onConvert: [
-        renameComponent({ from: 'sw-text-editor-toolbar-button', to: 'mt-text-editor', fix: 'manual' }),
+        renameComponent({
+            from: 'sw-text-editor-toolbar-button',
+            to: 'mt-text-editor',
+            fix: 'manual',
+            message: 'Add toolbar buttons to mt-text-editor with custom-buttons or a #button_<name> slot.',
+        }),
     ],
 });

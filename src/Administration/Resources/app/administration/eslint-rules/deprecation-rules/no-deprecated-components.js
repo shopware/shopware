@@ -7,7 +7,12 @@ const { filterMigrations } = require('./registry/filter-migrations');
 const { appendRegistryContext } = require('./registry/format-migration-message');
 const { canAutoFix } = require('./registry/fix-policy');
 const { commentBefore, convertedFromText, templateCodemodComment } = require('./registry/codemod-comment');
-const { defineTemplateBodyVisitor, findObjectVBindAttribute, findObjectVOnAttribute } = require('./registry/template-ast');
+const {
+    defineTemplateBodyVisitor,
+    findObjectVBindAttribute,
+    findObjectVOnAttribute,
+    matchesTemplateName,
+} = require('./registry/template-ast');
 const { createComponentUsageRuleApi } = require('./registry/component-usage-api');
 const {
     RANGE_FIXER,
@@ -40,6 +45,7 @@ function planConversion(context, node, migration) {
                 headline: descriptor.message.split(`\n${migration.description}`)[0],
                 fixes: kind === 'manual' ? [] : collectFixes(descriptor.fix),
                 note: descriptor.conversionNote,
+                blocksConversion: descriptor.blocksConversion === true,
             });
         },
     };
@@ -56,20 +62,27 @@ function planConversion(context, node, migration) {
 }
 
 /**
- * Lists why the run level does not let the element be converted: at `safe` every part has to keep the
- * behaviour, at `review` no part may need a manual migration. `partial` and `manual` convert, or
- * comment, every element. A manual rename never converts, so its parts are never the reason.
+ * Lists why the element is not converted: a part that the conversion would break blocks it at every
+ * level. Otherwise the run level decides: at `safe` and `marked` every part has to keep the behaviour,
+ * at `review` no part may need a manual migration. `partial` and `manual` convert, or comment, every
+ * element. A manual rename never converts, so its parts are never the reason.
  */
 function findBlockingParts(level, node, renameUsage, parts) {
     if (renameUsage.fix === 'manual') {
         return [];
     }
 
+    const unconvertible = parts.filter((part) => part.blocksConversion).map((part) => part.headline);
+
+    if (unconvertible.length > 0) {
+        return unconvertible;
+    }
+
     if (level === 'review') {
         return parts.filter((part) => part.kind === 'manual').map((part) => part.headline);
     }
 
-    if (level !== 'safe') {
+    if (!isSafeLevel(level)) {
         return [];
     }
 
@@ -84,6 +97,13 @@ function findBlockingParts(level, node, renameUsage, parts) {
     }
 
     return blockers;
+}
+
+/**
+ * Tells whether the run level converts an element only together with all of its follow-up fixes.
+ */
+function isSafeLevel(level) {
+    return level === 'safe' || level === 'marked';
 }
 
 /**
@@ -165,7 +185,7 @@ module.exports = withRunLevel({
     },
 
     create(context) {
-        const migrations = filterMigrations(loadRegistry().componentApiMigrations);
+        const migrations = filterMigrations(loadRegistry().componentApiMigrations, context);
         const activatedComponents =
             context.options[0]?.activatedComponents ?? migrations.map((migration) => migration.component);
         const level = getRunLevel(context);
@@ -179,7 +199,8 @@ module.exports = withRunLevel({
 
         return defineTemplateBodyVisitor(context, {
             VElement(node) {
-                const match = renameMigrations.find(({ migration }) => migration.component === node.name);
+                // `<SwLoader>` in a .vue file is `sw-loader` too
+                const match = renameMigrations.find(({ migration }) => matchesTemplateName(node.rawName, migration.component));
 
                 if (!match) {
                     return;
@@ -190,7 +211,7 @@ module.exports = withRunLevel({
                 const newName = migration.replacement;
                 const headline = `"${oldName}" is deprecated. Please use "${newName}" instead.`;
 
-                if (hasUnmatchedEndTag(context.sourceCode, node, oldName)) {
+                if (hasUnmatchedEndTag(context.sourceCode, node, node.rawName)) {
                     context.report({
                         node,
                         message: appendRegistryContext(
@@ -207,7 +228,7 @@ module.exports = withRunLevel({
                 const blockingParts = findBlockingParts(level, node, renameUsage, parts);
                 const nameRange = [
                     node.startTag.range[0],
-                    node.startTag.range[0] + 1 + oldName.length,
+                    node.startTag.range[0] + 1 + node.rawName.length,
                 ];
                 const renameFixes = (fixer) => [
                     fixer.replaceTextRange(nameRange, `<${newName}`),
@@ -220,7 +241,7 @@ module.exports = withRunLevel({
                         message: appendRegistryContext(
                             [
                                 headline,
-                                level === 'safe'
+                                isSafeLevel(level)
                                     ? 'It is not converted, because these parts need a review or a manual migration:'
                                     : 'It is not converted, because these parts need a manual migration first:',
                                 ...blockingParts.map((part) => `- ${part}`),
@@ -228,12 +249,24 @@ module.exports = withRunLevel({
                             migration,
                         ),
                         fixLevel: 'manual',
+                        reviewComment: [headline, ...blockingParts].join(' ').replace(/\s*\n\s*/g, ' '),
                     });
 
                     return;
                 }
 
-                if (level === 'safe') {
+                if (renameUsage.fix === 'manual') {
+                    context.report({
+                        node,
+                        message: appendRegistryContext([headline, renameUsage.message ?? ''], migration),
+                        fixLevel: 'manual',
+                        reviewComment: [headline, renameUsage.message].filter(Boolean).join(' '),
+                    });
+
+                    return;
+                }
+
+                if (isSafeLevel(level)) {
                     const partFixes = parts.flatMap((part) => part.fixes);
                     // A part that turns the element self-closing replaces the end tag itself
                     const replacesEndTag =

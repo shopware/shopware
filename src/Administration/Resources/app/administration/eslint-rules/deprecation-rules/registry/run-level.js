@@ -9,18 +9,21 @@ const {
     scriptCodemodComment,
     templateCodemodComment,
 } = require('./codemod-comment');
-const { isFixDisabled } = require('./fix-policy');
+const { getObjectOption, isFixDisabled } = require('./fix-policy');
 
 /**
  * How much a `--fix` run of the deprecation rules may change, from the least to the most:
  * - `manual`: changes no code and puts a review comment above every deprecated usage.
  * - `safe`: applies only fixes that keep the behaviour, so the result needs no review.
+ * - `marked`: applies the fixes of `safe` and puts a review comment above every usage a person has to migrate,
+ *   which `administration:upgrade-extensions` lists as manual work.
  * - `review`: also applies fixes that leave a review comment, but nothing that leaves work behind.
  * - `partial`: applies everything and puts a review comment above each part a person has to finish.
  */
 const RUN_LEVELS = [
     'manual',
     'safe',
+    'marked',
     'review',
     'partial',
 ];
@@ -29,15 +32,16 @@ const RUN_LEVELS = [
 const SETTINGS_KEY = 'sw-deprecation-rules';
 
 /**
- * Returns the run level from the shared ESLint settings. Without a setting, rules run at `safe`, so a
- * plain `eslint --fix` only applies fixes that keep the behaviour.
+ * Returns the run level from the `level` option of the rule, which an upgrade codemod passes, or from the
+ * shared ESLint settings. Without either, rules run at `safe`, so a plain `eslint --fix` only applies
+ * fixes that keep the behaviour.
  *
  * @example
  * // eslint.config.mjs: settings: { 'sw-deprecation-rules': { level: 'review' } }
  * getRunLevel(context); // 'review'
  */
 function getRunLevel(context) {
-    const level = context.settings?.[SETTINGS_KEY]?.level ?? 'safe';
+    const level = getObjectOption(context).level ?? context.settings?.[SETTINGS_KEY]?.level ?? 'safe';
 
     if (!RUN_LEVELS.includes(level)) {
         throw new Error(`Unknown deprecation run level "${level}". Use one of: ${RUN_LEVELS.join(', ')}.`);
@@ -232,15 +236,15 @@ function withReviewComment(sourceCode, descriptor, fix, reviewText) {
  * Applies the run level to one report: keeps, drops or replaces its fix with a review comment.
  */
 function applyRunLevel(level, sourceCode, descriptor, message) {
-    const { fixLevel, reviewComment, conversionNote, ...report } = descriptor;
+    const { fixLevel, reviewComment, conversionNote, blocksConversion, ...report } = descriptor;
     const kind = classifyReport(descriptor);
     const reviewText = reviewComment ?? message.split('\n')[0];
 
-    if (level === 'manual' || (level === 'partial' && kind === 'manual')) {
+    if (level === 'manual' || (['marked', 'partial'].includes(level) && kind === 'manual')) {
         return { ...report, fix: createReviewCommentFix(sourceCode, descriptor, reviewText) };
     }
 
-    if (kind === 'manual' || (level === 'safe' && kind === 'unsafe-auto')) {
+    if (kind === 'manual' || (['safe', 'marked'].includes(level) && kind === 'unsafe-auto')) {
         return { ...report, fix: null };
     }
 

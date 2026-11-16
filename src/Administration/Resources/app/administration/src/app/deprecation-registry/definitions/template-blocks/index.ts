@@ -2,15 +2,12 @@
  * @sw-package framework
  */
 
-import importExportProfileLabel from './import-export-profile-label';
-import mailTemplatePreviewFooter from './mail-template-preview-footer';
-import newsletterRecipientFilter from './newsletter-recipient-filter';
-import renamedAdminBlocks from './renamed-admin-blocks';
+import removedIn68 from './removed-in-6-8';
+import renamedIn68 from './renamed-in-6-8';
 import type { TemplateBlockMigration } from '../helpers';
 
+// Removals first: a name both lists use is reported once, by the first migration that lists it
 export default [
-    importExportProfileLabel,
-    mailTemplatePreviewFooter,
-    newsletterRecipientFilter,
-    renamedAdminBlocks,
+    removedIn68,
+    renamedIn68,
 ] satisfies TemplateBlockMigration[];

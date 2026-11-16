@@ -32,6 +32,8 @@ export type UsagePlan = {
     fixLevel?: FixLevel;
     /** The review applies to the conversion itself and goes into its review comment; see `no-deprecated-components`. */
     conversionNote?: boolean;
+    /** The usage needs a manual migration that the conversion would break, so the element is not converted at all. */
+    blocksConversion?: boolean;
 };
 
 type UsageReport = UsagePlan & {
@@ -81,6 +83,7 @@ export function reportUsage(api: ComponentUsageRuleApi, report: UsageReport): vo
         fixLevel: getFixLevel(api, report, fixes && Boolean(fix)),
         reviewComment,
         ...(report.conversionNote && reviewReason ? { conversionNote: reviewReason } : {}),
+        blocksConversion: report.blocksConversion,
     });
 }
 
@@ -164,4 +167,34 @@ export function insertAttributeAtEnd(api: ComponentUsageRuleApi, fixer: Fixer, a
         : '';
 
     return fixer.insertTextAfterRange([offset, offset], `${onOwnLines ? `\n${indentation}` : ' '}${attribute}`);
+}
+
+class Unconvertible extends Error {}
+
+/**
+ * Stops an all-or-nothing conversion as soon as one part cannot be rewritten; `attempt` returns the reason.
+ *
+ * @example
+ * attempt(() => fail('v-for on sw-tabs-item')); // { result: null, reason: 'v-for on sw-tabs-item' }
+ */
+export function fail(reason: string): never {
+    throw new Unconvertible(reason);
+}
+
+/**
+ * Runs an all-or-nothing conversion: its result, or the reason it called `fail` with.
+ *
+ * @example
+ * const { result, reason } = attempt(() => analyze(api, api.node));
+ */
+export function attempt<Result>(convert: () => Result): { result: Result; reason: null } | { result: null; reason: string } {
+    try {
+        return { result: convert(), reason: null };
+    } catch (error) {
+        if (!(error instanceof Unconvertible)) {
+            throw error;
+        }
+
+        return { result: null, reason: error.message };
+    }
 }

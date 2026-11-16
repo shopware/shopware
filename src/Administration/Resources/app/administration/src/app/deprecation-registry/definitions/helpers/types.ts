@@ -55,6 +55,8 @@ export type ComponentUsageReport = {
     reviewComment?: string;
     /** A review of the conversion itself, which the conversion's review comment carries. */
     conversionNote?: string;
+    /** The usage needs a manual migration that the conversion would break, so `no-deprecated-components` keeps the element. */
+    blocksConversion?: boolean;
 };
 
 /** What `no-deprecated-component-usage` hands to a step's `eslint.report` for every matching element. */
@@ -67,6 +69,7 @@ export type ComponentUsageRuleApi = {
     sourceCode: {
         getText(node: unknown): string;
         text: string;
+        ast: { templateBody?: TemplateNode | null };
     };
     /** False when the rule runs with `disableFix` or the step (default: `usage`) is `fix: 'manual'`. */
     canAutoFix(usage?: { fix?: FixLevel }): boolean;
@@ -77,6 +80,8 @@ export type ComponentUsageRuleApi = {
     removeAttribute(fixer: Fixer, attribute: TemplateNode): Fix;
     /** Tells whether the codemod converted this element from the migration's deprecated component. */
     isConverted(): boolean;
+    /** The core components the linted template overrides, read from its scripts; see `registry/template-owner.js`. */
+    getOverrideTargets(): string[];
     /** Inserts a codemod review comment with `text` directly before the target, without splitting its line. */
     insertCodemodCommentBefore(fixer: Fixer, target: TemplateNode, text: string): Fix;
     /**
@@ -112,6 +117,13 @@ export type ComponentUsageRuleApi = {
         getRemovalRange(node: TemplateNode): [number, number];
         /** Attribute text for a prop value; null for an expression that mixes both quote styles. */
         toPropAttribute(name: string, value: Exclude<PropValue, { kind: 'none' }>): string | null;
+        /**
+         * The content of an element as one expression for a double-quoted attribute: plain text as a string literal,
+         * a single interpolation as it is. `{ code: null }` for empty content, null for markup, Twig or mixed content.
+         */
+        readContentExpression(element: TemplateNode): { code: string | null } | null;
+        /** Makes double-quoted strings of an expression single-quoted; null when a double quote is left. */
+        toAttributeExpression(code: string): string | null;
     };
 };
 
@@ -155,6 +167,8 @@ export type PropReplacement = {
     /** Reported instead of a fix when an object `v-bind` can hide the prop. */
     objectVBindReason: string;
     produces?: ProducedAttribute;
+    /** Why this usage needs a manual migration instead of the fix; null when the fix applies. */
+    manualReason?(api: ComponentUsageRuleApi, attribute: TemplateNode): string | null;
     fix(api: ComponentUsageRuleApi, attribute: TemplateNode, fixer: Fixer): Fix | Fix[];
 };
 
@@ -162,6 +176,8 @@ export type RenamePropStep = ComponentUsageStepBase & {
     kind: 'rename-prop';
     from: string;
     to: string;
+    /** The component ignores `from` when `to` is set, so an element with both just loses `from`. */
+    replacementWins?: boolean;
 };
 
 export type InvertBooleanPropStep = ComponentUsageStepBase & {
@@ -326,6 +342,24 @@ export type PropFromSourceStep = ComponentUsageStepBase & {
     plainText?: boolean;
 };
 
+export type FlagUsageStep = ComponentUsageStepBase & {
+    kind: 'flag-usage';
+    /** What a developer has to do with the element. */
+    message: string;
+};
+
+export type RequireTruePropStep = ComponentUsageStepBase & {
+    kind: 'require-true-prop';
+    /** The boolean prop the old element has to set to true to be converted. */
+    prop: string;
+    /** What a developer has to do when it is not set. */
+    message: string;
+};
+
+export type TabItemsToItemsPropStep = ComponentUsageStepBase & { kind: 'tab-items-to-items-prop' };
+
+export type NumberOptionsToOptionsPropStep = ComponentUsageStepBase & { kind: 'number-options-to-options-prop' };
+
 export type RenameEventStep = ComponentUsageStepBase & { kind: 'rename-event'; from: string; to: string };
 
 export type RemoveEventStep = ComponentUsageStepBase & { kind: 'remove-event'; event: string };
@@ -355,7 +389,11 @@ export type ComponentUsageStep =
     | PropFromSourceStep
     | RenameEventStep
     | RemoveEventStep
-    | RenameVModelArgumentStep;
+    | RenameVModelArgumentStep
+    | FlagUsageStep
+    | RequireTruePropStep
+    | TabItemsToItemsPropStep
+    | NumberOptionsToOptionsPropStep;
 
 export type ComponentStep = RenameComponentStep | ComponentUsageStep;
 
@@ -364,8 +402,16 @@ export type ReplaceObjectOptionStep = UsageStepBase & { kind: 'replace-object-op
 export type MemberCallStep = UsageStepBase & { kind: 'member-call'; from: string; to?: string };
 export type ReplaceExtensionStep = UsageStepBase & { kind: 'replace-extension'; from: string[]; to: string };
 export type RemoveAssetStep = UsageStepBase & { kind: 'remove-asset' };
-export type RemoveTemplateBlockStep = UsageStepBase & { kind: 'remove-template-block'; from: string };
-export type RenameTemplateBlockStep = UsageStepBase & { kind: 'rename-template-block'; from: string; to: string };
+/** Which overrides a Twig block step matches. */
+type TemplateBlockScope = {
+    /** The core components that render the block; a template that overrides another component is not matched. */
+    components?: string[];
+    /** Other core components use the name too, so a template is only matched when its override target is known. */
+    shared?: boolean;
+};
+export type RemoveTemplateBlockStep = UsageStepBase & TemplateBlockScope & { kind: 'remove-template-block'; from: string };
+export type RenameTemplateBlockStep = UsageStepBase &
+    TemplateBlockScope & { kind: 'rename-template-block'; from: string; to: string };
 export type RenameTemplateEventStep = UsageStepBase & {
     kind: 'rename-template-event';
     /** The component that emits the event. */
@@ -396,6 +442,11 @@ type MigrationBase<Step extends DeprecationUsage> = {
     removedIn: string;
     description: string;
     references?: DeprecationReference[];
+    /**
+     * Runs only when an upgrade codemod or `deprecation:migrate --id` selects it, for migrations of extension code that
+     * the lint of the Administration itself must not run.
+     */
+    onlyWhenSelected?: boolean;
     usage: Step[];
 };
 
@@ -404,6 +455,8 @@ export type ComponentMigration = MigrationBase<ComponentStep> & {
     component: string;
     /** The element the usage steps match once a usage is converted; falls back to `component` when unset. */
     replacement?: string;
+    /** What to do with a `Component.override/extend` of the component; `no-deprecated-js-api` reports them. */
+    overrideHint?: string;
 };
 
 /**

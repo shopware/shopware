@@ -38,7 +38,7 @@ const registryDrivenInvalidTests = [
     {
         name: 'registry-driven mt-progress-bar does not fix value when model-value already exists',
         filename: 'test.html.twig',
-        code: '<template><mt-progress-bar model-value="new" value="old" /></template>',
+        code: '<template><mt-progress-bar model-value="new" value="old" :max-value="100" /></template>',
         output: null,
         errors: [
             {

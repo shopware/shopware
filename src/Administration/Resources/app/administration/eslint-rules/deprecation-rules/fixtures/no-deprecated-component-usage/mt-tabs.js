@@ -7,6 +7,18 @@ const mtTabsValidTests = [
                 <sw-tabs />
             </template>`,
     },
+    {
+        name: '"mt-tabs" keeps the "content" slot, which the mt-tabs wrapper renders',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-tabs :items="items">
+                    <template #content="{ active }">
+                        The current active item is {{ active }}
+                    </template>
+                </mt-tabs>
+            </template>`,
+    },
 ];
 
 const ITEMS_ALREADY_SET =
@@ -136,41 +148,20 @@ const mtTabsInvalidTests = [
         ],
     },
     {
-        name: '"mt-tabs" wrong "content" slot usage - content should be set manually outside the component',
-        filename: 'test.html.twig',
+        name: '"mt-tabs" keeps double-quoted snippet labels as expressions in .vue files',
+        filename: 'test.vue',
         code: `
             <template>
                 <mt-tabs>
-                    <template #content="{ active }">
-                        The current active item is {{ active }}
-                    </template>
+                    <sw-tabs-item name="tab1">{{ $t("sw-cms.tab.one") }}</sw-tabs-item>
                 </mt-tabs>
             </template>`,
-        output: null,
-        errors: [
-            {
-                message:
-                    '[mt-tabs] Move content slot markup out of mt-tabs and render it next to the active tab state.',
-            },
-        ],
-    },
-    {
-        name: '"mt-tabs" wrong "content" slot usage - content should be set manually outside the component [disableFix]',
-        filename: 'test.html.twig',
-        options: ['disableFix'],
-        code: `
+        output: `
             <template>
-                <mt-tabs>
-                    <template #content="{ active }">
-                        The current active item is {{ active }}
-                    </template>
-                </mt-tabs>
+                <mt-tabs :items="[{ label: $t('sw-cms.tab.one'), name: 'tab1' }]" />
             </template>`,
         errors: [
-            {
-                message:
-                    '[mt-tabs] Move content slot markup out of mt-tabs and render it next to the active tab state.',
-            },
+            { message: '[mt-tabs] The "default" slot is removed. Pass its <sw-tabs-item> elements as the "items" prop.' },
         ],
     },
     {

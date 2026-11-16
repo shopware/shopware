@@ -103,6 +103,11 @@ function planRename(api: ComponentUsageRuleApi, step: RenamePropStep, attribute:
         };
     }
 
+    // The replacement prop wins over the deprecated one, so the deprecated one can go
+    if (step.replacementWins && api.ast.hasMatchingPropAttribute(api.node, step.to)) {
+        return { fix: (fixer) => api.removeAttribute(fixer, attribute) };
+    }
+
     return {
         produces: { kind: 'prop', name: step.to },
         fix: (fixer) => fixer.replaceText(isBound(api, attribute) ? attribute.key.argument : attribute.key, step.to),

@@ -14,7 +14,13 @@ export default componentMigration({
     references: [
         upgradeGuide('UPGRADE-6.7.md#component-replacement-with-meteor-component-library'),
     ],
+    overrideHint: 'sw-text-editor-table-toolbar is removed with sw-text-editor. mt-text-editor has built-in table support.',
     onConvert: [
-        renameComponent({ from: 'sw-text-editor-table-toolbar', to: 'mt-text-editor', fix: 'manual' }),
+        renameComponent({
+            from: 'sw-text-editor-table-toolbar',
+            to: 'mt-text-editor',
+            fix: 'manual',
+            message: 'mt-text-editor has built-in table support.',
+        }),
     ],
 });

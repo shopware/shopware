@@ -8,6 +8,9 @@
 
 export type CodemodScope = 'script' | 'template' | 'both';
 
+/** `fix` rewrites code and may mark what it cannot rewrite; the other action only marks spots with comments. */
+type CodemodAction = 'fix' | 'todo';
+
 interface BaseCodemod {
     /** Stable id used in `--with` and in reports. */
     id: string;
@@ -16,6 +19,10 @@ interface BaseCodemod {
     target: string;
     /** Opt-in codemods only run when named via `--with`. */
     optIn: boolean;
+    /** Defaults to `fix`. */
+    action?: CodemodAction;
+    /** Heading `--list` groups the codemods of a major under. */
+    group?: string;
 }
 
 export interface EslintCodemod extends BaseCodemod {
@@ -49,6 +56,25 @@ const MT_COMPONENTS = [
     'sw-number-field',
     'sw-password-field',
 ];
+
+/**
+ * A 6.8 codemod made of deprecation registry migrations: `sw-deprecation-rules/upgrade-<id>` runs the registry
+ * rules for the migrations with these ids. At the `marked` run level it applies the fixes that keep the behaviour
+ * and writes a review comment above each spot that needs manual work.
+ */
+function registryCodemod({
+    ids,
+    ...codemod
+}: Pick<EslintCodemod, 'id' | 'title' | 'action' | 'group' | 'scope'> & { ids: string[] }): EslintCodemod {
+    return {
+        ...codemod,
+        target: '6.8',
+        optIn: false,
+        kind: 'eslint',
+        rule: `sw-deprecation-rules/upgrade-${codemod.id.replace('.', '-')}`,
+        options: { ids, level: 'marked' },
+    };
+}
 
 export const CODEMODS: Codemod[] = [
     {
@@ -106,11 +132,77 @@ export const CODEMODS: Codemod[] = [
         rule: 'sw-deprecation-rules/no-sw-empty-state-usage',
         scope: 'template',
     },
+    registryCodemod({
+        id: 'mt-components-6.8',
+        title: 'sw-loader & co. → mt-*',
+        group: 'Components',
+        scope: 'template',
+        ids: ['component.sw-loader', 'component.sw-skeleton-bar', 'component.sw-progress-bar'],
+    }),
+    registryCodemod({
+        id: 'mt-tabs',
+        title: 'sw-tabs → mt-tabs',
+        group: 'Components',
+        scope: 'template',
+        ids: ['component.sw-tabs-conversion', 'component.sw-tabs-position-identifier'],
+    }),
+    registryCodemod({
+        id: 'sw-text-editor',
+        title: 'sw-text-editor → mt-text-editor',
+        action: 'todo',
+        group: 'Components',
+        scope: 'both',
+        ids: [
+            'component.sw-text-editor',
+            'component.sw-text-editor-toolbar',
+            'component.sw-text-editor-toolbar-button',
+            'component.sw-text-editor-toolbar-table-button',
+            'component.sw-text-editor-table-toolbar',
+            'component.sw-text-editor-link-menu',
+        ],
+    }),
+    registryCodemod({
+        id: 'removed-form-components',
+        title: 'Removed form components',
+        group: 'Components',
+        scope: 'both',
+        ids: ['component.sw-select-number-field', 'component.sw-entity-many-to-many-select', 'component.sw-help-sidebar'],
+    }),
+    registryCodemod({
+        id: 'order-state-select-props',
+        title: 'sw-order-state-select-v2 props',
+        group: 'Components',
+        scope: 'template',
+        ids: ['component.sw-order-state-select-v2'],
+    }),
+    registryCodemod({
+        id: 'sw-popover',
+        title: 'sw-popover resize-width',
+        group: 'Components',
+        scope: 'template',
+        ids: ['component.sw-popover-resize-width'],
+    }),
+    registryCodemod({
+        id: 'twig-block-renames',
+        title: 'Renamed Twig blocks',
+        group: 'Twig blocks',
+        scope: 'template',
+        ids: ['template-block.renamed-in-6.8'],
+    }),
+    registryCodemod({
+        id: 'twig-block-removals',
+        title: 'Removed Twig blocks',
+        action: 'todo',
+        group: 'Twig blocks',
+        scope: 'template',
+        ids: ['template-block.removed-in-6.8'],
+    }),
     {
         id: 'vite-8-glob',
         title: 'Vite 8 glob patterns',
         target: '6.8',
         optIn: false,
+        group: 'Global APIs',
         kind: 'eslint',
         rule: 'sw-deprecation-rules/no-import-meta-glob-extglob',
         scope: 'script',
@@ -120,6 +212,7 @@ export const CODEMODS: Codemod[] = [
         title: '$tc → $t',
         target: '6.8',
         optIn: false,
+        group: 'Global APIs',
         kind: 'eslint',
         rule: 'sw-core-rules/no-tc-translation',
         scope: 'both',

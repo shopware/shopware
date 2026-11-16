@@ -3,6 +3,7 @@
  */
 
 import {
+    addPropWhenMissing,
     componentMigration,
     renameComponent,
     renameEvent,
@@ -31,5 +32,11 @@ export default componentMigration({
         }),
         renameEvent({ from: 'update:value', to: 'update:model-value' }),
         renameVModelArgument({ from: 'value', to: null }),
+        addPropWhenMissing({
+            prop: 'max-value',
+            value: '100',
+            bind: true,
+            message: 'The "max-value" prop has no default anymore. Set it to 100 to keep the previous behavior.',
+        }),
     ],
 });

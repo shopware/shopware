@@ -247,8 +247,7 @@ abstract class AbstractLayoutMutation implements LayoutMutation
 
     /**
      * Fill-applies the type's default binding specification onto $element. $reportedElementId is the element id a
-     * rejection names: the element's own id when the caller knows it, null when the element exists for the caller
-     * under no id of its own yet.
+     * rejection names; null when the client knows no id for it (a rejection never names the insert scaffold's server-minted id).
      */
     protected function applyDefaultBinding(
         AbstractContentSystemBindingSpecificationRegistry $bindingRegistry,
@@ -267,8 +266,7 @@ abstract class AbstractLayoutMutation implements LayoutMutation
     }
 
     /**
-     * {@see self::applyDefaultBinding()} on every element of the subtree; a rejection names the id of the element it
-     * is about.
+     * {@see self::applyDefaultBinding()} on every element of the subtree.
      */
     protected function applyDefaultBindingToSubtree(
         AbstractContentSystemBindingSpecificationRegistry $bindingRegistry,

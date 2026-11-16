@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\ContentSystem;
 
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
-use Shopware\Core\Framework\ContentSystem\Binding\RootSourceConfigMap;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ElementIdRule;
@@ -1395,9 +1394,8 @@ class ContentSystemException extends HttpException
     // The load-time 500 for any sugar that cannot expand deterministically (unrecognized resolves shape, mixed
     // loader/source keys, ambiguous or zero eligible tier-A sources, ambiguous or zero entity-name derivation,
     // unknown tier-B config key). The reason carries the mechanical fix the author must apply. Also the write-time
-    // 500 of AttributionReconciler for a binding whose scoped config values name different root-source sets, which
-    // only a specification that bypassed validation can carry. Deliberately not in CLIENT_DEFECT_CODES, for the same
-    // reason as bindingSpecificationUnknownType.
+    // 500 of AttributionReconciler for a binding whose scoped config values name different root-source sets.
+    // Deliberately not in CLIENT_DEFECT_CODES, for the same reason as bindingSpecificationUnknownType.
     public static function bindingSpecificationCanonicalizationFailed(string $id, string $reason): self
     {
         return new self(
@@ -1437,7 +1435,7 @@ class ContentSystemException extends HttpException
     }
 
     /**
-     * A null element id means the element does not exist yet: InsertElement checks the type before it scaffolds.
+     * A null element id means the element is not in the layout yet and has no id the client holds: InsertElement checks the type before it inserts.
      */
     public static function bindingTypeMismatch(string $bindingSpecificationId, string $specificationType, string $elementComponent, ?string $elementId): self
     {
@@ -1470,16 +1468,10 @@ class ContentSystemException extends HttpException
     }
 
     /**
-     * The 400 for applying a binding whose `!scoped` config value carries no entry for the layout's root source,
-     * or onto a layout with no root source at all: no value can be picked, and dropping the key would hand the
-     * loader a config nobody declared. Thrown by `BindingApplicator` when {@see RootSourceConfigMap::collapse()}
-     * returns null for a `resolves` entry, naming the specification and the `resolves` key it would wire, plus the
-     * element id the caller of the applicator decides to report. A null element id means that element has no id the
-     * client knows: InsertElement scaffolds it under a server-minted id and reports the fault without one, like the
-     * null id of {@see bindingTypeMismatch()}. On a preset insertion the id is the element's id from the preset
-     * payload the preset catalog returns, before the ids are reminted. A binding-application error like {@see bindingTypeMismatch()}, deliberately
-     * outside {@see CLIENT_DEFECT_CODES}. A null root source gets its own message, because `none` is the name of a
-     * real root source.
+     * The 400 for applying a binding whose `!scoped` config value has no entry for the layout's root source, or onto
+     * a layout with no root source. $elementId is the id the caller reports, null when the client knows no id (the
+     * insert-element scaffold, whose id is minted by the server). A null root source gets its own message, because
+     * `none` is the name of a real root source. Deliberately outside {@see CLIENT_DEFECT_CODES}.
      */
     public static function bindingRootSourceNotScoped(string $bindingSpecificationId, string $key, ?string $elementId, ?string $rootSource): self
     {

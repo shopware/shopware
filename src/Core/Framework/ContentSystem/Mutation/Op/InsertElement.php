@@ -70,22 +70,18 @@ final class InsertElement extends AbstractLayoutMutation
     }
 
     /**
-     * Scaffolds a fresh element of the type, applies the named binding specification onto it when one is given,
-     * then fill-applies the type's default binding specification (resolved via
-     * {@see AbstractLayoutMutation::resolveDefaultSpecification()}), attributed to the default's own qualified id.
-     * The scaffold's id is minted per request and never reaches the caller, so a `bindingRootSourceNotScoped`
-     * raised here names no element, like the `bindingTypeMismatch` of a named specification of another type.
+     * The default is resolved via {@see AbstractLayoutMutation::resolveDefaultSpecification()} and attributed to its
+     * own qualified id.
      */
     private function scaffold(?string $rootSource): StoredElement
     {
         $bindingSpecificationId = $this->bindingSpecificationId;
+        $specification = $bindingSpecificationId !== null ? $this->namedSpecification($bindingSpecificationId) : null;
+        $element = $this->scaffoldElement($this->registry, $this->type);
 
-        if ($bindingSpecificationId === null) {
-            return $this->applyDefaultBinding($this->bindingRegistry, $this->bindingApplicator, $this->scaffoldElement($this->registry, $this->type), null, $rootSource);
+        if ($bindingSpecificationId !== null && $specification !== null) {
+            $element = $this->bindingApplicator->apply($element, $specification, $bindingSpecificationId, null, $rootSource);
         }
-
-        $specification = $this->namedSpecification($bindingSpecificationId);
-        $element = $this->bindingApplicator->apply($this->scaffoldElement($this->registry, $this->type), $specification, $bindingSpecificationId, null, $rootSource);
 
         return $this->applyDefaultBinding($this->bindingRegistry, $this->bindingApplicator, $element, null, $rootSource);
     }

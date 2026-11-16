@@ -35,9 +35,9 @@ final class RootSourceConfigMap
 
     /**
      * The config with each scoped value replaced by its entry for the root source, or null when a scoped value has
-     * no entry for it. A null root source has no entry in any scoped map. A config without a scoped value is
-     * returned unchanged for every root source, null included. A null return leaves the reaction to the caller:
-     * there is no value to pick, and dropping the key would hand the loader a config nobody declared.
+     * no entry for it. A config without a scoped value is returned unchanged for every root source, null included.
+     * A null return leaves the reaction to the caller: there is no value to pick, and dropping the key would hand
+     * the loader a config nobody declared.
      *
      * @param array<string, mixed> $config
      *

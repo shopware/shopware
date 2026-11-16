@@ -36,8 +36,7 @@ final class BindingApplicator
     }
 
     /**
-     * $reportedElementId is the element id a `bindingRootSourceNotScoped` rejection names. The caller decides it,
-     * because only the caller knows whether the element's id exists for the client: null names no element.
+     * $reportedElementId is the element id a `bindingRootSourceNotScoped` rejection names; null names no element.
      */
     public function apply(StoredElement $element, BindingSpecification $specification, string $bindingSpecificationId, ?string $reportedElementId, ?string $rootSource): StoredElement
     {

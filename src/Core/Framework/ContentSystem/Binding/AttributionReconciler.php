@@ -155,8 +155,7 @@ class AttributionReconciler
     /**
      * The specification side of the honesty comparison: the binding's source plus its canonicalized encoded
      * config, or null when the specification or its binding for $key no longer exists. A binding whose scoped config
-     * values name different root-source sets has no enumerable configs; only a specification that bypassed
-     * validation carries one, so it throws as an internal fault.
+     * values name different root-source sets has no enumerable configs and throws as an internal fault.
      *
      * Null is an answer, not a missing collaborator: an attribution names a specification the registry
      * assembles at runtime from element-type directories and active app rows, and no write gate checks that

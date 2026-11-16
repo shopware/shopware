@@ -1,5 +1,4 @@
 import template from './sw-media-quickinfo-usage.html.twig';
-import { collectProductUsageOwners } from './product-usage.helper';
 import './sw-media-quickinfo-usage.scss';
 
 const { Application } = Shopware;
@@ -73,6 +72,14 @@ export default {
             criteria.setLimit(5);
             criteria.addFilter(Criteria.contains('slotConfig.*.media.value', this.item.id));
             criteria.addFields('name');
+
+            return criteria;
+        },
+
+        productDocumentCriteria() {
+            const criteria = new Criteria(1, 25);
+            criteria.addFilter(Criteria.equals('documents.translations.mediaId', this.item.id));
+            criteria.addSorting(Criteria.sort('id'));
 
             return criteria;
         },
@@ -155,7 +162,7 @@ export default {
         async createdComponent() {
             const item = this.item;
             this.isLoading = true;
-            const productAssociations = this.loadProductAssociations();
+            this.loadProductAssociations();
             this.loadCategoryAssociations();
             this.loadManufacturerAssociations();
             this.loadMailTemplateAssociations();
@@ -165,7 +172,7 @@ export default {
             this.loadShippingMethodAssociations();
             this.loadLayoutAssociations();
             try {
-                await Promise.all([productAssociations, this.loadSlotConfigAssociations()]);
+                await this.loadSlotConfigAssociations();
             } finally {
                 if (this.item === item) {
                     this.isLoading = false;
@@ -175,14 +182,20 @@ export default {
 
         async loadSlotConfigAssociations() {
             const item = this.item;
+            const documentCriteria = this.productDocumentCriteria;
 
             const [
                 foundInProducts,
+                foundInProductDocuments,
                 foundInLandingPages,
                 foundInCategories,
                 foundInCmsPages,
             ] = await Promise.all([
                 this.productRepository.search(this.slotConfigCriteria),
+                this.productRepository.search(documentCriteria).catch(() => {
+                    // Image and CMS usages remain available if document usages cannot be loaded.
+                    return [];
+                }),
                 this.landingPageRepository.search(this.slotConfigCriteria),
                 this.categoryRepository.search(this.slotConfigCriteria),
                 this.cmsPageRepository.search(this.cmsPageBlockConfigCriteria),
@@ -192,7 +205,23 @@ export default {
                 return;
             }
 
-            foundInProducts.forEach((foundInProduct) => {
+            const documentProducts = [...foundInProductDocuments];
+            while (documentProducts.length < foundInProductDocuments.total) {
+                documentCriteria.setPage(documentCriteria.page + 1);
+                const nextProducts = await this.productRepository.search(documentCriteria).catch(() => {
+                    // Keep the usages already loaded if a later page is unavailable.
+                    return [];
+                });
+                if (this.item !== item) {
+                    return;
+                }
+                if (nextProducts.length === 0) {
+                    break;
+                }
+                documentProducts.push(...nextProducts);
+            }
+
+            [...foundInProducts, ...documentProducts].forEach((foundInProduct) => {
                 if (this.products && !this.products.some((productMedia) => productMedia.product.id === foundInProduct.id)) {
                     this.products.push({ product: foundInProduct });
                 }
@@ -213,39 +242,8 @@ export default {
             });
         },
 
-        async loadProductAssociations() {
-            const item = this.item;
-            const productsById = collectProductUsageOwners(item);
-            this.products = [...productsById.values()].filter(Boolean).map((product) => ({ product }));
-
-            if (productsById.size === 0) {
-                return;
-            }
-
-            const criteria = new Criteria(1, productsById.size);
-            criteria.setTotalCountMode(0);
-            criteria.setIds([...productsById.keys()]);
-            criteria.addAssociation('options.group');
-
-            try {
-                const products = await this.productRepository.search(criteria, {
-                    ...Shopware.Context.api,
-                    inheritance: true,
-                });
-                if (this.item !== item) {
-                    return;
-                }
-
-                products.forEach((product) => productsById.set(product.id, product));
-                this.products.forEach(({ product }) => {
-                    if (!productsById.has(product.id)) {
-                        productsById.set(product.id, product);
-                    }
-                });
-                this.products = [...productsById.values()].filter(Boolean).map((product) => ({ product }));
-            } catch {
-                // Keep the directly loaded assignments if variant details are unavailable.
-            }
+        loadProductAssociations() {
+            this.products = [...this.item.productMedia];
         },
 
         loadCategoryAssociations() {
@@ -314,8 +312,7 @@ export default {
 
         getProductUsage(product) {
             return {
-                name: product.translated.name || product.productNumber,
-                variations: product.variation,
+                name: product.translated.name,
                 tooltip: this.$t('sw-media.sidebar.usage.tooltipFoundInProducts'),
                 link: {
                     name: 'sw.product.detail',

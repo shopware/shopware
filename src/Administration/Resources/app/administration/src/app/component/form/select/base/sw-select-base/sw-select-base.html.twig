@@ -14,7 +14,9 @@
             :tabindex="disabled ? '-1' : '0'"
             :aria-expanded="expanded ? 'true' : 'false'"
             @click="expand"
-            @focus="expand"
+            @focus="hasFocus = true"
+            @blur="hasFocus = false"
+            @keydown="expandByKeyboard"
             @keydown.tab="collapse"
             @keydown.esc="collapse"
         >
@@ -36,7 +38,6 @@
                 data-clearable-button
                 :aria-label="$t('global.sw-select-base.buttonClear')"
                 @click.prevent.stop="emitClear"
-                @keydown.tab.stop="focusParentSelect"
             >
                 <mt-icon
                     class="sw-select__select-indicator sw-select__select-indicator-clear"

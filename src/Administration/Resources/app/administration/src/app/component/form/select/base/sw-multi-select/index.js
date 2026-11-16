@@ -239,11 +239,6 @@ export default {
         onSelectCollapsed() {
             this.searchTerm = '';
             this.$refs.selectionList.blur();
-
-            // Focus on the input field when the select is collapsed
-            if (this.$refs.selectionList?.$refs?.swSelectInput) {
-                this.$refs.selectionList.$refs.swSelectInput.focus();
-            }
         },
 
         getKey(object, keyPath, defaultValue) {

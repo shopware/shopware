@@ -169,10 +169,10 @@ export default {
         getKey: get,
 
         setDropDown(open = true) {
-            this.$refs.selectionList.focus();
             this.hasFocus = open;
 
             if (open) {
+                this.$refs.selectionList.focus();
                 return;
             }
 

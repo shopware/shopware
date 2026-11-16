@@ -51,12 +51,13 @@ export default {
     data() {
         return {
             expanded: false,
+            hasFocus: false,
         };
     },
 
     computed: {
         swFieldClasses() {
-            return { 'has--focus': this.expanded };
+            return { 'has--focus': this.expanded || this.hasFocus };
         },
 
         isClearable() {
@@ -121,10 +122,36 @@ export default {
             this.$emit('select-expanded');
         },
 
+        /**
+         * Opens the select from the keyboard, like a native select.
+         * A printable character opens it without being swallowed, so it starts the search.
+         */
+        expandByKeyboard(event) {
+            if (this.expanded || event.ctrlKey || event.metaKey) {
+                return;
+            }
+
+            const isOnSelection = event.target === this.$refs.selectWrapper;
+
+            if (['ArrowDown', 'ArrowUp'].includes(event.key) || (isOnSelection && ['Enter', ' '].includes(event.key))) {
+                // The result list mounts before this event reaches the document, where it would pick an item
+                event.preventDefault();
+                event.stopPropagation();
+                this.expand();
+                return;
+            }
+
+            if (event.key.length === 1 && !event.altKey) {
+                this.expand();
+            }
+        },
+
         collapse(event) {
             if (!this.expanded) {
                 return;
             }
+
+            const hadFocus = this.$refs.selectWrapper?.contains(document.activeElement) ?? false;
 
             document.removeEventListener('click', this.listenToClickOutside);
             this.expanded = false;
@@ -134,27 +161,10 @@ export default {
                 this.$emit('select-collapsed');
             }
 
-            // @see NEXT-16079 allow back tab-ing through form via SHIFT+TAB
-            if (event && event?.shiftKey) {
-                event.preventDefault();
-                this.focusPreviousFormElement();
+            // TAB and SHIFT+TAB then move on from the select itself, and ESC keeps the focus on it
+            if (hadFocus) {
+                this.$refs.selectWrapper.focus();
             }
-        },
-
-        focusPreviousFormElement() {
-            const focusableSelector = 'a, button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])';
-            const myFocusable = this.$el.querySelector(focusableSelector);
-            const keyboardFocusable = [...document.querySelectorAll(focusableSelector)].filter(
-                (el) => !el.hasAttribute('disabled') && el.dataset.clearableButton === undefined,
-            );
-
-            keyboardFocusable.forEach((element, index) => {
-                if (index > 0 && element === myFocusable) {
-                    const kbFocusable = keyboardFocusable[index - 1];
-                    kbFocusable.click();
-                    kbFocusable.focus();
-                }
-            });
         },
 
         listenToClickOutside(event) {
@@ -191,13 +201,6 @@ export default {
 
         emitClear() {
             this.$emit('clear');
-        },
-
-        focusParentSelect(event) {
-            if (event && event?.shiftKey) {
-                this.$refs.selectWrapper.click();
-                event.preventDefault();
-            }
         },
     },
 };

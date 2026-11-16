@@ -6,10 +6,11 @@ import { mount } from '@vue/test-utils';
 
 import 'src/app/component/form/select/base/sw-single-select';
 
-const createWrapper = async (props = {}, attrs = {}) => {
+const createWrapper = async (props = {}, attrs = {}, options = {}) => {
     const wrapper = mount(await wrapTestComponent('sw-select-base', { sync: true }), {
         props,
         attrs,
+        ...options,
         global: {
             stubs: {
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
@@ -133,5 +134,119 @@ describe('components/sw-select-base', () => {
         } finally {
             document.elementsFromPoint = originalElementsFromPoint;
         }
+    });
+
+    describe('keyboard', () => {
+        let wrapper;
+
+        async function createFocusedSelection() {
+            const container = document.createElement('div');
+            document.body.appendChild(container);
+            wrapper = await createWrapper(
+                {},
+                {},
+                {
+                    attachTo: container,
+                    slots: { 'sw-select-selection': '<input class="search-input" tabindex="-1">' },
+                },
+            );
+
+            const selection = wrapper.find('.sw-select__selection');
+            selection.element.focus();
+            await flushPromises();
+
+            return selection;
+        }
+
+        function dispatchKeydown(element, init) {
+            const event = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, ...init });
+            element.dispatchEvent(event);
+
+            return event;
+        }
+
+        afterEach(() => {
+            wrapper.unmount();
+            document.body.innerHTML = '';
+        });
+
+        it('should show the focus without expanding when the selection gets focus', async () => {
+            const selection = await createFocusedSelection();
+
+            expect(selection.attributes('aria-expanded')).toBe('false');
+            expect(wrapper.find('.sw-select').classes()).toContain('has--focus');
+        });
+
+        it.each([
+            'ArrowDown',
+            'ArrowUp',
+            'Enter',
+            ' ',
+        ])('should expand on "%s" without passing the key on to the result list', async (key) => {
+            const selection = await createFocusedSelection();
+            const onDocumentKeydown = jest.fn();
+            document.addEventListener('keydown', onDocumentKeydown);
+
+            try {
+                dispatchKeydown(selection.element, { key });
+                await flushPromises();
+            } finally {
+                document.removeEventListener('keydown', onDocumentKeydown);
+            }
+
+            expect(selection.attributes('aria-expanded')).toBe('true');
+            expect(onDocumentKeydown).not.toHaveBeenCalled();
+        });
+
+        it('should expand on a printable character and let it reach the search', async () => {
+            const selection = await createFocusedSelection();
+
+            const event = dispatchKeydown(selection.element, { key: 'a' });
+            await flushPromises();
+
+            expect(selection.attributes('aria-expanded')).toBe('true');
+            expect(event.defaultPrevented).toBe(false);
+        });
+
+        it('should keep the focus on the selection when ESC collapses the select', async () => {
+            const selection = await createFocusedSelection();
+            dispatchKeydown(selection.element, { key: 'ArrowDown' });
+            const searchInput = wrapper.find('.search-input').element;
+            searchInput.focus();
+
+            dispatchKeydown(searchInput, { key: 'Escape' });
+            await flushPromises();
+
+            expect(selection.attributes('aria-expanded')).toBe('false');
+            expect(document.activeElement).toBe(selection.element);
+        });
+
+        it('should leave SHIFT+TAB to the browser, starting from the selection', async () => {
+            const selection = await createFocusedSelection();
+            dispatchKeydown(selection.element, { key: 'ArrowDown' });
+            const searchInput = wrapper.find('.search-input').element;
+            searchInput.focus();
+
+            const event = dispatchKeydown(searchInput, { key: 'Tab', shiftKey: true });
+            await flushPromises();
+
+            expect(selection.attributes('aria-expanded')).toBe('false');
+            expect(event.defaultPrevented).toBe(false);
+            expect(document.activeElement).toBe(selection.element);
+        });
+
+        it('should not take the focus back when the select collapses after the focus left it', async () => {
+            const selection = await createFocusedSelection();
+            dispatchKeydown(selection.element, { key: 'ArrowDown' });
+            const outside = document.createElement('button');
+            document.body.appendChild(outside);
+
+            outside.focus();
+            outside.click();
+            await flushPromises();
+
+            expect(selection.attributes('aria-expanded')).toBe('false');
+            expect(document.activeElement).toBe(outside);
+        });
     });
 });

@@ -428,6 +428,13 @@ For extensions that already build positions holding part of a line item, this ch
 
 ## API
 
+### Store API route for product documents
+
+The new route `GET|POST /store-api/product/{productId}/documents` returns the documents of a product, such as manuals, datasheets or certificates.
+It accepts a criteria, sorts by `position` by default, and returns each document with its file in `media`, resolved for the requested language.
+A variant without documents of its own returns the documents of its parent; documents with a private file are left out.
+Extensions can change the result through the `product-document-route.load` extension event (`ProductDocumentRouteExtension`).
+
 ### Plain JSON becomes the default Admin API response format in 6.8
 
 Admin API entity requests without an `Accept` header now use the JSON:API default instead of returning HTTP 415.

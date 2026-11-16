@@ -175,6 +175,7 @@ class OrderSerializerTest extends TestCase
                     'id' => 'delivery-1',
                     'customFields' => null,
                     'primaryOrder' => null,
+                    'position' => 0,
                     'payload' => [],
                 ],
             ]),
@@ -251,6 +252,7 @@ class OrderSerializerTest extends TestCase
                     'id' => 'delivery-1',
                     'customFields' => null,
                     'primaryOrder' => null,
+                    'position' => 0,
                     'payload' => [],
                 ],
             ]),
@@ -283,6 +285,7 @@ class OrderSerializerTest extends TestCase
                     'id' => 'delivery-1',
                     'customFields' => null,
                     'primaryOrder' => null,
+                    'position' => 0,
                     'payload' => [],
                 ],
                 'transactions' => [

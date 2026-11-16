@@ -41,7 +41,7 @@ final readonly class ImportExportHandler
         $progress = null;
 
         try {
-            $importExport = $this->importExportFactory->create($message->getLogId(), 50, 50);
+            $importExport = $this->importExportFactory->create($message->getLogId(), 50, 50, true);
             $logEntity = $importExport->getLogEntity();
 
             if ($logEntity->getState() === Progress::STATE_ABORTED) {

@@ -441,6 +441,16 @@ It throws `CHECKOUT__CART_DELIVERY_POSITION_INVALID_SPLIT_QUANTITY`, `CHECKOUT__
 `DeliveryPositionCollection::getWeight()` and `getVolume()` now count the position quantity instead of the line item quantity.
 For extensions that already build positions holding part of a line item, this changes weight and volume based shipping costs and the cart volume rule.
 
+### Queued imports write in batches
+
+An import started from the Administration, or from any `ImportExportMessage`, now writes its records in batches of 50 instead of one at a time.
+A batch that fails is retried record by record, so failed records are still reported individually.
+
+Subscribers of `ImportExportAfterImportRecordEvent` now receive the written result of the whole batch instead of a single record.
+Read the record under inspection from the event's own `record` and `row`, not from the first entry of the result.
+
+`ImportExportAfterImportBatchEvent` and the progress counter now fire once per batch instead of once per record.
+
 ## API
 
 ### Plain JSON becomes the default Admin API response format in 6.8

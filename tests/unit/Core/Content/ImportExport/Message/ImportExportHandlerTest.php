@@ -27,6 +27,29 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 #[CoversClass(ImportExportHandler::class)]
 class ImportExportHandlerTest extends TestCase
 {
+    public function testImportExportHandlerRequestsTheBatchImportStrategy(): void
+    {
+        $factory = $this->createMock(ImportExportFactory::class);
+
+        $logEntity = new ImportExportLogEntity();
+        $logEntity->setActivity(ImportExportLogEntity::ACTIVITY_IMPORT);
+        $logEntity->setState(Progress::STATE_PROGRESS);
+        $logEntity->setId('logId');
+
+        $importExport = static::createStub(ImportExport::class);
+        $importExport->method('getLogEntity')->willReturn($logEntity);
+        $importExport->method('import')->willReturn(new Progress($logEntity->getId(), Progress::STATE_SUCCEEDED));
+
+        $factory->expects($this->once())
+            ->method('create')
+            ->with('logId', 50, 50, true)
+            ->willReturn($importExport);
+
+        (new ImportExportHandler(new CollectingMessageBus(), $factory, new EventDispatcher()))(
+            new ImportExportMessage(Context::createDefaultContext(), 'logId', ImportExportLogEntity::ACTIVITY_IMPORT)
+        );
+    }
+
     #[DataProvider('dataProviderForTestImportExport')]
     public function testImportExportHandlerDispatchesMessage(string $activity, string $method): void
     {

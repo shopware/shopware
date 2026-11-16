@@ -35,6 +35,12 @@ class Criteria extends Struct implements \Stringable
      */
     final public const STATE_SCORE_RANKED_GROUPING = 'scoreRankedGrouping';
 
+    /**
+     * Grouped `cheapestPrice` sortings position a group by its cheapest entity ascending and by its most expensive entity descending,
+     * like every other grouped sorting, instead of by its cheapest entity in both directions.
+     */
+    final public const STATE_DIRECTIONAL_GROUPED_PRICE_SORTING = 'directionalGroupedPriceSorting';
+
     final public const SCORE_FIELD = '_score';
 
     /**

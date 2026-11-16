@@ -27,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
@@ -371,6 +372,10 @@ class ProductListingLoader
             $this->addGrouping($criteria);
         }
 
+        if ($displayAsGroup && $this->getPriceSortingDirection($criteria, $context) !== null) {
+            $criteria->addState(Criteria::STATE_DIRECTIONAL_GROUPED_PRICE_SORTING);
+        }
+
         $isSearchRoute = $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
 
         if ($displayAsGroup && $isSearchRoute && $this->systemConfigService->getBool(
@@ -407,7 +412,11 @@ class ProductListingLoader
 
         $shouldLoadPreviews = !$this->shouldSkipGrouping($criteria) && $this->shouldLoadPreviews($criteria, $context);
 
-        if ($shouldLoadPreviews) {
+        $priceSortingDirection = $this->getPriceSortingDirection($criteria, $context);
+
+        if ($shouldLoadPreviews && $priceSortingDirection !== null) {
+            $mapping = $this->resolvePriceSortedPreviews($keys, $criteria, $context, $priceSortingDirection);
+        } elseif ($shouldLoadPreviews) {
             $mapping = $this->extensions->publish(
                 name: LoadPreviewExtension::NAME,
                 extension: new LoadPreviewExtension($keys, $context, $criteria->getPostFilters()),
@@ -419,6 +428,125 @@ class ProductListingLoader
         $this->dispatcher->dispatch($event);
 
         return $event->getMapping();
+    }
+
+    /**
+     * With `core.listing.ignorePresentationOnPriceSorting`, a price sorted listing displays the variant which positions the group:
+     * its cheapest matching variant ascending and its most expensive matching variant descending.
+     * The configured main variant is ignored, groups which display their parent still display it.
+     *
+     * @param list<string> $keys
+     *
+     * @return array<string, string>
+     */
+    private function resolvePriceSortedPreviews(array $keys, Criteria $criteria, SalesChannelContext $context, string $direction): array
+    {
+        $mapping = array_combine($keys, $keys);
+
+        $parentPreviews = [];
+        $displayGroups = [];
+        foreach ($this->fetchDisplayGroups($keys, $context) as $row) {
+            $config = json_decode((string) ($row['variantListingConfig'] ?? '{}'), true, 512, \JSON_THROW_ON_ERROR);
+
+            if (isset($config['displayParent']) && $config['displayParent']) {
+                $parentPreviews[] = $row['id'];
+
+                continue;
+            }
+
+            $displayGroups[$row['id']] = $row['displayGroup'];
+        }
+
+        if ($parentPreviews !== []) {
+            $mapping = [...$mapping, ...$this->extensions->publish(
+                name: LoadPreviewExtension::NAME,
+                extension: new LoadPreviewExtension($parentPreviews, $context, $criteria->getPostFilters()),
+                function: $this->loadPreviews(...)
+            )];
+        }
+
+        if ($displayGroups === []) {
+            return $mapping;
+        }
+
+        $variants = clone $criteria;
+        $variants->resetGroupFields();
+        $variants->resetSorting();
+        $variants->resetAggregations();
+        $variants->resetAssociations();
+        $variants->setLimit(null);
+        $variants->setOffset(null);
+        $variants->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
+        $variants->addFilter(new EqualsAnyFilter('displayGroup', array_values(array_unique($displayGroups))));
+        $variants->addSorting(new FieldSorting('cheapestPrice', $direction));
+
+        /** @var list<string> $variantIds */
+        $variantIds = $this->productRepository->searchIds($variants, $context)->getIds();
+
+        // the display groups are fetched unordered, so the first variant of a group is taken from the search order
+        $order = array_flip($variantIds);
+        $previews = [];
+        foreach ($this->fetchDisplayGroups($variantIds, $context) as $row) {
+            $current = $previews[$row['displayGroup']] ?? null;
+
+            if ($current === null || $order[$row['id']] < $order[$current]) {
+                $previews[$row['displayGroup']] = $row['id'];
+            }
+        }
+
+        foreach ($displayGroups as $id => $displayGroup) {
+            $mapping[$id] = $previews[$displayGroup] ?? $id;
+        }
+
+        return $mapping;
+    }
+
+    /**
+     * @param list<string> $ids
+     *
+     * @return list<array{id: string, displayGroup: string, variantListingConfig: string|null}>
+     */
+    private function fetchDisplayGroups(array $ids, SalesChannelContext $context): array
+    {
+        if ($ids === []) {
+            return [];
+        }
+
+        /** @var list<array{id: string, displayGroup: string, variantListingConfig: string|null}> $rows */
+        $rows = $this->connection->fetchAllAssociative(
+            '# product-listing-loader::fetch-display-groups
+            SELECT LOWER(HEX(product.id)) AS id,
+                product.display_group AS displayGroup,
+                parent.variant_listing_config AS variantListingConfig
+            FROM product
+                LEFT JOIN product AS parent
+                    ON parent.id = product.parent_id
+                    AND parent.version_id = product.version_id
+            WHERE product.id IN (:ids)
+            AND product.version_id = :version',
+            [
+                'ids' => Uuid::fromHexToBytesList($ids),
+                'version' => Uuid::fromHexToBytes($context->getContext()->getVersionId()),
+            ],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        return $rows;
+    }
+
+    private function getPriceSortingDirection(Criteria $criteria, SalesChannelContext $context): ?string
+    {
+        $sorting = array_values($criteria->getSorting())[0] ?? null;
+
+        if ($sorting === null || !\in_array($sorting->getField(), ['cheapestPrice', 'product.cheapestPrice'], true)) {
+            return null;
+        }
+
+        if (!$this->systemConfigService->getBool('core.listing.ignorePresentationOnPriceSorting', $context->getSalesChannelId())) {
+            return null;
+        }
+
+        return $sorting->getDirection();
     }
 
     private function shouldLoadPreviews(Criteria $criteria, SalesChannelContext $context): bool

@@ -9,6 +9,16 @@ Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED` while ano
 
 ## Core
 
+### Price sorted listings can display the variant that determines the position
+
+The new listing setting `core.listing.ignorePresentationOnPriceSorting` ("Ignore storefront presentation on price sorting") is disabled by default.
+When it is enabled, listings sorted by price ignore the main variant configured under "Storefront presentation > Product listing".
+Each product displays the variant that determines its position instead: the cheapest matching variant when sorted ascending, the most expensive matching variant when sorted descending.
+Products configured to display the main product still display it.
+
+With the setting enabled, grouped `cheapestPrice` sortings without Elasticsearch position a group by its most expensive variant when sorted descending, like Elasticsearch does.
+The new criteria state `Criteria::STATE_DIRECTIONAL_GROUPED_PRICE_SORTING` enables this for the DBAL searcher.
+
 ### Attribute entities can generate the reverse side of a many-to-many association
 
 `Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToMany` now accepts `reversedBy`, `reverseApi` and `reverseOnDelete`:

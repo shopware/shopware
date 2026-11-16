@@ -182,6 +182,7 @@ class PromotionAlreadyRedeemedTest extends TestCase
     {
         yield 'cancelled order' => [[StateMachineTransitionActions::ACTION_CANCEL], true];
         yield 'cancelled and reopened order' => [[StateMachineTransitionActions::ACTION_CANCEL, StateMachineTransitionActions::ACTION_REOPEN], false];
+        yield 'order in progress' => [[StateMachineTransitionActions::ACTION_PROCESS], false];
     }
 
     private function createOncePerCustomerPromotion(string $code): string

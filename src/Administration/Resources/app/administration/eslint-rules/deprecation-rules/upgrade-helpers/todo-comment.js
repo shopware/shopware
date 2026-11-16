@@ -10,6 +10,8 @@
  * changes nothing and the upgrade report lists the spot under "Needs manual work".
  */
 
+const { walk } = require('./component-tags');
+
 const TODO_PREFIX = 'TODO Codemod';
 
 function todoTag(id, version = '6.8') {
@@ -35,6 +37,29 @@ function indentationAt(text, lineStart) {
  */
 function lineIndentation(text, index) {
     return indentationAt(text, lineStartIndex(text, index));
+}
+
+/**
+ * The start of the line a template comment goes on: the line of `index`, or, when that line starts inside a
+ * multi-line tag like `><child />`, the line where that tag starts, so the comment doesn't land between its attributes.
+ */
+function templateLineStart(sourceCode, index) {
+    const tags = [];
+
+    walk(sourceCode.ast.templateBody, (node) => {
+        if (node.type === 'VStartTag' || node.type === 'VEndTag') {
+            tags.push(node.range);
+        }
+    });
+
+    const tagAround = (position) => tags.find(([start, end]) => start < position && position < end);
+    let lineStart = lineStartIndex(sourceCode.text, index);
+
+    for (let tag = tagAround(lineStart); tag; tag = tagAround(lineStart)) {
+        lineStart = lineStartIndex(sourceCode.text, tag[0]);
+    }
+
+    return lineStart;
 }
 
 /**
@@ -98,7 +123,7 @@ function splitsScriptToken(sourceCode, lineStart) {
 function reportTodo(context, { id, message, range, scope, version = '6.8', seen }) {
     const sourceCode = context.sourceCode;
     const text = sourceCode.text;
-    const lineStart = lineStartIndex(text, range[0]);
+    const lineStart = scope === 'template' ? templateLineStart(sourceCode, range[0]) : lineStartIndex(text, range[0]);
     const comment = `${todoTag(id, version)}: ${message}`;
     const loc = { start: sourceCode.getLocFromIndex(range[0]), end: sourceCode.getLocFromIndex(range[1]) };
     const key = `${lineStart}:${message}`;
@@ -111,7 +136,7 @@ function reportTodo(context, { id, message, range, scope, version = '6.8', seen 
         seen.add(key);
     }
 
-    const alreadyMarked = commentLinesAbove(text, range[0]).some((line) => line.includes(comment));
+    const alreadyMarked = commentLinesAbove(text, lineStart).some((line) => line.includes(comment));
 
     if (alreadyMarked || (scope === 'script' && splitsScriptToken(sourceCode, lineStart))) {
         context.report({ loc, message });

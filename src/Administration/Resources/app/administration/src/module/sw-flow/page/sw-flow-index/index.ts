@@ -49,7 +49,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         flowCriteria(): CriteriaType {
-            return new Criteria(1, null);
+            return new Criteria(1, 1);
         },
 
         flowTabs(): Array<{ label: string; name: string; onClick: () => void }> {

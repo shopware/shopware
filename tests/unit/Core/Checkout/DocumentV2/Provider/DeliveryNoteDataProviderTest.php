@@ -10,6 +10,12 @@ use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\DeliveryNoteDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -64,6 +70,7 @@ class DeliveryNoteDataProviderTest extends TestCase
             \array_keys($criteria->getAssociation('addresses')->getAssociations()),
         );
         static::assertArrayHasKey('shippingMethod', $criteria->getAssociation('deliveries')->getAssociations());
+        static::assertArrayHasKey('positions', $criteria->getAssociation('deliveries')->getAssociations());
         static::assertArrayHasKey(
             'paymentMethod',
             $criteria->getAssociation('primaryOrderTransaction')->getAssociations(),
@@ -104,6 +111,56 @@ class DeliveryNoteDataProviderTest extends TestCase
         static::assertSame('12345', $result->custom['deliveryNoteNumber']);
         static::assertSame(self::DELIVERY_DATE, $result->custom['deliveryDate']);
         static::assertSame(self::DOCUMENT_DATE, $result->custom['deliveryNoteDate']);
+        static::assertNull($result->orderDelivery);
+        static::assertNull($result->deliveryLineItemQuantities);
+    }
+
+    public function testProvideRenderingDataNarrowsTheNoteToTheRequestedDelivery(): void
+    {
+        $provider = $this->createProvider();
+        $order = self::createOrder();
+        $firstDelivery = self::createDelivery($order, 'first-product');
+        $secondDelivery = self::createDelivery($order, 'second-product');
+        $order->setLineItems(new OrderLineItemCollection([
+            self::createLineItem('first-product'),
+            self::createLineItem('second-product'),
+        ]));
+        $order->setDeliveries(new OrderDeliveryCollection([$firstDelivery, $secondDelivery]));
+
+        $request = new DocumentGenerationRequest(
+            $order->getId(),
+            DocumentType::DELIVERY_NOTE,
+            [DocumentFormat::PDF],
+            '12345',
+            deliveryDate: self::DELIVERY_DATE,
+            orderDeliveryId: $secondDelivery->getId(),
+        );
+
+        $result = $provider->provideRenderingData(new ProviderInput($order, $request), Context::createDefaultContext());
+
+        static::assertSame($secondDelivery, $result->orderDelivery);
+        static::assertSame(['second-product' => 1], $result->deliveryLineItemQuantities);
+    }
+
+    public function testProvideRenderingDataThrowsForADeliveryOfAnotherOrder(): void
+    {
+        $provider = $this->createProvider();
+        $order = self::createOrder();
+        $order->setDeliveries(new OrderDeliveryCollection([self::createDelivery($order, 'product')]));
+        $foreignDeliveryId = Uuid::randomHex();
+
+        $request = new DocumentGenerationRequest(
+            $order->getId(),
+            DocumentType::DELIVERY_NOTE,
+            [DocumentFormat::PDF],
+            '12345',
+            deliveryDate: self::DELIVERY_DATE,
+            orderDeliveryId: $foreignDeliveryId,
+        );
+
+        $this->expectExceptionObject(DocumentV2Exception::orderDeliveryNotFound($foreignDeliveryId, $order->getId()));
+
+        $provider->provideRenderingData(new ProviderInput($order, $request), Context::createDefaultContext());
     }
 
     public function testProvideRenderingDataThrowsWhenDocumentNumberMissing(): void
@@ -161,5 +218,28 @@ class DeliveryNoteDataProviderTest extends TestCase
         $order->setSalesChannelId(Uuid::randomHex());
 
         return $order;
+    }
+
+    private static function createLineItem(string $id): OrderLineItemEntity
+    {
+        $lineItem = new OrderLineItemEntity();
+        $lineItem->setId($id);
+
+        return $lineItem;
+    }
+
+    private static function createDelivery(OrderEntity $order, string $lineItemId): OrderDeliveryEntity
+    {
+        $position = new OrderDeliveryPositionEntity();
+        $position->setId(Uuid::randomHex());
+        $position->setOrderLineItemId($lineItemId);
+        $position->setQuantity(1);
+
+        $delivery = new OrderDeliveryEntity();
+        $delivery->setId(Uuid::randomHex());
+        $delivery->setOrderId($order->getId());
+        $delivery->setPositions(new OrderDeliveryPositionCollection([$position]));
+
+        return $delivery;
     }
 }

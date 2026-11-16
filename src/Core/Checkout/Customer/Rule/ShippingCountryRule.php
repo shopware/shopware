@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Rule;
 
+use Shopware\Core\Checkout\Cart\Rule\DeliveryRuleScope;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
@@ -41,14 +42,15 @@ class ShippingCountryRule extends Rule
             return false;
         }
 
+        $location = $scope instanceof DeliveryRuleScope
+            ? $scope->getDelivery()->getLocation()
+            : $scope->getSalesChannelContext()->getShippingLocation();
+
         $countryId = $scope->getSalesChannelContext()->getCustomer() === null
             ? $scope->getCustomer()?->getActiveShippingAddress()?->getCountryId()
             : null;
 
-        $countryId ??= $scope->getSalesChannelContext()
-            ->getShippingLocation()
-            ->getCountry()
-            ->getId();
+        $countryId ??= $location->getCountry()->getId();
 
         $parameter = [$countryId];
         if ($countryId === '') {

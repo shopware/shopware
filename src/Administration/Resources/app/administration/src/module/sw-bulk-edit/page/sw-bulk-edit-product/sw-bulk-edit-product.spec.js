@@ -618,7 +618,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(taxId).toBe('taxRate2');
     });
 
-    it('should display tax rates using the current and default locale', async () => {
+    it('should display tax rates using the current locale', async () => {
         Shopware.Store.get('session').currentLocale = 'de-DE';
         jest.spyOn(config.global.mocks, '$te').mockReturnValue(false);
 
@@ -652,13 +652,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(taxField.findAll('.sw-form-field-renderer__option').map((option) => option.text())).toEqual([
             `Rate 1 (7,123${percentageSpace}%)`,
             `Rate 2 (19${percentageSpace}%)`,
-        ]);
-
-        Shopware.Store.get('session').currentLocale = undefined;
-        await flushPromises();
-        expect(taxField.findAll('.sw-form-field-renderer__option').map((option) => option.text())).toEqual([
-            'Rate 1 (7.123%)',
-            'Rate 2 (19%)',
         ]);
     });
 

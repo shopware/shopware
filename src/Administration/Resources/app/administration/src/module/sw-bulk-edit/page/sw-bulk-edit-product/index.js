@@ -84,7 +84,7 @@ export default {
         },
 
         currentLocale() {
-            return Shopware.Store.get('session').currentLocale ?? 'en-GB';
+            return Shopware.Store.get('session').currentLocale;
         },
 
         taxRateFormatter() {
@@ -1147,7 +1147,8 @@ export default {
                 return '';
             }
 
-            const label = this.$te(`global.tax-rates.${tax.name}`) ? this.$t(`global.tax-rates.${tax.name}`) : tax.name;
+            const translationKey = `global.tax-rates.${tax.name}`;
+            const label = this.$te(translationKey) ? this.$t(translationKey) : tax.name;
 
             return `${label} (${this.taxRateFormatter.format(tax.taxRate / 100)})`;
         },

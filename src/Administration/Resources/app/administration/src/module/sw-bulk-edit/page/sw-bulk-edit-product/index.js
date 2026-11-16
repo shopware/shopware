@@ -90,7 +90,7 @@ export default {
         taxRateFormatter() {
             return new Intl.NumberFormat(this.currentLocale, {
                 style: 'percent',
-                maximumFractionDigits: 20,
+                maximumFractionDigits: 3,
             });
         },
 

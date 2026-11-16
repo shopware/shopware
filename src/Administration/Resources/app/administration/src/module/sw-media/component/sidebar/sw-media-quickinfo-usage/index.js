@@ -77,9 +77,10 @@ export default {
         },
 
         productDocumentCriteria() {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, 5);
             criteria.addFilter(Criteria.equals('documents.translations.mediaId', this.item.id));
-            criteria.addSorting(Criteria.sort('id'));
+            criteria.addFields('name');
+            criteria.addSorting(Criteria.sort('updatedAt', 'DESC'));
 
             return criteria;
         },
@@ -150,18 +151,16 @@ export default {
 
     watch: {
         item() {
-            this.createdComponent();
+            return this.createdComponent();
         },
     },
 
     created() {
-        this.createdComponent();
+        return this.createdComponent();
     },
 
     methods: {
         async createdComponent() {
-            const item = this.item;
-            this.isLoading = true;
             this.loadProductAssociations();
             this.loadCategoryAssociations();
             this.loadManufacturerAssociations();
@@ -171,75 +170,60 @@ export default {
             this.loadPaymentMethodAssociations();
             this.loadShippingMethodAssociations();
             this.loadLayoutAssociations();
+            await this.loadSlotConfigAssociations();
+        },
+
+        async loadSlotConfigAssociations() {
+            // The sidebar can select another file while these requests are still pending.
+            const item = this.item;
+            this.isLoading = true;
+
             try {
-                await this.loadSlotConfigAssociations();
+                const [
+                    foundInProducts,
+                    foundInProductDocuments,
+                    foundInLandingPages,
+                    foundInCategories,
+                    foundInCmsPages,
+                ] = await Promise.all([
+                    this.productRepository.search(this.slotConfigCriteria),
+                    this.productRepository.search(this.productDocumentCriteria),
+                    this.landingPageRepository.search(this.slotConfigCriteria),
+                    this.categoryRepository.search(this.slotConfigCriteria),
+                    this.cmsPageRepository.search(this.cmsPageBlockConfigCriteria),
+                ]);
+
+                if (this.item !== item) {
+                    return;
+                }
+
+                [...foundInProducts, ...foundInProductDocuments].forEach((foundInProduct) => {
+                    if (
+                        this.products &&
+                        !this.products.some((productMedia) => productMedia.product.id === foundInProduct.id)
+                    ) {
+                        this.products.push({ product: foundInProduct });
+                    }
+                });
+
+                this.landingPages = foundInLandingPages;
+
+                foundInCategories.forEach((foundInCategory) => {
+                    if (this.categories && !this.categories.some((category) => category.id === foundInCategory.id)) {
+                        this.categories.push(foundInCategory);
+                    }
+                });
+
+                foundInCmsPages.forEach((foundInCmsPage) => {
+                    if (this.layouts && !this.layouts.some((layout) => layout.id === foundInCmsPage.id)) {
+                        this.layouts.push(foundInCmsPage);
+                    }
+                });
             } finally {
                 if (this.item === item) {
                     this.isLoading = false;
                 }
             }
-        },
-
-        async loadSlotConfigAssociations() {
-            const item = this.item;
-            const documentCriteria = this.productDocumentCriteria;
-
-            const [
-                foundInProducts,
-                foundInProductDocuments,
-                foundInLandingPages,
-                foundInCategories,
-                foundInCmsPages,
-            ] = await Promise.all([
-                this.productRepository.search(this.slotConfigCriteria),
-                this.productRepository.search(documentCriteria).catch(() => {
-                    // Image and CMS usages remain available if document usages cannot be loaded.
-                    return [];
-                }),
-                this.landingPageRepository.search(this.slotConfigCriteria),
-                this.categoryRepository.search(this.slotConfigCriteria),
-                this.cmsPageRepository.search(this.cmsPageBlockConfigCriteria),
-            ]);
-
-            if (this.item !== item) {
-                return;
-            }
-
-            const documentProducts = [...foundInProductDocuments];
-            while (documentProducts.length < foundInProductDocuments.total) {
-                documentCriteria.setPage(documentCriteria.page + 1);
-                const nextProducts = await this.productRepository.search(documentCriteria).catch(() => {
-                    // Keep the usages already loaded if a later page is unavailable.
-                    return [];
-                });
-                if (this.item !== item) {
-                    return;
-                }
-                if (nextProducts.length === 0) {
-                    break;
-                }
-                documentProducts.push(...nextProducts);
-            }
-
-            [...foundInProducts, ...documentProducts].forEach((foundInProduct) => {
-                if (this.products && !this.products.some((productMedia) => productMedia.product.id === foundInProduct.id)) {
-                    this.products.push({ product: foundInProduct });
-                }
-            });
-
-            this.landingPages = foundInLandingPages;
-
-            foundInCategories.forEach((foundInCategory) => {
-                if (this.categories && !this.categories.some((category) => category.id === foundInCategory.id)) {
-                    this.categories.push(foundInCategory);
-                }
-            });
-
-            foundInCmsPages.forEach((foundInCmsPage) => {
-                if (this.layouts && !this.layouts.some((layout) => layout.id === foundInCmsPage.id)) {
-                    this.layouts.push(foundInCmsPage);
-                }
-            });
         },
 
         loadProductAssociations() {

@@ -26,6 +26,7 @@ function createMedia(overrides: Record<string, unknown> = {}) {
 
 describe('sw-media-quickinfo-usage products', () => {
     let wrapper: VueWrapper;
+    let reportedErrors: unknown[];
     const product = { id: 'product', translated: { name: 'Operating manual product' } };
     const searchDocuments = jest.fn<Promise<ProductResult>, [Criteria]>();
     type ProductResult = (typeof product)[] & { total?: number };
@@ -36,6 +37,7 @@ describe('sw-media-quickinfo-usage products', () => {
     beforeEach(() => {
         searchDocuments.mockReset().mockResolvedValue([]);
         documentRequests = [];
+        reportedErrors = [];
         modules.delete('sw-product');
         /** @private */
         Shopware.Module.register('sw-product', {
@@ -59,6 +61,11 @@ describe('sw-media-quickinfo-usage products', () => {
         wrapper = mount(await wrapTestComponent('sw-media-quickinfo-usage', { sync: true }), {
             props: { item },
             global: {
+                config: {
+                    errorHandler: (error) => {
+                        reportedErrors.push(error);
+                    },
+                },
                 stubs: {
                     'router-link': RouterLinkStub,
                     'sw-loader': true,
@@ -134,33 +141,24 @@ describe('sw-media-quickinfo-usage products', () => {
         expect(wrapper.text()).not.toContain(wrongProduct.translated.name);
     });
 
-    it('loads document usages beyond the first 25 products', async () => {
-        const firstPage = Array.from({ length: 25 }, (_, index) => ({
+    it('loads only the first five document usages, requesting names and sorting by most recently updated', async () => {
+        const firstPage = Array.from({ length: 5 }, (_, index) => ({
             id: `product-${index}`,
             translated: { name: `Product ${index}` },
         }));
-        searchDocuments
-            .mockResolvedValueOnce(Object.assign(firstPage, { total: 26 }))
-            .mockResolvedValueOnce(Object.assign([product], { total: 26 }));
+        searchDocuments.mockResolvedValue(Object.assign(firstPage, { total: 26 }));
         await createWrapper();
 
-        expect(documentRequests.map(({ page }) => page)).toEqual([1, 2]);
-        expect(documentRequests[0].sort).toEqual([{ field: 'id', order: 'ASC', naturalSorting: false }]);
-        expect(wrapper.findAllComponents(RouterLinkStub)).toHaveLength(26);
-        expect(wrapper.text()).toContain(product.translated.name);
-    });
-
-    it('preserves loaded document and CMS usages if the next document page fails', async () => {
-        const cmsProduct = { id: 'cms-product', translated: { name: 'CMS product' } };
-        searchDocuments
-            .mockResolvedValueOnce(Object.assign([product], { total: 2 }))
-            .mockRejectedValueOnce(new Error('Next page unavailable'));
-        await createWrapper(createMedia(), [cmsProduct]);
-
-        expect(wrapper.findAllComponents(RouterLinkStub)).toHaveLength(2);
-        expect(wrapper.text()).toContain(product.translated.name);
-        expect(wrapper.text()).toContain(cmsProduct.translated.name);
-        expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
+        expect(documentRequests).toHaveLength(1);
+        expect(documentRequests[0]).toEqual(
+            expect.objectContaining({
+                page: 1,
+                limit: 5,
+                fields: ['name'],
+                sort: [{ field: 'updatedAt', order: 'DESC', naturalSorting: false }],
+            }),
+        );
+        expect(wrapper.findAllComponents(RouterLinkStub)).toHaveLength(5);
     });
 
     it('clears document usages when selecting another media file', async () => {
@@ -178,14 +176,14 @@ describe('sw-media-quickinfo-usage products', () => {
         expect(wrapper.text()).not.toContain(product.translated.name);
     });
 
-    it('preserves image and CMS usages when the document search fails', async () => {
-        const cmsProduct = { id: 'cms-product', translated: { name: 'CMS product' } };
-        searchDocuments.mockRejectedValue(new Error('Document usages unavailable'));
-        await createWrapper(createMedia({ productMedia: [{ productId: product.id, product }] }), [cmsProduct]);
+    it('reports document search failures without hiding direct usages or leaving the loader visible', async () => {
+        const error = new Error('Document usages unavailable');
+        searchDocuments.mockRejectedValueOnce(error);
+        await createWrapper(createMedia({ productMedia: [{ productId: product.id, product }] }));
 
-        expect(wrapper.findAllComponents(RouterLinkStub)).toHaveLength(2);
+        expect(reportedErrors).toEqual([error]);
+        expect(wrapper.findAllComponents(RouterLinkStub)).toHaveLength(1);
         expect(wrapper.text()).toContain(product.translated.name);
-        expect(wrapper.text()).toContain(cmsProduct.translated.name);
         expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
     });
 
@@ -208,20 +206,33 @@ describe('sw-media-quickinfo-usage products', () => {
         expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
     });
 
-    it('ignores document results for a previously selected media file', async () => {
-        let resolveProducts!: (products: ProductResult) => void;
-        const pending = new Promise<ProductResult>((resolve) => {
-            resolveProducts = resolve;
+    it('ignores old document results and keeps loading the currently selected file', async () => {
+        const currentProduct = { id: 'current-product', translated: { name: 'Current product' } };
+        let resolvePrevious!: (products: ProductResult) => void;
+        let resolveCurrent!: (products: ProductResult) => void;
+        const previous = new Promise<ProductResult>((resolve) => {
+            resolvePrevious = resolve;
         });
-        searchDocuments.mockReturnValueOnce(pending).mockResolvedValue([]);
+        const current = new Promise<ProductResult>((resolve) => {
+            resolveCurrent = resolve;
+        });
+        searchDocuments.mockReturnValueOnce(previous).mockReturnValueOnce(current);
         await createWrapper();
-        await wrapper.setProps({ item: createMedia({ id: 'unused-media' }) });
+        await wrapper.setProps({ item: createMedia({ id: 'current-media' }) });
         await flushPromises();
 
-        resolveProducts([product]);
+        resolvePrevious([product]);
         await flushPromises();
 
         expect(wrapper.findAllComponents(RouterLinkStub)).toHaveLength(0);
+        expect(wrapper.find('sw-loader-stub').exists()).toBe(true);
+
+        resolveCurrent([currentProduct]);
+        await flushPromises();
+
+        expect(wrapper.findAllComponents(RouterLinkStub)).toHaveLength(1);
+        expect(wrapper.text()).toContain(currentProduct.translated.name);
+        expect(wrapper.text()).not.toContain(product.translated.name);
         expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
     });
 });

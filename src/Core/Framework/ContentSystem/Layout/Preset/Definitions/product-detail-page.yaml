@@ -10,6 +10,58 @@ layout:
   - component: Sw:Grid:Container
     slots:
       content:
+        - component: Sw:Navigation:Breadcrumb
+  - component: Sw:Grid:Container
+    properties:
+      mode: explicit
+      columns:
+        xs: 1
+        sm: 1
+        md: 12
+        lg: 12
+        xl: 12
+      rows: 1
+    slots:
+      content:
+        - component: Sw:Content:Text
+          properties:
+            text: "<h1>{{map:product.name}}</h1>"
+          style:
+            col-span:
+              xs: 1
+              sm: 1
+              md: 10
+              lg: 10
+              xl: 10
+              xxl: 10
+        - component: Sw:Product:Manufacturer
+          style:
+            col-span:
+              xs: 1
+              sm: 1
+              md: 2
+              lg: 2
+              xl: 2
+              xxl: 2
+            justify-self:
+              xs: end
+              sm: end
+              md: end
+              lg: end
+              xl: end
+              xxl: end
+            align-self:
+              xs: center
+              sm: center
+              md: center
+              lg: center
+              xl: center
+              xxl: center
+  - component: Sw:Grid:Container
+    properties:
+      align: start
+    slots:
+      content:
         - component: Sw:Media:Gallery
           acceptsContext:
             mediaItems:
@@ -20,8 +72,31 @@ layout:
                 type: root
                 id: product
                 path: media
-        - component: Sw:Content:Text
+        - preset: Sw:BuyBox
+  - component: Sw:Grid:Container
+    slots:
+      content:
+        - component: Sw:Tabs:Panel
           properties:
-            text: "<p>{{map:product.description}}</p>"
-        - component: Sw:Product:PriceDisplay
-  - preset: Sw:ProductReviews
+            variant: underline
+          slots:
+            tabs:
+              - component: Sw:Tabs:Tab
+                properties:
+                  title: "Description"
+                slots:
+                  content:
+                    - component: Sw:Content:Text
+                      properties:
+                        text: "<h2>Product information \"{{map:product.name}}\"</h2><p>{{map:product.description}}</p><p></p>"
+                    - component: Sw:Product:Properties
+              - component: Sw:Tabs:Tab
+                properties:
+                  title: "Reviews"
+                slots:
+                  content:
+                    - preset: Sw:ProductReviews
+  - component: Sw:Grid:Container
+    slots:
+      content:
+        - component: Sw:Product:CrossSelling

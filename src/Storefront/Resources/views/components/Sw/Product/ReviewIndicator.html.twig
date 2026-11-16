@@ -1,0 +1,46 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    reviews = null,
+    showReview = config('core.listing.showReview'),
+%}
+
+{% set matrix = reviews ? reviews.matrix : null %}
+{% set totalReviewCount = matrix ? matrix.totalReviewCount : 0 %}
+{% set avgRating = totalReviewCount > 0 ? matrix.averageRating|round(2, 'common') : 0 %}
+{% set maxPoints = matrix ? matrix.maxPoints : 5 %}
+
+{% set reviewIndicatorCVA = cva({
+    base: 'sw-product-review-indicator d-flex align-items-baseline gap-2',
+}) %}
+
+{% set attributeDefaults = {
+    class: reviewIndicatorCVA.apply({}),
+    'data-component': 'Sw:Product:ReviewIndicator',
+} %}
+
+{% if showReview and totalReviewCount > 0 %}
+
+    <div {{ attributes.defaults(attributeDefaults) }}>
+        {% block rating %}
+            <twig:Sw:Rating:Stars
+                class="sw-product-review-indicator__stars"
+                :stars="avgRating"
+                :maxStars="maxPoints"
+                :allowHalf="true"
+                altText="{{ 'detail.reviewAvgRatingAltText'|trans({ '%points%': avgRating, '%maxPoints%': maxPoints }) }}"
+            />
+        {% endblock %}
+
+        {% block link %}
+            <button {{ attributes.nested('link').defaults({
+                class: 'sw-product-review-indicator__link btn btn-link-inline',
+                type: 'button',
+            }) }}>
+                {{ totalReviewCount }} {{ 'detail.reviewLinkText'|trans({ '%count%': totalReviewCount })|sw_sanitize }}
+            </button>
+        {% endblock %}
+    </div>
+{% endif %}

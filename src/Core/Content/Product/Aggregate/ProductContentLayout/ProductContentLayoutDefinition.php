@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductContentLayout;
 
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\CrossSellingDataLoader;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\CrossSellingLoaderConfig;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductConfiguratorDataLoader;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductConfiguratorLoaderConfig;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductReviewDataLoader;
@@ -69,6 +71,11 @@ class ProductContentLayoutDefinition extends AbstractContentLayoutAssignableDefi
                 'reviews',
                 ProductReviewDataLoader::SOURCE,
                 new ProductReviewLoaderConfig(property: 'productId')
+            ),
+            new DataRequirement(
+                'crossSellings',
+                CrossSellingDataLoader::SOURCE,
+                new CrossSellingLoaderConfig(property: 'productId'),
             ),
         ];
     }

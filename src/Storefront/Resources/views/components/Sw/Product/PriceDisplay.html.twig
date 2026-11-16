@@ -12,6 +12,8 @@
     product = null,
     showTaxInfo = false,
     advancedPricing = true,
+    large = false,
+    showListPriceBadge = false,
 %}
 
 {% set attributeDefaults = {
@@ -44,7 +46,7 @@
             {% endif %}
 
             {% if referencePrice is not null %}
-                <p class="sw-product-price-display__reference-price">
+                <p class="sw-product-price-display__reference-price mb-1 fs-6">
                     {# Price is based on the purchase unit #}
                     {% if referencePrice.unitName %}
                         <span class="sw-product-price-display__purchase-unit-label">
@@ -104,11 +106,19 @@
                 Example with list price: €400.00 <s>€500.00</s> (20% saved)"
             #}
             <span class="sw-product-price-display__price d-inline-block mb-1">
-                <span class="fw-bold {% if isListPrice and not displayFrom and not displayFromVariants %} text-danger{% endif %}">
+                <span class="fw-bold{% if large %} fs-2{% endif %}{% if isListPrice and not displayFrom and not displayFromVariants %} text-danger{% endif %}">
                     {{ price.unitPrice|currency }}
                 </span>
 
                 {% if isListPrice and not displayFrom and not displayFromVariants %}
+                    {% if showListPriceBadge %}
+                        <twig:Sw:Badge
+                            variant="danger"
+                            text="%"
+                            class="sw-product-price-display__list-price-badge"
+                            aria-hidden="true"
+                        />
+                    {% endif %}
                     <span class="visually-hidden">{{ 'listing.regularPriceLabel'|trans|sw_sanitize }}</span>
                     <s class="fs-6">{{ price.listPrice.price|currency }}</s>
                     <span class="fs-6">{{ 'detail.listPricePercentage'|trans({'%price%': price.listPrice.percentage })|sw_sanitize }}</span>

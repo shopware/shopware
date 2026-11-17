@@ -293,7 +293,12 @@ test(
             await TestDataService.clearCaches();
         });
 
-        const customerGroup = await TestDataService.createCustomerGroup({ displayGross: false, registrationActive: false });
+        // 6.8 defaults the price basis of new groups to gross instead of deriving it from displayGross
+        const customerGroup = await TestDataService.createCustomerGroup({
+            displayGross: false,
+            priceBasis: 'net',
+            registrationActive: false,
+        });
         const salutation = await TestDataService.getSalutation();
         const address = {
             firstName: 'John',

@@ -224,18 +224,46 @@ export default {
         },
 
         /**
-         * Hands a key on to the focused search input of this select, so its own key handlers run.
+         * Presses Backspace or Delete in the focused search input of this select, as if the user pressed it.
+         * Its own key handlers run first, then the key deletes text unless one of them prevented that.
          * Runs after the select opened, once the variant moved the focus into its search.
          *
          * @example this.$nextTick(() => this.pressInSearch('Backspace'));
          */
         pressInSearch(key) {
-            this.getFocusedSearch()?.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+            const search = this.getFocusedSearch();
+
+            if (!search) {
+                return;
+            }
+
+            const keydown = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+            search.dispatchEvent(keydown);
+
+            if (keydown.defaultPrevented || search.readOnly || search.disabled) {
+                return;
+            }
+
+            let start = search.selectionStart ?? 0;
+            let end = search.selectionEnd ?? 0;
+
+            if (start === end) {
+                start = key === 'Backspace' ? Math.max(start - 1, 0) : start;
+                end = key === 'Delete' ? Math.min(end + 1, search.value.length) : end;
+            }
+
+            if (start === end) {
+                return;
+            }
+
+            search.setRangeText('', start, end, 'end');
+            search.dispatchEvent(new Event('input', { bubbles: true }));
         },
 
         /**
          * Tells a key that types a character apart from a shortcut.
-         * AltGr reports CTRL+ALT on Windows and Option reports ALT on macOS, both still type.
+         * AltGr reports CTRL+ALT on Windows and still types.
+         * ALT alone types only on macOS (Option); elsewhere it is the system key of the Administration shortcuts.
          *
          * @example this.typesCharacter(new KeyboardEvent('keydown', { key: 'a' })) // true
          */
@@ -244,7 +272,11 @@ export default {
                 return false;
             }
 
-            return !event.ctrlKey || event.altKey;
+            if (event.ctrlKey) {
+                return event.altKey;
+            }
+
+            return !event.altKey || this.$device.getSystemKey() !== 'ALT';
         },
 
         collapse(event) {

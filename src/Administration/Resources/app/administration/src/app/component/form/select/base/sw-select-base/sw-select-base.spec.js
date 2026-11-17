@@ -6,12 +6,13 @@ import { mount } from '@vue/test-utils';
 
 import 'src/app/component/form/select/base/sw-single-select';
 
-const createWrapper = async (props = {}, attrs = {}, options = {}) => {
+const createWrapper = async (props = {}, attrs = {}, { mocks = {}, ...options } = {}) => {
     const wrapper = mount(await wrapTestComponent('sw-select-base', { sync: true }), {
         props,
         attrs,
         ...options,
         global: {
+            mocks,
             stubs: {
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
@@ -139,13 +140,14 @@ describe('components/sw-select-base', () => {
     describe('keyboard', () => {
         let wrapper;
 
-        async function createFocusedSelection() {
+        async function createFocusedSelection(mocks = {}) {
             const container = document.createElement('div');
             document.body.appendChild(container);
             wrapper = await createWrapper(
                 {},
                 {},
                 {
+                    mocks,
                     attachTo: container,
                     slots: {
                         'sw-select-selection': `
@@ -248,6 +250,77 @@ describe('components/sw-select-base', () => {
             expect(event.defaultPrevented).toBe(true);
             expect(onSearchKeydown).toHaveBeenCalledTimes(1);
             expect(onSearchKeydown.mock.calls[0][0].key).toBe(key);
+        });
+
+        it.each([
+            [
+                'Backspace',
+                'Grimes Ltd',
+                [0, 10],
+                '',
+            ],
+            [
+                'Backspace',
+                'Grimes Ltd',
+                [10, 10],
+                'Grimes Lt',
+            ],
+            [
+                'Delete',
+                'Grimes Ltd',
+                [0, 0],
+                'rimes Ltd',
+            ],
+        ])('should let "%s" delete text in the search of "%s"', async (key, value, [start, end], expected) => {
+            const selection = await createFocusedSelection();
+            const searchInput = wrapper.find('.search-input').element;
+            searchInput.value = value;
+            const onInput = jest.fn();
+            searchInput.addEventListener('input', onInput);
+            await wrapper.setProps({
+                onSelectExpanded: () => {
+                    searchInput.focus();
+                    searchInput.setSelectionRange(start, end);
+                },
+            });
+
+            dispatchKeydown(selection.element, { key });
+            await flushPromises();
+            searchInput.removeEventListener('input', onInput);
+
+            expect(searchInput.value).toBe(expected);
+            expect(onInput).toHaveBeenCalledTimes(1);
+        });
+
+        it('should not delete text when a handler of the search prevents the key', async () => {
+            const selection = await createFocusedSelection();
+            const searchInput = wrapper.find('.search-input').element;
+            searchInput.value = 'Grimes Ltd';
+            const preventKey = (event) => event.preventDefault();
+            searchInput.addEventListener('keydown', preventKey);
+            await wrapper.setProps({ onSelectExpanded: () => searchInput.focus() });
+
+            dispatchKeydown(selection.element, { key: 'Backspace' });
+            await flushPromises();
+            searchInput.removeEventListener('keydown', preventKey);
+
+            expect(searchInput.value).toBe('Grimes Ltd');
+        });
+
+        describe('where ALT is the system key', () => {
+            it.each([
+                ['an ALT shortcut', { key: 's', altKey: true }, 'false'],
+                ['an AltGr character', { key: '@', ctrlKey: true, altKey: true }, 'true'],
+            ])('should handle %s', async (_, init, expanded) => {
+                const selection = await createFocusedSelection({
+                    $device: { getSystemKey: () => 'ALT' },
+                });
+
+                dispatchKeydown(selection.element, init);
+                await flushPromises();
+
+                expect(selection.attributes('aria-expanded')).toBe(expanded);
+            });
         });
 
         it('should leave a read-only search untouched when typing opens the select', async () => {

@@ -302,6 +302,47 @@ class ProductAdminSearchIndexerTest extends TestCase
         static::assertSame([$productId], $indexer->getUpdatedIds($event));
     }
 
+    public function testGetUpdatedIdsCountsVariantsWithOwnDocumentsOnceForTheFamilySize(): void
+    {
+        $productId = Uuid::randomHex();
+        $variantIds = array_map(static fn (): string => Uuid::randomHex(), range(1, 35));
+        $variantsWithDocuments = \array_slice($variantIds, 0, 15);
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchFirstColumn')->willReturn($variantIds);
+
+        $indexer = new ProductAdminSearchIndexer(
+            $connection,
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            100
+        );
+
+        $documentResults = [];
+        $productResults = [];
+        foreach ([$productId, ...$variantsWithDocuments] as $ownerId) {
+            $documentId = Uuid::randomHex();
+            $documentResults[] = new EntityWriteResult($documentId, [
+                'id' => $documentId,
+                'versionId' => Defaults::LIVE_VERSION,
+                'productId' => $ownerId,
+                'productVersionId' => Defaults::LIVE_VERSION,
+            ], 'product_document', EntityWriteResult::OPERATION_INSERT);
+            $productResults[] = new EntityWriteResult($ownerId, [], 'product', EntityWriteResult::OPERATION_UPDATE);
+        }
+
+        $event = $this->createWrittenEvent([
+            new EntityWrittenEvent('product_document', $documentResults, Context::createDefaultContext()),
+            new EntityWrittenEvent('product', $productResults, Context::createDefaultContext()),
+        ]);
+
+        $updatedIds = $indexer->getUpdatedIds($event);
+
+        static::assertCount(36, $updatedIds);
+        static::assertEqualsCanonicalizing([$productId, ...$variantIds], $updatedIds);
+    }
+
     public function testGetUpdatedIdsIgnoresDocumentUpdates(): void
     {
         $productId = Uuid::randomHex();

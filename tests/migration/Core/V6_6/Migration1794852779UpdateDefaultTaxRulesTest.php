@@ -51,7 +51,7 @@ class Migration1794852779UpdateDefaultTaxRulesTest extends TestCase
         static::assertEquals(['Standard rate' => 21, 'Reduced rate' => 12, 'Reduced rate 2' => 5], $this->fetchRates('LT'));
         static::assertEquals(['Standard rate' => 21, 'Reduced rate' => 11, 'Reduced rate 2' => 11], $this->fetchRates('RO'));
         static::assertEquals(['Standard rate' => 22, 'Reduced rate' => 9.5, 'Reduced rate 2' => 5], $this->fetchRates('SI'));
-        static::assertEquals(['Standard rate' => 23, 'Reduced rate' => 19, 'Reduced rate 2' => 5], $this->fetchRates('SK'));
+        static::assertEquals(['Standard rate' => 23, 'Reduced rate' => 5, 'Reduced rate 2' => 5], $this->fetchRates('SK'));
         static::assertSame(1, $this->countRules('SI', 'Reduced rate 2'));
         static::assertSame(1, $this->countRules('SK', 'Reduced rate 2'));
     }

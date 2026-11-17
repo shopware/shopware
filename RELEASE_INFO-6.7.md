@@ -659,6 +659,14 @@ Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-
 
 ## Administration
 
+### Media viewers no longer read other areas to show where media is used
+
+The `media.viewer` permission no longer grants reads on products, categories, manufacturers, email templates, documents, users, payment methods, shipping methods and layouts (`cms_page`, `cms_section`, `cms_block`).
+The *Used in* sidebar of the media library checks only the areas the user can read and names the areas it skipped.
+Roles that include `media.viewer`, such as the category, product, manufacturer, email template, payment, shipping and sales channel viewers, no longer receive these reads through it.
+Stored roles keep their privileges until an admin saves the role again.
+Extensions that rely on these reads through `media.viewer` must request them in their own privilege mapping.
+
 ### Order viewers no longer receive delete privileges
 
 The `order.viewer` permission no longer grants `order:delete` or `version:delete`, and viewing an order no longer creates a working version.

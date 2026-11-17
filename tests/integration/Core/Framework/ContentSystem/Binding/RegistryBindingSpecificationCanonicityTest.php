@@ -18,12 +18,15 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
- * Proves at the registry level: every specification the aggregated registry serves in the integration
- * environment carries only canonical {@see LoaderBinding}s,
- * each `resolves` entry's loader is a registered data-loader source and its config decodes through that loader's
- * config serializer without error. This is the runtime counterpart to the load-time canonicalization the sugar
- * ladder performs: no sugar shape survives into a registered specification. The registry is built from the real
- * container loaders so `all()` reflects production aggregation without the cross-request cache.
+ * Proves at the registry level that every specification the aggregated registry serves in the integration
+ * environment carries only canonical {@see LoaderBinding}s.
+ * Each `resolves` entry names a registered data-loader source, its scoped config values name one root-source set,
+ * and its config decodes through that loader's config serializer for every root-source branch.
+ * Each property has its own test method, so a failure names one property.
+ * This is the runtime counterpart to the load-time canonicalization the sugar ladder performs:
+ * no sugar shape survives into a registered specification.
+ * The registry is built from the real container loaders so `all()` reflects production aggregation
+ * without the cross-request cache.
  *
  * @internal
  */

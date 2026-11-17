@@ -3,7 +3,7 @@
  */
 import type { ComponentPublicInstance } from 'vue';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
-import { createProduct, cleanupWrappers, createWrapper, createMedia, clickButton, getDocuments } from './helpers';
+import { createProduct, cleanupWrappers, createWrapper, createMedia, addMedia, clickButton, getDocuments } from './helpers';
 
 describe('sw-product-document-form media folder', () => {
     const originalLanguage = Shopware.Context.api.languageId;
@@ -22,14 +22,18 @@ describe('sw-product-document-form media folder', () => {
         cleanupWrappers();
     });
 
-    it('starts in the document folder when selecting media', async () => {
+    it.each([false, true])('starts in the document folder when selecting media (replacement: %s)', async (replacement) => {
         const folderId = repositoryFactory.create('media_folder').create().id;
         const getDefaultFolderId = jest.fn().mockResolvedValue(folderId);
         const wrapper = await createWrapper(undefined, undefined, undefined, { getDefaultFolderId });
         expect(getDefaultFolderId).toHaveBeenCalledWith('product_document');
-
-        await clickButton(wrapper, 'sw-product.documentForm.buttonAdd');
-
+        if (replacement) {
+            await addMedia(wrapper, [createMedia('original')]);
+            await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
+            await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
+        } else {
+            await clickButton(wrapper, 'sw-product.documentForm.buttonAdd');
+        }
         wrapper.getComponent<ComponentPublicInstance>('.sw-media-upload-v2').vm.$emit('media-upload-sidebar-open');
         await flushPromises();
 
@@ -38,7 +42,9 @@ describe('sw-product-document-form media folder', () => {
         const media = createMedia('selected');
         modal.vm.$emit('media-modal-selection-change', [media]);
         await flushPromises();
-
+        if (replacement) {
+            await clickButton(wrapper, 'global.default.apply');
+        }
         expect(getDocuments()).toHaveLength(1);
         expect(getDocuments()?.[0].mediaId).toBe(media.id);
     });

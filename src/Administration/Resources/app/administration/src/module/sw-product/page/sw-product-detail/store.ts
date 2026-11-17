@@ -39,6 +39,7 @@ const swProductDetail = Shopware.Store.register({
             parentProduct: {} as Entity<'product'>,
             isDownloadExternallyManaged: false,
             documentMedia: new WeakMap<Entity<'product'>, Record<string, Entity<'media'>>>(),
+            documentLanguage: null as Entity<'language'> | null,
             currencies: [] as Entity<'currency'>[],
             apiContext: {} as ContextStore['api'],
             taxes: [] as Entity<'tax'>[],

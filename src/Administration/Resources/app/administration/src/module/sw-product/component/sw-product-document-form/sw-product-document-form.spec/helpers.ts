@@ -1,11 +1,20 @@
 /**
  * @sw-package inventory
  */
+import type { Snackbar } from '@shopware-ag/meteor-component-library';
 import { shallowMount, type VueWrapper } from '@vue/test-utils';
-import type { ComponentPublicInstance } from 'vue';
+import { defineComponent, type ComponentPublicInstance } from 'vue';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import EntityFactory from 'src/core/data/entity-factory.data';
 import fileValidationService from 'src/app/service/file-validation.service';
+
+/** @private */
+export const mockSnackbar = jest.fn((config: Omit<Snackbar, 'id'>): Snackbar => ({ id: 'document-feedback', ...config }));
+
+jest.mock('src/app/composables/use-snackbar', () => ({
+    __esModule: true,
+    default: () => ({ addSnackbar: mockSnackbar, removeSnackbar: jest.fn() }),
+}));
 
 const wrappers: VueWrapper[] = [];
 /** @private */
@@ -37,6 +46,8 @@ export async function createWrapper(
     productRepository = repositoryFactory.create('product'),
     options: { baseView?: boolean; isInherited?: boolean; getDefaultFolderId?: () => Promise<string | null> } = {},
 ) {
+    Shopware.Store.get('swProductDetail').documentLanguage = Shopware.Store.get('context').api
+        .language as Entity<'language'> | null;
     if (options.isInherited) {
         const store = Shopware.Store.get('swProductDetail');
         store.product.parentId = store.parentProduct.id;
@@ -53,13 +64,13 @@ export async function createWrapper(
             directives: { droppable: {} },
             provide: {
                 mediaDefaultFolderService: {
-                    getDefaultFolderId: jest.fn().mockResolvedValue(null),
+                    getDefaultFolderId: options.getDefaultFolderId ?? jest.fn().mockResolvedValue(null),
                 },
                 mediaService: {
                     addListener: jest.fn(),
                     removeListener: jest.fn(),
                     removeByTag: jest.fn(),
-                    getDefaultFolderId: options.getDefaultFolderId ?? jest.fn().mockResolvedValue(null),
+                    getDefaultFolderId: jest.fn().mockResolvedValue(null),
                     ...mediaService,
                 },
                 mediaPresignedUploadService: {},
@@ -81,7 +92,16 @@ export async function createWrapper(
                 'mt-badge': { template: '<span class="mt-badge"><slot /></span>' },
                 ...(options.baseView ? { 'sw-product-document-form': documentForm } : {}),
                 'sw-product-document-download': await wrapTestComponent('sw-product-document-download', { sync: true }),
-
+                'sw-product-document-add-button': await wrapTestComponent('sw-product-document-add-button', { sync: true }),
+                'sw-product-document-variant-badge': await wrapTestComponent('sw-product-document-variant-badge', {
+                    sync: true,
+                }),
+                'sw-product-document-language-value': await wrapTestComponent('sw-product-document-language-value', {
+                    sync: true,
+                }),
+                'sw-product-document-language-hint': await wrapTestComponent('sw-product-document-language-hint', {
+                    sync: true,
+                }),
                 'mt-floating-ui': {
                     props: ['isOpened'],
                     template: '<div><slot name="trigger"/><slot v-if="isOpened"/></div>',
@@ -89,7 +109,10 @@ export async function createWrapper(
                 'sw-product-document-empty-state': await wrapTestComponent('sw-product-document-empty-state', {
                     sync: true,
                 }),
-
+                'sw-product-document-edit-modal': await wrapTestComponent('sw-product-document-edit-modal', { sync: true }),
+                'sw-product-document-remove-modal': await wrapTestComponent('sw-product-document-remove-modal', {
+                    sync: true,
+                }),
                 'sw-container': { template: '<div><slot/></div>' },
                 'router-link': true,
                 'mt-icon': { template: '<span class="mt-icon" />' },
@@ -99,22 +122,30 @@ export async function createWrapper(
                 'mt-card': {
                     template: '<section><slot name="title"/><slot name="headerRight"/><slot name="grid"/></section>',
                 },
-                'sw-data-grid': {
+                'sw-data-grid': defineComponent({
                     props: ['dataSource'],
-                    template: `<div><div v-for="(item, itemIndex) in dataSource" :key="item.id" class="document-row">
+                    data: () => ({ hasSelection: false }),
+                    methods: {
+                        resetSelection() {
+                            this.hasSelection = false;
+                        },
+                    },
+                    template: `<div><slot v-if="hasSelection" name="bulk"/><div v-for="(item, itemIndex) in dataSource" :key="item.id" class="document-row">
+                        <span class="document-number"><slot name="column-number" v-bind="{ itemIndex }"/></span>
                         <slot name="column-title" v-bind="{ item }"/>
                         <slot name="column-fileName" v-bind="{ item }"/>
                         <slot name="column-fileSize" v-bind="{ item }"/>
                         <slot name="column-position" v-bind="{ item, itemIndex }"/>
                         <slot name="actions" v-bind="{ item }"/>
-                    </div></div>`,
-                },
+                    </div><slot name="pagination"/></div>`,
+                }),
                 'mt-modal-root': { template: '<div><slot/></div>' },
                 'mt-modal': { template: '<div class="upload-modal"><slot/><slot name="footer"/></div>' },
                 'sw-modal': { template: '<div class="modal"><slot/><slot name="modal-footer"/></div>' },
                 'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch', { sync: true }),
                 'i18n-t': { template: '<span><slot name="language"/></span>' },
                 'sw-upload-listener': true,
+                'sw-pagination': await wrapTestComponent('sw-pagination', { sync: true }),
                 'sw-media-upload-v2': await wrapTestComponent('sw-media-upload-v2', { sync: true }),
                 'sw-media-preview-v2': true,
                 'sw-field-error': await wrapTestComponent('sw-field-error', { sync: true }),

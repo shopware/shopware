@@ -1,6 +1,7 @@
 /**
  * @sw-package inventory
  */
+import useDocumentDefaultLanguage from '../use-document-default-language';
 import template from './sw-product-document-empty-state.html.twig';
 import './sw-product-document-empty-state.scss';
 
@@ -8,7 +9,7 @@ import './sw-product-document-empty-state.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    emits: ['documents-add'],
+    emits: ['documents-add', 'language-change'],
 
     props: {
         canAddDocuments: {
@@ -18,17 +19,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
-    computed: {
-        languageId() {
-            return Shopware.Store.get('context').api.languageId;
-        },
-
-        systemLanguageId() {
-            return Shopware.Store.get('context').api.systemLanguageId;
-        },
-
-        isDefaultLanguage(): boolean {
-            return this.languageId === this.systemLanguageId;
-        },
+    setup() {
+        return useDocumentDefaultLanguage();
     },
 });

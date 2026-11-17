@@ -1,0 +1,110 @@
+{% block sw_product_document_edit_modal %}
+<mt-modal-root
+    :is-open="true"
+    @change="!$event && $emit('close')"
+>
+    <mt-modal
+        :title="isAddingLanguageVersion ? $t('sw-product.documentForm.addLanguageVersion', { language: languageName }) : $t('sw-product.documentForm.editTitle')"
+        width="m"
+    >
+        <div class="sw-product-document-form__edit-content">
+        {% block sw_product_document_form_title_input %}
+            <mt-text-field
+                :model-value="documentTitle"
+                class="sw-product-document-form__name-input"
+                :label="$t('sw-product.documentForm.columnTitle')"
+                :hint="allowFallback ? undefined : $t('sw-product.documentForm.nameHint')"
+                :placeholder="documentTitlePlaceholder"
+                :error="documentNameError"
+                :disabled="isDisabled"
+                :required="!allowFallback"
+                :maxlength="255"
+                @update:model-value="$emit('update:documentTitle', $event)"
+            />
+        {% endblock %}
+        {% block sw_product_document_form_replace_file %}
+            <sw-upload-listener
+                :upload-tag="uploadTag"
+                auto-upload
+                @media-upload-finish="$emit('upload', $event)"
+            />
+            <div>
+                <sw-media-upload-v2
+                    :source="editingMedia"
+                    :upload-tag="uploadTag"
+                    variant="regular"
+                    role="group"
+                    :aria-label="$t('sw-product.documentForm.columnFileName')"
+                    :label="$t('sw-product.documentForm.columnFileName')"
+                    :required="!allowFallback"
+                    default-folder="product_document"
+                    :allow-multi-select="false"
+                    :extension-accept="allowedExtensions.join(',')"
+                    :max-file-size="maxFileSize"
+                    :disabled="isDisabled"
+                    @media-upload-sidebar-open="$emit('media-select')"
+                    @media-upload-remove-image="$emit('file-remove')"
+                />
+                {% block sw_product_document_form_file_error %}
+                <sw-field-error
+                    v-if="documentFileError"
+                    class="sw-product-document-form__file-error"
+                    :error="documentFileError"
+                    role="alert"
+                />
+                {% endblock %}
+                <mt-text
+                    v-if="!documentFileError"
+                    size="xs"
+                    color="color-text-secondary-default"
+                    class="sw-product-document-form__upload-hint"
+                >
+                    <mt-icon
+                        name="solid-info-circle"
+                        size="var(--scale-size-12)"
+                    />
+                    {{ allowFallback ? $t('sw-product.documentForm.fileFallbackHint') : uploadHint }}
+                </mt-text>
+            </div>
+        {% endblock %}
+
+        {% block sw_product_document_form_apply_to_variants %}
+            <mt-checkbox
+                v-if="hasVariants"
+                :checked="applyToVariants"
+                class="sw-product-document-form__apply-to-variants"
+                :label="$t('sw-product.documentForm.applyToVariants')"
+                :help-text="$t('sw-product.documentForm.applyToVariantsHelp')"
+                :disabled="isDisabled"
+                @update:checked="$emit('update:applyToVariants', $event)"
+            />
+        {% endblock %}
+            <mt-text
+                size="xs"
+            >
+                {{ $t('sw-product.documentForm.draftHint') }}
+            </mt-text>
+        </div>
+        <template #footer>
+            <div class="sw-product-document-form__upload-footer">
+                <mt-button
+                    size="small"
+                    variant="secondary"
+                    @click="$emit('close')"
+                >
+                    {{ $t('global.default.cancel') }}
+                </mt-button>
+                <mt-button
+                    class="sw-product-document-form__save-document"
+                    variant="primary"
+                    size="small"
+                    :disabled="isDisabled"
+                    @click="$emit('save')"
+                >
+                    {{ $t('global.default.apply') }}
+                </mt-button>
+            </div>
+        </template>
+    </mt-modal>
+</mt-modal-root>
+{% endblock %}

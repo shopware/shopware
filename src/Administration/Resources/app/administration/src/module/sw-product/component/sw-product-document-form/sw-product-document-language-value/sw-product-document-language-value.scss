@@ -1,0 +1,21 @@
+.sw-product-document-language-value {
+    display: flex;
+    align-items: center;
+    gap: var(--scale-size-8);
+    min-width: 0;
+    max-width: 100%;
+
+    &--fallback {
+        color: var(--color-text-secondary-default);
+    }
+
+    &__text {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .mt-badge {
+        flex-shrink: 0;
+    }
+}

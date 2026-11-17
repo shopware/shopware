@@ -21,6 +21,8 @@ export default {
 
     mixins: [Mixin.getByName('notification')],
 
+    emits: ['language-change'],
+
     props: {
         productId: {
             type: String,

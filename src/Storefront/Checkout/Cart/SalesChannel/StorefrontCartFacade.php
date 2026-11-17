@@ -117,6 +117,7 @@ class StorefrontCartFacade
     private function resolveBlockedMethodsFromGatewayResponse(Cart $cart, SalesChannelContext $context, CheckoutGatewayRouteResponse $gatewayResponse): Cart
     {
         $cartErrors = $gatewayResponse->getErrors();
+        $errorsBeforeSwitch = new ErrorCollection($cart->getErrors()->getElements());
 
         $contextShippingMethod = $this->blockedShippingMethodSwitcher->switch(
             $cartErrors,
@@ -129,7 +130,7 @@ class StorefrontCartFacade
             $gatewayResponse->getPaymentMethods()
         );
 
-        return $this->switchCartMethods($cart, $context, $contextShippingMethod, $contextPaymentMethod, new ErrorCollection($cart->getErrors()->getElements()));
+        return $this->switchCartMethods($cart, $context, $contextShippingMethod, $contextPaymentMethod, $errorsBeforeSwitch);
     }
 
     private function isContextMethodBlocked(ErrorCollection $errors, SalesChannelContext $context): bool

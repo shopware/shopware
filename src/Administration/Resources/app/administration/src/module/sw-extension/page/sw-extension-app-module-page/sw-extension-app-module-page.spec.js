@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import useTheme from 'src/app/composables/use-theme';
 
 /**
  * @sw-package checkout
@@ -41,8 +42,11 @@ async function createWrapper(props) {
             provide: {
                 extensionSdkService: {
                     signIframeSrc(_, source) {
+                        const url = new URL(source);
+                        url.searchParams.append('timestamp', 'signed');
+
                         return Promise.resolve({
-                            uri: `${source}?timestamp=signed`,
+                            uri: url.toString(),
                         });
                     },
                 },
@@ -70,7 +74,9 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', (
         await flushPromises();
 
         expect(wrapper.get('.smart-bar__header h2').text()).toBe('test App A english - Standard module');
-        expect(wrapper.get('iframe#app-content').attributes('src')).toBe('https://shopware.apps/module1?timestamp=signed');
+        expect(wrapper.get('iframe#app-content').attributes('src')).toBe(
+            'https://shopware.apps/module1?color-scheme=light&timestamp=signed',
+        );
     });
 
     it('sets the correct heading and source with a main module', async () => {
@@ -79,7 +85,28 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', (
         });
 
         expect(wrapper.get('.smart-bar__header h2').text()).toBe('test App A english');
-        expect(wrapper.get('iframe#app-content').attributes('src')).toBe('https://shopware.apps/login?timestamp=signed');
+        expect(wrapper.get('iframe#app-content').attributes('src')).toBe(
+            'https://shopware.apps/login?color-scheme=light&timestamp=signed',
+        );
+    });
+
+    it('appends the resolved dark theme as color-scheme to the source', async () => {
+        useTheme().setTheme('dark');
+
+        try {
+            const wrapper = await createWrapper({
+                appName: 'testAppA',
+                moduleName: 'standardModule',
+            });
+            await flushPromises();
+
+            expect(wrapper.get('iframe#app-content').attributes('src')).toBe(
+                'https://shopware.apps/module1?color-scheme=dark&timestamp=signed',
+            );
+        } finally {
+            useTheme().setTheme('system');
+            localStorage.removeItem('mt-theme');
+        }
     });
 
     it('shows no iframe and default heading if module is not found', async () => {

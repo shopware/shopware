@@ -8,6 +8,12 @@ const { fileSize } = Shopware.Utils.format;
 const INPUT_TYPE_FILE_UPLOAD = 'file-upload';
 const INPUT_TYPE_URL_UPLOAD = 'url-upload';
 
+function isDuplicationException(error) {
+    return error?.response?.data?.errors?.some((err) => {
+        return err.code === 'CONTENT__MEDIA_DUPLICATED_FILE_NAME';
+    });
+}
+
 /**
  * @status ready
  * @description The <u>sw-media-upload-v2</u> component is used wherever an upload is needed. It supports drag & drop-,
@@ -566,6 +572,11 @@ export default {
             }
 
             if (action === 'media-upload-fail') {
+                // sw-duplicated-media-v2 still needs the entity of a duplicate and cleans it up itself.
+                if (isDuplicationException(payload.error)) {
+                    this.pendingUploadMediaIds.delete(payload.targetId);
+                }
+
                 this.onRemoveMediaItem();
             }
         },

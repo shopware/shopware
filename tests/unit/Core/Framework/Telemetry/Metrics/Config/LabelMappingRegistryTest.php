@@ -82,6 +82,15 @@ class LabelMappingRegistryTest extends TestCase
         static::assertSame('fallback', $registry->resolve('groups', 'anything', static fn (string $key): ?string => null));
     }
 
+    public function testAllDigitKeysMatch(): void
+    {
+        // PHP casts the array key `'404'` to the integer 404
+        $registry = new LabelMappingRegistry(['status' => ['404' => 'not_found', '5*' => 'server_error']], 'other');
+
+        static::assertSame('not_found', $registry->resolve('status', '404'));
+        static::assertSame('server_error', $registry->resolve('status', '503'));
+    }
+
     public function testUnknownMappingNameFallsThrough(): void
     {
         $registry = new LabelMappingRegistry([], 'other');

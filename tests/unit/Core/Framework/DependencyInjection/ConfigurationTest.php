@@ -954,6 +954,30 @@ class ConfigurationTest extends TestCase
         ], $config['telemetry']['metrics']['mappings']);
     }
 
+    #[DataProvider('nonStringTelemetryMappingValues')]
+    public function testTelemetryMappingRejectsNonStringValues(mixed $value): void
+    {
+        try {
+            (new Processor())->processConfiguration(new Configuration(), [
+                ['telemetry' => ['metrics' => ['mappings' => ['entity_group' => ['swag_blog_*' => $value]]]]],
+            ]);
+            static::fail('Expected a non-string mapping value to be rejected');
+        } catch (InvalidConfigurationException $e) {
+            static::assertStringContainsString('Telemetry label mapping values must be strings', $e->getMessage());
+        }
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function nonStringTelemetryMappingValues(): iterable
+    {
+        yield 'integer' => [1];
+        yield 'float' => [1.5];
+        yield 'boolean' => [true];
+        yield 'null' => [null];
+    }
+
     /**
      * Each argument is one config source (framework, plugin, project, ...) for the same label,
      * merged in argument order.

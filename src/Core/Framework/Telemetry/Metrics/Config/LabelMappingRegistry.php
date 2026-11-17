@@ -29,7 +29,7 @@ class LabelMappingRegistry
     private array $compiled = [];
 
     /**
-     * @param array<string, array<string, string>> $mappings mapping name → (key → label value)
+     * @param array<string, array<array-key, string>> $mappings mapping name → (key → label value); PHP turns all-digit keys like `404` into integers
      */
     public function __construct(
         private readonly array $mappings,
@@ -65,7 +65,7 @@ class LabelMappingRegistry
     }
 
     /**
-     * @param array<string, string> $entries
+     * @param array<array-key, string> $entries
      *
      * @return array{exact: array<string, string>, prefixes: list<array{string, string}>}
      */
@@ -75,6 +75,8 @@ class LabelMappingRegistry
         $prefixes = [];
 
         foreach ($entries as $key => $value) {
+            $key = (string) $key;
+
             if (str_ends_with($key, '*')) {
                 $prefixes[] = [substr($key, 0, -1), $value];
             } else {

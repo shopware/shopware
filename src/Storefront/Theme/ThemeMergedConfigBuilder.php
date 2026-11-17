@@ -535,7 +535,6 @@ class ThemeMergedConfigBuilder
         $outputStructure['tabs']['default']['labelSnippetKey'] = ThemeConfigStructure::buildLabelSnippetKey('default');
 
         if (!Feature::isActive('v6.8.0.0')) {
-            // set default tab
             $outputStructure['tabs']['default']['label'] = '';
 
             // set labels

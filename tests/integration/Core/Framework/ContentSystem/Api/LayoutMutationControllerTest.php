@@ -1127,6 +1127,7 @@ class LayoutMutationControllerTest extends TestCase
         static::assertSame(ContentSystemException::BINDING_ROOT_SOURCE_NOT_SCOPED, $body['errors'][0]['code'] ?? null, (string) $response->getContent());
 
         $parameters = $body['errors'][0]['meta']['parameters'] ?? [];
+        static::assertIsArray($parameters);
         static::assertArrayHasKey('rootSource', $parameters, (string) $response->getContent());
         static::assertArrayHasKey('elementId', $parameters, (string) $response->getContent());
 

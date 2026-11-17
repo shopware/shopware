@@ -161,6 +161,10 @@ export default () => {
         'sw-condition-all-line-items-container',
         () => import('src/app/component/rule/sw-condition-all-line-items-container/index'),
     );
+    Shopware.Component.register(
+        'sw-condition-delivery-container',
+        () => import('src/app/component/rule/sw-condition-delivery-container/index'),
+    );
     Shopware.Component.register('sw-arrow-field', () => import('src/app/component/rule/sw-arrow-field/index'));
     Shopware.Component.register(
         'sw-search-preferences-modal',
@@ -634,6 +638,11 @@ export default () => {
         'sw-condition-generic',
         'sw-condition-base',
         () => import('./rule/condition-type/sw-condition-generic/index'),
+    );
+    Shopware.Component.extend(
+        'sw-condition-generic-delivery',
+        'sw-condition-generic',
+        () => import('./rule/condition-type/sw-condition-generic-delivery/index'),
     );
     Shopware.Component.extend(
         'sw-condition-date-range',

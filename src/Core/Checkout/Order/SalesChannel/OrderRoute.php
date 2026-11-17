@@ -214,12 +214,11 @@ class OrderRoute extends AbstractOrderRoute
 
     private function checkPromotion(PromotionEntity $promotion): bool
     {
-        $rules = [$promotion->getCartRules(), $promotion->getOrderRules(), $promotion->getPersonaRules()];
-        foreach (array_filter($rules) as $ruleCollection) {
-            foreach ($ruleCollection as $rule) {
-                if (!$this->checkRule($rule)) {
-                    return false;
-                }
+        $rules = [...($promotion->getCartRules() ?? []), ...($promotion->getOrderRules() ?? []), ...($promotion->getPersonaRules() ?? [])];
+
+        foreach ($rules as $rule) {
+            if (!$this->checkRule($rule)) {
+                return false;
             }
         }
 

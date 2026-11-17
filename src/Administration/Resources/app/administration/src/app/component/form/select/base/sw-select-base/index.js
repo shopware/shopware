@@ -2,6 +2,17 @@ import template from './sw-select-base.html.twig';
 import './sw-select-base.scss';
 
 /**
+ * Keys that open a focused, closed select, the same ones that open a native select.
+ * Printable characters open it too, see `expandByTyping`.
+ */
+const OPENING_KEYS = [
+    'ArrowDown',
+    'ArrowUp',
+    'Enter',
+    ' ',
+];
+
+/**
  * @sw-package framework
  *
  * @private
@@ -51,13 +62,12 @@ export default {
     data() {
         return {
             expanded: false,
-            hasFocus: false,
         };
     },
 
     computed: {
         swFieldClasses() {
-            return { 'has--focus': this.expanded || this.hasFocus };
+            return { 'has--focus': this.expanded };
         },
 
         isClearable() {
@@ -123,25 +133,37 @@ export default {
         },
 
         /**
-         * Opens the select from the keyboard, like a native select.
-         * A printable character opens it without being swallowed, so it starts the search.
+         * Opens the select from ArrowDown, ArrowUp, Enter or Space, like a native select.
+         * Only keys on the select itself count, so buttons inside it keep their own keys.
          */
         expandByKeyboard(event) {
-            if (this.expanded || event.ctrlKey || event.metaKey) {
+            if (this.expanded || event.target !== this.$refs.selectWrapper) {
                 return;
             }
 
-            const isOnSelection = event.target === this.$refs.selectWrapper;
-
-            if (['ArrowDown', 'ArrowUp'].includes(event.key) || (isOnSelection && ['Enter', ' '].includes(event.key))) {
-                // The result list mounts before this event reaches the document, where it would pick an item
-                event.preventDefault();
-                event.stopPropagation();
-                this.expand();
+            if (!OPENING_KEYS.includes(event.key) || event.ctrlKey || event.metaKey) {
                 return;
             }
 
-            if (event.key.length === 1 && !event.altKey) {
+            // The result list mounts before this event reaches the document, where it would pick an item
+            event.preventDefault();
+            event.stopPropagation();
+            this.expand();
+        },
+
+        /**
+         * Opens the select when a key types a character, so the character starts the search.
+         * `keypress` fires only for keys that produce text, AltGr and Option characters included,
+         * and never for shortcuts like CTRL+S.
+         *
+         * @example <div @keypress="expandByTyping">
+         */
+        expandByTyping(event) {
+            if (this.expanded || event.target !== this.$refs.selectWrapper) {
+                return;
+            }
+
+            if (event.key.length === 1) {
                 this.expand();
             }
         },

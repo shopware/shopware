@@ -647,6 +647,28 @@ describe('app/plugins/shortcut.plugin', () => {
         document.body.removeChild(modal);
     });
 
+    it('should NOT call the onEsc method when Escape key is pressed on a focused select', async () => {
+        const onEscMock = jest.fn();
+
+        wrapper = await createWrapper({
+            template: '<div class="sw-select__selection" tabindex="0"></div>',
+            shortcuts: {
+                Escape: 'onEsc',
+            },
+            methods: {
+                onEsc() {
+                    onEscMock();
+                },
+            },
+        });
+
+        await wrapper.trigger('keydown', {
+            key: 'Escape',
+        });
+
+        expect(onEscMock).not.toHaveBeenCalled();
+    });
+
     it('should still trigger shortcuts after a component was unmounted', async () => {
         const onSaveMock = jest.fn();
         const onOtherSaveMock = jest.fn();

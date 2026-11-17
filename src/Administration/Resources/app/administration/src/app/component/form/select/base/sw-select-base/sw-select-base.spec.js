@@ -147,7 +147,10 @@ describe('components/sw-select-base', () => {
                 {},
                 {
                     attachTo: container,
-                    slots: { 'sw-select-selection': '<input class="search-input" tabindex="-1">' },
+                    slots: {
+                        'sw-select-selection':
+                            '<input class="search-input" tabindex="-1"><button class="inner-button">+3</button>',
+                    },
                 },
             );
 
@@ -158,11 +161,15 @@ describe('components/sw-select-base', () => {
             return selection;
         }
 
-        function dispatchKeydown(element, init) {
-            const event = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, ...init });
+        function dispatchKey(type, element, init) {
+            const event = new KeyboardEvent(type, { bubbles: true, cancelable: true, ...init });
             element.dispatchEvent(event);
 
             return event;
+        }
+
+        function dispatchKeydown(element, init) {
+            return dispatchKey('keydown', element, init);
         }
 
         afterEach(() => {
@@ -198,13 +205,34 @@ describe('components/sw-select-base', () => {
             expect(onDocumentKeydown).not.toHaveBeenCalled();
         });
 
-        it('should expand on a printable character and let it reach the search', async () => {
+        it.each([
+            ['a plain character', { key: 'a' }],
+            ['an AltGr character', { key: '@', ctrlKey: true, altKey: true }],
+            ['an Option character', { key: '@', altKey: true }],
+        ])('should expand on %s and let it reach the search', async (_, init) => {
             const selection = await createFocusedSelection();
 
-            const event = dispatchKeydown(selection.element, { key: 'a' });
+            const event = dispatchKey('keypress', selection.element, init);
             await flushPromises();
 
             expect(selection.attributes('aria-expanded')).toBe('true');
+            expect(event.defaultPrevented).toBe(false);
+        });
+
+        it.each([
+            ['keydown', ' '],
+            ['keydown', 'Enter'],
+            ['keydown', 'ArrowDown'],
+            ['keypress', ' '],
+        ])('should leave a %s of "%s" on a button inside the select to that button', async (type, key) => {
+            await createFocusedSelection();
+            const innerButton = wrapper.find('.inner-button');
+            innerButton.element.focus();
+
+            const event = dispatchKey(type, innerButton.element, { key });
+            await flushPromises();
+
+            expect(wrapper.find('.sw-select__selection').attributes('aria-expanded')).toBe('false');
             expect(event.defaultPrevented).toBe(false);
         });
 

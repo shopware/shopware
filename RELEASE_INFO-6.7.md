@@ -482,6 +482,7 @@ For extensions that already build positions holding part of a line item, this ch
 
 Order deliveries and order transactions in the Admin API and Store API have a new `payload` field, and so do the deliveries and transactions of the Store API cart.
 It is an object, or an empty array when nothing is set.
+
 ### Composer runs for plugins have their own routes
 
 Plugins whose `executeComposerCommands()` returns `true` get their Composer package through two new routes, `api.extension.composer-require` (`POST /api/_action/extension/composer-require/{type}/{technicalName}`) and `api.extension.composer-remove` (`POST /api/_action/extension/composer-remove/{type}/{technicalName}`).

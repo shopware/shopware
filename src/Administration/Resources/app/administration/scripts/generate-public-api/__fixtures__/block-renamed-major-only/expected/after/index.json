@@ -1,0 +1,26 @@
+{
+    "components": {
+        "sw-example-field-set": {
+            "file": "app/component/form/sw-example-field-set",
+            "visibility": "public",
+            "extends": null,
+            "blocks": [
+                "sw_example_field_set",
+                "sw_example_field_set_content",
+                "sw_example_field_set_mt_tabs",
+                "sw_example_field_set_tabs"
+            ]
+        }
+    },
+    "mixins": {},
+    "modules": {},
+    "positionIdentifiers": {
+        "sw-example-field-set": [
+            "sw-example-field-set"
+        ]
+    },
+    "dynamicPositionIdentifiers": {},
+    "dataSets": {},
+    "virtualModules": {},
+    "announcements": []
+}

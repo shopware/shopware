@@ -26,7 +26,7 @@
                 :aria-describedby="isHintOpen ? hintId : undefined"
                 aria-haspopup="dialog"
                 :aria-expanded="isHintOpen"
-                @mouseenter="openHint"
+                @mouseenter="scheduleOpen"
                 @mouseleave="scheduleClose"
                 @focusin="openHint"
                 @focusout="scheduleClose"
@@ -69,6 +69,7 @@
                 </template>
                 <sw-product-document-language-hint
                     v-else
+                    :default-language-name="defaultLanguageName"
                     @vue:mounted="focusHintContent"
                     @language-change="closeHint(); $emit('language-change', $event)"
                 />

@@ -2,6 +2,7 @@
  * @sw-package inventory
  */
 import { useId } from 'vue';
+import useDocumentDefaultLanguage from '../use-document-default-language';
 import template from './sw-product-document-add-button.html.twig';
 import './sw-product-document-add-button.scss';
 
@@ -24,29 +25,24 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
-    setup() {
-        return { hintId: useId() };
+    setup(props) {
+        return {
+            hintId: useId(),
+            ...useDocumentDefaultLanguage(() => !props.isInherited),
+        };
     },
 
     data() {
         return {
-            isHintOpen: false,
+            isHintRequested: false,
             focusRequested: false,
-            hideTimer: null as ReturnType<typeof setTimeout> | null,
+            hintTimer: null as ReturnType<typeof setTimeout> | null,
         };
     },
 
     computed: {
-        languageId() {
-            return Shopware.Store.get('context').api.languageId;
-        },
-
-        systemLanguageId() {
-            return Shopware.Store.get('context').api.systemLanguageId;
-        },
-
-        isDefaultLanguage(): boolean {
-            return this.languageId === this.systemLanguageId;
+        isHintOpen(): boolean {
+            return this.isHintRequested && (this.isInherited || this.defaultLanguageName !== null);
         },
 
         hintLabel(): string {
@@ -85,17 +81,24 @@ export default Shopware.Component.wrapComponentConfig({
             if (this.isDefaultLanguage && !this.isInherited) {
                 return;
             }
-            if (this.hideTimer) {
-                clearTimeout(this.hideTimer);
+            if (this.hintTimer) {
+                clearTimeout(this.hintTimer);
             }
-            this.isHintOpen = true;
+            this.isHintRequested = true;
+        },
+
+        scheduleOpen(): void {
+            if (this.hintTimer) {
+                clearTimeout(this.hintTimer);
+            }
+            this.hintTimer = setTimeout(() => this.openHint(), 100);
         },
 
         scheduleClose(): void {
-            if (this.hideTimer) {
-                clearTimeout(this.hideTimer);
+            if (this.hintTimer) {
+                clearTimeout(this.hintTimer);
             }
-            this.hideTimer = setTimeout(() => {
+            this.hintTimer = setTimeout(() => {
                 const trigger = this.$refs.trigger as HTMLElement | undefined;
                 const hint = this.$refs.languageHint as { $el: HTMLElement } | undefined;
                 const isInteracting = [trigger, hint?.$el].some(
@@ -108,12 +111,12 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         closeHint(): void {
-            if (this.hideTimer) {
-                clearTimeout(this.hideTimer);
+            if (this.hintTimer) {
+                clearTimeout(this.hintTimer);
             }
-            this.hideTimer = null;
+            this.hintTimer = null;
             this.focusRequested = false;
-            this.isHintOpen = false;
+            this.isHintRequested = false;
         },
     },
 });

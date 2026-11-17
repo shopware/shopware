@@ -7,7 +7,9 @@ import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.moc
 
 describe('sw-product-document-add-button', () => {
     const originalLanguage = Shopware.Context.api.languageId;
+    const originalSystemLanguage = Shopware.Context.api.systemLanguageId;
     let wrapper: VueWrapper;
+    const getLanguage = jest.fn();
 
     async function createWrapper(disabled = false, realFloatingUi = false, isInherited = false) {
         return (realFloatingUi ? mount : shallowMount)(
@@ -17,7 +19,7 @@ describe('sw-product-document-add-button', () => {
                 props: { disabled, isInherited },
                 global: {
                     provide: {
-                        repositoryFactory: { create: () => ({ get: jest.fn().mockResolvedValue({ name: 'English' }) }) },
+                        repositoryFactory: { create: () => ({ get: getLanguage }) },
                     },
                     stubs: {
                         'sw-product-document-language-hint': await wrapTestComponent('sw-product-document-language-hint', {
@@ -37,6 +39,7 @@ describe('sw-product-document-add-button', () => {
     }
 
     beforeEach(() => {
+        getLanguage.mockReset().mockResolvedValue({ name: 'English' });
         Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
     });
 
@@ -44,6 +47,7 @@ describe('sw-product-document-add-button', () => {
         wrapper?.unmount();
         jest.useRealTimers();
         Shopware.Context.api.languageId = originalLanguage;
+        Shopware.Store.get('context').api.systemLanguageId = originalSystemLanguage;
     });
 
     it('adds documents in the default language without opening a language hint', async () => {
@@ -52,11 +56,125 @@ describe('sw-product-document-add-button', () => {
         await wrapper.get('button').trigger('mouseenter');
         expect(wrapper.emitted('documents-add')).toEqual([[]]);
         expect(wrapper.find('[role="dialog"]').exists()).toBe(false);
+        expect(getLanguage).not.toHaveBeenCalled();
     });
 
     it('keeps the default-language action disabled when adding is not allowed', async () => {
         wrapper = await createWrapper(true);
         expect(wrapper.get<HTMLButtonElement>('button').element.disabled).toBe(true);
+    });
+
+    it('waits for the system language ID before loading its name', async () => {
+        Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
+        Shopware.Store.get('context').api.systemLanguageId = null;
+        wrapper = await createWrapper();
+        await flushPromises();
+        expect(getLanguage).not.toHaveBeenCalled();
+
+        Shopware.Store.get('context').api.systemLanguageId = originalSystemLanguage;
+        await flushPromises();
+        expect(getLanguage).toHaveBeenCalledTimes(1);
+        expect(getLanguage).toHaveBeenCalledWith(originalSystemLanguage);
+        await wrapper.get('.sw-product-document-add-button__trigger').trigger('focusin');
+        expect(wrapper.get('[role="dialog"]').text()).toContain("'English'");
+    });
+
+    it('opens with the resolved language name and reuses it on subsequent hovers', async () => {
+        Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
+        let resolveLanguage!: (language: { name: string }) => void;
+        getLanguage.mockReturnValue(
+            new Promise<{ name: string }>((resolve) => {
+                resolveLanguage = resolve;
+            }),
+        );
+        wrapper = await createWrapper();
+        expect(getLanguage).toHaveBeenCalledTimes(1);
+        jest.useFakeTimers();
+        const trigger = wrapper.get('.sw-product-document-add-button__trigger');
+        await trigger.trigger('mouseenter');
+        jest.advanceTimersByTime(100);
+        await nextTick();
+        expect(wrapper.find('[role="dialog"]').exists()).toBe(false);
+
+        resolveLanguage({ name: 'English' });
+        await flushPromises();
+        expect(wrapper.get('[role="dialog"]').text()).toContain("'English'");
+        expect(wrapper.get('[role="dialog"]').text()).not.toContain('sw-product.documentForm.defaultLanguage');
+
+        await trigger.trigger('mouseleave');
+        jest.advanceTimersByTime(150);
+        await nextTick();
+        expect(wrapper.find('[role="dialog"]').exists()).toBe(false);
+        await trigger.trigger('mouseenter');
+        jest.advanceTimersByTime(100);
+        await flushPromises();
+        expect(wrapper.get('[role="dialog"]').text()).toContain("'English'");
+        expect(getLanguage).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not open a pending hint after the pointer has left', async () => {
+        Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
+        let resolveLanguage!: (language: { name: string }) => void;
+        getLanguage.mockReturnValue(
+            new Promise<{ name: string }>((resolve) => {
+                resolveLanguage = resolve;
+            }),
+        );
+        wrapper = await createWrapper();
+        jest.useFakeTimers();
+        const trigger = wrapper.get('.sw-product-document-add-button__trigger');
+        await trigger.trigger('mouseenter');
+        jest.advanceTimersByTime(100);
+        await trigger.trigger('mouseleave');
+        jest.advanceTimersByTime(150);
+        await nextTick();
+
+        resolveLanguage({ name: 'English' });
+        await flushPromises();
+        expect(wrapper.find('[role="dialog"]').exists()).toBe(false);
+    });
+
+    it('shows a stable fallback when the language name cannot be loaded', async () => {
+        Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
+        getLanguage.mockRejectedValueOnce(new Error('Language unavailable'));
+        wrapper = await createWrapper();
+        await flushPromises();
+        await wrapper.get('.sw-product-document-add-button__trigger').trigger('keydown', { key: 'Enter' });
+        await flushPromises();
+        expect(wrapper.get('[role="dialog"]').text()).toContain('sw-product.documentForm.defaultLanguage');
+        expect(getLanguage).toHaveBeenCalledTimes(1);
+        expect(document.activeElement).toBe(wrapper.get('button.mt-link').element);
+        await wrapper.get('button.mt-link').trigger('click');
+        expect(wrapper.emitted('language-change')).toEqual([[Shopware.Context.api.systemLanguageId]]);
+    });
+
+    it('waits before showing the hover hint and cancels brief pointer passes', async () => {
+        Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
+        wrapper = await createWrapper();
+        jest.useFakeTimers();
+        const trigger = wrapper.get('.sw-product-document-add-button__trigger');
+
+        await trigger.trigger('mouseenter');
+        jest.advanceTimersByTime(50);
+        await trigger.trigger('mouseleave');
+        jest.advanceTimersByTime(150);
+        await nextTick();
+        expect(wrapper.find('[role="dialog"]').exists()).toBe(false);
+
+        await trigger.trigger('mouseenter');
+        jest.advanceTimersByTime(99);
+        await nextTick();
+        expect(wrapper.find('[role="dialog"]').exists()).toBe(false);
+        jest.advanceTimersByTime(1);
+        await nextTick();
+        expect(wrapper.find('[role="dialog"]').exists()).toBe(true);
+
+        const hint = wrapper.get('[role="dialog"]').element;
+        await trigger.trigger('mouseleave');
+        await wrapper.get('[role="dialog"]').trigger('mouseenter');
+        jest.advanceTimersByTime(150);
+        await nextTick();
+        expect(wrapper.get('[role="dialog"]').element).toBe(hint);
     });
 
     it.each([true, false])(
@@ -81,6 +199,7 @@ describe('sw-product-document-add-button', () => {
             expect(wrapper.find('button.mt-link').exists()).toBe(false);
             expect(wrapper.emitted('language-change')).toBeUndefined();
             expect(wrapper.emitted('documents-add')).toBeUndefined();
+            expect(getLanguage).not.toHaveBeenCalled();
         },
     );
 
@@ -115,9 +234,10 @@ describe('sw-product-document-add-button', () => {
     it('keeps the hint open while the pointer moves from the button to its link and closes on leaving', async () => {
         Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
         wrapper = await createWrapper();
-        await wrapper.get('.sw-product-document-add-button__trigger').trigger('mouseenter');
-        await flushPromises();
         jest.useFakeTimers();
+        await wrapper.get('.sw-product-document-add-button__trigger').trigger('mouseenter');
+        jest.advanceTimersByTime(100);
+        await nextTick();
         await wrapper.get('.sw-product-document-add-button__trigger').trigger('mouseleave');
         await wrapper.get('[role="dialog"]').trigger('mouseenter');
         jest.advanceTimersByTime(150);
@@ -153,11 +273,12 @@ describe('sw-product-document-add-button', () => {
     it('keeps a focused link open when the pointer leaves, then closes after focus leaves', async () => {
         Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
         wrapper = await createWrapper();
+        jest.useFakeTimers();
         await wrapper.get('.sw-product-document-add-button__trigger').trigger('mouseenter');
-        await flushPromises();
+        jest.advanceTimersByTime(100);
+        await nextTick();
         const link = wrapper.get<HTMLButtonElement>('button.mt-link');
         link.element.focus();
-        jest.useFakeTimers();
         await wrapper.get('[role="dialog"]').trigger('mouseleave');
         jest.advanceTimersByTime(150);
         await nextTick();

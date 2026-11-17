@@ -78,7 +78,9 @@
                 {% block sw_product_document_form_grid %}
                     <sw-data-grid
                         v-if="currentValue.length"
-                        :data-source="currentValue"
+                        ref="documentGrid"
+                        identifier="sw-product-document-grid"
+                        :data-source="getPaginatedDocuments(currentValue)"
                         :columns="documentColumns"
                         :show-selection="true"
                         :show-settings="true"
@@ -86,20 +88,41 @@
                         :allow-column-edit="false"
                         :compact-mode="true"
                         :plain-appearance="false"
+                        :is-record-selectable="getDocumentSelectionFilter(isInherited)"
+                        @select-item="onDocumentSelectionChange"
+                        @select-all-items="onDocumentSelectionChange"
                     >
+                        <template #pagination>
+                            <sw-pagination
+                                :page="page"
+                                :limit="limit"
+                                :total="currentValue.length"
+                                @page-change="onPageChange"
+                            />
+                        </template>
+                        <template #bulk>
+                            <mt-link
+                                as="button"
+                                variant="critical"
+                                :disabled="!canEdit || isInherited || !selectedDocuments.length"
+                                @click="openRemoveDocumentModal(selectedDocuments)"
+                            >
+                                {{ getRemoveActionLabel() }}
+                            </mt-link>
+                        </template>
                     {% block sw_product_document_form_number %}
                         <template #column-number="{ itemIndex }">
-                            {{ itemIndex + 1 }}
+                            {{ pageOffset + itemIndex + 1 }}
                         </template>
                     {% endblock %}
                     {% block sw_product_document_form_position %}
-                        <template #column-position="{ item, itemIndex }">
+                        <template #column-position="{ item }">
                             <sw-button-group class="sw-product-document-form__position">
                                 <mt-button
                                     square
                                     size="x-small"
                                     :aria-label="$t('sw-product.documentForm.contextMoveDown')"
-                                    :disabled="!canEdit || isInherited || itemIndex === currentValue.length - 1"
+                                    :disabled="!canEdit || isInherited || !canMoveDocument(item, 1)"
                                     variant="secondary"
                                     @click="moveDocument(item, 1)"
                                 ><mt-icon
@@ -110,7 +133,7 @@
                                     square
                                     size="x-small"
                                     :aria-label="$t('sw-product.documentForm.contextMoveUp')"
-                                    :disabled="!canEdit || isInherited || itemIndex === 0"
+                                    :disabled="!canEdit || isInherited || !canMoveDocument(item, -1)"
                                     variant="secondary"
                                     @click="moveDocument(item, -1)"
                                 ><mt-icon
@@ -122,25 +145,41 @@
                     {% endblock %}
                     {% block sw_product_document_form_name %}
                         <template #column-title="{ item }">
-                            <sw-product-document-language-value
-                                :value="getTitle(item)"
-                                :is-translated="!!item.title"
+                            <mt-link
+                                as="a"
+                                class="sw-product-document-form__edit-link"
+                                :disabled="!canEdit || isInherited"
+                                @click="openDocumentEditor(item)"
+                                @keydown.enter="openDocumentEditor(item)"
                             >
+                                <sw-product-document-language-value
+                                    :value="getTitle(item)"
+                                    :is-translated="!!item.title"
+                                >
                                 {% block sw_product_document_form_variant_badge %}
-                                <sw-product-document-variant-badge
-                                    v-if="!isInherited"
-                                    :document="item"
-                                />
+                                    <sw-product-document-variant-badge
+                                        v-if="!isInherited"
+                                        :document="item"
+                                    />
                                 {% endblock %}
-                            </sw-product-document-language-value>
+                                </sw-product-document-language-value>
+                            </mt-link>
                         </template>
                     {% endblock %}
                     {% block sw_product_document_form_file %}
                         <template #column-fileName="{ item }">
-                            <sw-product-document-language-value
-                                :value="getFileName(item)"
-                                :is-translated="!!item.mediaId"
-                            />
+                            <mt-link
+                                as="a"
+                                class="sw-product-document-form__edit-link"
+                                :disabled="!canEdit || isInherited"
+                                @click="openDocumentEditor(item)"
+                                @keydown.enter="openDocumentEditor(item)"
+                            >
+                                <sw-product-document-language-value
+                                    :value="getFileName(item)"
+                                    :is-translated="!!item.mediaId"
+                                />
+                            </mt-link>
                         </template>
                     {% endblock %}
                     {% block sw_product_document_form_type %}
@@ -247,6 +286,7 @@
                 entity-context="product_document"
                 :initial-folder-id="mediaFolderId"
                 :file-accept="fileAccept"
+                :allow-multi-select="!editingDocument"
                 @media-modal-selection-change="addDocuments($event, editingDocument)"
                 @modal-close="showMediaModal = false"
             />
@@ -282,9 +322,10 @@
 
         {% block sw_product_document_form_remove_modal %}
             <sw-product-document-remove-modal
-                v-if="removingDocument"
+                v-if="removingDocuments.length"
                 v-model:remove-from-variants="removeFromVariants"
-                :document-title="getTitle(removingDocument)"
+                :document-title="getTitle(removingDocuments[0])"
+                :document-count="removingDocuments.length"
                 :language-name="isDefaultLanguage ? '' : contentLanguageName"
                 :can-edit="canEdit"
                 :is-removing-document="isRemovingDocument"

@@ -99,6 +99,11 @@ class RepositoryIterator
         }
 
         $increment = $ids->getDataFieldOfId($last, 'autoIncrement');
+        // OpenSearch returns the value from the document source, where it is indexed as a float
+        if (\is_float($increment)) {
+            $increment = (int) $increment;
+        }
+
         // without the cursor the next page would restart at the first one and never end
         if (!\is_int($increment)) {
             throw DataAbstractionLayerException::repositoryIteratorMissingAutoIncrement();

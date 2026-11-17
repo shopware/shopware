@@ -73,6 +73,8 @@ class FieldSerializerTest extends TestCase
                 'shippingOrderAddressVersionId' => 'shipping-order-address-version-id',
                 'shippingMethodId' => 'shipping-method-id',
                 'trackingCodes' => '[]',
+                'position' => '0',
+                'payload' => '[]',
                 'stateId' => 'state-id',
                 'customFields' => null,
                 'id' => $deliveryId,

@@ -8,6 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -113,6 +114,11 @@ readonly class SalesChannelDomainUtil
         $response = null;
 
         while ($redirectCount <= self::MAX_REDIRECTS) {
+            // The probe is rendered as an anonymous main request, but with the context of the outer request
+            // (e.g. storefront redirects like the maintenance mode are resolved against the outer main request).
+            // Its response must never end up in the HTTP cache, where it would be served to real visitors.
+            $currentRequest->attributes->set(PlatformRequest::ATTRIBUTE_NO_STORE, true);
+
             $requestStart = (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT);
             try {
                 $this->servicesResetter->reset();

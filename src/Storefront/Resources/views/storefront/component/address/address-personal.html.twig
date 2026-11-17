@@ -19,11 +19,14 @@
 
                 {% set isCompany = false %}
 
-                {% if page.address.company or data.company is not empty %}
+                {% if accountType %}
+                    {# An explicitly provided account type (e.g. the stored customer account type on the profile page) always wins over inferring the type from a populated company field. #}
+                    {% set isCompany = accountType == constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') %}
+                {% elseif page.address.company or data.company is not empty %}
                     {% set isCompany = true %}
                 {% endif %}
 
-                {% if onlyCompanyRegistration or (accountType and accountType == constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS')) %}
+                {% if onlyCompanyRegistration %}
                     {% set isCompany = true %}
                 {% endif %}
 

@@ -123,23 +123,10 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail available
         return types.map((type) => type.name);
     }
 
-    it('hides restricted types and presets at the root of a landing page layout', () => {
-        const names = pickerNames(createVm('landing_page', rootPayload));
-
-        expect(names).not.toContain('Sw:Navigation:Breadcrumb');
-        expect(names).not.toContain('Sw:ProductDetailPage');
-        expect(names).toContain('Sw:Content:Text');
-        expect(names).toContain('core.text-block');
-    });
-
-    it('hides a type with an empty list on every root source', () => {
-        expect(pickerNames(createVm('product', rootPayload))).not.toContain('Sw:Broken');
-        expect(pickerNames(createVm('landing_page', rootPayload))).not.toContain('Sw:Broken');
-    });
-
     it('offers restricted and unrestricted items at the root of a product layout', () => {
         const names = pickerNames(createVm('product', rootPayload));
 
+        expect(names).not.toContain('Sw:Broken');
         expect(names).toEqual(
             expect.arrayContaining([
                 'Sw:Navigation:Breadcrumb',
@@ -151,6 +138,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail available
     });
 
     it.each([
+        ['a landing page layout', 'landing_page'],
         ['a layout without a root source', undefined],
         ['an empty root source', ''],
         ['no layout', null],
@@ -164,29 +152,17 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail available
         expect(names).toContain('core.text-block');
     });
 
-    it('filters the allow list of a slot on a landing page layout', () => {
-        const vm = createVm('landing_page', { parentElementId: 'parent-1', slotName: 'restricted' });
+    it.each([
+        ['landing_page', ['Sw:Content:Text']],
+        ['product', ['Sw:Navigation:Breadcrumb', 'Sw:Content:Text']],
+    ])('applies the allow list of a slot on a %s layout', (rootSource, expectedNames) => {
+        const vm = createVm(rootSource, { parentElementId: 'parent-1', slotName: 'restricted' });
 
-        expect(slotTypeNames(vm)).toEqual(['Sw:Content:Text']);
+        expect(slotTypeNames(vm)).toEqual(expectedNames);
     });
 
-    it('keeps the restricted type in the allow list of a slot on a product layout', () => {
-        const vm = createVm('product', { parentElementId: 'parent-1', slotName: 'restricted' });
-
-        expect(slotTypeNames(vm)).toEqual(['Sw:Navigation:Breadcrumb', 'Sw:Content:Text']);
-    });
-
-    it('filters the types of a slot without an allow list on a landing page layout', () => {
-        const vm = createVm('landing_page', { parentElementId: 'parent-1', slotName: 'open' });
-        const names = slotTypeNames(vm);
-
-        expect(names).not.toContain('Sw:Navigation:Breadcrumb');
-        expect(names).not.toContain('Sw:Broken');
-        expect(names).toContain('Sw:Content:Text');
-    });
-
-    it('filters the types of a slot the parent type does not define on a landing page layout', () => {
-        const vm = createVm('landing_page', { parentElementId: 'parent-1', slotName: 'undefined-slot' });
+    it.each(['open', 'undefined-slot'])('filters the types of the slot %s on a landing page layout', (slotName) => {
+        const vm = createVm('landing_page', { parentElementId: 'parent-1', slotName });
         const names = slotTypeNames(vm);
 
         expect(names).not.toContain('Sw:Navigation:Breadcrumb');

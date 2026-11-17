@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Rule;
 
+use Shopware\Core\Checkout\Cart\Rule\DeliveryRuleScope;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
@@ -41,8 +42,12 @@ class ShippingStateRule extends Rule
             return false;
         }
 
-        $state = $scope->getSalesChannelContext()->getShippingLocation()->getState()
-            ?? $scope->getCustomer()?->getActiveShippingAddress()?->getCountryState();
+        if ($scope instanceof DeliveryRuleScope) {
+            $state = $scope->getDelivery()->getLocation()->getState();
+        } else {
+            $state = $scope->getSalesChannelContext()->getShippingLocation()->getState()
+                ?? $scope->getCustomer()?->getActiveShippingAddress()?->getCountryState();
+        }
 
         if (!$state) {
             return RuleComparison::isNegativeOperator($this->operator);

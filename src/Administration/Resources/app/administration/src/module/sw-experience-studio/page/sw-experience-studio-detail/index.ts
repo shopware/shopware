@@ -498,7 +498,9 @@ export default Shopware.Component.wrapComponentConfig({
                 return elementItems;
             }
 
-            const allowedComponents = new Set(availableTypes.map((typeSpecification) => typeSpecification.name));
+            const allowedComponents = new Set(
+                this.getStructurallyAvailableTypesForPayload(payload).map((typeSpecification) => typeSpecification.name),
+            );
 
             const presetItems: ElementPickerItem[] = this.layoutPresetStore.allPresets
                 .filter((preset) => this.isPresetAllowedForPayload(preset, payload, allowedComponents))
@@ -2131,11 +2133,26 @@ export default Shopware.Component.wrapComponentConfig({
             await mutation;
         },
 
+        // A null list places no restriction; a list is offered only on a layout whose root source it contains.
+        isOfferedOnRootSource(rootSources: string[] | null): boolean {
+            if (rootSources === null) {
+                return true;
+            }
+
+            const rootSource = this.resolveMutationRootSource();
+
+            return rootSource !== null && rootSources.includes(rootSource);
+        },
+
         isPresetAllowedForPayload(
             preset: ContentSystemLayoutPreset,
             payload: AddElementPayload,
             allowedComponents: Set<string>,
         ): boolean {
+            if (!this.isOfferedOnRootSource(preset.defaultBindingRootSources)) {
+                return false;
+            }
+
             if (payload.parentElementId === null) {
                 return true;
             }
@@ -2144,6 +2161,13 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         getAvailableTypesForPayload(payload: AddElementPayload | null): ContentSystemElementTypeSpecification[] {
+            return this.getStructurallyAvailableTypesForPayload(payload).filter((type) =>
+                this.isOfferedOnRootSource(type.defaultBindingRootSources),
+            );
+        },
+
+        // Slot eligibility without the root source filter: a preset is judged on its own root sources, not its root type's.
+        getStructurallyAvailableTypesForPayload(payload: AddElementPayload | null): ContentSystemElementTypeSpecification[] {
             const allTypes = this.elementTypeStore.allTypes;
 
             if (!payload) {

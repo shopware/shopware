@@ -41,3 +41,172 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail picker', 
         expect(vm.pickerAnchorElement).toBeNull();
     });
 });
+
+describe('module/sw-experience-studio/page/sw-experience-studio-detail availablePickerElements root source filter', () => {
+    type Methods = Record<string, (...args: unknown[]) => unknown>;
+
+    const methods = (detailComponent as unknown as { methods: Methods }).methods;
+    const computed = (detailComponent as unknown as { computed: Methods }).computed;
+
+    const restrictedType = {
+        name: 'Sw:Navigation:Breadcrumb',
+        label: 'Breadcrumb',
+        defaultBindingRootSources: ['product', 'category'],
+    };
+    const unrestrictedType = { name: 'Sw:Content:Text', label: 'Text', defaultBindingRootSources: null };
+    const emptyListType = { name: 'Sw:Broken', label: 'Broken', defaultBindingRootSources: [] };
+    const container = {
+        name: 'Sw:Grid:Container',
+        label: 'Container',
+        defaultBindingRootSources: null,
+        slots: [
+            { name: 'restricted', maxElements: null, allowList: ['Sw:Navigation:Breadcrumb', 'Sw:Content:Text'] },
+            { name: 'open', maxElements: null, allowList: [] },
+        ],
+    };
+    const allTypes = [
+        restrictedType,
+        unrestrictedType,
+        emptyListType,
+        container,
+    ];
+    const restrictedPreset = {
+        id: 'Sw:ProductDetailPage',
+        name: 'Product detail page',
+        description: null,
+        defaultBindingRootSources: ['product', 'category'],
+        payload: [{ id: 'a', component: 'Sw:Grid:Container' }],
+    };
+    const unrestrictedPreset = {
+        id: 'core.text-block',
+        name: 'Text block',
+        description: null,
+        defaultBindingRootSources: null,
+        payload: [{ id: 'b', component: 'Sw:Grid:Container' }],
+    };
+    const rootPayload = { parentElementId: null, slotName: null };
+
+    function createVm(
+        rootSource: string | undefined | null,
+        payload: Record<string, unknown>,
+        presets: unknown[] = [restrictedPreset, unrestrictedPreset],
+    ) {
+        return {
+            pendingAddElementPayload: { anchorElement: null, ...payload },
+            elementTypeStore: {
+                allTypes,
+                getByName: (name: string) => allTypes.find((type) => type.name === name) ?? null,
+            },
+            layoutPresetStore: { allPresets: presets },
+            layout:
+                rootSource === null
+                    ? null
+                    : { rootSource, layout: [{ id: 'parent-1', component: 'Sw:Grid:Container', slots: {} }] },
+            getAvailableTypesForPayload: methods.getAvailableTypesForPayload,
+            getStructurallyAvailableTypesForPayload: methods.getStructurallyAvailableTypesForPayload,
+            isPresetAllowedForPayload: methods.isPresetAllowedForPayload,
+            isOfferedOnRootSource: methods.isOfferedOnRootSource,
+            resolveMutationRootSource: methods.resolveMutationRootSource,
+            getLayoutRootSource: methods.getLayoutRootSource,
+        };
+    }
+
+    function pickerNames(vm: ReturnType<typeof createVm>): string[] {
+        return (computed.availablePickerElements.call(vm) as Array<{ name: string }>).map((item) => item.name);
+    }
+
+    function slotTypeNames(vm: ReturnType<typeof createVm>): string[] {
+        const types = methods.getAvailableTypesForPayload.call(vm, vm.pendingAddElementPayload) as Array<{
+            name: string;
+        }>;
+
+        return types.map((type) => type.name);
+    }
+
+    it('hides restricted types and presets at the root of a landing page layout', () => {
+        const names = pickerNames(createVm('landing_page', rootPayload));
+
+        expect(names).not.toContain('Sw:Navigation:Breadcrumb');
+        expect(names).not.toContain('Sw:ProductDetailPage');
+        expect(names).toContain('Sw:Content:Text');
+        expect(names).toContain('core.text-block');
+    });
+
+    it('hides a type with an empty list on every root source', () => {
+        expect(pickerNames(createVm('product', rootPayload))).not.toContain('Sw:Broken');
+        expect(pickerNames(createVm('landing_page', rootPayload))).not.toContain('Sw:Broken');
+    });
+
+    it('offers restricted and unrestricted items at the root of a product layout', () => {
+        const names = pickerNames(createVm('product', rootPayload));
+
+        expect(names).toEqual(
+            expect.arrayContaining([
+                'Sw:Navigation:Breadcrumb',
+                'Sw:Content:Text',
+                'Sw:ProductDetailPage',
+                'core.text-block',
+            ]),
+        );
+    });
+
+    it.each([
+        ['a layout without a root source', undefined],
+        ['an empty root source', ''],
+        ['no layout', null],
+    ])('hides every restricted item for %s', (_label, rootSource) => {
+        const names = pickerNames(createVm(rootSource, rootPayload));
+
+        expect(names).not.toContain('Sw:Navigation:Breadcrumb');
+        expect(names).not.toContain('Sw:Broken');
+        expect(names).not.toContain('Sw:ProductDetailPage');
+        expect(names).toContain('Sw:Content:Text');
+        expect(names).toContain('core.text-block');
+    });
+
+    it('filters the allow list of a slot on a landing page layout', () => {
+        const vm = createVm('landing_page', { parentElementId: 'parent-1', slotName: 'restricted' });
+
+        expect(slotTypeNames(vm)).toEqual(['Sw:Content:Text']);
+    });
+
+    it('keeps the restricted type in the allow list of a slot on a product layout', () => {
+        const vm = createVm('product', { parentElementId: 'parent-1', slotName: 'restricted' });
+
+        expect(slotTypeNames(vm)).toEqual(['Sw:Navigation:Breadcrumb', 'Sw:Content:Text']);
+    });
+
+    it('filters the types of a slot without an allow list on a landing page layout', () => {
+        const vm = createVm('landing_page', { parentElementId: 'parent-1', slotName: 'open' });
+        const names = slotTypeNames(vm);
+
+        expect(names).not.toContain('Sw:Navigation:Breadcrumb');
+        expect(names).not.toContain('Sw:Broken');
+        expect(names).toContain('Sw:Content:Text');
+    });
+
+    it('filters the types of a slot the parent type does not define on a landing page layout', () => {
+        const vm = createVm('landing_page', { parentElementId: 'parent-1', slotName: 'undefined-slot' });
+        const names = slotTypeNames(vm);
+
+        expect(names).not.toContain('Sw:Navigation:Breadcrumb');
+        expect(names).not.toContain('Sw:Broken');
+        expect(names).toContain('Sw:Content:Text');
+    });
+
+    it('offers a preset rooted at a restricted type in a slot when its own root sources allow it', () => {
+        const wiredPreset = {
+            id: 'plugin.breadcrumb',
+            name: 'Breadcrumb',
+            description: null,
+            defaultBindingRootSources: null,
+            payload: [{ id: 'c', component: 'Sw:Navigation:Breadcrumb' }],
+        };
+        const vm = createVm('landing_page', { parentElementId: 'parent-1', slotName: 'restricted' }, [wiredPreset]);
+        const names = pickerNames(vm);
+
+        expect(names).toContain('plugin.breadcrumb');
+        expect(names).toContain('Sw:Content:Text');
+        expect(names).not.toContain('Sw:Navigation:Breadcrumb');
+    });
+});

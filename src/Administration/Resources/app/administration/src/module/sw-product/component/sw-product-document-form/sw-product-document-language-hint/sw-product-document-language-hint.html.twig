@@ -10,7 +10,7 @@
             as="button"
             @click.prevent="switchToDefaultLanguage"
         >
-            '{{ languageLabel }}'
+            '{{ defaultLanguageName || $t('sw-product.documentForm.defaultLanguage') }}'
         </mt-link>
         {% endblock %}
     </template>

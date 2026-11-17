@@ -1,8 +1,7 @@
 /**
  * @sw-package inventory
  */
-import { useId } from 'vue';
-import useDocumentDefaultLanguage from '../use-document-default-language';
+import { useId, type PropType } from 'vue';
 import template from './sw-product-document-add-button.html.twig';
 import './sw-product-document-add-button.scss';
 
@@ -23,13 +22,15 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: false,
         },
+        defaultLanguageName: {
+            type: String as PropType<string | null>,
+            required: false,
+            default: null,
+        },
     },
 
-    setup(props) {
-        return {
-            hintId: useId(),
-            ...useDocumentDefaultLanguage(() => !props.isInherited),
-        };
+    setup() {
+        return { hintId: useId() };
     },
 
     data() {
@@ -41,6 +42,10 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
+        isDefaultLanguage(): boolean {
+            return Shopware.Store.get('context').isSystemDefaultLanguage;
+        },
+
         triggerLabel(): string {
             return `${this.$t('sw-product.documentForm.buttonAdd')}. ${this.hintLabel}`;
         },

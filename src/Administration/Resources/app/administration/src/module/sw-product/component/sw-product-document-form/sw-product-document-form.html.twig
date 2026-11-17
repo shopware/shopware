@@ -23,25 +23,21 @@
             >
                 <template #title>
                 {% block sw_product_document_form_title %}
-                    <slot name="title">
-                        {% block sw_product_detail_base_documents_card_title %}
-                        <div
-                            class="sw-inherit-wrapper__card-title"
-                            :class="{ 'sw-inherit-wrapper__card-title--inherited': isInherited }"
-                        >
-                            <sw-inheritance-switch
-                                v-if="isInheritField"
-                                :is-inherited="isInherited"
-                                :disabled="!canEdit"
-                                @inheritance-restore="onShowRestoreInheritanceModal"
-                                @inheritance-remove="removeInheritance"
-                            />
-                            <h3 class="mt-card__title">
-                                {{ $t('sw-product.documentForm.cardTitle', { count: currentValue.length }) }}
-                            </h3>
-                        </div>
-                        {% endblock %}
-                    </slot>
+                    <div
+                        class="sw-inherit-wrapper__card-title"
+                        :class="{ 'sw-inherit-wrapper__card-title--inherited': isInherited }"
+                    >
+                        <sw-inheritance-switch
+                            v-if="isInheritField"
+                            :is-inherited="isInherited"
+                            :disabled="!canEdit"
+                            @inheritance-restore="showRestoreInheritanceModal = true"
+                            @inheritance-remove="removeInheritance"
+                        />
+                        <h3 class="mt-card__title">
+                            {{ $t('sw-product.documentForm.cardTitle', { count: currentValue.length }) }}
+                        </h3>
+                    </div>
                 {% endblock %}
                 </template>
 
@@ -52,6 +48,7 @@
                         class="sw-product-document-form__add-button"
                         :is-inherited="isInherited"
                         :disabled="isInherited || !canAddDocuments"
+                        :default-language-name="defaultLanguageName"
                         @documents-add="showUploadModal = true"
                     />
                 {% endblock %}
@@ -63,10 +60,46 @@
                         v-if="!currentValue.length"
                         class="sw-product-document-form__empty-state"
                     >
-                        <sw-product-document-empty-state
-                            :can-add-documents="!isInherited && canAddDocuments"
-                            @documents-add="showUploadModal = true"
-                        />
+                    {% block sw_product_document_empty_state %}
+                        <div
+                            class="sw-product-document-empty-state"
+                            :class="{ 'sw-product-document-empty-state--translated': !isDefaultLanguage }"
+                        >
+                            <mt-empty-state
+                                centered
+                                icon="regular-file-text"
+                                :headline="$t('sw-product.documentForm.emptyState')"
+                                :description="isDefaultLanguage ? $t('sw-product.documentForm.emptyDescription') : undefined"
+                            >
+                                <template
+                                    v-if="isDefaultLanguage"
+                                    #button
+                                >
+                                    {% block sw_product_document_empty_state_add %}
+                                    <mt-button
+                                        :disabled="isInherited || !canAddDocuments"
+                                        size="small"
+                                        variant="secondary"
+                                        @click="showUploadModal = true"
+                                    >
+                                        {{ $t('sw-product.documentForm.buttonAdd') }}
+                                    </mt-button>
+                                    {% endblock %}
+                                </template>
+                            </mt-empty-state>
+
+                            {% block sw_product_document_empty_state_language_hint %}
+                            <mt-text
+                                v-if="!isDefaultLanguage"
+                                size="xs"
+                                color="color-text-secondary-default"
+                                class="sw-product-document-empty-state__language-hint"
+                            >
+                                <sw-product-document-language-hint :default-language-name="defaultLanguageName ?? ''" />
+                            </mt-text>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
                     </div>
                 {% endblock %}
 
@@ -147,17 +180,11 @@
                                 @click="openDocumentEditor(item)"
                                 @keydown.enter="openDocumentEditor(item)"
                             >
-                                <sw-product-document-language-value
-                                    :value="getTitle(item)"
-                                    :is-translated="!!item.title"
-                                >
-                                {% block sw_product_document_form_variant_badge %}
-                                    <sw-product-document-variant-badge
-                                        v-if="!isInherited"
-                                        :document="item"
-                                    />
-                                {% endblock %}
-                                </sw-product-document-language-value>
+                                <sw-product-document-cell
+                                    :document="item"
+                                    column="title"
+                                    :show-variant-badge="!isInherited"
+                                />
                             </mt-link>
                         </template>
                     {% endblock %}
@@ -170,21 +197,27 @@
                                 @click="openDocumentEditor(item)"
                                 @keydown.enter="openDocumentEditor(item)"
                             >
-                                <sw-product-document-language-value
-                                    :value="getFileName(item)"
-                                    :is-translated="!!item.mediaId"
+                                <sw-product-document-cell
+                                    :document="item"
+                                    column="fileName"
                                 />
                             </mt-link>
                         </template>
                     {% endblock %}
                     {% block sw_product_document_form_type %}
                         <template #column-fileType="{ item }">
-                            {{ getMedia(item)?.fileExtension?.toUpperCase() }}
+                            <sw-product-document-cell
+                                :document="item"
+                                column="fileType"
+                            />
                         </template>
                     {% endblock %}
                     {% block sw_product_document_form_size %}
                         <template #column-fileSize="{ item }">
-                            {{ getFileSize(item) }}
+                            <sw-product-document-cell
+                                :document="item"
+                                column="fileSize"
+                            />
                         </template>
                     {% endblock %}
                     {% block sw_product_document_form_actions %}
@@ -196,7 +229,7 @@
                                 {{ getEditActionLabel(item) }}
                             </sw-context-menu-item>
                             {% block sw_product_document_form_action_download %}
-                            <sw-product-document-download :media="getMedia(item)" />
+                            <sw-product-document-download :media="item.translated.media" />
                             {% endblock %}
                             {% block sw_product_document_form_action_remove %}
                             <sw-context-menu-item
@@ -282,8 +315,8 @@
                 entity-context="product_document"
                 :initial-folder-id="mediaFolderId"
                 :file-accept="fileAccept"
-                :allow-multi-select="!editingDocument"
-                @media-modal-selection-change="addDocuments($event, editingDocument)"
+                :allow-multi-select="true"
+                @media-modal-selection-change="addDocuments"
                 @modal-close="showMediaModal = false"
             />
         {% endblock %}
@@ -291,42 +324,25 @@
         {% block sw_product_document_form_edit_modal %}
             <sw-product-document-edit-modal
                 v-if="editingDocument"
-                v-model:document-title="documentTitle"
-                v-model:apply-to-variants="applyToVariants"
-                :allow-fallback="!isSystemDefaultLanguage"
+                :document="editingDocument"
                 :language-name="contentLanguageName"
-                :is-adding-language-version="isMissingLanguageVersion(editingDocument)"
-                :document-title-placeholder="documentTitlePlaceholder"
-                :editing-media="editingMedia"
-                :document-name-error="documentNameError"
-                :document-file-error="documentFileError"
-                :upload-tag="`${uploadTag}-replace-${editingDocument.id}-${documentEditSession}`"
-                :upload-hint="uploadHint"
-                :allowed-extensions="allowedExtensions"
-                :allowed-mime-types-by-extension="allowedMimeTypesByExtension"
-                :max-file-size="maxFileSize"
+                :upload-tag="`${uploadTag}-replace-${editingDocument.id}`"
+                :media-folder-id="mediaFolderId"
                 :can-edit="canEdit"
-                :is-applying-document-edit="isApplyingDocumentEdit"
                 :has-variants="hasVariants"
-                @close="closeDocumentEditor"
-                @save="applyDocumentEdit"
-                @upload="onUploadFinished($event, editingDocument)"
-                @file-remove="removeEditingFile"
-                @media-select="showMediaModal = true"
+                @close="editingDocument = null"
+                @apply="applyDocumentEdit"
             />
         {% endblock %}
 
         {% block sw_product_document_form_remove_modal %}
             <sw-product-document-remove-modal
                 v-if="documentsToRemove.length"
-                v-model:remove-from-variants="removeFromVariants"
-                :document-title="getTitle(documentsToRemove[0])"
-                :document-count="documentsToRemove.length"
-                :language-name="isSystemDefaultLanguage ? '' : contentLanguageName"
+                :documents="documentsToRemove"
+                :language-name="isDefaultLanguage ? '' : contentLanguageName"
                 :can-edit="canEdit"
-                :is-removing-documents="isRemovingDocuments"
                 :has-variants="hasVariants"
-                @close="closeRemoveDocumentModal"
+                @close="documentsToRemove = []"
                 @remove="removeDocuments"
             />
         {% endblock %}
@@ -337,7 +353,7 @@
                 variant="small"
                 :title="$t('sw-product.documentForm.restoreInheritanceTitle')"
                 class="sw-product-document-form__restore-inheritance-modal"
-                @modal-close="onCloseRestoreInheritanceModal"
+                @modal-close="showRestoreInheritanceModal = false"
             >
                 {% block sw_product_document_form_restore_inheritance_text %}
                 <p>{{ $t('sw-product.documentForm.restoreInheritanceDescription') }}</p>
@@ -348,7 +364,7 @@
                     <mt-button
                         size="small"
                         variant="secondary"
-                        @click="onCloseRestoreInheritanceModal"
+                        @click="showRestoreInheritanceModal = false"
                     >
                         {{ $t('global.default.cancel') }}
                     </mt-button>

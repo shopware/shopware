@@ -52,7 +52,7 @@
                 ref="languageHint"
                 as="div"
                 size="xs"
-                color="var(--color-text-inverse-default)"
+                color="color-text-inverse-default"
                 class="sw-product-document-add-button__hint"
                 role="dialog"
                 tabindex="-1"
@@ -71,7 +71,7 @@
                     v-else
                     :default-language-name="defaultLanguageName"
                     @vue:mounted="focusHintContent"
-                    @close="closeHint"
+                    @language-change="closeHint"
                 />
             </mt-text>
             {% endblock %}

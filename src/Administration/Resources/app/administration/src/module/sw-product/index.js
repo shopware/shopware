@@ -48,25 +48,17 @@ Shopware.Component.register(
     () => import('./component/sw-product-document-form/sw-product-document-language-hint'),
 );
 Shopware.Component.register(
-    'sw-product-document-language-value',
-    () => import('./component/sw-product-document-form/sw-product-document-language-value'),
+    'sw-product-document-cell',
+    () => import('./component/sw-product-document-form/sw-product-document-cell'),
 );
 Shopware.Component.register(
     'sw-product-document-add-button',
     () => import('./component/sw-product-document-form/sw-product-document-add-button'),
 );
-Shopware.Component.register(
-    'sw-product-document-variant-badge',
-    () => import('./component/sw-product-document-form/sw-product-document-variant-badge'),
-);
 Shopware.Component.register('sw-product-document-form', () => import('./component/sw-product-document-form'));
 Shopware.Component.register(
     'sw-product-document-download',
     () => import('./component/sw-product-document-form/sw-product-document-download'),
-);
-Shopware.Component.register(
-    'sw-product-document-empty-state',
-    () => import('./component/sw-product-document-form/sw-product-document-empty-state'),
 );
 Shopware.Component.register(
     'sw-product-document-edit-modal',

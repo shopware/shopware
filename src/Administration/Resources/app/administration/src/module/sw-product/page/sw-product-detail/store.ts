@@ -4,6 +4,7 @@
 
 import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import type { ContextStore } from '../../../../app/store/context.store';
+import type { DocumentVariantOperation } from '../../component/sw-product-document-form/product-document.helper';
 
 type LoadingProperties =
     | 'init'
@@ -38,9 +39,7 @@ const swProductDetail = Shopware.Store.register({
             product: {} as ProductDetailProduct,
             parentProduct: {} as Entity<'product'>,
             isDownloadExternallyManaged: false,
-            productDocumentMedia: new WeakMap<Entity<'product'>, Map<EntityKey<'media'>, Entity<'media'>>>(),
-            // Keep locale-loaded metadata stable when the global language fetch finishes later.
-            documentLanguage: null as Entity<'language'> | null,
+            documentVariantOperations: [] as DocumentVariantOperation[],
             currencies: [] as Entity<'currency'>[],
             apiContext: {} as ContextStore['api'],
             taxes: [] as Entity<'tax'>[],
@@ -274,16 +273,6 @@ const swProductDetail = Shopware.Store.register({
 
         setWeightUnit(unit: string) {
             this.weightUnit = unit;
-        },
-
-        getProductDocumentMedia(mediaId: EntityKey<'media'>): Entity<'media'> | undefined {
-            return this.productDocumentMedia.get(this.product)?.get(mediaId);
-        },
-
-        setProductDocumentMedia(media: Entity<'media'>): void {
-            const mediaById = this.productDocumentMedia.get(this.product) || new Map<EntityKey<'media'>, Entity<'media'>>();
-            mediaById.set(media.id, media);
-            this.productDocumentMedia.set(this.product, mediaById);
         },
     },
 });

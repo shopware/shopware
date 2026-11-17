@@ -1,19 +1,25 @@
 /**
  * @sw-package inventory
  */
-import template from './sw-product-document-language-value.html.twig';
-import './sw-product-document-language-value.scss';
+import type { PropType } from 'vue';
+import { getDocumentTitle, getTranslated } from '../product-document.helper';
+import template from './sw-product-document-cell.html.twig';
+import './sw-product-document-cell.scss';
 
 /** @private */
 export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {
-        value: {
-            type: String,
+        document: {
+            type: Object as PropType<Entity<'product_document'>>,
             required: true,
         },
-        isTranslated: {
+        column: {
+            type: String as PropType<'title' | 'fileName' | 'fileType' | 'fileSize'>,
+            required: true,
+        },
+        showVariantBadge: {
             type: Boolean,
             required: false,
             default: false,
@@ -21,25 +27,55 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        languageId() {
-            return Shopware.Store.get('context').api.languageId;
+        media(): Entity<'media'> | null | undefined {
+            return getTranslated(this.document).media;
         },
 
-        systemLanguageId() {
-            return Shopware.Store.get('context').api.systemLanguageId;
+        value(): string {
+            const media = this.media;
+            switch (this.column) {
+                case 'title':
+                    return getDocumentTitle(this.document);
+                case 'fileName':
+                    return media?.fileName ? [media.fileName, media.fileExtension].filter(Boolean).join('.') : '';
+                case 'fileType':
+                    return media?.fileExtension?.toUpperCase() ?? '';
+                default:
+                    return typeof media?.fileSize === 'number' ? Shopware.Utils.format.fileSize(media.fileSize) : '';
+            }
         },
 
-        isSystemDefaultLanguage(): boolean {
-            return this.languageId === this.systemLanguageId;
+        isLanguageColumn(): boolean {
+            return this.column === 'title' || this.column === 'fileName';
+        },
+
+        isTranslated(): boolean {
+            return this.column === 'title' ? !!this.document.title : !!this.document.mediaId;
+        },
+
+        isDefaultLanguage(): boolean {
+            return Shopware.Store.get('context').isSystemDefaultLanguage;
         },
 
         languageCode(): string {
-            const language = Shopware.Store.get('swProductDetail').documentLanguage;
-            if (language?.id !== this.languageId) {
-                return '';
-            }
+            const { languageId } = Shopware.Store.get('context').api;
+            const language = Shopware.Store.get('context').api.language as Entity<'language'> | null;
+            return language?.id === languageId ? language.locale?.code.split('-')[0].toUpperCase() || '' : '';
+        },
 
-            return language?.locale?.code.split('-')[0].toUpperCase() || '';
+        isVariantOnly(): boolean {
+            const { product, parentProduct } = Shopware.Store.get('swProductDetail');
+            const mediaId = getTranslated(this.document).mediaId;
+            return (
+                this.showVariantBadge &&
+                !!product.parentId &&
+                !!mediaId &&
+                !parentProduct.documents?.some(
+                    (document) =>
+                        getTranslated(document).mediaId === mediaId ||
+                        document.translations?.some((translation) => translation.mediaId === mediaId),
+                )
+            );
         },
     },
 });

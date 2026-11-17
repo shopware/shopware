@@ -404,6 +404,77 @@ class ProductListingRouteTest extends TestCase
         ], self::loadCriteria($route, 'categoryId')->getFilterFields());
     }
 
+    public function testSharedGroupIsLoadedAndAddedOnce(): void
+    {
+        $productStreamBuilder = $this->createMock(ProductStreamBuilder::class);
+        $productStreamBuilder->expects($this->exactly(2))
+            ->method('enrichCriteria')
+            ->willReturnCallback(static function (Criteria $criteria, string $id): void {
+                $criteria->addFilter(new EqualsFilter('product.product_stream', $id));
+            });
+
+        $route = $this->createRoute(
+            self::categoryRepository(self::manualCategory('parent-category'), [
+                self::groupCategory('men-sale', 'saleStreamId', '|parent-category|men|'),
+                self::groupCategory('women-sale', 'saleStreamId', '|parent-category|women|'),
+                self::groupCategory('new-arrivals', 'newStreamId', '|parent-category|'),
+            ]),
+            $productStreamBuilder,
+        );
+
+        static::assertEquals(
+            new OrFilter([
+                new EqualsFilter('product.product_stream', 'saleStreamId'),
+                new EqualsFilter('product.product_stream', 'newStreamId'),
+                new EqualsAnyFilter('product.categoriesRo.id', ['parent-category']),
+            ]),
+            array_values(self::loadCriteria($route, 'parent-category')->getFilters())[1]
+        );
+    }
+
+    public function testUnusableSharedGroupIsLoggedOnce(): void
+    {
+        $productStreamBuilder = static::createStub(ProductStreamBuilder::class);
+        $productStreamBuilder->method('enrichCriteria')
+            ->willThrowException(ProductStreamException::noFilters('brokenStreamId'));
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('warning');
+
+        $route = $this->createRoute(
+            self::categoryRepository(self::manualCategory('parent-category'), [
+                self::groupCategory('broken-child-category', 'brokenStreamId', '|parent-category|'),
+                self::groupCategory('other-broken-child-category', 'brokenStreamId', '|parent-category|'),
+            ]),
+            $productStreamBuilder,
+            logger: $logger,
+        );
+
+        self::loadCriteria($route, 'parent-category');
+    }
+
+    public function testGroupOfTheRequestedCategoryIsNotAddedAgainForASubcategory(): void
+    {
+        $productStreamBuilder = $this->createMock(ProductStreamBuilder::class);
+        $productStreamBuilder->expects($this->once())
+            ->method('enrichCriteria')
+            ->willReturnCallback(static function (Criteria $criteria, string $id): void {
+                $criteria->addFilter(new EqualsFilter('product.product_stream', $id));
+            });
+
+        $route = $this->createRoute(
+            self::categoryRepository(self::groupCategory('outlet', 'saleStreamId'), [
+                self::groupCategory('outlet-extra', 'saleStreamId', '|outlet|'),
+            ]),
+            $productStreamBuilder,
+        );
+
+        static::assertEquals(
+            new EqualsFilter('product.product_stream', 'saleStreamId'),
+            array_values(self::loadCriteria($route, 'outlet')->getFilters())[1]
+        );
+    }
+
     private function loadProductStreamListing(\Throwable $streamException, LoggerInterface $logger): Criteria
     {
         $productStreamBuilder = static::createStub(ProductStreamBuilder::class);

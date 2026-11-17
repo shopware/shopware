@@ -194,9 +194,20 @@ class ProductListingRoute extends AbstractProductListingRoute
             );
         }
 
+        $streamFilters = [];
         foreach ($streamSubcategories as $subcategory) {
-            $filters[] = $this->getSubcategoryStreamFilter($category, $subcategory, $context);
+            $subcategoryStreamId = $this->getProductStreamId($subcategory);
+            if (
+                $subcategoryStreamId === null
+                || $subcategoryStreamId === $productStreamId
+                || \array_key_exists($subcategoryStreamId, $streamFilters)
+            ) {
+                continue;
+            }
+
+            $streamFilters[$subcategoryStreamId] = $this->getSubcategoryStreamFilter($category, $subcategory, $subcategoryStreamId, $context);
         }
+        array_push($filters, ...array_values($streamFilters));
 
         if ($manualCategoryIds !== []) {
             // categoriesRo holds every category of a product's tree, so this also matches the products assigned
@@ -213,13 +224,8 @@ class ProductListingRoute extends AbstractProductListingRoute
     /**
      * An unusable group of a subcategory is skipped, so that it does not break the listings of all categories above it
      */
-    private function getSubcategoryStreamFilter(PartialEntity $category, PartialEntity $subcategory, SalesChannelContext $context): ?Filter
+    private function getSubcategoryStreamFilter(PartialEntity $category, PartialEntity $subcategory, string $productStreamId, SalesChannelContext $context): ?Filter
     {
-        $productStreamId = $this->getProductStreamId($subcategory);
-        if ($productStreamId === null) {
-            return null;
-        }
-
         try {
             return $this->getStreamFilter($this->loadProductStreamCriteria($productStreamId, $context));
         } catch (NoFilterException|EntityNotFoundException $exception) {

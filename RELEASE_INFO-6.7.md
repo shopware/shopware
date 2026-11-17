@@ -61,6 +61,17 @@ The Administration doesn't offer rules using it for payment methods or promotion
 
 A new line item rule condition `LineItemDimensionLongestAndGirthRule` (`cartLineItemDimensionLongestAndGirth`) was added. It matches the cart against the longest side plus girth of each individual line item. It is calculated as `longest side + 2 * (shortest side + second shortest side)`. This condition allows for more precise shipping rules based on the dimensions of the items in the cart.
 
+### Mails and documents list every shipment
+
+`OrderDeliveryCollection::getShipments()` returns the deliveries that are not shipping discounts, in the order the Administration lists them: the primary delivery first when its id is passed, then by shipping costs.
+The cart's `DeliveryCollection::getShipments()` returns the cart deliveries that are not shipping discounts, highest shipping costs first.
+When an order has more than one shipment, the default order confirmation, payment received and payment reminder mails list each shipment with its shipping method, address, shipping costs and delivery period.
+The delivery status mails name the shipment whose state changed when the flow provides `orderDelivery`, and list every shipment with its state otherwise.
+A migration updates these mail templates unless they were changed in the Administration.
+Documents keep one shipping costs row with the shipping total of the order; this row and the shipping method line name each shipping method of the shipments once.
+The invoice shows the shipping address of the primary delivery.
+Orders with one shipment render as before.
+
 ### Services can be reset between requests in long running runtimes
 
 With the new `LONGRUNNING_ENVIRONMENT` feature flag, services tagged with `kernel.reset` are reset between two requests handled by the same kernel instance, as in a plain Symfony application.
@@ -365,6 +376,14 @@ Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations
 
 The property is unused and will be removed in 6.8.
 
+### Order deliveries keep the order of the cart deliveries
+
+Order deliveries have a new `position` field with the order of the cart deliveries when the order was placed, starting at 1.
+Extensions that build several cart deliveries in a deliberate order, for example by priority or release date, no longer need to persist that order themselves.
+Sort order deliveries by `position` to show them in that order; the primary delivery is still the one with the highest shipping costs.
+Recalculating an order numbers the deliveries from 1 again in the order of their stored positions, like line items, with deliveries added by the recalculation, such as shipping discounts, last.
+Deliveries of orders placed before this release have position `0` until the order is recalculated.
+
 ### Cart guards cover every cart delivery
 
 A cart can carry more than one delivery, each with its own shipping method and shipping address, while the `SalesChannelContext` keeps the customer's default shipping method and address.
@@ -540,6 +559,14 @@ The route requires the `number_range:read` privilege.
 The number range detail page in the Administration uses it to show a warning when it loads or saves a number range with a colliding pattern.
 Saving is not blocked.
 
+### Reset a SEO URL to its template
+
+`PATCH /api/_action/seo-url/canonical` accepts an empty or missing `seoPathInfo`, unless the request sets `isModified` to `true`.
+It replaces the canonical SEO URL of that entity, sales channel and language with the URL generated from the SEO URL template, and removes its write protection (`isModified`).
+Before, the request was rejected with `400`.
+When the template generates no URL there, for example for an inactive sales channel or a language without a domain, the request is rejected with `400` and the error code `CONTENT__SEO_URL_RESET_NOT_POSSIBLE`, and the SEO URL stays unchanged.
+In the Administration, clearing the SEO URL field of a product or category and saving does this.
+
 ### Sync API reports missing references as write errors
 
 Sync API writes that reference a missing entity or version now return a field-specific write error with HTTP 400 instead of exposing a database error as HTTP 500.
@@ -560,6 +587,11 @@ To remove such an app, uninstall it and remove its package with Composer.
 
 The experimental `/store-api/cookie-groups` route now also returns `cookieHashes`, which maps each cookie name to a hash of its configuration, including the data of every group that lists it.
 Clients can compare these hashes to find out which cookies were added or changed when the configuration `hash` changes.
+
+### Order deliveries have a `position` field
+
+Order deliveries in the Admin API and Store API have a new integer `position` field with the order of the deliveries in the cart the order was placed from, starting at 1.
+Deliveries of orders placed before this release have position `0` until the order is recalculated.
 
 ### Price definitions are validated so that they can be read again
 
@@ -744,6 +776,25 @@ bin/console administration:check-extensions -- --only=MyPlugin --fix
 
 To keep a rule off, set it to `'off'` in the `eslint.config.mjs` of your extension, or record the current findings with `--update-baseline`.
 
+### Extension Jest configs can compose the Administration test harness (experimental)
+
+The Administration extension tooling now ships a Jest config factory, `extension-tooling/jest.mjs`, next to its TypeScript and ESLint presets.
+It carries the harness the Administration's own specs run on: the `shopware:*` virtual modules, the feature flag registry behind `Shopware.Feature.triggerDeprecationOrThrow()`, `it.deprecated()` and `it.activeFeatureFlags()`, the global `Shopware` setup and the transforms.
+An extension Jest config that composes it picks up every later change to the harness without editing its own config:
+
+```js
+// jest.config.mjs, beside the generated .shopware/ bridge
+import { shopwareAdminJestConfig } from './.shopware/jest.mjs';
+
+export default shopwareAdminJestConfig({
+    moduleNameMapper: { '^MyPlugin/(.*)$': '<rootDir>/src/$1' },
+});
+```
+
+`composer admin:setup-extension-tooling` (or `bin/console administration:setup-extension-tooling` in a Composer install) generates the `.shopware/jest.mjs` bridge for every extension.
+The harness works in a platform checkout and in a Composer install: the `shopware/administration` package now ships the Administration's Jest setup files (without spec files).
+Before the first run, generate the entity schema with `bin/console administration:generate-entity-schema-types` and the component import map with `npm run unit-setup` in the Administration directory.
+The factory is part of the experimental extension tooling, so the terms of [Opt-in TypeScript and ESLint configuration for Administration extensions](#opt-in-typescript-and-eslint-configuration-for-administration-extensions-experimental) apply to it as well.
 ### Meteor apps get their own path in the Administration watcher
 
 An extension that ships an Administration entry and a `meteor-app` used to get both dev servers under `/_internal_ext/<technical-name>/`.
@@ -938,6 +989,16 @@ If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0
 For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
 
 ## Storefront
+
+### Checkout and account pages list every shipment
+
+When a cart or order has more than one shipment, the confirm, finish and edit order pages and the account order history list each shipment with its shipping method, address, shipping costs and delivery period, and the account order list shows the state of every shipment.
+Deliveries with negative shipping costs are shipping discounts and are not listed as shipments.
+`AccountOrderPageLoader` and `AccountOverviewPageLoader` now load the shipping address and the state of every delivery, independent of the `v6.8.0.0` feature flag.
+`CheckoutFinishPageLoader` and `AccountEditOrderPageLoader` load the shipping method and the shipping address of every delivery, also with the flag active.
+Carts and orders with one shipment render as before.
+The new component `@Storefront/storefront/component/checkout/shipment.html.twig` renders a single shipment.
+The lists sit in the new blocks `page_checkout_confirm_address_shipping_shipments`, `page_checkout_finish_address_shipping_shipments`, `page_checkout_finish_order_dispatch_method_shipments` and `page_account_order_item_detail_shipments`.
 
 ### New shipping method blocks added
 

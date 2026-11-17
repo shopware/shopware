@@ -8,6 +8,7 @@ use OpenSearchDSL\Query\FullText\MatchQuery;
 use OpenSearchDSL\Query\TermLevel\TermQuery;
 use OpenSearchDSL\Search;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
@@ -259,5 +261,63 @@ class ElasticsearchHelperTest extends TestCase
                 ],
             ],
         ]], $search->toArray());
+    }
+
+    #[DataProvider('termWordLimitCases')]
+    public function testAddTermLimitsTheTermToTenDistinctWords(string $term, string $expectedTerm): void
+    {
+        $termOfBuiltQuery = null;
+        $esDefinition = static::createStub(AbstractElasticsearchDefinition::class);
+        $esDefinition->method('buildTermQuery')
+            ->willReturnCallback(static function (Context $context, Criteria $criteria) use (&$termOfBuiltQuery): TermQuery {
+                $termOfBuiltQuery = $criteria->getTerm();
+
+                return new TermQuery('field', 'value');
+            });
+
+        $registry = static::createStub(ElasticsearchRegistry::class);
+        $registry->method('get')->willReturn($esDefinition);
+
+        $helper = new ElasticsearchHelper(
+            'dev',
+            true,
+            true,
+            'prefix',
+            true,
+            static::createStub(Client::class),
+            $registry,
+            static::createStub(CriteriaParser::class),
+            static::createStub(LoggerInterface::class),
+            static::createStub(SystemConfigService::class),
+        );
+
+        $criteria = new Criteria();
+        $criteria->setTerm($term);
+
+        $helper->addTerm($criteria, new Search(), Context::createDefaultContext(), new ProductDefinition());
+
+        static::assertSame($expectedTerm, $termOfBuiltQuery);
+        static::assertSame($term, $criteria->getTerm());
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function termWordLimitCases(): iterable
+    {
+        yield 'term with 10 distinct words is kept as it is' => [
+            'Red red  Shirt shirt a b c d e f g h',
+            'Red red  Shirt shirt a b c d e f g h',
+        ];
+
+        yield 'words after the tenth distinct word are dropped' => [
+            'chair table lamp shirt shoes watch phone glass plate brush knife spoon',
+            'chair table lamp shirt shoes watch phone glass plate brush',
+        ];
+
+        yield 'repeated words count once and keep their first spelling' => [
+            'Chair chair table lamp shirt shoes watch phone glass plate brush knife',
+            'Chair table lamp shirt shoes watch phone glass plate brush',
+        ];
     }
 }

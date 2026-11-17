@@ -108,17 +108,5 @@ class ElasticsearchTokenizerTest extends TestCase
             null,
             ['10'],
         ];
-
-        yield 'only the first 10 distinct tokens are kept' => [
-            'chair table lamp shirt shoes watch phone glass plate brush knife spoon',
-            null,
-            ['chair', 'table', 'lamp', 'shirt', 'shoes', 'watch', 'phone', 'glass', 'plate', 'brush'],
-        ];
-
-        yield 'duplicates and dropped tokens do not count towards the token limit' => [
-            'chair Chair a table lamp shirt shoes watch phone glass plate & brush knife',
-            null,
-            ['chair', 'table', 'lamp', 'shirt', 'shoes', 'watch', 'phone', 'glass', 'plate', 'brush'],
-        ];
     }
 }

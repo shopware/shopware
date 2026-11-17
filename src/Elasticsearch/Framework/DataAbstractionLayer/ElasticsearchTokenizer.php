@@ -25,8 +25,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 final class ElasticsearchTokenizer implements TokenizerInterface
 {
-    private const MAX_TOKENS = 10;
-
     /**
      * @return list<string>
      */
@@ -48,6 +46,6 @@ final class ElasticsearchTokenizer implements TokenizerInterface
                 && preg_match('/[\p{L}\p{N}]/u', $token) === 1,
         );
 
-        return \array_slice(array_values(array_unique($tokens)), 0, self::MAX_TOKENS);
+        return array_values(array_unique($tokens));
     }
 }

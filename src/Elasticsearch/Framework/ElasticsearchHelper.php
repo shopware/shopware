@@ -24,6 +24,8 @@ class ElasticsearchHelper
     // max for default configuration
     final public const MAX_SIZE_VALUE = 10000;
 
+    private const MAX_TERM_WORDS = 10;
+
     /**
      * @internal
      */
@@ -161,7 +163,7 @@ class ElasticsearchHelper
             throw ElasticsearchException::unsupportedElasticsearchDefinition($definition->getEntityName());
         }
 
-        $query = $esDefinition->buildTermQuery($context, $criteria);
+        $query = $esDefinition->buildTermQuery($context, $this->limitTermWords($criteria));
 
         $search->addQuery($query);
 
@@ -270,5 +272,23 @@ class ElasticsearchHelper
         }
 
         return $this->systemConfigService->getFloat('core.search.minScore', $salesChannelId);
+    }
+
+    private function limitTermWords(Criteria $criteria): Criteria
+    {
+        $words = [];
+
+        foreach (preg_split('/\s+/u', (string) $criteria->getTerm(), -1, \PREG_SPLIT_NO_EMPTY) ?: [] as $word) {
+            $words[mb_strtolower($word)] ??= $word;
+        }
+
+        if (\count($words) <= self::MAX_TERM_WORDS) {
+            return $criteria;
+        }
+
+        $limited = clone $criteria;
+        $limited->setTerm(implode(' ', \array_slice($words, 0, self::MAX_TERM_WORDS)));
+
+        return $limited;
     }
 }

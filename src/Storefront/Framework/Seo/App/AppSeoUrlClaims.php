@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Framework\Seo\App;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Seo\Validation\Constraint\ValidSeoPathInfo;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 
@@ -75,6 +76,7 @@ class AppSeoUrlClaims
 
     public static function normalizePath(string $path): string
     {
-        return mb_strtolower(ltrim($path, '/'));
+        // seo paths are stored with non-ASCII characters percent-encoded, compare in that form
+        return strtolower(ValidSeoPathInfo::encodeNonAscii(mb_strtolower(ltrim($path, '/'))));
     }
 }

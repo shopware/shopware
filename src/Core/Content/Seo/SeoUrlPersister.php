@@ -128,6 +128,17 @@ class SeoUrlPersister
             if (($seoUrl['error'] ?? '') !== '') {
                 continue;
             }
+
+            // Generated SEO URLs bypass the DAL write validator, so filter
+            // sequences that are not URL-allowed here (stray `%`, `#`, `\`,
+            // control chars) rather than rejecting the batch. Valid
+            // percent-escapes emitted by rawurlencode for non-ASCII slug
+            // configs are preserved and raw non-ASCII characters are
+            // percent-encoded. See #13796.
+            // Sanitized before the change check, so an unchanged path compares
+            // equal to its stored (sanitized) form.
+            $seoPathInfo = ValidSeoPathInfo::sanitize(ltrim((string) $seoUrl['seoPathInfo'], '/'));
+
             $existing = $canonicals[$fk][$salesChannelId] ?? null;
 
             if ($existing !== null) {
@@ -136,18 +147,11 @@ class SeoUrlPersister
                 }
 
                 // entity has override or does not change
-                if ($this->skipUpdate($existing, $seoUrl, $overwrite)) {
+                if ($this->skipUpdate($existing, $seoUrl, $seoPathInfo, $overwrite)) {
                     continue;
                 }
                 $obsoleted[] = $existing['id'];
             }
-
-            // Generated SEO URLs bypass the DAL write validator, so filter
-            // sequences that are not URL-allowed here (stray `%`, `#`, `\`,
-            // control chars) rather than rejecting the batch. Valid
-            // percent-escapes emitted by rawurlencode for non-ASCII slug
-            // configs are preserved. See #13796.
-            $seoPathInfo = ValidSeoPathInfo::sanitize(ltrim((string) $seoUrl['seoPathInfo'], '/'));
 
             $seoPathInfos[] = $seoPathInfo;
 
@@ -197,8 +201,9 @@ class SeoUrlPersister
     /**
      * @param array{isModified: bool, seoPathInfo: string, salesChannelId: string} $existing
      * @param array<string, mixed> $seoUrl the raw seo url as generated/handed in, so its keys are not statically typed
+     * @param string $seoPathInfo the sanitized seo path of $seoUrl, as it would be stored
      */
-    private function skipUpdate(array $existing, array $seoUrl, bool $overwrite = false): bool
+    private function skipUpdate(array $existing, array $seoUrl, string $seoPathInfo, bool $overwrite = false): bool
     {
         // Write-protection guard: automatic template regeneration (overwrite=false)
         // must never replace a manually modified (isModified=1) SEO URL that still
@@ -208,7 +213,7 @@ class SeoUrlPersister
         }
 
         // A different path or sales channel is always a real change, so never skip.
-        if ($seoUrl['seoPathInfo'] !== $existing['seoPathInfo']
+        if ($seoPathInfo !== $existing['seoPathInfo']
             || $seoUrl['salesChannelId'] !== $existing['salesChannelId']) {
             return false;
         }

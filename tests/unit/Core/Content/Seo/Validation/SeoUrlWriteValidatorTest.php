@@ -125,6 +125,27 @@ class SeoUrlWriteValidatorTest extends TestCase
         static::assertCount(0, $event->getExceptions()->getExceptions());
     }
 
+    /**
+     * @return iterable<string, array{0: string, 1: string}>
+     */
+    public static function storedSeoPaths(): iterable
+    {
+        yield 'ascii path untouched' => ['Computers/Laptops', 'Computers/Laptops'];
+        yield 'percent-escape untouched' => ['caf%C3%A9/SW10098', 'caf%C3%A9/SW10098'];
+        yield 'non-ascii character encoded (#17830)' => ['Babyöl', 'Baby%C3%B6l'];
+        yield 'non-ascii in query encoded' => ['produkt?farbe=grün', 'produkt?farbe=gr%C3%BCn'];
+    }
+
+    #[DataProvider('storedSeoPaths')]
+    public function testValidSeoPathIsStoredWithNonAsciiEncoded(string $path, string $expected): void
+    {
+        $event = $this->dispatch($path);
+
+        static::assertCount(0, $event->getExceptions()->getExceptions());
+        $command = $event->getCommands()[0];
+        static::assertSame($expected, $command->getPayload()['seo_path_info']);
+    }
+
     #[DataProvider('invalidSeoPaths')]
     public function testInvalidSeoPathIsRejected(string $path): void
     {

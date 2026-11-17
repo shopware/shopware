@@ -967,11 +967,8 @@ For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-
 
 ### Production Vite builds generate JavaScript SBOMs
 
-Production Vite builds now generate CycloneDX JSON inventories at `Resources/sbom/storefront/shopware.cdx.json` for the shared Shopware module and `Resources/sbom/storefront/components.cdx.json` for each bundle's components.
-The reports are kept outside public assets and are not published by `assets:install`.
-Extension component builds include bundled npm packages regardless of their development-dependency classification, including when using custom Vite configurations.
-The reports also include dependencies bundled into Web Workers, including shared and inline workers.
-Retain these reports when packaging extensions after source cleanup.
+Production Vite builds now generate CycloneDX JSON inventories at `Resources/sbom/storefront/shopware.cdx.json` for the shared Shopware module and `Resources/sbom/storefront/components.cdx.json` for each bundle's components. The reports are kept outside public assets and are not published by `assets:install`. Extension component builds include bundled npm packages regardless of their development-dependency classification, including when using custom Vite configurations. The reports also include dependencies bundled into Web Workers, including shared and inline workers. Retain these reports when packaging extensions after source cleanup.
+
 ### Checkout and account pages list every shipment
 
 When a cart or order has more than one shipment, the confirm, finish and edit order pages and the account order history list each shipment with its shipping method, address, shipping costs and delivery period, and the account order list shows the state of every shipment.

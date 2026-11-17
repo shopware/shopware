@@ -33,7 +33,7 @@
                                 v-if="isInheritField"
                                 :is-inherited="isInherited"
                                 :disabled="!canEdit"
-                                @inheritance-restore="restoreInheritance"
+                                @inheritance-restore="onShowRestoreInheritanceModal"
                                 @inheritance-remove="removeInheritance"
                             />
                             <h3 class="mt-card__title">
@@ -292,6 +292,44 @@
                 @close="closeRemoveDocumentModal"
                 @remove="removeDocument"
             />
+        {% endblock %}
+
+        {% block sw_product_document_form_restore_inheritance_modal %}
+            <sw-modal
+                v-if="showRestoreInheritanceModal"
+                variant="small"
+                :title="$t('sw-product.documentForm.restoreInheritanceTitle')"
+                class="sw-product-document-form__restore-inheritance-modal"
+                @modal-close="onCloseRestoreInheritanceModal"
+            >
+                {% block sw_product_document_form_restore_inheritance_text %}
+                <p>{{ $t('sw-product.documentForm.restoreInheritanceDescription') }}</p>
+                {% endblock %}
+
+                <template #modal-footer>
+                    {% block sw_product_document_form_restore_inheritance_cancel %}
+                    <mt-button
+                        size="small"
+                        variant="secondary"
+                        @click="onCloseRestoreInheritanceModal"
+                    >
+                        {{ $t('global.default.cancel') }}
+                    </mt-button>
+                    {% endblock %}
+
+                    {% block sw_product_document_form_restore_inheritance_confirm %}
+                    <mt-button
+                        class="sw-product-document-form__confirm-restore-inheritance"
+                        size="small"
+                        variant="primary"
+                        :disabled="!canEdit"
+                        @click="onConfirmRestoreInheritance"
+                    >
+                        {{ $t('sw-product.documentForm.restoreInheritanceButton') }}
+                    </mt-button>
+                    {% endblock %}
+                </template>
+            </sw-modal>
         {% endblock %}
 
         </div>

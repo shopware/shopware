@@ -161,6 +161,7 @@ describe('sw-product-detail-base document save and reload', () => {
         await wrapper
             .get('.sw-product-detail-base__documents .sw-inheritance-switch--is-not-inherited .mt-icon')
             .trigger('click');
+        await wrapper.get('.sw-product-document-form__confirm-restore-inheritance').trigger('click');
         const deleteRoute = `/product/${variantId}/documents/${documentId}`;
         responses.addResponse({
             method: 'DELETE',

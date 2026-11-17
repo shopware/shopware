@@ -56,6 +56,14 @@ describe('sw-product-document-form inheritance', () => {
         expect(wrapper.text()).toContain('Variant manual');
 
         await wrapper.get('.sw-inheritance-switch--is-not-inherited .mt-icon').trigger('click');
+        expect(wrapper.find('.sw-product-document-form__restore-inheritance-modal').exists()).toBe(true);
+        expect(getDocuments()).toHaveLength(1);
+        await clickButton(wrapper, 'global.default.cancel');
+        expect(wrapper.find('.sw-product-document-form__restore-inheritance-modal').exists()).toBe(false);
+        expect(getDocuments()).toHaveLength(1);
+
+        await wrapper.get('.sw-inheritance-switch--is-not-inherited .mt-icon').trigger('click');
+        await clickButton(wrapper, 'sw-product.documentForm.restoreInheritanceButton');
         expect(getDocuments()).toHaveLength(0);
         expect(wrapper.text()).toContain('Parent manual');
     });
@@ -155,6 +163,8 @@ describe('sw-product-document-form inheritance', () => {
         expect(store.parentProduct.documents).toHaveLength(0);
 
         await wrapper.get('.sw-inheritance-switch--is-not-inherited .mt-icon').trigger('click');
+        expect(wrapper.find('.sw-product-document-form__restore-inheritance-modal').exists()).toBe(true);
+        await clickButton(wrapper, 'sw-product.documentForm.restoreInheritanceButton');
         expect(wrapper.get('.sw-product-document-form__empty-state button').attributes('disabled')).toBeDefined();
         expect(getDocuments()).toHaveLength(0);
     });
@@ -173,6 +183,24 @@ describe('sw-product-document-form inheritance', () => {
 
         expect(wrapper.find('.sw-inheritance-switch--is-inherited').exists()).toBe(true);
         expect(wrapper.get('.sw-product-document-form__empty-state button').attributes('disabled')).toBeDefined();
+        expect(nextVariant.documents).toHaveLength(0);
+    });
+
+    it('closes the restore confirmation when navigating to another variant', async () => {
+        const store = Shopware.Store.get('swProductDetail');
+        store.product.parentId = store.parentProduct.id;
+        store.product.documents?.add(repositoryFactory.create('product_document').create());
+        const wrapper = await createWrapper();
+
+        await wrapper.get('.sw-inheritance-switch--is-not-inherited .mt-icon').trigger('click');
+        expect(wrapper.find('.sw-product-document-form__restore-inheritance-modal').exists()).toBe(true);
+
+        const nextVariant = createProduct();
+        nextVariant.parentId = store.parentProduct.id;
+        store.product = nextVariant;
+        await flushPromises();
+
+        expect(wrapper.find('.sw-product-document-form__restore-inheritance-modal').exists()).toBe(false);
         expect(nextVariant.documents).toHaveLength(0);
     });
 

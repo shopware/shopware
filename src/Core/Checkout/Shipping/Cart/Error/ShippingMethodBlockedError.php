@@ -24,7 +24,7 @@ class ShippingMethodBlockedError extends Error
         protected readonly string $name,
         protected readonly ?string $id = null,
         protected readonly ?string $reason = null,
-        protected readonly array $deliveryIdentifiers = [],
+        protected array $deliveryIdentifiers = [],
     ) {
         if ($id === null || $reason === null) {
             Feature::triggerDeprecationOrThrow(
@@ -103,6 +103,14 @@ class ShippingMethodBlockedError extends Error
     public function getDeliveryIdentifiers(): array
     {
         return $this->deliveryIdentifiers;
+    }
+
+    /**
+     * @internal
+     */
+    public function addDeliveryIdentifiersOf(self $error): void
+    {
+        $this->deliveryIdentifiers = array_values(array_unique([...$error->getDeliveryIdentifiers(), ...$this->deliveryIdentifiers]));
     }
 
     public function blockOrder(): bool

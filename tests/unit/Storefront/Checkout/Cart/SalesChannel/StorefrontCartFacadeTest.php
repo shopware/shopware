@@ -633,6 +633,12 @@ class StorefrontCartFacadeTest extends TestCase
     public function testGetWithCheckoutGatewayRestoresTheBlockedErrorWhenTheFallbackIsBlockedToo(): void
     {
         $cart = $this->getCart();
+        $cart->addErrors(new ShippingMethodBlockedError(
+            name: 'original-shipping-method-name',
+            id: 'original-shipping-method-id',
+            reason: 'rule not matching or inactive',
+            deliveryIdentifiers: ['warehouse-1'],
+        ));
         $paymentMethods = new PaymentMethodCollection([
             $this->createPaymentMethod('original-payment-method-id', 'Original payment method'),
         ]);
@@ -681,7 +687,7 @@ class StorefrontCartFacadeTest extends TestCase
         static::assertCount(0, $errors->filterInstance(ShippingMethodChangedError::class));
         $blockedError = $errors->get('shipping-method-blocked-original-shipping-method-id');
         static::assertInstanceOf(ShippingMethodBlockedError::class, $blockedError);
-        static::assertSame([Delivery::DEFAULT_IDENTIFIER], $blockedError->getDeliveryIdentifiers());
+        static::assertSame(['warehouse-1', Delivery::DEFAULT_IDENTIFIER], $blockedError->getDeliveryIdentifiers());
     }
 
     public function testGetWithCheckoutGatewayKeepsBlockedMethodOfAnotherDelivery(): void

@@ -110,10 +110,6 @@
                                     },
                                     {
                                         "properties": {
-                                            "checkPromotion": {
-                                                "description": "Check if the payment method of the order is still changeable.",
-                                                "type": "boolean"
-                                            },
                                             "filter": {
                                                 "type": "array",
                                                 "description": "Pass the deepLinkCode criteria filter to allow for guest user authentification. Not required, if a user (guest or not) is already logged in.",
@@ -158,6 +154,50 @@
                                             }
                                         },
                                         "type": "object"
+                                    },
+                                    {
+                                        "anyOf": [
+                                            {
+                                                "properties": {
+                                                    "checkPromotion": {
+                                                        "description": "Check if the payment method of the order is still changeable.",
+                                                        "type": "boolean",
+                                                        "enum": [
+                                                            false
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                "required": [
+                                                    "checkPromotion",
+                                                    "associations"
+                                                ],
+                                                "properties": {
+                                                    "checkPromotion": {
+                                                        "description": "Check if the payment method of the order is still changeable. Requires the `lineItems` association, because promotions are read from the order line items.",
+                                                        "type": "boolean",
+                                                        "enum": [
+                                                            true
+                                                        ]
+                                                    },
+                                                    "associations": {
+                                                        "type": "object",
+                                                        "required": [
+                                                            "lineItems"
+                                                        ],
+                                                        "properties": {
+                                                            "lineItems": {
+                                                                "$ref": "#/components/schemas/Criteria"
+                                                            }
+                                                        },
+                                                        "additionalProperties": {
+                                                            "$ref": "#/components/schemas/Criteria"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        ]
                                     }
                                 ]
                             }

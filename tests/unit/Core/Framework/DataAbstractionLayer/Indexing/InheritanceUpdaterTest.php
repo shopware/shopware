@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Indexing;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -59,13 +60,30 @@ class InheritanceUpdaterTest extends TestCase
         static::assertSame(Uuid::fromHexToBytes($context->getVersionId()), $statements[0]['params']['version']);
     }
 
+    public function testUpdateScopesEveryStatementToTheContextVersion(): void
+    {
+        $context = Context::createDefaultContext()->createWithVersionId(Uuid::randomHex());
+
+        $statements = $this->captureStatements(InheritanceUpdaterMixedTestDefinition::class, [Uuid::randomHex()], $context);
+
+        static::assertCount(3, $statements);
+        foreach ($statements as $statement) {
+            static::assertStringContainsString('`inheritance_mixed`.version_id = :version', $statement['sql']);
+            static::assertSame(Uuid::fromHexToBytes($context->getVersionId()), $statement['params']['version']);
+        }
+
+        static::assertStringContainsString('`inheritance_mixed`.version_id = parent.version_id', $statements[1]['sql'], 'A variant must only inherit from its parent in the same version.');
+    }
+
     public function testUpdateOmitsTheVersionScopeForEntitiesWithoutVersions(): void
     {
         $statements = $this->captureStatements(InheritanceUpdaterUnversionedTestDefinition::class, [Uuid::randomHex()]);
 
-        static::assertCount(1, $statements);
-        static::assertStringNotContainsString(':version', $statements[0]['sql']);
-        static::assertArrayNotHasKey('version', $statements[0]['params']);
+        static::assertCount(3, $statements);
+        foreach ($statements as $statement) {
+            static::assertStringNotContainsString('version_id', $statement['sql']);
+            static::assertArrayNotHasKey('version', $statement['params']);
+        }
     }
 
     public function testUpdatePassesEveryGivenIdOnceAsBinary(): void
@@ -73,12 +91,30 @@ class InheritanceUpdaterTest extends TestCase
         $first = Uuid::randomHex();
         $second = Uuid::randomHex();
 
-        $statements = $this->captureStatements(InheritanceUpdaterRootTestDefinition::class, [$first, $second, $first, '']);
+        $statements = $this->captureStatements(InheritanceUpdaterMixedTestDefinition::class, [$first, $second, $first, '']);
 
-        static::assertSame(
-            [Uuid::fromHexToBytes($first), Uuid::fromHexToBytes($second)],
-            array_values($statements[0]['params']['ids']),
-        );
+        static::assertCount(3, $statements);
+        foreach ($statements as $statement) {
+            static::assertSame(
+                [Uuid::fromHexToBytes($first), Uuid::fromHexToBytes($second)],
+                array_values($statement['params']['ids']),
+            );
+            static::assertSame(['ids' => ArrayParameterType::BINARY], $statement['types']);
+        }
+    }
+
+    public function testUpdateNeedsThreeStatementsForAnEntityWithBothAssociationKinds(): void
+    {
+        $statements = $this->captureStatements(InheritanceUpdaterMixedTestDefinition::class, [Uuid::randomHex()]);
+
+        static::assertCount(3, $statements);
+
+        [$toMany, $parented, $root] = $statements;
+
+        static::assertStringContainsString('`prices` = IFNULL(', $toMany['sql']);
+        static::assertStringContainsString('`tax` = IFNULL(`inheritance_mixed`.`tax_id`, parent.`tax_id`)', $parented['sql']);
+        static::assertStringContainsString('`tax` = `inheritance_mixed`.`tax_id`', $root['sql']);
+        static::assertStringContainsString('parent_id IS NULL', $root['sql']);
     }
 
     public function testUpdateDoesNotTouchTheDatabaseWithoutIds(): void
@@ -107,7 +143,7 @@ class InheritanceUpdaterTest extends TestCase
      * @param class-string<EntityDefinition> $definition
      * @param list<string> $ids
      *
-     * @return list<array{sql: string, params: array<string, mixed>}>
+     * @return list<array{sql: string, params: array<string, mixed>, types: array<int|string, mixed>}>
      */
     private function captureStatements(string $definition, array $ids, ?Context $context = null): array
     {
@@ -115,8 +151,8 @@ class InheritanceUpdaterTest extends TestCase
 
         $connection = static::createStub(Connection::class);
         $connection->method('executeStatement')->willReturnCallback(
-            function (string $sql, array $params = []) use (&$statements): int {
-                $statements[] = ['sql' => $sql, 'params' => $params];
+            function (string $sql, array $params = [], array $types = []) use (&$statements): int {
+                $statements[] = ['sql' => $sql, 'params' => $params, 'types' => $types];
 
                 return 1;
             }
@@ -126,6 +162,7 @@ class InheritanceUpdaterTest extends TestCase
             [
                 InheritanceUpdaterRootTestDefinition::class,
                 InheritanceUpdaterManyToOneTestDefinition::class,
+                InheritanceUpdaterMixedTestDefinition::class,
                 InheritanceUpdaterUnversionedTestDefinition::class,
                 InheritanceUpdaterReferenceTestDefinition::class,
             ],
@@ -188,6 +225,28 @@ class InheritanceUpdaterManyToOneTestDefinition extends EntityDefinition
 /**
  * @internal
  */
+class InheritanceUpdaterMixedTestDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'inheritance_mixed';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            new VersionField(),
+            new FkField('tax_id', 'taxId', InheritanceUpdaterReferenceTestDefinition::class),
+            (new OneToManyAssociationField('prices', InheritanceUpdaterReferenceTestDefinition::class, 'inheritance_mixed_id'))->addFlags(new Inherited()),
+            (new ManyToOneAssociationField('tax', 'tax_id', InheritanceUpdaterReferenceTestDefinition::class))->addFlags(new Inherited()),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
 class InheritanceUpdaterUnversionedTestDefinition extends EntityDefinition
 {
     public function getEntityName(): string
@@ -199,7 +258,9 @@ class InheritanceUpdaterUnversionedTestDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            new FkField('tax_id', 'taxId', InheritanceUpdaterReferenceTestDefinition::class),
             (new OneToManyAssociationField('prices', InheritanceUpdaterReferenceTestDefinition::class, 'inheritance_unversioned_id'))->addFlags(new Inherited()),
+            (new ManyToOneAssociationField('tax', 'tax_id', InheritanceUpdaterReferenceTestDefinition::class))->addFlags(new Inherited()),
         ]);
     }
 }

@@ -52,23 +52,6 @@ export type HiddenAccessGroup = {
     containsPersonalData: boolean;
 };
 
-/**
- * Access to the entities of one owning module through admin privilege keys of other modules.
- *
- * @private
- */
-export type IndirectAccess = {
-    ownerKey: string;
-    containsPersonalData: boolean;
-    entries: Array<{
-        privilege: string;
-        entity: string;
-        operation: string;
-        sourceKeys: string[];
-        containsPersonalData: boolean;
-    }>;
-};
-
 type AccessCache = {
     entityOwners: Map<string, string[]>;
     personalDataEntities: Set<string>;
@@ -435,7 +418,7 @@ export default class PrivilegesService {
     /**
      * Returns the privileges the given admin privilege key grants on entities owned by other modules,
      * grouped by the owning module.
-     * Entities without an owner and default user privileges are not hidden;
+     * Entities without an owner, link tables and default user privileges are not hidden;
      * entities with several owners are grouped under `ownerKey: null`.
      */
     public getHiddenAccess(adminPrivilegeKey: string): HiddenAccessGroup[] {
@@ -459,9 +442,10 @@ export default class PrivilegesService {
                 return false;
             }
 
-            const owners = cache.entityOwners.get(privilege.split(':')[0]);
+            const entity = privilege.split(':')[0];
+            const owners = cache.entityOwners.get(entity);
 
-            return owners !== undefined && !owners.includes(moduleKey);
+            return owners !== undefined && !owners.includes(moduleKey) && !this.isLinkEntity(entity);
         });
 
         const hiddenAccess = this.groupHiddenPrivileges(hiddenPrivileges);
@@ -495,66 +479,51 @@ export default class PrivilegesService {
     }
 
     /**
-     * Returns, per owning module, the privileges on its entities that the selection grants through other modules.
-     * Privileges already granted by a selected role of the owning module itself are left out.
-     * Entities with several owners are left out, because no single module row can show them.
+     * Returns what the selected admin privilege keys grant on entities owned by other modules, grouped by the owner.
+     * Privileges a selected role of the owning module grants anyway are left out,
+     * so only access the role would not get otherwise remains.
      */
-    public getIndirectAccess(selectedAdminPrivilegeKeys: string[]): IndirectAccess[] {
-        const cache = this.accessCache.value;
-        const selectedKeys = [...new Set(selectedAdminPrivilegeKeys)].filter((adminPrivilegeKey) => {
-            return cache.expandedKeys.has(adminPrivilegeKey);
+    public getIncludedAccess(selectedAdminPrivilegeKeys: string[]): HiddenAccessGroup[] {
+        const { entityOwners } = this.accessCache.value;
+        const selectedKeys = [...new Set(selectedAdminPrivilegeKeys)];
+
+        const ownPrivilegesByModule = new Map<string, Set<string>>();
+        selectedKeys.forEach((adminPrivilegeKey) => {
+            const moduleKey = adminPrivilegeKey.split('.')[0];
+            const ownPrivileges = ownPrivilegesByModule.get(moduleKey) ?? new Set<string>();
+
+            this.getExpandedPrivileges(adminPrivilegeKey).forEach((privilege) => ownPrivileges.add(privilege));
+            ownPrivilegesByModule.set(moduleKey, ownPrivileges);
         });
-        const indirectAccess = new Map<string, Map<string, IndirectAccess['entries'][number]>>();
 
-        selectedKeys.forEach((sourceKey) => {
-            this.getHiddenAccess(sourceKey).forEach((group) => {
-                const ownerKey = group.ownerKey;
+        const includedPrivileges = selectedKeys
+            .flatMap((adminPrivilegeKey) => {
+                return this.getHiddenAccess(adminPrivilegeKey).flatMap((group) => group.privileges);
+            })
+            .filter((privilege) => {
+                const owners = entityOwners.get(privilege.split(':')[0]) ?? [];
 
-                if (ownerKey === null) {
-                    return;
-                }
-
-                const ownerPrivileges = new Set(
-                    selectedKeys
-                        .filter((adminPrivilegeKey) => adminPrivilegeKey.split('.')[0] === ownerKey)
-                        .flatMap((adminPrivilegeKey) => this.getExpandedPrivileges(adminPrivilegeKey)),
-                );
-
-                group.privileges.forEach((privilege) => {
-                    if (ownerPrivileges.has(privilege)) {
-                        return;
-                    }
-
-                    let entries = indirectAccess.get(ownerKey);
-                    if (!entries) {
-                        entries = new Map();
-                        indirectAccess.set(ownerKey, entries);
-                    }
-
-                    const [entity, operation] = privilege.split(':');
-                    const entry = entries.get(privilege) ?? {
-                        privilege,
-                        entity,
-                        operation,
-                        sourceKeys: [],
-                        containsPersonalData: cache.personalDataEntities.has(entity),
-                    };
-
-                    entry.sourceKeys.push(sourceKey);
-                    entries.set(privilege, entry);
-                });
+                return owners.length !== 1 || !ownPrivilegesByModule.get(owners[0])?.has(privilege);
             });
-        });
 
-        return [...indirectAccess.entries()].map(([ownerKey, entries]) => {
-            const entryList = [...entries.values()];
+        return this.groupHiddenPrivileges(includedPrivileges);
+    }
 
-            return {
-                ownerKey,
-                containsPersonalData: entryList.some((entry) => entry.containsPersonalData),
-                entries: entryList,
-            };
-        });
+    /**
+     * Link tables only connect two entities, for example `product_category`.
+     * Access to them comes with the entities they connect, so on their own they say nothing new.
+     */
+    private isLinkEntity(entity: string): boolean {
+        if (!Shopware.EntityDefinition.has(entity)) {
+            return false;
+        }
+
+        const properties = Object.values(Shopware.EntityDefinition.get(entity).properties);
+
+        return (
+            properties.length > 0 &&
+            properties.every((property) => property.flags?.primary_key === true || property.type === 'association')
+        );
     }
 
     private groupHiddenPrivileges(privileges: string[]): HiddenAccessGroup[] {

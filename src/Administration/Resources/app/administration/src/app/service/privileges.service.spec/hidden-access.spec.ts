@@ -208,8 +208,8 @@ describe('src/app/service/privileges.service hidden access', () => {
                 containsPersonalData: true,
             },
         ]);
-        // shared data has no single module row
-        expect(service.getIndirectAccess(['product.viewer']).map((access) => access.ownerKey)).toEqual(['review']);
+        // nothing of the owning modules is selected, so nothing is left out
+        expect(service.getIncludedAccess(['product.viewer'])).toEqual(service.getHiddenAccess('product.viewer'));
     });
 
     it('should flag only the listed entities when containsPersonalData is a list', () => {
@@ -247,50 +247,59 @@ describe('src/app/service/privileges.service hidden access', () => {
         expect(service.isPersonalDataEntity('customer')).toBe(true);
     });
 
-    it('should leave out indirect access the owning module already grants', () => {
+    it('should leave out included access the owning module already grants', () => {
         const service = createService([
             customer,
             country,
             tag,
         ]);
+        const includedPrivileges = (keys: string[]) => {
+            return service.getIncludedAccess(keys).map((group) => [group.ownerKey, group.privileges]);
+        };
 
         expect(
-            service.getIndirectAccess([
+            includedPrivileges([
                 'country.viewer',
                 'tag.editor',
             ]),
         ).toEqual([
-            {
-                ownerKey: 'customer',
-                containsPersonalData: true,
-                entries: [
-                    {
-                        privilege: 'customer:read',
-                        entity: 'customer',
-                        operation: 'read',
-                        sourceKeys: [
-                            'country.viewer',
-                            'tag.editor',
-                        ],
-                        containsPersonalData: true,
-                    },
-                    {
-                        privilege: 'customer:update',
-                        entity: 'customer',
-                        operation: 'update',
-                        sourceKeys: ['tag.editor'],
-                        containsPersonalData: true,
-                    },
+            [
+                'customer',
+                [
+                    'customer:read',
+                    'customer:update',
                 ],
-            },
+            ],
         ]);
 
-        const withOwner = service.getIndirectAccess([
-            'country.viewer',
-            'tag.editor',
-            'customer.viewer',
+        expect(
+            includedPrivileges([
+                'country.viewer',
+                'tag.editor',
+                'customer.viewer',
+            ]),
+        ).toEqual([['customer', ['customer:update']]]);
+
+        expect(
+            includedPrivileges([
+                'country.viewer',
+                'customer.viewer',
+            ]),
+        ).toEqual([]);
+    });
+
+    it('should not report link tables as hidden access', () => {
+        const service = createService([
+            permission('product', {
+                viewer: { privileges: ['product:read', 'category:read', 'product_category:read'] },
+                creator: { privileges: ['product:create'] },
+            }),
+            permission('category', {
+                creator: { privileges: ['category:create', 'product_category:create'] },
+            }),
         ]);
-        expect(withOwner[0].entries.map((entry) => entry.privilege)).toEqual(['customer:update']);
+
+        expect(service.getHiddenAccess('product.viewer').map((group) => group.privileges)).toEqual([['category:read']]);
     });
 
     it('should return the selected keys granting a privilege', () => {

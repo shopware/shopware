@@ -68,15 +68,37 @@
                 "tooltipParentRole": "Alle {role}-Rechte für {parent}",
                 "tooltipParentAll": "Alle Rechte für {parent} ({roles})",
                 "tooltipEntityAll": "Alle Rechte für {entity} ({roles})",
-                "hiddenAccessChip": "+{count} Bereich | +{count} Bereiche",
-                "hiddenAccessChipTooltip": "Diese Berechtigung gewährt auch Zugriff auf Daten anderer Bereiche. Klicke, um sie anzuzeigen.",
-                "personalData": "Personenbezogene Daten",
-                "writeAccess": "Kann Daten ändern",
-                "sharedData": "Gemeinsam genutzte Daten",
-                "grantedViaTitle": "Auch über andere Berechtigungen zugänglich:",
-                "grantedViaEntry": "{operation} über {modules}",
-                "personalDataBannerText": "Manche Bereiche brauchen Daten aus anderen Bereichen, daher kann diese Rolle auch auf personenbezogene Daten in {areas} zugreifen. Die hervorgehobenen Zeilen unten zeigen, woher das kommt.",
-                "personalDataBannerLink": "Alle enthaltenen Berechtigungen anzeigen"
+                "includedAccessHint": "Einige Berechtigungen brauchen Zugriff auf andere Bereiche, um zu funktionieren.",
+                "reviewIncludedAccess": "Enthaltenen Zugriff prüfen ({count} Bereich) | Enthaltenen Zugriff prüfen ({count} Bereiche)",
+                "includedAccessTooltip": "Enthält auch Zugriff auf {count} weiteren Bereich | Enthält auch Zugriff auf {count} weitere Bereiche",
+                "includedAccessPreviewTooltip": "Wenn Du {role} auswählst, ist auch Zugriff auf {count} weiteren Bereich enthalten | Wenn Du {role} auswählst, ist auch Zugriff auf {count} weitere Bereiche enthalten",
+                "rowModalTitle": "{area} enthält auch",
+                "rowModalSubtitleSelected": "Ausgewählt: {roles}",
+                "rowModalSubtitlePreview": "Wenn Du {role} auswählst",
+                "rowModalDescription": "{area} braucht diesen Zugriff, um zu funktionieren. Benutzer mit dieser Rolle erhalten ihn automatisch.",
+                "roleModalTitle": "Diese Rolle enthält auch",
+                "roleModalSubtitle": "{count} Berechtigung ausgewählt | {count} Berechtigungen ausgewählt",
+                "roleModalDescription": "Die ausgewählten Berechtigungen brauchen Zugriff auf diese Bereiche, um zu funktionieren. Benutzer mit dieser Rolle erhalten ihn automatisch."
+            },
+            "included-access": {
+                "tiers": {
+                    "personal": "Persönliche Daten ansehen",
+                    "write": "Daten ändern in",
+                    "read": "Daten ansehen in"
+                },
+                "columnArea": "Bereich",
+                "columnAccess": "Zugriff",
+                "grantedBy": "Erteilt durch {count} Berechtigung | Erteilt durch {count} Berechtigungen",
+                "fullAccess": "Vollzugriff",
+                "operations": {
+                    "read": "ansehen",
+                    "update": "bearbeiten",
+                    "create": "erstellen",
+                    "delete": "löschen"
+                },
+                "sourceEntry": "{area} › {role}",
+                "sharedData": "Gemeinsame Daten",
+                "sharedDataDescription": "Von mehreren Bereichen genutzt"
             },
             "additional-permissions": {
                 "title": "Zusätzliche Berechtigungen"

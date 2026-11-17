@@ -30,7 +30,7 @@ export default {
 
     data() {
         return {
-            expandedHiddenAccessKeys: [],
+            includedAccessModal: null,
         };
     },
 
@@ -142,39 +142,17 @@ export default {
             }, {});
         },
 
-        indirectAccessByOwner() {
-            return this.privileges.getIndirectAccess(this.selectedPrivilegeKeys).reduce((byOwner, access) => {
-                byOwner[access.ownerKey] = access;
-
-                return byOwner;
-            }, {});
-        },
-
-        personalDataAreas() {
-            return Object.values(this.indirectAccessByOwner)
-                .filter((access) => access.containsPersonalData)
-                .map((access) => {
-                    const privileges = [
-                        ...new Set(
-                            access.entries.filter((entry) => entry.containsPersonalData).map((entry) => entry.privilege),
-                        ),
-                    ].sort();
-
-                    return {
-                        key: access.ownerKey,
-                        label: this.ownerLabel(access.ownerKey),
-                        privileges: privileges.join(', '),
-                    };
-                })
-                .sort((a, b) => a.label.localeCompare(b.label));
+        /**
+         * What the selected permissions grant on other areas beyond what those areas' own selected roles grant.
+         */
+        roleIncludedAccess() {
+            return this.privileges.getIncludedAccess(this.selectedPrivilegeKeys);
         },
     },
 
     methods: {
         rowPreviewKeys(permission) {
-            const selectedKeys = Object.keys(permission.roles)
-                .map((role) => `${permission.key}.${role}`)
-                .filter((identifier) => this.selectedPrivilegeKeys.includes(identifier));
+            const selectedKeys = this.selectedRowKeys(permission);
 
             if (selectedKeys.length > 0) {
                 return selectedKeys;
@@ -189,137 +167,72 @@ export default {
             return this.hiddenAccessByKey[permissionKey] ?? [];
         },
 
-        /**
-         * Write access and personal data need attention, plain reads of other areas don't.
-         */
-        needsAttention(group) {
-            return group.containsWrite || group.containsPersonalData;
+        selectedRowKeys(permission) {
+            return Object.keys(permission.roles)
+                .map((role) => `${permission.key}.${role}`)
+                .filter((identifier) => this.selectedPrivilegeKeys.includes(identifier));
         },
 
-        hasHiddenAttention(permissionKey) {
-            return this.hiddenAccess(permissionKey).some((group) => this.needsAttention(group));
+        isRowSelected(permission) {
+            return this.selectedRowKeys(permission).length > 0;
         },
 
-        /**
-         * Areas that need attention come first, plain reads follow.
-         */
-        sortedHiddenAccess(permissionKey) {
-            const groups = this.hiddenAccess(permissionKey);
+        rowPreviewRoleLabel(permission) {
+            const [, role] = this.rowPreviewKeys(permission)[0].split('.');
 
-            return [
-                ...groups.filter((group) => this.needsAttention(group)),
-                ...groups.filter((group) => !this.needsAttention(group)),
-            ];
+            return this.$t(`sw-privileges.roles.${role}`);
         },
 
-        hiddenAccessTooltip(group) {
-            return group.entries
-                .map((entry) => `${this.operationsLabel(entry.operations)} ${entry.entities.join(', ')}`)
-                .join('; ');
-        },
+        includedAccessButtonTooltip(permission) {
+            const count = this.hiddenAccess(permission.key).length;
 
-        isHiddenAccessExpanded(permissionKey) {
-            return this.expandedHiddenAccessKeys.includes(permissionKey);
-        },
-
-        toggleHiddenAccess(permissionKey) {
-            if (this.isHiddenAccessExpanded(permissionKey)) {
-                this.expandedHiddenAccessKeys = this.expandedHiddenAccessKeys.filter((key) => key !== permissionKey);
-                return;
+            if (this.isRowSelected(permission)) {
+                return this.$t('sw-users-permissions.roles.grid.includedAccessTooltip', { count }, count);
             }
 
-            this.expandedHiddenAccessKeys = [
-                ...this.expandedHiddenAccessKeys,
-                permissionKey,
-            ];
+            return this.$t(
+                'sw-users-permissions.roles.grid.includedAccessPreviewTooltip',
+                { count, role: this.rowPreviewRoleLabel(permission) },
+                count,
+            );
         },
 
-        ownerLabel(ownerKey) {
-            if (ownerKey === null) {
-                return this.$t('sw-users-permissions.roles.grid.sharedData');
-            }
-
-            return this.$t(`sw-privileges.permissions.${ownerKey}.label`);
-        },
-
-        operationsLabel(operations) {
-            return operations.map((operation) => this.$t(`sw-privileges.permissionType.${operation}`)).join(', ');
-        },
-
-        sourceLabel(adminPrivilegeKey) {
-            const [key, role] = adminPrivilegeKey.split('.');
-            const mapping = this.privileges.getPrivilegesMappings().find((privilegeMapping) => {
-                return privilegeMapping.key === key && role in privilegeMapping.roles;
+        openRowIncludedAccess(permission) {
+            const area = this.$t(`sw-privileges.permissions.${permission.key}.label`);
+            const selectedRoles = this.selectedRowKeys(permission).map((identifier) => {
+                return this.$t(`sw-privileges.roles.${identifier.split('.')[1]}`);
             });
 
-            if (mapping?.category === 'additional_permissions') {
-                return this.$t(`sw-privileges.additional_permissions.${key}.${role}`);
-            }
-
-            return this.$t(`sw-privileges.permissions.${key}.label`);
+            this.includedAccessModal = {
+                privilegeKeys: this.rowPreviewKeys(permission),
+                title: this.$t('sw-users-permissions.roles.grid.rowModalTitle', { area }),
+                subtitle:
+                    selectedRoles.length > 0
+                        ? this.$t('sw-users-permissions.roles.grid.rowModalSubtitleSelected', {
+                              roles: selectedRoles.join(', '),
+                          })
+                        : this.$t('sw-users-permissions.roles.grid.rowModalSubtitlePreview', {
+                              role: this.rowPreviewRoleLabel(permission),
+                          }),
+                description: this.$t('sw-users-permissions.roles.grid.rowModalDescription', { area }),
+                withSources: false,
+            };
         },
 
-        sourceLabels(adminPrivilegeKeys) {
-            return [...new Set(adminPrivilegeKeys.map((adminPrivilegeKey) => this.sourceLabel(adminPrivilegeKey)))];
+        openRoleIncludedAccess() {
+            const count = this.selectedPrivilegeKeys.length;
+
+            this.includedAccessModal = {
+                privilegeKeys: [...this.selectedPrivilegeKeys],
+                title: this.$t('sw-users-permissions.roles.grid.roleModalTitle'),
+                subtitle: this.$t('sw-users-permissions.roles.grid.roleModalSubtitle', { count }, count),
+                description: this.$t('sw-users-permissions.roles.grid.roleModalDescription'),
+                withSources: true,
+            };
         },
 
-        grantedViaNotes(permissionKey) {
-            const access = this.indirectAccessByOwner[permissionKey];
-
-            if (!access) {
-                return [];
-            }
-
-            const sourceKeysByOperation = access.entries.reduce((byOperation, entry) => {
-                byOperation[entry.operation] = [
-                    ...(byOperation[entry.operation] ?? []),
-                    ...entry.sourceKeys,
-                ];
-
-                return byOperation;
-            }, {});
-
-            const sourcesByOperation = [
-                'read',
-                'update',
-                'create',
-                'delete',
-                ...Object.keys(sourceKeysByOperation),
-            ]
-                .filter((operation, index, operations) => operations.indexOf(operation) === index)
-                .filter((operation) => sourceKeysByOperation[operation])
-                .map((operation) => ({
-                    operation,
-                    modules: this.sourceLabels(sourceKeysByOperation[operation]).sort().join(', '),
-                }));
-
-            // Operations reached through the same modules share one note
-            const notes = sourcesByOperation.reduce((byModules, { operation, modules }) => {
-                byModules.set(modules, [...(byModules.get(modules) ?? []), operation]);
-
-                return byModules;
-            }, new Map());
-
-            return [...notes.entries()].map(([modules, operations]) => ({
-                key: operations.join('-'),
-                text: this.$t('sw-users-permissions.roles.grid.grantedViaEntry', {
-                    operation: this.operationsLabel(operations),
-                    modules,
-                }),
-            }));
-        },
-
-        grantedViaTooltip(permissionKey) {
-            const notes = this.grantedViaNotes(permissionKey).map((note) => note.text);
-
-            return `${this.$t('sw-users-permissions.roles.grid.grantedViaTitle')} ${notes.join('; ')}`;
-        },
-
-        onShowDetailedPrivileges() {
-            this.$router.push({
-                name: 'sw.users.permissions.role.detail.detailed-privileges',
-                params: { id: this.$route.params.id },
-            });
+        closeIncludedAccess() {
+            this.includedAccessModal = null;
         },
 
         parentLabel(parentValue) {

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Listing;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -26,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -384,6 +386,78 @@ class ProductListingLoaderTest extends TestCase
 
         static::assertCount(1, $availabilityCriteria->getFilters());
         static::assertSame([$ids->get('main-a')], $resultIds);
+    }
+
+    public function testAggregatesWithoutScoreQueriesWhenFiltersSelectScoredMatches(): void
+    {
+        $criteria = new Criteria();
+        $criteria->addState(ProductListingLoader::STATE_FILTERS_SELECT_SCORED_MATCHES);
+        $criteria->addQuery(new ScoreQuery(new EqualsFilter('product.searchKeywords.keyword', 'saphir'), 0.4, 'product.searchKeywords.ranking'));
+
+        [$searchCriteria, $aggregationCriteria] = $this->loadWithoutProducts($criteria);
+
+        static::assertCount(1, $searchCriteria->getQueries());
+        static::assertSame([], $aggregationCriteria->getQueries());
+        static::assertEquals($searchCriteria->getFilters(), $aggregationCriteria->getFilters());
+    }
+
+    #[DataProvider('scoreQueriesKeptForAggregationsProvider')]
+    public function testAggregatesWithScoreQueries(Criteria $criteria): void
+    {
+        [, $aggregationCriteria] = $this->loadWithoutProducts($criteria);
+
+        static::assertEquals($criteria->getQueries(), $aggregationCriteria->getQueries());
+    }
+
+    public static function scoreQueriesKeptForAggregationsProvider(): \Generator
+    {
+        $criteria = new Criteria();
+        $criteria->addQuery(new ScoreQuery(new EqualsFilter('product.searchKeywords.keyword', 'saphir'), 0.4, 'product.searchKeywords.ranking'));
+
+        yield 'filters are not known to select the scored matches' => [$criteria];
+
+        $criteria = new Criteria();
+        $criteria->addState(ProductListingLoader::STATE_FILTERS_SELECT_SCORED_MATCHES);
+        $criteria->addQuery(new ScoreQuery(new EqualsFilter('product.searchKeywords.keyword', 'saphir'), 0.4, 'product.searchKeywords.ranking'));
+        $criteria->addQuery(new ScoreQuery(new EqualsFilter('product.manufacturer.name', 'saphir'), -10));
+
+        yield 'a non-positive score query can still drop a filtered product' => [$criteria];
+    }
+
+    /**
+     * @return array{Criteria, Criteria}
+     */
+    private function loadWithoutProducts(Criteria $criteria): array
+    {
+        $this->systemConfigService
+            ->expects($this->atLeastOnce())
+            ->method('getBool')
+            ->willReturnCallback(static fn (string $key): bool => match ($key) {
+                'core.listing.partialDataLoading', 'core.listing.hideCloseoutProductsWhenOutOfStock' => false,
+                default => throw new \RuntimeException('Unexpected config key ' . $key),
+            });
+
+        $searchCriteria = null;
+        $aggregationCriteria = null;
+        $repository = StaticSalesChannelRepository::of(ProductCollection::class, [
+            function (Criteria $criteria) use (&$searchCriteria): IdSearchResult {
+                $searchCriteria = $criteria;
+
+                return $this->createIdSearchResult($criteria, []);
+            },
+            static function (Criteria $criteria) use (&$aggregationCriteria): AggregationResultCollection {
+                $aggregationCriteria = $criteria;
+
+                return new AggregationResultCollection();
+            },
+        ]);
+
+        $this->createLoader($repository)->load($criteria, $this->salesChannelContext);
+
+        static::assertInstanceOf(Criteria::class, $searchCriteria);
+        static::assertInstanceOf(Criteria::class, $aggregationCriteria);
+
+        return [$searchCriteria, $aggregationCriteria];
     }
 
     /**

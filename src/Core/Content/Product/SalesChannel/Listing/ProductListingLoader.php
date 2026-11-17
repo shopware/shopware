@@ -46,6 +46,8 @@ class ProductListingLoader
      */
     final public const STATE_SKIP_ADD_GROUPING = 'skipAddGrouping';
 
+    final public const STATE_FILTERS_SELECT_SCORED_MATCHES = 'filtersSelectScoredMatches';
+
     /**
      * @deprecated tag:v6.8.0 - Will be removed. Reduced listing loading now uses Criteria::excludeFields()
      *             to drop heavy columns instead of allow-listing fields.
@@ -161,7 +163,7 @@ class ProductListingLoader
             function: $this->resolveIds(...)
         );
 
-        $aggregations = $this->productRepository->aggregate($clone, $context);
+        $aggregations = $this->productRepository->aggregate($this->getAggregationCriteria($clone), $context);
 
         $ids = $idResult->getIds();
         // no products found, no need to continue
@@ -442,6 +444,24 @@ class ProductListingLoader
         $read->addAssociation('options.group');
 
         return $this->productRepository->search($read, $context);
+    }
+
+    private function getAggregationCriteria(Criteria $criteria): Criteria
+    {
+        if (!$criteria->hasState(self::STATE_FILTERS_SELECT_SCORED_MATCHES)) {
+            return $criteria;
+        }
+
+        foreach ($criteria->getQueries() as $query) {
+            if ($query->getScore() <= 0) {
+                return $criteria;
+            }
+        }
+
+        $aggregationCriteria = clone $criteria;
+        $aggregationCriteria->resetQueries();
+
+        return $aggregationCriteria;
     }
 
     private function shouldSkipGrouping(Criteria $criteria): bool

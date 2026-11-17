@@ -470,6 +470,15 @@ It throws `CHECKOUT__CART_DELIVERY_POSITION_INVALID_SPLIT_QUANTITY`, `CHECKOUT__
 `DeliveryPositionCollection::getWeight()` and `getVolume()` now count the position quantity instead of the line item quantity.
 For extensions that already build positions holding part of a line item, this changes weight and volume based shipping costs and the cart volume rule.
 
+### Storefront search aggregations skip the score calculation
+
+When the product search runs on MySQL with OR logic, the listing aggregations of the search result no longer repeat the score calculation, which roughly halves their database time.
+The search query now only reads search keywords with a ranking above 0, so the search results stay the same.
+If the search configuration of the language has a field with a negative ranking, the search works as before.
+
+Extensions that build their own search criteria can add the criteria state `ProductListingLoader::STATE_FILTERS_SELECT_SCORED_MATCHES`.
+Only add it when the criteria filters select exactly the products the score queries accept.
+
 ## API
 
 ### Order deliveries and order transactions have a `payload` field

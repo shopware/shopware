@@ -4,12 +4,14 @@ namespace Shopware\Core\Content\Product\SearchKeyword;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\ProductException;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchPattern;
 use Shopware\Core\Framework\Log\Package;
@@ -24,6 +26,7 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
      */
     public function __construct(
         private readonly ProductSearchTermInterpreterInterface $interpreter,
+        private readonly SearchConfigRankingChecker $rankingChecker,
         private readonly LoggerInterface $logger,
         private readonly int $searchTermMaxLength,
         private readonly bool $searchKeywordIndexingEnabled = true,
@@ -80,10 +83,17 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
         );
 
         if ($pattern->getBooleanClause() !== SearchPattern::BOOLEAN_CLAUSE_AND) {
-            $criteria->addFilter(new AndFilter([
+            $keywordFilters = [
                 new EqualsAnyFilter('product.searchKeywords.keyword', array_values($pattern->getAllTerms())),
                 new EqualsFilter('product.searchKeywords.languageId', $context->getLanguageId()),
-            ]));
+            ];
+
+            if (!$this->rankingChecker->hasNegativeRanking($context->getLanguageId())) {
+                $keywordFilters[] = new RangeFilter('product.searchKeywords.ranking', [RangeFilter::GT => 0]);
+                $criteria->addState(ProductListingLoader::STATE_FILTERS_SELECT_SCORED_MATCHES);
+            }
+
+            $criteria->addFilter(new AndFilter($keywordFilters));
 
             return;
         }

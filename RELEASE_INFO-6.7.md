@@ -480,7 +480,8 @@ A delivery or transaction without an identifier can not be addressed, and neithe
 
 The identifier is stored on the order delivery and order transaction and restored when an order is converted back to a cart, so editing or recalculating an order keeps it.
 Order deliveries and order transactions that did not come from a cart delivery or transaction have no identifier, for example those of orders placed before this release or the transaction a payment method change adds after checkout.
-Converting such an order to a cart names them by their order delivery or order transaction id, and recalculating the order stores that id as their identifier, for transactions only while the order is awaiting payment.
+Converting such an order to a cart names them by their order delivery or order transaction id, and so it does for a delivery or transaction that repeats the identifier of an earlier one in the order.
+Recalculating the order stores that id as their identifier, for transactions only while the order is awaiting payment.
 Not passing an identifier is deprecated, it becomes required in 6.8.
 Converting a cart that holds two deliveries or two transactions with the same identifier to an order is deprecated too, it throws an `OrderException` in 6.8.
 

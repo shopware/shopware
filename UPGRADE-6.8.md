@@ -1629,6 +1629,7 @@ Subclasses that override `getIdentifier()` declare the `string` return type.
 
 Converting a cart to an order throws `OrderException::duplicateDeliveryIdentifier()` or `OrderException::duplicateTransactionIdentifier()` when two of its deliveries or two of its transactions share an identifier.
 A cloned delivery or transaction keeps the identifier of the original, so build the new part with its own identifier instead.
+Orders already saved with such duplicates can still be recalculated, converting them to a cart names every repeated delivery or transaction by its id.
 
 # Administration
 

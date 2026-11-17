@@ -502,6 +502,7 @@ class OrderConverter
         }
 
         $cartDeliveries = new DeliveryCollection();
+        $identifiers = [];
         foreach ($keys as $id) {
             if (!$orderDelivery = $orderDeliveries->get($id)) {
                 throw OrderException::orderDeliveryNotFound($id);
@@ -553,6 +554,8 @@ class OrderConverter
                 continue;
             }
 
+            $identifier = self::uniqueIdentifier($orderDelivery->getIdentifier(), $orderDelivery->getId(), $identifiers);
+
             $cartDelivery = new Delivery(
                 $deliveryPositions,
                 $deliveryDate,
@@ -563,7 +566,7 @@ class OrderConverter
                     null
                 ),
                 $orderDelivery->getShippingCosts(),
-                $orderDelivery->getIdentifier() ?? $orderDelivery->getId()
+                $identifier
             );
             $cartDelivery->setPayload($orderDelivery->getPayload());
             $cartDelivery->addExtension(self::ORIGINAL_ID, new IdStruct($orderDelivery->getId()));
@@ -583,6 +586,7 @@ class OrderConverter
         $keys = \array_filter(\array_unique([$primaryOrderTransactionId, ...$orderTransactions->getKeys()]));
 
         $cartTransactions = new TransactionCollection();
+        $identifiers = [];
         foreach ($keys as $id) {
             $orderTransaction = $orderTransactions->get($id);
             if ($orderTransaction === null) {
@@ -592,7 +596,7 @@ class OrderConverter
             $cartTransaction = new Transaction(
                 $orderTransaction->getAmount(),
                 $orderTransaction->getPaymentMethodId(),
-                $orderTransaction->getIdentifier() ?? $orderTransaction->getId(),
+                self::uniqueIdentifier($orderTransaction->getIdentifier(), $orderTransaction->getId(), $identifiers),
             );
             $cartTransaction->setPayload($orderTransaction->getPayload());
             $cartTransaction->addExtension(self::ORIGINAL_ID, new IdStruct($orderTransaction->getId()));
@@ -601,6 +605,20 @@ class OrderConverter
         }
 
         return $cartTransactions;
+    }
+
+    /**
+     * @param array<string, true> $identifiers
+     */
+    private static function uniqueIdentifier(?string $identifier, string $id, array &$identifiers): string
+    {
+        if ($identifier === null || isset($identifiers[$identifier])) {
+            $identifier = $id;
+        }
+
+        $identifiers[$identifier] = true;
+
+        return $identifier;
     }
 
     /**

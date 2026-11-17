@@ -557,6 +557,33 @@ class OrderConverterTest extends TestCase
         );
     }
 
+    public function testConvertToCartNamesDeliveriesAndTransactionsThatRepeatAnIdentifierByTheirIds(): void
+    {
+        $order = $this->getOrder();
+        $orderDeliveries = $order->getDeliveries();
+        static::assertInstanceOf(OrderDeliveryCollection::class, $orderDeliveries);
+        $orderDelivery = $orderDeliveries->get('order-delivery-id');
+        static::assertInstanceOf(OrderDeliveryEntity::class, $orderDelivery);
+        $orderDelivery->setIdentifier(Delivery::DEFAULT_IDENTIFIER);
+        $repeatingOrderDelivery = clone $orderDelivery;
+        $repeatingOrderDelivery->setId('repeating-order-delivery-id');
+        $orderDeliveries->add($repeatingOrderDelivery);
+        foreach ($order->getTransactions() ?? [] as $orderTransaction) {
+            $orderTransaction->setIdentifier(Transaction::DEFAULT_IDENTIFIER);
+        }
+
+        $cart = $this->orderConverter->convertToCart($order, Context::createDefaultContext());
+
+        static::assertSame(
+            [Delivery::DEFAULT_IDENTIFIER, 'repeating-order-delivery-id'],
+            array_values($cart->getDeliveries()->map(static fn (Delivery $delivery) => $delivery->getIdentifier()))
+        );
+        static::assertSame(
+            [Transaction::DEFAULT_IDENTIFIER, 'order-transaction-id', 'order-transaction-failed-id'],
+            array_values($cart->getTransactions()->map(static fn (Transaction $transaction) => $transaction->getIdentifier()))
+        );
+    }
+
     public function testConvertToCartWithoutLoadedTransactions(): void
     {
         $cart = $this->orderConverter->convertToCart($this->getOrder('order-no-transactions'), Context::createDefaultContext());

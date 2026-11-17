@@ -157,7 +157,7 @@ class ProductDocumentValidatorTest extends TestCase
             },
         ]);
 
-        return new ProductDocumentValidator($writeOutcome, $mediaRepository, new ProductDocumentConfig(new EventDispatcher(), ['pdf', 'docx'], maxFileSize: 1024));
+        return new ProductDocumentValidator($writeOutcome, $mediaRepository, new ProductDocumentConfig(new EventDispatcher(), ['pdf', 'docx'], 1024, ['pdf', 'docx']));
     }
 
     private function translation(string $document, string $languageId, string $path, string $file, ?string $storedFile = null): OutcomeRow

@@ -159,4 +159,170 @@ describe('Experience Studio structural draft mutations', () => {
         ]);
         expect(vm.isLoading).toBe(false);
     });
+
+    describe('content the operation could not keep', () => {
+        function createEditor(response: Partial<ContentLayoutDraftMutationResponse>) {
+            const layout = { id: 'layout-1', layout: [] as ContentElementNode[] };
+            const snippets: Array<[string, Record<string, unknown> | undefined, number | undefined]> = [];
+
+            return {
+                layout,
+                openLayouts: [{ layout, selectedElementId: null }],
+                resolveMutationRootSource: () => null,
+                allowSave: true,
+                mutationQueue: Promise.resolve(),
+                pendingMutationCount: 0,
+                isLoading: false,
+                selectedElementId: null,
+                editorStore: { pushToHistory: jest.fn() },
+                requestDraftMutation: jest.fn().mockResolvedValue({
+                    layout: [],
+                    resolutions: {},
+                    diagnostics: { wellFormed: true, resolvable: true, violations: [] },
+                    affectedElementIds: [],
+                    orphaned: [],
+                    droppedWiring: [],
+                    droppedProperties: {},
+                    ...response,
+                }),
+                notifyMutationError: jest.fn(),
+                notifyMutationLoss: methods.notifyMutationLoss,
+                extractMutationErrorCodes: jest.fn().mockReturnValue([]),
+                createNotificationWarning: jest.fn(),
+                snippets,
+                $t: jest.fn((key: string, named?: Record<string, unknown>, plural?: number) => {
+                    snippets.push([
+                        key,
+                        named,
+                        plural,
+                    ]);
+
+                    return key.split('.').pop();
+                }),
+            };
+        }
+
+        it('shows nothing when the operation kept everything', async () => {
+            const editor = createEditor({});
+
+            await methods.executeStructuralDraftMutation.call(editor, 'remove', { elementId: 'text' }, () => null);
+
+            expect(editor.createNotificationWarning).not.toHaveBeenCalled();
+            expect(editor.notifyMutationError).not.toHaveBeenCalled();
+        });
+
+        it('warns with one sentence per channel that reports a loss and points to undo', async () => {
+            const editor = createEditor({
+                orphaned: [
+                    {
+                        id: 'container',
+                        component: 'Sw:Content:Container',
+                        slots: { content: [{ id: 'nested-text', component: 'Sw:Content:Text' }] },
+                    },
+                    { id: 'text', component: 'Sw:Content:Text' },
+                ],
+                droppedWiring: ['product'],
+                droppedProperties: { columns: 3, gap: '<b>16px</b>' },
+            });
+
+            await methods.executeStructuralDraftMutation.call(editor, 'remove', { elementId: 'text' }, () => null);
+
+            expect(editor.snippets).toEqual([
+                [
+                    'sw-experience-studio.detail.mutationLoss.orphaned',
+                    { count: 3 },
+                    3,
+                ],
+                [
+                    'sw-experience-studio.detail.mutationLoss.droppedWiring',
+                    { count: 1 },
+                    1,
+                ],
+                [
+                    'sw-experience-studio.detail.mutationLoss.droppedProperties',
+                    { count: 2 },
+                    2,
+                ],
+                [
+                    'sw-experience-studio.detail.mutationLoss.undoHint',
+                    undefined,
+                    undefined,
+                ],
+            ]);
+            expect(editor.createNotificationWarning).toHaveBeenCalledTimes(1);
+            expect(editor.createNotificationWarning).toHaveBeenCalledWith({
+                message: 'orphaned droppedWiring droppedProperties undoHint',
+                autoClose: false,
+            });
+            expect(editor.editorStore.pushToHistory).toHaveBeenCalledWith([], null, 'layout-1');
+            expect(editor.notifyMutationError).not.toHaveBeenCalled();
+        });
+
+        it('names only the channel that reports a loss', async () => {
+            const editor = createEditor({
+                droppedWiring: [
+                    'product',
+                    'category',
+                ],
+            });
+
+            await methods.executeStructuralDraftMutation.call(editor, 'remove', { elementId: 'text' }, () => null);
+
+            expect(editor.createNotificationWarning).toHaveBeenCalledWith({
+                message: 'droppedWiring undoHint',
+                autoClose: false,
+            });
+        });
+
+        it('points to the other layout when the loss happened in a layout the user switched away from', async () => {
+            const editor = createEditor({ orphaned: [{ id: 'child-1', component: 'Sw:Content:Text' }] });
+            const mutation = methods.executeStructuralDraftMutation.call(
+                editor,
+                'remove',
+                { elementId: 'text' },
+                () => null,
+            );
+            editor.layout = { id: 'layout-2', layout: [] };
+
+            await mutation;
+
+            expect(editor.createNotificationWarning).toHaveBeenCalledWith({
+                message: 'orphaned undoHintOtherLayout',
+                autoClose: false,
+            });
+        });
+
+        it('shows nothing when the layout was closed before the response arrived', async () => {
+            const editor = createEditor({});
+            let respond!: (response: ContentLayoutDraftMutationResponse) => void;
+            editor.requestDraftMutation.mockReturnValue(
+                new Promise((resolve: (response: ContentLayoutDraftMutationResponse) => void) => {
+                    respond = resolve;
+                }),
+            );
+            const mutation = methods.executeStructuralDraftMutation.call(
+                editor,
+                'remove',
+                { elementId: 'text' },
+                () => null,
+            );
+            await Promise.resolve();
+            expect(editor.requestDraftMutation).toHaveBeenCalledTimes(1);
+
+            editor.openLayouts.splice(0);
+            respond({
+                layout: [],
+                resolutions: {},
+                diagnostics: { wellFormed: true, resolvable: true, violations: [] },
+                affectedElementIds: [],
+                orphaned: [{ id: 'child-1', component: 'Sw:Content:Text' }],
+                droppedWiring: [],
+                droppedProperties: {},
+            });
+            await mutation;
+
+            expect(editor.createNotificationWarning).not.toHaveBeenCalled();
+            expect(editor.editorStore.pushToHistory).not.toHaveBeenCalled();
+        });
+    });
 });

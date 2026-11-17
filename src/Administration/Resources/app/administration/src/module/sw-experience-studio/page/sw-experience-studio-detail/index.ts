@@ -155,6 +155,29 @@ type DraftMutationOperation =
     | 'map-property'
     | 'unmap-property';
 
+type MutationLoss = {
+    channel: 'orphaned' | 'droppedWiring' | 'droppedProperties';
+    count: number;
+};
+
+function countElements(elements: ContentElementNode[]): number {
+    return elements.reduce((count, element) => count + 1 + countElements(Object.values(element.slots ?? {}).flat()), 0);
+}
+
+/**
+ * Names every result channel of a mutation response that reports content the operation could not keep.
+ * `orphaned` lists detached subtrees, so the count covers every element in them.
+ */
+function collectMutationLosses(response: ContentLayoutDraftMutationResponse): MutationLoss[] {
+    const losses: MutationLoss[] = [
+        { channel: 'orphaned', count: countElements(response.orphaned) },
+        { channel: 'droppedWiring', count: response.droppedWiring.length },
+        { channel: 'droppedProperties', count: Object.keys(response.droppedProperties).length },
+    ];
+
+    return losses.filter(({ count }) => count > 0);
+}
+
 type ContentSystemLayoutDraftMutationService = {
     insertElement: (payload: ContentLayoutDraftInsertPayload) => Promise<ContentLayoutDraftMutationResponse>;
     removeElement: (payload: ContentLayoutDraftRemovePayload) => Promise<ContentLayoutDraftMutationResponse>;
@@ -2025,6 +2048,27 @@ export default Shopware.Component.wrapComponentConfig({
             });
         },
 
+        /**
+         * The server reports content an operation could not keep. The editor has no recovery flow yet, so it at
+         * least tells the user and points to undo, which restores the tree from before the operation.
+         * Undo works on the active layout only, so a loss in another open layout gets its own hint.
+         * The message carries counts only: notifications render HTML, and the dropped keys come from stored data.
+         * It stays until the user closes it, because a loss must not pass unread.
+         */
+        notifyMutationLoss(losses: MutationLoss[], isActiveLayout: boolean): void {
+            const hint = isActiveLayout ? 'undoHint' : 'undoHintOtherLayout';
+
+            this.createNotificationWarning({
+                message: [
+                    ...losses.map(({ channel, count }) =>
+                        this.$t(`sw-experience-studio.detail.mutationLoss.${channel}`, { count }, count),
+                    ),
+                    this.$t(`sw-experience-studio.detail.mutationLoss.${hint}`),
+                ].join(' '),
+                autoClose: false,
+            });
+        },
+
         createDraftMutationPayload(
             layout: ContentElementNode[],
             operationPayload: Record<string, unknown>,
@@ -2106,6 +2150,10 @@ export default Shopware.Component.wrapComponentConfig({
 
                     this.editorStore.pushToHistory(currentLayout, previousSelectedElementId, layout.id);
                     layout.layout = response.layout;
+                    const losses = collectMutationLosses(response);
+                    if (losses.length > 0) {
+                        this.notifyMutationLoss(losses, this.layout === layout);
+                    }
                     if (this.layout !== layout) {
                         return;
                     }

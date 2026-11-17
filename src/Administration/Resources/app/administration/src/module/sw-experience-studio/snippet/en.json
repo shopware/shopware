@@ -1142,6 +1142,13 @@
         "invalidStructure": "This change is not valid for the current layout structure. Review the selected elements and their positions.",
         "generic": "The layout edit could not be applied. Review your changes or contact your administrator."
       },
+      "mutationLoss": {
+        "orphaned": "{count} nested element was removed from the layout. | {count} nested elements were removed from the layout.",
+        "droppedWiring": "{count} data connection was removed. | {count} data connections were removed.",
+        "droppedProperties": "{count} setting could not be kept. | {count} settings could not be kept.",
+        "undoHint": "Use the undo arrow on the layout to restore the previous state.",
+        "undoHintOtherLayout": "This happened in another open layout. Use the undo arrow on that layout to restore the previous state."
+      },
       "messageSaved": "Content layout saved successfully.",
       "messageSaveError": "The content layout could not be saved.",
       "messageSaveErrorDetail": "The content layout could not be saved: {detail}",

@@ -1142,6 +1142,13 @@
         "invalidStructure": "Diese Änderung ist für die aktuelle Layout-Struktur nicht gültig. Prüfe die gewählten Elemente und ihre Positionen.",
         "generic": "Die Layout-Änderung konnte nicht angewendet werden. Prüfe Deine Änderungen oder wende Dich an Deine Administration."
       },
+      "mutationLoss": {
+        "orphaned": "{count} verschachteltes Element wurde aus dem Layout entfernt. | {count} verschachtelte Elemente wurden aus dem Layout entfernt.",
+        "droppedWiring": "{count} Datenverbindung wurde entfernt. | {count} Datenverbindungen wurden entfernt.",
+        "droppedProperties": "{count} Einstellung konnte nicht übernommen werden. | {count} Einstellungen konnten nicht übernommen werden.",
+        "undoHint": "Mit dem Rückgängig-Pfeil am Layout stellst Du den vorherigen Stand wieder her.",
+        "undoHintOtherLayout": "Das ist in einem anderen geöffneten Layout passiert. Mit dem Rückgängig-Pfeil an diesem Layout stellst Du den vorherigen Stand wieder her."
+      },
       "messageSaved": "Inhaltslayout erfolgreich gespeichert.",
       "messageSaveError": "Das Inhaltslayout konnte nicht gespeichert werden.",
       "messageSaveErrorDetail": "Das Inhaltslayout konnte nicht gespeichert werden: {detail}",

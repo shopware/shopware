@@ -14,6 +14,10 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
+        languageLabel(): string {
+            return this.defaultLanguageName || this.$t('sw-product.documentForm.defaultLanguage');
+        },
+
         defaultLanguageId() {
             return Shopware.Store.get('context').api.systemLanguageId;
         },

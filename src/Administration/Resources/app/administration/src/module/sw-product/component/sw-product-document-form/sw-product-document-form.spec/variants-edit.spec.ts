@@ -213,7 +213,7 @@ describe('sw-product-document-form variant editing', () => {
             );
         });
 
-        it('does not report variant updates when a replacement is reverted before saving the product', async () => {
+        it('reports each variant update when a replacement is applied and reverted before saving the product', async () => {
             const store = Shopware.Store.get('swProductDetail');
             store.product.childCount = 1;
             const original = createMedia();
@@ -238,6 +238,8 @@ describe('sw-product-document-form variant editing', () => {
             await flushPromises();
             expect(translate).toHaveBeenCalledWith('sw-product.documentForm.applySuccess', { name: 'manual', count: 1 });
             const previousMediaId = variant.documents![0].mediaId;
+            translate.mockClear();
+            notification.mockClear();
 
             await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
             await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
@@ -253,6 +255,11 @@ describe('sw-product-document-form variant editing', () => {
                 { type: 'equals', field: 'documents.mediaId', value: previousMediaId },
             ]);
             expect(variant.documents?.[0].mediaId).toBe(original.id);
+            expect(notification).toHaveBeenCalledTimes(1);
+            expect(notification).toHaveBeenCalledWith({
+                variant: 'success',
+                message: 'sw-product.documentForm.applySuccess',
+            });
             expect(translate).toHaveBeenCalledWith('sw-product.documentForm.applySuccess', { name: 'manual', count: 1 });
         });
 

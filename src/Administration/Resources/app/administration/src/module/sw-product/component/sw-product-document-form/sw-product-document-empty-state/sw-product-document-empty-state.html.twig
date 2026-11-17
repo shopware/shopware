@@ -7,7 +7,7 @@
         centered
         icon="regular-file-text"
         :headline="$t('sw-product.documentForm.emptyState')"
-        :description="isDefaultLanguage ? $t('sw-product.documentForm.emptyDescription') : undefined"
+        :description="description"
     >
         <template
             v-if="isDefaultLanguage"

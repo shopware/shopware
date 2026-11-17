@@ -204,8 +204,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         getDocumentSelectionFilter(isInherited: boolean): (document: Entity<'product_document'>) => boolean {
-            return (document) =>
-                this.canEdit && !isInherited && (this.isDefaultLanguage || !!document.title || !!document.mediaId);
+            return (document) => this.canEdit && !isInherited && !this.isAddingLanguageVersion(document);
         },
 
         canMoveDocument(document: Entity<'product_document'>, offset: number): boolean {
@@ -433,7 +432,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             this.removingDocuments = (Array.isArray(document) ? document : [document]).filter(
-                (item) => this.isDefaultLanguage || item.title || item.mediaId,
+                (item) => !this.isAddingLanguageVersion(item),
             );
             this.removeFromVariants = this.hasVariants;
             this.removeModalVersion += 1;
@@ -560,8 +559,12 @@ export default Shopware.Component.wrapComponentConfig({
             });
         },
 
+        isAddingLanguageVersion(document: Entity<'product_document'>): boolean {
+            return !this.isDefaultLanguage && !document.title && !document.mediaId;
+        },
+
         getEditActionLabel(document: Entity<'product_document'>): string {
-            if (!this.isDefaultLanguage && !document.title && !document.mediaId) {
+            if (this.isAddingLanguageVersion(document)) {
                 return this.$t('sw-product.documentForm.addLanguageVersion', { language: this.contentLanguageName });
             }
 

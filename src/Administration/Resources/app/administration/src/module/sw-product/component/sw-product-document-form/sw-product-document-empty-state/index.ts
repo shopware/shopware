@@ -22,4 +22,10 @@ export default Shopware.Component.wrapComponentConfig({
     setup() {
         return useDocumentDefaultLanguage();
     },
+
+    computed: {
+        description(): string | undefined {
+            return this.isDefaultLanguage ? this.$t('sw-product.documentForm.emptyDescription') : undefined;
+        },
+    },
 });

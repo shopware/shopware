@@ -48,11 +48,9 @@ Object-valued fields retain their declared types; calling a setter does not narr
 TwigStan keeps unused loop-parent snapshots outside the context array to avoid exponential context growth.
 The recursive line-item template declares `nestingLevel` as `int` with Twig's `types` tag so analysis can converge without losing the other context types.
 This declaration only provides type information and does not change the runtime value.
-`TypeHintCompatibilityRule` checks Twig `types` declarations against the inferred context before TwigStan replaces its types.
-The declared type must accept the complete concrete inferred type, including every union member and nullability; widening a literal to `int` remains valid.
-Unknown `mixed` values may be refined by a declaration without a compatibility warning.
-Required declarations need a definitely present variable.
-Optional declarations may refer to absent variables, but their values must still match when present.
+`GuardedAttributeIgnoreExtension` permits safe attribute probes even when the current context type cannot provide that attribute.
+It filters `getAttribute.notFound` only for existence checks, lookups with strict checks disabled by Twig, and reads already narrowed by a guard.
+Unguarded reads and other diagnostic identifiers remain checked.
 Findings require triage before becoming blocking checks.
 
 ## Analyzer versions

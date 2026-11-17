@@ -6,10 +6,6 @@
     lastname, and birthday fields for address forms (e.g. registering a user, creating or updating an address)
 #}
 {% block component_address_personal_fields %}
-    {% types {
-        data: 'Shopware\\Core\\Framework\\Validation\\DataBag\\DataBag|Shopware\\Core\\Checkout\\Customer\\CustomerEntity|Shopware\\Core\\Checkout\\Customer\\Aggregate\\CustomerAddress\\CustomerAddressEntity'
-    } %}
-
     {% set prefix = prefix ?? null %}
     {% set idPrefix = idPrefix ?? '' %}
     {% set accountType = accountType ?? null %}

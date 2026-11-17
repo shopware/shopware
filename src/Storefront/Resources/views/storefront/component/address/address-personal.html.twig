@@ -6,6 +6,18 @@
     lastname, and birthday fields for address forms (e.g. registering a user, creating or updating an address)
 #}
 {% block component_address_personal_fields %}
+    {% set prefix = prefix ?? null %}
+    {% set idPrefix = idPrefix ?? '' %}
+    {% set accountType = accountType ?? null %}
+    {% set onlyCompanyRegistration = onlyCompanyRegistration ?? false %}
+    {% set showCompanyFields = showCompanyFields ?? false %}
+    {% set showVatIdField = showVatIdField ?? false %}
+    {% set customToggleTarget = customToggleTarget ?? false %}
+    {% set hideCustomerTypeSelect = hideCustomerTypeSelect ?? false %}
+    {% set scope = scope ?? null %}
+    {% set parentSelector = parentSelector ?? null %}
+    {% set violationPath = violationPath ?? null %}
+
     {% block component_address_personal_account_type %}
         {% set accountTypeFieldName = prefix ? prefix ~ '[accountType]' : 'accountType' %}
 

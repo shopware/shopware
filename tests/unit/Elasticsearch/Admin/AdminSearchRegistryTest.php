@@ -507,6 +507,28 @@ class AdminSearchRegistryTest extends TestCase
         $this->createRegistryForUpdateIds($client, $connection, true, $queue)->updateIds('product', ['c1a28776116d4431a2208eb2960ec340'], Context::createDefaultContext());
     }
 
+    public function testUpdateIdsQueuesTheIdsInBatches(): void
+    {
+        $this->indexer->method('getName')->willReturn('product-listing');
+        $this->indexer->method('getEntity')->willReturn('product');
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllKeyValue')->willReturn(['sw-admin-product-listing' => 'sw-admin-product-listing_12345']);
+
+        $dispatchedIds = [];
+        $queue = static::createStub(MessageBusInterface::class);
+        $queue->method('dispatch')->willReturnCallback(static function (AdminSearchIndexingMessage $message) use (&$dispatchedIds): Envelope {
+            $dispatchedIds[] = $message->getIds();
+
+            return new Envelope($message);
+        });
+
+        $this->createRegistryForUpdateIds(static::createStub(Client::class), $connection, true, $queue, 2)
+            ->updateIds('product', ['id-1', 'id-2', 'id-3'], Context::createDefaultContext());
+
+        static::assertSame([['id-1', 'id-2'], ['id-3']], $dispatchedIds);
+    }
+
     public function testRefreshQueuesEveryAffectedIndexerForSalesChannelSources(): void
     {
         $this->indexer->method('getName')->willReturn('promotion-listing');
@@ -854,7 +876,7 @@ class AdminSearchRegistryTest extends TestCase
         yield 'do not refresh indices' => [false];
     }
 
-    private function createRegistryForUpdateIds(Client $client, Connection $connection, bool $enabled, ?MessageBusInterface $queue = null): AdminSearchRegistry
+    private function createRegistryForUpdateIds(Client $client, Connection $connection, bool $enabled, ?MessageBusInterface $queue = null, int $indexingBatchSize = 1000): AdminSearchRegistry
     {
         return new AdminSearchRegistry(
             ['product' => $this->indexer],
@@ -867,7 +889,8 @@ class AdminSearchRegistryTest extends TestCase
             [],
             [],
             'test',
-            new NativeClock()
+            new NativeClock(),
+            $indexingBatchSize
         );
     }
 }

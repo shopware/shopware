@@ -105,12 +105,7 @@ type GitHubRestClient = PullRequestDiffClient & {
     rest: {
         issues: {
             listEvents(options: ListEventsOptions): Promise<{ data: IssueEvent[] }>;
-            addLabels(options: {
-                owner: string;
-                repo: string;
-                issue_number: number;
-                labels: string[];
-            }): Promise<unknown>;
+            addLabels(options: { owner: string; repo: string; issue_number: number; labels: string[] }): Promise<unknown>;
         };
     };
 };
@@ -387,18 +382,11 @@ export function labelNamesFor(targetMajor: string, labels: MajorLabels): string[
     return names;
 }
 
-export function labelsForDiff(options: {
-    diff: string;
-    flags: FeatureFlag[];
-    majorPaths: string[];
-}): string[] {
+export function labelsForDiff(options: { diff: string; flags: FeatureFlag[]; majorPaths: string[] }): string[] {
     const { diff, flags, majorPaths } = options;
 
     return resolveInFlightMajors(flags).flatMap((targetMajor, index) =>
-        labelNamesFor(
-            targetMajor,
-            evaluateMajorLabels({ diff, flags, targetMajor, majorPaths, isNextMajor: index === 0 }),
-        ),
+        labelNamesFor(targetMajor, evaluateMajorLabels({ diff, flags, targetMajor, majorPaths, isNextMajor: index === 0 })),
     );
 }
 
@@ -417,7 +405,12 @@ export function shouldDetect(context: PullRequestDetectionContext): boolean {
         return false;
     }
 
-    return ['opened', 'reopened', 'synchronize', 'ready_for_review'].includes(context.payload.action);
+    return [
+        'opened',
+        'reopened',
+        'synchronize',
+        'ready_for_review',
+    ].includes(context.payload.action);
 }
 
 export function missingLabels(context: PullRequestContext, wanted: string[]): string[] {
@@ -433,9 +426,7 @@ export function missingLabels(context: PullRequestContext, wanted: string[]): st
  */
 export function withoutRemovedLabels(labels: string[], events: IssueEvent[]): string[] {
     const removed = new Set(
-        events
-            .filter(({ event, actor }) => event === 'unlabeled' && actor?.type !== 'Bot')
-            .map(({ label }) => label?.name),
+        events.filter(({ event, actor }) => event === 'unlabeled' && actor?.type !== 'Bot').map(({ label }) => label?.name),
     );
 
     return labels.filter((label) => !removed.has(label));

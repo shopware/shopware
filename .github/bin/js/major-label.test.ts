@@ -156,7 +156,10 @@ test('an experimental annotation in an internal docblock counts for nothing', ()
 
 test('an internal docblock does not shield the next one', () => {
     assert.deepEqual(
-        evaluate('src/Core/Framework/Mcp/Resolver.php', '+/**\n+ * @internal\n+ */\n+/**\n+ * @experimental stableVersion:v6.8.0\n+ */'),
+        evaluate(
+            'src/Core/Framework/Mcp/Resolver.php',
+            '+/**\n+ * @internal\n+ */\n+/**\n+ * @experimental stableVersion:v6.8.0\n+ */',
+        ),
         { behaviour: false, cleanup: true },
     );
 });
@@ -173,7 +176,10 @@ test('a flag line that is only reworded is not a change to the flag', () => {
 
 test('swapping one flag for another on the same line is a change', () => {
     assert.deepEqual(
-        evaluate('src/Core/Cart.php', "-        if (Feature::isActive('v6.8.0.0')) {\n+        if (Feature::isActive('WEBHOOKS_REWORK')) {"),
+        evaluate(
+            'src/Core/Cart.php',
+            "-        if (Feature::isActive('v6.8.0.0')) {\n+        if (Feature::isActive('WEBHOOKS_REWORK')) {",
+        ),
         { behaviour: true, cleanup: false },
     );
 });
@@ -191,7 +197,10 @@ test('moving a flag check to another file is a change in both', () => {
 
 test('a rewritten deprecation message leaves no new cleanup behind', () => {
     assert.deepEqual(
-        evaluate('src/Core/Framework/Feature.php', '-     * @deprecated tag:v6.8.0 - Will be removed\n+     * @deprecated tag:v6.8.0 - Will be removed, use Bar'),
+        evaluate(
+            'src/Core/Framework/Feature.php',
+            '-     * @deprecated tag:v6.8.0 - Will be removed\n+     * @deprecated tag:v6.8.0 - Will be removed, use Bar',
+        ),
         { behaviour: false, cleanup: false },
     );
 });
@@ -226,21 +235,27 @@ test('a flag inside an XML config element is a behaviour change', () => {
 
 test('a flag as an object key is a behaviour change', () => {
     assert.deepEqual(
-        evaluate('src/Storefront/Resources/app/storefront/src/plugin/x.plugin.js', '+    Feature.init({ WEBHOOKS_REWORK: true });'),
+        evaluate(
+            'src/Storefront/Resources/app/storefront/src/plugin/x.plugin.js',
+            '+    Feature.init({ WEBHOOKS_REWORK: true });',
+        ),
         { behaviour: true, cleanup: false },
     );
 });
 
 test('a flag named in backticked prose is not — release notes describe, they do not change', () => {
-    assert.deepEqual(
-        evaluate('RELEASE_INFO-6.7.md', '+Rolled out behind the `WEBHOOKS_REWORK` feature flag.'),
-        { behaviour: false, cleanup: false },
-    );
+    assert.deepEqual(evaluate('RELEASE_INFO-6.7.md', '+Rolled out behind the `WEBHOOKS_REWORK` feature flag.'), {
+        behaviour: false,
+        cleanup: false,
+    });
 });
 
 test('a flag mentioned in a deprecation docblock earns cleanup through the tag alone', () => {
     assert.deepEqual(
-        evaluate('src/Core/Framework/Webhook/Service/WebhookManager.php', '+ * @deprecated tag:v6.8.0 - pre-WEBHOOKS_REWORK path; will be removed.'),
+        evaluate(
+            'src/Core/Framework/Webhook/Service/WebhookManager.php',
+            '+ * @deprecated tag:v6.8.0 - pre-WEBHOOKS_REWORK path; will be removed.',
+        ),
         { behaviour: false, cleanup: true },
     );
 });
@@ -275,7 +290,10 @@ test('a path owned by a pending feature is a behaviour change on touch alone', (
 
 test('an admin file named after the feature counts too', () => {
     assert.deepEqual(
-        evaluate('src/Administration/Resources/app/administration/src/core/service/api/documentV2.api.service.ts', '+  const x = 1;'),
+        evaluate(
+            'src/Administration/Resources/app/administration/src/core/service/api/documentV2.api.service.ts',
+            '+  const x = 1;',
+        ),
         { behaviour: true, cleanup: false },
     );
 });
@@ -401,7 +419,12 @@ const detectionContext = (action: string, eventName = 'pull_request_target', bas
 });
 
 test('shouldDetect accepts the triggering pull request actions', () => {
-    for (const action of ['opened', 'reopened', 'synchronize', 'ready_for_review']) {
+    for (const action of [
+        'opened',
+        'reopened',
+        'synchronize',
+        'ready_for_review',
+    ]) {
         assert.equal(shouldDetect(detectionContext(action)), true);
     }
 });
@@ -423,10 +446,21 @@ test('shouldDetect accepts a stacked pull request, which reaches trunk without a
 });
 
 test('isReleaseBranch knows the maintenance and security branch names', () => {
-    for (const ref of ['6.6.x', '6.7.x', '6.7.14.x', '6.7.14.1']) {
+    for (const ref of [
+        '6.6.x',
+        '6.7.x',
+        '6.7.14.x',
+        '6.7.14.1',
+    ]) {
         assert.equal(isReleaseBranch(ref), true, ref);
     }
-    for (const ref of ['trunk', 'feat/intra-eu-tax-calculation', 'next-6.8', 'release/6.7.x', '6.x-cleanup']) {
+    for (const ref of [
+        'trunk',
+        'feat/intra-eu-tax-calculation',
+        'next-6.8',
+        'release/6.7.x',
+        '6.x-cleanup',
+    ]) {
         assert.equal(isReleaseBranch(ref), false, ref);
     }
 });
@@ -481,7 +515,10 @@ test('flags and major paths inside tests do not label a pull request', () => {
         cleanup: false,
     });
     assert.deepEqual(
-        evaluate('src/Administration/Resources/app/administration/src/module/sw-cms/index.spec.js', "+    it.deprecated('v6.8.0.0', () => {});"),
+        evaluate(
+            'src/Administration/Resources/app/administration/src/module/sw-cms/index.spec.js',
+            "+    it.deprecated('v6.8.0.0', () => {});",
+        ),
         { behaviour: false, cleanup: false },
     );
     assert.deepEqual(evaluate('tests/unit/Core/Checkout/Document/DocumentV2/RendererTest.php', '+    // test'), {
@@ -510,7 +547,11 @@ test('missingLabels drops labels the pull request already carries', () => {
         repo: { owner: 'shopware', repo: 'shopware' },
         payload: {
             action: 'synchronize',
-            pull_request: { number: 1, base: { ref: 'trunk' }, labels: [{ name: 'major/6.8' }, { name: 'domain/checkout' }] },
+            pull_request: {
+                number: 1,
+                base: { ref: 'trunk' },
+                labels: [{ name: 'major/6.8' }, { name: 'domain/checkout' }],
+            },
         },
     };
     assert.deepEqual(missingLabels(context, ['major/6.8', 'major/6.8-cleanup']), ['major/6.8-cleanup']);
@@ -696,7 +737,10 @@ test('the event history is only read when a label is missing', async () => {
     const { run } = detect(
         {
             paginate: async () => assert.fail('no label is missing, so no history is needed'),
-            rest: { pulls: { get: async () => ({ data: upgradeDiff }) }, issues: { listEvents: async () => ({ data: [] }) } },
+            rest: {
+                pulls: { get: async () => ({ data: upgradeDiff }) },
+                issues: { listEvents: async () => ({ data: [] }) },
+            },
         },
         [{ name: 'major/6.8' }],
     );

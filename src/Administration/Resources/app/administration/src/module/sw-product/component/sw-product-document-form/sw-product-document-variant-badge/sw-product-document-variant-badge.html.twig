@@ -1,0 +1,10 @@
+{% block sw_product_document_variant_badge %}
+<mt-badge
+    v-if="isVariantOnly"
+    class="sw-product-document-variant-badge"
+    variant="info"
+    size="s"
+>
+    {{ $t('sw-product.documentForm.variantOnly') }}
+</mt-badge>
+{% endblock %}

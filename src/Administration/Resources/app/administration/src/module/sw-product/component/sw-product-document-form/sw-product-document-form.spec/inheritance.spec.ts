@@ -6,12 +6,21 @@ import type { ComponentPublicInstance } from 'vue';
 import Entity from 'src/core/data/entity.data';
 import EntityFactory from 'src/core/data/entity-factory.data';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
-import { createProduct, cleanupWrappers, createWrapper, createMedia, clickButton, getDocuments } from './helpers';
+import {
+    mockSnackbar,
+    createProduct,
+    cleanupWrappers,
+    createWrapper,
+    createMedia,
+    clickButton,
+    getDocuments,
+} from './helpers';
 
 describe('sw-product-document-form inheritance', () => {
     const originalLanguage = Shopware.Context.api.languageId;
     const originalLanguageMetadata = Shopware.Store.get('context').api.language;
     beforeEach(() => {
+        mockSnackbar.mockClear();
         Object.assign(global, { activeAclRoles: ['product.editor'] });
         Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
         const store = Shopware.Store.get('swProductDetail');
@@ -23,6 +32,7 @@ describe('sw-product-document-form inheritance', () => {
         Shopware.Context.api.languageId = originalLanguage;
         Shopware.Store.get('context').api.language = originalLanguageMetadata;
         cleanupWrappers();
+        jest.restoreAllMocks();
     });
 
     it('copies assignments before editing a variant and restores inheritance', async () => {
@@ -54,10 +64,27 @@ describe('sw-product-document-form inheritance', () => {
         await clickButton(wrapper, 'global.default.apply');
         expect(parentDocument.title).toBe('Parent manual');
         expect(wrapper.text()).toContain('Variant manual');
+        const notification = mockSnackbar;
 
         await wrapper.get('.sw-inheritance-switch--is-not-inherited .mt-icon').trigger('click');
+        expect(wrapper.find('.sw-product-document-form__restore-inheritance-modal').exists()).toBe(true);
+        expect(getDocuments()).toHaveLength(1);
+        await clickButton(wrapper, 'global.default.cancel');
+        expect(wrapper.find('.sw-product-document-form__restore-inheritance-modal').exists()).toBe(false);
+        expect(getDocuments()).toHaveLength(1);
+
+        expect(notification).not.toHaveBeenCalled();
+        await wrapper.get('.sw-inheritance-switch--is-not-inherited .mt-icon').trigger('click');
+        await clickButton(wrapper, 'sw-product.documentForm.restoreInheritanceButton');
         expect(getDocuments()).toHaveLength(0);
         expect(wrapper.text()).toContain('Parent manual');
+        expect(notification).toHaveBeenCalledTimes(1);
+        expect(notification).toHaveBeenCalledWith(
+            expect.objectContaining({
+                variant: 'success',
+                message: 'sw-product.documentForm.restoreInheritanceSuccess',
+            }),
+        );
     });
 
     it('copies all document translations when removing variant inheritance', async () => {
@@ -97,6 +124,52 @@ describe('sw-product-document-form inheritance', () => {
         });
     });
 
+    it('preserves fallback display values when removing inheritance in another language', async () => {
+        const store = Shopware.Store.get('swProductDetail');
+        Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
+        Shopware.Store.get('context').api.language = repositoryFactory
+            .create('language')
+            .create(Shopware.Context.api, Shopware.Context.api.languageId);
+        store.product.parentId = store.parentProduct.id;
+        const document = repositoryFactory.create('product_document').create();
+        const media = createMedia('default-language-file');
+        Object.assign(document, {
+            title: null,
+            mediaId: null,
+            translated: { title: 'Default language title', mediaId: media.id },
+        });
+        const translation = new EntityFactory().create(
+            'product_document_translation',
+            null,
+            Shopware.Context.api,
+        ) as Entity<'product_document_translation'>;
+        Object.assign(translation, {
+            languageId: Shopware.Context.api.systemLanguageId,
+            title: 'Default language title',
+            mediaId: media.id,
+            media,
+        });
+        document.translations.add(translation);
+        store.parentProduct.documents!.add(document);
+        const wrapper = await createWrapper();
+
+        await wrapper.get('.sw-inheritance-switch--is-inherited .mt-icon').trigger('click');
+
+        expect(wrapper.text()).toContain('Default language title');
+        expect(wrapper.text()).toContain('default-language-file.pdf');
+        expect(wrapper.text()).toContain('1.00KB');
+        expect(getDocuments()![0]).toMatchObject({ title: null, mediaId: null });
+        expect(getDocuments()![0].translated).not.toBe(document.translated);
+        await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
+        expect(wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').props()).toMatchObject({
+            modelValue: '',
+            placeholder: 'Default language title',
+        });
+        expect(wrapper.get<HTMLButtonElement>('.sw-product-document-form__save-document').element.disabled).toBe(false);
+        await clickButton(wrapper, 'global.default.apply');
+        expect(getDocuments()![0]).toMatchObject({ title: null, mediaId: null });
+    });
+
     it('detaches an empty inherited list and restores inheritance without adding assignments', async () => {
         const store = Shopware.Store.get('swProductDetail');
         store.product.parentId = store.parentProduct.id;
@@ -109,6 +182,8 @@ describe('sw-product-document-form inheritance', () => {
         expect(store.parentProduct.documents).toHaveLength(0);
 
         await wrapper.get('.sw-inheritance-switch--is-not-inherited .mt-icon').trigger('click');
+        expect(wrapper.find('.sw-product-document-form__restore-inheritance-modal').exists()).toBe(true);
+        await clickButton(wrapper, 'sw-product.documentForm.restoreInheritanceButton');
         expect(wrapper.get('.sw-product-document-form__empty-state button').attributes('disabled')).toBeDefined();
         expect(getDocuments()).toHaveLength(0);
     });
@@ -127,6 +202,24 @@ describe('sw-product-document-form inheritance', () => {
 
         expect(wrapper.find('.sw-inheritance-switch--is-inherited').exists()).toBe(true);
         expect(wrapper.get('.sw-product-document-form__empty-state button').attributes('disabled')).toBeDefined();
+        expect(nextVariant.documents).toHaveLength(0);
+    });
+
+    it('closes the restore confirmation when navigating to another variant', async () => {
+        const store = Shopware.Store.get('swProductDetail');
+        store.product.parentId = store.parentProduct.id;
+        store.product.documents?.add(repositoryFactory.create('product_document').create());
+        const wrapper = await createWrapper();
+
+        await wrapper.get('.sw-inheritance-switch--is-not-inherited .mt-icon').trigger('click');
+        expect(wrapper.find('.sw-product-document-form__restore-inheritance-modal').exists()).toBe(true);
+
+        const nextVariant = createProduct();
+        nextVariant.parentId = store.parentProduct.id;
+        store.product = nextVariant;
+        await flushPromises();
+
+        expect(wrapper.find('.sw-product-document-form__restore-inheritance-modal').exists()).toBe(false);
         expect(nextVariant.documents).toHaveLength(0);
     });
 

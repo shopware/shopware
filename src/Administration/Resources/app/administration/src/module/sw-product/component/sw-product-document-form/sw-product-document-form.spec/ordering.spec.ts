@@ -34,14 +34,24 @@ describe('sw-product-document-form ordering', () => {
     it('moves documents up and down and disables movement beyond the list boundaries', async () => {
         const wrapper = await createWrapper();
         await addMedia(wrapper, [createMedia('first'), createMedia('second')]);
-        await wrapper.findAll('.document-row')[1].findAll('button')[1].trigger('click');
+        await wrapper.findAll('.document-row')[1].findAll('.sw-product-document-form__position button')[1].trigger('click');
 
         expect(Array.from(getDocuments() ?? [], (document) => document.title)).toEqual(['second', 'first']);
         expect(Array.from(getDocuments() ?? [], (document) => document.position)).toEqual([0, 1]);
         expect(wrapper.findAll('.document-row')[0].text()).toContain('second');
-        expect(wrapper.findAll('.document-row')[0].findAll('button')[1].attributes('disabled')).toBeDefined();
-        expect(wrapper.findAll('.document-row')[1].findAll('button')[0].attributes('disabled')).toBeDefined();
-        await wrapper.findAll('.document-row')[0].findAll('button')[0].trigger('click');
+        expect(
+            wrapper
+                .findAll('.document-row')[0]
+                .findAll('.sw-product-document-form__position button')[1]
+                .attributes('disabled'),
+        ).toBeDefined();
+        expect(
+            wrapper
+                .findAll('.document-row')[1]
+                .findAll('.sw-product-document-form__position button')[0]
+                .attributes('disabled'),
+        ).toBeDefined();
+        await wrapper.findAll('.document-row')[0].findAll('.sw-product-document-form__position button')[0].trigger('click');
         expect(Array.from(getDocuments() ?? [], (document) => document.title)).toEqual(['first', 'second']);
         expect(Array.from(getDocuments() ?? [], (document) => document.position)).toEqual([0, 1]);
     });
@@ -60,7 +70,7 @@ describe('sw-product-document-form ordering', () => {
         });
         const originalIds = Array.from(documents, (document) => document.id);
         const wrapper = await createWrapper(undefined, undefined, undefined, { isInherited });
-        const moveUpButton = wrapper.findAll('.document-row')[1].findAll('button')[1];
+        const moveUpButton = wrapper.findAll('.document-row')[1].findAll('.sw-product-document-form__position button')[1];
 
         expect(moveUpButton.attributes('disabled')).toBeDefined();
         await moveUpButton.trigger('click');
@@ -125,7 +135,7 @@ describe('sw-product-document-form ordering', () => {
         const store = Shopware.Store.get('swProductDetail');
         store.product = await loadProduct([first, second, third]);
         const wrapper = await createWrapper(undefined, undefined, repository);
-        await wrapper.findAll('.document-row')[1].findAll('button')[1].trigger('click');
+        await wrapper.findAll('.document-row')[1].findAll('.sw-product-document-form__position button')[1].trigger('click');
         responses.addResponse({ method: 'PATCH', url: `/product/${productId}`, status: 204, response: {} });
         const patchSpy = jest.spyOn(repository.httpClient, 'patch');
 

@@ -342,6 +342,13 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         expect(wrapper.getComponent({ name: 'sw-product-download-form' }).props('required')).toBe(true);
     });
 
+    it('forwards a document language-switch request to the product page', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+        wrapper.getComponent('sw-product-document-form-stub').vm.$emit('language-change', 'default-language');
+        expect(wrapper.emitted('language-change')).toEqual([['default-language']]);
+    });
+
     it('should render media card title as mt-card title', async () => {
         const wrapper = await createWrapper();
 

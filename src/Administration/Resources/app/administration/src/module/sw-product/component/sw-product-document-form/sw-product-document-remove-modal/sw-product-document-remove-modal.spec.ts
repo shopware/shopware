@@ -35,6 +35,16 @@ describe('sw-product-document-remove-modal', () => {
         expect(wrapper.emitted('close')).toBeUndefined();
     });
 
+    it('identifies removal as language-specific when a language is supplied', async () => {
+        const wrapper = await createWrapper({ languageName: 'German' });
+        await flushPromises();
+        expect(wrapper.get('h2').text()).toBe(
+            'sw-product.documentForm.removeLanguageVersionTitle: German Safety certificate',
+        );
+        expect(wrapper.text()).toContain('sw-product.documentForm.removeLanguageVersionDescription: German');
+        expect(wrapper.text()).not.toContain('sw-product.documentForm.removeDescription');
+    });
+
     it('emits close on Cancel without confirming removal', async () => {
         const wrapper = await createWrapper();
         await wrapper

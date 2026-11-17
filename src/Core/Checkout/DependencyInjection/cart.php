@@ -24,6 +24,7 @@ use Shopware\Core\Checkout\Cart\CreditCartProcessor;
 use Shopware\Core\Checkout\Cart\CustomCartProcessor;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator;
+use Shopware\Core\Checkout\Cart\Delivery\DeliveryPositionSplitter;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryRuleMatcher;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryValidator;
@@ -475,6 +476,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.checkout.gateway.command');
 
     $services->set(DeliveryBuilder::class);
+
+    $services->set(DeliveryPositionSplitter::class)
+        ->public()
+        ->args([
+            service(LineItemQuantitySplitter::class),
+        ]);
 
     $services->set(DeliveryCalculator::class)
         ->args([

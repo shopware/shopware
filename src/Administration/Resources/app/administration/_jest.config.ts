@@ -244,6 +244,7 @@ const config: Config = {
         '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec/*.spec.js',
         '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec/*.spec.ts',
         '<rootDir>/eslint-rules/**/*.spec.js',
+        '<rootDir>/eslint-rules/**/*.spec.ts',
         '<rootDir>/build/vite-plugins/**/*.spec.ts',
         '<rootDir>/build/vite-plugins/**/*.spec.js',
         '<rootDir>/build/vue-setup-transform/**/*.spec.ts',

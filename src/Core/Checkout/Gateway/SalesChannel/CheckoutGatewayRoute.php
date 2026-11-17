@@ -93,7 +93,7 @@ class CheckoutGatewayRoute extends AbstractCheckoutGatewayRoute
         }
 
         $blockedShippingMethods = [];
-        $blockedDeliveryIdentifiers = [];
+        $blockedDeliveries = [];
 
         foreach ($cart->getDeliveries() as $delivery) {
             $shippingMethod = $delivery->getShippingMethod();
@@ -103,20 +103,12 @@ class CheckoutGatewayRoute extends AbstractCheckoutGatewayRoute
             }
 
             $blockedShippingMethods[$shippingMethod->getId()] = $shippingMethod;
-
-            if ($delivery->getIdentifier() !== null && $delivery->getShippingCosts()->getTotalPrice() >= 0) {
-                $blockedDeliveryIdentifiers[$shippingMethod->getId()][] = $delivery->getIdentifier();
-            }
+            $blockedDeliveries[$shippingMethod->getId()][] = $delivery;
         }
 
-        foreach ($blockedShippingMethods as $shippingMethod) {
+        foreach ($blockedShippingMethods as $shippingMethodId => $shippingMethod) {
             $response->getCartErrors()->add(
-                new ShippingMethodBlockedError(
-                    id: $shippingMethod->getId(),
-                    name: (string) $shippingMethod->getTranslation('name'),
-                    reason: 'not allowed',
-                    deliveryIdentifiers: $blockedDeliveryIdentifiers[$shippingMethod->getId()] ?? [],
-                )
+                ShippingMethodBlockedError::forDeliveries($shippingMethod, 'not allowed', $blockedDeliveries[$shippingMethodId])
             );
         }
     }

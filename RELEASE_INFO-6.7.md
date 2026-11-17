@@ -438,7 +438,7 @@ Read them with `getDeliveryIdentifiers()`, or as `deliveryIdentifiers` in the er
 The error id does not change, so a shipping method blocked for several deliveries raises one error that lists all of them.
 Deliveries without an identifier and deliveries with negative shipping costs, like shipping discounts, are left out of the list.
 The list is empty when the error is not tied to a delivery.
-Pass `deliveryIdentifiers` when your extension raises this error for specific deliveries.
+When your extension raises this error for specific deliveries, build it with `ShippingMethodBlockedError::forDeliveries()`, which leaves out the same deliveries, or pass `deliveryIdentifiers` yourself.
 
 ### Orders with several deliveries keep their shipping costs and addresses
 

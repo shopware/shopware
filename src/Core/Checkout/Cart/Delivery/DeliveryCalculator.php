@@ -53,7 +53,7 @@ class DeliveryCalculator
     public function calculate(CartDataCollection $data, Cart $cart, DeliveryCollection $deliveries, SalesChannelContext $context): void
     {
         $unpricedShippingMethods = [];
-        $unpricedDeliveryIdentifiers = [];
+        $unpricedDeliveries = [];
 
         foreach ($deliveries as $delivery) {
             $foundShippingCosts = $this->calculateDelivery($data, $cart, $delivery, $context);
@@ -66,20 +66,12 @@ class DeliveryCalculator
             $shippingMethod = $data->get(DeliveryProcessor::buildKey($delivery->getShippingMethod()->getId()));
 
             $unpricedShippingMethods[$shippingMethod->getId()] = $shippingMethod;
-
-            if ($delivery->getIdentifier() !== null) {
-                $unpricedDeliveryIdentifiers[$shippingMethod->getId()][] = $delivery->getIdentifier();
-            }
+            $unpricedDeliveries[$shippingMethod->getId()][] = $delivery;
         }
 
-        foreach ($unpricedShippingMethods as $shippingMethod) {
+        foreach ($unpricedShippingMethods as $shippingMethodId => $shippingMethod) {
             $cart->addErrors(
-                new ShippingMethodBlockedError(
-                    id: $shippingMethod->getId(),
-                    name: (string) $shippingMethod->getTranslation('name'),
-                    reason: 'no shipping costs found',
-                    deliveryIdentifiers: $unpricedDeliveryIdentifiers[$shippingMethod->getId()] ?? [],
-                )
+                ShippingMethodBlockedError::forDeliveries($shippingMethod, 'no shipping costs found', $unpricedDeliveries[$shippingMethodId])
             );
         }
     }

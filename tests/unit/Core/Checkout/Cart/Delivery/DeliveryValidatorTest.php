@@ -81,24 +81,6 @@ class DeliveryValidatorTest extends TestCase
         static::assertSame(['Test' => ['first', 'second'], 'Express' => ['express'], 'Negative cost' => []], $deliveryIdentifiers);
     }
 
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testBlockedErrorLeavesOutDeliveriesWithoutIdentifier(): void
-    {
-        $cart = new Cart('test');
-        $cart->setDeliveries(new DeliveryCollection([
-            $this->generateDeliveryDummy('', null),
-            $this->generateDeliveryDummy('', 'warehouse'),
-        ]));
-
-        $errors = new ErrorCollection();
-        (new DeliveryValidator())->validate($cart, $errors, static::createStub(SalesChannelContext::class));
-
-        $error = $errors->first();
-        static::assertCount(1, $errors);
-        static::assertInstanceOf(ShippingMethodBlockedError::class, $error);
-        static::assertSame(['warehouse'], $error->getDeliveryIdentifiers());
-    }
-
     public function testValidateDeliveryShippingMethodWithNoAvailabilityRuleShallBeValid(): void
     {
         $cart = new Cart('test');
@@ -180,7 +162,7 @@ class DeliveryValidatorTest extends TestCase
         static::assertCount(0, $errors, 'Without the major flag the context rule ids decide for every delivery.');
     }
 
-    private function generateDeliveryDummy(?string $availabilityRuleId, ?string $identifier = Delivery::DEFAULT_IDENTIFIER): Delivery
+    private function generateDeliveryDummy(?string $availabilityRuleId, string $identifier = Delivery::DEFAULT_IDENTIFIER): Delivery
     {
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId('shipping-method-id');

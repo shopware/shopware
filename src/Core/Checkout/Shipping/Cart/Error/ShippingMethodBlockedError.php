@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Checkout\Shipping\Cart\Error;
 
+use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Error\Error;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
@@ -38,6 +40,29 @@ class ShippingMethodBlockedError extends Error
         );
 
         parent::__construct($this->message);
+    }
+
+    /**
+     * Lists the identifiers of the deliveries, leaving out deliveries without an identifier and those with negative shipping costs, like shipping discounts
+     *
+     * @param iterable<Delivery> $deliveries
+     */
+    public static function forDeliveries(ShippingMethodEntity $shippingMethod, string $reason, iterable $deliveries): self
+    {
+        $deliveryIdentifiers = [];
+
+        foreach ($deliveries as $delivery) {
+            if ($delivery->getIdentifier() !== null && $delivery->getShippingCosts()->getTotalPrice() >= 0) {
+                $deliveryIdentifiers[] = $delivery->getIdentifier();
+            }
+        }
+
+        return new self(
+            name: (string) $shippingMethod->getTranslation('name'),
+            id: $shippingMethod->getId(),
+            reason: $reason,
+            deliveryIdentifiers: $deliveryIdentifiers,
+        );
     }
 
     public function isPersistent(): bool

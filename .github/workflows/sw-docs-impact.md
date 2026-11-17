@@ -118,6 +118,7 @@ tools:
     - "jq"
 
 safe-outputs:
+  allowed-domains: [docs.shopware.com, developer.shopware.com]
   noop:
     max: 1
     report-as-issue: false

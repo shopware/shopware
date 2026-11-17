@@ -75,8 +75,6 @@ const config: Config = {
         projectRoot: process.env.PROJECT_ROOT,
     },
 
-    globalTeardown: '<rootDir>test/globalTeardown.js',
-
     resolver: '<rootDir>/test/_helper_/jest-resolver.js',
 
     // Use default jest-circus runner (Jest 30+), removed deprecated jest-jasmine2
@@ -246,6 +244,7 @@ const config: Config = {
         '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec/*.spec.js',
         '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec/*.spec.ts',
         '<rootDir>/eslint-rules/**/*.spec.js',
+        '<rootDir>/eslint-rules/**/*.spec.ts',
         '<rootDir>/build/vite-plugins/**/*.spec.ts',
         '<rootDir>/build/vite-plugins/**/*.spec.js',
         '<rootDir>/build/vue-setup-transform/**/*.spec.ts',

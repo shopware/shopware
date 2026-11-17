@@ -455,6 +455,13 @@ class SCSSValidatorTest extends TestCase
             ],
             'lighten($myColor, 15%)',
         ];
+        yield 'color correct SCSS variable with escaped character' => [
+            [
+                'type' => 'color',
+                'value' => 'darken($my\\.color, 15%)',
+            ],
+            'darken($my\\.color, 15%)',
+        ];
         yield 'color correct darken with rgb' => [
             [
                 'type' => 'color',

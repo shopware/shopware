@@ -97,7 +97,14 @@ class ThemeLifecycleHandler
              FROM theme_sales_channel'
         );
 
+        $refreshedThemeIds = [];
         foreach ($mappings as $mapping) {
+            // The import map is stored in the runtime config of the theme, which all its sales channels share
+            if (isset($refreshedThemeIds[$mapping['theme_id']])) {
+                continue;
+            }
+            $refreshedThemeIds[$mapping['theme_id']] = true;
+
             $this->themeService->refreshThemeImportMap(
                 $mapping['sales_channel_id'],
                 $mapping['theme_id'],

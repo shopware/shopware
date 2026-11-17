@@ -993,6 +993,64 @@ class ThemeServiceTest extends TestCase
         $this->getThemeService(themeCompiler: $themeCompiler, eventDispatcher: $eventDispatcher)->updateTheme($themeId, $config, $parentThemeId, $this->context);
     }
 
+    public function testUpdateThemeDispatchesConfigChangedEventAfterThePersist(): void
+    {
+        $themeId = Uuid::randomHex();
+
+        $this->connectionMock->method('fetchAllAssociative')->willReturn([
+            ['id' => $themeId, 'saleschannelId' => TestDefaults::SALES_CHANNEL],
+        ]);
+
+        $searchResult = new EntitySearchResult(
+            'theme',
+            1,
+            new ThemeCollection([
+                (new ThemeEntity())->assign([
+                    '_uniqueIdentifier' => $themeId,
+                    'salesChannels' => new SalesChannelCollection(),
+                    // Null config mirrors the admin reset=1 save that triggers the bug.
+                    'configValues' => null,
+                    'baseConfig' => [
+                        'fields' => [
+                            'sw-color-brand-primary' => ['type' => 'color', 'value' => '#0042a0'],
+                        ],
+                    ],
+                ]),
+            ]),
+            null,
+            new Criteria(),
+            $this->context
+        );
+
+        $this->mergedConfigBuilderMock->method('getPlainThemeConfiguration')->willReturn([
+            'fields' => [
+                'sw-color-brand-primary' => ['type' => 'color', 'value' => '#0042a0'],
+            ],
+        ]);
+
+        $themeRepository = new StaticEntityRepository([$searchResult]);
+        $updatesAtDispatch = 0;
+
+        $eventDispatcher = $this->createMock(EventDispatcher::class);
+        $eventDispatcher->expects($this->once())->method('dispatch')->willReturnCallback(
+            function (object $event) use ($themeRepository, &$updatesAtDispatch): object {
+                static::assertInstanceOf(ThemeConfigChangedEvent::class, $event);
+                $updatesAtDispatch = \count($themeRepository->updates);
+
+                return $event;
+            }
+        );
+
+        $this->getThemeService(
+            themeRepository: $themeRepository,
+            eventDispatcher: $eventDispatcher,
+        )->updateTheme($themeId, ['sw-color-brand-primary' => ['value' => '#ff00ff']], null, $this->context);
+
+        // The StaticFileConfigDumper listener re-reads the DB on this event, so the write must come first.
+        static::assertSame(1, $updatesAtDispatch);
+        static::assertCount(1, $themeRepository->updates);
+    }
+
     public function testUpdateThemeNoSalesChannelAssigned(): void
     {
         $themeId = Uuid::randomHex();

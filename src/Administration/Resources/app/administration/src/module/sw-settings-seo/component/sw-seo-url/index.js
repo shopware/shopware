@@ -217,6 +217,32 @@ export default {
 
             this.salesChannelRepository.search(salesChannelCriteria).then((salesChannelCollection) => {
                 Shopware.Store.get('swSeoUrl').salesChannelCollection = salesChannelCollection;
+
+                return this.loadSalesChannel(this.currentSalesChannelId);
+            });
+        },
+
+        /**
+         * Only the first page of sales channels is loaded up front, so the selected one may be missing.
+         */
+        loadSalesChannel(salesChannelId) {
+            const salesChannelCollection = Shopware.Store.get('swSeoUrl').salesChannelCollection;
+            if (!salesChannelId || !salesChannelCollection || salesChannelCollection.has(salesChannelId)) {
+                return Promise.resolve();
+            }
+
+            const salesChannelCriteria = new Criteria(1, 1);
+            salesChannelCriteria.setIds([salesChannelId]);
+            salesChannelCriteria.addAssociation('type');
+            salesChannelCriteria.addAssociation('domains');
+
+            return this.salesChannelRepository.search(salesChannelCriteria).then((result) => {
+                const salesChannel = result.first();
+                const collection = Shopware.Store.get('swSeoUrl').salesChannelCollection;
+
+                if (salesChannel && collection && !collection.has(salesChannel.id)) {
+                    collection.add(salesChannel);
+                }
             });
         },
 
@@ -305,6 +331,7 @@ export default {
 
         onSalesChannelChanged(salesChannelId) {
             this.currentSalesChannelId = salesChannelId;
+            this.loadSalesChannel(salesChannelId);
             this.$emit('on-change-sales-channel', salesChannelId);
             this.refreshCurrentSeoUrl();
         },

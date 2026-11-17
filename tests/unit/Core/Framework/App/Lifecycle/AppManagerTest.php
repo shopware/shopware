@@ -32,7 +32,10 @@ use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\App\Url\VerificationState;
 use Shopware\Core\Framework\App\Url\VerificationStatus;
 use Shopware\Core\Framework\App\Validation\AppRequirementsValidator;
+use Shopware\Core\Framework\App\Validation\CompatibilityValidator;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
+use Shopware\Core\Framework\App\Validation\Error\IncompatibleAppError;
+use Shopware\Core\Framework\App\Validation\Error\UnmetRequirementError;
 use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -116,7 +119,7 @@ class AppManagerTest extends TestCase
 
         $this->expectNoLifecycleCollaboratorCalls();
 
-        $this->expectExceptionObject(AppException::notCompatible('test'));
+        $this->expectExceptionObject(AppException::validationFailedFromError(new IncompatibleAppError('test')));
 
         $this->createAppManager(AppFixture::createAppRepository())
             ->install($manifest, new AppInstallParameters(), Context::createDefaultContext());
@@ -129,7 +132,7 @@ class AppManagerTest extends TestCase
 
         $this->expectNoLifecycleCollaboratorCalls();
 
-        $this->expectExceptionObject(AppException::notCompatible('test'));
+        $this->expectExceptionObject(AppException::validationFailedFromError(new IncompatibleAppError('test')));
 
         $this->createAppManager(AppFixture::createAppRepository())
             ->update($manifest, new AppUpdateParameters(), AppFixture::createAppEntity(active: false), Context::createDefaultContext());
@@ -144,9 +147,9 @@ class AppManagerTest extends TestCase
         $requirementsValidator->expects($this->once())
             ->method('validate')
             ->with($manifest)
-            ->willReturn([$violation]);
+            ->willReturn([new UnmetRequirementError($violation)]);
 
-        $this->expectExceptionObject(AppException::requirementsNotMet($violation));
+        $this->expectExceptionObject(AppException::validationFailedFromError(new UnmetRequirementError($violation)));
 
         $this->requirementsValidator = $requirementsValidator;
         $this->expectNoLifecycleCollaboratorCalls();
@@ -164,9 +167,9 @@ class AppManagerTest extends TestCase
         $requirementsValidator->expects($this->once())
             ->method('validate')
             ->with($manifest)
-            ->willReturn([$violation]);
+            ->willReturn([new UnmetRequirementError($violation)]);
 
-        $this->expectExceptionObject(AppException::requirementsNotMet($violation));
+        $this->expectExceptionObject(AppException::validationFailedFromError(new UnmetRequirementError($violation)));
 
         $this->requirementsValidator = $requirementsValidator;
         $this->expectNoLifecycleCollaboratorCalls();
@@ -395,7 +398,7 @@ class AppManagerTest extends TestCase
         $this->scriptExecutor->expects($this->never())->method('execute');
         $this->configReader->expects($this->never())->method('read');
 
-        $this->expectExceptionObject(AppException::notCompatible('test'));
+        $this->expectExceptionObject(AppException::validationFailedFromError(new IncompatibleAppError('test')));
 
         $this->createAppManager($appRepository)->install(
             $manifest,
@@ -426,7 +429,7 @@ class AppManagerTest extends TestCase
         $this->requirementsValidator->expects($this->once())
             ->method('validate')
             ->with($manifest)
-            ->willReturn([$violation]);
+            ->willReturn([new UnmetRequirementError($violation)]);
 
         $this->appSecretRotationService->expects($this->never())->method('rotateNow');
 
@@ -439,7 +442,7 @@ class AppManagerTest extends TestCase
         $this->scriptExecutor->expects($this->never())->method('execute');
         $this->configReader->expects($this->never())->method('read');
 
-        $this->expectExceptionObject(AppException::requirementsNotMet($violation));
+        $this->expectExceptionObject(AppException::validationFailedFromError(new UnmetRequirementError($violation)));
 
         $this->createAppManager($appRepository)->install(
             $manifest,
@@ -1155,7 +1158,7 @@ XML,
             $this->scriptExecutor,
             __DIR__,
             $this->customEntityLifecycleService,
-            '6.5.0.0',
+            new CompatibilityValidator('6.5.0.0'),
             static::createStub(AppFeatureValidator::class),
             $this->sourceResolver,
             $this->configReader,

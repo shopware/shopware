@@ -31,6 +31,9 @@
         <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpAdminToolRequiresPrivilegeRule\AdminToolWithNoPrivilege" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpAdminToolRequiresPrivilegeRule\AdminToolWithNoPrivilege">
             <tag name="mcp.tool"/>
         </service>
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpAdminToolRequiresPrivilegeRule\AdminToolWithNoPrivilegeCallingRequirePrivilege" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpAdminToolRequiresPrivilegeRule\AdminToolWithNoPrivilegeCallingRequirePrivilege">
+            <tag name="mcp.tool"/>
+        </service>
         <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpAdminToolRequiresPrivilegeRule\AdminToolWithRequiresAndNoPrivilege" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpAdminToolRequiresPrivilegeRule\AdminToolWithRequiresAndNoPrivilege">
             <tag name="mcp.tool"/>
         </service>

@@ -2,8 +2,18 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
+use PhpParser\Node;
 use PhpParser\Node\Attribute;
 use PhpParser\Node\AttributeGroup;
+use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Expr\Variable;
+use PhpParser\Node\Identifier;
+use PhpParser\Node\Name;
+use PhpParser\Node\Stmt\ClassLike;
+use PhpParser\NodeTraverser;
+use PhpParser\NodeVisitor;
+use PhpParser\NodeVisitorAbstract;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Symfony\ServiceMap;
 use Shopware\Core\Framework\Log\Package;
@@ -87,6 +97,66 @@ final class McpToolScopeResolver
         }
 
         return $attributes;
+    }
+
+    /**
+     * Calls of `requirePrivilege()` or `requirePrivilegeResult()` on the tool itself: `$this->`, `self::`, `static::` and `parent::`.
+     *
+     * Nested classes, including anonymous ones, are skipped: their `$this`, `self` and `parent` are not the tool.
+     * Closures are searched, since a non-static closure binds `$this` to the tool.
+     *
+     * @param array<Node> $stmts
+     *
+     * @return list<MethodCall|StaticCall>
+     */
+    public static function requirePrivilegeCalls(array $stmts): array
+    {
+        $visitor = new class extends NodeVisitorAbstract {
+            private const REQUIRE_PRIVILEGE_METHODS = ['requireprivilege', 'requireprivilegeresult'];
+
+            /**
+             * @var list<MethodCall|StaticCall>
+             */
+            public array $calls = [];
+
+            public function enterNode(Node $node): ?int
+            {
+                if ($node instanceof ClassLike) {
+                    return NodeVisitor::DONT_TRAVERSE_CHILDREN;
+                }
+
+                if ($this->isRequirePrivilegeCallOnTool($node)) {
+                    \assert($node instanceof MethodCall || $node instanceof StaticCall);
+                    $this->calls[] = $node;
+                }
+
+                return null;
+            }
+
+            private function isRequirePrivilegeCallOnTool(Node $node): bool
+            {
+                if (!$node instanceof MethodCall && !$node instanceof StaticCall) {
+                    return false;
+                }
+
+                if (!$node->name instanceof Identifier || !\in_array($node->name->toLowerString(), self::REQUIRE_PRIVILEGE_METHODS, true)) {
+                    return false;
+                }
+
+                if ($node instanceof MethodCall) {
+                    return $node->var instanceof Variable && $node->var->name === 'this';
+                }
+
+                return $node->class instanceof Name
+                    && \in_array($node->class->toLowerString(), ['self', 'static', 'parent'], true);
+            }
+        };
+
+        $traverser = new NodeTraverser();
+        $traverser->addVisitor($visitor);
+        $traverser->traverse($stmts);
+
+        return $visitor->calls;
     }
 
     /**

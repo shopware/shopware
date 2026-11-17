@@ -3,6 +3,7 @@
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
 use PhpParser\Node;
+use PhpParser\Node\Identifier;
 use PhpParser\Node\Stmt\Class_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
@@ -16,6 +17,8 @@ use Shopware\Core\Framework\Log\Package;
  * `#[McpToolRequiresNoPrivilege]`, or both of them. `#[McpToolRequires]` is what `debug:mcp`,
  * `/api/_action/mcp/tools` and the integration allowlist show operators, so a tool without it looks
  * like it needs no privilege at all; the opt-out makes that a reviewed decision instead of an omission.
+ * A tool with the opt-out that still calls `requirePrivilege()` or `requirePrivilegeResult()` on itself is
+ * reported as well, because it does need the privilege it checks.
  *
  * Which server a tool belongs to comes from the container, see McpToolScopeResolver. A tool that is
  * also registered on the Store API server is checked by McpStoreApiToolAdminAclRule as well.
@@ -72,7 +75,25 @@ class McpAdminToolRequiresPrivilegeRule implements Rule
             ];
         }
 
-        if ($requires !== [] || $noPrivilege !== []) {
+        if ($noPrivilege !== []) {
+            $calls = McpToolScopeResolver::requirePrivilegeCalls($class->stmts);
+            if ($calls === []) {
+                return [];
+            }
+
+            return [
+                RuleErrorBuilder::message(\sprintf(
+                    'Admin API MCP tool %s declares #[McpToolRequiresNoPrivilege] but calls %s(). Declare the privileges it checks with #[McpToolRequires] instead.',
+                    $className,
+                    $calls[0]->name instanceof Identifier ? $calls[0]->name->toString() : 'requirePrivilege',
+                ))
+                    ->identifier(self::IDENTIFIER)
+                    ->line($calls[0]->getStartLine())
+                    ->build(),
+            ];
+        }
+
+        if ($requires !== []) {
             return [];
         }
 

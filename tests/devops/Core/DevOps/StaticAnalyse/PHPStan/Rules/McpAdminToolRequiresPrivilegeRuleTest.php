@@ -87,6 +87,14 @@ class McpAdminToolRequiresPrivilegeRuleTest extends RuleTestCase
         $this->analyse([__DIR__ . '/data/McpAdminToolRequiresPrivilegeRule/AdminToolWithNoPrivilege.php'], []);
     }
 
+    public function testNoPrivilegeOptOutWithRequirePrivilegeCallFails(): void
+    {
+        $this->analyse([__DIR__ . '/data/McpAdminToolRequiresPrivilegeRule/AdminToolWithNoPrivilegeCallingRequirePrivilege.php'], [[
+            'Admin API MCP tool ' . self::FIXTURE_NAMESPACE . 'AdminToolWithNoPrivilegeCallingRequirePrivilege declares #[McpToolRequiresNoPrivilege] but calls requirePrivilege(). Declare the privileges it checks with #[McpToolRequires] instead.',
+            16,
+        ]]);
+    }
+
     public function testAdminToolWithRequiresAndNoPrivilegeOptOutFails(): void
     {
         $this->analyse([__DIR__ . '/data/McpAdminToolRequiresPrivilegeRule/AdminToolWithRequiresAndNoPrivilege.php'], [[

@@ -258,6 +258,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(WriteOutcome::class),
             service('media.repository'),
             service(ProductDocumentConfig::class),
+            service(Connection::class),
         ])
         ->tag('kernel.event_subscriber');
 

@@ -2,13 +2,18 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductDocument;
 
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\OutcomeRow;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
@@ -36,6 +41,8 @@ final class ProductDocumentValidator implements EventSubscriberInterface
 
     public const VIOLATION_FILE_NOT_FOUND = 'PRODUCT_DOCUMENT_FILE_NOT_FOUND';
 
+    public const VIOLATION_FILE_MISSING = 'PRODUCT_DOCUMENT_FILE_MISSING';
+
     /**
      * @param EntityRepository<MediaCollection> $mediaRepository
      */
@@ -43,6 +50,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
         private readonly WriteOutcome $writeOutcome,
         private readonly EntityRepository $mediaRepository,
         private readonly ProductDocumentConfig $config,
+        private readonly Connection $connection,
     ) {
     }
 
@@ -60,15 +68,90 @@ final class ProductDocumentValidator implements EventSubscriberInterface
             ['media_id'],
         );
 
-        if ($translations === []) {
-            return;
+        $violations = new ConstraintViolationList();
+        if ($translations !== []) {
+            $this->validateFiles($event, $translations, $violations);
         }
 
-        $violations = new ConstraintViolationList();
-        $this->validateFiles($event, $translations, $violations);
+        $this->validateDocumentsKeepAFile($event, $translations, $violations);
 
         if ($violations->count() > 0) {
             $event->getExceptions()->add(new WriteConstraintViolationException($violations));
+        }
+    }
+
+    /**
+     * @param list<OutcomeRow> $translations
+     */
+    private function validateDocumentsKeepAFile(PreWriteValidationEvent $event, array $translations, ConstraintViolationList $violations): void
+    {
+        $documents = [];
+        $checkedDocuments = [];
+        foreach ($event->getCommandsForEntity(ProductDocumentDefinition::ENTITY_NAME) as $command) {
+            $documentId = Uuid::fromBytesToHex($command->getPrimaryKey()['id']);
+            if ($command instanceof DeleteCommand) {
+                $checkedDocuments[$documentId] = true;
+            } elseif ($command instanceof InsertCommand) {
+                $documents[$documentId] = $command->getPath();
+            }
+        }
+
+        $writtenFiles = [];
+        foreach ($event->getCommandsForEntity(ProductDocumentTranslationDefinition::ENTITY_NAME) as $command) {
+            $primaryKey = $command->getPrimaryKey();
+            $documentId = Uuid::fromBytesToHex($primaryKey['product_document_id']);
+            $languageId = Uuid::fromBytesToHex($primaryKey['language_id']);
+            $writesFile = $command instanceof DeleteCommand || \array_key_exists('media_id', $command->getPayload());
+
+            if ($languageId === Defaults::LANGUAGE_SYSTEM && !$command instanceof DeleteCommand && ($writesFile || $command instanceof InsertCommand)) {
+                $checkedDocuments[$documentId] = true;
+
+                continue;
+            }
+
+            if (!$writesFile) {
+                continue;
+            }
+
+            $documents[$documentId] ??= (string) preg_replace('#/translations/[^/]*\z#', '', $command->getPath());
+            $writtenFiles[$documentId][$languageId] = true;
+        }
+
+        foreach ($translations as $translation) {
+            if (\is_string($translation->getResultingValue('media_id'))) {
+                $checkedDocuments[Uuid::fromBytesToHex($translation->primaryKey['product_document_id'])] = true;
+            }
+        }
+
+        $documentsWithoutFile = array_diff_key($documents, $checkedDocuments);
+        if ($documentsWithoutFile === []) {
+            return;
+        }
+
+        $storedFiles = $this->connection->fetchAllAssociative(
+            'SELECT LOWER(HEX(product_document_id)) AS documentId, LOWER(HEX(language_id)) AS languageId
+            FROM product_document_translation
+            WHERE product_document_id IN (:ids) AND product_document_version_id = :versionId AND media_id IS NOT NULL',
+            [
+                'ids' => Uuid::fromHexToBytesList(array_keys($documentsWithoutFile)),
+                'versionId' => Uuid::fromHexToBytes($event->getContext()->getVersionId()),
+            ],
+            ['ids' => ArrayParameterType::BINARY],
+        );
+
+        foreach ($storedFiles as $storedFile) {
+            if (!isset($writtenFiles[$storedFile['documentId']][$storedFile['languageId']])) {
+                unset($documentsWithoutFile[$storedFile['documentId']]);
+            }
+        }
+
+        foreach ($documentsWithoutFile as $path) {
+            $violations->add($this->violation(
+                code: self::VIOLATION_FILE_MISSING,
+                messageTemplate: 'A document needs a file in at least one language.',
+                parameters: [],
+                path: $path . '/translations',
+            ));
         }
     }
 

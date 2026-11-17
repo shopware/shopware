@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\Aggregate\ProductDocument;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentValidator;
@@ -88,6 +89,73 @@ class ProductDocumentValidatorTest extends TestCase
         static::assertSame([
             ['code' => NotBlank::IS_BLANK_ERROR, 'pointer' => '/0/documents/0/translations/' . Defaults::LANGUAGE_SYSTEM . '/mediaId'],
         ], $errors);
+    }
+
+    public function testADocumentWithoutAFileInAnyLanguageIsRejected(): void
+    {
+        $germanId = $this->getDeDeLanguageId();
+
+        $errors = $this->errorsOf(fn () => $this->productRepository->update([[
+            'id' => $this->ids->get('drill'),
+            'documents' => [['translations' => [$germanId => ['title' => 'Handbuch']]]],
+        ]], $this->context));
+
+        static::assertSame([
+            ['code' => ProductDocumentValidator::VIOLATION_FILE_MISSING, 'pointer' => '/0/documents/0/translations'],
+        ], $errors);
+    }
+
+    public function testADocumentWithAFileInAnotherLanguageOnlyIsValid(): void
+    {
+        $germanId = $this->getDeDeLanguageId();
+
+        $this->productRepository->update([[
+            'id' => $this->ids->get('drill'),
+            'documents' => [['translations' => [$germanId => ['title' => 'Handbuch', 'mediaId' => $this->createMedia('handbuch')]]]],
+        ]], $this->context);
+
+        static::assertSame(1, $this->countDocuments());
+    }
+
+    public function testRemovingTheLastFileOfADocumentIsRejected(): void
+    {
+        $germanId = $this->getDeDeLanguageId();
+
+        $this->productRepository->update([[
+            'id' => $this->ids->get('drill'),
+            'documents' => [['id' => $this->ids->create('manual'), 'translations' => [$germanId => ['title' => 'Handbuch', 'mediaId' => $this->createMedia('handbuch')]]]],
+        ]], $this->context);
+
+        $errors = $this->errorsOf(fn () => $this->productRepository->update([[
+            'id' => $this->ids->get('drill'),
+            'documents' => [['id' => $this->ids->get('manual'), 'translations' => [$germanId => ['mediaId' => null]]]],
+        ]], $this->context));
+
+        static::assertSame([
+            ['code' => ProductDocumentValidator::VIOLATION_FILE_MISSING, 'pointer' => '/0/documents/0/translations'],
+        ], $errors);
+    }
+
+    public function testATranslationWithOnlyATitleKeepsTheFileOfTheSystemLanguage(): void
+    {
+        $germanId = $this->getDeDeLanguageId();
+
+        $this->productRepository->update([[
+            'id' => $this->ids->get('drill'),
+            'documents' => [['id' => $this->ids->create('manual'), 'translations' => [Defaults::LANGUAGE_SYSTEM => ['title' => 'Manual', 'mediaId' => $this->createMedia('manual')]]]],
+        ]], $this->context);
+
+        $this->productRepository->update([[
+            'id' => $this->ids->get('drill'),
+            'documents' => [['id' => $this->ids->get('manual'), 'translations' => [$germanId => ['title' => 'Handbuch']]]],
+        ]], $this->context);
+
+        static::assertSame(1, $this->countDocuments());
+    }
+
+    private function countDocuments(): int
+    {
+        return (int) static::getContainer()->get(Connection::class)->fetchOne('SELECT COUNT(*) FROM product_document');
     }
 
     private function createMedia(string $fileName, bool $private = false): string

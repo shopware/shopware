@@ -222,7 +222,7 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
         });
     });
 
-    it('loads document usage without paginating translation records with composite keys', async () => {
+    it('includes document translations in media list requests', async () => {
         const search = jest.spyOn(Repository.prototype, 'search');
         let wrapper;
         try {

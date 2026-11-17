@@ -76,11 +76,16 @@ export default {
             return criteria;
         },
 
-        productDocumentCriteria() {
-            const criteria = new Criteria(1, 5);
-            criteria.addFilter(Criteria.equals('documents.translations.mediaId', this.item.id));
+        productUsageCriteria() {
+            const criteria = new Criteria(1, 10);
+            criteria.addFilter(
+                Criteria.multi('OR', [
+                    Criteria.contains('slotConfig.*.media.value', this.item.id),
+                    Criteria.equals('documents.translations.mediaId', this.item.id),
+                ]),
+            );
             criteria.addFields('name');
-            criteria.addSorting(Criteria.sort('updatedAt', 'DESC'));
+            criteria.addSorting(Criteria.sort('createdAt', 'DESC'));
 
             return criteria;
         },
@@ -181,13 +186,11 @@ export default {
             try {
                 const [
                     foundInProducts,
-                    foundInProductDocuments,
                     foundInLandingPages,
                     foundInCategories,
                     foundInCmsPages,
                 ] = await Promise.all([
-                    this.productRepository.search(this.slotConfigCriteria),
-                    this.productRepository.search(this.productDocumentCriteria),
+                    this.productRepository.search(this.productUsageCriteria),
                     this.landingPageRepository.search(this.slotConfigCriteria),
                     this.categoryRepository.search(this.slotConfigCriteria),
                     this.cmsPageRepository.search(this.cmsPageBlockConfigCriteria),
@@ -197,7 +200,7 @@ export default {
                     return;
                 }
 
-                [...foundInProducts, ...foundInProductDocuments].forEach((foundInProduct) => {
+                foundInProducts.forEach((foundInProduct) => {
                     if (
                         this.products &&
                         !this.products.some((productMedia) => productMedia.product.id === foundInProduct.id)

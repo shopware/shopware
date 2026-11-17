@@ -30,7 +30,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 #[CoversClass(CartCalculator::class)]
 class CartCalculatorTest extends TestCase
 {
-    public const EXPECTED_HASH = 'b599616874b1cb38869542f2afb84cd2d767c9201adac47781a55cab912d9283';
+    public const EXPECTED_HASH = '6b95996524c2ae61c9812b0517269b841577c0fe15ed6a0e09868837a1364f97';
 
     public function testCalculate(): void
     {

@@ -24,6 +24,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'category:read',
                 'product_visibility:read',
                 'sales_channel:read',
+                'sales_channel_domain:read',
                 'product_configurator_setting:read',
                 'unit:read',
                 'product_review:read',

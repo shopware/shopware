@@ -37,6 +37,11 @@ class CartContextHashStruct extends Struct
      */
     protected ?array $customer = null;
 
+    /**
+     * @var list<array{shippingMethod: string, address: array{id: string, hash: string|null}|null, positions: array<string, int>}>
+     */
+    protected array $deliveries = [];
+
     public function getPrice(): ?float
     {
         return $this->price;
@@ -137,5 +142,29 @@ class CartContextHashStruct extends Struct
     public function setCustomer(?array $customer): void
     {
         $this->customer = $customer;
+    }
+
+    /**
+     * @return list<array{shippingMethod: string, address: array{id: string, hash: string|null}|null, positions: array<string, int>}>
+     */
+    public function getDeliveries(): array
+    {
+        return $this->deliveries;
+    }
+
+    /**
+     * @param list<array{shippingMethod: string, address: array{id: string, hash: string|null}|null, positions: array<string, int>}> $deliveries
+     */
+    public function setDeliveries(array $deliveries): void
+    {
+        $this->deliveries = $deliveries;
+    }
+
+    /**
+     * @param array{shippingMethod: string, address: array{id: string, hash: string|null}|null, positions: array<string, int>} $delivery
+     */
+    public function addDelivery(array $delivery): void
+    {
+        $this->deliveries[] = $delivery;
     }
 }

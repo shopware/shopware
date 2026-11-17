@@ -26,6 +26,11 @@ use Shopware\Core\Framework\Log\Package;
 final class ElasticsearchTokenizer implements TokenizerInterface
 {
     /**
+     * Every token is searched with its own query, which counts against the `max_clause_count` of Elasticsearch
+     */
+    private const MAX_TOKENS = 10;
+
+    /**
      * @return list<string>
      */
     public function tokenize(string $string, ?int $tokenMinimumLength = null): array
@@ -46,6 +51,6 @@ final class ElasticsearchTokenizer implements TokenizerInterface
                 && preg_match('/[\p{L}\p{N}]/u', $token) === 1,
         );
 
-        return array_values(array_unique($tokens));
+        return \array_slice(array_unique($tokens), 0, self::MAX_TOKENS);
     }
 }

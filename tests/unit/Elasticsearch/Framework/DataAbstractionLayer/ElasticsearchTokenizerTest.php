@@ -103,6 +103,12 @@ class ElasticsearchTokenizerTest extends TestCase
             ['shirt'],
         ];
 
+        yield 'only the first 10 distinct tokens are kept' => [
+            'chair table chair lamp shirt shoes watch phone glass plate brush knife spoon',
+            null,
+            ['chair', 'table', 'lamp', 'shirt', 'shoes', 'watch', 'phone', 'glass', 'plate', 'brush'],
+        ];
+
         yield 'default min length matches AbstractTokenFilter default (2)' => [
             'a 10',
             null,

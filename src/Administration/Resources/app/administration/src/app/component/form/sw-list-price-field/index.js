@@ -108,7 +108,7 @@ export default {
             default: false,
             deprecated: {
                 version: 'v6.8.0.0',
-                comment: 'Use sw-purchase-price-field separately.'
+                comment: 'Use sw-purchase-price-field separately.',
             },
         },
 

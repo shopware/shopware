@@ -928,6 +928,16 @@ Get the first order delivery with `order.primaryOrderDelivery` so you should rep
 
 Get the latest order transaction with `order.primaryOrderTransaction` so you should replace methods like `order.transactions.last()` or `order.transactions[length - 1]`.
 
+### The order detail renders every shipment
+
+The Administration's order detail no longer treats every delivery besides the primary one as a shipping discount.
+A delivery with negative shipping costs is a discount, every other delivery is a shipment, which matches how `Shopware\Core\Checkout\Cart\Order\RecalculationService` already tells the two apart.
+The general tab shows one shipping cost row per shipment and the details tab one delivery card per shipment, the primary delivery first.
+The order overview, the order list, the state history and the bulk edit keep showing and changing the primary delivery.
+
+Overrides of the Twig blocks inside `sw_order_detail_details_shipping` of `sw-order-detail-details` run once per shipment and must use the loop variable `shipment` instead of the `delivery` computed, which still points at the primary delivery.
+App component sections at the `sw-order-details-state-delivery` positions are rendered in every shipment card as well.
+
 ## Fixed `ListField` overwrites during entity clone
 
 `VersionManager::cloneEntity()` previously merged `CloneBehavior` overwrites with `array_replace_recursive`, which index-merges array values.
@@ -1624,6 +1634,8 @@ Update overrides to use the replacement blocks:
 `sw-list-price-field` continued to render purchase prices during 6.7 when its deprecated `purchasePrices` prop was supplied.
 Its `hidePurchasePrices` and `purchasePrices` props were deprecated during 6.7 and removed in 6.8.
 Render `sw-purchase-price-field` separately where purchase prices are needed.
+Overrides that copied the old combined price editor and continued passing `purchasePrices` to `sw-list-price-field` could render purchase prices twice alongside the new purchase section.
+Remove the `purchasePrices` binding from the copied display-price editor and customize `sw_product_price_form_purchase_prices` separately.
 The `sw_product_price_form_purchase_price_field` and `sw_product_price_form_purchase_price_field_content` blocks were deprecated during 6.7 and removed in 6.8.
 Use `sw_product_price_form_purchase_prices` to customize the product card's purchase section.
 
@@ -1637,9 +1649,19 @@ Replace `this.prices.price` with `this.product.price` and `this.prices.purchaseP
 Use `product.price`, `product.purchasePrices`, `parentProduct.price`, and `parentProduct.purchasePrices` separately; use `displayPrices` for the effective inherited display prices.
 
 `sw-product-detail.syncVariantPriceInheritance()` was deprecated during 6.7 and removed in 6.8.
+It retained the old coupled inheritance behavior during 6.7, so calling it could reset independently overridden purchase prices.
+Remove calls to it.
 Move unrelated load-time customization to `sw-product-detail.loadProduct()`.
 `sw-product-detail.getDefaultPurchasePrices()` was deprecated during 6.7 and removed in 6.8.
 Set `product.purchasePrices` explicitly in a product-detail extension when a default purchase price is required.
+
+## Sales channel detail components load fewer visibilities and sales channels
+
+- `sw-sales-channel-detail-base`: the currencies of the *Currency* select are loaded without `salesChannels`.
+- `sw-sales-channel-detail-products`: the products contain only the visibility of the current sales channel, without its `salesChannel`.
+- `sw-sales-channel-products-assignment-single-products`: the products are loaded without `visibilities`.
+
+Extensions that read other sales channel or visibility data in these components must load it with their own `sales_channel` or `product_visibility` request.
 
 ## Sales channel lists removed from `sw-settings-search-live-search` and `sw-newsletter-recipient-list`
 

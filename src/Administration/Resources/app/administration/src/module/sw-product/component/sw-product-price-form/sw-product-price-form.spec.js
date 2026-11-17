@@ -142,12 +142,8 @@ describe('module/sw-product/component/sw-product-price-form', () => {
         expect(() => wrapper.vm.inheritationCheckFunction()).toThrow(
             'sw-product-price-form.inheritationCheckFunction() is deprecated',
         );
-        expect(() => wrapper.vm.prices).toThrow(
-            'sw-product-price-form.prices is deprecated',
-        );
-        expect(() => wrapper.vm.parentPrices).toThrow(
-            'sw-product-price-form.parentPrices is deprecated',
-        );
+        expect(() => wrapper.vm.prices).toThrow('sw-product-price-form.prices is deprecated');
+        expect(() => wrapper.vm.parentPrices).toThrow('sw-product-price-form.parentPrices is deprecated');
     });
     /* eslint-enable sw-test-rules/no-vm-access */
 

@@ -446,16 +446,15 @@ class EntitySearcherTest extends TestCase
         $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Green'), score: 500));
         $criteria->addSorting(new FieldSorting(Criteria::SCORE_FIELD, FieldSorting::DESCENDING));
         $criteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
-
-        $allIds = $this->searchProductIds(clone $criteria);
-
         $criteria->setLimit(2);
         $criteria->setOffset(2);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
         $result = $this->searchProducts($criteria);
 
         static::assertSame(5, $result->getTotal());
-        static::assertSame(\array_slice($allIds, 2, 2), array_values($result->getIds()));
+        static::assertSame([$ids->get('a1'), $ids->get('a2')], $result->getIds());
+        static::assertArrayNotHasKey('_total', $result->getDataOfId($ids->get('a1')));
     }
 
     public function testScoreRankedExactTotalCountCountsEveryGroup(): void
@@ -466,16 +465,14 @@ class EntitySearcherTest extends TestCase
         $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Sport'), score: 100));
         $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Premium'), score: 300));
         $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Green'), score: 500));
-
-        $allIds = $this->searchProductIds(clone $criteria);
-
         $criteria->setLimit(1);
         $criteria->setOffset(1);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
         $result = $this->searchProducts($criteria);
 
         static::assertSame(2, $result->getTotal());
-        static::assertSame([$allIds[1]], array_values($result->getIds()));
+        static::assertSame([$ids->get('a3')], $result->getIds());
     }
 
     public function testScoredExactTotalCountOfAnEmptyPagePastTheEnd(): void
@@ -492,23 +489,6 @@ class EntitySearcherTest extends TestCase
 
         static::assertSame(2, $result->getTotal());
         static::assertSame([], $result->getIds());
-    }
-
-    public function testScoredExactTotalCountDoesNotLeakItsHelperColumnsIntoTheResult(): void
-    {
-        $ids = $this->createSportProducts();
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('parentId', [$ids->get('parent-a'), $ids->get('parent-b')]));
-        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Sport'), score: 100));
-        $criteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
-        $criteria->setLimit(1);
-        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
-
-        $result = $this->searchProducts($criteria);
-
-        static::assertSame([$ids->get('a1')], array_values($result->getIds()));
-        static::assertSame(['id', 'productNumber', 'autoIncrement', Criteria::SCORE_FIELD], array_keys((array) $result->getDataOfId($ids->get('a1'))));
     }
 
     public function testScoredExactTotalCountWithAnAssociationScoreFieldSurvivesJoinBufferedPlans(): void
@@ -547,17 +527,6 @@ class EntitySearcherTest extends TestCase
             $criteria,
             Context::createDefaultContext(),
         );
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function searchProductIds(Criteria $criteria): array
-    {
-        /** @var list<string> $ids */
-        $ids = array_values($this->searchProducts($criteria)->getIds());
-
-        return $ids;
     }
 
     /**

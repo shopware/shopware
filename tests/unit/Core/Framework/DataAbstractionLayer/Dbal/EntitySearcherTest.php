@@ -92,7 +92,7 @@ class EntitySearcherTest extends TestCase
     }
 
     #[DataProvider('notLastPageProvider')]
-    public function testExactTotalCountFallsBackToTheCountQuery(?int $offset, int $limit, int $rows): void
+    public function testExactTotalCountFallsBackToTheCountQuery(?int $offset, int $limit, int $rows, bool $scored = false): void
     {
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->exactly(2))
@@ -104,7 +104,7 @@ class EntitySearcherTest extends TestCase
         $criteria->setLimit($limit);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
-        $searcher = $this->createSearcher($connection);
+        $searcher = $this->createSearcher($connection, scored: $scored);
 
         $result = $searcher->search($this->definition, $criteria, Context::createDefaultContext());
 
@@ -112,7 +112,7 @@ class EntitySearcherTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{?int, int, int}>
+     * @return iterable<string, array{0: ?int, 1: int, 2: int, 3?: bool}>
      */
     public static function notLastPageProvider(): iterable
     {
@@ -121,6 +121,7 @@ class EntitySearcherTest extends TestCase
         yield 'full page after some full pages' => [4, 2, 2];
         // An empty page behind an offset says nothing about the total, it can be anything up to that offset.
         yield 'empty page past the end' => [10, 2, 0];
+        yield 'empty page past the end of a scored search' => [10, 2, 0, true];
     }
 
     public function testScoredExactTotalCountIsReadFromTheSearchQuery(): void
@@ -143,24 +144,6 @@ class EntitySearcherTest extends TestCase
         static::assertSame(42, $result->getTotal());
         static::assertSame([$id], $result->getIds());
         static::assertSame(['id' => $id, '_score' => '300'], $result->getDataOfId($id));
-    }
-
-    public function testScoredExactTotalCountFallsBackToTheCountQueryForAnEmptyPagePastTheEnd(): void
-    {
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->exactly(2))
-            ->method('executeQuery')
-            ->willReturnOnConsecutiveCalls($this->createIdResult(0), $this->createCountResult(7));
-
-        $criteria = new Criteria();
-        $criteria->setOffset(10);
-        $criteria->setLimit(2);
-        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
-
-        $result = $this->createSearcher($connection, scored: true)
-            ->search($this->definition, $criteria, Context::createDefaultContext());
-
-        static::assertSame(7, $result->getTotal());
     }
 
     public function testScoredSearchWithoutExactTotalCountReadsNoWindowTotal(): void

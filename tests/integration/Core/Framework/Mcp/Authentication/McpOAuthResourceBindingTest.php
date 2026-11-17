@@ -207,6 +207,8 @@ class McpOAuthResourceBindingTest extends TestCase
     {
         static::assertArrayNotHasKey('access_token', $response);
         static::assertSame((string) OAuthResource::ERROR_CODE_INVALID_TARGET, $response['errors'][0]['code'] ?? null, json_encode($response, \JSON_THROW_ON_ERROR));
+        static::assertSame(OAuthResource::ERROR_INVALID_TARGET, $response['error'] ?? null);
+        static::assertIsString($response['error_description'] ?? null);
     }
 
     /**

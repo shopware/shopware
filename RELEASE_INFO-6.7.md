@@ -490,6 +490,8 @@ Access keys, integration tokens and all existing OAuth tokens keep working uncha
   A refresh keeps the resource.
   The JWT keeps the client id as the first `aud` entry and lists the resource after it.
   Requests without `resource` behave as before.
+* **OAuth error members:** Every OAuth error of the Admin API, e.g. from `/api/oauth/token`, now also carries `error`, `error_description` and, when known, `hint` at the top level of the body, as RFC 6749 (section 5.2) defines them.
+  The `errors` array stays unchanged, so existing clients keep working.
 * **Consent page:** The Administration consent page forwards `resource` and says that access is limited to the MCP endpoint.
   Rebuild the Administration when you build it yourself.
   A build from before this change drops `resource`, and the token request of the MCP client then fails with `invalid_target`.

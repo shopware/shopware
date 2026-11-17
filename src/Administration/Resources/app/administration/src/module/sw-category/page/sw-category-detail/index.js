@@ -1,3 +1,4 @@
+import useTour from 'src/app/composables/use-tour';
 import './store';
 import template from './sw-category-detail.html.twig';
 import './sw-category-detail.scss';
@@ -22,11 +23,7 @@ export default {
         'customFieldDataProviderService',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('tour'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -338,6 +335,10 @@ export default {
     },
 
     methods: {
+        startTour(key) {
+            useTour().startTour(key);
+        },
+
         createdComponent() {
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-category-detail__category',

@@ -2,21 +2,17 @@
  * @sw-package framework
  */
 
+import type { RouteLocationRaw } from 'vue-router';
+import type { PopperPlacement, StepOptions } from 'shepherd.js';
+
 /**
  * @private
  */
-export interface TourStepDefinition {
-    selector?: string | Element;
-    title?: string;
-    text?: string;
+export interface TourStepDefinition extends Omit<StepOptions, 'attachTo'> {
+    selector?: string;
     waitFor?: string;
-    route?: string | Record<string, unknown>;
-    position?: string;
-    attachTo?: { element?: Element | string; on?: string };
-    beforeShowPromise?: () => Promise<void>;
-    when?: Record<string, unknown>;
-    buttons?: unknown[];
-    [key: string]: unknown;
+    route?: RouteLocationRaw;
+    position?: PopperPlacement;
 }
 
 /**

@@ -199,8 +199,7 @@
             "generic-condition": [],
             "sw-form-field": [],
             "discard-detail-page-changes": [],
-            "rule-between-operator": [],
-            "tour": []
+            "rule-between-operator": []
         }
     },
     "shopware:stores": {

@@ -176,6 +176,8 @@ Rules:
 - `GET` and `POST /api/oauth/authorize` and `POST /api/oauth/token` accept `resource`.
   The only resource value accepted is the MCP resource of this shop; any other value is answered with `invalid_target` (RFC 8707).
   The token request must name the same resource as the authorization request.
+- OAuth errors of the Admin API carry the RFC 6749 (section 5.2) members `error` and `error_description` at the top level, so an MCP client reads `"error": "invalid_target"`.
+  The Shopware `errors` array stays next to them, because the Administration login and existing integrations read it.
 - The resource is compared without its query and without a trailing slash, so `https://shop.example/api/_mcp?toolsets=all` names the same resource.
   Only the discovery answers keep the query, see "Names and URLs".
   A resource with a fragment is rejected, as RFC 8707 requires.

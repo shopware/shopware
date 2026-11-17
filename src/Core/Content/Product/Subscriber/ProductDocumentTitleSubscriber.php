@@ -7,7 +7,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -42,71 +41,77 @@ final class ProductDocumentTitleSubscriber implements EventSubscriberInterface
     {
         $systemLanguageId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
-        $untitledTranslations = [];
-        $updatedTranslations = [];
+        $commands = [];
+        $mediaIds = [];
+        $updatedDocumentIds = [];
         foreach ($event->getCommandsForEntity(ProductDocumentTranslationDefinition::ENTITY_NAME) as $command) {
+            $primaryKey = $command->getPrimaryKey();
             $payload = $command->getPayload();
             $mediaId = $payload['media_id'] ?? null;
 
-            if ($command->getPrimaryKey()['language_id'] !== $systemLanguageId
+            if ($primaryKey['language_id'] !== $systemLanguageId
                 || ($payload['title'] ?? null) !== null
                 || !\is_string($mediaId)
             ) {
                 continue;
             }
 
-            if ($command instanceof InsertCommand) {
-                $untitledTranslations[] = [$command, $mediaId];
-            } elseif ($command instanceof UpdateCommand) {
-                $updatedTranslations[] = [$command, $mediaId];
+            $translationKey = self::createTranslationKey($primaryKey);
+            $commands[$translationKey] = $command;
+            $mediaIds[$translationKey] = $mediaId;
+
+            if ($command instanceof UpdateCommand) {
+                $updatedDocumentIds[] = $primaryKey['product_document_id'];
             }
         }
 
-        $untitledTranslations = [...$untitledTranslations, ...$this->filterReplacedFiles($updatedTranslations)];
-        if ($untitledTranslations === []) {
+        foreach ($this->fetchStoredMediaIds($updatedDocumentIds) as $translationKey => $storedMediaId) {
+            if (($mediaIds[$translationKey] ?? null) === $storedMediaId) {
+                unset($mediaIds[$translationKey]);
+            }
+        }
+
+        if ($mediaIds === []) {
             return;
         }
 
         $fileNames = $this->connection->fetchAllKeyValue(
             'SELECT `id`, `file_name` FROM `media` WHERE `id` IN (:ids) AND `file_name` IS NOT NULL AND `file_name` != \'\'',
-            ['ids' => array_values(array_unique(array_column($untitledTranslations, 1)))],
+            ['ids' => array_values(array_unique($mediaIds))],
             ['ids' => ArrayParameterType::BINARY],
         );
 
-        foreach ($untitledTranslations as [$command, $mediaId]) {
+        foreach ($mediaIds as $translationKey => $mediaId) {
             $fileName = $fileNames[$mediaId] ?? null;
             if (\is_string($fileName)) {
-                $command->addPayload('title', mb_substr($fileName, 0, self::MAX_TITLE_LENGTH));
+                $commands[$translationKey]->addPayload('title', mb_substr($fileName, 0, self::MAX_TITLE_LENGTH));
             }
         }
     }
 
     /**
-     * @param list<array{UpdateCommand, string}> $translations
+     * @param list<string> $documentIds
      *
-     * @return list<array{UpdateCommand, string}>
+     * @return array<string, mixed>
      */
-    private function filterReplacedFiles(array $translations): array
+    private function fetchStoredMediaIds(array $documentIds): array
     {
-        if ($translations === []) {
+        if ($documentIds === []) {
             return [];
         }
 
         $storedTranslations = $this->connection->fetchAllAssociative(
             'SELECT `product_document_id`, `product_document_version_id`, `language_id`, `media_id` FROM `product_document_translation` WHERE `product_document_id` IN (:ids)',
-            ['ids' => array_values(array_unique(array_map(static fn (array $translation): string => $translation[0]->getPrimaryKey()['product_document_id'], $translations)))],
+            ['ids' => array_values(array_unique($documentIds))],
             ['ids' => ArrayParameterType::BINARY],
         );
 
         $storedMediaIds = [];
-        foreach ($storedTranslations as $storedTranslation) {
-            $storedMediaIds[self::createTranslationKey($storedTranslation)] = $storedTranslation['media_id'];
+        foreach ($storedTranslations as $translation) {
+            $storedMediaIds[self::createTranslationKey($translation)] = $translation['media_id'];
         }
 
-        return array_values(array_filter(
-            $translations,
-            static fn (array $translation): bool => ($storedMediaIds[self::createTranslationKey($translation[0]->getPrimaryKey())] ?? null) !== $translation[1],
-        ));
+        return $storedMediaIds;
     }
 
     /**

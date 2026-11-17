@@ -414,7 +414,7 @@ class ProductStreamUpdaterTest extends TestCase
             ->method('transactional')
             ->withAnyParameters();
 
-        $firstPage = [Uuid::randomHex()];
+        $firstPage = array_map(static fn () => Uuid::randomHex(), range(1, 10000));
         $allMatches = [...$firstPage, Uuid::randomHex()];
 
         $definition = new ProductDefinition();
@@ -427,18 +427,19 @@ class ProductStreamUpdaterTest extends TestCase
             },
             static function (Criteria $criteria) use ($allMatches): array {
                 static::assertTrue($criteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE));
-                static::assertEquals(new RangeFilter('autoIncrement', [RangeFilter::GT => 1]), $criteria->getFilters()['increment']);
+                static::assertEquals(new RangeFilter('autoIncrement', [RangeFilter::GT => 10000]), $criteria->getFilters()['increment']);
 
-                return self::page([$allMatches[1]], 2);
+                return self::page([$allMatches[10000]], 10001);
             },
-            static fn () => [],
         ], $definition);
 
-        $manyToManyFieldUpdater = $this->createMock(ManyToManyIdFieldUpdater::class);
+        $updatedIds = [];
+        $manyToManyFieldUpdater = static::createStub(ManyToManyIdFieldUpdater::class);
         $manyToManyFieldUpdater
-            ->expects($this->once())
             ->method('update')
-            ->with($definition->getEntityName(), $allMatches, Context::createDefaultContext(), 'streamIds');
+            ->willReturnCallback(static function (string $entity, array $ids) use (&$updatedIds): void {
+                array_push($updatedIds, ...$ids);
+            });
 
         $updater = new ProductStreamUpdater(
             $connection,
@@ -451,6 +452,8 @@ class ProductStreamUpdaterTest extends TestCase
         );
 
         $updater->handle($message);
+
+        static::assertSame($allMatches, $updatedIds);
     }
 
     public function testUpdateProductsSkipsInvalidFilter(): void

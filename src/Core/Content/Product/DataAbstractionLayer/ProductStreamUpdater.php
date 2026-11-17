@@ -362,10 +362,11 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         $iterator = new RepositoryIterator($this->repository, $context, (clone $criteria)->setLimit(self::SEARCH_PAGE_SIZE));
 
         $ids = [];
-        while (($page = $iterator->fetchIds()) !== null) {
+        do {
             /** @var list<string> $page */
+            $page = $iterator->fetchIds() ?? [];
             array_push($ids, ...$page);
-        }
+        } while (\count($page) === self::SEARCH_PAGE_SIZE);
 
         return $ids;
     }

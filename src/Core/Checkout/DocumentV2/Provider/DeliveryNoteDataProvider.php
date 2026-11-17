@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DeliveryNoteRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
+use Shopware\Core\Checkout\DocumentV2\Template\Calculation\DeliveryNoteLineItems;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -41,6 +42,7 @@ final readonly class DeliveryNoteDataProvider extends AbstractDocumentDataProvid
             'orderCustomer.customer',
             'lineItems',
             'deliveries.shippingMethod',
+            'deliveries.positions',
             'primaryOrderTransaction.paymentMethod',
         ]);
 
@@ -68,12 +70,21 @@ final readonly class DeliveryNoteDataProvider extends AbstractDocumentDataProvid
             throw DocumentV2Exception::missingDeliveryDate($generationRequest->documentType);
         }
 
+        $orderDelivery = null;
+
+        if ($generationRequest->orderDeliveryId !== null) {
+            $orderDelivery = $input->order->getDeliveries()?->get($generationRequest->orderDeliveryId)
+                ?? throw DocumentV2Exception::orderDeliveryNotFound($generationRequest->orderDeliveryId, $input->order->getId());
+        }
+
         return new DeliveryNoteRenderData(
             custom: [
                 'deliveryNoteNumber' => $documentNumber,
                 'deliveryDate' => $generationRequest->deliveryDate,
                 'deliveryNoteDate' => $generationRequest->documentDate,
             ],
+            orderDelivery: $orderDelivery,
+            deliveryLineItemQuantities: $orderDelivery !== null ? DeliveryNoteLineItems::quantities($input->order, $orderDelivery) : null,
         );
     }
 }

@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { diffAgainstKnown, formatReport, parseSkippedFiles } from './zizmor-collection-guard.ts';
 
-
 const warning = (path: string): string =>
     ` WARN zizmor::registry::input: failed to validate file://${path} as workflow: input does not match expected validation schema`;
 
@@ -32,7 +31,8 @@ test('parseSkippedFiles reports each file once even when zizmor warns repeatedly
 });
 
 test('parseSkippedFiles ignores warnings that are not schema failures', () => {
-    const log = ' WARN zizmor::registry::input: failed to validate file://./.github/workflows/php.yml as workflow: some other problem';
+    const log =
+        ' WARN zizmor::registry::input: failed to validate file://./.github/workflows/php.yml as workflow: some other problem';
 
     assert.deepEqual(parseSkippedFiles(log), []);
 });

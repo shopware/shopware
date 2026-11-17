@@ -15,12 +15,16 @@ for (const statusCode of [200, 500]) {
     test(`major ATS reports a failed shard and ${statusCode === 200 ? 'succeeds' : 'fails when Slack rejects it'}`, async (t) => {
         const directory = mkdtempSync(join(tmpdir(), 'ats-slack-test-'));
         t.after(() => rmSync(directory, { recursive: true, force: true }));
-        writeFileSync(join(directory, 'gh'), '#!/usr/bin/env node\nconsole.log(process.env.ATS_TEST_JOBS);\n', { mode: 0o755 });
+        writeFileSync(join(directory, 'gh'), '#!/usr/bin/env node\nconsole.log(process.env.ATS_TEST_JOBS);\n', {
+            mode: 0o755,
+        });
 
         let payload: { message: string } | undefined;
         const server = createServer((request, response) => {
             let body = '';
-            request.on('data', (chunk) => { body += chunk; });
+            request.on('data', (chunk) => {
+                body += chunk;
+            });
             request.on('end', () => {
                 payload = JSON.parse(body);
                 response.writeHead(statusCode);
@@ -40,11 +44,21 @@ for (const statusCode of [200, 500]) {
                 RUN_ID: '123',
                 RUN_LABEL: 'Major',
                 SLACK_ATS_WORKFLOW_URL: `http://127.0.0.1:${address.port}`,
-                ATS_TEST_JOBS: JSON.stringify({ jobs: [
-                    { id: 456, name: 'acceptance / acceptance (Platform, major, 8.2, 1, 3, true)', conclusion: 'failure' },
-                    { id: 457, name: 'acceptance / acceptance (Platform, major, 8.2, 2, 3, true)', conclusion: 'success' },
-                    { id: 458, name: 'integration-major / phpunit-major', conclusion: 'failure' },
-                ] }),
+                ATS_TEST_JOBS: JSON.stringify({
+                    jobs: [
+                        {
+                            id: 456,
+                            name: 'acceptance / acceptance (Platform, major, 8.2, 1, 3, true)',
+                            conclusion: 'failure',
+                        },
+                        {
+                            id: 457,
+                            name: 'acceptance / acceptance (Platform, major, 8.2, 2, 3, true)',
+                            conclusion: 'success',
+                        },
+                        { id: 458, name: 'integration-major / phpunit-major', conclusion: 'failure' },
+                    ],
+                }),
             },
         });
 
@@ -55,7 +69,10 @@ for (const statusCode of [200, 500]) {
         }
         assert.ok(payload);
         assert.match(payload.message, /^\*Major\*\n/);
-        assert.match(payload.message, /❌ .*Platform, major,.*https:\/\/github\.com\/shopware\/shopware\/actions\/runs\/123\/job\/456/);
+        assert.match(
+            payload.message,
+            /❌ .*Platform, major,.*https:\/\/github\.com\/shopware\/shopware\/actions\/runs\/123\/job\/456/,
+        );
         assert.match(payload.message, /✅ .*Platform, major,/);
         assert.doesNotMatch(payload.message, /phpunit-major/);
     });

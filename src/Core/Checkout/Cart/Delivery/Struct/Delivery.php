@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
+use Shopware\Core\Checkout\Cart\PayloadTrait;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
@@ -13,6 +14,8 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class Delivery extends Struct
 {
+    use PayloadTrait;
+
     final public const DEFAULT_IDENTIFIER = 'default';
 
     protected ?string $identifier = null;
@@ -101,6 +104,14 @@ class Delivery extends Struct
     public function setRuleIds(?array $ruleIds): void
     {
         $this->ruleIds = $ruleIds;
+    }
+
+    public function jsonSerialize(): array
+    {
+        $data = parent::jsonSerialize();
+        $data['payload'] = $this->getUnprotectedPayload();
+
+        return $data;
     }
 
     public function getApiAlias(): string

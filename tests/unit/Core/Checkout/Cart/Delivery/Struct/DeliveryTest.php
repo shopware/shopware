@@ -58,6 +58,14 @@ class DeliveryTest extends TestCase
         static::assertNull($delivery->getIdentifier());
     }
 
+    public function testProtectedPayloadValuesStayOutOfTheSerializedStruct(): void
+    {
+        $delivery = $this->createDelivery(Delivery::DEFAULT_IDENTIFIER);
+        $delivery->setPayload(['group' => 'now', 'warehouseId' => 'wh-1'], ['warehouseId' => true]);
+
+        static::assertSame(['group' => 'now'], $delivery->jsonSerialize()['payload']);
+    }
+
     private function createDelivery(?string $identifier): Delivery
     {
         return new Delivery(

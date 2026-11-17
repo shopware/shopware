@@ -9,6 +9,7 @@
                 "required": [
                     "id",
                     "orderId",
+                    "identifier",
                     "shippingOrderAddressId",
                     "shippingMethodId",
                     "stateId",
@@ -34,8 +35,15 @@
                         "pattern": "^[0-9a-f]{32}$"
                     },
                     "identifier": {
-                        "description": "Unique identity of the delivery in the cart the order was placed from.",
-                        "type": "string"
+                        "description": "Unique identity of the delivery in the cart the order was placed from. `null` for order deliveries that did not come from a cart delivery, such as those of older orders that were not recalculated since, or those written through the Admin API without one.",
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "shippingOrderAddressId": {
                         "description": "Unique identity of order's shipping address.",
@@ -130,6 +138,17 @@
                             }
                         },
                         "type": "object"
+                    },
+                    "position": {
+                        "description": "Position of the delivery in the cart the order was placed from, starting at 1.",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "payload": {
+                        "description": "Data extensions attached to the delivery in the cart. Core defines no keys. An empty payload is an empty array.",
+                        "type": ["object", "array"],
+                        "maxItems": 0,
+                        "additionalProperties": true
                     },
                     "customFields": {
                         "type": "object"

@@ -93,6 +93,8 @@ class FieldSerializerTest extends TestCase
             'versionId' => null,
             'translated' => [],
             'identifier' => null,
+            'position' => '0',
+            'payload' => '[]',
             'customFields' => null,
             'id' => $deliveryId,
         ], $this->first($fieldSerializer->serialize($config, $field, $deliveries)));
@@ -149,6 +151,7 @@ class FieldSerializerTest extends TestCase
             'versionId' => null,
             'translated' => [],
             'identifier' => null,
+            'payload' => '[]',
             'validationData' => '[]',
             'customFields' => null,
             'id' => $transactionId,

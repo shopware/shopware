@@ -308,8 +308,9 @@ Consequences for routing:
 
 Decision: **the previous access token stays valid until it expires**, at most `access_token_ttl` (ten minutes by default).
 Rotation and reuse detection apply to refresh tokens.
-Revoking a client's access revokes its refresh token family; its last access token runs out within the TTL.
+Once a single session can be revoked ([#22048](https://github.com/shopware/shopware/issues/22048)), that deletes its refresh token family; its last access token runs out within the TTL.
 A denylist would add a lookup to every Admin API request for a window of minutes.
+A password change or deactivation still invalidates every access token of the user immediately (`validateAccessTokenIssuedAt()`).
 
 MCP-bound tokens use the same `access_token_ttl` of ten minutes; there is no separate setting.
 
@@ -356,6 +357,25 @@ No `scope` parameter is sent while Shopware defines no MCP scopes.
 - Sessions without a stored principal are rejected once session binding ships; MCP clients re-initialize on `404`.
 - The rate-limit bucket of bearer clients changes from token to principal; clients that relied on a fresh bucket per token get throttled sooner.
 
+### Known limitations
+
+Revocation stays at the level of the whole user in this iteration.
+The set of clients is small and configured by the operator, and a password change or deactivation remains a working emergency stop.
+
+- **No revocation of a single session.**
+  `RefreshTokenRepository::revokeRefreshTokensForUser()` runs on a password change, a deactivation or deletion of the user (`UserCredentialsChangedSubscriber`), and revokes every client of that user.
+  Reuse detection deletes one refresh token family, but nothing lets a user or administrator target one on purpose: there is no RFC 7009 revocation endpoint and no Administration action.
+  `league/oauth2-server` has no revocation support either; [thephpleague/oauth2-server#1473](https://github.com/thephpleague/oauth2-server/pull/1473) adds it but is not released.
+- **Administration logout with SSO configured ends every session of the user.**
+  The logout calls `POST /api/_action/user/logout`, which runs `SsoService::revokeUserTokens()` and also disconnects all MCP clients of that user.
+- **No maximum lifetime for a session.**
+  Every rotation issues a refresh token valid for a fresh `refresh_token_ttl` (`P1W`), so a client that refreshes at least once a week stays connected until one of the user-wide triggers above.
+- **Access tokens of a single session cannot be revoked.**
+  `isAccessTokenRevoked()` returns `false`; outside a credential change, `access_token_ttl` (`PT10M`) is the only limit (see 8).
+
+[#22048](https://github.com/shopware/shopware/issues/22048) closes the first three gaps in MCP Iteration 6, before Client ID Metadata Documents ([#22047](https://github.com/shopware/shopware/issues/22047)) let any client connect:
+per-session revocation in the Administration and an RFC 7009 endpoint, a logout that ends only its own session, and a configurable maximum session lifetime.
+
 ### Follow-up issues
 
 These replace the proposed sub-issues of [#20866](https://github.com/shopware/shopware/issues/20866):
@@ -369,6 +389,7 @@ These replace the proposed sub-issues of [#20866](https://github.com/shopware/sh
 6. **Client ID Metadata Documents** behind a flag, with SSRF review (3), tracked in [#22047](https://github.com/shopware/shopware/issues/22047).
 7. **`shopware-mcp-evals`:** an OAuth login path next to integration keys.
 8. **Read-only consent** on the consent page, enforced centrally by the privileges a tool declares (4).
+9. **Session revocation:** per-session revoke, RFC 7009 endpoint, logout of the own session only, maximum session lifetime (known limitations), tracked in [#22048](https://github.com/shopware/shopware/issues/22048).
 
 ### For extension developers
 

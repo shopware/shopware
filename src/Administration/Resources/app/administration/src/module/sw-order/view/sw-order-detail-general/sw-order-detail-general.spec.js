@@ -151,16 +151,16 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         Shopware.Store.get('swOrderDetail').order = orderMock;
     });
 
+    afterEach(() => {
+        Shopware.Store.get('swOrderDetail').order = orderMock;
+    });
+
     it('should report the deprecated isSaveSuccessful prop the order detail page still passes', async () => {
         wrapper = await createWrapper({ isSaveSuccessful: true });
 
         expect(deprecations).toHaveTriggered(
             'The prop "isSaveSuccessful" of the component "sw-order-detail-general" is deprecated',
         );
-    });
-
-    afterEach(() => {
-        Shopware.Store.get('swOrderDetail').order = orderMock;
     });
 
     it('should tax description correctly for shipping cost if taxStatus is not tax-free', async () => {

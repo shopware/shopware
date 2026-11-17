@@ -173,12 +173,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
     private function getTaxLocation(BaseSalesChannelContext $context, ?CustomerEntity $customer, ShippingLocation $shippingLocation): ShippingLocation
     {
-        $taxCountryId = $this->intraCommunityTaxResolver->getTaxCountryId(
-            $customer?->getAccountType(),
-            $customer?->getVatIds(),
-            $shippingLocation->getCountry(),
-            $context->getSalesChannelId(),
-        );
+        $taxCountryId = $this->intraCommunityTaxResolver->getTaxCountryId($customer, $shippingLocation->getCountry(), $context->getSalesChannelId());
         if ($taxCountryId === $shippingLocation->getCountry()->getId()) {
             return $shippingLocation;
         }

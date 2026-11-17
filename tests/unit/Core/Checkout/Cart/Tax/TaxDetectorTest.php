@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,6 +27,7 @@ use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -965,6 +967,7 @@ class TaxDetectorTest extends TestCase
             new VatIdPatternProvider($repository),
             $this->createSystemConfigService($countries, $sellerIso),
             $repository,
+            new ExtensionDispatcher(new EventDispatcher()),
         ));
     }
 
@@ -986,6 +989,7 @@ class TaxDetectorTest extends TestCase
             new VatIdPatternProvider($repository),
             $this->createSystemConfigService($countries, $sellerIso),
             $repository,
+            new ExtensionDispatcher(new EventDispatcher()),
         ));
     }
 
@@ -1001,7 +1005,7 @@ class TaxDetectorTest extends TestCase
         $systemConfigService = static::createStub(SystemConfigService::class);
         $systemConfigService->method('getString')->willReturn(Uuid::randomHex());
 
-        return new TaxDetector(new IntraCommunityTaxResolver(new VatIdPatternProvider($repository), $systemConfigService, $repository));
+        return new TaxDetector(new IntraCommunityTaxResolver(new VatIdPatternProvider($repository), $systemConfigService, $repository, new ExtensionDispatcher(new EventDispatcher())));
     }
 
     /**

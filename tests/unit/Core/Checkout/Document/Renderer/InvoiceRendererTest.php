@@ -38,6 +38,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
@@ -47,6 +48,7 @@ use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInt
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Clock\NativeClock;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -110,7 +112,7 @@ class InvoiceRendererTest extends TestCase
             $connectionMock,
             static::createStub(DocumentFileRendererRegistry::class),
             new NativeClock(),
-            new IntraCommunityTaxResolver($vatIdPatternProvider, static::createStub(SystemConfigService::class), static::createStub(EntityRepository::class))
+            new IntraCommunityTaxResolver($vatIdPatternProvider, static::createStub(SystemConfigService::class), static::createStub(EntityRepository::class), new ExtensionDispatcher(new EventDispatcher()))
         );
 
         $operations = [

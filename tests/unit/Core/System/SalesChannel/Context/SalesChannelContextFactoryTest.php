@@ -65,7 +65,7 @@ class SalesChannelContextFactoryTest extends TestCase
     {
         $this->intraCommunityTaxResolver = static::createStub(IntraCommunityTaxResolver::class);
         $this->intraCommunityTaxResolver->method('getTaxCountryId')->willReturnCallback(
-            static fn (mixed $accountType, mixed $vatIds, CountryEntity $country, string $salesChannelId): string => $country->getId()
+            static fn (mixed $customer, CountryEntity $country, string $salesChannelId): string => $country->getId()
         );
     }
 

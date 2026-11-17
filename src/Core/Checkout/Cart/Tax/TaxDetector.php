@@ -55,13 +55,6 @@ class TaxDetector extends AbstractTaxDetector
 
     public function isCompanyTaxFree(SalesChannelContext $context, CountryEntity $shippingLocationCountry): bool
     {
-        $customer = $context->getCustomer();
-
-        return $this->intraCommunityTaxResolver->isExempt(
-            $customer?->getAccountType(),
-            $customer?->getVatIds(),
-            $shippingLocationCountry,
-            $context->getSalesChannelId(),
-        );
+        return $this->intraCommunityTaxResolver->isExempt($context->getCustomer(), $shippingLocationCountry, $context->getSalesChannelId());
     }
 }

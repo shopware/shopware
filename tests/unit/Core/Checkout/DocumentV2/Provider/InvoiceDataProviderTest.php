@@ -37,6 +37,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
@@ -46,6 +47,7 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -442,6 +444,7 @@ class InvoiceDataProviderTest extends TestCase
                 static::createStub(VatIdPatternProvider::class),
                 static::createStub(SystemConfigService::class),
                 static::createStub(EntityRepository::class),
+                new ExtensionDispatcher(new EventDispatcher()),
             ),
         );
     }
@@ -496,7 +499,7 @@ class InvoiceDataProviderTest extends TestCase
         $systemConfigService = static::createStub(SystemConfigService::class);
         $systemConfigService->method('getString')->willReturn($sellerCountryId);
 
-        return new IntraCommunityTaxResolver(new VatIdPatternProvider($repository), $systemConfigService, static::createStub(EntityRepository::class));
+        return new IntraCommunityTaxResolver(new VatIdPatternProvider($repository), $systemConfigService, static::createStub(EntityRepository::class), new ExtensionDispatcher(new EventDispatcher()));
     }
 
     private function createPatternCountry(string $id, string $iso, string $vatIdPattern): CountryEntity

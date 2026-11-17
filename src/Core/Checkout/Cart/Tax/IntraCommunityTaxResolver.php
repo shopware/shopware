@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Checkout\Cart\Tax;
 
+use Shopware\Core\Checkout\Cart\Extension\ResolveDispatchCountryExtension;
+use Shopware\Core\Checkout\Cart\Extension\ResolveVatIdsExtension;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
@@ -10,6 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryCollection;
@@ -42,17 +45,16 @@ class IntraCommunityTaxResolver implements ResetInterface
         private readonly VatIdPatternProvider $vatIdPatternProvider,
         private readonly SystemConfigService $systemConfigService,
         private readonly EntityRepository $countryRepository,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
     /**
      * CartRuleLoader applies the cart amount and currency thresholds.
-     *
-     * @param array<string>|null $vatIds
      */
-    public function isExempt(?string $accountType, ?array $vatIds, CountryEntity $deliveryCountry, string $salesChannelId): bool
+    public function isExempt(?CustomerEntity $customer, CountryEntity $deliveryCountry, string $salesChannelId): bool
     {
-        if (!$this->appliesTo($accountType, $deliveryCountry)) {
+        if (!$this->appliesTo($customer, $deliveryCountry)) {
             return false;
         }
 
@@ -60,32 +62,31 @@ class IntraCommunityTaxResolver implements ResetInterface
             return true;
         }
 
-        return $this->hasIntraCommunityVatId($vatIds, $deliveryCountry, $salesChannelId);
+        return $this->hasIntraCommunityVatId($salesChannelId, $deliveryCountry, $customer, null);
     }
 
-    /**
-     * @param array<string>|null $vatIds
-     */
-    public function getTaxCountryId(?string $accountType, ?array $vatIds, CountryEntity $deliveryCountry, string $salesChannelId): string
+    public function getTaxCountryId(?CustomerEntity $customer, CountryEntity $deliveryCountry, string $salesChannelId): string
     {
-        $vatIds = array_filter($vatIds ?? []);
-
         // Keep VAT-based country selection opt-in through the destination's B2B setting.
-        if (!$this->appliesTo($accountType, $deliveryCountry)
-            || !$deliveryCountry->getIsEu()
-            || $vatIds === []
-            || !$this->hasSellerStateVatId($vatIds, $this->getSellerState($salesChannelId))
-        ) {
+        if (!$this->appliesTo($customer, $deliveryCountry) || !$deliveryCountry->getIsEu()) {
             return $deliveryCountry->getId();
         }
 
-        return $this->getSellerCountryId($salesChannelId);
+        $vatIds = $this->resolveVatIds($salesChannelId, $deliveryCountry, $customer, null);
+        if ($vatIds === []) {
+            return $deliveryCountry->getId();
+        }
+
+        $dispatchCountryId = $this->resolveDispatchCountryId($salesChannelId, $deliveryCountry, $customer, null);
+        $sellerState = $this->vatIdPatternProvider->getMemberStateOfCountry($dispatchCountryId);
+
+        return $this->hasSellerStateVatId($vatIds, $sellerState) ? $dispatchCountryId : $deliveryCountry->getId();
     }
 
     public function isIntraCommunityDelivery(OrderEntity $order): bool
     {
-        $accountType = $order->getOrderCustomer()?->getCustomer()?->getAccountType();
-        if ($accountType !== CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+        $customer = $order->getOrderCustomer()?->getCustomer();
+        if ($customer?->getAccountType() !== CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
             return false;
         }
 
@@ -98,7 +99,7 @@ class IntraCommunityTaxResolver implements ResetInterface
             return false;
         }
 
-        return $this->hasIntraCommunityVatId($order->getOrderCustomer()?->getVatIds(), $country, $order->getSalesChannelId());
+        return $this->hasIntraCommunityVatId($order->getSalesChannelId(), $country, $customer, $order);
     }
 
     public function reset(): void
@@ -106,17 +107,16 @@ class IntraCommunityTaxResolver implements ResetInterface
         $this->salesChannelCountryIds = [];
     }
 
-    /**
-     * @param array<string>|null $vatIds
-     */
-    private function hasIntraCommunityVatId(?array $vatIds, CountryEntity $deliveryCountry, string $salesChannelId): bool
+    private function hasIntraCommunityVatId(string $salesChannelId, CountryEntity $deliveryCountry, ?CustomerEntity $customer, ?OrderEntity $order): bool
     {
-        $vatIds = array_filter($vatIds ?? []);
+        $vatIds = $this->resolveVatIds($salesChannelId, $deliveryCountry, $customer, $order);
         if ($vatIds === []) {
             return false;
         }
 
-        $sellerState = $this->getSellerState($salesChannelId);
+        $sellerState = $this->vatIdPatternProvider->getMemberStateOfCountry(
+            $this->resolveDispatchCountryId($salesChannelId, $deliveryCountry, $customer, $order)
+        );
         if (($sellerState !== null && $deliveryCountry->getIso() === $sellerState) || $this->hasSellerStateVatId($vatIds, $sellerState)) {
             return false;
         }
@@ -156,20 +156,45 @@ class IntraCommunityTaxResolver implements ResetInterface
         return false;
     }
 
-    private function appliesTo(?string $accountType, CountryEntity $deliveryCountry): bool
+    private function appliesTo(?CustomerEntity $customer, CountryEntity $deliveryCountry): bool
     {
-        return $accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS && $deliveryCountry->getCompanyTax()->getEnabled();
+        return $customer?->getAccountType() === CustomerEntity::ACCOUNT_TYPE_BUSINESS && $deliveryCountry->getCompanyTax()->getEnabled();
     }
 
     /**
-     * @return string|null the ISO code of the seller's member state, null when the seller's country lies outside the EU
+     * @return list<string>
      */
-    private function getSellerState(string $salesChannelId): ?string
+    private function resolveVatIds(string $salesChannelId, CountryEntity $deliveryCountry, ?CustomerEntity $customer, ?OrderEntity $order): array
     {
-        return $this->vatIdPatternProvider->getMemberStateOfCountry($this->getSellerCountryId($salesChannelId));
+        return $this->extensions->publish(
+            name: ResolveVatIdsExtension::NAME,
+            extension: new ResolveVatIdsExtension($salesChannelId, $deliveryCountry, $customer, $order),
+            function: $this->getVatIds(...),
+        );
     }
 
-    private function getSellerCountryId(string $salesChannelId): string
+    /**
+     * Documents read the VAT IDs saved on the order instead of the customer's current ones.
+     *
+     * @return list<string>
+     */
+    private function getVatIds(string $salesChannelId, CountryEntity $deliveryCountry, ?CustomerEntity $customer, ?OrderEntity $order): array
+    {
+        $vatIds = $order !== null ? $order->getOrderCustomer()?->getVatIds() : $customer?->getVatIds();
+
+        return array_values(array_filter($vatIds ?? []));
+    }
+
+    private function resolveDispatchCountryId(string $salesChannelId, CountryEntity $deliveryCountry, ?CustomerEntity $customer, ?OrderEntity $order): string
+    {
+        return strtolower($this->extensions->publish(
+            name: ResolveDispatchCountryExtension::NAME,
+            extension: new ResolveDispatchCountryExtension($salesChannelId, $deliveryCountry, $customer, $order),
+            function: $this->getSellerCountryId(...),
+        ));
+    }
+
+    private function getSellerCountryId(string $salesChannelId, CountryEntity $deliveryCountry, ?CustomerEntity $customer, ?OrderEntity $order): string
     {
         // Reading the config of an empty sales channel throws
         if ($salesChannelId === '') {
@@ -178,7 +203,7 @@ class IntraCommunityTaxResolver implements ResetInterface
 
         $countryId = $this->systemConfigService->getString(self::SELLER_COUNTRY_CONFIG_KEY, $salesChannelId);
 
-        return strtolower($countryId !== '' ? $countryId : $this->getSalesChannelCountryId($salesChannelId));
+        return $countryId !== '' ? $countryId : $this->getSalesChannelCountryId($salesChannelId);
     }
 
     private function getSalesChannelCountryId(string $salesChannelId): string

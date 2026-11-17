@@ -409,6 +409,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(VatIdPatternProvider::class),
             service(SystemConfigService::class),
             service('country.repository'),
+            service(ExtensionDispatcher::class),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
 

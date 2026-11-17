@@ -23,11 +23,21 @@ declare global {
  *     static options: MyPluginOptions = { threshold: 100 };
  * }
  * ```
+ *
+ * `this.el` is the element the plugin was initialized on.
+ * A plugin registered without a selector is initialized on `document`.
+ * If your plugin is always registered with a selector, pass the element type as second type argument:
+ * ```
+ * export default class MyPlugin extends Plugin<MyPluginOptions, HTMLFormElement> {}
+ * ```
  */
-export default class Plugin<Options extends object = Record<string, unknown>> {
+export default class Plugin<
+    Options extends object = Record<string, unknown>,
+    El extends HTMLElement | Document = HTMLElement | Document,
+> {
     static options?: object;
 
-    el: HTMLElement;
+    el: El;
 
     $emitter: NativeEventEmitter;
 
@@ -37,7 +47,7 @@ export default class Plugin<Options extends object = Record<string, unknown>> {
 
     _initialized: boolean;
 
-    constructor(el: HTMLElement, options?: Partial<Options>, pluginName?: string | false);
+    constructor(el: El, options?: Partial<Options>, pluginName?: string | false);
 
     init(): void;
 

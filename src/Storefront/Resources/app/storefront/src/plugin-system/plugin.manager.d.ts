@@ -5,10 +5,10 @@ import type Plugin from './plugin.class';
 
 /**
  * Accepts every plugin class, whatever its options type.
- * The options are typed `never` because the PluginManager does not know the options of a registered plugin.
+ * The element and options are typed `never` because the PluginManager does not know which ones a registered plugin expects.
  */
 type PluginConstructor = new (
-    el: HTMLElement,
+    el: never,
     options?: never,
     pluginName?: string | false,
 ) => Plugin<object>;
@@ -16,6 +16,13 @@ type PluginConstructor = new (
 type AsyncPluginLoader = () => Promise<{ readonly default?: PluginConstructor }>;
 
 type PluginSelector = string | NodeList | HTMLElement | Document;
+
+/**
+ * Methods and properties that `extend()` copies onto the prototype of a new class derived from the extended plugin.
+ * Inside the methods, `this` is the plugin instance.
+ * A class is not accepted, because its prototype methods would not be copied.
+ */
+type PluginExtension<Methods extends Record<string, unknown>> = Methods & ThisType<Plugin & Methods>;
 
 /**
  * Use the shared instance via `window.PluginManager`.
@@ -34,10 +41,14 @@ export default class PluginManager {
 
     static deregister(pluginName: string, selector?: PluginSelector): unknown;
 
-    static extend(
+    /**
+     * Registers a new plugin `newName` that extends the plugin `fromName` with the passed methods.
+     * To replace a plugin with your own class, use `override()`.
+     */
+    static extend<Methods extends Record<string, unknown>>(
         fromName: string,
         newName: string,
-        pluginClass: PluginConstructor | AsyncPluginLoader,
+        pluginMethods: PluginExtension<Methods>,
         selector?: PluginSelector,
         options?: Record<string, unknown>,
     ): unknown;
@@ -63,7 +74,7 @@ export default class PluginManager {
 
     static initializePluginsInParentElement(parentElement: HTMLElement | Document): Promise<void>;
 
-    static initializePlugin(pluginName: string, selector?: PluginSelector, options?: Record<string, unknown>): Promise<void>;
+    static initializePlugin(pluginName: string, selector: PluginSelector, options?: Record<string, unknown>): Promise<void>;
 
     static callPluginMethod(pluginName: string, methodName: string, ...args: unknown[]): void;
 }

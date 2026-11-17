@@ -37,29 +37,6 @@ Existing log entries and stored sample data are not modified.
 Previously queued flows retain their original classification.
 Previously queued Shopware mails without a stored flag keep the default non-sensitive classification.
 
-### TypeScript Administration scaffolding
-
-`bin/console plugin:create --create-admin-module` now generates `main.ts` and TypeScript module and page implementations.
-Generated modules and components are checked against the installed Administration types.
-After installing and activating the plugin, run `bin/console bundle:dump`, `composer admin:setup-extension-tooling` and `composer admin:check-extensions -- --only=YourPlugin --fail-on-skipped` in a platform checkout to typecheck and lint it.
-Existing plugin files are unchanged.
-
-### TypeScript Storefront plugin scaffolding
-
-`bin/console plugin:create --create-javascript-plugin` now generates `main.ts` and `example-plugin.plugin.ts` instead of JavaScript files.
-The generated plugin types its options via `Plugin<ExamplePluginOptions>`.
-
-The Storefront `Plugin` base class, `PluginManager` and `NativeEventEmitter` now ship TypeScript declarations next to their JavaScript implementation; runtime behavior is unchanged.
-The generated plugin does not include a `tsconfig.json`, and the Storefront build strips types without checking them.
-To get these types in your editor or with `tsc`, map `src/*` to the Storefront's `Resources/app/storefront/src/*` in your own `tsconfig.json`.
-Once a file imports `src/plugin-system/plugin.class`, `window.PluginManager` is typed as well.
-Pass the options shape as type argument to type `this.options`, for example `class MyPlugin extends Plugin<{ threshold: number }>`.
-Without a type argument, `this.options` is `Record<string, unknown>`.
-
-Keep registering extension plugins via `window.PluginManager`.
-Do not import `src/plugin-system/plugin.manager` at runtime in an extension, because the extension bundle would create a second `PluginManager` that the Storefront never initializes.
-Existing plugin files are unchanged.
-
 ### Missing plugin conditions in stored carts
 
 Stored carts can be recalculated when a rule container references a condition whose PHP class is no longer available, for example an uninstalled plugin.
@@ -575,6 +552,13 @@ Check your Administration extensions for these changes:
 - `mt-radio-group-item`, `mt-radio-group-card-item`, `mt-radio-group-custom-item` and `mt-status-dot` have a new `disabled` prop.
 - New component `mt-extension-icon`.
 
+### TypeScript Administration scaffolding
+
+`bin/console plugin:create --create-admin-module` now generates `main.ts` and TypeScript module and page implementations.
+Generated modules and components are checked against the installed Administration types.
+After installing and activating the plugin, run `bin/console bundle:dump`, `composer admin:setup-extension-tooling` and `composer admin:check-extensions -- --only=YourPlugin --fail-on-skipped` in a platform checkout to typecheck and lint it.
+Existing plugin files are unchanged.
+
 ## API
 
 To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`.
@@ -817,6 +801,24 @@ bin/console seo:repair:link-category-takeover --apply --no-interaction <category
 
 The categories get their SEO URLs back, and their fallback URLs redirect to them.
 The command is deprecated and will be removed in 6.9.0.0.
+
+### TypeScript Storefront plugin scaffolding
+
+`bin/console plugin:create --create-javascript-plugin` now generates `main.ts` and `example-plugin.plugin.ts` instead of JavaScript files.
+The generated plugin types its options via `Plugin<ExamplePluginOptions>`.
+
+The Storefront `Plugin` base class, `PluginManager` and `NativeEventEmitter` now ship TypeScript declarations next to their JavaScript implementation; runtime behavior is unchanged.
+The generated plugin does not include a `tsconfig.json`, and the Storefront build strips types without checking them.
+To get these types in your editor or with `tsc`, map `src/*` to the Storefront's `Resources/app/storefront/src/*` in your own `tsconfig.json`.
+Once a file imports `src/plugin-system/plugin.class`, `window.PluginManager` is typed as well.
+Pass the options shape as type argument to type `this.options`, for example `class MyPlugin extends Plugin<{ threshold: number }>`.
+Without a type argument, `this.options` is `Record<string, unknown>`.
+`this.el` is typed `HTMLElement | Document`, because a plugin registered without a selector is initialized on `document`.
+If your plugin is always registered with a selector, pass the element type as second type argument, for example `Plugin<MyPluginOptions, HTMLElement>`.
+
+Keep registering extension plugins via `window.PluginManager`.
+Do not import `src/plugin-system/plugin.manager` at runtime in an extension, because the extension bundle would create a second `PluginManager` that the Storefront never initializes.
+Existing plugin files are unchanged.
 
 ## Hosting & Configuration
 

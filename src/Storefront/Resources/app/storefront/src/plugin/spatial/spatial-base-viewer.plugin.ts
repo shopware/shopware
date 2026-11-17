@@ -8,7 +8,7 @@ import { loadDIVE } from './utils/spatial-dive-load-util';
  * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
  */
 // @ts-ignore
-export default class SpatialBaseViewerPlugin extends Plugin {
+export default class SpatialBaseViewerPlugin extends Plugin<Record<string, unknown>, HTMLElement> {
 
     protected rendering = false;
 

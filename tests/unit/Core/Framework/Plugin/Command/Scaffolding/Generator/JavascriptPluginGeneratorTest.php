@@ -23,8 +23,8 @@ class JavascriptPluginGeneratorTest extends TestCase
 
         $option = $generator->getCommandOption();
         static::assertSame(JavascriptPluginGenerator::OPTION_NAME, $option->getName());
-        static::assertNotSame('', $option->getDescription());
-        static::assertSame('Javascript Plugin', $generator->getCommandOptionTitle());
+        static::assertSame('Create an example Storefront TypeScript plugin', $option->getDescription());
+        static::assertSame('Storefront TypeScript Plugin', $generator->getCommandOptionTitle());
         static::assertNotSame('', $generator->getCommandOptionDescriptionLong());
     }
 

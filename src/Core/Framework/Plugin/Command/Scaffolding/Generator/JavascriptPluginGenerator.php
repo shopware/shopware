@@ -17,10 +17,10 @@ class JavascriptPluginGenerator implements ScaffoldingGenerator
     use HasCommandOption;
 
     public const OPTION_NAME = 'create-javascript-plugin';
-    private const OPTION_TITLE = 'Javascript Plugin';
-    private const OPTION_DESCRIPTION = 'Create an example javascript plugin';
-    private const OPTION_DESCRIPTION_LONG = 'A custom Storefront JavaScript plugin is an ES6 class that extends Shopware\'s plugin base class and adds client-side functionality to the storefront. Use one when you need to implement custom interactions or behavior, such as reacting to user actions or DOM events.';
-    private const CLI_QUESTION = 'Do you want to create an example javascript plugin?';
+    private const OPTION_TITLE = 'Storefront TypeScript Plugin';
+    private const OPTION_DESCRIPTION = 'Create an example Storefront TypeScript plugin';
+    private const OPTION_DESCRIPTION_LONG = 'A custom Storefront plugin is a TypeScript class that extends Shopware\'s plugin base class and adds client-side functionality to the storefront. Use one when you need to implement custom interactions or behavior, such as reacting to user actions or DOM events.';
+    private const CLI_QUESTION = 'Do you want to create an example Storefront TypeScript plugin?';
 
     private string $mainTsEntry = <<<'EOL'
     // Import all necessary Storefront plugins

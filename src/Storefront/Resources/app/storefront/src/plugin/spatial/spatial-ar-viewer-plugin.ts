@@ -22,7 +22,7 @@ declare global {
  *
  * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
  */
-export default class SpatialArViewerPlugin extends Plugin {
+export default class SpatialArViewerPlugin extends Plugin<Record<string, unknown>, HTMLElement> {
     public options!: {
         modelUrl: string;
         spatialArId: string;

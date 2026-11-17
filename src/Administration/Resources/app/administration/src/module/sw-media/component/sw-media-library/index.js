@@ -238,8 +238,7 @@ export default {
                 });
             });
 
-            // Translation records have a composite key and cannot use paginated associations.
-            criteria.addAssociation('productDocumentTranslations');
+            criteria.addAssociation('productDocumentTranslations').setLimit(1);
 
             return criteria;
         },

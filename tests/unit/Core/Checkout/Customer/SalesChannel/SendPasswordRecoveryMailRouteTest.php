@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryCollection;
@@ -11,6 +12,8 @@ use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Extension\SendPasswordRecoveryMailRouteExtension;
 use Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute;
+use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
@@ -22,6 +25,7 @@ use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -86,11 +90,6 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
             new CustomerRecoveryCollection([$customerRecovery]),
         ]);
 
-        $this->requestStack->method('getMainRequest')->willReturn(new Request(server: ['REMOTE_ADDR' => '10.0.0.1']));
-        $rateLimiter = $this->createMock(RateLimiter::class);
-        $rateLimiter->expects($this->once())->method('ensureAccepted')
-            ->with(RateLimiter::RESET_PASSWORD, 'test@test.dev-10.0.0.1');
-
         $MailRoute = new SendPasswordRecoveryMailRoute(
             $customerRepository,
             $customerRecoveryRepository,
@@ -98,7 +97,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
             $this->validator,
             $this->systemConfigService,
             $this->requestStack,
-            $rateLimiter,
+            $this->rateLimiter,
             new ExtensionDispatcher(new EventDispatcher()),
         );
 
@@ -143,6 +142,94 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
 
         static::assertArrayHasKey('success', $response);
         static::assertTrue($response['success']);
+    }
+
+    #[DataProvider('clientIpProvider')]
+    public function testRateLimitersAreCalledWithCorrectKeys(string $ip, string $expectedClientKey): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push(new Request(server: ['REMOTE_ADDR' => $ip]));
+
+        $calls = [];
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->exactly(2))
+            ->method('ensureAccepted')
+            ->willReturnCallback(function (string $route, string $key) use (&$calls): void {
+                $calls[] = [$route, $key];
+            });
+        $rateLimiter->expects($this->once())
+            ->method('ensureAcceptedIfConfigured')
+            ->willReturnCallback(function (string $route, string $key) use (&$calls): void {
+                $calls[] = [$route, $key];
+            });
+
+        $route = new SendPasswordRecoveryMailRoute(
+            StaticEntityRepository::of(CustomerCollection::class, [[]]),
+            $this->customerRecoveryRepository,
+            $this->eventDispatcher,
+            $this->validator,
+            $this->systemConfigService,
+            $requestStack,
+            $rateLimiter,
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
+
+        $route->sendRecoveryMail(new RequestDataBag(['email' => " \u{00A0}Test@Test.DEV\u{3000}  "]), $this->context, false);
+
+        static::assertSame([
+            [RateLimiter::RESET_PASSWORD_CLIENT, $expectedClientKey],
+            [RateLimiter::RESET_PASSWORD, 'test@test.dev-' . $ip],
+            [RateLimiter::RESET_PASSWORD_USER, 'test@test.dev'],
+        ], $calls);
+    }
+
+    public static function clientIpProvider(): \Generator
+    {
+        yield 'IPv4 is kept' => ['10.0.0.1', '10.0.0.1'];
+        yield 'IPv6 is grouped by /64' => ['2001:db8:1:2:3:4:5:6', '2001:db8:1:2::'];
+        yield 'IPv4 mapped in IPv6 is kept' => ['::ffff:192.0.2.10', '::ffff:192.0.2.10'];
+    }
+
+    public function testMailSentByAdminSkipsTheClientLimit(): void
+    {
+        $ip = '10.0.0.1';
+        $requestStack = new RequestStack();
+        $requestStack->push(new Request(server: ['REMOTE_ADDR' => $ip]));
+
+        $calls = [];
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->willReturnCallback(function (string $route, string $key) use (&$calls): void {
+                $calls[] = [$route, $key];
+            });
+        $rateLimiter->expects($this->once())
+            ->method('ensureAcceptedIfConfigured')
+            ->willReturnCallback(function (string $route, string $key) use (&$calls): void {
+                $calls[] = [$route, $key];
+            });
+
+        $route = new SendPasswordRecoveryMailRoute(
+            StaticEntityRepository::of(CustomerCollection::class, [[]]),
+            $this->customerRecoveryRepository,
+            $this->eventDispatcher,
+            $this->validator,
+            $this->systemConfigService,
+            $requestStack,
+            $rateLimiter,
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
+
+        $adminContext = Generator::generateSalesChannelContext(
+            baseContext: new Context(new AdminSalesChannelApiSource(TestDefaults::SALES_CHANNEL, Context::createDefaultContext())),
+        );
+
+        $route->sendRecoveryMail(new RequestDataBag(['email' => 'guest@example.com']), $adminContext, false);
+
+        static::assertSame([
+            [RateLimiter::RESET_PASSWORD, 'guest@example.com-' . $ip],
+            [RateLimiter::RESET_PASSWORD_USER, 'guest@example.com'],
+        ], $calls);
     }
 
     public function testPublishesExtension(): void

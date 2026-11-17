@@ -89,12 +89,10 @@ class EntitySearcher implements EntitySearcherInterface
             $this->queryHelper->addGroupBy($definition, $criteria, $context, $query, $table);
         }
 
-        $countInQuery = $scored
-            && $criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_EXACT
-            && $criteria->getLimit() !== null;
-
         $countQuery = $query;
-        if ($countInQuery) {
+        if ($scored
+            && $criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_EXACT
+            && $criteria->getLimit() !== null) {
             $query = $this->buildWindowTotalQuery($query, $fields);
         }
 
@@ -116,16 +114,7 @@ class EntitySearcher implements EntitySearcherInterface
         // execute and fetch ids
         $rows = $query->executeQuery()->fetchAllAssociative();
 
-        if ($countInQuery && $rows !== []) {
-            $total = (int) $rows[0][self::WINDOW_TOTAL];
-            $rows = array_map(static function (array $row): array {
-                unset($row[self::WINDOW_TOTAL]);
-
-                return $row;
-            }, $rows);
-        } else {
-            $total = $this->getTotalCount($criteria, $countQuery, $rows);
-        }
+        $total = $this->getTotalCount($criteria, $countQuery, $rows);
 
         if ($criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_NEXT_PAGES) {
             $rows = \array_slice($rows, 0, $criteria->getLimit());
@@ -156,6 +145,8 @@ class EntitySearcher implements EntitySearcherInterface
 
                 $pk[$field->getPropertyName()] = $value;
             }
+
+            unset($data[self::WINDOW_TOTAL]);
 
             $arrayKey = implode('-', $pk);
 
@@ -288,6 +279,10 @@ class EntitySearcher implements EntitySearcherInterface
         if ($criteria->getTotalCountMode() !== Criteria::TOTAL_COUNT_MODE_EXACT
             && ($criteria->getTotalCountMode() !== Criteria::TOTAL_COUNT_MODE_NEXT_PAGES || $criteria->getLimit() !== null)) {
             return \count($data);
+        }
+
+        if (isset($data[0][self::WINDOW_TOTAL])) {
+            return (int) $data[0][self::WINDOW_TOTAL];
         }
 
         $offset = $criteria->getOffset() ?? 0;

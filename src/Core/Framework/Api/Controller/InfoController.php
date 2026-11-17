@@ -19,6 +19,8 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\Url\AppUrlVerifier;
 use Shopware\Core\Framework\ContentSystem\Adapter\NoneSpecificationSource;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
+use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
+use Shopware\Core\Framework\ContentSystem\Binding\DefaultBindingRootSources;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
@@ -95,6 +97,8 @@ class InfoController extends AbstractController
         private readonly ?PresignedMediaUploadService $presignedMediaUploadService,
         private readonly MediaFileExtensionListProvider $mediaFileExtensionListProvider,
         private readonly VersionHistory $versionHistory,
+        private readonly DefaultBindingRootSources $defaultBindingRootSources,
+        private readonly DraftLayoutDecoder $draftLayoutDecoder,
     ) {
     }
 
@@ -386,8 +390,12 @@ class InfoController extends AbstractController
     #[Route(path: '/api/_info/content-system-layout-presets.json', name: 'api.info.content-system-layout-presets', methods: ['GET'])]
     public function getContentSystemLayoutPresets(): JsonResponse
     {
+        // Decoded as the preset insert decodes the served payload, so the walk sees the elements the insert attaches.
         $presets = array_map(
-            static fn (ContentSystemLayoutPresetSpecification $preset) => $preset->toArray(),
+            fn (ContentSystemLayoutPresetSpecification $preset) => [
+                ...$preset->toArray(),
+                'defaultBindingRootSources' => $this->defaultBindingRootSources->forElements($this->draftLayoutDecoder->decode($preset->payload)),
+            ],
             array_values($this->layoutPresetRegistry->all())
         );
 
@@ -402,14 +410,19 @@ class InfoController extends AbstractController
      * opposed to the spec's own properties, which is the hydrated output schema. Cast to an object so a type
      * that stores nothing serializes {} (the OpenAPI type: object), not [].
      *
+     * defaultBindingRootSources is folded in as the root sources on which inserting the type without a named binding
+     * specification succeeds: null without a default or for an unrestricting default, [] for more than one default or
+     * scoped entries sharing no root source.
+     *
      * @return array<string, mixed> the type's ElementTypeSchema plus the folded bindingSpecifications and
-     *                              storageSchema objects
+     *                              storageSchema objects and the defaultBindingRootSources list
      */
     private function elementTypeSchema(ContentSystemElementTypeSpecification $def): array
     {
         $schema = $def->toSchema();
         $schema['bindingSpecifications'] = (object) $this->bindingSpecificationSchemasForType($def->name());
         $schema['storageSchema'] = (object) $this->storedSchemaResolver->resolve($def);
+        $schema['defaultBindingRootSources'] = $this->defaultBindingRootSources->forType($def->name());
 
         return $schema;
     }

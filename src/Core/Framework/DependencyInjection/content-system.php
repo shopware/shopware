@@ -24,6 +24,7 @@ use Shopware\Core\Framework\ContentSystem\Api\LayoutMutationController;
 use Shopware\Core\Framework\ContentSystem\Api\UnknownRequestFieldExceptionListener;
 use Shopware\Core\Framework\ContentSystem\Binding\AttributionReconciler;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
+use Shopware\Core\Framework\ContentSystem\Binding\DefaultBindingRootSources;
 use Shopware\Core\Framework\ContentSystem\Binding\DefaultBindingSpecificationSynthesizer;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\DatabaseBindingSpecificationLoader;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\YamlBindingSpecificationLoader;
@@ -708,6 +709,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(ContentSystemBindingSpecificationRegistry::class),
             service(DataLoaderProvider::class),
+        ]);
+
+    // The root sources on which a type's or preset's auto-applied default binding resolves: the picker introspection fold
+    $services->set(DefaultBindingRootSources::class)
+        ->args([
+            service(ContentSystemBindingSpecificationRegistry::class),
+            service(RootSourceRegistry::class),
         ]);
 
     // Root-source authority: the valid set of root sources (entity types + sections + none) and their resolution

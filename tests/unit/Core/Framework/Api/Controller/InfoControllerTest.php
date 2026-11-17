@@ -26,12 +26,18 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\Url\AppUrlVerifier;
 use Shopware\Core\Framework\App\Url\VerificationState;
 use Shopware\Core\Framework\App\Url\VerificationStatus;
+use Shopware\Core\Framework\ContentSystem\Adapter\NoneSpecificationSource;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
+use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
+use Shopware\Core\Framework\ContentSystem\Binding\DefaultBindingRootSources;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\RootSourceConfigMap;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
@@ -67,6 +73,7 @@ use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -132,10 +139,7 @@ class InfoControllerTest extends TestCase
         static::assertSame('Alert', $data['types'][0]['label']);
         static::assertSame('plugin.alert.label', $data['types'][0]['labelSnippet']);
 
-        $schema = json_decode((string) file_get_contents(\dirname(__DIR__, 6) . '/src/Core/Framework/Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-element-types.json'), true, 512, \JSON_THROW_ON_ERROR);
-        $responseSchema = Helper::toJSON($schema['paths']['/_info/content-system-element-types.json']['get']['responses']['200']['content']['application/json']['schema']);
-        static::assertInstanceOf(\stdClass::class, $responseSchema);
-        static::assertTrue((new Validator())->validate(json_decode($content, false, 512, \JSON_THROW_ON_ERROR), $responseSchema)->isValid());
+        $this->assertMatchesResponseSchema('content-system-element-types', $content);
     }
 
     public function testContentSystemLayoutPresetsIncludesPickerMetadata(): void
@@ -175,10 +179,79 @@ class InfoControllerTest extends TestCase
         static::assertSame(0, $data['presets'][1]['priority']);
         static::assertNull($data['presets'][1]['illustration']);
 
-        $schema = json_decode((string) file_get_contents(\dirname(__DIR__, 6) . '/src/Core/Framework/Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-layout-presets.json'), true, 512, \JSON_THROW_ON_ERROR);
-        $responseSchema = Helper::toJSON($schema['paths']['/_info/content-system-layout-presets.json']['get']['responses']['200']['content']['application/json']['schema']);
-        static::assertInstanceOf(\stdClass::class, $responseSchema);
-        static::assertTrue((new Validator())->validate(json_decode($content, false, 512, \JSON_THROW_ON_ERROR), $responseSchema)->isValid());
+        $this->assertMatchesResponseSchema('content-system-layout-presets', $content);
+    }
+
+    #[TestDox('publishes on every element type the root sources its default binding resolves on, null when unrestricted')]
+    public function testContentSystemElementTypesCarriesDefaultBindingRootSources(): void
+    {
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
+
+        $elementTypeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $elementTypeRegistry->method('all')->willReturn([
+            'Test:Breadcrumb' => ContentSystemElementTypeSpecificationBuilder::create('Test:Breadcrumb')->build(),
+            'Sw:Alert' => $this->alertTypeSpecification(),
+        ]);
+
+        $controller = $this->createController(
+            elementTypeRegistry: $elementTypeRegistry,
+            defaultBindingRootSources: $this->defaultBindingRootSourcesRestricting('Test:Breadcrumb'),
+        );
+        $content = $controller->getContentSystemElementTypes()->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(['category', 'product'], $data['types'][0]['defaultBindingRootSources']);
+        static::assertArrayHasKey('defaultBindingRootSources', $data['types'][1]);
+        static::assertNull($data['types'][1]['defaultBindingRootSources']);
+        // Assert the raw encoding: an unrestricted type carries the key with null, it is never omitted
+        static::assertStringContainsString('"defaultBindingRootSources":null', $content);
+
+        $this->assertMatchesResponseSchema('content-system-element-types', $content);
+    }
+
+    #[TestDox('publishes on every layout preset the root sources the default bindings of its decoded elements resolve on')]
+    public function testContentSystemLayoutPresetsCarryDefaultBindingRootSources(): void
+    {
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
+
+        $restrictedPayload = [['id' => 'restricted-root']];
+        $unrestrictedPayload = [['id' => 'unrestricted-root']];
+        $presetRegistry = static::createStub(AbstractContentSystemLayoutPresetRegistry::class);
+        $presetRegistry->method('all')->willReturn([
+            'Test:Restricted' => new ContentSystemLayoutPresetSpecification('Test:Restricted', 'Restricted', null, null, $restrictedPayload),
+            'Test:Unrestricted' => new ContentSystemLayoutPresetSpecification('Test:Unrestricted', 'Unrestricted', null, null, $unrestrictedPayload),
+        ]);
+
+        $decoder = static::createStub(DraftLayoutDecoder::class);
+        $decoder->method('decode')->willReturnMap([
+            [$restrictedPayload, [new StoredElement('root', 'Sw:Alert', slots: ['content' => [new StoredElement('child', 'Test:Breadcrumb')]])]],
+            [$unrestrictedPayload, [new StoredElement('root', 'Sw:Alert')]],
+        ]);
+
+        $content = $this->createController(
+            layoutPresetRegistry: $presetRegistry,
+            defaultBindingRootSources: $this->defaultBindingRootSourcesRestricting('Test:Breadcrumb'),
+            draftLayoutDecoder: $decoder,
+        )->getContentSystemLayoutPresets()->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame([
+            'id' => 'Test:Restricted',
+            'name' => 'Restricted',
+            'description' => null,
+            'icon' => null,
+            'illustration' => null,
+            'category' => null,
+            'priority' => 0,
+            'payload' => $restrictedPayload,
+            'defaultBindingRootSources' => ['category', 'product'],
+        ], $data['presets'][0]);
+        static::assertArrayHasKey('defaultBindingRootSources', $data['presets'][1]);
+        static::assertNull($data['presets'][1]['defaultBindingRootSources']);
+
+        $this->assertMatchesResponseSchema('content-system-layout-presets', $content);
     }
 
     #[TestDox('returns content system entity types as JSON')]
@@ -863,6 +936,36 @@ class InfoControllerTest extends TestCase
         );
     }
 
+    /**
+     * A real instance over a registry whose only default binding, for $type, is scoped over product and category.
+     */
+    private function defaultBindingRootSourcesRestricting(string $type): DefaultBindingRootSources
+    {
+        $scoped = [RootSourceConfigMap::MARKER => ['product' => 'productId', 'category' => 'categoryId']];
+        $default = new BindingSpecification($type, $type, $type, ['breadcrumb' => new LoaderBinding('entity', ['property' => $scoped])], [], 'core');
+
+        $bindingRegistry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
+        $bindingRegistry->method('all')->willReturn([$default->qualifiedId() => $default]);
+
+        return new DefaultBindingRootSources($bindingRegistry, new RootSourceRegistry(
+            entityTypes: ['category', 'product'],
+            sectionSources: new ServiceLocator([]),
+            noneSource: new NoneSpecificationSource(),
+            entitySources: [],
+        ));
+    }
+
+    /**
+     * Validates $content against the 200 response schema of the Admin API path file `<$route>.json`, served at `/_info/<$route>.json`.
+     */
+    private function assertMatchesResponseSchema(string $route, string $content): void
+    {
+        $schema = json_decode((string) file_get_contents(\dirname(__DIR__, 6) . '/src/Core/Framework/Api/ApiDefinition/Generator/Schema/AdminApi/paths/' . $route . '.json'), true, 512, \JSON_THROW_ON_ERROR);
+        $responseSchema = Helper::toJSON($schema['paths']['/_info/' . $route . '.json']['get']['responses']['200']['content']['application/json']['schema']);
+        static::assertInstanceOf(\stdClass::class, $responseSchema);
+        static::assertTrue((new Validator())->validate(json_decode($content, false, 512, \JSON_THROW_ON_ERROR), $responseSchema)->isValid());
+    }
+
     private function bindingSpecification(string $type = 'media-gallery'): BindingSpecification
     {
         return new BindingSpecification('media-picker', $type, 'Media Picker', [], [], 'core');
@@ -925,6 +1028,8 @@ class InfoControllerTest extends TestCase
         ?StoredSchemaResolver $storedSchemaResolver = null,
         ?AbstractContentSystemLayoutPresetRegistry $layoutPresetRegistry = null,
         ?AbstractContentSystemMappingCandidateRegistry $mappingCandidateRegistry = null,
+        ?DefaultBindingRootSources $defaultBindingRootSources = null,
+        ?DraftLayoutDecoder $draftLayoutDecoder = null,
     ): InfoController {
         $parameterBag = new ParameterBag([
             'shopware.html_sanitizer.enabled' => true,
@@ -972,6 +1077,11 @@ class InfoControllerTest extends TestCase
             null,
             new MediaFileExtensionListProvider($this->eventDispatcher, [], ['pdf', 'epub']),
             $this->versionHistory,
+            $defaultBindingRootSources ?? new DefaultBindingRootSources(
+                static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
+                static::createStub(RootSourceRegistry::class),
+            ),
+            $draftLayoutDecoder ?? static::createStub(DraftLayoutDecoder::class),
         );
     }
 }

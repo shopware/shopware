@@ -12,8 +12,6 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
-use Shopware\Core\Framework\Util\Json;
-use Shopware\Core\PlatformRequest;
 use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,7 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * Shared HTTP glue for the Admin and Store API MCP controllers: builds the Streamable HTTP
  * transport (seeded with the shop's own hosts for DNS-rebinding protection) and converts the SDK's
- * PSR response into a spec-compliant Symfony response.
+ * PSR response into a Symfony response.
  *
  * The PhpMcp bundle factories are nullable because they are injected via nullOnInvalid(): when the
  * MCP bundle is absent they resolve to null. Callers must check {@see self::isAvailable()} before
@@ -65,7 +63,7 @@ class McpHttpTransportFactory
             $this->responseFactory,
             $this->streamFactory,
             logger: $this->logger,
-            middleware: $this->middleware(),
+            middleware: $this->middleware($request),
         );
     }
 
@@ -77,78 +75,50 @@ class McpHttpTransportFactory
     }
 
     /**
-     * Converts the SDK's PSR response into a spec-compliant Symfony response.
-     *
-     * The MCP Streamable HTTP transport requires an application/json body to be a single JSON-RPC
-     * object (JSON-RPC batching was removed in 2025-06-18). When the SDK drains more than one queued
-     * outgoing message (e.g. a tools/list_changed notification alongside the response) it bundles
-     * them as a top-level JSON array over application/json, which conformant clients cannot parse.
-     * Re-emit such a batch as a text/event-stream where each JSON-RPC message is its own
-     * single-object SSE event, which is where server-initiated notifications belong.
-     *
-     * mcp/sdk 0.8.1 still bundles like this (`StreamableHttpTransport::createJsonResponse()`). Once it
-     * stops, this becomes a no-op and can be removed.
-     *
-     * Everything else passes through unchanged. The batch is decoded into objects, not associative
-     * arrays, so empty JSON objects survive the re-encode: `json_decode('{"properties":{}}', true)`
-     * would turn a parameterless tool's `properties` into `[]`, which strict clients reject.
+     * The SDK's text/event-stream body can be a `CallbackStream` that resumes the suspended request and
+     * echoes each frame when read, for example progress of a tool call or a `subscriptions/listen` stream.
+     * It must stay unread until Symfony has sent the headers, so it is passed on as a streamed response.
      */
     public function createResponse(PsrResponseInterface $psrResponse): Response
     {
         \assert($this->httpFoundationFactory !== null);
 
-        $contentType = strtolower($psrResponse->getHeaderLine('Content-Type'));
+        $streamed = str_starts_with(strtolower($psrResponse->getHeaderLine('Content-Type')), 'text/event-stream');
 
-        if (str_starts_with($contentType, 'application/json')) {
-            $decoded = json_decode((string) $psrResponse->getBody());
-
-            if (\is_array($decoded) && array_is_list($decoded) && $decoded !== []) {
-                return $this->eventStreamResponse($decoded, $psrResponse);
-            }
-        }
-
-        return $this->httpFoundationFactory->createResponse($psrResponse, false);
-    }
-
-    /**
-     * @param list<mixed> $messages
-     */
-    private function eventStreamResponse(array $messages, PsrResponseInterface $psrResponse): Response
-    {
-        $body = '';
-        foreach ($messages as $message) {
-            $body .= 'event: message' . "\n" . 'data: ' . Json::encode($message) . "\n\n";
-        }
-
-        $response = new Response($body, $psrResponse->getStatusCode(), [
-            'Content-Type' => 'text/event-stream',
-            'Cache-Control' => 'no-cache',
-            'X-Accel-Buffering' => 'no',
-        ]);
-
-        $sessionId = $psrResponse->getHeaderLine(PlatformRequest::HEADER_MCP_SESSION_ID);
-        if ($sessionId !== '') {
-            $response->headers->set(PlatformRequest::HEADER_MCP_SESSION_ID, $sessionId);
-        }
-
-        return $response;
+        return $this->httpFoundationFactory->createResponse($psrResponse, $streamed);
     }
 
     /**
      * The SDK's default {@see DnsRebindingProtectionMiddleware} only allows localhost, which rejects
      * every request that reaches Shopware through its configured hostname. Keep the mitigation but
      * seed it with the shop's own hosts (APP_URL + sales channel domains) so legitimate clients pass
-     * while cross-origin rebinding attempts are still blocked.
+     * while rebinding attempts are still blocked.
+     *
+     * A cross-origin request needs an exact origin, see {@see McpAllowedHostsProvider::isAllowedOrigin()}.
+     * The SDK keeps checking same-origin requests itself.
      *
      * @return list<MiddlewareInterface>
      */
-    private function middleware(): array
+    private function middleware(Request $request): array
     {
         $allowedHosts = $this->allowedHostsProvider->getAllowedHosts();
+        $allowedOrigins = [];
+
+        $origin = $request->headers->get('Origin');
+        if ($origin !== null) {
+            if ($this->allowedHostsProvider->isAllowedOrigin($origin, $request->getHttpHost())) {
+                $allowedOrigins[] = $origin;
+            } elseif (strtolower(rtrim($origin, '/')) !== strtolower($request->getSchemeAndHttpHost())) {
+                $this->logger?->warning('MCP request rejected: Origin "{origin}" is not allowed. Add it to shopware.mcp.allowed_origins to accept it.', [
+                    'origin' => $origin,
+                    'host' => $request->getHttpHost(),
+                ]);
+            }
+        }
 
         return array_map(
             static fn (MiddlewareInterface $middleware): MiddlewareInterface => $middleware instanceof DnsRebindingProtectionMiddleware
-                ? new DnsRebindingProtectionMiddleware($allowedHosts)
+                ? new DnsRebindingProtectionMiddleware($allowedHosts, $allowedOrigins)
                 : $middleware,
             StreamableHttpTransport::defaultMiddleware(),
         );

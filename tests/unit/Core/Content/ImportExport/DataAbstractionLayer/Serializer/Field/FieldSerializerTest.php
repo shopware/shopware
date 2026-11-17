@@ -92,6 +92,7 @@ class FieldSerializerTest extends TestCase
             '_uniqueIdentifier' => $deliveryId,
             'versionId' => null,
             'translated' => [],
+            'position' => '0',
             'payload' => '[]',
             'customFields' => null,
             'id' => $deliveryId,

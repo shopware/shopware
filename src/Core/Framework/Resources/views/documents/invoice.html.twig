@@ -33,10 +33,11 @@ The blocks from the templates in the /includes folder can be overwritten directl
     {% endif %}
 {% endblock %}
 
-{% set shippingAddress = order.deliveries.first.getShippingOrderAddress %}
+{% set shippingDelivery = order.primaryOrderDelivery ?? order.deliveries.first %}
+{% set shippingAddress = shippingDelivery.getShippingOrderAddress %}
 
 {% block shipping_address %}
-    {% if config.displayDivergentDeliveryAddress and order.billingAddressId != order.deliveries.first.getShippingOrderAddressId %}
+    {% if config.displayDivergentDeliveryAddress and order.billingAddressId != shippingDelivery.getShippingOrderAddressId %}
         <div class="shipping-address-container" tabindex="0">
             <br><p class="bold">{{ 'document.shippingAddress'|trans|sw_sanitize(null, true) }}</p>
             {{ shippingAddress.company|sw_sanitize(null, true) }}

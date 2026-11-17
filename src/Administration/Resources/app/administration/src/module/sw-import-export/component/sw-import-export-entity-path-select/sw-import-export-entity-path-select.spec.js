@@ -1128,6 +1128,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             'deliveries.orderId',
             'deliveries.orderVersionId',
             'deliveries.payload',
+            'deliveries.position',
             'deliveries.positions',
             'deliveries.primaryOrder',
             'deliveries.shippingCosts',

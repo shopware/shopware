@@ -24,7 +24,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -234,10 +233,11 @@ class ProductStreamUpdaterTest extends TestCase
         $repository = StaticEntityRepository::of(ProductCollection::class, [
             static function (Criteria $actualCriteria, Context $context) use ($criteria, $newMatches): array {
                 static::assertTrue($actualCriteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE));
+                $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
-                static::assertEquals(self::firstPageCriteria($criteria), $actualCriteria);
+                static::assertEquals($criteria, $actualCriteria);
 
-                return self::page($newMatches);
+                return $newMatches;
             },
             static fn () => [],
         ], $definition);
@@ -295,14 +295,16 @@ class ProductStreamUpdaterTest extends TestCase
             ->method('transactional')
             ->withAnyParameters();
 
-        $criteria = self::firstPageCriteria((new Criteria())->addFilter(new EqualsFilter('product.active', true)));
+        $criteria = new Criteria();
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->addFilter(new EqualsFilter('product.active', true));
 
         $definition = new ProductDefinition();
         $repository = StaticEntityRepository::of(ProductCollection::class, [
             static function (Criteria $actualCriteria, Context $context) use ($criteria, $newMatches): array {
                 static::assertEquals($criteria, $actualCriteria);
 
-                return self::page($newMatches);
+                return $newMatches;
             },
             static fn () => [],
         ], $definition);
@@ -356,7 +358,9 @@ class ProductStreamUpdaterTest extends TestCase
             ->method('transactional')
             ->withAnyParameters();
 
-        $criteria = self::firstPageCriteria((new Criteria())->addFilter(new EqualsFilter('product.active', true)));
+        $criteria = new Criteria();
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->addFilter(new EqualsFilter('product.active', true));
 
         $definition = new ProductDefinition();
         $repository = StaticEntityRepository::of(ProductCollection::class, [
@@ -374,71 +378,6 @@ class ProductStreamUpdaterTest extends TestCase
             ->expects($this->once())
             ->method('update')
             ->with($definition->getEntityName(), $oldMatches, $context, 'streamIds');
-
-        $updater = new ProductStreamUpdater(
-            $connection,
-            $definition,
-            $repository,
-            static::createStub(MessageBusInterface::class),
-            $manyToManyFieldUpdater,
-            $this->createDefaultLanguageRepo(),
-            true,
-        );
-
-        $updater->handle($message);
-    }
-
-    public function testHandleLoadsStreamPageByPage(): void
-    {
-        $message = new ProductStreamMappingIndexingMessage(Uuid::randomHex());
-
-        $filters = json_encode([[
-            'type' => 'equals',
-            'field' => 'active',
-            'value' => '1',
-        ]]);
-
-        $connection = $this->createMock(Connection::class);
-        $connection
-            ->expects($this->once())
-            ->method('fetchAssociative')
-            ->willReturn(['invalid' => 0, 'api_filter' => $filters]);
-
-        $connection
-            ->expects($this->once())
-            ->method('fetchFirstColumn')
-            ->willReturn([]);
-
-        $connection
-            ->expects($this->once())
-            ->method('transactional')
-            ->withAnyParameters();
-
-        $firstPage = [Uuid::randomHex()];
-        $allMatches = [...$firstPage, Uuid::randomHex()];
-
-        $definition = new ProductDefinition();
-        $repository = StaticEntityRepository::of(ProductCollection::class, [
-            static function (Criteria $criteria) use ($firstPage): array {
-                static::assertTrue($criteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE));
-                static::assertSame(10000, $criteria->getLimit());
-
-                return self::page($firstPage);
-            },
-            static function (Criteria $criteria) use ($allMatches): array {
-                static::assertTrue($criteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE));
-                static::assertEquals(new RangeFilter('autoIncrement', [RangeFilter::GT => 1]), $criteria->getFilters()['increment']);
-
-                return self::page([$allMatches[1]], 2);
-            },
-            static fn () => [],
-        ], $definition);
-
-        $manyToManyFieldUpdater = $this->createMock(ManyToManyIdFieldUpdater::class);
-        $manyToManyFieldUpdater
-            ->expects($this->once())
-            ->method('update')
-            ->with($definition->getEntityName(), $allMatches, Context::createDefaultContext(), 'streamIds');
 
         $updater = new ProductStreamUpdater(
             $connection,
@@ -649,32 +588,6 @@ class ProductStreamUpdaterTest extends TestCase
             'numOfTransactional' => 2, // add and delete
             'manyToManyUpdatedIds' => [$productId3, $productId4, $productId5, $productId1, $productId2],
         ];
-    }
-
-    private static function firstPageCriteria(Criteria $criteria): Criteria
-    {
-        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-        $criteria->setLimit(10000);
-        $criteria->addSorting(new FieldSorting('autoIncrement', FieldSorting::ASCENDING));
-        $criteria->setFilter('increment', new RangeFilter('autoIncrement', [RangeFilter::GTE => 0]));
-        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
-
-        return $criteria;
-    }
-
-    /**
-     * @param string[] $ids
-     *
-     * @return array<string, array{primaryKey: string, data: array{autoIncrement: int}}>
-     */
-    private static function page(array $ids, int $autoIncrement = 1): array
-    {
-        $page = [];
-        foreach ($ids as $id) {
-            $page[$id] = ['primaryKey' => $id, 'data' => ['autoIncrement' => $autoIncrement++]];
-        }
-
-        return $page;
     }
 
     /**

@@ -26,7 +26,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
@@ -599,25 +598,13 @@ class ProductStreamUpdaterTest extends TestCase
             }
 
             /**
-             * @return array<string, array{primaryKey: string, data: array{autoIncrement: float}}>
+             * @return list<string>
              */
-            public function __invoke(Criteria $criteria): array
+            public function __invoke(): array
             {
                 $this->repository->addSearch($this);
 
-                // the repository iterator asks for the page after the last autoIncrement, there is none
-                $increment = $criteria->getFilters()['increment'] ?? null;
-                if ($increment instanceof RangeFilter && $increment->hasParameter(RangeFilter::GT)) {
-                    return [];
-                }
-
-                // floats, as OpenSearch returns them
-                $result = [];
-                foreach ($this->matches as $index => $id) {
-                    $result[$id] = ['primaryKey' => $id, 'data' => ['autoIncrement' => (float) ($index + 1)]];
-                }
-
-                return $result;
+                return $this->matches;
             }
         };
         $productRepository->addSearch($search);

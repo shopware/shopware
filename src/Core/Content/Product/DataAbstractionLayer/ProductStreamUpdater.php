@@ -10,7 +10,6 @@ use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStr
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamWriteResultHelper;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException as DeprecatedUnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -35,11 +34,6 @@ use Symfony\Component\Messenger\MessageBusInterface;
 class ProductStreamUpdater extends AbstractProductStreamUpdater
 {
     public const INDEXER_NAME = 'product_stream_mapping.indexer';
-
-    /**
-     * Stays inside the default OpenSearch result window (`max_result_window`) of the product index
-     */
-    private const SEARCH_PAGE_SIZE = 10000;
 
     /**
      * @internal
@@ -336,7 +330,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
         foreach ($languageContexts as $languageContext) {
             $languageMatches = $languageContext->enableInheritance(
-                fn (Context $context): array => $this->searchIds($criteria, $context)
+                fn (Context $context): array => $this->repository->searchIds($criteria, $context)->getIds()
             );
 
             foreach ($languageMatches as $id) {
@@ -345,29 +339,6 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         }
 
         return array_keys($matches);
-    }
-
-    /**
-     * OpenSearch returns at most one result window per request, so a whole stream is loaded page by page.
-     * Searches for a known list of products (`updateProducts`) run without OpenSearch and fit into one request.
-     *
-     * @return list<string>
-     */
-    private function searchIds(Criteria $criteria, Context $context): array
-    {
-        if (!$criteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE)) {
-            return $this->repository->searchIds($criteria, $context)->getIds();
-        }
-
-        $iterator = new RepositoryIterator($this->repository, $context, (clone $criteria)->setLimit(self::SEARCH_PAGE_SIZE));
-
-        $ids = [];
-        while (($page = $iterator->fetchIds()) !== null) {
-            /** @var list<string> $page */
-            array_push($ids, ...$page);
-        }
-
-        return $ids;
     }
 
     /**

@@ -82,7 +82,9 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
                 $params['track_scores'] = true;
             }
 
-            $response = $this->client->search($params);
+            $response = $criteria->getLimit() === null && $criteria->getGroupFields() === []
+                ? $this->searchAllPages($params)
+                : $this->client->search($params);
 
             $result = $this->hydrator->hydrate($definition, $criteria, $context, $response);
 
@@ -107,6 +109,42 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 
             return $this->decorated->search($definition, $criteria, $context);
         }
+    }
+
+    /**
+     * @param array{index: string, search_type: string, body: array<string, mixed>, include_named_queries_score?: true, track_scores?: true} $params
+     *
+     * @return array<string, mixed>
+     */
+    private function searchAllPages(array $params): array
+    {
+        $params['allow_partial_search_results'] = false;
+
+        /** @var list<array<string, mixed>> $sort */
+        $sort = $params['body']['sort'] ?? [['_score' => ['order' => 'desc']]];
+        $sort[] = ['id' => ['order' => 'asc']];
+        $params['body']['sort'] = $sort;
+
+        $response = $this->client->search($params);
+
+        /** @var list<array{sort: list<mixed>}> $page */
+        $page = $response['hits']['hits'] ?? [];
+        $hits = $page;
+
+        $params['body']['from'] = 0;
+        $params['body']['track_total_hits'] = false;
+
+        while ($page !== [] && \count($page) === ($params['body']['size'] ?? self::MAX_LIMIT)) {
+            $params['body']['search_after'] = $page[\count($page) - 1]['sort'];
+
+            /** @var list<array{sort: list<mixed>}> $page */
+            $page = $this->client->search($params)['hits']['hits'] ?? [];
+            array_push($hits, ...$page);
+        }
+
+        $response['hits']['hits'] = $hits;
+
+        return $response;
     }
 
     private function createSearch(Criteria $criteria, EntityDefinition $definition, Context $context): Search

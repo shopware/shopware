@@ -5,9 +5,9 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SearchKeyword;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilder;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreterInterface;
+use Shopware\Core\Content\Product\SearchKeyword\ScoredMatchesMarker;
 use Shopware\Core\Content\Product\SearchKeyword\SearchConfigRankingChecker;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -54,7 +54,7 @@ class ProductSearchBuilderTest extends TestCase
         $searchBuilder->build($request, $criteria, $mockSalesChannelContext);
 
         static::assertSame('ring saphir', $criteria->getTerm());
-        static::assertFalse($criteria->hasState(ProductListingLoader::STATE_FILTERS_SELECT_SCORED_MATCHES));
+        static::assertFalse(self::hasScoredMatchesMarker($criteria));
     }
 
     public function testSearchTermMaxLengthReached(): void
@@ -102,14 +102,19 @@ class ProductSearchBuilderTest extends TestCase
 
         $criteria = $this->build(new SearchPattern(new SearchTerm('saphir')), $rankingChecker);
 
-        static::assertEquals([
-            new AndFilter([
-                new EqualsAnyFilter('product.searchKeywords.keyword', ['saphir', 'saphir ring']),
-                new EqualsFilter('product.searchKeywords.languageId', self::LANGUAGE_ID),
-                new RangeFilter('product.searchKeywords.ranking', [RangeFilter::GT => 0]),
-            ]),
-        ], $criteria->getFilters());
-        static::assertTrue($criteria->hasState(ProductListingLoader::STATE_FILTERS_SELECT_SCORED_MATCHES));
+        $expectedFilter = new AndFilter([
+            new EqualsAnyFilter('product.searchKeywords.keyword', ['saphir', 'saphir ring']),
+            new EqualsFilter('product.searchKeywords.languageId', self::LANGUAGE_ID),
+            new RangeFilter('product.searchKeywords.ranking', [RangeFilter::GT => 0]),
+        ]);
+        $expectedFilter->addExtension(ScoredMatchesMarker::EXTENSION_NAME, new ScoredMatchesMarker(2));
+        static::assertEquals([$expectedFilter], $criteria->getFilters());
+
+        $marker = $criteria->getFilters()[0]->getExtension(ScoredMatchesMarker::EXTENSION_NAME);
+        static::assertCount(2, $criteria->getQueries());
+        foreach ($criteria->getQueries() as $query) {
+            static::assertSame($marker, $query->getExtension(ScoredMatchesMarker::EXTENSION_NAME));
+        }
     }
 
     public function testOrLogicKeepsKeywordFilterUnchangedWhenSearchConfigHasNegativeRanking(): void
@@ -125,7 +130,7 @@ class ProductSearchBuilderTest extends TestCase
                 new EqualsFilter('product.searchKeywords.languageId', self::LANGUAGE_ID),
             ]),
         ], $criteria->getFilters());
-        static::assertFalse($criteria->hasState(ProductListingLoader::STATE_FILTERS_SELECT_SCORED_MATCHES));
+        static::assertFalse(self::hasScoredMatchesMarker($criteria));
     }
 
     public function testAndLogicKeepsTokenFiltersUnchanged(): void
@@ -145,7 +150,7 @@ class ProductSearchBuilderTest extends TestCase
                 new EqualsAnyFilter('product.searchKeywords.keyword', ['saphir', 'saphir ring']),
             ]),
         ], $criteria->getFilters());
-        static::assertFalse($criteria->hasState(ProductListingLoader::STATE_FILTERS_SELECT_SCORED_MATCHES));
+        static::assertFalse(self::hasScoredMatchesMarker($criteria));
     }
 
     private function build(SearchPattern $pattern, SearchConfigRankingChecker $rankingChecker): Criteria
@@ -164,5 +169,16 @@ class ProductSearchBuilderTest extends TestCase
         $searchBuilder->build(new Request(['search' => 'saphir']), $criteria, $salesChannelContext);
 
         return $criteria;
+    }
+
+    private static function hasScoredMatchesMarker(Criteria $criteria): bool
+    {
+        foreach ([...$criteria->getFilters(), ...$criteria->getQueries()] as $part) {
+            if ($part->hasExtension(ScoredMatchesMarker::EXTENSION_NAME)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

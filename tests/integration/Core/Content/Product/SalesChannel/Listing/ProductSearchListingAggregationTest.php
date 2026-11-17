@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilder;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreterInterface;
+use Shopware\Core\Content\Product\SearchKeyword\ScoredMatchesMarker;
 use Shopware\Core\Content\Product\SearchKeyword\SearchConfigRankingChecker;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
@@ -67,8 +68,8 @@ class ProductSearchListingAggregationTest extends TestCase
         $optimized = $this->search(negativeRankingConfigured: false);
         $unoptimized = $this->search(negativeRankingConfigured: true);
 
-        static::assertTrue($optimized->getCriteria()->hasState(ProductListingLoader::STATE_FILTERS_SELECT_SCORED_MATCHES));
-        static::assertFalse($unoptimized->getCriteria()->hasState(ProductListingLoader::STATE_FILTERS_SELECT_SCORED_MATCHES));
+        static::assertTrue($this->hasMarkedKeywordFilter($optimized));
+        static::assertFalse($this->hasMarkedKeywordFilter($unoptimized));
 
         static::assertSame(array_values($this->ids->getList(['ranked', 'mixed'])), array_values($optimized->getEntities()->getIds()));
         static::assertSame(array_values($unoptimized->getEntities()->getIds()), array_values($optimized->getEntities()->getIds()));
@@ -146,6 +147,20 @@ class ProductSearchListingAggregationTest extends TestCase
         }
 
         return $scores;
+    }
+
+    /**
+     * @param EntitySearchResult<ProductCollection> $result
+     */
+    private function hasMarkedKeywordFilter(EntitySearchResult $result): bool
+    {
+        foreach ($result->getCriteria()->getFilters() as $filter) {
+            if ($filter->hasExtension(ScoredMatchesMarker::EXTENSION_NAME)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

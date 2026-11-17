@@ -15,6 +15,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
+use Shopware\Core\Content\Product\SearchKeyword\ScoredMatchesMarker;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -25,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
@@ -388,15 +390,14 @@ class ProductListingLoaderTest extends TestCase
         static::assertSame([$ids->get('main-a')], $resultIds);
     }
 
-    public function testAggregatesWithoutScoreQueriesWhenFiltersSelectScoredMatches(): void
+    public function testAggregatesWithoutScoreQueriesWhileTheMarkedKeywordFilterAndQueriesAreUsed(): void
     {
-        $criteria = new Criteria();
-        $criteria->addState(ProductListingLoader::STATE_FILTERS_SELECT_SCORED_MATCHES);
-        $criteria->addQuery(new ScoreQuery(new EqualsFilter('product.searchKeywords.keyword', 'saphir'), 0.4, 'product.searchKeywords.ranking'));
+        $criteria = self::createKeywordSearchCriteria();
+        $criteria->addQuery(new ScoreQuery(new EqualsFilter('product.manufacturer.name', 'saphir'), 100));
 
         [$searchCriteria, $aggregationCriteria] = $this->loadWithoutProducts($criteria);
 
-        static::assertCount(1, $searchCriteria->getQueries());
+        static::assertCount(3, $searchCriteria->getQueries());
         static::assertSame([], $aggregationCriteria->getQueries());
         static::assertEquals($searchCriteria->getFilters(), $aggregationCriteria->getFilters());
     }
@@ -406,22 +407,56 @@ class ProductListingLoaderTest extends TestCase
     {
         [, $aggregationCriteria] = $this->loadWithoutProducts($criteria);
 
+        static::assertNotSame([], $aggregationCriteria->getQueries());
         static::assertEquals($criteria->getQueries(), $aggregationCriteria->getQueries());
     }
 
     public static function scoreQueriesKeptForAggregationsProvider(): \Generator
     {
         $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('product.searchKeywords.keyword', ['saphir']));
         $criteria->addQuery(new ScoreQuery(new EqualsFilter('product.searchKeywords.keyword', 'saphir'), 0.4, 'product.searchKeywords.ranking'));
 
-        yield 'filters are not known to select the scored matches' => [$criteria];
+        yield 'the search builder did not mark the keyword filter' => [$criteria];
 
-        $criteria = new Criteria();
-        $criteria->addState(ProductListingLoader::STATE_FILTERS_SELECT_SCORED_MATCHES);
-        $criteria->addQuery(new ScoreQuery(new EqualsFilter('product.searchKeywords.keyword', 'saphir'), 0.4, 'product.searchKeywords.ranking'));
+        $criteria = self::createKeywordSearchCriteria();
+        $criteria->resetFilters();
+        $criteria->addFilter(new EqualsAnyFilter('product.searchKeywords.keyword', ['saphir', 'ruby']));
+
+        yield 'an extension replaced the marked keyword filter' => [$criteria];
+
+        $criteria = self::createKeywordSearchCriteria();
+        $queries = $criteria->getQueries();
+        $criteria->resetQueries();
+        $criteria->addQuery($queries[0]);
+
+        yield 'an extension removed one of the marked score queries' => [$criteria];
+
+        $criteria = self::createKeywordSearchCriteria();
         $criteria->addQuery(new ScoreQuery(new EqualsFilter('product.manufacturer.name', 'saphir'), -10));
 
         yield 'a non-positive score query can still drop a filtered product' => [$criteria];
+    }
+
+    private static function createKeywordSearchCriteria(): Criteria
+    {
+        $marker = new ScoredMatchesMarker(2);
+
+        $keywordFilter = new AndFilter([
+            new EqualsAnyFilter('product.searchKeywords.keyword', ['saphir', 'saphir ring']),
+            new RangeFilter('product.searchKeywords.ranking', [RangeFilter::GT => 0]),
+        ]);
+        $keywordFilter->addExtension(ScoredMatchesMarker::EXTENSION_NAME, $marker);
+
+        $criteria = new Criteria();
+        $criteria->addFilter($keywordFilter);
+        foreach (['saphir', 'saphir ring'] as $keyword) {
+            $query = new ScoreQuery(new EqualsFilter('product.searchKeywords.keyword', $keyword), 0.4, 'product.searchKeywords.ranking');
+            $query->addExtension(ScoredMatchesMarker::EXTENSION_NAME, $marker);
+            $criteria->addQuery($query);
+        }
+
+        return $criteria;
     }
 
     /**

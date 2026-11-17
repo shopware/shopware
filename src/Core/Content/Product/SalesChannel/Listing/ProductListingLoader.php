@@ -15,6 +15,7 @@ use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFact
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
+use Shopware\Core\Content\Product\SearchKeyword\ScoredMatchesMarker;
 use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -45,8 +46,6 @@ class ProductListingLoader
      * when a product stream is configured to not display its variants as a group.
      */
     final public const STATE_SKIP_ADD_GROUPING = 'skipAddGrouping';
-
-    final public const STATE_FILTERS_SELECT_SCORED_MATCHES = 'filtersSelectScoredMatches';
 
     /**
      * @deprecated tag:v6.8.0 - Will be removed. Reduced listing loading now uses Criteria::excludeFields()
@@ -448,14 +447,28 @@ class ProductListingLoader
 
     private function getAggregationCriteria(Criteria $criteria): Criteria
     {
-        if (!$criteria->hasState(self::STATE_FILTERS_SELECT_SCORED_MATCHES)) {
+        $marker = null;
+        foreach ($criteria->getFilters() as $filter) {
+            $marker ??= $filter->getExtensionOfType(ScoredMatchesMarker::EXTENSION_NAME, ScoredMatchesMarker::class);
+        }
+
+        if ($marker === null) {
             return $criteria;
         }
 
+        $markedQueries = 0;
         foreach ($criteria->getQueries() as $query) {
             if ($query->getScore() <= 0) {
                 return $criteria;
             }
+
+            if ($query->hasExtension(ScoredMatchesMarker::EXTENSION_NAME)) {
+                ++$markedQueries;
+            }
+        }
+
+        if ($markedQueries !== $marker->queryCount) {
+            return $criteria;
         }
 
         $aggregationCriteria = clone $criteria;

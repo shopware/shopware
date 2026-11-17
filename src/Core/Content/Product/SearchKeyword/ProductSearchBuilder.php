@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Product\SearchKeyword;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\ProductException;
-use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
@@ -65,35 +64,33 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
 
         $pattern = $this->interpreter->interpret($term, $context->getContext());
 
+        $queries = [];
         foreach ($pattern->getTerms() as $searchTerm) {
-            $criteria->addQuery(
-                new ScoreQuery(
-                    new EqualsFilter('product.searchKeywords.keyword', $searchTerm->getTerm()),
-                    $searchTerm->getScore(),
-                    'product.searchKeywords.ranking'
-                )
+            $queries[] = new ScoreQuery(
+                new EqualsFilter('product.searchKeywords.keyword', $searchTerm->getTerm()),
+                $searchTerm->getScore(),
+                'product.searchKeywords.ranking'
             );
         }
-        $criteria->addQuery(
-            new ScoreQuery(
-                new ContainsFilter('product.searchKeywords.keyword', $pattern->getOriginal()->getTerm()),
-                $pattern->getOriginal()->getScore(),
-                'product.searchKeywords.ranking'
-            )
+        $queries[] = new ScoreQuery(
+            new ContainsFilter('product.searchKeywords.keyword', $pattern->getOriginal()->getTerm()),
+            $pattern->getOriginal()->getScore(),
+            'product.searchKeywords.ranking'
         );
+        $criteria->addQuery(...$queries);
 
         if ($pattern->getBooleanClause() !== SearchPattern::BOOLEAN_CLAUSE_AND) {
-            $keywordFilters = [
+            $keywordFilter = new AndFilter([
                 new EqualsAnyFilter('product.searchKeywords.keyword', array_values($pattern->getAllTerms())),
                 new EqualsFilter('product.searchKeywords.languageId', $context->getLanguageId()),
-            ];
+            ]);
 
             if (!$this->rankingChecker->hasNegativeRanking($context->getLanguageId())) {
-                $keywordFilters[] = new RangeFilter('product.searchKeywords.ranking', [RangeFilter::GT => 0]);
-                $criteria->addState(ProductListingLoader::STATE_FILTERS_SELECT_SCORED_MATCHES);
+                $keywordFilter->addQuery(new RangeFilter('product.searchKeywords.ranking', [RangeFilter::GT => 0]));
+                $this->markScoredMatches($keywordFilter, $queries);
             }
 
-            $criteria->addFilter(new AndFilter($keywordFilters));
+            $criteria->addFilter($keywordFilter);
 
             return;
         }
@@ -103,6 +100,19 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
                 new EqualsFilter('product.searchKeywords.languageId', $context->getLanguageId()),
                 new EqualsAnyFilter('product.searchKeywords.keyword', $terms),
             ]));
+        }
+    }
+
+    /**
+     * @param list<ScoreQuery> $queries
+     */
+    private function markScoredMatches(AndFilter $keywordFilter, array $queries): void
+    {
+        $marker = new ScoredMatchesMarker(\count($queries));
+
+        $keywordFilter->addExtension(ScoredMatchesMarker::EXTENSION_NAME, $marker);
+        foreach ($queries as $query) {
+            $query->addExtension(ScoredMatchesMarker::EXTENSION_NAME, $marker);
         }
     }
 }

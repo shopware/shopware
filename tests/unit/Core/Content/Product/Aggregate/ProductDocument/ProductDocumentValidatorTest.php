@@ -9,20 +9,31 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentConfig;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentValidator;
+use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\OutcomeRow;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -41,6 +52,16 @@ class ProductDocumentValidatorTest extends TestCase
     private array $translations = [];
 
     private MediaCollection $storedFiles;
+
+    /**
+     * @var list<WriteCommand>
+     */
+    private array $commands = [];
+
+    /**
+     * @var list<array{documentId: string, languageId: string}>
+     */
+    private array $storedDocumentFiles = [];
 
     protected function setUp(): void
     {
@@ -104,6 +125,121 @@ class ProductDocumentValidatorTest extends TestCase
         static::assertSame([], $this->validate());
     }
 
+    public function testANewDocumentWithoutAFileIsRejected(): void
+    {
+        $this->commands = [
+            $this->documentCommand(InsertCommand::class, '/0'),
+            $this->translationCommand(InsertCommand::class, self::GERMAN, ['title' => 'Handbuch'], '/0/translations/' . self::GERMAN),
+        ];
+
+        static::assertSame([['code' => ProductDocumentValidator::VIOLATION_FILE_MISSING, 'pointer' => '/0/translations']], $this->validate());
+    }
+
+    public function testANewDocumentWithAFileInAnotherLanguagePasses(): void
+    {
+        $this->storeFile(self::file());
+        $this->commands = [
+            $this->documentCommand(InsertCommand::class, '/0'),
+            $this->translationCommand(InsertCommand::class, self::GERMAN, ['media_id' => $this->ids->getBytes('manual-file')], '/0/translations/' . self::GERMAN),
+        ];
+        $this->translations = [$this->translation('manual', self::GERMAN, '/0/translations/' . self::GERMAN, file: 'manual-file')];
+
+        static::assertSame([], $this->validate());
+    }
+
+    public function testRemovingTheLastFileOfADocumentIsRejected(): void
+    {
+        $this->commands = [$this->translationCommand(UpdateCommand::class, self::GERMAN, ['media_id' => null], '/0/documents/0/translations/' . self::GERMAN)];
+        $this->translations = [$this->translation('manual', self::GERMAN, '/0/documents/0/translations/' . self::GERMAN, file: null, storedFile: 'manual-file')];
+        $this->storedDocumentFiles = [['documentId' => $this->ids->get('manual'), 'languageId' => self::GERMAN]];
+
+        static::assertSame([['code' => ProductDocumentValidator::VIOLATION_FILE_MISSING, 'pointer' => '/0/documents/0/translations']], $this->validate());
+    }
+
+    public function testRemovingAFileKeepsTheDocumentWhenAnotherLanguageHasOne(): void
+    {
+        $this->commands = [$this->translationCommand(UpdateCommand::class, self::GERMAN, ['media_id' => null], '/0/translations/' . self::GERMAN)];
+        $this->translations = [$this->translation('manual', self::GERMAN, '/0/translations/' . self::GERMAN, file: null, storedFile: 'manual-file')];
+        $this->storedDocumentFiles = [
+            ['documentId' => $this->ids->get('manual'), 'languageId' => self::GERMAN],
+            ['documentId' => $this->ids->get('manual'), 'languageId' => Defaults::LANGUAGE_SYSTEM],
+        ];
+
+        static::assertSame([], $this->validate());
+    }
+
+    public function testTheSystemLanguageFileIsLeftToTheRequiredFlag(): void
+    {
+        $this->commands = [
+            $this->documentCommand(InsertCommand::class, '/0'),
+            $this->translationCommand(InsertCommand::class, Defaults::LANGUAGE_SYSTEM, ['title' => 'Manual'], '/0/translations/' . Defaults::LANGUAGE_SYSTEM),
+        ];
+
+        static::assertSame([], $this->validate());
+    }
+
+    public function testADeletedDocumentIsNotChecked(): void
+    {
+        $this->commands = [
+            $this->documentCommand(DeleteCommand::class, ''),
+            $this->translationCommand(DeleteCommand::class, self::GERMAN, [], ''),
+        ];
+
+        static::assertSame([], $this->validate());
+    }
+
+    /**
+     * @param class-string<InsertCommand|DeleteCommand> $class
+     */
+    private function documentCommand(string $class, string $path): WriteCommand
+    {
+        $primaryKey = ['id' => $this->ids->getBytes('manual'), 'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)];
+
+        $definition = $this->definition(ProductDocumentDefinition::class);
+        if ($class === DeleteCommand::class) {
+            return new DeleteCommand($definition, $primaryKey, static::createStub(EntityExistence::class));
+        }
+
+        return new InsertCommand($definition, [], $primaryKey, static::createStub(EntityExistence::class), $path);
+    }
+
+    /**
+     * @param class-string<InsertCommand|UpdateCommand|DeleteCommand> $class
+     * @param array<string, mixed> $payload
+     */
+    private function translationCommand(string $class, string $languageId, array $payload, string $path): WriteCommand
+    {
+        $primaryKey = [
+            'product_document_id' => $this->ids->getBytes('manual'),
+            'product_document_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            'language_id' => Uuid::fromHexToBytes($languageId),
+        ];
+
+        $definition = $this->definition(ProductDocumentTranslationDefinition::class);
+        if ($class === DeleteCommand::class) {
+            return new DeleteCommand($definition, $primaryKey, static::createStub(EntityExistence::class));
+        }
+        if ($class === UpdateCommand::class) {
+            return new UpdateCommand($definition, $payload, $primaryKey, static::createStub(EntityExistence::class), $path);
+        }
+
+        return new InsertCommand($definition, $payload, $primaryKey, static::createStub(EntityExistence::class), $path);
+    }
+
+    /**
+     * @param class-string<EntityDefinition> $class
+     */
+    private function definition(string $class): EntityDefinition
+    {
+        $registry = new StaticDefinitionInstanceRegistry(
+            [ProductDocumentDefinition::class, ProductDocumentTranslationDefinition::class],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGateway::class),
+        );
+
+        return $registry->get($class);
+    }
+
     private static function file(?string $extension = 'pdf', ?int $size = 1024, bool $private = false, ?string $path = 'media/manual.pdf'): MediaEntity
     {
         $file = new MediaEntity();
@@ -132,7 +268,7 @@ class ProductDocumentValidatorTest extends TestCase
     {
         // an Admin API request runs in the user scope, where the media repository hides private files
         $context = Context::createDefaultContext(new AdminApiSource(null));
-        $event = new PreWriteValidationEvent(WriteContext::createFromContext($context), []);
+        $event = new PreWriteValidationEvent(WriteContext::createFromContext($context), $this->commands);
 
         $this->validator()->validate($event);
 
@@ -158,10 +294,13 @@ class ProductDocumentValidatorTest extends TestCase
             },
         ]);
 
-        return new ProductDocumentValidator($writeOutcome, $mediaRepository, new ProductDocumentConfig(new EventDispatcher(), ['pdf', 'docx'], maxFileSize: 1024), static::createStub(Connection::class));
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturnCallback(fn (): array => $this->storedDocumentFiles);
+
+        return new ProductDocumentValidator($writeOutcome, $mediaRepository, new ProductDocumentConfig(new EventDispatcher(), ['pdf', 'docx'], maxFileSize: 1024), $connection);
     }
 
-    private function translation(string $document, string $languageId, string $path, string $file, ?string $storedFile = null): OutcomeRow
+    private function translation(string $document, string $languageId, string $path, ?string $file, ?string $storedFile = null): OutcomeRow
     {
         return new OutcomeRow(
             primaryKey: [
@@ -172,7 +311,7 @@ class ProductDocumentValidatorTest extends TestCase
             path: $path,
             isNew: $storedFile === null,
             isDeleted: false,
-            payload: ['media_id' => $this->ids->getBytes($file)],
+            payload: ['media_id' => $file === null ? null : $this->ids->getBytes($file)],
             state: ['media_id' => $storedFile === null ? null : $this->ids->getBytes($storedFile)],
         );
     }

@@ -11,6 +11,7 @@ use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexe
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\ProductStream\ScheduledTask\UpdateProductStreamMappingTask;
 use Shopware\Core\Content\ProductStream\ScheduledTask\UpdateProductStreamMappingTaskHandler;
+use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -36,6 +37,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('product_stream.repository'),
             service(ProductDefinition::class),
         ]);
+
+    $services->alias(AbstractProductStreamBuilder::class, ProductStreamBuilder::class)
+        ->public();
 
     // @deprecated tag:v6.8.0 Will be removed
     $services->alias(ProductStreamBuilderInterface::class, ProductStreamBuilder::class)

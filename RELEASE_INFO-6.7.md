@@ -187,6 +187,13 @@ To find out how often a customer redeemed a promotion, count the customer's orde
 Set `PROMOTION_REDEMPTION_OPTIMIZATION=1` to switch to the 6.8 behavior already: the counter is no longer written and `ordersPerCustomerCount` is removed from the promotion entity.
 When `V6_8_0_0=1`, the flag activates unless explicitly disabled.
 
+### `AbstractProductStreamBuilder` can be autowired
+
+`Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder` is now a service alias for `ProductStreamBuilder`.
+Type-hint it instead of the deprecated `ProductStreamBuilderInterface`, which is removed in 6.8 together with `buildFilters()`.
+Call `enrichCriteria()` instead of `buildFilters()`.
+The `frosh/shopware-rector` rules migrate both automatically.
+
 ### `NotFilter` negates a single filter
 
 `NotFilter::negate()` negates a single filter without an operator and a list of queries, so `NotFilter::negate(new EqualsFilter('parentId', null))` replaces `new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('parentId', null)])`. Both create the same filter. With `v6.8.0`, the `NotFilter` constructor accepts the single filter directly as well.

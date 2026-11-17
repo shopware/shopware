@@ -1,11 +1,13 @@
 /**
  * @sw-package inventory
  */
+import { config } from '@vue/test-utils';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import type { ComponentPublicInstance } from 'vue';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
 
 import {
+    mockSnackbar,
     createProduct,
     cleanupWrappers,
     createWrapper,
@@ -18,8 +20,13 @@ import {
 
 describe('sw-product-document-form variant editing', () => {
     const originalLanguage = Shopware.Context.api.languageId;
+    const notification = mockSnackbar;
+    const translate = jest.fn((key: string) => key);
 
     beforeEach(() => {
+        notification.mockClear();
+        translate.mockClear();
+        jest.spyOn(config.global.mocks, '$t').mockImplementation(translate);
         Object.assign(global, { activeAclRoles: ['product.editor'] });
         Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
         const store = Shopware.Store.get('swProductDetail');
@@ -31,6 +38,7 @@ describe('sw-product-document-form variant editing', () => {
     afterEach(() => {
         Shopware.Context.api.languageId = originalLanguage;
         cleanupWrappers();
+        jest.restoreAllMocks();
     });
 
     describe('applying document edits to variants', () => {
@@ -124,9 +132,17 @@ describe('sw-product-document-form variant editing', () => {
                     }),
                 ]),
             );
-            expect(store.documentSaveNotifications).toEqual([
-                { documentId: getDocuments()?.[0].id, name: 'Battery safety data sheet', variantIds: [first.id, second.id] },
-            ]);
+            expect(notification).toHaveBeenCalledTimes(1);
+            expect(notification).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    variant: 'success',
+                    message: 'sw-product.documentForm.applySuccess',
+                }),
+            );
+            expect(translate).toHaveBeenCalledWith('sw-product.documentForm.applySuccess', {
+                name: 'Battery safety data sheet',
+                count: 2,
+            });
             expect(searchSpy).toHaveBeenCalledWith(
                 expect.objectContaining({
                     filters: [
@@ -137,6 +153,25 @@ describe('sw-product-document-form variant editing', () => {
                 expect.objectContaining({ inheritance: false }),
             );
             expect(saveSpy).not.toHaveBeenCalled();
+        });
+
+        it('does not count an unchanged matching variant as updated', async () => {
+            const store = Shopware.Store.get('swProductDetail');
+            store.product.childCount = 1;
+            const media = createMedia();
+            const variant = createVariant(media);
+            const repository = repositoryFactory.create('product');
+            jest.spyOn(repository, 'search').mockResolvedValue(
+                new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api, null, [variant]),
+            );
+            const wrapper = await createWrapper(undefined, undefined, repository);
+            await addMedia(wrapper, [media]);
+            await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
+            await clickButton(wrapper, 'global.default.apply');
+            await flushPromises();
+
+            expect(translate).toHaveBeenCalledWith('sw-product.documentForm.applySuccess', { name: 'manual', count: 0 });
+            expect(store.product.children).toHaveLength(0);
         });
 
         it('keeps variant documents unchanged when the checkbox is off', async () => {
@@ -154,7 +189,7 @@ describe('sw-product-document-form variant editing', () => {
 
             expect(searchSpy).not.toHaveBeenCalled();
             expect(store.product.children).toHaveLength(0);
-            expect(store.documentSaveNotifications).toHaveLength(0);
+            expect(notification).not.toHaveBeenCalledWith(expect.objectContaining({ variant: 'success' }));
             expect(getDocuments()?.[0].title).toBe('Parent only');
         });
 
@@ -201,7 +236,7 @@ describe('sw-product-document-form variant editing', () => {
                 .vm.$emit('update:checked', true);
             await clickButton(wrapper, 'global.default.apply');
             await flushPromises();
-            expect(store.documentSaveNotifications[0].variantIds).toEqual([variant.id]);
+            expect(translate).toHaveBeenCalledWith('sw-product.documentForm.applySuccess', { name: 'manual', count: 1 });
             const previousMediaId = variant.documents![0].mediaId;
 
             await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
@@ -218,7 +253,7 @@ describe('sw-product-document-form variant editing', () => {
                 { type: 'equals', field: 'documents.mediaId', value: previousMediaId },
             ]);
             expect(variant.documents?.[0].mediaId).toBe(original.id);
-            expect(store.documentSaveNotifications).toHaveLength(0);
+            expect(translate).toHaveBeenCalledWith('sw-product.documentForm.applySuccess', { name: 'manual', count: 1 });
         });
 
         it('updates matching variants beyond the first page of results', async () => {
@@ -254,7 +289,10 @@ describe('sw-product-document-form variant editing', () => {
                 expect.objectContaining({ inheritance: false }),
             );
             expect(last.documents?.[0].title).toBe('New title');
-            expect(store.documentSaveNotifications[0].variantIds).toHaveLength(101);
+            expect(translate).toHaveBeenCalledWith('sw-product.documentForm.applySuccess', {
+                name: 'New title',
+                count: 101,
+            });
         });
 
         it('discards a cancelled lookup after reopening the same document', async () => {
@@ -290,7 +328,7 @@ describe('sw-product-document-form variant editing', () => {
             expect(getDocuments()![0].title).toBe('manual');
             expect(variant.documents![0].title).toBe('manual');
             expect(store.product.children).toHaveLength(0);
-            expect(store.documentSaveNotifications).toHaveLength(0);
+            expect(notification).not.toHaveBeenCalledWith(expect.objectContaining({ variant: 'success' }));
             expect(wrapper.find('.sw-product-document-form__save-document').exists()).toBe(true);
             expect(wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').props()).toMatchObject({
                 modelValue: 'New draft title',
@@ -316,7 +354,7 @@ describe('sw-product-document-form variant editing', () => {
 
             expect(getDocuments()?.[0].title).toBe('manual');
             expect(wrapper.find('.sw-product-document-form__save-document').exists()).toBe(true);
-            expect(Shopware.Store.get('swProductDetail').documentSaveNotifications).toHaveLength(0);
+            expect(notification).not.toHaveBeenCalledWith(expect.objectContaining({ variant: 'success' }));
         });
     });
 });

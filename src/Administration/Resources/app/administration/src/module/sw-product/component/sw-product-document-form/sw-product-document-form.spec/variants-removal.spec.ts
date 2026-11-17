@@ -2,9 +2,18 @@
  * @sw-package inventory
  */
 import type { ComponentPublicInstance } from 'vue';
+import { config } from '@vue/test-utils';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
-import { createProduct, cleanupWrappers, createWrapper, createMedia, clickButton, getDocuments } from './helpers';
+import {
+    mockSnackbar,
+    createProduct,
+    cleanupWrappers,
+    createWrapper,
+    createMedia,
+    clickButton,
+    getDocuments,
+} from './helpers';
 
 function addPersistedDocument(product: Entity<'product'>, media: Entity<'media'>, position = 0) {
     const document = repositoryFactory.create('product_document').create();
@@ -32,6 +41,7 @@ describe('sw-product-document-form removal', () => {
     const originalLanguage = Shopware.Context.api.languageId;
 
     beforeEach(() => {
+        mockSnackbar.mockClear();
         Object.assign(global, { activeAclRoles: ['product.editor'] });
         Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
         const store = Shopware.Store.get('swProductDetail');
@@ -76,7 +86,8 @@ describe('sw-product-document-form removal', () => {
         const saveSpy = jest.spyOn(productRepository, 'save');
         const mediaRepository = repositoryFactory.create('media');
         const deleteMediaSpy = jest.spyOn(mediaRepository, 'delete');
-        store.documentSaveNotifications = [{ documentId: document.id, name: 'manual', variantIds: [first.id] }];
+        const translate = jest.spyOn(config.global.mocks, '$t');
+        const notification = mockSnackbar;
         const wrapper = await createWrapper(mediaRepository, undefined, productRepository);
 
         await wrapper.findAll('sw-context-menu-item-stub')[2].trigger('click');
@@ -105,7 +116,15 @@ describe('sw-product-document-form removal', () => {
                 expect.objectContaining({ entity: 'product_document', key: secondDocumentId }),
             ]),
         );
-        expect(store.documentSaveNotifications).toHaveLength(0);
+        expect(notification).toHaveBeenCalledTimes(1);
+        expect(notification).toHaveBeenCalledWith(
+            expect.objectContaining({
+                variant: 'success',
+                message: 'sw-product.documentForm.removeSuccess',
+            }),
+        );
+        expect(translate).toHaveBeenCalledWith('sw-product.documentForm.removeSuccess', { name: 'manual', count: 2 });
+        translate.mockRestore();
         expect(saveSpy).not.toHaveBeenCalled();
         expect(deleteMediaSpy).not.toHaveBeenCalled();
     });

@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 
+/* eslint-disable sw-core-rules/no-new-mixins -- Options API pages start the tour and can't call a composable outside of setup() */
 import { defineComponent } from 'vue';
 import { getTour, type TourStepDefinition } from 'src/app/service/tour.service';
 
@@ -25,6 +26,10 @@ interface ShepherdTour {
 }
 
 type ShepherdFactory = (options: Record<string, unknown>) => ShepherdTour;
+
+function hasShepherd(component: unknown): component is { $shepherd: ShepherdFactory } {
+    return typeof (component as { $shepherd?: unknown }).$shepherd === 'function';
+}
 
 interface ShortcutServiceLike {
     stopEventListener?: () => void;
@@ -98,15 +103,11 @@ export default Shopware.Mixin.register(
                 return this.tourSteps ?? [];
             },
 
-            loadTourStepsFromModule(): TourStepDefinition[] {
-                if (this.tourSteps && Array.isArray(this.tourSteps) && this.tourSteps.length > 0) {
-                    return this.tourSteps;
-                }
-
+            resolveTourModuleId(): string | null {
                 const routeModule = this.$route?.meta?.$module as { name?: string } | undefined;
                 const moduleName = routeModule?.name;
                 if (!moduleName) {
-                    return [];
+                    return null;
                 }
 
                 let moduleId: string = moduleName;
@@ -115,12 +116,21 @@ export default Shopware.Mixin.register(
                 if (moduleRegistry && typeof moduleRegistry.forEach === 'function') {
                     moduleRegistry.forEach((module, key) => {
                         if (module?.manifest?.name === moduleName) {
-                            moduleId = String(key);
+                            moduleId = key;
                         }
                     });
                 }
 
-                const tourEntry = getTour(moduleId);
+                return moduleId;
+            },
+
+            loadTourStepsFromModule(): TourStepDefinition[] {
+                if (this.tourSteps && Array.isArray(this.tourSteps) && this.tourSteps.length > 0) {
+                    return this.tourSteps;
+                }
+
+                const moduleId = this.resolveTourModuleId();
+                const tourEntry = moduleId ? getTour(moduleId) : undefined;
                 if (!tourEntry) {
                     return [];
                 }
@@ -213,11 +223,7 @@ export default Shopware.Mixin.register(
                 return buttons;
             },
 
-            buildTourStep(
-                step: TourStepDefinition,
-                index: number,
-                total: number,
-            ): Record<string, unknown> | null {
+            buildTourStep(step: TourStepDefinition, index: number, total: number): Record<string, unknown> | null {
                 let normalizedAttachTo: NormalizedAttachTo | undefined = step.attachTo;
 
                 if (!normalizedAttachTo) {
@@ -229,7 +235,7 @@ export default Shopware.Mixin.register(
                     }
 
                     normalizedAttachTo = {
-                        element: typeof selector === 'string' ? selector : element ?? undefined,
+                        element: typeof selector === 'string' ? selector : (element ?? undefined),
                         on: step.position ?? 'bottom',
                     };
                 }
@@ -239,8 +245,7 @@ export default Shopware.Mixin.register(
                 const route = step.route;
                 const beforeShowPromise = step.beforeShowPromise;
                 const waitForSelector =
-                    step.waitFor ??
-                    (route && typeof step.selector === 'string' ? step.selector : undefined);
+                    step.waitFor ?? (route && typeof step.selector === 'string' ? step.selector : undefined);
 
                 return {
                     ...step,
@@ -274,10 +279,7 @@ export default Shopware.Mixin.register(
                             }
 
                             const elementRef = normalizedAttachTo?.element;
-                            const element =
-                                typeof elementRef === 'string'
-                                    ? document.querySelector(elementRef)
-                                    : elementRef;
+                            const element = typeof elementRef === 'string' ? document.querySelector(elementRef) : elementRef;
                             if (!element) {
                                 return;
                             }
@@ -331,12 +333,11 @@ export default Shopware.Mixin.register(
                     return null;
                 }
 
-                const shepherd = (this as unknown as { $shepherd?: ShepherdFactory }).$shepherd;
-                if (!shepherd) {
+                if (!hasShepherd(this)) {
                     return null;
                 }
 
-                const tour = shepherd(this.getTourOptions());
+                const tour = this.$shepherd(this.getTourOptions());
                 this.tour = tour;
 
                 this.attachTourEventListeners();

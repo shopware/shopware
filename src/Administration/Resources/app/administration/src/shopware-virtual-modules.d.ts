@@ -691,6 +691,13 @@ declare module 'shopware:mixins/rule-between-operator' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:mixins/tour' {
+    const mixin: MixinContainer['tour'];
+
+    export default mixin;
+}
+
+/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:stores/cmsPage' {
     const useStore: () => PiniaRootState['cmsPage'];
 

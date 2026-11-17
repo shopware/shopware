@@ -20,13 +20,12 @@
     color: var(--color-text-primary-default);
 }
 
-
 .shepherd-button.sw-tour-button::before {
     content: "";
     display: block;
     width: 12px;
     height: 12px;
-    background-color: currentColor;
+    background-color: currentcolor;
     -webkit-mask-repeat: no-repeat;
     -webkit-mask-position: center;
     -webkit-mask-size: contain;

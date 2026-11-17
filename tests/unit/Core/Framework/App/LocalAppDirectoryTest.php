@@ -7,11 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\App\AppArchiveValidator;
 use Shopware\Core\Framework\App\AppExtractor;
-use Shopware\Core\Framework\App\Event\AppUploadValidationEvent;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\LocalAppDirectory;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -28,13 +26,10 @@ class LocalAppDirectoryTest extends TestCase
 
     private Filesystem $filesystem;
 
-    private EventDispatcher $dispatcher;
-
     protected function setUp(): void
     {
         $this->appDir = sys_get_temp_dir() . '/local-app-directory-' . bin2hex(random_bytes(5));
         $this->filesystem = new Filesystem();
-        $this->dispatcher = new EventDispatcher();
     }
 
     protected function tearDown(): void
@@ -54,24 +49,6 @@ class LocalAppDirectoryTest extends TestCase
         static::assertCount(1, $this->createDirectory()->load());
         static::assertCount(1, glob($this->appDir . '/*') ?: []);
         static::assertSame([], glob($this->appDir . '/.upload-*'));
-    }
-
-    public function testRejectedUploadLeavesOldFilesUntouched(): void
-    {
-        $this->filesystem->dumpFile($this->appDir . '/plugin/old.txt', 'old file');
-        $exception = new \RuntimeException('Rejected app');
-        $this->dispatcher->addListener(AppUploadValidationEvent::class, static function (AppUploadValidationEvent $event) use ($exception): void {
-            static::assertSame(self::APP_ZIP, $event->zipPath);
-            throw $exception;
-        });
-
-        try {
-            $this->expectExceptionObject($exception);
-            $this->createDirectory()->store(self::APP_ZIP);
-        } finally {
-            static::assertFileExists($this->appDir . '/plugin/old.txt');
-            static::assertFileDoesNotExist($this->appDir . '/plugin/manifest.xml');
-        }
     }
 
     public function testInvalidManifestLeavesOldAppUntouched(): void
@@ -132,7 +109,6 @@ class LocalAppDirectoryTest extends TestCase
             $this->appDir,
             new NullLogger(),
             new AppExtractor(new AppArchiveValidator()),
-            $this->dispatcher,
             $filesystem ?? $this->filesystem,
         );
     }

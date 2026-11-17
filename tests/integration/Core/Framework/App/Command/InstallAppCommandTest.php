@@ -27,7 +27,6 @@ use Shopware\Tests\Integration\Core\Framework\App\AppFixture;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -318,7 +317,7 @@ class InstallAppCommandTest extends TestCase
     private function createCommand(string $appFolder): InstallAppCommand
     {
         return new InstallAppCommand(
-            new AppLoader(new LocalAppDirectory($appFolder, new NullLogger(), new AppExtractor(new AppArchiveValidator()), static::createStub(EventDispatcherInterface::class)), new NullLogger()),
+            new AppLoader(new LocalAppDirectory($appFolder, new NullLogger(), new AppExtractor(new AppArchiveValidator())), new NullLogger()),
             static::getContainer()->get(AppLifecycle::class),
             new AppPrinter($this->appRepository),
             static::getContainer()->get(ManifestValidator::class)

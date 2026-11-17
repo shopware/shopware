@@ -21,7 +21,7 @@ interface AppDirectory
     /**
      * Remove stored versions no longer needed after a successful update.
      */
-    public function removeOldVersions(Manifest $manifest): void;
+    public function prune(Manifest $manifest): void;
 
     public function delete(string $technicalName): void;
 }

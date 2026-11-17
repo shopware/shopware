@@ -185,7 +185,7 @@ class PluginManagementServiceTest extends TestCase
             $this->getCacheClearer(),
             static::getContainer()->get('shopware.store_download_client'),
             static::createStub(EventDispatcherInterface::class),
-            new LocalAppDirectory(self::APPS_PATH, new NullLogger(), new AppExtractor(new AppArchiveValidator()), static::createStub(EventDispatcherInterface::class), $this->filesystem),
+            new LocalAppDirectory(self::APPS_PATH, new NullLogger(), new AppExtractor(new AppArchiveValidator()), $this->filesystem),
             static::createStub(AbstractAppExtensionService::class),
         );
     }

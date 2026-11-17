@@ -22,7 +22,6 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 trait AppSystemTestBehaviour
 {
@@ -36,7 +35,7 @@ trait AppSystemTestBehaviour
     protected function getAppLoader(string $appDir): AppLoader
     {
         return new AppLoader(
-            new LocalAppDirectory($appDir, new NullLogger(), new AppExtractor(new AppArchiveValidator()), new EventDispatcher()),
+            new LocalAppDirectory($appDir, new NullLogger(), new AppExtractor(new AppArchiveValidator())),
             new NullLogger()
         );
     }

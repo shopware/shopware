@@ -49,18 +49,13 @@ class AppExtractorTest extends TestCase
 
         $extractor = new AppExtractor($validator);
 
-        $extractor->extract($this->temporaryFilePath, $this->extractPath, 'TestApp');
+        $manifest = $extractor->extract($this->temporaryFilePath, $this->extractPath, 'TestApp');
 
         static::assertFileExists($this->extractPath . '/TestApp');
         static::assertFileExists($this->temporaryFilePath);
-    }
-
-    public function testReadsMetadataFromExtractedManifest(): void
-    {
-        $metadata = (new AppExtractor(new AppArchiveValidator()))->getMetadata(__DIR__ . '/_fixtures/App/TestApp');
-
-        static::assertSame('minimal', $metadata->name);
-        static::assertSame('1.1.0', $metadata->version);
+        static::assertSame($this->extractPath . '/TestApp', $manifest->getPath());
+        static::assertSame('minimal', $manifest->getMetadata()->getName());
+        static::assertSame('1.1.0', $manifest->getMetadata()->getVersion());
     }
 
     public function testAppIsNotExtractedWhenValidationFails(): void

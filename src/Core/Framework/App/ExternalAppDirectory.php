@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\App;
 use League\Flysystem\FileAttributes;
 use League\Flysystem\FilesystemOperator;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\App\Event\AppUploadValidationEvent;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Source\ExternalStorage;
@@ -14,7 +13,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -29,33 +27,28 @@ class ExternalAppDirectory implements AppDirectory
         private readonly AppExtractor $appExtractor,
         private readonly TemporaryDirectoryFactory $temporaryDirectoryFactory,
         private readonly LoggerInterface $logger,
-        private readonly EventDispatcherInterface $eventDispatcher,
         private readonly Filesystem $filesystem = new Filesystem(),
     ) {
     }
 
     public function store(string $zipPath): AppMeta
     {
-        $this->eventDispatcher->dispatch(new AppUploadValidationEvent($zipPath));
-
         $temporaryDirectory = Path::join(
             $this->temporaryDirectoryFactory->path(),
             'app-directory-' . bin2hex(random_bytes(8))
         );
 
         try {
-            $appPath = $this->appExtractor->extract($zipPath, $temporaryDirectory);
-            $manifestPath = Path::join($appPath, 'manifest.xml');
-            $metadata = $this->appExtractor->getMetadata($appPath);
+            $manifest = $this->appExtractor->extract($zipPath, $temporaryDirectory);
 
-            $name = $metadata->name;
+            $name = $manifest->getMetadata()->getName();
             $directory = Path::join(self::DIRECTORY, $name, Hasher::hashFile($zipPath));
 
             $this->storage->createDirectory($directory);
-            $this->writeFile(Path::join($directory, 'manifest.xml'), $manifestPath);
+            $this->writeFile(Path::join($directory, 'manifest.xml'), Path::join($manifest->getPath(), 'manifest.xml'));
             $this->writeFile(Path::join($directory, $name . '.zip'), $zipPath);
 
-            return $metadata;
+            return new AppMeta($name, $manifest->getMetadata()->getVersion());
         } finally {
             $this->filesystem->remove($temporaryDirectory);
         }
@@ -112,9 +105,9 @@ class ExternalAppDirectory implements AppDirectory
         $this->storage->deleteDirectory(Path::join(self::DIRECTORY, $technicalName));
     }
 
-    public function removeOldVersions(Manifest $manifest): void
+    public function prune(Manifest $manifest): void
     {
-        if (!\in_array($manifest->getSourceType(), [ExternalStorage::name(), ExternalStorage::LEGACY_SOURCE_TYPE, ExternalStorage::PREVIOUS_SOURCE_TYPE], true)) {
+        if (!\in_array($manifest->getSourceType(), [ExternalStorage::name(), ExternalStorage::LEGACY_SOURCE_TYPE], true)) {
             return;
         }
 

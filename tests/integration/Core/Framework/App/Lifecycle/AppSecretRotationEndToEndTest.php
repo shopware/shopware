@@ -37,7 +37,6 @@ use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Exercises the whole app-secret-rotation lifecycle — install, rotation and recovery — against a fake app
@@ -589,7 +588,7 @@ class AppSecretRotationEndToEndTest extends TestCase
     private function createInstallCommand(): InstallAppCommand
     {
         return new InstallAppCommand(
-            new AppLoader(new LocalAppDirectory(\dirname(self::FIXTURE_APP_DIR), new NullLogger(), new AppExtractor(new AppArchiveValidator()), static::createStub(EventDispatcherInterface::class)), new NullLogger()),
+            new AppLoader(new LocalAppDirectory(\dirname(self::FIXTURE_APP_DIR), new NullLogger(), new AppExtractor(new AppArchiveValidator())), new NullLogger()),
             static::getContainer()->get(AppLifecycle::class),
             new AppPrinter($this->appRepository),
             static::getContainer()->get(ManifestValidator::class)

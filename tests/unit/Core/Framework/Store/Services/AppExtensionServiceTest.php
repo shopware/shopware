@@ -11,6 +11,7 @@ use Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider;
 use Shopware\Core\Framework\App\Event\AppUploadedEvent;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -218,6 +219,57 @@ class AppExtensionServiceTest extends TestCase
         $this->expectExceptionObject(StoreException::cannotDeleteManaged('TestApp'));
 
         $service->deleteExtension('TestApp', false, Context::createDefaultContext());
+    }
+
+    public function testSuccessfulUpdatePrunesStoredVersions(): void
+    {
+        $context = Context::createDefaultContext();
+        $manifest = static::createStub(Manifest::class);
+        $appLoader = static::createStub(AppLoader::class);
+        $appLoader->method('load')->willReturn(['TestApp' => $manifest]);
+
+        $appStorage = static::createStub(AppStorage::class);
+        $appStorage->method('findByName')->willReturn(AppFixture::createAppEntity('TestApp', 'app-id'));
+
+        $updated = false;
+        $appLifecycle = $this->createMock(AbstractAppLifecycle::class);
+        $appLifecycle->expects($this->once())
+            ->method('update')
+            ->with($manifest, static::isInstanceOf(AppUpdateParameters::class), ['id' => 'app-id'], $context)
+            ->willReturnCallback(static function () use (&$updated): void {
+                $updated = true;
+            });
+
+        $appDirectory = $this->createMock(AppDirectory::class);
+        $appDirectory->expects($this->once())
+            ->method('prune')
+            ->with($manifest)
+            ->willReturnCallback(static function () use (&$updated): void {
+                static::assertTrue($updated);
+            });
+
+        $this->createService(appLifecycle: $appLifecycle, appStorage: $appStorage, appDirectory: $appDirectory, appLoader: $appLoader)
+            ->updateExtension('TestApp', false, $context);
+    }
+
+    public function testFailedUpdateKeepsStoredVersions(): void
+    {
+        $appLoader = static::createStub(AppLoader::class);
+        $appLoader->method('load')->willReturn(['TestApp' => static::createStub(Manifest::class)]);
+
+        $appStorage = static::createStub(AppStorage::class);
+        $appStorage->method('findByName')->willReturn(AppFixture::createAppEntity('TestApp', 'app-id'));
+
+        $exception = new \RuntimeException('Update failed');
+        $appLifecycle = static::createStub(AbstractAppLifecycle::class);
+        $appLifecycle->method('update')->willThrowException($exception);
+
+        $appDirectory = $this->createMock(AppDirectory::class);
+        $appDirectory->expects($this->never())->method('prune');
+
+        $this->expectExceptionObject($exception);
+        $this->createService(appLifecycle: $appLifecycle, appStorage: $appStorage, appDirectory: $appDirectory, appLoader: $appLoader)
+            ->updateExtension('TestApp', false, Context::createDefaultContext());
     }
 
     /**

@@ -10,16 +10,13 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\App\AppArchiveValidator;
 use Shopware\Core\Framework\App\AppExtractor;
-use Shopware\Core\Framework\App\Event\AppUploadValidationEvent;
 use Shopware\Core\Framework\App\ExternalAppDirectory;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Source\ExternalStorage;
 use Shopware\Core\Framework\App\Source\TemporaryDirectoryFactory;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Filesystem\Filesystem as Io;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -93,7 +90,7 @@ class ExternalAppDirectoryTest extends TestCase
         $manifest = AppFixture::createManifest('SwagApp');
         $manifest->setSourceType($sourceType);
         $manifest->setPath(ExternalAppDirectory::DIRECTORY . '/SwagApp/current/SwagApp.zip');
-        $directory->removeOldVersions($manifest);
+        $directory->prune($manifest);
 
         static::assertFalse($storage->directoryExists(ExternalAppDirectory::DIRECTORY . '/SwagApp/old'));
         static::assertTrue($storage->directoryExists(ExternalAppDirectory::DIRECTORY . '/SwagApp/current'));
@@ -106,25 +103,6 @@ class ExternalAppDirectoryTest extends TestCase
     {
         yield 'external storage' => [ExternalStorage::name()];
         yield 'legacy private app' => [ExternalStorage::LEGACY_SOURCE_TYPE];
-        yield 'previous flysystem identifier' => [ExternalStorage::PREVIOUS_SOURCE_TYPE];
-    }
-
-    public function testRejectedUploadDoesNotWriteFiles(): void
-    {
-        $storage = new Filesystem(new InMemoryFilesystemAdapter());
-        $dispatcher = new EventDispatcher();
-        $exception = new \RuntimeException('Security validation failed');
-        $dispatcher->addListener(AppUploadValidationEvent::class, static function (AppUploadValidationEvent $event) use ($exception): void {
-            static::assertSame(self::APP_ZIP, $event->zipPath);
-            throw $exception;
-        });
-
-        try {
-            $this->expectExceptionObject($exception);
-            $this->createDirectory($storage, $dispatcher)->store(self::APP_ZIP);
-        } finally {
-            static::assertSame([], $storage->listContents('', true)->toArray());
-        }
     }
 
     public function testCleanupKeepsVersionsWhenCurrentPathCannotBeIdentified(): void
@@ -135,19 +113,18 @@ class ExternalAppDirectoryTest extends TestCase
         $manifest->setSourceType(ExternalStorage::name());
         $manifest->setPath('private-apps/SwagApp/SwagApp.zip');
 
-        $this->createDirectory($storage)->removeOldVersions($manifest);
+        $this->createDirectory($storage)->prune($manifest);
 
         static::assertTrue($storage->directoryExists('private-apps/SwagApp/old'));
     }
 
-    private function createDirectory(Filesystem $storage, ?EventDispatcherInterface $dispatcher = null): ExternalAppDirectory
+    private function createDirectory(Filesystem $storage): ExternalAppDirectory
     {
         return new ExternalAppDirectory(
             $storage,
             new AppExtractor(new AppArchiveValidator()),
             new TemporaryDirectoryFactory(),
             new NullLogger(),
-            $dispatcher ?? static::createStub(EventDispatcherInterface::class),
             new Io(),
         );
     }

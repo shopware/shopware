@@ -124,6 +124,8 @@ class AppExtensionService extends AbstractAppExtensionService
             ['id' => $app->getId()],
             $context
         );
+
+        $this->appDirectory->prune($manifests[$technicalName]);
     }
 
     /**

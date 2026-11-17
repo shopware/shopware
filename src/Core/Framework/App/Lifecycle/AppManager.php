@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App\Lifecycle;
 
 use Composer\Semver\VersionParser;
 use Psr\Clock\ClockInterface;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Asset\AssetService;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
@@ -11,7 +12,6 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\AppDirectory;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
@@ -94,7 +94,7 @@ class AppManager
         private readonly DeletedAppsGateway $deletedAppsGateway,
         private readonly AppRequirementsValidator $requirementsValidator,
         private readonly ClockInterface $clock,
-        private readonly AppDirectory $appDirectory,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -196,20 +196,26 @@ class AppManager
 
         $defaultLocale = $this->getDefaultLocale($context);
         $metadata = $manifest->getMetadata()->toArray($defaultLocale);
-        $appEntity = $this->persistApp(
-            $manifest,
-            $parameters,
-            $metadata,
-            $app->getId(),
-            $defaultLocale,
-            $context,
-            false
-        );
 
-        $event = new AppUpdatedEvent($appEntity, $manifest, $context);
-        $this->eventDispatcher->dispatch($event);
-        $this->scriptExecutor->execute(new AppUpdatedHook($event));
-        $this->appDirectory->removeOldVersions($manifest);
+        try {
+            $appEntity = $this->persistApp(
+                $manifest,
+                $parameters,
+                $metadata,
+                $app->getId(),
+                $defaultLocale,
+                $context,
+                false
+            );
+
+            $event = new AppUpdatedEvent($appEntity, $manifest, $context);
+            $this->eventDispatcher->dispatch($event);
+            $this->scriptExecutor->execute(new AppUpdatedHook($event));
+        } catch (\Throwable $e) {
+            $this->rollbackUpdate($app, $parameters, $defaultLocale, $context);
+
+            throw $e;
+        }
     }
 
     /**
@@ -346,6 +352,46 @@ class AppManager
         );
 
         $this->completeInstallation($app, $manifest, $parameters, $context);
+    }
+
+    /**
+     * Restores the app row to the version before a failed update, so the update can be retried.
+     * If the previous version is still stored at its own path, it is persisted again and keeps running.
+     * If the update replaced the files in place, only the version is reset, as the previous files are gone.
+     */
+    private function rollbackUpdate(AppEntity $previous, AppUpdateParameters $parameters, string $defaultLocale, Context $context): void
+    {
+        try {
+            $current = $this->appRepository->search(new Criteria([$previous->getId()]), $context)->getEntities()->first();
+
+            // registration and feature validation failures already removed the app
+            if ($current === null) {
+                return;
+            }
+
+            if ($current->getPath() === $previous->getPath()) {
+                $this->updateMetadata(['id' => $previous->getId(), 'version' => $previous->getVersion()], $context);
+
+                return;
+            }
+
+            $manifest = $this->manifestFactory->createFromApp($previous);
+            $manifest->setPath($previous->getPath());
+            $manifest->setSourceType($previous->getSourceType());
+            $manifest->setSourceConfig($previous->getSourceConfig());
+
+            $this->persistApp(
+                $manifest,
+                $parameters,
+                $manifest->getMetadata()->toArray($defaultLocale),
+                $previous->getId(),
+                $defaultLocale,
+                $context,
+                false
+            );
+        } catch (\Throwable $e) {
+            $this->logger->error(\sprintf('Could not roll back failed update of app "%s": %s', $previous->getName(), $e->getMessage()), ['exception' => $e]);
+        }
     }
 
     private function completeInstallation(

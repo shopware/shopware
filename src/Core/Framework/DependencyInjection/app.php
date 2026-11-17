@@ -570,7 +570,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DeletedAppsGateway::class),
             service(AppRequirementsValidator::class),
             service(ClockInterface::class),
-            service(AppDirectory::class),
+            service('logger'),
         ]);
 
     $services->set(DiscardUnconfirmedAppSecretsListener::class)
@@ -634,7 +634,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('shopware.app_dir'),
             service('logger'),
             service(AppExtractor::class),
-            service('event_dispatcher'),
         ]);
 
     $services->alias(AppDirectory::class, LocalAppDirectory::class);

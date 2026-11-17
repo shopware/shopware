@@ -28,10 +28,10 @@ class AppExtractor
      * @throws PluginException
      * @throws AppArchiveValidationFailure
      *
-     * @return string The path to the app
+     * @return Manifest The manifest of the extracted app, its path points to the extracted app directory
      *
      **/
-    public function extract(string $zipLocation, string $destinationDirectory, ?string $appName = null): string
+    public function extract(string $zipLocation, string $destinationDirectory, ?string $appName = null): Manifest
     {
         $this->filesystem->mkdir($destinationDirectory);
 
@@ -47,14 +47,7 @@ class AppExtractor
             $archive->close();
         }
 
-        return Path::join($destinationDirectory, $appName);
-    }
-
-    public function getMetadata(string $appPath): AppMeta
-    {
-        $metadata = Manifest::createFromXmlFile(Path::join($appPath, 'manifest.xml'))->getMetadata();
-
-        return new AppMeta($metadata->getName(), $metadata->getVersion());
+        return Manifest::createFromXmlFile(Path::join($destinationDirectory, $appName, 'manifest.xml'));
     }
 
     private function getAppName(\ZipArchive $archive): string

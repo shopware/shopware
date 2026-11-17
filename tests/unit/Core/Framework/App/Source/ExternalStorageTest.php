@@ -43,9 +43,6 @@ class ExternalStorageTest extends TestCase
         $app->setSourceType(ExternalStorage::LEGACY_SOURCE_TYPE);
         static::assertTrue($source->supports($app));
 
-        $app->setSourceType(ExternalStorage::PREVIOUS_SOURCE_TYPE);
-        static::assertTrue($source->supports($app));
-
         $manifest = static::createStub(Manifest::class);
         $manifest->method('getSourceType')->willReturn(ExternalStorage::name());
         static::assertTrue($source->supports($manifest));

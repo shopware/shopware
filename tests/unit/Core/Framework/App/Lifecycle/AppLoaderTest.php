@@ -16,7 +16,6 @@ use Shopware\Core\Framework\App\LocalAppDirectory;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Setup\Setup;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -128,7 +127,7 @@ class AppLoaderTest extends TestCase
         $logger ??= new NullLogger();
 
         return new AppLoader(
-            new LocalAppDirectory($appDir, $logger, static::createStub(AppExtractor::class), static::createStub(EventDispatcherInterface::class)),
+            new LocalAppDirectory($appDir, $logger, static::createStub(AppExtractor::class)),
             $logger
         );
     }

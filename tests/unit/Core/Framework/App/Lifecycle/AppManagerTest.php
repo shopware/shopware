@@ -6,12 +6,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Adapter\Asset\AssetService;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\AppDirectory;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
 use Shopware\Core\Framework\App\Event\AppActivatedEvent;
@@ -28,6 +29,7 @@ use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
+use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\App\Url\VerificationState;
@@ -176,56 +178,112 @@ class AppManagerTest extends TestCase
             ->update($manifest, new AppUpdateParameters(), AppFixture::createAppEntity(active: false), Context::createDefaultContext());
     }
 
-    public function testSuccessfulUpdateRemovesOldVersionsAfterTheUpdateHook(): void
+    public function testFailedUpdateResetsVersionWhenFilesWereReplacedInPlace(): void
     {
-        $this->permissionLifecycle->expects($this->once())->method('updatePrivileges');
-        $this->registrationService->expects($this->never())->method('registerApp');
-        $this->appSecretRotationService->expects($this->never())->method('rotateNow');
+        $this->expectUpdatesPersisted(1);
         $this->manifestFactory->expects($this->never())->method('createFromApp');
-        $this->activeAppsLoader->expects($this->never())->method('reset');
-        $this->systemConfigService->expects($this->never())->method('saveConfig');
-        $this->assetService->expects($this->once())->method('copyAssetsFromApp');
-        $this->configReader->expects($this->never())->method('read');
-
-        $manifest = ManifestFixture::empty();
-        $app = AppFixture::createAppEntity(active: false);
-        $appRepository = AppFixture::createAppRepository($app);
-        $appRepository->addSearch(new AppCollection([$app]));
-        $hookFinished = false;
-        $this->scriptExecutor->expects($this->once())->method('execute')->willReturnCallback(static function () use (&$hookFinished): void {
-            $hookFinished = true;
-        });
-        $directory = $this->createMock(AppDirectory::class);
-        $directory->expects($this->once())->method('removeOldVersions')->with($manifest)->willReturnCallback(static function () use (&$hookFinished): void {
-            static::assertTrue($hookFinished);
-        });
-
-        $this->createAppManager($appRepository, appDirectory: $directory)
-            ->update($manifest, new AppUpdateParameters(), $app, Context::createDefaultContext());
-    }
-
-    public function testFailedUpdateHookKeepsOldVersions(): void
-    {
-        $this->permissionLifecycle->expects($this->once())->method('updatePrivileges');
-        $this->registrationService->expects($this->never())->method('registerApp');
-        $this->appSecretRotationService->expects($this->never())->method('rotateNow');
-        $this->manifestFactory->expects($this->never())->method('createFromApp');
-        $this->activeAppsLoader->expects($this->never())->method('reset');
-        $this->systemConfigService->expects($this->never())->method('saveConfig');
-        $this->assetService->expects($this->once())->method('copyAssetsFromApp');
-        $this->configReader->expects($this->never())->method('read');
 
         $app = AppFixture::createAppEntity(active: false);
         $appRepository = AppFixture::createAppRepository($app);
-        $appRepository->addSearch(new AppCollection([$app]));
+        $appRepository->addSearch(new AppCollection([$app]), new AppCollection([$app]));
         $exception = new \RuntimeException('Update hook failed');
         $this->scriptExecutor->expects($this->once())->method('execute')->willThrowException($exception);
-        $directory = $this->createMock(AppDirectory::class);
-        $directory->expects($this->never())->method('removeOldVersions');
+
+        try {
+            $this->createAppManager($appRepository)
+                ->update(ManifestFixture::empty(), new AppUpdateParameters(), $app, Context::createDefaultContext());
+            static::fail('The update should fail');
+        } catch (\RuntimeException $e) {
+            static::assertSame($exception, $e);
+        }
+
+        $upserts = $appRepository->getPayloads('upsert');
+        static::assertSame(['id' => $app->getId(), 'version' => '1.0.0'], end($upserts));
+    }
+
+    public function testFailedUpdateRestoresPreviousVersionStoredAtItsOwnPath(): void
+    {
+        $this->expectUpdatesPersisted(2);
+
+        $previous = AppFixture::createAppEntity(name: 'minimal', active: false);
+        $previous->setPath('private-apps/minimal/old/minimal.zip');
+        $previous->setSourceType('external-storage');
+        $updated = clone $previous;
+        $updated->setPath('private-apps/minimal/new/minimal.zip');
+
+        $previousManifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/App/TestApp/manifest.xml');
+        $this->manifestFactory->expects($this->once())->method('createFromApp')->with($previous)->willReturn($previousManifest);
+
+        $appRepository = AppFixture::createAppRepository($updated);
+        $appRepository->addSearch(
+            new AppCollection([$updated]),
+            new AppCollection([$updated]),
+            new AppCollection([$previous]),
+            new AppCollection([$previous]),
+        );
+        $exception = new \RuntimeException('Update hook failed');
+        $this->scriptExecutor->expects($this->once())->method('execute')->willThrowException($exception);
+
+        try {
+            $this->createAppManager($appRepository)
+                ->update(ManifestFixture::empty()->withName('minimal'), new AppUpdateParameters(), $previous, Context::createDefaultContext());
+            static::fail('The update should fail');
+        } catch (\RuntimeException $e) {
+            static::assertSame($exception, $e);
+        }
+
+        $restore = $appRepository->getPayloads('upsert')[2];
+        static::assertSame('private-apps/minimal/old/minimal.zip', $restore['path']);
+        static::assertSame('external-storage', $restore['sourceType']);
+        static::assertSame('1.1.0', $restore['version']);
+        static::assertCount(1, $this->eventDispatcher->getEvents());
+    }
+
+    public function testFailedRollbackIsLoggedAndTheUpdateFailureIsRethrown(): void
+    {
+        $this->expectUpdatesPersisted(1);
+        $previous = AppFixture::createAppEntity(active: false);
+        $updated = clone $previous;
+        $updated->setPath('new-path');
+
+        $rollbackException = new \RuntimeException('Previous version not readable');
+        $this->manifestFactory->expects($this->once())->method('createFromApp')->willThrowException($rollbackException);
+
+        $appRepository = AppFixture::createAppRepository($updated);
+        $appRepository->addSearch(new AppCollection([$updated]), new AppCollection([$updated]));
+        $exception = new \RuntimeException('Update hook failed');
+        $this->scriptExecutor->expects($this->once())->method('execute')->willThrowException($exception);
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('error')
+            ->with('Could not roll back failed update of app "testApp": Previous version not readable', ['exception' => $rollbackException]);
 
         $this->expectExceptionObject($exception);
-        $this->createAppManager($appRepository, appDirectory: $directory)
-            ->update(ManifestFixture::empty(), new AppUpdateParameters(), $app, Context::createDefaultContext());
+        $this->createAppManager($appRepository, logger: $logger)
+            ->update(ManifestFixture::empty(), new AppUpdateParameters(), $previous, Context::createDefaultContext());
+    }
+
+    public function testFailedUpdateIsNotRolledBackWhenTheAppWasRemoved(): void
+    {
+        $this->expectUpdatesPersisted(1);
+        $this->manifestFactory->expects($this->never())->method('createFromApp');
+
+        $app = AppFixture::createAppEntity(active: false);
+        $appRepository = AppFixture::createAppRepository($app);
+        $appRepository->addSearch(new AppCollection([$app]), new AppCollection());
+        $exception = new \RuntimeException('Update hook failed');
+        $this->scriptExecutor->expects($this->once())->method('execute')->willThrowException($exception);
+
+        try {
+            $this->createAppManager($appRepository)
+                ->update(ManifestFixture::empty(), new AppUpdateParameters(), $app, Context::createDefaultContext());
+            static::fail('The update should fail');
+        } catch (\RuntimeException $e) {
+            static::assertSame($exception, $e);
+        }
+
+        static::assertCount(2, $appRepository->getPayloads('upsert'));
     }
 
     public function testInstallThrowsIfAppAlreadyExists(): void
@@ -1177,6 +1235,17 @@ XML,
         $this->configReader->expects($this->never())->method('read');
     }
 
+    private function expectUpdatesPersisted(int $times): void
+    {
+        $this->permissionLifecycle->expects($this->exactly($times))->method('updatePrivileges');
+        $this->registrationService->expects($this->never())->method('registerApp');
+        $this->appSecretRotationService->expects($this->never())->method('rotateNow');
+        $this->activeAppsLoader->expects($this->never())->method('reset');
+        $this->systemConfigService->expects($this->never())->method('saveConfig');
+        $this->assetService->expects($this->exactly($times))->method('copyAssetsFromApp');
+        $this->configReader->expects($this->never())->method('read');
+    }
+
     /**
      * @param StaticEntityRepository<AppCollection> $appRepository
      * @param list<AbstractLifecycleHandler> $persisters
@@ -1187,7 +1256,7 @@ XML,
         array $persisters = [],
         ?AclRoleEntity $aclRole = null,
         ?StaticEntityRepository $languageRepository = null,
-        ?AppDirectory $appDirectory = null,
+        ?LoggerInterface $logger = null,
     ): AppManager {
         $aclRoleRepository = new StaticEntityRepository([new AclRoleCollection($aclRole ? [$aclRole] : [])]);
 
@@ -1216,7 +1285,7 @@ XML,
             $this->deletedAppsGateway,
             $this->requirementsValidator,
             new NativeClock(),
-            $appDirectory ?? static::createStub(AppDirectory::class),
+            $logger ?? new NullLogger(),
         );
     }
 

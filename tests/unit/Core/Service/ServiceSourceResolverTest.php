@@ -443,8 +443,7 @@ class ServiceSourceResolverTest extends TestCase
                 \sprintf('/tmp/test/%s/%s.zip', $appName, $appName),
                 '/tmp/test',
                 $appName
-            )
-            ->willReturn(\sprintf('/tmp/test/%s', $appName));
+            );
 
         $filesystem->expects($this->once())
             ->method('remove')

@@ -24,8 +24,6 @@ class ExternalStorage implements Source
 {
     public const LEGACY_SOURCE_TYPE = 'private-app';
 
-    public const PREVIOUS_SOURCE_TYPE = 'flysystem';
-
     public function __construct(
         private readonly FilesystemOperator $storage,
         private readonly TemporaryDirectoryFactory $temporaryDirectoryFactory,
@@ -43,7 +41,7 @@ class ExternalStorage implements Source
 
     public function supports(Manifest|AppEntity $app): bool
     {
-        return \in_array($app->getSourceType(), [self::name(), self::LEGACY_SOURCE_TYPE, self::PREVIOUS_SOURCE_TYPE], true);
+        return \in_array($app->getSourceType(), [self::name(), self::LEGACY_SOURCE_TYPE], true);
     }
 
     public function filesystem(Manifest|AppEntity $app): Filesystem

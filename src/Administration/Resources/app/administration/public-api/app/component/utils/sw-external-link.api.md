@@ -5,11 +5,12 @@
 API report of component `sw-external-link` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-external-link  public  js
-  registered src/app/component/index.ts
-  source src/app/component/utils/sw-external-link/index.js
-  template src/app/component/utils/sw-external-link/sw-external-link.html.twig
+component sw-external-link  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/utils/sw-external-link/index.js  [private]
+  template src/app/component/utils/sw-external-link/sw-external-link.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_external_link
+  sw_external_link  [private]
 ```

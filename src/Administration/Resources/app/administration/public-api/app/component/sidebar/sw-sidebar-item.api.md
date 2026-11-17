@@ -5,17 +5,18 @@
 API report of component `sw-sidebar-item` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-sidebar-item  public  js
-  registered src/app/component/index.ts
-  source src/app/component/sidebar/sw-sidebar-item/index.js
-  template src/app/component/sidebar/sw-sidebar-item/sw-sidebar-item.html.twig
+component sw-sidebar-item  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/sidebar/sw-sidebar-item/index.js  [private]
+  template src/app/component/sidebar/sw-sidebar-item/sw-sidebar-item.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_sidebar_item
-    sw_sidebar_item_content
-      sw_sidebar_item_default_slot
-    sw_sidebar_item_headline
-      sw_sidebar_item_close_button
-      sw_sidebar_item_headline_slot
-      sw_sidebar_item_title
+  sw_sidebar_item  [private]
+    sw_sidebar_item_content  [private]
+      sw_sidebar_item_default_slot  [private]
+    sw_sidebar_item_headline  [private]
+      sw_sidebar_item_close_button  [private]
+      sw_sidebar_item_headline_slot  [private]
+      sw_sidebar_item_title  [private]
 ```

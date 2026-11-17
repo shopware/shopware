@@ -5,17 +5,18 @@
 API report of component `sw-inherit-wrapper` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-inherit-wrapper  public  js
-  registered src/app/component/index.ts
-  source src/app/component/utils/sw-inherit-wrapper/index.js
-  template src/app/component/utils/sw-inherit-wrapper/sw-inherit-wrapper.html.twig
+component sw-inherit-wrapper  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/utils/sw-inherit-wrapper/index.js  [private]
+  template src/app/component/utils/sw-inherit-wrapper/sw-inherit-wrapper.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_inherit_wrapper
-    sw_inherit_wrapper_content
-    sw_inherit_wrapper_toggle
-      sw_inherit_wrapper_toggle_wrapper
-        sw_inherit_wrapper_toggle_wrapper_field
-        sw_inherit_wrapper_toggle_wrapper_help_text
-        sw_inherit_wrapper_toggle_wrapper_label
+  sw_inherit_wrapper  [private]
+    sw_inherit_wrapper_content  [private]
+    sw_inherit_wrapper_toggle  [private]
+      sw_inherit_wrapper_toggle_wrapper  [private]
+        sw_inherit_wrapper_toggle_wrapper_field  [private]
+        sw_inherit_wrapper_toggle_wrapper_help_text  [private]
+        sw_inherit_wrapper_toggle_wrapper_label  [private]
 ```

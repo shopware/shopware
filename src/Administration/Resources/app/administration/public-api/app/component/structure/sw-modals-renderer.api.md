@@ -5,11 +5,12 @@
 API report of component `sw-modals-renderer` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-modals-renderer  public  ts
-  registered src/app/component/index.ts
-  source src/app/component/structure/sw-modals-renderer/index.ts
-  template src/app/component/structure/sw-modals-renderer/sw-modals-renderer.html.twig
+component sw-modals-renderer  private  ts  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/structure/sw-modals-renderer/index.ts  [private]
+  template src/app/component/structure/sw-modals-renderer/sw-modals-renderer.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_modals_renderer
+  sw_modals_renderer  [private]
 ```

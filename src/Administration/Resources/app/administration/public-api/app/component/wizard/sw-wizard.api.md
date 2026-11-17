@@ -5,20 +5,21 @@
 API report of component `sw-wizard` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-wizard  public  js
-  registered src/app/component/index.ts
-  source src/app/component/wizard/sw-wizard/index.js
-  template src/app/component/wizard/sw-wizard/sw-wizard.html.twig
+component sw-wizard  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/wizard/sw-wizard/index.js  [private]
+  template src/app/component/wizard/sw-wizard/sw-wizard.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_wizard
-    sw_wizard_slot_default
-    sw_wizard_slot_footer
-      sw_wizard_slot_footer_dot_navigation
-      sw_wizard_slot_footer_left_buttons
-        sw_wizard_slot_footer_left_buttons_back
-        sw_wizard_slot_footer_left_buttons_close
-      sw_wizard_slot_footer_right_button
-        sw_wizard_slot_footer_right_button_finish
-        sw_wizard_slot_footer_right_button_next
+  sw_wizard  [private]
+    sw_wizard_slot_default  [private]
+    sw_wizard_slot_footer  [private]
+      sw_wizard_slot_footer_dot_navigation  [private]
+      sw_wizard_slot_footer_left_buttons  [private]
+        sw_wizard_slot_footer_left_buttons_back  [private]
+        sw_wizard_slot_footer_left_buttons_close  [private]
+      sw_wizard_slot_footer_right_button  [private]
+        sw_wizard_slot_footer_right_button_finish  [private]
+        sw_wizard_slot_footer_right_button_next  [private]
 ```

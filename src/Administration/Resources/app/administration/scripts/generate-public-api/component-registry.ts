@@ -4,6 +4,7 @@
  * Finds the `Component.register` and `Component.extend` calls and the files behind them.
  */
 import ts from 'typescript';
+import { isEslintDirective } from '../../eslint-rules/deprecation-rules/utils/eslint-directive';
 import { BOTH_STATES, ConditionChain, conditionTruths, inBothStates } from './flag-states';
 import type { FlagContext, FlagStates } from './flag-states';
 import type { SourceTree } from './source-tree';
@@ -73,12 +74,21 @@ function resolveModule(specifier: string, importer: string, tree: SourceTree): s
     return resolved;
 }
 
+function commentBody({ pos, end, kind }: ts.CommentRange, source: ts.SourceFile): string {
+    const closerLength = kind === ts.SyntaxKind.MultiLineCommentTrivia ? 2 : 0;
+
+    return source.text.slice(pos + 2, end - closerLength);
+}
+
 /**
  * Only the comment directly above a statement counts, as in the ESLint rule `private-feature-declarations`.
  * The file header of a registration function says nothing about a single component.
+ * ESLint directives between that comment and the statement are skipped, as the rule skips them.
  */
 function hasPrivateTag(statement: ts.Node, source: ts.SourceFile): boolean {
-    const comment = ts.getLeadingCommentRanges(source.text, statement.getFullStart())?.at(-1);
+    const comment = (ts.getLeadingCommentRanges(source.text, statement.getFullStart()) ?? [])
+        .filter((range) => !isEslintDirective(commentBody(range, source)))
+        .at(-1);
 
     return comment !== undefined && PRIVATE_TAG.test(source.text.slice(comment.pos, comment.end));
 }

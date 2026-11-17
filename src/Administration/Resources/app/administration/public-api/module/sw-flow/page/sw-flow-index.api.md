@@ -5,13 +5,14 @@
 API report of component `sw-flow-index` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-flow-index  public  ts
-  registered src/module/sw-flow/index.js
-  source src/module/sw-flow/page/sw-flow-index/index.ts
-  template src/module/sw-flow/page/sw-flow-index/sw-flow-index.html.twig
+component sw-flow-index  private  ts  [private]
+  registered src/module/sw-flow/index.js  [private]
+  source src/module/sw-flow/page/sw-flow-index/index.ts  [private]
+  template src/module/sw-flow/page/sw-flow-index/sw-flow-index.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_flow_index_modal_content_custom
-  sw_flow_index_smart_bar_actions_extension
-  sw_flow_tabs_header_extension  [until v6.8.0]
+  sw_flow_index_modal_content_custom  [private]
+  sw_flow_index_smart_bar_actions_extension  [private]
+  sw_flow_tabs_header_extension  [until v6.8.0] [private]
 ```

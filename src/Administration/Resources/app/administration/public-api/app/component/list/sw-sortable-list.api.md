@@ -5,14 +5,15 @@
 API report of component `sw-sortable-list` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-sortable-list  public  ts
-  registered src/app/component/index.ts
-  source src/app/component/list/sw-sortable-list/index.ts
-  template src/app/component/list/sw-sortable-list/sw-sortable-list.html.twig
+component sw-sortable-list  private  ts  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/list/sw-sortable-list/index.ts  [private]
+  template src/app/component/list/sw-sortable-list/sw-sortable-list.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_sortable_list_container
-    sw_sortable_list
-      sw_sortable_list_item
-    sw_sortable_list_empty_state
+  sw_sortable_list_container  [private]
+    sw_sortable_list  [private]
+      sw_sortable_list_item  [private]
+    sw_sortable_list_empty_state  [private]
 ```

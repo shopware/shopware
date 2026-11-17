@@ -5,18 +5,19 @@
 API report of component `sw-language-switch` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-language-switch  public  js
-  registered src/app/component/index.ts
-  source src/app/component/structure/sw-language-switch/index.js
-  template src/app/component/structure/sw-language-switch/sw-language-switch.html.twig
+component sw-language-switch  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/structure/sw-language-switch/index.js  [private]
+  template src/app/component/structure/sw-language-switch/sw-language-switch.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_language_switch
-    sw_language_switch_modal
-      sw_language_switch_footer
-        sw_language_switch_footer_button_close
-        sw_language_switch_footer_button_revert
-        sw_language_switch_footer_button_save
-      sw_language_switch_message
-    sw_language_switch_select
+  sw_language_switch  [private]
+    sw_language_switch_modal  [private]
+      sw_language_switch_footer  [private]
+        sw_language_switch_footer_button_close  [private]
+        sw_language_switch_footer_button_revert  [private]
+        sw_language_switch_footer_button_save  [private]
+      sw_language_switch_message  [private]
+    sw_language_switch_select  [private]
 ```

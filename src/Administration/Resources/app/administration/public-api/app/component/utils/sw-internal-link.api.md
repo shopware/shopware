@@ -5,13 +5,14 @@
 API report of component `sw-internal-link` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-internal-link  public  js
-  registered src/app/component/index.ts
-  source src/app/component/utils/sw-internal-link/index.js
-  template src/app/component/utils/sw-internal-link/sw-internal-link.html.twig
+component sw-internal-link  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/utils/sw-internal-link/index.js  [private]
+  template src/app/component/utils/sw-internal-link/sw-internal-link.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_internal_link
-    sw_internal_link__icon
-    sw_internal_link__slot
+  sw_internal_link  [private]
+    sw_internal_link__icon  [private]
+    sw_internal_link__slot  [private]
 ```

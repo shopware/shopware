@@ -5,18 +5,19 @@
 API report of component `sw-code-editor` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-code-editor  public  js
-  registered src/app/component/index.ts
-  source src/app/component/form/sw-code-editor/index.js
-  template src/app/component/form/sw-code-editor/sw-code-editor.html.twig
+component sw-code-editor  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/form/sw-code-editor/index.js  [private]
+  template src/app/component/form/sw-code-editor/sw-code-editor.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_code_editor
-    sw_code_editor_editor
-    sw_code_editor_sanitize_info
-      sw_code_editor_sanitize_info_content
-        sw_code_editor_sanitize_info_content_hint
-        sw_code_editor_sanitize_info_content_sanitized
-      sw_code_editor_sanitize_info_content_hint
-    sw_text_editor_label
+  sw_code_editor  [private]
+    sw_code_editor_editor  [private]
+    sw_code_editor_sanitize_info  [private]
+      sw_code_editor_sanitize_info_content  [private]
+        sw_code_editor_sanitize_info_content_hint  [private]
+        sw_code_editor_sanitize_info_content_sanitized  [private]
+      sw_code_editor_sanitize_info_content_hint  [private]
+    sw_text_editor_label  [private]
 ```

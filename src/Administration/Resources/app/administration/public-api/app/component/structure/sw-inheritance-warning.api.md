@@ -5,13 +5,14 @@
 API report of component `sw-inheritance-warning` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-inheritance-warning  public  js
-  registered src/app/component/index.ts
-  source src/app/component/structure/sw-inheritance-warning/index.js
-  template src/app/component/structure/sw-inheritance-warning/sw-inheritance-warning.html.twig
+component sw-inheritance-warning  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/structure/sw-inheritance-warning/index.js  [private]
+  template src/app/component/structure/sw-inheritance-warning/sw-inheritance-warning.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_inheritance_warning
-    sw_inheritance_warning_icon
-    sw_inheritance_warning_text
+  sw_inheritance_warning  [private]
+    sw_inheritance_warning_icon  [private]
+    sw_inheritance_warning_text  [private]
 ```

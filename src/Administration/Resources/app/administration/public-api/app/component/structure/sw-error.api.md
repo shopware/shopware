@@ -5,17 +5,18 @@
 API report of component `sw-error` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-error  public  js
-  registered src/app/component/index.ts
-  source src/app/component/structure/sw-error/index.js
-  template src/app/component/structure/sw-error/sw-error.html.twig
+component sw-error  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/structure/sw-error/index.js  [private]
+  template src/app/component/structure/sw-error/sw-error.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_error
-    sw_error_contend
-      sw_error_link
-      sw_error_message
-      sw_error_stack
-      sw_error_status_code
-    sw_error_illustration
+  sw_error  [private]
+    sw_error_contend  [private]
+      sw_error_link  [private]
+      sw_error_message  [private]
+      sw_error_stack  [private]
+      sw_error_status_code  [private]
+    sw_error_illustration  [private]
 ```

@@ -5,13 +5,14 @@
 API report of component `sw-search-more-results` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-search-more-results  public  js
-  registered src/app/component/index.ts
-  source src/app/component/structure/sw-search-more-results/index.js
-  template src/app/component/structure/sw-search-more-results/sw-search-more-results.html.twig
+component sw-search-more-results  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/structure/sw-search-more-results/index.js  [private]
+  template src/app/component/structure/sw-search-more-results/sw-search-more-results.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_search_more_results
-    sw_search_more_results_content
-      sw_search_more_results_slot_content
+  sw_search_more_results  [private]
+    sw_search_more_results_content  [private]
+      sw_search_more_results_slot_content  [private]
 ```

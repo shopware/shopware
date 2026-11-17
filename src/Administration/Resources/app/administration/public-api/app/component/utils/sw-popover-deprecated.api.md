@@ -5,11 +5,12 @@
 API report of component `sw-popover-deprecated` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-popover-deprecated  public  js
-  registered src/app/component/index.ts
-  source src/app/component/utils/sw-popover-deprecated/index.js
-  template src/app/component/utils/sw-popover-deprecated/sw-popover.html.twig
+component sw-popover-deprecated  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/utils/sw-popover-deprecated/index.js  [private]
+  template src/app/component/utils/sw-popover-deprecated/sw-popover.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_popover
+  sw_popover  [private]
 ```

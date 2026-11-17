@@ -718,7 +718,7 @@
         },
         "sw-card-view": {
             "file": "app/component/structure/sw-card-view",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_card_view",
@@ -1002,7 +1002,7 @@
         },
         "sw-chart": {
             "file": "app/component/base/sw-chart",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_line_chart",
@@ -3259,7 +3259,7 @@
         },
         "sw-code-editor": {
             "file": "app/component/form/sw-code-editor",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_code_editor",
@@ -3285,7 +3285,7 @@
         },
         "sw-color-badge": {
             "file": "app/component/utils/sw-color-badge",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_color_badfge_slot_default",
@@ -3732,7 +3732,7 @@
         },
         "sw-confirm-modal": {
             "file": "app/component/modal/sw-confirm-modal",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_confirm_modal",
@@ -4544,7 +4544,7 @@
         },
         "sw-datepicker": {
             "file": "app/component/form/sw-datepicker",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_datepicker"
@@ -4591,7 +4591,7 @@
         },
         "sw-dismissible-notices": {
             "file": "app/component/utils/sw-dismissible-notices",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_dismissible_notices",
@@ -4822,7 +4822,7 @@
         },
         "sw-error": {
             "file": "app/component/structure/sw-error",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_error",
@@ -5319,7 +5319,7 @@
         },
         "sw-external-link": {
             "file": "app/component/utils/sw-external-link",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_external_link"
@@ -5398,7 +5398,7 @@
         },
         "sw-first-run-wizard-finish": {
             "file": "module/sw-first-run-wizard/view/sw-first-run-wizard-finish",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_first_run_wizard_finish"
@@ -5689,7 +5689,7 @@
         },
         "sw-flow-index": {
             "file": "module/sw-flow/page/sw-flow-index",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_flow_index_modal_content_custom",
@@ -5739,7 +5739,7 @@
         },
         "sw-flow-list-flow-templates": {
             "file": "module/sw-flow/view/listing/sw-flow-list-flow-templates",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_flow_list_flow_templates"
@@ -6055,7 +6055,7 @@
         },
         "sw-grid": {
             "file": "app/component/grid/sw-grid",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_grid",
@@ -6612,7 +6612,7 @@
         },
         "sw-in-app-purchase-checkout": {
             "file": "app/component/structure/sw-in-app-purchase-checkout",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_in_app_purchase_checkout_modal"
@@ -6628,7 +6628,7 @@
         },
         "sw-inherit-wrapper": {
             "file": "app/component/utils/sw-inherit-wrapper",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_inherit_wrapper",
@@ -6652,7 +6652,7 @@
         },
         "sw-inheritance-warning": {
             "file": "app/component/structure/sw-inheritance-warning",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_inheritance_warning",
@@ -6721,7 +6721,7 @@
         },
         "sw-internal-link": {
             "file": "app/component/utils/sw-internal-link",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_internal_link",
@@ -6805,7 +6805,7 @@
         },
         "sw-language-info": {
             "file": "app/component/structure/sw-language-info",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_language_info",
@@ -6814,7 +6814,7 @@
         },
         "sw-language-switch": {
             "file": "app/component/structure/sw-language-switch",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_language_switch",
@@ -6859,7 +6859,7 @@
         },
         "sw-loader-deprecated": {
             "file": "app/component/utils/sw-loader-deprecated",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_loader",
@@ -7570,7 +7570,7 @@
         },
         "sw-media-modal-renderer": {
             "file": "app/component/structure/sw-media-modal-renderer",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_media_modal_renderer"
@@ -7893,7 +7893,7 @@
         },
         "sw-modals-renderer": {
             "file": "app/component/structure/sw-modals-renderer",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_modals_renderer"
@@ -8968,7 +8968,7 @@
         },
         "sw-order-nested-line-items-row": {
             "file": "module/sw-order/component/sw-order-nested-line-items-row",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_order_nested_line_items_row",
@@ -9250,7 +9250,7 @@
         },
         "sw-overlay": {
             "file": "app/component/utils/sw-overlay",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_overlay"
@@ -9258,7 +9258,7 @@
         },
         "sw-page": {
             "file": "app/component/structure/sw-page",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_page",
@@ -9290,7 +9290,7 @@
         },
         "sw-pagination": {
             "file": "app/component/grid/sw-pagination",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_pagination",
@@ -9305,7 +9305,7 @@
         },
         "sw-password-field": {
             "file": "app/component/form/sw-password-field",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_password_field"
@@ -9366,7 +9366,7 @@
         },
         "sw-popover-deprecated": {
             "file": "app/component/utils/sw-popover-deprecated",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_popover"
@@ -10635,7 +10635,7 @@
         },
         "sw-progress-bar": {
             "file": "app/component/utils/sw-progress-bar",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_progress_bar",
@@ -11721,7 +11721,7 @@
         },
         "sw-sales-channel-switch": {
             "file": "app/component/structure/sw-sales-channel-switch",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_sales_channel_switch",
@@ -11736,7 +11736,7 @@
         },
         "sw-search-bar": {
             "file": "app/component/structure/sw-search-bar",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_search_bar",
@@ -11787,7 +11787,7 @@
         },
         "sw-search-bar-item": {
             "file": "app/component/structure/sw-search-bar-item",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_search_bar_item",
@@ -11825,7 +11825,7 @@
         },
         "sw-search-more-results": {
             "file": "app/component/structure/sw-search-more-results",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_search_more_results",
@@ -13327,7 +13327,7 @@
         },
         "sw-settings-rule-detail": {
             "file": "module/sw-settings-rule/page/sw-settings-rule-detail",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_settings_rule_detail",
@@ -14411,7 +14411,7 @@
         },
         "sw-sidebar": {
             "file": "app/component/sidebar/sw-sidebar",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_sidebar",
@@ -14447,7 +14447,7 @@
         },
         "sw-sidebar-item": {
             "file": "app/component/sidebar/sw-sidebar-item",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_sidebar_item",
@@ -14580,7 +14580,7 @@
         },
         "sw-sortable-list": {
             "file": "app/component/list/sw-sortable-list",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_sortable_list",
@@ -14650,7 +14650,7 @@
         },
         "sw-step-display": {
             "file": "app/component/utils/sw-step-display",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_step_display",
@@ -14659,7 +14659,7 @@
         },
         "sw-step-item": {
             "file": "app/component/utils/sw-step-item",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_step_item",
@@ -14946,7 +14946,7 @@
         },
         "sw-time-ago": {
             "file": "app/component/utils/sw-time-ago",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_time_ago"
@@ -14954,7 +14954,7 @@
         },
         "sw-tree": {
             "file": "app/component/tree/sw-tree",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_tree",
@@ -15436,7 +15436,7 @@
         },
         "sw-wizard": {
             "file": "app/component/wizard/sw-wizard",
-            "visibility": "public",
+            "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_wizard",

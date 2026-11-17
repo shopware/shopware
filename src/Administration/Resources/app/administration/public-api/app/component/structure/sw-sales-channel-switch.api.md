@@ -5,18 +5,19 @@
 API report of component `sw-sales-channel-switch` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-sales-channel-switch  public  js
-  registered src/app/component/index.ts
-  source src/app/component/structure/sw-sales-channel-switch/index.js
-  template src/app/component/structure/sw-sales-channel-switch/sw-sales-channel-switch.html.twig
+component sw-sales-channel-switch  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/structure/sw-sales-channel-switch/index.js  [private]
+  template src/app/component/structure/sw-sales-channel-switch/sw-sales-channel-switch.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_sales_channel_switch
-    sw_sales_channel_switch_modal
-      sw_sales_channel_switch_footer
-        sw_sales_channel_switch_footer_button_close
-        sw_sales_channel_switch_footer_button_revert
-        sw_sales_channel_switch_footer_button_save
-      sw_sales_channel_switch_message
-    sw_sales_channel_switch_select
+  sw_sales_channel_switch  [private]
+    sw_sales_channel_switch_modal  [private]
+      sw_sales_channel_switch_footer  [private]
+        sw_sales_channel_switch_footer_button_close  [private]
+        sw_sales_channel_switch_footer_button_revert  [private]
+        sw_sales_channel_switch_footer_button_save  [private]
+      sw_sales_channel_switch_message  [private]
+    sw_sales_channel_switch_select  [private]
 ```

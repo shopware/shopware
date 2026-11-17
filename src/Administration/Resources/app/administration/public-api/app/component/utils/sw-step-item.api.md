@@ -5,13 +5,14 @@
 API report of component `sw-step-item` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-step-item  public  js
-  registered src/app/component/index.ts
-  source src/app/component/utils/sw-step-item/index.js
-  template src/app/component/utils/sw-step-item/sw-step-item.html.twig
+component sw-step-item  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/utils/sw-step-item/index.js  [private]
+  template src/app/component/utils/sw-step-item/sw-step-item.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_step_item
-    sw_step_item_bubble
-    sw_step_item_description
+  sw_step_item  [private]
+    sw_step_item_bubble  [private]
+    sw_step_item_description  [private]
 ```

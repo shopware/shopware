@@ -5,11 +5,12 @@
 API report of component `sw-first-run-wizard-finish` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-first-run-wizard-finish  public  js
-  registered src/module/sw-first-run-wizard/index.js
-  source src/module/sw-first-run-wizard/view/sw-first-run-wizard-finish/index.js
-  template src/module/sw-first-run-wizard/view/sw-first-run-wizard-finish/sw-first-run-wizard-finish.html.twig
+component sw-first-run-wizard-finish  private  js  [private]
+  registered src/module/sw-first-run-wizard/index.js  [private]
+  source src/module/sw-first-run-wizard/view/sw-first-run-wizard-finish/index.js  [private]
+  template src/module/sw-first-run-wizard/view/sw-first-run-wizard-finish/sw-first-run-wizard-finish.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_first_run_wizard_finish
+  sw_first_run_wizard_finish  [private]
 ```

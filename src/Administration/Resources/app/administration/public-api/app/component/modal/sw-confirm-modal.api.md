@@ -5,16 +5,17 @@
 API report of component `sw-confirm-modal` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-confirm-modal  public  js
-  registered src/app/component/index.ts
-  source src/app/component/modal/sw-confirm-modal/index.js
-  template src/app/component/modal/sw-confirm-modal/sw-confirm-modal.html.twig
+component sw-confirm-modal  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/modal/sw-confirm-modal/index.js  [private]
+  template src/app/component/modal/sw-confirm-modal/sw-confirm-modal.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_confirm_modal
-    sw_confirm_modal_footer
-      sw_confirm_modal_footer_cancel
-      sw_confirm_modal_footer_confirm
-    sw_confirm_modal_text
-      sw_confirm_modal_text_default
+  sw_confirm_modal  [private]
+    sw_confirm_modal_footer  [private]
+      sw_confirm_modal_footer_cancel  [private]
+      sw_confirm_modal_footer_confirm  [private]
+    sw_confirm_modal_text  [private]
+      sw_confirm_modal_text_default  [private]
 ```

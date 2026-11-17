@@ -5,11 +5,12 @@
 API report of component `sw-media-modal-renderer` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-media-modal-renderer  public  ts
-  registered src/app/component/index.ts
-  source src/app/component/structure/sw-media-modal-renderer/index.ts
-  template src/app/component/structure/sw-media-modal-renderer/sw-media-modal-renderer.html.twig
+component sw-media-modal-renderer  private  ts  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/structure/sw-media-modal-renderer/index.ts  [private]
+  template src/app/component/structure/sw-media-modal-renderer/sw-media-modal-renderer.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_media_modal_renderer
+  sw_media_modal_renderer  [private]
 ```

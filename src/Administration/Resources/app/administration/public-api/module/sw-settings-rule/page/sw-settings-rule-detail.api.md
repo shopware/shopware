@@ -5,24 +5,25 @@
 API report of component `sw-settings-rule-detail` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-settings-rule-detail  public  js
-  registered src/module/sw-settings-rule/index.js
-  source src/module/sw-settings-rule/page/sw-settings-rule-detail/index.js
-  template src/module/sw-settings-rule/page/sw-settings-rule-detail/sw-settings-rule-detail.html.twig
+component sw-settings-rule-detail  private  js  [private]
+  registered src/module/sw-settings-rule/index.js  [private]
+  source src/module/sw-settings-rule/page/sw-settings-rule-detail/index.js  [private]
+  template src/module/sw-settings-rule/page/sw-settings-rule-detail/sw-settings-rule-detail.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_settings_rule_detail
-    sw_settings_rule_detail_actions
-      sw_settings_rule_detail_actions_cancel
-      sw_settings_rule_detail_actions_save
-      sw_settings_rule_detail_actions_save_context_menu
-        sw_settings_rule_detail_actions_save_context_menu_actions
-          sw_settings_rule_detail_actions_duplicate
-    sw_settings_rule_detail_content
-      sw_settings_rule_detail_content_view
-      sw_settings_rule_detail_tabs
-        sw_settings_rule_detail_mt_tabs  [from v6.8.0]
-        sw_settings_rule_detail_tab_items  [until v6.8.0]
-      sw_settings_rule_detail_tabs_discard_changes_modal
-    sw_settings_rule_detail_header
+  sw_settings_rule_detail  [private]
+    sw_settings_rule_detail_actions  [private]
+      sw_settings_rule_detail_actions_cancel  [private]
+      sw_settings_rule_detail_actions_save  [private]
+      sw_settings_rule_detail_actions_save_context_menu  [private]
+        sw_settings_rule_detail_actions_save_context_menu_actions  [private]
+          sw_settings_rule_detail_actions_duplicate  [private]
+    sw_settings_rule_detail_content  [private]
+      sw_settings_rule_detail_content_view  [private]
+      sw_settings_rule_detail_tabs  [private]
+        sw_settings_rule_detail_mt_tabs  [from v6.8.0] [private]
+        sw_settings_rule_detail_tab_items  [until v6.8.0] [private]
+      sw_settings_rule_detail_tabs_discard_changes_modal  [private]
+    sw_settings_rule_detail_header  [private]
 ```

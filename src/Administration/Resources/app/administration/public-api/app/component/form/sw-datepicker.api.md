@@ -5,11 +5,12 @@
 API report of component `sw-datepicker` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-datepicker  public  ts
-  registered src/app/component/index.ts
-  source src/app/component/form/sw-datepicker/index.ts
-  template src/app/component/form/sw-datepicker/sw-datepicker.html.twig
+component sw-datepicker  private  ts  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/form/sw-datepicker/index.ts  [private]
+  template src/app/component/form/sw-datepicker/sw-datepicker.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_datepicker
+  sw_datepicker  [private]
 ```

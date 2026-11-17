@@ -5,18 +5,19 @@
 API report of component `sw-pagination` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-pagination  public  js
-  registered src/app/component/index.ts
-  source src/app/component/grid/sw-pagination/index.js
-  template src/app/component/grid/sw-pagination/sw-pagination.html.twig
+component sw-pagination  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/grid/sw-pagination/index.js  [private]
+  template src/app/component/grid/sw-pagination/sw-pagination.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_pagination
-    sw_pagination_page_list
-      sw_pagination_page_list_item
-        sw_pagination_page_list_item_button
-        sw_pagination_page_list_item_separator
-    sw_pagination_page_next
-    sw_pagination_page_prev
-    sw_pagination_per_page_selection
+  sw_pagination  [private]
+    sw_pagination_page_list  [private]
+      sw_pagination_page_list_item  [private]
+        sw_pagination_page_list_item_button  [private]
+        sw_pagination_page_list_item_separator  [private]
+    sw_pagination_page_next  [private]
+    sw_pagination_page_prev  [private]
+    sw_pagination_per_page_selection  [private]
 ```

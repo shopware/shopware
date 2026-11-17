@@ -5,14 +5,15 @@
 API report of component `sw-chart` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-chart  public  js
-  registered src/app/component/index.ts
-  source src/app/component/base/sw-chart/index.js
-  template src/app/component/base/sw-chart/sw-chart.html.twig
+component sw-chart  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/base/sw-chart/index.js  [private]
+  template src/app/component/base/sw-chart/sw-chart.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_line_chart
-    sw_line_chart_multiple
-      sw_line_chart_multiple_chart
-    sw_line_chart_single
+  sw_line_chart  [private]
+    sw_line_chart_multiple  [private]
+      sw_line_chart_multiple_chart  [private]
+    sw_line_chart_single  [private]
 ```

@@ -5,12 +5,13 @@
 API report of component `sw-dismissible-notices` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-dismissible-notices  public  ts
-  registered src/app/component/index.ts
-  source src/app/component/utils/sw-dismissible-notices/index.ts
-  template src/app/component/utils/sw-dismissible-notices/sw-dismissible-notices.html.twig
+component sw-dismissible-notices  private  ts  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/utils/sw-dismissible-notices/index.ts  [private]
+  template src/app/component/utils/sw-dismissible-notices/sw-dismissible-notices.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_dismissible_notices
-    sw_dismissible_notices_notice
+  sw_dismissible_notices  [private]
+    sw_dismissible_notices_notice  [private]
 ```

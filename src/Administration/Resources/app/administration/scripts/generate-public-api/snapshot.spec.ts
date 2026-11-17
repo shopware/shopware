@@ -171,6 +171,37 @@ describe('scripts/generate-public-api/snapshot', () => {
             expect(indexedComponents(files)['sw-example-card'].visibility).toBe('private');
         });
 
+        it.each([
+            ['a line', '// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations'],
+            ['a block', '/* eslint-disable-next-line sw-deprecation-rules/private-feature-declarations */'],
+        ])('reads a private tag above %s ESLint directive', (_kind, directive) => {
+            const files = card(template, {
+                [`${CARD}/index.js`]: [
+                    "import template from './sw-example-card.html.twig';",
+                    '',
+                    '/**\n * @private\n */',
+                    directive,
+                    'export default { template };',
+                ].join('\n'),
+            });
+
+            expect(indexedComponents(files)['sw-example-card'].visibility).toBe('private');
+        });
+
+        it('ignores a private tag above an ordinary comment', () => {
+            const files = card(template, {
+                [`${CARD}/index.js`]: [
+                    "import template from './sw-example-card.html.twig';",
+                    '',
+                    '/**\n * @private\n */',
+                    '// The template holds the blocks.',
+                    'export default { template };',
+                ].join('\n'),
+            });
+
+            expect(indexedComponents(files)['sw-example-card'].visibility).toBe('public');
+        });
+
         it('reads a private tag directly above the registration', () => {
             const files = card(template, {
                 [REGISTRY]:

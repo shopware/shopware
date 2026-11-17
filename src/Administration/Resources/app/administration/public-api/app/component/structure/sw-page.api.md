@@ -5,35 +5,36 @@
 API report of component `sw-page` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-page  public  js
-  registered src/app/component/index.ts
-  source src/app/component/structure/sw-page/index.js
-  template src/app/component/structure/sw-page/sw-page.html.twig
+component sw-page  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/structure/sw-page/index.js  [private]
+  template src/app/component/structure/sw-page/sw-page.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_page
-    sw_page_content
-      sw_page_content_sidebar
-        sw_page_sidebar_slot
-      sw_page_slot_content
-      sw_page_slot_side_content
-    sw_page_head_area
-      sw_page_smart_bar
-        sw_page_smart_bar_back_btn
-          sw_page_slot_smart_bar_back
-        sw_page_smart_bar_content
-          sw_page_smart_bar_content_actions
-            sw_page_slot_smart_bar_actions
-          sw_page_smart_bar_content_app_actions
-          sw_page_smart_bar_content_header
-            sw_page_slot_smart_bar_header
-          sw_page_smart_bar_content_language_switch
-            sw_page_slot_language_switch
-        sw_page_smart_bar_divider
-      sw_page_top_bar
-        sw_page_search_bar
-          sw_page_slot_search_bar
-        sw_page_top_bar_actions
-          sw_page_notification_center
-          sw_page_top_bar_app_button
+  sw_page  [private]
+    sw_page_content  [private]
+      sw_page_content_sidebar  [private]
+        sw_page_sidebar_slot  [private]
+      sw_page_slot_content  [private]
+      sw_page_slot_side_content  [private]
+    sw_page_head_area  [private]
+      sw_page_smart_bar  [private]
+        sw_page_smart_bar_back_btn  [private]
+          sw_page_slot_smart_bar_back  [private]
+        sw_page_smart_bar_content  [private]
+          sw_page_smart_bar_content_actions  [private]
+            sw_page_slot_smart_bar_actions  [private]
+          sw_page_smart_bar_content_app_actions  [private]
+          sw_page_smart_bar_content_header  [private]
+            sw_page_slot_smart_bar_header  [private]
+          sw_page_smart_bar_content_language_switch  [private]
+            sw_page_slot_language_switch  [private]
+        sw_page_smart_bar_divider  [private]
+      sw_page_top_bar  [private]
+        sw_page_search_bar  [private]
+          sw_page_slot_search_bar  [private]
+        sw_page_top_bar_actions  [private]
+          sw_page_notification_center  [private]
+          sw_page_top_bar_app_button  [private]
 ```

@@ -5,24 +5,25 @@
 API report of component `sw-order-nested-line-items-row` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-order-nested-line-items-row  public  js
-  registered src/module/sw-order/index.js
-  source src/module/sw-order/component/sw-order-nested-line-items-row/index.js
-  template src/module/sw-order/component/sw-order-nested-line-items-row/sw-order-nested-line-items-row.html.twig
+component sw-order-nested-line-items-row  private  js  [private]
+  registered src/module/sw-order/index.js  [private]
+  source src/module/sw-order/component/sw-order-nested-line-items-row/index.js  [private]
+  template src/module/sw-order/component/sw-order-nested-line-items-row/sw-order-nested-line-items-row.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_order_nested_line_items_row
-    sw_order_nested_line_items_row_content
-      sw_order_nested_line_items_row_content_label
-        sw_order_nested_line_items_row_content_label_content
-        sw_order_nested_line_items_row_content_label_nesting
-      sw_order_nested_line_items_row_content_quantity
-        sw_order_nested_line_items_row_content_quantity_content
-      sw_order_nested_line_items_row_content_tax
-        sw_order_nested_line_items_row_content_tax_content
-      sw_order_nested_line_items_row_content_total_price
-        sw_order_nested_line_items_row_content_total_price_content
-      sw_order_nested_line_items_row_content_unit_price
-        sw_order_nested_line_items_row_content_unit_price_content
-    sw_order_nested_line_items_row_nesting
+  sw_order_nested_line_items_row  [private]
+    sw_order_nested_line_items_row_content  [private]
+      sw_order_nested_line_items_row_content_label  [private]
+        sw_order_nested_line_items_row_content_label_content  [private]
+        sw_order_nested_line_items_row_content_label_nesting  [private]
+      sw_order_nested_line_items_row_content_quantity  [private]
+        sw_order_nested_line_items_row_content_quantity_content  [private]
+      sw_order_nested_line_items_row_content_tax  [private]
+        sw_order_nested_line_items_row_content_tax_content  [private]
+      sw_order_nested_line_items_row_content_total_price  [private]
+        sw_order_nested_line_items_row_content_total_price_content  [private]
+      sw_order_nested_line_items_row_content_unit_price  [private]
+        sw_order_nested_line_items_row_content_unit_price_content  [private]
+    sw_order_nested_line_items_row_nesting  [private]
 ```

@@ -5,12 +5,13 @@
 API report of component `sw-color-badge` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-color-badge  public  js
-  registered src/app/component/index.ts
-  source src/app/component/utils/sw-color-badge/index.js
-  template src/app/component/utils/sw-color-badge/sw-color-badge.html.twig
+component sw-color-badge  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/utils/sw-color-badge/index.js  [private]
+  template src/app/component/utils/sw-color-badge/sw-color-badge.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_color_badge
-    sw_color_badfge_slot_default
+  sw_color_badge  [private]
+    sw_color_badfge_slot_default  [private]
 ```

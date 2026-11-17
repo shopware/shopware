@@ -5,21 +5,22 @@
 API report of component `sw-tree` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-tree  public  js
-  registered src/app/component/index.ts
-  source src/app/component/tree/sw-tree/index.js
-  template src/app/component/tree/sw-tree/sw-tree.html.twig
+component sw-tree  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/tree/sw-tree/index.js  [private]
+  template src/app/component/tree/sw-tree/sw-tree.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_tree
-    sw_tree_actions_headline
-    sw_tree_content
-      sw_tree_items
-        sw_tree_slot_items
-    sw_tree_delete_modal
-      sw_tree_delete_modal_confirm_delete_text
-      sw_tree_delete_modal_footer
-        sw_tree_delete_modal_cancel
-        sw_tree_delete_modal_confirm
-    sw_tree_search
+  sw_tree  [private]
+    sw_tree_actions_headline  [private]
+    sw_tree_content  [private]
+      sw_tree_items  [private]
+        sw_tree_slot_items  [private]
+    sw_tree_delete_modal  [private]
+      sw_tree_delete_modal_confirm_delete_text  [private]
+      sw_tree_delete_modal_footer  [private]
+        sw_tree_delete_modal_cancel  [private]
+        sw_tree_delete_modal_confirm  [private]
+    sw_tree_search  [private]
 ```

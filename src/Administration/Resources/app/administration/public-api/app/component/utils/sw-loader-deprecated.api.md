@@ -5,13 +5,14 @@
 API report of component `sw-loader-deprecated` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-loader-deprecated  public  js
-  registered src/app/component/index.ts
-  source src/app/component/utils/sw-loader-deprecated/index.js
-  template src/app/component/utils/sw-loader-deprecated/sw-loader.html.twig
+component sw-loader-deprecated  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/utils/sw-loader-deprecated/index.js  [private]
+  template src/app/component/utils/sw-loader-deprecated/sw-loader.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_loader
-    sw_loader_container
-      sw_loader_element
+  sw_loader  [private]
+    sw_loader_container  [private]
+      sw_loader_element  [private]
 ```

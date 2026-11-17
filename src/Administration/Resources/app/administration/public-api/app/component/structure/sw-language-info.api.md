@@ -5,12 +5,13 @@
 API report of component `sw-language-info` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-language-info  public  js
-  registered src/app/component/index.ts
-  source src/app/component/structure/sw-language-info/index.js
-  template src/app/component/structure/sw-language-info/sw-language-info.html.twig
+component sw-language-info  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/structure/sw-language-info/index.js  [private]
+  template src/app/component/structure/sw-language-info/sw-language-info.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_language_info
-    sw_language_info_text
+  sw_language_info  [private]
+    sw_language_info_text  [private]
 ```

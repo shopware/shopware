@@ -5,11 +5,12 @@
 API report of component `sw-in-app-purchase-checkout` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-in-app-purchase-checkout  public  ts
-  registered src/app/component/index.ts
-  source src/app/component/structure/sw-in-app-purchase-checkout/index.ts
-  template src/app/component/structure/sw-in-app-purchase-checkout/sw-in-app-purchase-checkout.html.twig
+component sw-in-app-purchase-checkout  private  ts  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/structure/sw-in-app-purchase-checkout/index.ts  [private]
+  template src/app/component/structure/sw-in-app-purchase-checkout/sw-in-app-purchase-checkout.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_in_app_purchase_checkout_modal
+  sw_in_app_purchase_checkout_modal  [private]
 ```

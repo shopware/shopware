@@ -5,13 +5,14 @@
 API report of component `sw-card-view` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-card-view  public  js
-  registered src/app/component/index.ts
-  source src/app/component/structure/sw-card-view/index.js
-  template src/app/component/structure/sw-card-view/sw-card-view.html.twig
+component sw-card-view  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/structure/sw-card-view/index.js  [private]
+  template src/app/component/structure/sw-card-view/sw-card-view.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_card_view
-    sw_card_view_content
-      sw_card_view_slot_default
+  sw_card_view  [private]
+    sw_card_view_content  [private]
+      sw_card_view_slot_default  [private]
 ```

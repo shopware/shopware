@@ -5,11 +5,12 @@
 API report of component `sw-overlay` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-overlay  public  js
-  registered src/app/component/index.ts
-  source src/app/component/utils/sw-overlay/index.js
-  template src/app/component/utils/sw-overlay/sw-overlay.html.twig
+component sw-overlay  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/utils/sw-overlay/index.js  [private]
+  template src/app/component/utils/sw-overlay/sw-overlay.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_overlay
+  sw_overlay  [private]
 ```

@@ -5,27 +5,28 @@
 API report of component `sw-grid` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-grid  public  js
-  registered src/app/component/index.ts
-  source src/app/component/grid/sw-grid/index.js
-  template src/app/component/grid/sw-grid/sw-grid.html.twig
+component sw-grid  private  js  [private]
+  registered src/app/component/index.ts  [private]
+  source src/app/component/grid/sw-grid/index.js  [private]
+  template src/app/component/grid/sw-grid/sw-grid.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_grid
-    sw_grid_slot_content
-      sw_grid_pagination
-        sw_grid_slot_pagination
-      sw_grid_slot_body
-        sw_grid_body_slot_items
-          sw_grid_body_item_selectable
-          sw_grid_slot_columns
-        sw_grid_slot_empty_columns
-          sw_grid_slot_empty_columns_content
-      sw_grid_slot_header
-        sw_grid_slot_header_cell
-          sw_grid_slot_header_cell_content
-            sw_grid_slot_header_cell_icon_label
-            sw_grid_slot_header_cell_label
-            sw_grid_slot_header_cell_sortable
-        sw_grid_slot_header_cell_selectable
+  sw_grid  [private]
+    sw_grid_slot_content  [private]
+      sw_grid_pagination  [private]
+        sw_grid_slot_pagination  [private]
+      sw_grid_slot_body  [private]
+        sw_grid_body_slot_items  [private]
+          sw_grid_body_item_selectable  [private]
+          sw_grid_slot_columns  [private]
+        sw_grid_slot_empty_columns  [private]
+          sw_grid_slot_empty_columns_content  [private]
+      sw_grid_slot_header  [private]
+        sw_grid_slot_header_cell  [private]
+          sw_grid_slot_header_cell_content  [private]
+            sw_grid_slot_header_cell_icon_label  [private]
+            sw_grid_slot_header_cell_label  [private]
+            sw_grid_slot_header_cell_sortable  [private]
+        sw_grid_slot_header_cell_selectable  [private]
 ```

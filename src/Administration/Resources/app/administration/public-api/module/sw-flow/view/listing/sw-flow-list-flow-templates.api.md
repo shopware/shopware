@@ -5,11 +5,12 @@
 API report of component `sw-flow-list-flow-templates` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-flow-list-flow-templates  public  ts
-  registered src/module/sw-flow/index.js
-  source src/module/sw-flow/view/listing/sw-flow-list-flow-templates/index.ts
-  template src/module/sw-flow/view/listing/sw-flow-list-flow-templates/sw-flow-list-flow-templates.html.twig
+component sw-flow-list-flow-templates  private  ts  [private]
+  registered src/module/sw-flow/index.js  [private]
+  source src/module/sw-flow/view/listing/sw-flow-list-flow-templates/index.ts  [private]
+  template src/module/sw-flow/view/listing/sw-flow-list-flow-templates/sw-flow-list-flow-templates.html.twig  [private]
+  visibility-source export  [private]
 
 blocks
-  sw_flow_list_flow_templates
+  sw_flow_list_flow_templates  [private]
 ```

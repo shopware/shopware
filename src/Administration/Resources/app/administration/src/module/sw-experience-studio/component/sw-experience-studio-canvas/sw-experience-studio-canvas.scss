@@ -81,25 +81,6 @@
         outline-color: var(--color-border-brand-default);
     }
 
-    &__close-frame {
-        display: inline-flex;
-        flex: 0 0 28px;
-        align-items: center;
-        justify-content: center;
-        width: 28px;
-        height: 28px;
-        border: 0;
-        border-radius: 4px;
-        background: transparent;
-        color: var(--color-icon-secondary-default);
-        cursor: pointer;
-
-        &:hover {
-            background: var(--color-background-tertiary-default);
-            color: var(--color-text-primary-default);
-        }
-    }
-
     &__frame.is--viewport-transitioning {
         transition: width 300ms ease, height 300ms ease;
     }
@@ -163,14 +144,8 @@
         grid-column: 3;
         align-items: center;
         justify-self: end;
-        gap: 8px;
+        gap: var(--scale-size-4);
         min-width: 0;
-    }
-
-    @container experience-frame (max-width: 560px) {
-        .sw-experience-studio-detail__frame-entity-select {
-            display: none;
-        }
     }
 
     &__viewport-button,

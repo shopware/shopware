@@ -1,4 +1,8 @@
-import type { WorkspaceConfiguration } from '../types/workspace.types';
+import type { WorkspaceConfiguration, WorkspaceFrame } from '../types/workspace.types';
+
+type StoredWorkspaceConfiguration = Omit<WorkspaceConfiguration, 'frames'> & {
+    frames: Array<Omit<WorkspaceFrame, 'id'> & { id?: string }>;
+};
 
 /**
  * @private
@@ -13,9 +17,10 @@ export function createWorkspaceConfiguration(): WorkspaceConfiguration {
  * @private
  * @sw-package discovery
  */
-export function copyWorkspaceConfiguration(configuration: WorkspaceConfiguration): WorkspaceConfiguration {
+export function copyWorkspaceConfiguration(configuration: StoredWorkspaceConfiguration): WorkspaceConfiguration {
     return {
         frames: configuration.frames.map((frame) => ({
+            id: frame.id ?? frame.layoutId,
             layoutId: frame.layoutId,
             x: frame.x,
             y: frame.y,

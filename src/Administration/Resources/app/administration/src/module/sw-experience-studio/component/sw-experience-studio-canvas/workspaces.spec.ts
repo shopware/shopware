@@ -14,6 +14,7 @@ describe('canvas workspace restoration', () => {
     ])('shows opened pages by default when entering a workspace with %i frames', async (frameCount) => {
         const configuration = createWorkspaceConfiguration();
         configuration.frames = Array.from({ length: frameCount }, () => ({
+            id: 'layout-a',
             layoutId: 'layout-a',
             x: 0,
             y: 0,
@@ -31,7 +32,7 @@ describe('canvas workspace restoration', () => {
                 workspaceConfiguration: configuration,
                 frames: configuration.frames.map((frame) => ({
                     id: frame.layoutId,
-                    layout: { name: 'Layout' },
+                    layout: { id: 'layout-a', name: 'Layout' },
                     viewport: frame.viewport,
                     previewEntityId: null,
                     isActive: true,
@@ -64,7 +65,16 @@ describe('canvas workspace restoration', () => {
     it('keeps pointer resizing while resize handles no longer respond to arrow keys or appear in the tab order', async () => {
         const configuration = createWorkspaceConfiguration();
         configuration.frames = [
-            { layoutId: 'layout-a', x: 0, y: 0, width: 700, height: 500, viewport: 'custom', previewEntityId: null },
+            {
+                id: 'layout-a',
+                layoutId: 'layout-a',
+                x: 0,
+                y: 0,
+                width: 700,
+                height: 500,
+                viewport: 'custom',
+                previewEntityId: null,
+            },
         ];
         wrapper = shallowMount(await wrapTestComponent('sw-experience-studio-canvas', { sync: true }), {
             props: {
@@ -72,7 +82,7 @@ describe('canvas workspace restoration', () => {
                 frames: [
                     {
                         id: 'layout-a',
-                        layout: { name: 'Layout' },
+                        layout: { id: 'layout-a', name: 'Layout' },
                         viewport: 'custom',
                         previewEntityId: null,
                         isActive: true,
@@ -107,7 +117,16 @@ describe('canvas workspace restoration', () => {
     it('restores exact frame geometry and camera without reading legacy positions or autosaving', async () => {
         const configuration = createWorkspaceConfiguration();
         configuration.frames = [
-            { layoutId: 'layout-a', x: -120, y: 75, width: 641, height: 815, viewport: 'custom', previewEntityId: null },
+            {
+                id: 'layout-a',
+                layoutId: 'layout-a',
+                x: -120,
+                y: 75,
+                width: 641,
+                height: 815,
+                viewport: 'custom',
+                previewEntityId: null,
+            },
         ];
         configuration.canvas = { panX: 45, panY: -90, zoom: 0.75 };
         localStorage.setItem(
@@ -121,7 +140,7 @@ describe('canvas workspace restoration', () => {
                 frames: [
                     {
                         id: 'layout-a',
-                        layout: { name: 'Layout' },
+                        layout: { id: 'layout-a', name: 'Layout' },
                         viewport: 'custom',
                         previewEntityId: null,
                         isActive: true,

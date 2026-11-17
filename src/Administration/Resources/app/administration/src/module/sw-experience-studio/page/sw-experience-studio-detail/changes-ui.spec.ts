@@ -24,10 +24,6 @@ async function createWrapper(failedLayoutId: string | null = null, newLayoutId: 
     const openLayouts = layouts.map((layout) => ({
         id: layout.id,
         layout,
-        selectedElementId: null,
-        viewport: 'desktop',
-        previewEntityId: null,
-        settingsWidth: 320,
         savedState: JSON.stringify({ name: layout.name, rootSource: layout.rootSource, layout: layout.layout }),
         isNew: layout.id === newLayoutId,
         isSaving: false,
@@ -61,7 +57,19 @@ async function createWrapper(failedLayoutId: string | null = null, newLayoutId: 
         } as Component,
         {
             attachTo: document.body,
-            data: () => ({ layout: layouts[0], activeLayoutId: 'about', openLayouts }),
+            data: () => ({
+                layout: layouts[0],
+                activeFrameId: 'about',
+                openLayouts,
+                frames: layouts.map((layout) => ({
+                    id: layout.id,
+                    layoutId: layout.id,
+                    selectedElementId: null,
+                    viewport: 'desktop',
+                    previewEntityId: null,
+                    settingsWidth: 320,
+                })),
+            }),
             global: {
                 provide: {
                     repositoryFactory: { create: () => ({ save, get }) },

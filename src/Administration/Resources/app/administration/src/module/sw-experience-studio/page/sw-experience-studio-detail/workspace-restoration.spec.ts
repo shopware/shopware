@@ -9,6 +9,7 @@ function createRestore() {
     const configuration = createWorkspaceConfiguration();
     configuration.frames = [
         {
+            id: 'layout-a',
             layoutId: 'layout-a',
             x: 0,
             y: 0,
@@ -43,12 +44,14 @@ function createRestore() {
         defaultSalesChannelCriteria: getStorefrontSalesChannelCriteria(1),
         salesChannelRepository: { search: jest.fn().mockResolvedValue({ first: () => ({ id: 'channel' }) }) },
         createOpenLayoutState: methods.createOpenLayoutState,
+        createPreviewFrame: methods.createPreviewFrame,
         serializeLayoutState: methods.serializeLayoutState,
         getLayoutRootSource: methods.getLayoutRootSource,
         resolvePreviewContext: (layout: { rootSource: string }) => ({ entityType: layout.rootSource }),
         resetWorkspaceEditor: jest.fn(),
-        activateLayout: jest.fn(),
-        openLayouts: [{ id: 'current-layout', previewEntityId: 'current-entity' }],
+        activateFrame: jest.fn(),
+        openLayouts: [{ id: 'current-layout' }],
+        frames: [{ id: 'current-frame', layoutId: 'current-layout', previewEntityId: 'current-entity' }],
         workspaceCanvasConfiguration: current.configuration,
         previewSalesChannelId: 'current-channel',
         workspaceError: false,
@@ -128,7 +131,7 @@ describe('Experience Studio workspace preview reference restoration', () => {
             await methods.openWorkspace.call(editor, target.id);
 
             expect(editor.workspaceError).toBe(false);
-            expect(editor.openLayouts[0].previewEntityId).toBe(fallback);
+            expect(editor.frames[0].previewEntityId).toBe(fallback);
             expect(editor.workspaceStore.activate).toHaveBeenCalledWith(target);
             expect(editor.createNotificationWarning).toHaveBeenCalledWith({
                 message: 'sw-experience-studio.workspace.manager.missingReferences',
@@ -142,7 +145,7 @@ describe('Experience Studio workspace preview reference restoration', () => {
 
         await methods.openWorkspace.call(editor, target.id);
 
-        expect(editor.openLayouts[0].previewEntityId).toBe('saved-entity');
+        expect(editor.frames[0].previewEntityId).toBe('saved-entity');
         expect(entityRepository.search).not.toHaveBeenCalled();
         expect(editor.workspaceStore.activate).toHaveBeenCalledWith(target);
         expect(editor.createNotificationWarning).not.toHaveBeenCalled();
@@ -158,7 +161,7 @@ describe('Experience Studio workspace preview reference restoration', () => {
         await methods.openWorkspace.call(editor, target.id);
 
         expect(editor.workspaceError).toBe(false);
-        expect(editor.openLayouts[0].previewEntityId).toBe('saved-entity');
+        expect(editor.frames[0].previewEntityId).toBe('saved-entity');
         expect(editor.workspaceStore.activate).toHaveBeenCalledTimes(1);
         expect(target.configuration.frames[0].previewEntityId).toBe('saved-entity');
     });

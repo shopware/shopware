@@ -72,15 +72,25 @@ describe('Experience Studio workspace transitions', () => {
         configuration.frames = [
             'saved',
             'new',
-        ].map((layoutId) => ({ layoutId, x: 0, y: 0, width: 700, height: 900, viewport: 'custom', previewEntityId: null }));
+        ].map((layoutId) => ({
+            id: layoutId,
+            layoutId,
+            x: 0,
+            y: 0,
+            width: 700,
+            height: 900,
+            viewport: 'custom',
+            previewEntityId: null,
+        }));
         const schedule = jest.fn();
         const vm = {
             allowSave: true,
             workspaceStore: { activeWorkspace: { id: 'workspace' }, schedule },
             $nextTick: jest.fn().mockResolvedValue(undefined),
             $refs: { experienceStudioCanvas: { getWorkspaceConfiguration: () => configuration } },
+            frames: [{ id: 'saved', layoutId: 'saved', viewport: 'custom', previewEntityId: 'preview' }],
             openLayouts: [
-                { id: 'saved', isNew: false, viewport: 'custom', previewEntityId: 'preview' },
+                { id: 'saved', isNew: false },
                 { id: 'new', isNew: true },
             ],
             previewSalesChannelId: 'channel',
@@ -144,6 +154,7 @@ describe('Experience Studio workspace transitions', () => {
             'deleted',
             'saved-a',
         ].map((layoutId) => ({
+            id: layoutId,
             layoutId,
             x: 100,
             y: 200,
@@ -168,12 +179,13 @@ describe('Experience Studio workspace transitions', () => {
             restoreFramePreviewEntity: methods.restoreFramePreviewEntity,
             restoreWorkspaceSalesChannel: methods.restoreWorkspaceSalesChannel,
             layoutRepository: { search: jest.fn().mockResolvedValue(layouts) },
+            createPreviewFrame: methods.createPreviewFrame,
             createOpenLayoutState: (layout: { id: string }) => ({ id: layout.id, layout, isNew: false }),
             resolvePreviewContext: () => null,
             salesChannelRepository: { search: jest.fn().mockResolvedValue({ first: () => ({ id: 'channel' }) }) },
             defaultSalesChannelCriteria: new Shopware.Data.Criteria(1, 1),
             resetWorkspaceEditor: jest.fn(),
-            activateLayout: jest.fn(),
+            activateFrame: jest.fn(),
             $nextTick: jest.fn().mockResolvedValue(undefined),
             $router: { replace: jest.fn().mockResolvedValue(undefined) },
             createNotificationWarning: jest.fn(),
@@ -189,7 +201,7 @@ describe('Experience Studio workspace transitions', () => {
             'saved-b',
             'saved-a',
         ]);
-        expect(vm.activateLayout).toHaveBeenCalledWith('saved-b');
+        expect(vm.activateFrame).toHaveBeenCalledWith('saved-b');
         expect(vm.workspaceCanvasConfiguration).toEqual(configuration);
         expect(vm.previewSalesChannelId).toBe('channel');
         expect(vm.createNotificationWarning).toHaveBeenCalledTimes(1);

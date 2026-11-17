@@ -47,6 +47,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-canvas', ()
         const fitCanvasToFrame = jest.fn();
         const vm = {
             layoutId: 'layout-2',
+            frames: [],
             frameStates: {
                 'layout-2': { x: 1200, y: 400, width: 1480, height: 640 },
             },

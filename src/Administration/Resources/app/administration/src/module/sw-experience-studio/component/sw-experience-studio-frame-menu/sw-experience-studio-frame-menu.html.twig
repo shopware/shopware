@@ -1,0 +1,64 @@
+{% block sw_experience_studio_frame_menu %}
+<mt-floating-ui
+    :is-opened="isOpen"
+    :floating-ui-options="{ placement: 'bottom-end' }"
+    :offset="8"
+>
+    <template #trigger>
+        <mt-button
+            ref="trigger"
+            variant="tertiary"
+            size="x-small"
+            square
+            :aria-label="label"
+            aria-haspopup="dialog"
+            :aria-expanded="isOpen"
+            :aria-controls="isOpen ? panelId : undefined"
+            @pointerdown.stop
+            @click.stop="toggle"
+        >
+            <template #iconFront>
+                <mt-icon
+                    name="regular-ellipsis-h"
+                    size="16px"
+                    decorative
+                />
+            </template>
+        </mt-button>
+    </template>
+
+    <template #default>
+        <div
+            :id="panelId"
+            ref="panel"
+            class="sw-experience-studio-frame-menu__content"
+            role="dialog"
+            tabindex="-1"
+            :aria-label="label"
+        >
+            <div
+                v-if="$slots.default"
+                class="sw-experience-studio-frame-menu__settings"
+            >
+                <slot :popover-class="popoverClass"></slot>
+            </div>
+            <mt-button
+                class="sw-experience-studio-frame-menu__open-another"
+                variant="tertiary"
+                size="small"
+                block
+                @click="openAnother"
+            >
+                <template #iconFront>
+                    <mt-icon
+                        name="regular-plus"
+                        size="16px"
+                        decorative
+                    />
+                </template>
+                {{ $t('sw-experience-studio.detail.canvas.openAnotherPreview') }}
+            </mt-button>
+        </div>
+    </template>
+</mt-floating-ui>
+{% endblock %}

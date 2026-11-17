@@ -1,6 +1,8 @@
 import type { ResizeDirection, GestureType, CanvasGesture, CanvasFrame } from './canvas.config';
 import {
     FRAME_FOCUS_INSET,
+    FRAME_GAP,
+    DEFAULT_FRAME_HEIGHT,
     MIN_FRAME_WIDTH,
     MAX_FRAME_WIDTH,
     MIN_FRAME_HEIGHT,
@@ -33,6 +35,7 @@ type CanvasInteractionContext = {
     clampPosition: (value: number) => number;
     activateFrame: (id: string) => void;
     syncActiveFrameState: () => void;
+    getAvailableFrameX: (state: { x: number; y: number; width: number; height: number }) => number;
     saveCanvasPosition: (manuallyPlaced?: boolean) => void;
     startViewportTransition: () => void;
     startCanvasGesture: (event: PointerEvent, type: GestureType, direction?: ResizeDirection | null) => void;
@@ -43,6 +46,47 @@ type CanvasInteractionContext = {
 
 /** @private @sw-package discovery */
 export const canvasInteractionHandlers = {
+    getDefaultFrameHeight(this: CanvasInteractionContext): number {
+        const availableHeight = this.getWorkspace()?.clientHeight ?? DEFAULT_FRAME_HEIGHT + 96;
+
+        return Math.max(MIN_FRAME_HEIGHT, Math.min(MAX_FRAME_HEIGHT, availableHeight - 96));
+    },
+
+    copyFrameState(this: CanvasInteractionContext, sourceFrameId: string, frameId: string): void {
+        this.syncActiveFrameState();
+        const source = this.frameStates[sourceFrameId];
+        if (!source) {
+            return;
+        }
+        const state = { ...source, x: source.x + source.width + FRAME_GAP };
+        state.x = this.getAvailableFrameX(state);
+        this.frameStates[frameId] = state;
+    },
+
+    getAvailableFrameX(
+        this: CanvasInteractionContext,
+        state: { x: number; y: number; width: number; height: number },
+    ): number {
+        let x = state.x;
+        let overlappingFrame: typeof state | undefined;
+        do {
+            overlappingFrame = Object.values(this.frameStates).find(
+                (other) =>
+                    Math.abs(x - other.x) < (state.width + other.width) / 2 + FRAME_GAP &&
+                    Math.abs(state.y - other.y) < (state.height + other.height) / 2 + FRAME_GAP,
+            );
+            if (overlappingFrame) {
+                const nextX = overlappingFrame.x + (overlappingFrame.width + state.width) / 2 + FRAME_GAP;
+                // Float rounding can leave the pushed frame a hair inside the gap, so it would never move on.
+                if (nextX <= x) {
+                    break;
+                }
+                x = nextX;
+            }
+        } while (overlappingFrame);
+        return x;
+    },
+
     onBackgroundPointerDown(this: CanvasInteractionContext, event: PointerEvent): void {
         const background = this.$refs.background as HTMLElement | undefined;
 

@@ -174,6 +174,8 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
 
     it('loads first preview entity when assignment does not provide one', async () => {
         const vm = {
+            activeFrameId: 'frame',
+            frames: [{ id: 'frame', previewEntityId: null }],
             previewEntityId: null,
             previewEntityType: 'category',
             repositoryFactory: {

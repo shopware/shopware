@@ -52,7 +52,7 @@
                 :class="{ 'is--viewport-transitioning': isViewportTransitioning, 'is--active': frame.isActive }"
                 :style="frameStyleFor(frame)"
                 :data-frame-id="frame.id"
-                :aria-label="frame.layout.name"
+                :aria-label="frame.ariaLabel ?? frame.label ?? frame.layout.name"
                 @click.stop="activateFrame(frame.id)"
             >
                 <header class="sw-experience-studio-canvas__frame-toolbar">
@@ -65,10 +65,11 @@
                         @keydown="onFrameMoveKeydown"
                     >
                         <mt-icon
-                            name="regular-arrows"
+                            :name="viewportIcons[frame.viewport]"
                             size="16px"
+                            decorative
                         />
-                        <span>{{ frame.layout.name }}</span>
+                        <span>{{ frame.label ?? frame.layout.name }}</span>
                     </button>
 
                     <div
@@ -123,16 +124,40 @@
                             :frame="frame"
                         ></slot>
 
-                        <button
+                        <sw-experience-studio-frame-menu
+                            :label="$t('sw-experience-studio.detail.canvas.previewActions', { name: frame.ariaLabel ?? frame.label ?? frame.layout.name })"
+                            @open-another="$emit('frame-open-another', frame.id)"
+                        >
+                            <template
+                                v-if="$slots['frame-menu']"
+                                #default="{ popoverClass }"
+                            >
+                                <slot
+                                    name="frame-menu"
+                                    :frame="frame"
+                                    :popover-class="popoverClass"
+                                ></slot>
+                            </template>
+                        </sw-experience-studio-frame-menu>
+
+                        <mt-button
                             class="sw-experience-studio-canvas__close-frame"
-                            type="button"
-                            :aria-label="$t('sw-experience-studio.detail.canvas.closeFrame', { name: frame.layout.name })"
-                            :title="$t('sw-experience-studio.detail.canvas.closeFrame', { name: frame.layout.name })"
+                            variant="tertiary"
+                            size="x-small"
+                            square
+                            :aria-label="$t('sw-experience-studio.detail.canvas.closeFrame', { name: frame.ariaLabel ?? frame.label ?? frame.layout.name })"
+                            :title="$t('sw-experience-studio.detail.canvas.closeFrame', { name: frame.ariaLabel ?? frame.label ?? frame.layout.name })"
                             @pointerdown.stop
                             @click.stop="$emit('frame-close', frame.id)"
                         >
-                            <mt-icon name="regular-times" />
-                        </button>
+                            <template #iconFront>
+                                <mt-icon
+                                    name="regular-times"
+                                    size="16px"
+                                    decorative
+                                />
+                            </template>
+                        </mt-button>
                     </div>
                 </header>
 

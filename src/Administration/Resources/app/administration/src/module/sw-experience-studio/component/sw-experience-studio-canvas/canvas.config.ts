@@ -26,6 +26,8 @@ export type CanvasGesture = {
 /** @private @sw-package discovery */
 export type CanvasFrame = {
     id: string;
+    label?: string;
+    ariaLabel?: string;
     layout: Entity<'content_layout'>;
     selectedElementId: string | null;
     viewport: Viewport;
@@ -38,6 +40,14 @@ export const VIEWPORT_WIDTHS: Record<ViewportPreset, number> = {
     mobile: 375,
     'tablet-landscape': 768,
     desktop: 1480,
+};
+
+/** @private @sw-package discovery */
+export const VIEWPORT_ICONS: Record<Viewport, string> = {
+    mobile: 'regular-mobile',
+    'tablet-landscape': 'regular-tablet',
+    desktop: 'regular-desktop',
+    custom: 'regular-expand-arrows',
 };
 /** @private @sw-package discovery */
 export const FRAME_GAP = 60;

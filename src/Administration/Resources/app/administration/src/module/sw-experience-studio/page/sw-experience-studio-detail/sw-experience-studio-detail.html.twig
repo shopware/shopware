@@ -65,8 +65,9 @@
                     @configuration-change="scheduleWorkspaceSetup"
                     @viewport-change="onViewportChange"
                     @frame-viewport-change="onFrameViewportChange"
-                    @frame-activate="activateLayout"
-                    @frame-close="closeLayout"
+                    @frame-activate="activateFrame"
+                    @frame-close="closeFrame"
+                    @frame-open-another="openAnotherPreview"
                     @settings-resize-start="onElementSettingsResizeStart"
                     @settings-resize-keydown="onElementSettingsResizeKeydown"
                     @settings-close="onSettingsPanelClose"
@@ -86,35 +87,49 @@
                         {% endblock %}
 
                     <template #frame-controls="{ frame }">
-                        <button
-                            type="button"
+                        <mt-button
+                            variant="tertiary"
+                            size="x-small"
+                            square
                             :aria-label="$t('sw-experience-studio.detail.toolbar.undo')"
-                            :disabled="!allowSave || pendingMutationCount > 0 || !editorStore.canUndoLayout(frame.id)"
+                            :disabled="!allowSave || pendingMutationCount > 0 || !editorStore.canUndoLayout(frame.layout.id)"
                             @pointerdown.stop
                             @click.stop="onFrameUndo(frame.id)"
                         >
-                            <mt-icon
-                                name="regular-undo"
-                                size="18px"
-                            />
-                        </button>
-                        <button
-                            type="button"
+                            <template #iconFront>
+                                <mt-icon
+                                    name="regular-undo"
+                                    size="16px"
+                                    decorative
+                                />
+                            </template>
+                        </mt-button>
+                        <mt-button
+                            variant="tertiary"
+                            size="x-small"
+                            square
                             :aria-label="$t('sw-experience-studio.detail.toolbar.redo')"
-                            :disabled="!allowSave || pendingMutationCount > 0 || !editorStore.canRedoLayout(frame.id)"
+                            :disabled="!allowSave || pendingMutationCount > 0 || !editorStore.canRedoLayout(frame.layout.id)"
                             @pointerdown.stop
                             @click.stop="onFrameRedo(frame.id)"
                         >
-                            <mt-icon
-                                name="regular-redo"
-                                size="18px"
-                            />
-                        </button>
+                            <template #iconFront>
+                                <mt-icon
+                                    name="regular-redo"
+                                    size="16px"
+                                    decorative
+                                />
+                            </template>
+                        </mt-button>
+                    </template>
+
+                    <template #frame-menu="{ frame, popoverClass }">
                         <sw-entity-single-select
-                            class="sw-experience-studio-detail__frame-entity-select"
                             :entity="resolvePreviewContext(frame.layout)?.entityType ?? null"
                             size="small"
                             :value="frame.previewEntityId"
+                            :label="$t('sw-experience-studio.detail.toolbar.previewEntity')"
+                            :popover-classes="[popoverClass]"
                             :placeholder="$t('sw-experience-studio.detail.toolbar.previewEntityPlaceholder')"
                             :show-clearable-button="false"
                             :disabled="isLoading || !resolvePreviewContext(frame.layout)?.entityType || undefined"
@@ -203,67 +218,18 @@
                                 </mt-button>
                             </template>
                         </mt-empty-state>
-                        <sw-data-grid
+                        <sw-experience-studio-layout-tree
                             v-else
                             class="sw-experience-studio-detail__open-layouts"
-                            :data-source="openLayouts"
-                            :columns="openLayoutColumns"
-                            :show-selection="false"
-                            :show-header="false"
-                            :show-actions="false"
-                            :compact-mode="true"
-                            :rows-clickable="true"
-                            @row-click="openStructure($event.id)"
-                        >
-                            <template #column-name="{ item: openLayout }">
-                                <button
-                                    type="button"
-                                    class="sw-experience-studio-detail__layout-select"
-                                    :aria-current="openLayout.id === activeLayoutId ? 'page' : undefined"
-                                    @click="openStructure(openLayout.id)"
-                                >
-                                    <span class="sw-experience-studio-detail__layout-name">
-                                        {{ openLayout.layout.name }}
-                                    </span>
-                                    <span
-                                        v-if="isLayoutDirty(openLayout)"
-                                        class="sw-experience-studio-detail__dirty-indicator"
-                                        role="img"
-                                        :aria-label="$t('sw-experience-studio.workspace.layouts.unsaved')"
-                                        :title="$t('sw-experience-studio.workspace.layouts.unsaved')"
-                                    ></span>
-                                    <small
-                                        v-if="openLayout.saveError"
-                                        class="is--error"
-                                    >{{ openLayout.saveError }}</small>
-                                </button>
-                                <button
-                                    v-if="canManageLayoutAssignments(openLayout)"
-                                    type="button"
-                                    class="sw-experience-studio-detail__layout-assignments"
-                                    :aria-label="$t('sw-experience-studio.workspace.layouts.assignments', { name: openLayout.layout.name })"
-                                    :title="$t('sw-experience-studio.workspace.layouts.assignments', { name: openLayout.layout.name })"
-                                    :disabled="isLoading || undefined"
-                                    @click.stop="onOpenAssignmentModal(openLayout.id)"
-                                >
-                                    <mt-icon
-                                        name="regular-share"
-                                        size="16px"
-                                    />
-                                </button>
-                                <button
-                                    type="button"
-                                    class="sw-experience-studio-detail__layout-close"
-                                    :aria-label="$t('sw-experience-studio.workspace.layouts.close', { name: openLayout.layout.name })"
-                                    @click="closeLayout(openLayout.id)"
-                                >
-                                    <mt-icon
-                                        name="regular-times"
-                                        size="14px"
-                                    />
-                                </button>
-                            </template>
-                        </sw-data-grid>
+                            :items="layoutTreeItems"
+                            :frames="canvasFrames"
+                            :is-loading="isLoading"
+                            @select-layout="openStructure(getLayoutFrameId($event))"
+                            @select-frame="openStructure"
+                            @close-layout="closeLayout"
+                            @close-frame="closeFrame"
+                            @assign="onOpenAssignmentModal"
+                        />
                     </template>
 
                         {% block sw_experience_studio_detail_element_settings %}

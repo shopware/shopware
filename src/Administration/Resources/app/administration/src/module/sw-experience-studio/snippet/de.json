@@ -26,6 +26,8 @@
       },
       "layouts": {
         "title": "Layouts",
+        "expandPreviews": "Vorschauen von {name} anzeigen",
+        "collapsePreviews": "Vorschauen von {name} ausblenden",
         "emptyTitle": "Keine Layouts geöffnet",
         "emptyDescription": "Öffne ein vorhandenes Layout oder erstelle ein neues, um mit der Bearbeitung zu beginnen.",
         "create": "Erstellen",
@@ -1003,10 +1005,13 @@
         "save": "Layout speichern"
       },
       "canvas": {
+        "previewLabel": "{name} · {viewport} · Vorschau {number}",
+        "previewActions": "Aktionen für {name}",
+        "openAnotherPreview": "Weitere Vorschau öffnen",
         "customViewport": "Benutzerdefiniert",
         "viewportToolbar": "Vorschau-Viewport",
         "moveFrame": "Vorschau verschieben. Mit den Pfeiltasten positionieren.",
-        "closeFrame": "Layout {name} schließen",
+        "closeFrame": "Vorschau {name} schließen",
         "panelsToolbar": "Canvas-Bereiche",
         "structure": "Struktur",
         "settings": "Einstellungen",

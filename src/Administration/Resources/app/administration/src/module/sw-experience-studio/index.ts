@@ -38,6 +38,30 @@ Shopware.Component.register('sw-experience-studio-canvas', () => import('./compo
  * @private
  * @sw-package discovery
  */
+Shopware.Component.register('sw-experience-studio-frame-menu', () => import('./component/sw-experience-studio-frame-menu'));
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
+    'sw-experience-studio-layout-tree',
+    () => import('./component/sw-experience-studio-layout-tree'),
+);
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
+    'sw-experience-studio-preview-list',
+    () => import('./component/sw-experience-studio-preview-list'),
+);
+
+/**
+ * @private
+ * @sw-package discovery
+ */
 Shopware.Component.register(
     'sw-experience-studio-sidebar-tree',
     () => import('./component/sw-experience-studio-sidebar-tree'),

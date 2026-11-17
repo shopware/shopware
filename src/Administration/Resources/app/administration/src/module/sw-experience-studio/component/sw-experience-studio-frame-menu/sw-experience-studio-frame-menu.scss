@@ -1,0 +1,25 @@
+.sw-experience-studio-frame-menu {
+    &__content {
+        width: 280px;
+        max-width: calc(100vw - var(--scale-size-24));
+        padding: var(--scale-size-12);
+        border: 1px solid var(--color-border-secondary-default);
+        border-radius: var(--border-radius-m);
+        background: var(--color-elevation-surface-default);
+        box-shadow: 0 6px 24px -8px var(--color-elevation-shadow-default);
+    }
+
+    &__settings {
+        padding-bottom: var(--scale-size-12);
+        margin-bottom: var(--scale-size-8);
+        border-bottom: 1px solid var(--color-border-primary-default);
+
+        .sw-field {
+            margin-bottom: 0;
+        }
+
+        .sw-entity-single-select {
+            width: 100%;
+        }
+    }
+}

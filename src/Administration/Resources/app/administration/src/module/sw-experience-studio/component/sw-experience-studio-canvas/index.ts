@@ -1,10 +1,9 @@
 import type { Viewport, ViewportPreset, ResizeDirection, CanvasGesture, CanvasFrame } from './canvas.config';
 import {
     VIEWPORT_WIDTHS,
+    VIEWPORT_ICONS,
     FRAME_GAP,
     DEFAULT_FRAME_HEIGHT,
-    MIN_FRAME_HEIGHT,
-    MAX_FRAME_HEIGHT,
     MIN_CANVAS_ZOOM,
     MAX_CANVAS_ZOOM,
     POSITION_LIMIT,
@@ -80,6 +79,7 @@ export default Shopware.Component.wrapComponentConfig({
         'viewport-change',
         'frame-activate',
         'frame-close',
+        'frame-open-another',
         'frame-viewport-change',
         'settings-resize-start',
         'settings-resize-keydown',
@@ -90,6 +90,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     data() {
         return {
+            viewportIcons: VIEWPORT_ICONS,
             contextMenuPosition: null as { x: number; y: number } | null,
             contextMenuBlurHandler: null as (() => void) | null,
             isHydratingWorkspace: true,
@@ -178,6 +179,10 @@ export default Shopware.Component.wrapComponentConfig({
             return this.frames.map((frame) => frame.id).join('|');
         },
 
+        selectedFrameId(): string {
+            return this.frames.find((frame) => frame.isActive)?.id ?? '';
+        },
+
         isDraggingCanvas(): boolean {
             return this.canvasGesture !== null;
         },
@@ -201,10 +206,19 @@ export default Shopware.Component.wrapComponentConfig({
             this.emitConfiguration();
         },
         layoutId(): void {
+            if (this.frames.length) {
+                return;
+            }
             if (this.frameStates[this.layoutId]) {
                 this.activateFrame(this.layoutId, false);
             } else {
                 this.restoreCanvasPosition();
+            }
+        },
+
+        selectedFrameId(frameId: string): void {
+            if (frameId) {
+                this.activateFrame(frameId, false);
             }
         },
 
@@ -224,7 +238,7 @@ export default Shopware.Component.wrapComponentConfig({
             if (this.workspaceConfiguration) {
                 this.frameStates = Object.fromEntries(
                     this.workspaceConfiguration.frames.map((frame) => [
-                        frame.layoutId,
+                        frame.id ?? frame.layoutId,
                         {
                             x: frame.x,
                             y: frame.y,
@@ -289,7 +303,8 @@ export default Shopware.Component.wrapComponentConfig({
                 frames: this.frames
                     .filter((frame) => this.frameStates[frame.id])
                     .map((frame) => ({
-                        layoutId: frame.id,
+                        id: frame.id,
+                        layoutId: frame.layout.id,
                         ...this.frameStates[frame.id],
                         viewport: frame.viewport,
                         previewEntityId: frame.previewEntityId,
@@ -314,12 +329,6 @@ export default Shopware.Component.wrapComponentConfig({
             return (this.$refs.workspace as HTMLElement | undefined) ?? null;
         },
 
-        getDefaultFrameHeight(): number {
-            const availableHeight = this.getWorkspace()?.clientHeight ?? DEFAULT_FRAME_HEIGHT + 96;
-
-            return Math.max(MIN_FRAME_HEIGHT, Math.min(MAX_FRAME_HEIGHT, availableHeight - 96));
-        },
-
         restoreCanvasPosition(): void {
             if (this.workspaceConfiguration) {
                 return;
@@ -336,6 +345,7 @@ export default Shopware.Component.wrapComponentConfig({
         initializeFrameStates(): void {
             if (this.frames.length === 0) {
                 this.activeFrameId = '';
+                this.frameStates = {};
 
                 return;
             }
@@ -348,6 +358,12 @@ export default Shopware.Component.wrapComponentConfig({
 
             if (activeFrame && this.activeFrameId !== activeFrame.id) {
                 this.activateFrame(activeFrame.id, false);
+            }
+            const frameIds = new Set(this.frames.map((frame) => frame.id));
+            for (const id of Object.keys(this.frameStates)) {
+                if (!frameIds.has(id)) {
+                    delete this.frameStates[id];
+                }
             }
         },
 
@@ -372,27 +388,6 @@ export default Shopware.Component.wrapComponentConfig({
             }
             state.x = this.getAvailableFrameX(state);
             return state;
-        },
-
-        getAvailableFrameX(state: { x: number; y: number; width: number; height: number }): number {
-            let x = state.x;
-            let overlappingFrame: typeof state | undefined;
-            do {
-                overlappingFrame = Object.values(this.frameStates).find(
-                    (other) =>
-                        Math.abs(x - other.x) < (state.width + other.width) / 2 + FRAME_GAP &&
-                        Math.abs(state.y - other.y) < (state.height + other.height) / 2 + FRAME_GAP,
-                );
-                if (overlappingFrame) {
-                    const nextX = overlappingFrame.x + (overlappingFrame.width + state.width) / 2 + FRAME_GAP;
-                    // Float rounding can leave the pushed frame a hair inside the gap, so it would never move on.
-                    if (nextX <= x) {
-                        break;
-                    }
-                    x = nextX;
-                }
-            } while (overlappingFrame);
-            return x;
         },
 
         frameStyleFor(frame: CanvasFrame): Record<string, string> {

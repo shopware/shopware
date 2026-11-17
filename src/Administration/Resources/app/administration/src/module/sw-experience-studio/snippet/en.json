@@ -26,6 +26,8 @@
       },
       "layouts": {
         "title": "Layouts",
+        "expandPreviews": "Show previews of {name}",
+        "collapsePreviews": "Hide previews of {name}",
         "emptyTitle": "No layouts open",
         "emptyDescription": "Open an existing layout or create a new one to start editing.",
         "create": "Create",
@@ -1003,10 +1005,13 @@
         "save": "Save layout"
       },
       "canvas": {
+        "previewLabel": "{name} · {viewport} · Preview {number}",
+        "previewActions": "Actions for {name}",
+        "openAnotherPreview": "Open another preview",
         "customViewport": "Custom",
         "viewportToolbar": "Preview viewport",
         "moveFrame": "Move preview frame. Use arrow keys to reposition.",
-        "closeFrame": "Close layout {name}",
+        "closeFrame": "Close preview {name}",
         "panelsToolbar": "Canvas panels",
         "structure": "Structure",
         "settings": "Settings",

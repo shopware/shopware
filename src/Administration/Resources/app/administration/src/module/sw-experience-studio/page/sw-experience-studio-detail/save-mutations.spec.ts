@@ -43,6 +43,9 @@ function createEditor(elements: ContentElementNode[]) {
     const editor = {
         layout,
         activeLayoutId: layout.id,
+        activeFrameId: 'frame',
+        frames: [{ id: 'frame', layoutId: layout.id, selectedElementId: elements[0]?.id ?? null }],
+        clearInvalidFrameSelections: methods.clearInvalidFrameSelections,
         allowSave: true,
         isSavingAll: false,
         openLayouts: [{ id: layout.id, layout, savedState: '', isNew: true, isSaving: false, saveError: null }],

@@ -42,7 +42,8 @@ Response:
         "<propertyName>": { "kind": "property", "type": "string", "required": true },
         "<translatablePropertyName>": { "kind": "property", "type": "string", "required": false, "translatable": true },
         "<referenceStorageKey>": { "kind": "resolvedByStorage", "type": "string", "required": true }
-      }
+      },
+      "defaultBindingRootSources": null
     }
   ]
 }
@@ -83,3 +84,11 @@ One key claimed by more than one kind yields exactly one entry, by precedence `p
 Full field-level schema: [content-system-element-types.json](../../../../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-element-types.json).
 
 A custom element type registered by a plugin or app ([Custom Element Types](custom-types.md)) appears here once registered.
+
+## `defaultBindingRootSources`
+
+`defaultBindingRootSources` is always present and names the root sources on which an insert that names no binding specification succeeds.
+`null` means the type has no default or its default places no root-source restriction.
+A list holds root-source ids, the ids that key `mappingCandidates` in `GET /api/_info/content-system-mapping-candidates.json`, in the order the server lists known root sources.
+An empty list means such an insert fails on every root source, because the type has more than one default or the scoped entries of its default share no root source.
+The field does not describe an insert that names a binding specification, which can succeed on root sources the list excludes.

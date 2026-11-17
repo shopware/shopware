@@ -475,7 +475,7 @@ class EntitySearcherTest extends TestCase
         static::assertSame([$ids->get('a3')], $result->getIds());
     }
 
-    public function testScoredExactTotalCountOfAnEmptyPagePastTheEnd(): void
+    public function testScoreRankedExactTotalCountOfAnEmptyPagePastTheEnd(): void
     {
         $ids = $this->createSportProducts();
 

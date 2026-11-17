@@ -64,11 +64,11 @@ readonly class PresignedMediaUploadService
     ): PresignedUploadPrepareResult {
         $this->fileNameValidator->validateFileName($payload->fileName);
 
-        ['mediaId' => $mediaId, 'uploadedAt' => $uploadedAt, 'private' => $isPrivate] = $this->resolveMediaForPrepare($payload, $context);
+        ['mediaId' => $mediaId, 'uploadedAt' => $uploadedAt, 'private' => $isPrivate, 'hasFile' => $hasFile] = $this->resolveMediaForPrepare($payload, $context);
 
         $isReplace = $payload->mediaId !== null;
 
-        if ($isReplace) {
+        if ($hasFile) {
             // early check with the declared file; finalize() checks the stored one
             $this->eventDispatcher->dispatch(new BeforeMediaFileReplacedEvent(
                 $mediaId,
@@ -154,7 +154,7 @@ readonly class PresignedMediaUploadService
     }
 
     /**
-     * @return array{mediaId: string, uploadedAt: \DateTimeImmutable, private: bool}
+     * @return array{mediaId: string, uploadedAt: \DateTimeImmutable, private: bool, hasFile: bool}
      */
     private function resolveMediaForPrepare(PresignedUploadPreparePayload $payload, Context $context): array
     {
@@ -167,7 +167,7 @@ readonly class PresignedMediaUploadService
 
             $this->extensionValidator->validate($payload->extension, $media->isPrivate(), $context, $payload->mediaId);
 
-            return ['mediaId' => $payload->mediaId, 'uploadedAt' => $this->clock->now(), 'private' => $media->isPrivate()];
+            return ['mediaId' => $payload->mediaId, 'uploadedAt' => $this->clock->now(), 'private' => $media->isPrivate(), 'hasFile' => $media->hasFile()];
         }
 
         $this->extensionValidator->validate($payload->extension, $payload->private, $context);
@@ -189,7 +189,7 @@ readonly class PresignedMediaUploadService
             $this->mediaRepository->create([$data], $context);
         });
 
-        return ['mediaId' => $mediaId, 'uploadedAt' => $uploadedAt, 'private' => $payload->private];
+        return ['mediaId' => $mediaId, 'uploadedAt' => $uploadedAt, 'private' => $payload->private, 'hasFile' => false];
     }
 
     private function generatePresignedUrl(string $mediaId, PresignedUploadPreparePayload $payload, \DateTimeImmutable $uploadedAt, bool $private): PresignedUrlResult

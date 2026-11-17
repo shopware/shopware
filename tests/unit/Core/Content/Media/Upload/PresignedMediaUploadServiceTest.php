@@ -169,6 +169,7 @@ class PresignedMediaUploadServiceTest extends TestCase
     {
         $mediaId = '0189b0a1-0000-0000-0000-0000000000aa';
         $media = $this->buildMedia($mediaId);
+        $media->assign(['path' => 'media/ab/cd/old-file.png', 'fileName' => 'old-file', 'fileExtension' => 'png']);
 
         // 1st search: findMedia (replace branch).
         [$repo, $service] = $this->createService([new MediaCollection([$media])]);
@@ -209,6 +210,7 @@ class PresignedMediaUploadServiceTest extends TestCase
 
         $media = $this->buildMedia($mediaId);
         $media->setUploadedAt($originalUploadedAt);
+        $media->assign(['path' => 'media/ab/cd/old-file.png', 'fileName' => 'old-file', 'fileExtension' => 'png']);
 
         [$repo, $service] = $this->createService([new MediaCollection([$media])]);
 
@@ -263,7 +265,10 @@ class PresignedMediaUploadServiceTest extends TestCase
             throw new \RuntimeException('The new file is not allowed.');
         });
 
-        [$repo, $service] = $this->createService([new MediaCollection([$this->buildMedia($mediaId)])], $eventDispatcher);
+        $media = $this->buildMedia($mediaId);
+        $media->assign(['path' => 'media/ab/cd/old-file.png', 'fileName' => 'old-file', 'fileExtension' => 'png']);
+
+        [$repo, $service] = $this->createService([new MediaCollection([$media])], $eventDispatcher);
 
         $this->eventDispatcher->expects($this->never())->method('dispatch');
         $this->extensionValidator->expects($this->once())->method('validate');
@@ -287,6 +292,26 @@ class PresignedMediaUploadServiceTest extends TestCase
         static::assertSame('text/csv', $events[0]->mimeType);
         static::assertSame($fileSize, $events[0]->fileSize);
         static::assertSame($context, $events[0]->getContext());
+    }
+
+    public function testPrepareForAMediaWithoutFileDispatchesNoReplaceEvent(): void
+    {
+        $mediaId = '0189b0a1-0000-0000-0000-0000000000dd';
+
+        [, $service] = $this->createService([new MediaCollection([$this->buildMedia($mediaId)])]);
+
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->mediaFileCleanup->expects($this->never())->method('dispatchThumbnailGeneration');
+        $this->extensionValidator->expects($this->once())->method('validate');
+        $this->presignedUrlGenerator->expects($this->once())
+            ->method('generate')
+            ->willReturn(new PresignedUrlResult(
+                url: 'https://s3.example.com/upload',
+                path: 'media/ab/cd/manual.png',
+                expiresAt: new \DateTimeImmutable('+5 minutes'),
+            ));
+
+        $service->prepare(new PresignedUploadPreparePayload(fileName: 'manual', extension: 'png', mimeType: 'image/png', mediaId: $mediaId), Context::createDefaultContext());
     }
 
     public function testFinalizeVerifiesAndUpdatesMedia(): void

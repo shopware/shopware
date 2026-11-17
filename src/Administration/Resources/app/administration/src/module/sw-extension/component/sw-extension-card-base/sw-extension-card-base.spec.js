@@ -300,9 +300,26 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
     });
 
     describe.each([
-        ['update', 'updateExtension', (wrapper) => wrapper.vm.updateExtension(false)],
-        ['uninstall', 'uninstallExtension', (wrapper) => wrapper.vm.closeModalAndUninstallExtension(false)],
-    ])('a failed %s', (_action, serviceMethod, runAction) => {
+        [
+            'update',
+            'updateExtension',
+            async (wrapper) => {
+                await wrapper.get('.sw-extension-card-base__meta-info a').trigger('click');
+            },
+        ],
+        [
+            'uninstall',
+            'uninstallExtension',
+            async (wrapper) => {
+                const uninstallItem = wrapper
+                    .findAll('.sw-context-menu-item')
+                    .find((item) => item.text().includes('contextMenu.uninstallLabel'));
+
+                await uninstallItem.trigger('click');
+                wrapper.findComponent('sw-extension-uninstall-modal-stub').vm.$emit('uninstall-extension', false);
+            },
+        ],
+    ])('a failed %s', (_action, serviceMethod, startAction) => {
         it.each([
             ['FRAMEWORK__PLUGIN_COMPOSER_OPERATION_IN_PROGRESS', 'messageComposerOperationInProgress'],
             ['FRAMEWORK__PLUGIN_COMPOSER_REQUIRE', 'messageComposerRequireFailed'],
@@ -311,8 +328,17 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             ['FRAMEWORK__PLUGIN_COMPOSER_WORKING_COPY_INTERRUPTED', 'messageComposerWorkingCopyInterrupted'],
             ['FRAMEWORK__PLUGIN_COMPOSER_DEPENDENCY_MISSING', 'messageComposerDependencyMissing'],
         ])('notifies with the own message for %s', async (code, snippetKey) => {
+            const createNotificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
             const wrapper = await createWrapper(
-                { extension: { installedAt: '845618651', permissions: [] } },
+                {
+                    extension: {
+                        installedAt: '845618651',
+                        permissions: [],
+                        allowUpdate: true,
+                        version: '1.0.0',
+                        latestVersion: '1.1.0',
+                    },
+                },
                 {
                     shopwareExtensionService: {
                         getOpenLink: () => null,
@@ -327,12 +353,12 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
                     },
                 },
             );
-            wrapper.vm.createNotificationError = jest.fn();
 
-            await runAction(wrapper);
+            await startAction(wrapper);
+            await flushPromises();
 
-            expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith(
-                expect.objectContaining({ message: `sw-extension.errors.${snippetKey}` }),
+            expect(createNotificationSpy).toHaveBeenCalledWith(
+                expect.objectContaining({ variant: 'error', message: `sw-extension.errors.${snippetKey}` }),
             );
         });
     });

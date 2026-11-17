@@ -612,7 +612,8 @@ Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-
 
 ### Product list filters by product documents
 
-The product list has a new "Documents" filter, registered as `product-documents-filter`. It finds the products with or without product documents; variants count the documents they inherit from their parent.
+The product list has a new "Documents" filter, registered as `product-documents-filter`.
+It finds the products with or without product documents; variants count the documents they inherit from their parent.
 With `ENABLE_OPENSEARCH_FOR_ADMIN_API`, run `bin/console es:admin:index` after the update.
 
 ### Order viewers no longer receive delete privileges
@@ -888,7 +889,8 @@ The CMS layout selection modal (`sw-cms-layout-modal`) uses them instead of chec
 
 ### Dynamic product groups filter by product documents
 
-Dynamic product groups have a new "Has documents" condition with the values "Yes" and "No". It stores a filter on `documents.id` being null or not null; variants count the documents they inherit from their parent.
+Dynamic product groups have a new "Has documents" condition with the values "Yes" and "No".
+It stores a filter on `documents.id` being null or not null; variants count the documents they inherit from their parent.
 With Elasticsearch, run `bin/console es:index` after the update; until then the condition gives wrong results.
 
 ### Meteor Component Library updated to 5.10.0

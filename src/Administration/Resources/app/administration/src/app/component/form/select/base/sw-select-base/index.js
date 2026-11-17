@@ -13,6 +13,15 @@ const OPENING_KEYS = [
 ];
 
 /**
+ * Keys that open a focused, closed select and then act in its search,
+ * where multi selects remove their last value.
+ */
+const DELETING_KEYS = [
+    'Backspace',
+    'Delete',
+];
+
+/**
  * @sw-package framework
  *
  * @private
@@ -149,7 +158,8 @@ export default {
         },
 
         /**
-         * Opens the select from ArrowDown, ArrowUp, Enter or Space, and from a key that types a character.
+         * Opens the select from ArrowDown, ArrowUp, Enter or Space, from Backspace or Delete,
+         * and from a key that types a character.
          * Only keys on the select itself count, so buttons inside it keep their own keys.
          */
         expandByKeyboard(event) {
@@ -165,6 +175,13 @@ export default {
                 return;
             }
 
+            if (DELETING_KEYS.includes(event.key) && !event.ctrlKey && !event.metaKey) {
+                event.preventDefault();
+                this.expand();
+                this.$nextTick(() => this.pressInSearch(event.key));
+                return;
+            }
+
             if (this.typesCharacter(event)) {
                 // Firefox inserts a typed character only into the element focused during keydown,
                 // and the search input gets the focus later, after the select renders open
@@ -175,24 +192,45 @@ export default {
         },
 
         /**
+         * Returns the search input of this select once a variant moved the focus into it, or null.
+         *
+         * @example const search = this.getFocusedSearch();
+         */
+        getFocusedSearch() {
+            const search = document.activeElement;
+
+            if (!(search instanceof HTMLInputElement) || !this.$refs.selectWrapper?.contains(search)) {
+                return null;
+            }
+
+            return search;
+        },
+
+        /**
          * Types a character into the focused search input of this select, as if the user typed it.
          * Runs after the select opened, once the variant moved the focus into its search.
          *
          * @example this.$nextTick(() => this.typeIntoSearch('a'));
          */
         typeIntoSearch(character) {
-            const search = document.activeElement;
+            const search = this.getFocusedSearch();
 
-            if (!(search instanceof HTMLInputElement) || !this.$refs.selectWrapper?.contains(search)) {
-                return;
-            }
-
-            if (search.readOnly || search.disabled) {
+            if (!search || search.readOnly || search.disabled) {
                 return;
             }
 
             search.setRangeText(character, search.selectionStart ?? 0, search.selectionEnd ?? 0, 'end');
             search.dispatchEvent(new Event('input', { bubbles: true }));
+        },
+
+        /**
+         * Hands a key on to the focused search input of this select, so its own key handlers run.
+         * Runs after the select opened, once the variant moved the focus into its search.
+         *
+         * @example this.$nextTick(() => this.pressInSearch('Backspace'));
+         */
+        pressInSearch(key) {
+            this.getFocusedSearch()?.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
         },
 
         /**

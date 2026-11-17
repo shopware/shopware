@@ -230,6 +230,26 @@ describe('components/sw-select-base', () => {
             expect(onInput).toHaveBeenCalledTimes(1);
         });
 
+        it.each([
+            'Backspace',
+            'Delete',
+        ])('should expand on "%s" and hand it on to the search', async (key) => {
+            const selection = await createFocusedSelection();
+            const searchInput = wrapper.find('.search-input').element;
+            const onSearchKeydown = jest.fn();
+            searchInput.addEventListener('keydown', onSearchKeydown);
+            await wrapper.setProps({ onSelectExpanded: () => searchInput.focus() });
+
+            const event = dispatchKeydown(selection.element, { key });
+            await flushPromises();
+            searchInput.removeEventListener('keydown', onSearchKeydown);
+
+            expect(selection.attributes('aria-expanded')).toBe('true');
+            expect(event.defaultPrevented).toBe(true);
+            expect(onSearchKeydown).toHaveBeenCalledTimes(1);
+            expect(onSearchKeydown.mock.calls[0][0].key).toBe(key);
+        });
+
         it('should leave a read-only search untouched when typing opens the select', async () => {
             const selection = await createFocusedSelection();
             const searchInput = wrapper.find('.search-input').element;

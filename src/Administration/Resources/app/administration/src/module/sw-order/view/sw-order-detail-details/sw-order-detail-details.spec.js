@@ -153,6 +153,11 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         allowDeprecation('sw-order-detail-details.shippingCosts is deprecated');
     });
 
+    afterEach(() => {
+        Shopware.Store.get('swOrderDetail').order = orderMock;
+        Shopware.Store.get('swOrderDetail').setOrderAddressIds(null);
+    });
+
     it('should report the deprecated isSaveSuccessful prop the order detail page still passes', async () => {
         wrapper = await createWrapper({ isSaveSuccessful: true });
 

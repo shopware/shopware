@@ -566,13 +566,13 @@ export default {
         },
 
         handleMediaServiceUploadEvent({ action, payload }) {
-            // Keep the id on failure so the orphaned entity is still cleaned up on teardown.
+            // Keep the id on failure so the orphaned entity is still cleaned up on teardown,
+            // except for duplicates, which sw-duplicated-media-v2 still needs and cleans up itself.
             if (action === 'media-upload-finish') {
                 this.pendingUploadMediaIds.delete(payload.targetId);
             }
 
             if (action === 'media-upload-fail') {
-                // sw-duplicated-media-v2 still needs the entity of a duplicate and cleans it up itself.
                 if (isDuplicationException(payload.error)) {
                     this.pendingUploadMediaIds.delete(payload.targetId);
                 }

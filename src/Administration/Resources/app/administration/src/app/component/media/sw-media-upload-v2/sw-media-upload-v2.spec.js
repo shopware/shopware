@@ -792,7 +792,6 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         it('leaves the media of a duplicated file name to the duplicate dialog', async () => {
             repositoryFactoryMock.create = () => ({ id: 'media-1' });
             repositoryFactoryMock.search = jest.fn().mockResolvedValue([{ id: 'media-1', hasFile: false }]);
-            repositoryFactoryMock.syncDeleted = jest.fn().mockResolvedValue({});
 
             fileInputFilesGet.mockReturnValue([new File([''], 'foo.jpg')]);
             await fileInput.trigger('change');

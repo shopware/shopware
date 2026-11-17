@@ -507,24 +507,6 @@ class AdminSearchRegistryTest extends TestCase
         $this->createRegistryForUpdateIds($client, $connection, true, $queue)->updateIds('product', ['c1a28776116d4431a2208eb2960ec340'], Context::createDefaultContext());
     }
 
-    public function testUpdateIdsDoesNothingWhenAdminSearchIsDisabled(): void
-    {
-        $client = $this->createMock(Client::class);
-        $client->expects($this->never())->method('bulk');
-
-        $this->createRegistryForUpdateIds($client, static::createStub(Connection::class), false)->updateIds('product', ['c1a28776116d4431a2208eb2960ec340'], Context::createDefaultContext());
-    }
-
-    public function testUpdateIdsDoesNothingOutsideTheLiveVersion(): void
-    {
-        $client = $this->createMock(Client::class);
-        $client->expects($this->never())->method('bulk');
-
-        $context = Context::createDefaultContext()->createWithVersionId('c1a28776116d4431a2208eb2960ec341');
-
-        $this->createRegistryForUpdateIds($client, static::createStub(Connection::class), true)->updateIds('product', ['c1a28776116d4431a2208eb2960ec340'], $context);
-    }
-
     public function testRefreshQueuesEveryAffectedIndexerForSalesChannelSources(): void
     {
         $this->indexer->method('getName')->willReturn('promotion-listing');

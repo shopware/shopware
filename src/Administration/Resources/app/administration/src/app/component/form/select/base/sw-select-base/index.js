@@ -193,8 +193,6 @@ export default {
 
         /**
          * Returns the search input of this select once a variant moved the focus into it, or null.
-         *
-         * @example const search = this.getFocusedSearch();
          */
         getFocusedSearch() {
             const search = document.activeElement;
@@ -209,8 +207,6 @@ export default {
         /**
          * Types a character into the focused search input of this select, as if the user typed it.
          * Runs after the select opened, once the variant moved the focus into its search.
-         *
-         * @example this.$nextTick(() => this.typeIntoSearch('a'));
          */
         typeIntoSearch(character) {
             const search = this.getFocusedSearch();
@@ -227,8 +223,6 @@ export default {
          * Hands Backspace or Delete on to the key handlers of the focused search input of this select,
          * so multi selects remove their last value. The search text stays as it is.
          * Runs after the select opened, once the variant moved the focus into its search.
-         *
-         * @example this.$nextTick(() => this.pressInSearch('Backspace'));
          */
         pressInSearch(key) {
             this.getFocusedSearch()?.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
@@ -238,8 +232,6 @@ export default {
          * Tells a key that types a character apart from a shortcut.
          * AltGr reports CTRL+ALT on Windows and still types.
          * ALT alone types only on macOS (Option); elsewhere it is the system key of the Administration shortcuts.
-         *
-         * @example this.typesCharacter(new KeyboardEvent('keydown', { key: 'a' })) // true
          */
         typesCharacter(event) {
             if (event.key.length !== 1 || event.metaKey) {

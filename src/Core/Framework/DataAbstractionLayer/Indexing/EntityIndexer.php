@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
@@ -20,6 +21,7 @@ abstract class EntityIndexer
      *
      * @param array{offset: int|string|null}|null $offset
      */
+    #[ParameterTypeWidening(version: 'v6.8.0', parameterName: 'offset', newType: 'array{offset: int|string|null}|null')]
     abstract public function iterate(?array $offset): ?EntityIndexingMessage;
 
     /**

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -66,7 +67,7 @@ class IteratorFactory
         $offset = $lastId['offset'] ?? null;
         // Jobs queued before UUID pagination must retain their numeric row offsets.
         if ($primaryKeys->count() === 1 && $primaryKey instanceof IdField && $primaryKey->getStorageName() === 'id'
-            && !\is_int($offset)) {
+            && !\is_int($offset) && (Feature::isActive('v6.8.0.0') || \is_string($offset))) {
             $query->select($escaped . '.id', 'LOWER(HEX(' . $escaped . '.id)) as id');
             $query->andWhere($escaped . '.id > :lastId');
             $query->addOrderBy($escaped . '.id');

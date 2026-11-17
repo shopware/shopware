@@ -11,7 +11,8 @@ Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED` while ano
 
 ### UUID cursor pagination for entity indexing
 
-Indexing iterators now use UUID cursors for entities whose only primary key is `id`, avoiding increasing row offsets during large rebuilds such as the Administration media search index.
+With the `v6.8.0.0` feature flag enabled, indexing iterators use UUID cursors for entities whose only primary key is `id`, avoiding increasing row offsets during large rebuilds such as the Administration media search index.
+This becomes the default in Shopware 6.8.
 Extensions consuming `IterableQuery::getOffset()` or entity indexing messages must treat the offset as an opaque cursor that can contain a hex UUID string as well as an integer.
 Previously queued row-offset cursors remain supported.
 Update all indexing workers before starting new indexing runs that produce UUID cursors.

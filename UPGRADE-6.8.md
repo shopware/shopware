@@ -57,6 +57,13 @@ If your plugin or app ships its own `vite.config.*` or Vite plugins, follow the 
 
 # Changed Functionality
 
+## UUID cursors for entity indexing
+
+Indexing iterators switched from row offsets to hex UUID cursors for entities whose only primary key is `id` and which have no auto-increment field.
+The cursor returned by `IterableQuery::getOffset()` and carried by `EntityIndexingMessage`, `IterateEntityIndexerMessage` and `IndexerOffset` can contain a string as well as an integer.
+Update custom `EntityIndexer::iterate()` implementations and cursor consumers to accept `array{offset: int|string|null}|null` and pass the cursor through unchanged instead of casting or incrementing it.
+Update all indexing workers before starting new indexing runs.
+
 <details>
 
 ## Reorder form line item blocks removed

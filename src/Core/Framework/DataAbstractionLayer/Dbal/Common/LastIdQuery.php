@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
 use Doctrine\DBAL\ParameterType;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeWidening;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -50,6 +51,7 @@ class LastIdQuery implements IterableQuery
         return $this->query;
     }
 
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: 'array{offset: int|string|null}')]
     public function getOffset(): array
     {
         return ['offset' => $this->lastId];

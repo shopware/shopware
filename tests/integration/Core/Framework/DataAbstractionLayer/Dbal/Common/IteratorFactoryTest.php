@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\LastIdQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\OffsetQuery;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -53,6 +54,8 @@ class IteratorFactoryTest extends TestCase
 
     public function testUuidPaginationCanResumeFromASerializedCursor(): void
     {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
         $iterator = $this->factory->createIterator('media', limit: 2);
         $this->restrictToFixtureIds($iterator);
 
@@ -74,6 +77,32 @@ class IteratorFactoryTest extends TestCase
         static::assertSame(['offset' => $this->ids[2]], $resumed->getOffset());
         static::assertSame([], $resumed->fetch());
         static::assertSame(0, $resumed->getQuery()->getFirstResult());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Numeric initial offsets are replaced by UUID cursors.
+     */
+    public function testInitialUuidIterationKeepsNumericOffsetsBefore68(): void
+    {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
+        $iterator = $this->factory->createIterator('media', limit: 1);
+        $this->restrictToFixtureIds($iterator);
+        $iterator->getQuery()->addOrderBy('media.id');
+
+        static::assertInstanceOf(OffsetQuery::class, $iterator);
+        static::assertSame([$this->ids[0]], array_values($iterator->fetch()));
+        static::assertSame(['offset' => 1], $iterator->getOffset());
+    }
+
+    public function testExistingUuidCursorsCanResumeInEitherFeatureMode(): void
+    {
+        $iterator = $this->factory->createIterator('media', ['offset' => $this->ids[1]], limit: 1);
+        $this->restrictToFixtureIds($iterator);
+
+        static::assertInstanceOf(LastIdQuery::class, $iterator);
+        static::assertSame([$this->ids[2]], array_values($iterator->fetch()));
+        static::assertSame(['offset' => $this->ids[2]], $iterator->getOffset());
     }
 
     public function testExistingNumericOffsetsKeepOffsetPagination(): void

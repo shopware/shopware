@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue;
 
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeWidening;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 use Shopware\Core\Framework\MessageQueue\DeduplicatableMessageInterface;
@@ -31,6 +33,7 @@ class IterateEntityIndexerMessage implements AsyncMessageInterface, Deduplicatab
     /**
      * @return array{offset: int|string|null}|null
      */
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: 'array{offset: int|string|null}|null')]
     public function getOffset(): ?array
     {
         return $this->offset;
@@ -39,6 +42,7 @@ class IterateEntityIndexerMessage implements AsyncMessageInterface, Deduplicatab
     /**
      * @param array{offset: int|string|null}|null $offset
      */
+    #[ParameterTypeWidening(version: 'v6.8.0', parameterName: 'offset', newType: 'array{offset: int|string|null}|null')]
     public function setOffset(?array $offset): void
     {
         $this->offset = $offset;

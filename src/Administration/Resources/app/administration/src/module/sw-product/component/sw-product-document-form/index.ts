@@ -35,7 +35,7 @@ export default Shopware.Component.wrapComponentConfig({
         'entityFactory',
         'acl',
         'fileValidationService',
-        'mediaService',
+        'mediaDefaultFolderService',
     ],
 
     props: {
@@ -202,11 +202,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     async created() {
-        try {
-            this.mediaFolderId = await this.mediaService.getDefaultFolderId('product_document');
-        } catch {
-            this.mediaFolderId = null;
-        }
+        await this.createdComponent();
     },
 
     beforeUnmount() {
@@ -215,6 +211,14 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
+        async createdComponent() {
+            try {
+                this.mediaFolderId = await this.mediaDefaultFolderService.getDefaultFolderId('product_document');
+            } catch {
+                this.mediaFolderId = null;
+            }
+        },
+
         getPaginatedDocuments(documents: EntityCollection<'product_document'>): Entity<'product_document'>[] {
             return documents.slice(this.pageOffset, this.pageOffset + this.limit);
         },

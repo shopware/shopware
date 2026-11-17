@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
+use Shopware\Core\Checkout\Cart\Order\PositionStruct;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -31,7 +32,8 @@ use Shopware\Core\Framework\Struct\Struct;
  *         orderLineItemId: string,
  *         orderLineItemVersionId: string
  *     }>,
- *     stateId: string
+ *     stateId: string,
+ *     position?: int
  * }
  */
 #[Package('checkout')]
@@ -53,6 +55,14 @@ class DeliveryTransformer
         $output = [];
         foreach ($deliveries as $delivery) {
             $output[] = self::transform($delivery, $lineItems, $stateId, $context, $addresses);
+        }
+
+        $storedPositions = array_map(static fn (array $deliveryData): int => $deliveryData['position'] ?? \PHP_INT_MAX, $output);
+        asort($storedPositions);
+        $ranks = array_flip(array_keys($storedPositions));
+
+        foreach (array_keys($output) as $index) {
+            $output[$index]['position'] = $ranks[$index] + 1;
         }
 
         return $output;
@@ -90,6 +100,8 @@ class DeliveryTransformer
             IdStruct::class
         )?->getId();
 
+        $originalPosition = $delivery->getExtensionOfType(OrderConverter::ORIGINAL_POSITION, PositionStruct::class)?->getPosition();
+
         $deliveryData = [
             'id' => self::getId($delivery),
             'shippingDateEarliest' => $delivery->getDeliveryDate()->getEarliest()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -100,6 +112,7 @@ class DeliveryTransformer
             'payload' => $delivery->getPayload(),
             'positions' => [],
             'stateId' => $stateId,
+            'position' => $originalPosition,
         ];
 
         if ($originalAddressId !== null && $originalAddressVersionId !== null) {
